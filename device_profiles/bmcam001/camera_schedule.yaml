@@ -1,6 +1,7 @@
-# bmcam002 production schedule profile.
-# bmcam002 uses Spotter/BM UTC messages. This is the known-good potted unit path.
-time_source: "spotter_utc"
+# bmcam001 production schedule profile.
+# bmcam001 uses the Pi hardware RTC because its older BM serial bridge firmware
+# does not reliably provide spotter/utc-time messages.
+time_source: "rtc"
 
 timezone_preset: "sf"
 timezone: "America/Los_Angeles"
@@ -8,11 +9,12 @@ timezone: "America/Los_Angeles"
 enforce_time_window: true
 enforce_spotter_time_window: true
 
+# Development window. Change to 12:00-15:00 for reef production if desired.
 transmit_window:
-  start: "08:00"
-  end: "15:00"
+  start: "00:01"
+  end: "23:59"
 
-set_system_clock_from_spotter: true
+set_system_clock_from_spotter: false
 spotter_time_timeout_seconds: 60
 allow_system_clock_fallback: false
 uart_port: "/dev/ttyAMA0"
