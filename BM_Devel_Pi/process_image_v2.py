@@ -3,6 +3,7 @@
 
 import base64
 import csv
+import json
 import os
 import shutil
 import socket
@@ -34,6 +35,7 @@ DEBUG = True
 IMAGE_DIRECTORY = "/home/pi/BM_Devel_Pi/images"
 BUFFER_DIRECTORY = "/home/pi/BM_Devel_Pi/buffer"
 LOG_FILE = "/home/pi/BM_Devel_Pi/camera_log.csv"
+CAPTURE_METADATA_SUFFIX = ".capture_metadata.json"
 
 # Runtime software identity.
 # Production code is copied into /home/pi/BM_Devel_Pi, while git operations may
@@ -108,6 +110,148 @@ def generate_filename():
     """Generate a filename in the format of ISO 8601 timestamp + image.jpg."""
     current_timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     return f"{current_timestamp}_image.jpg"
+
+
+def _metadata_path_for_image(image_path):
+    return f"{image_path}{CAPTURE_METADATA_SUFFIX}"
+
+
+def _json_safe_metadata(value):
+    """Return JSON-safe Picamera2 metadata values for sidecar storage."""
+    if isinstance(value, dict):
+        return {str(k): _json_safe_metadata(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe_metadata(v) for v in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    try:
+        return float(value)
+    except Exception:
+        return str(value)
+
+
+def save_capture_metadata(image_path, metadata):
+    """Save Picamera2 capture metadata next to the raw image for later transmit metadata."""
+    if not metadata:
+        return None
+    path = _metadata_path_for_image(image_path)
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(_json_safe_metadata(metadata), f, sort_keys=True)
+        return path
+    except Exception as exc:
+        debug_print(f"Failed to save capture metadata sidecar: {exc}")
+        return None
+
+
+def load_capture_metadata(image_path):
+    """Load Picamera2 capture metadata sidecar if present."""
+    path = _metadata_path_for_image(image_path)
+    try:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception as exc:
+        debug_print(f"Failed to load capture metadata sidecar: {exc}")
+    return {}
+
+
+def _num(value, digits=2):
+    """Compact numeric formatting for telemetry fields."""
+    if value is None or value == "":
+        return None
+    try:
+        f = float(value)
+        if f.is_integer():
+            return str(int(f))
+        return f"{f:.{digits}f}".rstrip("0").rstrip(".")
+    except Exception:
+        return _clean_value(value, max_len=16)
+
+
+def _metadata_first(metadata, *keys):
+    for key in keys:
+        if key in metadata and metadata.get(key) is not None:
+            return metadata.get(key)
+    return None
+
+
+def _format_colour_gains(value):
+    """Format Picamera2 ColourGains as compact r:b string."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return _clean_value(value, max_len=18)
+    if isinstance(value, (list, tuple)) and len(value) >= 2:
+        r = _num(value[0], digits=2)
+        b = _num(value[1], digits=2)
+        if r is not None and b is not None:
+            return f"{r}:{b}"
+    return _clean_value(value, max_len=18)
+
+
+def _capture_metadata_end_fields(capture_metadata):
+    """Return compact END-message fields from Picamera2/libcamera metadata.
+
+    These are intentionally short because END is still one BM message.
+    Missing keys are skipped. Typical useful keys include:
+      ExposureTime, AnalogueGain, DigitalGain, ColourGains,
+      ColourTemperature, LensPosition, AfState, AfMode, FocusFoM, Lux.
+    """
+    m = capture_metadata or {}
+    fields = []
+
+    et = _metadata_first(m, "ExposureTime")
+    ag = _metadata_first(m, "AnalogueGain", "AnalogGain")
+    dg = _metadata_first(m, "DigitalGain")
+    cg = _metadata_first(m, "ColourGains", "ColorGains")
+    cct = _metadata_first(m, "ColourTemperature", "ColorTemperature")
+    lp = _metadata_first(m, "LensPosition")
+    afs = _metadata_first(m, "AfState")
+    afm = _metadata_first(m, "AfMode")
+    ffom = _metadata_first(m, "FocusFoM")
+    lux = _metadata_first(m, "Lux")
+    fd = _metadata_first(m, "FrameDuration")
+    stemp = _metadata_first(m, "SensorTemperature", "CameraTemperature", "Temperature")
+
+    candidate_fields = [
+        ("et_us", _num(et, digits=0)),
+        ("ag", _num(ag, digits=2)),
+        ("dg", _num(dg, digits=2)),
+        ("cg", _format_colour_gains(cg)),
+        ("cct", _num(cct, digits=0)),
+        ("lp", _num(lp, digits=2)),
+        ("afs", _num(afs, digits=0)),
+        ("afm", _num(afm, digits=0)),
+        ("ffom", _num(ffom, digits=0)),
+        ("lux", _num(lux, digits=1)),
+        ("fd_us", _num(fd, digits=0)),
+        ("stemp", _num(stemp, digits=1)),
+    ]
+
+    for key, value in candidate_fields:
+        if value is not None and value != "na":
+            fields.append((key, value))
+    return fields
+
+
+def _build_end_image_message(compressed_file_name, core_fields, capture_metadata=None, max_payload_bytes=280):
+    """Build END IMG message with budgeted optional camera metadata fields."""
+    fields = list(core_fields)
+    optional = _capture_metadata_end_fields(capture_metadata)
+
+    def render(pairs):
+        return "<END IMG> " + ", ".join(f"{k}: {v}" for k, v in pairs) + "\n"
+
+    selected = list(fields)
+    for pair in optional:
+        candidate = selected + [pair]
+        if len(render(candidate).encode("ascii", errors="ignore")) <= max_payload_bytes:
+            selected.append(pair)
+        else:
+            debug_print(f"Skipping END metadata field due to payload budget: {pair[0]}")
+
+    return render(selected)
 
 
 def get_hostname(max_len=24):
@@ -314,8 +458,36 @@ def capture_image(resolution_key="VGA", directory_path=IMAGE_DIRECTORY):
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-    # Capture the image and save it to the specified path
-    picam2.capture_file(image_path)
+    # Capture the image and save it to the specified path. Picamera2 usually
+    # returns the metadata for the captured frame; fall back to capture_metadata
+    # if this version returns None. Metadata is used only for telemetry and must
+    # not break image capture if unavailable.
+    capture_metadata = None
+    try:
+        capture_metadata = picam2.capture_file(image_path)
+    except TypeError:
+        # Older/newer API variation safety: keep the original simple behavior.
+        picam2.capture_file(image_path)
+
+    if not isinstance(capture_metadata, dict):
+        try:
+            capture_metadata = picam2.capture_metadata()
+        except Exception as exc:
+            debug_print(f"Capture metadata unavailable: {exc}")
+            capture_metadata = {}
+
+    if capture_metadata:
+        save_capture_metadata(image_path, capture_metadata)
+        debug_print(
+            "Capture metadata: "
+            f"ExposureTime={capture_metadata.get('ExposureTime')}, "
+            f"AnalogueGain={capture_metadata.get('AnalogueGain')}, "
+            f"DigitalGain={capture_metadata.get('DigitalGain')}, "
+            f"ColourGains={capture_metadata.get('ColourGains')}, "
+            f"LensPosition={capture_metadata.get('LensPosition')}, "
+            f"AfState={capture_metadata.get('AfState')}, "
+            f"FocusFoM={capture_metadata.get('FocusFoM')}"
+        )
 
     # Get the file size in bytes
     file_size = os.path.getsize(image_path)
@@ -458,7 +630,7 @@ def _format_start_metadata(start_metadata):
     return ", ".join(fields)
 
 
-def send_buffers(buffer_directory, compressed_file_name, start_metadata=None):
+def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, capture_metadata=None):
     """Send the buffer files over UART."""
     files = os.listdir(buffer_directory)
     num_buffers = len(files)
@@ -506,11 +678,15 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None):
         debug_print(f"Failed to read final CPU temp: {exc}")
         final_cpu_temp_text = "na"
 
-    end_msg = (
-        f"<END IMG> filename: {compressed_file_name}, "
-        f"uart_duration_sec: {uart_duration_sec:.1f}, "
-        f"sent_buffers: {sent_buffers}, "
-        f"cpu_temp_c: {final_cpu_temp_text}\n"
+    end_msg = _build_end_image_message(
+        compressed_file_name,
+        [
+            ("filename", compressed_file_name),
+            ("uart_duration_sec", f"{uart_duration_sec:.1f}"),
+            ("sent_buffers", sent_buffers),
+            ("cpu_temp_c", final_cpu_temp_text),
+        ],
+        capture_metadata=capture_metadata,
     )
     bm.spotter_tx(end_msg.encode('ascii'))
 
@@ -550,7 +726,13 @@ def compress_and_send_image(
         "hostname": get_hostname(),
     }
 
-    send_buffers(BUFFER_DIRECTORY, compressed_file_name, start_metadata=start_metadata)
+    capture_metadata = load_capture_metadata(image_path)
+    send_buffers(
+        BUFFER_DIRECTORY,
+        compressed_file_name,
+        start_metadata=start_metadata,
+        capture_metadata=capture_metadata,
+    )
     return compressed_file_name, num_buffers, file_size_compressed
 
 
