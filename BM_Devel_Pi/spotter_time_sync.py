@@ -2,7 +2,7 @@
 """
 spotter_time_sync.py
 
-Minimal Spotter/Bristlemouth UTC time helper for bmcam002.
+Configurable UTC time helper for legacy BM cameras: Spotter/BM UTC or Pi RTC.
 
 Important implementation detail:
 - Outbound subscribe from Pi to serial_bridge must be an official BM_SERIAL_SUB
@@ -46,19 +46,40 @@ TIMEZONE_PRESETS: Dict[str, str] = {
     "utc": "UTC",
 }
 
+# Runtime UTC source selection.
+# bmcam002: spotter_utc
+# bmcam001: rtc
+VALID_TIME_SOURCES = {"spotter_utc", "rtc", "system"}
+
 
 @dataclass
 class CameraSchedule:
+    # time_source controls where UTC comes from before applying the local window.
+    #   spotter_utc: subscribe to BM/Spotter topic spotter/utc-time
+    #   rtc: set/read system clock from Pi hardware RTC using hwclock
+    #   system: bench-only; use current Linux system clock
+    time_source: str = "spotter_utc"
+
     timezone: str = "America/Los_Angeles"
     timezone_preset: str = ""
     transmit_start: str = "12:00"
     transmit_end: str = "15:00"
+    # Backward-compatible field name retained for existing main_pi_camera.py.
     enforce_spotter_time_window: bool = True
+    # New generic alias. Either key in YAML can control the same behavior.
+    enforce_time_window: bool = True
+
     set_system_clock_from_spotter: bool = True
     spotter_time_timeout_seconds: int = 60
     allow_system_clock_fallback: bool = False
     uart_port: str = "/dev/ttyAMA0"
     baudrate: int = 115200
+
+    # Hardware RTC source config. Used when time_source: rtc.
+    rtc_hwclock_path: str = "/usr/sbin/hwclock"
+    set_system_clock_from_rtc: bool = True
+    rtc_require_plausible_after_utc: str = "2026-01-01T00:00:00+00:00"
+
     resolution_key: str = "720p"
     image_quality: int = 25
 
@@ -71,6 +92,16 @@ def _strip_yaml_value(value: str) -> str:
     return value.strip().strip('"').strip("'")
 
 
+def _parse_utc_iso(value: str) -> dt.datetime:
+    value = value.strip()
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    parsed = dt.datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt.timezone.utc)
+    return parsed.astimezone(dt.timezone.utc)
+
+
 def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
     """
     Tiny parser for the specific camera_schedule.yaml shape.
@@ -80,6 +111,10 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
       transmit_window:
         start: "HH:MM"
         end: "HH:MM"
+      rtc:
+        hwclock_path: "/usr/sbin/hwclock"
+        set_system_clock_from_rtc: true
+        require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
       image:
         resolution_key: "720p"
         image_quality: 25
@@ -98,6 +133,9 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
             stripped = line.strip()
             if stripped == "transmit_window:":
                 section = "transmit_window"
+                continue
+            if stripped == "rtc:":
+                section = "rtc"
                 continue
             if stripped == "image:":
                 section = "image"
@@ -120,6 +158,15 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                     cfg.transmit_end = value
                 continue
 
+            if section == "rtc":
+                if key == "hwclock_path":
+                    cfg.rtc_hwclock_path = value
+                elif key == "set_system_clock_from_rtc":
+                    cfg.set_system_clock_from_rtc = _parse_bool(value)
+                elif key == "require_plausible_after_utc":
+                    cfg.rtc_require_plausible_after_utc = value
+                continue
+
             if section == "image":
                 if key == "resolution_key":
                     cfg.resolution_key = value
@@ -127,12 +174,18 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                     cfg.image_quality = int(value)
                 continue
 
-            if key == "timezone":
+            if key == "time_source":
+                cfg.time_source = value
+            elif key == "timezone":
                 cfg.timezone = value
             elif key == "timezone_preset":
                 cfg.timezone_preset = value
             elif key == "enforce_spotter_time_window":
                 cfg.enforce_spotter_time_window = _parse_bool(value)
+                cfg.enforce_time_window = cfg.enforce_spotter_time_window
+            elif key == "enforce_time_window":
+                cfg.enforce_time_window = _parse_bool(value)
+                cfg.enforce_spotter_time_window = cfg.enforce_time_window
             elif key == "set_system_clock_from_spotter":
                 cfg.set_system_clock_from_spotter = _parse_bool(value)
             elif key == "spotter_time_timeout_seconds":
@@ -169,6 +222,11 @@ def _parse_hhmm(value: str) -> dt.time:
 
 def validate_schedule(cfg: CameraSchedule) -> None:
     """Fail early with clear messages before opening UART or camera hardware."""
+    cfg.time_source = (cfg.time_source or "").strip().lower()
+    if cfg.time_source not in VALID_TIME_SOURCES:
+        valid = ", ".join(sorted(VALID_TIME_SOURCES))
+        raise ValueError(f"Invalid time_source '{cfg.time_source}'. Valid options: {valid}")
+
     timezone_name = resolve_timezone(cfg)
     try:
         ZoneInfo(timezone_name)
@@ -188,6 +246,10 @@ def validate_schedule(cfg: CameraSchedule) -> None:
         raise ValueError("image.image_quality must be between 0 and 100")
     if not cfg.resolution_key:
         raise ValueError("image.resolution_key must not be empty")
+    if cfg.time_source == "rtc":
+        if not cfg.rtc_hwclock_path:
+            raise ValueError("rtc.hwclock_path must not be empty")
+        _parse_utc_iso(cfg.rtc_require_plausible_after_utc)
 
 
 def _crc(seed: int, src: bytes) -> int:
@@ -335,6 +397,59 @@ def set_system_clock_utc(utc_dt: dt.datetime) -> None:
     subprocess.run(cmd, check=True)
 
 
+def set_system_clock_from_rtc(hwclock_path: str = "/usr/sbin/hwclock", verbose: bool = False) -> None:
+    """
+    Set Linux system time from the hardware RTC.
+
+    The RTC is expected to be kept in UTC. Uses sudo -n when not root, so cron
+    will fail fast instead of hanging on a password prompt.
+    """
+    cmd = [hwclock_path, "-s", "--utc"]
+    if os.geteuid() != 0:
+        cmd = ["sudo", "-n"] + cmd
+
+    if verbose:
+        print(f"[SYNC] setting system clock from RTC: {' '.join(cmd)}")
+
+    subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+
+def read_rtc_utc_from_system(
+    hwclock_path: str = "/usr/sbin/hwclock",
+    set_system_clock: bool = True,
+    require_plausible_after_utc: str = "2026-01-01T00:00:00+00:00",
+    verbose: bool = False,
+) -> dt.datetime:
+    """
+    RTC mode for bmcam001.
+
+    Preferred path:
+      1. Run hwclock -s --utc to set Linux system time from the RTC.
+      2. Read datetime.now(timezone.utc).
+      3. Validate that the result is plausible.
+
+    This avoids parsing hwclock output, which can vary by locale/version.
+    """
+    if set_system_clock:
+        set_system_clock_from_rtc(hwclock_path=hwclock_path, verbose=verbose)
+        set_result = "after hwclock -s --utc"
+    else:
+        set_result = "without setting system clock"
+
+    utc_dt = dt.datetime.now(dt.timezone.utc)
+    min_dt = _parse_utc_iso(require_plausible_after_utc)
+    if utc_dt < min_dt:
+        raise RuntimeError(
+            f"RTC/system UTC time is not plausible {set_result}: "
+            f"utc_time={utc_dt.isoformat()} min_required={min_dt.isoformat()}"
+        )
+
+    if verbose:
+        print(f"[SYNC] RTC/system UTC accepted: {utc_dt.isoformat()} ({set_result})")
+
+    return utc_dt
+
+
 def is_within_local_window(
     utc_dt: dt.datetime,
     timezone_name: str,
@@ -365,45 +480,75 @@ def should_transmit_now_from_schedule(
     timezone_name = resolve_timezone(cfg)
 
     info: Dict[str, str] = {
+        "time_source": cfg.time_source,
         "timezone": timezone_name,
         "window": f"{cfg.transmit_start}-{cfg.transmit_end}",
     }
     if cfg.timezone_preset:
         info["timezone_preset"] = cfg.timezone_preset
 
-    if not cfg.enforce_spotter_time_window:
+    if not cfg.enforce_time_window:
         info["source_time"] = "skipped"
-        info["reason"] = "Spotter UTC transmit-window check disabled by config"
+        info["reason"] = "Transmit-window check disabled by config"
         return True, info
 
-    try:
-        utc_dt = read_spotter_utc(
-            timeout_seconds=cfg.spotter_time_timeout_seconds,
-            port=cfg.uart_port,
-            baudrate=cfg.baudrate,
-            verbose=verbose,
-        )
-        info["source_time"] = "spotter"
-        info["utc_time"] = utc_dt.isoformat()
+    if cfg.time_source == "spotter_utc":
+        try:
+            utc_dt = read_spotter_utc(
+                timeout_seconds=cfg.spotter_time_timeout_seconds,
+                port=cfg.uart_port,
+                baudrate=cfg.baudrate,
+                verbose=verbose,
+            )
+            info["source_time"] = "spotter"
+            info["utc_time"] = utc_dt.isoformat()
 
-        if cfg.set_system_clock_from_spotter:
-            try:
-                set_system_clock_utc(utc_dt)
-                info["set_system_clock"] = "ok"
-            except Exception as e:
-                # Still use Spotter UTC for the window decision.
-                info["set_system_clock"] = f"failed: {e}"
+            if cfg.set_system_clock_from_spotter:
+                try:
+                    set_system_clock_utc(utc_dt)
+                    info["set_system_clock"] = "ok"
+                except Exception as e:
+                    # Still use Spotter UTC for the window decision.
+                    info["set_system_clock"] = f"failed: {e}"
 
-    except Exception as e:
-        info["source_time"] = "system"
-        info["spotter_time_error"] = str(e)
+        except Exception as e:
+            info["source_time"] = "system"
+            info["spotter_time_error"] = str(e)
 
-        if not cfg.allow_system_clock_fallback:
-            info["reason"] = f"Spotter time unavailable and fallback disabled: {e}"
+            if not cfg.allow_system_clock_fallback:
+                info["reason"] = f"Spotter time unavailable and fallback disabled: {e}"
+                return False, info
+
+            utc_dt = dt.datetime.now(dt.timezone.utc)
+            info["utc_time"] = utc_dt.isoformat()
+
+    elif cfg.time_source == "rtc":
+        try:
+            utc_dt = read_rtc_utc_from_system(
+                hwclock_path=cfg.rtc_hwclock_path,
+                set_system_clock=cfg.set_system_clock_from_rtc,
+                require_plausible_after_utc=cfg.rtc_require_plausible_after_utc,
+                verbose=verbose,
+            )
+            info["source_time"] = "rtc"
+            info["utc_time"] = utc_dt.isoformat()
+            info["set_system_clock"] = "ok" if cfg.set_system_clock_from_rtc else "not_requested"
+        except Exception as e:
+            info["source_time"] = "rtc"
+            info["rtc_time_error"] = str(e)
+            info["reason"] = f"RTC time unavailable or invalid: {e}"
             return False, info
 
+    elif cfg.time_source == "system":
+        # Bench-only source. Not recommended for field production unless another
+        # service has already synchronized the system clock.
         utc_dt = dt.datetime.now(dt.timezone.utc)
+        info["source_time"] = "system"
         info["utc_time"] = utc_dt.isoformat()
+
+    else:
+        # validate_schedule should prevent this branch.
+        raise ValueError(f"Unsupported time_source: {cfg.time_source}")
 
     allowed, local_dt = is_within_local_window(
         utc_dt=utc_dt,

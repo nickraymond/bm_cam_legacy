@@ -12,20 +12,34 @@ LOG_FILE="$LOG_DIR/capture_cycle_${RUN_TS}.log"
 exec >> "$LOG_FILE" 2>&1
 
 echo "============================================================"
-echo "[CRON] bmcam002 capture cycle starting"
+echo "[CRON] BM legacy capture cycle starting"
 echo "[CRON] start_utc=$(date -u --iso-8601=seconds 2>/dev/null || date)"
 echo "[CRON] user=$(whoami)"
+echo "[CRON] hostname=$(hostname 2>/dev/null || echo unknown_hostname)"
 echo "[CRON] pwd=$(pwd)"
 echo "[CRON] app_dir=$APP_DIR"
 echo "[CRON] log_file=$LOG_FILE"
 
-# Give the Pi, UART, and BM bridge time to settle after boot.
+# Give the Pi, UART, RTC, and BM bridge time to settle after boot.
 sleep 30
 
 cd "$APP_DIR" || exit 1
 
 echo "[CRON] camera_schedule.yaml:"
-sed -n '1,180p' camera_schedule.yaml || true
+sed -n '1,220p' camera_schedule.yaml || true
+
+echo "[CRON] date before run: $(date --iso-8601=seconds 2>/dev/null || date)"
+echo "[CRON] date_utc before run: $(date -u --iso-8601=seconds 2>/dev/null || date -u)"
+echo "[CRON] hwclock read before run, if available:"
+if command -v hwclock >/dev/null 2>&1; then
+    if [ "$(id -u)" -eq 0 ]; then
+        hwclock -r 2>&1 || true
+    else
+        sudo -n hwclock -r 2>&1 || true
+    fi
+else
+    echo "[CRON] hwclock not found"
+fi
 
 echo "[CRON] checking Python syntax..."
 /usr/bin/python3 -m py_compile main_pi_camera.py process_image_v2.py spotter_time_sync.py bm_serial.py
