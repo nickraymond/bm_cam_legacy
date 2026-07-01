@@ -2,18 +2,25 @@
 """
 BM camera image quality DOE capture/compression benchmark.
 
-Runs on the Raspberry Pi camera. Captures one source JPEG per resolution key,
-then compresses that same source image to HEIC at each requested quality value.
+Runs on the Raspberry Pi camera. For each requested resolution, captures one
+camera-processed RGB frame, saves source references from that exact same frame,
+then compresses each source reference to HEIC at each requested quality value.
+
+Default source modes:
+  jpeg  = controlled JPEG source created from the captured RGB frame
+  png   = lossless PNG source created from the same captured RGB frame
+
 It does NOT transmit over Bristlemouth and does NOT modify camera_schedule.yaml.
 
 Default output:
   /home/pi/BM_Devel_Pi/doe_runs/<run_id>/
     images/*.jpg
+    images/*.png
     images/*.heic
     results.csv
     manifest.json
 
-This script intentionally mirrors the production HEIC compression convention:
+Quality convention mirrors production HEIC compression:
   lower quality value = smaller file / more compression / lower visual quality
   higher quality value = larger file / less compression / higher visual quality
 """
@@ -25,8 +32,6 @@ import base64
 import csv
 import json
 import math
-import os
-import shutil
 import socket
 import sys
 import time
@@ -81,6 +86,8 @@ RESOLUTIONS: dict[str, tuple[int, int]] = {
     "720sq": (720, 720),
 }
 
+SOURCE_MODES = ("jpeg", "png")
+
 METADATA_KEYS = [
     "ExposureTime",
     "AnalogueGain",
@@ -125,6 +132,13 @@ def validate_quality(q: int) -> int:
     return q
 
 
+def validate_source_mode(mode: str) -> str:
+    mode = str(mode).strip().lower()
+    if mode not in SOURCE_MODES:
+        raise ValueError(f"Unknown source mode {mode!r}. Valid source modes: {', '.join(SOURCE_MODES)}")
+    return mode
+
+
 def json_safe(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(k): json_safe(v) for k, v in value.items()}
@@ -138,32 +152,28 @@ def json_safe(value: Any) -> Any:
         return str(value)
 
 
-def capture_source_image(resolution_key: str, out_dir: Path, settle_sec: float) -> tuple[Path, dict[str, Any]]:
-    width, height = validate_resolution_key(resolution_key)
-    capture_ts = utc_stamp()
-    host = socket.gethostname().strip() or "unknown"
-    source_name = f"{safe_token(host)}_{capture_ts}_{safe_token(resolution_key)}_{width}x{height}_source.jpg"
-    source_path = out_dir / source_name
+def capture_rgb_frame(resolution_key: str, settle_sec: float) -> tuple[Image.Image, dict[str, Any]]:
+    """Capture one camera-processed RGB frame and return a PIL image + metadata.
 
-    print(f"[DOE] Capturing {resolution_key} {width}x{height} -> {source_path}")
+    This avoids comparing PNG and JPEG source modes from different moments.
+    Both source files are derived from the exact same captured RGB frame.
+    """
+    width, height = validate_resolution_key(resolution_key)
+    print(f"[DOE] Capturing RGB frame {resolution_key} {width}x{height}")
+
     picam2 = Picamera2()
     try:
-        config = picam2.create_still_configuration(main={"size": (width, height)})
+        config = picam2.create_still_configuration(main={"size": (width, height), "format": "RGB888"})
         picam2.configure(config)
         picam2.start()
         time.sleep(settle_sec)
 
-        metadata = None
+        request = picam2.capture_request()
         try:
-            metadata = picam2.capture_file(str(source_path))
-        except TypeError:
-            picam2.capture_file(str(source_path))
-
-        if not isinstance(metadata, dict):
-            try:
-                metadata = picam2.capture_metadata()
-            except Exception:
-                metadata = {}
+            array = request.make_array("main")
+            metadata = request.get_metadata() or {}
+        finally:
+            request.release()
     finally:
         try:
             picam2.stop()
@@ -174,12 +184,46 @@ def capture_source_image(resolution_key: str, out_dir: Path, settle_sec: float) 
         except Exception:
             pass
 
-    metadata = json_safe(metadata or {})
-    if metadata:
+    # Picamera2 RGB888 arrays generally map directly to PIL RGB.
+    image = Image.fromarray(array).convert("RGB")
+    return image, json_safe(metadata or {})
+
+
+def save_source_images(
+    *,
+    frame: Image.Image,
+    metadata: dict[str, Any],
+    hostname: str,
+    capture_ts: str,
+    resolution_key: str,
+    image_dir: Path,
+    source_modes: list[str],
+    source_jpeg_quality: int,
+) -> dict[str, Path]:
+    width, height = frame.size
+    out: dict[str, Path] = {}
+
+    for source_mode in source_modes:
+        source_mode = validate_source_mode(source_mode)
+        ext = "jpg" if source_mode == "jpeg" else "png"
+        source_name = (
+            f"{safe_token(hostname)}_{capture_ts}_{safe_token(resolution_key)}_{width}x{height}"
+            f"_src-{source_mode}_source.{ext}"
+        )
+        source_path = image_dir / source_name
+
+        if source_mode == "jpeg":
+            frame.save(source_path, format="JPEG", quality=source_jpeg_quality, optimize=True)
+        elif source_mode == "png":
+            frame.save(source_path, format="PNG", optimize=True)
+        else:  # defensive; validate_source_mode should catch this
+            raise ValueError(f"Unsupported source mode: {source_mode}")
+
         sidecar_path = Path(f"{source_path}{CAPTURE_METADATA_SUFFIX}")
         sidecar_path.write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8")
+        out[source_mode] = source_path
 
-    return source_path, metadata
+    return out
 
 
 def estimate_bm_buffers(image_bytes: bytes) -> tuple[int, int]:
@@ -192,7 +236,7 @@ def compress_source_to_heic(source_path: Path, output_path: Path, quality: int) 
     quality = validate_quality(quality)
     start = time.monotonic()
     with Image.open(source_path) as img:
-        img.save(output_path, format="HEIF", quality=quality)
+        img.convert("RGB").save(output_path, format="HEIF", quality=quality)
     duration_sec = time.monotonic() - start
     data = output_path.read_bytes()
     b64_chars, buffers = estimate_bm_buffers(data)
@@ -214,6 +258,8 @@ def build_row(
     resolution_key: str,
     width: int,
     height: int,
+    source_mode: str,
+    source_jpeg_quality: int | None,
     quality: int,
     source_path: Path,
     heic_path: Path,
@@ -233,6 +279,9 @@ def build_row(
         "resolution_key": resolution_key,
         "width_px": width,
         "height_px": height,
+        "source_mode": source_mode,
+        "source_format": "JPEG" if source_mode == "jpeg" else "PNG",
+        "source_jpeg_quality": source_jpeg_quality if source_mode == "jpeg" else None,
         "quality": quality,
         "source_filename": source_path.name,
         "source_path": str(source_path),
@@ -272,61 +321,93 @@ def run_doe(args: argparse.Namespace) -> Path:
         "started_at_utc": iso_utc(),
         "output_dir": str(run_dir),
         "resolutions": args.resolutions,
+        "source_modes": args.source_modes,
+        "source_jpeg_quality": args.source_jpeg_quality,
         "qualities": args.qualities,
         "buffer_size": BUFFER_SIZE,
         "transmit": False,
-        "note": "Captured one source JPEG per resolution, then compressed the exact same source image across all quality levels. No BM transmission performed.",
+        "note": (
+            "For each resolution, captured one RGB frame, saved source JPEG/PNG references "
+            "from that same frame, then compressed each source across all HEIC quality levels. "
+            "No BM transmission performed."
+        ),
     }
 
     print(f"[DOE] Output: {run_dir}")
+    print(f"[DOE] Source modes: {', '.join(args.source_modes)}")
+    print(f"[DOE] HEIC qualities: {', '.join(str(q) for q in args.qualities)}")
+
     for res_key in args.resolutions:
-        width, height = validate_resolution_key(res_key)
-        source_path, metadata = capture_source_image(res_key, image_dir, args.settle_sec)
-        # Confirm actual saved dimensions; keep requested dimensions if read fails.
-        actual_w, actual_h = read_image_size(source_path)
-        width = actual_w or width
-        height = actual_h or height
-        source_size_kb = source_path.stat().st_size / 1024
-        print(f"[DOE] Source {source_path.name}: {width}x{height}, {source_size_kb:.1f} KB")
+        requested_w, requested_h = validate_resolution_key(res_key)
+        capture_ts = utc_stamp()
+        frame, metadata = capture_rgb_frame(res_key, args.settle_sec)
+        width, height = frame.size
+        print(f"[DOE] Captured {res_key}: requested={requested_w}x{requested_h}, actual={width}x{height}")
 
-        for quality in args.qualities:
-            q = validate_quality(quality)
-            heic_name = (
-                f"{safe_token(hostname)}_{utc_stamp()}_{safe_token(res_key)}_{width}x{height}"
-                f"_q{q:03d}_pending.heic"
-            )
-            temp_path = image_dir / heic_name
-            heic_bytes, b64_chars, buffers, duration_sec = compress_source_to_heic(source_path, temp_path, q)
-            final_name = (
-                f"{safe_token(hostname)}_{utc_stamp()}_{safe_token(res_key)}_{width}x{height}"
-                f"_q{q:03d}_{heic_bytes / 1024:.1f}KB_{buffers:03d}buf.heic"
-            )
-            final_path = image_dir / final_name
-            temp_path.rename(final_path)
+        source_paths = save_source_images(
+            frame=frame,
+            metadata=metadata,
+            hostname=hostname,
+            capture_ts=capture_ts,
+            resolution_key=res_key,
+            image_dir=image_dir,
+            source_modes=args.source_modes,
+            source_jpeg_quality=args.source_jpeg_quality,
+        )
 
-            row = build_row(
-                hostname=hostname,
-                run_id=run_id,
-                resolution_key=res_key,
-                width=width,
-                height=height,
-                quality=q,
-                source_path=source_path,
-                heic_path=final_path,
-                metadata=metadata,
-                compressed_size_bytes=heic_bytes,
-                base64_chars=b64_chars,
-                estimated_buffers=buffers,
-                compression_duration_sec=duration_sec,
-            )
-            rows.append(row)
-            print(
-                f"[DOE] {res_key} q{q:03d}: {heic_bytes / 1024:.1f} KB, "
-                f"base64={b64_chars}, est_buffers={buffers}, compress={duration_sec:.2f}s"
-            )
+        for source_mode in args.source_modes:
+            source_path = source_paths[source_mode]
+            actual_w, actual_h = read_image_size(source_path)
+            width = actual_w or width
+            height = actual_h or height
+            source_size_kb = source_path.stat().st_size / 1024
+            print(f"[DOE] Source {source_mode}: {source_path.name}: {width}x{height}, {source_size_kb:.1f} KB")
+
+            for quality in args.qualities:
+                q = validate_quality(quality)
+                heic_name = (
+                    f"{safe_token(hostname)}_{utc_stamp()}_{safe_token(res_key)}_{width}x{height}"
+                    f"_src-{source_mode}_q{q:03d}_pending.heic"
+                )
+                temp_path = image_dir / heic_name
+                heic_bytes, b64_chars, buffers, duration_sec = compress_source_to_heic(source_path, temp_path, q)
+                final_name = (
+                    f"{safe_token(hostname)}_{utc_stamp()}_{safe_token(res_key)}_{width}x{height}"
+                    f"_src-{source_mode}_q{q:03d}_{heic_bytes / 1024:.1f}KB_{buffers:03d}buf.heic"
+                )
+                final_path = image_dir / final_name
+                temp_path.rename(final_path)
+
+                row = build_row(
+                    hostname=hostname,
+                    run_id=run_id,
+                    resolution_key=res_key,
+                    width=width,
+                    height=height,
+                    source_mode=source_mode,
+                    source_jpeg_quality=args.source_jpeg_quality,
+                    quality=q,
+                    source_path=source_path,
+                    heic_path=final_path,
+                    metadata=metadata,
+                    compressed_size_bytes=heic_bytes,
+                    base64_chars=b64_chars,
+                    estimated_buffers=buffers,
+                    compression_duration_sec=duration_sec,
+                )
+                rows.append(row)
+                print(
+                    f"[DOE] {res_key} src-{source_mode} q{q:03d}: {heic_bytes / 1024:.1f} KB, "
+                    f"base64={b64_chars}, est_buffers={buffers}, compress={duration_sec:.2f}s"
+                )
 
     csv_path = run_dir / "results.csv"
-    fieldnames = list(rows[0].keys()) if rows else []
+    fieldnames: list[str] = []
+    for row in rows:
+        for key in row.keys():
+            if key not in fieldnames:
+                fieldnames.append(key)
+
     with csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -342,9 +423,11 @@ def run_doe(args: argparse.Namespace) -> Path:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Capture BM camera resolution/HEIC-quality DOE images without transmission.")
+    parser = argparse.ArgumentParser(description="Capture BM camera resolution/source/HEIC-quality DOE images without transmission.")
     parser.add_argument("--resolutions", nargs="+", default=["480p"], help="Resolution keys to capture.")
-    parser.add_argument("--qualities", nargs="+", type=int, default=[25, 95, 100], help="HEIC quality values 0-100.")
+    parser.add_argument("--source-modes", nargs="+", default=["jpeg", "png"], help="Source modes: jpeg png")
+    parser.add_argument("--source-jpeg-quality", type=int, default=95, help="JPEG quality used for controlled source JPEG files.")
+    parser.add_argument("--qualities", nargs="+", type=int, default=[10, 25, 40, 50, 65, 75], help="HEIC quality values 0-100.")
     parser.add_argument("--output-root", default=str(DEFAULT_OUTPUT_ROOT), help="Output root directory on Pi.")
     parser.add_argument("--tag", default="smoke", help="Short run label included in output folder name.")
     parser.add_argument("--run-id", default=None, help="Optional explicit output folder name.")
@@ -361,6 +444,8 @@ def parse_args() -> argparse.Namespace:
     # Validate now so mistakes fail before any camera captures.
     for key in args.resolutions:
         validate_resolution_key(key)
+    args.source_modes = [validate_source_mode(m) for m in args.source_modes]
+    args.source_jpeg_quality = validate_quality(args.source_jpeg_quality)
     args.qualities = [validate_quality(q) for q in args.qualities]
     return args
 
