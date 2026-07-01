@@ -254,6 +254,70 @@ def estimate_bm_buffers(image_bytes: bytes) -> tuple[int, int]:
     return b64_chars, buffers
 
 
+def estimate_link_budget(
+    *,
+    base64_chars: int,
+    estimated_buffers: int,
+    throughput_kbps: float,
+    target_minutes: float,
+    hard_minutes: float,
+    per_buffer_seconds: float,
+    start_message_seconds: float,
+) -> dict[str, Any]:
+    """Estimate whether a HEIC payload fits the BM/Sofar transmission budget.
+
+    Two separate constraints are useful for this project:
+      1. Payload throughput budget: base64 payload bits / observed Sofar/API kbps.
+      2. Camera-side pacing budget: the legacy sender sleeps between BM messages.
+
+    The pass/fail status uses the slower of the two estimates. This is conservative
+    and avoids approving a setting that fits one model but fails the other.
+    """
+    throughput_kbps = float(throughput_kbps)
+    target_minutes = float(target_minutes)
+    hard_minutes = float(hard_minutes)
+    per_buffer_seconds = float(per_buffer_seconds)
+    start_message_seconds = float(start_message_seconds)
+
+    payload_kbits = (int(base64_chars) * 8.0) / 1000.0
+    link_minutes = (payload_kbits / throughput_kbps / 60.0) if throughput_kbps > 0 else None
+
+    # Approximate the production sender's intentional pacing: one START sleep plus
+    # one sleep after each image chunk. END message overhead is intentionally ignored
+    # here because it is small versus the image payload/chunk pacing.
+    paced_minutes = (start_message_seconds + int(estimated_buffers) * per_buffer_seconds) / 60.0
+
+    comparable = [v for v in [link_minutes, paced_minutes] if v is not None]
+    estimated_minutes = max(comparable) if comparable else None
+
+    if estimated_minutes is None:
+        status = "unknown"
+        margin_minutes = None
+    elif estimated_minutes <= target_minutes:
+        status = "pass"
+        margin_minutes = target_minutes - estimated_minutes
+    elif estimated_minutes <= hard_minutes:
+        status = "warn"
+        margin_minutes = hard_minutes - estimated_minutes
+    else:
+        status = "fail"
+        margin_minutes = hard_minutes - estimated_minutes
+
+    return {
+        "link_throughput_kbps": throughput_kbps,
+        "link_payload_kbits": round(payload_kbits, 3),
+        "estimated_link_minutes": round(link_minutes, 3) if link_minutes is not None else None,
+        "estimated_paced_minutes": round(paced_minutes, 3),
+        "estimated_transmit_minutes": round(estimated_minutes, 3) if estimated_minutes is not None else None,
+        "target_transmit_minutes": target_minutes,
+        "hard_transmit_minutes": hard_minutes,
+        "link_budget_status": status,
+        "link_budget_margin_minutes": round(margin_minutes, 3) if margin_minutes is not None else None,
+        "per_buffer_seconds": per_buffer_seconds,
+        "start_message_seconds": start_message_seconds,
+    }
+
+
 def compress_source_to_heic(source_path: Path, output_path: Path, quality: int) -> tuple[int, int, int, float]:
     quality = validate_quality(quality)
     start = time.monotonic()
@@ -290,6 +354,7 @@ def build_row(
     base64_chars: int,
     estimated_buffers: int,
     compression_duration_sec: float,
+    link_budget: dict[str, Any],
 ) -> dict[str, Any]:
     source_size_bytes = source_path.stat().st_size
     ratio = round(compressed_size_bytes / source_size_bytes, 6) if source_size_bytes else None
@@ -318,6 +383,7 @@ def build_row(
         "estimated_bm_buffers": estimated_buffers,
         "compression_ratio_heic_to_source": ratio,
         "compression_duration_sec": round(compression_duration_sec, 4),
+        **link_budget,
     }
 
     for key in METADATA_KEYS:
@@ -347,6 +413,13 @@ def run_doe(args: argparse.Namespace) -> Path:
         "source_jpeg_quality": args.source_jpeg_quality,
         "qualities": args.qualities,
         "buffer_size": BUFFER_SIZE,
+        "link_budget": {
+            "throughput_kbps": args.link_throughput_kbps,
+            "target_transmit_minutes": args.target_transmit_min,
+            "hard_transmit_minutes": args.hard_transmit_min,
+            "per_buffer_seconds": args.per_buffer_sec,
+            "start_message_seconds": args.start_message_sec,
+        },
         "fallback_array_color_order": args.fallback_array_color_order,
         "transmit": False,
         "note": (
@@ -406,6 +479,16 @@ def run_doe(args: argparse.Namespace) -> Path:
                 final_path = image_dir / final_name
                 temp_path.rename(final_path)
 
+                link_budget = estimate_link_budget(
+                    base64_chars=b64_chars,
+                    estimated_buffers=buffers,
+                    throughput_kbps=args.link_throughput_kbps,
+                    target_minutes=args.target_transmit_min,
+                    hard_minutes=args.hard_transmit_min,
+                    per_buffer_seconds=args.per_buffer_sec,
+                    start_message_seconds=args.start_message_sec,
+                )
+
                 row = build_row(
                     hostname=hostname,
                     run_id=run_id,
@@ -422,11 +505,15 @@ def run_doe(args: argparse.Namespace) -> Path:
                     base64_chars=b64_chars,
                     estimated_buffers=buffers,
                     compression_duration_sec=duration_sec,
+                    link_budget=link_budget,
                 )
                 rows.append(row)
                 print(
                     f"[DOE] {res_key} src-{source_mode} q{q:03d}: {heic_bytes / 1024:.1f} KB, "
-                    f"base64={b64_chars}, est_buffers={buffers}, compress={duration_sec:.2f}s"
+                    f"base64={b64_chars}, est_buffers={buffers}, "
+                    f"est_tx={link_budget['estimated_transmit_minutes']:.1f}min, "
+                    f"budget={link_budget['link_budget_status'].upper()}, "
+                    f"compress={duration_sec:.2f}s"
                 )
 
     csv_path = run_dir / "results.csv"
@@ -441,8 +528,14 @@ def run_doe(args: argparse.Namespace) -> Path:
         writer.writeheader()
         writer.writerows(rows)
 
+    budget_counts: dict[str, int] = {}
+    for row in rows:
+        status = str(row.get("link_budget_status") or "unknown")
+        budget_counts[status] = budget_counts.get(status, 0) + 1
+
     manifest["finished_at_utc"] = iso_utc()
     manifest["row_count"] = len(rows)
+    manifest["link_budget_counts"] = budget_counts
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
 
     print(f"[DOE] Wrote {csv_path}")
@@ -460,6 +553,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tag", default="smoke", help="Short run label included in output folder name.")
     parser.add_argument("--run-id", default=None, help="Optional explicit output folder name.")
     parser.add_argument("--settle-sec", type=float, default=2.0, help="Camera warmup/settle time before capture.")
+    parser.add_argument("--link-throughput-kbps", type=float, default=0.361, help="Observed Sofar/API payload throughput in kilobits/sec for link-budget pass/fail.")
+    parser.add_argument("--target-transmit-min", type=float, default=16.0, help="Target max transmit time in minutes. At or below this is PASS.")
+    parser.add_argument("--hard-transmit-min", type=float, default=18.0, help="Hard max transmit time in minutes. Above this is FAIL; between target and hard is WARN.")
+    parser.add_argument("--per-buffer-sec", type=float, default=5.0, help="Approximate production pacing sleep per BM image buffer.")
+    parser.add_argument("--start-message-sec", type=float, default=5.0, help="Approximate production pacing sleep after START IMG message.")
     parser.add_argument(
         "--fallback-array-color-order",
         choices=["rgb", "bgr"],

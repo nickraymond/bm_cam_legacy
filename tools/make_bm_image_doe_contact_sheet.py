@@ -81,6 +81,33 @@ def format_kb(value: Any) -> str:
         return "—"
 
 
+def format_budget(row: dict[str, Any]) -> str:
+    status = str(row.get("link_budget_status") or "unknown").upper()
+    try:
+        minutes = float(row.get("estimated_transmit_minutes"))
+        time_text = f"{minutes:.1f} min"
+    except Exception:
+        time_text = "—"
+    try:
+        target = float(row.get("target_transmit_minutes"))
+        hard = float(row.get("hard_transmit_minutes"))
+        limits = f"target {target:g}/hard {hard:g}"
+    except Exception:
+        limits = "target/hard n/a"
+    return f"{status} {time_text} ({limits})"
+
+
+def budget_fill(row: dict[str, Any]) -> tuple[int, int, int]:
+    status = str(row.get("link_budget_status") or "unknown").lower()
+    if status == "pass":
+        return (232, 246, 236)
+    if status == "warn":
+        return (255, 247, 222)
+    if status == "fail":
+        return (255, 235, 235)
+    return (245, 247, 250)
+
+
 def to_int(value: Any, default: int = 0) -> int:
     try:
         return int(value)
@@ -154,7 +181,7 @@ def make_sheet(
     title: str = "BM image DOE contact sheet",
     tile_w: int = 360,
     image_h: int = 270,
-    label_h: int = 100,
+    label_h: int = 122,
 ):
     if not rows:
         raise ValueError("No rows found")
@@ -238,12 +265,14 @@ def make_sheet(
                 lines = [
                     f"{r.get('width_px')}×{r.get('height_px')}  JPEG {format_kb(r.get('jpeg_roundtrip_size_kb'))}",
                     f"from HEIC {format_kb(r.get('heic_size_kb'))}  buffers: {r.get('estimated_bm_buffers', '—')}",
+                    f"budget: {format_budget(r)}",
                     f"source {r.get('source_mode')}: {format_kb(r.get('source_size_kb'))}",
                 ]
             else:
                 lines = [
                     f"{r.get('width_px')}×{r.get('height_px')}  HEIC {format_kb(r.get('heic_size_kb'))}",
                     f"est buffers: {r.get('estimated_bm_buffers', '—')}  b64 chars: {r.get('base64_chars', '—')}",
+                    f"budget: {format_budget(r)}",
                     f"source {r.get('source_mode')}: {format_kb(r.get('source_size_kb'))}",
                 ]
             for i, line in enumerate(lines):
@@ -264,7 +293,7 @@ def make_source_quality_matrix(
     matrix_qualities: list[int],
     tile_w: int = 560,
     image_h: int = 360,
-    label_h: int = 92,
+    label_h: int = 110,
 ):
     """Create a compact source-mode vs HEIC-quality matrix.
 
@@ -344,6 +373,7 @@ def make_source_quality_matrix(
                 lines = [
                     f"{r.get('width_px')}×{r.get('height_px')}  HEIC {format_kb(r.get('heic_size_kb'))}",
                     f"est buffers: {r.get('estimated_bm_buffers', '—')}  b64 chars: {r.get('base64_chars', '—')}",
+                    f"budget: {format_budget(r)}",
                     f"source {source_mode}: {format_kb(r.get('source_size_kb'))}",
                 ]
                 for i, line in enumerate(lines):
