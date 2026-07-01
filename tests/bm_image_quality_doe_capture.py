@@ -152,26 +152,50 @@ def json_safe(value: Any) -> Any:
         return str(value)
 
 
-def capture_rgb_frame(resolution_key: str, settle_sec: float) -> tuple[Image.Image, dict[str, Any]]:
+def capture_rgb_frame(
+    resolution_key: str,
+    settle_sec: float,
+    *,
+    fallback_array_color_order: str = "bgr",
+) -> tuple[Image.Image, dict[str, Any], str]:
     """Capture one camera-processed RGB frame and return a PIL image + metadata.
 
     This avoids comparing PNG and JPEG source modes from different moments.
-    Both source files are derived from the exact same captured RGB frame.
+    Both source files are derived from the exact same captured frame.
+
+    Important color note:
+    - The previous DOE script used request.make_array("main") with RGB888 and
+      Image.fromarray(array). On bmcam001 this produced swapped red/blue colors.
+    - Picamera2's request.make_image("main") builds a PIL image using Picamera2's
+      stream-format handling and is the preferred path here.
+    - The array fallback remains for compatibility, with an explicit BGR->RGB
+      channel swap by default because that matches the observed failure mode.
     """
     width, height = validate_resolution_key(resolution_key)
     print(f"[DOE] Capturing RGB frame {resolution_key} {width}x{height}")
 
     picam2 = Picamera2()
+    capture_path = "make_image"
     try:
-        config = picam2.create_still_configuration(main={"size": (width, height), "format": "RGB888"})
+        config = picam2.create_still_configuration(main={"size": (width, height)})
         picam2.configure(config)
         picam2.start()
         time.sleep(settle_sec)
 
         request = picam2.capture_request()
         try:
-            array = request.make_array("main")
             metadata = request.get_metadata() or {}
+            try:
+                image = request.make_image("main").convert("RGB")
+            except Exception as exc:
+                capture_path = f"make_array_{fallback_array_color_order}_fallback"
+                print(f"[DOE] WARN: request.make_image failed ({exc}); using array fallback")
+                array = request.make_array("main")
+                if fallback_array_color_order.lower() == "bgr" and getattr(array, "ndim", 0) == 3 and array.shape[2] >= 3:
+                    array = array[:, :, :3][:, :, ::-1]
+                elif getattr(array, "ndim", 0) == 3 and array.shape[2] > 3:
+                    array = array[:, :, :3]
+                image = Image.fromarray(array).convert("RGB")
         finally:
             request.release()
     finally:
@@ -184,9 +208,7 @@ def capture_rgb_frame(resolution_key: str, settle_sec: float) -> tuple[Image.Ima
         except Exception:
             pass
 
-    # Picamera2 RGB888 arrays generally map directly to PIL RGB.
-    image = Image.fromarray(array).convert("RGB")
-    return image, json_safe(metadata or {})
+    return image, json_safe(metadata or {}), capture_path
 
 
 def save_source_images(
@@ -325,6 +347,7 @@ def run_doe(args: argparse.Namespace) -> Path:
         "source_jpeg_quality": args.source_jpeg_quality,
         "qualities": args.qualities,
         "buffer_size": BUFFER_SIZE,
+        "fallback_array_color_order": args.fallback_array_color_order,
         "transmit": False,
         "note": (
             "For each resolution, captured one RGB frame, saved source JPEG/PNG references "
@@ -340,9 +363,14 @@ def run_doe(args: argparse.Namespace) -> Path:
     for res_key in args.resolutions:
         requested_w, requested_h = validate_resolution_key(res_key)
         capture_ts = utc_stamp()
-        frame, metadata = capture_rgb_frame(res_key, args.settle_sec)
+        frame, metadata, capture_path = capture_rgb_frame(
+            res_key,
+            args.settle_sec,
+            fallback_array_color_order=args.fallback_array_color_order,
+        )
         width, height = frame.size
-        print(f"[DOE] Captured {res_key}: requested={requested_w}x{requested_h}, actual={width}x{height}")
+        metadata["DOECapturePath"] = capture_path
+        print(f"[DOE] Captured {res_key}: requested={requested_w}x{requested_h}, actual={width}x{height}, path={capture_path}")
 
         source_paths = save_source_images(
             frame=frame,
@@ -432,6 +460,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tag", default="smoke", help="Short run label included in output folder name.")
     parser.add_argument("--run-id", default=None, help="Optional explicit output folder name.")
     parser.add_argument("--settle-sec", type=float, default=2.0, help="Camera warmup/settle time before capture.")
+    parser.add_argument(
+        "--fallback-array-color-order",
+        choices=["rgb", "bgr"],
+        default="bgr",
+        help=(
+            "Only used if Picamera2 request.make_image fails and the script falls back to make_array. "
+            "Use bgr to swap red/blue channels before saving; this fixes the observed bmcam001 color issue."
+        ),
+    )
     parser.add_argument("--list-resolutions", action="store_true", help="Print supported resolution keys and exit.")
     args = parser.parse_args()
 
