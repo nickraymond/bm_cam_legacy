@@ -19,6 +19,8 @@ RESOLUTIONS="${RESOLUTIONS:-480p 720p 420sq 720sq}"
 SOURCE_MODES="${SOURCE_MODES:-jpeg}"
 QUALITIES="${QUALITIES:-25 35 45 55 65 75}"
 SOURCE_JPEG_QUALITY="${SOURCE_JPEG_QUALITY:-95}"
+HEIC_ENCODE_MODE="${HEIC_ENCODE_MODE:-subprocess}"
+HEIC_ENCODE_TIMEOUT_SEC="${HEIC_ENCODE_TIMEOUT_SEC:-180}"
 
 # Link budget assumptions
 LINK_THROUGHPUT_KBPS="${LINK_THROUGHPUT_KBPS:-0.361}"
@@ -49,6 +51,10 @@ mkdir -p "$OUT_BASE" "$LOCAL_LOG_BASE" "$BATCH_DIR"
 
 log() { printf '\n[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"; }
 
+b64() {
+  printf '%s' "$1" | python3 -c 'import base64,sys; print(base64.b64encode(sys.stdin.buffer.read()).decode())'
+}
+
 ssh_cam() {
   local host="$1"
   shift
@@ -77,6 +83,7 @@ Output batch dir:  $BATCH_DIR
 Resolutions:       $RESOLUTIONS
 Source modes:      $SOURCE_MODES
 Qualities:         $QUALITIES
+HEIC encode mode:  $HEIC_ENCODE_MODE
 Expected rows:     $EXPECTED_ROWS per camera
 Link throughput:   $LINK_THROUGHPUT_KBPS kbps
 Target/hard:       $TARGET_TRANSMIT_MIN / $HARD_TRANSMIT_MIN min
@@ -124,20 +131,37 @@ for host in "${HOSTS[@]}"; do
 done
 
 log "Triggering DOE on all cameras"
+RUN_TAG_B64="$(b64 "$RUN_TAG")"
+RESOLUTIONS_B64="$(b64 "$RESOLUTIONS")"
+SOURCE_MODES_B64="$(b64 "$SOURCE_MODES")"
+QUALITIES_B64="$(b64 "$QUALITIES")"
+SOURCE_JPEG_QUALITY_B64="$(b64 "$SOURCE_JPEG_QUALITY")"
+HEIC_ENCODE_MODE_B64="$(b64 "$HEIC_ENCODE_MODE")"
+HEIC_ENCODE_TIMEOUT_SEC_B64="$(b64 "$HEIC_ENCODE_TIMEOUT_SEC")"
+LINK_THROUGHPUT_KBPS_B64="$(b64 "$LINK_THROUGHPUT_KBPS")"
+TARGET_TRANSMIT_MIN_B64="$(b64 "$TARGET_TRANSMIT_MIN")"
+HARD_TRANSMIT_MIN_B64="$(b64 "$HARD_TRANSMIT_MIN")"
+
 for host in "${HOSTS[@]}"; do
   echo "---- $host ----"
-  ssh_cam "$host" 'bash -s' -- \
-    "$RUN_TAG" "$RESOLUTIONS" "$SOURCE_MODES" "$QUALITIES" "$SOURCE_JPEG_QUALITY" \
-    "$LINK_THROUGHPUT_KBPS" "$TARGET_TRANSMIT_MIN" "$HARD_TRANSMIT_MIN" <<'REMOTE'
+  ssh_cam "$host" \
+    "RUN_TAG_B64='$RUN_TAG_B64' RESOLUTIONS_B64='$RESOLUTIONS_B64' SOURCE_MODES_B64='$SOURCE_MODES_B64' QUALITIES_B64='$QUALITIES_B64' SOURCE_JPEG_QUALITY_B64='$SOURCE_JPEG_QUALITY_B64' HEIC_ENCODE_MODE_B64='$HEIC_ENCODE_MODE_B64' HEIC_ENCODE_TIMEOUT_SEC_B64='$HEIC_ENCODE_TIMEOUT_SEC_B64' LINK_THROUGHPUT_KBPS_B64='$LINK_THROUGHPUT_KBPS_B64' TARGET_TRANSMIT_MIN_B64='$TARGET_TRANSMIT_MIN_B64' HARD_TRANSMIT_MIN_B64='$HARD_TRANSMIT_MIN_B64' bash -s" <<'REMOTE'
 set -euo pipefail
-RUN_TAG="$1"
-RESOLUTIONS="$2"
-SOURCE_MODES="$3"
-QUALITIES="$4"
-SOURCE_JPEG_QUALITY="$5"
-LINK_THROUGHPUT_KBPS="$6"
-TARGET_TRANSMIT_MIN="$7"
-HARD_TRANSMIT_MIN="$8"
+
+decode_b64() {
+  printf '%s' "$1" | base64 -d
+}
+
+RUN_TAG="$(decode_b64 "$RUN_TAG_B64")"
+RESOLUTIONS="$(decode_b64 "$RESOLUTIONS_B64")"
+SOURCE_MODES="$(decode_b64 "$SOURCE_MODES_B64")"
+QUALITIES="$(decode_b64 "$QUALITIES_B64")"
+SOURCE_JPEG_QUALITY="$(decode_b64 "$SOURCE_JPEG_QUALITY_B64")"
+HEIC_ENCODE_MODE="$(decode_b64 "$HEIC_ENCODE_MODE_B64")"
+HEIC_ENCODE_TIMEOUT_SEC="$(decode_b64 "$HEIC_ENCODE_TIMEOUT_SEC_B64")"
+LINK_THROUGHPUT_KBPS="$(decode_b64 "$LINK_THROUGHPUT_KBPS_B64")"
+TARGET_TRANSMIT_MIN="$(decode_b64 "$TARGET_TRANSMIT_MIN_B64")"
+HARD_TRANSMIT_MIN="$(decode_b64 "$HARD_TRANSMIT_MIN_B64")"
 
 APP="/home/pi/BM_Devel_Pi"
 LOG_DIR="$APP/doe_trigger_logs"
@@ -147,6 +171,12 @@ LOG_FILE="$LOG_DIR/${HOSTNAME}_manual_doe_${STAMP}.log"
 mkdir -p "$LOG_DIR" "$APP/doe_runs"
 cd "$APP"
 
+echo "REMOTE_RUN_TAG=$RUN_TAG"
+echo "REMOTE_RESOLUTIONS=$RESOLUTIONS"
+echo "REMOTE_SOURCE_MODES=$SOURCE_MODES"
+echo "REMOTE_QUALITIES=$QUALITIES"
+echo "REMOTE_HEIC_ENCODE_MODE=$HEIC_ENCODE_MODE"
+
 # shellcheck disable=SC2086
 nohup /usr/bin/flock -n /tmp/bm_image_doe_manual.lock \
   /usr/bin/python3 -u ./doe_capture_quality_sweep.py \
@@ -155,6 +185,8 @@ nohup /usr/bin/flock -n /tmp/bm_image_doe_manual.lock \
     --source-modes $SOURCE_MODES \
     --qualities $QUALITIES \
     --source-jpeg-quality "$SOURCE_JPEG_QUALITY" \
+    --heic-encode-mode "$HEIC_ENCODE_MODE" \
+    --heic-encode-timeout-sec "$HEIC_ENCODE_TIMEOUT_SEC" \
     --link-throughput-kbps "$LINK_THROUGHPUT_KBPS" \
     --target-transmit-min "$TARGET_TRANSMIT_MIN" \
     --hard-transmit-min "$HARD_TRANSMIT_MIN" \
@@ -166,7 +198,6 @@ echo "PID=$PID"
 echo "DOE_LOG=$LOG_FILE"
 REMOTE
 done
-
 remote_status() {
   local host="$1"
   ssh_cam "$host" 'bash -s' -- "$RUN_TAG" "$EXPECTED_ROWS" <<'REMOTE'
@@ -204,13 +235,15 @@ fi
 
 if [ -n "$LOG_FILE" ]; then
   if grep -q 'DOE_OUTPUT_DIR=' "$LOG_FILE" 2>/dev/null; then HAS_OUTPUT_MARKER="true"; fi
-  TAIL="$(tail -n 12 "$LOG_FILE" | sed 's/[|]/\//g')"
+  TAIL="$(tr -d '\000' < "$LOG_FILE" | tail -n 12 | sed 's/[|]/\//g')"
 fi
 
 if [ "$ROWS" -ge "$EXPECTED_ROWS" ] && [ "$PROC_COUNT" = "0" ]; then DONE="true"; fi
+FAILED="false"
+if [ "$PROC_COUNT" = "0" ] && [ "$DONE" != "true" ] && [ "$ROWS" -gt 0 ]; then FAILED="true"; fi
 
-printf 'PROC_COUNT=%s\nLOG_FILE=%s\nRUN_DIR=%s\nROWS=%s\nFILES=%s\nSIZE=%s\nDONE=%s\nHAS_OUTPUT_MARKER=%s\nTAIL<<EOF\n%s\nEOF\n' \
-  "$PROC_COUNT" "$LOG_FILE" "$RUN_DIR" "$ROWS" "$FILES" "$SIZE" "$DONE" "$HAS_OUTPUT_MARKER" "$TAIL"
+printf 'PROC_COUNT=%s\nLOG_FILE=%s\nRUN_DIR=%s\nROWS=%s\nFILES=%s\nSIZE=%s\nDONE=%s\nHAS_OUTPUT_MARKER=%s\nFAILED=%s\nTAIL<<EOF\n%s\nEOF\n' \
+  "$PROC_COUNT" "$LOG_FILE" "$RUN_DIR" "$ROWS" "$FILES" "$SIZE" "$DONE" "$HAS_OUTPUT_MARKER" "$FAILED" "$TAIL"
 REMOTE
 }
 
@@ -227,12 +260,16 @@ while true; do
     echo ""
     echo "==== STATUS $host ===="
     if status_text="$(remote_status "$host")"; then
-      echo "$status_text" | sed -n '1,8p'
+      echo "$status_text" | sed -n '1,9p'
       echo "$status_text" | sed -n '/TAIL<<EOF/,$p' | head -20
       done_value="$(echo "$status_text" | awk -F= '/^DONE=/{print $2}' | tail -1)"
+      failed_value="$(echo "$status_text" | awk -F= '/^FAILED=/{print $2}' | tail -1)"
       if [[ "$done_value" == "true" ]]; then
         DONE_HOSTS="$DONE_HOSTS $host"
         echo "COMPLETE: $host"
+      elif [[ "$failed_value" == "true" ]]; then
+        echo "ERROR: DOE stopped early on $host. See log above." >&2
+        exit 4
       else
         all_done=false
       fi

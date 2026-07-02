@@ -17,6 +17,9 @@ for both source files so JPEG-vs-PNG comparisons come from the exact same frame.
 
 It does NOT transmit over Bristlemouth and does NOT modify camera_schedule.yaml.
 
+HEIC encoding can use a subprocess per output. This isolates native encoder crashes
+from the main DOE runner so partial results are retained and the test can continue.
+
 Default output:
   /home/pi/BM_Devel_Pi/doe_runs/<run_id>/
     images/*.jpg
@@ -38,7 +41,9 @@ import csv
 import json
 import math
 import socket
+import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -427,7 +432,8 @@ def estimate_link_budget(
     }
 
 
-def compress_source_to_heic(source_path: Path, output_path: Path, quality: int) -> tuple[int, int, int, float]:
+def compress_source_to_heic_inline(source_path: Path, output_path: Path, quality: int) -> tuple[int, int, int, float]:
+    """Compress one source image to HEIC in the current Python process."""
     quality = validate_quality(quality)
     start = time.monotonic()
     with Image.open(source_path) as img:
@@ -436,6 +442,95 @@ def compress_source_to_heic(source_path: Path, output_path: Path, quality: int) 
     data = output_path.read_bytes()
     b64_chars, buffers = estimate_bm_buffers(data)
     return len(data), b64_chars, buffers, duration_sec
+
+
+def compress_source_to_heic_subprocess(
+    source_path: Path,
+    output_path: Path,
+    quality: int,
+    *,
+    timeout_sec: float,
+) -> tuple[int, int, int, float]:
+    """Compress one source image in a short-lived child process.
+
+    The Pi Zero has very little RAM and Pillow/libheif are native libraries. If a
+    native encoder crash or memory kill occurs, an in-process encode can terminate
+    the entire DOE run without a Python traceback. Running each encode in a child
+    process makes each quality setting independent: the parent process can write
+    an error row and continue to the next setting/resolution.
+    """
+    quality = validate_quality(quality)
+
+    cmd = [
+        sys.executable,
+        str(Path(__file__).resolve()),
+        "--encode-one-heic",
+        "--encode-source",
+        str(source_path),
+        "--encode-output",
+        str(output_path),
+        "--encode-quality",
+        str(quality),
+    ]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout_sec,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"HEIC encode subprocess timed out after {timeout_sec:.1f}s") from exc
+
+    if result.returncode != 0:
+        stderr_tail = (result.stderr or "").strip().splitlines()[-8:]
+        stdout_tail = (result.stdout or "").strip().splitlines()[-8:]
+        detail = " | ".join(stderr_tail or stdout_tail or ["no child output"])
+        raise RuntimeError(f"HEIC encode subprocess failed rc={result.returncode}: {detail}")
+
+    try:
+        payload = json.loads((result.stdout or "").strip().splitlines()[-1])
+        return (
+            int(payload["heic_size_bytes"]),
+            int(payload["base64_chars"]),
+            int(payload["estimated_bm_buffers"]),
+            float(payload["compression_duration_sec"]),
+        )
+    except Exception as exc:
+        raise RuntimeError(f"HEIC encode subprocess returned invalid JSON: {(result.stdout or '')[-500:]}") from exc
+
+
+def compress_source_to_heic(
+    source_path: Path,
+    output_path: Path,
+    quality: int,
+    *,
+    encode_mode: str = "subprocess",
+    timeout_sec: float = 120.0,
+) -> tuple[int, int, int, float]:
+    if encode_mode == "inline":
+        return compress_source_to_heic_inline(source_path, output_path, quality)
+    if encode_mode == "subprocess":
+        return compress_source_to_heic_subprocess(source_path, output_path, quality, timeout_sec=timeout_sec)
+    raise ValueError(f"Unknown HEIC encode mode: {encode_mode}")
+
+
+def encode_one_heic_cli(args: argparse.Namespace) -> None:
+    """Child-process entry point for one HEIC encode."""
+    source_path = Path(args.encode_source).expanduser().resolve()
+    output_path = Path(args.encode_output).expanduser().resolve()
+    q = validate_quality(args.encode_quality)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    heic_size, b64_chars, buffers, duration_sec = compress_source_to_heic_inline(source_path, output_path, q)
+    print(json.dumps({
+        "heic_size_bytes": heic_size,
+        "base64_chars": b64_chars,
+        "estimated_bm_buffers": buffers,
+        "compression_duration_sec": round(duration_sec, 6),
+    }, sort_keys=True), flush=True)
 
 
 def read_image_size(path: Path) -> tuple[int | None, int | None]:
@@ -598,6 +693,8 @@ def run_doe(args: argparse.Namespace) -> Path:
         },
         "fallback_array_color_order": args.fallback_array_color_order,
         "jpeg_capture_mode": args.jpeg_capture_mode,
+        "heic_encode_mode": args.heic_encode_mode,
+        "heic_encode_timeout_sec": args.heic_encode_timeout_sec,
         "transmit": False,
         "row_count": 0,
         "error_count": 0,
@@ -605,7 +702,7 @@ def run_doe(args: argparse.Namespace) -> Path:
             "For JPEG-only runs, captures a production-like source JPEG directly with "
             "Picamera2.capture_file to reduce memory. For PNG or mixed JPEG+PNG runs, "
             "captures one RGB frame so source modes are derived from the same frame. "
-            "No BM transmission performed. Results are written incrementally."
+            "No BM transmission performed. Results are written incrementally. HEIC encodes default to subprocess isolation."
         ),
     }
     write_manifest(run_dir, manifest)
@@ -614,6 +711,7 @@ def run_doe(args: argparse.Namespace) -> Path:
     print(f"[DOE] Source modes: {', '.join(args.source_modes)}")
     print(f"[DOE] HEIC qualities: {', '.join(str(q) for q in args.qualities)}")
     print(f"[DOE] JPEG capture mode: {args.jpeg_capture_mode}")
+    print(f"[DOE] HEIC encode mode: {args.heic_encode_mode}")
 
     rows: list[dict[str, Any]] = []
     budget_counts: dict[str, int] = {}
@@ -729,7 +827,13 @@ def run_doe(args: argparse.Namespace) -> Path:
                 final_path: Path | None = None
 
                 try:
-                    heic_bytes, b64_chars, buffers, duration_sec = compress_source_to_heic(source_path, temp_path, q)
+                    heic_bytes, b64_chars, buffers, duration_sec = compress_source_to_heic(
+                        source_path,
+                        temp_path,
+                        q,
+                        encode_mode=args.heic_encode_mode,
+                        timeout_sec=args.heic_encode_timeout_sec,
+                    )
                     final_name = (
                         f"{safe_token(hostname)}_{utc_stamp()}_{safe_token(res_key)}_{width}x{height}"
                         f"_src-{source_mode}_q{q:03d}_{heic_bytes / 1024:.1f}KB_{buffers:03d}buf.heic"
@@ -853,8 +957,32 @@ def parse_args() -> argparse.Namespace:
             "Use bgr to swap red/blue channels before saving; this fixes the observed bmcam001 color issue."
         ),
     )
+    parser.add_argument(
+        "--heic-encode-mode",
+        choices=["subprocess", "inline"],
+        default="subprocess",
+        help=(
+            "Use subprocess to isolate each Pillow/HEIF encode from the main DOE runner. "
+            "This is safer on Pi Zero. inline is faster but a native encoder crash can kill the run."
+        ),
+    )
+    parser.add_argument("--heic-encode-timeout-sec", type=float, default=180.0, help="Timeout for one HEIC encode subprocess.")
+
+    # Internal child-process mode used by --heic-encode-mode subprocess.
+    parser.add_argument("--encode-one-heic", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--encode-source", default=None, help=argparse.SUPPRESS)
+    parser.add_argument("--encode-output", default=None, help=argparse.SUPPRESS)
+    parser.add_argument("--encode-quality", type=int, default=None, help=argparse.SUPPRESS)
+
     parser.add_argument("--list-resolutions", action="store_true", help="Print supported resolution keys and exit.")
     args = parser.parse_args()
+
+    if args.encode_one_heic:
+        missing = [name for name in ("encode_source", "encode_output", "encode_quality") if getattr(args, name) in (None, "")]
+        if missing:
+            parser.error(f"--encode-one-heic missing required internal args: {', '.join(missing)}")
+        encode_one_heic_cli(args)
+        raise SystemExit(0)
 
     if args.list_resolutions:
         for key in sorted(RESOLUTIONS):
