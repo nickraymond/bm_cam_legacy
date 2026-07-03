@@ -1,0 +1,42 @@
+# Example camera_schedule.yaml snippet for BM legacy large cellular-only testing.
+# Copy the bm_serial section into /home/pi/BM_Devel_Pi/camera_schedule.yaml.
+
+timezone_preset: "sf"
+timezone: "America/Los_Angeles"
+
+enforce_spotter_time_window: true
+
+transmit_window:
+  start: "08:00"
+  end: "15:00"
+
+set_system_clock_from_spotter: true
+spotter_time_timeout_seconds: 60
+allow_system_clock_fallback: false
+
+uart_port: "/dev/ttyAMA0"
+baudrate: 115200
+
+image:
+  resolution_key: "720p"
+  image_quality: 25
+
+# Runtime BM serial / image transport tuning.
+# Change these three values for bench testing without editing Python.
+bm_serial:
+  # 0x01 = legacy sat/cell fallback queue, observed as MS_Q_LEGACY.
+  # 0x02 = cellular-only queue, observed as MS_Q_CELLULAR_ONLY.
+  # For YAML compatibility, quoted strings are also accepted: "0x01" / "0x02".
+  network_type: 0x02
+
+  # Base64 image chunk payload size before the <I#> wrapper and newline.
+  # Current test values:
+  #   300 = old legacy-safe mode
+  #   900 = conservative large cellular-only test
+  #   960 = current reduced large-payload test
+  #   980 = high-water mark; may be less reliable on long transmissions
+  image_buffer_size: 960
+
+  # Delay after START and after every image chunk message.
+  # Increase if Spotter logs queue-full errors or backend shows missing chunks.
+  image_transmit_delay_seconds: 16

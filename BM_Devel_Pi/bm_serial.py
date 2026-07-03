@@ -1,5 +1,14 @@
 import serial
 
+
+# Spotter transmit-data network selector.
+# 0x01 = legacy sat/cell fallback queue.
+# 0x02 = cellular-only queue; validated on bmcam000 for larger BM UART payloads.
+SPOTTER_NETWORK_CELLULAR_IRI_FALLBACK = b"\x01"
+SPOTTER_NETWORK_CELLULAR_ONLY = b"\x02"
+SPOTTER_TRANSMIT_NETWORK_TYPE = SPOTTER_NETWORK_CELLULAR_ONLY
+
+
 class BristlemouthSerial:
 	def __init__(self, uart=None, node_id=0xC0FFEEEEF0CACC1A):
 		self.node_id = node_id
@@ -14,7 +23,9 @@ class BristlemouthSerial:
 			self.get_pub_header()
 			+ len(topic).to_bytes(2, "little")
 			+ topic
-			+ b"\x01"
+			# Network selector byte for spotter/transmit-data. Do not confuse
+			# this with get_pub_header()'s BM serial publish header.
+			+ SPOTTER_TRANSMIT_NETWORK_TYPE
 			+ data
 		)
 		cobs = self.finalize_packet(packet)

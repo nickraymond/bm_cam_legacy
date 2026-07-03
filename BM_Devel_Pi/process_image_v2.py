@@ -25,8 +25,15 @@ pillow_heif.register_heif_opener()
 # Setup the Bristlemouth UART Serial
 bm = BristlemouthSerial()
 
-# Define the UART buffer size for BM serial coms
-BUFFER_SIZE = 300
+# Base64 image chunk payload size for BM serial image transfer.
+# bmcam000 testing validated 980 byte chunks on the cellular-only
+# spotter/transmit-data path. The actual BM_TX payload is slightly larger
+# because each chunk is wrapped as <I#>... plus a newline.
+BUFFER_SIZE = 980
+
+# Image-transfer pacing between START/chunk messages. 12 seconds avoided
+# MS_Q_CELLULAR_ONLY queue-full drops during bmcam000 large-message tests.
+IMAGE_TRANSMIT_DELAY_SECONDS = 12
 
 # Debug flag to control printing of messages to the terminal
 DEBUG = True
@@ -403,7 +410,9 @@ def send_wake_status(
       skip_err  = schedule/time/config error path
       skip_legacy = legacy local time window skipped capture
 
-    This message should stay below 300 bytes and should not be chunked.
+    This compact heartbeat remains intentionally small and should not be
+    chunked. It is independent of the larger image BUFFER_SIZE used for
+    cellular-only image transfer.
     """
     cpu_temp = None
     try:
@@ -638,7 +647,10 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         raise ValueError("No buffers found to send!")
 
     current_timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    debug_print(f"Starting transmission of image: {compressed_file_name} with {num_buffers} buffers.")
+    debug_print(
+        f"Starting transmission of image: {compressed_file_name} with {num_buffers} buffers; "
+        f"buffer_size={BUFFER_SIZE}; delay_sec={IMAGE_TRANSMIT_DELAY_SECONDS}"
+    )
 
     meta_text = _format_start_metadata(start_metadata)
     meta_suffix = f", {meta_text}" if meta_text else ""
@@ -653,7 +665,7 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         f"{meta_suffix}\n"
     )
     bm.spotter_tx(start_msg.encode('ascii'))
-    time.sleep(5)
+    time.sleep(IMAGE_TRANSMIT_DELAY_SECONDS)
 
     sent_buffers = 0
     for i in range(num_buffers):
@@ -667,7 +679,7 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         sent_buffers += 1
 
         debug_print(f"Sent buffer {i + 1} of {num_buffers}")
-        time.sleep(5)
+        time.sleep(IMAGE_TRANSMIT_DELAY_SECONDS)
 
     uart_duration_sec = time.monotonic() - uart_start
 
