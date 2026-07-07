@@ -595,17 +595,9 @@ def _select_camera_command(capture_backend):
 
 
 def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix):
-    """Capture native/full-source JPEG with rpicam-still or libcamera-still.
-
-    The libcamera/rpicam apps can export per-frame camera metadata via
-    --metadata. Capture should not fail just because metadata export changes
-    across camera-app versions, but on the bmcam000 test image this option is
-    available and restores the telemetry fields that the Picamera2 path used to
-    send in the END message.
-    """
+    """Capture native/full-source JPEG with rpicam-still or libcamera-still."""
     stdout_log = f"{log_prefix}.stdout.log"
     stderr_log = f"{log_prefix}.stderr.log"
-    metadata_path = f"{log_prefix}.metadata.json"
 
     cmd = [
         command,
@@ -614,8 +606,6 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
         "--width", str(source_width),
         "--height", str(source_height),
         "--quality", str(jpeg_quality),
-        "--metadata", metadata_path,
-        "--metadata-format", "json",
         "-o", native_image_path,
     ]
 
@@ -646,61 +636,11 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
     if not os.path.exists(native_image_path) or os.path.getsize(native_image_path) <= 0:
         raise RuntimeError(f"Native capture did not produce a valid file: {native_image_path}")
 
-    if not os.path.exists(metadata_path) or os.path.getsize(metadata_path) <= 0:
-        debug_print(f"Native capture metadata file missing or empty: {metadata_path}")
-
     return {
         "capture_command": cmd,
         "stdout_log": stdout_log,
         "stderr_log": stderr_log,
-        "metadata_path": metadata_path,
     }
-
-
-def _load_libcamera_metadata(metadata_path):
-    """Load rpicam/libcamera --metadata JSON without risking the capture path."""
-    if not metadata_path or not os.path.exists(metadata_path):
-        return {}
-    try:
-        with open(metadata_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, dict):
-            return data
-        debug_print(f"Unexpected libcamera metadata JSON shape: {type(data).__name__}")
-    except Exception as exc:
-        debug_print(f"Failed to read libcamera metadata file {metadata_path}: {exc}")
-    return {}
-
-
-def _normalize_libcamera_metadata(raw_metadata):
-    """Normalize camera-app metadata to the existing Picamera2-style keys.
-
-    The frontend/backend already understands compact END-message keys derived
-    from ExposureTime, AnalogueGain, ColourGains, LensPosition, FocusFoM, Lux,
-    etc. Preserve the raw libcamera values but also ensure common spelling
-    aliases exist at the top level.
-    """
-    if not isinstance(raw_metadata, dict):
-        return {}
-
-    normalized = dict(raw_metadata)
-
-    aliases = {
-        "AnalogGain": "AnalogueGain",
-        "ColourGains": "ColourGains",
-        "ColorGains": "ColourGains",
-        "ColourTemperature": "ColourTemperature",
-        "ColorTemperature": "ColourTemperature",
-        "SensorTemperature": "SensorTemperature",
-        "CameraTemperature": "SensorTemperature",
-    }
-    for src, dst in aliases.items():
-        if src in raw_metadata and dst not in normalized:
-            normalized[dst] = raw_metadata[src]
-
-    # Some camera-app metadata values may be exported as strings. Keep them if
-    # they are already JSON-safe; save_capture_metadata handles final coercion.
-    return normalized
 
 
 def _crop_and_downsample_native(native_image_path, final_image_path, settings):
@@ -788,46 +728,25 @@ def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECT
 
     geometry_info = _crop_and_downsample_native(native_image_path, final_image_path, settings)
 
-    raw_camera_metadata = _load_libcamera_metadata(capture_info.get("metadata_path"))
-    camera_metadata = _normalize_libcamera_metadata(raw_camera_metadata)
-
-    metadata = {}
-    metadata.update(camera_metadata)
-    metadata.update({
+    metadata = {
         "capture_backend_requested": capture_backend,
         "capture_backend_actual": actual_backend,
         "capture_command": capture_info.get("capture_command"),
         "capture_stdout_log": capture_info.get("stdout_log"),
         "capture_stderr_log": capture_info.get("stderr_log"),
-        "capture_metadata_log": capture_info.get("metadata_path"),
-        "capture_metadata_keys": sorted(camera_metadata.keys()) if camera_metadata else [],
         "native_image_path": native_image_path,
         "native_image_size_bytes": os.path.getsize(native_image_path),
         "final_image_path": final_image_path,
         "final_image_size_bytes": os.path.getsize(final_image_path),
         "pipeline_enabled": True,
         "pipeline_note": "native full JPEG -> native-coordinate crop -> optional LANCZOS downsample -> unchanged HEIC/send path",
-    })
+    }
     metadata.update(geometry_info)
     if isinstance(settings, dict):
         metadata["heic_quality_requested"] = settings.get("heic_quality")
         metadata["crop_mode"] = settings.get("crop_mode", "fixed")
 
     save_capture_metadata(final_image_path, metadata)
-
-    if camera_metadata:
-        debug_print(
-            "Capture metadata restored from libcamera: "
-            f"ExposureTime={metadata.get('ExposureTime')}, "
-            f"AnalogueGain={metadata.get('AnalogueGain')}, "
-            f"DigitalGain={metadata.get('DigitalGain')}, "
-            f"ColourGains={metadata.get('ColourGains')}, "
-            f"LensPosition={metadata.get('LensPosition')}, "
-            f"AfState={metadata.get('AfState')}, "
-            f"FocusFoM={metadata.get('FocusFoM')}"
-        )
-    else:
-        debug_print("No libcamera frame metadata restored; pipeline metadata was still saved")
 
     debug_print(
         "Image pipeline output saved as "
@@ -984,7 +903,15 @@ def split_image_jpeg(image_path, buffer_directory, image_quality):
 
 
 def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
-    """Compress the image to HEIC and split into buffers."""
+    """Compress the image to HEIC and split into buffers.
+
+    Safety note for bmcam000 / Pi Zero 2W tests:
+    - The validated stable HEIC path is: open JPEG -> convert RGB -> write
+      to a temporary HEIC file -> verify nonzero -> atomically rename.
+    - Do not change the existing base64 chunking or send path here.
+      The Bristlemouth message path still chunks the base64 HEIC payload
+      using BUFFER_SIZE exactly as before.
+    """
     image_quality = validate_image_quality(image_quality)
 
     if os.path.exists(BUFFER_DIRECTORY):
@@ -996,18 +923,59 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
 
     file_name_without_ext = os.path.splitext(os.path.basename(image_path))[0]
     heic_output_path = os.path.join(IMAGE_DIRECTORY, f"{file_name_without_ext}_compressed.heic")
+    tmp_heic_output_path = os.path.join(IMAGE_DIRECTORY, f"{file_name_without_ext}_compressed.tmp.heic")
+
+    # Avoid stale zero-byte files from prior interrupted encodes being mistaken
+    # for valid output. The final file is created only after the temporary HEIC
+    # is fully encoded and verified.
+    for stale_path in (tmp_heic_output_path, heic_output_path):
+        try:
+            if os.path.exists(stale_path):
+                os.remove(stale_path)
+                debug_print(f"Removed stale HEIC file before encode: {stale_path}")
+        except Exception as exc:
+            debug_print(f"Failed to remove stale HEIC file {stale_path}: {exc}")
 
     # Open the image and save it as HEIC.
     # Quality convention:
     # lower = smaller/more compressed/lower quality, higher = larger/less compressed/higher quality.
+    # Explicit RGB conversion and temp-file output match the validated manual
+    # probe that repeatedly passed for 2688x1512 @ Q20 on bmcam000.
+    encode_start = time.monotonic()
+    debug_print(
+        f"Starting safe HEIC encode: input={image_path}, "
+        f"tmp={tmp_heic_output_path}, quality={image_quality}"
+    )
     with Image.open(image_path) as img:
-        img.save(heic_output_path, format="HEIF", quality=image_quality)
+        debug_print(f"HEIC input image: size={img.size}, mode={img.mode}")
+        img = img.convert("RGB")
+        img.save(tmp_heic_output_path, format="HEIF", quality=image_quality)
+
+    if not os.path.exists(tmp_heic_output_path):
+        raise ValueError(f"HEIC encode failed: temporary output was not created: {tmp_heic_output_path}")
+
+    tmp_file_size = os.path.getsize(tmp_heic_output_path)
+    if tmp_file_size <= 0:
+        try:
+            os.remove(tmp_heic_output_path)
+        except Exception:
+            pass
+        raise ValueError("HEIC encode failed: temporary output file is zero bytes")
+
+    os.replace(tmp_heic_output_path, heic_output_path)
 
     file_size = os.path.getsize(heic_output_path)
-    debug_print(f"Compressed image saved as '{heic_output_path}', file size = {file_size} bytes")
+    encode_duration_sec = time.monotonic() - encode_start
+    debug_print(
+        f"Compressed image saved as '{heic_output_path}', file size = {file_size} bytes, "
+        f"encode_duration_sec={encode_duration_sec:.2f}"
+    )
 
     with open(heic_output_path, "rb") as heic_file:
         heic_data = heic_file.read()
+
+    if not heic_data:
+        raise ValueError(f"HEIC output is empty after encode: {heic_output_path}")
 
     base64_data = base64.b64encode(heic_data).decode("ascii")
     file_length = len(base64_data)
@@ -1023,7 +991,10 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
 
         buffer_number += 1
 
-    debug_print(f"Saved {buffer_number} buffer text files in {BUFFER_DIRECTORY}")
+    debug_print(
+        f"Saved {buffer_number} buffer text files in {BUFFER_DIRECTORY}; "
+        f"base64_chars={file_length}; buffer_size={BUFFER_SIZE}"
+    )
     return os.path.basename(heic_output_path), buffer_number, len(heic_data)
 
 
