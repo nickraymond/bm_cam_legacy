@@ -92,10 +92,147 @@ def is_within_time_window(current_time, time_start, time_end):
     return is_within
 
 
-def get_runtime_image_settings(config_path, resolution_key_override=None, image_quality_override=None):
-    """Return image settings from YAML defaults with optional CLI overrides."""
+
+def _parse_crop_arg(value):
+    """Parse x,y,w,h CLI crop override."""
+    if value is None:
+        return None
+    parts = [p.strip() for p in str(value).split(',')]
+    if len(parts) != 4:
+        raise ValueError("--crop must be x,y,w,h, for example 768,432,3072,1728")
+    x, y, w, h = [int(p) for p in parts]
+    if x < 0 or y < 0 or w <= 0 or h <= 0:
+        raise ValueError("--crop requires x/y >= 0 and w/h > 0")
+    return x, y, w, h
+
+
+def _parse_output_size_arg(value):
+    """Parse WIDTHxHEIGHT CLI output-size override."""
+    if value is None:
+        return None
+    text = str(value).lower().replace('×', 'x')
+    if 'x' not in text:
+        raise ValueError("--output-size must be WIDTHxHEIGHT, for example 3072x1728")
+    w, h = text.split('x', 1)
+    w, h = int(w), int(h)
+    if w <= 0 or h <= 0:
+        raise ValueError("--output-size width/height must be > 0")
+    return w, h
+
+
+def _build_image_pipeline_settings(
+    cfg,
+    *,
+    capture_backend_override=None,
+    crop_override=None,
+    output_size_override=None,
+    source_jpeg_quality_override=None,
+    heic_quality_override=None,
+):
+    """Return explicit image_pipeline settings resolved from YAML + CLI.
+
+    DEV note: these settings are parsed by spotter_time_sync.py for this branch
+    only because that is the current legacy config entry point. Future cleanup
+    should move this into a dedicated config loader.
+    """
+    if not getattr(cfg, 'image_pipeline_enabled', False):
+        return {"enabled": False}
+
+    crop = crop_override or (
+        cfg.image_pipeline_crop_x,
+        cfg.image_pipeline_crop_y,
+        cfg.image_pipeline_crop_w,
+        cfg.image_pipeline_crop_h,
+    )
+    output_size = output_size_override or (
+        cfg.image_pipeline_spatial_output_width,
+        cfg.image_pipeline_spatial_output_height,
+    )
+    source_jpeg_quality = (
+        source_jpeg_quality_override
+        if source_jpeg_quality_override is not None
+        else cfg.image_pipeline_source_jpeg_quality
+    )
+    heic_quality = (
+        heic_quality_override
+        if heic_quality_override is not None
+        else cfg.image_pipeline_heic_quality
+    )
+
+    settings = {
+        "enabled": True,
+        "capture_backend": capture_backend_override or cfg.image_pipeline_capture_backend,
+        "source_width": int(cfg.image_pipeline_source_width),
+        "source_height": int(cfg.image_pipeline_source_height),
+        "source_jpeg_quality": int(source_jpeg_quality),
+        "crop_mode": cfg.image_pipeline_crop_mode,
+        "crop_x": int(crop[0]),
+        "crop_y": int(crop[1]),
+        "crop_w": int(crop[2]),
+        "crop_h": int(crop[3]),
+        "output_width": int(output_size[0]),
+        "output_height": int(output_size[1]),
+        "resample": cfg.image_pipeline_spatial_resample,
+        "heic_quality": int(heic_quality),
+    }
+
+    if not (0 <= settings["heic_quality"] <= 100):
+        raise ValueError("HEIC/image quality must be between 0 and 100")
+    if not (1 <= settings["source_jpeg_quality"] <= 100):
+        raise ValueError("source JPEG quality must be between 1 and 100")
+    if settings["crop_x"] + settings["crop_w"] > settings["source_width"]:
+        raise ValueError("image_pipeline crop exceeds source width")
+    if settings["crop_y"] + settings["crop_h"] > settings["source_height"]:
+        raise ValueError("image_pipeline crop exceeds source height")
+
+    return settings
+
+
+def get_runtime_image_settings(
+    config_path,
+    resolution_key_override=None,
+    image_quality_override=None,
+    capture_backend_override=None,
+    crop_override=None,
+    output_size_override=None,
+    source_jpeg_quality_override=None,
+    heic_quality_override=None,
+):
+    """Return runtime image settings from YAML defaults with optional CLI overrides."""
     cfg = load_camera_schedule(config_path)
 
+    # New libcamera/rpicam path: explicit native crop + spatial output + HEIC.
+    if getattr(cfg, 'image_pipeline_enabled', False):
+        if resolution_key_override:
+            debug_print(
+                "Ignoring --resolution-key because image_pipeline.enabled=true; "
+                "use --output-size for spatial density override."
+            )
+
+        # Preserve --image-quality as a convenient legacy alias for HEIC quality,
+        # but let --heic-quality win if both are provided.
+        resolved_heic_quality_override = (
+            heic_quality_override
+            if heic_quality_override is not None
+            else image_quality_override
+        )
+
+        image_pipeline = _build_image_pipeline_settings(
+            cfg,
+            capture_backend_override=capture_backend_override,
+            crop_override=crop_override,
+            output_size_override=output_size_override,
+            source_jpeg_quality_override=source_jpeg_quality_override,
+            heic_quality_override=resolved_heic_quality_override,
+        )
+
+        output_w = image_pipeline["output_width"]
+        output_h = image_pipeline["output_height"]
+        runtime_resolution_key = f"{output_w}x{output_h}"
+        runtime_image_quality = image_pipeline["heic_quality"]
+        return runtime_resolution_key, int(runtime_image_quality), cfg, image_pipeline
+
+    # Legacy Picamera2 path: keep historical resolution_key/image_quality behavior.
     resolution_key = resolution_key_override or cfg.resolution_key or RESOLUTION_KEY
     image_quality = image_quality_override if image_quality_override is not None else cfg.image_quality
 
@@ -114,8 +251,7 @@ def get_runtime_image_settings(config_path, resolution_key_override=None, image_
             "Lower = smaller/more compressed; higher = better/larger."
         )
 
-    return resolution_key, int(image_quality), cfg
-
+    return resolution_key, int(image_quality), cfg, {"enabled": False}
 
 def _compact_reason(reason):
     """Map verbose schedule reasons to short heartbeat reason codes."""
@@ -180,23 +316,43 @@ def main(
     image_quality=None,
     skip_time_window=False,
     config_path=SCHEDULE_CONFIG_PATH,
+    capture_backend=None,
+    crop=None,
+    output_size=None,
+    source_jpeg_quality=None,
+    heic_quality=None,
 ):
     """Main function to orchestrate the camera workflow."""
     start_time = time.time()
 
     try:
-        runtime_resolution_key, runtime_image_quality, schedule_cfg = get_runtime_image_settings(
+        runtime_resolution_key, runtime_image_quality, schedule_cfg, image_pipeline = get_runtime_image_settings(
             config_path,
             resolution_key_override=resolution_key,
             image_quality_override=image_quality,
+            capture_backend_override=capture_backend,
+            crop_override=_parse_crop_arg(crop),
+            output_size_override=_parse_output_size_arg(output_size),
+            source_jpeg_quality_override=source_jpeg_quality,
+            heic_quality_override=heic_quality,
         )
     except Exception as e:
         debug_print(f"Image/config setup failed: {e}")
         close_bm_serial()
         return
 
-    debug_print(f"Runtime resolution_key: {runtime_resolution_key}")
-    debug_print(f"Runtime image_quality: {runtime_image_quality}")
+    debug_print(f"Runtime resolution/output key: {runtime_resolution_key}")
+    debug_print(f"Runtime HEIC/image quality: {runtime_image_quality}")
+    if image_pipeline.get("enabled"):
+        debug_print(
+            "Runtime image_pipeline: "
+            f"backend={image_pipeline.get('capture_backend')} "
+            f"source={image_pipeline.get('source_width')}x{image_pipeline.get('source_height')} "
+            f"crop=({image_pipeline.get('crop_x')},{image_pipeline.get('crop_y')},"
+            f"{image_pipeline.get('crop_w')},{image_pipeline.get('crop_h')}) "
+            f"output={image_pipeline.get('output_width')}x{image_pipeline.get('output_height')} "
+            f"heic_q={image_pipeline.get('heic_quality')}"
+        )
 
     schedule_info = {}
     schedule_allowed = True
@@ -276,8 +432,13 @@ def main(
         within_window = is_within_time_window(current_time, time_start, time_end)
 
         if within_window:
-            # Capture the raw image
-            image_path = capture_image(resolution_key=runtime_resolution_key)
+            # Capture the image. In image_pipeline mode this is native full
+            # rpicam/libcamera capture -> explicit crop -> spatial output JPEG.
+            # In legacy mode this remains the historical Picamera2 capture.
+            image_path = capture_image(
+                resolution_key=runtime_resolution_key,
+                image_pipeline=image_pipeline,
+            )
             file_size_raw = get_file_size(image_path)
             cpu_temp = get_cpu_temperature()
 
@@ -353,7 +514,35 @@ if __name__ == "__main__":
         '--image-quality',
         type=int,
         default=None,
-        help='Override encoder image quality 0-100. Lower = smaller/more compressed; higher = better/larger',
+        help='Override encoder image quality 0-100. In image_pipeline mode this is a HEIC-quality alias.',
+    )
+    parser.add_argument(
+        '--heic-quality',
+        type=int,
+        default=None,
+        help='Override image_pipeline.heic.quality 0-100 for this run. Wins over --image-quality.',
+    )
+    parser.add_argument(
+        '--capture-backend',
+        choices=['auto', 'rpicam', 'libcamera', 'picamera2', 'legacy'],
+        default=None,
+        help='Override image_pipeline.capture_backend for this run',
+    )
+    parser.add_argument(
+        '--crop',
+        default=None,
+        help='Override image_pipeline.crop as x,y,w,h in native image coordinates',
+    )
+    parser.add_argument(
+        '--output-size',
+        default=None,
+        help='Override image_pipeline.spatial output size as WIDTHxHEIGHT, e.g. 3072x1728',
+    )
+    parser.add_argument(
+        '--source-jpeg-quality',
+        type=int,
+        default=None,
+        help='Override native/intermediate JPEG quality 1-100 before HEIC compression',
     )
     parser.add_argument(
         '--skip-time-window',
@@ -370,4 +559,9 @@ if __name__ == "__main__":
         image_quality=args.image_quality,
         skip_time_window=args.skip_time_window,
         config_path=args.config_path,
+        capture_backend=args.capture_backend,
+        crop=args.crop,
+        output_size=args.output_size,
+        source_jpeg_quality=args.source_jpeg_quality,
+        heic_quality=args.heic_quality,
     )

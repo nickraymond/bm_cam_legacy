@@ -11,6 +11,13 @@ Important implementation detail:
   BM serial publish packets, so receive parsing scans the raw byte stream.
 
 This file does not capture images and does not transmit image data.
+
+DEV NOTE / technical debt:
+- This module currently also parses image_pipeline settings because the legacy
+  production app already routes camera_schedule.yaml through load_camera_schedule().
+- This is acceptable for the bmcam000 libcamera/crop/HEIC test branch.
+- Future cleanup should move non-time configuration into a dedicated config
+  loader so this module returns to time/schedule management only.
 """
 from __future__ import annotations
 
@@ -83,6 +90,24 @@ class CameraSchedule:
     resolution_key: str = "720p"
     image_quality: int = 25
 
+    # DEV image pipeline config. This is deliberately explicit because the new
+    # production path is native full capture -> native-coordinate crop ->
+    # spatial downsample -> HEIC compression, not a legacy resolution preset.
+    image_pipeline_enabled: bool = False
+    image_pipeline_capture_backend: str = "rpicam"
+    image_pipeline_source_width: int = 4608
+    image_pipeline_source_height: int = 2592
+    image_pipeline_source_jpeg_quality: int = 95
+    image_pipeline_crop_mode: str = "fixed"
+    image_pipeline_crop_x: int = 768
+    image_pipeline_crop_y: int = 432
+    image_pipeline_crop_w: int = 3072
+    image_pipeline_crop_h: int = 1728
+    image_pipeline_spatial_output_width: int = 3072
+    image_pipeline_spatial_output_height: int = 1728
+    image_pipeline_spatial_resample: str = "lanczos"
+    image_pipeline_heic_quality: int = 20
+
 
 def _parse_bool(value: str) -> bool:
     return value.strip().lower() in {"true", "yes", "1", "on"}
@@ -102,44 +127,54 @@ def _parse_utc_iso(value: str) -> dt.datetime:
     return parsed.astimezone(dt.timezone.utc)
 
 
+
 def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
     """
     Tiny parser for the specific camera_schedule.yaml shape.
 
     Avoids adding PyYAML to the field unit.
-    Supported sections:
-      transmit_window:
-        start: "HH:MM"
-        end: "HH:MM"
-      rtc:
-        hwclock_path: "/usr/sbin/hwclock"
-        set_system_clock_from_rtc: true
-        require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
-      image:
-        resolution_key: "720p"
-        image_quality: 25
+
+    Supported time sections:
+      transmit_window, rtc, image
+
+    DEV branch support:
+      image_pipeline:
+        enabled: true
+        capture_backend: "rpicam"
+        source: {width, height, jpeg_quality}
+        crop: {mode, x, y, w, h}
+        spatial: {output_width, output_height, resample}
+        heic: {quality}
+
+    Note: bm_serial is intentionally parsed by bm_serial.load_bm_serial_config(),
+    not here. This loader merely ignores that section safely.
     """
     cfg = CameraSchedule()
     if not os.path.exists(path):
         return cfg
 
     section = None
+    subsection = None
+
     with open(path, "r", encoding="utf-8") as f:
         for raw in f:
-            line = raw.split("#", 1)[0].rstrip()
+            line = raw.split("#", 1)[0].rstrip("\n")
+            line = line.rstrip()
             if not line.strip():
                 continue
 
+            indent = len(line) - len(line.lstrip(" \t"))
             stripped = line.strip()
-            if stripped == "transmit_window:":
-                section = "transmit_window"
+
+            if stripped.endswith(":") and ":" not in stripped[:-1]:
+                name = stripped[:-1].strip()
+                if indent == 0:
+                    section = name
+                    subsection = None
+                else:
+                    subsection = name
                 continue
-            if stripped == "rtc:":
-                section = "rtc"
-                continue
-            if stripped == "image:":
-                section = "image"
-                continue
+
             if ":" not in stripped:
                 continue
 
@@ -147,9 +182,10 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
             key = key.strip()
             value = _strip_yaml_value(value)
 
-            # Any non-indented key returns to top level.
-            if not raw.startswith((" ", "\t")) and key not in {"transmit_window", "image"}:
+            # Top-level key/value resets section context.
+            if indent == 0:
                 section = None
+                subsection = None
 
             if section == "transmit_window":
                 if key == "start":
@@ -172,6 +208,55 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                     cfg.resolution_key = value
                 elif key == "image_quality":
                     cfg.image_quality = int(value)
+                continue
+
+            if section == "image_pipeline":
+                if indent <= 2:
+                    subsection = None
+                    if key == "enabled":
+                        cfg.image_pipeline_enabled = _parse_bool(value)
+                    elif key == "capture_backend":
+                        cfg.image_pipeline_capture_backend = value
+                    continue
+
+                if subsection == "source":
+                    if key == "width":
+                        cfg.image_pipeline_source_width = int(value)
+                    elif key == "height":
+                        cfg.image_pipeline_source_height = int(value)
+                    elif key == "jpeg_quality":
+                        cfg.image_pipeline_source_jpeg_quality = int(value)
+                    continue
+
+                if subsection == "crop":
+                    if key == "mode":
+                        cfg.image_pipeline_crop_mode = value
+                    elif key == "x":
+                        cfg.image_pipeline_crop_x = int(value)
+                    elif key == "y":
+                        cfg.image_pipeline_crop_y = int(value)
+                    elif key == "w":
+                        cfg.image_pipeline_crop_w = int(value)
+                    elif key == "h":
+                        cfg.image_pipeline_crop_h = int(value)
+                    continue
+
+                if subsection == "spatial":
+                    if key == "output_width":
+                        cfg.image_pipeline_spatial_output_width = int(value)
+                    elif key == "output_height":
+                        cfg.image_pipeline_spatial_output_height = int(value)
+                    elif key == "resample":
+                        cfg.image_pipeline_spatial_resample = value
+                    continue
+
+                if subsection == "heic":
+                    if key == "quality":
+                        cfg.image_pipeline_heic_quality = int(value)
+                    continue
+
+            # bm_serial is parsed by bm_serial.load_bm_serial_config(). Ignore it here.
+            if section == "bm_serial":
                 continue
 
             if key == "time_source":
@@ -198,7 +283,6 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                 cfg.baudrate = int(value)
 
     return cfg
-
 
 def resolve_timezone(cfg: CameraSchedule) -> str:
     """Return the real IANA timezone string from preset or explicit timezone."""
@@ -246,6 +330,28 @@ def validate_schedule(cfg: CameraSchedule) -> None:
         raise ValueError("image.image_quality must be between 0 and 100")
     if not cfg.resolution_key:
         raise ValueError("image.resolution_key must not be empty")
+
+    if cfg.image_pipeline_enabled:
+        backend = (cfg.image_pipeline_capture_backend or "").strip().lower()
+        if backend not in {"auto", "rpicam", "libcamera", "picamera2", "legacy"}:
+            raise ValueError("image_pipeline.capture_backend must be auto, rpicam, libcamera, picamera2, or legacy")
+        if cfg.image_pipeline_source_width <= 0 or cfg.image_pipeline_source_height <= 0:
+            raise ValueError("image_pipeline.source width/height must be greater than 0")
+        if not (1 <= int(cfg.image_pipeline_source_jpeg_quality) <= 100):
+            raise ValueError("image_pipeline.source.jpeg_quality must be between 1 and 100")
+        if cfg.image_pipeline_crop_x < 0 or cfg.image_pipeline_crop_y < 0:
+            raise ValueError("image_pipeline.crop x/y must be >= 0")
+        if cfg.image_pipeline_crop_w <= 0 or cfg.image_pipeline_crop_h <= 0:
+            raise ValueError("image_pipeline.crop w/h must be greater than 0")
+        if cfg.image_pipeline_crop_x + cfg.image_pipeline_crop_w > cfg.image_pipeline_source_width:
+            raise ValueError("image_pipeline.crop exceeds source width")
+        if cfg.image_pipeline_crop_y + cfg.image_pipeline_crop_h > cfg.image_pipeline_source_height:
+            raise ValueError("image_pipeline.crop exceeds source height")
+        if cfg.image_pipeline_spatial_output_width <= 0 or cfg.image_pipeline_spatial_output_height <= 0:
+            raise ValueError("image_pipeline.spatial output_width/output_height must be greater than 0")
+        if not (0 <= int(cfg.image_pipeline_heic_quality) <= 100):
+            raise ValueError("image_pipeline.heic.quality must be between 0 and 100")
+
     if cfg.time_source == "rtc":
         if not cfg.rtc_hwclock_path:
             raise ValueError("rtc.hwclock_path must not be empty")

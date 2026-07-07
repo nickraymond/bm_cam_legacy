@@ -543,8 +543,236 @@ def send_wake_status(
     return send_compact_text_message(message)
 
 
-def capture_image(resolution_key="VGA", directory_path=IMAGE_DIRECTORY):
-    """Capture an image with the specified resolution and save it in the directory."""
+
+def _pipeline_bool(value, default=False):
+    """Return a forgiving boolean for YAML/CLI-derived image pipeline values."""
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "on", "enabled"}
+
+
+def _pipeline_int(settings, key, default, min_value=None, max_value=None):
+    value = settings.get(key, default) if isinstance(settings, dict) else default
+    try:
+        parsed = int(value)
+    except Exception:
+        debug_print(f"Invalid image_pipeline.{key}={value!r}; using default {default}")
+        parsed = int(default)
+    if min_value is not None and parsed < min_value:
+        debug_print(f"image_pipeline.{key}={parsed} below minimum {min_value}; using {min_value}")
+        parsed = min_value
+    if max_value is not None and parsed > max_value:
+        debug_print(f"image_pipeline.{key}={parsed} above maximum {max_value}; using {max_value}")
+        parsed = max_value
+    return parsed
+
+
+def _select_camera_command(capture_backend):
+    """Return the rpicam/libcamera command to use for native full capture."""
+    backend = (capture_backend or "auto").strip().lower()
+
+    if backend in {"legacy", "picamera2"}:
+        return None, "picamera2"
+
+    if backend in {"auto", "rpicam"}:
+        cmd = shutil.which("rpicam-still")
+        if cmd:
+            return cmd, "rpicam"
+        if backend == "rpicam":
+            debug_print("rpicam-still not found; falling back to libcamera-still if available")
+
+    if backend in {"auto", "rpicam", "libcamera"}:
+        cmd = shutil.which("libcamera-still")
+        if cmd:
+            return cmd, "libcamera"
+
+    raise RuntimeError(
+        "No supported camera command found. Expected rpicam-still or libcamera-still "
+        f"for capture_backend={capture_backend!r}."
+    )
+
+
+def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix):
+    """Capture native/full-source JPEG with rpicam-still or libcamera-still."""
+    stdout_log = f"{log_prefix}.stdout.log"
+    stderr_log = f"{log_prefix}.stderr.log"
+
+    cmd = [
+        command,
+        "-n",
+        "--timeout", "2000",
+        "--width", str(source_width),
+        "--height", str(source_height),
+        "--quality", str(jpeg_quality),
+        "-o", native_image_path,
+    ]
+
+    debug_print("Running native capture command: " + " ".join(cmd))
+    with open(stdout_log, "w", encoding="utf-8") as out, open(stderr_log, "w", encoding="utf-8") as err:
+        result = subprocess.run(cmd, stdout=out, stderr=err, text=True)
+
+    # Some older camera apps have option differences. Retry once without -n so
+    # an option mismatch does not kill the test branch unnecessarily.
+    if result.returncode != 0:
+        retry_cmd = [x for x in cmd if x != "-n"]
+        debug_print(
+            f"Native capture command failed with exit {result.returncode}; "
+            "retrying without -n"
+        )
+        with open(stdout_log, "a", encoding="utf-8") as out, open(stderr_log, "a", encoding="utf-8") as err:
+            out.write("\n--- RETRY WITHOUT -n ---\n")
+            err.write("\n--- RETRY WITHOUT -n ---\n")
+            result = subprocess.run(retry_cmd, stdout=out, stderr=err, text=True)
+            cmd = retry_cmd
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Native capture failed with exit {result.returncode}. "
+            f"See logs: {stdout_log}, {stderr_log}"
+        )
+
+    if not os.path.exists(native_image_path) or os.path.getsize(native_image_path) <= 0:
+        raise RuntimeError(f"Native capture did not produce a valid file: {native_image_path}")
+
+    return {
+        "capture_command": cmd,
+        "stdout_log": stdout_log,
+        "stderr_log": stderr_log,
+    }
+
+
+def _crop_and_downsample_native(native_image_path, final_image_path, settings):
+    """Crop in native image coordinates, then downsample to the requested output size."""
+    crop_x = _pipeline_int(settings, "crop_x", 768, min_value=0)
+    crop_y = _pipeline_int(settings, "crop_y", 432, min_value=0)
+    crop_w = _pipeline_int(settings, "crop_w", 3072, min_value=1)
+    crop_h = _pipeline_int(settings, "crop_h", 1728, min_value=1)
+    out_w = _pipeline_int(settings, "output_width", crop_w, min_value=1)
+    out_h = _pipeline_int(settings, "output_height", crop_h, min_value=1)
+    jpeg_quality = _pipeline_int(settings, "source_jpeg_quality", 95, min_value=1, max_value=100)
+    resample_name = str(settings.get("resample", "lanczos") if isinstance(settings, dict) else "lanczos").lower()
+
+    if resample_name != "lanczos":
+        debug_print(f"Unsupported resample={resample_name!r}; using lanczos for MVP pipeline")
+
+    with Image.open(native_image_path) as img:
+        img = img.convert("RGB")
+        native_w, native_h = img.size
+
+        if crop_x + crop_w > native_w or crop_y + crop_h > native_h:
+            raise ValueError(
+                "image_pipeline crop exceeds native image bounds: "
+                f"crop=({crop_x},{crop_y},{crop_w},{crop_h}) native={native_w}x{native_h}"
+            )
+
+        cropped = img.crop((crop_x, crop_y, crop_x + crop_w, crop_y + crop_h))
+        if (out_w, out_h) != (crop_w, crop_h):
+            cropped = cropped.resize((out_w, out_h), Image.Resampling.LANCZOS)
+
+        cropped.save(final_image_path, format="JPEG", quality=jpeg_quality, subsampling=0)
+
+    return {
+        "native_width": native_w,
+        "native_height": native_h,
+        "crop_x": crop_x,
+        "crop_y": crop_y,
+        "crop_w": crop_w,
+        "crop_h": crop_h,
+        "output_width": out_w,
+        "output_height": out_h,
+        "resample": "lanczos",
+        "intermediate_jpeg_quality": jpeg_quality,
+    }
+
+
+def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECTORY):
+    """Capture native full JPEG, crop/downsample, and return final JPEG path.
+
+    This branch intentionally mirrors the Mac-side spatial/HEIC sweeps:
+      native 4608x2592 JPEG -> fixed native-coordinate crop -> optional
+      LANCZOS downsample -> HEIC compression in the unchanged send path.
+    """
+    settings = image_pipeline or {}
+    source_width = _pipeline_int(settings, "source_width", 4608, min_value=1)
+    source_height = _pipeline_int(settings, "source_height", 2592, min_value=1)
+    source_jpeg_quality = _pipeline_int(settings, "source_jpeg_quality", 95, min_value=1, max_value=100)
+    capture_backend = settings.get("capture_backend", "auto") if isinstance(settings, dict) else "auto"
+
+    command, actual_backend = _select_camera_command(capture_backend)
+    if actual_backend == "picamera2":
+        legacy_key = settings.get("legacy_resolution_key", RESOLUTION_KEY) if isinstance(settings, dict) else RESOLUTION_KEY
+        debug_print(
+            "image_pipeline requested legacy/picamera2 backend; using legacy capture path "
+            f"with resolution_key={legacy_key}"
+        )
+        return capture_image(resolution_key=legacy_key, directory_path=directory_path, image_pipeline=None)
+
+    os.makedirs(directory_path, exist_ok=True)
+
+    image_filename = generate_filename()
+    final_image_path = os.path.join(directory_path, image_filename)
+    file_name_no_ext, _ = os.path.splitext(image_filename)
+    native_image_path = os.path.join(directory_path, f"{file_name_no_ext}_native_full.jpg")
+    log_prefix = os.path.join(directory_path, f"{file_name_no_ext}_native_full")
+
+    capture_info = _run_native_full_capture(
+        command=command,
+        native_image_path=native_image_path,
+        source_width=source_width,
+        source_height=source_height,
+        jpeg_quality=source_jpeg_quality,
+        log_prefix=log_prefix,
+    )
+
+    geometry_info = _crop_and_downsample_native(native_image_path, final_image_path, settings)
+
+    metadata = {
+        "capture_backend_requested": capture_backend,
+        "capture_backend_actual": actual_backend,
+        "capture_command": capture_info.get("capture_command"),
+        "capture_stdout_log": capture_info.get("stdout_log"),
+        "capture_stderr_log": capture_info.get("stderr_log"),
+        "native_image_path": native_image_path,
+        "native_image_size_bytes": os.path.getsize(native_image_path),
+        "final_image_path": final_image_path,
+        "final_image_size_bytes": os.path.getsize(final_image_path),
+        "pipeline_enabled": True,
+        "pipeline_note": "native full JPEG -> native-coordinate crop -> optional LANCZOS downsample -> unchanged HEIC/send path",
+    }
+    metadata.update(geometry_info)
+    if isinstance(settings, dict):
+        metadata["heic_quality_requested"] = settings.get("heic_quality")
+        metadata["crop_mode"] = settings.get("crop_mode", "fixed")
+
+    save_capture_metadata(final_image_path, metadata)
+
+    debug_print(
+        "Image pipeline output saved as "
+        f"'{final_image_path}', file size = {os.path.getsize(final_image_path)} bytes"
+    )
+    debug_print(
+        "Image pipeline geometry: "
+        f"native={geometry_info['native_width']}x{geometry_info['native_height']} "
+        f"crop=({geometry_info['crop_x']},{geometry_info['crop_y']},"
+        f"{geometry_info['crop_w']},{geometry_info['crop_h']}) "
+        f"output={geometry_info['output_width']}x{geometry_info['output_height']}"
+    )
+
+    return final_image_path
+
+
+def capture_image(resolution_key="VGA", directory_path=IMAGE_DIRECTORY, image_pipeline=None):
+    """Capture an image and save it in the directory.
+
+    Legacy mode uses Picamera2 and the historical RESOLUTIONS table.
+    New dev mode uses image_pipeline to run rpicam/libcamera native-full
+    capture followed by explicit crop/spatial downsample before HEIC send.
+    """
+    if image_pipeline and _pipeline_bool(image_pipeline.get("enabled"), default=False):
+        return capture_image_libcamera_pipeline(image_pipeline, directory_path=directory_path)
+
     resolution = validate_resolution(resolution_key)
 
     # Initialize the camera
@@ -610,7 +838,6 @@ def capture_image(resolution_key="VGA", directory_path=IMAGE_DIRECTORY):
     picam2.stop()
 
     return image_path
-
 
 def encode_to_base64(binary_data):
     return base64.b64encode(binary_data).decode('ascii')
