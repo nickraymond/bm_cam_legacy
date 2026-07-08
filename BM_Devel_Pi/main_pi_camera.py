@@ -25,6 +25,7 @@ from process_image_v2 import (
     RESOLUTIONS,
     capture_image,
     close_bm_serial,
+    collect_storage_health,
     compress_and_send_image,
     debug_print,
     get_cpu_temperature,
@@ -450,6 +451,7 @@ def main(
             )
             file_size_raw = get_file_size(image_path)
             cpu_temp = get_cpu_temperature()
+            storage_health = collect_storage_health()
             try:
                 update_capture_metadata(image_path, {
                     "software_sha": get_software_sha(),
@@ -469,6 +471,7 @@ def main(
                     "image_pipeline": image_pipeline,
                     "raw_jpeg_bytes": file_size_raw,
                     "cpu_temp_c_after_capture": cpu_temp,
+                    **storage_health,
                 })
             except Exception as exc:
                 debug_print(f"Runtime metadata sidecar update failed, continuing safely: {exc}")

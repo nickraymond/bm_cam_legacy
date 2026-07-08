@@ -315,6 +315,88 @@ def update_capture_metadata(image_path, metadata):
     save_capture_metadata(image_path, existing)
     return existing
 
+def _directory_size_bytes(path):
+    """Return best-effort recursive byte size for a local runtime directory.
+
+    Read-only helper. Does not delete, create, or modify files.
+    Symlinks are ignored to avoid accidentally walking outside runtime storage.
+    """
+    total = 0
+    try:
+        if not os.path.exists(path):
+            return 0
+        if os.path.isfile(path) and not os.path.islink(path):
+            return os.path.getsize(path)
+        for dirpath, dirnames, filenames in os.walk(path):
+            # Do not follow symlinked directories.
+            dirnames[:] = [
+                name for name in dirnames
+                if not os.path.islink(os.path.join(dirpath, name))
+            ]
+            for name in filenames:
+                file_path = os.path.join(dirpath, name)
+                try:
+                    if not os.path.islink(file_path):
+                        total += os.path.getsize(file_path)
+                except OSError:
+                    pass
+    except Exception as exc:
+        debug_print(f"Failed to compute directory size for {path}: {exc}")
+    return int(total)
+
+
+def _zero_byte_heic_count(images_directory=IMAGE_DIRECTORY):
+    """Count zero-byte HEIC artifacts in the local images directory only."""
+    count = 0
+    try:
+        if not os.path.isdir(images_directory):
+            return 0
+        for name in os.listdir(images_directory):
+            if not name.lower().endswith(".heic"):
+                continue
+            path = os.path.join(images_directory, name)
+            try:
+                if os.path.isfile(path) and os.path.getsize(path) == 0:
+                    count += 1
+            except OSError:
+                pass
+    except Exception as exc:
+        debug_print(f"Failed to count zero-byte HEIC files: {exc}")
+    return int(count)
+
+
+def collect_storage_health():
+    """Return read-only SD-card/local artifact usage fields for metadata.
+
+    This is intentionally reporting-only. It does not perform ring-buffer
+    deletion and does not mutate local image, buffer, config, code, or log files.
+    """
+    root_path = "/"
+    cron_logs_dir = "/home/pi/BM_Devel_Pi/cron_logs"
+
+    total = used = free = None
+    used_pct = None
+    try:
+        usage = shutil.disk_usage(root_path)
+        total = int(usage.total)
+        used = int(usage.used)
+        free = int(usage.free)
+        if total > 0:
+            used_pct = round((used / total) * 100.0, 2)
+    except Exception as exc:
+        debug_print(f"Failed to read SD-card disk usage: {exc}")
+
+    return {
+        "sd_total_bytes": total,
+        "sd_used_bytes": used,
+        "sd_free_bytes": free,
+        "sd_used_pct": used_pct,
+        "images_dir_bytes": _directory_size_bytes(IMAGE_DIRECTORY),
+        "buffer_dir_bytes": _directory_size_bytes(BUFFER_DIRECTORY),
+        "cron_logs_dir_bytes": _directory_size_bytes(cron_logs_dir),
+        "zero_byte_heic_count": _zero_byte_heic_count(IMAGE_DIRECTORY),
+    }
+
 def _num(value, digits=2):
     """Compact numeric formatting for telemetry fields."""
     if value is None or value == "":
@@ -1922,6 +2004,7 @@ def compress_and_send_image(
     )
     buffer_stats = _buffer_directory_stats(BUFFER_DIRECTORY)
     compressed_file_path = os.path.join(IMAGE_DIRECTORY, compressed_file_name)
+    storage_health = collect_storage_health()
 
     schedule_metadata = schedule_metadata or {}
     start_metadata = {
@@ -1955,6 +2038,7 @@ def compress_and_send_image(
         "image_transmit_delay_seconds": IMAGE_TRANSMIT_DELAY_SECONDS,
         "bm_network_type": bm_transfer_settings.get("network_type"),
         "bm_network_description": bm_transfer_settings.get("network_description"),
+        **storage_health,
     })
     transmit_stats = send_buffers(
         BUFFER_DIRECTORY,
@@ -1963,11 +2047,13 @@ def compress_and_send_image(
         capture_metadata=capture_metadata,
     )
 
+    post_transmit_storage_health = collect_storage_health()
     update_capture_metadata(image_path, {
         "transmit_success": True,
         "transmit_duration_sec": transmit_stats.get("uart_duration_sec"),
         "sent_buffers": transmit_stats.get("sent_buffers"),
         "final_cpu_temp_c": transmit_stats.get("cpu_temp_c"),
+        **post_transmit_storage_health,
     })
     return compressed_file_name, num_buffers, file_size_compressed
 
