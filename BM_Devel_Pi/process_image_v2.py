@@ -622,12 +622,106 @@ def _select_camera_command(capture_backend):
     )
 
 
+
+# Native capture retry policy for bmcam000 MVP stability.
+# libcamera-still/rpicam-still is already an external process, but it still
+# needs a parent-process watchdog. If the camera app stalls, kill it, remove
+# partial native files, wait, and retry instead of wedging the cycle.
+CAPTURE_HELPER_TIMEOUT_SECONDS = 30
+CAPTURE_HELPER_MAX_RETRIES = 3
+CAPTURE_HELPER_RETRY_DELAY_SECONDS = 60
+
+
+def _remove_capture_artifact(native_image_path):
+    """Remove stale/partial native capture output after failed capture attempts."""
+    try:
+        if native_image_path and os.path.exists(native_image_path):
+            os.remove(native_image_path)
+            debug_print(f"Removed native capture artifact: {native_image_path}")
+    except Exception as exc:
+        debug_print(f"Failed to remove native capture artifact {native_image_path}: {exc}")
+
+
+def _send_capture_status(action, error_code, attempt, max_attempts, native_image_path,
+                         source_width=None, source_height=None, output_width=None,
+                         output_height=None, jpeg_quality=None, wait_seconds=None,
+                         duration_sec=None, return_code=None):
+    """Best-effort parseable BM status for native capture retry/error handling.
+
+    Message shape intentionally follows existing compact WS telemetry, e.g.:
+      <WS v=1 a=err e=cap_timeout try=1 max=4 tmo=30 src=4608x2592 ...>
+
+    This must never break capture/compression/transmit.
+    """
+    try:
+        try:
+            cpu_temp = f"{get_cpu_temperature():.1f}"
+        except Exception:
+            cpu_temp = "na"
+
+        try:
+            native_bytes = os.path.getsize(native_image_path) if native_image_path and os.path.exists(native_image_path) else None
+        except Exception:
+            native_bytes = None
+
+        src = f"{source_width}x{source_height}" if source_width and source_height else None
+        out = f"{output_width}x{output_height}" if output_width and output_height else None
+
+        fields = [
+            ("v", "1"),
+            ("a", action),
+            ("e", error_code),
+            ("try", attempt),
+            ("max", max_attempts),
+            ("tmo", CAPTURE_HELPER_TIMEOUT_SECONDS),
+            ("wait", wait_seconds),
+            ("src", src),
+            ("out", out),
+            ("q", jpeg_quality),
+            ("sz", native_bytes),
+            ("dur", f"{duration_sec:.1f}" if duration_sec is not None else None),
+            ("rc", return_code),
+            ("ct", cpu_temp),
+            ("sha", get_software_sha()),
+            ("hn", get_hostname()),
+        ]
+        send_compact_text_message(compact_kv_message("WS", fields))
+    except Exception as exc:
+        debug_print(f"Failed to send capture status telemetry: {exc}")
+
+
+def _run_camera_command_with_timeout(cmd, stdout_log, stderr_log, attempt_label):
+    """Run the camera app with a hard timeout and append output to log files."""
+    with open(stdout_log, "a", encoding="utf-8") as out, open(stderr_log, "a", encoding="utf-8") as err:
+        out.write(f"\n--- {attempt_label} ---\n")
+        err.write(f"\n--- {attempt_label} ---\n")
+        out.flush()
+        err.flush()
+        started = time.monotonic()
+        result = subprocess.run(
+            cmd,
+            stdout=out,
+            stderr=err,
+            text=True,
+            timeout=CAPTURE_HELPER_TIMEOUT_SECONDS,
+            check=False,
+        )
+        duration = time.monotonic() - started
+    return result, duration
+
+
 def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix):
-    """Capture native/full-source JPEG with rpicam-still or libcamera-still."""
+    """Capture native/full-source JPEG with rpicam-still or libcamera-still.
+
+    The camera app is already a subprocess, but on bmcam000 we observed native
+    capture can occasionally stall when stress-testing repeated full cycles.
+    Add the same safety pattern used for HEIC: timeout, cleanup, cooldown,
+    retry, and parseable WS telemetry before giving up.
+    """
     stdout_log = f"{log_prefix}.stdout.log"
     stderr_log = f"{log_prefix}.stderr.log"
 
-    cmd = [
+    base_cmd = [
         command,
         "-n",
         "--timeout", "2000",
@@ -637,38 +731,154 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
         "-o", native_image_path,
     ]
 
-    debug_print("Running native capture command: " + " ".join(cmd))
-    with open(stdout_log, "w", encoding="utf-8") as out, open(stderr_log, "w", encoding="utf-8") as err:
-        result = subprocess.run(cmd, stdout=out, stderr=err, text=True)
+    max_attempts = 1 + CAPTURE_HELPER_MAX_RETRIES
+    last_error = None
+    final_cmd = list(base_cmd)
 
-    # Some older camera apps have option differences. Retry once without -n so
-    # an option mismatch does not kill the test branch unnecessarily.
-    if result.returncode != 0:
-        retry_cmd = [x for x in cmd if x != "-n"]
+    # Start fresh logs for this native capture.
+    for path in (stdout_log, stderr_log):
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("")
+        except Exception:
+            pass
+
+    for attempt in range(1, max_attempts + 1):
+        cmd = list(base_cmd)
+        final_cmd = list(cmd)
+        _remove_capture_artifact(native_image_path)
+
         debug_print(
-            f"Native capture command failed with exit {result.returncode}; "
-            "retrying without -n"
-        )
-        with open(stdout_log, "a", encoding="utf-8") as out, open(stderr_log, "a", encoding="utf-8") as err:
-            out.write("\n--- RETRY WITHOUT -n ---\n")
-            err.write("\n--- RETRY WITHOUT -n ---\n")
-            result = subprocess.run(retry_cmd, stdout=out, stderr=err, text=True)
-            cmd = retry_cmd
-
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"Native capture failed with exit {result.returncode}. "
-            f"See logs: {stdout_log}, {stderr_log}"
+            f"Running native capture command attempt {attempt}/{max_attempts}: "
+            + " ".join(cmd)
         )
 
-    if not os.path.exists(native_image_path) or os.path.getsize(native_image_path) <= 0:
-        raise RuntimeError(f"Native capture did not produce a valid file: {native_image_path}")
+        try:
+            result, duration = _run_camera_command_with_timeout(
+                cmd,
+                stdout_log,
+                stderr_log,
+                f"ATTEMPT {attempt}/{max_attempts}",
+            )
 
-    return {
-        "capture_command": cmd,
-        "stdout_log": stdout_log,
-        "stderr_log": stderr_log,
-    }
+            # Some older camera apps have option differences. Retry once within
+            # this attempt without -n so an option mismatch does not kill the
+            # branch unnecessarily. Keep the same outer timeout for the retry.
+            if result.returncode != 0 and "-n" in cmd:
+                retry_cmd = [x for x in cmd if x != "-n"]
+                final_cmd = list(retry_cmd)
+                debug_print(
+                    f"Native capture command failed with exit {result.returncode}; "
+                    "retrying this attempt without -n"
+                )
+                try:
+                    result, duration = _run_camera_command_with_timeout(
+                        retry_cmd,
+                        stdout_log,
+                        stderr_log,
+                        f"ATTEMPT {attempt}/{max_attempts} RETRY WITHOUT -n",
+                    )
+                except subprocess.TimeoutExpired as exc:
+                    raise exc
+
+            if result.returncode == 0 and os.path.exists(native_image_path) and os.path.getsize(native_image_path) > 0:
+                output_size = os.path.getsize(native_image_path)
+                debug_print(
+                    f"Native capture completed: output={native_image_path}, "
+                    f"bytes={output_size}, duration_sec={duration:.2f}, "
+                    f"attempt={attempt}/{max_attempts}"
+                )
+                if attempt > 1:
+                    _send_capture_status(
+                        action="rec",
+                        error_code="cap",
+                        attempt=attempt,
+                        max_attempts=max_attempts,
+                        native_image_path=native_image_path,
+                        source_width=source_width,
+                        source_height=source_height,
+                        jpeg_quality=jpeg_quality,
+                        duration_sec=duration,
+                    )
+                return {
+                    "capture_command": final_cmd,
+                    "stdout_log": stdout_log,
+                    "stderr_log": stderr_log,
+                }
+
+            last_error = RuntimeError(
+                f"Native capture failed or produced no valid image: "
+                f"exit_code={result.returncode} attempt={attempt}/{max_attempts} "
+                f"duration_sec={duration:.2f}"
+            )
+            debug_print(str(last_error))
+            _remove_capture_artifact(native_image_path)
+            _send_capture_status(
+                action="err",
+                error_code="cap_rc" if result.returncode != 0 else "cap_missing",
+                attempt=attempt,
+                max_attempts=max_attempts,
+                native_image_path=native_image_path,
+                source_width=source_width,
+                source_height=source_height,
+                jpeg_quality=jpeg_quality,
+                duration_sec=duration,
+                return_code=result.returncode,
+            )
+
+        except subprocess.TimeoutExpired as exc:
+            duration = CAPTURE_HELPER_TIMEOUT_SECONDS
+            last_error = exc
+            debug_print(
+                f"Native capture timeout attempt={attempt}/{max_attempts} "
+                f"timeout_sec={CAPTURE_HELPER_TIMEOUT_SECONDS}"
+            )
+            _remove_capture_artifact(native_image_path)
+            _send_capture_status(
+                action="err",
+                error_code="cap_timeout",
+                attempt=attempt,
+                max_attempts=max_attempts,
+                native_image_path=native_image_path,
+                source_width=source_width,
+                source_height=source_height,
+                jpeg_quality=jpeg_quality,
+                duration_sec=duration,
+            )
+
+        if attempt < max_attempts:
+            next_attempt = attempt + 1
+            debug_print(
+                f"Waiting {CAPTURE_HELPER_RETRY_DELAY_SECONDS}s before native capture retry "
+                f"{next_attempt}/{max_attempts}"
+            )
+            _send_capture_status(
+                action="retry",
+                error_code="cap",
+                attempt=next_attempt,
+                max_attempts=max_attempts,
+                native_image_path=native_image_path,
+                source_width=source_width,
+                source_height=source_height,
+                jpeg_quality=jpeg_quality,
+                wait_seconds=CAPTURE_HELPER_RETRY_DELAY_SECONDS,
+            )
+            time.sleep(CAPTURE_HELPER_RETRY_DELAY_SECONDS)
+
+    _send_capture_status(
+        action="fail",
+        error_code="cap",
+        attempt=max_attempts,
+        max_attempts=max_attempts,
+        native_image_path=native_image_path,
+        source_width=source_width,
+        source_height=source_height,
+        jpeg_quality=jpeg_quality,
+    )
+    raise RuntimeError(
+        f"Native capture failed after {max_attempts} attempts; last_error={last_error!r}. "
+        f"See logs: {stdout_log}, {stderr_log}"
+    )
 
 
 def _crop_and_downsample_native(native_image_path, final_image_path, settings):
