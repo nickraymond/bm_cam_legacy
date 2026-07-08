@@ -29,7 +29,10 @@ from process_image_v2 import (
     debug_print,
     get_cpu_temperature,
     get_file_size,
+    get_hostname,
+    get_software_sha,
     log_message,
+    update_capture_metadata,
     send_wake_status,
 )
 from spotter_time_sync import (
@@ -447,6 +450,28 @@ def main(
             )
             file_size_raw = get_file_size(image_path)
             cpu_temp = get_cpu_temperature()
+            try:
+                update_capture_metadata(image_path, {
+                    "software_sha": get_software_sha(),
+                    "hostname": get_hostname(),
+                    "metadata_schema": "bmcam_runtime_sidecar_v1",
+                    "metadata_source": "config_runtime_not_libcamera_metadata",
+                    "utc_capture_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "time_source": "manual_skip_time_window" if skip_time_window else "spotter_utc_window",
+                    "timezone": schedule_meta.get("timezone"),
+                    "window_start": schedule_meta.get("window_start"),
+                    "window_end": schedule_meta.get("window_end"),
+                    "schedule_allowed": schedule_allowed,
+                    "schedule_reason": schedule_info.get("reason"),
+                    "transmit_requested": bool(transmit_image),
+                    "image_res_key": runtime_resolution_key,
+                    "image_quality": runtime_image_quality,
+                    "image_pipeline": image_pipeline,
+                    "raw_jpeg_bytes": file_size_raw,
+                    "cpu_temp_c_after_capture": cpu_temp,
+                })
+            except Exception as exc:
+                debug_print(f"Runtime metadata sidecar update failed, continuing safely: {exc}")
 
             if transmit_image:
                 # Compress and transmit image

@@ -294,6 +294,27 @@ def load_capture_metadata(image_path):
     return {}
 
 
+def update_capture_metadata(image_path, metadata):
+    """Merge safe runtime metadata into the existing local sidecar.
+
+    This intentionally reuses the existing *.capture_metadata.json sidecar
+    path. It does not call libcamera --metadata and does not affect capture,
+    HEIC encoding, chunking, or UART framing.
+    """
+    if not metadata:
+        return load_capture_metadata(image_path)
+
+    existing = load_capture_metadata(image_path)
+    if not isinstance(existing, dict):
+        existing = {}
+
+    safe_update = _json_safe_metadata(metadata)
+    if isinstance(safe_update, dict):
+        existing.update(safe_update)
+
+    save_capture_metadata(image_path, existing)
+    return existing
+
 def _num(value, digits=2):
     """Compact numeric formatting for telemetry fields."""
     if value is None or value == "":
@@ -1409,6 +1430,32 @@ def _run_heic_encode_helper(image_path, heic_output_path, image_quality):
     )
 
 
+def _buffer_directory_stats(buffer_directory=BUFFER_DIRECTORY):
+    """Return exact base64 buffer stats without changing buffer contents."""
+    stats = {
+        "buffer_directory": buffer_directory,
+        "buffer_count": 0,
+        "base64_chars": 0,
+        "buffer_size": BUFFER_SIZE,
+    }
+    try:
+        if not os.path.isdir(buffer_directory):
+            return stats
+        files = [
+            name for name in os.listdir(buffer_directory)
+            if name.startswith("split_") and name.endswith(".txt")
+        ]
+        stats["buffer_count"] = len(files)
+        total_chars = 0
+        for name in files:
+            path = os.path.join(buffer_directory, name)
+            with open(path, "r", encoding="ascii", errors="ignore") as f:
+                total_chars += len(f.read())
+        stats["base64_chars"] = total_chars
+    except Exception as exc:
+        debug_print(f"Failed to compute buffer stats: {exc}")
+    return stats
+
 def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
     """Compress the image to HEIC and split into buffers.
 
@@ -1608,12 +1655,14 @@ def compress_and_send_image(
     schedule_metadata=None,
 ):
     """Compress the image to HEIC, save it, and send buffers."""
-    apply_bm_serial_runtime_settings(configure_serial=True)
+    bm_transfer_settings = apply_bm_serial_runtime_settings(configure_serial=True)
 
     compressed_file_name, num_buffers, file_size_compressed = split_image_heic(
         image_path,
         image_quality=image_quality,
     )
+    buffer_stats = _buffer_directory_stats(BUFFER_DIRECTORY)
+    compressed_file_path = os.path.join(IMAGE_DIRECTORY, compressed_file_name)
 
     schedule_metadata = schedule_metadata or {}
     start_metadata = {
@@ -1626,13 +1675,41 @@ def compress_and_send_image(
         "hostname": get_hostname(),
     }
 
-    capture_metadata = load_capture_metadata(image_path)
-    send_buffers(
+    capture_metadata = update_capture_metadata(image_path, {
+        "software_sha": get_software_sha(),
+        "hostname": get_hostname(),
+        "metadata_schema": "bmcam_runtime_sidecar_v1",
+        "metadata_source": "config_runtime_not_libcamera_metadata",
+        "transmit_requested": True,
+        "image_res_key": image_res_key,
+        "image_quality": image_quality,
+        "timezone": schedule_metadata.get("timezone"),
+        "window_start": schedule_metadata.get("window_start"),
+        "window_end": schedule_metadata.get("window_end"),
+        "raw_jpeg_bytes": get_file_size(image_path),
+        "compressed_file_name": compressed_file_name,
+        "compressed_file_path": compressed_file_path,
+        "heic_bytes": file_size_compressed,
+        "base64_chars": buffer_stats.get("base64_chars"),
+        "buffer_count": num_buffers,
+        "chunk_size": BUFFER_SIZE,
+        "image_transmit_delay_seconds": IMAGE_TRANSMIT_DELAY_SECONDS,
+        "bm_network_type": bm_transfer_settings.get("network_type"),
+        "bm_network_description": bm_transfer_settings.get("network_description"),
+    })
+    transmit_stats = send_buffers(
         BUFFER_DIRECTORY,
         compressed_file_name,
         start_metadata=start_metadata,
         capture_metadata=capture_metadata,
     )
+
+    update_capture_metadata(image_path, {
+        "transmit_success": True,
+        "transmit_duration_sec": transmit_stats.get("uart_duration_sec"),
+        "sent_buffers": transmit_stats.get("sent_buffers"),
+        "final_cpu_temp_c": transmit_stats.get("cpu_temp_c"),
+    })
     return compressed_file_name, num_buffers, file_size_compressed
 
 
