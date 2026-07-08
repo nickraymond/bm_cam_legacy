@@ -8,19 +8,14 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 import time
 from datetime import datetime, timezone
 
-import cv2
-import pillow_heif
 from PIL import Image
-from picamera2 import Picamera2
 
 from bm_serial import BristlemouthSerial, load_bm_serial_config
 
-
-# Add HEIC support
-pillow_heif.register_heif_opener()
 
 # Setup the Bristlemouth UART Serial.
 # The network selector defaults from camera_schedule.yaml bm_serial.network_type.
@@ -775,7 +770,11 @@ def capture_image(resolution_key="VGA", directory_path=IMAGE_DIRECTORY, image_pi
 
     resolution = validate_resolution(resolution_key)
 
-    # Initialize the camera
+    # Initialize the camera. Import Picamera2 lazily so the new libcamera
+    # pipeline and HEIC compression path do not load Picamera2 unless legacy
+    # capture mode is explicitly used.
+    from picamera2 import Picamera2
+
     picam2 = Picamera2()
 
     # Set the configuration with the chosen resolution
@@ -868,6 +867,9 @@ def split_image_jpeg(image_path, buffer_directory, image_quality):
     os.makedirs(buffer_directory, exist_ok=True)
     debug_print("Created buffers dir")
 
+    # Import OpenCV lazily; the HEIC/libcamera MVP path does not need it.
+    import cv2
+
     image = cv2.imread(image_path)
     if image is None:
         raise ValueError(f"Failed to load image from path: {image_path}")
@@ -902,12 +904,78 @@ def split_image_jpeg(image_path, buffer_directory, image_quality):
     debug_print(f"Saved {buffer_number} buffer txt files.")
 
 
+def _heic_helper_path():
+    """Return the colocated lightweight HEIC helper script path."""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "heic_encode_helper.py")
+
+
+def _run_heic_encode_helper(image_path, heic_output_path, image_quality):
+    """Encode HEIC in a lightweight subprocess.
+
+    On bmcam000 / Pi Zero 2W, the exact RGB + temp-file HEIC procedure passed
+    repeatedly when run in a tiny standalone Python process, but failed inside
+    the heavier production module context. Keep the encoder isolated so it does
+    not inherit Picamera2/OpenCV/BM serial runtime weight.
+    """
+    helper = _heic_helper_path()
+    if not os.path.exists(helper):
+        raise FileNotFoundError(f"HEIC helper not found: {helper}")
+
+    cmd = [
+        sys.executable or "/usr/bin/python3",
+        helper,
+        "--input", image_path,
+        "--output", heic_output_path,
+        "--quality", str(image_quality),
+    ]
+
+    debug_print("Running HEIC helper subprocess: " + " ".join(cmd))
+    started = time.monotonic()
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+    )
+    duration = time.monotonic() - started
+
+    if result.stdout.strip():
+        for line in result.stdout.strip().splitlines():
+            debug_print(f"HEIC helper stdout: {line}")
+    if result.stderr.strip():
+        for line in result.stderr.strip().splitlines():
+            debug_print(f"HEIC helper stderr: {line}")
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"HEIC helper failed with exit_code={result.returncode} "
+            f"duration_sec={duration:.2f}"
+        )
+
+    if not os.path.exists(heic_output_path):
+        raise ValueError(f"HEIC helper did not create output: {heic_output_path}")
+
+    output_size = os.path.getsize(heic_output_path)
+    if output_size <= 0:
+        raise ValueError(f"HEIC helper created zero-byte output: {heic_output_path}")
+
+    debug_print(
+        f"HEIC helper completed: output={heic_output_path}, "
+        f"bytes={output_size}, duration_sec={duration:.2f}"
+    )
+    return output_size, duration
+
+
 def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
     """Compress the image to HEIC and split into buffers.
 
     Safety note for bmcam000 / Pi Zero 2W tests:
     - The validated stable HEIC path is: open JPEG -> convert RGB -> write
       to a temporary HEIC file -> verify nonzero -> atomically rename.
+    - That encode now runs in heic_encode_helper.py as a lightweight subprocess
+      because the same encode was stable standalone but unstable inside the
+      heavy production module context.
     - Do not change the existing base64 chunking or send path here.
       The Bristlemouth message path still chunks the base64 HEIC payload
       using BUFFER_SIZE exactly as before.
@@ -926,8 +994,8 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
     tmp_heic_output_path = os.path.join(IMAGE_DIRECTORY, f"{file_name_without_ext}_compressed.tmp.heic")
 
     # Avoid stale zero-byte files from prior interrupted encodes being mistaken
-    # for valid output. The final file is created only after the temporary HEIC
-    # is fully encoded and verified.
+    # for valid output. The helper creates the final file only after the
+    # temporary HEIC is fully encoded and verified.
     for stale_path in (tmp_heic_output_path, heic_output_path):
         try:
             if os.path.exists(stale_path):
@@ -936,36 +1004,18 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
         except Exception as exc:
             debug_print(f"Failed to remove stale HEIC file {stale_path}: {exc}")
 
-    # Open the image and save it as HEIC.
     # Quality convention:
     # lower = smaller/more compressed/lower quality, higher = larger/less compressed/higher quality.
-    # Explicit RGB conversion and temp-file output match the validated manual
-    # probe that repeatedly passed for 2688x1512 @ Q20 on bmcam000.
-    encode_start = time.monotonic()
     debug_print(
-        f"Starting safe HEIC encode: input={image_path}, "
-        f"tmp={tmp_heic_output_path}, quality={image_quality}"
+        f"Starting isolated HEIC encode: input={image_path}, "
+        f"output={heic_output_path}, quality={image_quality}"
     )
-    with Image.open(image_path) as img:
-        debug_print(f"HEIC input image: size={img.size}, mode={img.mode}")
-        img = img.convert("RGB")
-        img.save(tmp_heic_output_path, format="HEIF", quality=image_quality)
+    file_size, encode_duration_sec = _run_heic_encode_helper(
+        image_path=image_path,
+        heic_output_path=heic_output_path,
+        image_quality=image_quality,
+    )
 
-    if not os.path.exists(tmp_heic_output_path):
-        raise ValueError(f"HEIC encode failed: temporary output was not created: {tmp_heic_output_path}")
-
-    tmp_file_size = os.path.getsize(tmp_heic_output_path)
-    if tmp_file_size <= 0:
-        try:
-            os.remove(tmp_heic_output_path)
-        except Exception:
-            pass
-        raise ValueError("HEIC encode failed: temporary output file is zero bytes")
-
-    os.replace(tmp_heic_output_path, heic_output_path)
-
-    file_size = os.path.getsize(heic_output_path)
-    encode_duration_sec = time.monotonic() - encode_start
     debug_print(
         f"Compressed image saved as '{heic_output_path}', file size = {file_size} bytes, "
         f"encode_duration_sec={encode_duration_sec:.2f}"
@@ -995,31 +1045,8 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
         f"Saved {buffer_number} buffer text files in {BUFFER_DIRECTORY}; "
         f"base64_chars={file_length}; buffer_size={BUFFER_SIZE}"
     )
-    return os.path.basename(heic_output_path), buffer_number, len(heic_data)
 
-
-def _format_start_metadata(start_metadata):
-    """Return verbose START metadata for image messages.
-
-    Image transfer is already split into many chunk messages, so these field
-    names can be readable rather than ultra-short.
-    """
-    start_metadata = start_metadata or {}
-    fields = []
-    for key in (
-        "image_res_key",
-        "image_quality",
-        "timezone",
-        "window_start",
-        "window_end",
-        "software_sha",
-        "hostname",
-    ):
-        value = start_metadata.get(key)
-        if value is not None:
-            fields.append(f"{key}: {_clean_value(value, max_len=64)}")
-    return ", ".join(fields)
-
+    return os.path.basename(heic_output_path), buffer_number, file_size
 
 def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, capture_metadata=None):
     """Send the buffer files over UART."""
