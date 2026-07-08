@@ -315,6 +315,34 @@ def update_capture_metadata(image_path, metadata):
     save_capture_metadata(image_path, existing)
     return existing
 
+def _load_libcamera_metadata_json(metadata_path):
+    """Load libcamera-still/rpicam-still --metadata JSON output.
+
+    Best-effort only. Metadata improves reporting but must never break capture,
+    crop/downsample, HEIC encoding, or transmit.
+    """
+    if not metadata_path:
+        return {}
+    try:
+        if not os.path.exists(metadata_path):
+            return {}
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if isinstance(data, dict):
+            return _json_safe_metadata(data)
+
+        if isinstance(data, list):
+            for item in reversed(data):
+                if isinstance(item, dict):
+                    return _json_safe_metadata(item)
+
+        debug_print(f"Unsupported libcamera metadata JSON shape in {metadata_path}: {type(data).__name__}")
+    except Exception as exc:
+        debug_print(f"Failed to load libcamera metadata JSON {metadata_path}: {exc}")
+    return {}
+
+
 def _directory_size_bytes(path):
     """Return best-effort recursive byte size for a local runtime directory.
 
@@ -813,6 +841,21 @@ def _run_camera_command_with_timeout(cmd, stdout_log, stderr_log, attempt_label)
     return result, duration
 
 
+def _without_metadata_args(cmd):
+    """Return camera command with --metadata <path> removed."""
+    out = []
+    skip_next = False
+    for item in cmd:
+        if skip_next:
+            skip_next = False
+            continue
+        if item == "--metadata":
+            skip_next = True
+            continue
+        out.append(item)
+    return out
+
+
 def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix):
     """Capture native/full-source JPEG with rpicam-still or libcamera-still.
 
@@ -823,6 +866,7 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
     """
     stdout_log = f"{log_prefix}.stdout.log"
     stderr_log = f"{log_prefix}.stderr.log"
+    metadata_json_path = f"{log_prefix}.metadata.json"
 
     base_cmd = [
         command,
@@ -831,6 +875,7 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
         "--width", str(source_width),
         "--height", str(source_height),
         "--quality", str(jpeg_quality),
+        "--metadata", metadata_json_path,
         "-o", native_image_path,
     ]
 
@@ -850,6 +895,12 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
         cmd = list(base_cmd)
         final_cmd = list(cmd)
         _remove_capture_artifact(native_image_path)
+        try:
+            if os.path.exists(metadata_json_path):
+                os.remove(metadata_json_path)
+                debug_print(f"Removed native metadata artifact: {metadata_json_path}")
+        except Exception as exc:
+            debug_print(f"Failed to remove native metadata artifact {metadata_json_path}: {exc}")
 
         debug_print(
             f"Running native capture command attempt {attempt}/{max_attempts}: "
@@ -864,25 +915,54 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
                 f"ATTEMPT {attempt}/{max_attempts}",
             )
 
-            # Some older camera apps have option differences. Retry once within
-            # this attempt without -n so an option mismatch does not kill the
-            # branch unnecessarily. Keep the same outer timeout for the retry.
-            if result.returncode != 0 and "-n" in cmd:
-                retry_cmd = [x for x in cmd if x != "-n"]
-                final_cmd = list(retry_cmd)
-                debug_print(
-                    f"Native capture command failed with exit {result.returncode}; "
-                    "retrying this attempt without -n"
-                )
-                try:
-                    result, duration = _run_camera_command_with_timeout(
-                        retry_cmd,
-                        stdout_log,
-                        stderr_log,
-                        f"ATTEMPT {attempt}/{max_attempts} RETRY WITHOUT -n",
+            # Some older camera apps have option differences. Retry within this
+            # attempt with progressively simpler commands so metadata support
+            # cannot kill the branch unnecessarily.
+            if result.returncode != 0:
+                retry_variants = []
+
+                if "-n" in cmd:
+                    retry_variants.append((
+                        [x for x in cmd if x != "-n"],
+                        "WITHOUT -n",
+                    ))
+
+                if "--metadata" in cmd:
+                    retry_variants.append((
+                        _without_metadata_args(cmd),
+                        "WITHOUT --metadata",
+                    ))
+
+                if "-n" in cmd and "--metadata" in cmd:
+                    retry_variants.append((
+                        _without_metadata_args([x for x in cmd if x != "-n"]),
+                        "WITHOUT -n AND --metadata",
+                    ))
+
+                seen = set()
+                for retry_cmd, retry_label in retry_variants:
+                    retry_key = tuple(retry_cmd)
+                    if retry_key in seen:
+                        continue
+                    seen.add(retry_key)
+
+                    final_cmd = list(retry_cmd)
+                    debug_print(
+                        f"Native capture command failed with exit {result.returncode}; "
+                        f"retrying this attempt {retry_label}"
                     )
-                except subprocess.TimeoutExpired as exc:
-                    raise exc
+                    try:
+                        result, duration = _run_camera_command_with_timeout(
+                            retry_cmd,
+                            stdout_log,
+                            stderr_log,
+                            f"ATTEMPT {attempt}/{max_attempts} RETRY {retry_label}",
+                        )
+                    except subprocess.TimeoutExpired as exc:
+                        raise exc
+
+                    if result.returncode == 0:
+                        break
 
             if result.returncode == 0 and os.path.exists(native_image_path) and os.path.getsize(native_image_path) > 0:
                 output_size = os.path.getsize(native_image_path)
@@ -907,6 +987,7 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
                     "capture_command": final_cmd,
                     "stdout_log": stdout_log,
                     "stderr_log": stderr_log,
+                    "metadata_json": metadata_json_path if os.path.exists(metadata_json_path) else None,
                 }
 
             last_error = RuntimeError(
@@ -1348,6 +1429,7 @@ def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECT
         "capture_command": capture_info.get("capture_command"),
         "capture_stdout_log": capture_info.get("stdout_log"),
         "capture_stderr_log": capture_info.get("stderr_log"),
+        "capture_metadata_json": capture_info.get("metadata_json"),
         "native_image_path": native_image_path,
         "native_image_size_bytes": os.path.getsize(native_image_path),
         "final_image_path": final_image_path,
@@ -1355,6 +1437,30 @@ def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECT
         "pipeline_enabled": True,
         "pipeline_note": "native full JPEG -> native-coordinate crop -> optional LANCZOS downsample -> unchanged HEIC/send path",
     }
+    libcamera_metadata = _load_libcamera_metadata_json(capture_info.get("metadata_json"))
+    if libcamera_metadata:
+        metadata.update(libcamera_metadata)
+        metadata["libcamera_metadata_available"] = True
+        metadata["libcamera_metadata_keys"] = sorted(libcamera_metadata.keys())
+        debug_print(
+            "Libcamera metadata loaded: "
+            f"ExposureTime={libcamera_metadata.get('ExposureTime')}, "
+            f"AnalogueGain={libcamera_metadata.get('AnalogueGain')}, "
+            f"DigitalGain={libcamera_metadata.get('DigitalGain')}, "
+            f"ColourGains={libcamera_metadata.get('ColourGains')}, "
+            f"ColourTemperature={libcamera_metadata.get('ColourTemperature')}, "
+            f"LensPosition={libcamera_metadata.get('LensPosition')}, "
+            f"AfState={libcamera_metadata.get('AfState')}, "
+            f"AfMode={libcamera_metadata.get('AfMode')}, "
+            f"FocusFoM={libcamera_metadata.get('FocusFoM')}, "
+            f"Lux={libcamera_metadata.get('Lux')}, "
+            f"FrameDuration={libcamera_metadata.get('FrameDuration')}, "
+            f"SensorTemperature={libcamera_metadata.get('SensorTemperature')}"
+        )
+    else:
+        metadata["libcamera_metadata_available"] = False
+        debug_print("Libcamera metadata unavailable for this capture; continuing without actual camera metadata")
+
     metadata.update(geometry_info)
     if isinstance(settings, dict):
         metadata["heic_quality_requested"] = settings.get("heic_quality")
@@ -2077,6 +2183,7 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         ],
         capture_metadata=capture_metadata,
     )
+    debug_print(f"END IMG message bytes={len(end_msg.encode('ascii', errors='ignore'))}: {end_msg.strip()}")
     _get_bm_serial().spotter_tx(end_msg.encode('ascii'))
 
     debug_print(
