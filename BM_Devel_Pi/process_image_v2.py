@@ -902,8 +902,94 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
     )
 
 
-def _crop_and_downsample_native(native_image_path, final_image_path, settings):
-    """Crop in native image coordinates, then downsample to the requested output size."""
+def _crop_helper_path():
+    """Return the colocated lightweight crop/downsample helper script path."""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "crop_downsample_helper.py")
+
+
+# Crop/downsample helper retry policy for bmcam000 MVP stability.
+# This step opens the native 4608x2592 JPEG, crops, resizes, and writes the final
+# JPEG. On Pi Zero 2W this can be a high-memory PIL/libjpeg step, so isolate it
+# exactly like native capture and HEIC encode.
+CROP_HELPER_TIMEOUT_SECONDS = 45
+CROP_HELPER_MAX_RETRIES = 3
+CROP_HELPER_RETRY_DELAY_SECONDS = 60
+
+
+def _crop_tmp_path_for_output(final_image_path):
+    base, ext = os.path.splitext(final_image_path)
+    return f"{base}.tmp{ext}"
+
+
+def _remove_crop_artifacts(final_image_path):
+    """Remove final/temp crop outputs after failed or timed-out attempts."""
+    for path in (_crop_tmp_path_for_output(final_image_path), final_image_path):
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+                debug_print(f"Removed crop/downsample artifact: {path}")
+        except Exception as exc:
+            debug_print(f"Failed to remove crop/downsample artifact {path}: {exc}")
+
+
+def _send_crop_status(
+    action,
+    error_code,
+    attempt,
+    max_attempts,
+    native_image_path,
+    final_image_path,
+    output_width=None,
+    output_height=None,
+    jpeg_quality=None,
+    wait_seconds=None,
+    output_bytes=None,
+    duration_sec=None,
+    return_code=None,
+):
+    """Best-effort parseable BM status for crop/downsample retry handling."""
+    try:
+        try:
+            cpu_temp = f"{get_cpu_temperature():.1f}"
+        except Exception:
+            cpu_temp = "na"
+
+        try:
+            native_bytes = os.path.getsize(native_image_path) if native_image_path and os.path.exists(native_image_path) else None
+        except Exception:
+            native_bytes = None
+
+        out = f"{output_width}x{output_height}" if output_width and output_height else None
+
+        fields = [
+            ("v", "1"),
+            ("a", action),
+            ("e", error_code),
+            ("try", attempt),
+            ("max", max_attempts),
+            ("tmo", CROP_HELPER_TIMEOUT_SECONDS),
+            ("wait", wait_seconds),
+            ("out", out),
+            ("q", jpeg_quality),
+            ("sz", native_bytes),
+            ("jsz", output_bytes),
+            ("dur", f"{duration_sec:.1f}" if duration_sec is not None else None),
+            ("rc", return_code),
+            ("ct", cpu_temp),
+            ("sha", get_software_sha()),
+            ("hn", get_hostname()),
+        ]
+        send_compact_text_message(compact_kv_message("WS", fields))
+    except Exception as exc:
+        debug_print(f"Failed to send crop/downsample status telemetry: {exc}")
+
+
+def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
+    """Crop/downsample native JPEG in a lightweight subprocess with bounded retries."""
+    helper = _crop_helper_path()
+    if not os.path.exists(helper):
+        raise FileNotFoundError(f"Crop/downsample helper not found: {helper}")
+
     crop_x = _pipeline_int(settings, "crop_x", 768, min_value=0)
     crop_y = _pipeline_int(settings, "crop_y", 432, min_value=0)
     crop_w = _pipeline_int(settings, "crop_w", 3072, min_value=1)
@@ -915,41 +1001,214 @@ def _crop_and_downsample_native(native_image_path, final_image_path, settings):
 
     if resample_name != "lanczos":
         debug_print(f"Unsupported resample={resample_name!r}; using lanczos for MVP pipeline")
+        resample_name = "lanczos"
 
-    with Image.open(native_image_path) as img:
-        img = img.convert("RGB")
-        native_w, native_h = img.size
+    cmd = [
+        sys.executable or "/usr/bin/python3",
+        helper,
+        "--input", native_image_path,
+        "--output", final_image_path,
+        "--crop-x", str(crop_x),
+        "--crop-y", str(crop_y),
+        "--crop-w", str(crop_w),
+        "--crop-h", str(crop_h),
+        "--output-width", str(out_w),
+        "--output-height", str(out_h),
+        "--jpeg-quality", str(jpeg_quality),
+        "--resample", resample_name,
+    ]
 
-        if crop_x + crop_w > native_w or crop_y + crop_h > native_h:
-            raise ValueError(
-                "image_pipeline crop exceeds native image bounds: "
-                f"crop=({crop_x},{crop_y},{crop_w},{crop_h}) native={native_w}x{native_h}"
+    max_attempts = 1 + CROP_HELPER_MAX_RETRIES
+    last_error = None
+
+    for attempt in range(1, max_attempts + 1):
+        debug_print(
+            f"Running crop/downsample helper subprocess attempt {attempt}/{max_attempts}: "
+            + " ".join(cmd)
+        )
+        started = time.monotonic()
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=CROP_HELPER_TIMEOUT_SECONDS,
+                check=False,
+            )
+            duration = time.monotonic() - started
+
+            parsed_summary = {}
+            if result.stdout.strip():
+                for line in result.stdout.strip().splitlines():
+                    debug_print(f"Crop/downsample helper stdout: {line}")
+                    try:
+                        parsed_summary = json.loads(line)
+                    except Exception:
+                        pass
+
+            if result.stderr.strip():
+                for line in result.stderr.strip().splitlines():
+                    debug_print(f"Crop/downsample helper stderr: {line}")
+
+            if result.returncode != 0:
+                last_error = RuntimeError(
+                    f"Crop/downsample helper failed with exit_code={result.returncode} "
+                    f"attempt={attempt}/{max_attempts} duration_sec={duration:.2f}"
+                )
+                debug_print(str(last_error))
+                _remove_crop_artifacts(final_image_path)
+                _send_crop_status(
+                    action="err",
+                    error_code="crop_rc",
+                    attempt=attempt,
+                    max_attempts=max_attempts,
+                    native_image_path=native_image_path,
+                    final_image_path=final_image_path,
+                    output_width=out_w,
+                    output_height=out_h,
+                    jpeg_quality=jpeg_quality,
+                    duration_sec=duration,
+                    return_code=result.returncode,
+                )
+            elif not os.path.exists(final_image_path):
+                last_error = RuntimeError(
+                    f"Crop/downsample helper did not create output: {final_image_path} "
+                    f"attempt={attempt}/{max_attempts}"
+                )
+                debug_print(str(last_error))
+                _remove_crop_artifacts(final_image_path)
+                _send_crop_status(
+                    action="err",
+                    error_code="crop_missing",
+                    attempt=attempt,
+                    max_attempts=max_attempts,
+                    native_image_path=native_image_path,
+                    final_image_path=final_image_path,
+                    output_width=out_w,
+                    output_height=out_h,
+                    jpeg_quality=jpeg_quality,
+                    duration_sec=duration,
+                )
+            else:
+                output_size = os.path.getsize(final_image_path)
+                if output_size <= 0:
+                    last_error = RuntimeError(
+                        f"Crop/downsample helper created zero-byte output: {final_image_path} "
+                        f"attempt={attempt}/{max_attempts}"
+                    )
+                    debug_print(str(last_error))
+                    _remove_crop_artifacts(final_image_path)
+                    _send_crop_status(
+                        action="err",
+                        error_code="crop_zero",
+                        attempt=attempt,
+                        max_attempts=max_attempts,
+                        native_image_path=native_image_path,
+                        final_image_path=final_image_path,
+                        output_width=out_w,
+                        output_height=out_h,
+                        jpeg_quality=jpeg_quality,
+                        duration_sec=duration,
+                    )
+                else:
+                    debug_print(
+                        f"Crop/downsample helper completed: output={final_image_path}, "
+                        f"bytes={output_size}, duration_sec={duration:.2f}, "
+                        f"attempt={attempt}/{max_attempts}"
+                    )
+                    if attempt > 1:
+                        _send_crop_status(
+                            action="rec",
+                            error_code="crop",
+                            attempt=attempt,
+                            max_attempts=max_attempts,
+                            native_image_path=native_image_path,
+                            final_image_path=final_image_path,
+                            output_width=out_w,
+                            output_height=out_h,
+                            jpeg_quality=jpeg_quality,
+                            output_bytes=output_size,
+                            duration_sec=duration,
+                        )
+
+                    geometry = {
+                        "native_width": parsed_summary.get("native_width"),
+                        "native_height": parsed_summary.get("native_height"),
+                        "crop_x": crop_x,
+                        "crop_y": crop_y,
+                        "crop_w": crop_w,
+                        "crop_h": crop_h,
+                        "output_width": out_w,
+                        "output_height": out_h,
+                        "resample": "lanczos",
+                        "intermediate_jpeg_quality": jpeg_quality,
+                        "crop_downsample_duration_sec": round(duration, 3),
+                        "crop_downsample_helper": os.path.basename(helper),
+                    }
+                    return geometry
+
+        except subprocess.TimeoutExpired as exc:
+            duration = time.monotonic() - started
+            last_error = exc
+            debug_print(
+                f"Crop/downsample helper timeout attempt={attempt}/{max_attempts} "
+                f"timeout_sec={CROP_HELPER_TIMEOUT_SECONDS} duration_sec={duration:.2f}"
+            )
+            _remove_crop_artifacts(final_image_path)
+            _send_crop_status(
+                action="err",
+                error_code="crop_timeout",
+                attempt=attempt,
+                max_attempts=max_attempts,
+                native_image_path=native_image_path,
+                final_image_path=final_image_path,
+                output_width=out_w,
+                output_height=out_h,
+                jpeg_quality=jpeg_quality,
+                duration_sec=duration,
             )
 
-        cropped = img.crop((crop_x, crop_y, crop_x + crop_w, crop_y + crop_h))
-        if (out_w, out_h) != (crop_w, crop_h):
-            cropped = cropped.resize((out_w, out_h), Image.Resampling.LANCZOS)
+        if attempt < max_attempts:
+            next_attempt = attempt + 1
+            debug_print(
+                f"Waiting {CROP_HELPER_RETRY_DELAY_SECONDS}s before crop/downsample retry "
+                f"{next_attempt}/{max_attempts}"
+            )
+            _send_crop_status(
+                action="retry",
+                error_code="crop",
+                attempt=next_attempt,
+                max_attempts=max_attempts,
+                native_image_path=native_image_path,
+                final_image_path=final_image_path,
+                output_width=out_w,
+                output_height=out_h,
+                jpeg_quality=jpeg_quality,
+                wait_seconds=CROP_HELPER_RETRY_DELAY_SECONDS,
+            )
+            time.sleep(CROP_HELPER_RETRY_DELAY_SECONDS)
 
-        cropped.save(final_image_path, format="JPEG", quality=jpeg_quality, subsampling=0)
-        del cropped
-        del img
+    _send_crop_status(
+        action="fail",
+        error_code="crop",
+        attempt=max_attempts,
+        max_attempts=max_attempts,
+        native_image_path=native_image_path,
+        final_image_path=final_image_path,
+        output_width=out_w,
+        output_height=out_h,
+        jpeg_quality=jpeg_quality,
+    )
+    raise RuntimeError(
+        f"Crop/downsample helper failed after {max_attempts} attempts; last_error={last_error!r}"
+    )
 
+
+def _crop_and_downsample_native(native_image_path, final_image_path, settings):
+    """Crop/downsample native JPEG via isolated helper subprocess."""
+    geometry_info = _run_crop_downsample_helper(native_image_path, final_image_path, settings)
     _release_memory_hint("crop/downsample")
-
-    return {
-        "native_width": native_w,
-        "native_height": native_h,
-        "crop_x": crop_x,
-        "crop_y": crop_y,
-        "crop_w": crop_w,
-        "crop_h": crop_h,
-        "output_width": out_w,
-        "output_height": out_h,
-        "resample": "lanczos",
-        "intermediate_jpeg_quality": jpeg_quality,
-    }
-
-
+    return geometry_info
 
 def _release_memory_hint(context=""):
     """Best-effort memory release between high-memory stages on Pi Zero 2W."""
