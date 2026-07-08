@@ -1,342 +1,114 @@
 # bm_cam_legacy
 
-Legacy Bristlemouth Raspberry Pi camera runtime for `bmcam001`, `bmcam002`, and fresh development units.
+Legacy Bristlemouth Raspberry Pi camera runtime for potted BM cameras and fresh development units such as `bmcam000`.
 
-This repo preserves the known-good legacy camera application used on the potted Bristlemouth camera modules. The current production pattern is intentionally conservative: the Git repo is used as the source of truth, but the deployed runtime on each Pi lives in a separate folder so that a working potted device is not accidentally broken by Git operations.
-
----
-
-## 1. Purpose of this repo
-
-This repo is for the legacy Raspberry Pi Bristlemouth camera app that:
-
-1. Boots with the Pi.
-2. Runs one capture cycle using cron `@reboot`.
-3. Uses Spotter/Bristlemouth UTC time as the trusted time source.
-4. Converts UTC to a configured local timezone.
-5. Checks a configured local capture/transmit window.
-6. Captures and transmits an image only if the local time is inside the allowed window.
-7. Exits cleanly when outside the window.
-
-This repo is **not** the newer Nereus agent stack and is **not** the newer experimental Bristlemouth camera daemon. It exists to preserve and duplicate the working legacy BM camera behavior.
-
----
-
-## 2. Important production rule
-
-Do **not** make the live production folder on a potted device into a Git working tree.
-
-Use this separation:
+This repo is the source of truth for the Pi-side runtime. The live runtime on each Pi remains a separate copied folder so that Git operations do not accidentally break a working camera:
 
 ```text
 /home/pi/repos/bm_cam_legacy      # Git checkout / source-controlled repo
-/home/pi/BM_Devel_Pi              # Production runtime folder used by cron
+/home/pi/BM_Devel_Pi              # Runtime folder used by cron/manual tests
 ```
 
-On production devices, Git operations happen in:
-
-```bash
-/home/pi/repos/bm_cam_legacy
-```
-
-The app actually runs from:
-
-```bash
-/home/pi/BM_Devel_Pi
-```
-
-This keeps the known-good production runtime isolated from accidental Git merges, checkout changes, or partial updates.
+Do **not** turn `/home/pi/BM_Devel_Pi` into a Git working tree on production devices.
 
 ---
 
-## 3. Recommended repo structure
+## 1. Current MVP status
+
+### Current reef MVP image/transmit path
+
+The current reef field-test candidate is the `libcamera` crop + HEIC subprocess path:
 
 ```text
-bm_cam_legacy/
-├── README.md
-├── .gitignore
-├── BM_Devel_Pi/
-│   ├── main_pi_camera.py
-│   ├── process_image_v2.py
-│   ├── bm_serial.py
-│   ├── spotter_time_sync.py
-│   ├── camera_schedule.yaml
-│   ├── run_capture_cycle.sh
-│   ├── read_CPU_temp.py
-│   └── README_BMCAM002_SCHEDULE_PATCH.md
-├── device_profiles/
-│   ├── bmcam001/
-│   │   ├── camera_schedule.yaml
-│   │   ├── crontab.txt
-│   │   └── NOTES.md
-│   └── bmcam002/
-│       ├── camera_schedule.yaml
-│       ├── crontab.txt
-│       └── NOTES.md
-├── requirements/
-│   ├── requirements.freeze.txt
-│   ├── python-version.txt
-│   ├── apt-manual.txt
-│   └── system-info.txt
-├── scripts/
-│   ├── collect_production_snapshot.sh
-│   ├── deploy_runtime.sh
-│   └── install_legacy_bmcam.sh
-└── docs/
-    ├── bmcam001_setup.md
-    ├── bmcam002_setup.md
-    └── fresh_device_setup.md
+native capture:       4608×2592 JPEG from libcamera-still
+fixed crop:           x=768, y=432, w=3072, h=1728
+spatial output:       2688×1512
+HEIC quality:         Q20
+HEIC implementation:  heic_encode_helper.py subprocess
+BM route:             0x02 cellular-only
+chunk size:           300 base64 chars per image chunk
+chunk pacing:         5 seconds between chunks
 ```
 
-The minimum runtime files are:
+This path exists because the reference-card spatial-density and HEIC tests showed that the old 480p/720p path was leaving useful image quality on the table. The optimized path captures high-quality source, crops the reef/reference-card ROI, downsamples to the selected field-test output size, encodes HEIC in an isolated helper process, chunks the HEIC, and transmits over Bristlemouth.
+
+### Known validated behavior
+
+On `bmcam000`, after the runtime-stabilization patch:
 
 ```text
-BM_Devel_Pi/main_pi_camera.py
-BM_Devel_Pi/process_image_v2.py
-BM_Devel_Pi/bm_serial.py
-BM_Devel_Pi/spotter_time_sync.py
-BM_Devel_Pi/camera_schedule.yaml
-BM_Devel_Pi/run_capture_cycle.sh
-BM_Devel_Pi/read_CPU_temp.py
+capture-only 2688×1512: PASS
+compression-only via heic_encode_helper.py: PASS
+fresh capture + compression: PASS
+manual transmit: reached buffer sending with ~115–140 chunks depending on image content
+```
+
+Typical observed payload:
+
+```text
+HEIC bytes:       ~25–32 KB
+base64 chars:     ~34–42 K chars
+300-byte buffers: ~115–140
+estimated UART/queue pacing time at 5 sec/chunk: ~10–12 min
+```
+
+### Known limitations
+
+Do not hide these limitations when handing the system to another developer or deploying as an engineering MVP:
+
+```text
+camera-frame metadata is incomplete
+libcamera --metadata caused instability and is intentionally deferred
+3072×1728 HEIC Q20 was unstable on bmcam000 and should not be used for field MVP
+camera settings are not fully locked yet
+SD-card health/ring-buffer are not implemented yet
+cron/field soak testing is still required before treating this as production
 ```
 
 ---
 
-## 4. Files that should not be committed
+## 2. Files in the runtime path
 
-Do not commit logs, image captures, buffers, secrets, or Tailscale state.
+Minimum files expected in `/home/pi/BM_Devel_Pi`:
 
-Recommended `.gitignore`:
-
-```gitignore
-__pycache__/
-*.pyc
-*.pyo
-
-cron_logs/
-*.log
-
-buffer/
-buffers/
-capture_archive/
-images/
-test_logs/
-
-*.jpg
-*.jpeg
-*.png
-*.heic
-*.h264
-*.mp4
-*.csv
-
-.env
-*.key
-*.pem
-id_rsa*
-id_ed25519*
-
-tailscaled.state
+```text
+main_pi_camera.py
+process_image_v2.py
+heic_encode_helper.py
+bm_serial.py
+spotter_time_sync.py
+camera_schedule.yaml
+run_capture_cycle.sh
+read_CPU_temp.py
 ```
+
+Important current roles:
+
+```text
+main_pi_camera.py        CLI/orchestration: load config, schedule gate, capture, optional transmit
+process_image_v2.py      image pipeline support, crop/downsample, HEIC helper wrapper, chunk/send
+heic_encode_helper.py    lightweight isolated HEIC encoder subprocess
+spotter_time_sync.py     Spotter/BM UTC or RTC time helper plus current YAML parser
+bm_serial.py             Bristlemouth UART publish/transmit implementation
+camera_schedule.yaml     runtime schedule, image pipeline, and BM serial config
+run_capture_cycle.sh     cron wrapper
+```
+
+`spotter_time_sync.py` currently does more than pure time sync because it also loads runtime config. Treat that as accepted technical debt for this MVP; a future refactor should move config loading into a dedicated config module.
 
 ---
 
-## 5. Production runtime behavior
+## 3. Current YAML shape
 
-The production boot flow is:
-
-```text
-Pi power cycles
-→ cron runs @reboot command once
-→ flock prevents duplicate capture cycles
-→ run_capture_cycle.sh starts
-→ wrapper creates a timestamped log file
-→ wrapper waits for startup settle time
-→ wrapper runs Python syntax check
-→ wrapper runs main_pi_camera.py --transmit
-→ main app loads camera_schedule.yaml
-→ app requests Spotter UTC from spotter/utc-time over BM UART
-→ app sets/checks system time if configured
-→ app converts UTC to configured local timezone
-→ app checks transmit_window
-→ if outside window: skip capture/transmit and exit 0
-→ if inside window: capture image, compress, transmit, and exit
-```
-
-The important command inside the wrapper is:
-
-```bash
-/usr/bin/python3 -u main_pi_camera.py --transmit
-```
-
-Do not use this in production unless doing an intentional manual bypass test:
-
-```bash
-/usr/bin/python3 -u main_pi_camera.py --transmit --skip-time-window
-```
-
-The `--skip-time-window` flag bypasses the Spotter UTC time gate.
-
----
-
-## 6. Controlling the app with crontab
-
-The production cron entry is installed for the `pi` user, not root.
-
-Open the crontab:
-
-```bash
-crontab -e
-```
-
-If prompted for an editor, choose `nano`. To force nano:
-
-```bash
-EDITOR=nano crontab -e
-```
-
-Production `@reboot` entry for `bmcam002`:
-
-```cron
-@reboot /usr/bin/flock -n /tmp/bmcam002_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh
-```
-
-Production `@reboot` entry for `bmcam001`:
-
-```cron
-@reboot /usr/bin/flock -n /tmp/bmcam001_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh
-```
-
-Generic form for a fresh device:
-
-```cron
-@reboot /usr/bin/flock -n /tmp/<device_id>_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh
-```
-
-Save in nano:
-
-```text
-Ctrl+O
-Enter
-Ctrl+X
-```
-
-Confirm the installed crontab:
-
-```bash
-crontab -l
-```
-
-Back up the crontab before editing:
-
-```bash
-crontab -l > /home/pi/crontab_backup_$(date +%Y%m%d_%H%M%S).txt 2>/dev/null || true
-```
-
----
-
-## 7. What `flock` and the lock file do
-
-Example:
-
-```cron
-@reboot /usr/bin/flock -n /tmp/bmcam002_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh
-```
-
-Breakdown:
-
-```text
-@reboot                         Run once when the Pi boots.
-/usr/bin/flock                  Use Linux flock to prevent duplicate runs.
--n                              Non-blocking. If another run has the lock, exit immediately.
-/tmp/bmcam002_capture.lock      Lock file used by flock.
-/home/pi/BM_Devel_Pi/run_capture_cycle.sh
-                                Script to run if the lock is available.
-```
-
-The lock file is not the important part by itself. The active lock is held by the running process. If the process exits or crashes, Linux releases the lock.
-
-This prevents two capture/transmit cycles from running at the same time.
-
----
-
-## 8. Logs
-
-The wrapper creates one log file **per call** of `run_capture_cycle.sh`.
-
-That means:
-
-```text
-cron @reboot runs wrapper once → one log file for that reboot
-manual wrapper test             → one new log file for that manual call
-```
-
-Logs are stored in:
-
-```bash
-/home/pi/BM_Devel_Pi/cron_logs/
-```
-
-List newest logs:
-
-```bash
-ls -lt /home/pi/BM_Devel_Pi/cron_logs | head
-```
-
-View the newest log:
-
-```bash
-tail -n 200 "$(ls -t /home/pi/BM_Devel_Pi/cron_logs/capture_cycle_*.log | head -1)"
-```
-
-Live-follow the newest log:
-
-```bash
-LOG="$(ls -t /home/pi/BM_Devel_Pi/cron_logs/capture_cycle_*.log | head -1)"; echo "Following $LOG"; tail -n 200 -f "$LOG"
-```
-
-Run the wrapper and live-follow the new log in one command:
-
-```bash
-cd /home/pi/BM_Devel_Pi && ( /usr/bin/flock -n /tmp/bmcam002_capture.lock ./run_capture_cycle.sh & pid=$!; sleep 2; LOG="$(ls -t cron_logs/capture_cycle_*.log | head -1)"; echo "Following $LOG"; tail --pid=$pid -n 200 -f "$LOG" )
-```
-
-For `bmcam001`, change the lock file:
-
-```bash
-cd /home/pi/BM_Devel_Pi && ( /usr/bin/flock -n /tmp/bmcam001_capture.lock ./run_capture_cycle.sh & pid=$!; sleep 2; LOG="$(ls -t cron_logs/capture_cycle_*.log | head -1)"; echo "Following $LOG"; tail --pid=$pid -n 200 -f "$LOG" )
-```
-
----
-
-## 9. Editing the YAML config
-
-The production config file is:
-
-```bash
-/home/pi/BM_Devel_Pi/camera_schedule.yaml
-```
-
-Open it with:
-
-```bash
-nano /home/pi/BM_Devel_Pi/camera_schedule.yaml
-```
-
-Save in nano:
-
-```text
-Ctrl+O
-Enter
-Ctrl+X
-```
-
-Example config:
+Example `camera_schedule.yaml` for the reef MVP path:
 
 ```yaml
+time_source: "spotter_utc"
+
 timezone_preset: "sf"
 timezone: "America/Los_Angeles"
 
+enforce_time_window: true
 enforce_spotter_time_window: true
 
 transmit_window:
@@ -346,568 +118,497 @@ transmit_window:
 set_system_clock_from_spotter: true
 spotter_time_timeout_seconds: 60
 allow_system_clock_fallback: false
-
 uart_port: "/dev/ttyAMA0"
 baudrate: 115200
 
+rtc:
+  hwclock_path: "/usr/sbin/hwclock"
+  set_system_clock_from_rtc: true
+  require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
+
+# Legacy fallback fields still exist for older path compatibility.
 image:
   resolution_key: "720p"
   image_quality: 25
+
+# Current reef MVP path.
+image_pipeline:
+  enabled: true
+  capture_backend: "rpicam"   # falls back to libcamera-still if rpicam-still is absent
+
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+
+  crop:
+    mode: "fixed"
+    x: 768
+    y: 432
+    w: 3072
+    h: 1728
+
+  spatial:
+    output_width: 2688
+    output_height: 1512
+    resample: "lanczos"
+
+  heic:
+    quality: 20
+
+bm_serial:
+  network_type: 0x02
+  image_buffer_size: 300
+  image_transmit_delay_seconds: 5
 ```
 
 ---
 
-## 10. Editing the capture/transmit window
+## 4. Important development guardrails
 
-The time window is local time in the configured timezone.
-
-Example San Francisco development window:
-
-```yaml
-transmit_window:
-  start: "08:00"
-  end: "15:00"
-```
-
-Example wide-open manual test window:
-
-```yaml
-transmit_window:
-  start: "00:00"
-  end: "23:59"
-```
-
-Example production reef window:
-
-```yaml
-transmit_window:
-  start: "12:00"
-  end: "15:00"
-```
-
-After editing, test the time gate:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -u spotter_time_sync.py
-```
-
-Expected outside-window result:
+For this repo, stability beats cleverness.
 
 ```text
-allowed=False
-source_time: spotter
-reason: Outside transmit window ...
+Do not change bm_serial.py unless the explicit task is BM protocol/transport.
+Do not change send_buffers() chunk-loop behavior unless the explicit task is transmission.
+Do not reintroduce libcamera-still --metadata into the critical capture command.
+Do not use 3072×1728 for field MVP HEIC on bmcam000.
+Do not use large 900/980-byte chunks for this reef MVP path unless a new test branch is explicitly created.
+Do not enable bm-daemon while manually testing this legacy runtime unless the test explicitly requires it.
+Do not enable cron until manual capture/compress/transmit passes.
 ```
 
-Expected inside-window result:
+When changing runtime code:
 
 ```text
-allowed=True
-source_time: spotter
-reason: Within transmit window ...
+1. Work on a branch.
+2. Back up /home/pi/BM_Devel_Pi before copying runtime files.
+3. Check file sizes before/after and verify the direction makes sense.
+4. Run py_compile before camera tests.
+5. Test capture-only, then compression-only, then transmit.
+6. Keep logs for every manual run.
 ```
 
 ---
 
-## 11. Editing image resolution and compression
-
-Image settings live in `camera_schedule.yaml`:
-
-```yaml
-image:
-  resolution_key: "720p"
-  image_quality: 25
-```
-
-`resolution_key` controls image size. Common values used in this project include:
-
-```text
-480p
-720p
-```
-
-`image_quality` controls JPEG compression quality. Lower values make smaller files but reduce image quality. Higher values improve quality but increase transmit size.
-
-Typical development setting:
-
-```yaml
-image:
-  resolution_key: "480p"
-  image_quality: 20
-```
-
-Typical field setting:
-
-```yaml
-image:
-  resolution_key: "720p"
-  image_quality: 25
-```
-
-After editing, run:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -u main_pi_camera.py --transmit
-```
-
-The app should print the runtime config it is using, for example:
-
-```text
-[DEBUG] Runtime resolution_key: 720p
-[DEBUG] Runtime image_quality: 25
-```
-
----
-
-## 12. Manual test commands
-
-Check Spotter UTC and schedule decision:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -u spotter_time_sync.py
-```
-
-Run the production app once:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -u main_pi_camera.py --transmit
-```
-
-Run the production wrapper once:
-
-```bash
-/usr/bin/flock -n /tmp/bmcam002_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh
-```
-
-Run the production wrapper once and live-print logs:
-
-```bash
-cd /home/pi/BM_Devel_Pi && ( /usr/bin/flock -n /tmp/bmcam002_capture.lock ./run_capture_cycle.sh & pid=$!; sleep 2; LOG="$(ls -t cron_logs/capture_cycle_*.log | head -1)"; echo "Following $LOG"; tail --pid=$pid -n 200 -f "$LOG" )
-```
-
-Bypass the time window for intentional manual development testing only:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -u main_pi_camera.py --transmit --resolution-key 480p --image-quality 20 --skip-time-window
-```
-
-Do not use `--skip-time-window` in production cron.
-
----
-
-## 13. Updating bmcam002 from Git safely
-
-This is the safe production update workflow for `bmcam002`.
-
-SSH into the camera:
-
-```powershell
-ssh pi@bmcam002
-```
-
-Or:
-
-```powershell
-ssh pi@bmcam002.tail079031.ts.net
-```
-
-On the Pi, clone the repo if needed:
-
-```bash
-mkdir -p /home/pi/repos
-cd /home/pi/repos
-
-git clone https://github.com/nickraymond/bm_cam_legacy.git
-cd bm_cam_legacy
-```
-
-If the repo already exists:
-
-```bash
-cd /home/pi/repos/bm_cam_legacy
-git fetch origin
-git checkout main
-git pull origin main
-```
-
-Back up the current production runtime:
-
-```bash
-cd /home/pi
-tar -czf BM_Devel_Pi_backup_bmcam002_$(date -u +%Y%m%dT%H%M%SZ).tgz BM_Devel_Pi
-crontab -l > crontab_backup_bmcam002_$(date -u +%Y%m%dT%H%M%SZ).txt 2>/dev/null || true
-```
-
-Copy approved runtime files from Git checkout into production:
-
-```bash
-SRC="/home/pi/repos/bm_cam_legacy/BM_Devel_Pi"
-DST="/home/pi/BM_Devel_Pi"
-
-mkdir -p "$DST"
-
-cp "$SRC/main_pi_camera.py" "$DST/"
-cp "$SRC/process_image_v2.py" "$DST/"
-cp "$SRC/bm_serial.py" "$DST/"
-cp "$SRC/spotter_time_sync.py" "$DST/"
-cp "$SRC/camera_schedule.yaml" "$DST/"
-cp "$SRC/run_capture_cycle.sh" "$DST/"
-cp "$SRC/read_CPU_temp.py" "$DST/" 2>/dev/null || true
-
-chmod +x "$DST/run_capture_cycle.sh"
-```
-
-If you want to use the bmcam002-specific profile schedule instead of the default repo schedule:
-
-```bash
-cp /home/pi/repos/bm_cam_legacy/device_profiles/bmcam002/camera_schedule.yaml /home/pi/BM_Devel_Pi/camera_schedule.yaml
-```
-
-Install or refresh the crontab:
-
-```bash
-crontab -l 2>/dev/null | grep -v 'run_capture_cycle.sh' > /tmp/bmcam002_cron || true
-echo '@reboot /usr/bin/flock -n /tmp/bmcam002_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh' >> /tmp/bmcam002_cron
-crontab /tmp/bmcam002_cron
-crontab -l
-```
-
-Test syntax:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -m py_compile main_pi_camera.py process_image_v2.py spotter_time_sync.py bm_serial.py
-```
-
-Test schedule:
-
-```bash
-/usr/bin/python3 -u spotter_time_sync.py
-```
-
-Test app:
-
-```bash
-/usr/bin/python3 -u main_pi_camera.py --transmit
-```
-
-Test wrapper/logging:
-
-```bash
-cd /home/pi/BM_Devel_Pi && ( /usr/bin/flock -n /tmp/bmcam002_capture.lock ./run_capture_cycle.sh & pid=$!; sleep 2; LOG="$(ls -t cron_logs/capture_cycle_*.log | head -1)"; echo "Following $LOG"; tail --pid=$pid -n 200 -f "$LOG" )
-```
-
----
-
-## 14. Updating bmcam001 from Git safely
-
-The process is the same as `bmcam002`, but use the `bmcam001` profile and lock file.
-
-SSH into the camera:
-
-```powershell
-ssh pi@bmcam001
-```
-
-Or use the full Tailscale DNS name if needed.
+## 5. Updating bmcam000 from Git safely
 
 On the Pi:
 
 ```bash
-mkdir -p /home/pi/repos
-cd /home/pi/repos
+REPO_DIR="/home/pi/repos/bm_cam_legacy"
+APP_SRC_DIR="$REPO_DIR/BM_Devel_Pi"
+APP_DIR="/home/pi/BM_Devel_Pi"
 
-if [ ! -d bm_cam_legacy ]; then
-  git clone https://github.com/nickraymond/bm_cam_legacy.git
-fi
-
-cd /home/pi/repos/bm_cam_legacy
+cd "$REPO_DIR"
 git fetch origin
-git checkout main
-git pull origin main
+git checkout sprint03-libcamera-crop-heic-upload-test
+git pull --ff-only
 ```
 
-Back up current runtime:
+Stop dev-conflicting services while manually testing:
 
 ```bash
-cd /home/pi
-tar -czf BM_Devel_Pi_backup_bmcam001_$(date -u +%Y%m%dT%H%M%SZ).tgz BM_Devel_Pi
-crontab -l > crontab_backup_bmcam001_$(date -u +%Y%m%dT%H%M%SZ).txt 2>/dev/null || true
+sudo systemctl stop bm-daemon.service 2>/dev/null || true
+sudo systemctl disable bm-daemon.service 2>/dev/null || true
+crontab -r 2>/dev/null || true
+
+pgrep -af "bm_daemon|bm-agent|bm_agent|main_pi_camera|libcamera-still|rpicam-still|heic_encode_helper" || echo "OK: no conflicting process"
 ```
 
-Copy runtime files:
+Back up and copy runtime:
 
 ```bash
-SRC="/home/pi/repos/bm_cam_legacy/BM_Devel_Pi"
-DST="/home/pi/BM_Devel_Pi"
+RUN_TAG="$(date -u +%Y%m%dT%H%M%SZ)"
+BACKUP_DIR="$HOME/bmcam000_runtime_backup_$RUN_TAG"
+mkdir -p "$BACKUP_DIR"
 
-mkdir -p "$DST"
+cp "$APP_DIR/main_pi_camera.py" "$BACKUP_DIR/main_pi_camera.py"
+cp "$APP_DIR/process_image_v2.py" "$BACKUP_DIR/process_image_v2.py"
+cp "$APP_DIR/heic_encode_helper.py" "$BACKUP_DIR/heic_encode_helper.py" 2>/dev/null || true
+cp "$APP_DIR/spotter_time_sync.py" "$BACKUP_DIR/spotter_time_sync.py"
+cp "$APP_DIR/camera_schedule.yaml" "$BACKUP_DIR/camera_schedule.yaml"
 
-cp "$SRC/main_pi_camera.py" "$DST/"
-cp "$SRC/process_image_v2.py" "$DST/"
-cp "$SRC/bm_serial.py" "$DST/"
-cp "$SRC/spotter_time_sync.py" "$DST/"
-cp "$SRC/camera_schedule.yaml" "$DST/"
-cp "$SRC/run_capture_cycle.sh" "$DST/"
-cp "$SRC/read_CPU_temp.py" "$DST/" 2>/dev/null || true
+cp "$APP_SRC_DIR/main_pi_camera.py" "$APP_DIR/main_pi_camera.py"
+cp "$APP_SRC_DIR/process_image_v2.py" "$APP_DIR/process_image_v2.py"
+cp "$APP_SRC_DIR/heic_encode_helper.py" "$APP_DIR/heic_encode_helper.py"
+cp "$APP_SRC_DIR/spotter_time_sync.py" "$APP_DIR/spotter_time_sync.py"
+cp "$APP_SRC_DIR/camera_schedule.yaml" "$APP_DIR/camera_schedule.yaml"
 
-chmod +x "$DST/run_capture_cycle.sh"
+chmod +x "$APP_DIR/heic_encode_helper.py"
+git -C "$REPO_DIR" rev-parse --short=12 HEAD > "$APP_DIR/software_sha.txt"
 ```
 
-Apply bmcam001-specific config if present:
+Verify:
 
 ```bash
-if [ -f /home/pi/repos/bm_cam_legacy/device_profiles/bmcam001/camera_schedule.yaml ]; then
-  cp /home/pi/repos/bm_cam_legacy/device_profiles/bmcam001/camera_schedule.yaml /home/pi/BM_Devel_Pi/camera_schedule.yaml
-fi
-```
+cd "$APP_DIR"
 
-Install or refresh the crontab:
+ls -lh main_pi_camera.py process_image_v2.py heic_encode_helper.py spotter_time_sync.py camera_schedule.yaml
+cat software_sha.txt
 
-```bash
-crontab -l 2>/dev/null | grep -v 'run_capture_cycle.sh' > /tmp/bmcam001_cron || true
-echo '@reboot /usr/bin/flock -n /tmp/bmcam001_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh' >> /tmp/bmcam001_cron
-crontab /tmp/bmcam001_cron
-crontab -l
-```
+grep -n "Transmit disabled; skipping compact wake telemetry" main_pi_camera.py
+grep -n "def _format_start_metadata" process_image_v2.py
+grep -n "def _get_bm_serial" process_image_v2.py
+grep -n "output_width" -A2 camera_schedule.yaml
+grep -n "bm_serial:" -A5 camera_schedule.yaml
 
-Test:
-
-```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -m py_compile main_pi_camera.py process_image_v2.py spotter_time_sync.py bm_serial.py
-/usr/bin/python3 -u spotter_time_sync.py
-/usr/bin/python3 -u main_pi_camera.py --transmit
+/usr/bin/python3 -m py_compile main_pi_camera.py process_image_v2.py heic_encode_helper.py spotter_time_sync.py bm_serial.py
+echo "syntax_ok=$?"
 ```
 
 ---
 
-## 15. Fresh device setup
-
-This is the high-level procedure for a new Pi, such as `bmcam005`.
-
-1. Flash Raspberry Pi OS.
-2. Enable SSH.
-3. Set hostname.
-4. Join Wi-Fi or Ethernet.
-5. Install Tailscale if remote access is needed.
-6. Clone this repo into `/home/pi/repos/bm_cam_legacy`.
-7. Copy runtime files into `/home/pi/BM_Devel_Pi`.
-8. Edit `camera_schedule.yaml`.
-9. Install `@reboot` cron.
-10. Run syntax, Spotter time, app, and wrapper tests.
-
-Example:
-
-```bash
-sudo hostnamectl set-hostname bmcam005
-sudo reboot
-```
-
-After reconnecting:
-
-```bash
-mkdir -p /home/pi/repos
-cd /home/pi/repos
-git clone https://github.com/nickraymond/bm_cam_legacy.git
-cd bm_cam_legacy
-```
-
-Deploy runtime:
-
-```bash
-mkdir -p /home/pi/BM_Devel_Pi
-cp -r /home/pi/repos/bm_cam_legacy/BM_Devel_Pi/* /home/pi/BM_Devel_Pi/
-chmod +x /home/pi/BM_Devel_Pi/run_capture_cycle.sh
-```
-
-Edit config:
-
-```bash
-nano /home/pi/BM_Devel_Pi/camera_schedule.yaml
-```
-
-Install cron:
-
-```bash
-crontab -l 2>/dev/null | grep -v 'run_capture_cycle.sh' > /tmp/bmcam005_cron || true
-echo '@reboot /usr/bin/flock -n /tmp/bmcam005_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh' >> /tmp/bmcam005_cron
-crontab /tmp/bmcam005_cron
-crontab -l
-```
-
-Test:
+## 6. Preflight before tests
 
 ```bash
 cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -m py_compile main_pi_camera.py process_image_v2.py spotter_time_sync.py bm_serial.py
-/usr/bin/python3 -u spotter_time_sync.py
-/usr/bin/python3 -u main_pi_camera.py --transmit
+
+echo "=== preflight ==="
+hostname
+uptime
+vcgencmd get_throttled || true
+vcgencmd measure_temp || true
+df -h /
+grep -E "MemAvailable|CmaTotal|CmaFree|SwapTotal|SwapFree" /proc/meminfo || true
+
+echo
+echo "conflicting processes:"
+pgrep -af "bm_daemon|bm-agent|bm_agent|main_pi_camera|libcamera-still|rpicam-still|heic_encode_helper" || echo "OK: no conflicting process"
+
+echo
+echo "cron:"
+crontab -l 2>/dev/null || echo "OK: no user crontab"
+
+echo
+echo "config:"
+grep -n "image_pipeline:" -A25 camera_schedule.yaml
+grep -n "bm_serial:" -A5 camera_schedule.yaml
+
+echo
+echo "sha:"
+cat software_sha.txt 2>/dev/null || true
 ```
+
+`throttled=0x0` is preferred. If the Pi requires a hard power cycle after a test, treat that as a real system fault, not a Wi-Fi issue.
 
 ---
 
-## 16. Updating this repo from Windows before committing
+## 7. Manual test sequence
 
-Local Windows repo path:
+Run these in order.
 
-```powershell
-C:\Users\nickr\GitHub\bm_cam_legacy
-```
+### 7.1 Capture-only
 
-Check status:
+```bash
+cd /home/pi/BM_Devel_Pi
 
-```powershell
-cd C:\Users\nickr\GitHub\bm_cam_legacy
-git status
-```
+TEST_LOG="/home/pi/BM_Devel_Pi/cron_logs/manual_capture_$(date -u +%Y%m%dT%H%M%SZ).log"
 
-Review changes:
+timeout 180s /usr/bin/python3 -u main_pi_camera.py \
+  --skip-time-window \
+  --capture-backend libcamera \
+  --output-size 2688x1512 \
+  --heic-quality 20 \
+  2>&1 | tee "$TEST_LOG"
 
-```powershell
-git diff
-```
-
-Add files:
-
-```powershell
-git add .
-```
-
-Commit:
-
-```powershell
-git commit -m "Add clean legacy BM camera production runtime"
-```
-
-Push:
-
-```powershell
-git push
-```
-
-Tag a known-good production state:
-
-```powershell
-git tag bmcam002-prod-v0.1
-git push origin bmcam002-prod-v0.1
-```
-
-Check final status:
-
-```powershell
-git status
+echo "capture_exit_code=${PIPESTATUS[0]}"
+echo "TEST_LOG=$TEST_LOG"
 ```
 
 Expected:
 
 ```text
-nothing to commit, working tree clean
+Transmit disabled; skipping compact wake telemetry send.
+Image pipeline geometry: native=4608x2592 crop=(768,432,3072,1728) output=2688x1512
+capture_exit_code=0
 ```
 
----
+Capture-only intentionally reports:
 
-## 17. Backup and restore
+```text
+Compressed image size: 0 bytes
+Buffers: 0
+```
 
-Create a local backup on a Pi:
+because no `--transmit` flag was provided.
+
+### 7.2 Compression-only on the captured image
+
+Set `LATEST_IMAGE` from the capture log:
 
 ```bash
-cd /home/pi
-tar -czf BM_Devel_Pi_PROD_$(hostname)_$(date -u +%Y%m%dT%H%M%SZ).tgz BM_Devel_Pi
-crontab -l > crontab_PROD_$(hostname)_$(date -u +%Y%m%dT%H%M%SZ).txt 2>/dev/null || true
+LATEST_IMAGE="$(grep "Image pipeline output saved as" "$TEST_LOG" | tail -n 1 | sed -E "s/.*'([^']+)'.*/\1/")"
+echo "$LATEST_IMAGE"
 ```
 
-Restore a production runtime backup:
+Run compression:
 
 ```bash
-cd /home/pi
-mv BM_Devel_Pi BM_Devel_Pi_broken_$(date -u +%Y%m%dT%H%M%SZ)
-tar -xzf BM_Devel_Pi_PROD_<device>_<timestamp>.tgz
+COMPRESS_LOG="/home/pi/BM_Devel_Pi/cron_logs/manual_compress_$(date -u +%Y%m%dT%H%M%SZ).log"
+
+timeout 180s /usr/bin/python3 -u - <<PY 2>&1 | tee "$COMPRESS_LOG"
+from pathlib import Path
+from PIL import Image
+import process_image_v2 as p
+
+image_path = Path("$LATEST_IMAGE")
+print("INPUT=", image_path, flush=True)
+
+with Image.open(image_path) as im:
+    print("SIZE=", im.size, flush=True)
+
+p.apply_bm_serial_runtime_settings()
+name, nbuf, nbytes = p.split_image_heic(str(image_path), image_quality=20)
+
+print("HEIC=", name, flush=True)
+print("HEIC_BYTES=", nbytes, flush=True)
+print("BUFFERS=", nbuf, flush=True)
+print("EST_MIN=", round(nbuf * 5 / 60, 2), flush=True)
+
+if nbytes <= 0:
+    raise RuntimeError("HEIC output was zero bytes")
+if nbuf <= 0:
+    raise RuntimeError("No buffers generated")
+
+print("STABILIZED_COMPRESSION_OK=true", flush=True)
+PY
+
+echo "compress_exit_code=${PIPESTATUS[0]}"
+echo "COMPRESS_LOG=$COMPRESS_LOG"
 ```
 
-Restore crontab:
+Expected:
 
-```bash
-crontab crontab_PROD_<device>_<timestamp>.txt
-crontab -l
+```text
+HEIC helper completed
+Compressed image saved
+Saved <N> buffer text files
+STABILIZED_COMPRESSION_OK=true
+compress_exit_code=0
 ```
 
----
+Typical result:
 
-## 18. Troubleshooting
-
-### Check if cron installed
-
-```bash
-crontab -l
+```text
+HEIC_BYTES: 25–35 KB
+BUFFERS: 115–150
 ```
 
-### Check newest logs
-
-```bash
-ls -lt /home/pi/BM_Devel_Pi/cron_logs | head
-```
-
-### Live-follow newest log
-
-```bash
-LOG="$(ls -t /home/pi/BM_Devel_Pi/cron_logs/capture_cycle_*.log | head -1)"; echo "Following $LOG"; tail -n 200 -f "$LOG"
-```
-
-### Check if app is still running
-
-```bash
-ps aux | grep -E 'run_capture_cycle|main_pi_camera|spotter_time_sync' | grep -v grep
-```
-
-### Check UART device
-
-```bash
-ls -la /dev/ttyAMA0
-```
-
-### Run syntax check
+### 7.3 Full manual transmit
 
 ```bash
 cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -m py_compile main_pi_camera.py process_image_v2.py spotter_time_sync.py bm_serial.py
+
+TRANSMIT_LOG="/home/pi/BM_Devel_Pi/cron_logs/manual_transmit_$(date -u +%Y%m%dT%H%M%SZ).log"
+
+timeout 1500s /usr/bin/python3 -u main_pi_camera.py \
+  --transmit \
+  --skip-time-window \
+  --capture-backend libcamera \
+  --output-size 2688x1512 \
+  --heic-quality 20 \
+  2>&1 | tee "$TRANSMIT_LOG"
+
+echo "transmit_exit_code=${PIPESTATUS[0]}"
+echo "TRANSMIT_LOG=$TRANSMIT_LOG"
 ```
 
-### Check Spotter UTC
+Inspect:
+
+```bash
+grep -E "Sent compact telemetry|HEIC helper completed|Compressed image saved|Saved .*buffer|Starting transmission|Sent buffer|Finished transmission|END IMG|Execution Time|Traceback|ERROR|NameError|Timeout" "$TRANSMIT_LOG" | tail -n 160
+```
+
+Pass criteria:
+
+```text
+transmit_exit_code=0
+HEIC helper completed
+Saved buffer text files
+Sent buffer <N> of <N>
+Finished transmission
+no Traceback
+no zero-byte compressed HEIC
+```
+
+### 7.4 Three-cycle ship-candidate test
+
+```bash
+cd /home/pi/BM_Devel_Pi
+
+for i in 1 2 3; do
+  echo "===== TRANSMIT TEST $i / 3 ====="
+
+  LOG="/home/pi/BM_Devel_Pi/cron_logs/ship_candidate_transmit_${i}_$(date -u +%Y%m%dT%H%M%SZ).log"
+
+  timeout 1500s /usr/bin/python3 -u main_pi_camera.py \
+    --transmit \
+    --skip-time-window \
+    --capture-backend libcamera \
+    --output-size 2688x1512 \
+    --heic-quality 20 \
+    2>&1 | tee "$LOG"
+
+  echo "exit_code=${PIPESTATUS[0]}"
+  echo "LOG=$LOG"
+
+  grep -E "HEIC helper completed|Compressed image saved|Saved .*buffer|Starting transmission|Sent buffer [0-9]+ of|Finished transmission|Execution Time|Traceback|ERROR|NameError|Timeout" "$LOG" | tail -n 120
+
+  echo "Sleeping 60 seconds before next run..."
+  sleep 60
+done
+```
+
+Do not enable cron until manual runs pass.
+
+---
+
+## 8. Spotter/BM time sync
+
+Manual time test:
 
 ```bash
 cd /home/pi/BM_Devel_Pi
 /usr/bin/python3 -u spotter_time_sync.py
 ```
 
-### Check production app behavior
+Expected successful output includes:
+
+```text
+decoded Spotter UTC
+set_system_clock: ok
+time_source: spotter_utc
+source_time: spotter
+allowed=True or allowed=False depending on window
+```
+
+If using `--skip-time-window`, the app bypasses the Spotter UTC schedule gate. Do not use `--skip-time-window` in production cron.
+
+---
+
+## 9. Backend validation
+
+After a transmit, backend/frontend visibility can lag by several minutes.
+
+Successful reconstructed image diagnostics should show:
+
+```text
+Closed: yes
+Expected chunks: <N>
+Received chunks: <N>
+Missing chunks: 0
+Pillow OK: yes
+Format: heic
+```
+
+Expected Nereus media metadata should include populated image size/upload fields and a display derivative, for example:
+
+```text
+Device: BMCAM_000
+R2 Key: BMCAM_000/bm_sofar/...
+Display Key: BMCAM_000/bm_sofar/.../display/...
+File size: populated
+Upload time: populated
+Transfer rate: populated
+```
+
+Use the backend admin probes already used in this project for Sofar/BM discovery, poll-once, and message reconstruction.
+
+---
+
+## 10. Cron after manual validation
+
+Only after manual transmit passes:
 
 ```bash
-cd /home/pi/BM_Devel_Pi
-/usr/bin/python3 -u main_pi_camera.py --transmit
+crontab -l 2>/dev/null | grep -v 'run_capture_cycle.sh' > /tmp/bmcam000_cron || true
+echo '@reboot /usr/bin/flock -n /tmp/bmcam000_capture.lock /home/pi/BM_Devel_Pi/run_capture_cycle.sh' >> /tmp/bmcam000_cron
+crontab /tmp/bmcam000_cron
+crontab -l
+```
+
+Then test the wrapper once manually:
+
+```bash
+cd /home/pi/BM_Devel_Pi && (
+  /usr/bin/flock -n /tmp/bmcam000_capture.lock ./run_capture_cycle.sh &
+  pid=$!
+  sleep 2
+  LOG="$(ls -t cron_logs/capture_cycle_*.log | head -1)"
+  echo "Following $LOG"
+  tail --pid=$pid -n 200 -f "$LOG"
+)
 ```
 
 ---
 
-## 19. Current known-good production baseline
+## 11. Troubleshooting notes
 
-Known-good baseline from `bmcam002`:
+### Capture-only shows compressed size 0
 
-```text
-Runtime folder: /home/pi/BM_Devel_Pi
-UART: /dev/ttyAMA0
-Baudrate: 115200
-Time source: Spotter/BM topic spotter/utc-time
-Cron mode: @reboot
-Time behavior: fail closed if Spotter UTC unavailable and fallback disabled
-Production command: /usr/bin/python3 -u main_pi_camera.py --transmit
-Wrapper: /home/pi/BM_Devel_Pi/run_capture_cycle.sh
+Expected if `--transmit` is not passed.
+
+### `client_loop: send disconnect: Broken pipe`
+
+If the Pi remains online and reconnects, this may be network/Tailscale. If a physical power cycle is needed, treat it as a hard system/camera/encoder fault.
+
+### Zero-byte HEIC
+
+Bad unless it is a temporary file from a failed/aborted test. Find them:
+
+```bash
+find /home/pi/BM_Devel_Pi/images -maxdepth 1 -name "*compressed.heic" -size 0 -print -ls
 ```
 
-The potted `bmcam002` should be treated as the golden working production reference. Avoid making direct experimental changes to its runtime folder unless a backup has been created first.
+### 3072×1728 output
 
+Do not use for field MVP on `bmcam000`. HEIC encode at this size caused hard-reset/wedge behavior during tests.
+
+### libcamera metadata
+
+Do not add `--metadata` to the critical libcamera capture command on this branch. It caused instability. Metadata restoration is the next branch.
+
+### BM daemon
+
+For this legacy runtime path, `bm-daemon.service` should be stopped/disabled during manual testing:
+
+```bash
+sudo systemctl stop bm-daemon.service 2>/dev/null || true
+sudo systemctl disable bm-daemon.service 2>/dev/null || true
+```
+
+---
+
+## 12. Known branch history / superseded docs
+
+Older docs in this repo describe experiments with larger cellular chunks such as 900/960/980 bytes and 12–16 second pacing. Those tests are useful history, but they are **not** the current reef MVP path.
+
+Current reef MVP uses:
+
+```text
+300-byte chunks
+5-second chunk delay
+0x02 cellular-only queue
+2688×1512 HEIC Q20
+```
+
+`README_updated_large_cellular.md` should be treated as historical large-payload testing notes unless a new branch intentionally resumes large-message testing.
+
+---
+
+## 13. Next planned work
+
+Do not add these to the current branch unless a blocker requires it.
+
+1. Restore metadata safely without destabilizing capture/transmit.
+2. Add SD-card size/free/used and local storage ring buffer.
+3. Lock camera settings for field consistency:
+   - exposure
+   - gain
+   - white balance
+   - focus
+   - image-processing stability
+4. Later: clean v3 refactor into small modules.
+
+See `NEXT_AGENT_SPEC_BM_REEF_MVP.md` for the next-agent handoff.

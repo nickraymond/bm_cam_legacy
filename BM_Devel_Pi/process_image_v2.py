@@ -956,13 +956,90 @@ def _heic_helper_path():
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), "heic_encode_helper.py")
 
 
+# HEIC helper retry policy for bmcam000 MVP stability.
+# Successful encodes are typically 8-12 seconds. If the helper exceeds 30s,
+# treat it as a likely libheif/pillow_heif stall, clean up outputs, wait,
+# and retry. Initial attempt + 3 retries = 4 total attempts.
+HEIC_HELPER_TIMEOUT_SECONDS = 30
+HEIC_HELPER_MAX_RETRIES = 3
+HEIC_HELPER_RETRY_DELAY_SECONDS = 60
+
+
+def _heic_tmp_path_for_output(heic_output_path):
+    base, ext = os.path.splitext(heic_output_path)
+    return f"{base}.tmp{ext}"
+
+
+def _remove_heic_encode_artifacts(heic_output_path):
+    """Remove final/temp HEIC files after failed or timed-out encode attempts."""
+    for path in (_heic_tmp_path_for_output(heic_output_path), heic_output_path):
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+                debug_print(f"Removed HEIC encode artifact: {path}")
+        except Exception as exc:
+            debug_print(f"Failed to remove HEIC encode artifact {path}: {exc}")
+
+
+def _image_dimensions_text(image_path):
+    try:
+        with Image.open(image_path) as img:
+            return f"{img.size[0]}x{img.size[1]}"
+    except Exception:
+        return "na"
+
+
+def _send_heic_status(action, error_code, attempt, max_attempts, image_path, image_quality,
+                      wait_seconds=None, output_bytes=None, duration_sec=None, return_code=None):
+    """Best-effort parseable BM status for HEIC retry/error handling.
+
+    Message shape intentionally follows existing compact WS telemetry, e.g.:
+      <WS v=1 a=err e=heic_timeout try=1 max=4 rk=2688x1512 q=20 ...>
+
+    This must never break capture/compression/transmit.
+    """
+    try:
+        try:
+            cpu_temp = f"{get_cpu_temperature():.1f}"
+        except Exception:
+            cpu_temp = "na"
+
+        try:
+            input_bytes = os.path.getsize(image_path)
+        except Exception:
+            input_bytes = None
+
+        fields = [
+            ("v", "1"),
+            ("a", action),
+            ("e", error_code),
+            ("try", attempt),
+            ("max", max_attempts),
+            ("tmo", HEIC_HELPER_TIMEOUT_SECONDS),
+            ("wait", wait_seconds),
+            ("rk", _image_dimensions_text(image_path)),
+            ("q", image_quality),
+            ("sz", input_bytes),
+            ("hsz", output_bytes),
+            ("dur", f"{duration_sec:.1f}" if duration_sec is not None else None),
+            ("rc", return_code),
+            ("ct", cpu_temp),
+            ("sha", get_software_sha()),
+            ("hn", get_hostname()),
+        ]
+        send_compact_text_message(compact_kv_message("WS", fields))
+    except Exception as exc:
+        debug_print(f"Failed to send HEIC status telemetry: {exc}")
+
+
 def _run_heic_encode_helper(image_path, heic_output_path, image_quality):
-    """Encode HEIC in a lightweight subprocess.
+    """Encode HEIC in a lightweight subprocess with bounded retries.
 
     On bmcam000 / Pi Zero 2W, the exact RGB + temp-file HEIC procedure passed
-    repeatedly when run in a tiny standalone Python process, but failed inside
-    the heavier production module context. Keep the encoder isolated so it does
-    not inherit Picamera2/OpenCV/BM serial runtime weight.
+    repeatedly when run in a tiny standalone Python process, but the helper can
+    still intermittently stall after repeated full capture/transmit cycles.
+    Keep the encoder isolated and make stalls recoverable: timeout, cleanup,
+    cooldown, retry, then fail cleanly without sending partial image chunks.
     """
     helper = _heic_helper_path()
     if not os.path.exists(helper):
@@ -976,42 +1053,150 @@ def _run_heic_encode_helper(image_path, heic_output_path, image_quality):
         "--quality", str(image_quality),
     ]
 
-    debug_print("Running HEIC helper subprocess: " + " ".join(cmd))
-    started = time.monotonic()
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=180,
-        check=False,
-    )
-    duration = time.monotonic() - started
+    max_attempts = 1 + HEIC_HELPER_MAX_RETRIES
+    last_error = None
 
-    if result.stdout.strip():
-        for line in result.stdout.strip().splitlines():
-            debug_print(f"HEIC helper stdout: {line}")
-    if result.stderr.strip():
-        for line in result.stderr.strip().splitlines():
-            debug_print(f"HEIC helper stderr: {line}")
-
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"HEIC helper failed with exit_code={result.returncode} "
-            f"duration_sec={duration:.2f}"
+    for attempt in range(1, max_attempts + 1):
+        debug_print(
+            f"Running HEIC helper subprocess attempt {attempt}/{max_attempts}: "
+            + " ".join(cmd)
         )
+        started = time.monotonic()
 
-    if not os.path.exists(heic_output_path):
-        raise ValueError(f"HEIC helper did not create output: {heic_output_path}")
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=HEIC_HELPER_TIMEOUT_SECONDS,
+                check=False,
+            )
+            duration = time.monotonic() - started
 
-    output_size = os.path.getsize(heic_output_path)
-    if output_size <= 0:
-        raise ValueError(f"HEIC helper created zero-byte output: {heic_output_path}")
+            if result.stdout.strip():
+                for line in result.stdout.strip().splitlines():
+                    debug_print(f"HEIC helper stdout: {line}")
+            if result.stderr.strip():
+                for line in result.stderr.strip().splitlines():
+                    debug_print(f"HEIC helper stderr: {line}")
 
-    debug_print(
-        f"HEIC helper completed: output={heic_output_path}, "
-        f"bytes={output_size}, duration_sec={duration:.2f}"
+            if result.returncode != 0:
+                last_error = RuntimeError(
+                    f"HEIC helper failed with exit_code={result.returncode} "
+                    f"attempt={attempt}/{max_attempts} duration_sec={duration:.2f}"
+                )
+                debug_print(str(last_error))
+                _remove_heic_encode_artifacts(heic_output_path)
+                _send_heic_status(
+                    action="err",
+                    error_code="heic_rc",
+                    attempt=attempt,
+                    max_attempts=max_attempts,
+                    image_path=image_path,
+                    image_quality=image_quality,
+                    duration_sec=duration,
+                    return_code=result.returncode,
+                )
+            else:
+                if not os.path.exists(heic_output_path):
+                    last_error = ValueError(
+                        f"HEIC helper did not create output: {heic_output_path} "
+                        f"attempt={attempt}/{max_attempts}"
+                    )
+                    debug_print(str(last_error))
+                    _remove_heic_encode_artifacts(heic_output_path)
+                    _send_heic_status(
+                        action="err",
+                        error_code="heic_missing",
+                        attempt=attempt,
+                        max_attempts=max_attempts,
+                        image_path=image_path,
+                        image_quality=image_quality,
+                        duration_sec=duration,
+                    )
+                else:
+                    output_size = os.path.getsize(heic_output_path)
+                    if output_size <= 0:
+                        last_error = ValueError(
+                            f"HEIC helper created zero-byte output: {heic_output_path} "
+                            f"attempt={attempt}/{max_attempts}"
+                        )
+                        debug_print(str(last_error))
+                        _remove_heic_encode_artifacts(heic_output_path)
+                        _send_heic_status(
+                            action="err",
+                            error_code="heic_zero",
+                            attempt=attempt,
+                            max_attempts=max_attempts,
+                            image_path=image_path,
+                            image_quality=image_quality,
+                            duration_sec=duration,
+                        )
+                    else:
+                        debug_print(
+                            f"HEIC helper completed: output={heic_output_path}, "
+                            f"bytes={output_size}, duration_sec={duration:.2f}, "
+                            f"attempt={attempt}/{max_attempts}"
+                        )
+                        if attempt > 1:
+                            _send_heic_status(
+                                action="rec",
+                                error_code="heic",
+                                attempt=attempt,
+                                max_attempts=max_attempts,
+                                image_path=image_path,
+                                image_quality=image_quality,
+                                output_bytes=output_size,
+                                duration_sec=duration,
+                            )
+                        return output_size, duration
+
+        except subprocess.TimeoutExpired as exc:
+            duration = time.monotonic() - started
+            last_error = exc
+            debug_print(
+                f"HEIC helper timeout attempt={attempt}/{max_attempts} "
+                f"timeout_sec={HEIC_HELPER_TIMEOUT_SECONDS} duration_sec={duration:.2f}"
+            )
+            _remove_heic_encode_artifacts(heic_output_path)
+            _send_heic_status(
+                action="err",
+                error_code="heic_timeout",
+                attempt=attempt,
+                max_attempts=max_attempts,
+                image_path=image_path,
+                image_quality=image_quality,
+                duration_sec=duration,
+            )
+
+        if attempt < max_attempts:
+            next_attempt = attempt + 1
+            debug_print(
+                f"Waiting {HEIC_HELPER_RETRY_DELAY_SECONDS}s before HEIC retry "
+                f"{next_attempt}/{max_attempts}"
+            )
+            _send_heic_status(
+                action="retry",
+                error_code="heic",
+                attempt=next_attempt,
+                max_attempts=max_attempts,
+                image_path=image_path,
+                image_quality=image_quality,
+                wait_seconds=HEIC_HELPER_RETRY_DELAY_SECONDS,
+            )
+            time.sleep(HEIC_HELPER_RETRY_DELAY_SECONDS)
+
+    _send_heic_status(
+        action="fail",
+        error_code="heic",
+        attempt=max_attempts,
+        max_attempts=max_attempts,
+        image_path=image_path,
+        image_quality=image_quality,
     )
-    return output_size, duration
+    raise RuntimeError(
+        f"HEIC helper failed after {max_attempts} attempts; last_error={last_error!r}"
+    )
 
 
 def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
