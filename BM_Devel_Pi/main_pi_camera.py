@@ -388,14 +388,15 @@ def main(
                 "reason": f"schedule exception: {e}",
                 "timezone": _schedule_metadata(schedule_cfg).get("timezone"),
             }
-            _send_wake_status_safe(
-                action="skip_err",
-                schedule_cfg=schedule_cfg,
-                schedule_info=schedule_info,
-                runtime_resolution_key=runtime_resolution_key,
-                runtime_image_quality=runtime_image_quality,
-                reason="schedule",
-            )
+            if transmit_image:
+                _send_wake_status_safe(
+                    action="skip_err",
+                    schedule_cfg=schedule_cfg,
+                    schedule_info=schedule_info,
+                    runtime_resolution_key=runtime_resolution_key,
+                    runtime_image_quality=runtime_image_quality,
+                    reason="schedule",
+                )
             close_bm_serial()
             return
 
@@ -408,15 +409,20 @@ def main(
         schedule_allowed = True
         action = "cap"
 
-    # Always emit one compact wake heartbeat once schedule/config state is known.
-    _send_wake_status_safe(
-        action=action,
-        schedule_cfg=schedule_cfg,
-        schedule_info=schedule_info,
-        runtime_resolution_key=runtime_resolution_key,
-        runtime_image_quality=runtime_image_quality,
-        reason=_compact_reason(schedule_info.get("reason")),
-    )
+    # Emit compact wake heartbeat only for transmit/scheduled runs.
+    # Manual capture-only and compression-only development runs must not touch
+    # the BM bus unless explicitly transmitting.
+    if transmit_image:
+        _send_wake_status_safe(
+            action=action,
+            schedule_cfg=schedule_cfg,
+            schedule_info=schedule_info,
+            runtime_resolution_key=runtime_resolution_key,
+            runtime_image_quality=runtime_image_quality,
+            reason=_compact_reason(schedule_info.get("reason")),
+        )
+    else:
+        debug_print("Transmit disabled; skipping compact wake telemetry send.")
 
     if not schedule_allowed:
         debug_print("Outside configured Spotter-time transmit window. Skipping capture/transmit.")
@@ -476,27 +482,29 @@ def main(
 
         else:
             debug_print("Not within the legacy local time window. Skipping capture.")
-            _send_wake_status_safe(
-                action="skip_legacy",
-                schedule_cfg=schedule_cfg,
-                schedule_info=schedule_info,
-                runtime_resolution_key=runtime_resolution_key,
-                runtime_image_quality=runtime_image_quality,
-                reason="legacy",
-            )
+            if transmit_image:
+                _send_wake_status_safe(
+                    action="skip_legacy",
+                    schedule_cfg=schedule_cfg,
+                    schedule_info=schedule_info,
+                    runtime_resolution_key=runtime_resolution_key,
+                    runtime_image_quality=runtime_image_quality,
+                    reason="legacy",
+                )
             close_bm_serial()
             return
 
     else:
         debug_print("Failed to retrieve time.")
-        _send_wake_status_safe(
-            action="skip_err",
-            schedule_cfg=schedule_cfg,
-            schedule_info=schedule_info,
-            runtime_resolution_key=runtime_resolution_key,
-            runtime_image_quality=runtime_image_quality,
-            reason="rtc",
-        )
+        if transmit_image:
+            _send_wake_status_safe(
+                action="skip_err",
+                schedule_cfg=schedule_cfg,
+                schedule_info=schedule_info,
+                runtime_resolution_key=runtime_resolution_key,
+                runtime_image_quality=runtime_image_quality,
+                reason="rtc",
+            )
         close_bm_serial()
         return
 

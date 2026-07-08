@@ -3,6 +3,7 @@
 
 import base64
 import csv
+import gc
 import json
 import os
 import shutil
@@ -17,9 +18,20 @@ from PIL import Image
 from bm_serial import BristlemouthSerial, load_bm_serial_config
 
 
-# Setup the Bristlemouth UART Serial.
-# The network selector defaults from camera_schedule.yaml bm_serial.network_type.
-bm = BristlemouthSerial()
+# Bristlemouth serial is intentionally lazy-loaded.
+# The libcamera/crop/HEIC dev path can run capture-only and compression-only
+# tests without touching the BM bus. Instantiate BM serial only when an actual
+# Spotter/BM message is sent or when transmit settings must be applied to the
+# serial object.
+bm = None
+
+
+def _get_bm_serial():
+    """Return the lazily-created Bristlemouth serial instance."""
+    global bm
+    if bm is None:
+        bm = BristlemouthSerial()
+    return bm
 
 # Safe fallback values if camera_schedule.yaml is missing bm_serial settings.
 # For production large-message cellular-only deployments, set these in YAML:
@@ -126,7 +138,7 @@ def _coerce_float_config(name, value, default, min_value=None, max_value=None):
     return parsed
 
 
-def apply_bm_serial_runtime_settings():
+def apply_bm_serial_runtime_settings(configure_serial=False):
     """Load BM serial image-transfer settings from camera_schedule.yaml.
 
     The local deployment config block is:
@@ -161,23 +173,33 @@ def apply_bm_serial_runtime_settings():
         max_value=120,
     )
 
-    # BristlemouthSerial owns parsing/validation for network_type.
-    try:
-        bm.set_network_type(cfg.get("network_type"))
-    except Exception as exc:
-        debug_print(
-            f"Invalid bm_serial.network_type={cfg.get('network_type')!r}; "
-            f"keeping {bm.describe_network_type()}: {exc}"
-        )
+    network_type = cfg.get("network_type")
+    network_description = f"configured {network_type}" if network_type is not None else "default"
+    network_value = network_type
+
+    # BristlemouthSerial owns parsing/validation for network_type, but only
+    # instantiate it when actually preparing to transmit. Compression-only tests
+    # only need buffer size and delay.
+    if configure_serial:
+        serial = _get_bm_serial()
+        try:
+            serial.set_network_type(network_type)
+        except Exception as exc:
+            debug_print(
+                f"Invalid bm_serial.network_type={network_type!r}; "
+                f"keeping {serial.describe_network_type()}: {exc}"
+            )
+        network_value = serial.get_network_type_value()
+        network_description = serial.describe_network_type()
 
     settings = {
-        "network_type": bm.get_network_type_value(),
-        "network_description": bm.describe_network_type(),
+        "network_type": network_value,
+        "network_description": network_description,
         "image_buffer_size": BUFFER_SIZE,
         "image_transmit_delay_seconds": IMAGE_TRANSMIT_DELAY_SECONDS,
     }
     debug_print(
-        "Runtime BM transmit settings: "
+        "Runtime BM transfer settings: "
         f"network={settings['network_description']}; "
         f"image_buffer_size={settings['image_buffer_size']}; "
         f"image_transmit_delay_seconds={settings['image_transmit_delay_seconds']}"
@@ -186,11 +208,22 @@ def apply_bm_serial_runtime_settings():
 
 
 def debug_print(message):
-    """Helper function to print debug messages if debugging is enabled."""
+    """Helper function to print debug messages if debugging is enabled.
+
+    Keep debug logging side-effect free by default. During bmcam000 dev,
+    capture-only and compression-only tests must not touch the BM bus. Set
+    BM_CAMERA_LOG_TO_SPOTTER=1 only when explicit Spotter-side debug logging
+    is needed.
+    """
     if DEBUG:
         print(f"[DEBUG] {message}")
-    # Save message to Spotter SD card
-    bm.spotter_log("camera_module.log", message)
+
+    if os.environ.get("BM_CAMERA_LOG_TO_SPOTTER") == "1":
+        try:
+            _get_bm_serial().spotter_log("camera_module.log", message)
+        except Exception:
+            # Debug logging must never break capture/compression/transmit.
+            pass
 
 
 def validate_resolution(resolution_key):
@@ -485,7 +518,7 @@ def compact_kv_message(prefix, fields, max_payload_bytes=280):
 def send_compact_text_message(message):
     """Send one compact ASCII message over the existing Spotter transmit-data path."""
     payload = message.encode("ascii", errors="ignore")
-    bm.spotter_tx(payload)
+    _get_bm_serial().spotter_tx(payload)
     debug_print(f"Sent compact telemetry message ({len(payload)} bytes): {message.strip()}")
     return len(payload)
 
@@ -667,6 +700,10 @@ def _crop_and_downsample_native(native_image_path, final_image_path, settings):
             cropped = cropped.resize((out_w, out_h), Image.Resampling.LANCZOS)
 
         cropped.save(final_image_path, format="JPEG", quality=jpeg_quality, subsampling=0)
+        del cropped
+        del img
+
+    _release_memory_hint("crop/downsample")
 
     return {
         "native_width": native_w,
@@ -680,6 +717,16 @@ def _crop_and_downsample_native(native_image_path, final_image_path, settings):
         "resample": "lanczos",
         "intermediate_jpeg_quality": jpeg_quality,
     }
+
+
+
+def _release_memory_hint(context=""):
+    """Best-effort memory release between high-memory stages on Pi Zero 2W."""
+    try:
+        gc.collect()
+    except Exception:
+        pass
+    debug_print(f"Memory release hint complete{f' after {context}' if context else ''}")
 
 
 def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECTORY):
@@ -1048,6 +1095,41 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
 
     return os.path.basename(heic_output_path), buffer_number, file_size
 
+
+def _format_start_metadata(start_metadata):
+    """Return compact START IMG metadata suffix.
+
+    This is deliberately short because START is one BM message and is separate
+    from image chunks. It does not affect buffer generation or chunking.
+    """
+    if not start_metadata:
+        return ""
+
+    mapping = [
+        ("rk", "image_res_key"),
+        ("q", "image_quality"),
+        ("tz", "timezone"),
+        ("ws", "window_start"),
+        ("we", "window_end"),
+        ("sha", "software_sha"),
+        ("hn", "hostname"),
+    ]
+
+    parts = []
+    for label, key in mapping:
+        value = start_metadata.get(key)
+        if value is None or value == "":
+            continue
+        value = str(value).replace(" ", "_").replace(",", "_")
+        if len(value) > 32:
+            value = value[:32]
+        parts.append(f"{label}={value}")
+
+    if not parts:
+        return ""
+    return "meta: " + " ".join(parts)
+
+
 def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, capture_metadata=None):
     """Send the buffer files over UART."""
     files = os.listdir(buffer_directory)
@@ -1073,7 +1155,7 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         f"timestamp: {current_timestamp}, length: {num_buffers}"
         f"{meta_suffix}\n"
     )
-    bm.spotter_tx(start_msg.encode('ascii'))
+    _get_bm_serial().spotter_tx(start_msg.encode('ascii'))
     time.sleep(IMAGE_TRANSMIT_DELAY_SECONDS)
 
     sent_buffers = 0
@@ -1084,7 +1166,7 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
             buffer_data = buffer_file.read()
 
         buffer_to_send = f"<I{i}>{buffer_data}\n"
-        bm.spotter_tx(buffer_to_send.encode('ascii'))
+        _get_bm_serial().spotter_tx(buffer_to_send.encode('ascii'))
         sent_buffers += 1
 
         debug_print(f"Sent buffer {i + 1} of {num_buffers}")
@@ -1109,7 +1191,7 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         ],
         capture_metadata=capture_metadata,
     )
-    bm.spotter_tx(end_msg.encode('ascii'))
+    _get_bm_serial().spotter_tx(end_msg.encode('ascii'))
 
     debug_print(
         f"Finished transmission of image: {compressed_file_name}; "
@@ -1131,7 +1213,7 @@ def compress_and_send_image(
     schedule_metadata=None,
 ):
     """Compress the image to HEIC, save it, and send buffers."""
-    apply_bm_serial_runtime_settings()
+    apply_bm_serial_runtime_settings(configure_serial=True)
 
     compressed_file_name, num_buffers, file_size_compressed = split_image_heic(
         image_path,
@@ -1213,6 +1295,12 @@ def log_message(
 
 
 def close_bm_serial():
-    """Close the BM serial once complete."""
-    bm.uart.close()
+    """Close the BM serial once complete, if it was ever opened."""
+    global bm
+    if bm is None:
+        return 0
+    try:
+        bm.uart.close()
+    finally:
+        bm = None
     return 0
