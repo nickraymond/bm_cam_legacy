@@ -1879,39 +1879,140 @@ def split_image_heic(image_path, image_quality=IMAGE_QUALITY):
     return os.path.basename(heic_output_path), buffer_number, file_size
 
 
-def _format_start_metadata(start_metadata):
-    """Return compact START IMG metadata suffix.
+def _compact_unit_int(value, divisor):
+    """Convert bytes to a compact integer unit for START metadata."""
+    if value is None or value == "":
+        return None
+    try:
+        return int(round(float(value) / float(divisor)))
+    except Exception:
+        return None
 
-    This is deliberately short because START is one BM message and is separate
-    from image chunks. It does not affect buffer generation or chunking.
+
+def _start_metadata_pairs(start_metadata):
+    """Return compact top-level START IMG key/value pairs.
+
+    These fields are transmitted in the START message so the backend can parse
+    them from Sofar/BM message text. Keep names short because START is one
+    unchunked BM message and must stay under the practical 300-byte limit.
+
+    Storage fields:
+      st = SD total MiB
+      su = SD used MiB
+      sf = SD free MiB
+      sp = SD used percent
+      im = images dir MiB
+      bf = buffer dir KiB
+      lg = cron_logs dir KiB
+      zh = zero-byte HEIC count
     """
     if not start_metadata:
-        return ""
+        return []
 
-    mapping = [
-        ("rk", "image_res_key"),
-        ("q", "image_quality"),
-        ("tz", "timezone"),
-        ("ws", "window_start"),
-        ("we", "window_end"),
-        ("sha", "software_sha"),
-        ("hn", "hostname"),
+    mib = 1024 * 1024
+    kib = 1024
+
+    raw_pairs = [
+        ("rk", start_metadata.get("image_res_key")),
+        ("q", start_metadata.get("image_quality")),
+        ("tz", start_metadata.get("timezone")),
+        ("ws", _format_hhmm(start_metadata.get("window_start"))),
+        ("we", _format_hhmm(start_metadata.get("window_end"))),
+        ("sha", start_metadata.get("software_sha")),
+        ("hn", start_metadata.get("hostname")),
+
+        # Read-only storage health, compacted for BM payload budget.
+        ("st", _compact_unit_int(start_metadata.get("sd_total_bytes"), mib)),
+        ("su", _compact_unit_int(start_metadata.get("sd_used_bytes"), mib)),
+        ("sf", _compact_unit_int(start_metadata.get("sd_free_bytes"), mib)),
+        ("sp", _num(start_metadata.get("sd_used_pct"), digits=1)),
+        ("im", _compact_unit_int(start_metadata.get("images_dir_bytes"), mib)),
+        ("bf", _compact_unit_int(start_metadata.get("buffer_dir_bytes"), kib)),
+        ("lg", _compact_unit_int(start_metadata.get("cron_logs_dir_bytes"), kib)),
+        ("zh", start_metadata.get("zero_byte_heic_count")),
     ]
 
-    parts = []
-    for label, key in mapping:
-        value = start_metadata.get(key)
+    pairs = []
+    for key, value in raw_pairs:
         if value is None or value == "":
             continue
-        value = str(value).replace(" ", "_").replace(",", "_")
-        if len(value) > 32:
-            value = value[:32]
-        parts.append(f"{label}={value}")
+        pairs.append((key, value))
+    return pairs
 
-    if not parts:
-        return ""
-    return "meta: " + " ".join(parts)
 
+def _build_start_image_message(
+    compressed_file_name,
+    current_timestamp,
+    num_buffers,
+    start_metadata=None,
+    max_payload_bytes=285,
+):
+    """Build one budgeted START IMG message.
+
+    START is not chunked, so keep this comfortably below the 300-byte practical
+    BM/Sofar message limit. If the message is too long, drop lowest-priority
+    optional storage/context fields first while preserving the fields most useful
+    for backend reconstruction and field debugging.
+    """
+    base_parts = [
+        f"filename: {_clean_value(compressed_file_name, max_len=96)}",
+        f"timestamp: {_clean_value(current_timestamp, max_len=32)}",
+        f"length: {int(num_buffers)}",
+    ]
+
+    optional = _start_metadata_pairs(start_metadata)
+
+    # Lowest-value fields drop first if the filename/time/context makes START
+    # too large. Preserve sf/sp/zh/rk/q/sha as long as possible.
+    drop_order = [
+        "lg",  # cron logs KiB
+        "bf",  # buffer dir KiB
+        "im",  # images dir MiB
+        "st",  # SD total MiB
+        "su",  # SD used MiB
+        "tz",  # timezone string can be long
+        "hn",  # hostname
+        "ws",
+        "we",
+    ]
+
+    def render(selected_optional):
+        parts = list(base_parts)
+        for key, value in selected_optional:
+            max_len = 32
+            if key == "sha":
+                max_len = 12
+            elif key == "tz":
+                max_len = 24
+            elif key in {"rk", "hn"}:
+                max_len = 24
+            parts.append(f"{key}={_clean_value(value, max_len=max_len)}")
+        return "<START IMG> " + ", ".join(parts) + "\n"
+
+    selected = list(optional)
+    msg = render(selected)
+
+    for key_to_drop in drop_order:
+        if len(msg.encode("ascii", errors="ignore")) <= max_payload_bytes:
+            break
+        before = len(selected)
+        selected = [(k, v) for (k, v) in selected if k != key_to_drop]
+        if len(selected) != before:
+            debug_print(f"Skipping START metadata field due to payload budget: {key_to_drop}")
+        msg = render(selected)
+
+    while len(msg.encode("ascii", errors="ignore")) > max_payload_bytes and selected:
+        dropped_key, _ = selected.pop()
+        debug_print(f"Skipping START metadata field due to payload budget: {dropped_key}")
+        msg = render(selected)
+
+    encoded = msg.encode("ascii", errors="ignore")
+    if len(encoded) > max_payload_bytes:
+        # Last-resort safety. This should be rare because base START is short.
+        encoded = encoded[:max_payload_bytes - 2] + b"\n"
+        msg = encoded.decode("ascii", errors="ignore")
+
+    return msg
 
 def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, capture_metadata=None):
     """Send the buffer files over UART."""
@@ -1926,18 +2027,20 @@ def send_buffers(buffer_directory, compressed_file_name, start_metadata=None, ca
         f"buffer_size={BUFFER_SIZE}; delay_sec={IMAGE_TRANSMIT_DELAY_SECONDS}"
     )
 
-    meta_text = _format_start_metadata(start_metadata)
-    meta_suffix = f", {meta_text}" if meta_text else ""
+    # START IMG is one unchunked BM message. Build it with a hard budget so
+    # compact metadata cannot push the message over the practical payload limit.
 
     # Measure the full Pi-side send loop duration, including the existing pacing
     # sleeps between UART writes. This is the camera UART/application throughput.
     uart_start = time.monotonic()
 
-    start_msg = (
-        f"<START IMG> filename: {compressed_file_name}, "
-        f"timestamp: {current_timestamp}, length: {num_buffers}"
-        f"{meta_suffix}\n"
+    start_msg = _build_start_image_message(
+        compressed_file_name,
+        current_timestamp,
+        num_buffers,
+        start_metadata=start_metadata,
     )
+    debug_print(f"START IMG message bytes={len(start_msg.encode('ascii', errors='ignore'))}: {start_msg.strip()}")
     _get_bm_serial().spotter_tx(start_msg.encode('ascii'))
     time.sleep(IMAGE_TRANSMIT_DELAY_SECONDS)
 
@@ -2015,6 +2118,14 @@ def compress_and_send_image(
         "window_end": schedule_metadata.get("window_end"),
         "software_sha": get_software_sha(),
         "hostname": get_hostname(),
+        "sd_total_bytes": storage_health.get("sd_total_bytes"),
+        "sd_used_bytes": storage_health.get("sd_used_bytes"),
+        "sd_free_bytes": storage_health.get("sd_free_bytes"),
+        "sd_used_pct": storage_health.get("sd_used_pct"),
+        "images_dir_bytes": storage_health.get("images_dir_bytes"),
+        "buffer_dir_bytes": storage_health.get("buffer_dir_bytes"),
+        "cron_logs_dir_bytes": storage_health.get("cron_logs_dir_bytes"),
+        "zero_byte_heic_count": storage_health.get("zero_byte_heic_count"),
     }
 
     capture_metadata = update_capture_metadata(image_path, {
