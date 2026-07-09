@@ -124,6 +124,39 @@ def _parse_output_size_arg(value):
     return w, h
 
 
+def _load_image_pipeline_camera_controls_from_yaml():
+    """Return raw nested image_pipeline.camera_controls from camera_schedule.yaml.
+
+    The legacy config loader intentionally flattens core image_pipeline geometry
+    and compression settings. Camera controls are grouped and expected to grow
+    over time, so preserve this nested block as an island inside the otherwise
+    flat runtime settings dict.
+    """
+    try:
+        import yaml
+        from pathlib import Path as _Path
+
+        candidates = [
+            _Path("camera_schedule.yaml"),
+            _Path(__file__).with_name("camera_schedule.yaml"),
+        ]
+
+        for path in candidates:
+            if not path.exists():
+                continue
+            data = yaml.safe_load(path.read_text()) or {}
+            image_pipeline = data.get("image_pipeline") or {}
+            controls = image_pipeline.get("camera_controls")
+            if isinstance(controls, dict):
+                return controls
+    except Exception as exc:
+        try:
+            debug_print(f"Failed to load nested camera_controls from YAML: {exc}")
+        except Exception:
+            pass
+    return {}
+
+
 def _build_image_pipeline_settings(
     cfg,
     *,
@@ -179,6 +212,10 @@ def _build_image_pipeline_settings(
         "resample": cfg.image_pipeline_spatial_resample,
         "heic_quality": int(heic_quality),
     }
+
+    camera_controls = _load_image_pipeline_camera_controls_from_yaml()
+    if isinstance(camera_controls, dict) and camera_controls:
+        settings["camera_controls"] = camera_controls
 
     if not (0 <= settings["heic_quality"] <= 100):
         raise ValueError("HEIC/image quality must be between 0 and 100")
