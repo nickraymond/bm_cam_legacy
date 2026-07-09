@@ -252,3 +252,55 @@ Requirements:
 - Telemetry records missing chunks, expected/received chunks, START/END metadata, and reconstruct status.
 - Gallery no longer needs to call the admin BM probe endpoint for normal display.
 
+
+---
+
+## RC follow-up items added after BM display-derivative backend repair
+
+### TODO-BM-008 — Fix BM gallery overlay matching to real media rows
+**Status:** open  
+**Priority:** medium  
+**Context:** Backend display derivative repair is now working: complete BM HEIC media rows can have JPEG `display_key` values and normal gallery mode renders them. The remaining issue is the RC BM overlay/debug gallery can still show black placeholders because it matches BM transmission attempts to media rows too narrowly. BM transmission START filename time can differ from media `captured_at_utc`/END time.  
+**Observed example:**
+- BM START filename: `2026-07-09T17:45:41Z_image_compressed.heic`
+- Media captured/end time: `2026-07-09T17:56:52Z`
+- Media row: `30697`
+- Normal gallery renders after display derivative repair.
+- BM overlay may still show placeholder if matching by START timestamp only.
+
+**Acceptance criteria:**
+- BM overlay matches completed transmissions to existing media rows using telemetry fields:
+  - `bm_start_filename`
+  - `bm_end_filename`
+  - `external_node_id`
+  - `expected_chunks`
+  - `received_chunks`
+  - `image_size_bytes`
+- If a matching media row has a valid `image_url`, show the real image instead of a black placeholder.
+- If no media row exists, continue showing the black placeholder with reason.
+
+### TODO-BM-009 — Confirm background Sofar poll worker repairs missing BM display derivatives
+**Status:** open  
+**Priority:** high for backend validation, low for Pi firmware  
+**Context:** A backend patch was added in `nereus-vision-dev` to repair existing HEIC media rows missing `display_key`. The manual admin backfill endpoint succeeded for BMCAM_000 and normal gallery mode now renders recent BM images. Need confirm the scheduled/background Sofar poll worker path also creates or repairs JPEG display derivatives for future complete BM images without manual intervention.
+
+**Acceptance criteria:**
+- New complete BM image arrives.
+- `/devices/BMCAM_000/media` row exists.
+- `image_url` points to `/display/...jpg`.
+- `image_url_has_display === true`.
+- Normal gallery renders image without manual backfill.
+- Worker logs show no display derivative errors.
+
+### TODO-BM-010 — Add first-class backend capture-attempt rows or placeholder media for partial BM images
+**Status:** open  
+**Priority:** medium / post-shipment  
+**Context:** The RC BM overlay proved the value of showing every capture/transmission attempt, including partial/open transmissions. Long term, the backend should represent partial BM captures directly instead of relying on a frontend-only overlay.
+
+**Acceptance criteria:**
+- One backend-visible record exists per BM START image attempt.
+- Complete images point to real display JPEGs.
+- Partial/missing/open attempts show unique placeholder cards/images.
+- Telemetry records missing chunks, received/expected chunks, START/END metadata, and reconstruction status.
+- Normal gallery can show the full capture timeline without relying on the admin BM probe endpoint.
+
