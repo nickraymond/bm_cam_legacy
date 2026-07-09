@@ -15,6 +15,7 @@ Picamera2, or import OpenCV. It writes a small JSON summary to stdout.
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 import time
@@ -39,6 +40,37 @@ def _meminfo_kb() -> dict:
     return out
 
 
+def _write_progress(progress_log, stage, **data):
+    """Append helper progress to a JSONL file.
+
+    This is intentionally tiny and syncs each line so if the Pi wedges, the last
+    completed stage is still useful after reboot.
+    """
+    if not progress_log:
+        return
+    try:
+        row = {
+            "stage": stage,
+            "time_monotonic": round(time.monotonic(), 3),
+            "mem": _meminfo_kb(),
+        }
+        row.update(data)
+        with open(progress_log, "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, sort_keys=True) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+    except Exception:
+        pass
+
+
+def _close_image(img):
+    try:
+        if img is not None:
+            img.close()
+    except Exception:
+        pass
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Crop/downsample a native JPEG using a safe temp-file flow.")
     parser.add_argument("--input", required=True, help="Input native full JPEG path.")
@@ -51,6 +83,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-height", type=int, required=True)
     parser.add_argument("--jpeg-quality", type=int, required=True)
     parser.add_argument("--resample", default="lanczos")
+    parser.add_argument("--progress-log", default=None, help="Optional JSONL progress log for debugging helper wedges.")
     return parser.parse_args()
 
 
@@ -89,26 +122,119 @@ def main() -> int:
         if p.exists():
             p.unlink()
 
+    progress_log = args.progress_log
+    if progress_log:
+        try:
+            Path(progress_log).parent.mkdir(parents=True, exist_ok=True)
+            if os.path.exists(progress_log):
+                os.remove(progress_log)
+        except Exception:
+            pass
+
     mem_before = _meminfo_kb()
     t0 = time.monotonic()
+    _write_progress(
+        progress_log,
+        "start",
+        input=str(input_path),
+        output=str(output_path),
+        crop=[crop_x, crop_y, crop_w, crop_h],
+        output_size=[out_w, out_h],
+        jpeg_quality=jpeg_quality,
+    )
 
-    with Image.open(input_path) as img:
-        native_w, native_h = img.size
+    native_w = native_h = None
+    cropped = None
+    output_image = None
 
-        if crop_x + crop_w > native_w or crop_y + crop_h > native_h:
-            raise ValueError(
-                "crop exceeds native image bounds: "
-                f"crop=({crop_x},{crop_y},{crop_w},{crop_h}) native={native_w}x{native_h}"
+    try:
+        # Stage 1: open native image and make a real cropped copy.
+        # Important: close the full native image before RGB conversion/resize to
+        # reduce peak memory on Pi Zero 2W.
+        with Image.open(input_path) as img:
+            native_w, native_h = img.size
+            opened_mode = img.mode
+            _write_progress(
+                progress_log,
+                "opened",
+                native_width=native_w,
+                native_height=native_h,
+                opened_mode=opened_mode,
             )
 
-        # Crop before RGB conversion to reduce peak memory versus converting the
-        # full 4608x2592 native frame in the parent process.
-        cropped = img.crop((crop_x, crop_y, crop_x + crop_w, crop_y + crop_h)).convert("RGB")
+            if crop_x + crop_w > native_w or crop_y + crop_h > native_h:
+                raise ValueError(
+                    "crop exceeds native image bounds: "
+                    f"crop=({crop_x},{crop_y},{crop_w},{crop_h}) native={native_w}x{native_h}"
+                )
 
+            cropped = img.crop((crop_x, crop_y, crop_x + crop_w, crop_y + crop_h))
+            cropped.load()
+            _write_progress(
+                progress_log,
+                "cropped",
+                cropped_size=list(cropped.size),
+                cropped_mode=cropped.mode,
+            )
+
+        _write_progress(progress_log, "source_closed")
+        gc.collect()
+
+        # Stage 2: convert only the cropped region to RGB.
+        if cropped.mode != "RGB":
+            rgb_image = cropped.convert("RGB")
+            _close_image(cropped)
+            cropped = rgb_image
+            gc.collect()
+            _write_progress(
+                progress_log,
+                "converted_rgb",
+                converted_size=list(cropped.size),
+                converted_mode=cropped.mode,
+            )
+        else:
+            _write_progress(
+                progress_log,
+                "already_rgb",
+                converted_size=list(cropped.size),
+                converted_mode=cropped.mode,
+            )
+
+        # Stage 3: resize after full native image is closed.
         if (out_w, out_h) != (crop_w, crop_h):
-            cropped = cropped.resize((out_w, out_h), Image.Resampling.LANCZOS)
+            output_image = cropped.resize((out_w, out_h), Image.Resampling.LANCZOS)
+            _close_image(cropped)
+            cropped = None
+            gc.collect()
+            _write_progress(
+                progress_log,
+                "resized",
+                output_size=list(output_image.size),
+                output_mode=output_image.mode,
+            )
+        else:
+            output_image = cropped
+            cropped = None
+            _write_progress(
+                progress_log,
+                "resize_skipped",
+                output_size=list(output_image.size),
+                output_mode=output_image.mode,
+            )
 
-        cropped.save(tmp_path, format="JPEG", quality=jpeg_quality, subsampling=0)
+        # Stage 4: save temp JPEG atomically.
+        output_image.save(tmp_path, format="JPEG", quality=jpeg_quality, subsampling=0)
+        _write_progress(
+            progress_log,
+            "saved_tmp",
+            tmp_path=str(tmp_path),
+            tmp_bytes=tmp_path.stat().st_size if tmp_path.exists() else None,
+        )
+
+    finally:
+        _close_image(cropped)
+        _close_image(output_image)
+        gc.collect()
 
     if not tmp_path.exists():
         raise RuntimeError(f"Temporary output was not created: {tmp_path}")
@@ -147,6 +273,7 @@ def main() -> int:
         "duration_seconds": round(dt, 3),
         "mem_before": mem_before,
         "mem_after": mem_after,
+        "progress_log": progress_log,
     }, sort_keys=True))
 
     return 0

@@ -1283,6 +1283,21 @@ def _send_crop_status(
         debug_print(f"Failed to send crop/downsample status telemetry: {exc}")
 
 
+def _log_crop_progress_tail(progress_log_path, max_lines=20):
+    """Best-effort log tail for crop helper progress JSONL."""
+    try:
+        if not progress_log_path or not os.path.exists(progress_log_path):
+            debug_print(f"Crop/downsample progress log not found: {progress_log_path}")
+            return
+        with open(progress_log_path, "r", encoding="utf-8", errors="replace") as f:
+            lines = f.readlines()[-max_lines:]
+        debug_print(f"Crop/downsample progress log tail: {progress_log_path}")
+        for line in lines:
+            debug_print(f"Crop progress: {line.rstrip()}")
+    except Exception as exc:
+        debug_print(f"Failed to read crop/downsample progress log {progress_log_path}: {exc}")
+
+
 def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
     """Crop/downsample native JPEG in a lightweight subprocess with bounded retries."""
     helper = _crop_helper_path()
@@ -1302,6 +1317,13 @@ def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
         debug_print(f"Unsupported resample={resample_name!r}; using lanczos for MVP pipeline")
         resample_name = "lanczos"
 
+    progress_log_path = f"{final_image_path}.crop_progress.jsonl"
+    try:
+        if os.path.exists(progress_log_path):
+            os.remove(progress_log_path)
+    except Exception as exc:
+        debug_print(f"Failed to remove old crop/downsample progress log {progress_log_path}: {exc}")
+
     cmd = [
         sys.executable or "/usr/bin/python3",
         helper,
@@ -1315,6 +1337,7 @@ def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
         "--output-height", str(out_h),
         "--jpeg-quality", str(jpeg_quality),
         "--resample", resample_name,
+        "--progress-log", progress_log_path,
     ]
 
     max_attempts = 1 + CROP_HELPER_MAX_RETRIES
@@ -1355,6 +1378,7 @@ def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
                     f"attempt={attempt}/{max_attempts} duration_sec={duration:.2f}"
                 )
                 debug_print(str(last_error))
+                _log_crop_progress_tail(progress_log_path)
                 _remove_crop_artifacts(final_image_path)
                 _send_crop_status(
                     action="err",
@@ -1375,6 +1399,7 @@ def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
                     f"attempt={attempt}/{max_attempts}"
                 )
                 debug_print(str(last_error))
+                _log_crop_progress_tail(progress_log_path)
                 _remove_crop_artifacts(final_image_path)
                 _send_crop_status(
                     action="err",
@@ -1396,6 +1421,7 @@ def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
                         f"attempt={attempt}/{max_attempts}"
                     )
                     debug_print(str(last_error))
+                    _log_crop_progress_tail(progress_log_path)
                     _remove_crop_artifacts(final_image_path)
                     _send_crop_status(
                         action="err",
@@ -1453,6 +1479,7 @@ def _run_crop_downsample_helper(native_image_path, final_image_path, settings):
                 f"Crop/downsample helper timeout attempt={attempt}/{max_attempts} "
                 f"timeout_sec={CROP_HELPER_TIMEOUT_SECONDS} duration_sec={duration:.2f}"
             )
+            _log_crop_progress_tail(progress_log_path)
             _remove_crop_artifacts(final_image_path)
             _send_crop_status(
                 action="err",
