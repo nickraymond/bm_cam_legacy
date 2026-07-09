@@ -841,6 +841,116 @@ def _run_camera_command_with_timeout(cmd, stdout_log, stderr_log, attempt_label)
     return result, duration
 
 
+CAMERA_CONTROL_OPTIONS_WITH_VALUES = {
+    "--autofocus-mode",
+    "--lens-position",
+    "--autofocus-range",
+    "--autofocus-speed",
+}
+
+
+def _control_bool(value, default=False):
+    """Parse YAML-ish booleans safely."""
+    if value is None or value == "":
+        return bool(default)
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "on", "enabled"}:
+        return True
+    if text in {"0", "false", "no", "off", "disabled"}:
+        return False
+    return bool(default)
+
+
+def _focus_camera_controls_from_settings(settings):
+    """Build libcamera focus CLI args and requested-control metadata.
+
+    MVP: focus only. Exposure and white balance come later.
+    """
+    requested = {
+        "camera_control_source": "image_pipeline.camera_controls",
+        "camera_controls_enabled": False,
+    }
+
+    if not isinstance(settings, dict):
+        return [], requested
+
+    controls = settings.get("camera_controls")
+    if not isinstance(controls, dict):
+        return [], requested
+
+    enabled = _control_bool(controls.get("enabled"), default=False)
+    requested["camera_controls_enabled"] = enabled
+
+    focus = controls.get("focus")
+    if not isinstance(focus, dict):
+        focus = {}
+
+    focus_enabled = enabled and _control_bool(focus.get("enabled"), default=True)
+    requested["requested_focus_enabled"] = focus_enabled
+
+    args = []
+    if not focus_enabled:
+        return args, requested
+
+    mode = str(focus.get("mode") or "").strip().lower()
+    if mode:
+        requested["requested_focus_mode"] = mode
+
+    if mode in {"manual", "auto", "continuous"}:
+        args.extend(["--autofocus-mode", mode])
+    elif mode and mode not in {"default", "none", "null"}:
+        debug_print(f"Unsupported focus.mode={mode!r}; not adding --autofocus-mode")
+
+    lens_position = focus.get("lens_position")
+    if lens_position not in (None, ""):
+        try:
+            lens_position_f = float(lens_position)
+            requested["requested_lens_position"] = round(lens_position_f, 4)
+            args.extend(["--lens-position", _num(lens_position_f, digits=4)])
+        except Exception as exc:
+            requested["requested_lens_position_error"] = str(exc)
+            debug_print(f"Invalid focus.lens_position={lens_position!r}; ignoring: {exc}")
+
+    focus_range = str(focus.get("range") or "").strip().lower()
+    if focus_range:
+        requested["requested_focus_range"] = focus_range
+        if focus_range in {"normal", "macro", "full"}:
+            args.extend(["--autofocus-range", focus_range])
+        else:
+            debug_print(f"Unsupported focus.range={focus_range!r}; ignoring")
+
+    focus_speed = str(focus.get("speed") or "").strip().lower()
+    if focus_speed:
+        requested["requested_focus_speed"] = focus_speed
+        if focus_speed in {"normal", "fast"}:
+            args.extend(["--autofocus-speed", focus_speed])
+        else:
+            debug_print(f"Unsupported focus.speed={focus_speed!r}; ignoring")
+
+    return args, requested
+
+
+def _without_camera_control_args(cmd):
+    """Return camera command with focus-control options removed."""
+    out = []
+    skip_next = False
+    for item in cmd:
+        if skip_next:
+            skip_next = False
+            continue
+        if item in CAMERA_CONTROL_OPTIONS_WITH_VALUES:
+            skip_next = True
+            continue
+        out.append(item)
+    return out
+
+
+def _command_has_camera_control_args(cmd):
+    return any(item in CAMERA_CONTROL_OPTIONS_WITH_VALUES for item in (cmd or []))
+
+
 def _without_metadata_args(cmd):
     """Return camera command with --metadata <path> removed."""
     out = []
@@ -856,7 +966,7 @@ def _without_metadata_args(cmd):
     return out
 
 
-def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix):
+def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix, settings=None):
     """Capture native/full-source JPEG with rpicam-still or libcamera-still.
 
     The camera app is already a subprocess, but on bmcam000 we observed native
@@ -876,8 +986,18 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
         "--height", str(source_height),
         "--quality", str(jpeg_quality),
         "--metadata", metadata_json_path,
-        "-o", native_image_path,
     ]
+
+    camera_control_args, requested_camera_controls = _focus_camera_controls_from_settings(settings)
+    if camera_control_args:
+        base_cmd.extend(camera_control_args)
+        debug_print(
+            "Applying requested focus camera controls: "
+            f"args={' '.join(camera_control_args)}; "
+            f"requested={requested_camera_controls}"
+        )
+
+    base_cmd.extend(["-o", native_image_path])
 
     max_attempts = 1 + CAPTURE_HELPER_MAX_RETRIES
     last_error = None
@@ -939,6 +1059,18 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
                         "WITHOUT -n AND --metadata",
                     ))
 
+                if camera_control_args and _command_has_camera_control_args(cmd):
+                    retry_variants.append((
+                        _without_camera_control_args(cmd),
+                        "WITHOUT camera controls",
+                    ))
+
+                    if "--metadata" in cmd:
+                        retry_variants.append((
+                            _without_metadata_args(_without_camera_control_args(cmd)),
+                            "WITHOUT camera controls AND --metadata",
+                        ))
+
                 seen = set()
                 for retry_cmd, retry_label in retry_variants:
                     retry_key = tuple(retry_cmd)
@@ -988,6 +1120,10 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
                     "stdout_log": stdout_log,
                     "stderr_log": stderr_log,
                     "metadata_json": metadata_json_path if os.path.exists(metadata_json_path) else None,
+                    "camera_control_args": camera_control_args,
+                    "camera_control_args_used": _command_has_camera_control_args(final_cmd),
+                    "camera_controls_fallback_used": bool(camera_control_args and not _command_has_camera_control_args(final_cmd)),
+                    "requested_camera_controls": requested_camera_controls,
                 }
 
             last_error = RuntimeError(
@@ -1419,6 +1555,7 @@ def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECT
         source_height=source_height,
         jpeg_quality=source_jpeg_quality,
         log_prefix=log_prefix,
+        settings=settings,
     )
 
     geometry_info = _crop_and_downsample_native(native_image_path, final_image_path, settings)
@@ -1430,6 +1567,10 @@ def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECT
         "capture_stdout_log": capture_info.get("stdout_log"),
         "capture_stderr_log": capture_info.get("stderr_log"),
         "capture_metadata_json": capture_info.get("metadata_json"),
+        "camera_control_args": capture_info.get("camera_control_args"),
+        "camera_control_args_used": capture_info.get("camera_control_args_used"),
+        "camera_controls_fallback_used": capture_info.get("camera_controls_fallback_used"),
+        "requested_camera_controls": capture_info.get("requested_camera_controls"),
         "native_image_path": native_image_path,
         "native_image_size_bytes": os.path.getsize(native_image_path),
         "final_image_path": final_image_path,
@@ -1437,6 +1578,10 @@ def capture_image_libcamera_pipeline(image_pipeline, directory_path=IMAGE_DIRECT
         "pipeline_enabled": True,
         "pipeline_note": "native full JPEG -> native-coordinate crop -> optional LANCZOS downsample -> unchanged HEIC/send path",
     }
+    requested_camera_controls = capture_info.get("requested_camera_controls")
+    if isinstance(requested_camera_controls, dict):
+        metadata.update(requested_camera_controls)
+
     libcamera_metadata = _load_libcamera_metadata_json(capture_info.get("metadata_json"))
     if libcamera_metadata:
         metadata.update(libcamera_metadata)
