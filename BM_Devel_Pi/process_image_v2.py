@@ -475,6 +475,11 @@ def _capture_metadata_end_fields(capture_metadata):
     requested_focus_mode = _metadata_first(m, "requested_focus_mode")
     requested_lens_position = _metadata_first(m, "requested_lens_position")
 
+    requested_white_balance_mode = _metadata_first(m, "requested_white_balance_mode")
+    requested_colour_gains = _metadata_first(m, "requested_colour_gains")
+    requested_exposure_mode = _metadata_first(m, "requested_exposure_mode")
+    requested_shutter_us = _metadata_first(m, "requested_shutter_us")
+    requested_analogue_gain = _metadata_first(m, "requested_analogue_gain")
     et = _metadata_first(m, "ExposureTime")
     ag = _metadata_first(m, "AnalogueGain", "AnalogGain")
     dg = _metadata_first(m, "DigitalGain")
@@ -492,9 +497,28 @@ def _capture_metadata_end_fields(capture_metadata):
     if requested_focus_mode not in (None, ""):
         requested_focus_mode_text = _clean_value(str(requested_focus_mode).strip().lower(), max_len=12)
 
+    requested_white_balance_mode_text = None
+
+    if requested_white_balance_mode not in (None, ""):
+
+        requested_white_balance_mode_text = _clean_value(str(requested_white_balance_mode).strip().lower(), max_len=12)
+
+
+    requested_exposure_mode_text = None
+
+    if requested_exposure_mode not in (None, ""):
+
+        requested_exposure_mode_text = _clean_value(str(requested_exposure_mode).strip().lower(), max_len=12)
+
+
     candidate_fields = [
         ("rfm", requested_focus_mode_text),
         ("rlp", _num(requested_lens_position, digits=3)),
+        ("rwb", requested_white_balance_mode_text),
+        ("rcg", _format_colour_gains(requested_colour_gains)),
+        ("rem", requested_exposure_mode_text),
+        ("rsh", _num(requested_shutter_us, digits=0)),
+        ("rag", _num(requested_analogue_gain, digits=2)),
         ("et_us", _num(et, digits=0)),
         ("ag", _num(ag, digits=2)),
         ("dg", _num(dg, digits=2)),
@@ -515,7 +539,7 @@ def _capture_metadata_end_fields(capture_metadata):
     return fields
 
 
-def _build_end_image_message(compressed_file_name, core_fields, capture_metadata=None, max_payload_bytes=280):
+def _build_end_image_message(compressed_file_name, core_fields, capture_metadata=None, max_payload_bytes=295):
     """Build END IMG message with budgeted optional camera metadata fields."""
     fields = list(core_fields)
     optional = _capture_metadata_end_fields(capture_metadata)
@@ -860,6 +884,20 @@ CAMERA_CONTROL_OPTIONS_WITH_VALUES = {
 }
 
 
+CAMERA_CONTROL_OPTIONS_WITH_VALUES.update({
+    "--shutter",
+    "--gain",
+    "--awb",
+    "--awbgains",
+    "--sharpness",
+    "--contrast",
+    "--brightness",
+    "--saturation",
+    "--denoise",
+    "--hdr",
+})
+
+
 def _control_bool(value, default=False):
     """Parse YAML-ish booleans safely."""
     if value is None or value == "":
@@ -943,6 +981,159 @@ def _focus_camera_controls_from_settings(settings):
     return args, requested
 
 
+def _camera_controls_from_settings(settings):
+    """Build libcamera CLI args for focus, white balance, exposure/gain, and image processing.
+
+    Focus was proven first. This helper preserves that path and adds:
+      - white_balance: requested mode + red/blue gains
+      - exposure: requested shutter_us + analogue_gain
+      - image_processing: denoise/sharpness/contrast/saturation/brightness/hdr
+
+    Requested controls are saved to local sidecar metadata. Only the mission-
+    critical requested focus/WB/exposure fields are packed into END metadata.
+    """
+    args, requested = _focus_camera_controls_from_settings(settings)
+
+    if not isinstance(settings, dict):
+        return args, requested
+
+    controls = settings.get("camera_controls")
+    if not isinstance(controls, dict):
+        return args, requested
+
+    enabled = _control_bool(controls.get("enabled"), default=False)
+    requested["camera_controls_enabled"] = enabled
+    if not enabled:
+        return args, requested
+
+    # -------------------------
+    # White balance controls
+    # -------------------------
+    wb = controls.get("white_balance")
+    if not isinstance(wb, dict):
+        wb = {}
+
+    wb_enabled = _control_bool(wb.get("enabled"), default=False)
+    requested["requested_white_balance_enabled"] = wb_enabled
+
+    if wb_enabled:
+        wb_mode = str(wb.get("mode") or "").strip().lower()
+        if wb_mode:
+            requested["requested_white_balance_mode"] = wb_mode
+
+        red_gain = wb.get("red_gain")
+        blue_gain = wb.get("blue_gain")
+
+        if red_gain not in (None, "") and blue_gain not in (None, ""):
+            try:
+                red_f = float(red_gain)
+                blue_f = float(blue_gain)
+                requested["requested_red_gain"] = round(red_f, 4)
+                requested["requested_blue_gain"] = round(blue_f, 4)
+                requested["requested_colour_gains"] = [round(red_f, 4), round(blue_f, 4)]
+
+                # Raspberry Pi libcamera-apps generally use AWB custom/manual
+                # gains via --awb custom --awbgains R,B.
+                args.extend(["--awb", "custom"])
+                args.extend(["--awbgains", f"{_num(red_f, digits=4)},{_num(blue_f, digits=4)}"])
+            except Exception as exc:
+                requested["requested_colour_gains_error"] = str(exc)
+                debug_print(f"Invalid white_balance red/blue gains; ignoring: {exc}")
+        elif wb_mode in {"auto", "daylight", "cloudy", "indoor", "fluorescent", "tungsten", "incandescent", "custom"}:
+            args.extend(["--awb", wb_mode])
+        elif wb_mode and wb_mode not in {"manual", "none", "null"}:
+            debug_print(f"Unsupported white_balance.mode={wb_mode!r}; ignoring")
+
+    # -------------------------
+    # Exposure/gain controls
+    # -------------------------
+    exposure = controls.get("exposure")
+    if not isinstance(exposure, dict):
+        exposure = {}
+
+    exposure_enabled = _control_bool(exposure.get("enabled"), default=False)
+    requested["requested_exposure_enabled"] = exposure_enabled
+
+    if exposure_enabled:
+        exposure_mode = str(exposure.get("mode") or "").strip().lower()
+        if exposure_mode:
+            requested["requested_exposure_mode"] = exposure_mode
+
+        shutter_us = exposure.get("shutter_us")
+        if shutter_us not in (None, ""):
+            try:
+                shutter_i = int(float(shutter_us))
+                if shutter_i > 0:
+                    requested["requested_shutter_us"] = shutter_i
+                    args.extend(["--shutter", str(shutter_i)])
+            except Exception as exc:
+                requested["requested_shutter_us_error"] = str(exc)
+                debug_print(f"Invalid exposure.shutter_us={shutter_us!r}; ignoring: {exc}")
+
+        analogue_gain = exposure.get("analogue_gain")
+        if analogue_gain not in (None, ""):
+            try:
+                gain_f = float(analogue_gain)
+                if gain_f > 0:
+                    requested["requested_analogue_gain"] = round(gain_f, 4)
+                    args.extend(["--gain", _num(gain_f, digits=4)])
+            except Exception as exc:
+                requested["requested_analogue_gain_error"] = str(exc)
+                debug_print(f"Invalid exposure.analogue_gain={analogue_gain!r}; ignoring: {exc}")
+
+    # -------------------------
+    # Image-processing controls
+    # -------------------------
+    ip = controls.get("image_processing")
+    if not isinstance(ip, dict):
+        ip = {}
+
+    ip_enabled = _control_bool(ip.get("enabled"), default=False)
+    requested["requested_image_processing_enabled"] = ip_enabled
+
+    if ip_enabled:
+        scalar_options = [
+            ("sharpness", "--sharpness", "requested_sharpness"),
+            ("contrast", "--contrast", "requested_contrast"),
+            ("saturation", "--saturation", "requested_saturation"),
+            ("brightness", "--brightness", "requested_brightness"),
+        ]
+
+        for yaml_key, cli_flag, meta_key in scalar_options:
+            value = ip.get(yaml_key)
+            if value in (None, ""):
+                continue
+            try:
+                value_f = float(value)
+                requested[meta_key] = round(value_f, 4)
+                args.extend([cli_flag, _num(value_f, digits=4)])
+            except Exception as exc:
+                requested[f"{meta_key}_error"] = str(exc)
+                debug_print(f"Invalid image_processing.{yaml_key}={value!r}; ignoring: {exc}")
+
+        denoise = ip.get("denoise")
+        if denoise not in (None, ""):
+            denoise_text = str(denoise).strip().lower()
+            requested["requested_denoise"] = denoise_text
+            args.extend(["--denoise", denoise_text])
+
+        hdr = ip.get("hdr")
+        if hdr not in (None, ""):
+            # Leave HDR disabled unless explicitly requested. If unsupported,
+            # the existing fallback will retry without camera controls.
+            if isinstance(hdr, bool):
+                requested["requested_hdr"] = hdr
+                if hdr:
+                    args.extend(["--hdr", "auto"])
+            else:
+                hdr_text = str(hdr).strip().lower()
+                requested["requested_hdr"] = hdr_text
+                if hdr_text not in {"false", "off", "none", "null", "0"}:
+                    args.extend(["--hdr", hdr_text])
+
+    return args, requested
+
+
 def _without_camera_control_args(cmd):
     """Return camera command with focus-control options removed."""
     out = []
@@ -999,7 +1190,7 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
         "--metadata", metadata_json_path,
     ]
 
-    camera_control_args, requested_camera_controls = _focus_camera_controls_from_settings(settings)
+    camera_control_args, requested_camera_controls = _camera_controls_from_settings(settings)
     if camera_control_args:
         base_cmd.extend(camera_control_args)
         debug_print(
