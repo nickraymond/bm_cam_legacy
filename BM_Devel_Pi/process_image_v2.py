@@ -470,6 +470,11 @@ def _capture_metadata_end_fields(capture_metadata):
     m = capture_metadata or {}
     fields = []
 
+    # Requested focus controls from YAML, used to compare command vs actual
+    # libcamera-reported metadata in the backend/cycle-log view.
+    requested_focus_mode = _metadata_first(m, "requested_focus_mode")
+    requested_lens_position = _metadata_first(m, "requested_lens_position")
+
     et = _metadata_first(m, "ExposureTime")
     ag = _metadata_first(m, "AnalogueGain", "AnalogGain")
     dg = _metadata_first(m, "DigitalGain")
@@ -483,7 +488,13 @@ def _capture_metadata_end_fields(capture_metadata):
     fd = _metadata_first(m, "FrameDuration")
     stemp = _metadata_first(m, "SensorTemperature", "CameraTemperature", "Temperature")
 
+    requested_focus_mode_text = None
+    if requested_focus_mode not in (None, ""):
+        requested_focus_mode_text = _clean_value(str(requested_focus_mode).strip().lower(), max_len=12)
+
     candidate_fields = [
+        ("rfm", requested_focus_mode_text),
+        ("rlp", _num(requested_lens_position, digits=3)),
         ("et_us", _num(et, digits=0)),
         ("ag", _num(ag, digits=2)),
         ("dg", _num(dg, digits=2)),
