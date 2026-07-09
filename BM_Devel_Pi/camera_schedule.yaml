@@ -27,6 +27,56 @@ rtc:
   set_system_clock_from_rtc: true
   require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
 
+# Legacy Picamera2 fallback settings. These remain for rollback by setting
+# image_pipeline.enabled: false.
 image:
   resolution_key: "720p"
   image_quality: 25
+
+# DEV bmcam000 libcamera/rpicam image pipeline.
+# Coordinate system: crop x/y/w/h are in native full JPEG coordinates.
+# Spatial density is the output size after cropping/downsampling.
+# Validated bmcam000 production candidate:
+# native 4608x2592 -> fixed 3072x1728 crop -> 2688x1512 output -> HEIC Q20.
+# 3072x1728 output captured successfully, but HEIC encode was unstable on bmcam000.
+image_pipeline:
+  enabled: true
+  capture_backend: "rpicam"
+
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+
+  crop:
+    mode: "fixed"
+    x: 768
+    y: 432
+    w: 3072
+    h: 1728
+
+  spatial:
+    output_width: 2688
+    output_height: 1512
+    resample: "lanczos"
+
+  heic:
+    quality: 20
+
+# Bristlemouth/Sofar image-transfer settings.
+# network_type:
+#   0x01 / 1 = legacy sat/cell fallback queue
+#   0x02 / 2 = cellular-only queue
+# Keep image_buffer_size at 300 for this test; do not change the working chunking path.
+bm_serial:
+  network_type: 0x02
+  image_buffer_size: 300
+  image_transmit_delay_seconds: 5
+
+# Future hardening, not enabled in this patch:
+# camera:
+#   exposure:
+#   white_balance:
+#   focus:
+#   image_processing:
+#   capture:
