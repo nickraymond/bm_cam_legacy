@@ -26,3 +26,13 @@ id_rsa*
 id_ed25519*
 
 tailscaled.state
+
+# Keep reef reference assets in Git
+!reference_images/
+!reference_images/**/
+!reference_images/**/*.jpg
+!reference_images/**/*.jpeg
+!reference_images/**/*.JPG
+!reference_images/**/*.JPEG
+!reference_images/**/*.png
+!reference_images/**/*.json
