@@ -1,0 +1,71 @@
+{
+  "tool": "prepare_reference_images.py",
+  "generated_utc": "2026-07-10T17:30:40.726906+00:00",
+  "source": {
+    "path": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/reference_images/P7071008.JPG",
+    "filename": "P7071008.JPG",
+    "bytes": 5786538,
+    "sha256": "c9c84b161cc7673923c519fc21f1d0f631e7862d0e4ac0f995ad7a55c273fd30",
+    "original_size": [
+      4000,
+      3000
+    ],
+    "original_mode": "RGB",
+    "exif_orientation": 1,
+    "oriented_size": [
+      4000,
+      3000
+    ]
+  },
+  "transformation": {
+    "crop_mode": "center",
+    "target_aspect_ratio": "4608:2592",
+    "crop_box_left_top_right_bottom": [
+      0,
+      375,
+      4000,
+      2625
+    ],
+    "cropped_size": [
+      4000,
+      2250
+    ],
+    "resize_method": "Pillow Image.Resampling.LANCZOS",
+    "target_size": [
+      4608,
+      2592
+    ],
+    "jpeg_quality": 95,
+    "jpeg_subsampling": 0
+  },
+  "outputs": {
+    "original_normalized": {
+      "path": "original_normalized.jpg",
+      "size": [
+        4000,
+        3000
+      ],
+      "bytes": 4486623
+    },
+    "source_16x9": {
+      "path": "source_16x9.jpg",
+      "size": [
+        4000,
+        2250
+      ],
+      "bytes": 3374012
+    },
+    "synthetic_native": {
+      "path": "synthetic_native_4608x2592.jpg",
+      "size": [
+        4608,
+        2592
+      ],
+      "bytes": 4178802
+    },
+    "comparison_sheet": {
+      "path": "comparison_sheet.jpg",
+      "bytes": 1236081
+    }
+  }
+}

@@ -1,0 +1,496 @@
+Below is a handoff spec you can give to a new agent.
+
+---
+
+# BM Camera RC Handoff — YAML-Driven Runtime, File Size Sensitivity, and Final Ship Profile
+
+## Current project status
+
+We are preparing **bmcam001** and **bmcam002** for shipment/deployment in Florida. Both cameras are using the Bristlemouth/Sofar path and Raspberry Pi runtime under:
+
+```bash
+/home/pi/BM_Devel_Pi
+```
+
+Both cameras have been updated to the merged `main` branch runtime from `bm_cam_legacy`.
+
+Both Bristlemouth motes were updated to the newer firmware:
+
+```text
+Version: 0.13.11
+GIT SHA: 54AFF0A3
+VersionStr: serial_bridge@ENG-v0.13.11-6-g54aff0a3+251d0f06
+```
+
+Known nodes:
+
+```text
+bmcam001 node: 57ef9a36411412f7
+bmcam002 node: 2f58e75e9f6554b5
+```
+
+Both cameras should use:
+
+```yaml
+time_source: spotter_utc
+timezone: America/New_York
+```
+
+because deployment is in Florida.
+
+## Major issue discovered
+
+The current scene/view produced much larger HEIC files than expected.
+
+Example from bmcam001:
+
+```text
+Runtime output: 2030 × 1142
+HEIC quality: 20
+Compressed HEIC: 46,965 bytes
+Buffers: 209
+Buffer size: 300 bytes
+Delay: 5 sec per buffer
+Minimum UART transmit time: 209 × 5 sec = 17.4 min
+```
+
+With START/END messages and overhead, this is too close to or over the 20-minute power-on window.
+
+Important: the crop/downsample path **is working**. The logs confirm:
+
+```text
+Runtime image_pipeline: output=2030x1142
+Crop/downsample helper output_width=2030 output_height=1142
+HEIC helper converted_size=[2030,1142]
+START IMG rk=2030x1142
+```
+
+So this is not a crop/downsample failure. It is most likely scene complexity / high-frequency image detail / lots of bright texture causing HEIC Q20 to produce larger files.
+
+## Current uncertainty
+
+The latest scene may contain too much white / artificial surface detail and may not represent actual underwater reef imagery. The user now has high-resolution JPEG reference images from coral scientists. The next agent should run local compression sensitivity tests on those images to estimate expected HEIC sizes under the current pipeline.
+
+Key question:
+
+```text
+Are underwater reef images naturally lower-detail due to turbidity, backscatter, and water attenuation,
+or will real deployment images also generate 200+ messages at Q20?
+```
+
+If real reef images compress smaller, 2030×1142 Q20 may still be viable. If not, we need Q10 or lower spatial resolution.
+
+## Configuration issues to fix
+
+### 1. YAML must be the single source of truth
+
+The boot script was previously hard-coding:
+
+```bash
+--capture-backend libcamera
+--output-size 2688x1512
+--heic-quality 20
+```
+
+This is bad because future remote YAML updates would not take effect.
+
+The boot script should only run:
+
+```bash
+/usr/bin/flock -n "$LOCK" timeout 1800s /usr/bin/python3 -u main_pi_camera.py \
+  --transmit
+```
+
+No `--capture-backend`, no `--output-size`, no `--heic-quality`.
+
+Expected boot script:
+
+```bash
+/home/pi/BM_Devel_Pi/run_capture_cycle.sh
+```
+
+Expected cron:
+
+```cron
+@reboot /bin/bash /home/pi/BM_Devel_Pi/run_capture_cycle.sh
+```
+
+The boot script should include a 30-second boot-settle delay:
+
+```bash
+sleep 30
+```
+
+and should log to:
+
+```bash
+/home/pi/BM_Devel_Pi/cron_logs/boot_capture_*.log
+```
+
+### 2. Timezone is not yet consistently correct
+
+Recent log still showed:
+
+```text
+tz=America/Los_Angeles
+Schedule local: America/Los_Angeles
+```
+
+That is wrong for Florida. YAML should be updated on both cameras to:
+
+```yaml
+timezone: America/New_York
+```
+
+### 3. Focus profile decision
+
+The current best shipping compromise is:
+
+```text
+Focus: manual locked
+Lens position: 1.82
+White balance: auto
+Exposure: auto
+Image processing: neutral locked
+```
+
+Reason: locked focus prevents autofocus drifting over a deployment, but auto exposure/WB gives the best chance of usable images without underwater calibration.
+
+Recommended camera controls:
+
+```yaml
+camera_controls:
+  enabled: true
+  focus:
+    enabled: true
+    mode: manual
+    lens_position: 1.82
+    range: normal
+    speed: normal
+  white_balance:
+    enabled: true
+    mode: auto
+  exposure:
+    enabled: true
+    mode: auto
+  image_processing:
+    enabled: true
+    denoise: cdn_off
+    sharpness: 1.0
+    contrast: 1.0
+    saturation: 1.0
+    brightness: 0.0
+    hdr: false
+```
+
+## Known-good hardware/runtime fixes already found
+
+### CMA memory
+
+bmcam001 initially failed full libcamera capture with:
+
+```text
+Unable to request 1 buffers: Cannot allocate memory
+failed to allocate capture buffers
+```
+
+Root cause:
+
+```text
+CmaTotal: 65536 kB
+```
+
+Fix:
+
+```text
+Add cma=128M to /boot/cmdline.txt
+```
+
+Expected after reboot:
+
+```text
+CmaTotal: 131072 kB
+```
+
+Both bmcam001 and bmcam002 should be checked for this.
+
+### YAML dependency
+
+The runtime needs PyYAML:
+
+```bash
+sudo apt-get install -y python3-yaml
+```
+
+Failure mode if missing:
+
+```text
+Failed to load nested camera_controls from YAML: No module named 'yaml'
+```
+
+## Immediate next steps for new agent
+
+### Step 1 — Verify both camera YAMLs
+
+Run on each Pi:
+
+```bash
+cd /home/pi/BM_Devel_Pi
+
+echo "===== HOST ====="
+hostname
+
+echo "===== YAML IMAGE PIPELINE ====="
+grep -n -A50 "image_pipeline" camera_schedule.yaml | sed -n '1,100p'
+
+echo "===== YAML BM SERIAL ====="
+grep -n -A10 "bm_serial" camera_schedule.yaml
+
+echo "===== TIMEZONE / TIME SOURCE ====="
+grep -nE "time_source|timezone|window_start|window_end" camera_schedule.yaml
+```
+
+Expected baseline:
+
+```yaml
+time_source: spotter_utc
+timezone: America/New_York
+window_start: "00:01"
+window_end: "23:59"
+
+image_pipeline:
+  enabled: true
+  capture_backend: libcamera
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+  crop:
+    mode: fixed
+    x: 768
+    y: 432
+    w: 3072
+    h: 1728
+  spatial:
+    output_width: 2030
+    output_height: 1142
+    resample: lanczos
+  heic:
+    quality: 20
+```
+
+But quality/resolution are still under review.
+
+### Step 2 — Verify boot script is YAML-driven
+
+Run on each Pi:
+
+```bash
+cd /home/pi/BM_Devel_Pi
+
+echo "===== CRONTAB ====="
+crontab -l
+
+echo "===== BOOT SCRIPT IMPORTANT LINES ====="
+grep -nE "sleep 30|main_pi_camera|--transmit|--capture-backend|--output-size|--heic-quality" run_capture_cycle.sh
+```
+
+Expected:
+
+```text
+sleep 30
+main_pi_camera.py
+--transmit
+```
+
+Not expected:
+
+```text
+--capture-backend
+--output-size
+--heic-quality
+```
+
+If those hard-coded override flags appear, remove them.
+
+### Step 3 — Download the latest test images to laptop
+
+From Mac/VS Code terminal:
+
+```bash
+mkdir -p ~/Desktop/bmcam_review/bmcam001 ~/Desktop/bmcam_review/bmcam002
+
+scp pi@bmcam001:/home/pi/BM_Devel_Pi/images/'*2026-07-09T23:39:37Z*' ~/Desktop/bmcam_review/bmcam001/
+scp pi@bmcam002:/home/pi/BM_Devel_Pi/images/'*2026-07-09T23*' ~/Desktop/bmcam_review/bmcam002/
+```
+
+More general command for the latest 20 image-related files:
+
+```bash
+mkdir -p ~/Desktop/bmcam_review/bmcam001 ~/Desktop/bmcam_review/bmcam002
+
+ssh pi@bmcam001 'cd /home/pi/BM_Devel_Pi/images && ls -t *image* | head -20' > /tmp/bmcam001_latest.txt
+ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi/images && ls -t *image* | head -20' > /tmp/bmcam002_latest.txt
+
+while read f; do scp "pi@bmcam001:/home/pi/BM_Devel_Pi/images/$f" ~/Desktop/bmcam_review/bmcam001/; done < /tmp/bmcam001_latest.txt
+while read f; do scp "pi@bmcam002:/home/pi/BM_Devel_Pi/images/$f" ~/Desktop/bmcam_review/bmcam002/; done < /tmp/bmcam002_latest.txt
+```
+
+Review the native full JPG, cropped/downsampled JPG, compressed HEIC, metadata JSON, and crop progress JSONL.
+
+### Step 4 — Run no-transmit sensitivity tests
+
+Goal: determine message counts without waiting for UART transmit.
+
+Run capture/compress only:
+
+```bash
+cd /home/pi/BM_Devel_Pi
+
+LOG="cron_logs/sensitivity_notx_$(date -u +%Y%m%dT%H%M%SZ).log"
+
+timeout 900s /usr/bin/python3 -u main_pi_camera.py \
+  --skip-time-window \
+  2>&1 | tee "$LOG"
+
+echo "===== SIZE CHECK ====="
+grep -E "Runtime image_pipeline|converted_size|HEIC helper completed|Compressed image saved|Saved [0-9]+ buffer|Image pipeline geometry|Libcamera metadata loaded" "$LOG" | tail -100
+```
+
+Then adjust YAML and repeat.
+
+Candidate test matrix:
+
+```text
+2030×1142 Q20
+2030×1142 Q10
+1920×1080 Q20
+1920×1080 Q10
+1600×900 Q20
+1600×900 Q10
+```
+
+Acceptance target:
+
+```text
+<150 buffers preferred
+<180 buffers acceptable
+>200 buffers risky for 20-minute power window
+```
+
+### Step 5 — Run local HEIC compression on coral scientists’ reference JPEGs
+
+The user has high-res underwater JPEGs from coral scientists. New agent should build or reuse a local script to:
+
+1. Load high-res JPEG.
+2. Apply same center/crop aspect ratio if needed.
+3. Downsample to candidate output sizes.
+4. HEIC encode at Q10/Q20/Q30.
+5. Estimate base64 chars and 300-byte message count.
+6. Create a comparison table.
+
+Message count estimate:
+
+```python
+import base64, math
+heic_bytes = Path("image.heic").read_bytes()
+base64_chars = len(base64.b64encode(heic_bytes))
+buffers = math.ceil(base64_chars / 300)
+minimum_uart_seconds = buffers * 5
+```
+
+Output table should include:
+
+```text
+source_file
+output_width
+output_height
+heic_quality
+heic_bytes
+base64_chars
+buffer_count_300
+min_uart_sec_at_5s
+min_uart_min_at_5s
+```
+
+Also create a contact sheet with visual comparisons.
+
+## Suggested immediate ship profile if no time remains
+
+If sensitivity tests cannot be completed, safer profile:
+
+```yaml
+spatial:
+  output_width: 2030
+  output_height: 1142
+  resample: lanczos
+heic:
+  quality: 10
+```
+
+If still too large:
+
+```yaml
+spatial:
+  output_width: 1600
+  output_height: 900
+heic:
+  quality: 10
+```
+
+Keep:
+
+```yaml
+focus:
+  mode: manual
+  lens_position: 1.82
+white_balance:
+  mode: auto
+exposure:
+  mode: auto
+```
+
+## Important interpretation from latest run
+
+Latest bmcam001 run:
+
+```text
+Native JPEG: 2,786,483 bytes
+Cropped/downsampled JPEG: 943,687 bytes
+HEIC Q20 at 2030×1142: 46,965 bytes
+Buffers: 209
+```
+
+This confirms the image content is driving the large HEIC. The downsample is working.
+
+However, if the scene is mostly white/high-contrast surface texture and not representative of underwater deployment, this may be a false alarm. The next agent should inspect the downloaded image visually and compare against real coral scientist reference images.
+
+## Backend/frontend status
+
+Backend HEIC-to-JPEG derivative repair was fixed in `nereus-vision-dev` and confirmed working. Normal gallery mode renders repaired media rows.
+
+Use normal gallery, not BM overlay/debug mode:
+
+```text
+https://nereus-vision-staging.onrender.com/gallery.html?system_id=SPOT-31593C&device_id=BMCAM_000&token=YOUR_TOKEN
+```
+
+BM overlay/debug gallery still has known follow-up matching issues and can show black placeholders even when real media exists.
+
+## Final handoff summary
+
+The remaining critical issue is **not camera capture** and **not mote firmware**. It is selecting a conservative image size/HEIC quality profile that reliably transmits within the power window, while keeping enough visual detail for reef monitoring.
+
+The next agent should focus on:
+
+```text
+1. Fix YAML source-of-truth behavior.
+2. Confirm both boot scripts no longer hard-code image settings.
+3. Correct timezone to America/New_York.
+4. Lock focus only at lens_position 1.82.
+5. Run no-transmit sensitivity tests on latest camera scene.
+6. Run local HEIC sensitivity tests on real coral scientist JPEGs.
+7. Pick final ship profile: likely 2030×1142 Q10 or 1600×900 Q10/Q20.
+8. Run one full transmit test per camera.
+9. Confirm normal gallery rendering and display_key JPEG.
+```
