@@ -1,0 +1,35 @@
+{
+  "template_name": "nereus_reef_reference_card_v1_provisional",
+  "template_width_px": 2000,
+  "template_height_px": 840,
+  "coordinate_system": "Rectified card image produced with bm_reference_card_quality_v2.expand_quad(fid_quad, card_expand_x=1.25, card_expand_y=2.0) and rectified to 2000x840 px.",
+  "source_reference": "Nereus_Reef_Reference_Card_V1_11x17_RGB_vector_crop_bleed.pdf rendered and rectified from AprilTag centers. Provisional patch boxes are manually measured from the rectified reference PNG.",
+  "patch_sample_inner_fraction_default": 0.60,
+  "notes": [
+    "MVP smoke-test layout, not final measured print calibration.",
+    "target_srgb values are sampled from the rendered RGB reference PNG, not spectrophotometer-measured printed-card values.",
+    "Use gray_02, gray_03, and gray_04 for default gray balance; gray_01 and gray_05 are kept for QA but excluded from correction by default because white/black patches clip easily."
+  ],
+  "patches": [
+    {"id":"gray_01","type":"gray","label":"white_gray_255","x":136,"y":309,"w":112,"h":152,"target_srgb":[255,255,255],"use_for_gray_balance":false},
+    {"id":"gray_02","type":"gray","label":"light_gray_200","x":255,"y":309,"w":112,"h":152,"target_srgb":[200,200,200],"use_for_gray_balance":true},
+    {"id":"gray_03","type":"gray","label":"mid_gray_128","x":374,"y":309,"w":112,"h":152,"target_srgb":[128,128,128],"use_for_gray_balance":true},
+    {"id":"gray_04","type":"gray","label":"dark_gray_073","x":492,"y":309,"w":112,"h":152,"target_srgb":[73,73,73],"use_for_gray_balance":true},
+    {"id":"gray_05","type":"gray","label":"black_gray_000","x":611,"y":309,"w":112,"h":152,"target_srgb":[0,0,0],"use_for_gray_balance":false},
+
+    {"id":"coral_top_01","type":"color","label":"pale_cream","x":1160,"y":311,"w":88,"h":91,"target_srgb":[255,249,230]},
+    {"id":"coral_top_02","type":"color","label":"pale_tan","x":1260,"y":311,"w":88,"h":91,"target_srgb":[239,212,167]},
+    {"id":"coral_top_03","type":"color","label":"tan_orange","x":1361,"y":311,"w":88,"h":91,"target_srgb":[216,168,109]},
+    {"id":"coral_top_04","type":"color","label":"orange","x":1461,"y":311,"w":88,"h":91,"target_srgb":[216,145,54]},
+    {"id":"coral_top_05","type":"color","label":"burnt_orange","x":1562,"y":311,"w":88,"h":91,"target_srgb":[184,109,42]},
+    {"id":"coral_top_06","type":"color","label":"brown","x":1663,"y":311,"w":88,"h":91,"target_srgb":[98,54,24]},
+    {"id":"coral_top_07","type":"color","label":"coral_pink","x":1763,"y":311,"w":88,"h":91,"target_srgb":[244,160,160]},
+
+    {"id":"color_bottom_01","type":"color","label":"red_orange","x":1159,"y":418,"w":88,"h":91,"target_srgb":[239,73,24]},
+    {"id":"color_bottom_02","type":"color","label":"yellow","x":1260,"y":418,"w":88,"h":91,"target_srgb":[246,184,29]},
+    {"id":"color_bottom_03","type":"color","label":"green","x":1361,"y":418,"w":88,"h":91,"target_srgb":[107,175,79]},
+    {"id":"color_bottom_04","type":"color","label":"cyan","x":1461,"y":418,"w":88,"h":91,"target_srgb":[91,200,207]},
+    {"id":"color_bottom_05","type":"color","label":"blue","x":1562,"y":418,"w":88,"h":91,"target_srgb":[12,102,198]},
+    {"id":"color_bottom_06","type":"color","label":"magenta","x":1662,"y":418,"w":88,"h":91,"target_srgb":[179,70,163]}
+  ]
+}
