@@ -105,7 +105,7 @@ the *same* timestamped run folder. Update the row's status + findings in the PR.
 
 | # | Phase | Goal | Status | Depends on | Compute | Output |
 |---|-------|------|--------|-----------|---------|--------|
-| P0 | **Scaffold** | JPEG encode (baseline+progressive), base64 message-count, format axis, truncation harness; smoke-test on 1 image × 1 quality | ☐ TODO | — | light | new sweep script + smoke run |
+| P0 | **Scaffold** | JPEG encode (baseline+progressive), base64 message-count, format axis, truncation harness; smoke-test on 1 image × 1 quality | ✅ DONE | — | light | new sweep script + smoke run |
 | P1 | **Coarse quality sweep** (complete images) | JPEG quality {10,30,50,70,90}, baseline, both images; size/base64-msgs/minutes + detection (card) + sharpness/contrast/PSNR (coral) | ☐ TODO | P0 | light–med | quality-ladder cut sheets + `results_*.csv` |
 | P2 | **Partial-transmission behavior** *(new)* | {baseline, progressive} × received-fraction {25,50,75,90,100}% × shortlisted qualities × both images; decode partial + analyze | ☐ TODO | P1 | **heavy** (splittable) | baseline-vs-progressive partial cut sheets + detection/sharpness-vs-% curves |
 | P3 | **Budget overlay + verdict** | map every setting to the bands (coral-anchored); heatmap (quality × mode, duration-banded); ranked recommendation | ☐ TODO | P2 | light | heatmap + **recommendation table → JPEG values to try on the Pi** |
@@ -163,3 +163,25 @@ validation fast-follow (P4).
 
 ## 10. Findings log
 _(fill in as phases run — quality↔size↔detection curve, partial-render comparison, and the recommended settings)_
+
+### P0 — Scaffold (2026-07-21, run `smoke_p0`)
+
+- **Decisions:** [D1] new script `tools/bm_reference_card_jpeg_partial_sweep.py` (approved); [D2]
+  keep-first-X%-of-chunks tail-loss model (approved). 300 base64 chars = exactly 225 raw bytes per
+  message, so the truncation offset is exact.
+- **Corner map verified:** all 4 AprilTags (IDs 0–3) detect at analyzer scale 1 on the 1600×900
+  fixed-crop card; map is `tl:0,tr:1,bl:2,br:3` (matches the Sprint03 sweep, not the analyzer's
+  3-tag default).
+- **Smoke (card, q50, baseline+progressive, 50%/100% received)** behaved exactly as the sprint
+  hypothesis: baseline@50% decodes the top ~57% of the frame, loses all 4 tags (they sit at
+  y≈613–713 of 900) → FAIL; progressive@50% recovers the full frame, keeps 4 tags,
+  PSNR 32.5 vs 37.3 at 100%. Coral no-tag branch scores sharpness/contrast/PSNR correctly.
+- **Budget reality check:** at q50 the coral is 106 KB → **481 messages (~40 min, over cap)**;
+  card 80 KB → 365 msgs. The base64-corrected count is ~⅓ higher than the old bytes÷300 estimate.
+  The viable budget window will sit at much lower quality — that's P1's question.
+- **Encode settings (assumption to validate in P4):** Pillow, `optimize=True` both modes, default
+  4:2:0 chroma subsampling; progressive implies optimized Huffman tables, so optimize is kept on
+  for baseline to keep the size comparison fair. Quality capped at 95 (Pillow >95 disables
+  useful quantization).
+- The "earlier partial-render experiment" referenced in §7-D2 was not found in the repo; the
+  harness was implemented from the spec description directly.
