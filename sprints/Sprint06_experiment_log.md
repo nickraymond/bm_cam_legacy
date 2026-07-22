@@ -19,6 +19,7 @@ chars, 5 s. Bands: ideal ≤75 msgs · feasible ≤125 · hard cap ~180.
 | 8 | `proposal_vs_baseline_q9_20260722T022941Z` — minted proposal (1920×1080 ROI @1.92×→1000×562) vs sprint baseline, all 9 sources | What does the ROI trade buy fleet-wide? | Every scene ideal (4) or feasible (5) vs baseline's 4 over-cap; card PASS unchanged. Cost = 61% of FOV area. |
 | 9 | `roi1600_density_grid_20260722T024040Z` — ROI 1600×900, density 1.0–2.0× × q{9,11,13,15}, common-reference PSNR | Should we ship max density (1.0×) and let JPEG do all reduction? | No — under-budget optimum is never 1.0×: ideal band → 1.6–2.0× @ q13–15; feasible → 1.14–1.6×. Quality beats pixel count at our budgets. Card PASSes every cell in this ROI. |
 | 10 | `heic_vs_jpeg_closeout_20260722` — production HEIC (2688×1512 q20, from `camera_schedule.yaml`) vs minted JPEG, 3 sources | Apples-to-apples vs the starting pipeline? | HEIC: 136/205/490 msgs (card/primary/alt_07) — over cap on both reefs, blank on tail-cut. JPEG: 71/73/124–169, partial-renders on tail-cut. HEIC pixels smoother but at 2.8–4.5× message cost and undeliverable. |
+| 11 | `p2_partial_20260722T045306Z` — P2: baseline vs progressive × q{9,13,15} × received {25–100}% on the adopted cell, card+alt_03+alt_07 (+ new `bm_jpeg_partial_post_analysis.py`) | Which JPEG mode survives B6 tail-loss? | Progressive, decisively: full-frame partials at +7–10 dB PSNR over baseline at every fraction; card keeps 4-tag PASS from 50% received at q13/q15 (baseline needs 75%; progressive q9 needs 90% — q9 first scans too coarse to lock all tags). Overhead at 100%: corals ≤0.6%, card ~5%. |
 
 ## Lessons (one line each)
 
@@ -33,9 +34,10 @@ chars, 5 s. Bands: ideal ≤75 msgs · feasible ≤125 · hard cap ~180.
 9. Production HEIC is over the cap on realistic reef scenes and yields a blank on tail-cut; JPEG degrades gracefully. This is the deployment argument.
 10. Orchestration lesson: zsh doesn't word-split unquoted vars; never filter subprocess stderr through grep — count artifacts, not exit banners.
 
-## Closing state → P2
+## Closing state → P3
 
 - **Adopted geometry (frozen):** ROI 1600×900 native (card-centered `1467,1255` / scene-centered `1504,846`) → output 1000×562 (1.6× density).
-- **Quality:** dynamic JPEG quality, nominal q13–15, floor q9; evaluate pushing to q15–20 on-Pi (P4) if budget/encode time tolerate it.
-- **P2 (next session):** partial-transmission sweep (baseline vs progressive × received fraction) **on the adopted cell**, judged on worst-case scenes (alt_03/alt_07) + card.
-- **P4 (later):** Pi encode parity/memory/time — all sizes here are Mac-side Pillow/pillow_heif emulations.
+- **Mode (new, from P2):** **progressive** — under B6 tail-loss it delivers full-frame partials (+7–10 dB over baseline at every received fraction) for negligible byte overhead (corals ≤0.6%, card ~5%).
+- **Quality:** dynamic JPEG quality, nominal q13–15; P2 caveat on the q9 floor: progressive q9 partials lose the 4-tag card lock until 90% received (q13 holds it from 50%) — P3 should weigh a q13 floor for card-bearing frames.
+- **P3 (next session):** budget overlay + verdict — map every setting to the bands (coral-anchored), heatmap (quality × mode, duration-banded), ranked recommendation → JPEG values for Pi validation.
+- **P4 (later):** Pi encode parity/memory/time — all sizes here are Mac-side Pillow/pillow_heif emulations; progressive decode of partials also needs a backend check (frontend must render truncated progressive JPEGs).

@@ -107,7 +107,7 @@ the *same* timestamped run folder. Update the row's status + findings in the PR.
 |---|-------|------|--------|-----------|---------|--------|
 | P0 | **Scaffold** | JPEG encode (baseline+progressive), base64 message-count, format axis, truncation harness; smoke-test on 1 image × 1 quality | ✅ DONE | — | light | new sweep script + smoke run |
 | P1 | **Coarse quality sweep** (complete images) | JPEG quality ladder (revised with approval to {5,6,7,8,9,10,15,20,25,30,35,40} — bias low, cap 40), baseline, both images; size/base64-msgs/minutes + detection (card) + sharpness/contrast/PSNR (coral) | ✅ DONE | P0 | light–med | quality-ladder cut sheets + `results_*.csv` (run `jpeg_20260722T003214Z`) |
-| P2 | **Partial-transmission behavior** *(new)* | {baseline, progressive} × received-fraction {25,50,75,90,100}% × qualities {9,13,15} **on the adopted cell** (ROI 1600×900 → 1000×562, 1.6×; see `Sprint06_experiment_log.md` closing state); judge on card + worst-case corals (alt_03/alt_07) | ☐ TODO | P1 | **heavy** (splittable) | baseline-vs-progressive partial cut sheets + detection/sharpness-vs-% curves |
+| P2 | **Partial-transmission behavior** *(new)* | {baseline, progressive} × received-fraction {25,50,75,90,100}% × qualities {9,13,15} **on the adopted cell** (ROI 1600×900 → 1000×562, 1.6×; see `Sprint06_experiment_log.md` closing state); judge on card + worst-case corals (alt_03/alt_07) | [x] ✅ DONE | P1 | **heavy** (splittable) | baseline-vs-progressive partial cut sheets + detection/sharpness-vs-% curves (run `p2_partial_20260722T045306Z`; progressive q13+ keeps 4-tag PASS from 50% received, baseline needs 75%; coral partial PSNR +7–10 dB progressive) |
 | P3 | **Budget overlay + verdict** | map every setting to the bands (coral-anchored); heatmap (quality × mode, duration-banded); ranked recommendation | ☐ TODO | P2 | light | heatmap + **recommendation table → JPEG values to try on the Pi** |
 | P4 | **Pi validation** *(fast-follow — OUT OF SCOPE here)* | port winning `(mode, quality)` to the Pi encode path; validate on-device encode time / memory / stability over Tailscale SSH | ⛔ DEFERRED | P3 | — | separate sprint spec |
 
@@ -446,6 +446,94 @@ allocation (many soft pixels at low q vs fewer sharp pixels at high q).
   (band-colored tiles). Reproduce (coral): `--images coral --coral-path <prepared> --qualities
   9 11 13 15 --crop-native 1504 846 1600 900 --output-width <W>`; card uses
   `--crop-native 1467 1255 1600 900`.
+
+### P2 — Partial-transmission behavior on the adopted cell (2026-07-22, run `p2_partial_20260722T045306Z`)
+
+Grid: {baseline, progressive} × q{9,13,15} × received {25,50,75,90,100}% × {card, alt_03, alt_07}
+= 90 cells, all on the frozen geometry (ROI 1600×900 native, card-centered `1467,1255` /
+scene-centered `1504,846` → 1000×562, 1.6× density). Sweep script unchanged (one subrun per
+source under one parent — ROI centers differ); new `tools/bm_jpeg_partial_post_analysis.py`
+(approved D3/D4/D5 = A/A/A) built the combined CSV, per-(source, quality)
+baseline-vs-progressive sheets, and PIL-drawn metric-vs-% curves. All 90 cells decoded
+(recovered_status OK, none rejected); sheets visually confirmed — baseline partials are
+top-slice + gray fill, progressive partials are full-frame.
+
+- **Progressive dominates under tail-loss, decisively.** Coral partial PSNR (vs lossless
+  source, gray fill included — the delivered-image score) is **+7–10 dB over baseline at every
+  partial fraction**: alt_03 q13 @50% = 24.4 dB progressive vs 11.5 baseline; alt_07 q13 @50% =
+  23.2 vs 14.5. A 50%-received progressive frame (~23–24 dB) is close to its own 100% score
+  (25.8–27.0); a 50% baseline frame is half a picture.
+- **Card detection knee:** progressive **q13/q15 keep the 4-tag PASS from 50% received**
+  (min tag ~33 px); baseline needs **75%** at every quality (50% = 2 tags, FAIL — the lost tags
+  sit in the undecoded bottom slice). At 25% received everything FAILs detection (progressive
+  decodes a full frame but the first scans are too coarse to lock any tag).
+- **Progressive q9 anomaly — quality floor interacts with partials:** progressive q9 locks only
+  3 tags at 50–75% (FAIL by the all-4 rule) and needs 90% to PASS; q13's early scans are dense
+  enough, q9's are not. Under tail-loss the adaptive floor q9 costs card detection robustness
+  that q13 keeps — worth weighing in P3 (e.g. floor q13 for card-bearing frames).
+- **Progressive overhead at 100% received is negligible-to-small:** corals +0.2–0.6% bytes
+  (alt_07 q13: 169 msgs both modes); card +5–6% (q13: 71 → 75 msgs, both still ideal).
+  Budgets on this cell (100%): card 55–81 msgs (ideal/feasible); alt_03 99–151
+  (feasible→gated); alt_07 124–188 (feasible→over-cap at q15) — consistent with the density
+  grid; q15 stays unshippable on the worst-case scene.
+- **Verdict for P3:** the data answers the sprint's founding question — under B6 tail-loss,
+  **progressive JPEG turns a lost tail into a graceful quality reduction** (full frame, slightly
+  soft) instead of a missing bottom slice. Progressive q13 on the adopted cell keeps full card
+  detection down to half-received and delivers a usable full-frame coral preview even at 25%.
+- **Reproduce:** prepare alts (`tools/prepare_reference_images.py --input
+  reference_images/reference_reef_coral_alt_{03,07}.jpg --output-root reference_images/prepared`);
+  per source: `tools/bm_reference_card_jpeg_partial_sweep.py --images card --modes baseline
+  progressive --qualities 9 13 15 --fractions 25 50 75 90 100 --crop-native 1467 1255 1600 900
+  --output-width 1000 --output <parent>/card` (corals: `--images coral --coral-path
+  reference_images/prepared/reference_reef_coral_alt_NN/synthetic_native_4608x2592.jpg
+  --crop-native 1504 846 1600 900`); then `tools/bm_jpeg_partial_post_analysis.py --parent
+  <parent>`. Artifacts: `~/Downloads/bm_jpeg_partial_sweep/p2_partial_20260722T045306Z/`
+  (per-source subruns, `post_analysis/combined_results_p2_partial.csv`,
+  `post_analysis/cut_sheets_mode_compare/`, `post_analysis/curves/`).
+
+### Full-FOV probe — camera moved back / wide view (2026-07-22, run `fullfov_partial_20260722T051918Z`)
+
+Nick's question: same transfer limits, but ROI = the whole sensor FOV (camera stepped back ~1 m,
+wide reef view instead of close-up). Emulated as `--crop-native 0 0 4608 2592 --output-width
+1000` (4.6× density vs the adopted cell's 1.6×) — same photos re-framed wider, so content isn't a
+true re-shoot but geometry/texture effects are representative. Progressive only (P2 winner),
+q{9,13,15} × received {25–100}%, card + alt_03/alt_07.
+
+- **Reef budget is roughly FOV-neutral at fixed output size:** alt_03/alt_07 = 150–151 msgs
+  (gated) at q13, 107–111 (feasible) at q9 — the adopted cell's same-quality numbers are 135–169
+  / 97–124. Packing 8× more scene into the same 1000 px averages away fine texture about as fast
+  as it adds content; consistent with the crop-vs-size probe (bytes ∝ output pixels × texture).
+- **Card detection is dead at this width:** tags land at ~11 px (below the ~14 px floor) — FAIL
+  (0–1 tags) at every quality and every received fraction; quality cannot rescue it (P1 rule).
+  A wide-view deployment needs output ≥~2000 px wide (≈2× messages), larger printed tags, or
+  the card mounted close to the camera.
+- **Tail-loss behavior unchanged:** full recognizable frame at 25% received (~21 dB), climbing
+  to 24.4 dB at 100% — the progressive advantage carries over to the wide framing.
+- **Reproduce:** P2 commands with `--crop-native 0 0 4608 2592 --modes progressive`; artifacts
+  `~/Downloads/bm_jpeg_partial_sweep/fullfov_partial_20260722T051918Z/` (subruns + post_analysis).
+
+### Mid-stream message-loss probe (2026-07-22, scratch measurement)
+
+Nick's question: does progressive JPEG survive losing a *middle* message (e.g. 40 of 80), or
+only tail loss? Measured on the real P2 progressive q13 files (card 75 msgs, alt_07 169 msgs),
+dropping one 225-byte message at positions {1, 2, 3, 5, 50%, 80%} and decoding two ways:
+**splice** (concatenate around the gap) vs **truncate** (keep only the contiguous prefix).
+
+- **Splicing is never safe:** JPEG entropy coding has no self-sync (no restart markers in the
+  Pillow encode), so removing mid-stream bytes desyncs the decoder — spliced frames decode but
+  carry speckle corruption across the whole image (e.g. 19.4 dB vs full at mid-loss).
+- **Truncate-at-gap is safe and predictable:** losing msg M reduces exactly to the tail-loss
+  case at (M-1)/N received — full clean frame, matching the P2 curves (mid-loss ≈ 24.5 dB).
+  Since `bm_serial` chunks are sequence-numbered, the backend reassembly rule should be
+  **decode only the contiguous prefix before the first gap**.
+- **NO-image edge cases are narrow:** only loss of msg 1 (SOI) or msg 2 (quant/Huffman tables +
+  first scan header) yields no/garbage image — the first ~450 bytes. Random single-message loss
+  → blank with probability ≈ 2/N (~2.5% at 80 msgs); everything else degrades gracefully.
+- **Mitigations for P3/P4:** retransmit-request only for chunks below the first gap (cheap,
+  bounded); optionally investigate restart markers in the Pi encoder (would make splicing
+  survivable — Pillow support unverified).
+- Probe: session scratchpad `midloss/` (regenerable from this description — single-message
+  drops on `p2_partial_20260722T045306Z` progressive q13 files, PSNR vs full decode).
 
 ### CLOSEOUT — production HEIC vs proposed JPEG (2026-07-22, `heic_vs_jpeg_closeout_20260722`)
 
