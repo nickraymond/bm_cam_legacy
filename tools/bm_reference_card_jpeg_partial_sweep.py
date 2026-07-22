@@ -10,9 +10,12 @@ Find the JPEG (mode, quality) setting to deploy on BMCAM so that a tail-cut
 transmission (backend bug register B6) still yields a usable partial image.
 This script:
 
-  1. Loads a native 4608x2592 source, applies the Sprint02 fixed crop
-     (native coords 768,432,3072,1728), and lanczos-downsamples to 1600x900.
-     Geometry is FIXED for the whole sprint (not a sweep variable).
+  1. Loads a native 4608x2592 source, applies the native crop (default: the
+     Sprint02 fixed crop, native coords 768,432,3072,1728), and lanczos-
+     downsamples to the output size (default 1600x900). Geometry is
+     overridable via --crop-native / --output-width (added for the geometry
+     axis probe); defaults reproduce the sprint-fixed behavior exactly.
+     Run ONE geometry per run folder (file stems do not encode geometry).
   2. Encodes the 1600x900 source to JPEG across a quality ladder, in
      baseline and/or progressive mode (Pillow, no subprocess).
   3. Computes the realistic transmit budget on the BASE64 stream:
@@ -197,7 +200,7 @@ def prepare_source(label: str, native_path: Path, out_dir: Path) -> Path:
         x, y, w, h = FIXED_CROP_NATIVE
         cropped = im.crop((x, y, x + w, y + h))
         source = cropped.resize(OUTPUT_SIZE, Image.Resampling.LANCZOS)
-    out = ensure_dir(out_dir / "source_1600") / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png"
+    out = ensure_dir(out_dir / f"source_{OUTPUT_SIZE[0]}") / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png"
     source.save(out, format="PNG")
     log(f"source ready: {label} native={native_path.name} crop_native={FIXED_CROP_NATIVE} -> {OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]} ({out.stat().st_size/1024:.0f} KB PNG)")
     return out
@@ -635,6 +638,13 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--corner-map", default=DEFAULT_CORNER_MAP)
     ap.add_argument("--scales", nargs="+", type=float, default=[1, 2, 3],
                     help="Analyzer detection scales. Default: 1 2 3 (all 4 tags detect at 1 on the 1600px card)")
+    ap.add_argument("--crop-native", nargs=4, type=int, metavar=("X", "Y", "W", "H"),
+                    default=list(FIXED_CROP_NATIVE),
+                    help="Native crop (ROI) in native 4608x2592 coords; sets the FOV. "
+                         f"Default: {' '.join(str(v) for v in FIXED_CROP_NATIVE)} (Sprint02 fixed crop)")
+    ap.add_argument("--output-width", type=int, default=OUTPUT_SIZE[0],
+                    help="Output width in px; height follows the crop aspect ratio. "
+                         "Messages scale ~linearly with output pixel area. Default: 1600")
     ap.add_argument("--output", type=Path, default=None,
                     help="Run folder. Default: ~/Downloads/bm_jpeg_partial_sweep/jpeg_<UTC>")
     ap.add_argument("--overwrite", action="store_true", help="Remove the output folder first if it exists")
@@ -643,6 +653,19 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+
+    # Geometry overrides (defaults reproduce the sprint-fixed values exactly).
+    # Module globals are rebound so every downstream user (prepare_source,
+    # decode size check, cut-sheet labels, manifest) sees one consistent geometry.
+    global FIXED_CROP_NATIVE, OUTPUT_SIZE
+    cx, cy, cw, ch = args.crop_native
+    if not (0 <= cx and 0 <= cy and cx + cw <= NATIVE_SIZE[0] and cy + ch <= NATIVE_SIZE[1] and cw > 0 and ch > 0):
+        raise SystemExit(f"--crop-native {args.crop_native} outside native {NATIVE_SIZE[0]}x{NATIVE_SIZE[1]}")
+    if not 200 <= args.output_width <= cw:
+        raise SystemExit(f"--output-width {args.output_width} must be 200..{cw} (no upsampling beyond the crop)")
+    FIXED_CROP_NATIVE = (cx, cy, cw, ch)
+    OUTPUT_SIZE = (args.output_width, round(args.output_width * ch / cw))
+
     qualities = sorted(set(args.qualities))
     fractions = sorted(set(args.fractions))
     for q in qualities:
@@ -759,7 +782,7 @@ def main() -> int:
                     )
                     make_source_compare_sheet(
                         ladder,
-                        out_dir / "source_1600" / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png",
+                        out_dir / f"source_{OUTPUT_SIZE[0]}" / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png",
                         out_dir / "cut_sheets" / f"{run_tag}_{label}_{mode}_source_vs_compressed.jpg",
                         f"Source vs compressed: {label} {mode} (100% received)",
                         f"run={run_tag}  crop_native={FIXED_CROP_NATIVE} -> {OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}"
