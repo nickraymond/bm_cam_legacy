@@ -10,9 +10,12 @@ Find the JPEG (mode, quality) setting to deploy on BMCAM so that a tail-cut
 transmission (backend bug register B6) still yields a usable partial image.
 This script:
 
-  1. Loads a native 4608x2592 source, applies the Sprint02 fixed crop
-     (native coords 768,432,3072,1728), and lanczos-downsamples to 1600x900.
-     Geometry is FIXED for the whole sprint (not a sweep variable).
+  1. Loads a native 4608x2592 source, applies the native crop (default: the
+     Sprint02 fixed crop, native coords 768,432,3072,1728), and lanczos-
+     downsamples to the output size (default 1600x900). Geometry is
+     overridable via --crop-native / --output-width (added for the geometry
+     axis probe); defaults reproduce the sprint-fixed behavior exactly.
+     Run ONE geometry per run folder (file stems do not encode geometry).
   2. Encodes the 1600x900 source to JPEG across a quality ladder, in
      baseline and/or progressive mode (Pillow, no subprocess).
   3. Computes the realistic transmit budget on the BASE64 stream:
@@ -197,7 +200,7 @@ def prepare_source(label: str, native_path: Path, out_dir: Path) -> Path:
         x, y, w, h = FIXED_CROP_NATIVE
         cropped = im.crop((x, y, x + w, y + h))
         source = cropped.resize(OUTPUT_SIZE, Image.Resampling.LANCZOS)
-    out = ensure_dir(out_dir / "source_1600") / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png"
+    out = ensure_dir(out_dir / f"source_{OUTPUT_SIZE[0]}") / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png"
     source.save(out, format="PNG")
     log(f"source ready: {label} native={native_path.name} crop_native={FIXED_CROP_NATIVE} -> {OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]} ({out.stat().st_size/1024:.0f} KB PNG)")
     return out
@@ -377,10 +380,17 @@ def full_frame_metrics(decoded_path: Path, source_png: Path) -> Dict[str, object
     denom = float(np.linalg.norm(ref_lap) * np.linalg.norm(tst_lap))
     corr = float(np.dot(ref_lap, tst_lap) / denom) if denom > 1e-9 else 0.0
 
+    # Local chroma variation: mean(|R-G| + |G-B|). Low-quality JPEG (heavy
+    # chroma quantization + 4:2:0) crushes this while leaving mean RGB intact,
+    # which is why q5-q10 frames look color-posterized without a global shift.
+    r, g, b = test[..., 2].astype(np.float32), test[..., 1].astype(np.float32), test[..., 0].astype(np.float32)
+    chroma = float(np.mean(np.abs(r - g) + np.abs(g - b)))
+
     return {
         "ff_laplacian_var": round(float(cv2.Laplacian(gray, cv2.CV_64F).var()), 4),
         "ff_tenengrad": round(float(np.mean(gx * gx + gy * gy)), 4),
         "ff_contrast_p95_p05": round(float(p95 - p05), 4),
+        "ff_chroma_sat": round(chroma, 4),
         "ref_psnr_rgb": round(psnr, 4),
         "ref_mse_rgb": round(mse, 4),
         "ref_laplacian_corr": round(corr, 6),
@@ -517,6 +527,82 @@ def make_tile_sheet(rows: List[Dict[str, object]], out_path: Path, title: str, s
     log(f"cut sheet: {out_path}")
 
 
+def make_source_compare_sheet(rows: List[Dict[str, object]], source_png: Path, out_path: Path, title: str, subtitle: str) -> None:
+    """Side-by-side sheet: lossless source vs compressed, per quality.
+
+    Per row: [source full frame | compressed full frame | source 1:1 detail |
+    compressed 1:1 detail]. Full-frame tiles are display-normalized (NOT 1:1);
+    detail panels are unscaled 1:1 pixel crops from the frame center, where
+    chroma posterization is easiest to judge.
+    """
+    ensure_dir(out_path.parent)
+    f_title, f_sub, f_small, f_tag = pil_font(26, True), pil_font(14), pil_font(12), pil_font(13, True)
+    full_tile = (400, 225)
+    detail_box = 225  # 1:1 crop side, matches tile height
+    margin, gap, label_h = 24, 12, 76
+    header_h = 84 + 22  # title/subtitle + column headers
+
+    with Image.open(source_png) as im:
+        src = im.convert("RGB")
+    sw, sh = src.size
+    dx0, dy0 = (sw - detail_box) // 2, (sh - detail_box) // 2
+    src_full = src.copy()
+    src_full.thumbnail(full_tile, Image.Resampling.LANCZOS)
+    src_detail = src.crop((dx0, dy0, dx0 + detail_box, dy0 + detail_box))
+    a = np.asarray(src, dtype=np.float32)
+    src_sat = float(np.mean(np.abs(a[..., 0] - a[..., 1]) + np.abs(a[..., 1] - a[..., 2])))
+
+    row_h = full_tile[1] + label_h
+    cols_w = [full_tile[0], full_tile[0], detail_box, detail_box]
+    sheet_w = margin * 2 + sum(cols_w) + gap * 3
+    sheet_h = margin * 2 + header_h + len(rows) * (row_h + gap)
+    sheet = Image.new("RGB", (sheet_w, sheet_h), (245, 247, 250))
+    d = ImageDraw.Draw(sheet)
+    d.text((margin, margin), title, font=f_title, fill=(30, 50, 70))
+    d.text((margin, margin + 34), subtitle, font=f_sub, fill=(90, 100, 110))
+    col_x = [margin]
+    for wcol in cols_w[:-1]:
+        col_x.append(col_x[-1] + wcol + gap)
+    for cx, htxt in zip(col_x, ["SOURCE (lossless) — normalized", "COMPRESSED — normalized",
+                                "SOURCE 1:1 detail (center)", "COMPRESSED 1:1 detail"]):
+        d.text((cx, margin + 62), htxt, font=f_tag, fill=(60, 75, 95))
+
+    for i, r in enumerate(sorted(rows, key=lambda r: int(r["jpeg_quality"]))):
+        y = margin + header_h + i * (row_h + gap)
+        d.rectangle((margin - 8, y - 4, sheet_w - margin + 8, y + row_h - 6),
+                    fill=status_fill(str(r.get("sprint_status") or "")), outline=(205, 212, 220))
+        dec_path = Path(str(r.get("decoded_path", "")))
+        panels: List[Optional[Image.Image]] = [src_full, None, src_detail, None]
+        dec_sat = None
+        if dec_path.is_file():
+            with Image.open(dec_path) as im:
+                dec = im.convert("RGB")
+            b = np.asarray(dec, dtype=np.float32)
+            dec_sat = float(np.mean(np.abs(b[..., 0] - b[..., 1]) + np.abs(b[..., 1] - b[..., 2])))
+            dec_full = dec.copy()
+            dec_full.thumbnail(full_tile, Image.Resampling.LANCZOS)
+            panels[1] = dec_full
+            panels[3] = dec.crop((dx0, dy0, dx0 + detail_box, dy0 + detail_box))
+        for cx, wcol, panel in zip(col_x, cols_w, panels):
+            if panel is None:
+                d.text((cx + 10, y + 20), "no decoded frame", font=f_small, fill=(120, 40, 40))
+            else:
+                canvas = Image.new("RGB", (wcol, full_tile[1]), (230, 235, 240))
+                canvas.paste(panel, ((wcol - panel.width) // 2, (full_tile[1] - panel.height) // 2))
+                sheet.paste(canvas, (cx, y))
+        sat_txt = f"chroma sat {dec_sat:.1f} vs source {src_sat:.1f} ({100.0 * dec_sat / src_sat:.0f}% retained)" if dec_sat else ""
+        lines = [
+            f"{r.get('mode')} q={r.get('jpeg_quality')}  {r.get('jpeg_kb')} KB  b64={r.get('base64_len')}  "
+            f"msgs={r.get('message_count')} ({r.get('est_minutes')} min, {r.get('duration_band')})",
+            f"PSNR={r.get('ref_psnr_rgb')}  ff_sharp={r.get('ff_laplacian_var')}  {sat_txt}",
+            f"tags={r.get('tag_count', '-')}  status={r.get('sprint_status') or r.get('recovered_status')}",
+        ]
+        for j, line in enumerate(lines):
+            d.text((margin + 4, y + full_tile[1] + 6 + j * 21), line, font=f_small, fill=(35, 50, 65))
+    sheet.save(out_path, quality=94)
+    log(f"cut sheet: {out_path}")
+
+
 # -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
@@ -527,7 +613,7 @@ RESULT_FIELDS = [
     "jpeg_bytes", "jpeg_kb", "base64_len", "message_count", "est_minutes", "duration_band",
     "messages_kept", "messages_total", "truncated_bytes",
     "decode_ok", "recovered_fraction_est",
-    "ff_laplacian_var", "ff_tenengrad", "ff_contrast_p95_p05",
+    "ff_laplacian_var", "ff_tenengrad", "ff_contrast_p95_p05", "ff_chroma_sat",
     "ref_psnr_rgb", "ref_mse_rgb", "ref_laplacian_corr",
     *ANALYZER_CARRY_FIELDS,
     "jpeg_path", "decoded_path",
@@ -552,6 +638,13 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--corner-map", default=DEFAULT_CORNER_MAP)
     ap.add_argument("--scales", nargs="+", type=float, default=[1, 2, 3],
                     help="Analyzer detection scales. Default: 1 2 3 (all 4 tags detect at 1 on the 1600px card)")
+    ap.add_argument("--crop-native", nargs=4, type=int, metavar=("X", "Y", "W", "H"),
+                    default=list(FIXED_CROP_NATIVE),
+                    help="Native crop (ROI) in native 4608x2592 coords; sets the FOV. "
+                         f"Default: {' '.join(str(v) for v in FIXED_CROP_NATIVE)} (Sprint02 fixed crop)")
+    ap.add_argument("--output-width", type=int, default=OUTPUT_SIZE[0],
+                    help="Output width in px; height follows the crop aspect ratio. "
+                         "Messages scale ~linearly with output pixel area. Default: 1600")
     ap.add_argument("--output", type=Path, default=None,
                     help="Run folder. Default: ~/Downloads/bm_jpeg_partial_sweep/jpeg_<UTC>")
     ap.add_argument("--overwrite", action="store_true", help="Remove the output folder first if it exists")
@@ -560,6 +653,19 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+
+    # Geometry overrides (defaults reproduce the sprint-fixed values exactly).
+    # Module globals are rebound so every downstream user (prepare_source,
+    # decode size check, cut-sheet labels, manifest) sees one consistent geometry.
+    global FIXED_CROP_NATIVE, OUTPUT_SIZE
+    cx, cy, cw, ch = args.crop_native
+    if not (0 <= cx and 0 <= cy and cx + cw <= NATIVE_SIZE[0] and cy + ch <= NATIVE_SIZE[1] and cw > 0 and ch > 0):
+        raise SystemExit(f"--crop-native {args.crop_native} outside native {NATIVE_SIZE[0]}x{NATIVE_SIZE[1]}")
+    if not 200 <= args.output_width <= cw:
+        raise SystemExit(f"--output-width {args.output_width} must be 200..{cw} (no upsampling beyond the crop)")
+    FIXED_CROP_NATIVE = (cx, cy, cw, ch)
+    OUTPUT_SIZE = (args.output_width, round(args.output_width * ch / cw))
+
     qualities = sorted(set(args.qualities))
     fractions = sorted(set(args.fractions))
     for q in qualities:
@@ -673,6 +779,14 @@ def main() -> int:
                         out_dir / "cut_sheets" / f"{run_tag}_{label}_{mode}_quality_ladder.jpg",
                         f"JPEG quality ladder: {label} {mode} (100% received)",
                         f"run={run_tag}  crop_native={FIXED_CROP_NATIVE} -> {OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}",
+                    )
+                    make_source_compare_sheet(
+                        ladder,
+                        out_dir / f"source_{OUTPUT_SIZE[0]}" / f"{label}_source_{OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}.png",
+                        out_dir / "cut_sheets" / f"{run_tag}_{label}_{mode}_source_vs_compressed.jpg",
+                        f"Source vs compressed: {label} {mode} (100% received)",
+                        f"run={run_tag}  crop_native={FIXED_CROP_NATIVE} -> {OUTPUT_SIZE[0]}x{OUTPUT_SIZE[1]}"
+                        "  |  full-frame tiles display-normalized (not 1:1); detail panels are 1:1 center crops",
                     )
                 if len(fractions) > 1:
                     for q in qualities:
