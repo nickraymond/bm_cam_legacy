@@ -306,3 +306,38 @@ Scratch probe (no changes to the sweep tool; identical Pillow encode settings �
   to ~1000 wide. Geometry is a Sprint02-style axis; if pursued, smallest change = add
   `--crop-native` / `--output-width` flags to the sweep tool (defaults = current values).
   Probe CSV: session scratchpad `crop_size_probe.csv` (regenerable from this description).
+
+### Output-width sweep at q9 (2026-07-22, run `width_sweep_q9_20260722T013001Z`)
+
+Geometry flags added to the sweep tool (`--crop-native`, `--output-width`; defaults byte-identical
+to sprint-fixed behavior, regression-checked). Sweep: output width {1600,1400,1200,1000,800} at
+**q9 baseline, FOV constant** (sprint crop 768,432,3072,1728 → downsample 1.92×–3.84×), all 9
+sources, one self-contained subrun per (width, source) + `combined_results_width_sweep.csv` +
+per-source width-ladder sheets (`cut_sheets_width_ladder/`).
+
+**Messages at q9 (I/F/G/X bands):**
+
+| source | w1600 | w1400 | w1200 | w1000 | w800 |
+|---|---|---|---|---|---|
+| card | 120 F | 98 F | 77 F | 59 I | 42 I |
+| coral_primary | 120 F | 95 F | 73 I | 55 I | 38 I |
+| alt_01 | 191 X | 148 G | 109 F | 75 I | 47 I |
+| alt_02 | 103 F | 80 F | 59 I | 43 I | 30 I |
+| alt_03 | 221 X | 177 G | 135 G | 98 F | 66 I |
+| alt_04 | 203 X | 160 G | 120 F | 86 F | 57 I |
+| alt_05 | 137 G | 107 F | 80 F | 58 I | 40 I |
+| alt_06 | 177 G | 143 G | 108 F | 79 F | 54 I |
+| alt_07 | 276 X | 217 X | 162 G | 115 F | 74 I |
+
+**Card AprilTag detection vs width (q9):** w1600 PASS (27.4 px) · w1400 PASS (24.5) · w1200 PASS
+(21.0) · w1000 WARN (17.3, all 4 detected) · **w800 FAIL (tags 1,3 lost, 13.6 px)**. The
+detection knee sits between 1000 and 800 output width at this FOV.
+
+- **w1200 is the standout compromise at q9:** every scene ≤ gated (worst 162), 7/9 feasible-or-
+  better, card still PASS with margin. w1000 puts even alt_07 in feasible (115) but the card
+  drops to WARN. w800 fixes every budget (all ideal) but breaks detection — not shippable where
+  the card matters.
+- Full-frame legibility holds surprisingly well down to w1000 (see width-ladder sheets; same-ROI
+  rows show the per-pixel softening honestly — lower widths upsampled for display).
+- Candidate P2/P3 cells now include geometry: (q9, w1200) and (q9, w1000) vs (q5–q7, w1600) —
+  similar budgets, different failure modes; partial-transmission behavior (P2) should decide.
