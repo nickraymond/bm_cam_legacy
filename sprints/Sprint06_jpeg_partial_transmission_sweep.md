@@ -214,3 +214,44 @@ _(fill in as phases run — quality↔size↔detection curve, partial-render com
   → `~/Downloads/bm_jpeg_partial_sweep/jpeg_20260722T003214Z/` (results CSV, quality-ladder cut
   sheets for both images, decoded frames, analyzer output, `run_manifest.json`, log). No code
   changes were needed — the P0 script covered P1 as-is.
+
+### P1 addendum — q5–q10 across ALL coral scenes (2026-07-22, run `multi_coral_20260722T004839Z`)
+
+Robustness batch pulled forward at Nick's request: q{5,6,7,8,9,10} baseline × card + all 8 coral
+scenes (primary + alt_01…07, prepared to synthetic native via `prepare_reference_images.py`).
+No code changes — one sweep run per image via `--coral-path`, subfolders under one parent, plus
+`combined_results_all_sources.csv` + `combined_manifest.json` at the parent level. All 54 rows
+decoded (recovered 1.0); extremes verified visually on cut sheets.
+
+**Message count (band: I ideal / F feasible / G gated / X over-cap):**
+
+| source | q5 | q6 | q7 | q8 | q9 | q10 |
+|---|---|---|---|---|---|---|
+| card | 81 F | 92 F | 101 F | 110 F | 120 F | 129 G |
+| coral_primary | 73 I | 84 F | 96 F | 107 F | 120 F | 133 G |
+| alt_01 | 100 F | 124 F | 147 G | 170 G | 191 X | 213 X |
+| alt_02 | 62 I | 71 I | 81 F | 92 F | 103 F | 115 F |
+| alt_03 | 129 G | 155 G | 178 G | 199 X | 221 X | 242 X |
+| alt_04 | 115 F | 139 G | 162 G | 183 X | 203 X | 222 X |
+| alt_05 | 78 F | 93 F | 107 F | 122 F | 137 G | 153 G |
+| alt_06 | 100 F | 120 F | 139 G | 159 G | 177 G | 195 X |
+| alt_07 | 156 G | 187 X | 218 X | 247 X | 276 X | 303 X |
+
+- **Scene content dominates the budget — spread is ~2.5× at fixed quality** (q5: 62–156 msgs).
+  The primary coral is one of the *cheaper* scenes; it is not a conservative anchor. alt_07
+  (high-texture close-up, ff_sharpness ~1000 vs ~200 primary) is gated even at q5; alt_03/alt_04
+  exceed feasible at q5–q6.
+- **Feasibility across all 9 sources:** q5 keeps 8/9 within gated-or-better (7/9 feasible-or-
+  better); q7 keeps 5/9 feasible-or-better; q9–q10 only 2–3/9. **No fixed quality puts every
+  scene in feasible** — worst-case scenes need q5 (or a byte-budget/adaptive-quality encode,
+  noted as a P3 discussion point, "Next sprint" if pursued).
+- PSNR ordering is stable across scenes (each +1 quality step ≈ +0.4–0.8 dB); alt_07 is lowest
+  (22.4 dB @ q5) because fine texture is what quantization destroys first.
+- **Implication for P2/P3:** keep shortlist {5, 7, 9} but judge the verdict on worst-case scenes
+  (alt_03/alt_07), not just the primary.
+- **Reproduce:** prepare alts (`tools/prepare_reference_images.py --input
+  reference_images/reference_reef_coral_alt_NN.jpg --output-root reference_images/prepared`),
+  then per image: `tools/bm_reference_card_jpeg_partial_sweep.py --images coral --coral-path
+  reference_images/prepared/<name>/synthetic_native_4608x2592.jpg --modes baseline --qualities
+  5 6 7 8 9 10 --fractions 100 --output <parent>/<name>` (card: `--images card`). Artifacts:
+  `~/Downloads/bm_jpeg_partial_sweep/multi_coral_20260722T004839Z/`.
