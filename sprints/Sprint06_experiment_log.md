@@ -34,6 +34,11 @@ chars, 5 s. Bands: ideal ≤75 msgs · feasible ≤125 · hard cap ~180.
 8. The pipeline is color-correct (sRGB throughout) — verified, not assumed.
 9. Production HEIC is over the cap on realistic reef scenes and yields a blank on tail-cut; JPEG degrades gracefully. This is the deployment argument.
 10. Orchestration lesson: zsh doesn't word-split unquoted vars; never filter subprocess stderr through grep — count artifacts, not exit banners.
+11. Hard caps should come from field tests, not estimates — raising 180→195 msgs (measured) moved q15 from dead to shippable-stretch.
+12. A budget-first ranking inverts under the real failure mode: baseline q9 tops the clean-link table, but B6 tail-loss (13 dB vs 22.6–24.2 dB at 50% received) is what actually decides the mode. Keep the robustness columns in the same table or it misleads.
+13. Band edges are artifacts, not physics — progressive q9's "7/8 feasible" is alt_07 at 126 vs the 125 line (one message). Judge cells by distance from the line, not the color.
+14. Card detection saturates early and never binds inside the tight ROI (~33 px tags at every quality) — once geometry guarantees tag size, quality is purely a coral-budget/fidelity trade.
+15. Mac Pillow bytes are an emulation, not ground truth — every size/time number needs Pi confirmation before deployment (Sprint07), and the 18-min cycle budget leaves <2 min of non-transmit time at the 195-msg cap.
 
 ## Closing state → P4 (sprint Mac-side DOE complete)
 
@@ -41,4 +46,4 @@ chars, 5 s. Bands: ideal ≤75 msgs · feasible ≤125 · hard cap ~180.
 - **Mode:** **progressive** — under B6 tail-loss it delivers full-frame partials (+7–10 dB over baseline at every received fraction) for ≤~4% coral / ~5–8% card byte overhead (fleet-verified in P3).
 - **Budget bands (final):** ideal ≤75 · feasible ≤125 · **hard cap 195 msgs** (Nick field-tested; supersedes spec ~180 — buys q15 as a stretch cell, worst-case 188).
 - **P3 verdict — JPEG values for Pi validation:** progressive **q13 nominal** (worst scene 169 msgs, card lock from 50% received) · **q9 adaptive floor** (worst 126; card-bearing frames floor at q13 — q9 partial lock needs 90%) · **q15 stretch** (worst 188) · baseline q9 as A/B control. Tooling: `bm_jpeg_p3_budget_verdict.py` (heatmaps + ranked table), run `p3_verdict_20260722T055437Z`.
-- **P4 (separate fast-follow sprint):** Pi encode parity/memory/time over Tailscale SSH — all sizes here are Mac-side Pillow emulations; also verify backend/frontend render truncated progressive JPEGs, and revisit the adaptive-quality encoder (scene texture spread ~2.5×).
+- **P4 (separate fast-follow sprint — spec drafted: `Sprint07_pi_jpeg_validation.md`):** Pi encode parity/memory/time over Tailscale SSH — all sizes here are Mac-side Pillow emulations; Pi heatmap re-run to pare the shipping upper quality limit; confirm full capture→compress→transmit cycle ≤ 18 min worst-case; verify backend/frontend render truncated progressive JPEGs; revisit the adaptive-quality encoder (scene texture spread ~2.5×).
