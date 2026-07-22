@@ -446,3 +446,28 @@ allocation (many soft pixels at low q vs fewer sharp pixels at high q).
   (band-colored tiles). Reproduce (coral): `--images coral --coral-path <prepared> --qualities
   9 11 13 15 --crop-native 1504 846 1600 900 --output-width <W>`; card uses
   `--crop-native 1467 1255 1600 900`.
+
+### CLOSEOUT — production HEIC vs proposed JPEG (2026-07-22, `heic_vs_jpeg_closeout_20260722`)
+
+Apples-to-apples end-to-end: the **production HEIC pipeline** (from `camera_schedule.yaml`
+"validated bmcam000 production candidate": crop 768,432,3072,1728 → 2688×1512 lanczos → HEIC q20
+via pillow_heif, `heic_encode_helper.py` flow — Mac emulation, Pi parity is P4) vs the **minted
+JPEG proposal** (ROI 1600×900 native → 1000×562, 1.6×, q13 baseline, adaptive floor q9). Chunk
+model per `bm_serial`: 300 b64 chars / 5 s.
+
+| source | production HEIC q20 @2688 | proposed JPEG q13 @1000 |
+|---|---|---|
+| card | 29.7 KB → **136 msgs (11.3 min)** | 15.4 KB → **71 msgs (5.9 min, ideal)** PASS, 33.3 px tags |
+| coral_primary | 45.0 KB → **205 msgs (17.1 min, over cap)** | 16.0 KB → **73 msgs (6.1 min, ideal)** |
+| coral_alt_07 | 107.5 KB → **490 msgs (40.8 min)** | 37.1 KB → 169 gated; **q9 floor → 124 (feasible)** |
+
+- **Budget:** proposal costs ~⅓–¼ of production per image; production is over the hard cap on
+  both reef scenes (the field symptom that started this sprint, quantified).
+- **Honest visual note (see sheets):** in the same-scene zooms the HEIC arm's *pixels* look
+  smoother — it spends 2.8–4× the messages and runs at 1.14× density. Per message delivered,
+  the JPEG arm wins decisively, and the HEIC numbers are not deliverable inside the cap anyway.
+- **Failure mode:** HEIC tail-cut → blank (B6); JPEG tail-cut → partial image renders. This
+  asymmetry is the sprint's founding premise and stands regardless of visual comparison.
+- Sheets (`cut_sheets/`): per source — full frames (proposal ROI red-boxed on the HEIC frame),
+  card region at TRUE 1:1 both arms, reef same-scene-region zooms (display-normalized, labeled).
+  Stats: `closeout_stats.json`; manifest in run folder.
