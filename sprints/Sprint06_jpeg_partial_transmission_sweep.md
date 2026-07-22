@@ -491,6 +491,27 @@ top-slice + gray fill, progressive partials are full-frame.
   (per-source subruns, `post_analysis/combined_results_p2_partial.csv`,
   `post_analysis/cut_sheets_mode_compare/`, `post_analysis/curves/`).
 
+### Full-FOV probe — camera moved back / wide view (2026-07-22, run `fullfov_partial_20260722T051918Z`)
+
+Nick's question: same transfer limits, but ROI = the whole sensor FOV (camera stepped back ~1 m,
+wide reef view instead of close-up). Emulated as `--crop-native 0 0 4608 2592 --output-width
+1000` (4.6× density vs the adopted cell's 1.6×) — same photos re-framed wider, so content isn't a
+true re-shoot but geometry/texture effects are representative. Progressive only (P2 winner),
+q{9,13,15} × received {25–100}%, card + alt_03/alt_07.
+
+- **Reef budget is roughly FOV-neutral at fixed output size:** alt_03/alt_07 = 150–151 msgs
+  (gated) at q13, 107–111 (feasible) at q9 — the adopted cell's same-quality numbers are 135–169
+  / 97–124. Packing 8× more scene into the same 1000 px averages away fine texture about as fast
+  as it adds content; consistent with the crop-vs-size probe (bytes ∝ output pixels × texture).
+- **Card detection is dead at this width:** tags land at ~11 px (below the ~14 px floor) — FAIL
+  (0–1 tags) at every quality and every received fraction; quality cannot rescue it (P1 rule).
+  A wide-view deployment needs output ≥~2000 px wide (≈2× messages), larger printed tags, or
+  the card mounted close to the camera.
+- **Tail-loss behavior unchanged:** full recognizable frame at 25% received (~21 dB), climbing
+  to 24.4 dB at 100% — the progressive advantage carries over to the wide framing.
+- **Reproduce:** P2 commands with `--crop-native 0 0 4608 2592 --modes progressive`; artifacts
+  `~/Downloads/bm_jpeg_partial_sweep/fullfov_partial_20260722T051918Z/` (subruns + post_analysis).
+
 ### CLOSEOUT — production HEIC vs proposed JPEG (2026-07-22, `heic_vs_jpeg_closeout_20260722`)
 
 Apples-to-apples end-to-end: the **production HEIC pipeline** (from `camera_schedule.yaml`
