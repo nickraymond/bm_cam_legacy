@@ -108,8 +108,8 @@ the *same* timestamped run folder. Update the row's status + findings in the PR.
 | P0 | **Scaffold** | JPEG encode (baseline+progressive), base64 message-count, format axis, truncation harness; smoke-test on 1 image × 1 quality | ✅ DONE | — | light | new sweep script + smoke run |
 | P1 | **Coarse quality sweep** (complete images) | JPEG quality ladder (revised with approval to {5,6,7,8,9,10,15,20,25,30,35,40} — bias low, cap 40), baseline, both images; size/base64-msgs/minutes + detection (card) + sharpness/contrast/PSNR (coral) | ✅ DONE | P0 | light–med | quality-ladder cut sheets + `results_*.csv` (run `jpeg_20260722T003214Z`) |
 | P2 | **Partial-transmission behavior** *(new)* | {baseline, progressive} × received-fraction {25,50,75,90,100}% × qualities {9,13,15} **on the adopted cell** (ROI 1600×900 → 1000×562, 1.6×; see `Sprint06_experiment_log.md` closing state); judge on card + worst-case corals (alt_03/alt_07) | [x] ✅ DONE | P1 | **heavy** (splittable) | baseline-vs-progressive partial cut sheets + detection/sharpness-vs-% curves (run `p2_partial_20260722T045306Z`; progressive q13+ keeps 4-tag PASS from 50% received, baseline needs 75%; coral partial PSNR +7–10 dB progressive) |
-| P3 | **Budget overlay + verdict** | map every setting to the bands (coral-anchored); heatmap (quality × mode, duration-banded); ranked recommendation | ☐ TODO | P2 | light | heatmap + **recommendation table → JPEG values to try on the Pi** |
-| P4 | **Pi validation** *(fast-follow — OUT OF SCOPE here)* | port winning `(mode, quality)` to the Pi encode path; validate on-device encode time / memory / stability over Tailscale SSH | ⛔ DEFERRED | P3 | — | separate sprint spec |
+| P3 | **Budget overlay + verdict** | map every setting to the bands (coral-anchored); heatmap (quality × mode, duration-banded); ranked recommendation | ✅ DONE | P2 | light | run `p3_verdict_20260722T055437Z`: fleet sweep q7–21 × both modes × all 9 sources on the frozen cell + `tools/bm_jpeg_p3_budget_verdict.py` (heatmaps, ranked table, verdict.md; hard cap re-set to 195 msgs per Nick's field test). **Pi shortlist: progressive q13 nominal · q9 adaptive floor · q15 stretch (+ baseline q9 control)** |
+| P4 | **Pi validation** *(fast-follow — OUT OF SCOPE here)* | port winning `(mode, quality)` to the Pi encode path; validate on-device encode time / memory / stability over Tailscale SSH; confirm the full capture→compress→transmit cycle ≤ 18 min; Pi heatmap re-run to pare the upper quality limit | ⛔ DEFERRED | P3 | — | **`Sprint07_pi_jpeg_validation.md`** (spec drafted 2026-07-22) |
 
 **Legend:** ☐ TODO · 🔄 IN PROGRESS · 🔍 IN REVIEW · ✅ DONE · ⛔ DEFERRED.
 
@@ -534,6 +534,55 @@ dropping one 225-byte message at positions {1, 2, 3, 5, 50%, 80%} and decoding t
   survivable — Pillow support unverified).
 - Probe: session scratchpad `midloss/` (regenerable from this description — single-message
   drops on `p2_partial_20260722T045306Z` progressive q13 files, PSNR vs full decode).
+
+### P3 — Budget overlay + verdict (2026-07-22, run `p3_verdict_20260722T055437Z`)
+
+Approved decisions: [D6] fresh 100%-received sweep, both modes, all 9 sources on the frozen cell
+(ROI 1600×900 native, card-centered `1467,1255` / scene-centered `1504,846` → 1000×562, 1.6×);
+[D7] quality ladder {7,9,11,13,15,17,19,21}; [D8] per-mode source×quality heatmaps + quality×mode
+fleet summary; [D9] **hard cap revised to 195 messages** (Nick field-tested a 195-msg transmission
+successfully — supersedes the spec's ~180 estimate; ideal ≤75 / feasible ≤125 unchanged). The
+sweep tool is unchanged; new light post-analysis `tools/bm_jpeg_p3_budget_verdict.py` adds a
+`duration_band_cap195` column (sweep CSVs' own cap-180 `duration_band` preserved), heatmaps, and
+the ranked recommendation (CSV + `verdict.md`), merging P2 partial-robustness columns. All
+144 cells decoded (decode_ok, recovered 1.0); cut sheets + heatmaps visually verified. Alt-coral
+prepared natives are now committed (`reference_images/prepared/…/synthetic_native_4608x2592.jpg`).
+
+- **Budget map at the 195 cap (worst coral = alt_07 at every quality):** q7 → 98–102 msgs (8/8
+  scenes feasible-or-better); q9 → 124–126 (baseline 8/8 feasible; progressive 7/8 — alt_07 lands
+  at 126, ONE message over the 125 feasible line: boundary artifact, not a real cost); q11 →
+  147–148; **q13 → 169 (all 8 scenes within cap, both modes)**; **q15 → 188 (still within the new
+  195 cap — the cap change buys q15 as a stretch)**; q17+ → alt_07 over cap. Card PASSes every
+  cell (min tag ~33 px), 46–99 msgs — never binding.
+- **Progressive overhead confirmed fleet-wide:** corals +0–4% (alt_07 q13: 169 msgs both modes);
+  card +4–5 msgs (~5–8%). Mode choice is budget-neutral at the fleet level.
+- **Mechanical ranking (budget-first, per the D9 keys)** puts baseline q9 / q7 on top — full-
+  receipt fleet feasibility rewards baseline's slightly smaller files and q9's 8/8 feasible. But
+  the P2 robustness columns in the same table show why that inverts under the B6 link: at 50%
+  received, baseline delivers 13.0 dB (half a picture) vs progressive 22.6–24.2 dB (full frame),
+  and baseline card detection needs 75% received vs progressive q13/q15's 50%. **The sprint's
+  founding failure mode, not clean-link budget, decides the mode: progressive.**
+- **Verdict — JPEG values for Pi validation (P4):**
+  1. **progressive q13 (nominal)** — all scenes ≤ cap (worst 169/14.1 min), card 75 msgs ideal
+     PASS, 4-tag card lock from 50% received, mean coral PSNR 27.99.
+  2. **progressive q9 (adaptive floor)** — worst 126/10.5 min; caveat from P2: card partial lock
+     needs 90% received at q9, so card-bearing frames should floor at q13.
+  3. **progressive q15 (stretch)** — newly inside the 195 cap (worst 188/15.7 min), PSNR 28.51,
+     card lock from 50%; use only if the link proves comfortable at ~190 msgs.
+  4. **baseline q9 (control)** — for an on-device A/B against the pre-sprint behavior.
+- **☐ Pi check (P4 / Sprint07) before any deployment:** all bytes here are Mac Pillow emulations.
+  On the Pi: re-run the heatmap with Pi-encoded bytes, confirm the full capture→compress→transmit
+  cycle stays **≤ 18 min** at the worst-case cell (195 msgs = 16.25 min transmit alone), and pare
+  down the shipping upper quality limit from the Pi numbers. Spec: `Sprint07_pi_jpeg_validation.md`.
+- **Reproduce:** per source `tools/bm_reference_card_jpeg_partial_sweep.py --images card --modes
+  baseline progressive --qualities 7 9 11 13 15 17 19 21 --fractions 100 --crop-native 1467 1255
+  1600 900 --output-width 1000 --output <parent>/card` (corals: `--images coral --coral-path
+  reference_images/prepared/<name>/synthetic_native_4608x2592.jpg --crop-native 1504 846 1600
+  900`); then `tools/bm_jpeg_p3_budget_verdict.py --parent <parent> --p2-csv
+  <p2_run>/post_analysis/combined_results_p2_partial.csv`. Artifacts:
+  `~/Downloads/bm_jpeg_partial_sweep/p3_verdict_20260722T055437Z/` (9 subruns +
+  `verdict/{combined_results_p3_verdict.csv, recommendation_ranked.csv, verdict.md,
+  heatmaps/, run_manifest.json}`).
 
 ### CLOSEOUT — production HEIC vs proposed JPEG (2026-07-22, `heic_vs_jpeg_closeout_20260722`)
 
