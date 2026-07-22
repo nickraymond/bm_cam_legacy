@@ -106,7 +106,7 @@ the *same* timestamped run folder. Update the row's status + findings in the PR.
 | # | Phase | Goal | Status | Depends on | Compute | Output |
 |---|-------|------|--------|-----------|---------|--------|
 | P0 | **Scaffold** | JPEG encode (baseline+progressive), base64 message-count, format axis, truncation harness; smoke-test on 1 image × 1 quality | ✅ DONE | — | light | new sweep script + smoke run |
-| P1 | **Coarse quality sweep** (complete images) | JPEG quality {10,30,50,70,90}, baseline, both images; size/base64-msgs/minutes + detection (card) + sharpness/contrast/PSNR (coral) | ☐ TODO | P0 | light–med | quality-ladder cut sheets + `results_*.csv` |
+| P1 | **Coarse quality sweep** (complete images) | JPEG quality ladder (revised with approval to {5,6,7,8,9,10,15,20,25,30,35,40} — bias low, cap 40), baseline, both images; size/base64-msgs/minutes + detection (card) + sharpness/contrast/PSNR (coral) | ✅ DONE | P0 | light–med | quality-ladder cut sheets + `results_*.csv` (run `jpeg_20260722T003214Z`) |
 | P2 | **Partial-transmission behavior** *(new)* | {baseline, progressive} × received-fraction {25,50,75,90,100}% × shortlisted qualities × both images; decode partial + analyze | ☐ TODO | P1 | **heavy** (splittable) | baseline-vs-progressive partial cut sheets + detection/sharpness-vs-% curves |
 | P3 | **Budget overlay + verdict** | map every setting to the bands (coral-anchored); heatmap (quality × mode, duration-banded); ranked recommendation | ☐ TODO | P2 | light | heatmap + **recommendation table → JPEG values to try on the Pi** |
 | P4 | **Pi validation** *(fast-follow — OUT OF SCOPE here)* | port winning `(mode, quality)` to the Pi encode path; validate on-device encode time / memory / stability over Tailscale SSH | ⛔ DEFERRED | P3 | — | separate sprint spec |
@@ -185,3 +185,32 @@ _(fill in as phases run — quality↔size↔detection curve, partial-render com
   useful quantization).
 - The "earlier partial-render experiment" referenced in §7-D2 was not found in the repo; the
   harness was implemented from the spec description directly.
+
+### P1 — Coarse quality sweep (2026-07-22, run `jpeg_20260722T003214Z`)
+
+- **Ladder revision (Nick-approved):** spec ladder {10,30,50,70,90} replaced with
+  {5,6,7,8,9,10,15,20,25,30,35,40} ("bias low, cap 40") — P0 had shown q50 coral = 481 msgs, so
+  q50+ was known-dead. A first pass ({5,10,…,40}, run `jpeg_20260722T003128Z`, superseded) showed
+  the **entire coral feasible band falls between q5 and q10**, so q6–q9 were added and the full
+  ladder re-run into one clean folder. Baseline mode only, 100% received (P2 owns mode/partials).
+- **Budget (coral-anchored, base64-corrected):** q5 = 73 msgs / 6.1 min (**ideal**); q6 = 84,
+  q7 = 96, q8 = 107, q9 = 120 (**feasible**); q10 = 133 (**gated**); q15 = 189 and everything
+  above is **over the 180-msg cap** (q40 = 405 msgs / 33.8 min). The shippable baseline-JPEG
+  window at 1600×900 is **q ≤ 9**, with q10–15 only as a gated stretch.
+- **Card detection does not constrain the choice:** all 12 qualities PASS with all 4 AprilTags,
+  min tag side flat at 27.4–28.0 px (tag geometry survives even q5). The card is also consistently
+  ~10–25% smaller than the coral above q7 — confirming the coral is the right budget anchor
+  (at q≤6 heavy quantization flattens reef texture enough that coral ≤ card).
+- **Quality curve (coral vs lossless 1600×900 source):** PSNR 25.75 (q5) → 26.57 (q6) → 27.28
+  (q7) → 27.97 (q8) → 28.37 (q9) → 28.87 (q10) → 30.48 (q15); ff_laplacian_var rises smoothly
+  198 → 224 over q5–q10 (source-matched sharpness ~= q15+ levels never reachable in budget).
+  Visual: q5 shows clear posterization/banding in dark water; **q8 full-res is usable** — reef
+  structure and individual fish identifiable, mild blocking in shadows. All 24 rows decoded
+  (decode_ok, recovered_fraction 1.0); cut sheets confirm no blank/garbage frames.
+- **P2 shortlist proposal: qualities {5, 7, 9}** (ideal / mid-feasible / top-of-feasible),
+  baseline vs progressive × received fractions — q10 optional as the gated stretch point.
+- **Reproduce:**
+  `/…/bm_cam_legacy/.venv/bin/python3 tools/bm_reference_card_jpeg_partial_sweep.py --images card coral --modes baseline --qualities 5 6 7 8 9 10 15 20 25 30 35 40 --fractions 100`
+  → `~/Downloads/bm_jpeg_partial_sweep/jpeg_20260722T003214Z/` (results CSV, quality-ladder cut
+  sheets for both images, decoded frames, analyzer output, `run_manifest.json`, log). No code
+  changes were needed — the P0 script covered P1 as-is.
