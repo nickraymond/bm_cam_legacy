@@ -1,0 +1,71 @@
+{
+  "tool": "prepare_reference_images.py",
+  "generated_utc": "2026-07-22T05:53:04.025930+00:00",
+  "source": {
+    "path": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-06-jpeg-sweep-c71e6c/reference_images/reference_reef_coral_alt_07.jpg",
+    "filename": "reference_reef_coral_alt_07.jpg",
+    "bytes": 5470976,
+    "sha256": "5d77645b8ae4421bcb51395efdcedb8cf77dcef58bac605ad0cf888cd0e819a1",
+    "original_size": [
+      4000,
+      3000
+    ],
+    "original_mode": "RGB",
+    "exif_orientation": 1,
+    "oriented_size": [
+      4000,
+      3000
+    ]
+  },
+  "transformation": {
+    "crop_mode": "center",
+    "target_aspect_ratio": "4608:2592",
+    "crop_box_left_top_right_bottom": [
+      0,
+      375,
+      4000,
+      2625
+    ],
+    "cropped_size": [
+      4000,
+      2250
+    ],
+    "resize_method": "Pillow Image.Resampling.LANCZOS",
+    "target_size": [
+      4608,
+      2592
+    ],
+    "jpeg_quality": 95,
+    "jpeg_subsampling": 0
+  },
+  "outputs": {
+    "original_normalized": {
+      "path": "original_normalized.jpg",
+      "size": [
+        4000,
+        3000
+      ],
+      "bytes": 5706715
+    },
+    "source_16x9": {
+      "path": "source_16x9.jpg",
+      "size": [
+        4000,
+        2250
+      ],
+      "bytes": 4583374
+    },
+    "synthetic_native": {
+      "path": "synthetic_native_4608x2592.jpg",
+      "size": [
+        4608,
+        2592
+      ],
+      "bytes": 5582836
+    },
+    "comparison_sheet": {
+      "path": "comparison_sheet.jpg",
+      "bytes": 2044269
+    }
+  }
+}
