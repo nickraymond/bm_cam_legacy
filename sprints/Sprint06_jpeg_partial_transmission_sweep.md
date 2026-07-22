@@ -385,3 +385,34 @@ area). Reproduce: `--images card --qualities 9 --crop-native 1307 1165 1920 1080
 1000`. **Two-knob summary:** `--crop-native` = ROI/FOV = how much data; density (crop_w ÷
 output_w) = per-pixel detail; `--output-width` sets density for a given crop. A field decision
 to tighten the camera's ROI on the card region would preserve detection at ideal-band budgets.
+
+### Minted proposal vs baseline, all sources at q9 (2026-07-22, run `proposal_vs_baseline_q9_20260722T022941Z`)
+
+**Proposal (minted):** q9 baseline-mode JPEG · density 1.92× (unchanged) · **ROI 1920×1080
+native → 1000×562 output** (card-centered `1307,1165` for the card; scene-centered `1344,756`
+for corals) — trade 61% of FOV area for budget, keep per-pixel quality identical.
+
+| source | baseline msgs (band) | proposal msgs (band) | quality carry-over |
+|---|---|---|---|
+| card | 120 F | **56 I** | PASS→PASS, min tag 27.4→27.8 px |
+| coral_primary | 120 F | **55 I** | PSNR 28.4→27.8 |
+| alt_01 | 191 X | **80 F** | 26.1→25.8 |
+| alt_02 | 103 F | **43 I** | 28.4→28.0 |
+| alt_03 | 221 X | **97 F** | 25.8→25.2 |
+| alt_04 | 203 X | **100 F** | 26.1→25.1 |
+| alt_05 | 137 G | **64 I** | 27.1→26.0 |
+| alt_06 | 177 G | **77 F** | 27.1→26.5 |
+| alt_07 | 276 X | **124 F** | 24.6→24.0 |
+
+**Every scene lands ideal (4/9) or feasible (5/9)** — nothing gated, nothing over cap — vs the
+baseline's 4/9 over-cap. Card detection unchanged at full margin. PSNR deltas are small and are
+per-arm (each vs its own lossless source; ROIs differ in content, so treat as per-pixel fidelity,
+not identical-content comparison). Chroma_sat differences track ROI content.
+Cut sheets (one per source): `cut_sheets_proposal_vs_baseline/` — baseline frame with proposal
+ROI outlined, proposal frame, and 1:1 details at the same scene point (visually identical per
+pixel, as designed). Combined CSV: `combined_proposal_vs_baseline.csv`.
+Reproduce (coral): `--images coral --coral-path <prepared native> --qualities 9 --crop-native
+1344 756 1920 1080 --output-width 1000`; card: `--images card --qualities 9 --crop-native 1307
+1165 1920 1080 --output-width 1000`. Baseline arm: same minus the two geometry flags.
+**Open items before deployment:** P2 partial-transmission on this cell (baseline vs progressive),
+Pi encode parity/memory (P4), and the ROI is a science/deployment decision (39% of current FOV).
