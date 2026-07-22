@@ -341,3 +341,30 @@ detection knee sits between 1000 and 800 output width at this FOV.
   rows show the per-pixel softening honestly — lower widths upsampled for display).
 - Candidate P2/P3 cells now include geometry: (q9, w1200) and (q9, w1000) vs (q5–q7, w1600) —
   similar budgets, different failure modes; partial-transmission behavior (P2) should decide.
+
+### Card clipping check + centered-crop control, q7–q13 (2026-07-22, run `card_center_grid_20260722T020707Z`)
+
+Nick asked whether the w800 detection FAIL was a false fail from the crop clipping the card.
+
+- **No clipping — measured, not assumed.** Tag bounding box in the sprint crop (output coords,
+  1600×900): x 600–962, y 598–728 → margins left 600 / right 638 / top 598 / bottom 172 px; the
+  card is already near-centered horizontally (center x=781). The annotated w800 analyzer frame
+  shows the full card in-frame with all margins intact — tags 1/3 visible but too small to lock.
+- **Centered-crop control run** (same-size 3072×1728 crop re-centered on the card at native
+  731,841 via the existing `--crop-native` flag) × width {1600…800} × **q7–q13**, vs the standard
+  crop. Result matrices (P/W/F + tags detected): the two crops are statistically identical —
+  min tag px matches to ±0.4 (e.g. w800: 13.56 standard vs 13.95 centered). w1600–w1200 PASS-4
+  at every quality in both; w1000 is a flaky WARN-4 boundary in both (occasional 3-tag drop at
+  random qualities); w800 FAILs in both (0–3 tags), with only isolated marginal 4-tag WARN locks
+  at q12–q13 centered — boundary noise, not a robust rescue.
+- **Quality does not rescue small tags:** detection is flat across q7–q13 at every width
+  (consistent with the P1 q5–q40 finding). Tag *pixel size* is the detection variable:
+  ≥21 px (w1200) robust PASS · ~17 px (w1000) marginal WARN · ~14 px (w800) below the reliable
+  floor.
+- **Recommendation: no "force crop centered on card" flag** — centering measurably changes
+  nothing here, and `--crop-native` already covers deliberate re-framing. To keep detection at
+  low output widths the options are physical/geometric: hold output ≥1200 wide, print larger
+  tags, or frame the card tighter (FOV trade — Sprint02-type ROI decision, field-side).
+- Artifacts: `~/Downloads/bm_jpeg_partial_sweep/card_center_grid_20260722T020707Z/`
+  (`standard|centered/w<width>/` subruns, `combined_card_center_grid.csv`). Reproduce (centered):
+  `--images card --qualities 7 8 9 10 11 12 13 --crop-native 731 841 3072 1728 --output-width <W>`.
