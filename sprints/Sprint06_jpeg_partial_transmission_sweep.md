@@ -416,3 +416,33 @@ Reproduce (coral): `--images coral --coral-path <prepared native> --qualities 9 
 1165 1920 1080 --output-width 1000`. Baseline arm: same minus the two geometry flags.
 **Open items before deployment:** P2 partial-transmission on this cell (baseline vs progressive),
 Pi encode parity/memory (P4), and the ROI is a science/deployment decision (39% of current FOV).
+
+### ROI 1600×900 density × quality grid (2026-07-22, run `roi1600_density_grid_20260722T024040Z`)
+
+Nick shrank the ROI again (**1600×900 native**, card-centered `1467,1255` / scene-centered
+`1504,846`) to buy quality headroom, and asked whether to run **max starting density (1.0×, no
+downsample) and let JPEG do all the reduction**. Grid: density 1.0×–2.0× (output width
+1600→800) × q{9,11,13,15} × all 9 sources; every cell also scored with **common-reference PSNR**
+(decoded frame upscaled to the 1.0× lossless source of the same ROI — cross-density comparable,
+unlike per-run PSNR). Note: in this pipeline downsampling is a resample, not a compression
+generation — each cell is native → one resample → one encode, so the question is purely rate
+allocation (many soft pixels at low q vs fewer sharp pixels at high q).
+
+- **Answer: max density loses at these budgets.** The best under-budget cell is *never* 1.0×:
+  ideal-band winners sit at 1.6–2.0× density with q13–q15 (e.g. primary: w1000/1.6× q13, 73
+  msgs, cPSNR 29.45 — vs 1.0× q9 at 113 msgs scoring 29.41); feasible-band winners at
+  1.14–1.6× (primary: w1200 q15, 110 msgs, 30.72; card: w1400 q15, 123 msgs, 33.07 PASS).
+  Bytes spent on quality (q13–15) at moderate density consistently beat bytes spent on native
+  density at q9–11. Pattern: as budget loosens, the optimum shifts toward higher density —
+  but within our bands it never reaches 1.0×.
+- **Card:** every grid cell PASSes (tags ≥ ~26 px even at 2.0× thanks to the tight ROI) —
+  detection is no longer a constraint inside this ROI.
+- **Worst case alt_07:** still no ideal-band cell (best feasible: w1000 q9, 124 msgs, 24.26) —
+  texture-heavy scenes remain the argument for the adaptive-q encoder.
+- **Emerging operating point: ROI 1600×900 · w1000 (1.6× density) · q13 nominal, adaptive down
+  to q9** → ideal band for 6/9 scenes at q13, all 9 within feasible at the q9 floor.
+- Artifacts: 45 subruns (`w<width>/<source>/`), `combined_roi1600_density_grid.csv`
+  (includes `common_ref_psnr`), per-source 5×4 grid sheets in `cut_sheets_density_grid/`
+  (band-colored tiles). Reproduce (coral): `--images coral --coral-path <prepared> --qualities
+  9 11 13 15 --crop-native 1504 846 1600 900 --output-width <W>`; card uses
+  `--crop-native 1467 1255 1600 900`.
