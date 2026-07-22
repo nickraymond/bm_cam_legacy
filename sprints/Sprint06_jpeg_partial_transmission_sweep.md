@@ -512,6 +512,29 @@ q{9,13,15} × received {25–100}%, card + alt_03/alt_07.
 - **Reproduce:** P2 commands with `--crop-native 0 0 4608 2592 --modes progressive`; artifacts
   `~/Downloads/bm_jpeg_partial_sweep/fullfov_partial_20260722T051918Z/` (subruns + post_analysis).
 
+### Mid-stream message-loss probe (2026-07-22, scratch measurement)
+
+Nick's question: does progressive JPEG survive losing a *middle* message (e.g. 40 of 80), or
+only tail loss? Measured on the real P2 progressive q13 files (card 75 msgs, alt_07 169 msgs),
+dropping one 225-byte message at positions {1, 2, 3, 5, 50%, 80%} and decoding two ways:
+**splice** (concatenate around the gap) vs **truncate** (keep only the contiguous prefix).
+
+- **Splicing is never safe:** JPEG entropy coding has no self-sync (no restart markers in the
+  Pillow encode), so removing mid-stream bytes desyncs the decoder — spliced frames decode but
+  carry speckle corruption across the whole image (e.g. 19.4 dB vs full at mid-loss).
+- **Truncate-at-gap is safe and predictable:** losing msg M reduces exactly to the tail-loss
+  case at (M-1)/N received — full clean frame, matching the P2 curves (mid-loss ≈ 24.5 dB).
+  Since `bm_serial` chunks are sequence-numbered, the backend reassembly rule should be
+  **decode only the contiguous prefix before the first gap**.
+- **NO-image edge cases are narrow:** only loss of msg 1 (SOI) or msg 2 (quant/Huffman tables +
+  first scan header) yields no/garbage image — the first ~450 bytes. Random single-message loss
+  → blank with probability ≈ 2/N (~2.5% at 80 msgs); everything else degrades gracefully.
+- **Mitigations for P3/P4:** retransmit-request only for chunks below the first gap (cheap,
+  bounded); optionally investigate restart markers in the Pi encoder (would make splicing
+  survivable — Pillow support unverified).
+- Probe: session scratchpad `midloss/` (regenerable from this description — single-message
+  drops on `p2_partial_20260722T045306Z` progressive q13 files, PSNR vs full decode).
+
 ### CLOSEOUT — production HEIC vs proposed JPEG (2026-07-22, `heic_vs_jpeg_closeout_20260722`)
 
 Apples-to-apples end-to-end: the **production HEIC pipeline** (from `camera_schedule.yaml`
