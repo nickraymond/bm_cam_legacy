@@ -255,3 +255,32 @@ decoded (recovered 1.0); extremes verified visually on cut sheets.
   reference_images/prepared/<name>/synthetic_native_4608x2592.jpg --modes baseline --qualities
   5 6 7 8 9 10 --fractions 100 --output <parent>/<name>` (card: `--images card`). Artifacts:
   `~/Downloads/bm_jpeg_partial_sweep/multi_coral_20260722T004839Z/`.
+
+### P1 color verification + source-vs-compressed cut sheets (2026-07-22, run `multi_coral_srccmp_20260722T010924Z`)
+
+Nick flagged "colors look incorrect" on the ladder cut sheets. Investigated whether it's a
+pipeline bug or a compression effect:
+
+- **Pipeline is color-correct.** All sources are sRGB (OM TG-7 EXIF Interop `R98`; no embedded
+  ICC profiles anywhere, so nothing is dropped/misinterpreted). Mean RGB is preserved through
+  prep → 1600×900 source → encode → decode (primary: 85.96/81.08/81.61 → 85.62/81.72/81.15 at
+  q5); luminance percentiles are essentially identical (shadows slightly *lifted*, not crushed);
+  and tile pixels in the rendered sheet measure equal (lum 83.4 source vs 83.3 q5).
+- **The "wrong" look is chroma-variation loss from low-quality JPEG** (heavy chroma quantization
+  + 4:2:0): local saturation retained vs lossless source at q5 is 48–88% depending on scene
+  (primary 55%, alt_01 48%, alt_04 53%; recovering to ~90%+ by q9–q10). Equal-luminance but
+  desaturated reef reads as darker/muddier to the eye. This is what the customer would receive —
+  a real cost of the q5–q10 budget window, now measured.
+- **Script additions (additive only, CLI unchanged):** `ff_chroma_sat` metric (mean |R−G|+|G−B|)
+  in the CSV, and a new per-(image,mode) cut sheet `*_source_vs_compressed.jpg` — rows per
+  quality: [lossless source | compressed] full frames (display-normalized) + [source | compressed]
+  **1:1 center-crop detail panels**, with chroma-retention % in the labels.
+- Rerun of card + all 8 corals at q{5–10} with the new sheets:
+  `~/Downloads/bm_jpeg_partial_sweep/multi_coral_srccmp_20260722T010924Z/` (per-source subruns,
+  `combined_results_all_sources.csv`, `combined_manifest.json`). All 54 rows decoded; budget
+  numbers identical to the previous multi-coral run (encode path untouched).
+- **Chroma retention (% of source) at q5 / q8 / q10 per scene:** card 68/97/104 · primary
+  55/83/92 · alt_01 48/63/73 · alt_02 80/89/95 · alt_03 59/69/85 · alt_04 53/84/96 ·
+  alt_05 88/88/92 · alt_06 87/91/97 · alt_07 78/83/92. Takeaway: q5 color cost is scene-
+  dependent and can be severe (≈half the color variation gone); q8–q9 keeps ~85–95% on most
+  scenes. Color fidelity now argues for the upper feasible band (q8–q9) where budget allows.
