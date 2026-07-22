@@ -20,6 +20,7 @@ chars, 5 s. Bands: ideal ≤75 msgs · feasible ≤125 · hard cap ~180.
 | 9 | `roi1600_density_grid_20260722T024040Z` — ROI 1600×900, density 1.0–2.0× × q{9,11,13,15}, common-reference PSNR | Should we ship max density (1.0×) and let JPEG do all reduction? | No — under-budget optimum is never 1.0×: ideal band → 1.6–2.0× @ q13–15; feasible → 1.14–1.6×. Quality beats pixel count at our budgets. Card PASSes every cell in this ROI. |
 | 10 | `heic_vs_jpeg_closeout_20260722` — production HEIC (2688×1512 q20, from `camera_schedule.yaml`) vs minted JPEG, 3 sources | Apples-to-apples vs the starting pipeline? | HEIC: 136/205/490 msgs (card/primary/alt_07) — over cap on both reefs, blank on tail-cut. JPEG: 71/73/124–169, partial-renders on tail-cut. HEIC pixels smoother but at 2.8–4.5× message cost and undeliverable. |
 | 11 | `p2_partial_20260722T045306Z` — P2: baseline vs progressive × q{9,13,15} × received {25–100}% on the adopted cell, card+alt_03+alt_07 (+ new `bm_jpeg_partial_post_analysis.py`) | Which JPEG mode survives B6 tail-loss? | Progressive, decisively: full-frame partials at +7–10 dB PSNR over baseline at every fraction; card keeps 4-tag PASS from 50% received at q13/q15 (baseline needs 75%; progressive q9 needs 90% — q9 first scans too coarse to lock all tags). Overhead at 100%: corals ≤0.6%, card ~5%. |
+| 12 | `p3_verdict_20260722T055437Z` — P3: fleet verdict sweep q{7–21} × both modes × all 9 sources on the frozen cell, 100% received (+ new `bm_jpeg_p3_budget_verdict.py`; hard cap re-set to 195 msgs per Nick's field test) | Which (mode, quality) ships to Pi validation? | Card never binds (PASS everywhere, ~33 px tags). Worst coral (alt_07): q13 = 169 msgs (all scenes ≤ cap), q15 = 188 (inside the new 195 cap), q17+ over. Progressive overhead fleet-wide ≤~4% corals / ~5–8% card. Budget-first ranking favors baseline q7/q9, but B6 tail-loss (P2: 13 dB vs 22.6–24.2 dB at 50% received) decides the mode. **Shortlist: progressive q13 nominal · q9 adaptive floor (q13 floor for card frames) · q15 stretch · baseline q9 control.** |
 
 ## Lessons (one line each)
 
@@ -34,10 +35,10 @@ chars, 5 s. Bands: ideal ≤75 msgs · feasible ≤125 · hard cap ~180.
 9. Production HEIC is over the cap on realistic reef scenes and yields a blank on tail-cut; JPEG degrades gracefully. This is the deployment argument.
 10. Orchestration lesson: zsh doesn't word-split unquoted vars; never filter subprocess stderr through grep — count artifacts, not exit banners.
 
-## Closing state → P3
+## Closing state → P4 (sprint Mac-side DOE complete)
 
 - **Adopted geometry (frozen):** ROI 1600×900 native (card-centered `1467,1255` / scene-centered `1504,846`) → output 1000×562 (1.6× density).
-- **Mode (new, from P2):** **progressive** — under B6 tail-loss it delivers full-frame partials (+7–10 dB over baseline at every received fraction) for negligible byte overhead (corals ≤0.6%, card ~5%).
-- **Quality:** dynamic JPEG quality, nominal q13–15; P2 caveat on the q9 floor: progressive q9 partials lose the 4-tag card lock until 90% received (q13 holds it from 50%) — P3 should weigh a q13 floor for card-bearing frames.
-- **P3 (next session):** budget overlay + verdict — map every setting to the bands (coral-anchored), heatmap (quality × mode, duration-banded), ranked recommendation → JPEG values for Pi validation.
-- **P4 (later):** Pi encode parity/memory/time — all sizes here are Mac-side Pillow/pillow_heif emulations; progressive decode of partials also needs a backend check (frontend must render truncated progressive JPEGs).
+- **Mode:** **progressive** — under B6 tail-loss it delivers full-frame partials (+7–10 dB over baseline at every received fraction) for ≤~4% coral / ~5–8% card byte overhead (fleet-verified in P3).
+- **Budget bands (final):** ideal ≤75 · feasible ≤125 · **hard cap 195 msgs** (Nick field-tested; supersedes spec ~180 — buys q15 as a stretch cell, worst-case 188).
+- **P3 verdict — JPEG values for Pi validation:** progressive **q13 nominal** (worst scene 169 msgs, card lock from 50% received) · **q9 adaptive floor** (worst 126; card-bearing frames floor at q13 — q9 partial lock needs 90%) · **q15 stretch** (worst 188) · baseline q9 as A/B control. Tooling: `bm_jpeg_p3_budget_verdict.py` (heatmaps + ranked table), run `p3_verdict_20260722T055437Z`.
+- **P4 (separate fast-follow sprint):** Pi encode parity/memory/time over Tailscale SSH — all sizes here are Mac-side Pillow emulations; also verify backend/frontend render truncated progressive JPEGs, and revisit the adaptive-quality encoder (scene texture spread ~2.5×).
