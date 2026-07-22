@@ -284,3 +284,25 @@ pipeline bug or a compression effect:
   alt_05 88/88/92 · alt_06 87/91/97 · alt_07 78/83/92. Takeaway: q5 color cost is scene-
   dependent and can be severe (≈half the color variation gone); q8–q9 keeps ~85–95% on most
   scenes. Color fidelity now argues for the upper feasible band (q8–q9) where budget allows.
+
+### Crop-vs-size probe (2026-07-22, scratch measurement — answers Nick's HEIC-era trend question)
+
+Question: with JPEG, does a tighter crop reduce file size, and could it buy q9–q10 within budget?
+Scratch probe (no changes to the sweep tool; identical Pillow encode settings — optimize=True,
+4:2:0, baseline) on coral_primary + coral_alt_07 at q9/q10, 16:9 crops centered at native center:
+
+- **E1 — tighter crop, output fixed 1600×900** (sampling density 1.92×→1.0×): file size is
+  **flat** — primary q9: 26.2→26.5→26.4→26.1→24.7 KB (crop 3072→1600 wide); alt_07 q9:
+  60.5→…→57.7 KB. The HEIC-era trend **holds for JPEG**: at constant output resolution, crop
+  tightness barely moves bytes (≤~6%, only at full 1:1 density).
+- **E2 — tighter crop, density fixed 1.92×** (output shrinks with crop): messages scale
+  ~linearly with output pixel area — primary q9: 120→96→74→55→36 msgs for outputs
+  1600×900→1400×788→1200×675→1000×562→800×450; alt_07 q9: 276→220→169→124→83.
+- **Conclusion: output pixel count is the budget lever, not crop tightness.** A tighter crop
+  helps q9/q10 *only* by shrinking the output; equivalently the same message budget can be spent
+  on FOV (wide crop, more downsample) or per-pixel detail (tight crop, less downsample). To hold
+  q9 feasible on the worst-case scene (alt_07) needs ≈1000×562 output (124 msgs) — i.e. a
+  1920×1080 native crop at 1.92× density (39% of current FOV area), or the full FOV downsampled
+  to ~1000 wide. Geometry is a Sprint02-style axis; if pursued, smallest change = add
+  `--crop-native` / `--output-width` flags to the sweep tool (defaults = current values).
+  Probe CSV: session scratchpad `crop_size_probe.csv` (regenerable from this description).
