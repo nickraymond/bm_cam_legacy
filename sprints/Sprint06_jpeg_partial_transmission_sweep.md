@@ -368,3 +368,20 @@ Nick asked whether the w800 detection FAIL was a false fail from the crop clippi
 - Artifacts: `~/Downloads/bm_jpeg_partial_sweep/card_center_grid_20260722T020707Z/`
   (`standard|centered/w<width>/` subruns, `combined_card_center_grid.csv`). Reproduce (centered):
   `--images card --qualities 7 8 9 10 11 12 13 --crop-native 731 841 3072 1728 --output-width <W>`.
+
+### Order-of-operations clarification + tight-ROI demo (2026-07-22)
+
+Nick's mental model: native → downsample (density) → crop (ROI) → compress. The script does
+native → **crop** → **downsample** → compress — but the two orders **commute** (same pixels at
+the same density), so the model's prediction holds: *at fixed density, the crop only changes how
+much data is compressed, not the per-pixel quality of what remains*. The width sweep changed
+**density** (crop fixed, output shrunk), which is why tags degraded — it swept the other knob.
+
+Demo run confirming the model (card, q9, card-centered **1920×1080 native crop** at unchanged
+**1.92× density** → 1000×562 output): **PASS, 4 tags, min tag 27.8 px, 56 msgs (ideal)** —
+tag size identical to full-FOV w1600 (27.4 px) at less than half the messages, and PASS where
+full-FOV w1000 (3.07× density, 59 msgs) only WARNs. FOV is the only cost (39% of sprint-crop
+area). Reproduce: `--images card --qualities 9 --crop-native 1307 1165 1920 1080 --output-width
+1000`. **Two-knob summary:** `--crop-native` = ROI/FOV = how much data; density (crop_w ÷
+output_w) = per-pixel detail; `--output-width` sets density for a given crop. A field decision
+to tighten the camera's ROI on the card region would preserve detection at ideal-band budgets.
