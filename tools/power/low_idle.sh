@@ -2,11 +2,12 @@
 # low_idle.sh — Profile A: runtime-only low-power idle for Pi Zero 2 W (WiFi stays ON)
 #
 # Purpose:  Lowest draw while still SSH-reachable. Turns off HDMI, ACT LED,
-#           Bluetooth; sets CPU governor to powersave; forces WiFi power_save
-#           OFF so SSH stays snappy (WiFi power_save is a separate variable,
-#           tested later, not part of this profile).
-# Usage:    sudo ./low_idle.sh            # apply profile
-#           sudo ./low_idle.sh --revert   # undo at runtime
+#           Bluetooth; sets CPU governor to powersave. WiFi power_save is left
+#           ON (stock) by default for apples-to-apples vs baseline — measured
+#           2026-07-24 that forcing it off costs more than the other savings.
+# Usage:    sudo ./low_idle.sh              # apply profile (power_save stays on)
+#           sudo ./low_idle.sh --psave-off  # also force WiFi power_save off (snappier SSH, +~20mW)
+#           sudo ./low_idle.sh --revert     # undo at runtime
 # Outputs:  progress lines to stdout; verification of each setting.
 # NON-PERSISTENT: nothing here touches /boot, systemd, cron, or network config.
 #                 A reboot fully restores stock behavior (reboot = rollback),
@@ -25,7 +26,9 @@ IW=/usr/sbin/iw
 if [[ $(id -u) -ne 0 ]]; then echo "ERROR: run with sudo"; exit 1; fi
 
 revert=0
+psave_off=0
 [[ "${1:-}" == "--revert" ]] && revert=1
+[[ "${1:-}" == "--psave-off" ]] && psave_off=1
 
 if [[ $revert -eq 0 ]]; then
     echo "=== LOW-IDLE: applying runtime power profile ==="
@@ -45,8 +48,12 @@ if [[ $revert -eq 0 ]]; then
         echo powersave > "$g"
     done
 
-    echo "[5/5] WiFi power_save OFF (keeps SSH responsive)"
-    $IW dev wlan0 set power_save off
+    if [[ $psave_off -eq 1 ]]; then
+        echo "[5/5] WiFi power_save OFF (--psave-off: snappier SSH, costs ~20mW)"
+        $IW dev wlan0 set power_save off
+    else
+        echo "[5/5] WiFi power_save left as-is (stock: on)"
+    fi
 
     echo "=== verification ==="
 else

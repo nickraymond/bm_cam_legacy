@@ -4,7 +4,8 @@
 # Purpose:  Minimum draw during a waiting window. Applies the low-idle
 #           peripheral-offs (HDMI, ACT LED, Bluetooth), then issues a clean
 #           systemd halt.
-# Usage:    sudo ./tuned_halt.sh
+# Usage:    sudo ./tuned_halt.sh              # systemctl halt
+#           sudo ./tuned_halt.sh --poweroff   # systemctl poweroff (A/B: may reach a deeper firmware state)
 # Outputs:  progress lines, then a 10 s countdown, then the system halts.
 #           SSH WILL DROP — a broken pipe / closed connection here is SUCCESS.
 # RECOVERY: manual power cycle (unplug/replug USB) is the ONLY way back.
@@ -19,7 +20,10 @@ set -u
 
 if [[ $(id -u) -ne 0 ]]; then echo "ERROR: run with sudo"; exit 1; fi
 
-echo "=== TUNED-HALT: peripherals off, then clean halt ==="
+stop_cmd=halt
+[[ "${1:-}" == "--poweroff" ]] && stop_cmd=poweroff
+
+echo "=== TUNED-HALT: peripherals off, then clean ${stop_cmd} ==="
 
 echo "[1/4] HDMI off"
 vcgencmd display_power 0
@@ -31,8 +35,8 @@ echo 0    > /sys/class/leds/ACT/brightness
 echo "[3/4] Bluetooth off (rfkill soft-block)"
 rfkill block bluetooth
 
-echo "[4/4] Clean halt in 10 seconds — SSH will drop (that is expected/success)."
-for s in 10 9 8 7 6 5 4 3 2 1; do echo "  halt in ${s}s"; sleep 1; done
+echo "[4/4] Clean ${stop_cmd} in 10 seconds — SSH will drop (that is expected/success)."
+for s in 10 9 8 7 6 5 4 3 2 1; do echo "  ${stop_cmd} in ${s}s"; sleep 1; done
 
 sync
-systemctl halt
+systemctl "$stop_cmd"
