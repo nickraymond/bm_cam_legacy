@@ -9,7 +9,11 @@
 #           sudo ./low_idle.sh --revert   # undo at runtime
 # Outputs:  progress lines to stdout; verification of each setting.
 # NON-PERSISTENT: nothing here touches /boot, systemd, cron, or network config.
-#                 A reboot fully restores stock behavior (reboot = rollback).
+#                 A reboot fully restores stock behavior (reboot = rollback),
+#                 EXCEPT Bluetooth: systemd-rfkill persists soft-block state
+#                 across reboots (verified on Bookworm, 2026-07-24). Run
+#                 --revert (or `sudo rfkill unblock bluetooth`) after a reboot
+#                 if Bluetooth must be restored.
 # Assumptions: Pi Zero 2 W, Bookworm, vcgencmd works, LED is /sys/class/leds/ACT,
 #              iw lives at /usr/sbin/iw (not in default PATH on this image).
 # Known limitations: does not touch USB (marginal on the Zero), does not

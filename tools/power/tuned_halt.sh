@@ -9,7 +9,10 @@
 #           SSH WILL DROP — a broken pipe / closed connection here is SUCCESS.
 # RECOVERY: manual power cycle (unplug/replug USB) is the ONLY way back.
 # NON-PERSISTENT: nothing here touches /boot, systemd units, cron, or network
-#                 config. The power cycle boots back to stock state.
+#                 config. The power cycle boots back to stock state,
+#                 EXCEPT Bluetooth: systemd-rfkill persists soft-block state
+#                 across reboots (verified on Bookworm, 2026-07-24). After
+#                 recovery, run `sudo rfkill unblock bluetooth` if needed.
 # Assumptions: Pi Zero 2 W, Bookworm, vcgencmd works, LED at /sys/class/leds/ACT.
 
 set -u
