@@ -54,7 +54,7 @@ peak memory, and end-to-end cycle time.
 | # | Phase | Goal | Status | Depends on | Output |
 |---|-------|------|--------|-----------|--------|
 | P0 | **Deploy + parity smoke** | Get branch + reference images + venv deps onto the Pi (Tailscale SSH; see `pi-deploy`); encode 1 image × q13 × both modes on-device; compare bytes/base64_len vs the Mac run (`p3_verdict_20260722T055437Z`) | ✅ DONE | — | **PASS — byte-identical (0.0% delta, sha256 match, card + coral_primary × both modes).** Run `p0_parity_20260724T164924Z` + `parity_report.md` in `~/Downloads/bm_jpeg_partial_sweep/`; new tool `tools/bm_pi_jpeg_encode.py` |
-| P1 | **Pi heatmap re-run** | Sweep on the Pi: both modes × q{7,9,11,13,15,17} × all 9 sources, 100% received, **with per-encode wall time + peak RSS logged**; run `bm_jpeg_p3_budget_verdict.py` on the Pi CSVs → Pi-native heatmaps + ranked table | ☐ TODO | P0 | Pi heatmap + `recommendation_ranked.csv` (Pi bytes, not Mac) |
+| P1 | **Pi heatmap re-run** | Sweep on the Pi: both modes × q{7,9,11,13,15,17} × all 9 sources, 100% received, **with per-encode wall time + peak RSS logged**; run `bm_jpeg_p3_budget_verdict.py` on the Pi CSVs → Pi-native heatmaps + ranked table | ✅ DONE | P0 | **108/108 cells sha256-identical to Mac; ranked table identical; shortlist confirmed (q13→169, q9→126, q15→188, q17 dead at 206). Encode ≤0.08 s, RSS ~122 MB.** Runs `p1_grid_20260724T165653Z` (Pi) + `p1_pi_analysis_20260725T063719Z` (Mac, heatmaps + `p1_report.md`); new tool `tools/bm_mac_analyze_pi_run.py` |
 | P2 | **18-min cycle check** | Time the full cycle on-device: capture (or timed load of a native) → crop/downsample → encode → transmit-time model; verify worst-case cell ≤ 18 min total; measure encode memory headroom (Pi Zero 2W, watch CMA/RSS) | ☐ TODO | P1 | cycle-time table per shortlist cell; PASS/FAIL vs 18 min |
 | P3 | **Pare the upper limit + final verdict** | From Pi bytes + cycle times, set the shipping upper quality limit (is q15 stretch still inside cap on Pi? does q17 stay dead?); confirm nominal/floor; final `(mode, q_nominal, q_floor, q_max)` | ☐ TODO | P2 | final settings table → deployment handoff |
 | P4 | **Truncated-progressive render check** | Confirm backend/frontend render a tail-cut progressive JPEG (B6 emulation with real truncated files from P1) — the deployment premise | ☐ TODO | P1 | render evidence (screenshots) + backend notes |
@@ -117,3 +117,23 @@ backend renders truncated progressive JPEGs. Output feeds the actual deployment 
 - Artifacts: `~/Downloads/bm_jpeg_partial_sweep/p0_parity_20260724T164924Z/`
   (`parity_report.md`, `parity_delta.csv`, per-source manifests/CSVs/JPEGs); Pi-side copy in
   `~/bm_sprint07_runs/`.
+
+### P1 — Pi heatmap re-run (2026-07-24, runs `p1_grid_20260724T165653Z` Pi / `p1_pi_analysis_20260725T063719Z` Mac) — CONFIRMED
+
+- **Full-grid byte parity:** all **108/108** Pi JPEGs (9 sources × both modes × q{7,9,11,13,15,17})
+  sha256-identical to the Mac P3 run → the Sprint06 Mac heatmap IS the Pi heatmap. Ranked
+  recommendation table identical on every cell/column.
+- **Shortlist confirmed on Pi bytes:** progressive q13 worst coral 169 msgs · q9 → 126 ·
+  q15 → 188 (inside 195 cap) · baseline q9 → 124 · **q17 stays dead** (206 > 195). Card 4-tag
+  PASS everywhere.
+- **New Pi-only numbers:** encode wall mean 0.031 s baseline / 0.066 s progressive, max
+  0.078 s (alt_07 progressive q17); peak RSS ~122 MB flat (MemAvailable ~230 MB, CMA
+  untouched); native load + crop + lanczos ~2.2–2.8 s/source. Encode is a non-factor for the
+  18-min budget — P2 hinges on capture + transmit.
+- **Pipeline:** Pi = `tools/bm_pi_jpeg_encode.py` (encode only); Mac = new
+  `tools/bm_mac_analyze_pi_run.py` (imports the sweep's metric/decode/analyzer/status
+  functions unchanged) + `bm_jpeg_p3_budget_verdict.py` unchanged (with the P2 robustness CSV).
+- Field ops: nothing installed, camera/crontab untouched. Artifacts:
+  `~/Downloads/bm_jpeg_partial_sweep/p1_pi_analysis_20260725T063719Z/` (`p1_report.md`,
+  `verdict/heatmaps/`, `recommendation_ranked.csv`, `parity_grid.csv`, per-source CSVs with
+  `pi_encode_wall_s_*`/`pi_peak_rss_kb_after`, 108 decoded PNGs, 18 cut sheets).
