@@ -312,13 +312,18 @@ tool, separate reviewed PR):**
 
 | Field | Key | Values | Rides in |
 |---|---|---|---|
-| image format | `fmt` | `pjpg` | START (`fmt=pjpg`), END (`fmt: pjpg`), incomplete |
-| quality used | `q` | int — reuses the existing q key (HEIC cycles carried HEIC quality) | START/END/incomplete |
-| encode attempts | `att` | int (M3 ladder walk length) | START/END/incomplete |
-| complete flag | `cmp` | `1` / `0` | START/END |
-| incomplete reason | `rsn` | `budget` \| `cap` \| `enc` \| `err` | START/END when `cmp=0`; always in incomplete |
+| image format | `fmt` | `pjpg` | START (`fmt=pjpg`) + incomplete |
+| quality used | `q` | int — reuses the existing q key (HEIC cycles carried HEIC quality) | START + incomplete |
+| encode attempts | `att` | int (M3 ladder walk length) | START + incomplete |
+| complete flag | `cmp` | `1` / `0` | START |
+| incomplete reason | `rsn` | `budget` \| `cap` \| `enc` \| `err` | START when `cmp=0`; always in incomplete |
 | planned / sendable chunks | `pln` / `snd` | ints (`snd=0` valid) | incomplete only |
 | incomplete-cycle message | `<WS v=1 a=inc fmt=pjpg q=9 att=4 rsn=budget pln=128 snd=37 ct=… sha=… hn=…>` — emitted BEFORE the bounded partial send | | M5 |
+
+**END carries NO RC fields (P4 revision, Nick 2026-07-25):** the RC END is byte-identical to the
+HEIC END (pinned by test against the production builder), preserving the full 35-byte
+camera-metadata headroom. Backend reads actual-vs-planned from END `sent_buffers` vs START
+`length`, correlated by filename.
 
 **Landed:**
 - `BM_Devel_Pi/rc_uplink_messages.py` — `build_rc_start_message` (same base shape + budget
@@ -327,11 +332,12 @@ tool, separate reviewed PR):**
   builder — RC fields are core fields, camera metadata stays budget-dropped),
   `build_rc_incomplete_message` (pure; telemetry extras caller-supplied), `reason_code()`
   mapping M3 reasons → wire codes with `err` fallback (never raises).
-- `tests/test_rc_uplink_messages.py` — **17/17 pass**: exact-string asserts (complete +
+- `tests/test_rc_uplink_messages.py` — **18/18 pass**: exact-string asserts (complete +
   incomplete variants), `rsn` only when `cmp=0`, no q duplication, 285/295-byte budgets held
-  under hostile inputs with RC fields surviving drops, ASCII sanitization, `snd=0` valid, and
-  probe-style key/value extraction recovering every new field from every message type (the
-  in-repo stand-in for the backend parser). All five suites green (20+15+12+19+17 = 83).
+  under hostile inputs with RC START fields surviving drops, RC END byte-identity vs the
+  production HEIC builder, ASCII sanitization, `snd=0` valid, and probe-style key/value
+  extraction recovering every new field (the in-repo stand-in for the backend parser). All five
+  suites green (20+15+12+19+18 = 84).
 
 **Not tested:** the actual backend parser / cycle-log tool (separate repo + PR — the table above
 is the contract); on-Pi emission (P7).

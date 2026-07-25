@@ -14,9 +14,8 @@ nereus-vision-dev/backend change — this module + tests define the fields):
 
   START `<START IMG> filename: F, timestamp: T, length: N, fmt=pjpg, q=13,
          att=2, cmp=1[, rsn=budget], rk=..., ...`   (285-byte budget)
-  END   `<END IMG> filename: F, uart_duration_sec: S, sent_buffers: N,
-         cpu_temp_c: C, fmt: pjpg, q: 13, att: 2, cmp: 1[, rsn: budget],
-         <camera metadata>`                         (295-byte budget)
+  END   byte-identical to the HEIC END (no RC fields — P4 revision, see
+         build_rc_end_message docstring); camera metadata budget unchanged
   INCOMPLETE (M5 emits before the bounded partial send; WS compact shape,
          new action `inc`):
         `<WS v=1 a=inc fmt=pjpg q=9 att=4 rsn=budget pln=128 snd=37 ...>`
@@ -149,25 +148,23 @@ def build_rc_end_message(
     uart_duration_sec,
     sent_buffers,
     cpu_temp_text,
-    quality,
-    enc_attempts,
-    complete,
-    reason=None,
     capture_metadata=None,
     max_payload_bytes=295,
 ):
-    """Build the RC END IMG message.
+    """Build the RC END IMG message — byte-identical to the HEIC END.
 
-    Wraps the existing END builder: core fields (never dropped) = the HEIC
-    core + the RC fields; optional camera metadata stays budget-dropped
-    exactly as before.
+    P4 revision (Nick, 2026-07-25): the RC fields (fmt/q/att/cmp/rsn) ride in
+    START and the a=inc message ONLY. END stays the pure metadata vehicle so
+    the camera-metadata budget headroom is unchanged from production; the
+    backend correlates START<->END by filename and reads actual-vs-planned
+    from sent_buffers vs START's length.
     """
     core_fields = [
         ("filename", compressed_file_name),
         ("uart_duration_sec", f"{float(uart_duration_sec):.1f}"),
         ("sent_buffers", int(sent_buffers)),
         ("cpu_temp_c", cpu_temp_text),
-    ] + _rc_field_pairs(quality, enc_attempts, complete, reason)
+    ]
 
     return _build_end_image_message(
         compressed_file_name,

@@ -147,35 +147,49 @@ class TestStartMessage(unittest.TestCase):
 
 
 class TestEndMessage(unittest.TestCase):
-    def test_exact_string_complete(self):
+    """P4 revision: END carries NO RC fields — it must be byte-identical to
+    the HEIC END so the camera-metadata headroom is unchanged."""
+
+    def test_exact_string(self):
         msg = build_rc_end_message(
             FILENAME,
             uart_duration_sec=632.4,
             sent_buffers=75,
             cpu_temp_text="51.2",
-            quality=13,
-            enc_attempts=2,
-            complete=True,
         )
         self.assertEqual(
             msg,
             f"<END IMG> filename: {FILENAME}, uart_duration_sec: 632.4, "
-            "sent_buffers: 75, cpu_temp_c: 51.2, fmt: pjpg, q: 13, att: 2, cmp: 1\n",
+            "sent_buffers: 75, cpu_temp_c: 51.2\n",
         )
 
-    def test_incomplete_carries_reason(self):
-        msg = build_rc_end_message(
-            FILENAME,
-            uart_duration_sec=190.0,
-            sent_buffers=37,
-            cpu_temp_text="na",
-            quality=9,
-            enc_attempts=4,
-            complete=False,
-            reason="budget",
+    def test_byte_identical_to_heic_end(self):
+        from process_image_v2 import _build_end_image_message
+
+        meta = {"ExposureTime": 39994, "AnalogueGain": 3.98, "Lux": 402.1}
+        rc = build_rc_end_message(
+            FILENAME, uart_duration_sec=632.4, sent_buffers=75,
+            cpu_temp_text="51.2", capture_metadata=meta,
         )
-        self.assertIn("cmp: 0", msg)
-        self.assertIn("rsn: budget", msg)
+        heic = _build_end_image_message(
+            FILENAME,
+            [
+                ("filename", FILENAME),
+                ("uart_duration_sec", "632.4"),
+                ("sent_buffers", 75),
+                ("cpu_temp_c", "51.2"),
+            ],
+            capture_metadata=meta,
+        )
+        self.assertEqual(rc, heic)
+
+    def test_no_rc_fields_in_end(self):
+        msg = build_rc_end_message(
+            FILENAME, uart_duration_sec=190.0, sent_buffers=37, cpu_temp_text="na",
+        )
+        for absent in ("fmt", "att", "cmp", "rsn"):
+            self.assertNotIn(f"{absent}:", msg)
+            self.assertNotIn(f"{absent}=", msg)
 
     def test_camera_metadata_still_budgeted(self):
         capture_metadata = {
@@ -204,17 +218,14 @@ class TestEndMessage(unittest.TestCase):
             uart_duration_sec=632.4,
             sent_buffers=75,
             cpu_temp_text="51.2",
-            quality=13,
-            enc_attempts=2,
-            complete=True,
             capture_metadata=capture_metadata,
         )
         self.assertLessEqual(len(msg.encode("ascii")), 295)
-        # RC fields are core fields — they can never be dropped by the budget.
-        for required in ("fmt: pjpg", "q: 13", "att: 2", "cmp: 1"):
-            self.assertIn(required, msg)
-        # Some camera metadata made it in (budget permitting).
+        # Camera metadata rides with production headroom (RC fields removed);
+        # with this hostile 19-field set the tail drops exactly as the HEIC
+        # END would (budget logic is the same shared function).
         self.assertIn("et_us: 39994", msg)
+        self.assertIn("rfm: manual", msg)
 
 
 class TestIncompleteMessage(unittest.TestCase):
@@ -280,17 +291,14 @@ class TestBackendProbeParseability(unittest.TestCase):
         self.assertEqual(got["length"], "37")
 
     def test_end_fields_parse_back(self):
+        # END is HEIC-identical; the backend reads actual-vs-planned from
+        # sent_buffers here vs length in START.
         msg = build_rc_end_message(
             FILENAME, uart_duration_sec=190.0, sent_buffers=37, cpu_temp_text="na",
-            quality=9, enc_attempts=4, complete=False, reason="cap",
         )
         got = probe_extract(msg)
-        self.assertEqual(got["fmt"], "pjpg")
-        self.assertEqual(got["q"], "9")
-        self.assertEqual(got["att"], "4")
-        self.assertEqual(got["cmp"], "0")
-        self.assertEqual(got["rsn"], "cap")
         self.assertEqual(got["sent_buffers"], "37")
+        self.assertNotIn("fmt", got)
 
     def test_incomplete_fields_parse_back(self):
         msg = build_rc_incomplete_message(
