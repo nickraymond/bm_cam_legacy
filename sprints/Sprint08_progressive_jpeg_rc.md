@@ -98,7 +98,7 @@ the field cadence.
 
 | # | Block | Builds | How it's tested independently | Status | Depends on |
 |---|-------|--------|-------------------------------|--------|-----------|
-| P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | ☐ TODO | — |
+| P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | 🔍 IN REVIEW | — |
 | P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | ☐ TODO | P0 |
 | P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | ☐ TODO | P0 |
 | P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | ☐ TODO | P1, P2 |
@@ -178,4 +178,40 @@ reviewed step after the soak.
 ---
 
 ## 8. Findings log
-_(fill in as blocks land)_
+
+### P0 — Config + RC skeleton (2026-07-25, 🔍 IN REVIEW)
+
+**Kickoff decisions (Nick-approved):**
+- **D1 ladder policy:** fixed ladder, YAML-tunable — single band `q_max → q_min` stepping down
+  by `quality.step` (no scene/card `frame_type`; dropped as too complex). Defaults 15/9/2 →
+  `[15, 13, 11, 9]`. Ladder always terminates exactly at `q_min` even on uneven steps.
+- **D2 fit basis:** config pacing (`bm_serial.image_transmit_delay_seconds` × msgs) — the send
+  loop is fixed-pace by design, so config pacing *is* the transmit schedule. No measured-rate model.
+- **D3 RC location:** separate entry script `BM_Devel_Pi/rc_progressive_jpeg.py`; known-good
+  `main_pi_camera.py` untouched (possible merge into one entry later, post-validation).
+- **D4 halt trigger:** on early finish AND after budget-exhausted best-effort send, gated by
+  `power_halt.enabled` with a `dry_run` mode for bench tests.
+- **D5 config home:** extended the existing `CameraSchedule`/`load_camera_schedule()` in
+  `spotter_time_sync.py` (all field config lives in one file/loader; no parallel rc_config).
+
+**Landed (all additive; 100 insertions, 0 deletions on shared files):**
+- `camera_schedule.yaml`: new `capture_mode: "heic"` (default = known-good path),
+  `progressive_jpeg:` block (`max_run_time_min: 18`, `message_cap: 195`,
+  `quality: {q_max: 15, q_min: 9, step: 2}`), `power_halt:` block
+  (`enabled: false, dry_run: true, mode: halt`). Pacing/chunking intentionally NOT duplicated —
+  single source of truth stays `bm_serial:` (300 chars/msg, 5 s/msg).
+- `spotter_time_sync.py`: 9 new `CameraSchedule` fields (Sprint07 §4 values as defaults), parser
+  sections for the two new blocks, validation. Strict RC validation is **gated on
+  `capture_mode: progressive_jpeg`** so a mistyped RC block can never fail-closed a HEIC-mode
+  field unit.
+- `rc_progressive_jpeg.py`: P0 skeleton — resolves + prints every RC setting (ladder, budget,
+  cap, pacing+source, halt, geometry), exit 0 / loud exit 2 on bad config. No camera, no serial
+  writes, no behavior.
+- `tests/test_rc_progressive_config.py`: 19 off-device tests (stdlib unittest; stubs `serial`
+  so it runs without pyserial/PyYAML) — parser round-trip on the committed YAML, legacy-key
+  regression guard, validation gating, ladder math, skeleton output. **19/19 pass** on Mac
+  (Python 3.13.5).
+
+**Not tested:** anything on the Pi (P0 is off-device by design; nothing deployed). PyYAML path of
+`load_bm_serial_config` untested off-device (Mac lacks PyYAML → pacing printed `source=default`
+with identical 300/5 values; on bmcam000 it should print `source=yaml`).

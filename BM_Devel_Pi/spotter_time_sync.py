@@ -108,6 +108,28 @@ class CameraSchedule:
     image_pipeline_spatial_resample: str = "lanczos"
     image_pipeline_heic_quality: int = 20
 
+    # Sprint08 progressive-JPEG RC (config-gated). capture_mode selects the
+    # runtime path: "heic" keeps the known-good production chain untouched;
+    # "progressive_jpeg" activates the separate RC entry script
+    # (rc_progressive_jpeg.py). Defaults are the Sprint07 Pi-validated values
+    # (sprint spec section 4) so a missing block resolves to the approved RC
+    # settings.
+    capture_mode: str = "heic"
+
+    # RC quality ladder: encode at q_max, then step down by q_step toward
+    # q_min until the estimated transmit fits the cycle budget.
+    progressive_jpeg_max_run_time_min: int = 18
+    progressive_jpeg_message_cap: int = 195
+    progressive_jpeg_q_max: int = 15
+    progressive_jpeg_q_min: int = 9
+    progressive_jpeg_q_step: int = 2
+
+    # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh).
+    # dry_run logs the halt intent without halting (bench-safe default).
+    power_halt_enabled: bool = False
+    power_halt_dry_run: bool = True
+    power_halt_mode: str = "halt"
+
 
 def _parse_bool(value: str) -> bool:
     return value.strip().lower() in {"true", "yes", "1", "on"}
@@ -255,12 +277,43 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                         cfg.image_pipeline_heic_quality = int(value)
                     continue
 
+            if section == "progressive_jpeg":
+                if indent <= 2:
+                    subsection = None
+                    if key == "max_run_time_min":
+                        cfg.progressive_jpeg_max_run_time_min = int(value)
+                    elif key == "message_cap":
+                        cfg.progressive_jpeg_message_cap = int(value)
+                    continue
+
+                if subsection == "quality":
+                    if key == "q_max":
+                        cfg.progressive_jpeg_q_max = int(value)
+                    elif key == "q_min":
+                        cfg.progressive_jpeg_q_min = int(value)
+                    elif key == "step":
+                        cfg.progressive_jpeg_q_step = int(value)
+                    continue
+
+                continue
+
+            if section == "power_halt":
+                if key == "enabled":
+                    cfg.power_halt_enabled = _parse_bool(value)
+                elif key == "dry_run":
+                    cfg.power_halt_dry_run = _parse_bool(value)
+                elif key == "mode":
+                    cfg.power_halt_mode = value
+                continue
+
             # bm_serial is parsed by bm_serial.load_bm_serial_config(). Ignore it here.
             if section == "bm_serial":
                 continue
 
             if key == "time_source":
                 cfg.time_source = value
+            elif key == "capture_mode":
+                cfg.capture_mode = value
             elif key == "timezone":
                 cfg.timezone = value
             elif key == "timezone_preset":
@@ -351,6 +404,26 @@ def validate_schedule(cfg: CameraSchedule) -> None:
             raise ValueError("image_pipeline.spatial output_width/output_height must be greater than 0")
         if not (0 <= int(cfg.image_pipeline_heic_quality) <= 100):
             raise ValueError("image_pipeline.heic.quality must be between 0 and 100")
+
+    cfg.capture_mode = (cfg.capture_mode or "").strip().lower()
+    if cfg.capture_mode not in {"heic", "progressive_jpeg"}:
+        raise ValueError("capture_mode must be heic or progressive_jpeg")
+
+    # Strict RC validation only when the RC path is selected, so a mistyped
+    # progressive_jpeg/power_halt block can never fail-closed a field unit
+    # running the known-good HEIC path.
+    if cfg.capture_mode == "progressive_jpeg":
+        # 1..95 matches the validated encoder range (tools/bm_pi_jpeg_encode.py).
+        if not (1 <= int(cfg.progressive_jpeg_q_min) <= int(cfg.progressive_jpeg_q_max) <= 95):
+            raise ValueError("progressive_jpeg.quality requires 1 <= q_min <= q_max <= 95")
+        if int(cfg.progressive_jpeg_q_step) < 1:
+            raise ValueError("progressive_jpeg.quality.step must be >= 1")
+        if int(cfg.progressive_jpeg_max_run_time_min) <= 0:
+            raise ValueError("progressive_jpeg.max_run_time_min must be > 0")
+        if int(cfg.progressive_jpeg_message_cap) <= 0:
+            raise ValueError("progressive_jpeg.message_cap must be > 0")
+        if (cfg.power_halt_mode or "").strip().lower() not in {"halt", "poweroff"}:
+            raise ValueError("power_halt.mode must be halt or poweroff")
 
     if cfg.time_source == "rtc":
         if not cfg.rtc_hwclock_path:

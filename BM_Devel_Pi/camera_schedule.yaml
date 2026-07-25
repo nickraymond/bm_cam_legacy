@@ -63,6 +63,33 @@ image_pipeline:
   heic:
     quality: 20
 
+# Sprint08 progressive-JPEG release candidate (RC). Config-gated:
+#   heic             -> known-good production path (main_pi_camera.py), unchanged
+#   progressive_jpeg -> RC entry script (rc_progressive_jpeg.py)
+capture_mode: "heic"
+
+# RC quality ladder + cycle budget (Sprint07 Pi-validated on bmcam000; see
+# sprints/Sprint08_progressive_jpeg_rc.md section 4).
+# Ladder = encode at q_max, step down by quality.step until q_min:
+# defaults give 15 -> 13 -> 11 -> 9. q17+ is dead (206 msgs > 195-msg cap).
+# Pacing/chunking intentionally live only in bm_serial below (single source
+# of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
+progressive_jpeg:
+  max_run_time_min: 18     # S07 P2: 16.38 min worst case at the 195-msg cap
+  message_cap: 195         # field-tested hard cap on messages per image
+  quality:
+    q_max: 15              # start quality (S07: worst coral 188 msgs = 96% of cap)
+    q_min: 9               # floor (S07: q9 worst case 126 msgs always fits)
+    step: 2
+
+# RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
+# dry_run true logs the halt intent without halting (bench-safe default).
+# Recovery from a real halt is a manual power cycle.
+power_halt:
+  enabled: false
+  dry_run: true
+  mode: "halt"             # halt | poweroff
+
 # Bristlemouth/Sofar image-transfer settings.
 # network_type:
 #   0x01 / 1 = legacy sat/cell fallback queue
