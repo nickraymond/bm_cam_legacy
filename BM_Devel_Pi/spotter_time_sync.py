@@ -124,6 +124,16 @@ class CameraSchedule:
     progressive_jpeg_q_min: int = 9
     progressive_jpeg_q_step: int = 2
 
+    # RC frozen geometry (S07 byte-validated), separate from the HEIC
+    # image_pipeline crop. NATIVE 4608x2592 sensor-equivalent coords; the
+    # default is the exact center crop. Fixed constants — no on-device tag
+    # detection. Output is lanczos at output_width; height follows aspect.
+    progressive_jpeg_crop_x: int = 1504
+    progressive_jpeg_crop_y: int = 846
+    progressive_jpeg_crop_w: int = 1600
+    progressive_jpeg_crop_h: int = 900
+    progressive_jpeg_output_width: int = 1000
+
     # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh).
     # dry_run logs the halt intent without halting (bench-safe default).
     power_halt_enabled: bool = False
@@ -284,6 +294,8 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                         cfg.progressive_jpeg_max_run_time_min = int(value)
                     elif key == "message_cap":
                         cfg.progressive_jpeg_message_cap = int(value)
+                    elif key == "output_width":
+                        cfg.progressive_jpeg_output_width = int(value)
                     continue
 
                 if subsection == "quality":
@@ -293,6 +305,17 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                         cfg.progressive_jpeg_q_min = int(value)
                     elif key == "step":
                         cfg.progressive_jpeg_q_step = int(value)
+                    continue
+
+                if subsection == "crop":
+                    if key == "x":
+                        cfg.progressive_jpeg_crop_x = int(value)
+                    elif key == "y":
+                        cfg.progressive_jpeg_crop_y = int(value)
+                    elif key == "w":
+                        cfg.progressive_jpeg_crop_w = int(value)
+                    elif key == "h":
+                        cfg.progressive_jpeg_crop_h = int(value)
                     continue
 
                 continue
@@ -422,6 +445,18 @@ def validate_schedule(cfg: CameraSchedule) -> None:
             raise ValueError("progressive_jpeg.max_run_time_min must be > 0")
         if int(cfg.progressive_jpeg_message_cap) <= 0:
             raise ValueError("progressive_jpeg.message_cap must be > 0")
+        if cfg.progressive_jpeg_crop_x < 0 or cfg.progressive_jpeg_crop_y < 0:
+            raise ValueError("progressive_jpeg.crop x/y must be >= 0")
+        if cfg.progressive_jpeg_crop_w <= 0 or cfg.progressive_jpeg_crop_h <= 0:
+            raise ValueError("progressive_jpeg.crop w/h must be greater than 0")
+        # RC capture uses the same native source as image_pipeline; the crop
+        # must fit inside it.
+        if cfg.progressive_jpeg_crop_x + cfg.progressive_jpeg_crop_w > cfg.image_pipeline_source_width:
+            raise ValueError("progressive_jpeg.crop exceeds source width")
+        if cfg.progressive_jpeg_crop_y + cfg.progressive_jpeg_crop_h > cfg.image_pipeline_source_height:
+            raise ValueError("progressive_jpeg.crop exceeds source height")
+        if not (1 <= int(cfg.progressive_jpeg_output_width) <= cfg.progressive_jpeg_crop_w):
+            raise ValueError("progressive_jpeg.output_width must be 1..crop.w (no upsampling)")
         if (cfg.power_halt_mode or "").strip().lower() not in {"halt", "poweroff"}:
             raise ValueError("power_halt.mode must be halt or poweroff")
 

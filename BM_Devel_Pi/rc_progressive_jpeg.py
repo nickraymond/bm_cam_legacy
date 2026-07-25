@@ -55,6 +55,7 @@ from process_image_v2 import (
     DEFAULT_BUFFER_SIZE,
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
 )
+from rc_jpeg_encoder import output_size_for_crop
 
 DEFAULT_CONFIG_PATH = "/home/pi/BM_Devel_Pi/camera_schedule.yaml"
 
@@ -140,16 +141,19 @@ def resolve_rc_settings(config_path):
         "power_halt_mode": cfg.power_halt_mode,
         "timezone": resolve_timezone(cfg),
         "transmit_window": f"{cfg.transmit_start}-{cfg.transmit_end}",
-        # Frozen geometry shared with the HEIC path (Sprint06/07-validated).
+        # RC frozen geometry (S07 byte-validated) — the RC's OWN crop keys,
+        # deliberately separate from the HEIC image_pipeline crop. Output
+        # height derives from the crop aspect via the M2 rounding rule.
         "crop_native_xywh": (
-            cfg.image_pipeline_crop_x,
-            cfg.image_pipeline_crop_y,
-            cfg.image_pipeline_crop_w,
-            cfg.image_pipeline_crop_h,
+            cfg.progressive_jpeg_crop_x,
+            cfg.progressive_jpeg_crop_y,
+            cfg.progressive_jpeg_crop_w,
+            cfg.progressive_jpeg_crop_h,
         ),
-        "output_size": (
-            cfg.image_pipeline_spatial_output_width,
-            cfg.image_pipeline_spatial_output_height,
+        "output_size": output_size_for_crop(
+            cfg.progressive_jpeg_crop_w,
+            cfg.progressive_jpeg_crop_h,
+            cfg.progressive_jpeg_output_width,
         ),
         "capture_backend": cfg.image_pipeline_capture_backend,
     }

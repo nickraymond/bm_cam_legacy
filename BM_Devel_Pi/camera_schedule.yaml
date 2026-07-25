@@ -81,6 +81,18 @@ progressive_jpeg:
     q_max: 15              # start quality (S07: worst coral 188 msgs = 96% of cap)
     q_min: 9               # floor (S07: q9 worst case 126 msgs always fits)
     step: 2
+  # RC frozen geometry (S07 byte-validated), separate from the HEIC
+  # image_pipeline crop so flipping capture_mode never edits shared geometry.
+  # Coordinates are NATIVE 4608x2592 sensor-equivalent. The default IS the
+  # exact center crop ((4608-1600)/2, (2592-900)/2); the crop is fixed config
+  # constants — no on-device tag detection. Card-centered bench alternative:
+  # x: 1467, y: 1255.
+  crop:
+    x: 1504
+    y: 846
+    w: 1600
+    h: 900
+  output_width: 1000       # lanczos output width; height follows crop aspect (562)
 
 # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
 # dry_run true logs the halt intent without halting (bench-safe default).

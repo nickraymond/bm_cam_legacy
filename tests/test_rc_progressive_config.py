@@ -79,6 +79,17 @@ class TestRepoYamlParses(unittest.TestCase):
         self.assertEqual(self.cfg.progressive_jpeg_q_max, 15)
         self.assertEqual(self.cfg.progressive_jpeg_q_min, 9)
         self.assertEqual(self.cfg.progressive_jpeg_q_step, 2)
+        # RC frozen geometry (S07 scene/center crop), separate from the HEIC crop.
+        self.assertEqual(
+            (
+                self.cfg.progressive_jpeg_crop_x,
+                self.cfg.progressive_jpeg_crop_y,
+                self.cfg.progressive_jpeg_crop_w,
+                self.cfg.progressive_jpeg_crop_h,
+            ),
+            (1504, 846, 1600, 900),
+        )
+        self.assertEqual(self.cfg.progressive_jpeg_output_width, 1000)
         self.assertFalse(self.cfg.power_halt_enabled)
         self.assertTrue(self.cfg.power_halt_dry_run)
         self.assertEqual(self.cfg.power_halt_mode, "halt")
@@ -217,6 +228,41 @@ class TestValidationGating(unittest.TestCase):
         finally:
             os.unlink(path)
 
+    def test_rc_crop_override_parses_and_bad_crop_rejected(self):
+        # Card-centered bench crop parses; out-of-native crop rejected in RC mode.
+        good = _write_yaml(
+            "capture_mode: \"progressive_jpeg\"\n"
+            "progressive_jpeg:\n"
+            "  crop:\n"
+            "    x: 1467\n"
+            "    y: 1255\n"
+            "    w: 1600\n"
+            "    h: 900\n"
+            "  output_width: 1000\n"
+        )
+        bad = _write_yaml(
+            "capture_mode: \"progressive_jpeg\"\n"
+            "progressive_jpeg:\n"
+            "  crop:\n"
+            "    x: 4000\n"
+            "    y: 846\n"
+            "    w: 1600\n"
+            "    h: 900\n"
+        )
+        try:
+            cfg = load_camera_schedule(good)
+            validate_schedule(cfg)
+            self.assertEqual(
+                (cfg.progressive_jpeg_crop_x, cfg.progressive_jpeg_crop_y),
+                (1467, 1255),
+            )
+            cfg_bad = load_camera_schedule(bad)
+            with self.assertRaises(ValueError):
+                validate_schedule(cfg_bad)
+        finally:
+            os.unlink(good)
+            os.unlink(bad)
+
     def test_bad_halt_mode_rejected_in_rc_mode(self):
         path = _write_yaml(
             "capture_mode: \"progressive_jpeg\"\n"
@@ -264,7 +310,8 @@ class TestSkeletonDryRun(unittest.TestCase):
         self.assertIn("max_run_time_min=18", text)
         self.assertIn("message cap: 195", text)
         self.assertIn("power_halt: enabled=False dry_run=True mode=halt", text)
-        self.assertIn("crop_xywh=(768, 432, 3072, 1728)", text)
+        self.assertIn("crop_xywh=(1504, 846, 1600, 900)", text)
+        self.assertIn("output=1000x562", text)
         self.assertIn("no capture/encode/transmit performed", text)
 
     def test_skeleton_rc_mode_banner(self):

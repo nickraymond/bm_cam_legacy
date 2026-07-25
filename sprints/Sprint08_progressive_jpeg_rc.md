@@ -100,7 +100,7 @@ the field cadence.
 |---|-------|--------|-------------------------------|--------|-----------|
 | P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | 🔍 IN REVIEW | — |
 | P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | 🔍 IN REVIEW | P0 |
-| P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | ☐ TODO | P0 |
+| P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | 🔍 IN REVIEW | P0 |
 | P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | ☐ TODO | P1, P2 |
 | P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | ☐ TODO | P0 |
 | P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | ☐ TODO | P3, P4 |
@@ -239,3 +239,35 @@ system-clock set cannot corrupt the budget); `clock` injectable for fake-clock t
 
 **Not tested:** nothing on the Pi (pure logic — nothing to run there); integration with M3/M5/M7
 is by design deferred to their rows.
+
+### P2 — M2 progressive-JPEG encoder (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):** RC gets its OWN geometry keys under `progressive_jpeg:`
+(`crop: {x,y,w,h}` + `output_width`), S07 scene defaults `1504,846,1600,900 → 1000` — flipping
+`capture_mode` never edits shared geometry. **Confirmed: no AprilTag detection on the Pi** — the
+crop is fixed config constants (the scene default is the exact center crop; card-centered
+`1467,1255` is just an alternative fixed preset for bench work).
+
+**Landed:**
+- `BM_Devel_Pi/rc_jpeg_encoder.py` — M2: `prepare_source()` (native → RGB → fixed crop →
+  lanczos; runs once per cycle, reused by every ladder attempt) + `encode_progressive()`
+  (the exact validated Pillow call `quality=q, progressive=True, optimize=True` into memory;
+  returns bytes, `base64_len`, `message_count = ceil(b64/chunk)`, sha256). Pure — caller
+  persists accepted bytes.
+- `camera_schedule.yaml` + `spotter_time_sync.py`: the new geometry keys (parse + RC-gated
+  validation: crop within native source, `output_width ≤ crop.w`).
+- `rc_progressive_jpeg.py`: skeleton now resolves/prints the RC's own geometry
+  (`(1504, 846, 1600, 900) → 1000x562`) — fixes the P0 wart where it showed the HEIC crop.
+- `tests/fixtures/sprint07_p1_expected.json` — committed expected-values fixture extracted from
+  the local `p1_grid_20260724T165653Z` CSVs (card + coral_primary × progressive × q{7..17}),
+  provenance recorded in-file.
+- `tests/test_rc_jpeg_encoder.py` — **12/12 pass** on Mac. Headline: **all 8 ladder cells
+  (2 sources × q{9,11,13,15}) byte-exact vs the Sprint07 Pi run** — sha256, jpeg_bytes,
+  base64_len, message_count all match (valid cross-version: S07 P0 proved Mac Pillow 12.3.0 ==
+  Pi 11.3.0 bytes). §4 headline counts reproduced (card q13=75, q15=81 msgs). Also pinned:
+  in-memory == file-save bytes, determinism, ceil formula, loud geometry validation.
+  Config suite grew to **20/20** (geometry keys + bad-crop rejection); M1 suite still 15/15.
+
+**Not tested:** the 7 coral alts (native sources not committed — their numbers stay covered by
+the S07 run itself, incl. worst-case alt_07 q13=169); encode on the Pi (S07 already proved Pi
+byte-parity; RC on-device runs start at P7); prepare-time on Pi (S07: ~2.4 s).
