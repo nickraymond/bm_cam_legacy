@@ -57,7 +57,7 @@ peak memory, and end-to-end cycle time.
 | P1 | **Pi heatmap re-run** | Sweep on the Pi: both modes × q{7,9,11,13,15,17} × all 9 sources, 100% received, **with per-encode wall time + peak RSS logged**; run `bm_jpeg_p3_budget_verdict.py` on the Pi CSVs → Pi-native heatmaps + ranked table | ✅ DONE | P0 | **108/108 cells sha256-identical to Mac; ranked table identical; shortlist confirmed (q13→169, q9→126, q15→188, q17 dead at 206). Encode ≤0.08 s, RSS ~122 MB.** Runs `p1_grid_20260724T165653Z` (Pi) + `p1_pi_analysis_20260725T063719Z` (Mac, heatmaps + `p1_report.md`); new tool `tools/bm_mac_analyze_pi_run.py` |
 | P2 | **18-min cycle check** | Time the full cycle on-device: capture (or timed load of a native) → crop/downsample → encode → transmit-time model; verify worst-case cell ≤ 18 min total; measure encode memory headroom (Pi Zero 2W, watch CMA/RSS) | ✅ DONE | P1 | **PASS all cells; even at the 195-msg cap total = 16.4 min (1.6 min margin). Pipeline ~7.8 s (capture 5.3 + prep 2.4 + encode ≤0.06). ⚠ CmaFree bottoms at 1.9 MB during native capture — cma=128M is a hard floor.** Run `p2_cycle_20260724T170930Z` (`p2_report.md`, `p2_cycle_table.csv`); new script `tools/bm_pi_cycle_time_p2.sh` |
 | P3 | **Pare the upper limit + final verdict** | From Pi bytes + cycle times, set the shipping upper quality limit (is q15 stretch still inside cap on Pi? does q17 stay dead?); confirm nominal/floor; final `(mode, q_nominal, q_floor, q_max)` | ✅ DONE | P2 | **Final: (progressive, q_nominal=13, q_floor=9 [card frames floor at q13], q_max=15 gated by a pre-transmit size check; q17 dead at 206 msgs).** See §7 Final verdict + deployment handoff |
-| P4 | **Truncated-progressive render check** | Confirm backend/frontend render a tail-cut progressive JPEG (B6 emulation with real truncated files from P1) — the deployment premise | ☐ TODO | P1 | render evidence (screenshots) + backend notes |
+| P4 | **Truncated-progressive render check** | Confirm backend/frontend render a tail-cut progressive JPEG (B6 emulation with real truncated files from P1) — the deployment premise | ✅ DONE | P1 | **HOLDS: 29/30 progressive tail-cuts render via the real backend derivative code (full frame from 25% received); ~0.5–4% of cut points decode black and are correctly rejected to placeholder.** Run `p4_render_20260725T070626Z` (`p4_report.md`, evidence cut sheets); new tool `tools/bm_p4_partial_render_check.py` |
 
 **Legend:** ☐ TODO · 🔄 IN PROGRESS · 🔍 IN REVIEW · ✅ DONE · ⛔ DEFERRED.
 Session rule as in Sprint06: first non-✅/⛔ row whose dependency is ✅.
@@ -204,5 +204,29 @@ passes. Never exceed q15.
 - Encoder parity is exact (P0/P1: sha256-identical Pi vs Mac across the whole grid), so the
   Sprint06 Mac DOE remains the authoritative quality/budget reference for these settings.
 - Cycle budget: even at the 195-msg cap the full cycle is 16.38 min (1.6 min margin vs 18).
-- **Precondition before the runtime PR ships: P4** (backend/frontend render a tail-cut
-  progressive JPEG — the deployment premise).
+- **P4 precondition: satisfied** (run `p4_render_20260725T070626Z`) — the backend's partial
+  derivative path renders tail-cut progressive JPEGs unmodified (full-frame preview from 25%
+  received). Known residual: ~0.5–4% of cut positions land in refinement-scan headers and
+  decode black; the backend's ≥5%-recovered guard rejects those to the placeholder tile
+  (missing preview, never a wrong one). Optional future hardening (backend, separate work):
+  retry the derivative with a shorter prefix to recover the last completed scan.
+
+### P4 — Truncated-progressive render check (2026-07-25, run `p4_render_20260725T070626Z`) — PREMISE HOLDS
+
+- Ran the REAL backend code (`nereus-vision-dev/backend/app/services/image_derivatives.py::
+  convert_partial_image_bytes_to_jpeg`, the function partial ingest calls at
+  `poll_once_ingest.py:879`), unmodified, in the backend's venv, on Pi-encoded P1 JPEGs
+  tail-cut with the chunk model. Backend repo untouched; nothing pushed anywhere.
+- **Progressive 29/30 cells renderable:** full blurry frame from 25% received (recovered
+  ~100% rows); 10% gives the DC scan (~half frame). Card locatable at 25%, readable at 50%.
+  Baseline contrast: renders only the top slice (25% → top ~31%), confirming why progressive
+  ships. Derivatives 9–71 KB, `display/*.partial.jpg`, `render_state="renderable"`.
+- **New finding — pathological cut points:** cuts landing inside clusters of tiny
+  successive-approximation refinement scans make libjpeg discard the whole progressive state →
+  black frame (found at coral_primary q13 @ 50%: cut byte 8325 vs SOS at 8126/8202/8330).
+  Exhaustive per-message-cut sweep over 5 files: 0.5–4.0% of cut positions affected. The
+  backend's `MIN_RECOVERED_FRACTION=0.05` guard rejects every one → placeholder + %-badge
+  (correct: missing preview, never a wrong one). Not in Sprint06's P2 (coral_primary wasn't
+  in that partial sweep). No backend change needed to deploy; optional hardening noted in §7.
+- Artifacts: `~/Downloads/bm_jpeg_partial_sweep/p4_render_20260725T070626Z/` (`p4_report.md`,
+  2 evidence cut sheets, `p4_render_check.csv` 42 rows, 41 derivatives, manifest, log).
