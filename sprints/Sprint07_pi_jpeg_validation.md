@@ -55,7 +55,7 @@ peak memory, and end-to-end cycle time.
 |---|-------|------|--------|-----------|--------|
 | P0 | **Deploy + parity smoke** | Get branch + reference images + venv deps onto the Pi (Tailscale SSH; see `pi-deploy`); encode 1 image × q13 × both modes on-device; compare bytes/base64_len vs the Mac run (`p3_verdict_20260722T055437Z`) | ✅ DONE | — | **PASS — byte-identical (0.0% delta, sha256 match, card + coral_primary × both modes).** Run `p0_parity_20260724T164924Z` + `parity_report.md` in `~/Downloads/bm_jpeg_partial_sweep/`; new tool `tools/bm_pi_jpeg_encode.py` |
 | P1 | **Pi heatmap re-run** | Sweep on the Pi: both modes × q{7,9,11,13,15,17} × all 9 sources, 100% received, **with per-encode wall time + peak RSS logged**; run `bm_jpeg_p3_budget_verdict.py` on the Pi CSVs → Pi-native heatmaps + ranked table | ✅ DONE | P0 | **108/108 cells sha256-identical to Mac; ranked table identical; shortlist confirmed (q13→169, q9→126, q15→188, q17 dead at 206). Encode ≤0.08 s, RSS ~122 MB.** Runs `p1_grid_20260724T165653Z` (Pi) + `p1_pi_analysis_20260725T063719Z` (Mac, heatmaps + `p1_report.md`); new tool `tools/bm_mac_analyze_pi_run.py` |
-| P2 | **18-min cycle check** | Time the full cycle on-device: capture (or timed load of a native) → crop/downsample → encode → transmit-time model; verify worst-case cell ≤ 18 min total; measure encode memory headroom (Pi Zero 2W, watch CMA/RSS) | ☐ TODO | P1 | cycle-time table per shortlist cell; PASS/FAIL vs 18 min |
+| P2 | **18-min cycle check** | Time the full cycle on-device: capture (or timed load of a native) → crop/downsample → encode → transmit-time model; verify worst-case cell ≤ 18 min total; measure encode memory headroom (Pi Zero 2W, watch CMA/RSS) | ✅ DONE | P1 | **PASS all cells; even at the 195-msg cap total = 16.4 min (1.6 min margin). Pipeline ~7.8 s (capture 5.3 + prep 2.4 + encode ≤0.06). ⚠ CmaFree bottoms at 1.9 MB during native capture — cma=128M is a hard floor.** Run `p2_cycle_20260724T170930Z` (`p2_report.md`, `p2_cycle_table.csv`); new script `tools/bm_pi_cycle_time_p2.sh` |
 | P3 | **Pare the upper limit + final verdict** | From Pi bytes + cycle times, set the shipping upper quality limit (is q15 stretch still inside cap on Pi? does q17 stay dead?); confirm nominal/floor; final `(mode, q_nominal, q_floor, q_max)` | ☐ TODO | P2 | final settings table → deployment handoff |
 | P4 | **Truncated-progressive render check** | Confirm backend/frontend render a tail-cut progressive JPEG (B6 emulation with real truncated files from P1) — the deployment premise | ☐ TODO | P1 | render evidence (screenshots) + backend notes |
 
@@ -137,3 +137,23 @@ backend renders truncated progressive JPEGs. Output feeds the actual deployment 
   `~/Downloads/bm_jpeg_partial_sweep/p1_pi_analysis_20260725T063719Z/` (`p1_report.md`,
   `verdict/heatmaps/`, `recommendation_ranked.csv`, `parity_grid.csv`, per-source CSVs with
   `pi_encode_wall_s_*`/`pi_peak_rss_kb_after`, 108 decoded PNGs, 18 cut sheets).
+
+### P2 — 18-min cycle check (2026-07-24, run `p2_cycle_20260724T170930Z`) — PASS
+
+- **No Spotter/ebox needed:** transmit is the Sprint06 model (msgs × 5 s); only capture +
+  processing + encode were measured for real, with a live camera capture on bmcam000.
+- **All shortlist cells PASS with room:** totals (worst pipeline + worst-coral transmit from
+  the Pi-validated P1 grid) — baseline q9 10.46 min · prog q9 10.63 · prog q13 14.21 (3.8 min
+  margin) · prog q15 15.80 (2.2 min) · **any cell at the 195-msg cap 16.38 min (1.6 min
+  margin)**. The spec's ≤ ~1.75 min pipeline budget is met ~13× over: capture 4.8–5.3 s
+  (production `libcamera-still` command incl. 2 s AE settle; `rpicam-still` not installed on
+  this Bullseye image — production falls back identically), prep 2.42 s, encode ≤ 0.063 s.
+- **⚠ CMA is the binding constraint:** CmaFree bottomed at **1,872 kB** during native
+  4608×2592 capture (idle ~109 MB, full recovery after). `cma=128M` is a hard floor with
+  ~1.9 MB headroom — never lower it, never run concurrent CMA users during capture.
+  MemAvailable never dropped below 180 MB; encode peak RSS ~123 MB, CMA untouched by encode.
+- Field ops: preflight enforced (no camera procs, capture lock free), crontab backed up,
+  nothing disabled/changed, no reboot. Artifacts:
+  `~/Downloads/bm_jpeg_partial_sweep/p2_cycle_20260724T170930Z/` (`p2_report.md`,
+  `p2_cycle_table.csv`, `capture_times.csv`, `cma_samples.csv`, meminfo before/after, native
+  captures + metadata, encode subrun); Pi copy in `~/bm_sprint07_runs/`.
