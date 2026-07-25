@@ -101,7 +101,7 @@ the field cadence.
 | P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | 🔍 IN REVIEW | — |
 | P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | 🔍 IN REVIEW | P0 |
 | P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | 🔍 IN REVIEW | P0 |
-| P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | ☐ TODO | P1, P2 |
+| P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | 🔍 IN REVIEW | P1, P2 |
 | P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | ☐ TODO | P0 |
 | P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | ☐ TODO | P3, P4 |
 | P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ☐ TODO | P0 |
@@ -271,3 +271,32 @@ crop is fixed config constants (the scene default is the exact center crop; card
 **Not tested:** the 7 coral alts (native sources not committed — their numbers stay covered by
 the S07 run itself, incl. worst-case alt_07 q13=169); encode on the Pi (S07 already proved Pi
 byte-parity; RC on-device runs start at P7); prepare-time on Pi (S07: ~2.4 s).
+
+### P3 — M3 adaptive quality selector (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):** (C1) before every encode M3 consults M1 via
+`has_time_for(ENCODE_ATTEMPT_ALLOWANCE_S = 1.0 s)` — an **assumption**, ~15× the S07-measured
+≤0.063 s worst attempt (pinned by a test); (C2) when even the floor fails, M3 returns the
+**floor's encoded bytes** with `fits=False` — exactly what M5's bounded partial send needs.
+
+**Landed:**
+- `BM_Devel_Pi/rc_quality_selector.py` — `select_quality(source, budget, q_max, q_min, q_step,
+  message_cap, chunk_b64_chars)`. A rung fits iff `message_count ≤ message_cap` AND
+  `budget.messages_fit(message_count + 2)` (START/END overhead charged here, per M1's pure
+  design). First fitting rung wins. Returns `quality / attempts / fits / reason
+  (fit | no_fit_cap | no_fit_budget | no_time_for_encode) / encode / attempt_log` — the log
+  (quality, bytes, msgs, over_cap, budget_fit per attempt) feeds M4's `enc_attempts`.
+  `compute_quality_ladder` moved here from the entry script (pure module, no serial import);
+  entry re-exports it.
+- `tests/test_rc_quality_selector.py` — **19/19 pass** off-device. Self-calibrating forced
+  step-downs on seeded-noise 1000×562 synthetics (tests measure real per-rung counts first,
+  then pick cap/budget to force behavior — no magic byte counts): fit-at-top (flat image, 1
+  attempt); cap-forced single step (q15→q13, budget fine); budget-forced double step (q15→q11);
+  elapsed-time charge (same budget fits q13 fresh but only q11 after the clock eats the slack);
+  no-fit-at-floor for BOTH reasons (cap and budget) returning floor bytes sha-verified against
+  a direct M2 encode with all 4 attempts logged; the +2 START/END boundary (chunks-only budget
+  fails, chunks+2 passes); encode-guard refusal at <1 s remaining (attempts=0, encode=None).
+  All other suites still green (config 20, budget 15, encoder 12).
+
+**Not tested:** nothing on the Pi (pure logic); real capture-fed selection is P7; the
+1.0 s allowance is an assumption until the P7 on-device cycle confirms attempt costs match S07.

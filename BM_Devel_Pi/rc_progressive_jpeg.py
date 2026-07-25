@@ -56,25 +56,11 @@ from process_image_v2 import (
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
 )
 from rc_jpeg_encoder import output_size_for_crop
+# Ladder computation lives in the pure M3 module (P3); re-exported here so
+# entry-script callers keep one import point.
+from rc_quality_selector import compute_quality_ladder  # noqa: F401
 
 DEFAULT_CONFIG_PATH = "/home/pi/BM_Devel_Pi/camera_schedule.yaml"
-
-
-def compute_quality_ladder(q_max, q_min, step):
-    """Return the descending encode ladder from q_max to q_min inclusive.
-
-    Steps down by `step` and always terminates exactly at q_min, even when
-    (q_max - q_min) is not a multiple of step, so the configured floor is
-    always the last attempt. Defaults 15/9/2 -> [15, 13, 11, 9].
-    """
-    q_max, q_min, step = int(q_max), int(q_min), int(step)
-    if q_min > q_max:
-        raise ValueError(f"quality ladder requires q_min <= q_max, got q_min={q_min} q_max={q_max}")
-    if step < 1:
-        raise ValueError(f"quality ladder requires step >= 1, got step={step}")
-    ladder = list(range(q_max, q_min, -step))
-    ladder.append(q_min)
-    return ladder
 
 
 def resolve_pacing(config_path):
