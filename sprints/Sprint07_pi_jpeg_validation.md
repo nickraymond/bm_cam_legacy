@@ -181,22 +181,24 @@ Sprint06 Mac DOE.
 | Setting | Value | Evidence |
 |---|---|---|
 | **mode** | **progressive** | ≤ ~4% coral / ~5–8% card byte overhead vs baseline; under B6 tail-loss delivers full-frame partials (+7–10 dB, card 4-tag lock from 50% received — Sprint06 P2) |
-| **q_nominal** | **13** | worst coral (alt_07) 169 msgs = 87% of the 195 cap; cycle 14.21 min (3.8 min margin); mean coral PSNR 27.99 dB |
+| **q_nominal** | **13** (scene frames); **card-bearing frames at q15** | worst coral (alt_07) 169 msgs = 87% of the 195 cap; cycle 14.21 min (3.8 min margin); mean coral PSNR 27.99 dB. Card bump: budget bands are coral-anchored and the card never binds — Pi-validated 81 msgs at q15 (6.75 min transmit, ~6.9 min cycle); tags PASS from q7, so the extra quality buys color/detail fidelity for the reference card, not tag lock |
 | **q_floor** | **9** (adaptive floor; **card-bearing frames floor at q13**) | worst coral 126 msgs; q9 partial card lock needs 90% received → card frames must not drop below q13 |
 | **q_max** | **15**, gated by a pre-transmit size check | worst coral 188 msgs = **96% of cap (7 msgs spare on the busiest reference scene)**; cycle 15.80 min. A field scene busier than alt_07 can exceed the cap → q15 only when the encoded size check passes, else step down to q13/q11/q9 |
 | q17+ | **dead** | 206 msgs = 106% of cap on Pi bytes; confirmed, do not ship |
 
-**Adaptive rule (deployment behavior):** encode at q_nominal=13; if `ceil(base64/300) > 195`,
-step down q13→q11→q9 until within cap (q9 worst case 126 always fits the reference fleet);
-q15 permitted only when explicitly requested (stretch/still mode) **and** the size check
-passes. Never exceed q15.
+**Adaptive rule (deployment behavior):** scene frames encode at q_nominal=13; **card-bearing
+frames encode at q15** (2026-07-25 per Nick — card is small and coral-anchored bands never
+bind on it). If `ceil(base64/300) > 195`, step down q15→q13→q11→q9 until within cap (q9 worst
+case 126 always fits the reference fleet; card floor stays q13). Scene frames at q15 only when
+explicitly requested (stretch/still mode) **and** the size check passes. Never exceed q15.
 
 ### Deployment handoff (separate, reviewed PR — do NOT fold into this sprint)
 
 - Runtime targets: `image_pipeline` in `camera_schedule.yaml` + `process_image_v2.py`
   (currently 3072×1728 crop → 2688×1512 → HEIC Q20). New path: crop **1600×900** native
   (scene-centered `1504,846`; card-centered `1467,1255` for card frames) → **1000×562**
-  lanczos → Pillow JPEG `quality=q, progressive=True, optimize=True`. Chunking unchanged
+  lanczos → Pillow JPEG `quality=q, progressive=True, optimize=True` (q15 for card frames,
+  q13 for scene frames, per the adaptive rule above). Chunking unchanged
   (300 b64 chars/msg, `image_buffer_size` 300).
 - Capture side unchanged: `libcamera-still`/`rpicam-still` native 4608×2592 q95 (P2: 4.8–5.3 s,
   works with `cma=128M` — **CmaFree bottoms at 1.9 MB during capture; never lower CMA, never
