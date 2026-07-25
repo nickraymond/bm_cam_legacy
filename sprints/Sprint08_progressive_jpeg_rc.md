@@ -102,7 +102,7 @@ the field cadence.
 | P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | 🔍 IN REVIEW | P0 |
 | P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | 🔍 IN REVIEW | P0 |
 | P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | 🔍 IN REVIEW | P1, P2 |
-| P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | ☐ TODO | P0 |
+| P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | 🔍 IN REVIEW | P0 |
 | P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | ☐ TODO | P3, P4 |
 | P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ☐ TODO | P0 |
 | P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ☐ TODO | P3, P4, P5, P6 |
@@ -300,3 +300,38 @@ byte-parity; RC on-device runs start at P7); prepare-time on Pi (S07: ~2.4 s).
 
 **Not tested:** nothing on the Pi (pure logic); real capture-fed selection is P7; the
 1.0 s allowance is an assumption until the P7 on-device cycle confirms attempt costs match S07.
+
+### P4 — M4 uplink message fields (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):** compact keys in the existing envelope style; incomplete-cycle
+message = WS compact shape with new action `a=inc`; builders live in a new pure RC module —
+`process_image_v2.py`'s HEIC builders untouched (formatting helpers imported, not copied).
+
+**Wire-field contract (BACKEND HANDOFF — parse these in `nereus-vision-dev/backend` + cycle-log
+tool, separate reviewed PR):**
+
+| Field | Key | Values | Rides in |
+|---|---|---|---|
+| image format | `fmt` | `pjpg` | START (`fmt=pjpg`), END (`fmt: pjpg`), incomplete |
+| quality used | `q` | int — reuses the existing q key (HEIC cycles carried HEIC quality) | START/END/incomplete |
+| encode attempts | `att` | int (M3 ladder walk length) | START/END/incomplete |
+| complete flag | `cmp` | `1` / `0` | START/END |
+| incomplete reason | `rsn` | `budget` \| `cap` \| `enc` \| `err` | START/END when `cmp=0`; always in incomplete |
+| planned / sendable chunks | `pln` / `snd` | ints (`snd=0` valid) | incomplete only |
+| incomplete-cycle message | `<WS v=1 a=inc fmt=pjpg q=9 att=4 rsn=budget pln=128 snd=37 ct=… sha=… hn=…>` — emitted BEFORE the bounded partial send | | M5 |
+
+**Landed:**
+- `BM_Devel_Pi/rc_uplink_messages.py` — `build_rc_start_message` (same base shape + budget
+  discipline as the HEIC START; RC fields never dropped; HEIC-style `q` filtered from
+  ride-along metadata so one q key per message), `build_rc_end_message` (wraps the existing END
+  builder — RC fields are core fields, camera metadata stays budget-dropped),
+  `build_rc_incomplete_message` (pure; telemetry extras caller-supplied), `reason_code()`
+  mapping M3 reasons → wire codes with `err` fallback (never raises).
+- `tests/test_rc_uplink_messages.py` — **17/17 pass**: exact-string asserts (complete +
+  incomplete variants), `rsn` only when `cmp=0`, no q duplication, 285/295-byte budgets held
+  under hostile inputs with RC fields surviving drops, ASCII sanitization, `snd=0` valid, and
+  probe-style key/value extraction recovering every new field from every message type (the
+  in-repo stand-in for the backend parser). All five suites green (20+15+12+19+17 = 83).
+
+**Not tested:** the actual backend parser / cycle-log tool (separate repo + PR — the table above
+is the contract); on-Pi emission (P7).
