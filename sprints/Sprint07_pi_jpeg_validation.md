@@ -53,7 +53,7 @@ peak memory, and end-to-end cycle time.
 
 | # | Phase | Goal | Status | Depends on | Output |
 |---|-------|------|--------|-----------|--------|
-| P0 | **Deploy + parity smoke** | Get branch + reference images + venv deps onto the Pi (Tailscale SSH; see `pi-deploy`); encode 1 image × q13 × both modes on-device; compare bytes/base64_len vs the Mac run (`p3_verdict_20260722T055437Z`) | ☐ TODO | — | parity delta table (expect near-identical if libjpeg-turbo versions match; investigate if >±2%) |
+| P0 | **Deploy + parity smoke** | Get branch + reference images + venv deps onto the Pi (Tailscale SSH; see `pi-deploy`); encode 1 image × q13 × both modes on-device; compare bytes/base64_len vs the Mac run (`p3_verdict_20260722T055437Z`) | ✅ DONE | — | **PASS — byte-identical (0.0% delta, sha256 match, card + coral_primary × both modes).** Run `p0_parity_20260724T164924Z` + `parity_report.md` in `~/Downloads/bm_jpeg_partial_sweep/`; new tool `tools/bm_pi_jpeg_encode.py` |
 | P1 | **Pi heatmap re-run** | Sweep on the Pi: both modes × q{7,9,11,13,15,17} × all 9 sources, 100% received, **with per-encode wall time + peak RSS logged**; run `bm_jpeg_p3_budget_verdict.py` on the Pi CSVs → Pi-native heatmaps + ranked table | ☐ TODO | P0 | Pi heatmap + `recommendation_ranked.csv` (Pi bytes, not Mac) |
 | P2 | **18-min cycle check** | Time the full cycle on-device: capture (or timed load of a native) → crop/downsample → encode → transmit-time model; verify worst-case cell ≤ 18 min total; measure encode memory headroom (Pi Zero 2W, watch CMA/RSS) | ☐ TODO | P1 | cycle-time table per shortlist cell; PASS/FAIL vs 18 min |
 | P3 | **Pare the upper limit + final verdict** | From Pi bytes + cycle times, set the shipping upper quality limit (is q15 stretch still inside cap on Pi? does q17 stay dead?); confirm nominal/floor; final `(mode, q_nominal, q_floor, q_max)` | ☐ TODO | P2 | final settings table → deployment handoff |
@@ -93,4 +93,27 @@ backend renders truncated progressive JPEGs. Output feeds the actual deployment 
 
 ## 6. Findings log
 
-_(fill in as phases run)_
+### P0 — Deploy + parity smoke (2026-07-24, run `p0_parity_20260724T164924Z`) — PASS
+
+- **bmcam000 confirmed as the real target:** Raspberry Pi Zero 2 W Rev 1.0, Debian 11
+  Bullseye aarch64 (64-bit), MemAvailable ~230 MB, CmaTotal 131072 kB / CmaFree ~109 MB.
+- **Design decision (Nick):** the Pi does image altering only (crop → downsample → encode);
+  ALL quality analysis (metrics + AprilTag) stays on the Mac with the unchanged Sprint06
+  tooling. New encode-only tool `tools/bm_pi_jpeg_encode.py` (Pillow + stdlib, no cv2) —
+  relevant because the Pi's system OpenCV is 4.5.1, which predates the
+  `cv2.aruco.ArucoDetector` API the frozen analyzer uses.
+- **Perfect encoder parity:** all 4 cells (card + coral_primary × baseline/progressive, q13,
+  frozen geometry → 1000×562) are **byte-identical** to the Mac P3 run — same jpeg_bytes /
+  base64_len / message_count, sha256 match on the JPEG files; working sources pixel-identical
+  (Pi Pillow 11.3.0 / libjpeg-turbo 3.1.1 vs Mac Pillow 12.3.0 / turbo 3.1.4.1). Every
+  Sprint06 Mac byte number transfers to the Pi unchanged → P1's Pi heatmap should replicate
+  the Mac heatmap exactly on bytes; its real payload is wall time + RSS.
+- **First timing datapoints (for P2):** Pi encode ~0.03 s baseline / ~0.06 s progressive;
+  native load + crop + lanczos ~2.2–2.8 s; peak RSS ~123 MB. Trivial vs the 18-min budget.
+- **Field ops:** no packages installed, camera + crontab untouched (verified only
+  `@reboot run_capture_cycle.sh` present; no camera processes). Pi repo
+  `~/repos/bm_cam_legacy` now on branch `claude/sprint-07-pi-jpeg-28a4c9`
+  (restore: `git checkout main`).
+- Artifacts: `~/Downloads/bm_jpeg_partial_sweep/p0_parity_20260724T164924Z/`
+  (`parity_report.md`, `parity_delta.csv`, per-source manifests/CSVs/JPEGs); Pi-side copy in
+  `~/bm_sprint07_runs/`.
