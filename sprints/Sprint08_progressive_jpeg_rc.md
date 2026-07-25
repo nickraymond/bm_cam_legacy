@@ -99,7 +99,7 @@ the field cadence.
 | # | Block | Builds | How it's tested independently | Status | Depends on |
 |---|-------|--------|-------------------------------|--------|-----------|
 | P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | 🔍 IN REVIEW | — |
-| P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | ☐ TODO | P0 |
+| P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | 🔍 IN REVIEW | P0 |
 | P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | ☐ TODO | P0 |
 | P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | ☐ TODO | P1, P2 |
 | P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | ☐ TODO | P0 |
@@ -215,3 +215,27 @@ reviewed step after the soak.
 **Not tested:** anything on the Pi (P0 is off-device by design; nothing deployed). PyYAML path of
 `load_bm_serial_config` untested off-device (Mac lacks PyYAML → pacing printed `source=default`
 with identical 300/5 values; on bmcam000 it should print `source=yaml`).
+
+### P1 — M1 time-budget accountant (2026-07-25, 🔍 IN REVIEW)
+
+**Design (Nick-approved): PURE accounting.** `CycleBudget` charges exactly what it is asked and
+reserves nothing hidden — START/END overhead (+2 msgs) and any margin are the callers' job
+(M3/M5), enforced by their tests. Monotonic clock by default (a mid-cycle Spotter/RTC
+system-clock set cannot corrupt the budget); `clock` injectable for fake-clock tests.
+
+**Landed:**
+- `BM_Devel_Pi/rc_time_budget.py` — `CycleBudget(budget_seconds, seconds_per_message, clock)`;
+  one deadline fixed at construction (= cycle start). Queries only: `elapsed_s / remaining_s`
+  (clamped ≥ 0), `exhausted()`, `has_time_for(s)` (encode attempts), `messages_fit(n)`,
+  `max_messages_now()` (M5 bounded partial send). Boundary pinned: an exact fit counts as
+  fitting (each paced message's 5 s includes its trailing sleep). Stdlib only, no side effects.
+- `tests/test_rc_time_budget.py` — **15/15 pass** off-device (fake clock, zero sleeps):
+  fresh-budget facts (1080 s = 216 paced msgs, matching the P0 derived line); S07 reference
+  counts (126/188 chunks + 2, cap 195 + 2 = 985 s) fit a fresh budget; one budget charged from
+  cycle start (capture 5.3 s + prep 2.4 s + 3 × 0.07 s attempts); fit flips false when one
+  message short; exact-fit boundary; encode-attempt window (0.03 fits / 0.07 doesn't at 0.05 s
+  left); fractional pacing; exhaustion + overrun clamp (never negative, all fits false);
+  invalid inputs rejected; no hidden reserves. P0 suite still 19/19.
+
+**Not tested:** nothing on the Pi (pure logic — nothing to run there); integration with M3/M5/M7
+is by design deferred to their rows.
