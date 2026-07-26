@@ -101,6 +101,7 @@ power_halt:
   enabled: false
   dry_run: true
   mode: "halt"             # halt | poweroff
+  script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
 
 # Bristlemouth/Sofar image-transfer settings.
 # network_type:

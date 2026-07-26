@@ -125,6 +125,7 @@ def resolve_rc_settings(config_path):
         "power_halt_enabled": bool(cfg.power_halt_enabled),
         "power_halt_dry_run": bool(cfg.power_halt_dry_run),
         "power_halt_mode": cfg.power_halt_mode,
+        "power_halt_script_path": cfg.power_halt_script_path,
         "timezone": resolve_timezone(cfg),
         "transmit_window": f"{cfg.transmit_start}-{cfg.transmit_end}",
         # RC frozen geometry (S07 byte-validated) — the RC's OWN crop keys,
@@ -171,7 +172,8 @@ def print_resolved_settings(s):
     )
     print(
         f"[RC] power_halt: enabled={s['power_halt_enabled']} "
-        f"dry_run={s['power_halt_dry_run']} mode={s['power_halt_mode']}"
+        f"dry_run={s['power_halt_dry_run']} mode={s['power_halt_mode']} "
+        f"script={s['power_halt_script_path']}"
     )
     print(f"[RC] schedule: window={s['transmit_window']} tz={s['timezone']}")
     print(

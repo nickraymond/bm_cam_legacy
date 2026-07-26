@@ -93,6 +93,7 @@ class TestRepoYamlParses(unittest.TestCase):
         self.assertFalse(self.cfg.power_halt_enabled)
         self.assertTrue(self.cfg.power_halt_dry_run)
         self.assertEqual(self.cfg.power_halt_mode, "halt")
+        self.assertEqual(self.cfg.power_halt_script_path, "/home/pi/BM_Devel_Pi/tuned_halt.sh")
 
     def test_legacy_keys_unchanged(self):
         # Regression guard: extending the parser must not disturb the
@@ -309,7 +310,11 @@ class TestSkeletonDryRun(unittest.TestCase):
         self.assertIn("[15, 13, 11, 9]", text)
         self.assertIn("max_run_time_min=18", text)
         self.assertIn("message cap: 195", text)
-        self.assertIn("power_halt: enabled=False dry_run=True mode=halt", text)
+        self.assertIn(
+            "power_halt: enabled=False dry_run=True mode=halt "
+            "script=/home/pi/BM_Devel_Pi/tuned_halt.sh",
+            text,
+        )
         self.assertIn("crop_xywh=(1504, 846, 1600, 900)", text)
         self.assertIn("output=1000x562", text)
         self.assertIn("no capture/encode/transmit performed", text)

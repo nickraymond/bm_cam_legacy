@@ -139,6 +139,7 @@ class CameraSchedule:
     power_halt_enabled: bool = False
     power_halt_dry_run: bool = True
     power_halt_mode: str = "halt"
+    power_halt_script_path: str = "/home/pi/BM_Devel_Pi/tuned_halt.sh"
 
 
 def _parse_bool(value: str) -> bool:
@@ -327,6 +328,8 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                     cfg.power_halt_dry_run = _parse_bool(value)
                 elif key == "mode":
                     cfg.power_halt_mode = value
+                elif key == "script_path":
+                    cfg.power_halt_script_path = value
                 continue
 
             # bm_serial is parsed by bm_serial.load_bm_serial_config(). Ignore it here.
@@ -459,6 +462,8 @@ def validate_schedule(cfg: CameraSchedule) -> None:
             raise ValueError("progressive_jpeg.output_width must be 1..crop.w (no upsampling)")
         if (cfg.power_halt_mode or "").strip().lower() not in {"halt", "poweroff"}:
             raise ValueError("power_halt.mode must be halt or poweroff")
+        if not (cfg.power_halt_script_path or "").strip():
+            raise ValueError("power_halt.script_path must not be empty")
 
     if cfg.time_source == "rtc":
         if not cfg.rtc_hwclock_path:
