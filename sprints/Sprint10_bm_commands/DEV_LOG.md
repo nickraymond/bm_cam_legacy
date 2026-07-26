@@ -15,25 +15,36 @@ tracker. Defaults noted where a safe assumption exists.
 - **Q2 — Camera stack.** ✅ ANSWERED 2026-07-26 — see §Answers. RC path
   is rpicam-still subprocess + PIL post-capture crop; ROI = config crop in
   native coords, no sensor reconfiguration needed.
-- **Q3 — ROI preset list.** SPEC has placeholder presets (full,
-  center-75%, center-50%, top-half, bottom-half). Confirm the crops that
-  actually matter for the field scene. *Default: ship placeholders,
-  tune in Phase B.*
-- **Q4 — Final v1 command list.** SPEC locks six commands (roi, foc, awb,
-  exp, win, ping). Anything to add or cut? *Default: as specced.*
-- **Q5 — Persistence.** SPEC says persist settings across power cycles
-  with state file. Confirm. *Default: persist.*
-- **Q6 — Ack/verification depth.** Ack message only, or also a thumbnail
-  at the new ROI so the operator can see the framing? Thumbnail costs
-  satellite bytes. *Default: ack only in v1; thumbnail as stretch.*
-- **Q7 — Dead-man's revert.** If a bad setting is applied and no
-  confirmation arrives within N windows, auto-revert to last-known-good?
-  Adds safety, adds complexity. *Default: not in v1; log as v2 candidate.*
-- **Q8 — Mid-window apply.** SPEC says apply between captures on arrival.
-  If that destabilizes the pipeline, fall back to apply-at-next-window.
-  *Default: between-captures; revisit if Phase A/B shows fragility.*
-- **Q9 — Bench hardware availability.** Is dev kit + Spotter available
-  for Phase B, and when? Shapes how much rides on the PTY mock.
+- **Q3 — ROI preset list.** ✅ ANSWERED 2026-07-26 (Nick): v1 `roi` is
+  **centered zoom in/out only** — no pan. Scientists choose detail (zoom
+  in on a specific coral) vs. wider scene. Presets are concentric
+  centered 16:9 crops in native 4608×2592 coords, all lanczos-downsampled
+  to the same 1000 px output, so the transmission budget is ~constant
+  across zoom levels. Placeholder table (finalize exact rects before
+  field deployment): 0 = default 1600×900, 1 = full-frame 4608×2592
+  (widest), 2 = 3072×1728, 3 = 2304×1296, 4 = 1000×562 (max detail —
+  floor chosen so output never upsamples). SPEC table updated.
+- **Q4 — Final v1 command list.** ✅ ANSWERED 2026-07-26 (default
+  adopted): six commands as specced (roi, foc, awb, exp, win, ping).
+  One-shot "capture now" stays deferred (D7).
+- **Q5 — Persistence.** ✅ ANSWERED 2026-07-26 (default adopted):
+  persist to state file, reload on boot — required by the per-wake
+  process model (Q10): every active window starts a fresh process.
+- **Q6 — Ack/verification depth.** ✅ ANSWERED 2026-07-26 (Nick): ack
+  only in v1. Thumbnail-at-new-ROI logged as v2 candidate (with
+  Sprint09's larger chunks a 5–10 KB thumbnail ≈ ~10 cellular messages).
+- **Q7 — Dead-man's revert.** ✅ ANSWERED 2026-07-26 (Nick): skip for
+  v1. Rationale: the planned operator web UI will constrain customers to
+  preset commands, and enum tables already bound the blast radius —
+  every applicable value is a tested-valid setting.
+- **Q8 — Mid-window apply.** ✅ ANSWERED 2026-07-26 (default adopted):
+  apply between captures on arrival; fall back to apply-at-next-window
+  only if Phase A/B shows fragility.
+- **Q9 — Bench hardware availability.** ✅ ANSWERED 2026-07-26 (Nick):
+  bench is up now (Spotter ebox on Mac USB, camera node on BM bus,
+  latest main). Scheduling: **Sprint09 gets the bench first** (Phases
+  A–C); Sprint10 stays on the PTY mock until Sprint09 Phase C is done.
+  Sprint09's measured chunk/pacing values feed this sprint's ack path.
 - **Q10 — Deployment shape.** ✅ ANSWERED 2026-07-26 — see §Answers.
   There is no persistent daemon/systemd today: an `@reboot` cron (flock +
   `rc_run_capture_cycle.sh`) runs ONE RC cycle per power-up, then the box
@@ -112,6 +123,11 @@ tracker. Defaults noted where a safe assumption exists.
 *(empty — append with repro steps; move to tracker if they block)*
 
 ## Scratch / incidental findings
+
+- 2026-07-26 (Nick, via Q7): a **customer-facing web UI** for sending
+  commands is planned — it will expose only preset options. Command
+  origin is therefore always preset-constrained end to end; keep the
+  enum-index contract stable since the UI will build against it.
 
 - 2026-07-26 Spotter CLI reference captured:
   [docs/spotter_cli_reference.md](../../docs/spotter_cli_reference.md).
