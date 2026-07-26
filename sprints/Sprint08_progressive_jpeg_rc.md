@@ -103,7 +103,7 @@ the field cadence.
 | P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | 🔍 IN REVIEW | P0 |
 | P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | 🔍 IN REVIEW | P1, P2 |
 | P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | 🔍 IN REVIEW | P0 |
-| P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | ☐ TODO | P3, P4 |
+| P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | 🔍 IN REVIEW | P3, P4 |
 | P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ☐ TODO | P0 |
 | P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ☐ TODO | P3, P4, P5, P6 |
 | P8 | Weekend RC soak | run the integrated RC on the Pi over a weekend | logs show all four behaviors (JPEG · adaptive · incomplete log · halt) | ☐ TODO | P7 |
@@ -341,3 +341,35 @@ camera-metadata headroom. Backend reads actual-vs-planned from END `sent_buffers
 
 **Not tested:** the actual backend parser / cycle-log tool (separate repo + PR — the table above
 is the contract); on-Pi emission (P7).
+
+### P5 — M5 incomplete-cycle path (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):**
+- **RC-only send loop** in a new module — `send_buffers()` / `bm_serial.py` completely
+  untouched (zero edits beats "minimal edits"; the sanctioned-touch budget went unused).
+  Chunk framing `<I{i}>{chunk}\n` and START-sleep-chunk-sleep-END pacing mirror production and
+  are pinned by test.
+- **START `length` = PLANNED chunks** (never the bounded count): a bounded partial send looks
+  to the backend exactly like the partial-arrival state S07 P4 validated (37/128-style
+  incomplete transfer, preview renders from the received prefix). `cmp=0`/`rsn` + the a=inc
+  `pln`/`snd` say it was intentional; END `sent_buffers` reports actual.
+
+**Landed:**
+- `BM_Devel_Pi/rc_transmit.py` — `transmit_progressive_image(tx, budget, ...)` serving both
+  paths. No-fit flow: `send_target = clamp(max_messages_now() − 3, 0, planned)` (−3 reserves
+  a=inc + START + END slots) → emit **a=inc first** (diagnosis survives anything after) →
+  START(`cmp=0`) → chunks `0..send_target−1` → END. `send_target == 0` → a=inc only, clean
+  stop. Both paths run a per-chunk guard (`budget.messages_fit(2)` = this chunk + END) so a
+  mid-send stall stops the loop and still closes with an honest END. tx/sleep/clock injectable.
+- `tests/test_rc_transmit.py` — **16/16 pass**, zero wall-clock sleeps (the fake `sleep_fn`
+  advances the fake clock by the pacing delay, so the budget drains field-accurately):
+  complete-path sequence/framing/pacing byte-parity; bounded case (7-slot budget, 8-chunk
+  image → a=inc first with `pln=8 snd=4`, START `length: 8` + `cmp=0 rsn=budget`, exactly
+  I0..I3, END `sent_buffers: 4`, total airtime within budget); sent chunks proven to be the
+  exact base64 prefix (the S07 P4 render premise); `snd=0` (a=inc only, no START/END); cap
+  reason on the wire; mid-send stall (loop stops early, contiguous I0..Ik prefix, END honest).
+  All six suites green (20+15+12+19+18+16 = 100). `git status` confirms `process_image_v2.py`,
+  `bm_serial.py`, `main_pi_camera.py` untouched.
+
+**Not tested:** real UART/BM-bus emission (P7 wires `spotter_tx`); backend ingestion of a
+bounded partial (separate backend PR; S07 P4 covered the render side).
