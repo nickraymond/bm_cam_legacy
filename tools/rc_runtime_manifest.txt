@@ -1,0 +1,30 @@
+# RC runtime manifest — the COMPLETE file set a progressive-JPEG camera needs.
+# Read by tools/deploy_rc_runtime.sh. One repo-relative path per line;
+# optional "-> destname" renames on install. '#' comments and blanks ignored.
+#
+# This list IS the fresh-install definition: new units get these files and
+# nothing else (no HEIC entry points). Field updates copy the same list over
+# an existing runtime, leaving extra files (e.g. legacy HEIC) in place for
+# config-gated rollback.
+#
+# NOTE: process_image_v2.py is required — the RC imports its capture
+# watchdog, telemetry, and metadata helpers. It ships until the planned
+# post-rollout refactor extracts those into a lean shared module.
+
+# RC modules (Sprint08)
+BM_Devel_Pi/rc_progressive_jpeg.py
+BM_Devel_Pi/rc_time_budget.py
+BM_Devel_Pi/rc_jpeg_encoder.py
+BM_Devel_Pi/rc_quality_selector.py
+BM_Devel_Pi/rc_uplink_messages.py
+BM_Devel_Pi/rc_transmit.py
+BM_Devel_Pi/rc_power_halt.py
+BM_Devel_Pi/rc_run_capture_cycle.sh
+
+# Shared runtime (RC imports these)
+BM_Devel_Pi/spotter_time_sync.py
+BM_Devel_Pi/bm_serial.py
+BM_Devel_Pi/process_image_v2.py
+
+# Power halt (validated tools/power script, deployed into the runtime dir)
+tools/power/tuned_halt.sh -> tuned_halt.sh
