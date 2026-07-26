@@ -289,6 +289,27 @@ For today’s shipping work, prioritize the MVP path.
 
 ---
 
+## Branching Model (adopted 2026-07-26, Sprint09)
+
+```text
+main         released code only. Tracks what is (or is about to be) shipped.
+             Nothing merges here without an explicit release decision from Nick.
+development  integration branch. All feature/sprint branches merge here via PR.
+             Bench units (e.g. bmcam003) run code deployed from this branch —
+             or from the active sprint branch during that sprint's own testing.
+feature/*    one branch per sprint or feature (e.g. sprint-09-uart-throughput,
+             bm_commands for the Sprint10 command daemon). Branch from
+             development; PR back into development.
+```
+
+Rules:
+- Never commit directly to `main` or `development`.
+- Sprint PR gates (see each sprint's DESIGN.md) target `development`.
+- Release candidates are cut from `development`; whether an RC merges to
+  `main` is decided per release, not assumed.
+- Field/customer units run released code (`main`) unless a sprint
+  explicitly says otherwise.
+
 ## Development Checklist
 
 Before writing code:

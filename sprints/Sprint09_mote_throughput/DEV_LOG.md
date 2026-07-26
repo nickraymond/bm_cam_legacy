@@ -66,6 +66,13 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **Branching model adopted (Nick):** `main` = released code;
+  new `development` branch = integration target for all feature/sprint
+  PRs; bench Pi runs the active sprint branch during testing,
+  `development` otherwise; `bm_commands` will be the Sprint10 feature
+  branch off `development`. `development` created at origin/main f25e23d.
+  Rule recorded in CLAUDE.md "Branching Model"; Sprint09 DESIGN PR gate
+  now targets `development`.
 - 2026-07-26 **§2 bench prep complete on bmcam003 — full record + rollback.**
   Sequence (SSH as pi@100.103.35.24; all backups timestamped
   `20260726T162224`):
