@@ -63,6 +63,51 @@ image_pipeline:
   heic:
     quality: 20
 
+# Sprint08 progressive-JPEG release candidate (RC). Config-gated:
+#   heic             -> known-good production path (main_pi_camera.py), unchanged
+#   progressive_jpeg -> RC entry script (rc_progressive_jpeg.py)
+capture_mode: "heic"
+
+# RC quality ladder + cycle budget (Sprint07 Pi-validated on bmcam000; see
+# sprints/Sprint08_progressive_jpeg_rc.md section 4).
+# Ladder = encode at q_max, step down by quality.step until q_min:
+# defaults give 15 -> 13 -> 11 -> 9. q17+ is dead (206 msgs > 195-msg cap).
+# Pacing/chunking intentionally live only in bm_serial below (single source
+# of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
+progressive_jpeg:
+  max_run_time_min: 16     # field-trial setting (Nick 2026-07-25); S07 measured 16.38 min at the 195 cap
+  message_cap: 195         # field-tested hard cap on messages per image
+  quality:
+    # Field-trial multi-segment ladder (Nick 2026-07-25): 90->30 by 10,
+    # ->15 by 5, ->9 by 2. The adaptive selector steps down until the frame
+    # fits the cap AND the remaining budget, so a high start is safe.
+    # When ladder is set it overrides q_max/q_min/step below.
+    ladder: "90,80,70,60,50,40,30,25,20,15,13,11,9"
+    q_max: 15              # fallback uniform ladder (S07-validated) if ladder is unset
+    q_min: 9
+    step: 2
+  # RC frozen geometry (S07 byte-validated), separate from the HEIC
+  # image_pipeline crop so flipping capture_mode never edits shared geometry.
+  # Coordinates are NATIVE 4608x2592 sensor-equivalent. The default IS the
+  # exact center crop ((4608-1600)/2, (2592-900)/2); the crop is fixed config
+  # constants — no on-device tag detection. Card-centered bench alternative:
+  # x: 1467, y: 1255.
+  crop:
+    x: 1504
+    y: 846
+    w: 1600
+    h: 900
+  output_width: 1000       # lanczos output width; height follows crop aspect (562)
+
+# RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
+# dry_run true logs the halt intent without halting (bench-safe default).
+# Recovery from a real halt is a manual power cycle.
+power_halt:
+  enabled: false
+  dry_run: true
+  mode: "halt"             # halt | poweroff
+  script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
+
 # Bristlemouth/Sofar image-transfer settings.
 # network_type:
 #   0x01 / 1 = legacy sat/cell fallback queue

@@ -1,0 +1,198 @@
+{
+  "provenance": {
+    "run_tag": "p1_grid_20260724T165653Z",
+    "description": "Sprint07 P1 Pi grid (bmcam000, Pi Zero 2W) \u2014 progressive rows for the two repo-committed sources. 108/108 cells sha256-identical to the Mac DOE (S07 P1).",
+    "pi_pillow": "11.3.0",
+    "pi_libjpeg_turbo": "3.1.1",
+    "encoder_call": "PIL Image.save(format=JPEG, quality=q, progressive=True, optimize=True)",
+    "geometry": "native 4608x2592 -> fixed crop (native coords, per label) -> lanczos 1000x562",
+    "chunk_b64_chars": 300,
+    "inputs": {
+      "card": "reference_images/reference_card_native_imx708.jpg",
+      "coral_primary": "reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg"
+    },
+    "extracted": "2026-07-25 from local run copies in ~/Downloads/bm_jpeg_partial_sweep/"
+  },
+  "cells": [
+    {
+      "label": "card",
+      "crop_xywh": [
+        1467,
+        1255,
+        1600,
+        900
+      ],
+      "quality": 7,
+      "jpeg_bytes": 11363,
+      "base64_len": 15152,
+      "message_count": 51,
+      "jpeg_sha256": "bfd3f2347b6ba546c79cdfc7ce8b828ddde4c3852a1f32e2410e5a8abba53a85",
+      "source_pixel_sha256": "750da1350a34ad0911f9ca0c4027525e195ee06ef3b661bbc382177d43425ba6"
+    },
+    {
+      "label": "card",
+      "crop_xywh": [
+        1467,
+        1255,
+        1600,
+        900
+      ],
+      "quality": 9,
+      "jpeg_bytes": 13181,
+      "base64_len": 17576,
+      "message_count": 59,
+      "jpeg_sha256": "0565b0faabc10602d240be6c13e18a2d401a8fb79f438aa515a6fecfb02127c9",
+      "source_pixel_sha256": "750da1350a34ad0911f9ca0c4027525e195ee06ef3b661bbc382177d43425ba6"
+    },
+    {
+      "label": "card",
+      "crop_xywh": [
+        1467,
+        1255,
+        1600,
+        900
+      ],
+      "quality": 11,
+      "jpeg_bytes": 15004,
+      "base64_len": 20008,
+      "message_count": 67,
+      "jpeg_sha256": "deebf22c7a33cf6eaa31b99b228cba0ece69ba50d2a71124767a595112a9f388",
+      "source_pixel_sha256": "750da1350a34ad0911f9ca0c4027525e195ee06ef3b661bbc382177d43425ba6"
+    },
+    {
+      "label": "card",
+      "crop_xywh": [
+        1467,
+        1255,
+        1600,
+        900
+      ],
+      "quality": 13,
+      "jpeg_bytes": 16691,
+      "base64_len": 22256,
+      "message_count": 75,
+      "jpeg_sha256": "3a1a988b62e6d81a30adc73609b5b08f197559f20d88d82f8d87ef37323cb6bf",
+      "source_pixel_sha256": "750da1350a34ad0911f9ca0c4027525e195ee06ef3b661bbc382177d43425ba6"
+    },
+    {
+      "label": "card",
+      "crop_xywh": [
+        1467,
+        1255,
+        1600,
+        900
+      ],
+      "quality": 15,
+      "jpeg_bytes": 18161,
+      "base64_len": 24216,
+      "message_count": 81,
+      "jpeg_sha256": "88232a08827678e275c1ce522193a5aaef94ca90b87050d2b2bd76695389b87c",
+      "source_pixel_sha256": "750da1350a34ad0911f9ca0c4027525e195ee06ef3b661bbc382177d43425ba6"
+    },
+    {
+      "label": "card",
+      "crop_xywh": [
+        1467,
+        1255,
+        1600,
+        900
+      ],
+      "quality": 17,
+      "jpeg_bytes": 19619,
+      "base64_len": 26160,
+      "message_count": 88,
+      "jpeg_sha256": "79d1d15706966cdef63535b7818e8926c4af20c34064fc3fbf68bf2005308283",
+      "source_pixel_sha256": "750da1350a34ad0911f9ca0c4027525e195ee06ef3b661bbc382177d43425ba6"
+    },
+    {
+      "label": "coral_primary",
+      "crop_xywh": [
+        1504,
+        846,
+        1600,
+        900
+      ],
+      "quality": 7,
+      "jpeg_bytes": 10074,
+      "base64_len": 13432,
+      "message_count": 45,
+      "jpeg_sha256": "ca04474a0d9c5e4d64fd590ed113df6a864e16f8905dc675590a1af83cbbb6ea",
+      "source_pixel_sha256": "8a59d6d993c3c223dcd4174a7071a5fe71168040e83105eebcdf5ece8b12e814"
+    },
+    {
+      "label": "coral_primary",
+      "crop_xywh": [
+        1504,
+        846,
+        1600,
+        900
+      ],
+      "quality": 9,
+      "jpeg_bytes": 12349,
+      "base64_len": 16468,
+      "message_count": 55,
+      "jpeg_sha256": "7a69544304ae9486838bec1d105e7dac9e4026f7748b944641d7efcb391d9753",
+      "source_pixel_sha256": "8a59d6d993c3c223dcd4174a7071a5fe71168040e83105eebcdf5ece8b12e814"
+    },
+    {
+      "label": "coral_primary",
+      "crop_xywh": [
+        1504,
+        846,
+        1600,
+        900
+      ],
+      "quality": 11,
+      "jpeg_bytes": 14583,
+      "base64_len": 19444,
+      "message_count": 65,
+      "jpeg_sha256": "66a278a91ba68b7d7c102de3781897aa46f733b0d5069272dc1a0bceb06d1e94",
+      "source_pixel_sha256": "8a59d6d993c3c223dcd4174a7071a5fe71168040e83105eebcdf5ece8b12e814"
+    },
+    {
+      "label": "coral_primary",
+      "crop_xywh": [
+        1504,
+        846,
+        1600,
+        900
+      ],
+      "quality": 13,
+      "jpeg_bytes": 16826,
+      "base64_len": 22436,
+      "message_count": 75,
+      "jpeg_sha256": "17cb3104a37d5dab644eb0b13e9d81c7a1c7cd9fafa0e2bfb0962b92b493e51b",
+      "source_pixel_sha256": "8a59d6d993c3c223dcd4174a7071a5fe71168040e83105eebcdf5ece8b12e814"
+    },
+    {
+      "label": "coral_primary",
+      "crop_xywh": [
+        1504,
+        846,
+        1600,
+        900
+      ],
+      "quality": 15,
+      "jpeg_bytes": 18758,
+      "base64_len": 25012,
+      "message_count": 84,
+      "jpeg_sha256": "893165586e79856bb4b8f42791d1b8713c0600aeb9ddc7fa5bb7626932e949e9",
+      "source_pixel_sha256": "8a59d6d993c3c223dcd4174a7071a5fe71168040e83105eebcdf5ece8b12e814"
+    },
+    {
+      "label": "coral_primary",
+      "crop_xywh": [
+        1504,
+        846,
+        1600,
+        900
+      ],
+      "quality": 17,
+      "jpeg_bytes": 20830,
+      "base64_len": 27776,
+      "message_count": 93,
+      "jpeg_sha256": "9c724d669d4f5a80344844501ab93da038a8ebe548a5b68e4da9c233912f580a",
+      "source_pixel_sha256": "8a59d6d993c3c223dcd4174a7071a5fe71168040e83105eebcdf5ece8b12e814"
+    }
+  ]
+}

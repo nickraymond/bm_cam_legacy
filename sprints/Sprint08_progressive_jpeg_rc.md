@@ -98,14 +98,14 @@ the field cadence.
 
 | # | Block | Builds | How it's tested independently | Status | Depends on |
 |---|-------|--------|-------------------------------|--------|-----------|
-| P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | ☐ TODO | — |
-| P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | ☐ TODO | P0 |
-| P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | ☐ TODO | P0 |
-| P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | ☐ TODO | P1, P2 |
-| P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | ☐ TODO | P0 |
-| P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | ☐ TODO | P3, P4 |
-| P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ☐ TODO | P0 |
-| P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ☐ TODO | P3, P4, P5, P6 |
+| P0 | Config + RC skeleton | YAML keys + a new RC entry module that loads config and logs resolved settings, no behavior | config parses; dry-run prints resolved settings | 🔍 IN REVIEW | — |
+| P1 | **M1** time-budget accountant | the single budget authority | fake-clock unit tests | 🔍 IN REVIEW | P0 |
+| P2 | **M2** progressive-JPEG encoder | encode + message estimate | offline on reference images vs Sprint07 Pi numbers | 🔍 IN REVIEW | P0 |
+| P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | 🔍 IN REVIEW | P1, P2 |
+| P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | 🔍 IN REVIEW | P0 |
+| P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | 🔍 IN REVIEW | P3, P4 |
+| P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ✅ DONE | P0 |
+| P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ✅ DONE | P3, P4, P5, P6 |
 | P8 | Weekend RC soak | run the integrated RC on the Pi over a weekend | logs show all four behaviors (JPEG · adaptive · incomplete log · halt) | ☐ TODO | P7 |
 
 **Legend:** ☐ TODO · 🔄 IN PROGRESS · 🔍 IN REVIEW · ✅ DONE · ⛔ DEFERRED.
@@ -178,4 +178,273 @@ reviewed step after the soak.
 ---
 
 ## 8. Findings log
-_(fill in as blocks land)_
+
+### P0 — Config + RC skeleton (2026-07-25, 🔍 IN REVIEW)
+
+**Kickoff decisions (Nick-approved):**
+- **D1 ladder policy:** fixed ladder, YAML-tunable — single band `q_max → q_min` stepping down
+  by `quality.step` (no scene/card `frame_type`; dropped as too complex). Defaults 15/9/2 →
+  `[15, 13, 11, 9]`. Ladder always terminates exactly at `q_min` even on uneven steps.
+- **D2 fit basis:** config pacing (`bm_serial.image_transmit_delay_seconds` × msgs) — the send
+  loop is fixed-pace by design, so config pacing *is* the transmit schedule. No measured-rate model.
+- **D3 RC location:** separate entry script `BM_Devel_Pi/rc_progressive_jpeg.py`; known-good
+  `main_pi_camera.py` untouched (possible merge into one entry later, post-validation).
+- **D4 halt trigger:** on early finish AND after budget-exhausted best-effort send, gated by
+  `power_halt.enabled` with a `dry_run` mode for bench tests.
+- **D5 config home:** extended the existing `CameraSchedule`/`load_camera_schedule()` in
+  `spotter_time_sync.py` (all field config lives in one file/loader; no parallel rc_config).
+
+**Landed (all additive; 100 insertions, 0 deletions on shared files):**
+- `camera_schedule.yaml`: new `capture_mode: "heic"` (default = known-good path),
+  `progressive_jpeg:` block (`max_run_time_min: 18`, `message_cap: 195`,
+  `quality: {q_max: 15, q_min: 9, step: 2}`), `power_halt:` block
+  (`enabled: false, dry_run: true, mode: halt`). Pacing/chunking intentionally NOT duplicated —
+  single source of truth stays `bm_serial:` (300 chars/msg, 5 s/msg).
+- `spotter_time_sync.py`: 9 new `CameraSchedule` fields (Sprint07 §4 values as defaults), parser
+  sections for the two new blocks, validation. Strict RC validation is **gated on
+  `capture_mode: progressive_jpeg`** so a mistyped RC block can never fail-closed a HEIC-mode
+  field unit.
+- `rc_progressive_jpeg.py`: P0 skeleton — resolves + prints every RC setting (ladder, budget,
+  cap, pacing+source, halt, geometry), exit 0 / loud exit 2 on bad config. No camera, no serial
+  writes, no behavior.
+- `tests/test_rc_progressive_config.py`: 19 off-device tests (stdlib unittest; stubs `serial`
+  so it runs without pyserial/PyYAML) — parser round-trip on the committed YAML, legacy-key
+  regression guard, validation gating, ladder math, skeleton output. **19/19 pass** on Mac
+  (Python 3.13.5).
+
+**Not tested:** anything on the Pi (P0 is off-device by design; nothing deployed). PyYAML path of
+`load_bm_serial_config` untested off-device (Mac lacks PyYAML → pacing printed `source=default`
+with identical 300/5 values; on bmcam000 it should print `source=yaml`).
+
+### P1 — M1 time-budget accountant (2026-07-25, 🔍 IN REVIEW)
+
+**Design (Nick-approved): PURE accounting.** `CycleBudget` charges exactly what it is asked and
+reserves nothing hidden — START/END overhead (+2 msgs) and any margin are the callers' job
+(M3/M5), enforced by their tests. Monotonic clock by default (a mid-cycle Spotter/RTC
+system-clock set cannot corrupt the budget); `clock` injectable for fake-clock tests.
+
+**Landed:**
+- `BM_Devel_Pi/rc_time_budget.py` — `CycleBudget(budget_seconds, seconds_per_message, clock)`;
+  one deadline fixed at construction (= cycle start). Queries only: `elapsed_s / remaining_s`
+  (clamped ≥ 0), `exhausted()`, `has_time_for(s)` (encode attempts), `messages_fit(n)`,
+  `max_messages_now()` (M5 bounded partial send). Boundary pinned: an exact fit counts as
+  fitting (each paced message's 5 s includes its trailing sleep). Stdlib only, no side effects.
+- `tests/test_rc_time_budget.py` — **15/15 pass** off-device (fake clock, zero sleeps):
+  fresh-budget facts (1080 s = 216 paced msgs, matching the P0 derived line); S07 reference
+  counts (126/188 chunks + 2, cap 195 + 2 = 985 s) fit a fresh budget; one budget charged from
+  cycle start (capture 5.3 s + prep 2.4 s + 3 × 0.07 s attempts); fit flips false when one
+  message short; exact-fit boundary; encode-attempt window (0.03 fits / 0.07 doesn't at 0.05 s
+  left); fractional pacing; exhaustion + overrun clamp (never negative, all fits false);
+  invalid inputs rejected; no hidden reserves. P0 suite still 19/19.
+
+**Not tested:** nothing on the Pi (pure logic — nothing to run there); integration with M3/M5/M7
+is by design deferred to their rows.
+
+### P2 — M2 progressive-JPEG encoder (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):** RC gets its OWN geometry keys under `progressive_jpeg:`
+(`crop: {x,y,w,h}` + `output_width`), S07 scene defaults `1504,846,1600,900 → 1000` — flipping
+`capture_mode` never edits shared geometry. **Confirmed: no AprilTag detection on the Pi** — the
+crop is fixed config constants (the scene default is the exact center crop; card-centered
+`1467,1255` is just an alternative fixed preset for bench work).
+
+**Landed:**
+- `BM_Devel_Pi/rc_jpeg_encoder.py` — M2: `prepare_source()` (native → RGB → fixed crop →
+  lanczos; runs once per cycle, reused by every ladder attempt) + `encode_progressive()`
+  (the exact validated Pillow call `quality=q, progressive=True, optimize=True` into memory;
+  returns bytes, `base64_len`, `message_count = ceil(b64/chunk)`, sha256). Pure — caller
+  persists accepted bytes.
+- `camera_schedule.yaml` + `spotter_time_sync.py`: the new geometry keys (parse + RC-gated
+  validation: crop within native source, `output_width ≤ crop.w`).
+- `rc_progressive_jpeg.py`: skeleton now resolves/prints the RC's own geometry
+  (`(1504, 846, 1600, 900) → 1000x562`) — fixes the P0 wart where it showed the HEIC crop.
+- `tests/fixtures/sprint07_p1_expected.json` — committed expected-values fixture extracted from
+  the local `p1_grid_20260724T165653Z` CSVs (card + coral_primary × progressive × q{7..17}),
+  provenance recorded in-file.
+- `tests/test_rc_jpeg_encoder.py` — **12/12 pass** on Mac. Headline: **all 8 ladder cells
+  (2 sources × q{9,11,13,15}) byte-exact vs the Sprint07 Pi run** — sha256, jpeg_bytes,
+  base64_len, message_count all match (valid cross-version: S07 P0 proved Mac Pillow 12.3.0 ==
+  Pi 11.3.0 bytes). §4 headline counts reproduced (card q13=75, q15=81 msgs). Also pinned:
+  in-memory == file-save bytes, determinism, ceil formula, loud geometry validation.
+  Config suite grew to **20/20** (geometry keys + bad-crop rejection); M1 suite still 15/15.
+
+**Not tested:** the 7 coral alts (native sources not committed — their numbers stay covered by
+the S07 run itself, incl. worst-case alt_07 q13=169); encode on the Pi (S07 already proved Pi
+byte-parity; RC on-device runs start at P7); prepare-time on Pi (S07: ~2.4 s).
+
+### P3 — M3 adaptive quality selector (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):** (C1) before every encode M3 consults M1 via
+`has_time_for(ENCODE_ATTEMPT_ALLOWANCE_S = 1.0 s)` — an **assumption**, ~15× the S07-measured
+≤0.063 s worst attempt (pinned by a test); (C2) when even the floor fails, M3 returns the
+**floor's encoded bytes** with `fits=False` — exactly what M5's bounded partial send needs.
+
+**Landed:**
+- `BM_Devel_Pi/rc_quality_selector.py` — `select_quality(source, budget, q_max, q_min, q_step,
+  message_cap, chunk_b64_chars)`. A rung fits iff `message_count ≤ message_cap` AND
+  `budget.messages_fit(message_count + 2)` (START/END overhead charged here, per M1's pure
+  design). First fitting rung wins. Returns `quality / attempts / fits / reason
+  (fit | no_fit_cap | no_fit_budget | no_time_for_encode) / encode / attempt_log` — the log
+  (quality, bytes, msgs, over_cap, budget_fit per attempt) feeds M4's `enc_attempts`.
+  `compute_quality_ladder` moved here from the entry script (pure module, no serial import);
+  entry re-exports it.
+- `tests/test_rc_quality_selector.py` — **19/19 pass** off-device. Self-calibrating forced
+  step-downs on seeded-noise 1000×562 synthetics (tests measure real per-rung counts first,
+  then pick cap/budget to force behavior — no magic byte counts): fit-at-top (flat image, 1
+  attempt); cap-forced single step (q15→q13, budget fine); budget-forced double step (q15→q11);
+  elapsed-time charge (same budget fits q13 fresh but only q11 after the clock eats the slack);
+  no-fit-at-floor for BOTH reasons (cap and budget) returning floor bytes sha-verified against
+  a direct M2 encode with all 4 attempts logged; the +2 START/END boundary (chunks-only budget
+  fails, chunks+2 passes); encode-guard refusal at <1 s remaining (attempts=0, encode=None).
+  All other suites still green (config 20, budget 15, encoder 12).
+
+**Not tested:** nothing on the Pi (pure logic); real capture-fed selection is P7; the
+1.0 s allowance is an assumption until the P7 on-device cycle confirms attempt costs match S07.
+
+### P4 — M4 uplink message fields (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):** compact keys in the existing envelope style; incomplete-cycle
+message = WS compact shape with new action `a=inc`; builders live in a new pure RC module —
+`process_image_v2.py`'s HEIC builders untouched (formatting helpers imported, not copied).
+
+**Wire-field contract (BACKEND HANDOFF — parse these in `nereus-vision-dev/backend` + cycle-log
+tool, separate reviewed PR):**
+
+| Field | Key | Values | Rides in |
+|---|---|---|---|
+| image format | `fmt` | `pjpg` | START (`fmt=pjpg`) + incomplete |
+| quality used | `q` | int — reuses the existing q key (HEIC cycles carried HEIC quality) | START + incomplete |
+| encode attempts | `att` | int (M3 ladder walk length) | START + incomplete |
+| complete flag | `cmp` | `1` / `0` | START |
+| incomplete reason | `rsn` | `budget` \| `cap` \| `enc` \| `err` | START when `cmp=0`; always in incomplete |
+| planned / sendable chunks | `pln` / `snd` | ints (`snd=0` valid) | incomplete only |
+| incomplete-cycle message | `<WS v=1 a=inc fmt=pjpg q=9 att=4 rsn=budget pln=128 snd=37 ct=… sha=… hn=…>` — emitted BEFORE the bounded partial send | | M5 |
+
+**END carries NO RC fields (P4 revision, Nick 2026-07-25):** the RC END is byte-identical to the
+HEIC END (pinned by test against the production builder), preserving the full 35-byte
+camera-metadata headroom. Backend reads actual-vs-planned from END `sent_buffers` vs START
+`length`, correlated by filename.
+
+**Landed:**
+- `BM_Devel_Pi/rc_uplink_messages.py` — `build_rc_start_message` (same base shape + budget
+  discipline as the HEIC START; RC fields never dropped; HEIC-style `q` filtered from
+  ride-along metadata so one q key per message), `build_rc_end_message` (wraps the existing END
+  builder — RC fields are core fields, camera metadata stays budget-dropped),
+  `build_rc_incomplete_message` (pure; telemetry extras caller-supplied), `reason_code()`
+  mapping M3 reasons → wire codes with `err` fallback (never raises).
+- `tests/test_rc_uplink_messages.py` — **18/18 pass**: exact-string asserts (complete +
+  incomplete variants), `rsn` only when `cmp=0`, no q duplication, 285/295-byte budgets held
+  under hostile inputs with RC START fields surviving drops, RC END byte-identity vs the
+  production HEIC builder, ASCII sanitization, `snd=0` valid, and probe-style key/value
+  extraction recovering every new field (the in-repo stand-in for the backend parser). All five
+  suites green (20+15+12+19+18 = 84).
+
+**Not tested:** the actual backend parser / cycle-log tool (separate repo + PR — the table above
+is the contract); on-Pi emission (P7).
+
+### P5 — M5 incomplete-cycle path (2026-07-25, 🔍 IN REVIEW)
+
+**Decisions (Nick-approved):**
+- **RC-only send loop** in a new module — `send_buffers()` / `bm_serial.py` completely
+  untouched (zero edits beats "minimal edits"; the sanctioned-touch budget went unused).
+  Chunk framing `<I{i}>{chunk}\n` and START-sleep-chunk-sleep-END pacing mirror production and
+  are pinned by test.
+- **START `length` = PLANNED chunks** (never the bounded count): a bounded partial send looks
+  to the backend exactly like the partial-arrival state S07 P4 validated (37/128-style
+  incomplete transfer, preview renders from the received prefix). `cmp=0`/`rsn` + the a=inc
+  `pln`/`snd` say it was intentional; END `sent_buffers` reports actual.
+
+**Landed:**
+- `BM_Devel_Pi/rc_transmit.py` — `transmit_progressive_image(tx, budget, ...)` serving both
+  paths. No-fit flow: `send_target = clamp(max_messages_now() − 3, 0, planned)` (−3 reserves
+  a=inc + START + END slots) → emit **a=inc first** (diagnosis survives anything after) →
+  START(`cmp=0`) → chunks `0..send_target−1` → END. `send_target == 0` → a=inc only, clean
+  stop. Both paths run a per-chunk guard (`budget.messages_fit(2)` = this chunk + END) so a
+  mid-send stall stops the loop and still closes with an honest END. tx/sleep/clock injectable.
+- `tests/test_rc_transmit.py` — **16/16 pass**, zero wall-clock sleeps (the fake `sleep_fn`
+  advances the fake clock by the pacing delay, so the budget drains field-accurately):
+  complete-path sequence/framing/pacing byte-parity; bounded case (7-slot budget, 8-chunk
+  image → a=inc first with `pln=8 snd=4`, START `length: 8` + `cmp=0 rsn=budget`, exactly
+  I0..I3, END `sent_buffers: 4`, total airtime within budget); sent chunks proven to be the
+  exact base64 prefix (the S07 P4 render premise); `snd=0` (a=inc only, no START/END); cap
+  reason on the wire; mid-send stall (loop stops early, contiguous I0..Ik prefix, END honest).
+  All six suites green (20+15+12+19+18+16 = 100). `git status` confirms `process_image_v2.py`,
+  `bm_serial.py`, `main_pi_camera.py` untouched.
+
+**Not tested:** real UART/BM-bus emission (P7 wires `spotter_tx`); backend ingestion of a
+bounded partial (separate backend PR; S07 P4 covered the render side).
+
+### P6 — M6 power halt (2026-07-25/26 UTC, ✅ DONE — real halt validated at the bench)
+
+**Decisions (Nick-approved):** deployed copy of the halt script lives in `/home/pi/BM_Devel_Pi/`
+(`power_halt.script_path` YAML key, default there); invoke via `sudo -n /bin/bash <script>`
+(fail-fast, no password hangs); halt failure logs loudly and returns — **never raises**. Pass
+criteria (no power meter on the bench now that bmcam000 is wired to the Spotter): SSH drops →
+box stays down → boots clean on power cycle (draw itself was validated in PR #5).
+
+**Landed:** `BM_Devel_Pi/rc_power_halt.py` (`perform_power_halt` with disabled / dry_run /
+halt_initiated / failed results; runner/log injectable), `script_path` config key + validation,
+skeleton prints it. `tests/test_rc_power_halt.py` — **11/11** off-device (fake runner: dry-run
+executes nothing, --poweroff wiring, nonzero-exit/exception/missing-script all fail loud
+without raising).
+
+**On-device evidence (bmcam000, Nick at bench):**
+- Pre-checks: no camera processes; crontab backed up (`/home/pi/crontab_backup_20260726T030019Z.txt`);
+  code/config backup `BM_Devel_Pi_code_backup_20260726T030019Z.tar.gz` (restore:
+  `cd /home/pi && tar xzf BM_Devel_Pi_code_backup_20260726T030019Z.tar.gz`); `sudo -n` OK.
+- Deploy: `rc_power_halt.py` + `tuned_halt.sh` scp'd, md5-verified (`b7d420f5…`).
+- Dry-run on Pi: prints exact command, executes nothing. Disabled path: no-op. PASS.
+- **Real halt: PASS** — wrapper returned `halt_initiated` (rc 0), SSH dropped (~15 s), box
+  confirmed unreachable, stayed down until physical power cycle, booted clean (~10 s to SSH).
+- **Recovery regression bonus:** the `@reboot` cron fired and the known-good HEIC path ran a
+  full capture→HEIC→54-buffer transmit cycle normally — halt/recovery left production intact.
+  CMA intact (`CmaTotal 131072 kB`).
+
+**Notes / not tested:** power draw not re-measured (PR #5 stands); Pi's deployed
+`camera_schedule.yaml` is a bench config (always-on window, America/New_York, 1600×900 HEIC)
+that differs from the repo YAML — P7's deploy must merge config deliberately. Pi repo clone
+still on the Sprint07 branch (P6 deployed via scp from the reviewed worktree instead).
+`rfkill` check inconclusive over non-login SSH (BT unused by the runtime; script-header note
+stands).
+
+### P7 — M7 orchestrator integration (2026-07-25/26 UTC, ✅ DONE — real cycles on bmcam000)
+
+**Decisions (Nick-approved):** reuse production `_run_native_full_capture` (watchdog/retries/
+telemetry, exact libcamera args); Pi bench YAML kept with the **wide-open window** (00:01–23:59
+NY) — RC keys appended only, nothing replaced; `power_halt.enabled: false` for the bench phase
+(all-day testing must not self-halt; P8 flips it). `capture_mode: progressive_jpeg` on the Pi
+gates only the RC script — the @reboot HEIC cron is unaffected and keeps running.
+
+**Landed (off-device):** `rc_progressive_jpeg.py` grew from skeleton to M7 orchestrator —
+one `CycleBudget` from process start → schedule gate (transmit only; manual modes never touch
+the bus) → capture → M2 prepare → M3 ladder → persist JPEG + sidecar + CSV → M5 transmit →
+M6 halt in `finally`. CLI safety ladder: default = no-bus plan · `--capture-only` ·
+`--compress-only NATIVE` · `--transmit` (only bus flag) · `--print-config` ·
+`--skip-time-window` · `--output-dir`. Fix found during deploy inspection: the bench unit runs
+**manual focus (lens_position 1.82) via the camera_controls island** — the RC now loads and
+applies the same island through the production capture (with its built-in no-controls fallback).
+`tests/test_rc_orchestrator.py` — **7/7** running the real M1–M6 wiring on the committed coral
+native with fake tx/sleep/clock/halt. All 8 suites green (~126 tests).
+
+**On-device evidence (bmcam000):**
+- Deploy: YAML + `spotter_time_sync.py` backed up (`.before_rc_20260726T032045Z`; restore =
+  `cp` back); 7 RC modules + updated `spotter_time_sync.py` scp'd; `py_compile` clean on ALL
+  runtime files incl. production; production loader validates the appended config; HEIC values
+  unchanged (`heic_out=1600x900`).
+- `--print-config`: resolves on Pi, pacing `source=yaml` (PyYAML present, as predicted at P0).
+- `--capture-only`: **PASS** — manual-focus controls applied, native 1.5 MB in 8.2 s, prepare
+  1.2 s → 1000×562, halt-disabled path, 9.4 s of 1080 s budget.
+- `--compress-only`: **PASS** — bench scene q15 first try (17.2 KB → 77 msgs), final JPEG +
+  sidecar written, plan est 6.4 min.
+- **Full `--transmit` cycle: PASS** — real Spotter-time gate, WS heartbeat (`a=cap ...
+  rk=1000x562 q=15`), capture → q15 fit (1 attempt) → **77/77 chunks complete, uart 391.2 s,
+  total cycle 411 s of 1080 s** (6.9 min, 11+ min margin).
+- **Forced incomplete cycle (temp 3-min-budget config, removed after): PASS** — full ladder
+  walk q15→q13→q11→q9 (4 attempts logged, all `budget_fit=False`), floor returned
+  `fits=False reason=no_fit_budget`, **a=inc emitted to the real bus, bounded send 30/47
+  chunks, cycle closed at 170.9 s of 180 s** — the budget was never exceeded.
+
+**Not tested:** backend-side parsing/rendering of the RC messages (separate backend PR; the
+bench Spotter did receive real complete + bounded transmissions to verify against);
+`power_halt` inside a real RC cycle (validated standalone in P6; enabled only at P8); q17+ and
+non-bench scenes (S07 covers the reference fleet).
