@@ -4,30 +4,52 @@ Checklist only. Rationale lives in SPEC.md; decisions in DESIGN.md;
 open questions and bugs in DEV_LOG.md.
 
 ## 0. Setup
-- [ ] Create feature branch `sprint-09-uart-throughput`
-- [ ] Answer/triage open questions in DEV_LOG.md with Nick (Q1–Q3 gate Phase A/B)
-- [ ] Confirm bench unit identity + which `device_profiles/` YAML it runs
+- [x] Create feature branch `sprint-09-uart-throughput` (2026-07-26, from origin/main c6afba8)
+- [x] Answer/triage open questions in DEV_LOG.md with Nick (Q1–Q3 gate Phase A/B)
+      — Q1–Q3 pre-sprint; Q4 + Q6 answered 2026-07-26 (see DEV_LOG); Q5
+      default stands (keep cap, observe Phase C)
+- [x] Confirm bench unit identity + which `device_profiles/` YAML it runs
+      — bmcam003 (100.103.35.24) + SPOT-33507C; deployed YAML derived from
+      `rc_field_template` (no bmcam003 profile dir yet); backend/website
+      registration deferred until local hardware testing is done
 
 ## 1. Config plumbing (no hardware)
-- [ ] `BristlemouthSerial.__init__`: read `uart_port`/`baudrate` from YAML
+- [x] `BristlemouthSerial.__init__`: read `uart_port`/`baudrate` from YAML
       when `uart is None` (defaults unchanged; framing untouched)
-- [ ] Sanity-check `rc_time_budget.py` math with ~980-char chunks
+      — `load_uart_config()` + `tests/test_bm_serial_uart_config.py`
+- [x] Sanity-check `rc_time_budget.py` math with ~980-char chunks
       (message_cap 195 / max_run_time interaction — SPEC "Interaction" note)
-- [ ] Mirror schema into `device_profiles/*/camera_schedule.yaml` + field template
-- [ ] Smoke test: RC cycle dry-path with unchanged values (no regression)
+      — no code change needed; numbers table in DEV_LOG 2026-07-26
+- [x] Mirror schema into `device_profiles/*/camera_schedule.yaml` + field template
+      — nothing to mirror: no new keys this sprint; `uart_port`/`baudrate`
+      already present in all 4 profiles + main YAML (pinned by new tests)
+- [x] Smoke test: RC cycle dry-path with unchanged values (no regression)
+      — full off-device suite 137 passed (was 130); on-Pi UART open via the
+      new path still needs §2 deploy verification (can't open serial on Mac)
 
 ## 2. Test prep (bench)
-- [ ] Deploy `test_UART_throughput.py` next to `bm_serial.py` on the Pi
-- [ ] Back up crontab; disable `@reboot` RC cron for test window
-- [ ] Confirm `power_halt` is `enabled: false` / `dry_run: true` on bench unit
-- [ ] Confirm nothing else holds the UART (no camera process running)
-- [ ] Pi UART hygiene: PL011 not mini-UART (`enable_uart=1`, `dtoverlay=disable-bt`)
+- [x] Deploy `test_UART_throughput.py` next to `bm_serial.py` on the Pi
+      (2026-07-26; updated §1 bm_serial.py deployed alongside — constructor
+      verified opening /dev/ttyAMA0 @ 115200 via YAML on-Pi)
+- [x] Back up crontab; disable `@reboot` RC cron for test window
+      — backup `/home/pi/crontab_backup_sprint09_20260726T162224.txt`
+- [x] Confirm `power_halt` is `enabled: false` / `dry_run: true` on bench unit
+      — flipped from field values (enabled/real); backup
+      `/home/pi/camera_schedule_backup_sprint09_20260726T162224.yaml`
+- [x] Confirm nothing else holds the UART (no camera process running)
+      — pgrep NONE, serial-getty disabled, kernel console removed
+- [x] Pi UART hygiene: PL011 not mini-UART (`enable_uart=1`, `dtoverlay=disable-bt`)
+      — was BROKEN (no /dev/ttyAMA0; fresh-provision gap, see DEV_LOG bug);
+      fixed 2026-07-26 with boot backups in `/home/pi/boot_backups_sprint09/`
 
 ## 3. Phase A — link integrity (no quota)
-- [ ] Run: `--phase log --count 200 --size 300 --gap-ms 0`
-- [ ] Pull `uart_test.log` via Spotter CLI (`cat` + terminal logging, or
-      `sd usb`) — see docs/spotter_cli_reference.md
-- [ ] Verify 200/200 sequential, CRC-clean; record result in DEV_LOG
+- [x] Run: `--phase log --count 200 --size 300 --gap-ms 0` (run S09A1,
+      2026-07-26: 200 msgs / 60 kB in 6.23 s, ~9.6 kB/s effective)
+- [x] Pull `uart_test.log` via Spotter CLI (`cat` + terminal logging, or
+      `sd usb`) — file lands at `/bm/<mote node id>/NNNN_uart_test.log`,
+      NOT SD root; pulled via scripted `cat` over the USB CLI
+- [x] Verify 200/200 sequential, CRC-clean; record result in DEV_LOG
+      — PASS; artifacts in `runs/20260726_phaseA_S09A1/`
 
 ## 4. Phase B — payload ceiling + pacing floor (cellular quota)
 - [ ] Review Nick's Sofar API tooling; document count query
