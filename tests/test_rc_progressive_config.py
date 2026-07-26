@@ -300,12 +300,12 @@ class TestQualityLadder(unittest.TestCase):
 
 
 class TestSkeletonDryRun(unittest.TestCase):
-    def test_skeleton_prints_resolved_settings_for_repo_yaml(self):
+    def test_print_config_prints_resolved_settings_for_repo_yaml(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            ret = rc.main(["--config-path", REPO_YAML])
+            ret = rc.main(["--config-path", REPO_YAML, "--print-config"])
         text = out.getvalue()
-        self.assertEqual(ret, 0, msg=f"skeleton exit={ret}; output:\n{text}")
+        self.assertEqual(ret, 0, msg=f"exit={ret}; output:\n{text}")
         self.assertIn("capture_mode=heic", text)
         self.assertIn("[15, 13, 11, 9]", text)
         self.assertIn("max_run_time_min=18", text)
@@ -317,18 +317,27 @@ class TestSkeletonDryRun(unittest.TestCase):
         )
         self.assertIn("crop_xywh=(1504, 846, 1600, 900)", text)
         self.assertIn("output=1000x562", text)
-        self.assertIn("no capture/encode/transmit performed", text)
 
-    def test_skeleton_rc_mode_banner(self):
+    def test_print_config_rc_mode_banner(self):
         path = _write_yaml("capture_mode: \"progressive_jpeg\"\n")
         try:
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
-                ret = rc.main(["--config-path", path])
+                ret = rc.main(["--config-path", path, "--print-config"])
             self.assertEqual(ret, 0)
             self.assertIn("capture_mode=progressive_jpeg (RC path selected)", out.getvalue())
         finally:
             os.unlink(path)
+
+    def test_heic_mode_cycle_is_gated_noop(self):
+        # Without --print-config, HEIC capture_mode must exit 0 doing NOTHING
+        # (the config gate protecting the known-good path).
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            ret = rc.main(["--config-path", REPO_YAML])
+        self.assertEqual(ret, 0)
+        self.assertIn("RC inactive", out.getvalue())
+        self.assertNotIn("cycle start", out.getvalue())
 
     def test_skeleton_fails_loud_on_bad_config(self):
         path = _write_yaml("capture_mode: \"jpeg2000\"\n")
