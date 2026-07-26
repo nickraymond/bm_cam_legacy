@@ -1,0 +1,16 @@
+ls
+        D log/
+        D log/
+        D msgdata/
+        D outbox/
+        D sent/
+        D bm/
+      109 README.txt
+        D .Spotlight-V100/
+        D .fseventsd/
+   240532 bm_mote_bristleback_v1_0-serial_bridge-dbg.elf.dfu.bin
+        D SYSTEM~1/
+     4096 ._bm_mote_v1.0-serial_bridge-dbg.elf.dfu.bin
+     4096 ._bm_mote_bristleback_v1_0-serial_bridge-dbg.elf.dfu.bin
+        D .TemporaryItems/
+   249184 bm_mote_v1.0-serial_bridge-dbg.elf.dfu.bin

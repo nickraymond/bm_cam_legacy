@@ -43,10 +43,13 @@ open questions and bugs in DEV_LOG.md.
       fixed 2026-07-26 with boot backups in `/home/pi/boot_backups_sprint09/`
 
 ## 3. Phase A — link integrity (no quota)
-- [ ] Run: `--phase log --count 200 --size 300 --gap-ms 0`
-- [ ] Pull `uart_test.log` via Spotter CLI (`cat` + terminal logging, or
-      `sd usb`) — see docs/spotter_cli_reference.md
-- [ ] Verify 200/200 sequential, CRC-clean; record result in DEV_LOG
+- [x] Run: `--phase log --count 200 --size 300 --gap-ms 0` (run S09A1,
+      2026-07-26: 200 msgs / 60 kB in 6.23 s, ~9.6 kB/s effective)
+- [x] Pull `uart_test.log` via Spotter CLI (`cat` + terminal logging, or
+      `sd usb`) — file lands at `/bm/<mote node id>/NNNN_uart_test.log`,
+      NOT SD root; pulled via scripted `cat` over the USB CLI
+- [x] Verify 200/200 sequential, CRC-clean; record result in DEV_LOG
+      — PASS; artifacts in `runs/20260726_phaseA_S09A1/`
 
 ## 4. Phase B — payload ceiling + pacing floor (cellular quota)
 - [ ] Review Nick's Sofar API tooling; document count query

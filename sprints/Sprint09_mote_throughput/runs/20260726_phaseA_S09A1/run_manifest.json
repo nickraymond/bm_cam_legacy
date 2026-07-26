@@ -1,0 +1,35 @@
+{
+  "run": "Sprint09 Phase A — link integrity",
+  "run_id": "S09A1",
+  "date_utc": "2026-07-26T23:37Z",
+  "bench": {
+    "pi": "bmcam003 (100.103.35.24), /dev/ttyAMA0 @ 115200 (PL011, fixed this session)",
+    "mote_node_id": "53171fa3d81a8e6f",
+    "spotter": "SPOT-33507C via /dev/cu.usbmodemSPOT_33507C1 (Mac USB)"
+  },
+  "command": "python3 test_UART_throughput.py --phase log --count 200 --size 300 --gap-ms 0 --run-id S09A1",
+  "sender_result": {
+    "count": 200, "payload_size": 300, "gap_ms": 0,
+    "sent_bytes": 60000, "wall_s": 6.233, "effective_Bps": 9626
+  },
+  "spotter_file": "/bm/53171fa3d81a8e6f/0139_uart_test.log (65600 B; fprintf files land under /bm/<mote node id>/ with a boot-count prefix, NOT at SD root)",
+  "verification": {
+    "method": "cat over Spotter USB CLI, parsed + CRC8-checked on Mac (verify script in this folder's captures)",
+    "pull1": "199/200 found — seq 74 line split in the Mac serial capture (capture artifact, ~250 B dropped mid-burst)",
+    "pull2": "200/200 found, exact order 0..199, zero CRC failures — PASS",
+    "conclusion": "SD file is complete and clean; pull1 miss was capture-side only"
+  },
+  "result": "PASS — 115200 link CRC-clean at gap 0 (SPEC Phase A success criterion met)",
+  "files": {
+    "uart_test_log_capture.txt": "pull 1 raw capture (has the capture artifact at seq 74)",
+    "uart_test_log_capture2.txt": "pull 2 raw capture (clean, authoritative)",
+    "phase_a_verify.json": "pull 1 parse result",
+    "phase_a_verify_pull2.json": "pull 2 parse result (PASS)",
+    "spotter_ls.txt": "SD root listing (first look, before finding /bm/<node>/)"
+  },
+  "notes": [
+    "Timestamps in the log show ~31 ms/line arrival spacing at gap 0 (Spotter-side).",
+    "Console power ticks (~10 s cadence) interleave with cat output on the USB CLI; parse line-wise and re-pull on any anomaly.",
+    "bm_serial's Python node_id (c0ffeeeef0cacc1a) does NOT determine the SD directory — the bridging mote's id does."
+  ]
+}

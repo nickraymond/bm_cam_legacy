@@ -66,6 +66,19 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **Phase A PASS (run S09A1).** 200 msgs × 300 B at gap 0:
+  200/200 on the Spotter SD, exact order, zero CRC8 failures. Sender: 60 kB
+  in 6.23 s (~9.6 kB/s effective ≈ 83% of the 115200 wire incl. framing).
+  Spotter-side arrival spacing ~31 ms/line. The link is NOT the bottleneck —
+  exactly as SPEC predicted; the pacing floor question is all Spotter-queue
+  (Phase B). Artifacts: `runs/20260726_phaseA_S09A1/` (manifest, raw
+  captures, verify JSON). Two verification gotchas for the record:
+  (1) `spotter/fprintf` files land at `/bm/<bridging mote node id>/` with a
+  boot-count prefix (`0139_uart_test.log`), not SD root, and not under our
+  Python-side node_id (c0ffeeeef0cacc1a); bench mote = 53171fa3d81a8e6f.
+  (2) A 65 kB `cat` over the USB CLI can drop bytes Mac-side — first pull
+  "lost" seq 74, second pull was 200/200 clean. Re-pull before believing a
+  gap.
 - 2026-07-26 **Branching model adopted (Nick):** `main` = released code;
   new `development` branch = integration target for all feature/sprint
   PRs; bench Pi runs the active sprint branch during testing,
