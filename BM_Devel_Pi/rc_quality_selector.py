@@ -45,6 +45,29 @@ TRANSMIT_OVERHEAD_MSGS = 2
 ENCODE_ATTEMPT_ALLOWANCE_S = 1.0
 
 
+def parse_ladder_spec(text):
+    """Parse an explicit YAML ladder spec like "90,80,70,60,50,40,30,25,20,15,13,11,9".
+
+    Comma/space separated ints, strictly descending, each 1..95. This is the
+    field-tunable multi-segment ladder (P7 follow-up, Nick 2026-07-25); when
+    set it overrides q_max/q_min/step.
+    """
+    parts = [p for chunk in str(text).split(",") for p in chunk.split()]
+    if not parts:
+        raise ValueError("quality.ladder is empty")
+    try:
+        ladder = [int(p) for p in parts]
+    except Exception:
+        raise ValueError(f"quality.ladder must be integers, got {text!r}")
+    for q in ladder:
+        if not 1 <= q <= 95:
+            raise ValueError(f"quality.ladder values must be 1..95, got {q}")
+    for higher, lower in zip(ladder, ladder[1:]):
+        if lower >= higher:
+            raise ValueError(f"quality.ladder must be strictly descending, got {ladder}")
+    return ladder
+
+
 def compute_quality_ladder(q_max, q_min, step):
     """Return the descending encode ladder from q_max to q_min inclusive.
 
@@ -62,8 +85,8 @@ def compute_quality_ladder(q_max, q_min, step):
     return ladder
 
 
-def select_quality(source_img, budget, *, q_max, q_min, q_step, message_cap, chunk_b64_chars):
-    """Adaptive ladder step-down. Returns the selection result dict.
+def select_quality(source_img, budget, *, ladder, message_cap, chunk_b64_chars):
+    """Adaptive ladder step-down over an explicit descending ladder list.
 
     reason values:
       fit                 a rung fit both cap and budget (fits=True)
@@ -75,7 +98,12 @@ def select_quality(source_img, budget, *, q_max, q_min, q_step, message_cap, chu
     if message_cap < 1:
         raise ValueError(f"message_cap must be >= 1, got {message_cap}")
 
-    ladder = compute_quality_ladder(q_max, q_min, q_step)
+    ladder = [int(q) for q in ladder]
+    if not ladder:
+        raise ValueError("ladder must not be empty")
+    for higher, lower in zip(ladder, ladder[1:]):
+        if lower >= higher:
+            raise ValueError(f"ladder must be strictly descending, got {ladder}")
 
     attempt_log = []
     last_encode = None

@@ -33,6 +33,7 @@ from rc_quality_selector import (  # noqa: E402
     ENCODE_ATTEMPT_ALLOWANCE_S,
     TRANSMIT_OVERHEAD_MSGS,
     compute_quality_ladder,
+    parse_ladder_spec,
     select_quality,
 )
 from rc_time_budget import CycleBudget  # noqa: E402
@@ -103,7 +104,7 @@ class TestFitAtTop(TestSelectorBase):
     def test_flat_image_fits_first_try(self):
         budget = make_budget(FakeClock(), budget_seconds=18 * 60)
         result = select_quality(
-            self.flat, budget, message_cap=195, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.flat, budget, message_cap=195, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertTrue(result["fits"])
         self.assertEqual(result["reason"], "fit")
@@ -119,7 +120,7 @@ class TestCapForcedStepDown(TestSelectorBase):
         cap = self.counts[13]
         budget = make_budget(FakeClock())
         result = select_quality(
-            self.noise, budget, message_cap=cap, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.noise, budget, message_cap=cap, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertTrue(result["fits"])
         self.assertEqual(result["quality"], 13)
@@ -132,7 +133,7 @@ class TestCapForcedStepDown(TestSelectorBase):
         cap = self.counts[9] - 1
         budget = make_budget(FakeClock())
         result = select_quality(
-            self.noise, budget, message_cap=cap, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.noise, budget, message_cap=cap, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertFalse(result["fits"])
         self.assertEqual(result["reason"], "no_fit_cap")
@@ -150,7 +151,7 @@ class TestBudgetForcedStepDown(TestSelectorBase):
         budget_seconds = (self.counts[11] + TRANSMIT_OVERHEAD_MSGS) * DELAY_S
         budget = make_budget(clock, budget_seconds=budget_seconds)
         result = select_quality(
-            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertTrue(result["fits"])
         self.assertEqual(result["quality"], 11)
@@ -167,7 +168,7 @@ class TestBudgetForcedStepDown(TestSelectorBase):
         budget = make_budget(clock, budget_seconds=budget_seconds)
         clock.advance((self.counts[13] - self.counts[11]) * DELAY_S)  # eat the q13 slack
         result = select_quality(
-            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertTrue(result["fits"])
         self.assertEqual(result["quality"], 11)
@@ -178,7 +179,7 @@ class TestBudgetForcedStepDown(TestSelectorBase):
         budget_seconds = (self.counts[9] + TRANSMIT_OVERHEAD_MSGS) * DELAY_S - 1.0
         budget = make_budget(clock, budget_seconds=budget_seconds)
         result = select_quality(
-            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertFalse(result["fits"])
         self.assertEqual(result["reason"], "no_fit_budget")
@@ -198,7 +199,7 @@ class TestOverheadBoundary(TestSelectorBase):
         budget = make_budget(FakeClock(), budget_seconds=n * DELAY_S)
         result = select_quality(
             self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK,
-            q_max=9, q_min=9, q_step=2,
+            ladder=[9],
         )
         self.assertFalse(result["fits"])  # chunks alone fit, chunks+START/END don't
 
@@ -209,7 +210,7 @@ class TestOverheadBoundary(TestSelectorBase):
         )
         result = select_quality(
             self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK,
-            q_max=9, q_min=9, q_step=2,
+            ladder=[9],
         )
         self.assertTrue(result["fits"])
         self.assertEqual(result["attempts"], 1)
@@ -221,7 +222,7 @@ class TestEncodeAttemptGuard(TestSelectorBase):
         budget = make_budget(clock, budget_seconds=100.0)
         clock.advance(100.0 - ENCODE_ATTEMPT_ALLOWANCE_S / 2)  # 0.5 s left < 1.0 s allowance
         result = select_quality(
-            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, **LADDER_ARGS
+            self.noise, budget, message_cap=HUGE_CAP, chunk_b64_chars=CHUNK, ladder=ladder()
         )
         self.assertFalse(result["fits"])
         self.assertEqual(result["reason"], "no_time_for_encode")
@@ -239,7 +240,7 @@ class TestInputValidation(TestSelectorBase):
         budget = make_budget(FakeClock())
         with self.assertRaises(ValueError):
             select_quality(
-                self.flat, budget, message_cap=0, chunk_b64_chars=CHUNK, **LADDER_ARGS
+                self.flat, budget, message_cap=0, chunk_b64_chars=CHUNK, ladder=ladder()
             )
 
     def test_bad_ladder_rejected(self):
@@ -247,8 +248,40 @@ class TestInputValidation(TestSelectorBase):
         with self.assertRaises(ValueError):
             select_quality(
                 self.flat, budget, message_cap=195, chunk_b64_chars=CHUNK,
-                q_max=9, q_min=15, q_step=2,
+                ladder=[9, 15],  # ascending
             )
+        with self.assertRaises(ValueError):
+            select_quality(
+                self.flat, budget, message_cap=195, chunk_b64_chars=CHUNK,
+                ladder=[],
+            )
+
+
+class TestLadderSpecParsing(TestSelectorBase):
+    def test_field_trial_spec(self):
+        self.assertEqual(
+            parse_ladder_spec("90,80,70,60,50,40,30,25,20,15,13,11,9"),
+            [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9],
+        )
+
+    def test_spaces_tolerated(self):
+        self.assertEqual(parse_ladder_spec("15, 13, 11, 9"), [15, 13, 11, 9])
+
+    def test_invalid_specs_rejected(self):
+        for bad in ("", "abc", "15,15,9", "9,15", "0,5", "96,90"):
+            with self.assertRaises(ValueError):
+                parse_ladder_spec(bad)
+
+    def test_multi_segment_walk(self):
+        # Selector walks an explicit multi-segment ladder in order.
+        budget = make_budget(FakeClock())
+        cap = self.counts[11]  # only q11 and below fit the cap
+        result = select_quality(
+            self.noise, budget, message_cap=cap, chunk_b64_chars=CHUNK,
+            ladder=[15, 13, 11, 9],
+        )
+        self.assertEqual([a["quality"] for a in result["attempt_log"]], [15, 13, 11])
+        self.assertEqual(result["quality"], 11)
 
 
 if __name__ == "__main__":

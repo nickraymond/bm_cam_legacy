@@ -77,7 +77,11 @@ from rc_jpeg_encoder import output_size_for_crop, prepare_source
 from rc_power_halt import perform_power_halt
 # Ladder computation lives in the pure M3 module; re-exported here so entry
 # script callers keep one import point.
-from rc_quality_selector import compute_quality_ladder, select_quality  # noqa: F401
+from rc_quality_selector import (  # noqa: F401
+    compute_quality_ladder,
+    parse_ladder_spec,
+    select_quality,
+)
 from rc_time_budget import CycleBudget
 from rc_transmit import transmit_progressive_image
 
@@ -122,11 +126,19 @@ def resolve_rc_settings(config_path):
     validate_schedule(cfg)
     pacing = resolve_pacing(config_path)
 
-    ladder = compute_quality_ladder(
-        cfg.progressive_jpeg_q_max,
-        cfg.progressive_jpeg_q_min,
-        cfg.progressive_jpeg_q_step,
-    )
+    # Explicit multi-segment ladder wins when configured; q_max/q_min/step
+    # remain the uniform-step fallback.
+    ladder_spec = (cfg.progressive_jpeg_quality_ladder or "").strip()
+    if ladder_spec:
+        ladder = parse_ladder_spec(ladder_spec)
+        ladder_source = "explicit"
+    else:
+        ladder = compute_quality_ladder(
+            cfg.progressive_jpeg_q_max,
+            cfg.progressive_jpeg_q_min,
+            cfg.progressive_jpeg_q_step,
+        )
+        ladder_source = "computed"
 
     budget_seconds = int(cfg.progressive_jpeg_max_run_time_min) * 60
     budget_messages_if_transmit_only = (
@@ -136,10 +148,13 @@ def resolve_rc_settings(config_path):
     return {
         "config_path": config_path,
         "capture_mode": cfg.capture_mode,
-        "q_max": int(cfg.progressive_jpeg_q_max),
-        "q_min": int(cfg.progressive_jpeg_q_min),
+        # q_max/q_min derive from the RESOLVED ladder so telemetry and wake
+        # status always reflect what the selector actually walks.
+        "q_max": ladder[0],
+        "q_min": ladder[-1],
         "q_step": int(cfg.progressive_jpeg_q_step),
         "quality_ladder": ladder,
+        "ladder_source": ladder_source,
         "max_run_time_min": int(cfg.progressive_jpeg_max_run_time_min),
         "budget_seconds": budget_seconds,
         "message_cap": int(cfg.progressive_jpeg_message_cap),
@@ -188,8 +203,8 @@ def print_resolved_settings(s):
         print(f"[RC] capture_mode={s['capture_mode']} (RC inactive; known-good HEIC path owns this cycle)")
 
     print(
-        f"[RC] quality ladder: q_max={s['q_max']} q_min={s['q_min']} step={s['q_step']} "
-        f"-> {s['quality_ladder']}"
+        f"[RC] quality ladder ({s['ladder_source']}): q_max={s['q_max']} "
+        f"q_min={s['q_min']} -> {s['quality_ladder']}"
     )
     print(f"[RC] cycle budget: max_run_time_min={s['max_run_time_min']} ({s['budget_seconds']} s)")
     print(f"[RC] message cap: {s['message_cap']} msgs (field-tested hard cap)")
@@ -378,9 +393,7 @@ def run_cycle(
         selection = select_quality(
             source,
             budget,
-            q_max=settings["q_max"],
-            q_min=settings["q_min"],
-            q_step=settings["q_step"],
+            ladder=settings["quality_ladder"],
             message_cap=settings["message_cap"],
             chunk_b64_chars=settings["pacing_chunk_b64_chars"],
         )

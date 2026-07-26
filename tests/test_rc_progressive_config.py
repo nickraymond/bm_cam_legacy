@@ -74,7 +74,11 @@ class TestRepoYamlParses(unittest.TestCase):
 
     def test_rc_keys_resolved(self):
         self.assertEqual(self.cfg.capture_mode, "heic")
-        self.assertEqual(self.cfg.progressive_jpeg_max_run_time_min, 18)
+        self.assertEqual(self.cfg.progressive_jpeg_max_run_time_min, 16)  # field-trial value
+        self.assertEqual(
+            self.cfg.progressive_jpeg_quality_ladder,
+            "90,80,70,60,50,40,30,25,20,15,13,11,9",
+        )
         self.assertEqual(self.cfg.progressive_jpeg_message_cap, 195)
         self.assertEqual(self.cfg.progressive_jpeg_q_max, 15)
         self.assertEqual(self.cfg.progressive_jpeg_q_min, 9)
@@ -307,8 +311,9 @@ class TestSkeletonDryRun(unittest.TestCase):
         text = out.getvalue()
         self.assertEqual(ret, 0, msg=f"exit={ret}; output:\n{text}")
         self.assertIn("capture_mode=heic", text)
-        self.assertIn("[15, 13, 11, 9]", text)
-        self.assertIn("max_run_time_min=18", text)
+        self.assertIn("[90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]", text)
+        self.assertIn("ladder (explicit)", text)
+        self.assertIn("max_run_time_min=16", text)
         self.assertIn("message cap: 195", text)
         self.assertIn(
             "power_halt: enabled=False dry_run=True mode=halt "

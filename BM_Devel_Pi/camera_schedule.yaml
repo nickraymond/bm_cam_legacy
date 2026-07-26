@@ -75,11 +75,16 @@ capture_mode: "heic"
 # Pacing/chunking intentionally live only in bm_serial below (single source
 # of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
 progressive_jpeg:
-  max_run_time_min: 18     # S07 P2: 16.38 min worst case at the 195-msg cap
+  max_run_time_min: 16     # field-trial setting (Nick 2026-07-25); S07 measured 16.38 min at the 195 cap
   message_cap: 195         # field-tested hard cap on messages per image
   quality:
-    q_max: 15              # start quality (S07: worst coral 188 msgs = 96% of cap)
-    q_min: 9               # floor (S07: q9 worst case 126 msgs always fits)
+    # Field-trial multi-segment ladder (Nick 2026-07-25): 90->30 by 10,
+    # ->15 by 5, ->9 by 2. The adaptive selector steps down until the frame
+    # fits the cap AND the remaining budget, so a high start is safe.
+    # When ladder is set it overrides q_max/q_min/step below.
+    ladder: "90,80,70,60,50,40,30,25,20,15,13,11,9"
+    q_max: 15              # fallback uniform ladder (S07-validated) if ladder is unset
+    q_min: 9
     step: 2
   # RC frozen geometry (S07 byte-validated), separate from the HEIC
   # image_pipeline crop so flipping capture_mode never edits shared geometry.

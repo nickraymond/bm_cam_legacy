@@ -123,6 +123,9 @@ class CameraSchedule:
     progressive_jpeg_q_max: int = 15
     progressive_jpeg_q_min: int = 9
     progressive_jpeg_q_step: int = 2
+    # Optional explicit multi-segment ladder, e.g. "90,80,70,60,50,40,30,25,20,15,13,11,9".
+    # When non-empty it overrides q_max/q_min/step (parsed/validated RC-side).
+    progressive_jpeg_quality_ladder: str = ""
 
     # RC frozen geometry (S07 byte-validated), separate from the HEIC
     # image_pipeline crop. NATIVE 4608x2592 sensor-equivalent coords; the
@@ -306,6 +309,8 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
                         cfg.progressive_jpeg_q_min = int(value)
                     elif key == "step":
                         cfg.progressive_jpeg_q_step = int(value)
+                    elif key == "ladder":
+                        cfg.progressive_jpeg_quality_ladder = value
                     continue
 
                 if subsection == "crop":
