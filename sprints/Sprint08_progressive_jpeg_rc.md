@@ -105,7 +105,7 @@ the field cadence.
 | P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | 🔍 IN REVIEW | P0 |
 | P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | 🔍 IN REVIEW | P3, P4 |
 | P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ✅ DONE | P0 |
-| P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ☐ TODO | P3, P4, P5, P6 |
+| P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ✅ DONE | P3, P4, P5, P6 |
 | P8 | Weekend RC soak | run the integrated RC on the Pi over a weekend | logs show all four behaviors (JPEG · adaptive · incomplete log · halt) | ☐ TODO | P7 |
 
 **Legend:** ☐ TODO · 🔄 IN PROGRESS · 🔍 IN REVIEW · ✅ DONE · ⛔ DEFERRED.
@@ -406,3 +406,45 @@ that differs from the repo YAML — P7's deploy must merge config deliberately. 
 still on the Sprint07 branch (P6 deployed via scp from the reviewed worktree instead).
 `rfkill` check inconclusive over non-login SSH (BT unused by the runtime; script-header note
 stands).
+
+### P7 — M7 orchestrator integration (2026-07-25/26 UTC, ✅ DONE — real cycles on bmcam000)
+
+**Decisions (Nick-approved):** reuse production `_run_native_full_capture` (watchdog/retries/
+telemetry, exact libcamera args); Pi bench YAML kept with the **wide-open window** (00:01–23:59
+NY) — RC keys appended only, nothing replaced; `power_halt.enabled: false` for the bench phase
+(all-day testing must not self-halt; P8 flips it). `capture_mode: progressive_jpeg` on the Pi
+gates only the RC script — the @reboot HEIC cron is unaffected and keeps running.
+
+**Landed (off-device):** `rc_progressive_jpeg.py` grew from skeleton to M7 orchestrator —
+one `CycleBudget` from process start → schedule gate (transmit only; manual modes never touch
+the bus) → capture → M2 prepare → M3 ladder → persist JPEG + sidecar + CSV → M5 transmit →
+M6 halt in `finally`. CLI safety ladder: default = no-bus plan · `--capture-only` ·
+`--compress-only NATIVE` · `--transmit` (only bus flag) · `--print-config` ·
+`--skip-time-window` · `--output-dir`. Fix found during deploy inspection: the bench unit runs
+**manual focus (lens_position 1.82) via the camera_controls island** — the RC now loads and
+applies the same island through the production capture (with its built-in no-controls fallback).
+`tests/test_rc_orchestrator.py` — **7/7** running the real M1–M6 wiring on the committed coral
+native with fake tx/sleep/clock/halt. All 8 suites green (~126 tests).
+
+**On-device evidence (bmcam000):**
+- Deploy: YAML + `spotter_time_sync.py` backed up (`.before_rc_20260726T032045Z`; restore =
+  `cp` back); 7 RC modules + updated `spotter_time_sync.py` scp'd; `py_compile` clean on ALL
+  runtime files incl. production; production loader validates the appended config; HEIC values
+  unchanged (`heic_out=1600x900`).
+- `--print-config`: resolves on Pi, pacing `source=yaml` (PyYAML present, as predicted at P0).
+- `--capture-only`: **PASS** — manual-focus controls applied, native 1.5 MB in 8.2 s, prepare
+  1.2 s → 1000×562, halt-disabled path, 9.4 s of 1080 s budget.
+- `--compress-only`: **PASS** — bench scene q15 first try (17.2 KB → 77 msgs), final JPEG +
+  sidecar written, plan est 6.4 min.
+- **Full `--transmit` cycle: PASS** — real Spotter-time gate, WS heartbeat (`a=cap ...
+  rk=1000x562 q=15`), capture → q15 fit (1 attempt) → **77/77 chunks complete, uart 391.2 s,
+  total cycle 411 s of 1080 s** (6.9 min, 11+ min margin).
+- **Forced incomplete cycle (temp 3-min-budget config, removed after): PASS** — full ladder
+  walk q15→q13→q11→q9 (4 attempts logged, all `budget_fit=False`), floor returned
+  `fits=False reason=no_fit_budget`, **a=inc emitted to the real bus, bounded send 30/47
+  chunks, cycle closed at 170.9 s of 180 s** — the budget was never exceeded.
+
+**Not tested:** backend-side parsing/rendering of the RC messages (separate backend PR; the
+bench Spotter did receive real complete + bounded transmissions to verify against);
+`power_halt` inside a real RC cycle (validated standalone in P6; enabled only at P8); q17+ and
+non-bench scenes (S07 covers the reference fleet).

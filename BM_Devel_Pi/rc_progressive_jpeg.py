@@ -217,6 +217,22 @@ def print_resolved_settings(s):
 # Cycle pieces (each injectable for off-device tests)
 # ---------------------------------------------------------------------------
 
+def _load_camera_controls_island(config_path):
+    """Return the nested image_pipeline.camera_controls block (production
+    behavior parity — bmcam000 uses manual focus lens_position via this
+    island). Best-effort: needs PyYAML; missing/unparseable -> {}."""
+    try:
+        import yaml
+
+        with open(config_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        controls = (data.get("image_pipeline") or {}).get("camera_controls")
+        return controls if isinstance(controls, dict) else {}
+    except Exception as exc:
+        debug_print(f"camera_controls island unavailable ({exc}); capturing without controls")
+        return {}
+
+
 def _default_capture(settings, output_dir):
     """Native full capture via the production watchdog path. Returns
     (native_path, capture_info, image_stem)."""
@@ -230,6 +246,12 @@ def _default_capture(settings, output_dir):
     native_path = os.path.join(output_dir, f"{image_stem}_native_full.jpg")
     log_prefix = os.path.join(output_dir, f"{image_stem}_native_full")
 
+    # Apply the same camera_controls the HEIC path applies (e.g. bmcam000's
+    # manual focus); _run_native_full_capture already handles the fallback
+    # retry without controls if the camera app rejects them.
+    controls = _load_camera_controls_island(settings["config_path"])
+    capture_settings = {"camera_controls": controls} if controls else None
+
     capture_info = _run_native_full_capture(
         command=command,
         native_image_path=native_path,
@@ -237,7 +259,7 @@ def _default_capture(settings, output_dir):
         source_height=settings["source_height"],
         jpeg_quality=settings["source_jpeg_quality"],
         log_prefix=log_prefix,
-        settings=None,  # camera_controls island not applied by the RC (documented)
+        settings=capture_settings,
     )
     return native_path, capture_info, image_stem
 
