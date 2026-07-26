@@ -104,7 +104,7 @@ the field cadence.
 | P3 | **M3** adaptive quality selector | M1+M2 ladder step-down | synthetic high-detail images forcing step-downs | 🔍 IN REVIEW | P1, P2 |
 | P4 | **M4** uplink message fields | envelope fields (format/q/attempts/complete) | emitted-string asserts + backend parse check | 🔍 IN REVIEW | P0 |
 | P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | 🔍 IN REVIEW | P3, P4 |
-| P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ☐ TODO | P0 |
+| P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ✅ DONE | P0 |
 | P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ☐ TODO | P3, P4, P5, P6 |
 | P8 | Weekend RC soak | run the integrated RC on the Pi over a weekend | logs show all four behaviors (JPEG · adaptive · incomplete log · halt) | ☐ TODO | P7 |
 
@@ -373,3 +373,36 @@ is the contract); on-Pi emission (P7).
 
 **Not tested:** real UART/BM-bus emission (P7 wires `spotter_tx`); backend ingestion of a
 bounded partial (separate backend PR; S07 P4 covered the render side).
+
+### P6 — M6 power halt (2026-07-25/26 UTC, ✅ DONE — real halt validated at the bench)
+
+**Decisions (Nick-approved):** deployed copy of the halt script lives in `/home/pi/BM_Devel_Pi/`
+(`power_halt.script_path` YAML key, default there); invoke via `sudo -n /bin/bash <script>`
+(fail-fast, no password hangs); halt failure logs loudly and returns — **never raises**. Pass
+criteria (no power meter on the bench now that bmcam000 is wired to the Spotter): SSH drops →
+box stays down → boots clean on power cycle (draw itself was validated in PR #5).
+
+**Landed:** `BM_Devel_Pi/rc_power_halt.py` (`perform_power_halt` with disabled / dry_run /
+halt_initiated / failed results; runner/log injectable), `script_path` config key + validation,
+skeleton prints it. `tests/test_rc_power_halt.py` — **11/11** off-device (fake runner: dry-run
+executes nothing, --poweroff wiring, nonzero-exit/exception/missing-script all fail loud
+without raising).
+
+**On-device evidence (bmcam000, Nick at bench):**
+- Pre-checks: no camera processes; crontab backed up (`/home/pi/crontab_backup_20260726T030019Z.txt`);
+  code/config backup `BM_Devel_Pi_code_backup_20260726T030019Z.tar.gz` (restore:
+  `cd /home/pi && tar xzf BM_Devel_Pi_code_backup_20260726T030019Z.tar.gz`); `sudo -n` OK.
+- Deploy: `rc_power_halt.py` + `tuned_halt.sh` scp'd, md5-verified (`b7d420f5…`).
+- Dry-run on Pi: prints exact command, executes nothing. Disabled path: no-op. PASS.
+- **Real halt: PASS** — wrapper returned `halt_initiated` (rc 0), SSH dropped (~15 s), box
+  confirmed unreachable, stayed down until physical power cycle, booted clean (~10 s to SSH).
+- **Recovery regression bonus:** the `@reboot` cron fired and the known-good HEIC path ran a
+  full capture→HEIC→54-buffer transmit cycle normally — halt/recovery left production intact.
+  CMA intact (`CmaTotal 131072 kB`).
+
+**Notes / not tested:** power draw not re-measured (PR #5 stands); Pi's deployed
+`camera_schedule.yaml` is a bench config (always-on window, America/New_York, 1600×900 HEIC)
+that differs from the repo YAML — P7's deploy must merge config deliberately. Pi repo clone
+still on the Sprint07 branch (P6 deployed via scp from the reviewed worktree instead).
+`rfkill` check inconclusive over non-login SSH (BT unused by the runtime; script-header note
+stands).
