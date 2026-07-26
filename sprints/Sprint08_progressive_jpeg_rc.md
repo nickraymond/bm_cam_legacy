@@ -106,7 +106,7 @@ the field cadence.
 | P5 | **M5** incomplete-cycle path | no-fit message + bounded partial send | forced no-fit scenario | 🔍 IN REVIEW | P3, P4 |
 | P6 | **M6** power halt | wrap the tested halt | dry-run → real halt on Pi | ✅ DONE | P0 |
 | P7 | **M7** orchestrator integration | wire M1–M6 into the config-gated RC path | off-device dry run → 1 real cycle on Pi | ✅ DONE | P3, P4, P5, P6 |
-| P8 | Weekend RC soak | run the integrated RC on the Pi over a weekend | logs show all four behaviors (JPEG · adaptive · incomplete log · halt) | ☐ TODO | P7 |
+| P8 | Weekend RC soak | run the integrated RC on the Pi over a weekend | logs show all four behaviors (JPEG · adaptive · incomplete log · halt) | 🔄 IN PROGRESS | P7 |
 
 **Legend:** ☐ TODO · 🔄 IN PROGRESS · 🔍 IN REVIEW · ✅ DONE · ⛔ DEFERRED.
 Session rule (as Sprint06/07): first non-✅/⛔ row whose dependencies are ✅.
@@ -448,3 +448,32 @@ native with fake tx/sleep/clock/halt. All 8 suites green (~126 tests).
 bench Spotter did receive real complete + bounded transmissions to verify against);
 `power_halt` inside a real RC cycle (validated standalone in P6; enabled only at P8); q17+ and
 non-bench scenes (S07 covers the reference fleet).
+
+### P8 — Weekend RC soak (armed 2026-07-26 UTC, 🔄 IN PROGRESS)
+
+**Field model (Nick):** Spotter power-cycles the camera 20 min on / 40 min off (customer
+cadence). Each power-on: boot → @reboot cron → one RC cycle → **real halt**. Hourly real
+cellular messages accepted. Note: current bench Spotter does not forward to the backend —
+Nick will hard-wire a new Spotter; incomplete-path exercise via early power-kills comes after
+stability is confirmed (not gating).
+
+**Landed:** `BM_Devel_Pi/rc_run_capture_cycle.sh` (RC cron wrapper: rc_cycle_*.log, disk
+snapshot, py_compile gate) and `tools/bm_rc_soak_rollup.py` (pull + parse → cycles.csv,
+soak_summary.json, 4-behavior acceptance verdict; `--from-dir` offline mode; **6/6 fixture
+tests** incl. truncated-at-halt logs).
+
+**Staged on bmcam000 (armed):**
+- Wrapper validation run 1: schedule gate **failed closed correctly** (Spotter utc-time missed
+  the 60 s window → skip_win heartbeat, clean exit — production fail-closed semantics, RC
+  plumbing fine). Run 2: gate passed (transient), full cycle q90→q80→q70 (283/190/153 msgs),
+  complete transmit. Spotter time broadcast is intermittent on this bench — a missed gate in
+  the soak = one skipped (and halted) power window, power-safe by design.
+- **ARMED:** `power_halt.enabled: true, dry_run: false`; crontab HEIC @reboot line commented,
+  RC @reboot (flock `/tmp/bmcam_rc_capture.lock`) installed. Backups:
+  `camera_schedule.yaml.before_soak_arm_20260726T043525Z`,
+  `/home/pi/crontab_backup_soak_arm_20260726T043525Z.txt`. Restore = cp back + `crontab` the
+  backup file. ⚠ Any RC invocation now halts the box at cycle end, manual runs included.
+- Box left RUNNING for Nick's AM verification; soak starts when the Spotter cadence is set.
+
+**Monday close-out:** `python3 tools/bm_rc_soak_rollup.py` → review cycles.csv/summary →
+verdict here → tracker ✅.
