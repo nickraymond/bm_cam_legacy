@@ -1,0 +1,137 @@
+# RC FIELD TEMPLATE — device_profiles/rc_field_template/camera_schedule.yaml
+# Installed by: tools/deploy_rc_runtime.sh --fresh --profile rc_field_template
+#
+# EDIT PER DEPLOYMENT before installing:
+#   - timezone_preset / timezone (deployment site)
+#   - transmit_window start/end (customer schedule)
+#   - image_pipeline.camera_controls focus lens_position (per-unit bench focus)
+# Everything else is the Sprint08 RC release configuration:
+#   progressive JPEG, ladder 90->9, 16-min budget, 195-msg cap, halt armed.
+
+# Local deployment schedule for legacy BM camera production runtime.
+#
+# time_source controls where the app gets UTC for the transmit-window decision:
+#   spotter_utc -> subscribe to BM/Spotter topic spotter/utc-time. Use for bmcam002.
+#   rtc         -> set/read Linux time from Pi hardware RTC using hwclock. Use for bmcam001.
+#   system      -> bench-only fallback; not recommended for production.
+time_source: "spotter_utc"
+
+timezone_preset: "sf"
+timezone: "America/Los_Angeles"
+
+enforce_time_window: true
+enforce_spotter_time_window: true
+
+transmit_window:
+  start: "08:00"
+  end: "15:00"
+
+set_system_clock_from_spotter: true
+spotter_time_timeout_seconds: 60
+allow_system_clock_fallback: false
+uart_port: "/dev/ttyAMA0"
+baudrate: 115200
+
+rtc:
+  hwclock_path: "/usr/sbin/hwclock"
+  set_system_clock_from_rtc: true
+  require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
+
+# Legacy Picamera2 fallback settings. These remain for rollback by setting
+# image_pipeline.enabled: false.
+image:
+  resolution_key: "720p"
+  image_quality: 25
+
+# DEV bmcam000 libcamera/rpicam image pipeline.
+# Coordinate system: crop x/y/w/h are in native full JPEG coordinates.
+# Spatial density is the output size after cropping/downsampling.
+# Validated bmcam000 production candidate:
+# native 4608x2592 -> fixed 3072x1728 crop -> 2688x1512 output -> HEIC Q20.
+# 3072x1728 output captured successfully, but HEIC encode was unstable on bmcam000.
+image_pipeline:
+  enabled: true
+  capture_backend: "rpicam"
+
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+
+  crop:
+    mode: "fixed"
+    x: 768
+    y: 432
+    w: 3072
+    h: 1728
+
+  spatial:
+    output_width: 2688
+    output_height: 1512
+    resample: "lanczos"
+
+  heic:
+    quality: 20
+
+# Sprint08 progressive-JPEG release candidate (RC). Config-gated:
+#   heic             -> known-good production path (main_pi_camera.py), unchanged
+#   progressive_jpeg -> RC entry script (rc_progressive_jpeg.py)
+capture_mode: "progressive_jpeg"
+
+# RC quality ladder + cycle budget (Sprint07 Pi-validated on bmcam000; see
+# sprints/Sprint08_progressive_jpeg_rc.md section 4).
+# Ladder = encode at q_max, step down by quality.step until q_min:
+# defaults give 15 -> 13 -> 11 -> 9. q17+ is dead (206 msgs > 195-msg cap).
+# Pacing/chunking intentionally live only in bm_serial below (single source
+# of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
+progressive_jpeg:
+  max_run_time_min: 16     # field-trial setting (Nick 2026-07-25); S07 measured 16.38 min at the 195 cap
+  message_cap: 195         # field-tested hard cap on messages per image
+  quality:
+    # Field-trial multi-segment ladder (Nick 2026-07-25): 90->30 by 10,
+    # ->15 by 5, ->9 by 2. The adaptive selector steps down until the frame
+    # fits the cap AND the remaining budget, so a high start is safe.
+    # When ladder is set it overrides q_max/q_min/step below.
+    ladder: "90,80,70,60,50,40,30,25,20,15,13,11,9"
+    q_max: 15              # fallback uniform ladder (S07-validated) if ladder is unset
+    q_min: 9
+    step: 2
+  # RC frozen geometry (S07 byte-validated), separate from the HEIC
+  # image_pipeline crop so flipping capture_mode never edits shared geometry.
+  # Coordinates are NATIVE 4608x2592 sensor-equivalent. The default IS the
+  # exact center crop ((4608-1600)/2, (2592-900)/2); the crop is fixed config
+  # constants — no on-device tag detection. Card-centered bench alternative:
+  # x: 1467, y: 1255.
+  crop:
+    x: 1504
+    y: 846
+    w: 1600
+    h: 900
+  output_width: 1000       # lanczos output width; height follows crop aspect (562)
+
+# RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
+# dry_run true logs the halt intent without halting (bench-safe default).
+# Recovery from a real halt is a manual power cycle.
+power_halt:
+  enabled: true            # FIELD: halt at cycle end (power-cycle cadence model)
+  dry_run: false
+  mode: "halt"             # halt | poweroff
+  script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
+
+# Bristlemouth/Sofar image-transfer settings.
+# network_type:
+#   0x01 / 1 = legacy sat/cell fallback queue
+#   0x02 / 2 = cellular-only queue
+# Keep image_buffer_size at 300 for this test; do not change the working chunking path.
+bm_serial:
+  network_type: 0x02
+  image_buffer_size: 300
+  image_transmit_delay_seconds: 5
+
+# Future hardening, not enabled in this patch:
+# camera:
+#   exposure:
+#   white_balance:
+#   focus:
+#   image_processing:
+#   capture:

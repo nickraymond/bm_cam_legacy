@@ -1,0 +1,91 @@
+# bmcam000 bench/soak profile — RECONSTRUCTED 2026-07-26 from the live unit's
+# config (read + armed earlier the same night; box was halted at snapshot
+# time). VERIFY against the live file at the next power window:
+#   ssh pi@bmcam000 'diff /home/pi/BM_Devel_Pi/camera_schedule.yaml -' < this file
+# Bench-specific: wide-open window (00:01-23:59), America/New_York, halt ARMED.
+
+time_source: spotter_utc
+timezone_preset: ''
+timezone: America/New_York
+enforce_time_window: true
+enforce_spotter_time_window: true
+transmit_window:
+  start: '00:01'
+  end: '23:59'
+set_system_clock_from_spotter: true
+spotter_time_timeout_seconds: 60
+allow_system_clock_fallback: false
+uart_port: /dev/ttyAMA0
+baudrate: 115200
+rtc:
+  hwclock_path: /usr/sbin/hwclock
+  set_system_clock_from_rtc: true
+  require_plausible_after_utc: '2026-01-01T00:00:00+00:00'
+image:
+  resolution_key: 720p
+  image_quality: 25
+image_pipeline:
+  enabled: true
+  capture_backend: libcamera
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+  crop:
+    mode: fixed
+    x: 768
+    y: 432
+    w: 3072
+    h: 1728
+  spatial:
+    output_width: 1600
+    output_height: 900
+    resample: lanczos
+  heic:
+    quality: 20
+  camera_controls:
+    enabled: true
+    focus:
+      enabled: true
+      mode: manual
+      lens_position: 1.82
+      range: normal
+      speed: normal
+    white_balance:
+      enabled: true
+      mode: auto
+    exposure:
+      enabled: true
+      mode: auto
+    image_processing:
+      enabled: false
+bm_serial:
+  network_type: 2
+  image_buffer_size: 300
+  image_transmit_delay_seconds: 5
+
+# Sprint08 progressive-JPEG RC (config-gated; entry: rc_progressive_jpeg.py).
+# capture_mode gates ONLY the RC script; main_pi_camera.py (HEIC) ignores it,
+# so the @reboot cron keeps running the known-good HEIC cycle during bench.
+capture_mode: "progressive_jpeg"
+
+progressive_jpeg:
+  max_run_time_min: 16
+  message_cap: 195
+  quality:
+    ladder: "90,80,70,60,50,40,30,25,20,15,13,11,9"
+    q_max: 15
+    q_min: 9
+    step: 2
+  crop:
+    x: 1504
+    y: 846
+    w: 1600
+    h: 900
+  output_width: 1000
+
+power_halt:
+  enabled: true           # SOAK ARMED 2026-07-26: halt at every cycle end
+  dry_run: false          # SOAK ARMED: real halt
+  mode: "halt"
+  script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"
