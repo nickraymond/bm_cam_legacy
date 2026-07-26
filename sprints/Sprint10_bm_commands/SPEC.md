@@ -58,8 +58,12 @@ must not be able to brick the capture loop):
 Value tables live in one module (`command_tables.py`) and are the single
 source of truth, versioned in git:
 
-- `roi`: 0=full, 1=center-75%, 2=center-50%, 3=top-half, 4=bottom-half
-  *(placeholder — confirm against field framing needs, Q3 in DEV_LOG)*
+- `roi`: centered **zoom** presets (Q3 answered 2026-07-26 — no pan in
+  v1). Concentric 16:9 crops in native 4608×2592 coords, all downsampled
+  to the same 1000 px output (constant transmission budget):
+  0=default 1600×900, 1=full-frame 4608×2592 (widest), 2=3072×1728,
+  3=2304×1296, 4=1000×562 (max detail; floor avoids upsampling).
+  *(rect values placeholder except 0 — finalize before field deployment)*
 - `foc`: 0=auto, 1..N=manual positions at fixed distances
 - `awb`: 0=auto, 1=daylight, 2=cloudy, 3=custom-underwater preset
 - `exp`: 0=auto, 1..N=EV compensation steps
