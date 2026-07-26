@@ -33,9 +33,19 @@ incidental findings. Newest entries at top within each section.
   selector will land much higher quality for the same 195-message cap.
   Keep cap at 195 and let quality float up, or retarget? *Default: keep
   cap, observe Phase C, retune next sprint.*
-- **Q6 — Alert/status traffic on 0x01.** SPEC says non-image traffic
-  stays sat/cell fallback. Confirm nothing else in the RC path sends via
-  `spotter_tx` with the image network_type. *Check during §1.*
+- **Q6 — Alert/status traffic on 0x01.** ✅ CHECKED 2026-07-26 (§1), with a
+  finding for Nick: WS wake-status telemetry in the RC path
+  (`send_wake_status` → `process_image_v2.send_compact_text_message` →
+  `spotter_tx` with no per-call override) rides the instance default
+  network_type — **0x02 cellular-only** on RC config, not the 0x01 that
+  DESIGN D5 says status traffic should use. It delivered fine during the
+  Sprint08 soak, so no urgent bug — but it contradicts D5's stated intent.
+  `spotter_tx(data, network_type=...)` already supports a per-call
+  override, so forcing WS to 0x01 is a one-line change in
+  `send_compact_text_message` if wanted. **Nick to decide: leave as-is or
+  pin WS to 0x01.** No behavior changed in §1. Nothing else in the RC path
+  sends via spotter_tx (callers: RC image chunks/START/END/a=inc via the
+  tx callable, WS telemetry, and the HEIC path's own sends).
 
 ## Known constraints (carried in)
 
@@ -51,13 +61,45 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
-*(empty — append as they happen, with date + one-line reason)*
+- 2026-07-26 **§1 landed; TRACKER §1 all checked.** `bm_serial.py` gains
+  `load_uart_config()` (top-level `uart_port`/`baudrate`, same keys as
+  `spotter_time_sync.py`); constructor uses it when `uart is None`. Any
+  missing/invalid config falls back to the old hardcoded `/dev/ttyAMA0` @
+  115200, so worst case is exactly the pre-change behavior. Framing
+  (header/CRC/COBS) untouched. Pinned by `tests/test_bm_serial_uart_config.py`
+  (all 4 device profiles + repo YAML resolve to the committed defaults).
+  Off-device suite: 137 passed. NOT tested: real UART open through the new
+  path — needs the Pi at §2 deploy.
+- 2026-07-26 **rc_time_budget sanity check (SPEC "Interaction" note):
+  no code change needed.** `CycleBudget` is pure `n × seconds_per_message`
+  math, chunk-size-agnostic. Numbers (cap 195 + START/END, budget 16 min):
+  - delay 5 s (today): budget binds at ~190 msgs, just under the cap —
+    unchanged from S07's measured 16.38 min. Max image at cap with
+    980-char chunks: ~140 KB raw (vs ~43 KB at 300 chars).
+  - delay < ~4.9 s: the 195 cap becomes the binding constraint; quality
+    floats up (the point of the sprint). Full 197-msg send: 8.2 min @2.5 s,
+    2.05 min @625 ms, 1.03 min @312.5 ms → SPEC's 1–2 min awake target
+    implies a Phase B floor ≤ ~600 ms.
+  - `max_run_time_min: 16` goes slack once delay drops — keep as safety
+    backstop (Q5 default stands: keep cap, observe Phase C).
+  - 980 % 4 = 0 → chunk boundaries stay b64-aligned; 70 KB JPEG = 98 msgs
+    @980 (matches SPEC's ~96–98 estimate).
 
 ## Bugs / issues
 
 *(empty — append with repro steps; move to tracker if they block)*
 
 ## Scratch / incidental findings
+
+- 2026-07-26 **Spotter Mac terminal connection (from Nick, screenshot):**
+  port `usbmodemSPOT_33507C1` (→ `/dev/cu.usbmodemSPOT_33507C1`), 115200
+  8N1, no HW flow control, XON/XOFF software flow control on, DTR/RTS on
+  at open. Port name carries the Spotter ID suffix `33507C1`. Phase A log
+  pull: use the terminal app's File Capture while `cat uart_test.log`.
+- 2026-07-26 `device_profiles/bmcam001` and `bmcam002` have **no
+  `bm_serial:` block** (legacy HEIC profiles; pre-existing). They fall back
+  to code defaults: network_type 0x01 fallback queue. Out of Sprint09
+  scope — do not add the block to field-unit profiles without Nick.
 
 - 2026-07-26 **network_type numbering discrepancy — flag, do not "fix".**
   Forum t/575 (Sofar staff) describes network types as **0** = cell/Iridium

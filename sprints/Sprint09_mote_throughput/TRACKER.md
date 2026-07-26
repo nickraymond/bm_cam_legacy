@@ -4,17 +4,25 @@ Checklist only. Rationale lives in SPEC.md; decisions in DESIGN.md;
 open questions and bugs in DEV_LOG.md.
 
 ## 0. Setup
-- [ ] Create feature branch `sprint-09-uart-throughput`
+- [x] Create feature branch `sprint-09-uart-throughput` (2026-07-26, from origin/main c6afba8)
 - [ ] Answer/triage open questions in DEV_LOG.md with Nick (Q1–Q3 gate Phase A/B)
+      — Q1–Q3 answered pre-sprint; Q6 answered in §1 (finding needs Nick's call);
+      Q4 still open, gates §2
 - [ ] Confirm bench unit identity + which `device_profiles/` YAML it runs
 
 ## 1. Config plumbing (no hardware)
-- [ ] `BristlemouthSerial.__init__`: read `uart_port`/`baudrate` from YAML
+- [x] `BristlemouthSerial.__init__`: read `uart_port`/`baudrate` from YAML
       when `uart is None` (defaults unchanged; framing untouched)
-- [ ] Sanity-check `rc_time_budget.py` math with ~980-char chunks
+      — `load_uart_config()` + `tests/test_bm_serial_uart_config.py`
+- [x] Sanity-check `rc_time_budget.py` math with ~980-char chunks
       (message_cap 195 / max_run_time interaction — SPEC "Interaction" note)
-- [ ] Mirror schema into `device_profiles/*/camera_schedule.yaml` + field template
-- [ ] Smoke test: RC cycle dry-path with unchanged values (no regression)
+      — no code change needed; numbers table in DEV_LOG 2026-07-26
+- [x] Mirror schema into `device_profiles/*/camera_schedule.yaml` + field template
+      — nothing to mirror: no new keys this sprint; `uart_port`/`baudrate`
+      already present in all 4 profiles + main YAML (pinned by new tests)
+- [x] Smoke test: RC cycle dry-path with unchanged values (no regression)
+      — full off-device suite 137 passed (was 130); on-Pi UART open via the
+      new path still needs §2 deploy verification (can't open serial on Mac)
 
 ## 2. Test prep (bench)
 - [ ] Deploy `test_UART_throughput.py` next to `bm_serial.py` on the Pi
