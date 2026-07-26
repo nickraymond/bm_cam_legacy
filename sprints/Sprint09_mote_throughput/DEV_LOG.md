@@ -26,9 +26,13 @@ incidental findings. Newest entries at top within each section.
   reference: bm_core pins `spotter_tx_max_cellular_payload_bytes 1000`;
   forum staff say "~1000 bytes". Expect ≥1000 to fail; probe proves it.
   No hard quota cap set — keep counts modest, log spend per run.
-- **Q4 — Bench unit identity.** Which bmcam is on the bench (bmcam000?),
-  and does its `device_profiles/` YAML match the deployed
-  `/home/pi/BM_Devel_Pi/camera_schedule.yaml`? *Verify before editing.*
+- **Q4 — Bench unit identity.** ✅ ANSWERED 2026-07-26 (Nick): bmcam003
+  (100.103.35.24) on the bench, talking to Spotter SPOT-33507C (Mac USB
+  port `usbmodemSPOT_33507C1`). No `device_profiles/bmcam003/` dir exists —
+  deployed YAML came from `rc_field_template` at provision (verified
+  on-Pi: bm_serial block + uart keys match template). Spotter + camera
+  backend/website registration deliberately deferred until local hardware
+  testing is complete (Nick 2026-07-26).
 - **Q5 — message_cap / ladder retune.** With ~980-char chunks the quality
   selector will land much higher quality for the same 195-message cap.
   Keep cap at 195 and let quality float up, or retarget? *Default: keep
@@ -42,10 +46,11 @@ incidental findings. Newest entries at top within each section.
   Sprint08 soak, so no urgent bug — but it contradicts D5's stated intent.
   `spotter_tx(data, network_type=...)` already supports a per-call
   override, so forcing WS to 0x01 is a one-line change in
-  `send_compact_text_message` if wanted. **Nick to decide: leave as-is or
-  pin WS to 0x01.** No behavior changed in §1. Nothing else in the RC path
-  sends via spotter_tx (callers: RC image chunks/START/END/a=inc via the
-  tx callable, WS telemetry, and the HEIC path's own sends).
+  `send_compact_text_message` if wanted. **DECIDED 2026-07-26 (Nick): keep
+  0x02 cellular-only for everything on RC config, WS included — working
+  and tested; no change.** Nothing else in the RC path sends via
+  spotter_tx (callers: RC image chunks/START/END/a=inc via the tx
+  callable, WS telemetry, and the HEIC path's own sends).
 
 ## Known constraints (carried in)
 
@@ -61,6 +66,32 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§2 bench prep complete on bmcam003 — full record + rollback.**
+  Sequence (SSH as pi@100.103.35.24; all backups timestamped
+  `20260726T162224`):
+  1. Crontab backed up → `/home/pi/crontab_backup_sprint09_20260726T162224.txt`;
+     `@reboot` RC line commented out. In-flight boot cycle killed via
+     SIGTERM before its finally-halt could run.
+  2. Deployed YAML backed up →
+     `/home/pi/camera_schedule_backup_sprint09_20260726T162224.yaml`;
+     `power_halt` flipped to `enabled: false` / `dry_run: true` (was field
+     values enabled/real — bench-safe dev state per DESIGN).
+  3. UART boot fix (Nick-approved; see Bugs): backups →
+     `/home/pi/boot_backups_sprint09/{config.txt,cmdline.txt}.20260726T162224`;
+     appended `dtoverlay=disable-bt` to config.txt, removed
+     `console=serial0,115200` from cmdline.txt, hciuart n/a, rebooted.
+  4. Verified post-reboot: `/dev/serial0 → ttyAMA0`, no serial console, no
+     camera processes, serial-getty disabled, CmaTotal 262144 kB, and
+     `BristlemouthSerial()` opens `/dev/ttyAMA0` @ 115200 through the new
+     YAML path (network 0x02) — closes §1's untested on-Pi gap.
+  ROLLBACK (restore field state): `crontab
+  /home/pi/crontab_backup_sprint09_20260726T162224.txt`; `cp
+  /home/pi/camera_schedule_backup_sprint09_20260726T162224.yaml
+  /home/pi/BM_Devel_Pi/camera_schedule.yaml`; `sudo cp
+  /home/pi/boot_backups_sprint09/config.txt.20260726T162224
+  /boot/firmware/config.txt` + same for cmdline.txt; `sudo reboot`.
+  (Note: boot-config rollback would re-break the BM link — the UART fix
+  should become permanent fleet config, not be rolled back.)
 - 2026-07-26 **§1 landed; TRACKER §1 all checked.** `bm_serial.py` gains
   `load_uart_config()` (top-level `uart_port`/`baudrate`, same keys as
   `spotter_time_sync.py`); constructor uses it when `uart is None`. Any
@@ -87,7 +118,19 @@ incidental findings. Newest entries at top within each section.
 
 ## Bugs / issues
 
-*(empty — append with repro steps; move to tracker if they block)*
+- 2026-07-26 **bmcam003 provisioned without BM UART boot config — transmit
+  never worked on this unit.** Fresh SD flash + `bmcam-provision` skill +
+  `deploy_rc_runtime.sh` leave OS defaults: no `dtoverlay=disable-bt`, so
+  PL011 stays on Bluetooth, `/dev/ttyAMA0` doesn't exist, `/dev/serial0 →
+  ttyS0` (mini-UART), and `console=serial0,115200` sprays kernel messages
+  on the header pins. Every `BristlemouthSerial()` open raises
+  SerialException; the unit's only 2 RC cron cycles (both 2026-07-26) died
+  before transmit, and the provision validation ladder never exercised
+  transmit, so it passed silently. NOT a regression — the unit never had
+  the working config; known-good units (bmcam000) have it. **Fixed on
+  bmcam003 2026-07-26** (see §2 record below). **Root-cause fix**: add the
+  UART boot step + a transmit check to the provision skill/validation
+  ladder (spawned as a separate task, 2026-07-26).
 
 ## Scratch / incidental findings
 

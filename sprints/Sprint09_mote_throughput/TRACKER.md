@@ -5,10 +5,13 @@ open questions and bugs in DEV_LOG.md.
 
 ## 0. Setup
 - [x] Create feature branch `sprint-09-uart-throughput` (2026-07-26, from origin/main c6afba8)
-- [ ] Answer/triage open questions in DEV_LOG.md with Nick (Q1–Q3 gate Phase A/B)
-      — Q1–Q3 answered pre-sprint; Q6 answered in §1 (finding needs Nick's call);
-      Q4 still open, gates §2
-- [ ] Confirm bench unit identity + which `device_profiles/` YAML it runs
+- [x] Answer/triage open questions in DEV_LOG.md with Nick (Q1–Q3 gate Phase A/B)
+      — Q1–Q3 pre-sprint; Q4 + Q6 answered 2026-07-26 (see DEV_LOG); Q5
+      default stands (keep cap, observe Phase C)
+- [x] Confirm bench unit identity + which `device_profiles/` YAML it runs
+      — bmcam003 (100.103.35.24) + SPOT-33507C; deployed YAML derived from
+      `rc_field_template` (no bmcam003 profile dir yet); backend/website
+      registration deferred until local hardware testing is done
 
 ## 1. Config plumbing (no hardware)
 - [x] `BristlemouthSerial.__init__`: read `uart_port`/`baudrate` from YAML
@@ -25,11 +28,19 @@ open questions and bugs in DEV_LOG.md.
       new path still needs §2 deploy verification (can't open serial on Mac)
 
 ## 2. Test prep (bench)
-- [ ] Deploy `test_UART_throughput.py` next to `bm_serial.py` on the Pi
-- [ ] Back up crontab; disable `@reboot` RC cron for test window
-- [ ] Confirm `power_halt` is `enabled: false` / `dry_run: true` on bench unit
-- [ ] Confirm nothing else holds the UART (no camera process running)
-- [ ] Pi UART hygiene: PL011 not mini-UART (`enable_uart=1`, `dtoverlay=disable-bt`)
+- [x] Deploy `test_UART_throughput.py` next to `bm_serial.py` on the Pi
+      (2026-07-26; updated §1 bm_serial.py deployed alongside — constructor
+      verified opening /dev/ttyAMA0 @ 115200 via YAML on-Pi)
+- [x] Back up crontab; disable `@reboot` RC cron for test window
+      — backup `/home/pi/crontab_backup_sprint09_20260726T162224.txt`
+- [x] Confirm `power_halt` is `enabled: false` / `dry_run: true` on bench unit
+      — flipped from field values (enabled/real); backup
+      `/home/pi/camera_schedule_backup_sprint09_20260726T162224.yaml`
+- [x] Confirm nothing else holds the UART (no camera process running)
+      — pgrep NONE, serial-getty disabled, kernel console removed
+- [x] Pi UART hygiene: PL011 not mini-UART (`enable_uart=1`, `dtoverlay=disable-bt`)
+      — was BROKEN (no /dev/ttyAMA0; fresh-provision gap, see DEV_LOG bug);
+      fixed 2026-07-26 with boot backups in `/home/pi/boot_backups_sprint09/`
 
 ## 3. Phase A — link integrity (no quota)
 - [ ] Run: `--phase log --count 200 --size 300 --gap-ms 0`
