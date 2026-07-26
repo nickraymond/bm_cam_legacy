@@ -52,8 +52,10 @@ open questions and bugs in DEV_LOG.md.
       — PASS; artifacts in `runs/20260726_phaseA_S09A1/`
 
 ## 4. Phase B — payload ceiling + pacing floor (cellular quota)
-- [ ] Review Nick's Sofar API tooling; document count query
-      (`api/raw-messages`, `EA`-header msgs per run-id) in DEV_LOG
+- [x] Review Nick's Sofar API tooling; document count query in DEV_LOG
+      — CORRECTED per Nick 2026-07-26: proven path is `api/sensor-data`
+      (not `api/raw-messages`/EA); counter script `count_phase_b.py` in
+      this folder; details in DEV_LOG Q2 update
 - [ ] B1 size probe: 5 msgs each at 900/1000/1100/1200 B, gap 5000 ms;
       largest 100%-delivery size = chunk ceiling
 - [ ] `post` check between B1 steps (cellular error states both "OK")

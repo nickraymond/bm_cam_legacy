@@ -10,12 +10,21 @@ incidental findings. Newest entries at top within each section.
   `tail`, plus `sd usb` to mount the SD on the Mac read-only. Full command
   list: [docs/spotter_cli_reference.md](../../docs/spotter_cli_reference.md).
   Phase A: `cat uart_test.log` with terminal logging, or `sd usb` + copy.
-- **Q2 — Sofar backend count method.** ✅ ANSWERED 2026-07-26 (Nick):
-  Nick has tooling that wraps the Sofar API for raw message viewing.
-  Decision: review his endpoints at §4 prep (Phase B), not now — not a
-  §1–§3 blocker. Forum t/575: cell-only messages appear at the
-  `api/raw-messages` endpoint with header `EA` (legacy = `DE`), so the
-  count target is EA-header messages per run-id.
+- **Q2 — Sofar backend count method.** ✅ ANSWERED 2026-07-26 (Nick);
+  **UPDATED at §4 prep**: the proven path is **`api/sensor-data`**, not
+  `api/raw-messages`/EA-header — Zac's reply on forum t/575 verified the
+  sensor-data path Nick already uses, and his backend runs it in
+  production. Reviewed read-only in
+  `nereus-vision-dev/backend/app/services/sofar_client.py` (+ ingest
+  parsers). Count query:
+  `GET https://api.sofarocean.com/api/sensor-data?spotterId=<SPOT-33507C>
+  &startDate=<iso>&endDate=<iso>&token=$SOFAR_API_TOKEN_BM_REEF`;
+  `payload["data"][*].value` is hex-encoded message bytes
+  (`bytes.fromhex(value).decode()` → our ASCII payload), with
+  `bristlemouth_node_id` (bench mote 53171fa3d81a8e6f) and `timestamp`
+  per entry. Counter script: `count_phase_b.py` (this folder) — counts
+  TST lines per burst id with CRC8 check. Backend repo is read-only for
+  this session (other sessions own it).
 - **Q3 — Phase B payload-size / throughput targets.** ✅ REFRAMED
   2026-07-26 (Nick): 300 B/msg cellular-only is known-good; goal is
   pushing to the ~1000–1200 B/msg the forum discusses
