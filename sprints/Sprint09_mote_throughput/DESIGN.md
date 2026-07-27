@@ -14,8 +14,12 @@ See repo CLAUDE.md for global rules; this file adds sprint-specific ones.
   camera node connected via Bristlemouth, running latest main. The Mac can
   talk to both sides to correlate errors.
 - **Branch:** `sprint-09-uart-throughput`; never commit to main.
-- **PR gate:** open PR when TRACKER §1–§2 are green; Nick reviews before
-  Phase B cellular quota is spent.
+  *(Updated 2026-07-26, Nick: repo now uses a `development` integration
+  branch — see CLAUDE.md "Branching Model". This sprint's PR targets
+  `development`, not `main`. Bench Pi runs the active sprint branch during
+  testing, `development` otherwise.)*
+- **PR gate:** open PR (base: `development`) when TRACKER §1–§2 are green;
+  Nick reviews before Phase B cellular quota is spent.
 - **Tests Nick can run:** every phase is a single documented command with
   human-readable output (the test script prints JSON per run).
 - **Docs discipline:** SPEC = what/why (stable), TRACKER = checklist,

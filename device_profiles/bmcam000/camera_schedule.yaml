@@ -61,8 +61,8 @@ image_pipeline:
       enabled: false
 bm_serial:
   network_type: 2
-  image_buffer_size: 300
-  image_transmit_delay_seconds: 5
+  image_buffer_size: 384
+  image_transmit_delay_seconds: 1.0
 
 # Sprint08 progressive-JPEG RC (config-gated; entry: rc_progressive_jpeg.py).
 # capture_mode gates ONLY the RC script; main_pi_camera.py (HEIC) ignores it,

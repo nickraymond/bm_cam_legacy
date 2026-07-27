@@ -100,16 +100,68 @@ change and reloaded on boot, so a power cycle does not silently revert a
 field fix. A `roi=0, foc=0, awb=0, exp=0, win=0` command sequence is the
 factory reset. *(Open: dead-man's revert — Q7.)*
 
+## Operator GUI (v1 scope — added by Nick 2026-07-27)
+
+A local operator web GUI (Mac-served; NOT the future customer website) is
+the human sending surface for commands. MVP, boring, no framework
+ceremony. Requirements (Nick's definition of done, items 1–4):
+
+1. **Target selection:** pick a registered SPOT-ID from a known list, and
+   the expected BM node id — so ACKs can be verified as coming from the
+   intended node, not just any node.
+2. **Preset-only inputs:** every configurable value is a dropdown whose
+   options are generated from `command_tables.py`. No free-form input
+   anywhere.
+3. **Send feedback:** visible confirmation that the command was accepted
+   by the Sofar cloud API, and a visible pending state — the operator
+   must be able to see that a command is in flight so they don't keep
+   re-sending and stuff the queue (Sprint09: drops are silent, cloud
+   queues while the node is off).
+4. **ACK verification:** when the ack arrives (via `api/sensor-data`
+   polling — same proven path as Sprint09), the GUI shows it matched:
+   correct node id, correct command id, and the full `st` settings state
+   so the operator sees the values actually applied. Mismatches are
+   displayed loudly, not swallowed.
+
+See DESIGN D9/D10 for architecture bounds.
+
 ## Testing strategy (phased, hardware-light)
 
 1. **Phase A — no hardware:** mock mote on a PTY pair (`socat`); unit tests
    for framing, dedupe, table lookup, state persistence, malformed input.
 2. **Phase B — bench, local serial:** issue commands over the Spotter USB
    CLI with dev kit + camera on the bench; verify end-to-end apply + ack.
-3. **Phase C — remote API (last):** same commands via Sofar cloud API,
+3. **Phase C — remote API:** same commands via Sofar cloud API,
    including queue-while-off and burst-on-wake behavior.
+4. **Phase D — automated permutation test (gate before Nick's final
+   test):** the session runs an automated end-to-end sequence of 3–5
+   different command permutations (e.g. zoom change + focus lock; awb +
+   exposure; window change + ping; factory-reset sequence). For each
+   permutation: command sent via the cloud path → ack received and
+   verified (node id + values) → a capture cycle runs → the image lands
+   in the backend reflecting the applied settings. All permutations must
+   pass before Nick sits down for the final acceptance test.
+5. **Final acceptance (Nick, via the GUI):** Nick drives the GUI
+   end-to-end against the bench unit — the five "definition of done"
+   items below, verified by the operator, not the session.
 
-## Success criteria
+## Definition of done (Nick, 2026-07-27)
+
+1. A GUI Nick can access; select a known registered SPOT-ID (and the
+   node id) to command, so return ACKs can be checked against the
+   correct node.
+2. Every configurable value adjustable via preset dropdowns — no free
+   user input.
+3. Visible acknowledgement that a command was sent + an in-flight
+   indicator, so the operator knows not to keep sending messages that
+   would fill the queue.
+4. Visible confirmation that the intended device ACKed with the correct
+   values.
+5. Before the final manual test, the automated Phase D permutation run
+   (3–5 command combinations) passes end-to-end: ACKs verified and the
+   resulting image hits the backend.
+
+## Success criteria (engineering, feeds the definition of done)
 
 - All six commands apply correctly via Phase B, with acks observed.
 - Duplicate and malformed commands are safely ignored/rejected (tested).
@@ -117,3 +169,5 @@ factory reset. *(Open: dead-man's revert — Q7.)*
 - Daemon runs the full active window without missing a command injected at
   minute 1 and at minute 19.
 - Zero regressions to the existing capture/compression pipeline.
+- GUI meets definition-of-done items 1–4; Phase D automation passes 3–5
+  permutations end-to-end (item 5).

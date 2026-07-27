@@ -1,6 +1,6 @@
 ---
 name: bmcam-provision
-description: Provision a brand-new bmcam unit (Pi Zero 2 W) from fresh SD flash to a validated RC runtime — Tailscale, deps, repo clone, deploy_rc_runtime.sh --fresh, and the validation ladder. Use when setting up a new bmcamNNN module, re-provisioning after a re-flash, or running a field update on an existing unit.
+description: Provision a brand-new bmcam unit (Pi Zero 2 W) from fresh SD flash to a validated RC runtime — Tailscale, deps, repo clone, deploy_rc_runtime.sh --fresh, and the validation ladder. Use when setting up a new bmcamNNN module or re-provisioning after a re-flash. For updating an EXISTING armed unit (code/config rollout), use the bmcam-field-update skill instead.
 ---
 
 # bmcam Provision (new unit setup)
@@ -34,12 +34,29 @@ ssh pi@bmcamNNN 'sudo apt-get install -y git python3-serial python3-pil python3-
 ```
 Sanity: `which rpicam-still` should already exist on Raspberry Pi OS; if it doesn't, the wrong OS image was flashed — stop.
 
-## Phase 3 — Clone + deploy
+## Phase 3 — Clone
 
 ```
 ssh pi@bmcamNNN 'mkdir -p ~/repos && cd ~/repos && git clone https://github.com/nickraymond/bm_cam_legacy.git && cd bm_cam_legacy && git log --oneline -1'
 ```
-Then dry-run first, real run second (the script is conservative: backs up runtime + crontab, copies only manifest files):
+
+## Phase 4 — BM serial UART boot config (BEFORE deploy — needs a reboot)
+
+`bm_serial.py` hardcodes `/dev/ttyAMA0` (the PL011). A fresh OS image binds the PL011 to Bluetooth, points `/dev/serial0` at the mini-UART, and puts a kernel console on the header pins — any BM transmit crashes on port open (found on bmcam003, Sprint09). Fix it NOW, while the `@reboot` cron is not yet armed — the required reboot is still safe. (After deploy `--install-cron`, a reboot starts a capture cycle and `power_halt` HALTS the box.)
+
+```
+ssh pi@bmcamNNN 'cd ~/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh'
+ssh pi@bmcamNNN 'sudo reboot'
+```
+The script backs up `config.txt`/`cmdline.txt` to `/home/pi/backups`, adds `dtoverlay=disable-bt` (with `enable_uart=1`), strips `console=serial0,115200`, and disables `hciuart`. After the Pi returns (~1–2 min), verify — must print `CHECK PASS`:
+```
+ssh pi@bmcamNNN 'cd ~/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh --check'
+```
+(The `bm_serial` open test inside `--check` is skipped at this point — the runtime isn't deployed yet. It runs for real in the validation ladder.)
+
+## Phase 5 — Deploy
+
+Dry-run first, real run second (the script is conservative: backs up runtime + crontab, copies only manifest files):
 ```
 ssh pi@bmcamNNN 'cd ~/repos/bm_cam_legacy && ./tools/deploy_rc_runtime.sh --fresh --profile rc_field_template --install-cron --dry-run'
 ssh pi@bmcamNNN 'cd ~/repos/bm_cam_legacy && ./tools/deploy_rc_runtime.sh --fresh --profile rc_field_template --install-cron'
@@ -52,15 +69,16 @@ Verify artifacts (never trust exit codes alone):
 
 **Field update on an existing unit** is the same script with no flags (config + crontab untouched, HEIC left for config-gated rollback): `cd ~/repos/bm_cam_legacy && git pull && ./tools/deploy_rc_runtime.sh`
 
-## Phase 4 — Validation ladder
+## Phase 6 — Validation ladder
 
 ```
+cd ~/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh --check
 cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
 cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
 ```
-`--print-config` must resolve the full RC config (quality ladder, budget, power_halt, geometry). `--capture-only` must leave a plausible-size JPEG in `/home/pi/BM_Devel_Pi/images/` — logs alone with no JPEG is a FAIL (on bmcam003 that meant the camera ribbon wasn't connected).
+`setup_bm_uart.sh --check` is the transmit-capable gate: it exits nonzero unless `/dev/serial0 -> ttyAMA0`, no serial console is live, AND `BristlemouthSerial()` actually opens `/dev/ttyAMA0` (the runtime is deployed now, so the open test runs). A unit that passes capture but fails this WILL crash on its first `--transmit` in the field — do not skip it. `--print-config` must resolve the full RC config (quality ladder, budget, power_halt, geometry). `--capture-only` must leave a plausible-size JPEG in `/home/pi/BM_Devel_Pi/images/` — logs alone with no JPEG is a FAIL (on bmcam003 that meant the camera ribbon wasn't connected).
 
-**power_halt halts the box after ANY cycle, not just `--transmit`.** The M6 halt runs in a `finally` block keyed on the `power_halt: enabled` config (rc_field_template default: enabled, not dry-run). On bmcam003 a bench `--capture-only` run captured fine and then cleanly halted the Pi — SSH drops with "Connection closed by remote host" and the board needs a physical power cycle. Expect this; warn the human before running any cycle command, and verify artifacts after the power cycle. (The deploy script's "--transmit HALTS the box" note understates this.)
+**power_halt halts the box after ANY cycle, not just `--transmit`.** The M6 halt runs in a `finally` block keyed on the `power_halt: enabled` config (rc_field_template default: enabled, not dry-run). On bmcam003 a bench `--capture-only` run captured fine and then cleanly halted the Pi — SSH drops with "Connection closed by remote host" and the board needs a physical power cycle. Expect this; warn the human before running any cycle command, and verify artifacts after the power cycle.
 
 ## Camera wiring / reboot safety
 
@@ -72,6 +90,7 @@ cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
 ## Success criteria
 
 - `ssh pi@bmcamNNN` works over the tailnet (not LAN IP) with key auth.
+- `tools/setup_bm_uart.sh --check` prints `CHECK PASS` (including the `bm_serial` open test) after the runtime is deployed.
 - `--print-config` and `--capture-only` both pass; a real JPEG exists in `images/`.
 - `crontab -l` has the RC `@reboot` line ACTIVE (not `#BENCH-DISABLED`) before you walk away.
 - No lingering `tailscale up` process; `/tmp/ts_up_root_*.log` removed.
@@ -82,4 +101,6 @@ cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
 - `sudo: a password is required` → trixie NOPASSWD gotcha above.
 - `no cameras available` from rpicam → ribbon not seated / not wired; power down to fix.
 - `Pipeline handler in use by another process` → the RC cron cycle owns the camera; check `pgrep -af rc_` and wait or disable cron.
+- `[Errno 2] could not open port /dev/ttyAMA0` (or `/dev/serial0 -> ttyS0`) → Phase 4 UART boot config was skipped or the reboot hasn't happened; run `tools/setup_bm_uart.sh`, reboot (cron disarmed!), re-check.
+- `bm_serial` open test fails but `/dev/ttyAMA0` exists → an RC cycle may own the port; check `pgrep -af rc_`.
 - Empty `images/` with only `.stderr.log`/`.stdout.log` files → capture failed; read the stderr log, do not proceed.

@@ -102,6 +102,15 @@ tracker. Defaults noted where a safe assumption exists.
 - Deploy tooling: edit in repo `BM_Devel_Pi/`, push with
   `tools/deploy_rc_runtime.sh` (+ `tools/rc_runtime_manifest.txt`).
 
+- **Q11 — Sofar cloud downlink mechanism (NEW 2026-07-27).** Sprint09
+  proved the uplink read path (`api/sensor-data`, hex-decoded values, per
+  its DEV_LOG Q2). The **downlink** — how a command sent to the Sofar
+  cloud reaches Spotter → BM bus → mote → Pi UART — has not been
+  exercised by us yet: exact API endpoint/mechanism, payload format, and
+  how delivery interacts with the node duty cycle. Review Nick's API
+  tooling + Sofar docs at GUI/§7 start. *Blocker for §7 send path and
+  Phase C/D.*
+
 ## Known constraints (carried in from project context)
 
 - Node duty cycle ~20 on / 40 off; cloud→Spotter latency dominates and is
@@ -116,7 +125,29 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
-*(empty — append as they happen, with date + one-line reason)*
+- 2026-07-27 **Scope addition (Nick, pre-kickoff): operator GUI + Phase D
+  automation are part of v1 "done".** Five-item definition of done added
+  to SPEC (GUI with SPOT-ID/node targeting, preset-only dropdowns,
+  send/in-flight feedback, verified ACK display, and an automated 3–5
+  permutation end-to-end test that must pass before Nick's final manual
+  acceptance). DESIGN D9/D10 bound the GUI to MVP: local Mac-served,
+  dropdowns generated from `command_tables.py`, lifecycle states to
+  prevent queue-stuffing. TRACKER gained §7 (GUI), §8 (Phase D), §9
+  (final acceptance + wrap). New blocker logged as Q11 (downlink
+  mechanism).
+- 2026-07-27 **Branch corrected to the repo Branching Model:** work on
+  `bm_commands` off `development`, PR into `development` (was
+  `sprint-10-command-daemon` off main, written before the model was
+  adopted in Sprint09). DESIGN + TRACKER + worker prompt updated.
+- 2026-07-27 **Sprint09 carry-forward facts for this sprint:** locked
+  uplink values 384 chars / 1.0 s / 0x02 (acks ride the ≤~400 B fast
+  drain path — a full-state ack is well under this); Spotter-side drops
+  are SILENT to the Pi with only 2 queue slots — validates D4 (dedupe +
+  cloud re-send) as required, not optional; backend visibility lags by
+  minutes (Notecard batch sync) — ack polling must tolerate multi-minute
+  latency and never treat "not seen yet" as "not delivered"; bench unit
+  bmcam003 + SPOT-33507C is registered, disarmed (cron off, halt off),
+  and running `development` — ready for this sprint.
 
 ## Bugs / issues
 

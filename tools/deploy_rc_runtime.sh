@@ -198,8 +198,23 @@ else
   log "config smoke test skipped (dry-run, no YAML yet, or pyserial unavailable off-device)"
 fi
 
+# UART transmit-capable check (on-Pi only) — bm_serial.py needs /dev/serial0
+# -> ttyAMA0 (PL011). A fresh OS image leaves the PL011 on Bluetooth and a
+# kernel console on the pins; any BM transmit then crashes on port open
+# (bmcam003, Sprint09). Warn loudly here; the ladder check hard-fails.
+if [[ "$DRY_RUN" != "true" ]] && [[ -e /proc/device-tree/model ]]; then
+  if [[ "$(readlink /dev/serial0 2>/dev/null || true)" != "ttyAMA0" ]] \
+     || grep -qE 'console=(serial0|ttyAMA0|ttyS0)' /proc/cmdline; then
+    echo "[RC-DEPLOY][WARN] UART is NOT BM-transmit-capable (/dev/serial0 must -> ttyAMA0, no serial console)" >&2
+    echo "[RC-DEPLOY][WARN] fix: $REPO/tools/setup_bm_uart.sh, reboot, then tools/setup_bm_uart.sh --check" >&2
+  else
+    log "UART check: /dev/serial0 -> ttyAMA0, no serial console (BM-transmit-capable)"
+  fi
+fi
+
 log "deploy complete"
-log "next (new unit validation ladder — NOTE: with power_halt enabled, --transmit HALTS the box at cycle end):"
+log "next (new unit validation ladder — NOTE: with power_halt enabled, ANY cycle HALTS the box at cycle end):"
+log "  cd $REPO && ./tools/setup_bm_uart.sh --check   # UART transmit-capable gate"
 log "  cd $DST && python3 rc_progressive_jpeg.py --print-config"
 log "  cd $DST && python3 rc_progressive_jpeg.py --capture-only"
 log "  cd $DST && python3 rc_progressive_jpeg.py --compress-only <native.jpg>"

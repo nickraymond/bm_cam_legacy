@@ -111,11 +111,37 @@ def load_network_type_from_config(config_path=None):
 	return parse_network_type(cfg.get("network_type", DEFAULT_SPOTTER_TRANSMIT_NETWORK_TYPE))
 
 
+# UART defaults; same top-level camera_schedule.yaml keys spotter_time_sync.py
+# reads (uart_port / baudrate). Not under bm_serial: — the keys predate it.
+DEFAULT_UART_PORT = "/dev/ttyAMA0"
+DEFAULT_UART_BAUDRATE = 115200
+
+
+def load_uart_config(config_path=None):
+	"""Return (uart_port, baudrate) from camera_schedule.yaml top-level keys.
+
+	Falls back to /dev/ttyAMA0 @ 115200 if the file or keys are absent or
+	invalid — matches the previous hardcoded constructor behavior.
+	"""
+	data = _load_camera_schedule(config_path=config_path)
+	port = data.get("uart_port", DEFAULT_UART_PORT)
+	if not isinstance(port, str) or not port:
+		port = DEFAULT_UART_PORT
+	try:
+		baudrate = int(data.get("baudrate", DEFAULT_UART_BAUDRATE))
+	except (TypeError, ValueError):
+		baudrate = DEFAULT_UART_BAUDRATE
+	if baudrate <= 0:
+		baudrate = DEFAULT_UART_BAUDRATE
+	return port, baudrate
+
+
 class BristlemouthSerial:
 	def __init__(self, uart=None, node_id=0xC0FFEEEEF0CACC1A, network_type=None):
 		self.node_id = node_id
 		if uart is None:
-			self.uart = serial.Serial('/dev/ttyAMA0', 115200)  # Adjust the serial port, ttyAMA0 as needed, ttyS0
+			port, baudrate = load_uart_config()
+			self.uart = serial.Serial(port, baudrate)
 		else:
 			self.uart = uart
 		if network_type is None:

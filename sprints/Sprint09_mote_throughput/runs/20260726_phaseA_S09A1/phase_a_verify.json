@@ -1,0 +1,14 @@
+{
+  "run_id": "S09A1",
+  "expected": 200,
+  "found": 199,
+  "sequential": true,
+  "in_order_exact": false,
+  "missing": [
+    74
+  ],
+  "duplicates": [],
+  "crc_failures": [],
+  "capture_bytes": 65912,
+  "pass": false
+}

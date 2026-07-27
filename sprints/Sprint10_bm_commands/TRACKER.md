@@ -6,7 +6,8 @@ open questions and bugs in DEV_LOG.md.
 ## 0. Setup
 - [ ] Confirm sprint numbering against repo history (renumber docs if needed)
 - [ ] Locate any prior daemon spec in repo; reconcile with SPEC.md
-- [ ] Create feature branch `sprint-10-command-daemon`
+- [ ] Create feature branch `bm_commands` from `development` (Branching
+      Model in CLAUDE.md; PR targets `development`)
 - [ ] Answer/triage open questions in DEV_LOG.md with Nick
 
 ## 1. Command layer core
@@ -48,7 +49,29 @@ open questions and bugs in DEV_LOG.md.
 - [ ] Command queued while node OFF → delivered on wake
 - [ ] Burst delivery (multiple queued commands) handled in order
 
-## 7. Wrap
+## 7. Operator GUI (MVP — SPEC "Operator GUI", DESIGN D9/D10)
+- [ ] Confirm Sofar cloud downlink mechanism/endpoint for sending commands
+      (DEV_LOG Q11) — blocker for the send path
+- [ ] Target selector: registered SPOT-ID list + expected node id
+- [ ] Preset dropdowns generated from `command_tables.py` (no free input)
+- [ ] Send path: command → Sofar API; show cloud-accept confirmation
+- [ ] In-flight state per command id (pending indicator; warn on re-send
+      while pending)
+- [ ] Ack watcher: poll `api/sensor-data`, match ack by command id, verify
+      node id + `st` values; display match clearly, mismatch loudly
+- [ ] GUI runbook: how Nick starts it and what each state means
+
+## 8. Phase D — automated permutation test (gate before final acceptance)
+- [ ] Define 3–5 command permutations (e.g. zoom+focus, awb+exp,
+      win+ping, factory-reset sequence)
+- [ ] Automate: send via cloud path → verify ack (node id + values) →
+      run capture cycle → confirm image lands in backend with settings
+      applied
+- [ ] All permutations pass; evidence (per-permutation table + backend
+      screenshots/JSON) in runs/ + DEV_LOG
+
+## 9. Final acceptance + wrap
+- [ ] Nick drives the GUI end-to-end (definition-of-done items 1–4)
 - [ ] Update DEV_LOG.md with findings, bugs, deferred items
-- [ ] PR opened with test evidence for Nick to review
+- [ ] PR opened (base: development) with test evidence for Nick to review
 - [ ] Docs updated (README / operator notes for field use)

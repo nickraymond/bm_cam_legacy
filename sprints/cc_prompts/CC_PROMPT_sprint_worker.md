@@ -26,8 +26,9 @@ You are a worker session on the BM camera project. Your sprint folder is
    findings. Check whether your task depends on an unanswered Q#.
 
 **Then work the tracker:**
-- Branch: `<BRANCH>`, created from latest `origin/main` if it doesn't
-  exist. Never commit to main.
+- Branch: `<BRANCH>`, created from latest `origin/development` if it
+  doesn't exist (Branching Model in CLAUDE.md). PRs target `development`.
+  Never commit to `main` or `development` directly.
 - Find the first unchecked TRACKER item whose prerequisites are met and
   do it. Continue in order through items until you hit a stop condition.
 - **Stop conditions — end your run and report instead of proceeding:**

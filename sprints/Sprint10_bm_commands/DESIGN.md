@@ -6,9 +6,13 @@ this file adds sprint-specific ones.
 
 ## How we work (Claude Code session rules)
 
-- **Branch:** all work on `sprint-10-command-daemon`; never commit to main.
-- **PR:** open a PR when TRACKER §1–§4 are green; Nick reviews before
-  Phase B hardware time is spent.
+- **Branch:** all work on `bm_commands`, branched from `development` —
+  per the repo Branching Model adopted 2026-07-26 (see CLAUDE.md): `main`
+  is released code only; feature branches PR into `development`.
+  *(Corrected 2026-07-27 — this doc originally predated the model and
+  said `sprint-10-command-daemon` off main.)*
+- **PR:** open a PR (base: `development`) when TRACKER §1–§4 are green;
+  Nick reviews before Phase B hardware time is spent.
 - **Tests I can interact with:** every phase produces something Nick can
   run — a make target or script (`make test`, `scripts/mock_mote.sh`)
   with human-readable output, not just a CI pass.
@@ -64,3 +68,20 @@ model instead. Noted for later sprints.
 Do not introduce COBS/CBOR (as bm_sbc does) unless the existing framing
 proves inadequate in Phase A tests. Changing framing mid-field-test is
 exactly the fragility we're avoiding. (Q1 confirms current framing.)
+
+**D9 — Operator GUI is part of v1 "done" (Nick 2026-07-27), kept MVP.**
+A local operator web GUI (served on the Mac, not the customer website) is
+the sending surface: select a registered SPOT-ID (+ expected node id),
+set each value from preset dropdowns only, see send/queued/acked state.
+Dropdown options are **generated from `command_tables.py`** — the GUI can
+never offer a value the daemon can't apply, and the tables stay the
+single source of truth. The future customer website builds on the same
+command contract; nothing in the GUI becomes load-bearing protocol.
+
+**D10 — GUI shows command lifecycle to prevent queue-stuffing.**
+Sprint09 measured that Spotter-side drops are silent to the sender and
+cloud-side commands queue while the node is off. The GUI therefore
+tracks each command id through explicit states — draft → sent-to-cloud
+(acknowledged by Sofar API) → awaiting node → acked (st values + node id
+verified) / mismatch — and warns instead of letting the operator re-send
+while one is pending. Duplicate re-sends stay safe regardless (D4 dedupe).
