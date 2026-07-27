@@ -63,3 +63,16 @@ votes suppressed by "Reboot limit reached". Every reset cuts BM bus power =
 node hard power cycle. Field impact: one spurious node power-cycle per Spotter
 boot (rare in field); bench impact: constant disruption. Sofar support thread
 material — console captures in runs/sprint10_phaseC_20260727/.
+
+## Incident 003 — RESOLVED (23:35Z): Notecard auto-sync stall, not message loss
+Root cause: the Notecard stopped auto-syncing ~21:14Z (reached 25% full, was 2-5%
+all morning) while accepting new notes. Cellular + signal OK throughout. A forced
+`note sync` (23:30:56Z) drained 25% -> 2% in ~4 min; ~2200 backlogged rows landed
+at the backend including the "lost" cycles. Post-drain cycle 23:27Z delivered
+130/130 COMPLETE — loss (4-5% in backlogged material) correlates with Notecard
+congestion, not radio/device. The ebox power cycle at 21:57Z did NOT clear the
+stall (Notecard preserves backlog + state across host power cycles).
+Residual: WHY auto-sync stalls under sustained inbound load = Sofar/Blues question
+for the support thread. Bench workaround live: forced sync every 15 min.
+Distinct from ack-805 (19:36Z, synced era) — that remains a true Spotter-queue drop.
+Field note: hourly cadence never triggered the stall; risk is sustained bursts.
