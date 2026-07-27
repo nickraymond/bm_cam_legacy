@@ -56,14 +56,27 @@ open questions and bugs in DEV_LOG.md.
       — CORRECTED per Nick 2026-07-26: proven path is `api/sensor-data`
       (not `api/raw-messages`/EA); counter script `count_phase_b.py` in
       this folder; details in DEV_LOG Q2 update
-- [ ] B1 size probe: 5 msgs each at 900/1000/1100/1200 B, gap 5000 ms;
+- [x] B1 size probe: 5 msgs each at 900/1000/1100/1200 B, gap 5000 ms;
       largest 100%-delivery size = chunk ceiling
-- [ ] `post` check between B1 steps (cellular error states both "OK")
-- [ ] B2 sweep: `--phase tx --count 30 --size <B1 winner> --sweep "5000,2000,1000,500,250"`
+      — ceiling = 1000 B exactly (1100+ rejected pre-queue); NOTE gap 5000
+      was itself lossy at ~1 kB (4/5) — see B2
+- [x] `post` check between B1 steps (cellular error states both "OK")
+- [x] B2 sweep — RE-SCOPED (DEV_LOG spec correction): size×gap matrix
+      instead of single-size sweep, because drain behavior is
+      size-dependent. Zero-loss: 1000B@6s, 300B@500ms, 400B@625ms (B2b);
+      lossy: 500B@2s (40%), 300B@250ms (80%)
 - [ ] Count arrivals per run-id in Sofar backend; log per-gap table in DEV_LOG
-- [ ] Watch Spotter/mote console for queue-full errors during fast steps
-- [ ] Compute floor + 25% margin → proposed `image_transmit_delay_seconds`
-- [ ] Log total quota spend per run in DEV_LOG
+      — BLOCKED on token (~/.zshenv parse error); console-level submit/drop
+      counts logged instead; reconcile with `count_phase_b.py` when token OK
+- [x] Watch Spotter/mote console for queue-full errors during fast steps
+      — console capture WAS the primary metric (Nick's suggestion); queue
+      holds 2 pending, drops are silent to the Pi
+- [x] Compute floor + 25% margin → proposed `image_transmit_delay_seconds`
+      — PROPOSAL: `image_buffer_size: 384` + `image_transmit_delay_seconds:
+      0.625` (392 B payload on the <=400 B fast path; 500 ms floor + 25%).
+      ~8× payload throughput. Fallback 300/1.0 s. Phase C validates sustained.
+- [x] Log total quota spend per run in DEV_LOG — ~52 kB submitted total
+      (B0+B1+B2+B2b); per-run numbers in runs/20260726_phaseB/
 
 ## 5. Phase C — end-to-end
 - [ ] Set new YAML values (chunk from B1, delay from B2) on bench unit

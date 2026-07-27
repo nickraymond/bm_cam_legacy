@@ -75,6 +75,22 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Phase B2/B2b done — pacing floor is SIZE-DEPENDENT; proposal
+  ready for Phase C.** Full tables: `runs/20260726_phaseB/run_manifest.json`
+  + `b2_results.json`. Zero-loss points (console-verified, 10-msg bursts):
+  1000B@6s (167 B/s), 300B@500ms (600 B/s), 400B@625ms (640 B/s, B2b).
+  Lossy: 500B@2s (40%!), 300B@250ms (80%), 1kB@5s (B1). Mechanics: payloads
+  ≤ ~400 B take a fast drain path (~instant to Notecard); larger ones wait
+  for a ~10.8 s batch cycle with only 2 queue slots — so BIG CHUNKS LOSE.
+  The v2-spec premise (bigger chunks = win) is inverted by measurement:
+  the win is small-chunks-fast. **PROPOSED PRODUCTION VALUES (Phase C to
+  validate sustained):** `image_buffer_size: 384` (chunk + `<I{i}>` framing
+  ≈ 392 B payload, under the 400 B cliff with margin),
+  `image_transmit_delay_seconds: 0.625` (500 ms floor + 25%). ≈ 8× payload
+  throughput; est. full-ladder image at cap 195: 195 × 0.625 s ≈ 2.0 min
+  awake (vs 16.3). Fallback: 300 chars @ 1.0 s (5×). No code changes needed
+  (delay already float()-parsed; chunk already YAML). Quota spend ~52 kB.
+  Backend reconciliation still pending token fix.
 - 2026-07-27 **Phase B1 done (console-verified per Nick's suggestion —
   backend counts pending token fix). SPEC B2 CORRECTED.** Full data:
   `runs/20260726_phaseB/b1_results.json` + console captures. Headlines:

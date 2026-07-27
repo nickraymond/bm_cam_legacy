@@ -1,0 +1,52 @@
+{
+  "run": "Sprint09 Phase B — payload ceiling (B1) + pacing floor matrix (B2/B2b)",
+  "date_utc": "2026-07-27T00:51-01:21Z",
+  "bench": "bmcam003 (100.103.35.24) -> mote 53171fa3d81a8e6f -> SPOT-33507C (fw v2.16.6), network_type 0x02 cellular_only",
+  "method": "spotter_tx bursts from Pi over SSH; Spotter USB console captured continuously on Mac; per-message accept/drop read from console (Nick's suggestion). Sofar backend reconciliation PENDING (token). post checks OK/OK throughout.",
+  "b1_sizes_gap5000": {
+    "900": "4/5 (1 queue-full drop)", "1000": "4/5 (1 queue-full drop)",
+    "1100": "0/5 rejected: too large", "1200": "0/5 rejected: too large",
+    "conclusion": "payload ceiling exactly 1000 B; gap 5000 already lossy at ~1 kB"
+  },
+  "b2_matrix": [
+    {"size": 1000, "gap_ms": 12000, "submitted": "10/10", "max_depth": 1},
+    {"size": 1000, "gap_ms": 8000, "submitted": "10/10", "max_depth": 2},
+    {"size": 1000, "gap_ms": 6000, "submitted": "10/10", "max_depth": 2},
+    {"size": 500, "gap_ms": 2000, "submitted": "6/10 (40% loss)"},
+    {"size": 500, "gap_ms": 1000, "submitted": "3/10 (70% loss)"},
+    {"size": 300, "gap_ms": 2000, "submitted": "10/10"},
+    {"size": 300, "gap_ms": 1000, "submitted": "10/10"},
+    {"size": 300, "gap_ms": 500, "submitted": "10/10", "max_depth": 2},
+    {"size": 300, "gap_ms": 250, "submitted": "2/10 (80% loss)"}
+  ],
+  "b2b_cliff_probe_gap625": {
+    "350": "8/8", "400": "8/8", "450": "7/8 (1 drop)",
+    "conclusion": "fast-path size cliff between 400 and 450 B payload"
+  },
+  "mechanics_observed": [
+    "Two drain behaviors: payloads <= ~400 B drain to Notecard near-instantly; larger payloads wait for a batch drain (~10.8 s after first add, then ~1.3 s/msg).",
+    "Queue holds max 2 pending; overflow drops are SILENT from the Pi (no backpressure).",
+    "All submitted messages reached the Notecard (drain counts match; Notecard fill 3-11%, syncing in background)."
+  ],
+  "zero_loss_throughput_bps": {
+    "300B@500ms": 600, "400B@625ms": 640, "1000B@6000ms": 167, "current_300B@5000ms": 60
+  },
+  "proposed_values_pending_phase_c": {
+    "image_buffer_size": 384,
+    "image_transmit_delay_seconds": 0.625,
+    "rationale": "chunk 384 b64 chars (mult of 4) + <I{i}>\\n framing ~= 392 B payload, under the 400 B fast-path limit with margin; 625 ms = 500 ms clean floor + 25% margin. ~10x message rate, ~8x payload throughput vs today. float delay parses fine (rc_progressive_jpeg casts float()).",
+    "fallback": "300 chars @ 1000 ms (5x) if Phase C sustained run shows loss"
+  },
+  "quota_spend_payload_bytes_submitted": "~52 kB total (B0 300 + B1 8.1k + B2 39.1k + B2b 5.5k); size-rejected/queue-dropped never reached the Notecard",
+  "files": {
+    "b1_console_capture.txt": "B1 console", "b1_results.json": "B1 table",
+    "b2_console_capture.txt": "B2 console", "b2_results.json": "B2 per-step table",
+    "b2b_console_capture.txt": "B2b cliff probe console",
+    "spotter_console_capture.txt": "S09B0 single-msg probe"
+  },
+  "caveats": [
+    "10-msg bursts; sustained behavior (195+ msgs) validated in Phase C.",
+    "Submitted-to-Notecard is the metric here; end-to-end Sofar delivery reconciliation pending token fix (count_phase_b.py ready).",
+    "Notecard cellular sync of a full image worth of notes not yet observed under the new pacing."
+  ]
+}
