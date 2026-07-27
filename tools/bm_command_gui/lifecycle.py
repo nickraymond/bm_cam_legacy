@@ -87,7 +87,7 @@ class CommandLifecycle:
         })
         cmd["history"].append(ev)
         cmd["state"] = ev["state"]
-        for k in ("spotter_id", "node_id", "c", "v", "message",
+        for k in ("utc", "spotter_id", "node_id", "c", "v", "message",
                   "http_status", "response", "ack", "mismatch_detail"):
             if k in ev:
                 cmd[k] = ev[k]
