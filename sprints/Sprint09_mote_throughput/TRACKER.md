@@ -95,10 +95,11 @@ open questions and bugs in DEV_LOG.md.
 - [x] Land measured values in `BM_Devel_Pi/camera_schedule.yaml` + device profiles
       — 384 / 1.0 in main YAML + rc_field_template + bmcam000 profile;
       legacy bmcam001/002 untouched; 137 tests pass
-- [ ] Deploy via `tools/deploy_rc_runtime.sh`; update manifest if needed
-      — bench unit already runs the new values + §1 bm_serial.py (hand-
-      deployed during testing); formal deploy sweep deferred to next
-      field-update window; manifest unchanged (no file-set change)
+- [x] Deploy via `tools/deploy_rc_runtime.sh`; update manifest if needed
+      — bmcam003 formally deployed at 43f4248 via new
+      `tools/rc_field_update.sh` (live end-to-end test of the tool,
+      2026-07-27); manifest unchanged (no file-set change). bmcam000
+      update is next session's work (needs PR #10 → development merge)
 - [ ] Restore crontab; verify unit back in known-good state
       — DELIBERATELY LEFT DISARMED per Nick 2026-07-26/27 (dev-friendly
       state for continued bench work: cron off, halt off). Restore

@@ -75,6 +75,18 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **bmcam000 update tooling built + proven: `tools/rc_field_update.sh`.**
+  Wraps deploy_rc_runtime.sh with disarm → repo sync → deploy → surgical
+  bm_serial value patch (profile-sourced; other YAML drift reported, never
+  auto-applied) → UART gate → validation → re-arm. Fails safe (unit left
+  disarmed + rollback printed). Live-tested on bmcam003: all stages PASS;
+  that run formally deployed 43f4248 via the manifest path. **bmcam000
+  prerequisites:** (1) merge PR #10 into `development` (script deploys
+  `--ref development` by default), (2) Nick brings bmcam000 up and
+  confirms an SSH window (it halts after cycles — catch it awake),
+  (3) after update: one real transmit with Nick watching the website,
+  then re-arm cron + confirm power_halt enabled/real for field cadence.
+  A `bmcam-field-update` skill gets written from the bmcam000 run log.
 - 2026-07-27 **Phase C COMPLETE — PASS at 384 chars / 1.0 s. Three live
   cycles on bmcam003 (devices now registered to Nick's website):**
   - **C1 @ 0.625 s**: 71.7 s awake, q90 first-try (29,245 B, 102 msgs) —
