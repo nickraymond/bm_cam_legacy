@@ -25,8 +25,12 @@ open questions and bugs in DEV_LOG.md.
       — BM_Devel_Pi/command_messages.py `parse_command`; accept/reject
       matrix green (tests/test_command_messages.py, 25 tests). Bad JSON /
       bad id = unackable drop; bad cmd/value = ack with error code.
-- [ ] Dedupe store: last-N applied command IDs, persisted
-- [ ] Settings state file: write-on-change, load-on-boot
+- [x] Dedupe store: last-N applied command IDs, persisted
+      — command_state.py (last 32 ids, one file with settings; D4).
+- [x] Settings state file: write-on-change, load-on-boot
+      — command_state.py CommandState: atomic tmp+fsync+replace on every
+      record; tolerant loud load (corrupt file / out-of-table values →
+      per-key defaults). tests/test_command_state.py (17 tests).
 - [x] Ack builder: `{id, ok, st}` full-state ack
       — command_messages.py `build_ack`; exact wire strings pinned, worst
       case ~70 B << 384-char chunk; `st` always complete (defaults fill).
@@ -51,8 +55,12 @@ open questions and bugs in DEV_LOG.md.
       — tests/test_command_messages.py (every command × every index
       accepted; hostile-input sweep never raises; error-code + ackability
       classification pinned).
-- [ ] Unit: dedupe (duplicate ID → ack, no re-apply)
-- [ ] Unit: state persistence across simulated restart
+- [x] Unit: dedupe (duplicate ID → ack, no re-apply)
+      — tests/test_command_state.py TestDedupe (incl. survives restart,
+      last-N eviction).
+- [x] Unit: state persistence across simulated restart
+      — tests/test_command_state.py TestPersistence + TestCorruptRecovery
+      (restart = fresh CommandState on same path, the actual Q10 boot path).
 - [ ] Unit: partial/garbled frame handling
 - [ ] Integration: command at t=1min and t=19min of a simulated window
 

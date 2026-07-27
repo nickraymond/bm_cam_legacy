@@ -125,6 +125,16 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§1 complete — `command_state.py` lands dedupe + settings
+  persistence in ONE file** (`bm_command_state.json`, runtime-dir default
+  like bm_serial.py, env/ctor override). Rationale: one atomic write path
+  (tmp + fsync + os.replace) because the Spotter cuts power hard — a
+  half-written state file must be impossible. Dedupe keeps last 32 ids
+  (Spotter queue is 2 slots; a wake burst is a handful). Rejected
+  commands are NOT recorded in dedupe (no state change; keeps file lean).
+  Corrupt/out-of-table loads reset per-key to defaults, loudly. Full
+  suite: 201 tests OK (64 new across the three §1 modules).
+
 - 2026-07-26 **§1 parser + ack builder landed (`command_messages.py`).**
   Contract decisions (smallest-surface defaults, flag if wrong):
   (1) *Unackable vs ackable rejects:* bad JSON or bad/missing `id` can't
