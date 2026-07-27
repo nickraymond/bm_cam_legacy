@@ -157,6 +157,23 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 ~19:11Z **bmcam000 field-updated to development@9330779
+  (PR #16 merge) — second command-test unit online.** Nick-authorized.
+  Caught awake mid-cycle at 3 min uptime, disarmed per the
+  bmcam-field-update skill (crontab backup
+  crontab_backup_fieldupdate_20260727T191042Z.txt; SIGTERM'd the
+  running --transmit cycle before its halt), rc_field_update.sh PASS
+  (e031abd → 9330779, 384/1.0 patched, UART gate + validation ladder
+  green, --leave-disarmed). bm_commands island ADDED enabled (topic
+  bmcam/cmd, listen 90 s) — loader verified. power_halt remains ARMED
+  in its YAML (inert while cron is off). Added to GUI targets as
+  SPOT-31593C (node id pending first ack). NOTE: unit's Spotter still
+  duty-cycles bus power 20/40 — which makes bmcam000 the natural rig
+  for the queue-while-node-OFF test (the real field mechanism), while
+  bmcam003 stays the always-on bench mule. Arming decision (field-
+  normal cycles each wake vs. disarmed-idle) left to Nick — transmit
+  cycles spend cellular quota every wake.
+
 - 2026-07-27 **§6 FIRST CLOUD DOWNLINK PROVEN END-TO-END (18:35:54Z,
   indoors).** ping id=801: POST 17:33:12Z (202) → mailbox → Notecard
   sync → Spotter "Remote message received(52)" → `bm pub` exec → bus →
