@@ -96,8 +96,11 @@ def main():
     p.add_argument("--run-id", default=None)
     args = p.parse_args()
 
-    if args.phase == "tx" and args.size > 996:
-        sys.exit("tx payloads must be <= 996 B (cellular cap 1000 B incl. overhead)")
+    # B1 probes the 900-1200 B range ON PURPOSE (SPEC Phase B1): bm_core pins
+    # the cellular cap at 1000 B and >=1000 is expected to fail — the probe
+    # proves where the accept/reject boundary really is. Hard stop above 1200.
+    if args.phase == "tx" and args.size > 1200:
+        sys.exit("tx payloads capped at 1200 B for the B1 probe (SPEC Phase B1)")
     if args.phase == "log" and args.size > 1500:
         sys.exit("keep log payloads <= 1500 B")
 

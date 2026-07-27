@@ -75,6 +75,25 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Phase B1 done (console-verified per Nick's suggestion —
+  backend counts pending token fix). SPEC B2 CORRECTED.** Full data:
+  `runs/20260726_phaseB/b1_results.json` + console captures. Headlines:
+  - **Chunk ceiling = 1000 B exactly** (1001 wire len accepted; 1100/1200
+    rejected pre-queue: "BM Binary Cellular message too large"). D4's
+    ~980-char chunk target stands.
+  - **0x02 = MS_Q_CELLULAR_ONLY confirmed on fw v2.16.6** — the t/575
+    numbering discrepancy is settled; repo bytes are right.
+  - **gap 5000 ms is ALREADY lossy at ~1 kB payloads**: only 2 messages
+    can be pending; a batch drain runs ~10.8 s after first add (then
+    ~1.3 s/msg to Notecard); the 3rd message of each 5-msg burst was
+    dropped silently (no backpressure to the Pi). 4/5 delivered at both
+    900 B and 1000 B. Small messages (~430 B) drain ~instantly.
+  - **Spec correction (smallest useful):** B2's sweep assumed the floor
+    was < 5 s at the B1 winner size. Reality: size-dependent drain ⇒ B2
+    re-scoped to a (size × gap) matrix — 1000 B @ 12/8/6 s, 500 B @
+    2/1 s, 300 B @ 2000/1000/500/250 ms, 10 msgs/step — to find the
+    bytes/s optimum. Console per-message accept/drop is the primary
+    metric; Sofar backend reconciliation when the token lands.
 - 2026-07-26 **Phase A PASS (run S09A1).** 200 msgs × 300 B at gap 0:
   200/200 on the Spotter SD, exact order, zero CRC8 failures. Sender: 60 kB
   in 6.23 s (~9.6 kB/s effective ≈ 83% of the 115200 wire incl. framing).

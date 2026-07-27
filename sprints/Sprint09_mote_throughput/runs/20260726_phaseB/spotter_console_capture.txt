@@ -1,0 +1,79 @@
+# capture start 2026-07-27T00:51:24Z
+
+[36m;1m _____        __             _____             _   _
+/  ___|      / _|           /  ___|           | | | |
+\ `--.  ___ | |_ __ _ _ __  \ `--. _ __   ___ | |_| |_ ___ _ __
+ `--. \/ _ \|  _/ _` | '__|  `--. \ '_ \ / _ \| __| __/ _ \ '__|
+/\__/ / (_) | || (_| | |    /\__/ / |_) | (_) | |_| ||  __/ |
+\____/ \___/|_| \__,_|_|    \____/| .__/ \___/ \__|\__\___|_|
+                                  | |
+                                  |_| v2.16.6
+[0m     
+
+2026-07-27T00:51:30.097Z [MS] [INFO] Added message(id: 3 len: 427) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-07-27T00:51:30.097Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 301
+2026-07-27T00:51:30.097Z [BM_TX] [DEBUG] Message:
+ 54 53 54 2c 53 30 39 42
+ 30 2c 30 30 30 30 30 2c
+ 41 42 43 44 45 46 47 48
+ 49 4a 4b 4c 4d 4e 4f 50
+ 51 52 53 54 55 56 57 58
+ 59 5a 30 31 32 33 34 35
+ 36 37 38 39 41 42 43 44
+ 45 46 47 48 49 4a 4b 4c
+ 4d 4e 4f 50 51 52 53 54
+ 55 56 57 58 59 5a 30 31
+ 32 33 34 35 36 37 38 39
+ 41 42 43 44 45 46 47 48
+ 49 4a 4b 4c 4d 4e 4f 50
+ 51 52 53 54 55 56 57 58
+ 59 5a 30 31 32 33 34 35
+ 36 37 38 39 41 42 43 44
+ 45 46 47 48 49 4a 4b 4c
+ 4d 4e 4f 50 51 52 53 54
+ 55 56 57 58 59 5a 30 31
+ 32 33 34 35 36 37 38 39
+ 41 42 43 44 45 46 47 48
+ 49 4a 4b 4c 4d 4e 4f 50
+ 51 52 53 54 55 56 57 58
+ 59 5a 30 31 32 33 34 35
+ 36 37 38 39 41 42 43 44
+ 45 46 47 48 49 4a 4b 4c
+ 4d 4e 4f 50 51 52 53 54
+ 55 56 57 58 59 5a 30 31
+ 32 33 34 35 36 37 38 39
+ 41 42 43 44 45 46 47 48
+ 49 4a 4b 4c 4d 4e 4f 50
+ 51 52 53 54 55 56 57 58
+ 59 5a 30 31 32 33 34 35
+ 36 37 38 39 41 42 43 44
+ 45 46 47 48 49 4a 4b 4c
+ 4d 4e 4f 50 51 52 53 54
+ 55 56 57 58 59 5a 30 31
+ 32 2a 41 30
+2026-07-27T00:51:30.132Z [BRIDGE] [INFO] 
+Processing Packet Stats:
+  Packets Received: 904
+  Dropped Packets: 0
+  Max Processing Time: 34ms
+  Max Processing Message Type: 2
+2026-07-27T00:51:30.167Z [MS] [DEBUG] Notecard is 5.000000 pct full.
+2026-07-27T00:51:30.167Z [MS] [DEBUG] Has message 3 expired? queuedTime: 1714407, now64: 1714476, remaining: 86399931
+2026-07-27T00:51:30.171Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-07-27T00:51:30.171Z [MS] [INFO] Queuing message 3 2000E750
+Message: 1785113490.894 c3c564b91856226c, power | tick: 1710274, rtc: 2026-07-27T00:51:30.882, addr: 65, voltage: 23.894400, current: 0.038250
+1785113491.683 53171fa3d81a8e6f, power | tick: 1710264, rtc: 2026-07-27T00:51:31.671, addr: 65, voltage: 23.851200, current: 0.037750
+1785113500.894 c3c564b91856226c, power | tick: 1720274, rtc: 2026-07-27T00:51:40.882, addr: 65, voltage: 23.892799, current: 0.060500
+1785113501.683 53171fa3d81a8e6f, power | tick: 1720264, rtc: 2026-07-27T00:51:41.671, addr: 65, voltage: 23.851200, current: 0.037750
+1785113510.894 c3c564b91856226c, power | tick: 1730273, rtc: 2026-07-27T00:51:50.882, addr: 65, voltage: 23.896000, current: 0.033500
+1785113511.683 53171fa3d81a8e6f, power | tick: 1730264, rtc: 2026-07-27T00:51:51.671, addr: 65, voltage: 23.865601, current: 0.027750
+1785113520.894 c3c564b91856226c, power | tick: 1740274, rtc: 2026-07-27T00:52:00.882, addr: 65, voltage: 23.896000, current: 0.033750
+1785113521.683 53171fa3d81a8e6f, power | tick: 1740264, rtc: 2026-07-27T00:52:01.667, addr: 65, voltage: 23.857599, current: 0.033750
+2026-07-27T00:52:05.941Z [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-07-27T00:52:05.949Z [BRIDGE_CFG] [INFO] c3c564b91856226c
+2026-07-27T00:52:05.949Z [BRIDGE_CFG] [INFO] 53171fa3d81a8e6f
+2026-07-27T00:52:05.953Z [BRIDGE_SYS] [INFO] Checking CRC in report builder!
+2026-07-27T00:52:05.953Z [BRIDGE_SYS] [INFO] Got CRC 1b20bcd5 OLD CRC 1b20bcd5
+2026-07-27T00:52:05.957Z [BRIDGE_SYS] [INFO] CRCs match, not updating
+1785113530.894 c3c564b91856226c, power | tick: 1750274, rtc: 2026-07-27T00:52:10.882, addr: 65, voltage: 23.896000, current: 0.033500
+1785113531.679 53171fa3d81a8e6f, power | tick: 1750264, rtc: 2026-07-27T00:52:11.671, addr: 65, voltage: 23.857599, current: 0.033750
