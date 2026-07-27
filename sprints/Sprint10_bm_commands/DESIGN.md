@@ -50,10 +50,19 @@ Cloud-side queuing can re-deliver; bursts arrive on wake. Duplicate IDs
 ack without re-applying. Acks always carry full settings state, so any
 single ack tells the operator the complete truth.
 
-**D5 — Listen the whole active window.**
-Bus init and neighbor discovery delay delivery unpredictably within the
-~20-min window. A fixed short listen phase would miss commands. Listener
-runs for the full window alongside capture work.
+**D5 — Listen from wake until halt; halt early as today. (Corrected
+2026-07-26, Nick — was "listen the whole active window".)**
+Power savings trump responsiveness: the cycle keeps its existing
+early-halt behavior (halt when capture+transmit are done), and instead a
+short **pre-capture listen window** (`bm_commands.pre_capture_listen_s`,
+default 120 s) catches commands queued while the node was off, so a
+field fix applies to THIS window's capture when delivery is prompt. The
+listener also stays up through transmit (acks + late commands persist
+for the next cycle). Phase B measures actual cloud→bus delivery latency
+to tune the 1–2 min default with data. A command missed this window is
+not lost — it applies next cycle (cloud queues; D4 dedupe keeps
+re-sends safe). The SPEC's original "minute 1 and minute 19" criterion
+is superseded accordingly.
 
 **D6 — Apply between captures; persist to disk.**
 No camera reconfiguration mid-capture. State file on the Pi survives power
@@ -85,3 +94,38 @@ tracks each command id through explicit states — draft → sent-to-cloud
 (acknowledged by Sofar API) → awaiting node → acked (st values + node id
 verified) / mismatch — and warns instead of letting the operator re-send
 while one is pending. Duplicate re-sends stay safe regardless (D4 dedupe).
+
+**D11 — One port owner from process start (Nick 2026-07-26, design
+review).** The UART opens once at process start; a single reader thread
+owns all reads from t=0 (subscribes for utc-time + command topic go out
+immediately). Time sync is refactored onto the shared port BUT keeps its
+proven raw-buffer pattern-scan for clock detection — the new strict
+COBS/CRC frame decoder handles command frames only. Full-refactor port
+ownership without betting the clock on an unproven parser.
+
+**D12 — Acks drain in the existing pacing slots (Nick 2026-07-26).**
+The Sprint09-validated transmit loop stays byte-identical for image
+messages; it additionally drains a small ack queue in its 1.0 s pacing
+slots, and acks flush immediately when no image send is running. A
+write lock guarantees frames never interleave on the wire. No writer-
+thread rewrite of rc_transmit.
+
+**D13 — Command settings OVERLAY the YAML; the YAML is never rewritten
+(Nick 2026-07-26).** Resolved capture settings = camera_schedule.yaml,
+then bm_command_state.json overrides (crop rect, camera controls,
+max_run_time_min). Value sources are printed at cycle start and recorded
+in the image sidecar. Consequence (intended, D6): a fresh YAML deploy
+does NOT clear a field fix — only the factory-reset command sequence
+does. Deleting the state file restores stock config.
+
+**D14 — Whole feature behind a YAML island (Nick 2026-07-26).**
+`bm_commands: {enabled: false, topic: "bmcam/cmd",
+pre_capture_listen_s: 120, state_path: ...}` — disabled means the cycle
+is byte-identical to today (the zero-regression guarantee is testable).
+Topic default is provisional until Q11/Phase B (`bm pub` injection
+verifies it early).
+
+**D15 — Ack on persist (Nick 2026-07-26).** An ok=1 ack means "stored;
+governs the next capture" (and this window's capture when it arrived in
+the pre-capture listen window). No re-capture, no delayed acks; the GUI
+presents the timing honestly. Q6 already bounded v1 to ack-only depth.

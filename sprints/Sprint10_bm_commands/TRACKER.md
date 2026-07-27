@@ -38,7 +38,8 @@ open questions and bugs in DEV_LOG.md.
 ## 2. Daemon integration
 - [ ] Wire parser into existing UART reader path (inbound)
 - [ ] Wire ack into existing UART writer path (outbound)
-- [ ] Listen across full active window, concurrent with camera ops
+- [ ] Listen wake→halt with pre-capture listen window (D5 as corrected
+      2026-07-26; early halt retained, no idle post-transmit listening)
 - [ ] Apply between captures only; never mid-capture
 
 ## 3. Camera bindings
@@ -62,7 +63,9 @@ open questions and bugs in DEV_LOG.md.
       — tests/test_command_state.py TestPersistence + TestCorruptRecovery
       (restart = fresh CommandState on same path, the actual Q10 boot path).
 - [ ] Unit: partial/garbled frame handling
-- [ ] Integration: command at t=1min and t=19min of a simulated window
+- [ ] Integration: command in pre-capture listen window applies this
+      cycle; command during transmit acks + persists for next cycle
+      (revised with the 2026-07-26 early-halt decision)
 
 ## 5. Phase B tests (bench, Spotter serial)
 - [ ] Each of the 6 commands applied via Spotter CLI, ack observed

@@ -125,6 +125,28 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **Design review with Nick before §2 — eight implementation
+  decisions locked (now DESIGN D11–D15 + corrected D5):**
+  (1) listener = thread in the per-wake RC process;
+  (2) FULL port-ownership refactor — UART opens once at process start,
+  one reader thread from t=0, time sync moves onto the shared port but
+  keeps its proven pattern-scan clock detection (D11);
+  (3) acks drain in the existing 1.0 s pacing slots, no rc_transmit
+  rewrite (D12);
+  (4) **early halt retained — SPEC's full-window listen dropped** (Nick:
+  "power savings trump responsiveness"); new pre-capture listen window
+  (default 120 s, YAML) catches queued commands so a prompt delivery
+  applies to this window's capture; Phase B measures real delivery
+  latency to tune it. SPEC timing model + success criteria and the D5
+  text revised in place;
+  (5) command settings overlay YAML at resolve time, never rewrite it
+  (D13);
+  (6) whole feature behind `bm_commands:` YAML island, disabled ==
+  byte-identical cycle (D14);
+  (7) command topic YAML-configurable, default `bmcam/cmd`, provisional
+  until Q11/Phase B `bm pub` check;
+  (8) ack on persist — ok=1 means "stored; governs next capture" (D15).
+
 - 2026-07-26 **§1 complete — `command_state.py` lands dedupe + settings
   persistence in ONE file** (`bm_command_state.json`, runtime-dir default
   like bm_serial.py, env/ctor override). Rationale: one atomic write path
