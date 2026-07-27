@@ -887,6 +887,7 @@ CAMERA_CONTROL_OPTIONS_WITH_VALUES = {
 CAMERA_CONTROL_OPTIONS_WITH_VALUES.update({
     "--shutter",
     "--gain",
+    "--ev",
     "--awb",
     "--awbgains",
     "--sharpness",
@@ -1080,6 +1081,18 @@ def _camera_controls_from_settings(settings):
             except Exception as exc:
                 requested["requested_analogue_gain_error"] = str(exc)
                 debug_print(f"Invalid exposure.analogue_gain={analogue_gain!r}; ignoring: {exc}")
+
+        # EV compensation in stops (Sprint10 exp command; auto exposure
+        # stays engaged — --ev biases it, unlike shutter/gain overrides).
+        ev = exposure.get("ev")
+        if ev not in (None, ""):
+            try:
+                ev_f = float(ev)
+                requested["requested_ev"] = round(ev_f, 2)
+                args.extend(["--ev", _num(ev_f, digits=2)])
+            except Exception as exc:
+                requested["requested_ev_error"] = str(exc)
+                debug_print(f"Invalid exposure.ev={ev!r}; ignoring: {exc}")
 
     # -------------------------
     # Image-processing controls

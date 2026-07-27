@@ -14,7 +14,15 @@ that must reload this file at start).
 File shape (schema versioned for future migration):
   {"schema": "bm_command_state_v1", "tables_version": 1,
    "settings": {"roi": 2, "foc": 0, "awb": 0, "exp": 0, "win": 0},
+   "touched": ["roi"],
    "applied_ids": [415, 416, 417]}
+
+`touched` records which settings keys were EVER commanded. The overlay
+(command_bindings.py) only overrides keys in `touched`, so a unit whose
+YAML sets manual focus keeps it until focus is explicitly commanded —
+index 0 means "commanded back to default/auto", absence from `touched`
+means "never commanded, YAML wins". Ack `st` still reports all five
+index values (0 for never-commanded keys).
 
 Load is tolerant and loud (CLAUDE.md "fail loudly"): a missing file is
 normal first boot (factory defaults); a corrupt file or out-of-table
@@ -66,6 +74,7 @@ class CommandState:
     def __init__(self, path=None):
         self.path = path or DEFAULT_STATE_PATH
         self.settings = dict(DEFAULT_SETTINGS)
+        self.touched = set()
         self.applied_ids = []
         # Load provenance for the daemon's startup log line.
         self.load_info = {"source": "defaults", "reset_keys": [], "error": None}
@@ -105,6 +114,13 @@ class CommandState:
                 print(f"[CMD][WARN] state {cmd}={value!r} not in tables; reset to "
                       f"{DEFAULT_SETTINGS[cmd]}")
 
+        raw_touched = data.get("touched")
+        if isinstance(raw_touched, list):
+            self.touched = {
+                cmd for cmd in raw_touched
+                if cmd in SETTINGS_COMMANDS and cmd not in self.load_info["reset_keys"]
+            }
+
         raw_ids = data.get("applied_ids")
         if isinstance(raw_ids, list):
             self.applied_ids = [
@@ -131,6 +147,7 @@ class CommandState:
         """
         if cmd in SETTINGS_COMMANDS:
             self.settings[cmd] = value
+            self.touched.add(cmd)
         if not self.is_duplicate(command_id):
             self.applied_ids.append(command_id)
             self.applied_ids = self.applied_ids[-DEDUPE_KEEP:]
@@ -148,6 +165,7 @@ class CommandState:
             "schema": STATE_SCHEMA,
             "tables_version": TABLES_VERSION,
             "settings": {cmd: self.settings[cmd] for cmd in SETTINGS_COMMANDS},
+            "touched": sorted(self.touched),
             "applied_ids": list(self.applied_ids),
         }
         tmp_path = f"{self.path}.tmp"

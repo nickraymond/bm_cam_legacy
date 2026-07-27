@@ -125,6 +125,22 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§3 `command_bindings.py` + touched-tracking + `--ev`.**
+  Design point discovered while wiring the overlay: bmcam000-class units
+  set manual focus via the YAML camera_controls island, so a naive
+  "state always overlays" would have silently forced autofocus (default
+  foc=0) on them — a real field regression. Fix: `command_state` now
+  records a `touched` set (which keys were EVER commanded); only touched
+  keys overlay, and commanding index 0 is an explicit "auto wins over
+  YAML". A stale out-of-table stored value resets AND un-touches its
+  key. Ack `st` semantics documented: index values reflect last
+  commanded state, 0 = never-commanded-or-default (YAML may still hold
+  a manual value — GUI should label st as command-space, not full
+  camera truth). Also: `--ev` support added to process_image_v2's
+  exposure island (additive; the Q2 audit listed it as the exp-command
+  flag but only shutter/gain existed). Bindings tests drive the REAL
+  _camera_controls_from_settings builder and pin exact rpicam flags.
+
 - 2026-07-26 **§2b `command_daemon.py` — CommandDaemon + bm_commands
   YAML island loader.** Concurrency contract implemented exactly as
   reviewed: reader thread ONLY reads (frames → queue; rolling 4 KB raw
