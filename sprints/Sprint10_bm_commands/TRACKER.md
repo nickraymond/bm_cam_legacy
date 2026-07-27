@@ -134,7 +134,18 @@ open questions and bugs in DEV_LOG.md.
       Evidence: runs/sprint10_phaseC_20260727/. Backend ack visibility
       pending (Notecard lag).
 - [ ] Command queued while node OFF → delivered on wake
-- [ ] Burst delivery (multiple queued commands) handled in order
+      — experiment armed 19:16Z: ping id=900 queued to bmcam000
+      (SPOT-31593C, real 20/40 Spotter power cycling, field-normal
+      armed cron); watchers on wake + backend.
+- [x] Burst delivery (multiple queued commands) handled in order
+      — 2026-07-27 outdoors: roi=2/exp=4/ping (804/805/806) enqueued
+      18:44–18:47Z (1/min), delivered IN ORDER: 804 in cycle 19:34:27,
+      805+806 in cycle 19:36:04; all acked; capture 19:37:35Z ran with
+      BOTH commanded settings in the rpicam cmdline (--ev 0.5 + crop
+      768,432,3072,1728; sidecar pinned). Finding: Sofar delivers ONE
+      command per transmit event, but events chain (~2 min apart) once
+      the first sync fires — e2e ≈ 50 min for all three (sync-bound).
+      Evidence: runs/sprint10_phaseC_20260727/ + phaseC_logs cycles.
 
 ## 7. Operator GUI (MVP — SPEC "Operator GUI", DESIGN D9/D10)
 - [x] Confirm Sofar cloud downlink mechanism/endpoint for sending commands
