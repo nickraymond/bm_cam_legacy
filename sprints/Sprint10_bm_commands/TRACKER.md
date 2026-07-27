@@ -149,5 +149,6 @@ open questions and bugs in DEV_LOG.md.
 ## 9. Final acceptance + wrap
 - [ ] Nick drives the GUI end-to-end (definition-of-done items 1–4)
 - [ ] Update DEV_LOG.md with findings, bugs, deferred items
-- [ ] PR opened (base: development) with test evidence for Nick to review
+- [x] PR opened (base: development) with test evidence for Nick to review
+      — PR #15 (2026-07-27), §1–§4 green + Phase B bench evidence.
 - [ ] Docs updated (README / operator notes for field use)
