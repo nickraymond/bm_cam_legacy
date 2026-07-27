@@ -112,10 +112,13 @@ open questions and bugs in DEV_LOG.md.
       verified in the actual rpicam command line; win verified next-
       cycle; reject/dup/burst/factory-reset all pass. Latency n=40:
       45–262 ms (median 159). Evidence: runs/sprint10_phaseB_20260727/.
-- [ ] Hard power cycle → settings retained
-      — NOT DONE: remote reboot blocked by session permissions.
-      Process-restart persistence proven (fresh process per run);
-      needs Nick's physical power pull (state file is fsync'd).
+- [x] Hard power cycle → settings retained
+      — 2026-07-27 ~16:16–16:26Z: Nick hard-cycled the ebox (Spotter +
+      node). bm_command_state.json survived byte-intact (settings,
+      touched, all 32 dedupe ids verified post-boot). Shutdown forensics
+      in DEV_LOG: the unit had NOT halted itself — it ran continuously
+      from the overnight tests until the cycle (fake-hwclock save at
+      16:16 pre-NTP; power controller off; battery 23.89 V unchanged).
 - [ ] Full active window soak with capture pipeline running
       — partial: 5 capture+encode cycles with daemon concurrent, zero
       errors; full-window soak WITH transmit deferred (cellular spend).

@@ -147,6 +147,23 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 ~16:30Z **Hard power cycle PASSED; "unit halted itself"
+  ruled out.** Nick reported bmcam003 apparently off ("halt command
+  still running?") and hard-cycled the ebox. Forensics after boot:
+  (1) every overnight cycle logged `power_halt.enabled=false; skipping
+  halt` (dry_run also true — double guard); nothing ran after 07:07Z;
+  (2) the new boot's pre-NTP clock was 16:16:05 (fake-hwclock's last
+  save — only written while running) with NTP stepping to 16:26:45 ⇒
+  the Pi was ALIVE at ~16:16Z and dark only during the 16:16–16:26
+  cycle window itself; (3) Spotter `bridgePowerControllerEnabled=0`,
+  battery 23.89 V (unchanged overnight) — no Spotter-side cutoff.
+  Conclusion: no self-halt occurred; whatever looked "off" pre-cycle
+  was not a halt (ask Nick what he observed — possible tailnet/LED
+  visibility red herring). **Value extracted: the cycle completed §5's
+  hard-power-cycle test — bm_command_state.json survived byte-intact
+  (settings + touched + all 32 dedupe ids).** Unit state post-check:
+  cron still disabled, no processes, Tailscale healthy.
+
 - 2026-07-27 **Backend ack reconciliation caught a real bug; fixed +
   re-verified on hardware.** `api/sensor-data` showed **38/40** bench
   acks (~13–30 min Notecard sync lag; both acks for the duplicate id
