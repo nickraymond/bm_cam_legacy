@@ -6,12 +6,12 @@
 > 2026-07-27 09:50). Source PDF is an image-only capture; text below was
 > transcribed visually.
 >
-> **⚠️ Two sections are MISSING:** the Notion toggles **"Example cURL
-> Request"** and **"Responses"** were collapsed when the page was
-> captured, so their contents (auth header format, exact request example,
-> response/error schemas) are not in the source. Re-capture with toggles
-> expanded, or confirm against Sprint09's working `api/sensor-data` auth
-> (token header) during Phase C.
+> **⚠️ One section still MISSING:** the Notion toggle **"Example cURL
+> Request"** was collapsed when the page was captured (auth header format
+> + exact request example not in the source). The **"Responses"** section
+> was supplied by Nick as a follow-up screenshot 2026-07-27 and is
+> transcribed below. Auth: assume Sprint09's working `api/sensor-data`
+> token auth; confirm at first Phase C send.
 
 ## Background
 
@@ -84,8 +84,35 @@ needed.)*
 
 ## Responses
 
-*(Collapsed toggle in the capture — content not available. Re-capture
-needed.)*
+All responses include a JSON body with `status` and `message`.
+
+### Successful responses
+
+- **HTTP Status:** `202 Accepted`
+- The command has been **successfully enqueued** (not necessarily
+  executed yet).
+
+```json
+{
+  "status": "success",
+  "message": "successfully enqueued clearing cellular queue, sending message"
+}
+```
+
+### Unsuccessful responses
+
+- **HTTP Status:** `400 Bad Request`
+- The response message explains why the request failed.
+
+```json
+{
+  "status": "bad request",
+  "message": "Invalid telemetry option: cell. Valid options are: cellular, c…"
+}
+```
+
+*(Error example message truncated at the screenshot edge; it lists the
+valid telemetry options.)*
 
 ## Costs & billing
 
