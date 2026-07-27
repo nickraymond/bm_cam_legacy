@@ -21,3 +21,25 @@ OPEN: Pi-side per-chunk send logs to prove device emitted every index (bmcam003 
 down since ~20:47Z outdoors — unit still cycling on cellular; logs on SD. bmcam000:
 grab cron_logs at a wake). Field-cadence takeaway: hourly cycles ≈98-100% chunks/image;
 back-to-back hammering makes loss much worse — report will split metrics by cadence.
+
+## Incident 003 — Spotter→cloud delivery STALL under sustained load (21:14–21:57Z)
+Device-side alibi is airtight: cycles 10–17 (21:22–21:55Z) each logged
+"transmit done: sent=N/N complete=True", ~1300 messages accepted by the bus with
+zero device errors — yet the backend's last row is 21:09:31Z. The Spotter accepted
+and did not forward for ~45 min. After Nick's ebox power cycle: sdmq size = 0
+(SD queue empty — messages either in Notecard flash pending sync, or dropped live;
+power cycle destroyed the distinction). cellularErrorState OK throughout.
+Trigger correlation: sustained ~37 msg/min for ~80 min (back-to-back cycles),
+outdoors. The field cadence (hourly ~180-msg bursts) has NEVER shown a stall —
+only the 1–2 % chunk loss of incident 002.
+ACTIONS: (a) soak loop throttled to 1 cycle/15 min (sustainable), (b) watch later
+sweeps for straggler delivery of the 21:14–21:55 backlog (would prove Notecard
+buffering, and exercise gid straggler recovery), (c) report flags sustained-rate
+ceiling as a Sofar question. Wednesday field risk: LOW (customer cadence is hourly).
+
+## Deploy record — media gid live on bmcam003 (22:00Z)
+rc_media_id.py + updated rc_uplink_messages/rc_transmit/rc_progressive_jpeg
+scp'd (backup /home/pi/backups/pre_media_gid_*.tgz), py_compile OK, media_gid
+island enabled in live YAML. bmcam003 = gid-format A/B unit; bmcam000 stays
+legacy. Deployed from branch (not yet merged) — bench mule only, per Nick's
+approval of the A/B plan.
