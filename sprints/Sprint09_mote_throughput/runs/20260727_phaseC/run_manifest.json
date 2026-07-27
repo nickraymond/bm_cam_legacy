@@ -1,0 +1,30 @@
+{
+  "run": "Sprint09 Phase C — live end-to-end RC cycles (devices registered to Nereus website)",
+  "date_utc": "2026-07-27T02:17-02:38Z",
+  "bench": "bmcam003 -> mote 53171fa3d81a8e6f -> SPOT-33507C -> Sofar -> Nereus backend (staging)",
+  "command": "python3 rc_progressive_jpeg.py --transmit --skip-time-window (per cycle; values edited in deployed YAML between cycles, backup /home/pi/camera_schedule_backup_preC_20260727.yaml)",
+  "cycles": {
+    "C1": {"delay_s": 0.625, "awake_s": 71.7, "quality": 90, "jpeg_bytes": 29245, "msgs": 102,
+           "spotter_accepted": "84/105", "backend": "82/102 chunks + WS + START (END dropped)",
+           "verdict": "FAIL sustained pacing: drain ~1.27 msg/s < 1.6 msg/s inflow; 21 silent evenly-spaced drops"},
+    "C2": {"delay_s": 1.0, "awake_s": 106.6, "quality": 90, "jpeg_bytes": 28491, "msgs": 99,
+           "spotter_accepted": "101/102", "backend": "98/99 chunks + all envelopes (chunk 40 dropped)",
+           "verdict": "NEAR-PASS: single drop during concurrent Notecard sync of C1 backlog"},
+    "C3": {"delay_s": 1.0, "awake_s": 117.7, "quality": 90, "jpeg_bytes": 31478, "msgs": 110,
+           "spotter_accepted": "113/113", "backend": "110/110 chunks + all envelopes, ZERO missing",
+           "verdict": "PASS (deciding run, clean backlog): queue depth never exceeded 1"}
+  },
+  "locked_values": {"image_buffer_size": 384, "image_transmit_delay_seconds": 1.0, "network_type": "0x02"},
+  "baseline_comparison": "16.3 min awake @ q9-15 -> 1.96 min @ q90 (8.3x faster, ~3x more image bytes per message budget)",
+  "notes": [
+    "Progressive JPEG confirmed: encoder progressive=True; on-Pi file flag=1.",
+    "Rate-overflow drops are evenly spaced through the stream and corrupt every progressive scan (C1 renders like baseline-JPEG damage); prefix truncation is the only graceful-degradation mode. Backend gap handling should zero-fill, not concatenate.",
+    "Backend visibility lags cycle end by minutes (Notecard batch sync ~02:40Z for C3); never count immediately after a run.",
+    "195-msg cap no longer binding at 1000x562 q90 (~110 msgs) — output-resolution headroom for next sprint.",
+    "Quota spend Phase C: ~90 KB payload across three cycles."
+  ],
+  "files": {
+    "spotter_console_phaseC.txt": "full console capture across C1/C2/C3",
+    "phase_c_backend_verify.json": "Sofar sensor-data per-cycle chunk/envelope verification"
+  }
+}

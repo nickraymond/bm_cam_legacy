@@ -81,9 +81,15 @@ open questions and bugs in DEV_LOG.md.
       (B0+B1+B2+B2b); per-run numbers in runs/20260726_phaseB/
 
 ## 5. Phase C — end-to-end
-- [ ] Set new YAML values (chunk from B1, delay from B2) on bench unit
-- [ ] One real RC capture+send; record awake time, message count, image integrity
-- [ ] Compare vs ~16 min baseline; PASS/FAIL against SPEC success criteria
+- [x] Set new YAML values (chunk from B1, delay from B2) on bench unit
+      — 384 chars; delay iterated 0.625 → 1.0 s across C1/C2/C3 (see DEV_LOG)
+- [x] One real RC capture+send; record awake time, message count, image integrity
+      — C3 (deciding run): 117.7 s awake, q90, 31,478 B, 110 msgs,
+      113/113 accepted, queue depth never >1, zero drops
+- [x] Compare vs ~16 min baseline; PASS/FAIL against SPEC success criteria
+      — **PASS**: 1.96 min vs 16.3 min (8.3×), quality q90 vs q9–15,
+      no queue errors on the deciding run; C1 (625 ms) documented as the
+      sustained-rate failure case that set the 1.0 s floor
 
 ## 6. Lock-in + wrap
 - [ ] Land measured values in `BM_Devel_Pi/camera_schedule.yaml` + device profiles

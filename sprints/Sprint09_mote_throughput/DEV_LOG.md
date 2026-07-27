@@ -75,6 +75,29 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Phase C COMPLETE — PASS at 384 chars / 1.0 s. Three live
+  cycles on bmcam003 (devices now registered to Nick's website):**
+  - **C1 @ 0.625 s**: 71.7 s awake, q90 first-try (29,245 B, 102 msgs) —
+    but SUSTAINED transmit overran the drain: 84/105 accepted, 21 silent
+    drops (queue pinned at 2). B2's 10-msg bursts were too short to see
+    it; sustained fast-path drain ≈ 1.27 msg/s ⇒ floor ≈ 0.79 s.
+  - **C2 @ 1.0 s**: 106.6 s awake, 101/102 accepted — single drop
+    (chunk `<I40>`) while the Notecard was still syncing C1's backlog
+    (contention absent in field cadence).
+  - **C3 @ 1.0 s, clean backlog (deciding run)**: 117.7 s awake, q90,
+    31,478 B, 110 msgs — **113/113 accepted, zero queue-full, queue depth
+    never exceeded 1.**
+  - Backend (`sensor-data`) reconciled exactly with console for C1/C2
+    (C1: 82/102 chunks + START + WS, END was dropped; C2: 98/99 + all
+    envelopes); C3 backend check below. Backend visibility lags the run
+    by minutes (Notecard batch sync) — never count immediately.
+  - **LOCKED VALUES: `image_buffer_size: 384`,
+    `image_transmit_delay_seconds: 1.0`, network_type 0x02.** Landed in
+    repo YAML + rc_field_template + bmcam000 profile (legacy bmcam001/002
+    untouched). ~8.3× awake-time win (16.3 → ~2.0 min) AND quality q90
+    vs q9–15. Note: at these values the 195-msg cap is no longer binding
+    for 1000×562 q90 (~110 msgs) — headroom exists for higher output
+    resolution next sprint (Q5 follow-on).
 - 2026-07-27 **Backend reconciliation COMPLETE — Phase B is end-to-end
   validated.** `api/sensor-data` counts match the Spotter-console submit
   counts exactly on all 15 bursts (S09B0, B1×4, B2×9 incl. B2b×3); the
