@@ -43,3 +43,23 @@ scp'd (backup /home/pi/backups/pre_media_gid_*.tgz), py_compile OK, media_gid
 island enabled in live YAML. bmcam003 = gid-format A/B unit; bmcam000 stays
 legacy. Deployed from branch (not yet merged) — bench mule only, per Nick's
 approval of the A/B plan.
+
+## Incident 004 — bmcam000 stuck dark: Spotter not restoring bus power (20:44Z→)
+Node halted 20:44Z after the manually-invoked field cycle (cron-runner path,
+power_halt real). Spotter never restored bus power: no SSH, no backend activity
+(last image 20:41Z), 2+ expected hourly wakes missed. Hypotheses: (a) power
+controller schedule differs from assumed 20/40 (SoC/night gating?), (b) the
+mid-window MANUAL halt confused the controller's node-monitor state (it may
+only cycle power around ITS OWN on-windows), (c) its Spotter did the ~60-min
+post-boot source-7 reset and wedged. No remote fix available (no console on
+that Spotter; cloud commands can't return output). Nick paged 23:12Z. Cloud
+mailbox holds 900/901 (+ scheduled 902...) — no expiry, dedupe-safe whenever
+it wakes. Overnight bmcam000 soak stalled until power returns.
+
+## Incident 005 — Spotter (33507C) self-reset ~60 min after every boot (pattern confirmed)
+Boot 16:16Z → reset 17:21Z (65 min). Boot 21:57Z → reset ~22:57Z (60 min).
+First post-boot ORC health check votes "rebootctl reset 2. Source: 7"; later
+votes suppressed by "Reboot limit reached". Every reset cuts BM bus power =
+node hard power cycle. Field impact: one spurious node power-cycle per Spotter
+boot (rare in field); bench impact: constant disruption. Sofar support thread
+material — console captures in runs/sprint10_phaseC_20260727/.
