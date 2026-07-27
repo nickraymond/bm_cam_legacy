@@ -1,5 +1,18 @@
 # SPRINT 09 — Camera → Mote UART Throughput (SPEC)
 
+> **OUTCOME (sprint closed 2026-07-27): PASS — 8.3× faster, and the
+> spec's premise inverted.** Locked production values:
+> `image_buffer_size: 384`, `image_transmit_delay_seconds: 1.0`,
+> `network_type: 0x02`. Result: 1.96 min awake @ q90 vs 16.3 min @
+> q9–15 baseline. Measurement killed the "bigger chunks win" premise
+> below: the cellular per-message ceiling is 1000 B exactly, but
+> payloads ≤ ~400 B ride a fast drain path to the Notecard while larger
+> ones wait a ~10.8 s batch cycle with only **2** queue slots — and
+> drops are **silent** to the Pi. Small-chunks-fast won. The ~980-char
+> target in the body below is preserved as written history; it was
+> wrong. Full data: DEV_LOG decisions + `runs/`. One open item: bench
+> unit deliberately left disarmed (TRACKER §6).
+
 > Supersedes `uart_speedup_spec.md` (v2) in this folder. That doc's link
 > analysis and test design are carried forward; this SPEC corrects it
 > against the actual repo state as of 2026-07-26 (several §1 items were
