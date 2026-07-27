@@ -53,6 +53,9 @@ from spotter_time_sync import (
     validate_schedule,
 )
 from bm_serial import load_bm_serial_config
+from command_daemon import load_bm_commands_config
+from command_state import CommandState
+import rc_command_hooks as cmd_hooks
 from process_image_v2 import (
     DEFAULT_BUFFER_SIZE,
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
@@ -263,8 +266,11 @@ def _default_capture(settings, output_dir):
 
     # Apply the same camera_controls the HEIC path applies (e.g. bmcam000's
     # manual focus); _run_native_full_capture already handles the fallback
-    # retry without controls if the camera app rejects them.
-    controls = _load_camera_controls_island(settings["config_path"])
+    # retry without controls if the camera app rejects them. Sprint10:
+    # a command-overlay override (D13) replaces the YAML island when set.
+    controls = settings.get("camera_controls_override")
+    if controls is None:
+        controls = _load_camera_controls_island(settings["config_path"])
     capture_settings = {"camera_controls": controls} if controls else None
 
     capture_info = _run_native_full_capture(
@@ -283,6 +289,13 @@ def _default_bm_open(config_path):
     """Apply bm_serial runtime settings and return the production tx callable."""
     apply_bm_serial_runtime_settings(configure_serial=True)
     return _get_bm_serial().spotter_tx
+
+
+def _apply_command_overlay(settings, state):
+    """Command overlay (D13) with this module's island loader bound in."""
+    return cmd_hooks.apply_command_overlay(
+        settings, state, _load_camera_controls_island
+    )
 
 
 def _cpu_temp_text():
@@ -307,9 +320,21 @@ def run_cycle(
     halt_fn=perform_power_halt,
     sleep_fn=time.sleep,
     clock=time.monotonic,
+    bm_commands_cfg=None,
+    command_state=None,
+    bench_commands=False,
+    daemon_factory=cmd_hooks.default_daemon_factory,
 ):
     """Run one RC cycle. Returns a summary dict; raises only on runtime failure
-    before the halt (the halt itself runs in finally and never raises)."""
+    before the halt (the halt itself runs in finally and never raises).
+
+    Sprint10: when the bm_commands island is enabled AND the cycle may
+    touch the BM bus (transmit, or the explicit --bench-commands bench
+    flag), a CommandDaemon owns the port for the whole cycle: subscribe
+    at start, shared-port time sync, pre-capture listen window, acks in
+    transmit pacing slots, final drain, stop before halt (D5/D11/D12).
+    Disabled (default) leaves the cycle byte-identical to Sprint08/09.
+    """
     summary = {
         "budget_seconds": settings["budget_seconds"],
         "transmit": transmit,
@@ -319,7 +344,19 @@ def run_cycle(
         "native_path": native_path,
         "final_path": None,
         "schedule_allowed": True,
+        "command_events": [],
     }
+
+    daemon = None
+    use_daemon = bool(
+        bm_commands_cfg
+        and bm_commands_cfg.get("enabled")
+        and command_state is not None
+        and (transmit or bench_commands)
+    )
+    if use_daemon:
+        daemon = daemon_factory(settings, bm_commands_cfg, command_state)
+        daemon.start()
 
     # M1: ONE budget, charged from here on.
     budget = CycleBudget(
@@ -330,9 +367,13 @@ def run_cycle(
 
     try:
         # Schedule gate — transmit runs only (manual/bench modes must not
-        # touch the BM bus; the Spotter-time read opens the UART).
+        # touch the BM bus; the Spotter-time read opens the UART). With
+        # the daemon active the gate reads Spotter time over the SHARED
+        # port instead of opening its own (D11).
         if transmit and not skip_time_window and settings["enforce_time_window"]:
-            allowed, info = should_transmit_now_from_schedule(settings["config_path"])
+            allowed, info = should_transmit_now_from_schedule(
+                settings["config_path"], **cmd_hooks.gate_kwargs_for(daemon)
+            )
             summary["schedule_allowed"] = allowed
             print(f"[RC] schedule gate: {info.get('reason')}")
             if not allowed:
@@ -365,6 +406,13 @@ def run_cycle(
                 )
             except Exception as exc:
                 debug_print(f"Wake status send failed, continuing safely: {exc}")
+
+        # Sprint10: pre-capture listen window (D5 corrected); applied
+        # commands govern THIS capture (win waits for the next cycle).
+        settings, _ = cmd_hooks.pre_capture_listen(
+            daemon, bm_commands_cfg, summary, settings,
+            _load_camera_controls_island, clock, sleep_fn,
+        )
 
         # Capture (or reuse an existing native in --compress-only).
         capture_info = {}
@@ -458,6 +506,9 @@ def run_cycle(
             print(f"[RC] send plan (NO transmit): {encode['message_count']} chunks "
                   f"(+2 START/END) at q{selection['quality']}, "
                   f"est {est_minutes:.1f} min, fits={selection['fits']}")
+            # Bench-commands mode: no image transmit, but late commands
+            # still ack + persist for the next cycle.
+            cmd_hooks.drain_now(daemon, summary, clock=clock)
             return summary
 
         # M5 transmit (complete or bounded).
@@ -489,6 +540,7 @@ def run_cycle(
             hostname=get_hostname(),
             sleep_fn=sleep_fn,
             clock=clock,
+            ack_drain_fn=cmd_hooks.make_ack_drain_fn(daemon, summary, clock=clock),
         )
         summary["transmit_result"] = result
         print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "
@@ -524,7 +576,10 @@ def run_cycle(
         return summary
 
     finally:
-        if transmit:
+        # Last command pickup + reader stop before the port closes.
+        cmd_hooks.shutdown(daemon, summary, debug_print,
+                           clock=clock, sleep_fn=sleep_fn)
+        if transmit or daemon is not None:
             try:
                 bm_close_fn()
             except Exception as exc:
@@ -536,8 +591,11 @@ def run_cycle(
             mode=settings["power_halt_mode"],
             script_path=settings["power_halt_script_path"],
         )
+        # summary holds the budget the cycle actually charged; a win
+        # command re-overlays settings mid-cycle but never rebuilds the
+        # running CycleBudget (Phase B nit, 2026-07-27).
         print(f"[RC] cycle end: elapsed={budget.elapsed_s():.1f}s of "
-              f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+              f"{summary['budget_seconds']}s; halt={summary['halt_result']['action']}")
 
 
 # ---------------------------------------------------------------------------
@@ -558,6 +616,10 @@ def main(argv=None, **cycle_overrides):
                         help="Skip camera; run the ladder on an existing native JPEG")
     parser.add_argument("--transmit", action="store_true",
                         help="Send over the BM bus (the only flag that touches it)")
+    parser.add_argument("--bench-commands", action="store_true",
+                        help="BENCH ONLY: run the command daemon (subscribe + "
+                             "acks DO touch the BM bus) without image transmit. "
+                             "Requires bm_commands.enabled in YAML.")
     parser.add_argument("--skip-time-window", action="store_true",
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
@@ -569,6 +631,20 @@ def main(argv=None, **cycle_overrides):
     except Exception as exc:
         print(f"[RC][ERROR] config load/validation failed: {exc}", file=sys.stderr)
         return 2
+
+    # Sprint10 command overlay (D13/D14): with the island enabled, the
+    # persisted command state overrides YAML values in EVERY mode (a
+    # field fix must govern bench captures too); the daemon itself only
+    # runs when the cycle may touch the bus (--transmit/--bench-commands).
+    bm_commands_cfg = load_bm_commands_config(args.config_path)
+    command_state = None
+    if bm_commands_cfg["enabled"]:
+        command_state = CommandState(path=bm_commands_cfg["state_path"])
+        print(f"[CMD] bm_commands enabled: topic={bm_commands_cfg['topic']} "
+              f"listen={bm_commands_cfg['pre_capture_listen_s']}s "
+              f"state={command_state.path} (loaded from "
+              f"{command_state.load_info['source']})")
+        settings = _apply_command_overlay(settings, command_state)
 
     if args.print_config:
         print_resolved_settings(settings)
@@ -588,6 +664,9 @@ def main(argv=None, **cycle_overrides):
             native_path=args.compress_only,
             skip_time_window=args.skip_time_window,
             output_dir=args.output_dir,
+            bm_commands_cfg=bm_commands_cfg,
+            command_state=command_state,
+            bench_commands=args.bench_commands,
             **cycle_overrides,
         )
     except Exception as exc:

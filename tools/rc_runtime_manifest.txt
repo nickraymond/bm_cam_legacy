@@ -26,5 +26,15 @@ BM_Devel_Pi/spotter_time_sync.py
 BM_Devel_Pi/bm_serial.py
 BM_Devel_Pi/process_image_v2.py
 
+# Sprint10 command daemon (config-gated by the bm_commands YAML island;
+# inert when disabled but always imported by rc_progressive_jpeg)
+BM_Devel_Pi/command_tables.py
+BM_Devel_Pi/command_messages.py
+BM_Devel_Pi/command_state.py
+BM_Devel_Pi/command_bindings.py
+BM_Devel_Pi/command_daemon.py
+BM_Devel_Pi/bm_frame_decoder.py
+BM_Devel_Pi/rc_command_hooks.py
+
 # Power halt (validated tools/power script, deployed into the runtime dir)
 tools/power/tuned_halt.sh -> tuned_halt.sh

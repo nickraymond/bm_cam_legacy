@@ -87,9 +87,13 @@ and it doubles as a status report.
 - Node duty cycle: ~20 min on / 40 min off. Cloud → Spotter latency is the
   dominant, non-deterministic delay; commands queue in Sofar's cloud while
   the bus is down.
-- Daemon **listens for the entire active window** (bus init + neighbor
-  discovery can eat the first minutes; a short fixed listen window will
-  miss commands). Camera work runs concurrently.
+- *(Revised 2026-07-26, Nick — power savings trump responsiveness; see
+  DESIGN D5.)* Daemon listens from wake until the cycle's normal early
+  halt: a **pre-capture listen window** (default 120 s, YAML-tunable)
+  catches commands queued while the node was off, then capture/transmit
+  run as today with the listener still up. No idle listening after
+  transmit — halt early to save power; a late command applies next
+  cycle. Phase B measures real cloud→bus latency to tune the default.
 - Commands apply on arrival **between captures**, never mid-capture.
   If that proves fragile, fall back to apply-at-next-window (Q8).
 
@@ -166,8 +170,10 @@ See DESIGN D9/D10 for architecture bounds.
 - All six commands apply correctly via Phase B, with acks observed.
 - Duplicate and malformed commands are safely ignored/rejected (tested).
 - Settings survive a hard power cycle.
-- Daemon runs the full active window without missing a command injected at
-  minute 1 and at minute 19.
+- A command injected during the pre-capture listen window applies to that
+  window's capture; one injected later (e.g. during transmit) is acked,
+  persisted, and governs the next cycle. *(Revised 2026-07-26 with the
+  early-halt decision — was "minute 1 and minute 19 of the full window".)*
 - Zero regressions to the existing capture/compression pipeline.
 - GUI meets definition-of-done items 1–4; Phase D automation passes 3–5
   permutations end-to-end (item 5).

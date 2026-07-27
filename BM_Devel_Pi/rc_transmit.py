@@ -77,10 +77,15 @@ def transmit_progressive_image(
     current_timestamp=None,
     sleep_fn=time.sleep,
     clock=time.monotonic,
+    ack_drain_fn=None,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
 
     tx: callable(bytes) — the orchestrator passes BristlemouthSerial.spotter_tx.
+    ack_drain_fn: optional callable(max_n) -> int (Sprint10 D12). Called
+    once per chunk pacing slot; when it reports it sent an ack, one extra
+    paced sleep keeps the wire at the Sprint09 1 msg/s rate. Image
+    framing/pacing is unchanged when None (the pre-Sprint10 wire).
     Returns {planned, send_target, sent, started, complete_send,
              incomplete_emitted, uart_duration_sec}.
     """
@@ -148,6 +153,12 @@ def transmit_progressive_image(
         tx(f"<I{i}>{chunks[i]}\n".encode("ascii"))
         sent += 1
         sleep_fn(delay_seconds)
+        # Sprint10 D12: at most one command ack rides each pacing slot;
+        # it consumes its own paced sleep so the drain rate is unchanged.
+        # Guard keeps room for the closing END after the ack.
+        if ack_drain_fn is not None and budget.messages_fit(2):
+            if ack_drain_fn(1):
+                sleep_fn(delay_seconds)
 
     end_msg = build_rc_end_message(
         compressed_file_name,
