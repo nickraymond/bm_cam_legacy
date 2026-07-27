@@ -105,9 +105,20 @@ open questions and bugs in DEV_LOG.md.
       disabled-island regression guard (no port, no [CMD] output).
 
 ## 5. Phase B tests (bench, Spotter serial)
-- [ ] Each of the 6 commands applied via Spotter CLI, ack observed
+- [x] Each of the 6 commands applied via Spotter CLI, ack observed
+      — 2026-07-27 overnight bench (bmcam003 + SPOT-33507C): 40/40
+      commands delivered via `bm pub bmcam/cmd <json> 1 1`, all acked
+      (Spotter console shows cell-queue submits); roi/foc/awb/exp flags
+      verified in the actual rpicam command line; win verified next-
+      cycle; reject/dup/burst/factory-reset all pass. Latency n=40:
+      45–262 ms (median 159). Evidence: runs/sprint10_phaseB_20260727/.
 - [ ] Hard power cycle → settings retained
+      — NOT DONE: remote reboot blocked by session permissions.
+      Process-restart persistence proven (fresh process per run);
+      needs Nick's physical power pull (state file is fsync'd).
 - [ ] Full active window soak with capture pipeline running
+      — partial: 5 capture+encode cycles with daemon concurrent, zero
+      errors; full-window soak WITH transmit deferred (cellular spend).
 
 ## 6. Phase C tests (remote API — last)
 - [ ] Command via Sofar cloud API while node ON

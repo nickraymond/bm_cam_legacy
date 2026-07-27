@@ -147,6 +147,29 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Phase B bench COMPLETE (overnight, Nick-authorized) —
+  all six commands verified end-to-end on hardware.** Full results
+  table + artifacts: `runs/sprint10_phaseB_20260727/RESULTS.md`.
+  Highlights: 40/40 command deliveries (5 cycles), acks observed
+  entering the Spotter cell-only queue, roi drove THIS-cycle capture
+  crop, foc/awb/exp verified in the literal rpicam command line, win
+  correctly next-cycle (720 s budget), burst 12/12 in order, factory
+  reset clean, shared-port time sync 9.8 s, latency median 159 ms
+  (45–262, n=40). Wire-format finding logged under Answers (Q1
+  correction) — decoder rewritten mid-session and redeployed.
+  **Cosmetic nit found:** the cycle-end log line prints the RE-OVERLAID
+  budget ("of 720s") while the running CycleBudget kept the cycle-start
+  value — fix with a stored copy or label; harmless.
+  **Not tested:** hard power cycle (remote reboot blocked by session
+  permissions — physical pull needed), --transmit ack-in-pacing-slots
+  on hardware (cellular image spend), backend ack visibility (the 40
+  bench acks may already be at api/sensor-data — check in the morning;
+  they'd be the first data for GUI ack-polling work, §7).
+  **bmcam003 end state:** disarmed as found; bm_commands @ 812c825
+  deployed; island ENABLED in live YAML (backup
+  camera_schedule_backup_sprint10_20260727T062014Z.yaml); state file
+  factory-zero; no stray processes.
+
 - 2026-07-26 (late) **§2c/§4 complete — daemon wired into the RC cycle;
   Phase A green. §1–§4 all checked.** Cycle flow when enabled:
   daemon owns the UART from process start (shared-port time sync via

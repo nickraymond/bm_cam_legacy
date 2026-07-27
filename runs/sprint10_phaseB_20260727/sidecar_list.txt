@@ -1,0 +1,5 @@
+/home/pi/images_sprint10bench/2026-07-27T06:44:15Z_image_compressed.jpg.capture_metadata.json
+/home/pi/images_sprint10bench/2026-07-27T06:42:04Z_image_compressed.jpg.capture_metadata.json
+/home/pi/images_sprint10bench/2026-07-27T06:40:00Z_image_compressed.jpg.capture_metadata.json
+/home/pi/images_sprint10bench/2026-07-27T06:37:09Z_image_compressed.jpg.capture_metadata.json
+/home/pi/images_sprint10bench/2026-07-27T06:35:01Z_image_compressed.jpg.capture_metadata.json
