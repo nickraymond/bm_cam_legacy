@@ -590,8 +590,11 @@ def run_cycle(
             mode=settings["power_halt_mode"],
             script_path=settings["power_halt_script_path"],
         )
+        # summary holds the budget the cycle actually charged; a win
+        # command re-overlays settings mid-cycle but never rebuilds the
+        # running CycleBudget (Phase B nit, 2026-07-27).
         print(f"[RC] cycle end: elapsed={budget.elapsed_s():.1f}s of "
-              f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+              f"{summary['budget_seconds']}s; halt={summary['halt_result']['action']}")
 
 
 # ---------------------------------------------------------------------------
