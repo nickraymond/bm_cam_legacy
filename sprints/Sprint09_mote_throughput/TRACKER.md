@@ -65,9 +65,11 @@ open questions and bugs in DEV_LOG.md.
       instead of single-size sweep, because drain behavior is
       size-dependent. Zero-loss: 1000B@6s, 300B@500ms, 400B@625ms (B2b);
       lossy: 500B@2s (40%), 300B@250ms (80%)
-- [ ] Count arrivals per run-id in Sofar backend; log per-gap table in DEV_LOG
-      — BLOCKED on token (~/.zshenv parse error); console-level submit/drop
-      counts logged instead; reconcile with `count_phase_b.py` when token OK
+- [x] Count arrivals per run-id in Sofar backend; log per-gap table in DEV_LOG
+      — RECONCILED 2026-07-27: backend counts match console submit counts
+      exactly on all 15 bursts, 0 CRC failures (103 rows);
+      `runs/20260726_phaseB/backend_reconciliation.json`. Console accept/drop
+      is a validated delivery proxy.
 - [x] Watch Spotter/mote console for queue-full errors during fast steps
       — console capture WAS the primary metric (Nick's suggestion); queue
       holds 2 pending, drops are silent to the Pi

@@ -75,6 +75,17 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Backend reconciliation COMPLETE — Phase B is end-to-end
+  validated.** `api/sensor-data` counts match the Spotter-console submit
+  counts exactly on all 15 bursts (S09B0, B1×4, B2×9 incl. B2b×3); the
+  missing sequence numbers in the backend are precisely the console's
+  queue-full drops; 0 CRC failures in 103 rows. Artifacts:
+  `runs/20260726_phaseB/backend_reconciliation.json`. Consequences:
+  (1) proposed 384-char/0.625 s values are backed by end-to-end delivery
+  data, (2) Spotter console accept/drop is a validated delivery proxy for
+  future bench tests — cheaper iteration. Pre-test cellular gate for all
+  future runs: `post` → `cellularErrorState` + `cellularSignalErrorState`
+  both OK (ran clean before/during/after all of Phase B).
 - 2026-07-27 **Phase B2/B2b done — pacing floor is SIZE-DEPENDENT; proposal
   ready for Phase C.** Full tables: `runs/20260726_phaseB/run_manifest.json`
   + `b2_results.json`. Zero-loss points (console-verified, 10-msg bursts):
