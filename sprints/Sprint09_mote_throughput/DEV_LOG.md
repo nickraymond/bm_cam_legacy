@@ -75,6 +75,23 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **bmcam000 FIELD UPDATE COMPLETE + boot-cycle validated at
+  Sofar.** Ran `rc_field_update.sh --ref development --profile bmcam000`
+  (staged via /tmp; checkout was Sprint07-era 04b6df5 → development
+  e031abd). All stages PASS: values 300/5 → 384/1.0, network_type 2 kept,
+  UART gate OK, cron re-armed from the watcher's armed backup. Validation:
+  the **@reboot cron cycle after Nick's ~04:02Z power cycle** (the true
+  field path) delivered **32/32 chunks + WS + START + END to Sofar via
+  SPOT-31593C, zero loss**, uart 33.6 s for 34 paced slots @1.0 s —
+  perfect pacing on the customer unit. (Small image = dark scene, ag=4.)
+  End state: bmcam000 on development, new values, armed, halted —
+  field-normal. Runbook codified in `.claude/skills/bmcam-field-update/`.
+  MINOR OPEN ITEM: the earlier manual 03:18:47Z test cycle never surfaced
+  at Sofar (later boot cycle arrived complete, so Notecard FIFO rules out
+  sync lag). Its output wasn't persisted (predates the skill's log-to-disk
+  rule); on-disk images/logs from that window sit on the unit — check at
+  the next wake window if curiosity warrants. Not a blocker: the boot
+  cycle is the production path and it passed clean.
 - 2026-07-27 **bmcam000 update tooling built + proven: `tools/rc_field_update.sh`.**
   Wraps deploy_rc_runtime.sh with disarm → repo sync → deploy → surgical
   bm_serial value patch (profile-sourced; other YAML drift reported, never

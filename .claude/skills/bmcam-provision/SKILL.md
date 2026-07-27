@@ -1,6 +1,6 @@
 ---
 name: bmcam-provision
-description: Provision a brand-new bmcam unit (Pi Zero 2 W) from fresh SD flash to a validated RC runtime — Tailscale, deps, repo clone, deploy_rc_runtime.sh --fresh, and the validation ladder. Use when setting up a new bmcamNNN module, re-provisioning after a re-flash, or running a field update on an existing unit.
+description: Provision a brand-new bmcam unit (Pi Zero 2 W) from fresh SD flash to a validated RC runtime — Tailscale, deps, repo clone, deploy_rc_runtime.sh --fresh, and the validation ladder. Use when setting up a new bmcamNNN module or re-provisioning after a re-flash. For updating an EXISTING armed unit (code/config rollout), use the bmcam-field-update skill instead.
 ---
 
 # bmcam Provision (new unit setup)
