@@ -125,6 +125,15 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§0 setup complete (session).** Sprint numbering confirmed:
+  sprints/ holds 02–09, so 10 is correct — no renumber. Prior-daemon-spec
+  search: none exists; the `bm-daemon.service` strings in README.md and
+  Sprint03 refer to an unrelated legacy systemd service that gets
+  *disabled* during manual testing — nothing to reconcile with SPEC.md.
+  Branch `bm_commands` created from origin/development @ d44f535
+  (Sprint09 merge). Open-question triage: Q1–Q10 answered; Q11 (Sofar
+  cloud downlink) remains the sole open blocker, scoped to §7 + Phase C/D.
+
 - 2026-07-27 **Scope addition (Nick, pre-kickoff): operator GUI + Phase D
   automation are part of v1 "done".** Five-item definition of done added
   to SPEC (GUI with SPOT-ID/node targeting, preset-only dropdowns,

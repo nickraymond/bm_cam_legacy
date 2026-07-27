@@ -4,11 +4,17 @@ Checklist only. Rationale lives in SPEC.md; decisions in DESIGN.md;
 open questions and bugs in DEV_LOG.md.
 
 ## 0. Setup
-- [ ] Confirm sprint numbering against repo history (renumber docs if needed)
-- [ ] Locate any prior daemon spec in repo; reconcile with SPEC.md
-- [ ] Create feature branch `bm_commands` from `development` (Branching
+- [x] Confirm sprint numbering against repo history (renumber docs if needed)
+      — sprints/ holds 02–09; 10 is next. No renumber needed. (DEV_LOG 2026-07-26)
+- [x] Locate any prior daemon spec in repo; reconcile with SPEC.md
+      — none found. `bm-daemon.service` in README/Sprint03 is an unrelated
+      legacy systemd service (disabled during manual tests). (DEV_LOG 2026-07-26)
+- [x] Create feature branch `bm_commands` from `development` (Branching
       Model in CLAUDE.md; PR targets `development`)
-- [ ] Answer/triage open questions in DEV_LOG.md with Nick
+      — created from origin/development @ d44f535.
+- [x] Answer/triage open questions in DEV_LOG.md with Nick
+      — Q1–Q10 answered pre-sprint; Q11 (cloud downlink) is the only open
+      one and blocks §7 send path + Phase C/D only, not §1–§4.
 
 ## 1. Command layer core
 - [ ] `command_tables.py` — enums + value tables (single source of truth)
