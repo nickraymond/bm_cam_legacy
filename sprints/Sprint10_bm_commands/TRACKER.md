@@ -36,8 +36,15 @@ open questions and bugs in DEV_LOG.md.
       case ~70 B << 384-char chunk; `st` always complete (defaults fill).
 
 ## 2. Daemon integration
-- [ ] Wire parser into existing UART reader path (inbound)
-- [ ] Wire ack into existing UART writer path (outbound)
+- [x] Wire parser into existing UART reader path (inbound)
+      — command_daemon.py CommandDaemon: reader thread feeds
+      FrameAccumulator → parse/dedupe/persist on main thread; shared-port
+      time sync (proven pattern-scan) included per D11. 16 tests green
+      on a fake UART with production-encoded frames.
+- [x] Wire ack into existing UART writer path (outbound)
+      — drain_acks() via bm.spotter_tx, main-thread only (single-writer
+      by construction); send failure requeues. Pacing-slot hookup lands
+      with the rc_progressive_jpeg/rc_transmit integration below.
 - [ ] Listen wake→halt with pre-capture listen window (D5 as corrected
       2026-07-26; early halt retained, no idle post-transmit listening)
 - [ ] Apply between captures only; never mid-capture

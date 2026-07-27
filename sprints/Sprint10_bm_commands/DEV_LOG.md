@@ -125,6 +125,20 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§2b `command_daemon.py` — CommandDaemon + bm_commands
+  YAML island loader.** Concurrency contract implemented exactly as
+  reviewed: reader thread ONLY reads (frames → queue; rolling 4 KB raw
+  buffer for the proven clock pattern-scan); every write and every
+  state mutation happens on the main thread (subscribes, process_pending,
+  drain_acks) — single-writer without locks. `wait_for_spotter_utc()` is
+  the D11 shared-port replacement for `read_spotter_utc` (same subscribe
+  frame + detection logic, byte-for-byte). start() refuses a uart with
+  no read timeout (reader would block forever — fail loudly at t=0).
+  Persist-failure → no ok ack (D15); ack send failure requeues. Island
+  loader has a line-based fallback parser for hosts without PyYAML
+  (same convention as spotter_time_sync; dev Macs lack yaml, the Pi has
+  it). Suite: 241 OK.
+
 - 2026-07-26 **§2a `bm_frame_decoder.py` — the repo's first inbound BM
   frame decoder** (closes the Q1 caveat). Strict path: 0x00 split →
   COBS decode → CRC16 verify (bytes 2–3 zeroed, same algorithm as
