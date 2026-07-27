@@ -124,13 +124,27 @@ open questions and bugs in DEV_LOG.md.
       errors; full-window soak WITH transmit deferred (cellular spend).
 
 ## 6. Phase C tests (remote API — last)
-- [ ] Command via Sofar cloud API while node ON
+- [x] Command via Sofar cloud API while node ON
+      — 2026-07-27: ping id=801 POSTed 17:33:12Z (202), mailbox drained
+      18:35:54Z ("Remote message received(52)"), daemon applied + acked
+      within the same minute. Full chain: API → mailbox → Notecard sync
+      (INDOORS, no GPS fix) → console exec → bus → Pi → ack. E2E latency
+      62.7 min (sync-bound; bench ping 802 via console: ~1 s). Payload
+      arrived byte-clean (strict parser accepted; quotes intact).
+      Evidence: runs/sprint10_phaseC_20260727/. Backend ack visibility
+      pending (Notecard lag).
 - [ ] Command queued while node OFF → delivered on wake
 - [ ] Burst delivery (multiple queued commands) handled in order
 
 ## 7. Operator GUI (MVP — SPEC "Operator GUI", DESIGN D9/D10)
-- [ ] Confirm Sofar cloud downlink mechanism/endpoint for sending commands
+- [x] Confirm Sofar cloud downlink mechanism/endpoint for sending commands
       (DEV_LOG Q11) — blocker for the send path
+      — POST /user-rest/devices/:spotterId/command, message = Spotter
+      console line (≤270 B), telemetry=cellular. Digitized from Nick's
+      capture: docs/sofar_command_api_reference.md. Caveats: cURL/
+      Responses toggles were collapsed in capture (auth + response
+      schemas missing); bm-pub-via-mailbox proven only on paper until
+      Phase C test 1. (DEV_LOG 2026-07-27)
 - [ ] Target selector: registered SPOT-ID list + expected node id
 - [ ] Preset dropdowns generated from `command_tables.py` (no free input)
 - [ ] Send path: command → Sofar API; show cloud-accept confirmation

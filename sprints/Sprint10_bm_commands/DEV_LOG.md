@@ -124,14 +124,24 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 - Deploy tooling: edit in repo `BM_Devel_Pi/`, push with
   `tools/deploy_rc_runtime.sh` (+ `tools/rc_runtime_manifest.txt`).
 
-- **Q11 — Sofar cloud downlink mechanism (NEW 2026-07-27).** Sprint09
-  proved the uplink read path (`api/sensor-data`, hex-decoded values, per
-  its DEV_LOG Q2). The **downlink** — how a command sent to the Sofar
-  cloud reaches Spotter → BM bus → mote → Pi UART — has not been
-  exercised by us yet: exact API endpoint/mechanism, payload format, and
-  how delivery interacts with the node duty cycle. Review Nick's API
-  tooling + Sofar docs at GUI/§7 start. *Blocker for §7 send path and
-  Phase C/D.*
+- **Q11 — Sofar cloud downlink mechanism.** ✅ ANSWERED 2026-07-27
+  (Nick supplied Sofar's "Spotter Command API Reference Document";
+  digitized to [docs/sofar_command_api_reference.md](../../docs/sofar_command_api_reference.md)).
+  Mechanism: `POST /user-rest/devices/:spotterId/command` with
+  `{telemetry: "cellular", message: "<Spotter console command>"}` —
+  the message is a console command line (max 270 bytes, printable ASCII
+  + `\n` chaining, no tabs), so the send path is the cloud queuing our
+  bench-proven `bm pub bmcam/cmd <json> 1 1`. Cellular mailbox: no
+  expiry, no queue limit, no satellite credits. Rate limit 1 successful
+  request/min/Spotter (all requests rejected during cooldown — GUI must
+  enforce client-side). Delivery on the Spotter's next successful
+  cellular transmit (matches queue-while-off model). **Remaining
+  caveats:** (1) the capture's "Example cURL Request" and "Responses"
+  toggles were collapsed — auth header + response/error schemas missing
+  (assume Sprint09's api.sofarocean.com token auth; verify at first
+  Phase C send); (2) `bm pub` executing from the command mailbox is
+  inferred from the doc's `cfg …` example — first Phase C test is a
+  single cloud ping to prove it.
 
 ## Known constraints (carried in from project context)
 
@@ -146,6 +156,61 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 - Camera node (f365) draws ~1.12 W capturing, ~0.34 W avg at ~30% duty.
 
 ## Decisions taken mid-sprint
+
+- 2026-07-27 **§6 FIRST CLOUD DOWNLINK PROVEN END-TO-END (18:35:54Z,
+  indoors).** ping id=801: POST 17:33:12Z (202) → mailbox → Notecard
+  sync → Spotter "Remote message received(52)" → `bm pub` exec → bus →
+  daemon applied + acked, frames=1 sig_hits=1 zero errors. E2E latency
+  **62.7 min**, entirely cloud/sync-bound (an identical console ping,
+  id=802, applied in ~1 s at 18:21:50Z). Notes: (1) delivery worked
+  INDOORS with GpsErrorState NO_SIGNAL — Nick's planned move outside
+  was unnecessary; sync cadence indoors is just slow/irregular (a
+  `note sync` was forced at 17:50:06; drain came 45.8 min later).
+  (2) The console echo of a remote message wraps it in quotes + an
+  `id:<mailbox-id>` metadata line; the closing quote + blank line hit
+  the console parser producing two cosmetic "Command not recognised"
+  errors AFTER successful execution — do not be fooled by them.
+  (3) Payload with embedded JSON double quotes passed the whole
+  pipeline byte-clean. (4) The recurring source-7 reboot requests are
+  the ORC health check voting to reboot (observed again 18:34:18,
+  suppressed by "Reboot limit reached") — likely the missing GPS fix;
+  went dormant... to re-verify outdoors. Backend ack visibility pending.
+
+- 2026-07-27 **Phase C started — first cloud command enqueued; Spotter
+  reboot instability discovered on the bench.** Nick supplied the doc's
+  Responses section (202 = enqueued-not-executed; 400 with reason) and
+  authorized cellular-only cloud commands (satellite disabled on the
+  account). New tools/sofar_send_command.py (23 unit tests) sent ping
+  id=801: **HTTP 202, auth via ?token= confirmed working** — the
+  response echoes the full console line, so the endpoint/format is
+  right. Delivery pending the Spotter's next successful cellular
+  transmit; Pi runs back-to-back --bench-commands cycles as listener.
+  **Incidents (all in runs/sprint10_phaseC_20260727/):** the Spotter
+  (fw v2.16.6) rebooted at 17:21:11Z and again 17:25:52Z ("Running
+  health check!" → "[SYS] [ERROR] rebootctl reset 2. Source: 7"), and a
+  `cfg save` at 17:34:14Z also triggered an immediate reboot; console
+  then showed **"Reboot limit reached, ignoring. (source 7)"** —
+  something requests source-7 reboots repeatedly and the Spotter now
+  suppresses them. EVERY Spotter reboot cuts BM bus power → hard
+  power-cycles bmcam003 (observed 3× today; the RC state file survived
+  each, as designed). Phase B overnight had zero such resets — this
+  behavior is new today; possibly related to whatever Nick observed
+  pre-16:16Z ("unit looked off"). Raise with Sofar if it persists.
+  **Bench config change (Nick request, on the record):** visibility LED
+  disabled — `cfg vle 0` + `cfg save`, persisted through reboot,
+  verified `cfg vle` → 0. **Restore `cfg vle 1` before deployment.**
+
+- 2026-07-27 **Q11 closed — Sofar Command API doc digitized** (new
+  session, post-PR-#15-merge). Nick supplied a screen capture of Sofar's
+  Notion "Spotter Command API Reference Document"; transcribed to
+  `docs/sofar_command_api_reference.md` (source PDF was image-only —
+  visually transcribed, includes an implications-for-Sprint10 section).
+  Two Notion toggles ("Example cURL Request", "Responses") were
+  collapsed in the capture and are flagged missing — ask Nick for a
+  re-capture with toggles expanded, or discover auth/response shape
+  empirically at the first Phase C send. §7's first tracker item
+  (confirm downlink mechanism) is now satisfied on paper; the empirical
+  half (a cloud ping actually reaching the Pi) is §6 Phase C test 1.
 
 - 2026-07-27 **PR #15 finalized for review/merge (Nick). Handoff notes
   for the next session (Sofar cloud integration — Nick will supply
@@ -388,6 +453,18 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 *(empty — append with repro steps; move to tracker if they block)*
 
 ## Scratch / incidental findings
+
+- 2026-07-27 **HYPOTHESIS to verify in Phase C (field-risk if true):**
+  the Sofar doc ties mailbox execution to "when the Spotter successfully
+  transmits using that telemetry" — i.e., the SPOTTER's schedule, not
+  the node's wake windows. If a mailbox drain fires while the node is
+  in its 40-min power-off window, the `bm pub` goes onto a dead bus and
+  the command is lost silently (mote pub is fire-and-forget; the cloud
+  mailbox does NOT re-deliver). In the field ~2/3 of drains could
+  misfire this way. Mitigations if confirmed: GUI re-send-on-no-ack
+  guidance (dedupe makes re-sends safe — D4 pays off again), and/or
+  send timed to known wake windows. Phase C queue-while-off test will
+  confirm or refute.
 
 - 2026-07-26 (Nick, via Q7): a **customer-facing web UI** for sending
   commands is planned — it will expose only preset options. Command
