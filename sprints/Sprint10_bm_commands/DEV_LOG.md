@@ -147,6 +147,29 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **PR #15 finalized for review/merge (Nick). Handoff notes
+  for the next session (Sofar cloud integration — Nick will supply
+  Sofar's API docs for submitting messages over cellular, answering
+  Q11):**
+  - *What the downlink must produce:* a BM pub on topic `bmcam/cmd`
+    (YAML-configurable, `bm_commands.topic`) with a compact-JSON
+    payload `{"id":N,"c":"roi","v":2}` — the bench used `bm pub
+    bmcam/cmd <json> 1 1` (type 1, version 1). Key question for the
+    Sofar API: what topic/type/version does a cloud-submitted message
+    arrive on at the node, and is it configurable?
+  - *Ack read-back:* acks arrive at `GET api.sofarocean.com/api/
+    sensor-data?spotterId=...` as hex-encoded `value` fields;
+    `bytes.fromhex(value).decode()` yields the ack JSON. Observed
+    backend lag 13–30 min (Notecard batch sync) — the GUI poller must
+    tolerate it. Bench evidence: 38/40 unpaced then 12/12 paced acks
+    reconciled this way.
+  - *Device side is done and merged-ready:* daemon listens each wake
+    (pre-capture window 120 s default), dedupes by id, applies between
+    captures, persists across hard power cycles, acks at 1.0 s pacing.
+  - *Open for that session:* Q11 mechanics, §6 Phase C (on/off/burst
+    via cloud), §7 GUI (dropdowns generate from command_tables.py;
+    lifecycle states per D10), §8 Phase D permutations.
+
 - 2026-07-27 ~16:30Z **Hard power cycle PASSED; "unit halted itself"
   ruled out.** Nick reported bmcam003 apparently off ("halt command
   still running?") and hard-cycled the ebox. Forensics after boot:
