@@ -435,6 +435,18 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Scratch / incidental findings
 
+- 2026-07-27 **HYPOTHESIS to verify in Phase C (field-risk if true):**
+  the Sofar doc ties mailbox execution to "when the Spotter successfully
+  transmits using that telemetry" — i.e., the SPOTTER's schedule, not
+  the node's wake windows. If a mailbox drain fires while the node is
+  in its 40-min power-off window, the `bm pub` goes onto a dead bus and
+  the command is lost silently (mote pub is fire-and-forget; the cloud
+  mailbox does NOT re-deliver). In the field ~2/3 of drains could
+  misfire this way. Mitigations if confirmed: GUI re-send-on-no-ack
+  guidance (dedupe makes re-sends safe — D4 pays off again), and/or
+  send timed to known wake windows. Phase C queue-while-off test will
+  confirm or refute.
+
 - 2026-07-26 (Nick, via Q7): a **customer-facing web UI** for sending
   commands is planned — it will expose only preset options. Command
   origin is therefore always preset-constrained end to end; keep the
