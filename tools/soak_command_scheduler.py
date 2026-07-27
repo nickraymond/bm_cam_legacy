@@ -43,11 +43,19 @@ import sofar_send_command as ssc  # noqa: E402
 GUI_URL = "http://127.0.0.1:8770/api/send"
 
 
+CATCHUP_LOOKBACK_H = 3  # a time missed less than this long ago fires NOW
+
+
 def next_occurrence(hhmm, now=None):
+    """Next occurrence of HH:MM — except an occurrence missed within the
+    catch-up lookback returns that PAST time, so a restarted scheduler
+    fires missed entries immediately instead of waiting a day."""
     now = now or datetime.now(timezone.utc)
     h, m = map(int, hhmm.split(":"))
     t = now.replace(hour=h, minute=m, second=0, microsecond=0)
     if t <= now:
+        if (now - t) <= timedelta(hours=CATCHUP_LOOKBACK_H):
+            return t  # recently missed -> catch up
         t += timedelta(days=1)
     return t
 
