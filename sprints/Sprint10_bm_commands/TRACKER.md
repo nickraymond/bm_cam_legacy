@@ -62,7 +62,10 @@ open questions and bugs in DEV_LOG.md.
 - [x] Unit: state persistence across simulated restart
       — tests/test_command_state.py TestPersistence + TestCorruptRecovery
       (restart = fresh CommandState on same path, the actual Q10 boot path).
-- [ ] Unit: partial/garbled frame handling
+- [x] Unit: partial/garbled frame handling
+      — tests/test_bm_frame_decoder.py (24 tests): byte-at-a-time splits,
+      corrupted frames, junk recovery, overflow bounding, 200-chunk
+      random hostile stream; frames round-trip the PRODUCTION encoder.
 - [ ] Integration: command in pre-capture listen window applies this
       cycle; command during transmit acks + persists for next cycle
       (revised with the 2026-07-26 early-halt decision)

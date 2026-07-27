@@ -125,6 +125,19 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§2a `bm_frame_decoder.py` — the repo's first inbound BM
+  frame decoder** (closes the Q1 caveat). Strict path: 0x00 split →
+  COBS decode → CRC16 verify (bytes 2–3 zeroed, same algorithm as
+  bm_serial.crc) → pub-frame parse → topic match. Malformed input
+  returns None/counted, never raises; FrameAccumulator bounds its buffer
+  at 8 KB. Tests round-trip the PRODUCTION encoder so both directions
+  pin one wire format. **Assumption flagged for Phase B:** inbound pub
+  frames mirror the outbound layout (type 0x02, node id at [4:12],
+  topic len at [14:16]); bytes [12:14] are NOT checked. First `bm pub`
+  bench test must confirm real mote traffic parses — decoder stats
+  (non_pub/other_topic counters) will show immediately if the layout
+  differs.
+
 - 2026-07-26 **Design review with Nick before §2 — eight implementation
   decisions locked (now DESIGN D11–D15 + corrected D5):**
   (1) listener = thread in the per-wake RC process;
