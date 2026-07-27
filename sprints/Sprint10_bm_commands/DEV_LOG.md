@@ -147,6 +147,23 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Backend ack reconciliation caught a real bug; fixed +
+  re-verified on hardware.** `api/sensor-data` showed **38/40** bench
+  acks (~13–30 min Notecard sync lag; both acks for the duplicate id
+  201 arrived). Missing: **605 and 616 — both mid-rapid-burst**, i.e.
+  silent Spotter 2-slot-queue overflows on the ACK path (Sprint09's
+  documented drop mode, now observed first-hand; unpaced `drain_acks`
+  was sending ~5–6 acks/s against a ~1.27 msg/s sustained drain).
+  **Fix (commit 1455f31):** `drain_acks` paces at `ack_interval_s`
+  (default 1.0 s, the Sprint09-locked floor; injectable clock keeps
+  fake-time tests deterministic); cycle shutdown flushes pending acks
+  paced with a 15 s bound and LOUDLY logs any left (cloud re-send +
+  dedupe recover them). **Hardware retest (run 7):** 12-command rapid
+  burst → 12/12 applied in order, 12 acks at exactly 1.0 s gaps, zero
+  pending at halt. Backend delivery check for the retest ids ran in the
+  background (see next entry when logged). Suite 280 OK. GUI note (§7):
+  ack polling must tolerate the observed 13–30 min backend lag.
+
 - 2026-07-27 **Phase B bench COMPLETE (overnight, Nick-authorized) —
   all six commands verified end-to-end on hardware.** Full results
   table + artifacts: `runs/sprint10_phaseB_20260727/RESULTS.md`.

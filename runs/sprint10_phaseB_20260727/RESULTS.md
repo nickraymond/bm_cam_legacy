@@ -57,9 +57,15 @@ has per-command values.
 - **Acks in transmit pacing slots on hardware** (--transmit with a real
   image send): skipped to avoid cellular image spend per Nick's
   instruction; covered off-device by tests/test_command_integration.py.
-- **Cloud/backend visibility of acks** (`api/sensor-data`): Phase C
-  territory; 40 acks entered the Spotter cell-only queue tonight and
-  may appear at the backend — worth a look in the morning.
+- ~~Cloud/backend visibility of acks~~ **DONE (post-report):** backend
+  reconciliation at ~06:56Z found **38/40** acks at `api/sensor-data`
+  (both id-201 acks present) — the 2 missing (605, 616) were mid-burst
+  sends, i.e. **silent Spotter-queue drops on the ack path**, the exact
+  Sprint09 failure mode. Fix landed + hardware-verified: `drain_acks`
+  now paces at 1.0 s (run 7: 12-command rapid burst → 12 acks at
+  exactly 1.0 s gaps, all flushed before halt; run07 log +
+  latency_stats untouched). Backend check for the 12 retest acks
+  (ids 701–716) ran after this file was frozen — see DEV_LOG.
 - Cron-armed (@reboot) flow with the daemon; full 12/16-min window soak
   with transmit.
 
