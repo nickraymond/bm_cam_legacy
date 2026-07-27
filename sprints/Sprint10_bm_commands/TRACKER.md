@@ -129,8 +129,14 @@ open questions and bugs in DEV_LOG.md.
 - [ ] Burst delivery (multiple queued commands) handled in order
 
 ## 7. Operator GUI (MVP — SPEC "Operator GUI", DESIGN D9/D10)
-- [ ] Confirm Sofar cloud downlink mechanism/endpoint for sending commands
+- [x] Confirm Sofar cloud downlink mechanism/endpoint for sending commands
       (DEV_LOG Q11) — blocker for the send path
+      — POST /user-rest/devices/:spotterId/command, message = Spotter
+      console line (≤270 B), telemetry=cellular. Digitized from Nick's
+      capture: docs/sofar_command_api_reference.md. Caveats: cURL/
+      Responses toggles were collapsed in capture (auth + response
+      schemas missing); bm-pub-via-mailbox proven only on paper until
+      Phase C test 1. (DEV_LOG 2026-07-27)
 - [ ] Target selector: registered SPOT-ID list + expected node id
 - [ ] Preset dropdowns generated from `command_tables.py` (no free input)
 - [ ] Send path: command → Sofar API; show cloud-accept confirmation

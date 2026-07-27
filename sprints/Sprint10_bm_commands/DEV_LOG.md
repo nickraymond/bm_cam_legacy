@@ -124,14 +124,24 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 - Deploy tooling: edit in repo `BM_Devel_Pi/`, push with
   `tools/deploy_rc_runtime.sh` (+ `tools/rc_runtime_manifest.txt`).
 
-- **Q11 — Sofar cloud downlink mechanism (NEW 2026-07-27).** Sprint09
-  proved the uplink read path (`api/sensor-data`, hex-decoded values, per
-  its DEV_LOG Q2). The **downlink** — how a command sent to the Sofar
-  cloud reaches Spotter → BM bus → mote → Pi UART — has not been
-  exercised by us yet: exact API endpoint/mechanism, payload format, and
-  how delivery interacts with the node duty cycle. Review Nick's API
-  tooling + Sofar docs at GUI/§7 start. *Blocker for §7 send path and
-  Phase C/D.*
+- **Q11 — Sofar cloud downlink mechanism.** ✅ ANSWERED 2026-07-27
+  (Nick supplied Sofar's "Spotter Command API Reference Document";
+  digitized to [docs/sofar_command_api_reference.md](../../docs/sofar_command_api_reference.md)).
+  Mechanism: `POST /user-rest/devices/:spotterId/command` with
+  `{telemetry: "cellular", message: "<Spotter console command>"}` —
+  the message is a console command line (max 270 bytes, printable ASCII
+  + `\n` chaining, no tabs), so the send path is the cloud queuing our
+  bench-proven `bm pub bmcam/cmd <json> 1 1`. Cellular mailbox: no
+  expiry, no queue limit, no satellite credits. Rate limit 1 successful
+  request/min/Spotter (all requests rejected during cooldown — GUI must
+  enforce client-side). Delivery on the Spotter's next successful
+  cellular transmit (matches queue-while-off model). **Remaining
+  caveats:** (1) the capture's "Example cURL Request" and "Responses"
+  toggles were collapsed — auth header + response/error schemas missing
+  (assume Sprint09's api.sofarocean.com token auth; verify at first
+  Phase C send); (2) `bm pub` executing from the command mailbox is
+  inferred from the doc's `cfg …` example — first Phase C test is a
+  single cloud ping to prove it.
 
 ## Known constraints (carried in from project context)
 
@@ -146,6 +156,18 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 - Camera node (f365) draws ~1.12 W capturing, ~0.34 W avg at ~30% duty.
 
 ## Decisions taken mid-sprint
+
+- 2026-07-27 **Q11 closed — Sofar Command API doc digitized** (new
+  session, post-PR-#15-merge). Nick supplied a screen capture of Sofar's
+  Notion "Spotter Command API Reference Document"; transcribed to
+  `docs/sofar_command_api_reference.md` (source PDF was image-only —
+  visually transcribed, includes an implications-for-Sprint10 section).
+  Two Notion toggles ("Example cURL Request", "Responses") were
+  collapsed in the capture and are flagged missing — ask Nick for a
+  re-capture with toggles expanded, or discover auth/response shape
+  empirically at the first Phase C send. §7's first tracker item
+  (confirm downlink mechanism) is now satisfied on paper; the empirical
+  half (a cloud ping actually reaching the Pi) is §6 Phase C test 1.
 
 - 2026-07-27 **PR #15 finalized for review/merge (Nick). Handoff notes
   for the next session (Sofar cloud integration — Nick will supply
