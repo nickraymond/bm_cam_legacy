@@ -21,10 +21,15 @@ open questions and bugs in DEV_LOG.md.
       — BM_Devel_Pi/command_tables.py; 22 invariant tests green
       (tests/test_command_tables.py). foc/awb/exp presets are PLACEHOLDER
       (flagged in module docstring + DEV_LOG).
-- [ ] Command parser: validate `id`/`c`/`v`, reject unknown/malformed
+- [x] Command parser: validate `id`/`c`/`v`, reject unknown/malformed
+      — BM_Devel_Pi/command_messages.py `parse_command`; accept/reject
+      matrix green (tests/test_command_messages.py, 25 tests). Bad JSON /
+      bad id = unackable drop; bad cmd/value = ack with error code.
 - [ ] Dedupe store: last-N applied command IDs, persisted
 - [ ] Settings state file: write-on-change, load-on-boot
-- [ ] Ack builder: `{id, ok, st}` full-state ack
+- [x] Ack builder: `{id, ok, st}` full-state ack
+      — command_messages.py `build_ack`; exact wire strings pinned, worst
+      case ~70 B << 384-char chunk; `st` always complete (defaults fill).
 
 ## 2. Daemon integration
 - [ ] Wire parser into existing UART reader path (inbound)
@@ -42,7 +47,10 @@ open questions and bugs in DEV_LOG.md.
 
 ## 4. Phase A tests (no hardware)
 - [ ] PTY mock-mote harness (`socat`)
-- [ ] Unit: parser accept/reject matrix
+- [x] Unit: parser accept/reject matrix
+      — tests/test_command_messages.py (every command × every index
+      accepted; hostile-input sweep never raises; error-code + ackability
+      classification pinned).
 - [ ] Unit: dedupe (duplicate ID → ack, no re-apply)
 - [ ] Unit: state persistence across simulated restart
 - [ ] Unit: partial/garbled frame handling

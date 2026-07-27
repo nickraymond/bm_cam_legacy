@@ -125,6 +125,19 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§1 parser + ack builder landed (`command_messages.py`).**
+  Contract decisions (smallest-surface defaults, flag if wrong):
+  (1) *Unackable vs ackable rejects:* bad JSON or bad/missing `id` can't
+  be correlated → drop + log, no ack. Bad command name or value index →
+  ack `{"id":N,"ok":0,"e":"cmd"|"val","st":{...}}`. Error codes: json /
+  id / cmd / val. (2) *`id` bounded to uint32*, bools rejected as ids and
+  values. (3) *Unknown extra JSON keys tolerated* (forward compat; can't
+  mis-apply a setting). (4) *ping normalizes missing `v` to 0*; settings
+  commands require `v`. (5) Ack always carries the complete 5-key `st`
+  (defaults fill gaps) per D4; worst-case ack ~70 B, fits one 384-char
+  Sprint09 chunk with margin. Duplicates will ack ok=1 with no special
+  flag — `st` already tells the truth (D4 keeps re-sends safe).
+
 - 2026-07-26 **§1 `command_tables.py` landed.** ROI presets computed as
   exact centered rects per Q3 (index 0 == the S07-validated production
   default 1504,846,1600x900; the SPEC's "placeholder" rects for 1–4 are
