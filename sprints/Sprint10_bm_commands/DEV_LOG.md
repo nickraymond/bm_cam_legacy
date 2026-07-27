@@ -157,6 +157,20 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 ~22:50Z **FEATURE FREEZE (Nick) + media-gid rollback.**
+  From here: bug hunting and required fixes only, no new features,
+  ahead of the Wednesday customer push. bmcam003's runtime restored
+  from the pre-gid tar to exactly development@9330779 and the
+  media_gid island removed from its YAML (verified: code pre-gid,
+  YAML clean, soak cycle 4 legacy wire). The gid feature stays in this
+  branch's history with its island DEFAULT-OFF and byte-identical-
+  when-off pinned by tests — no unit enables it; the website parser
+  needs NO changes for Wednesday. Approx. gid images 000–002 (sent
+  22:00–22:45Z from bmcam003) will surface at the backend as
+  non-matching chunk strings — harmless noise, ignore. The 24 h soak
+  continues unchanged on both units (throttled 15-min cadence on 003,
+  field-normal on 000).
+
 - 2026-07-27 ~19:11Z **bmcam000 field-updated to development@9330779
   (PR #16 merge) — second command-test unit online.** Nick-authorized.
   Caught awake mid-cycle at 3 min uptime, disarmed per the
