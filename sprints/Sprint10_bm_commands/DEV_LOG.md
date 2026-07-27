@@ -125,6 +125,26 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 (late) **§2c/§4 complete — daemon wired into the RC cycle;
+  Phase A green. §1–§4 all checked.** Cycle flow when enabled:
+  daemon owns the UART from process start (shared-port time sync via
+  new `read_spotter_utc_fn` param on should_transmit_now_from_schedule —
+  additive, default unchanged) → pre-capture listen window → capture
+  with overlaid settings → transmit with ≤1 ack per 1.0 s pacing slot
+  (each ack consumes its own paced sleep; image framing byte-identical)
+  → final drain → stop → early halt. New `--bench-commands` flag runs
+  the daemon without image transmit (LOUD: subscribe+acks DO touch the
+  bus) — built for tonight's bench work. New `rc_command_hooks.py`
+  keeps the orchestrator near the line rule (675 lines, was 600
+  pre-sprint; hooks extracted). `tools/mock_mote.py` PTY harness
+  (raw-mode pty — tty line discipline corrupts COBS frames otherwise;
+  pyserial does raw implicitly on real ports). Full-cycle integration
+  tests on the coral native. Suite: 269 OK.
+- 2026-07-26 (late) **Deviation note:** Nick's overnight instruction
+  said "commit changes to the development branch"; per the Branching
+  Model (no direct commits to development) the bm_commands BRANCH is
+  pushed and deployed to bmcam003 instead. Same effect, model intact.
+
 - 2026-07-26 **§3 `command_bindings.py` + touched-tracking + `--ev`.**
   Design point discovered while wiring the overlay: bmcam000-class units
   set manual focus via the YAML camera_controls island, so a naive

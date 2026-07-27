@@ -118,6 +118,20 @@ bm_serial:
   image_buffer_size: 384
   image_transmit_delay_seconds: 1.0
 
+# Sprint10 remote command daemon (bm_commands branch). Disabled default
+# is byte-identical to the Sprint08/09 cycle (D14). When enabled:
+#   - persisted command state (state_path) OVERLAYS the values above
+#     (progressive_jpeg.crop, camera_controls, max_run_time_min) — this
+#     file is never rewritten; delete the state file to restore stock.
+#   - with --transmit (or bench-only --bench-commands) a listener owns
+#     the UART for the whole cycle and acks commands on the uplink.
+# topic is provisional until Q11/Phase B verification.
+bm_commands:
+  enabled: false
+  topic: "bmcam/cmd"
+  pre_capture_listen_s: 120
+  state_path: "/home/pi/BM_Devel_Pi/bm_command_state.json"
+
 # Future hardening, not enabled in this patch:
 # camera:
 #   exposure:

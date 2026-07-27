@@ -45,20 +45,43 @@ open questions and bugs in DEV_LOG.md.
       — drain_acks() via bm.spotter_tx, main-thread only (single-writer
       by construction); send failure requeues. Pacing-slot hookup lands
       with the rc_progressive_jpeg/rc_transmit integration below.
-- [ ] Listen wake→halt with pre-capture listen window (D5 as corrected
+- [x] Listen wake→halt with pre-capture listen window (D5 as corrected
       2026-07-26; early halt retained, no idle post-transmit listening)
-- [ ] Apply between captures only; never mid-capture
+      — rc_progressive_jpeg + rc_command_hooks: daemon owns the port for
+      the whole cycle; listen window before capture; acks in transmit
+      pacing slots; final drain in finally. tests/test_command_integration.py.
+- [x] Apply between captures only; never mid-capture
+      — by construction: all command processing on the main thread at
+      explicit safe points (listen window / pacing slots / final drain);
+      the listener thread only enqueues. Integration test pins that a
+      mid-transmit command does NOT change this cycle's capture.
 
 ## 3. Camera bindings
-- [ ] ROI apply (crop per table index)
-- [ ] Focus apply (auto / manual positions)
-- [ ] AWB apply
-- [ ] Exposure apply
-- [ ] Active-window duration apply (capture+compression budget)
-- [ ] `ping` (ack-only, no camera touch)
+      (all via command_bindings.py overlay — D13; off-device verified
+      against the PRODUCTION rpicam arg builder + full-cycle sidecar
+      checks; on-hardware verification is §5 Phase B)
+- [x] ROI apply (crop per table index)
+      — overlay_rc_settings → progressive_jpeg crop + output_size;
+      integration test pins sidecar crop_native_xywh == table rect.
+- [x] Focus apply (auto / manual positions)
+      — overlay_camera_controls → --autofocus-mode/--lens-position;
+      touched-gating keeps YAML manual focus until foc is commanded.
+- [x] AWB apply
+      — --awb mode / --awb custom --awbgains R,B (underwater preset).
+- [x] Exposure apply
+      — --ev (support added to process_image_v2 exposure island).
+- [x] Active-window duration apply (capture+compression budget)
+      — max_run_time_min/budget_seconds; takes effect NEXT cycle when
+      commanded mid-window (budget already charged — logged decision).
+- [x] `ping` (ack-only, no camera touch)
+      — records id for dedupe, settings untouched (state + daemon tests).
 
 ## 4. Phase A tests (no hardware)
-- [ ] PTY mock-mote harness (`socat`)
+- [x] PTY mock-mote harness (`socat`)
+      — tools/mock_mote.py (os.openpty, no socat dependency; raw-mode
+      pty). Sends production-framed commands, decodes daemon replies.
+      Verified end-to-end on a real PTY: apply/ping/reject/duplicate all
+      acked, ~100 ms round trip, exit code gates scripting.
 - [x] Unit: parser accept/reject matrix
       — tests/test_command_messages.py (every command × every index
       accepted; hostile-input sweep never raises; error-code + ackability
@@ -73,9 +96,13 @@ open questions and bugs in DEV_LOG.md.
       — tests/test_bm_frame_decoder.py (24 tests): byte-at-a-time splits,
       corrupted frames, junk recovery, overflow bounding, 200-chunk
       random hostile stream; frames round-trip the PRODUCTION encoder.
-- [ ] Integration: command in pre-capture listen window applies this
+- [x] Integration: command in pre-capture listen window applies this
       cycle; command during transmit acks + persists for next cycle
       (revised with the 2026-07-26 early-halt decision)
+      — tests/test_command_integration.py: real run_cycle + real daemon
+      on fake UART; sidecar crop proves this-cycle apply; mid-transmit
+      command acked in pacing slot, image send byte-sequence intact;
+      disabled-island regression guard (no port, no [CMD] output).
 
 ## 5. Phase B tests (bench, Spotter serial)
 - [ ] Each of the 6 commands applied via Spotter CLI, ack observed
