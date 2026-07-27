@@ -11,7 +11,7 @@
   "send_path": {
     "tool": "tools/sofar_send_command.py",
     "endpoint": "POST https://api.sofarocean.com/user-rest/devices/SPOT-33507C/command?token=<SOFAR_API_TOKEN_BM_REEF>",
-    "auth_verified": "token query param accepted (202) — same convention as Sprint09 api/sensor-data",
+    "auth_verified": "token query param accepted (202) \u2014 same convention as Sprint09 api/sensor-data",
     "telemetry": "cellular"
   },
   "sends": [
@@ -19,7 +19,10 @@
       "utc": "2026-07-27T17:33:12Z",
       "message": "bm pub bmcam/cmd {\"id\":801,\"c\":\"ping\"} 1 1",
       "http": 202,
-      "response": "successfully enqueued sending message ... over cellular for SPOT-33507C"
+      "response": "successfully enqueued sending message ... over cellular for SPOT-33507C",
+      "delivered_utc": "2026-07-27T18:35:54Z",
+      "applied": "daemon applied id=801 + ack sent within same minute (frames=1, zero errors)",
+      "e2e_latency_min": 62.7
     }
   ],
   "pi_listener": "phaseC_cycle_loop.sh: back-to-back rc_progressive_jpeg.py --bench-commands --skip-time-window cycles (max 40, stop file /tmp/phaseC_stop), logs /home/pi/phaseC_logs/",
@@ -31,7 +34,8 @@
     "17:21:11Z Spotter boot banner (reboot; cause = repeated source-7 reboot requests, see below)",
     "17:25:52Z health check -> 'rebootctl reset 2. Source: 7' -> Spotter reboot -> BM bus power cut -> Pi hard power cycle -> bench loop killed",
     "17:34:14Z 'cfg save' (visibility LED off for bench, Nick request) -> immediate Spotter reboot -> Pi power-cycled again",
-    "17:34:50Z console: 'Reboot limit reached, ignoring. (source 7)' — Spotter now suppressing further source-7 reboot requests; requester unidentified",
+    "17:34:50Z console: 'Reboot limit reached, ignoring. (source 7)' \u2014 Spotter now suppressing further source-7 reboot requests; requester unidentified",
     "Config change record: cfg vle 0 + cfg save (visibility LED disabled, persisted). RESTORE cfg vle 1 before any field deployment."
-  ]
+  ],
+  "result": "PASS \u2014 TRACKER 6 item 1: full cloud downlink chain proven indoors (no GPS fix). Console-injected ping 802 (18:21:50Z) applied in ~1 s; its ack + 801's queued for cellular; backend visibility pending."
 }

@@ -157,6 +157,25 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **§6 FIRST CLOUD DOWNLINK PROVEN END-TO-END (18:35:54Z,
+  indoors).** ping id=801: POST 17:33:12Z (202) → mailbox → Notecard
+  sync → Spotter "Remote message received(52)" → `bm pub` exec → bus →
+  daemon applied + acked, frames=1 sig_hits=1 zero errors. E2E latency
+  **62.7 min**, entirely cloud/sync-bound (an identical console ping,
+  id=802, applied in ~1 s at 18:21:50Z). Notes: (1) delivery worked
+  INDOORS with GpsErrorState NO_SIGNAL — Nick's planned move outside
+  was unnecessary; sync cadence indoors is just slow/irregular (a
+  `note sync` was forced at 17:50:06; drain came 45.8 min later).
+  (2) The console echo of a remote message wraps it in quotes + an
+  `id:<mailbox-id>` metadata line; the closing quote + blank line hit
+  the console parser producing two cosmetic "Command not recognised"
+  errors AFTER successful execution — do not be fooled by them.
+  (3) Payload with embedded JSON double quotes passed the whole
+  pipeline byte-clean. (4) The recurring source-7 reboot requests are
+  the ORC health check voting to reboot (observed again 18:34:18,
+  suppressed by "Reboot limit reached") — likely the missing GPS fix;
+  went dormant... to re-verify outdoors. Backend ack visibility pending.
+
 - 2026-07-27 **Phase C started — first cloud command enqueued; Spotter
   reboot instability discovered on the bench.** Nick supplied the doc's
   Responses section (202 = enqueued-not-executed; 400 with reason) and

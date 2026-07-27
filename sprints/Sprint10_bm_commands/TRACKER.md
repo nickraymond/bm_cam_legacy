@@ -124,7 +124,15 @@ open questions and bugs in DEV_LOG.md.
       errors; full-window soak WITH transmit deferred (cellular spend).
 
 ## 6. Phase C tests (remote API — last)
-- [ ] Command via Sofar cloud API while node ON
+- [x] Command via Sofar cloud API while node ON
+      — 2026-07-27: ping id=801 POSTed 17:33:12Z (202), mailbox drained
+      18:35:54Z ("Remote message received(52)"), daemon applied + acked
+      within the same minute. Full chain: API → mailbox → Notecard sync
+      (INDOORS, no GPS fix) → console exec → bus → Pi → ack. E2E latency
+      62.7 min (sync-bound; bench ping 802 via console: ~1 s). Payload
+      arrived byte-clean (strict parser accepted; quotes intact).
+      Evidence: runs/sprint10_phaseC_20260727/. Backend ack visibility
+      pending (Notecard lag).
 - [ ] Command queued while node OFF → delivered on wake
 - [ ] Burst delivery (multiple queued commands) handled in order
 
