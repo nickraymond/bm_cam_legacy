@@ -52,6 +52,28 @@ tracker. Defaults noted where a safe assumption exists.
   running inside (or alongside) that per-wake process for the active
   window — not a new systemd service.
 
+## Answers (updated during sprint)
+
+**Q1 CORRECTION (Phase B, bmcam003 bench, 2026-07-27).** The wire is
+ASYMMETRIC. Pi→mote is COBS + 0x00-delimited as documented. But
+**mote→Pi arrives RAW**: pub packets with zero bytes inline, no COBS,
+no delimiter, frames back-to-back — captured with a raw UART dump while
+publishing from the Spotter console. This is why production only ever
+needed a pattern-scan and why the original strict COBS inbound decoder
+counted cobs_errors on real traffic. Verified structure (CRC16 checked
+against three captured frames): type 0x02, flags 0x00, CRC16 LE at
+[2:4] over the whole frame (bytes 2–3 zeroed), PUBLISHER node id u64 LE
+at [4:12] (= Spotter bridge c3c564b91856226c for `bm pub`), 01 01,
+topic len u16, topic, payload — NO payload length field; frame end is
+recoverable only via CRC scan. Decoder rewritten as RawPubScanner
+(CRC-scan end detection); captured bytes are pinned as test vectors in
+tests/test_bm_frame_decoder.py.
+
+**`bm pub` verified as the Phase B injection path:** `bm pub bmcam/cmd
+{"id":101,"c":"ping"} 1 1` — compact JSON (no spaces) passes through
+LITERALLY (not hex-decoded, quotes intact); type/version `1 1` works.
+Console→Pi one-way latency ~81 ms (NTP-synced clocks).
+
 ## Answers (2026-07-26 repo audit, pre-sprint — bm_cam_legacy @ main)
 
 **Q1 — UART framing today** (`BM_Devel_Pi/bm_serial.py`,

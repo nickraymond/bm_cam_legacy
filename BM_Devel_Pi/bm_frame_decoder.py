@@ -4,41 +4,51 @@
 """
 Sprint10 command daemon — the inbound half of the BM serial framing.
 
-The repo has always ENCODED frames (bm_serial.py: packet -> CRC16 at
-bytes 2-3 -> COBS -> 0x00 delimiter) but never decoded them — the only
-inbound consumer (spotter_time_sync) pattern-scans the raw stream (Q1).
-This module adds the strict reverse path for command frames:
+PHASE B FINDING (bmcam003 bench, 2026-07-27, raw UART capture): the
+wire is ASYMMETRIC. Pi -> mote is COBS-encoded + 0x00-delimited
+(bm_serial.py, unchanged). But mote -> Pi arrives RAW: pub packets with
+zero bytes inline, NO COBS, NO delimiter, frames back-to-back. That is
+why production only ever needed a pattern-scan (Q1), and why this
+module's original COBS inbound path counted cobs_errors on real
+traffic. Captured ground truth lives in tests/test_bm_frame_decoder.py
+(REAL_FRAMES — bytes off the bmcam003 UART).
 
-  raw UART bytes -> split on 0x00 -> COBS decode -> CRC16 verify
-                 -> parse BM pub frame -> (node_id, topic, payload)
+Inbound decoding is therefore RawPubScanner:
 
-Pub frame layout (mirrors bm_serial.get_pub_header, both directions):
+  raw UART bytes -> find "01 01 + u16len + topic" signature
+                 -> frame start = idx-12 (type4 + node_id8), byte0==0x02
+                 -> frame END found by CRC scan: extend byte-by-byte
+                    until CRC16 (bytes 2-3, zeroed) matches — the raw
+                    format has NO payload length field, so the CRC is
+                    the only end marker
+                 -> payload = bytes between topic and CRC-matched end
+
+Raw pub frame layout (verified against captured frames, CRC checked):
   [0]      type (0x02 = pub)
-  [1]      reserved/flags (not checked)
-  [2:4]    CRC16 LE, computed over the packet with these bytes zeroed
-  [4:12]   node id, u64 LE
-  [12:14]  pub header bytes (outbound uses 01 01; NOT checked inbound —
-           the mote-side value is unverified until Phase B)
+  [1]      flags/reserved (0x00 observed; not checked)
+  [2:4]    CRC16 LE over the whole frame with these bytes zeroed
+  [4:12]   PUBLISHER node id, u64 LE (Spotter bridge on bench captures)
+  [12:14]  01 01
   [14:16]  topic length, u16 LE
   [16:16+n]    topic
-  [16+n:]      payload
+  [16+n:]      payload (no length field — see CRC scan above)
 
 Robustness rules (a garbled frame must never crash the listener):
-  - decode functions return None on malformed input, never raise
-  - FrameAccumulator bounds its buffer; overlong garbage is dropped
-  - every drop is counted by cause (stats) so Phase A/B tests and field
-    logs can tell corruption from silence
+  - scanners/decoders return None/[] on malformed input, never raise
+  - buffers are bounded; overlong garbage is dropped and counted
+  - a CRC-scan false positive (P ~= 1/65536 per candidate end) yields a
+    truncated payload that fails JSON parse downstream -> unackable
+    drop + operator re-send; accepted for v1
+
+The COBS helpers (cobs_encode's mirror cobs_decode, verify_crc,
+parse_pub_frame) stay: the OUTBOUND direction really is COBS, and
+mote-side tools (tools/mock_mote.py) use them to decode daemon output.
 
 Pure module: no serial, no threads, no camera.
 
 Example:
-  >>> acc = FrameAccumulator(node_id=0x123, topic=b"bmcam/cmd")
-  >>> frames = acc.feed(uart_chunk)      # -> [payload_bytes, ...]
-
-Known limitations: inbound layout beyond type 0x02 is assumed to mirror
-the outbound shape; Phase B (`bm pub` from the Spotter CLI) is the
-checkpoint that verifies real mote traffic parses. Non-matching frames
-are counted, not errors — the bus carries plenty of other traffic.
+  >>> scanner = RawPubScanner(topic=b"bmcam/cmd")
+  >>> payloads = scanner.feed(uart_chunk)   # -> [payload_bytes, ...]
 """
 
 # Max bytes of un-delimited garbage to buffer before dropping. Real
@@ -123,8 +133,132 @@ def parse_pub_frame(packet):
     }
 
 
+def build_raw_pub_frame(node_id, topic, payload):
+    """Encode a mote->Pi RAW pub frame (the format RawPubScanner reads).
+
+    For tests and tools/mock_mote.py — the real producer is the mote's
+    serial bridge. Layout verified against bmcam003 captures 2026-07-27.
+    """
+    if isinstance(topic, str):
+        topic = topic.encode("utf-8")
+    if isinstance(payload, str):
+        payload = payload.encode("utf-8")
+    frame = bytearray(
+        bytes([FRAME_TYPE_PUB, 0x00, 0x00, 0x00])
+        + int(node_id).to_bytes(8, "little")
+        + b"\x01\x01"
+        + len(topic).to_bytes(2, "little")
+        + topic
+        + payload
+    )
+    crc = crc16(0, frame)
+    frame[2] = crc & 0xFF
+    frame[3] = (crc >> 8) & 0xFF
+    return bytes(frame)
+
+
+class RawPubScanner:
+    """Incremental decoder for the RAW mote->Pi stream (see module
+    docstring): feed raw UART chunks, get payloads for one topic.
+
+    No delimiters exist, so frames are located by the pub-header
+    signature and terminated by CRC scan. Partial frames stay buffered
+    until more bytes arrive or the per-frame bound trips.
+    """
+
+    # A real command frame is header(16) + topic + a <=384-char payload;
+    # 1 KB of growth past a candidate start without a CRC match means
+    # the candidate is noise (or the frame was corrupted in transit).
+    MAX_FRAME_BYTES = 1024
+
+    def __init__(self, topic, max_buffer=MAX_BUFFER_BYTES):
+        if isinstance(topic, str):
+            topic = topic.encode("utf-8")
+        self.topic = topic
+        # Signature: pub bytes + topic_len + topic (see layout above).
+        self._sig = b"\x01\x01" + len(topic).to_bytes(2, "little") + topic
+        self.max_buffer = max_buffer
+        self._buffer = bytearray()
+        self.stats = {
+            "candidates": 0,       # signature hits examined
+            "matched": 0,          # CRC-verified frames returned
+            "bad_start": 0,        # signature without a valid frame head
+            "crc_scan_fail": 0,    # frame bound exceeded with no CRC match
+            "overflow_drops": 0,   # buffer-bound garbage drops
+        }
+
+    def feed(self, chunk):
+        """Consume raw bytes; return payloads of CRC-valid topic frames."""
+        payloads = []
+        if chunk:
+            self._buffer.extend(chunk)
+            while True:
+                payload, made_progress = self._scan_once()
+                if payload is not None:
+                    payloads.append(payload)
+                if not made_progress:
+                    break
+        if len(self._buffer) > self.max_buffer:
+            drop = len(self._buffer) - self.max_buffer
+            del self._buffer[:drop]
+            self.stats["overflow_drops"] += 1
+        return payloads
+
+    def _scan_once(self):
+        """Find and extract one frame. Returns (payload|None, progress).
+        progress=True means bytes were consumed and scanning should
+        continue; False means wait for more input."""
+        buf = self._buffer
+        sig_idx = buf.find(self._sig)
+        if sig_idx < 0:
+            # Keep a tail that could hold a partial signature next feed.
+            keep = len(self._sig) + 12
+            if len(buf) > keep:
+                del buf[: len(buf) - keep]
+            return None, False
+
+        start = sig_idx - 12  # type(4) + publisher node id(8)
+        if start < 0 or buf[start] != FRAME_TYPE_PUB:
+            self.stats["bad_start"] += 1
+            del buf[: sig_idx + 1]  # skip this signature hit
+            return None, True
+
+        self.stats["candidates"] += 1
+        payload_start = sig_idx + len(self._sig)
+        stored = buf[start + 2] | (buf[start + 3] << 8)
+
+        # CRC scan: extend the frame end until the stored CRC matches.
+        # crc16 is byte-serial, so the prefix is computed once and each
+        # additional byte is O(1).
+        scratch_head = bytes(buf[start:start + 2]) + b"\x00\x00" + bytes(
+            buf[start + 4:payload_start])
+        crc = crc16(0, scratch_head)
+        end = payload_start
+        while end < len(buf):
+            if crc == stored:
+                break
+            crc = crc16(crc, buf[end:end + 1])
+            end += 1
+        if crc == stored:
+            payload = bytes(buf[payload_start:end])
+            del buf[:end]
+            self.stats["matched"] += 1
+            return payload, True
+
+        if len(buf) - start > self.MAX_FRAME_BYTES:
+            # No CRC match within bounds: corrupted or false signature.
+            self.stats["crc_scan_fail"] += 1
+            del buf[: sig_idx + 1]
+            return None, True
+        return None, False  # frame still arriving; wait for more bytes
+
+
 class FrameAccumulator:
-    """Incremental decoder: feed raw UART chunks, get command payloads.
+    """Incremental decoder for the COBS + 0x00-delimited direction.
+
+    NOTE (Phase B): this is the Pi -> mote wire format. The mote -> Pi
+    stream is RAW (use RawPubScanner). This class serves mote-side
+    tools/tests that consume the Pi's output (e.g. tools/mock_mote.py).
 
     Splits the stream on 0x00 delimiters, strictly decodes each block,
     and returns the payloads of CRC-valid pub frames whose topic matches

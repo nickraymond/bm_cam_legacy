@@ -46,6 +46,7 @@ except ImportError:
 import command_tables as ct  # noqa: E402
 import rc_progressive_jpeg as rc  # noqa: E402
 from bm_serial import BristlemouthSerial  # noqa: E402
+from bm_frame_decoder import build_raw_pub_frame  # noqa: E402
 from command_daemon import CommandDaemon  # noqa: E402
 from command_state import CommandState  # noqa: E402
 
@@ -83,12 +84,8 @@ class FakeUart:
 
 
 def make_cmd_frame(payload_dict, topic=TOPIC):
-    encoder = BristlemouthSerial(uart=FakeUart(), node_id=0xF365, network_type=0x02)
-    topic_b = topic.encode()
-    payload = json.dumps(payload_dict).encode()
-    packet = (encoder.get_pub_header() + len(topic_b).to_bytes(2, "little")
-              + topic_b + payload)
-    return encoder.finalize_packet(packet)
+    # Raw mote->Pi format (Phase B capture) — no COBS, no delimiter.
+    return build_raw_pub_frame(0xF365, topic, json.dumps(payload_dict))
 
 
 def write_yaml():

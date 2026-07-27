@@ -43,6 +43,7 @@ except ImportError:
     sys.modules["serial"] = _stub
 
 from bm_serial import BristlemouthSerial  # noqa: E402
+from bm_frame_decoder import build_raw_pub_frame  # noqa: E402
 from command_daemon import (  # noqa: E402
     DEFAULT_BM_COMMANDS_CONFIG,
     CommandDaemon,
@@ -86,12 +87,9 @@ class FakeUart:
 
 
 def make_cmd_frame(payload_dict, topic=TOPIC):
-    """Encode a command frame exactly as the production encoder would."""
-    encoder = BristlemouthSerial(uart=FakeUart(), node_id=0xF365, network_type=0x02)
-    topic_b = topic.encode()
-    payload = json.dumps(payload_dict).encode()
-    packet = encoder.get_pub_header() + len(topic_b).to_bytes(2, "little") + topic_b + payload
-    return encoder.finalize_packet(packet)
+    """Encode a command frame as the REAL mote delivers it (Phase B
+    capture: raw pub frame, no COBS, no delimiter)."""
+    return build_raw_pub_frame(0xF365, topic, json.dumps(payload_dict))
 
 
 class DaemonTestCase(unittest.TestCase):
@@ -181,12 +179,8 @@ class TestCommandFlow(DaemonTestCase):
     def test_unackable_garbage_payload_dropped(self):
         self.daemon.start()
         frame = make_cmd_frame({"id": 1, "c": "ping"})
-        # Wrap non-JSON bytes in a VALID frame on the command topic.
-        encoder = BristlemouthSerial(uart=FakeUart(), node_id=2, network_type=0x02)
-        topic_b = TOPIC.encode()
-        packet = (encoder.get_pub_header() + len(topic_b).to_bytes(2, "little")
-                  + topic_b + b"\x8b\x00garbled\xff")
-        self.uart.inject(encoder.finalize_packet(packet))
+        # Wrap non-JSON bytes in a VALID raw frame on the command topic.
+        self.uart.inject(build_raw_pub_frame(2, TOPIC, b"\x8b\x00garbled\xff"))
         self.uart.inject(frame)  # stream must recover
         self._await(lambda: self.daemon._inbound.qsize() >= 2, message="both frames")
         events = self.daemon.process_pending()

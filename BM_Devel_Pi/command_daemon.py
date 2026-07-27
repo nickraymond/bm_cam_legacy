@@ -11,7 +11,9 @@ pacing slots, image transmit) — single-writer by construction, no lock
 needed on the wire (D2/D12).
 
 Thread split (strict, this is the concurrency contract):
-  reader thread   reads uart, feeds FrameAccumulator, keeps the rolling
+  reader thread   reads uart, feeds RawPubScanner (mote->Pi is RAW,
+                  not COBS — Phase B finding, see bm_frame_decoder),
+                  keeps the rolling
                   raw buffer for the PROVEN clock pattern-scan (D11);
                   enqueues matching command payloads. NEVER writes uart,
                   NEVER touches CommandState.
@@ -49,7 +51,7 @@ import queue
 import threading
 import time
 
-from bm_frame_decoder import FrameAccumulator
+from bm_frame_decoder import RawPubScanner
 from command_messages import build_ack, parse_command
 from spotter_time_sync import (
     TOPIC as UTC_TOPIC,
@@ -156,7 +158,7 @@ class CommandDaemon:
         self.bm = bm              # BristlemouthSerial; uart MUST have a timeout
         self.state = state        # CommandState (main-thread only)
         self.topic = topic
-        self.accumulator = FrameAccumulator(topic=topic)
+        self.accumulator = RawPubScanner(topic=topic)
         self._inbound = queue.Queue()      # reader -> main: payload bytes
         self._acks = []                    # main-thread only
         self._raw = bytearray()            # rolling buffer for clock scan
@@ -353,5 +355,5 @@ class CommandDaemon:
         s.update(self.accumulator.stats)
         return ("applied={applied} dup={duplicates} rejected={rejected} "
                 "unackable={unackable} acks={acks_sent} frames={matched} "
-                "crc_err={crc_errors} cobs_err={cobs_errors} "
-                "read_err={read_errors}").format(**s)
+                "sig_hits={candidates} crc_scan_fail={crc_scan_fail} "
+                "bad_start={bad_start} read_err={read_errors}").format(**s)

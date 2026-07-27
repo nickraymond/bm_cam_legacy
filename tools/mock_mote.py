@@ -20,11 +20,11 @@ Point the daemon/RC at the printed device, e.g.:
 Outputs: one loud line per event (frame sent, frame received + decode),
 plus a summary (frames in/out, acks seen) and exit 0/1 so it can gate
 scripts. Inputs are payload JSON strings; they are framed exactly like
-production (COBS + CRC16 pub frame on the command topic).
+the REAL mote delivers them (raw pub frame + CRC16, no COBS — verified
+against bmcam003 captures 2026-07-27), while daemon->mote replies are
+decoded as COBS (the real outbound format).
 
-Assumptions: same wire-format assumption as bm_frame_decoder.py (Phase
-B verifies against the real mote). PTY has no UART timing — this tests
-framing/flow, not latency.
+PTY has no UART timing — this tests framing/flow, not latency.
 """
 
 import argparse
@@ -45,8 +45,12 @@ except ImportError:  # PTY mode needs no pyserial; stub for bm_serial import
     _stub.Serial = object
     sys.modules["serial"] = _stub
 
-from bm_serial import BristlemouthSerial  # noqa: E402
-from bm_frame_decoder import cobs_decode, parse_pub_frame, verify_crc  # noqa: E402
+from bm_frame_decoder import (  # noqa: E402
+    build_raw_pub_frame,
+    cobs_decode,
+    parse_pub_frame,
+    verify_crc,
+)
 
 MOCK_NODE_ID = 0xB33FB33FB33FB33F
 
@@ -60,14 +64,9 @@ class _PtyWriter:
 
 
 def build_command_frame(payload_json, topic):
-    # Skip the constructor (it opens a real serial port); the encoder
-    # methods only need node_id.
-    encoder = BristlemouthSerial.__new__(BristlemouthSerial)
-    encoder.node_id = MOCK_NODE_ID
-    topic_b = topic.encode()
-    packet = (encoder.get_pub_header() + len(topic_b).to_bytes(2, "little")
-              + topic_b + payload_json.encode())
-    return encoder.finalize_packet(packet)
+    # RAW mote->Pi format (Phase B capture 2026-07-27): the real serial
+    # bridge writes pub frames without COBS or delimiters.
+    return build_raw_pub_frame(MOCK_NODE_ID, topic, payload_json)
 
 
 def describe_frame(block):

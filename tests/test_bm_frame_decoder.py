@@ -38,6 +38,8 @@ except ImportError:
 from bm_serial import BristlemouthSerial  # noqa: E402
 from bm_frame_decoder import (  # noqa: E402
     FrameAccumulator,
+    RawPubScanner,
+    build_raw_pub_frame,
     cobs_decode,
     crc16,
     parse_pub_frame,
@@ -46,6 +48,21 @@ from bm_frame_decoder import (  # noqa: E402
 
 TOPIC = b"bmcam/cmd"
 NODE_ID = 0xC0FFEEEEF0CACC1A
+
+# GROUND TRUTH: raw bytes captured off the bmcam003 UART (mote->Pi)
+# 2026-07-27 during Phase B — `bm pub bmcam/cmd <data> 1 1` from the
+# Spotter console SPOT-33507C. Publisher node id is the Spotter bridge
+# c3c564b91856226c. NOT COBS-encoded, no 0x00 delimiter.
+REAL_FRAMES = {
+    b"hello": bytes.fromhex(
+        "0200189" + "2" + "6c225618b964c5c3" + "0101" + "0900"
+        + b"bmcam/cmd".hex() + b"hello".hex()
+    ),
+    b'{"id":101,"c":"ping"}': bytes.fromhex(
+        "0200d5d7" + "6c225618b964c5c3" + "0101" + "0900"
+        + b"bmcam/cmd".hex() + b'{"id":101,"c":"ping"}'.hex()
+    ),
+}
 
 
 class _DummyUart:
@@ -214,6 +231,87 @@ class TestFrameAccumulator(unittest.TestCase):
         acc = FrameAccumulator(topic="bmcam/cmd")
         payload = b'{"id":10,"c":"ping"}'
         self.assertEqual(acc.feed(make_pub_frame(payload)), [payload])
+
+
+class TestRawPubScanner(unittest.TestCase):
+    """The REAL inbound path (Phase B finding: mote->Pi is raw)."""
+
+    BRIDGE_NODE = 0xC3C564B91856226C
+
+    def setUp(self):
+        self.scanner = RawPubScanner(topic=TOPIC)
+
+    def test_real_captured_frames_decode(self):
+        # The exact bytes observed on bmcam003's UART must decode.
+        for payload, frame in REAL_FRAMES.items():
+            scanner = RawPubScanner(topic=TOPIC)
+            self.assertEqual(scanner.feed(frame), [payload], payload)
+            self.assertEqual(scanner.stats["matched"], 1)
+
+    def test_builder_matches_captured_bytes(self):
+        # Our raw-frame builder must reproduce the real capture exactly.
+        built = build_raw_pub_frame(self.BRIDGE_NODE, TOPIC, b"hello")
+        self.assertEqual(built, REAL_FRAMES[b"hello"])
+
+    def test_frame_split_byte_at_a_time(self):
+        frame = build_raw_pub_frame(1, TOPIC, b'{"id":7,"c":"win","v":3}')
+        got = []
+        for i in range(len(frame)):
+            got += self.scanner.feed(frame[i:i + 1])
+        self.assertEqual(got, [b'{"id":7,"c":"win","v":3}'])
+
+    def test_back_to_back_frames_no_delimiter(self):
+        # Exactly as captured: two frames concatenated in one read.
+        p1, p2 = b'{"id":1,"c":"ping"}', b'{"id":2,"c":"roi","v":2}'
+        chunk = (build_raw_pub_frame(3, TOPIC, p1)
+                 + build_raw_pub_frame(3, TOPIC, p2))
+        self.assertEqual(self.scanner.feed(chunk), [p1, p2])
+
+    def test_junk_around_frames(self):
+        frame = build_raw_pub_frame(3, TOPIC, b'{"id":9,"c":"ping"}')
+        got = self.scanner.feed(b"\xde\xad\x00\xbe\xef" + frame)
+        self.assertEqual(got, [b'{"id":9,"c":"ping"}'])
+
+    def test_corrupt_crc_frame_dropped_stream_recovers(self):
+        bad = bytearray(build_raw_pub_frame(3, TOPIC, b'{"id":1,"c":"ping"}'))
+        bad[-1] ^= 0xFF  # corrupt payload -> CRC never matches
+        good = build_raw_pub_frame(3, TOPIC, b'{"id":2,"c":"ping"}')
+        # Push enough padding to trip the per-frame bound, then a clean frame.
+        got = self.scanner.feed(bytes(bad) + b"\x55" * 1100 + good)
+        self.assertEqual(got, [b'{"id":2,"c":"ping"}'])
+        self.assertGreaterEqual(self.scanner.stats["crc_scan_fail"], 1)
+
+    def test_other_topic_ignored(self):
+        frame = build_raw_pub_frame(3, b"spotter/utc-time", b"12345678")
+        self.assertEqual(self.scanner.feed(frame), [])
+        self.assertEqual(self.scanner.stats["matched"], 0)
+
+    def test_empty_payload(self):
+        frame = build_raw_pub_frame(3, TOPIC, b"")
+        self.assertEqual(self.scanner.feed(frame), [b""])
+
+    def test_binary_payload_with_zeros(self):
+        payload = bytes(range(64))
+        frame = build_raw_pub_frame(3, TOPIC, payload)
+        self.assertEqual(self.scanner.feed(frame), [payload])
+
+    def test_buffer_stays_bounded_under_garbage(self):
+        # Signature-less garbage self-trims to a small tail; the buffer
+        # must never grow unbounded and the next real frame must decode.
+        self.scanner.feed(bytes([0x37]) * (3 * self.scanner.max_buffer))
+        self.assertLessEqual(len(self.scanner._buffer), self.scanner.max_buffer)
+        frame = build_raw_pub_frame(3, TOPIC, b'{"id":5,"c":"ping"}')
+        self.assertEqual(self.scanner.feed(frame), [b'{"id":5,"c":"ping"}'])
+
+    def test_hostile_stream_never_raises_and_recovers(self):
+        import random
+
+        rng = random.Random(99)
+        for _ in range(200):
+            self.scanner.feed(bytes(rng.randrange(256)
+                                    for _ in range(rng.randrange(300))))
+        frame = build_raw_pub_frame(3, TOPIC, b'{"id":6,"c":"ping"}')
+        self.assertEqual(self.scanner.feed(frame), [b'{"id":6,"c":"ping"}'])
 
 
 class TestCrc16Function(unittest.TestCase):
