@@ -61,5 +61,20 @@ class TestExtractAck(unittest.TestCase):
         self.assertIsNone(spa.extract_ack("[1,2,3]"))
 
 
+class TestNormalizeNodeId(unittest.TestCase):
+    def test_real_phase_c_format(self):
+        # Exact format observed in Phase C acks 801/802 (2026-07-27).
+        self.assertEqual(spa.normalize_node_id("0x53171fa3d81a8e6f"),
+                         "53171fa3d81a8e6f")
+
+    def test_bare_and_case(self):
+        self.assertEqual(spa.normalize_node_id("53171FA3D81A8E6F"),
+                         "53171fa3d81a8e6f")
+
+    def test_missing(self):
+        self.assertIsNone(spa.normalize_node_id(None))
+        self.assertIsNone(spa.normalize_node_id(""))
+
+
 if __name__ == "__main__":
     unittest.main()

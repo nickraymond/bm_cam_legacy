@@ -55,9 +55,10 @@ the repo (Python stdlib only).
 
 ## Known limits (v1)
 
-- Node-id verification of acks is pending the first cloud-delivered ack
-  (we need to see which sensor-data field carries the publisher node id
-  — `lifecycle.verify_ack` has the hook).
+- Node-id verification is LIVE: acks are matched against the target's
+  expected node via the sensor-data `bristlemouth_node_id` field
+  (verified Phase C 2026-07-27); a wrong-device ack shows as a loud
+  mismatch.
 - One operator at a time; server binds 127.0.0.1 only.
 - `st` in acks is command-space: 0 means "never commanded / default" —
   the YAML may still hold a bench-set manual value (see DEV_LOG §3

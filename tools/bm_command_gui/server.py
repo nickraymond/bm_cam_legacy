@@ -154,12 +154,12 @@ class GuiState:
                 err = str(e)
                 continue
             with self.lock:
-                for _ts, ack in acks:
+                for _ts, ack, node_id in acks:
                     seen += 1
                     cid = ack["id"]
                     cmd = self.store.get(cid)
                     if cmd is not None and cmd["state"] in lc.IN_FLIGHT_STATES:
-                        self.store.record_ack(cid, ack)
+                        self.store.record_ack(cid, ack, node_id)
         with self.lock:
             self.last_poll = {
                 "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

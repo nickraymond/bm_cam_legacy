@@ -96,8 +96,19 @@ def extract_ack(text):
     return obj
 
 
+def normalize_node_id(raw):
+    """sensor-data `bristlemouth_node_id` ('0x53171fa3d81a8e6f') ->
+    bare lowercase hex, or None. Verified field name/format 2026-07-27
+    (Phase C acks 801/802)."""
+    if not raw:
+        return None
+    s = str(raw).strip().lower()
+    return s[2:] if s.startswith("0x") else s
+
+
 def fetch_acks(spotter_id, token, start_iso, end_iso, timeout_s=45):
-    """One sensor-data sweep -> list of (utc_timestamp, ack_dict)."""
+    """One sensor-data sweep -> list of (utc_timestamp, ack_dict, node_id).
+    node_id is the publishing BM node (bare lowercase hex) or None."""
     url = API + "?" + urlencode({
         "spotterId": spotter_id, "startDate": start_iso, "endDate": end_iso,
         "token": token,
@@ -108,13 +119,15 @@ def fetch_acks(spotter_id, token, start_iso, end_iso, timeout_s=45):
     for entry in payload.get("data", []):
         ack = extract_ack(decode_value(entry.get("value")))
         if ack is not None:
-            acks.append((entry.get("timestamp", "?"), ack))
+            acks.append((entry.get("timestamp", "?"), ack,
+                         normalize_node_id(entry.get("bristlemouth_node_id"))))
     return acks
 
 
-def fmt(ts, ack):
+def fmt(ts, ack, node_id=None):
     err = f" e={ack['e']}" if "e" in ack else ""
-    return (f"{ts}  id={ack['id']} ok={ack['ok']}{err} "
+    node = f" node={node_id}" if node_id else ""
+    return (f"{ts}  id={ack['id']} ok={ack['ok']}{err}{node} "
             f"st={json.dumps(ack.get('st', {}), separators=(',', ':'))}")
 
 
@@ -141,8 +154,8 @@ def main(argv=None):
         start, end = window()
         acks = fetch_acks(args.spotter_id, token, start, end)
         print(f"# {len(acks)} acks in {start}..{end}")
-        for ts, ack in acks:
-            print(fmt(ts, ack))
+        for ts, ack, node_id in acks:
+            print(fmt(ts, ack, node_id))
         return 0
 
     want = set(args.wait_for)
@@ -155,10 +168,10 @@ def main(argv=None):
         except OSError as e:
             print(f"[WARN] sweep failed ({e}); retrying")
             acks = []
-        for ts, ack in acks:
+        for ts, ack, node_id in acks:
             if ack["id"] in want and ack["id"] not in seen:
                 seen[ack["id"]] = ack
-                print(f"[ACK] {fmt(ts, ack)}")
+                print(f"[ACK] {fmt(ts, ack, node_id)}")
         missing = want - set(seen)
         if not missing:
             print(f"[OK] all {len(want)} ack(s) observed at the backend.")

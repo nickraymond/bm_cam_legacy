@@ -80,6 +80,28 @@ class TestTransitions(LifecycleTestCase):
         self.store.record_ack(9999, {"id": 9999, "ok": 1, "st": GOOD_ST})
         self.assertEqual(self.store.get(9999)["state"], lc.MISMATCH)
 
+    def test_wrong_node_id_is_loud_mismatch(self):
+        self._send()  # expected node 53171fa3d81a8e6f
+        self.store.record_ack(1001, {"id": 1001, "ok": 1, "st": GOOD_ST},
+                              node_id="c3c564b91856226c")
+        cmd = self.store.get(1001)
+        self.assertEqual(cmd["state"], lc.MISMATCH)
+        self.assertIn("WRONG DEVICE", cmd["mismatch_detail"])
+
+    def test_matching_node_id_acked(self):
+        self._send()
+        self.store.record_ack(1001, {"id": 1001, "ok": 1, "st": GOOD_ST},
+                              node_id="53171fa3d81a8e6f")
+        self.assertEqual(self.store.get(1001)["state"], lc.ACKED)
+        self.assertEqual(self.store.get(1001)["ack_node_id"],
+                         "53171fa3d81a8e6f")
+
+    def test_missing_node_id_does_not_block_ack(self):
+        self._send()
+        self.store.record_ack(1001, {"id": 1001, "ok": 1, "st": GOOD_ST},
+                              node_id=None)
+        self.assertEqual(self.store.get(1001)["state"], lc.ACKED)
+
 
 class TestInFlight(LifecycleTestCase):
     def test_in_flight_until_acked(self):

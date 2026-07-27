@@ -88,7 +88,8 @@ class CommandLifecycle:
         cmd["history"].append(ev)
         cmd["state"] = ev["state"]
         for k in ("utc", "spotter_id", "node_id", "c", "v", "message",
-                  "http_status", "response", "ack", "mismatch_detail"):
+                  "http_status", "response", "ack", "ack_node_id",
+                  "mismatch_detail"):
             if k in ev:
                 cmd[k] = ev[k]
 
@@ -134,32 +135,41 @@ class CommandLifecycle:
             "http_status": http_status, "response": response,
         })
 
-    def record_ack(self, cmd_id, ack, entry=None):
-        """Log an ack observed at the backend; verdict acked/mismatch."""
+    def record_ack(self, cmd_id, ack, node_id=None):
+        """Log an ack observed at the backend; verdict acked/mismatch.
+        node_id: normalized publisher node id from the sensor-data entry
+        (sofar_poll_acks.normalize_node_id), when available."""
         cmd = self.commands.get(cmd_id)
-        detail = verify_ack(cmd, ack, entry)
+        detail = verify_ack(cmd, ack, node_id)
         self._append({
             "utc": self._now(), "cmd_id": cmd_id,
             "state": ACKED if detail is None else MISMATCH,
             "ack": ack,
+            **({"ack_node_id": node_id} if node_id else {}),
             **({"mismatch_detail": detail} if detail else {}),
         })
 
 
-def verify_ack(cmd, ack, entry=None):
+def verify_ack(cmd, ack, node_id=None):
     """Return None if the ack matches the command's expectation, else a
     human-readable mismatch description (shown loudly by the GUI).
 
     Checks, per SPEC GUI item 4:
       - device ok flag (ok=0 means the daemon rejected it)
+      - publisher node id vs the target's expected node id (field
+        `bristlemouth_node_id`, verified Phase C 2026-07-27); only
+        checked when both sides are present
       - commanded value visible in ack `st` (settings commands only;
         `st` is command-space per the §3 touched-semantics note)
-      - node id: TODO(Phase C) — needs the real sensor-data entry shape.
     """
     if ack.get("ok") != 1:
         return f"device rejected command (ok={ack.get('ok')}, e={ack.get('e')})"
     if cmd is None:
         return "ack for a command this GUI never sent"
+    expected_node = (cmd.get("node_id") or "").strip().lower()
+    if expected_node and node_id and node_id != expected_node:
+        return (f"ack came from node {node_id}, expected {expected_node} — "
+                f"WRONG DEVICE answered")
     c, v = cmd.get("c"), cmd.get("v")
     if c and c != "ping":
         st = ack.get("st", {})
