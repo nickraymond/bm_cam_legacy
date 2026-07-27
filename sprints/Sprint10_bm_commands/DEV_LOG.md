@@ -157,6 +157,30 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **Phase C started — first cloud command enqueued; Spotter
+  reboot instability discovered on the bench.** Nick supplied the doc's
+  Responses section (202 = enqueued-not-executed; 400 with reason) and
+  authorized cellular-only cloud commands (satellite disabled on the
+  account). New tools/sofar_send_command.py (23 unit tests) sent ping
+  id=801: **HTTP 202, auth via ?token= confirmed working** — the
+  response echoes the full console line, so the endpoint/format is
+  right. Delivery pending the Spotter's next successful cellular
+  transmit; Pi runs back-to-back --bench-commands cycles as listener.
+  **Incidents (all in runs/sprint10_phaseC_20260727/):** the Spotter
+  (fw v2.16.6) rebooted at 17:21:11Z and again 17:25:52Z ("Running
+  health check!" → "[SYS] [ERROR] rebootctl reset 2. Source: 7"), and a
+  `cfg save` at 17:34:14Z also triggered an immediate reboot; console
+  then showed **"Reboot limit reached, ignoring. (source 7)"** —
+  something requests source-7 reboots repeatedly and the Spotter now
+  suppresses them. EVERY Spotter reboot cuts BM bus power → hard
+  power-cycles bmcam003 (observed 3× today; the RC state file survived
+  each, as designed). Phase B overnight had zero such resets — this
+  behavior is new today; possibly related to whatever Nick observed
+  pre-16:16Z ("unit looked off"). Raise with Sofar if it persists.
+  **Bench config change (Nick request, on the record):** visibility LED
+  disabled — `cfg vle 0` + `cfg save`, persisted through reboot,
+  verified `cfg vle` → 0. **Restore `cfg vle 1` before deployment.**
+
 - 2026-07-27 **Q11 closed — Sofar Command API doc digitized** (new
   session, post-PR-#15-merge). Nick supplied a screen capture of Sofar's
   Notion "Spotter Command API Reference Document"; transcribed to

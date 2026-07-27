@@ -60,6 +60,7 @@ Example
 import argparse
 import json
 import os
+import ssl
 import sys
 import time
 import urllib.error
@@ -159,8 +160,25 @@ def append_send_log(log_path, record):
         f.write(json.dumps(record, separators=(",", ":")) + "\n")
 
 
+def _ssl_context():
+    """Default trust store, with certifi as fallback when the interpreter
+    has no CA bundle (stock python.org macOS installs)."""
+    ctx = ssl.create_default_context()
+    if ctx.cert_store_stats().get("x509_ca", 0) == 0:
+        try:
+            import certifi
+            ctx = ssl.create_default_context(cafile=certifi.where())
+        except ImportError:
+            print("[WARN] this Python has no CA certificates and certifi is "
+                  "not installed — TLS will fail. Fix: run 'Install "
+                  "Certificates.command' for your Python, or pip install "
+                  "certifi.")
+    return ctx
+
+
 def post_command(spotter_id, token, body, timeout_s=30):
-    """POST to the Command API. Returns (http_status, parsed_or_raw_body)."""
+    """POST to the Command API. Returns (http_status, parsed_or_raw_body).
+    Network-level failure returns (None, <error string>)."""
     url = (
         f"{API_BASE}/user-rest/devices/{urllib.parse.quote(spotter_id)}/command"
         + "?" + urllib.parse.urlencode({"token": token})
@@ -172,10 +190,13 @@ def post_command(spotter_id, token, body, timeout_s=30):
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+        with urllib.request.urlopen(req, timeout=timeout_s,
+                                    context=_ssl_context()) as resp:
             status, raw = resp.status, resp.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as e:
         status, raw = e.code, e.read().decode("utf-8", "replace")
+    except (urllib.error.URLError, OSError) as e:
+        return None, f"network error (nothing enqueued): {e}"
     try:
         return status, json.loads(raw)
     except ValueError:
