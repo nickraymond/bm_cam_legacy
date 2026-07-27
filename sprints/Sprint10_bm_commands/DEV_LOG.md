@@ -160,9 +160,12 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
   paced with a 15 s bound and LOUDLY logs any left (cloud re-send +
   dedupe recover them). **Hardware retest (run 7):** 12-command rapid
   burst → 12/12 applied in order, 12 acks at exactly 1.0 s gaps, zero
-  pending at halt. Backend delivery check for the retest ids ran in the
-  background (see next entry when logged). Suite 280 OK. GUI note (§7):
-  ack polling must tolerate the observed 13–30 min backend lag.
+  pending at halt. **Backend confirmed 12/12 retest acks delivered**
+  (~30 min sync lag) — with pacing, ack loss went from 2/12 to 0/12 on
+  the identical burst. Full chain proven: console `bm pub` → mote → Pi
+  UART → parse/dedupe/persist → paced ack → Spotter cell queue →
+  cellular → `api/sensor-data`. Suite 280 OK. GUI note (§7): ack
+  polling must tolerate the observed 13–30 min backend lag.
 
 - 2026-07-27 **Phase B bench COMPLETE (overnight, Nick-authorized) —
   all six commands verified end-to-end on hardware.** Full results

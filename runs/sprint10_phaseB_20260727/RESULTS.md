@@ -64,8 +64,9 @@ has per-command values.
   Sprint09 failure mode. Fix landed + hardware-verified: `drain_acks`
   now paces at 1.0 s (run 7: 12-command rapid burst → 12 acks at
   exactly 1.0 s gaps, all flushed before halt; run07 log +
-  latency_stats untouched). Backend check for the 12 retest acks
-  (ids 701–716) ran after this file was frozen — see DEV_LOG.
+  latency_stats untouched). Backend confirmed **12/12 retest acks
+  delivered** (~30 min sync lag): identical burst went from 2 lost
+  (unpaced) to 0 lost (paced). Full chain proven console→backend.
 - Cron-armed (@reboot) flow with the daemon; full 12/16-min window soak
   with transmit.
 
