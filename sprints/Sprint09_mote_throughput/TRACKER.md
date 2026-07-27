@@ -92,9 +92,19 @@ open questions and bugs in DEV_LOG.md.
       sustained-rate failure case that set the 1.0 s floor
 
 ## 6. Lock-in + wrap
-- [ ] Land measured values in `BM_Devel_Pi/camera_schedule.yaml` + device profiles
+- [x] Land measured values in `BM_Devel_Pi/camera_schedule.yaml` + device profiles
+      — 384 / 1.0 in main YAML + rc_field_template + bmcam000 profile;
+      legacy bmcam001/002 untouched; 137 tests pass
 - [ ] Deploy via `tools/deploy_rc_runtime.sh`; update manifest if needed
+      — bench unit already runs the new values + §1 bm_serial.py (hand-
+      deployed during testing); formal deploy sweep deferred to next
+      field-update window; manifest unchanged (no file-set change)
 - [ ] Restore crontab; verify unit back in known-good state
-- [ ] Rollback commands documented in DEV_LOG
-- [ ] Update DEV_LOG with findings, bugs, deferred items (incl. firmware tier)
-- [ ] PR with test evidence for Nick review
+      — DELIBERATELY LEFT DISARMED per Nick 2026-07-26/27 (dev-friendly
+      state for continued bench work: cron off, halt off). Restore
+      commands in DEV_LOG §2 record; run them before any soak/field use
+- [x] Rollback commands documented in DEV_LOG (§2 record + three-value
+      YAML rollback: 300 / 5 / 0x02-stays)
+- [x] Update DEV_LOG with findings, bugs, deferred items (incl. firmware tier)
+- [x] PR with test evidence for Nick review — PR #10 (approved pre-Phase-B;
+      Phase B/C evidence pushed + summarized in PR comment)
