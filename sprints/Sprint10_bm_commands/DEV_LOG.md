@@ -125,6 +125,18 @@ tracker. Defaults noted where a safe assumption exists.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-26 **§1 `command_tables.py` landed.** ROI presets computed as
+  exact centered rects per Q3 (index 0 == the S07-validated production
+  default 1504,846,1600x900; the SPEC's "placeholder" rects for 1–4 are
+  now concrete centered 16:9 rects — still flagged for final framing
+  review before deployment). **Placeholders needing Nick/tank-test
+  sign-off before field use:** foc manual lens positions (in-air dioptre
+  guesses; flat-port water shifts effective focus), awb underwater gains
+  (1.8, 1.2 guess), exp EV step list. Validation detail: `valid_value`
+  rejects bools explicitly (JSON `true` would otherwise alias index 1 —
+  Python bool is an int subclass). Tables carry `TABLES_VERSION` for
+  GUI/device revision matching.
+
 - 2026-07-26 **§0 setup complete (session).** Sprint numbering confirmed:
   sprints/ holds 02–09, so 10 is correct — no renumber. Prior-daemon-spec
   search: none exists; the `bm-daemon.service` strings in README.md and

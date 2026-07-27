@@ -17,7 +17,10 @@ open questions and bugs in DEV_LOG.md.
       one and blocks §7 send path + Phase C/D only, not §1–§4.
 
 ## 1. Command layer core
-- [ ] `command_tables.py` — enums + value tables (single source of truth)
+- [x] `command_tables.py` — enums + value tables (single source of truth)
+      — BM_Devel_Pi/command_tables.py; 22 invariant tests green
+      (tests/test_command_tables.py). foc/awb/exp presets are PLACEHOLDER
+      (flagged in module docstring + DEV_LOG).
 - [ ] Command parser: validate `id`/`c`/`v`, reject unknown/malformed
 - [ ] Dedupe store: last-N applied command IDs, persisted
 - [ ] Settings state file: write-on-change, load-on-boot
