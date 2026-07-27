@@ -36,7 +36,10 @@ from sofar_poll_acks import (_ssl_context, decode_value, extract_ack,  # noqa: E
 from urllib.parse import urlencode  # noqa: E402
 from urllib.request import urlopen  # noqa: E402
 
-CHUNK_RE = re.compile(r"^<I(\d+)>")
+CHUNK_RE = re.compile(r"^<I(?:([0-9a-z]{1,6})\.)?(\d+)>")
+START_FIELDS_RE = re.compile(
+    r"length: (?P<length>\d+)|gid: (?P<gid>[0-9a-z]{1,6})|"
+    r"filename: (?P<fn>[^,]+)")
 
 
 def classify(text):
@@ -45,7 +48,7 @@ def classify(text):
     s = text.strip()
     m = CHUNK_RE.match(s)
     if m:
-        return "chunk", int(m.group(1))
+        return "chunk", (m.group(1), int(m.group(2)))  # (gid|None, index)
     if s.startswith("<WS") or s.startswith("WS,"):
         return "ws", s[:40]
     if "START" in s[:12]:
@@ -70,10 +73,24 @@ def sweep(spotter_id, token, hours):
         return json.load(resp).get("data", [])
 
 
+def _start_fields(text):
+    """Pull length/gid/filename out of a START message body."""
+    out = {}
+    for m in START_FIELDS_RE.finditer(text or ""):
+        for k in ("length", "gid", "fn"):
+            if m.group(k):
+                out[k] = int(m.group(k)) if k == "length" else m.group(k).strip()
+    return out
+
+
 def reconcile(rows):
+    """Group chunks into images. gid-tagged chunks (`<Igid.i>`) attribute
+    exactly to their gid's group regardless of arrival order; legacy
+    chunks fall back to arrival-order attribution between STARTs."""
     out = {"rows": len(rows), "counts": {}, "acks": [], "images": [],
            "other": [], "undecodable": 0}
-    current = None  # image group in progress
+    current = None            # legacy arrival-order group
+    by_gid = {}               # gid -> group dict
     for r in sorted(rows, key=lambda r: r.get("timestamp", "")):
         kind, val = classify(decode_value(r.get("value")))
         out["counts"][kind] = out["counts"].get(kind, 0) + 1
@@ -84,18 +101,47 @@ def reconcile(rows):
                 "e": val.get("e"), "st": val.get("st"),
                 "node": normalize_node_id(r.get("bristlemouth_node_id"))})
         elif kind == "start":
-            current = {"start_ts": ts, "start": val, "chunks": set(),
-                       "end": None}
-            out["images"].append(current)
+            f = _start_fields(val)
+            group = {"start_ts": ts, "start": val, "chunks": set(),
+                     "end": None, "gid": f.get("gid"),
+                     "declared_length": f.get("length"),
+                     "filename": f.get("fn")}
+            out["images"].append(group)
+            if f.get("gid"):
+                by_gid[f["gid"]] = group
+            else:
+                current = group
         elif kind == "chunk":
-            if current is None:
-                current = {"start_ts": ts, "start": "(no START seen)",
-                           "chunks": set(), "end": None}
-                out["images"].append(current)
-            current["chunks"].add(val)
+            gid, idx = val
+            if gid is not None:
+                group = by_gid.get(gid)
+                if group is None:  # straggler whose START is outside window
+                    group = {"start_ts": ts, "start": f"(no START; gid {gid})",
+                             "chunks": set(), "end": None, "gid": gid,
+                             "declared_length": None, "filename": None}
+                    out["images"].append(group)
+                    by_gid[gid] = group
+                group["chunks"].add(idx)
+            else:
+                if current is None:
+                    current = {"start_ts": ts, "start": "(no START seen)",
+                               "chunks": set(), "end": None, "gid": None,
+                               "declared_length": None, "filename": None}
+                    out["images"].append(current)
+                current["chunks"].add(idx)
         elif kind == "end":
-            if current is not None:
-                current["end"] = val
+            # END has no gid by design; correlate to the newest group
+            # missing an END (legacy behavior preserved).
+            target = current
+            if target is None or target.get("end") is not None:
+                open_groups = [g for g in out["images"] if g["end"] is None]
+                target = open_groups[-1] if open_groups else None
+            if target is not None:
+                target["end"] = val
+                m = re.search(r"sent_buffers: (\d+)", val or "")
+                if m:
+                    target["sent_buffers"] = int(m.group(1))
+            if target is current:
                 current = None
         elif kind == "other":
             out["other"].append({"ts": ts, "text": val})
@@ -103,9 +149,12 @@ def reconcile(rows):
             out["undecodable"] += 1
     for img in out["images"]:
         chunks = img.pop("chunks")
-        n = (max(chunks) + 1) if chunks else 0
+        # Loss accounting compares against what the DEVICE says it sent
+        # (END sent_buffers), else START planned length, else max index.
+        n = img.get("sent_buffers") or img.get("declared_length") or \
+            ((max(chunks) + 1) if chunks else 0)
         img["chunk_count"] = len(chunks)
-        img["max_index"] = n - 1
+        img["max_index"] = (max(chunks) if chunks else -1)
         img["missing"] = sorted(set(range(n)) - chunks)[:30]
         img["complete"] = bool(chunks) and not img["missing"] and \
             img["end"] is not None

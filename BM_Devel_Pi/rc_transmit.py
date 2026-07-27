@@ -36,6 +36,7 @@ import base64
 import time
 from datetime import datetime, timezone
 
+from rc_media_id import chunk_prefix
 from rc_uplink_messages import (
     build_rc_end_message,
     build_rc_incomplete_message,
@@ -78,6 +79,7 @@ def transmit_progressive_image(
     sleep_fn=time.sleep,
     clock=time.monotonic,
     ack_drain_fn=None,
+    media_gid=None,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
 
@@ -86,6 +88,9 @@ def transmit_progressive_image(
     once per chunk pacing slot; when it reports it sent an ack, one extra
     paced sleep keeps the wire at the Sprint09 1 msg/s rate. Image
     framing/pacing is unchanged when None (the pre-Sprint10 wire).
+    media_gid: optional 3-char group id (rc_media_id island). When set,
+    chunks go out as `<I{gid}.{i}>` and START carries `gid:` — exact
+    chunk->image attribution for non-FIFO backends. None = legacy wire.
     Returns {planned, send_target, sent, started, complete_send,
              incomplete_emitted, uart_duration_sec}.
     """
@@ -141,6 +146,7 @@ def transmit_progressive_image(
         complete=fits,
         reason=wire_reason,
         start_metadata=start_metadata,
+        gid=media_gid,
     )
     tx(start_msg.encode("ascii"))
     sleep_fn(delay_seconds)
@@ -150,7 +156,7 @@ def transmit_progressive_image(
         # Per-chunk guard: this chunk + the closing END must still fit.
         if not budget.messages_fit(2):
             break
-        tx(f"<I{i}>{chunks[i]}\n".encode("ascii"))
+        tx(f"{chunk_prefix(i, media_gid)}{chunks[i]}\n".encode("ascii"))
         sent += 1
         sleep_fn(delay_seconds)
         # Sprint10 D12: at most one command ack rides each pacing slot;
