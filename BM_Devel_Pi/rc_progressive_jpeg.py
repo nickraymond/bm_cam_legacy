@@ -508,7 +508,7 @@ def run_cycle(
                   f"est {est_minutes:.1f} min, fits={selection['fits']}")
             # Bench-commands mode: no image transmit, but late commands
             # still ack + persist for the next cycle.
-            cmd_hooks.drain_now(daemon, summary)
+            cmd_hooks.drain_now(daemon, summary, clock=clock)
             return summary
 
         # M5 transmit (complete or bounded).
@@ -540,7 +540,7 @@ def run_cycle(
             hostname=get_hostname(),
             sleep_fn=sleep_fn,
             clock=clock,
-            ack_drain_fn=cmd_hooks.make_ack_drain_fn(daemon, summary),
+            ack_drain_fn=cmd_hooks.make_ack_drain_fn(daemon, summary, clock=clock),
         )
         summary["transmit_result"] = result
         print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "
@@ -577,7 +577,8 @@ def run_cycle(
 
     finally:
         # Last command pickup + reader stop before the port closes.
-        cmd_hooks.shutdown(daemon, summary, debug_print)
+        cmd_hooks.shutdown(daemon, summary, debug_print,
+                           clock=clock, sleep_fn=sleep_fn)
         if transmit or daemon is not None:
             try:
                 bm_close_fn()

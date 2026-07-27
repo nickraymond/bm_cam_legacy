@@ -154,13 +154,22 @@ def load_bm_commands_config(config_path):
 class CommandDaemon:
     """Reader thread + main-thread apply/ack. See module docstring."""
 
-    def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"]):
+    # Minimum spacing between ack sends, ANY code path. Phase B hardware
+    # data (2026-07-27): unpaced ack bursts overran the Spotter's 2-slot
+    # queue — 2 of 40 acks dropped SILENTLY (ids 605/616, both mid-burst).
+    # 1.0 s is the Sprint09-locked uplink pacing; the same floor applies.
+    ACK_INTERVAL_S = 1.0
+
+    def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
+                 ack_interval_s=ACK_INTERVAL_S):
         self.bm = bm              # BristlemouthSerial; uart MUST have a timeout
         self.state = state        # CommandState (main-thread only)
         self.topic = topic
+        self.ack_interval_s = float(ack_interval_s)
         self.accumulator = RawPubScanner(topic=topic)
         self._inbound = queue.Queue()      # reader -> main: payload bytes
         self._acks = []                    # main-thread only
+        self._last_ack_ts = None           # pacing clock value of last send
         self._raw = bytearray()            # rolling buffer for clock scan
         self._raw_lock = threading.Lock()
         self._stop = threading.Event()
@@ -314,12 +323,24 @@ class CommandDaemon:
     def pending_acks(self):
         return len(self._acks)
 
-    def drain_acks(self, max_n=None):
+    def drain_acks(self, max_n=None, clock=time.monotonic):
         """Send queued acks via the outbound path (main thread only).
         Called from transmit pacing slots (D12) and at idle points.
+
+        PACED: at most one ack per ack_interval_s on the wire (Phase B
+        hardware data — unpaced bursts silently overflow the Spotter's
+        2-slot queue). Callers poll; un-sent acks simply wait for the
+        next drain call. `clock` must be the same time base the caller
+        paces with (run_cycle passes the cycle clock so off-device
+        tests using fake time stay deterministic).
+
         Returns the number sent; a send failure re-queues and stops."""
         sent = 0
         while self._acks and (max_n is None or sent < max_n):
+            now = clock()
+            if (self._last_ack_ts is not None
+                    and now - self._last_ack_ts < self.ack_interval_s):
+                break  # pacing floor; next drain call picks it up
             ack = self._acks.pop(0)
             try:
                 self.bm.spotter_tx(ack)
@@ -327,6 +348,7 @@ class CommandDaemon:
                 self._acks.insert(0, ack)
                 print(f"[CMD][WARN] ack send failed (requeued): {exc}")
                 break
+            self._last_ack_ts = now
             sent += 1
             self.stats["acks_sent"] += 1
             print(f"[CMD] ack sent: {ack}")
@@ -345,7 +367,7 @@ class CommandDaemon:
         events = []
         while clock() < deadline:
             events.extend(self.process_pending())
-            self.drain_acks()
+            self.drain_acks(clock=clock)
             sleep_fn(0.2)
         print(f"[CMD] listen window done: {len(events)} command(s) processed")
         return events

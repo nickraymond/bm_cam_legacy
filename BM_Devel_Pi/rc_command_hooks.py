@@ -85,17 +85,24 @@ def pre_capture_listen(daemon, bm_commands_cfg, summary, settings,
     return settings, applied
 
 
-def drain_now(daemon, summary):
-    """Pick up pending commands and flush acks (idle-point drain)."""
+import time as _time
+
+# Bound on the end-of-cycle paced ack flush: enough for a 12-ack burst
+# at the 1.0 s pacing floor, trivial against the power budget.
+FINAL_ACK_FLUSH_S = 15.0
+
+
+def drain_now(daemon, summary, clock=_time.monotonic):
+    """Pick up pending commands and send acks (paced; idle-point drain)."""
     if daemon is None:
         return 0
     summary["command_events"].extend(
         e["action"] for e in daemon.process_pending()
     )
-    return daemon.drain_acks()
+    return daemon.drain_acks(clock=clock)
 
 
-def make_ack_drain_fn(daemon, summary):
+def make_ack_drain_fn(daemon, summary, clock=_time.monotonic):
     """ack_drain_fn for transmit pacing slots (D12), or None."""
     if daemon is None:
         return None
@@ -104,17 +111,29 @@ def make_ack_drain_fn(daemon, summary):
         summary["command_events"].extend(
             e["action"] for e in daemon.process_pending()
         )
-        return daemon.drain_acks(max_n=max_n)
+        return daemon.drain_acks(max_n=max_n, clock=clock)
 
     return ack_drain_fn
 
 
-def shutdown(daemon, summary, debug_print):
-    """Final pickup + reader stop; never raises (runs in finally)."""
+def shutdown(daemon, summary, debug_print,
+             clock=_time.monotonic, sleep_fn=_time.sleep):
+    """Final pickup + PACED ack flush + reader stop; never raises (runs
+    in finally). The flush loops because drain_acks sends at most one
+    ack per pacing interval — a late burst needs several seconds to
+    leave the wire without overflowing the Spotter queue."""
     if daemon is None:
         return
     try:
-        drain_now(daemon, summary)
+        deadline = clock() + FINAL_ACK_FLUSH_S
+        drain_now(daemon, summary, clock=clock)
+        while daemon.pending_acks and clock() < deadline:
+            sleep_fn(0.2)
+            drain_now(daemon, summary, clock=clock)
+        if daemon.pending_acks:
+            print(f"[CMD][WARN] {daemon.pending_acks} ack(s) unsent at "
+                  f"halt (flush window {FINAL_ACK_FLUSH_S:.0f}s elapsed); "
+                  "cloud re-send + dedupe recover them next cycle")
     except Exception as exc:
         debug_print(f"final command drain failed: {exc}")
     try:
