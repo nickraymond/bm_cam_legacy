@@ -2,15 +2,6 @@
   "_comment": "Sprint10 24h soak command plan (SOAK_PLAN_24H.md). GUI route allocates ids >=1000; direct ids: 8xx=bmcam003, 9xx=bmcam000. All times UTC.",
   "plan": [
     {
-      "at": "21:00",
-      "route": "gui",
-      "spotter_id": "SPOT-33507C",
-      "node_id": "53171fa3d81a8e6f",
-      "c": "awb",
-      "v": 3,
-      "note": "perm2a GUI awb underwater"
-    },
-    {
       "at": "21:02",
       "route": "gui",
       "spotter_id": "SPOT-33507C",

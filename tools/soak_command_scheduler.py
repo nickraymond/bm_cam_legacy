@@ -98,14 +98,28 @@ def main(argv=None):
         plan = json.load(f)["plan"]
     results_path = args.plan + ".results.jsonl"
 
-    entries = sorted(plan, key=lambda e: next_occurrence(e["at"]))
-    print(f"[scheduler] {len(entries)} entries; first at "
-          f"{next_occurrence(entries[0]['at']).strftime('%H:%M')}Z")
-    for entry in entries:
-        target = next_occurrence(entry["at"])
+    # Targets are computed ONCE at start. A target already past at
+    # execution time fires immediately in catch-up mode (bug found in
+    # the 24h soak: recomputing per-entry pushed late entries to
+    # TOMORROW after the Mac napped through an alarm). Catch-up sends
+    # keep >=65 s spacing per Spotter (Sofar 1/min hard limit).
+    schedule = sorted(((next_occurrence(e["at"]), e) for e in plan),
+                      key=lambda t: t[0])
+    print(f"[scheduler] {len(schedule)} entries; first at "
+          f"{schedule[0][0].strftime('%H:%M')}Z", flush=True)
+    last_send = {}  # spotter_id -> monotonic time of last fired send
+    for target, entry in schedule:
         wait = (target - datetime.now(timezone.utc)).total_seconds()
         if wait > 0:
             time.sleep(wait)
+        else:
+            print(f"[scheduler] LATE by {-wait:.0f}s: "
+                  f"{entry.get('note','')} — firing now", flush=True)
+        spot = entry["spotter_id"]
+        gap = time.monotonic() - last_send.get(spot, -1e9)
+        if gap < 65:
+            time.sleep(65 - gap)
+        last_send[spot] = time.monotonic()
         try:
             if entry.get("route") == "gui":
                 status, resp = send_gui(entry)
@@ -119,8 +133,8 @@ def main(argv=None):
         with open(results_path, "a") as f:
             f.write(json.dumps(line) + "\n")
         print(f"[scheduler] {line['utc']} {entry.get('note','')} -> "
-              f"{status} {'OK' if ok else 'FAILED'}")
-    print("[scheduler] plan complete.")
+              f"{status} {'OK' if ok else 'FAILED'}", flush=True)
+    print("[scheduler] plan complete.", flush=True)
     return 0
 
 
