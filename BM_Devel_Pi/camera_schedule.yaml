@@ -112,11 +112,11 @@ power_halt:
 # network_type:
 #   0x01 / 1 = legacy sat/cell fallback queue
 #   0x02 / 2 = cellular-only queue
-# Keep image_buffer_size at 300 for this test; do not change the working chunking path.
+# Sprint09-measured: 384 chars/msg (<=400 B fast-path payload), 1.0 s/msg (drain-rate floor +25%).
 bm_serial:
   network_type: 0x02
-  image_buffer_size: 300
-  image_transmit_delay_seconds: 5
+  image_buffer_size: 384
+  image_transmit_delay_seconds: 1.0
 
 # Future hardening, not enabled in this patch:
 # camera:

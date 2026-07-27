@@ -10,12 +10,21 @@ incidental findings. Newest entries at top within each section.
   `tail`, plus `sd usb` to mount the SD on the Mac read-only. Full command
   list: [docs/spotter_cli_reference.md](../../docs/spotter_cli_reference.md).
   Phase A: `cat uart_test.log` with terminal logging, or `sd usb` + copy.
-- **Q2 — Sofar backend count method.** ✅ ANSWERED 2026-07-26 (Nick):
-  Nick has tooling that wraps the Sofar API for raw message viewing.
-  Decision: review his endpoints at §4 prep (Phase B), not now — not a
-  §1–§3 blocker. Forum t/575: cell-only messages appear at the
-  `api/raw-messages` endpoint with header `EA` (legacy = `DE`), so the
-  count target is EA-header messages per run-id.
+- **Q2 — Sofar backend count method.** ✅ ANSWERED 2026-07-26 (Nick);
+  **UPDATED at §4 prep**: the proven path is **`api/sensor-data`**, not
+  `api/raw-messages`/EA-header — Zac's reply on forum t/575 verified the
+  sensor-data path Nick already uses, and his backend runs it in
+  production. Reviewed read-only in
+  `nereus-vision-dev/backend/app/services/sofar_client.py` (+ ingest
+  parsers). Count query:
+  `GET https://api.sofarocean.com/api/sensor-data?spotterId=<SPOT-33507C>
+  &startDate=<iso>&endDate=<iso>&token=$SOFAR_API_TOKEN_BM_REEF`;
+  `payload["data"][*].value` is hex-encoded message bytes
+  (`bytes.fromhex(value).decode()` → our ASCII payload), with
+  `bristlemouth_node_id` (bench mote 53171fa3d81a8e6f) and `timestamp`
+  per entry. Counter script: `count_phase_b.py` (this folder) — counts
+  TST lines per burst id with CRC8 check. Backend repo is read-only for
+  this session (other sessions own it).
 - **Q3 — Phase B payload-size / throughput targets.** ✅ REFRAMED
   2026-07-26 (Nick): 300 B/msg cellular-only is known-good; goal is
   pushing to the ~1000–1200 B/msg the forum discusses
@@ -66,6 +75,87 @@ incidental findings. Newest entries at top within each section.
 
 ## Decisions taken mid-sprint
 
+- 2026-07-27 **bmcam000 update tooling built + proven: `tools/rc_field_update.sh`.**
+  Wraps deploy_rc_runtime.sh with disarm → repo sync → deploy → surgical
+  bm_serial value patch (profile-sourced; other YAML drift reported, never
+  auto-applied) → UART gate → validation → re-arm. Fails safe (unit left
+  disarmed + rollback printed). Live-tested on bmcam003: all stages PASS;
+  that run formally deployed 43f4248 via the manifest path. **bmcam000
+  prerequisites:** (1) merge PR #10 into `development` (script deploys
+  `--ref development` by default), (2) Nick brings bmcam000 up and
+  confirms an SSH window (it halts after cycles — catch it awake),
+  (3) after update: one real transmit with Nick watching the website,
+  then re-arm cron + confirm power_halt enabled/real for field cadence.
+  A `bmcam-field-update` skill gets written from the bmcam000 run log.
+- 2026-07-27 **Phase C COMPLETE — PASS at 384 chars / 1.0 s. Three live
+  cycles on bmcam003 (devices now registered to Nick's website):**
+  - **C1 @ 0.625 s**: 71.7 s awake, q90 first-try (29,245 B, 102 msgs) —
+    but SUSTAINED transmit overran the drain: 84/105 accepted, 21 silent
+    drops (queue pinned at 2). B2's 10-msg bursts were too short to see
+    it; sustained fast-path drain ≈ 1.27 msg/s ⇒ floor ≈ 0.79 s.
+  - **C2 @ 1.0 s**: 106.6 s awake, 101/102 accepted — single drop
+    (chunk `<I40>`) while the Notecard was still syncing C1's backlog
+    (contention absent in field cadence).
+  - **C3 @ 1.0 s, clean backlog (deciding run)**: 117.7 s awake, q90,
+    31,478 B, 110 msgs — **113/113 accepted, zero queue-full, queue depth
+    never exceeded 1.**
+  - Backend (`sensor-data`) reconciled exactly with console for C1/C2
+    (C1: 82/102 chunks + START + WS, END was dropped; C2: 98/99 + all
+    envelopes); C3 backend check below. Backend visibility lags the run
+    by minutes (Notecard batch sync) — never count immediately.
+  - **LOCKED VALUES: `image_buffer_size: 384`,
+    `image_transmit_delay_seconds: 1.0`, network_type 0x02.** Landed in
+    repo YAML + rc_field_template + bmcam000 profile (legacy bmcam001/002
+    untouched). ~8.3× awake-time win (16.3 → ~2.0 min) AND quality q90
+    vs q9–15. Note: at these values the 195-msg cap is no longer binding
+    for 1000×562 q90 (~110 msgs) — headroom exists for higher output
+    resolution next sprint (Q5 follow-on).
+- 2026-07-27 **Backend reconciliation COMPLETE — Phase B is end-to-end
+  validated.** `api/sensor-data` counts match the Spotter-console submit
+  counts exactly on all 15 bursts (S09B0, B1×4, B2×9 incl. B2b×3); the
+  missing sequence numbers in the backend are precisely the console's
+  queue-full drops; 0 CRC failures in 103 rows. Artifacts:
+  `runs/20260726_phaseB/backend_reconciliation.json`. Consequences:
+  (1) proposed 384-char/0.625 s values are backed by end-to-end delivery
+  data, (2) Spotter console accept/drop is a validated delivery proxy for
+  future bench tests — cheaper iteration. Pre-test cellular gate for all
+  future runs: `post` → `cellularErrorState` + `cellularSignalErrorState`
+  both OK (ran clean before/during/after all of Phase B).
+- 2026-07-27 **Phase B2/B2b done — pacing floor is SIZE-DEPENDENT; proposal
+  ready for Phase C.** Full tables: `runs/20260726_phaseB/run_manifest.json`
+  + `b2_results.json`. Zero-loss points (console-verified, 10-msg bursts):
+  1000B@6s (167 B/s), 300B@500ms (600 B/s), 400B@625ms (640 B/s, B2b).
+  Lossy: 500B@2s (40%!), 300B@250ms (80%), 1kB@5s (B1). Mechanics: payloads
+  ≤ ~400 B take a fast drain path (~instant to Notecard); larger ones wait
+  for a ~10.8 s batch cycle with only 2 queue slots — so BIG CHUNKS LOSE.
+  The v2-spec premise (bigger chunks = win) is inverted by measurement:
+  the win is small-chunks-fast. **PROPOSED PRODUCTION VALUES (Phase C to
+  validate sustained):** `image_buffer_size: 384` (chunk + `<I{i}>` framing
+  ≈ 392 B payload, under the 400 B cliff with margin),
+  `image_transmit_delay_seconds: 0.625` (500 ms floor + 25%). ≈ 8× payload
+  throughput; est. full-ladder image at cap 195: 195 × 0.625 s ≈ 2.0 min
+  awake (vs 16.3). Fallback: 300 chars @ 1.0 s (5×). No code changes needed
+  (delay already float()-parsed; chunk already YAML). Quota spend ~52 kB.
+  Backend reconciliation still pending token fix.
+- 2026-07-27 **Phase B1 done (console-verified per Nick's suggestion —
+  backend counts pending token fix). SPEC B2 CORRECTED.** Full data:
+  `runs/20260726_phaseB/b1_results.json` + console captures. Headlines:
+  - **Chunk ceiling = 1000 B exactly** (1001 wire len accepted; 1100/1200
+    rejected pre-queue: "BM Binary Cellular message too large"). D4's
+    ~980-char chunk target stands.
+  - **0x02 = MS_Q_CELLULAR_ONLY confirmed on fw v2.16.6** — the t/575
+    numbering discrepancy is settled; repo bytes are right.
+  - **gap 5000 ms is ALREADY lossy at ~1 kB payloads**: only 2 messages
+    can be pending; a batch drain runs ~10.8 s after first add (then
+    ~1.3 s/msg to Notecard); the 3rd message of each 5-msg burst was
+    dropped silently (no backpressure to the Pi). 4/5 delivered at both
+    900 B and 1000 B. Small messages (~430 B) drain ~instantly.
+  - **Spec correction (smallest useful):** B2's sweep assumed the floor
+    was < 5 s at the B1 winner size. Reality: size-dependent drain ⇒ B2
+    re-scoped to a (size × gap) matrix — 1000 B @ 12/8/6 s, 500 B @
+    2/1 s, 300 B @ 2000/1000/500/250 ms, 10 msgs/step — to find the
+    bytes/s optimum. Console per-message accept/drop is the primary
+    metric; Sofar backend reconciliation when the token lands.
 - 2026-07-26 **Phase A PASS (run S09A1).** 200 msgs × 300 B at gap 0:
   200/200 on the Spotter SD, exact order, zero CRC8 failures. Sender: 60 kB
   in 6.23 s (~9.6 kB/s effective ≈ 83% of the 115200 wire incl. framing).
