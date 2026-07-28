@@ -94,3 +94,10 @@ tail (bounded, e.g. 120-180 s) in a post-freeze sprint — the drain predictably
 arrives 1-4 min after transmit start; a listen tail converts most gap losses
 into same-wake applies. GUI operator guidance: "awaiting node" past 2 wake
 cycles => re-send.
+
+## Evidence addendum (00:08:05Z) — Spotter cell-queue overflow captured live
+"[MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full / [BM_TX] [ERROR] Unable to submit"
+at cycle start (wake-status + command-ack racing the 2-slot queue). First direct
+console capture of the silent-drop mechanism behind ack-805 (incident 001) and
+the 1-2% chunk loss (incident 002). NOTE: drop is visible on the CONSOLE but
+invisible to the Pi — confirms Sprint09's "drops are silent to the sender".
