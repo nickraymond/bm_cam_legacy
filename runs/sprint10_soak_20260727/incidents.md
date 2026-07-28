@@ -76,3 +76,21 @@ Residual: WHY auto-sync stalls under sustained inbound load = Sofar/Blues questi
 for the support thread. Bench workaround live: forced sync every 15 min.
 Distinct from ack-805 (19:36Z, synced era) — that remains a true Spotter-queue drop.
 Field note: hourly cadence never triggered the stall; risk is sustained bursts.
+
+## FINDING 006 — mailbox drains chase the cycle tail: commands land in daemon-down gaps (00:01Z)
+DEFINITIVE queue-while-off answer (Nick's Bridge-gating question): the Spotter does
+NOT hold BM traffic for the node. Observed live, both units, same mechanism:
+- bmcam003: cmds 812/813/804dup/814 drained 23:58:38-00:00:51Z — cycle 5 had ended
+  23:57:45Z (frames=0). All four consumed from the mailbox and silently lost.
+  Reset cmd 815 likewise at 00:01:36Z. Cause: the drain is triggered by the sync
+  that our own transmit initiates, so it fires ~1-4 min AFTER the cycle ends.
+- bmcam000 first 20/10 wake: frames=0 — pings 900/901/902 not delivered during
+  the wake window either.
+MITIGATION (design already supports): re-send same ids on missing ack — dedupe
+makes it free; executed live for 812/813/804/814 at 00:02Z. Bench test-side fix:
+soak loop gap 600->120 s (~65% daemon coverage). FIELD RECOMMENDATION for the
+report: lengthen pre_capture_listen_s and/or add a short post-transmit listen
+tail (bounded, e.g. 120-180 s) in a post-freeze sprint — the drain predictably
+arrives 1-4 min after transmit start; a listen tail converts most gap losses
+into same-wake applies. GUI operator guidance: "awaiting node" past 2 wake
+cycles => re-send.
