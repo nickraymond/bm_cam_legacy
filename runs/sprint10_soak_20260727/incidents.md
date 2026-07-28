@@ -118,3 +118,16 @@ FIELD IMPLICATION for the report: at hourly/30-min cadence the natural collision
 rate is low (morning data: 1-3 chunks/cycle), and the ideal post-freeze design
 syncs deliberately BETWEEN transmit windows. Sofar question: can sync scheduling
 be pinned relative to BM traffic?
+
+## A/B experiment — burst size vs delivery completeness (Nick, 03:50Z 07-28)
+Context: Nick confirmed 100% delivery era ended with the 300ch/5.0s -> 384ch/1.0s
+pacing change (bmcam000 field update ~04:00Z 07-27). Rate analysis: old 12 msg/min
+vs ~76/min drain = never pressured; new 60 msg/min = 80% of drain, so any ~2-min
+Notecard sync session overflows the 2-slot queue (finding 007).
+ARM A — bmcam003: message_cap 195 -> 100 (≈100 msgs/image, lower JPEG quality,
+~1.7 min bursts @ 1.0s). Applied via catch-awake watcher on next boot.
+ARM B (control) — bmcam000: unchanged (≈190 msgs @ 1.0s).
+Optional ARM C tomorrow: bmcam000 delay 1.0 -> 2.0s (rate axis).
+Metric: per-image backend completeness over ~10 cycles/arm via soak_reconcile.
+Decision input for Wednesday: ship values restoring ~100% (candidates: smaller
+cap, 1.5-2.0s delay, or both).
