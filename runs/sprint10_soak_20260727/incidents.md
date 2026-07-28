@@ -144,3 +144,14 @@ transmit window matches deployment intent — a stale window silently no-ops a u
 while looking alive (wake statuses still flow); (c) positive control confirmed: the
 Spotter 20/10 cycling + armed-cron cadence on bmcam003 works, and mailbox drains
 occur on WS-only transmits (remote note sync path viable even for idle units).
+
+## FINDING 009 (07-28 morning) — compress-only consumed the reference; overnight A/B halted after 1 cycle
+The first reference cycle (bmcam003 06:32Z) delivered 93/93 COMPLETE — then both
+units produced WS-only cycles all night: the pipeline consumed/renamed the input
+native on the first pass, and every later cycle crashed on the missing file.
+Both wake cadences ran perfectly (18+17 wakes). Outdoor WiFi windows too marginal
+for the 1.2MB re-copy fix — pivoted to minimal one-shot runner REVERT (camera
+capture) on both units so daytime images resume; reference A/B to be re-run with
+the scratch-copy pattern (cp ref /tmp/ref_work.jpg per boot) once the monitoring
+Pi / better connectivity is in place. Test-harness lesson recorded: treat any
+input handed to the pipeline as consumable.
