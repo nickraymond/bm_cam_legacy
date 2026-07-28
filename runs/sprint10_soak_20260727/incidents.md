@@ -155,3 +155,13 @@ capture) on both units so daytime images resume; reference A/B to be re-run with
 the scratch-copy pattern (cp ref /tmp/ref_work.jpg per boot) once the monitoring
 Pi / better connectivity is in place. Test-harness lesson recorded: treat any
 input handed to the pipeline as consumable.
+
+## FINDING 009 — CORRECTED (07-28 19:0xZ): wrong reference file shipped, not consumption
+Device log evidence (rc_cycle 18:30Z): "[RC][ERROR] cycle failed: expected native
+4608x2592, got 2090x1668". My setup script's `find | head -1` grabbed the prep
+tool's comparison_sheet.jpg instead of synthetic_native_4608x2592.jpg. EVERY
+reference cycle failed input validation cleanly (105s WS-only cycles); the
+"93/93 reference success" at 06:32Z was actually the final CAMERA image pre-patch.
+The pipeline's dimension validation + fail-safe halt worked exactly as designed.
+Repo reference corrected to the true 4608x2592 synthetic native for the re-run.
+Harness lesson: verify artifact dimensions at pack time, not just presence.
