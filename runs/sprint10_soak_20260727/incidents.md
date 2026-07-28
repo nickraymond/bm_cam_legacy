@@ -101,3 +101,20 @@ at cycle start (wake-status + command-ack racing the 2-slot queue). First direct
 console capture of the silent-drop mechanism behind ack-805 (incident 001) and
 the 1-2% chunk loss (incident 002). NOTE: drop is visible on the CONSOLE but
 invisible to the Pi — confirms Sprint09's "drops are silent to the sender".
+
+## FINDING 007 (00:10Z) — unified loss model: Notecard sync sessions black out the uplink
+Observed live: during a Notecard sync session (~2 min), the Spotter cannot hand
+off to the Notecard; the 2-slot MS_Q_CELLULAR_ONLY fills and EVERY submit during
+the session drops (console: continuous "Queue full/Unable to submit" at 1/s
+through the 00:08-00:10Z window; Notecard itself only 6-7% full).
+This unifies all observed loss modes:
+  (a) consecutive-run chunk gaps (incident 002) = transmit overlapping a sync
+      session; (b) scattered singles = momentary 2-slot collisions (WS+ack);
+  (c) total stall (incident 003) = no syncs at all -> Notecard fills.
+Consequence: my 15-min BLIND forced-sync loop was scheduling a guaranteed 2-min
+blackout that ~1 in 3 bench cycles collided with — replaced 00:12Z with a
+transmit-aware sync loop (fires only when the uplink has been idle).
+FIELD IMPLICATION for the report: at hourly/30-min cadence the natural collision
+rate is low (morning data: 1-3 chunks/cycle), and the ideal post-freeze design
+syncs deliberately BETWEEN transmit windows. Sofar question: can sync scheduling
+be pinned relative to BM traffic?
