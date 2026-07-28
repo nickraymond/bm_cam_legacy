@@ -131,3 +131,16 @@ Optional ARM C tomorrow: bmcam000 delay 1.0 -> 2.0s (rate axis).
 Metric: per-image backend completeness over ~10 cycles/arm via soak_reconcile.
 Decision input for Wednesday: ship values restoring ~100% (candidates: smaller
 cap, 1.5-2.0s delay, or both).
+
+## FINDING 008 (05:10Z 07-28) — bmcam003 night cycles skipped by stale transmit window
+Post re-arm, every armed-cron wake produced only `a=skip_win` (backend rows 04:01,
+04:40, 05:00Z): its YAML transmit window was 08:00-15:00 America/Los_Angeles (bench-
+era profile value), so night cycles skip capture+transmit entirely. Invisible during
+the soak because the bench loop used --skip-time-window. bmcam000 has a wide-open
+window, hence its night images. Fixed via catch-awake sed -> 00:01-23:59.
+Consequences: (a) A/B Arm-A produced zero images tonight; its clock restarts at the
+first post-fix wake; (b) DEPLOY CHECKLIST addition for Wednesday: verify
+transmit window matches deployment intent — a stale window silently no-ops a unit
+while looking alive (wake statuses still flow); (c) positive control confirmed: the
+Spotter 20/10 cycling + armed-cron cadence on bmcam003 works, and mailbox drains
+occur on WS-only transmits (remote note sync path viable even for idle units).
