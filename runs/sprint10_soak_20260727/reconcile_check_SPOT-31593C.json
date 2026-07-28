@@ -1,0 +1,31 @@
+{
+  "rows": 172,
+  "counts": {
+    "ws": 1,
+    "start": 1,
+    "chunk": 169,
+    "end": 1
+  },
+  "acks": [],
+  "images": [
+    {
+      "start_ts": "2026-07-27T20:41:10.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:40:59Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:40:59Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:40:59Z_image_compressed.jpg",
+      "chunk_count": 169,
+      "max_index": 169,
+      "missing": [
+        139
+      ],
+      "complete": false
+    }
+  ],
+  "other": [],
+  "undecodable": 0,
+  "spotter_id": "SPOT-31593C",
+  "swept_hours": 2.0,
+  "swept_at": "2026-07-27T21:47:26Z"
+}

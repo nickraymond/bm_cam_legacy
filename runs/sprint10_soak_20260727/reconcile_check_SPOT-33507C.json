@@ -1,0 +1,186 @@
+{
+  "rows": 1403,
+  "counts": {
+    "ws": 9,
+    "start": 8,
+    "chunk": 1378,
+    "end": 8
+  },
+  "acks": [],
+  "images": [
+    {
+      "start_ts": "2026-07-27T20:36:19.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:36:12Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:36:12Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:36:12Z_image_compressed.jpg",
+      "chunk_count": 173,
+      "max_index": 173,
+      "missing": [
+        108
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T20:40:55.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:40:48Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:40:48Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:40:48Z_image_compressed.jpg",
+      "chunk_count": 177,
+      "max_index": 178,
+      "missing": [
+        129,
+        175
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T20:45:35.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:45:29Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:45:29Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:45:29Z_image_compressed.jpg",
+      "chunk_count": 184,
+      "max_index": 192,
+      "missing": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        127,
+        137
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T20:50:30.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:50:24Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:50:24Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:50:24Z_image_compressed.jpg",
+      "chunk_count": 178,
+      "max_index": 180,
+      "missing": [
+        10,
+        71,
+        117
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T20:55:13.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:55:07Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:55:07Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:55:07Z_image_compressed.jpg",
+      "chunk_count": 187,
+      "max_index": 187,
+      "missing": [
+        26
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T21:00:02.000Z",
+      "start": "<START IMG> filename: 2026-07-27T20:59:56Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T20:59:56Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T20:59:56Z_image_compressed.jpg",
+      "chunk_count": 174,
+      "max_index": 182,
+      "missing": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        83,
+        129,
+        139,
+        162
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T21:04:46.000Z",
+      "start": "<START IMG> filename: 2026-07-27T21:04:40Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T21:04:40Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T21:04:40Z_image_compressed.jpg",
+      "chunk_count": 174,
+      "max_index": 183,
+      "missing": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        45,
+        62,
+        182
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-27T21:09:31.000Z",
+      "start": "<START IMG> filename: 2026-07-27T21:09:25Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-27T21:14:11Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-27T21:09:25Z_image_compressed.jpg",
+      "chunk_count": 131,
+      "max_index": 178,
+      "missing": [
+        14,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134
+      ],
+      "complete": false
+    }
+  ],
+  "other": [],
+  "undecodable": 0,
+  "spotter_id": "SPOT-33507C",
+  "swept_hours": 2.0,
+  "swept_at": "2026-07-27T21:47:26Z"
+}
