@@ -41,6 +41,7 @@ except ImportError:
     sys.modules["serial"] = _stub
 
 import rc_progressive_jpeg as rc  # noqa: E402
+import rc_transmit_phase as tp  # noqa: E402
 
 CORAL_NATIVE = os.path.join(
     REPO_ROOT, "reference_images", "prepared", "P7071008", "synthetic_native_4608x2592.jpg"
@@ -89,11 +90,17 @@ class OrchestratorHarness(unittest.TestCase):
     """Shared machinery: run a cycle on the committed coral native with fakes."""
 
     def run_rc(self, yaml_extra="", transmit=False, capture_only=False,
-               budget_override_yaml=None):
+               budget_override_yaml=None, grid_clock_fn=None,
+               settings_override=None):
         config_path = write_yaml(budget_override_yaml or rc_yaml(yaml_extra))
         self.addCleanup(os.unlink, config_path)
         out_dir = tempfile.mkdtemp()
         settings = rc.resolve_rc_settings(config_path)
+        # bm_serial pacing comes from PyYAML, which dev Macs may not have
+        # (the Pi does). Override in resolved settings so pacing-sensitive
+        # tests do not silently run at the 5.0 s default.
+        if settings_override:
+            settings.update(settings_override)
 
         clock = FakeClock()
 
@@ -124,6 +131,8 @@ class OrchestratorHarness(unittest.TestCase):
                 halt_fn=lambda **kw: (halt(**kw) or {"action": "recorded", **kw}),
                 sleep_fn=pacing_sleep,
                 clock=clock,
+                **({"grid_clock_fn": grid_clock_fn}
+                   if grid_clock_fn is not None else {}),
             )
         return types.SimpleNamespace(
             summary=summary, tx=tx_messages, wake=wake, halt=halt,
@@ -231,6 +240,131 @@ class TestTransmitCycle(OrchestratorHarness):
         self.assertIn(f"sent_buffers: {result['sent']}", r.tx[-1])
         # Halt still last.
         self.assertEqual(len(r.halt.calls), 1)
+
+
+# 1.0 s pacing is what makes the whole scheme work: the coral primary is
+# 84 chunks, so the burst is ~85 s against a 250 s lane. At the 5.0 s
+# default it would be 425 s and could not fit any lane (DESIGN D3).
+PACING_1S = {"pacing_delay_seconds": 1.0}
+
+PHASE_YAML = (
+    "transmit_phase:\n"
+    "  enabled: true\n"
+    "  grid_seconds: 300\n"
+    "  post_boundary_guard_s: 30\n"
+    "  pre_boundary_guard_s: 20\n"
+)
+
+# A real measured 5-minute boundary (2026-07-29T18:20:00Z), divisible by 300.
+BOUNDARY = 1785349200.0
+
+
+def clock_at_phase(phase_s):
+    """grid_clock_fn that pins the cycle to `phase_s` past a boundary.
+
+    Returns a factory matching run_cycle's grid_clock_fn signature. The
+    GridClock is anchored to the cycle clock at the moment it is asked for,
+    so the phase is exactly what the test names.
+    """
+    def factory(gate_info, gate_mono, daemon=None, clock=None):
+        return tp.GridClock(BOUNDARY + phase_s, clock(), clock=clock)
+    return factory
+
+
+class TestPhaseAwareTransmit(OrchestratorHarness):
+    """Sprint11 C2 wired into the real cycle (fake clock, no hardware)."""
+
+    def transmit_start_phase(self, r):
+        """Phase at which the first message actually left, from the fake
+        clock: the sleeps the cycle performed are the wait we are testing."""
+        plan = r.summary["transmit_phase"]
+        return plan["start_phase_s"]
+
+    def test_island_off_by_default_means_no_phase_wait(self):
+        r = self.run_rc(transmit=True)
+        self.assertNotIn("transmit_phase", r.summary)
+        self.assertNotIn("[PHASE]", r.stdout)
+
+    def test_mid_lane_transmits_with_no_wait(self):
+        r = self.run_rc(yaml_extra=PHASE_YAML, transmit=True,
+                        settings_override=PACING_1S, grid_clock_fn=clock_at_phase(40.0))
+        plan = r.summary["transmit_phase"]
+        self.assertEqual(plan["reason"], "in_lane")
+        self.assertEqual(plan["wait_s"], 0.0)
+        self.assertFalse(plan["crosses_boundary"])
+
+    def test_on_a_boundary_the_cycle_actually_sleeps_the_guard(self):
+        """The wait must be real: it has to show up in the shared clock,
+        because the same clock is the transmit budget."""
+        before = self.run_rc(yaml_extra=PHASE_YAML, transmit=True,
+                             settings_override=PACING_1S, grid_clock_fn=clock_at_phase(40.0))
+        on_boundary = self.run_rc(yaml_extra=PHASE_YAML, transmit=True,
+                                  settings_override=PACING_1S, grid_clock_fn=clock_at_phase(0.0))
+        plan = on_boundary.summary["transmit_phase"]
+        self.assertEqual(plan["reason"], "wait_post_guard")
+        self.assertAlmostEqual(plan["wait_s"], 30.0)
+        # 30 s of extra elapsed time vs the no-wait run.
+        self.assertAlmostEqual(
+            on_boundary.clock.now - before.clock.now, 30.0, places=3)
+
+    def test_late_in_the_lane_defers_to_the_next_lane(self):
+        r = self.run_rc(yaml_extra=PHASE_YAML, transmit=True,
+                        settings_override=PACING_1S, grid_clock_fn=clock_at_phase(250.0))
+        plan = r.summary["transmit_phase"]
+        self.assertEqual(plan["reason"], "wait_next_lane")
+        self.assertAlmostEqual(plan["wait_s"], 80.0)      # 50 + 30
+        self.assertAlmostEqual(self.transmit_start_phase(r), 30.0)
+        # And the image still went out complete after the wait.
+        self.assertTrue(r.summary["transmit_result"]["complete_send"])
+
+    def test_clock_read_failure_falls_back_to_unscheduled_transmit(self):
+        """DESIGN D1 — the silent-failure path. No clock must mean 'send
+        now, exactly like before', never 'guess a phase'."""
+        r = self.run_rc(yaml_extra=PHASE_YAML, transmit=True,
+                        settings_override=PACING_1S, grid_clock_fn=lambda *a, **k: None)
+        plan = r.summary["transmit_phase"]
+        self.assertEqual(plan["reason"], "no_clock")
+        self.assertEqual(plan["wait_s"], 0.0)
+        self.assertIsNone(plan["phase_s"])
+        self.assertIn("no Spotter clock", r.stdout)
+        self.assertIn("UNSCHEDULED", r.stdout)
+        # The cycle is otherwise completely normal.
+        self.assertTrue(r.summary["transmit_result"]["complete_send"])
+
+    def test_wait_is_skipped_when_it_would_starve_the_burst(self):
+        """A wait spends the same budget the transmit needs. Waiting into a
+        budget too small for the burst would truncate the image mid-send —
+        strictly worse than sending at a bad phase."""
+        r = self.run_rc(budget_override_yaml=(
+            "capture_mode: \"progressive_jpeg\"\n"
+            "enforce_time_window: false\n"
+            + PHASE_YAML +
+            "progressive_jpeg:\n"
+            "  max_run_time_min: 2\n"
+        ), transmit=True, settings_override=PACING_1S,
+           grid_clock_fn=clock_at_phase(250.0))
+        plan = r.summary["transmit_phase"]
+        self.assertEqual(plan["reason"], "skipped_no_budget")
+        self.assertEqual(plan["wait_s"], 0.0)
+        self.assertIn("skipping the", r.stdout)
+
+    def test_print_config_flags_a_pacing_that_cannot_fit_a_lane(self):
+        """The D3 config rule, caught on the bench instead of from the gap
+        pattern in an overnight run."""
+        config_path = write_yaml(rc_yaml(
+            "transmit_phase:\n"
+            "  enabled: true\n"
+            "bm_serial:\n"
+            "  image_transmit_delay_seconds: 1.5\n"
+            "progressive_jpeg:\n"
+            "  message_cap: 195\n"
+        ))
+        self.addCleanup(os.unlink, config_path)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc.print_resolved_settings(rc.resolve_rc_settings(config_path))
+        self.assertIn("DOES NOT FIT", out.getvalue())
+        self.assertIn("exceeds the clean lane", out.getvalue())
 
 
 if __name__ == "__main__":

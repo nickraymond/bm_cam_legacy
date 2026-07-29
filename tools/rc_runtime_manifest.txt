@@ -18,6 +18,9 @@ BM_Devel_Pi/rc_jpeg_encoder.py
 BM_Devel_Pi/rc_quality_selector.py
 BM_Devel_Pi/rc_uplink_messages.py
 BM_Devel_Pi/rc_transmit.py
+# Sprint11 phase-aware transmit (config-gated by the transmit_phase YAML
+# island; inert when disabled but always imported by rc_progressive_jpeg)
+BM_Devel_Pi/rc_transmit_phase.py
 BM_Devel_Pi/rc_power_halt.py
 BM_Devel_Pi/rc_run_capture_cycle.sh
 

@@ -126,11 +126,33 @@ bm_serial:
 #   - with --transmit (or bench-only --bench-commands) a listener owns
 #     the UART for the whole cycle and acks commands on the uplink.
 # topic is provisional until Q11/Phase B verification.
+#
+# Sprint11: pre_capture_listen_s is GONE (C1/D2) — the listen moved AFTER
+# the transmit, where the mailbox drain actually arrives (finding 006).
+# Leaving the old key in a config is harmless but prints a loud warning.
 bm_commands:
   enabled: false
   topic: "bmcam/cmd"
-  pre_capture_listen_s: 120
+  post_transmit_listen_s: 150      # C4/D6 bounded tail before the halt
+  defer_acks_during_transmit: false  # C3/D5: keep acks out of the burst
   state_path: "/home/pi/BM_Devel_Pi/bm_command_state.json"
+
+# Sprint11 C2 — phase-aware transmit scheduling (rc_transmit_phase.py).
+# Blackouts sit on an absolute 5-minute UTC grid (Sprint10 Phase E: 83 % of
+# gaps within 30 s of a boundary, D ~ 9 s median, 24 s at p90). With this
+# enabled the cycle waits so the whole burst lands inside one clean lane:
+#     [boundary + post_guard, next boundary - pre_guard]  = 250 s usable
+# CONFIG RULE (D3): image_transmit_delay_seconds x message_cap <= 250 s.
+#   1.0 s -> 250 msgs OK    1.25 s -> 200 OK
+#   1.5 s -> 166 (a 194-msg image does NOT fit)   2.0 s -> 125
+# Disabled == pre-Sprint11 unscheduled transmit. A failed Spotter clock read
+# also degrades to exactly that, loudly (D1).
+transmit_phase:
+  enabled: false
+  grid_seconds: 300
+  post_boundary_guard_s: 30
+  pre_boundary_guard_s: 20
+  max_wait_s: 300
 
 # Future hardening, not enabled in this patch:
 # camera:

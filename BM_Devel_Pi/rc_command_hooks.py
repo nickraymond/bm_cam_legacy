@@ -69,27 +69,17 @@ def gate_kwargs_for(daemon):
     }
 
 
-def pre_capture_listen(daemon, bm_commands_cfg, summary, settings,
-                       load_controls_fn, clock, sleep_fn):
-    """The D5-corrected pre-capture listen window. Commands that land
-    here govern THIS capture (roi/foc/awb/exp); a win change waits for
-    the next cycle (budget already charged). Returns (settings, applied)."""
-    if daemon is None:
-        return settings, False
-    listen_s = float(bm_commands_cfg.get("pre_capture_listen_s", 0))
-    events = daemon.listen_window(listen_s, clock=clock, sleep_fn=sleep_fn)
-    summary["command_events"].extend(e["action"] for e in events)
-    applied = any(e["action"] == "applied" for e in events)
-    if applied:
-        settings = apply_command_overlay(settings, daemon.state, load_controls_fn)
-    return settings, applied
-
-
 import time as _time
 
 # Bound on the end-of-cycle paced ack flush: enough for a 12-ack burst
 # at the 1.0 s pacing floor, trivial against the power budget.
 FINAL_ACK_FLUSH_S = 15.0
+
+# Sprint11 C4: seconds of the cycle budget the post-transmit tail must
+# leave untouched, so the halt and the final state writes always complete
+# before the Spotter cuts bus power. The tail is a nice-to-have; landing
+# the image and halting cleanly are not.
+TAIL_SAFETY_S = 20.0
 
 
 def drain_now(daemon, summary, clock=_time.monotonic):
@@ -102,9 +92,37 @@ def drain_now(daemon, summary, clock=_time.monotonic):
     return daemon.drain_acks(clock=clock)
 
 
-def make_ack_drain_fn(daemon, summary, clock=_time.monotonic):
-    """ack_drain_fn for transmit pacing slots (D12), or None."""
+def make_pending_pump_fn(daemon, summary):
+    """Sprint11 C3: pump for the transmit pacing slots that touches NO wire.
+
+    Commands arriving mid-burst are still parsed and PERSISTED immediately
+    (so they govern the next boot even if this cycle dies), but their acks
+    only queue -- nothing is submitted into the Spotter's 2-slot cellular
+    queue while image chunks are flowing. Returns None when the daemon is
+    off, so the transmit loop stays byte-identical.
+    """
     if daemon is None:
+        return None
+
+    def pending_pump_fn():
+        events = daemon.process_pending()
+        summary["command_events"].extend(e["action"] for e in events)
+        return len(events)
+
+    return pending_pump_fn
+
+
+def make_ack_drain_fn(daemon, summary, clock=_time.monotonic, defer=False):
+    """ack_drain_fn for transmit pacing slots (D12), or None.
+
+    Sprint11 C3/D5: with `defer` set, this returns None so no ack can be
+    submitted between the first and last image chunk. An ack is an uplink
+    message into the SAME 2-slot queue as the chunks -- acking mid-transmit
+    manufactures exactly the collisions the pacing exists to avoid
+    (incident 001; the soak's "scattered singles"). The acks are not lost:
+    they flush in flush_acks() right after END, and again in the C4 tail.
+    """
+    if daemon is None or defer:
         return None
 
     def ack_drain_fn(max_n=1):
@@ -116,26 +134,79 @@ def make_ack_drain_fn(daemon, summary, clock=_time.monotonic):
     return ack_drain_fn
 
 
-def shutdown(daemon, summary, debug_print,
-             clock=_time.monotonic, sleep_fn=_time.sleep):
-    """Final pickup + PACED ack flush + reader stop; never raises (runs
-    in finally). The flush loops because drain_acks sends at most one
-    ack per pacing interval — a late burst needs several seconds to
-    leave the wire without overflowing the Spotter queue."""
+def flush_acks(daemon, summary, clock=_time.monotonic, sleep_fn=_time.sleep,
+               budget_s=FINAL_ACK_FLUSH_S, label="ack flush"):
+    """Paced flush of every queued ack. Loops because drain_acks sends at
+    most one ack per pacing interval -- a deferred burst (C3) needs several
+    seconds to leave the wire without overflowing the Spotter queue.
+
+    Never raises: this runs on the way to the halt.
+    """
     if daemon is None:
         return
     try:
-        deadline = clock() + FINAL_ACK_FLUSH_S
+        deadline = clock() + float(budget_s)
         drain_now(daemon, summary, clock=clock)
         while daemon.pending_acks and clock() < deadline:
             sleep_fn(0.2)
             drain_now(daemon, summary, clock=clock)
         if daemon.pending_acks:
-            print(f"[CMD][WARN] {daemon.pending_acks} ack(s) unsent at "
-                  f"halt (flush window {FINAL_ACK_FLUSH_S:.0f}s elapsed); "
-                  "cloud re-send + dedupe recover them next cycle")
+            print(f"[CMD][WARN] {daemon.pending_acks} ack(s) unsent after "
+                  f"{label} ({budget_s:.0f}s); cloud re-send + dedupe "
+                  "recover them next cycle")
     except Exception as exc:
-        debug_print(f"final command drain failed: {exc}")
+        print(f"[CMD][WARN] {label} failed: {exc}")
+
+
+def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
+                         clock=_time.monotonic, sleep_fn=_time.sleep):
+    """Sprint11 C4/D6 — the bounded listen tail that replaces the
+    pre-capture window.
+
+    Finding 006 is specific: the mailbox drain is triggered by the sync OUR
+    OWN transmit initiates, and fires 1-4 min after the cycle ends. That is
+    why bmcam000 took 0/10 commands during the Sprint10 soak -- it was
+    always halted by then. A 194 s transmit only covers the front of that
+    window; this tail covers the rest.
+
+    BOUNDED, never open-ended: the halt is what makes the energy numbers
+    work. The tail is additionally clamped to the cycle budget less
+    TAIL_SAFETY_S, so it can never run into the Spotter's bus-power cut
+    mid-write. If there is no room it is SKIPPED, loudly.
+
+    Returns the seconds actually spent listening.
+    """
+    if daemon is None:
+        return 0.0
+    tail_s = float(bm_commands_cfg.get("post_transmit_listen_s", 0.0))
+    if tail_s <= 0:
+        return 0.0
+    room_s = budget.remaining_s() - TAIL_SAFETY_S
+    if room_s <= 0:
+        print(f"[CMD] post-transmit tail SKIPPED: only "
+              f"{budget.remaining_s():.0f}s of budget left "
+              f"(need > {TAIL_SAFETY_S:.0f}s of halt margin)")
+        summary["listen_tail_s"] = 0.0
+        return 0.0
+    actual_s = min(tail_s, room_s)
+    if actual_s < tail_s:
+        print(f"[CMD] post-transmit tail TRIMMED {tail_s:.0f}s -> "
+              f"{actual_s:.0f}s by the cycle budget")
+    events = daemon.listen_window(actual_s, clock=clock, sleep_fn=sleep_fn,
+                                  label="post-transmit listen")
+    summary["command_events"].extend(e["action"] for e in events)
+    summary["listen_tail_s"] = actual_s
+    return actual_s
+
+
+def shutdown(daemon, summary, debug_print,
+             clock=_time.monotonic, sleep_fn=_time.sleep):
+    """Final pickup + PACED ack flush + reader stop; never raises (runs
+    in finally, on the success AND the failure path)."""
+    if daemon is None:
+        return
+    flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+               label="final drain at halt")
     try:
         daemon.stop()
     except Exception as exc:
