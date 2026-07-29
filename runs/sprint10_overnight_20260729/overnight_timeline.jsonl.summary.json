@@ -1,17 +1,17 @@
 {
-  "finished_utc": "2026-07-29T09:26:35Z",
-  "aborted": "SPOT-31593C: console silent for 45 min",
-  "events": 26,
+  "finished_utc": "2026-07-29T14:00:01Z",
+  "aborted": null,
+  "events": 66,
   "per_unit": {
     "SPOT-33507C": {
-      "cycles": 3,
-      "sweeps_completed": 3,
+      "cycles": 8,
+      "sweeps_completed": 8,
       "arm": "B",
       "txd": 1.0
     },
     "SPOT-31593C": {
-      "cycles": 3,
-      "sweeps_completed": 3,
+      "cycles": 8,
+      "sweeps_completed": 8,
       "arm": "A",
       "txd": 5.0
     }
