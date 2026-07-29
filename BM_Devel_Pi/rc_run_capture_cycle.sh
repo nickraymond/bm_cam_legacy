@@ -38,7 +38,24 @@ echo "[RC-CRON] disk: $(df -h / | tail -1)"
 echo "[RC-CRON] images_dir: $(du -sh $APP_DIR/images 2>/dev/null | cut -f1)"
 
 # Give the Pi, UART, and BM bridge time to settle after boot.
-sleep 30
+#
+# CHANGED 2026-07-29 (Nick, Sprint11): 30 s -> 0.5 s.
+# WHY: transmit must finish before the next 5-minute wall-clock boundary,
+# where the Spotter blacks out its 2-slot cellular queue for ~9 s (median;
+# 24 s at the 90th pct). Every second spent before transmit is a second of
+# margin lost. Measured budget with the 90 s listen also removed:
+#   power-on -> cycle running ~55 s, capture+encode ~5 s,
+#   194 msgs @ 1.0 s = 194 s  ->  transmit ends ~4 min 14 s into the window,
+#   i.e. ~46 s clear of the :05 boundary. Reclaiming this 30 s is a third
+#   of that margin.
+#
+# ROLLBACK CANDIDATE: this settle existed to let the Pi, UART and BM bridge
+# come up before the cycle touches them. 0.5 s is a deliberate bet that boot
+# has already done that by the time cron runs. IF THE NEXT TEST SHOWS
+# ANYTHING ODD -- UART open failures, missed time-sync, bridge not ready,
+# first-message loss, decode errors early in a burst -- RESTORE 30 s FIRST
+# and re-test before chasing anything subtler. See Sprint11 DESIGN D4.
+sleep 0.5
 
 cd "$APP_DIR" || exit 1
 
