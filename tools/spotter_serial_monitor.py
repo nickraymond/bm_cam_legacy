@@ -62,6 +62,10 @@ except ImportError:
     raise SystemExit("pyserial missing: sudo apt install python3-serial")
 
 BAUD = 115200
+# A live Spotter publishes `power | ...` every ~10 s, so silence this long
+# means the port is dead even though the fd is still open. See the watchdog
+# in PortMonitor.run().
+SILENT_RECONNECT_S = 120.0
 EVENT_PATTERNS = re.compile(
     r"Queue MS_Q.*full|Unable to submit|Notecard is [0-9]+\.|"
     r"Remote message|rebootctl|Reboot limit|\[ERROR\]|Sync request|"
@@ -148,10 +152,12 @@ class PortMonitor(threading.Thread):
                 continue
             self._event("port OPEN")
             buf = b""
+            last_data = time.time()
             try:
                 while True:
                     chunk = ser.read(4096)
                     if chunk:
+                        last_data = time.time()
                         buf += chunk
                         while b"\n" in buf:
                             raw, buf = buf.split(b"\n", 1)
@@ -162,6 +168,21 @@ class PortMonitor(threading.Thread):
                                 self.last_tx = time.time()
                             if EVENT_PATTERNS.search(line):
                                 self._event(line)
+                    # WATCHDOG (added 2026-07-29 after a silent overnight
+                    # stall). If the host sleeps, the USB serial fd stays
+                    # OPEN but dead: read() returns b"" forever and never
+                    # raises, so the exception-driven reconnect below never
+                    # fires and the monitor logs nothing until someone
+                    # notices hours later. That is exactly what happened on
+                    # 2026-07-29 — the Mac entered Maintenance Sleep at
+                    # 01:41 PDT and BOTH consoles went silent for 45 min.
+                    # A healthy Spotter emits a `power |` publish every 10 s,
+                    # so this threshold cannot fire on a live port.
+                    elif time.time() - last_data > SILENT_RECONNECT_S:
+                        self._event(
+                            f"port SILENT >{SILENT_RECONNECT_S:.0f}s — "
+                            f"forcing reconnect (host sleep or dead fd)")
+                        raise OSError("silent port watchdog")
                     cmd = self._pending_cmd()
                     if cmd:
                         ser.write((cmd + "\n").encode("ascii", "ignore"))
