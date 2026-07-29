@@ -39,10 +39,40 @@ HOSTS=("100.103.35.24:bmcam003" "100.119.14.92:bmcam000")
 mkdir -p "$OUTDIR"
 STATE="$OUTDIR/disarm_state.json"
 
-sshq() {  # ssh with the Tailscale auth banner filtered out
-  ssh -o ConnectTimeout=8 -o BatchMode=yes -o StrictHostKeyChecking=no \
-      -o ServerAliveInterval=5 -o ServerAliveCountMax=3 \
-      "pi@$1" "$2" 2>&1 | grep -viE "tailscale|authenticate"
+# INCIDENT 2026-07-29T19:00Z (INCIDENT_tailscale_ssh_check.md) — two fixes:
+#
+# 1. HARD TIMEOUT. `-o ConnectTimeout` bounds the TCP connect ONLY. When the
+#    socket opens and the HANDSHAKE stalls (Tailscale SSH check mode; a Pi
+#    halting mid-auth), ssh hangs forever. This loop polls two units in
+#    sequence, so one hung probe starved the other unit for a whole 8-minute
+#    wake window while printing nothing. macOS has no timeout(1).
+#
+# 2. THE FILTER NO LONGER SWALLOWS OPERATOR INSTRUCTIONS. The old filter was
+#    `grep -viE "tailscale|authenticate"`, meant to drop the login banner. It
+#    also dropped "# Tailscale SSH requires an additional check." and
+#    "To authenticate, visit: <url>" — the two lines that explained the
+#    outage. Drop the banner you have seen; never the whole category.
+. "$(dirname "${BASH_SOURCE[0]}")/sshto.sh"
+
+filter_banner() {
+  # Keep anything actionable, even if it mentions tailscale.
+  grep -viE "^[[:space:]]*(#[[:space:]]*)?tailscale (login|status)" \
+    | grep -vE "^$"
+}
+
+sshq() {
+  local out rc
+  out="$(ssh_to 45 "$1" "$2" 2>&1)"; rc=$?
+  printf '%s\n' "$out" | filter_banner
+  if [ "$rc" -eq 124 ]; then
+    echo "[sshq][TIMEOUT] $1 did not answer within 45 s"
+  fi
+  if printf '%s' "$out" | grep -qiE "requires an additional check|To authenticate, visit"; then
+    echo "[sshq][BLOCKED] Tailscale SSH is in CHECK MODE — a human must visit"
+    echo "[sshq][BLOCKED] the login URL above. No unit access is possible"
+    echo "[sshq][BLOCKED] until that is cleared. See INCIDENT_tailscale_ssh_check.md"
+  fi
+  return $rc
 }
 
 disarm_one() {
@@ -114,8 +144,14 @@ while [ "$(date +%s)" -lt "$end" ]; do
     ip="${entry%%:*}"; name="${entry##*:}"
     marker="$OUTDIR/.disarmed_${name}"
     if [ -f "$marker" ]; then ndone=$((ndone + 1)); continue; fi
-    if ssh -o ConnectTimeout=4 -o BatchMode=yes -o StrictHostKeyChecking=no \
-         "pi@$ip" true >/dev/null 2>&1; then
+    probe="$(ssh_to 12 "$ip" true 2>&1)"; prc=$?
+    if [ "$prc" -eq 124 ]; then
+      echo "[catch] $(date -u +%FT%TZ) $name probe TIMED OUT (12 s) — moving on"
+    elif printf '%s' "$probe" | grep -qiE "additional check|To authenticate, visit"; then
+      echo "[catch] $(date -u +%FT%TZ) $name BLOCKED by Tailscale SSH check mode:"
+      printf '%s\n' "$probe" | grep -iE "To authenticate, visit"
+    fi
+    if [ "$prc" -eq 0 ]; then
       echo "[catch] $(date -u +%FT%TZ) $name IS UP -> disarming now"
       disarm_one "$ip" "$name" | tail -1 > "$marker"
       ndone=$((ndone + 1))
