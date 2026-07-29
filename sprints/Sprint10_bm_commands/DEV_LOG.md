@@ -169,6 +169,47 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-29 **Overnight A/B run + MEASURED energy; Sprint11 opened.**
+  Full write-ups: `runs/sprint10_overnight_20260729/RESULTS.md` (delivery)
+  and the same folder's `energy_measured.json` / `energy_coplot.html`.
+  - **Delivery, 12 images per arm:** 1.0 s → **0/12 complete**, 5.0 s →
+    **6/12 complete**, while chunk delivery was 95.80 % vs 95.07 % —
+    statistically indistinguishable. Chunk % is the wrong metric: these
+    are progressive JPEGs, usable only to the first gap. First-gap
+    position 65.5 % (1.0 s, range 10–86 %) vs 76.4 % (5.0 s).
+  - **Energy, integrated from the Spotter SD** (bridge addr-65, 60 s
+    means, per the nereus-spotter-sd-analysis skill): 1.0 s =
+    **0.1797 Wh/cycle**, 5.0 s = **0.2256 Wh/cycle**, ratio 1.26× →
+    faster saves **20.4 %**. My earlier MODEL said 67 % and was wrong —
+    it charged the whole awake period at the 2.778 W "active" median,
+    but the integrated on-window mean is only 0.539/0.677 W. Cross-check
+    where both sensors exist: bridge 2.156 Wh vs camera node 2.259 Wh =
+    4.8 % agreement.
+  - **Pacing is not the energy lever.** The bus stays powered the whole
+    window, so the halted-Pi baseline (0.424 W × 20 min = 0.1414 Wh) is
+    **79 %** of a fast cycle's energy. Trimming the window 20 → 15 min
+    saves 19.7 % and costs no delivery at all.
+  - **Commands: 22 sent, 22 acked, 100 %, every one first try** over USB
+    across 22 cycles; `src=1` persisted through every power cycle.
+  - **Root cause of the 90 s listen problem, found here:** the bus window
+    opens ON a 5-minute grid boundary, so boot ~55 s + the 90 s listen +
+    ~5 s capture puts transmit start at ~:03:10 — a 194 s burst then runs
+    straight through :05:00 at ~62 % in. That arithmetic *is* the measured
+    65.5 % first-gap mean. Capture-first + no listen moves transmit to
+    ~:01:00–:04:14, clearing the boundary by ~46 s.
+    Real-capture timing measured over **119 cycles**: `native ready`
+    median 94.6 s, of which 90 s is listen and ~3 s time-sync —
+    **capture + encode is only ~5 s.**
+  - **Opened `sprints/Sprint11_phase_aware_transmit/`** (SPEC + DESIGN +
+    TRACKER) for capture-first ordering, phase-aware scheduling, deferred
+    acks, a post-transmit listen tail, and the bus-window resize.
+  - `rc_run_capture_cycle.sh` boot settle **30 s → 0.5 s** (Nick), flagged
+    IN THE SCRIPT as the first rollback candidate if the next test shows
+    UART/bridge/time-sync oddities (Sprint11 D4).
+  - Installed `nereus-spotter-sd-analysis` into `.claude/skills/` — it
+    existed only in the desktop app's per-session scratch, so no Claude
+    Code session could see it.
+
 - 2026-07-29 **Phase E EXECUTED — the blackout is a 5-MINUTE WALL-CLOCK
   GRID event, D ≈ 9 s; ship 5.0 s pacing; size and cap are NOT the
   levers.** Full write-up + artifacts:
