@@ -39,7 +39,9 @@ Example:
 
 # Bump on any table change; rides in GUI/debug surfaces so an operator can
 # tell which table revision a device or GUI was built against.
-TABLES_VERSION = 1
+# v2 (2026-07-29, Nick-approved): added txd / cap / src for field control of
+# transmit pacing, message cap, and reference-image injection.
+TABLES_VERSION = 2
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -48,14 +50,18 @@ NATIVE_HEIGHT = 2592
 # All ROI presets downsample to this output width (height follows aspect).
 ROI_OUTPUT_WIDTH = 1000
 
-# The six v1 commands (SPEC; Q4 closed). Anything else is rejected.
-COMMANDS = ("roi", "foc", "awb", "exp", "win", "ping")
+# The v1 commands (SPEC; Q4 closed) + the v2 transport/debug trio.
+# Anything else is rejected.
+COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src", "ping")
 
 # Commands that carry persistent settings state (everything but ping).
-SETTINGS_COMMANDS = ("roi", "foc", "awb", "exp", "win")
+SETTINGS_COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src")
 
-# Factory state: all-zero is the documented factory reset (SPEC).
-DEFAULT_SETTINGS = {"roi": 0, "foc": 0, "awb": 0, "exp": 0, "win": 0}
+# Factory state: all-zero is the documented factory reset (SPEC). Index 0 of
+# EVERY table must therefore be the current production default, so that a
+# factory reset lands a unit on shipped behaviour and never on a test mode.
+DEFAULT_SETTINGS = {"roi": 0, "foc": 0, "awb": 0, "exp": 0, "win": 0,
+                    "txd": 0, "cap": 0, "src": 0}
 
 
 def _centered(w, h):
@@ -120,6 +126,67 @@ WIN_TABLE = {
     3: {"label": "5 min", "minutes": 5},
 }
 
+# txd — transmit pacing, seconds per message
+# (bm_serial.image_transmit_delay_seconds).
+#
+# NAMING (deliberate, Nick-approved 2026-07-29): this is NOT a "UART delay".
+# Phase E showed the value's entire effect is on the SPOTTER'S CELLULAR
+# QUEUE — a periodic ~9 s blackout on a 5-minute wall-clock grid, during
+# which the 2-slot queue rejects every submit. Loss per blackout is
+# max(0, 9 s / txd − 2), so zero loss needs txd >= ~4.5 s. The UART itself
+# runs at 115200 and was never the bottleneck; calling this a UART setting
+# sends a field operator to the wrong layer.
+# Evidence: runs/sprint10_phaseE_20260728/RESULTS.md.
+#
+# Index 0 = 1.0 s = the shipped Sprint09 value, so factory reset is a no-op.
+TXD_TABLE = {
+    0: {"label": "1.0 s (Sprint09 default)", "seconds": 1.0},
+    1: {"label": "1.5 s", "seconds": 1.5},
+    2: {"label": "2.0 s", "seconds": 2.0},
+    3: {"label": "3.0 s", "seconds": 3.0},
+    4: {"label": "4.0 s", "seconds": 4.0},
+    5: {"label": "5.0 s (Phase E zero-loss)", "seconds": 5.0},
+}
+
+# cap — hard ceiling on messages per image (progressive_jpeg.message_cap).
+#
+# NOTE the interaction, it surprises people: the EFFECTIVE cap is
+#   min(cap, floor(max_run_time_min * 60 / txd))
+# so the time budget can bind first. At txd=5.0 s with win=16 min the time
+# budget allows only 192 messages, and `cap` above 192 has no effect at all.
+# Raise `win` as well if you need a larger cap at slow pacing.
+CAP_TABLE = {
+    0: {"label": "195 (field default)", "messages": 195},
+    1: {"label": "100", "messages": 100},
+    2: {"label": "150", "messages": 150},
+    3: {"label": "250", "messages": 250},
+    4: {"label": "300", "messages": 300},
+}
+
+# src — image source. Index 0 captures from the camera as normal; 1..9 skip
+# the camera and push a committed reference native through the SAME encode +
+# transmit ladder. Field debug tool (Nick 2026-07-29): it separates "the
+# camera is broken" from "the link is broken" without a site visit, and gives
+# a byte-identical payload across units for A/B work.
+#
+# Every path below is a PREPARED 4608x2592 native. The raw
+# reference_images/reference_reef_coral_*.jpg files are 4000x3000 and the
+# pipeline REJECTS them ("expected native 4608x2592") — that is soak finding
+# 009, which cost an entire overnight run. Paths are validated at pack time
+# by tests/test_command_tables.py, not merely assumed to exist.
+SRC_TABLE = {
+    0: {"label": "live camera (default)", "path": None},
+    1: {"label": "reef primary", "path": "reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg"},
+    2: {"label": "reef alt 01", "path": "reference_images/prepared/reference_reef_coral_alt_01/synthetic_native_4608x2592.jpg"},
+    3: {"label": "reef alt 02", "path": "reference_images/prepared/reference_reef_coral_alt_02/synthetic_native_4608x2592.jpg"},
+    4: {"label": "reef alt 03", "path": "reference_images/prepared/reference_reef_coral_alt_03/synthetic_native_4608x2592.jpg"},
+    5: {"label": "reef alt 04", "path": "reference_images/prepared/reference_reef_coral_alt_04/synthetic_native_4608x2592.jpg"},
+    6: {"label": "reef alt 05", "path": "reference_images/prepared/reference_reef_coral_alt_05/synthetic_native_4608x2592.jpg"},
+    7: {"label": "reef alt 06", "path": "reference_images/prepared/reference_reef_coral_alt_06/synthetic_native_4608x2592.jpg"},
+    8: {"label": "reef alt 07", "path": "reference_images/prepared/reference_reef_coral_alt_07/synthetic_native_4608x2592.jpg"},
+    9: {"label": "reference card", "path": "reference_images/reference_card_native_imx708.jpg"},
+}
+
 # ping carries no value; a single index keeps the lookup API uniform
 # (parser treats a missing `v` as 0 for ping).
 PING_TABLE = {
@@ -132,6 +199,9 @@ _TABLES = {
     "awb": AWB_TABLE,
     "exp": EXP_TABLE,
     "win": WIN_TABLE,
+    "txd": TXD_TABLE,
+    "cap": CAP_TABLE,
+    "src": SRC_TABLE,
     "ping": PING_TABLE,
 }
 

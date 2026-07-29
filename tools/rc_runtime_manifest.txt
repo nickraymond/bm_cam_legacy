@@ -42,3 +42,14 @@ BM_Devel_Pi/rc_media_id.py
 
 # Power halt (validated tools/power script, deployed into the runtime dir)
 tools/power/tuned_halt.sh -> tuned_halt.sh
+
+# Sprint10 v2 `src` command — reference natives for field debug (send a known
+# image instead of a camera capture, to separate "camera broken" from "link
+# broken" without a site visit). Installed UNDER the app dir so a field unit
+# never depends on a dev checkout being present.
+# These MUST be the prepared 4608x2592 natives: the raw 4000x3000 scene files
+# are rejected by the pipeline (soak finding 009 — cost a full overnight run).
+# Only the two most useful entries ship by default (~5.9 MB); SRC_TABLE alts
+# 2-8 are optional, add them here if a unit needs the robustness batch.
+reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg -> reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg
+reference_images/reference_card_native_imx708.jpg -> reference_images/reference_card_native_imx708.jpg

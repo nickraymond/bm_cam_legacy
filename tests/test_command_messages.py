@@ -160,10 +160,14 @@ class TestParserRejects(unittest.TestCase):
 
 class TestAckBuilder(unittest.TestCase):
     def test_applied_ack_exact_string(self):
-        st = {"roi": 2, "foc": 0, "awb": 0, "exp": 0, "win": 0}
+        # Byte-exact wire pin. Updated for TABLES_VERSION 2 (txd/cap/src);
+        # key order follows SETTINGS_COMMANDS.
+        st = {"roi": 2, "foc": 0, "awb": 0, "exp": 0, "win": 0,
+              "txd": 0, "cap": 0, "src": 0}
         self.assertEqual(
             build_ack(417, True, st),
-            '{"id":417,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0}}',
+            '{"id":417,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,'
+            '"txd":0,"cap":0,"src":0}}',
         )
 
     def test_reject_ack_carries_error_code(self):
@@ -178,7 +182,11 @@ class TestAckBuilder(unittest.TestCase):
 
     def test_missing_settings_keys_filled_from_defaults(self):
         ack = json.loads(build_ack(1, True, {"roi": 4}))
-        self.assertEqual(ack["st"], {"roi": 4, "foc": 0, "awb": 0, "exp": 0, "win": 0})
+        self.assertEqual(
+            ack["st"],
+            {"roi": 4, "foc": 0, "awb": 0, "exp": 0, "win": 0,
+             "txd": 0, "cap": 0, "src": 0},
+        )
 
     def test_st_always_complete_and_int(self):
         ack = json.loads(build_ack(1, True, {"roi": 1, "win": "3"}))

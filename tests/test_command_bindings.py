@@ -240,3 +240,130 @@ class TestTouchedTracking(BindingsTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# Fuller slice for the v2 transport commands (txd/cap/src).
+V2_SETTINGS = dict(
+    YAML_SETTINGS,
+    pacing_delay_seconds=1.0,
+    pacing_source="yaml",
+    message_cap=195,
+    source_image_path=None,
+    budget_messages_if_transmit_only=960,
+)
+
+
+class TestOverlayV2(BindingsTestCase):
+    """txd / cap / src overlay — added 2026-07-29."""
+
+    def test_untouched_leaves_v2_settings_alone(self):
+        s, overrides = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertEqual(overrides, [])
+        self.assertEqual(s["pacing_delay_seconds"], 1.0)
+        self.assertEqual(s["message_cap"], 195)
+        self.assertIsNone(s["source_image_path"])
+
+    def test_txd_overrides_pacing(self):
+        self.state.record(1, "txd", 5)          # 5.0 s
+        s, overrides = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertEqual(s["pacing_delay_seconds"], 5.0)
+        self.assertIn("command txd=5", s["pacing_source"])
+        self.assertTrue(any(o[0] == "pacing_delay_seconds" for o in overrides))
+
+    def test_txd_recomputes_the_transmit_only_budget(self):
+        """The interaction that silently truncates a slow cycle.
+
+        At 5.0 s pacing with a 16-min window only 192 messages fit, which is
+        BELOW the 195 cap — so the time budget, not message_cap, becomes the
+        real ceiling. If this recompute is missed, telemetry keeps reporting
+        960 and the truncation looks like packet loss.
+        """
+        self.state.record(1, "txd", 5)
+        s, _ = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertEqual(s["budget_seconds"], 960)
+        self.assertEqual(s["budget_messages_if_transmit_only"], 192)
+        self.assertLess(s["budget_messages_if_transmit_only"], s["message_cap"])
+
+    def test_txd_and_win_together_recompute_from_both(self):
+        self.state.record(1, "txd", 5)   # 5.0 s
+        self.state.record(2, "win", 2)   # 8 min -> 480 s
+        s, _ = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertEqual(s["budget_seconds"], 480)
+        self.assertEqual(s["budget_messages_if_transmit_only"], 96)
+
+    def test_cap_overrides_message_cap(self):
+        self.state.record(1, "cap", 1)   # 100
+        s, overrides = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertEqual(s["message_cap"], 100)
+        self.assertTrue(any(o[0] == "message_cap" for o in overrides))
+
+    def test_src_sets_a_repo_relative_reference_path(self):
+        self.state.record(1, "src", 1)   # reef primary
+        s, overrides = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertIsNotNone(s["source_image_path"])
+        self.assertIn("synthetic_native_4608x2592.jpg", s["source_image_path"])
+        self.assertTrue(any(o[0] == "source_image_path" for o in overrides))
+
+    def test_src_zero_returns_to_live_camera(self):
+        self.state.record(1, "src", 1)
+        s, _ = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertIsNotNone(s["source_image_path"])
+        self.state.record(2, "src", 0)   # commanding 0 IS an override
+        s, _ = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertIsNone(s["source_image_path"],
+                          "src=0 must restore camera capture in the field")
+
+    def test_commanded_value_equal_to_yaml_records_no_override(self):
+        self.state.record(1, "txd", 0)   # 1.0 s == the YAML value
+        s, overrides = overlay_rc_settings(V2_SETTINGS, self.state)
+        self.assertEqual(s["pacing_delay_seconds"], 1.0)
+        self.assertEqual([o for o in overrides if o[0] == "pacing_delay_seconds"], [])
+
+
+class TestStageSourceImage(unittest.TestCase):
+    """rc_progressive_jpeg.stage_source_image — the finding-009 guards."""
+
+    def setUp(self):
+        import rc_progressive_jpeg as rpj
+        self.rpj = rpj
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_rejects_missing_file_with_actionable_message(self):
+        with self.assertRaises(FileNotFoundError) as cm:
+            self.rpj.stage_source_image("nope/does_not_exist.jpg", self.tmp.name)
+        self.assertIn("reference_images", str(cm.exception))
+
+    def test_rejects_wrong_dimensions_before_doing_any_work(self):
+        """Finding 009: a 4000x3000 scene file reached the pipeline and every
+        cycle died 100 s in. Fail immediately, and name both sizes."""
+        raw = os.path.join(REPO_ROOT, "reference_images",
+                           "reference_reef_coral_primary.jpg")
+        if not os.path.exists(raw):
+            self.skipTest("raw reference scene not present")
+        with self.assertRaises(ValueError) as cm:
+            self.rpj.stage_source_image(raw, self.tmp.name)
+        msg = str(cm.exception)
+        self.assertIn("4608", msg)
+        self.assertIn("4000", msg)
+
+    def test_copies_rather_than_consuming_the_committed_reference(self):
+        """Finding 009 (original): the pipeline consumes the native it is
+        handed. The master must still exist, byte-identical, afterwards."""
+        import command_tables as ct2
+        rel = ct2.SRC_TABLE[1]["path"]
+        master = os.path.join(REPO_ROOT, rel)
+        before = os.path.getsize(master)
+        staged = self.rpj.stage_source_image(rel, self.tmp.name)
+        self.assertTrue(os.path.exists(staged))
+        self.assertNotEqual(os.path.abspath(staged), os.path.abspath(master))
+        self.assertTrue(os.path.exists(master), "master reference was consumed")
+        self.assertEqual(os.path.getsize(master), before)
+        self.assertEqual(os.path.getsize(staged), before)
+
+    def test_staged_name_carries_the_native_full_suffix(self):
+        # The cycle derives image_stem by stripping "_native_full"; without
+        # the suffix every staged image would get a malformed stem.
+        import command_tables as ct2
+        staged = self.rpj.stage_source_image(ct2.SRC_TABLE[1]["path"], self.tmp.name)
+        self.assertTrue(os.path.basename(staged).endswith("_native_full.jpg"))

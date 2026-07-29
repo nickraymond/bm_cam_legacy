@@ -122,6 +122,11 @@ while IFS= read -r raw; do
     MISSING=$((MISSING + 1)); continue
   fi
   log "copy $src_rel -> $dest_name"
+  # A dest_name may contain subdirectories (e.g. the src reference images
+  # install as reference_images/prepared/<scene>/...). Create the parent so
+  # the runtime keeps the repo-relative layout command_tables.py expects.
+  dest_dir="$(dirname "$DST/$dest_name")"
+  [[ "$dest_dir" != "$DST" ]] && run mkdir -p "$dest_dir"
   run cp "$src" "$DST/$dest_name"
   [[ "$dest_name" == *.py ]] && COPIED_PY+=("$dest_name")
   [[ "$dest_name" == *.sh ]] && run chmod +x "$DST/$dest_name"
