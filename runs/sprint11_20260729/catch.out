@@ -1,2 +1,12 @@
-[catch] waiting for bus power on both units (deadline 45 min)
-[catch] 2026-07-29T18:43:42Z start
+[catch] waiting for bus power on both units (deadline 100 min)
+[catch] 2026-07-29T19:22:01Z start
+[catch] 2026-07-29T19:30:59Z bmcam000 IS UP -> disarming now
+[catch] 2026-07-29T19:31:59Z bmcam003 IS UP -> disarming now
+[catch] both units disarmed
+{
+  "finished_utc": "2026-07-29T19:32:44Z",
+  "units": {
+    "bmcam003": {"disarmed": true, "backup_ts": "20260729T193159Z"},
+    "bmcam000": {"disarmed": true, "backup_ts": "20260729T193059Z"}
+  }
+}

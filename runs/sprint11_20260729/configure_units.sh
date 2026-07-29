@@ -47,10 +47,17 @@ UNITS=(
   "100.119.14.92:bmcam000:5.0:false:false:0:18"
 )
 
+# Hard wall-clock bound on every ssh — see sshto.sh and
+# INCIDENT_tailscale_ssh_check.md: `-o ConnectTimeout` bounds the TCP connect
+# only, and a stalled handshake against a halting Pi hangs forever.
+. "$(dirname "${BASH_SOURCE[0]}")/sshto.sh"
+
 sshq() {
-  ssh -n -o ConnectTimeout=12 -o BatchMode=yes -o ServerAliveInterval=5 \
-      -o ServerAliveCountMax=3 "pi@$1" "$2" 2>&1 \
-    | grep -viE "tailscale|authenticate"
+  local out rc
+  out="$(ssh_to 120 "$1" "$2" 2>&1)"; rc=$?
+  printf '%s\n' "$out" | grep -viE "^[[:space:]]*tailscale (login|status)"
+  [ "$rc" -eq 124 ] && echo "[sshq][TIMEOUT] $1 did not answer within 120 s"
+  return $rc
 }
 
 for entry in "${UNITS[@]}"; do
@@ -63,9 +70,7 @@ for entry in "${UNITS[@]}"; do
 
     # Stage the patcher via /tmp — never into the repo tree, an untracked
     # file there blocks the next `git pull --ff-only` (field-update skill).
-    scp -o ConnectTimeout=12 -o BatchMode=yes \
-        "$REPO/tools/patch_camera_schedule.py" "pi@$ip:/tmp/" 2>&1 \
-      | grep -viE "tailscale|authenticate"
+    scp_to 60 "$REPO/tools/patch_camera_schedule.py" "pi@$ip:/tmp/"
 
     echo "--- patch ---"
     sshq "$ip" "/usr/bin/python3 /tmp/patch_camera_schedule.py \

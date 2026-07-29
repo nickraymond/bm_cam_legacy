@@ -1,0 +1,6 @@
+{"utc": "2026-07-29T20:51:22Z", "kind": "run_start", "units": ["SPOT-33507C", "SPOT-31593C"], "sweep": [1, 2, 3, 0, 4], "until_utc": "03:30", "dry_run": false}
+{"utc": "2026-07-29T20:51:22Z", "kind": "deadline_reached", "until_utc": "03:30"}
+{"utc": "2026-07-29T20:55:27Z", "kind": "run_start", "units": ["SPOT-33507C", "SPOT-31593C"], "sweep": [1, 2, 3, 0, 4], "until_utc": "03:30", "dry_run": false}
+{"utc": "2026-07-29T20:55:27Z", "kind": "deadline_resolved", "until_utc": "03:30", "deadline_utc": "2026-07-30T03:30:00Z", "hours_from_now": 6.58}
+{"utc": "2026-07-29T21:04:47Z", "kind": "run_start", "units": ["SPOT-33507C", "SPOT-31593C"], "sweep": [1, 2, 3, 0, 4], "until_utc": "03:30", "dry_run": false}
+{"utc": "2026-07-29T21:04:47Z", "kind": "deadline_resolved", "until_utc": "03:30", "deadline_utc": "2026-07-30T03:30:00Z", "hours_from_now": 6.42}

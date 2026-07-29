@@ -1,0 +1,2 @@
+[2026-07-29T21:04:47Z] run_start: units=['SPOT-33507C', 'SPOT-31593C'] sweep=[1, 2, 3, 0, 4] until_utc=03:30 dry_run=False
+[2026-07-29T21:04:47Z] deadline_resolved: until_utc=03:30 deadline_utc=2026-07-30T03:30:00Z hours_from_now=6.42

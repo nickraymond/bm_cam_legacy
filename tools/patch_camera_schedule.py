@@ -94,7 +94,17 @@ def set_key(text, block, key, value, create=False):
         header_end = body.find("\n") + 1
         new_body = body[:header_end] + f"  {key}: {value}\n" + body[header_end:]
         return text[:start] + new_body + text[end:], None, "key_created"
-    new_body = body[:m.start(2)] + str(value) + body[m.end(2):]
+    # Keep one space between the value and any inline comment. Gluing them
+    # (`enabled: true# SOAK ... 2026-07-26: halt ...`) makes the scalar
+    # contain ": ", which is INVALID YAML — and every yaml.safe_load-based
+    # island loader on the Pi then silently falls back to defaults while
+    # the hand-rolled parsers keep working. That exact failure disabled
+    # bm_commands (src overlay, acks) and reset Unit A's pacing to 5.0 s
+    # on the 2026-07-29 run. The hand parsers and grep read-backs all
+    # looked fine; only yaml.safe_load saw the corruption.
+    rest = body[m.end(2):]
+    sep = " " if rest.startswith("#") else ""
+    new_body = body[:m.start(2)] + str(value) + sep + rest
     return text[:start] + new_body + text[end:], before, "set"
 
 

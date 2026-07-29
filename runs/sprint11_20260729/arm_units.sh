@@ -27,10 +27,15 @@ mkdir -p "$RUNDIR"
 
 UNITS=("100.103.35.24:bmcam003" "100.119.14.92:bmcam000")
 
+# Hard wall-clock bound on every ssh (sshto.sh / INCIDENT_tailscale_ssh_check).
+. "$(dirname "${BASH_SOURCE[0]}")/sshto.sh"
+
 sshq() {
-  ssh -n -o ConnectTimeout=12 -o BatchMode=yes -o ServerAliveInterval=5 \
-      -o ServerAliveCountMax=3 "pi@$1" "$2" 2>&1 \
-    | grep -viE "tailscale|authenticate"
+  local out rc
+  out="$(ssh_to 90 "$1" "$2" 2>&1)"; rc=$?
+  printf '%s\n' "$out" | grep -viE "^[[:space:]]*tailscale (login|status)"
+  [ "$rc" -eq 124 ] && echo "[sshq][TIMEOUT] $1 did not answer within 90 s"
+  return $rc
 }
 
 fail=0
