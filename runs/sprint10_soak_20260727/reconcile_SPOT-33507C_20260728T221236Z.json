@@ -1,0 +1,73 @@
+{
+  "rows": 385,
+  "counts": {
+    "ws": 13,
+    "start": 4,
+    "chunk": 364,
+    "end": 4
+  },
+  "acks": [],
+  "images": [
+    {
+      "start_ts": "2026-07-28T19:02:46.000Z",
+      "start": "<START IMG> filename: 2026-07-28T19:02:39Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-28T19:02:39Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-28T19:02:39Z_image_compressed.jpg",
+      "chunk_count": 87,
+      "max_index": 87,
+      "missing": [
+        48
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-28T19:32:45.000Z",
+      "start": "<START IMG> filename: 2026-07-28T19:32:38Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-28T19:32:38Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-28T19:32:38Z_image_compressed.jpg",
+      "chunk_count": 88,
+      "max_index": 89,
+      "missing": [
+        78,
+        88
+      ],
+      "complete": false
+    },
+    {
+      "start_ts": "2026-07-28T20:02:45.000Z",
+      "start": "<START IMG> filename: 2026-07-28T20:02:38Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-28T20:02:38Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-28T20:02:38Z_image_compressed.jpg",
+      "chunk_count": 93,
+      "max_index": 92,
+      "missing": [],
+      "complete": true
+    },
+    {
+      "start_ts": "2026-07-28T21:02:45.000Z",
+      "start": "<START IMG> filename: 2026-07-28T21:02:38Z_image_compressed.jpg, timestamp: 2026",
+      "end": "<END IMG> filename: 2026-07-28T21:02:38Z_image_compressed.jpg, uart_duration_sec",
+      "gid": null,
+      "declared_length": null,
+      "filename": "2026-07-28T21:02:38Z_image_compressed.jpg",
+      "chunk_count": 96,
+      "max_index": 97,
+      "missing": [
+        63,
+        73
+      ],
+      "complete": false
+    }
+  ],
+  "other": [],
+  "undecodable": 0,
+  "spotter_id": "SPOT-33507C",
+  "swept_hours": 8.0,
+  "swept_at": "2026-07-28T22:12:37Z"
+}
