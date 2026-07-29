@@ -56,6 +56,7 @@ from bm_serial import load_bm_serial_config
 from command_daemon import load_bm_commands_config
 from command_state import CommandState
 import rc_command_hooks as cmd_hooks
+import rc_media_id
 from process_image_v2 import (
     DEFAULT_BUFFER_SIZE,
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
@@ -192,6 +193,9 @@ def resolve_rc_settings(config_path):
         "source_height": int(cfg.image_pipeline_source_height),
         "source_jpeg_quality": int(cfg.image_pipeline_source_jpeg_quality),
         "enforce_time_window": bool(cfg.enforce_time_window),
+        # Sprint10 media-id island (rc_media_id): absent/off == legacy wire.
+        "media_gid_enabled": bool(
+            rc_media_id.load_media_gid_config(config_path)["enabled"]),
     }
 
 
@@ -521,6 +525,10 @@ def run_cycle(
             "hostname": get_hostname(),
             **storage_health,
         }
+        media_gid = None
+        if settings.get("media_gid_enabled"):
+            media_gid = rc_media_id.next_gid()
+            print(f"[RC] media gid: {media_gid} (chunks <I{media_gid}.i>)")
         tx = bm_open_fn(settings["config_path"])
         result = transmit_progressive_image(
             tx,
@@ -541,6 +549,7 @@ def run_cycle(
             sleep_fn=sleep_fn,
             clock=clock,
             ack_drain_fn=cmd_hooks.make_ack_drain_fn(daemon, summary, clock=clock),
+            media_gid=media_gid,
         )
         summary["transmit_result"] = result
         print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "

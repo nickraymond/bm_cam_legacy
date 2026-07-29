@@ -36,5 +36,9 @@ BM_Devel_Pi/command_daemon.py
 BM_Devel_Pi/bm_frame_decoder.py
 BM_Devel_Pi/rc_command_hooks.py
 
+# Sprint10 media gid (config-gated by the media_gid YAML island; inert
+# when disabled — legacy chunk wire is byte-identical)
+BM_Devel_Pi/rc_media_id.py
+
 # Power halt (validated tools/power script, deployed into the runtime dir)
 tools/power/tuned_halt.sh -> tuned_halt.sh

@@ -125,6 +125,22 @@ is byte-identical to today (the zero-regression guarantee is testable).
 Topic default is provisional until Q11/Phase B (`bm pub` injection
 verifies it early).
 
+**D16 — Pacing and burst size are MEASURED outputs, not guesses (Nick
+2026-07-28).** `image_transmit_delay_seconds` and `message_cap` ship
+from the Phase E loss-vs-delay curve with stated margin (SPEC "Phase E",
+TRACKER §10, runbook PHASE_E.md). Rationale: the RC soak showed the
+Sprint09 values (measured on 30-message bursts) lose a consecutive run
+of chunks per image at ~190-message scale, because a Notecard sync
+session blacks out the Spotter's 2-slot queue for ~6–7 s mid-transmit;
+loss ≈ blackout ÷ delay, so the right value is a property of the
+measured blackout, not of taste. **Candidate structural fix, recorded
+and explicitly NOT implemented under the feature freeze:** split the
+image transmit into two bursts with a deliberate ~30 s pause near the
+observed onset so the sync fires in the gap (cheap, device-side, needs
+Phase E's onset statistics first). Chunk-level retry on top of the
+parked media-gid work is the heavier alternative. Neither ships before
+the Wednesday release; pacing config alone does.
+
 **D15 — Ack on persist (Nick 2026-07-26).** An ok=1 ack means "stored;
 governs the next capture" (and this window's capture when it arrived in
 the pre-capture listen window). No re-capture, no delayed acks; the GUI

@@ -52,6 +52,18 @@ tracker. Defaults noted where a safe assumption exists.
   running inside (or alongside) that per-wake process for the active
   window — not a new systemd service.
 
+- **Q12 — Can Notecard sync scheduling be pinned or deferred? (NEW
+  2026-07-28.)** Phase E's blackout model says a sync session lands
+  inside our transmit and silently eats a run of messages. If sync
+  timing can be constrained (sync-on-demand, a settable interval, or a
+  "do not sync while I am sending" hold), the structural fix is trivial
+  and 100 % delivery is reachable at production pacing. Ask Sofar/Blues
+  with the Phase E onset/duration statistics in hand. Related asks: is
+  the 2-slot cellular queue depth configurable, and is there any
+  backpressure signal the Pi could read instead of discovering loss at
+  the backend? *Blocks the structural-fix decision; does NOT block the
+  Wednesday release, which ships measured pacing values.*
+
 ## Answers (updated during sprint)
 
 **Q1 CORRECTION (Phase B, bmcam003 bench, 2026-07-27).** The wire is
@@ -156,6 +168,61 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 - Camera node (f365) draws ~1.12 W capturing, ~0.34 W avg at ~30% duty.
 
 ## Decisions taken mid-sprint
+
+- 2026-07-28 **Phase E added (Nick-approved addendum): characterize the
+  cellular queue drain instead of guessing pacing values.** Evidence
+  from the 24 h RC soak (runs/sprint10_soak_20260727/REPORT.md +
+  findings 006/007): every lossy image loses ONE consecutive run of
+  chunks; index→time conversion puts every run at ~140–150 s into the
+  transmit, ~6–7 s long, across three different delays —
+  1.0 s → idx 144 (7 lost), 1.25 s → idx 117 (5 lost), 1.5 s → idx 92
+  (4 lost). That is a fixed-duration blackout (Notecard sync session vs
+  the Spotter's 2-slot queue), so `lost ≈ max(0, blackout/delay −
+  slots)` and the zero-loss delay is predicted near 3.5–4.0 s (~12.7 min
+  for a 190-msg image — still inside the 16-min budget). Sprint09's
+  384/1.0 s was measured on 30-message bursts and never saw this regime.
+  Phase E runs counts {100,200,300} × delays {1.0,1.5,2.0,3.0,4.0} + a
+  5.0 s control (Nick's historical 100 % config), with per-message send
+  timestamps so backend arrivals can be joined back to wall-clock. First
+  run is the discriminator: at 3.0 s a time-triggered blackout appears
+  near seq ~47, a count-triggered one near seq ~144.
+  Landed: SPEC "Phase E" + success criterion, TRACKER §10, DESIGN D16
+  (pacing is measured; split-burst fix recorded but NOT implemented
+  under the freeze), Q12 above, runbook PHASE_E.md, harness
+  test_queue_drain.py, analyzer analyze_queue_drain.py.
+  Interim provisional values while Phase E is pending: bmcam003 1.5 s,
+  bmcam000 1.25 s, both cap 195, Spotters on production 20/40.
+
+- 2026-07-27 ~22:50Z **FEATURE FREEZE (Nick) + media-gid rollback.**
+  From here: bug hunting and required fixes only, no new features,
+  ahead of the Wednesday customer push. bmcam003's runtime restored
+  from the pre-gid tar to exactly development@9330779 and the
+  media_gid island removed from its YAML (verified: code pre-gid,
+  YAML clean, soak cycle 4 legacy wire). The gid feature stays in this
+  branch's history with its island DEFAULT-OFF and byte-identical-
+  when-off pinned by tests — no unit enables it; the website parser
+  needs NO changes for Wednesday. Approx. gid images 000–002 (sent
+  22:00–22:45Z from bmcam003) will surface at the backend as
+  non-matching chunk strings — harmless noise, ignore. The 24 h soak
+  continues unchanged on both units (throttled 15-min cadence on 003,
+  field-normal on 000).
+
+- 2026-07-27 ~19:11Z **bmcam000 field-updated to development@9330779
+  (PR #16 merge) — second command-test unit online.** Nick-authorized.
+  Caught awake mid-cycle at 3 min uptime, disarmed per the
+  bmcam-field-update skill (crontab backup
+  crontab_backup_fieldupdate_20260727T191042Z.txt; SIGTERM'd the
+  running --transmit cycle before its halt), rc_field_update.sh PASS
+  (e031abd → 9330779, 384/1.0 patched, UART gate + validation ladder
+  green, --leave-disarmed). bm_commands island ADDED enabled (topic
+  bmcam/cmd, listen 90 s) — loader verified. power_halt remains ARMED
+  in its YAML (inert while cron is off). Added to GUI targets as
+  SPOT-31593C (node id pending first ack). NOTE: unit's Spotter still
+  duty-cycles bus power 20/40 — which makes bmcam000 the natural rig
+  for the queue-while-node-OFF test (the real field mechanism), while
+  bmcam003 stays the always-on bench mule. Arming decision (field-
+  normal cycles each wake vs. disarmed-idle) left to Nick — transmit
+  cycles spend cellular quota every wake.
 
 - 2026-07-27 **§6 FIRST CLOUD DOWNLINK PROVEN END-TO-END (18:35:54Z,
   indoors).** ping id=801: POST 17:33:12Z (202) → mailbox → Notecard

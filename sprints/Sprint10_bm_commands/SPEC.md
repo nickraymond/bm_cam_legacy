@@ -148,6 +148,40 @@ See DESIGN D9/D10 for architecture bounds.
 5. **Final acceptance (Nick, via the GUI):** Nick drives the GUI
    end-to-end against the bench unit — the five "definition of done"
    items below, verified by the operator, not the session.
+6. **Phase E — cellular queue drain characterization (added
+   2026-07-28):** measure, don't guess, the pacing/burst values the
+   release ships with. See below.
+
+## Phase E — cellular queue drain characterization (added 2026-07-28)
+
+The 07-27/28 RC soak showed image-scale bursts (~190 messages) lose a
+single **consecutive run** of chunks starting ~140–150 s into every
+lossy transmit and lasting ~6–7 s — a Notecard sync session blacking out
+the Spotter's 2-slot cellular queue (drops are silent to the Pi, which
+logs `sent=N/N complete=True`). Sprint09's 384/1.0 s values were
+measured with 30-message bursts, so this regime was never characterized.
+
+Phase E sends fixed-size, sequence-numbered messages at a controlled
+pace, records the exact send time of every message, and joins backend
+arrivals back to those timestamps to determine:
+
+- whether the blackout is **time-triggered or count-triggered** (same
+  count at different delays discriminates: time → same wall-clock onset,
+  different index; count → same index, different time);
+- blackout onset (mean/σ), duration, and repeat rate within a burst;
+- sustained drain rate (delivered msgs/min) and queue absorption;
+- the loss-vs-delay curve at 100 / 200 / 300-message bursts;
+- the smallest `(image_transmit_delay_seconds, message_cap)` pair that
+  delivers 100 %, with margin and its awake-time cost.
+
+Matrix: counts {100, 200, 300} × delays {1.0, 1.5, 2.0, 3.0, 4.0 s},
+plus a 5.0 s control (the historical 100 % configuration), size fixed at
+384 chars. Model under test: `lost ≈ max(0, blackout_s/delay_s −
+queue_slots)`, which predicts zero loss near 3.5–4.0 s.
+
+Harness `test_queue_drain.py`, analyzer `analyze_queue_drain.py`, and
+the full bench runbook (disarm/re-arm, safety rails, restore checklist)
+live in this sprint folder — see **PHASE_E.md**.
 
 ## Definition of done (Nick, 2026-07-27)
 
@@ -177,3 +211,8 @@ See DESIGN D9/D10 for architecture bounds.
 - Zero regressions to the existing capture/compression pipeline.
 - GUI meets definition-of-done items 1–4; Phase D automation passes 3–5
   permutations end-to-end (item 5).
+- *(Added 2026-07-28)* Phase E produces **measured** pacing/burst values
+  — the release ships `image_transmit_delay_seconds` and `message_cap`
+  chosen from the loss-vs-delay curve with stated margin, not from
+  guesswork, and the blackout mechanism is documented well enough to
+  put a precise question to Sofar.

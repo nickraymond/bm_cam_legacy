@@ -5,6 +5,11 @@
       "label": "bmcam003 (bench)",
       "spotter_id": "SPOT-33507C",
       "node_id": "53171fa3d81a8e6f"
+    },
+    {
+      "label": "bmcam000 (field-config test unit)",
+      "spotter_id": "SPOT-31593C",
+      "node_id": ""
     }
   ]
 }

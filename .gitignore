@@ -35,4 +35,6 @@ tailscaled.state
 !reference_images/**/*.JPG
 !reference_images/**/*.JPEG
 !reference_images/**/*.png
-!reference_images/**/*.json
+!reference_images/**/*.jsonruns/sprint10_soak_20260727/reconcile_*
+runs/sprint10_soak_20260727/postrevert_*
+runs/sprint10_soak_20260727/check_*
