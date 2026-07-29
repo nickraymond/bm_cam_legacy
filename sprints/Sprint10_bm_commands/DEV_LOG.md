@@ -52,6 +52,18 @@ tracker. Defaults noted where a safe assumption exists.
   running inside (or alongside) that per-wake process for the active
   window — not a new systemd service.
 
+- **Q12 — Can Notecard sync scheduling be pinned or deferred? (NEW
+  2026-07-28.)** Phase E's blackout model says a sync session lands
+  inside our transmit and silently eats a run of messages. If sync
+  timing can be constrained (sync-on-demand, a settable interval, or a
+  "do not sync while I am sending" hold), the structural fix is trivial
+  and 100 % delivery is reachable at production pacing. Ask Sofar/Blues
+  with the Phase E onset/duration statistics in hand. Related asks: is
+  the 2-slot cellular queue depth configurable, and is there any
+  backpressure signal the Pi could read instead of discovering loss at
+  the backend? *Blocks the structural-fix decision; does NOT block the
+  Wednesday release, which ships measured pacing values.*
+
 ## Answers (updated during sprint)
 
 **Q1 CORRECTION (Phase B, bmcam003 bench, 2026-07-27).** The wire is
@@ -156,6 +168,30 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 - Camera node (f365) draws ~1.12 W capturing, ~0.34 W avg at ~30% duty.
 
 ## Decisions taken mid-sprint
+
+- 2026-07-28 **Phase E added (Nick-approved addendum): characterize the
+  cellular queue drain instead of guessing pacing values.** Evidence
+  from the 24 h RC soak (runs/sprint10_soak_20260727/REPORT.md +
+  findings 006/007): every lossy image loses ONE consecutive run of
+  chunks; index→time conversion puts every run at ~140–150 s into the
+  transmit, ~6–7 s long, across three different delays —
+  1.0 s → idx 144 (7 lost), 1.25 s → idx 117 (5 lost), 1.5 s → idx 92
+  (4 lost). That is a fixed-duration blackout (Notecard sync session vs
+  the Spotter's 2-slot queue), so `lost ≈ max(0, blackout/delay −
+  slots)` and the zero-loss delay is predicted near 3.5–4.0 s (~12.7 min
+  for a 190-msg image — still inside the 16-min budget). Sprint09's
+  384/1.0 s was measured on 30-message bursts and never saw this regime.
+  Phase E runs counts {100,200,300} × delays {1.0,1.5,2.0,3.0,4.0} + a
+  5.0 s control (Nick's historical 100 % config), with per-message send
+  timestamps so backend arrivals can be joined back to wall-clock. First
+  run is the discriminator: at 3.0 s a time-triggered blackout appears
+  near seq ~47, a count-triggered one near seq ~144.
+  Landed: SPEC "Phase E" + success criterion, TRACKER §10, DESIGN D16
+  (pacing is measured; split-burst fix recorded but NOT implemented
+  under the freeze), Q12 above, runbook PHASE_E.md, harness
+  test_queue_drain.py, analyzer analyze_queue_drain.py.
+  Interim provisional values while Phase E is pending: bmcam003 1.5 s,
+  bmcam000 1.25 s, both cap 195, Spotters on production 20/40.
 
 - 2026-07-27 ~22:50Z **FEATURE FREEZE (Nick) + media-gid rollback.**
   From here: bug hunting and required fixes only, no new features,

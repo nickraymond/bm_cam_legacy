@@ -175,8 +175,34 @@ open questions and bugs in DEV_LOG.md.
       screenshots/JSON) in runs/ + DEV_LOG
 
 ## 9. Final acceptance + wrap
+      (release cut depends on §10's measured pacing values — do not lock
+      config from the soak's provisional 1.25/1.5 s numbers)
 - [ ] Nick drives the GUI end-to-end (definition-of-done items 1–4)
 - [ ] Update DEV_LOG.md with findings, bugs, deferred items
 - [x] PR opened (base: development) with test evidence for Nick to review
       — PR #15 (2026-07-27), §1–§4 green + Phase B bench evidence.
 - [ ] Docs updated (README / operator notes for field use)
+
+## 10. Phase E — cellular queue drain characterization (added 2026-07-28)
+      Full runbook: PHASE_E.md (bench topology, disarm/re-arm, safety
+      rails, restore checklist). Harness test_queue_drain.py, analyzer
+      analyze_queue_drain.py — both in this folder. Rationale + matrix in
+      SPEC "Phase E"; evidence for the blackout model in DEV_LOG
+      (findings 006/007 + soak REPORT.md).
+- [ ] Pre-flight: both units disarmed (cron backed up + @reboot off,
+      power_halt enabled:false/dry_run:true), Spotters held powered,
+      console capture running on both (tools/spotter_serial_monitor.py)
+- [ ] Discriminator run (200 msgs @ 1.0 / 3.0 / 4.0 s): blackout is
+      time-triggered or count-triggered — answer recorded in DEV_LOG
+- [ ] Full matrix executed (counts 100/200/300 × delays 1.0–4.0 s + the
+      5.0 s historical control), split across both units; sendlogs +
+      manifests archived under runs/sprint10_phaseE_<date>/
+- [ ] Analysis: bursts/gaps CSVs, loss-vs-delay curve per burst size,
+      blackout onset/duration/repeat stats, drain rate, console
+      correlation (queue-full bursts ↔ each gap)
+- [ ] Recommended (image_transmit_delay_seconds, message_cap) with
+      margin + awake-time cost; written into camera_schedule.yaml and
+      device profiles, deployed via tools/deploy_rc_runtime.sh
+- [ ] Both units restored to field-normal (PHASE_E.md §6) and verified
+      imaging; Spotter LED restored (cfg vle 1); RESULTS.md + DEV_LOG
+      entry + Sofar question sheet (Q12)
