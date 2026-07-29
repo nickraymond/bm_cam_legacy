@@ -1,0 +1,30 @@
+{
+  "bmcam003": {
+    "spot": "SPOT-33507C",
+    "arm": "B",
+    "txd": 1.0,
+    "grid_pts": 360,
+    "mean_w": 0.3382,
+    "on_mean_w": 0.5072,
+    "duty": 0.667,
+    "peak_w": 0.896,
+    "total_wh": 2.029,
+    "cycles": 12,
+    "wh_per_cycle": 0.1691,
+    "wh_sd": 0.0028
+  },
+  "bmcam000": {
+    "spot": "SPOT-31593C",
+    "arm": "A",
+    "txd": 5.0,
+    "grid_pts": 360,
+    "mean_w": 0.4464,
+    "on_mean_w": 0.6696,
+    "duty": 0.667,
+    "peak_w": 1.308,
+    "total_wh": 2.6784,
+    "cycles": 12,
+    "wh_per_cycle": 0.2232,
+    "wh_sd": 0.008
+  }
+}
