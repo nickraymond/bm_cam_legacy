@@ -1,0 +1,40 @@
+{
+  "run": "PAR0",
+  "size": 384,
+  "drain_s": 300,
+  "network_type": "cellular_only",
+  "host": "bmcam000",
+  "started_utc": "2026-07-29T00:18:17Z",
+  "bursts": [
+    {
+      "burst_id": "PAR0C200D1000",
+      "count": 200,
+      "delay_ms": 1000,
+      "size": 384,
+      "wall_s": 202.0,
+      "msgs_per_min": 59.4,
+      "started_utc": "2026-07-29T00:18:17Z",
+      "sendlog": "/home/pi/phaseE/sendlog_PAR0C200D1000.jsonl"
+    },
+    {
+      "burst_id": "PAR0C200D3000",
+      "count": 200,
+      "delay_ms": 3000,
+      "size": 384,
+      "wall_s": 602.4,
+      "msgs_per_min": 19.9,
+      "started_utc": "2026-07-29T00:26:39Z",
+      "sendlog": "/home/pi/phaseE/sendlog_PAR0C200D3000.jsonl"
+    },
+    {
+      "burst_id": "PAR0C200D4000",
+      "count": 200,
+      "delay_ms": 4000,
+      "size": 384,
+      "wall_s": 802.6,
+      "msgs_per_min": 15.0,
+      "started_utc": "2026-07-29T00:41:41Z",
+      "sendlog": "/home/pi/phaseE/sendlog_PAR0C200D4000.jsonl"
+    }
+  ]
+}

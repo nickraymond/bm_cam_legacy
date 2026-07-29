@@ -1,0 +1,21 @@
+# Phase E pre-move state snapshot — 2026-07-29T03:00:33Z
+# Nick moving both eboxes indoors near a window; console ports will drop.
+# NOTE: 'running harness' checked via pgrep on the python process only.
+== bmcam003 ==
+uptime          : 57 min
+active @reboot  : 0
+power_halt      : enabled: false
+dry_run         : dry_run: true
+harness staged  : yes
+running harness : none (verified separately; pgrep self-match corrected)
+== bmcam000 ==
+uptime          :  2:07
+active @reboot  : 0
+power_halt      : enabled: false
+dry_run         : dry_run: true
+harness staged  : yes
+running harness : none (verified separately; pgrep self-match corrected)
+== Spotters ==
+SPOT-33507C  bus voltage: 23.852800
+SPOT-31593C  bus voltage: 23.875200
+bridgePowerControllerEnabled = 0 on both (committed, survives reboot)

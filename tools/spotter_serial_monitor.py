@@ -71,13 +71,29 @@ TX_MARKER = "Submitted spotter/transmit-data"
 
 
 def discover_ports():
-    """Spotter console device paths, keyed by a stable short id."""
+    """Spotter console device paths, keyed by a stable short id.
+
+    Linux (monitoring Pi): /dev/serial/by-id/*SPOT*, else bare /dev/ttyACM*.
+    macOS (bench Mac):     /dev/cu.usbmodemSPOT_<serial><iface>, e.g.
+                           /dev/cu.usbmodemSPOT_33507C1. macOS appends the
+                           USB interface index, so one trailing digit is
+                           stripped; '_' is normalized to '-' so the id
+                           matches the SPOT-33507C form used everywhere
+                           else (analyzer --spotter-id, run folders,
+                           DEV_LOG). Added 2026-07-28 for Phase E, whose
+                           Spotters hang off the Mac, not a monitoring Pi.
+    """
     ports = {}
     for p in glob.glob("/dev/serial/by-id/*"):
         base = os.path.basename(p)
         if "SPOT" in base.upper():
             m = re.search(r"(SPOT[-_][0-9A-Za-z]+)", base)
-            ports[m.group(1) if m else base] = os.path.realpath(p)
+            ports[(m.group(1) if m else base).replace("_", "-")] = \
+                os.path.realpath(p)
+    for p in sorted(glob.glob("/dev/cu.usbmodem*SPOT*")):  # macOS
+        m = re.search(r"(SPOT[-_][0-9A-Za-z]+?)\d?$", os.path.basename(p))
+        if m:
+            ports[m.group(1).replace("_", "-")] = p
     if not ports:  # fallback: bare ACM devices, id by device name
         for p in sorted(glob.glob("/dev/ttyACM*")):
             ports[os.path.basename(p)] = p
