@@ -1,0 +1,20 @@
+{
+  "run": "SMOKE3",
+  "size": 384,
+  "drain_s": 300,
+  "network_type": "cellular_only",
+  "host": "bmcam003",
+  "started_utc": "2026-07-29T00:54:09Z",
+  "bursts": [
+    {
+      "burst_id": "SMOKE3C3D1000",
+      "count": 3,
+      "delay_ms": 1000,
+      "size": 384,
+      "wall_s": 3.0,
+      "msgs_per_min": 59.7,
+      "started_utc": "2026-07-29T00:54:09Z",
+      "sendlog": "/home/pi/phaseE/sendlog_SMOKE3C3D1000.jsonl"
+    }
+  ]
+}

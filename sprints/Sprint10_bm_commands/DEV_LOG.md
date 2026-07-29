@@ -169,6 +169,82 @@ Console→Pi one-way latency ~81 ms (NTP-synced clocks).
 
 ## Decisions taken mid-sprint
 
+- 2026-07-29 **Phase E EXECUTED — the blackout is a 5-MINUTE WALL-CLOCK
+  GRID event, D ≈ 9 s; ship 5.0 s pacing; size and cap are NOT the
+  levers.** Full write-up + artifacts:
+  `runs/sprint10_phaseE_20260728/RESULTS.md`. 24-burst DOE (size
+  {300,384} chars × delay {1.0,1.5} s, 200 msgs, n=3 per unit, both
+  units in parallel) plus a 6-burst simultaneous parity set.
+  - **Mechanism (established, not inferred):** 35/35 gaps
+    console-confirmed `Queue MS_Q_CELLULAR_ONLY is full`; the console
+    emits exactly **2 error lines per lost message**, so loss is
+    countable from the console alone. **83 % of gaps start within 30 s
+    of a 5-minute wall-clock boundary, median offset +1 s.** Suspected
+    driver: bridge system key `alignmentInterval5Min: 1`.
+  - **Model:** `lost per boundary = max(0, D/delay − 2)` (2 = queue
+    slots). Cross-validated: modal loss 7 @ 1.0 s and 4 @ 1.5 s both
+    imply **D = 9.0 s**. Median D over 20 boundary-crossing bursts =
+    9.0 s (75th 16.5 s, 90th 24.0 s). Two DOE bursts that crossed NO
+    boundary delivered 200/200.
+  - **Zero loss needs delay ≥ D/2 = 4.5 s** — which explains Nick's
+    100 % era at 300 ch / 5.0 s and the ~97 % at 384 ch / 1.0 s.
+    Independent confirmation: bmcam003 delivered 200/200 at 4.0 s.
+  - **Nick's chunk-size hypothesis tested and NOT supported:** implied D
+    is 9.8 s @300 ch vs 9.0 s @384 ch. Raw DOE main effects (size 3.67 %
+    vs 5.21 %, delay 3.42 % vs 5.46 %) are **not significant** — SD up
+    to 15.2 on a mean of 13.8. The 43-loss outlier began 17 s INSIDE an
+    unusually long 04:45:00 blackout. Sprint09's ~400 B cliff was
+    measured on 10-message bursts and does not bind at 200-message
+    scale.
+  - **`message_cap` is not the lever:** at fixed delay the loss RATE is
+    cap-independent (shorter burst ⇒ proportionally fewer boundaries).
+  - **RECOMMENDED:** `image_transmit_delay_seconds: 5.0`,
+    `image_buffer_size: 384` unchanged, `message_cap: 195` unchanged.
+    Cost: 15.8 min awake/image vs 3.2 min — gives back Sprint09's
+    awake-time win; Nick's call. Honest bound: D's tail (90th pct 24 s)
+    means "100 % most cycles", not guaranteed.
+  - **Units are NOT at parity** (1.0 s: 1.0 % on bmcam003 vs 9.0 % on
+    bmcam000) though the periodic component is identical — at 3.0 s both
+    lost the same 2 messages at the same absolute instants. Treat
+    single-unit results as a lower bound.
+  - **Post-freeze structural fix (recorded, NOT built):** boundaries are
+    absolute wall-clock and the Pi is NTP-synced, so phase-aligning the
+    transmit to start just after a boundary with the burst under 300 s
+    crosses ZERO boundaries → ~0 % loss at 1.0 s AND 3.2 min awake.
+    Sharpens D16's split-burst idea: the pause must be phase-aligned,
+    not merely present.
+  - **PHASE_E.md CORRECTED — its power command failed silently.**
+    `bm cfg set 0 s u bridgePowerControllerEnabled 0` prints
+    `Queuing serial command` and does nothing (`bm cfg` forwards onto
+    the BM bus; node `0` is not the bridge). Working form:
+    `bridge cfg set <bridge_node_id> s u <key> <val>` +
+    `bridge cfg commit <bridge_node_id> s`, verified by read-back.
+    **§6's restore chain had the same defect** — following it would have
+    left both units permanently powered while every command looked
+    successful. Both sections fixed; bridge node ids recorded
+    (SPOT-33507C `c3c564b91856226c`, SPOT-31593C `0e582dd12c1e1480`).
+  - **Bench hazards hit and fixed (for the next session):** (1)
+    `pkill -f 'rc_run_capture_cycle.sh|…'` over SSH matches the REMOTE
+    SHELL'S OWN command line and SIGTERMs its parent — bmcam003 was left
+    momentarily armed on a permanently-powered bus (finding 004 trap);
+    use `[r]c_…` bracket patterns. (2) `test_queue_drain.py` builds
+    `burst_id` from run tag + count + delay only — replicates or two
+    sizes under one tag collide in the backend join and silently
+    UNDERCOUNT loss; every replicate needs its own run tag. (3) macOS
+    has no `timeout` command. (4) bmcam000 runs NTP disabled by design
+    (−2773 s vs bench); all timing analysis uses the send log's
+    monotonic `t_offset_s`, see `clock_offsets.txt`.
+  - bmcam003 dropped off the tailnet ~01:50Z and needed a bus-power blip
+    to recover. Bus current fell only 33.8→27.8 mA (~0.15 W) and bus
+    voltage held 23.86 V with `throttled=0x0`, so this looks like Nick's
+    known home-WiFi subnet issue rather than a self-halt or brownout.
+    No persistent journald on these units, so not provable either way.
+  - New tooling: `correlate_console.py` (joins backend gaps to console
+    queue-full episodes across three clocks), plus run-folder scripts
+    `doe_runner.sh`, `catch_awake_disarm.sh`, `restore_field_normal.sh`,
+    `spot_cmd.sh`. `tools/spotter_serial_monitor.py` gained macOS port
+    discovery (`/dev/cu.usbmodem*SPOT*`).
+
 - 2026-07-28 **Phase E added (Nick-approved addendum): characterize the
   cellular queue drain instead of guessing pacing values.** Evidence
   from the 24 h RC soak (runs/sprint10_soak_20260727/REPORT.md +

@@ -1,0 +1,20 @@
+{
+  "run": "DISC",
+  "size": 384,
+  "drain_s": 300,
+  "network_type": "cellular_only",
+  "host": "bmcam003",
+  "started_utc": "2026-07-29T00:55:41Z",
+  "bursts": [
+    {
+      "burst_id": "DISCC200D1000",
+      "count": 200,
+      "delay_ms": 1000,
+      "size": 384,
+      "wall_s": 201.1,
+      "msgs_per_min": 59.7,
+      "started_utc": "2026-07-29T00:55:41Z",
+      "sendlog": "/home/pi/phaseE/sendlog_DISCC200D1000.jsonl"
+    }
+  ]
+}

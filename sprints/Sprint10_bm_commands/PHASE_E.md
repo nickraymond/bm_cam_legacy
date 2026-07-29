@@ -99,15 +99,46 @@ Back it up first if you prefer: `cp camera_schedule.yaml camera_schedule.yaml.ph
 ### 3.4 Keep the units powered for the whole run
 
 Phase E takes ~3 h. Ask Nick to either disable the Spotter power
-controller or set a long on-window. Console command (Nick's own form):
+controller or set a long on-window.
+
+> **CORRECTED 2026-07-29 (bench-verified).** The `bm cfg … 0 …` form
+> originally written here **does not work and fails SILENTLY**: the
+> console answers `[BRIDGE] [INFO] Queuing serial command: …` and then
+> nothing ever happens, because `bm cfg` forwards onto the BM bus and
+> node `0` is not the bridge. Worse, when the bus is unpowered there is
+> nothing to receive it at all. A read-back proved the value was still
+> `1` after `bm cfg set … 0` + `bm cfg commit … 0` both "succeeded".
+> Use `bridge cfg`, addressed to the **bridge node id**:
 
 ```text
-bm cfg set 0 s u bridgePowerControllerEnabled 0
-bm cfg commit 0 s
+bridge cfg set <bridge_node_id> s u bridgePowerControllerEnabled 0
+bridge cfg commit <bridge_node_id> s
+bridge cfg get <bridge_node_id> s bridgePowerControllerEnabled   # MUST read 0
 ```
-…or leave cycling enabled and set `sampleDurationMs` long. **`cfg save` /
-`bm cfg commit` reboots the Spotter**, which cuts bus power for a moment
-— do this BEFORE starting bursts, never during. Confirm the unit stays
+Argument grammar (deduced from the working commands): `<node_id>` then
+`s` = **partition** (system; `u`=user, `h`=hardware) then, for `set`
+only, `u` = **value type** (uint). `bridge cfg status <node_id> s` dumps
+all 18 system keys with values — the fastest way to confirm the whole
+power chain at once.
+
+Bridge node ids (from each Spotter's own `power |` publish lines):
+
+| Spotter | bridge node id |
+|---|---|
+| SPOT-33507C (bmcam003) | `c3c564b91856226c` |
+| SPOT-31593C (bmcam000) | `0e582dd12c1e1480` |
+
+…or leave cycling enabled and set `sampleDurationMs` long. **Always
+read the value back** — a committed `bridge cfg` prints the new network
+config JSON, and success looks like `bridgePowerControllerEnabled: 0`
+plus `[BRIDGE] handle_power_states, power on for: 4294967295` (0xFFFFFFFF
+= indefinitely) and `Bridge bus power: 1`.
+
+`bridge cfg commit` re-inits the BRIDGE (`Bridge State Init`, a reboot
+notice from the bridge node) and cycles bus power — the Spotter console
+itself stays up, so the earlier "reboots the Spotter" wording was
+imprecise, but the bus blip is real and hard power-cycles the Pi. Do
+this BEFORE starting bursts, never during. Confirm the unit stays
 reachable for >25 min before trusting a long run.
 
 ### 3.5 Start console capture on both Spotters
@@ -246,12 +277,20 @@ open(p,'w').write(s)
 EOF"
 # 3. remove the harness from the runtime dir (keeps deploys clean)
 ssh pi@100.103.35.24 "rm -f /home/pi/BM_Devel_Pi/test_queue_drain.py"
-# 4. restore the Spotter power schedule (Nick's production form)
-#    bm cfg set 0 s u bridgePowerControllerEnabled 1
-#    bm cfg set 0 s u sampleIntervalMs 3600000
-#    bm cfg set 0 s u sampleDurationMs 1200000
-#    bm cfg set 0 s u samplesPerReport 1
-#    bm cfg commit 0 s
+# 4. restore the Spotter power schedule
+#    CORRECTED 2026-07-29: `bm cfg … 0 …` SILENTLY NO-OPS (see §3.4).
+#    Using it here would leave both units NOT restored while every
+#    command appeared to succeed. Use bridge cfg + the bridge node id,
+#    and READ BACK before believing it.
+#      bridge cfg set <node_id> s u bridgePowerControllerEnabled 1
+#      bridge cfg set <node_id> s u sampleIntervalMs 3600000
+#      bridge cfg set <node_id> s u sampleDurationMs 1200000
+#      bridge cfg set <node_id> s u samplesPerReport 1
+#      bridge cfg commit <node_id> s
+#      bridge cfg status <node_id> s     # verify all four, in key order
+#    node ids: SPOT-33507C c3c564b91856226c / SPOT-31593C 0e582dd12c1e1480
+#    Key order in the status dump: 0 sampleIntervalMs, 1 sampleDurationMs,
+#    5 bridgePowerControllerEnabled, 8 samplesPerReport.
 ```
 Repeat for bmcam000. Also outstanding from the soak: **restore
 `cfg vle 1`** (visibility LED, disabled on SPOT-33507C for bench comfort)

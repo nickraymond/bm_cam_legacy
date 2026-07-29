@@ -189,20 +189,42 @@ open questions and bugs in DEV_LOG.md.
       analyze_queue_drain.py — both in this folder. Rationale + matrix in
       SPEC "Phase E"; evidence for the blackout model in DEV_LOG
       (findings 006/007 + soak REPORT.md).
-- [ ] Pre-flight: both units disarmed (cron backed up + @reboot off,
+- [x] Pre-flight: both units disarmed (cron backed up + @reboot off,
       power_halt enabled:false/dry_run:true), Spotters held powered,
       console capture running on both (tools/spotter_serial_monitor.py)
-- [ ] Discriminator run (200 msgs @ 1.0 / 3.0 / 4.0 s): blackout is
+      — 2026-07-29; disarm logs + `premove_state.txt` in the run folder.
+      NOTE: PHASE_E.md's `bm cfg` power command fails SILENTLY; corrected
+      to `bridge cfg` in §3.4/§6 (see DEV_LOG).
+- [x] Discriminator run (200 msgs @ 1.0 / 3.0 / 4.0 s): blackout is
       time-triggered or count-triggered — answer recorded in DEV_LOG
-- [ ] Full matrix executed (counts 100/200/300 × delays 1.0–4.0 s + the
-      5.0 s historical control), split across both units; sendlogs +
-      manifests archived under runs/sprint10_phaseE_<date>/
-- [ ] Analysis: bursts/gaps CSVs, loss-vs-delay curve per burst size,
+      — **TIME-triggered, on an absolute 5-minute wall-clock grid** (83 %
+      of gaps within 30 s of a boundary, median offset +1 s). Run on
+      BOTH units simultaneously (PAR3/PAR0), which also answered parity.
+- [ ] ~~Full matrix (counts 100/200/300 × delays 1.0–4.0 s + 5.0 s
+      control)~~ — **SUPERSEDED 2026-07-29 by Nick's direction:** replaced
+      with a replicated 2×2 DOE, size {300,384} chars × delay {1.0,1.5} s
+      at 200 msgs, n=3 per unit / n=6 pooled (`DOE.md`), because the open
+      question became "is chunk size the cause?" not "which of 15 cells".
+      24 bursts + 6 parity bursts archived in
+      runs/sprint10_phaseE_20260728/. Delays ≥2.0 s remain UNMEASURED at
+      n>1 — the 5.0 s recommendation rests on the fitted model plus two
+      single observations (bmcam003 200/200 @4.0 s; production @5.0 s).
+- [x] Analysis: bursts/gaps CSVs, loss-vs-delay curve per burst size,
       blackout onset/duration/repeat stats, drain rate, console
       correlation (queue-full bursts ↔ each gap)
+      — `analysis/bursts_all.csv` (24), `analysis/gaps_all.csv` (35,
+      **35/35 console-confirmed**), curve + blackout stats in RESULTS.md
+      §3/§6. Burst size held at 200 msgs, so the curve is single-size.
 - [ ] Recommended (image_transmit_delay_seconds, message_cap) with
       margin + awake-time cost; written into camera_schedule.yaml and
       device profiles, deployed via tools/deploy_rc_runtime.sh
+      — **recommendation made** (5.0 s; size and cap UNCHANGED; 15.8 min
+      awake vs 3.2 min — RESULTS.md §6), **NOT yet written or deployed**;
+      awaiting Nick's call on the awake-time trade.
 - [ ] Both units restored to field-normal (PHASE_E.md §6) and verified
-      imaging; Spotter LED restored (cfg vle 1); RESULTS.md + DEV_LOG
-      entry + Sofar question sheet (Q12)
+      imaging; Spotter LED restored (cfg vle 1)
+      — **STILL OUTSTANDING.** Both units are currently DISARMED with
+      Spotters on continuous bus power. `restore_field_normal.sh` is
+      written and ready.
+- [x] RESULTS.md + DEV_LOG entry + Sofar question sheet (Q12)
+      — RESULTS.md §1–§9; Sofar sheet is §7 (6 questions).

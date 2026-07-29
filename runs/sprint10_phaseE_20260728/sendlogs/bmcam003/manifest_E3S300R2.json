@@ -1,0 +1,30 @@
+{
+  "run": "E3S300R2",
+  "size": 300,
+  "drain_s": 300,
+  "network_type": "cellular_only",
+  "host": "bmcam003",
+  "started_utc": "2026-07-29T03:58:30Z",
+  "bursts": [
+    {
+      "burst_id": "E3S300R2C200D1000",
+      "count": 200,
+      "delay_ms": 1000,
+      "size": 300,
+      "wall_s": 200.9,
+      "msgs_per_min": 59.7,
+      "started_utc": "2026-07-29T03:58:30Z",
+      "sendlog": "/home/pi/phaseE/sendlog_E3S300R2C200D1000.jsonl"
+    },
+    {
+      "burst_id": "E3S300R2C200D1500",
+      "count": 200,
+      "delay_ms": 1500,
+      "size": 300,
+      "wall_s": 300.9,
+      "msgs_per_min": 39.9,
+      "started_utc": "2026-07-29T04:06:51Z",
+      "sendlog": "/home/pi/phaseE/sendlog_E3S300R2C200D1500.jsonl"
+    }
+  ]
+}
