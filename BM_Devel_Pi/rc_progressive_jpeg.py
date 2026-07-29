@@ -42,6 +42,7 @@ Assumptions / known limitations:
 
 import argparse
 import os
+import shutil
 import sys
 import time
 from datetime import datetime, timezone
@@ -163,6 +164,10 @@ def resolve_rc_settings(config_path):
         "budget_seconds": budget_seconds,
         "message_cap": int(cfg.progressive_jpeg_message_cap),
         "budget_messages_if_transmit_only": budget_messages_if_transmit_only,
+        # v2 `src`: None = capture from the camera (shipped behaviour).
+        # Only the src command sets this; there is no YAML key, so a unit
+        # can never boot into reference-image mode by config accident.
+        "source_image_path": None,
         "pacing_chunk_b64_chars": pacing["chunk_b64_chars"],
         "pacing_delay_seconds": pacing["delay_seconds"],
         "pacing_source": pacing["source"],
@@ -309,6 +314,95 @@ def _cpu_temp_text():
         return "na"
 
 
+NATIVE_W, NATIVE_H = 4608, 2592
+
+
+def _jpeg_dims(path):
+    """(width, height) from the first JPEG SOF marker, or None.
+
+    Deliberately dependency-free (no PIL): this runs before the pipeline
+    proper and must not be able to fail for import reasons on a field unit.
+    """
+    with open(path, "rb") as fh:
+        data = fh.read()
+    i = 2
+    while i < len(data) - 9:
+        if data[i] != 0xFF:
+            i += 1
+            continue
+        marker = data[i + 1]
+        if marker in (0xC0, 0xC1, 0xC2, 0xC3):
+            h = (data[i + 5] << 8) | data[i + 6]
+            w = (data[i + 7] << 8) | data[i + 8]
+            return w, h
+        if marker in (0xD8, 0xD9):
+            i += 2
+            continue
+        i += 2 + ((data[i + 2] << 8) | data[i + 3])
+    return None
+
+
+def stage_source_image(rel_or_abs_path, output_dir):
+    """Copy a reference native into the cycle's output dir and return the copy.
+
+    TWO failures from soak finding 009 are designed out here, because both
+    cost a full overnight run:
+
+    1. CONSUMABLE INPUT. The pipeline renames/consumes the native it is
+       handed, so pointing it straight at the committed reference destroys
+       the reference and every later cycle dies on a missing file. We always
+       hand it a per-cycle COPY and never the original.
+    2. WRONG DIMENSIONS. The raw reference_reef_coral_*.jpg files are
+       4000x3000; the pipeline requires exactly 4608x2592 and rejects them.
+       The original failure was a `find | head -1` picking a prep artifact.
+       We validate dimensions HERE, before any work, and fail with a message
+       that names the file and both sizes — not 100 s later inside the ladder.
+    """
+    path = rel_or_abs_path
+    if os.path.isabs(path):
+        candidates = [path]
+    else:
+        # SRC_TABLE paths are repo-relative, but the deployed runtime is a
+        # FLAT app dir (/home/pi/BM_Devel_Pi) while reference_images/ lives
+        # at the repo root. Search the plausible roots in priority order so
+        # the same table works in a dev checkout and on a field unit.
+        # BMCAM_REFERENCE_ROOT wins, so a unit with images on external
+        # storage needs no code change.
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        roots = []
+        env_root = os.environ.get("BMCAM_REFERENCE_ROOT")
+        if env_root:
+            roots.append(env_root)
+        roots += [
+            app_dir,                        # images deployed INTO the app dir
+            os.path.dirname(app_dir),       # dev checkout / repo root
+        ]
+        candidates = [os.path.join(r, path) for r in roots]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            path = candidate
+            break
+    else:
+        raise FileNotFoundError(
+            f"src reference image not found: {rel_or_abs_path}\n"
+            f"  tried: {candidates}\n"
+            f"  fix: deploy reference_images/ into the app dir, or set "
+            f"BMCAM_REFERENCE_ROOT"
+        )
+    dims = _jpeg_dims(path)
+    if dims != (NATIVE_W, NATIVE_H):
+        raise ValueError(
+            f"src reference {os.path.basename(path)} is {dims}, expected "
+            f"({NATIVE_W}, {NATIVE_H}) — use the prepared "
+            f"synthetic_native_4608x2592.jpg, not the raw scene file"
+        )
+    os.makedirs(output_dir, exist_ok=True)
+    stem = time.strftime("refsrc_%Y%m%dT%H%M%SZ", time.gmtime())
+    dest = os.path.join(output_dir, f"{stem}_native_full.jpg")
+    shutil.copy2(path, dest)
+    return dest
+
+
 def run_cycle(
     settings,
     *,
@@ -417,6 +511,19 @@ def run_cycle(
             daemon, bm_commands_cfg, summary, settings,
             _load_camera_controls_island, clock, sleep_fn,
         )
+
+        # Sprint10 v2: `src` command can substitute a committed reference
+        # native for the camera capture (field debug — separates "camera
+        # broken" from "link broken" without a site visit). CLI
+        # --compress-only still wins, so bench use is unaffected.
+        if native_path is None and settings.get("source_image_path"):
+            native_path = stage_source_image(
+                settings["source_image_path"], output_dir
+            )
+            summary["source_image"] = settings["source_image_path"]
+            summary["source_image_staged"] = native_path
+            print(f"[RC] src override: camera SKIPPED, using reference "
+                  f"{settings['source_image_path']}")
 
         # Capture (or reuse an existing native in --compress-only).
         capture_info = {}

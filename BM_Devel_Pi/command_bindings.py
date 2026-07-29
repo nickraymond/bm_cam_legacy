@@ -12,6 +12,9 @@ values with whatever the field has commanded:
   overlay_rc_settings(settings, state)
       roi -> settings["crop_native_xywh"] + recomputed output_size
       win -> settings["max_run_time_min"] / ["budget_seconds"]
+      txd -> settings["pacing_delay_seconds"]  (v2)
+      cap -> settings["message_cap"]           (v2)
+      src -> settings["source_image_path"]     (v2, None = live camera)
   overlay_camera_controls(yaml_controls, state)
       foc/awb/exp -> a camera_controls dict (the production island
       shape process_image_v2._camera_controls_from_settings consumes)
@@ -39,9 +42,12 @@ process start); roi/foc/awb/exp apply to this window's capture.
 
 from command_tables import (
     AWB_TABLE,
+    CAP_TABLE,
     EXP_TABLE,
     FOC_TABLE,
     ROI_TABLE,
+    SRC_TABLE,
+    TXD_TABLE,
     WIN_TABLE,
 )
 from rc_jpeg_encoder import output_size_for_crop
@@ -76,6 +82,45 @@ def overlay_rc_settings(settings, state):
             )
         s["max_run_time_min"] = minutes
         s["budget_seconds"] = minutes * 60
+
+    if "txd" in state.touched:
+        index = state.settings["txd"]
+        seconds = TXD_TABLE[index]["seconds"]
+        if float(s["pacing_delay_seconds"]) != float(seconds):
+            overrides.append(
+                ("pacing_delay_seconds", s["pacing_delay_seconds"], seconds,
+                 f"txd={index}")
+            )
+        s["pacing_delay_seconds"] = seconds
+        s["pacing_source"] = f"command txd={index}"
+
+    if "cap" in state.touched:
+        index = state.settings["cap"]
+        messages = CAP_TABLE[index]["messages"]
+        if int(s["message_cap"]) != messages:
+            overrides.append(
+                ("message_cap", s["message_cap"], messages, f"cap={index}")
+            )
+        s["message_cap"] = messages
+
+    if "src" in state.touched:
+        index = state.settings["src"]
+        path = SRC_TABLE[index]["path"]
+        old = s.get("source_image_path")
+        if old != path:
+            overrides.append(("source_image_path", old, path, f"src={index}"))
+        s["source_image_path"] = path
+
+    # Recompute the derived transmit-only message budget AFTER txd/win, so
+    # telemetry never reports a budget computed from the pre-override pacing.
+    # This is the number that silently caps a slow-paced cycle: at txd=5.0 s
+    # and win=16 min it is 192, below the 195 default cap.
+    # Guarded on key presence so slim test fixtures aren't handed invented keys.
+    if "pacing_delay_seconds" in s and "budget_seconds" in s:
+        delay = float(s["pacing_delay_seconds"] or 0)
+        s["budget_messages_if_transmit_only"] = (
+            int(s["budget_seconds"] // delay) if delay > 0 else None
+        )
 
     s["command_overrides"] = [
         {"key": key, "from": list(old) if isinstance(old, tuple) else old,
