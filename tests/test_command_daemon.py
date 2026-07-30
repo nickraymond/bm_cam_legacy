@@ -16,6 +16,8 @@ Run (repo root; serial stubbed, no UART):
   python3 -m unittest tests.test_command_daemon -v
 """
 
+import contextlib
+import io
 import json
 import os
 import queue
@@ -274,13 +276,15 @@ class TestConfigIsland(unittest.TestCase):
             "bm_commands:\n"
             "  enabled: true\n"
             "  topic: bmcam003/cmd\n"
-            "  pre_capture_listen_s: 90\n"
+            "  post_transmit_listen_s: 90\n"
+            "  defer_acks_during_transmit: true\n"
             "  state_path: /tmp/x.json\n"
         )
         cfg = load_bm_commands_config(path)
         self.assertTrue(cfg["enabled"])
         self.assertEqual(cfg["topic"], "bmcam003/cmd")
-        self.assertEqual(cfg["pre_capture_listen_s"], 90.0)
+        self.assertEqual(cfg["post_transmit_listen_s"], 90.0)
+        self.assertTrue(cfg["defer_acks_during_transmit"])
         self.assertEqual(cfg["state_path"], "/tmp/x.json")
 
     def test_bad_values_fall_back_per_key(self):
@@ -288,15 +292,36 @@ class TestConfigIsland(unittest.TestCase):
             "bm_commands:\n"
             "  enabled: true\n"
             "  topic: ''\n"
-            "  pre_capture_listen_s: -5\n"
+            "  post_transmit_listen_s: -5\n"
         )
         cfg = load_bm_commands_config(path)
         self.assertTrue(cfg["enabled"])
         self.assertEqual(cfg["topic"], DEFAULT_BM_COMMANDS_CONFIG["topic"])
         self.assertEqual(
-            cfg["pre_capture_listen_s"],
-            DEFAULT_BM_COMMANDS_CONFIG["pre_capture_listen_s"],
+            cfg["post_transmit_listen_s"],
+            DEFAULT_BM_COMMANDS_CONFIG["post_transmit_listen_s"],
         )
+
+    def test_sprint11_defaults_are_backwards_compatible(self):
+        """C3/C4 default OFF-ish: an untouched Sprint10 config must not
+        silently change behaviour on the wire."""
+        self.assertFalse(
+            DEFAULT_BM_COMMANDS_CONFIG["defer_acks_during_transmit"])
+
+    def test_retired_pre_capture_key_is_ignored_loudly(self):
+        """Sprint11 C1/D2 deleted the pre-capture listen window. A stale
+        config must NOT look like it was applied -- silent acceptance is
+        how a field unit ends up on the wrong schedule."""
+        path = self._write(
+            "bm_commands:\n"
+            "  enabled: true\n"
+            "  pre_capture_listen_s: 90\n"
+        )
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            cfg = load_bm_commands_config(path)
+        self.assertNotIn("pre_capture_listen_s", cfg)
+        self.assertIn("IGNORED since Sprint11", buf.getvalue())
 
 
 if __name__ == "__main__":

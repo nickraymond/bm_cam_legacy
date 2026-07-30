@@ -79,6 +79,7 @@ def transmit_progressive_image(
     sleep_fn=time.sleep,
     clock=time.monotonic,
     ack_drain_fn=None,
+    pending_pump_fn=None,
     media_gid=None,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
@@ -88,6 +89,13 @@ def transmit_progressive_image(
     once per chunk pacing slot; when it reports it sent an ack, one extra
     paced sleep keeps the wire at the Sprint09 1 msg/s rate. Image
     framing/pacing is unchanged when None (the pre-Sprint10 wire).
+    pending_pump_fn: optional callable() -> int (Sprint11 C3/D5). Called
+    once per chunk pacing slot to parse + PERSIST inbound commands WITHOUT
+    touching the wire, so a command that lands mid-burst still governs the
+    next boot while its ack waits until the image is finished. Adds no
+    paced slot and no message: burst length is unchanged, which is the
+    whole point — an ack riding a pacing slot silently lengthens the burst
+    and can push its tail onto a blackout boundary.
     media_gid: optional 3-char group id (rc_media_id island). When set,
     chunks go out as `<I{gid}.{i}>` and START carries `gid:` — exact
     chunk->image attribution for non-FIFO backends. None = legacy wire.
@@ -159,6 +167,9 @@ def transmit_progressive_image(
         tx(f"{chunk_prefix(i, media_gid)}{chunks[i]}\n".encode("ascii"))
         sent += 1
         sleep_fn(delay_seconds)
+        # Sprint11 C3: persist inbound commands mid-burst, wire untouched.
+        if pending_pump_fn is not None:
+            pending_pump_fn()
         # Sprint10 D12: at most one command ack rides each pacing slot;
         # it consumes its own paced sleep so the drain rate is unchanged.
         # Guard keeps room for the closing END after the ack.

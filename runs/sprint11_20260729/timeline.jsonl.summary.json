@@ -1,0 +1,19 @@
+{
+  "finished_utc": "2026-07-29T20:51:22Z",
+  "aborted": null,
+  "events": 2,
+  "per_unit": {
+    "SPOT-33507C": {
+      "cycles": 0,
+      "sweeps_completed": 0,
+      "arm": "A",
+      "txd": 1.0
+    },
+    "SPOT-31593C": {
+      "cycles": 0,
+      "sweeps_completed": 0,
+      "arm": "B",
+      "txd": 5.0
+    }
+  }
+}

@@ -21,11 +21,15 @@ Thread split (strict, this is the concurrency contract):
                   (parse -> dedupe -> persist -> queue ack), drain_acks
                   (bm.spotter_tx), time-sync wait, stop.
 
-Flow per active window (D5 as corrected 2026-07-26):
+Flow per active window (Sprint11 C1-C4; supersedes the Sprint10 order):
   start() -> wait_for_spotter_utc() [shared port replaces
-  read_spotter_utc's private open] -> listen_window(pre_capture_listen_s)
-  -> capture/transmit (drain_acks rides the 1.0 s pacing slots) ->
-  final process_pending + drain_acks -> stop() -> early halt as today.
+  read_spotter_utc's private open] -> capture -> encode -> phase wait ->
+  transmit (process_pending rides the pacing slots; acks are DEFERRED when
+  defer_acks_during_transmit, C3/D5) -> ack flush ->
+  listen_window(post_transmit_listen_s) [C4/D6] -> stop() -> halt.
+
+There is no longer a pre-capture listen window (C1/D2). Commands apply
+from cached state on the NEXT boot, which is already how `win` behaved.
 
 Ack policy (D15): ok=1 acks on persist. If the state file write fails,
 the command is NOT acked ok — it re-applies via cloud re-send/dedupe.
@@ -66,10 +70,19 @@ except Exception:  # pragma: no cover - same runtime fallback as bm_serial
 
 # YAML island defaults (D14). Disabled by default: a deploy without the
 # island is byte-identical to today's cycle.
+#
+# Sprint11: `pre_capture_listen_s` is GONE (C1/D2). It was the single
+# largest cause of blackout collisions -- 90 s of listening pushed transmit
+# start from ~:01:00 to ~:03:10, so a 194 s burst crossed the :05:00
+# boundary at ~62 % through (measured first-gap mean: 65.5 %). It also
+# listened at the one time commands never arrive: finding 006 showed the
+# mailbox drain fires 1-4 min AFTER the cycle ends. Replaced by
+# `post_transmit_listen_s` (C4/D6).
 DEFAULT_BM_COMMANDS_CONFIG = {
     "enabled": False,
     "topic": "bmcam/cmd",          # provisional until Q11/Phase B
-    "pre_capture_listen_s": 120.0,  # Nick 2026-07-26: 1-2 min, tune in Phase B
+    "post_transmit_listen_s": 150.0,   # C4/D6 tail; ~0.017 Wh at ~0.5 W
+    "defer_acks_during_transmit": False,   # C3/D5; off == Sprint10 wire
     "state_path": None,             # None -> command_state.py default
 }
 
@@ -137,14 +150,24 @@ def load_bm_commands_config(config_path):
         cfg["topic"] = topic
     else:
         print(f"[CMD][WARN] bm_commands.topic={topic!r} invalid; using {cfg['topic']}")
+    if "pre_capture_listen_s" in island:
+        # Loud, not silent: a stale config would otherwise look like it was
+        # applied. The key does nothing since Sprint11 C1 (see D2).
+        print("[CMD][WARN] bm_commands.pre_capture_listen_s is IGNORED since "
+              "Sprint11 (the pre-capture listen window was deleted, D2). "
+              "Use post_transmit_listen_s instead.")
     try:
-        listen_s = float(island.get("pre_capture_listen_s", cfg["pre_capture_listen_s"]))
-        if listen_s < 0:
+        tail_s = float(island.get("post_transmit_listen_s",
+                                  cfg["post_transmit_listen_s"]))
+        if tail_s < 0:
             raise ValueError("negative")
-        cfg["pre_capture_listen_s"] = listen_s
+        cfg["post_transmit_listen_s"] = tail_s
     except (TypeError, ValueError) as exc:
-        print(f"[CMD][WARN] bm_commands.pre_capture_listen_s invalid ({exc}); "
-              f"using {cfg['pre_capture_listen_s']}")
+        print(f"[CMD][WARN] bm_commands.post_transmit_listen_s invalid ({exc}); "
+              f"using {cfg['post_transmit_listen_s']}")
+    cfg["defer_acks_during_transmit"] = bool(
+        island.get("defer_acks_during_transmit",
+                   cfg["defer_acks_during_transmit"]))
     state_path = island.get("state_path", cfg["state_path"])
     if state_path is None or (isinstance(state_path, str) and state_path):
         cfg["state_path"] = state_path
@@ -355,21 +378,29 @@ class CommandDaemon:
         return sent
 
     # ------------------------------------------------------------------
-    # Pre-capture listen window (main thread; D5 corrected)
+    # Listen window (main thread)
+    #
+    # Sprint11 C1/D2: the PRE-capture window is deleted. This now runs as
+    # the bounded POST-transmit tail (C4/D6) -- the mailbox drain is
+    # triggered by the sync our own transmit initiates and fires 1-4 min
+    # AFTER the cycle ends (finding 006), so this is when commands actually
+    # arrive. Anything applied here governs the NEXT boot from cached state.
     # ------------------------------------------------------------------
 
-    def listen_window(self, seconds, clock=time.monotonic, sleep_fn=time.sleep):
-        """Listen/apply/ack for `seconds` before capture. Commands that
-        land here govern THIS window's capture (roi/foc/awb/exp; win
-        governs the next cycle — the budget is already charged)."""
-        print(f"[CMD] pre-capture listen window: {seconds:.0f}s")
+    def listen_window(self, seconds, clock=time.monotonic, sleep_fn=time.sleep,
+                      label="listen"):
+        """Listen/apply/ack for `seconds`. Also flushes queued acks, which
+        is what makes it the natural landing place for C3's deferred ack
+        burst. Returns the command events processed."""
+        print(f"[CMD] {label} window: {seconds:.0f}s")
         deadline = clock() + seconds
         events = []
         while clock() < deadline:
             events.extend(self.process_pending())
             self.drain_acks(clock=clock)
             sleep_fn(0.2)
-        print(f"[CMD] listen window done: {len(events)} command(s) processed")
+        print(f"[CMD] {label} window done: {len(events)} command(s) processed, "
+              f"{self.pending_acks} ack(s) still queued")
         return events
 
     def summary_line(self):

@@ -71,9 +71,16 @@ ROI_LABEL = {
     4: "max detail 1000x562",
 }
 
+# Sprint11 (2026-07-29): same two units, roles renamed. Sprint10 called
+# bmcam003 "arm B" and bmcam000 "arm A"; Sprint11 calls them Unit A (the
+# candidate, C1-C4 on) and Unit B (the production-ish control). The letters
+# are inverted between sprints, so `role` is the field to read -- never the
+# letter alone.
 UNITS = {
-    "SPOT-33507C": {"unit": "bmcam003", "arm": "B", "txd": 1.0},
-    "SPOT-31593C": {"unit": "bmcam000", "arm": "A", "txd": 5.0},
+    "SPOT-33507C": {"unit": "bmcam003", "arm": "A", "role": "candidate",
+                    "txd": 1.0},
+    "SPOT-31593C": {"unit": "bmcam000", "arm": "B", "role": "control",
+                    "txd": 5.0},
 }
 
 # Console signatures. The daemon prints to the PI's log, not the Spotter
@@ -89,15 +96,32 @@ RE_TXDUMP = re.compile(r"\[BM_TX\].*Message:")
 RE_HEXLINE = re.compile(r"^\s*(?:[0-9a-f]{2}\s+)+[0-9a-f]{2}\s*$")
 RE_ACK = re.compile(r'\{"id":(\d+),"ok":(\d)')
 
-# Timing of a cycle after its unit powers up (measured 2026-07-29):
-#   boot ~35 s + cron settle 30 s + time-sync ~10 s -> listen window opens
-#   roughly 75-100 s in and stays open for pre_capture_listen_s (90 s).
-# Sending before the daemon subscribes is WASTED: the Spotter does not hold
-# BM traffic for a sleeping node (soak finding 006). So hold fire until the
-# window can plausibly be open, then cover it with spaced re-sends.
-SEND_EARLIEST_S = 60      # never send sooner than this after power-up
-SEND_INTERVAL_S = 15      # re-send spacing (dedupe makes re-sends free, D4)
-SEND_MAX_TRIES = 7        # 7 x 15 s = 105 s > the 90 s listen window
+# Timing of a cycle after its unit powers up.
+#
+# SPRINT10 (obsolete): boot ~35 s + cron settle 30 s + time-sync ~10 s ->
+# the 90 s pre-capture listen window opened ~75-100 s in. Seven re-sends at
+# 15 s covered it.
+#
+# SPRINT11: there IS no pre-capture listen window (C1/D2), and the settle
+# dropped 30 s -> 0.5 s (D4). The daemon subscribes at ~40 s (boot ~35 s +
+# settle + time-sync), and from then until the halt EVERY pacing slot pumps
+# inbound commands. So the receptive window is no longer a 90 s slot -- it
+# is essentially the whole cycle:
+#     Unit A (1.0 s): subscribed ~40 s -> transmit ends ~256 s -> 150 s
+#                     listen tail -> halt ~410 s after power-up
+#     Unit B (5.0 s): subscribed ~40 s -> transmit ends ~1035 s -> halt
+# Cover Unit A's whole window; Unit B's is strictly longer.
+SEND_EARLIEST_S = 45      # never send sooner than this after power-up
+SEND_INTERVAL_S = 20      # re-send spacing (dedupe makes re-sends free, D4)
+SEND_MAX_TRIES = 18       # 45 + 18 x 20 s = 405 s, i.e. Unit A's full window
+
+# Sprint11 C3 decouples "stop re-sending" from "give up on the ack": with
+# deferred acks the ack cannot arrive until AFTER the image completes
+# (~256 s on Unit A), and on Unit B a mid-burst ack can land as late as
+# ~1035 s. Keeping the pending entry alive purely for ack-matching costs
+# nothing and stops us recording a false cmd_no_ack for a command that was
+# in fact applied -- which would corrupt metric 3.
+ACK_WAIT_S = 1100      # keep matching acks this long after arming
 
 N_DEAD_CYCLES = 6      # consecutive cycles with no ack on one unit -> abort
 STALL_MIN = 45         # no console lines at all from a unit -> abort
@@ -186,7 +210,19 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
 
+    # Deadline as an ABSOLUTE epoch, resolved once at start. The Sprint10
+    # version compared (hour, minute) tuples, which cannot cross midnight:
+    # started at 20:51 with --until-utc 03:30 it declared deadline_reached
+    # on its FIRST loop pass and exited 0 — a silent no-op that looks like
+    # success (bench bug, 2026-07-29T20:51Z). An HH:MM at or before the
+    # current time now means "tomorrow".
     hh, mm = (int(x) for x in args.until_utc.split(":"))
+    now_t = time.gmtime()
+    deadline_epoch = time.mktime(
+        (now_t.tm_year, now_t.tm_mon, now_t.tm_mday, hh, mm, 0, 0, 0, 0)
+    ) - (time.mktime(time.gmtime()) - time.time())
+    if deadline_epoch <= time.time():
+        deadline_epoch += 86400.0
     tl = Timeline(args.out)
     tl.add("run_start", units=list(UNITS), sweep=ROI_SWEEP,
            until_utc=args.until_utc, dry_run=args.dry_run)
@@ -209,9 +245,12 @@ def main(argv=None):
         except ValueError:
             return ""
 
+    tl.add("deadline_resolved", until_utc=args.until_utc,
+           deadline_utc=utcstamp(deadline_epoch),
+           hours_from_now=round((deadline_epoch - time.time()) / 3600.0, 2))
+
     while abort is None:
-        t = time.gmtime()
-        if (t.tm_hour, t.tm_min) >= (hh, mm):
+        if time.time() >= deadline_epoch:
             tl.add("deadline_reached", until_utc=args.until_utc)
             break
 
@@ -239,11 +278,17 @@ def main(argv=None):
                         st["dead"] = 0
                         st["pending"] = None
                     elif text.startswith("<WS") and st["pending"]:
-                        # Wake status goes out immediately BEFORE the listen
-                        # window — the most precise cue we get. Unblock now.
+                        # The a=cap wake status goes out right after the
+                        # schedule gate, i.e. after time-sync and therefore
+                        # after the daemon has subscribed. Under Sprint11 C1
+                        # it no longer marks "the listen window is opening"
+                        # (there is no such window) — it marks "this node is
+                        # now receptive", which is the same cue for our
+                        # purposes and still the most precise one we get.
                         st["armed_t"] = min(st["armed_t"], now() - SEND_EARLIEST_S)
                         tl.add("wake_status", spot=spot,
-                               unit=UNITS[spot]["unit"], note="listen window opening")
+                               unit=UNITS[spot]["unit"],
+                               note="node subscribed and receptive")
 
                 # --- unit powered up -> arm the next sweep value -----------
                 if RE_NEIGHBOR.search(body) and st["pending"] is None:
@@ -272,9 +317,12 @@ def main(argv=None):
                     st["sent_t"] = now()
                     tl.add("cmd_sent", spot=spot, unit=UNITS[spot]["unit"],
                            id=p["id"], roi=p["roi"], attempt=p["tries"])
-                elif p["tries"] >= SEND_MAX_TRIES:
+                elif p["tries"] >= SEND_MAX_TRIES and waited >= ACK_WAIT_S:
+                    # Re-sending stopped a while ago; this is the point at
+                    # which even a DEFERRED ack (C3) can no longer be in
+                    # flight, so the silence is real.
                     tl.add("cmd_no_ack", spot=spot, unit=UNITS[spot]["unit"],
-                           id=p["id"], roi=p["roi"],
+                           id=p["id"], roi=p["roi"], waited_s=round(waited),
                            note="no ack this cycle; sweep continues")
                     st["pending"] = None
                     st["dead"] += 1
