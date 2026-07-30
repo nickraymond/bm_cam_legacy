@@ -1,7 +1,7 @@
 {
-  "finished_utc": "2026-07-29T19:32:44Z",
+  "finished_utc": "2026-07-30T01:54:10Z",
   "units": {
-    "bmcam003": {"disarmed": true, "backup_ts": "20260729T193159Z"},
-    "bmcam000": {"disarmed": true, "backup_ts": "20260729T193059Z"}
+    "bmcam003": {"disarmed": true, "backup_ts": "20260730T015325Z"},
+    "bmcam000": {"disarmed": true, "backup_ts": "20260730T015225Z"}
   }
 }

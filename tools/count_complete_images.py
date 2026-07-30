@@ -53,12 +53,26 @@ import argparse
 import json
 import os
 import re
+import ssl
 import sys
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
 SENSOR_DATA_URL = "https://api.sofarocean.com/api/sensor-data"
+
+
+def _ssl_context():
+    """macOS framework Pythons ship no CA store — same fix as
+    sofar_poll_acks.py: fall back to certifi when the default is empty."""
+    ctx = ssl.create_default_context()
+    if ctx.cert_store_stats().get("x509_ca", 0) == 0:
+        try:
+            import certifi
+            ctx = ssl.create_default_context(cafile=certifi.where())
+        except ImportError:
+            pass
+    return ctx
 
 RE_START = re.compile(r"^<START IMG>\s*(.*)", re.S)
 RE_END = re.compile(r"^<END IMG>\s*(.*)", re.S)
@@ -73,7 +87,8 @@ RE_SENT = re.compile(r"sent_buffers:\s*(\d+)")
 def fetch(spotter_id, start, end, token, limit=5000):
     query = urlencode({"spotterId": spotter_id, "startDate": start,
                        "endDate": end, "token": token, "limit": limit})
-    with urlopen(f"{SENSOR_DATA_URL}?{query}", timeout=120) as resp:
+    with urlopen(f"{SENSOR_DATA_URL}?{query}", timeout=120,
+                 context=_ssl_context()) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
     data = payload.get("data")
     if data is None:
