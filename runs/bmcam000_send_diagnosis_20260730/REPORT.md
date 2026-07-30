@@ -120,3 +120,12 @@ already tight), Spotter firmware queue depth/retry, or END-side repair.
   by design of the current window.
 - Commit-time rule: a `bridge cfg commit` during the OFF phase grants 120 s
   of bus power, then cuts. Only commit while the Pi is halted.
+
+## Overnight result (07:00Z–14:50Z, checked next morning)
+
+16 scheduled cycles, all with on-wire START+END and sent_buffers=192; zero
+queue-full drops, zero Spotter resets. At the Sofar API: **15/15 COMPLETE
+(192/192, no gaps)** — the 16th (14:30Z cycle) was still draining through
+the Notecard at poll time. The evening queue stalls did not recur overnight;
+the incomplete-image risk appears tied to Notecard backlog, not steady-state
+cycling.
