@@ -129,3 +129,41 @@ queue-full drops, zero Spotter resets. At the Sofar API: **15/15 COMPLETE
 the Notecard at poll time. The evening queue stalls did not recur overnight;
 the incomplete-image risk appears tied to Notecard backlog, not steady-state
 cycling.
+
+## Morning re-check: website says "all incomplete" — API says complete
+
+Nick's website marks every overnight bmcam000 image incomplete. Re-verified
+against the Sofar API at 14:55Z with raw rows (hex-decode, no analyzer):
+17 consecutive images 06:30Z–14:30Z each have START + END + all 192 unique
+chunk indices (spot-proof on `refsrc_20260730T120023Z`: 192 unique, 0
+missing, 0 dupes). Full per-cycle reconciliation (UART sent / accepted into
+MS_Q_CELLULAR_ONLY / received at API) shows 192 → 192 → 192/192 for every
+cycle from 06:30Z on.
+
+**Verdict: the loss is in the website/backend pipeline, not the device or
+Sofar.** Ranked hypotheses (handed to a follow-up session):
+
+1. **Incremental-poller cursor skips backfilled rows** (leading — directly
+   observed: Sofar ingested the 05:09–05:18Z rows LATE, after rows stamped
+   05:18Z+ were already queryable; a "newer than last seen timestamp"
+   poller permanently misses such backfills → every image stored with
+   holes).
+2. Finalize-on-END without revisiting stragglers that backfill after END.
+3. Pagination/limit truncation (a cycle is ~200 rows; 8 h ≈ 3,600; also
+   Sofar silently returns 0 rows for date ranges wider than ~1 day).
+4. Filename-format parsing: `refsrc_20260730T120023Z_compressed.jpg`
+   (compact UTC) vs the camera path's `2026-07-29T20:00:27Z_image_
+   compressed.jpg` (ISO + `_image`).
+
+Reproduction (known-complete image; `missing: []` while the website says
+incomplete ⇒ backend bug):
+
+```bash
+curl -s "https://api.sofarocean.com/api/sensor-data?spotterId=SPOT-31593C&startDate=2026-07-30T11:55:00Z&endDate=2026-07-30T12:25:00Z&token=$SOFAR_API_TOKEN_BM_REEF&limit=5000" \
+  | python3 -c "import json,sys,re; rows=json.load(sys.stdin)['data']; txts=[bytes.fromhex(r['value']).decode('ascii','replace') for r in rows]; idx={int(m.group(1)) for t in txts if (m:=re.match(r'<I(\d+)>',t))}; print('rows:',len(rows),'unique chunks:',len(idx),'missing:',[i for i in range(192) if i not in idx],'START:',any('START IMG' in t for t in txts),'END:',any('END IMG' in t for t in txts))"
+```
+
+Known genuinely-broken images (device/bench-side, NOT backend bugs):
+`refsrc_20260730T052837Z` (3/192, commit-grace power cut) and
+`refsrc_20260730T060027Z` (188/192, gap@96 — the four chunks the Spotter
+queue stall dropped; the only real device-side loss of the night).
