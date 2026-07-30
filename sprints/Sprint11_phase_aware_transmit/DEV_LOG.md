@@ -53,7 +53,46 @@ the Spotter's bus-power cut mid-write. Skips loudly when there is no room.
 
 ---
 
-## Findings
+## Findings (run night, 2026-07-29/30)
+
+### F4 — Config patcher glued values to inline comments; PyYAML-invalid file, every read-back blind to it
+
+The defining incident of the run. Full write-up in
+runs/sprint11_20260729/RESULTS.md (lesson 1) and the d835190 commit
+message. One-line version: `enabled: true# ... 2026-07-26: halt` contains
+": " inside a plain scalar -> yaml.safe_load fails -> every yaml-based
+island loader silently falls back to defaults (bm_commands OFF, pacing
+5.0 s on both arms) while the hand parsers and grep read-backs all looked
+correct. Caught only by decoding the wire and seeing camera filenames
+instead of refsrc_*.
+
+### F5 — Hard bus cut on an un-halted Pi took bmcam003 down for the night
+
+SPOT-33507C's leftover 15/15 schedule cut power at 01:59:33Z mid-manual-
+cycle. The Pi boot-surges then flatlines at 0.66 W with no network on any
+subnet; ~6 power cycles identical. Cause deliberately not concluded (SD vs
+WiFi drift); reflash + provision is the likely path. The halt-before-cut
+discipline is data-integrity protection, not just energy hygiene.
+
+### F6 — Unit A's remaining losses are small, early, and repeatable
+
+Clean-window backend: Unit A 0/3 complete but 98.65 % chunks — losses of
+2-3 chunks, twice at chunk ~18 (~50 s after power-on). Not the periodic
+blackout (that is gone; bursts sit +33 s..+210 s in the lane). A fixed-
+schedule Spotter/Notecard event colliding in the 2-slot queue fits.
+Head-chunk duplication (D10 mitigation #2) would have completed all three.
+
+### F7 — Bench infra failure modes (each cost real time, each now fixed in the run scripts)
+
+Tailscale SSH check-mode + our own filter swallowing its instructions
+(INCIDENT_tailscale_ssh_check.md); ConnectTimeout not bounding stalled
+handshakes -> sshto.sh hard timeouts; host processes dying with their
+parent session (monitor 2x, caffeinate) -> keep them user-owned; runner
+HH:MM deadline could not cross midnight -> epoch deadlines; zsh does not
+word-split `set -- $var`; macOS framework Python has an empty CA store ->
+certifi/curl.
+
+## Findings (build)
 
 ### F1 — The integration harness was modelling acks and image chunks on *different* wires (2026-07-29)
 

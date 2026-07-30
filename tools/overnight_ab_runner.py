@@ -210,7 +210,19 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
 
+    # Deadline as an ABSOLUTE epoch, resolved once at start. The Sprint10
+    # version compared (hour, minute) tuples, which cannot cross midnight:
+    # started at 20:51 with --until-utc 03:30 it declared deadline_reached
+    # on its FIRST loop pass and exited 0 — a silent no-op that looks like
+    # success (bench bug, 2026-07-29T20:51Z). An HH:MM at or before the
+    # current time now means "tomorrow".
     hh, mm = (int(x) for x in args.until_utc.split(":"))
+    now_t = time.gmtime()
+    deadline_epoch = time.mktime(
+        (now_t.tm_year, now_t.tm_mon, now_t.tm_mday, hh, mm, 0, 0, 0, 0)
+    ) - (time.mktime(time.gmtime()) - time.time())
+    if deadline_epoch <= time.time():
+        deadline_epoch += 86400.0
     tl = Timeline(args.out)
     tl.add("run_start", units=list(UNITS), sweep=ROI_SWEEP,
            until_utc=args.until_utc, dry_run=args.dry_run)
@@ -233,9 +245,12 @@ def main(argv=None):
         except ValueError:
             return ""
 
+    tl.add("deadline_resolved", until_utc=args.until_utc,
+           deadline_utc=utcstamp(deadline_epoch),
+           hours_from_now=round((deadline_epoch - time.time()) / 3600.0, 2))
+
     while abort is None:
-        t = time.gmtime()
-        if (t.tm_hour, t.tm_min) >= (hh, mm):
+        if time.time() >= deadline_epoch:
             tl.add("deadline_reached", until_utc=args.until_utc)
             break
 

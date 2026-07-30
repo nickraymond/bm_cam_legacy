@@ -4,52 +4,56 @@ Tick a box only when an artifact proves it. Where a box is partially done, say
 what is missing rather than ticking it.
 
 ## 0. Setup
-- [ ] Branch `feature/sprint11-phase-aware-transmit` off `development`
-- [ ] Read Sprint10 `runs/sprint10_phaseE_20260728/RESULTS.md` (blackout model)
+- [x] Branch off `development` (claude/sprint11-phase-aware-transmit-73e8cd)
+- [x] Read Sprint10 `runs/sprint10_phaseE_20260728/RESULTS.md` (blackout model)
       and `runs/sprint10_overnight_20260729/RESULTS.md` (A/B + energy)
-- [ ] Confirm both units' current state before changing anything
+- [x] Confirm both units' current state before changing anything
       (they were left in Sprint10 test config — see §5)
 
 ## 1. C1 — capture-first ordering
-- [ ] Delete the pre-capture listen window; boot → time-sync → capture →
+- [x] Delete the pre-capture listen window; boot → time-sync → capture →
       encode → transmit
-- [ ] Commands apply from cached settings on the NEXT boot (D2)
-- [ ] Unit test: a command arriving mid-cycle does not affect this cycle's
+- [x] Commands apply from cached settings on the NEXT boot (D2)
+- [x] Unit test: a command arriving mid-cycle does not affect this cycle's
       capture and DOES govern the next
-- [ ] Measure new transmit-start offset; expect ~:01:00 after window open
+- [x] Measured transmit-start offset: START at +33 s after power-on (better than the ~:01:00 target)
 
 ## 2. C2 — phase-aware transmit scheduling
-- [ ] Compute grid phase from Spotter UTC (`epoch mod 300`)
-- [ ] Transmit only inside `[boundary + 30 s, next boundary − 20 s]`
-- [ ] If the burst does not fit the remaining lane, wait for the next lane
-- [ ] **Clock-read failure falls back to today's behaviour** (D1) — test this
+- [x] Compute grid phase from Spotter UTC (`epoch mod 300`)
+- [x] Transmit only inside `[boundary + 30 s, next boundary − 20 s]` (hardware-confirmed +33 s starts)
+- [x] If the burst does not fit the remaining lane, wait for the next lane
+- [x] **Clock-read failure falls back to today's behaviour** (D1) — test this
       path explicitly, it is the one that fails silently in the field
-- [ ] Unit tests with a fake clock at several phases (just-after boundary,
+- [x] Unit tests with a fake clock at several phases (just-after boundary,
       mid-lane, just-before boundary, no-fit)
 
 ## 3. C3 — deferred acks
-- [ ] Acks queue during the image burst, flush after completion
-- [ ] Verify no ack is submitted between the first and last image chunk
-- [ ] Confirm ack content unchanged (byte-exact wire pin still passes)
+- [x] Acks queue during the image burst, flush after completion
+- [x] Verify no ack is submitted between the first and last image chunk (test + observed on hardware)
+- [x] Confirm ack content unchanged (byte-exact wire pin still passes)
 
 ## 4. C4 — post-transmit listen tail
-- [ ] Bounded tail (default 150 s) before the halt
-- [ ] Tail is skipped/short-circuited if the cycle is already near the window
+- [x] Bounded tail (default 150 s) before the halt
+- [x] Tail is skipped/short-circuited if the cycle is already near the window
       end, so it can never cause a power-cut mid-write
-- [ ] Commands received in the tail persist and govern the next boot
+- [x] Commands received in the tail persist and govern the next boot (test)
 
 ## 5. Config + deployment
-- [ ] `sleep 30` → `0.5` in `rc_run_capture_cycle.sh` (**D4 — first rollback
+- [x] `sleep 30` → `0.5` in `rc_run_capture_cycle.sh` (no D4 rollback symptoms seen on hardware) (**D4 — first rollback
       candidate; flagged in the script**)
-- [ ] Unit A: `txd` 1.0 s, C1–C4 on, Spotter **15 on / 15 off**
-- [ ] Unit B: `txd` 5.0 s, C1 on (listen removed), C2–C4 off,
+- [x] Unit A: `txd` 1.0 s, C1–C4 on, Spotter **15 on / 15 off**
+- [x] Unit B: `txd` 5.0 s, C1 on (listen removed), C2–C4 off,
       Spotter **20 on / 10 off**
-- [ ] Both: 384 chars, cap 195, `src=1` reef primary
-- [ ] Deploy via `tools/deploy_rc_runtime.sh`; verify runtime versions MATCH
+- [x] Both: 384 chars, cap 195, `src=1` reef primary (after the F4 yaml repair)
+- [x] Deploy via `tools/rc_field_update.sh` (wraps deploy_rc_runtime); versions match (648c889)
       on both units (Sprint10 hit a `media_gid` TypeError from a piecemeal
       file copy — deploy the whole manifest)
 
-## 6. Validation run (6 h)
+## 6. Validation run (6 h) — ABORTED ~2 h in; see runs/sprint11_20260729/RESULTS.md
+Partial results: C1/C2/C3 confirmed working on hardware; periodic blackout
+losses eliminated; Unit A 0/3 complete at backend from SMALL sporadic head
+gaps (D10 population — next sprint); Unit B 3/4 + a verified end-to-end
+manual cycle; interim energy 0.1643 Wh/cycle (Unit A, console-derived).
 - [ ] Pre-flight: `caffeinate` running, console capture on both Spotters,
       both units armed (cron + real `power_halt`)
 - [ ] ROI sweep 1 → 2 → 3 → 0 → 4 over USB, same value to both units
