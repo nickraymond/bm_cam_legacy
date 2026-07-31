@@ -40,16 +40,27 @@ import json
 import os
 import time
 
-# Lifecycle states (D10)
+# Lifecycle states (D10; scheduled/retry states added post-diagnosis
+# 2026-07-31 — see runs/remote_cmd_diagnosis_20260731/REPORT.md: mailbox
+# drains can fire while the BM bus is off, consuming the command with no
+# listener, so the GUI aims sends at the wake window and retries the same
+# id until acked)
 DRAFT = "draft"
+SCHEDULED = "scheduled_wake"       # armed, waiting for the unit's next wake
 SENT_TO_CLOUD = "sent_to_cloud"
 AWAITING_NODE = "awaiting_node"
 ACKED = "acked"
 MISMATCH = "mismatch"
 SEND_FAILED = "send_failed"
+RETRY_EXHAUSTED = "retry_exhausted"  # no ack after max attempts — alert
+CANCELLED = "cancelled"              # operator cancelled a scheduled send
 
-TERMINAL_STATES = (ACKED, MISMATCH, SEND_FAILED)
+TERMINAL_STATES = (ACKED, MISMATCH, SEND_FAILED, RETRY_EXHAUSTED, CANCELLED)
 IN_FLIGHT_STATES = (SENT_TO_CLOUD, AWAITING_NODE)
+# States that block a new send to the same spotter (one command in flight
+# per spotter — stacking pending commands in the Sofar FIFO is the wedge
+# risk state)
+PENDING_STATES = (SCHEDULED,) + IN_FLIGHT_STATES
 
 
 class CommandLifecycle:
@@ -89,30 +100,46 @@ class CommandLifecycle:
         cmd["state"] = ev["state"]
         for k in ("utc", "spotter_id", "node_id", "c", "v", "message",
                   "http_status", "response", "ack", "ack_node_id",
-                  "mismatch_detail"):
+                  "mismatch_detail", "attempt", "cleared_queue",
+                  "scheduled_utc"):
             if k in ev:
                 cmd[k] = ev[k]
+        if "ts" in ev:
+            cmd["last_attempt_ts"] = ev["ts"]
 
     # -- queries ----------------------------------------------------------
 
     def get(self, cmd_id):
         return self.commands.get(cmd_id)
 
-    def in_flight(self, spotter_id=None):
-        """Commands awaiting an ack (the GUI warns before re-sending)."""
+    def _in_states(self, states, spotter_id=None):
         out = []
         for cmd in self.commands.values():
-            if cmd["state"] not in IN_FLIGHT_STATES:
+            if cmd["state"] not in states:
                 continue
             if spotter_id is not None and cmd.get("spotter_id") != spotter_id:
                 continue
             out.append(cmd)
         return sorted(out, key=lambda c: c["cmd_id"])
 
-    def next_command_id(self, floor=1000):
+    def in_flight(self, spotter_id=None):
+        """Commands awaiting an ack (retry loop + ack matcher)."""
+        return self._in_states(IN_FLIGHT_STATES, spotter_id)
+
+    def pending(self, spotter_id=None):
+        """Scheduled OR awaiting — blocks new sends to the same spotter."""
+        return self._in_states(PENDING_STATES, spotter_id)
+
+    def scheduled(self, spotter_id=None):
+        """Wake-scheduled commands not yet sent to the cloud."""
+        return self._in_states((SCHEDULED,), spotter_id)
+
+    def next_command_id(self, floor=1000, extra_used=()):
         """Monotonic fresh id: above every id ever logged and above floor.
-        (Device dedupe keeps last 32 ids — never reuse a logged id.)"""
-        used = [c for c in self.commands]
+        (Device dedupe keeps last 32 ids — never reuse a logged id.)
+        extra_used: ids seen outside this store, e.g. parsed from the
+        shared CLI send log, so GUI and CLI never mint the same id."""
+        used = [c for c in self.commands] + list(extra_used)
         return max(used + [floor - 1]) + 1
 
     def all_commands(self):
@@ -123,16 +150,40 @@ class CommandLifecycle:
     def _now(self):
         return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
-    def record_sent(self, cmd_id, spotter_id, node_id, c, v, message,
-                    http_status, response):
-        """Log the Sofar API result for a send attempt."""
-        ok = http_status == 202
+    def record_scheduled(self, cmd_id, spotter_id, node_id, c, v, message):
+        """Command armed to fire on the unit's next wake (fresh uplink row)."""
         self._append({
-            "utc": self._now(), "cmd_id": cmd_id,
-            "state": AWAITING_NODE if ok else SEND_FAILED,
+            "utc": self._now(), "ts": time.time(), "cmd_id": cmd_id,
+            "state": SCHEDULED, "scheduled_utc": self._now(),
             "spotter_id": spotter_id, "node_id": node_id,
             "c": c, "v": v, "message": message,
+        })
+
+    def record_sent(self, cmd_id, spotter_id, node_id, c, v, message,
+                    http_status, response, attempt=1, cleared_queue=False):
+        """Log the Sofar API result for a send attempt (attempt>=2 is a
+        retry of the same id; daemon dedupe makes re-sends idempotent)."""
+        ok = http_status == 202
+        self._append({
+            "utc": self._now(), "ts": time.time(), "cmd_id": cmd_id,
+            "state": AWAITING_NODE if ok else SEND_FAILED,
+            "spotter_id": spotter_id, "node_id": node_id,
+            "c": c, "v": v, "message": message, "attempt": attempt,
             "http_status": http_status, "response": response,
+            **({"cleared_queue": True} if cleared_queue else {}),
+        })
+
+    def record_retry_exhausted(self, cmd_id, attempts):
+        """No ack after the last allowed attempt — surfaced loudly."""
+        self._append({
+            "utc": self._now(), "cmd_id": cmd_id,
+            "state": RETRY_EXHAUSTED, "attempt": attempts,
+        })
+
+    def record_cancelled(self, cmd_id):
+        """Operator cancelled a wake-scheduled send before it fired."""
+        self._append({
+            "utc": self._now(), "cmd_id": cmd_id, "state": CANCELLED,
         })
 
     def record_ack(self, cmd_id, ack, node_id=None):

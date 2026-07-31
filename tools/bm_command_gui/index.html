@@ -19,8 +19,13 @@
           font-size:.85rem; }
   th, td { border:1px solid #3a444d; padding:.3rem .5rem; text-align:left; }
   .state-awaiting_node { color:#e8c34a; }
+  .state-scheduled_wake { color:#7ab8ff; }
   .state-acked { color:#5fd068; }
-  .state-mismatch, .state-send_failed { color:#ff6b6b; font-weight:bold; }
+  .state-cancelled { color:#8b98a5; }
+  .state-mismatch, .state-send_failed,
+  .state-retry_exhausted { color:#ff6b6b; font-weight:bold; }
+  #unwedge { border-color:#8a3030; }
+  .cancelbtn { font-size:.75rem; padding:.1rem .4rem; }
   #banner { padding:.5rem .8rem; border-radius:4px; margin:.6rem 0;
             display:none; }
   #banner.ok { display:block; background:#1d3323; border:1px solid #2f6b3a; }
@@ -39,16 +44,28 @@
 <div class="row">
   <label>Command <select id="cmd"></select></label>
   <label>Value <select id="val"></select></label>
+  <label>When <select id="mode">
+    <option value="wake" selected>on next wake (recommended)</option>
+    <option value="now">now</option>
+  </select></label>
   <button id="send">Send</button>
   <label id="overrideWrap" style="display:none">
-    <input type="checkbox" id="override"> send anyway (a command is in flight)
+    <input type="checkbox" id="override"> send anyway (a command is pending)
   </label>
 </div>
+<div class="row">
+  <button id="unwedge">Un-wedge mailbox (clear queue + ping probe)</button>
+</div>
 <div id="banner"></div>
-<div class="muted">Sends go to the Sofar cloud mailbox (<code>telemetry:
-cellular</code>); the node executes them on its next wake. Acks appear at
-the backend with a 13&ndash;30&nbsp;min lag &mdash; &ldquo;awaiting
-node&rdquo; is normal for a while. Rate limit: 1 send/min per Spotter.</div>
+<div class="muted">&ldquo;On next wake&rdquo; arms the command locally and
+fires it the moment the target posts a fresh uplink row (unit awake), so
+the mailbox drain lands while the BM bus is on and the daemon is
+listening. Unacked commands are re-sent with the <em>same id</em>
+(idempotent) after the retry window, then flagged. Mailbox is strict
+FIFO with no expiry &mdash; if delivery is dead across retries, use
+Un-wedge (erases every pending cloud command for the target, then sends
+a fresh ping probe; watch for its ack). Rate limit: 1 send/min per
+Spotter.</div>
 
 <h2>Command history</h2>
 <div class="row">
@@ -103,20 +120,43 @@ async function refresh() {
     const tr = document.createElement("tr");
     const ackTxt = c.mismatch_detail ? ("⚠ " + c.mismatch_detail)
       : (c.ack ? JSON.stringify(c.ack.st) : "");
-    const sent = (c.history && c.history.length) ? "" : "";
+    let stateTxt = c.state.replace(/_/g, " ");
+    if (c.state === "awaiting_node") {
+      stateTxt += ` (try ${c.attempt || 1}/${st.max_attempts}` +
+        (c.next_retry_in_s !== undefined
+          ? `, retry in ${Math.ceil(c.next_retry_in_s / 60)} min)` : ")");
+    } else if (c.state === "scheduled_wake") {
+      stateTxt += ` <button class="cancelbtn" data-cid="${c.cmd_id}">` +
+        "cancel</button>";
+    } else if (c.state === "retry_exhausted") {
+      stateTxt = `NO ACK after ${c.attempt || "?"} attempts — ` +
+        "unit unreachable or mailbox wedged";
+    }
     tr.innerHTML =
       `<td>${c.cmd_id}</td>` +
       `<td>${c.spotter_id || ""}</td>` +
-      `<td>${c.c}${c.v === null || c.v === undefined ? "" : "=" + c.v}</td>` +
-      `<td class="state-${c.state}">${c.state.replace(/_/g, " ")}</td>` +
+      `<td>${c.c}${c.v === null || c.v === undefined ? "" : "=" + c.v}` +
+      `${c.cleared_queue ? " (queue cleared)" : ""}</td>` +
+      `<td class="state-${c.state}">${stateTxt}</td>` +
       `<td>${ackTxt}</td>` +
       `<td class="muted">${(c.history_utc || c.utc || "")}</td>`;
     tbody.appendChild(tr);
   });
-  const inFlight = st.in_flight.length > 0;
+  tbody.querySelectorAll(".cancelbtn").forEach(b => {
+    b.onclick = async () => {
+      const out = await api("/api/cancel", {method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({cmd_id: parseInt(b.dataset.cid, 10)})});
+      banner(out.error ? "err" : "ok",
+        out.error ? ("Cancel failed: " + out.error)
+                  : `Command ${out.cmd_id} cancelled.`);
+      refresh();
+    };
+  });
+  const pending = st.in_flight.length + (st.scheduled || []).length > 0;
   document.getElementById("overrideWrap").style.display =
-    inFlight ? "inline" : "none";
-  if (!inFlight) document.getElementById("override").checked = false;
+    pending ? "inline" : "none";
+  if (!pending) document.getElementById("override").checked = false;
   const lp = st.last_poll || {};
   document.getElementById("pollinfo").textContent = lp.utc
     ? `last ack poll ${lp.utc} (${lp.acks_seen} acks seen` +
@@ -129,25 +169,31 @@ async function send() {
   btn.disabled = true;
   try {
     const t = CFG.targets[document.getElementById("target").selectedIndex];
+    const mode = document.getElementById("mode").value;
     const body = {
       spotter_id: t.spotter_id, node_id: t.node_id,
       c: document.getElementById("cmd").value,
       v: parseInt(document.getElementById("val").value, 10),
       override_in_flight: document.getElementById("override").checked,
+      mode: mode,
     };
     const out = await api("/api/send", {method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(body)});
     if (out.error === "in_flight") {
-      banner("err", "Command(s) " + out.detail.join(", ") + " still awaiting " +
-        "an ack for this target. Re-sending stuffs the 2-slot Spotter " +
-        "queue — tick “send anyway” only if you mean it.");
+      banner("err", "Command(s) " + out.detail.join(", ") + " still pending " +
+        "for this target — one command in flight per Spotter (stacked " +
+        "commands are the mailbox-wedge risk). Tick “send anyway” only " +
+        "if you mean it.");
     } else if (out.error === "rate_limited") {
       banner("err", `Sofar allows 1 send/min per Spotter — retry in ` +
         `${out.retry_in_s}s.`);
     } else if (out.error) {
       banner("err", "Send failed: " + out.error + " " +
         JSON.stringify(out.detail || ""));
+    } else if (out.state === "scheduled_wake") {
+      banner("ok", `Command ${out.cmd_id} armed — it fires the moment ` +
+        `the unit's next uplink appears (bus on, daemon listening).`);
     } else if (out.http_status === 202) {
       banner("ok", `Cloud accepted command ${out.cmd_id} (HTTP 202) — ` +
         `queued for the node's next wake.`);
@@ -173,6 +219,28 @@ async function init() {
   document.getElementById("cmd").onchange = onCmdChange;
   document.getElementById("target").onchange = onTargetChange;
   document.getElementById("send").onclick = send;
+  document.getElementById("unwedge").onclick = async () => {
+    const t = CFG.targets[document.getElementById("target").selectedIndex];
+    if (!confirm(`Un-wedge ${t.spotter_id}?\n\nThis ERASES every pending ` +
+        `cloud-mailbox command for this Spotter (cannot be selective), ` +
+        `then enqueues a fresh ping probe. A command already dispatched ` +
+        `to the device may still arrive afterwards.`)) return;
+    const out = await api("/api/unwedge", {method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({spotter_id: t.spotter_id, node_id: t.node_id})});
+    if (out.error === "rate_limited") {
+      banner("err", `Rate limited — retry in ${out.retry_in_s}s.`);
+    } else if (out.error) {
+      banner("err", "Un-wedge failed: " + out.error);
+    } else if (out.http_status === 202) {
+      banner("ok", `Queue cleared; ping probe ${out.cmd_id} enqueued — ` +
+        `its ack (or console echo) confirms delivery is unwedged.`);
+    } else {
+      banner("err", `Sofar rejected the un-wedge (HTTP ${out.http_status}):` +
+        ` ${JSON.stringify(out.response)}`);
+    }
+    refresh();
+  };
   document.getElementById("pollnow").onclick = async () => {
     banner("ok", "Polling backend for acks…");
     await api("/api/poll_now", {method: "POST"});

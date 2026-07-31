@@ -124,6 +124,31 @@ def fetch_acks(spotter_id, token, start_iso, end_iso, timeout_s=45):
     return acks
 
 
+def fetch_latest_row_utc(spotter_id, token, hours=3.0, timeout_s=45):
+    """Newest sensor-data row timestamp (ISO string) in the window, or None.
+
+    Any row counts, not just acks — a fresh row means the unit is (or was
+    moments ago) awake and transmitting, which is the GUI's wake-detection
+    signal for aiming command sends at the bus-on window.
+    """
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    start = (now - timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    url = API + "?" + urlencode({
+        "spotterId": spotter_id, "startDate": start, "endDate": end,
+        "token": token,
+    })
+    with urlopen(url, timeout=timeout_s, context=_ssl_context()) as resp:
+        payload = json.load(resp)
+    latest = None
+    for entry in payload.get("data", []):
+        ts = entry.get("timestamp")
+        if ts and (latest is None or ts > latest):
+            latest = ts
+    return latest
+
+
 def fmt(ts, ack, node_id=None):
     err = f" e={ack['e']}" if "e" in ack else ""
     node = f" node={node_id}" if node_id else ""
