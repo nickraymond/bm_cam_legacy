@@ -94,9 +94,44 @@ was never delivered, with one anomaly (816):
      delivery leg is broken independent of our payloads/queue state → Sofar ticket.
    Historical E2E for delivered commands was ~50–66 min; syncs ≈ hourly.
 
-Result: (pending — watcher running against
-`~/spotter_logs/SPOT-33507C/console_20260731.log`, baseline: 0 "uptime" mentions,
-2 Rx checks at watch start.)
+**Result: DELIVERED.** 2026-07-31T04:26:14Z, ~21 min after enqueue:
+
+```text
+[SYS] [INFO] Remote message received(16)! "uptime
+id:36703
+"
+Uptime: 0.08 hours
+Command not recognised.  Enter 'help' to view a list of available commands.
+```
+
+**Root cause confirmed: wedged cloud FIFO mailbox (head-of-line blocking).**
+Clearing the queue restored delivery on SPOT-33507C. Additional findings:
+
+- Console signature of a mailbox delivery is `[SYS] [INFO] Remote message
+  received(N)!` — grep of all prior console logs (both spotters, 07-29/07-30):
+  **zero occurrences**, independently corroborating §2.
+- Sofar appends an `id:NNNNN` line to the delivered message (here `id:36703`;
+  the byte count includes it). It executes as an unrecognized console command —
+  harmless, but any future parser must expect it.
+- Delivery occurred while the BM bus was OFF (bus rail ~0.6 V) — a `bm pub`
+  delivered at such a moment is consumed with no listener. This is the phase-2
+  timing problem (Pi ingestion), distinct from the (now solved) delivery problem.
+- The 04:26Z sync ran ~5 min after yet another Spotter reboot (uptime 0.08 h at
+  delivery) — the Spotter reboots multiple times/day (source-7 pattern);
+  delivery survived it.
+
+3. 04:34Z — A/B payload test: `bm pub bmcam/cmd {"id":1017,"c":"ping"} 1 1`
+   enqueued (202) onto the now-clean queue. Watching for the
+   `Remote message received` signature and daemon ack. Result: (pending)
+
+Open items:
+
+- SPOT-31593C still wedged (control; never delivered — queue holds 900–915 and
+  possibly pre-Sprint10 items). Candidate fix: same `clear_command_queue`.
+- What wedged 33507C between 19:37Z and 23:04Z on 07-27 remains unproven (queue
+  is not introspectable; contents at wedge time are known only from our send
+  log). The 816-out-of-order delivery suggests the cloud queue can misbehave
+  under rapid multi-command load; treat "many pending commands" as a risk state.
 
 ## 6. Sources
 
