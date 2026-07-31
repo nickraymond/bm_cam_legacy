@@ -8,6 +8,9 @@ description: >
   the charging / thermal-fault conventions, and how to render the self-contained
   HTML dashboards. Use when asked to analyze, parse, or plot Spotter SD-card
   data, power logs, battery/thermal behavior, or to extend that analysis.
+  For bench bmcam000/bmcam003 energy-per-cycle comparisons, use the fast
+  path in §9 (repo tool tools/sd_bridge_ab_coplot.py) instead of rebuilding
+  the pipeline.
 ---
 
 # Nereus BM Spotter — SD-card data analysis
@@ -324,7 +327,47 @@ To regenerate from a new upload: point the `B=` base path at the new folder, run
 
 ---
 
-## 9. Quick reference — the pipeline in order
+## 9. Bench bmcam A/B — fast path (use the repo tool)
+
+For the common 2026-07+ bench question — "compare bmcam000 vs bmcam003 power /
+energy per cycle from SD dumps" — do NOT rebuild the pipeline from the recipes
+above. The repo `bm_cam_legacy` has a validated tool that does the whole job:
+
+```bash
+python3 tools/sd_bridge_ab_coplot.py \
+    --unit "bmcam003:<dump003>/bm/c3c564b91856226c:#2563eb" \
+    --unit "bmcam000:<dump000>/bm/0e582dd12c1e1480:#dc2626" \
+    --hours 10 --out-dir runs/power_review_<YYYYMMDD>
+```
+
+It parses the bridge addr-65 traces, finds complete bus-ON windows from the
+trace itself (threshold 0.05 W, ≤90 s gaps; edge partials dropped, not
+averaged), trapezoid-integrates Wh/cycle, and emits a self-contained
+interactive coplot HTML + per-cycle CSV + summary JSON + the 60 s-mean data
+JSON. See its docstring for conventions.
+
+Known bench topology (each Spotter chain is just bridge → camera unit; the
+full 4-node chain subtraction in §3 is for the field buoy, not the bench):
+
+| Spotter | bridge node (log the addr-65 of THIS one) | camera unit |
+|---|---|---|
+| SPOT-31593C | `0e582dd12c1e1480` | bmcam000 |
+| SPOT-33507C | `c3c564b91856226c` | bmcam003 |
+
+Why the bridge, not the camera node: the camera-side mote logs sparsely on
+SPOT-31593C (`transmitAggregations` differs between the Spotters), while the
+bridge trace is dense (10 s) on both, reads the downstream camera load, and
+drops to ~0 W in every bus-off window. Full rationale: design D9 in
+`tools/bridge_energy_per_cycle.py` — that sibling tool computes the same
+quantity from a live USB-console capture (no SD pull; agrees with SD to ~3 %).
+
+Sanity anchors (reproduce these before trusting new numbers): halted-Pi
+baseline reads 0.42–0.44 W at ~23.9 V; bmcam000 on 20/10 measured
+0.2256–0.2275 Wh/cycle across independent runs. Prior results:
+`runs/sprint10_overnight_20260729/` (pacing A/B) and
+`runs/power_review_20260730/` (schedule comparison, 15/15 vs 20/10).
+
+## 10. Quick reference — the pipeline in order
 
 1. `PWR.csv` (all prefixes) → buoy solar/batt/bus V·I, `solarP/busP/netP`, battT,
    `stat`/`fault`.

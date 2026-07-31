@@ -1,0 +1,37 @@
+{
+  "run": "power_review_20260730",
+  "purpose": "bmcam000 vs bmcam003 power comparison over the last 10 h of common SD-card coverage; Wh per cycle from the bridge addr-65 trace.",
+  "generated_utc": "2026-07-31T03:00:00Z",
+  "tool": "tools/sd_bridge_ab_coplot.py",
+  "command": "python3 tools/sd_bridge_ab_coplot.py --unit 'bmcam003:<bmcam003.zip>/bm/c3c564b91856226c:#2563eb' --unit 'bmcam000:<bmcam000.zip>/bm/0e582dd12c1e1480:#dc2626' --hours 10 --out-dir runs/power_review_20260730",
+  "sources": [
+    {
+      "file": "~/Downloads/bmcam000.zip",
+      "sha256": "48ff4489a30e03f9e7c72ae03ccd958c0315c71f352755d4c6ed8ea9fc9a2ef3",
+      "bytes": 47185920,
+      "description": "SPOT-31593C SD-card dump (hosts bmcam000); bridge node bm/0e582dd12c1e1480",
+      "coverage_utc": "2026-07-26T04:19:00Z .. 2026-07-31T02:21:24Z (addr-65)"
+    },
+    {
+      "file": "~/Downloads/bmcam003.zip",
+      "sha256": "cdd272600f74fbd738a42ec53402db005fd553e8e8a0a7bcb7939ae24cd127ff",
+      "bytes": 5347738,
+      "description": "SPOT-33507C SD-card dump (hosts bmcam003); bridge node bm/c3c564b91856226c",
+      "coverage_utc": "2026-07-26T23:12:57Z .. 2026-07-31T02:19:03Z (addr-65)"
+    }
+  ],
+  "window_utc": ["2026-07-30T16:19:03Z", "2026-07-31T02:19:03Z"],
+  "method_notes": [
+    "Bridge addr-65 chosen per tools/bridge_energy_per_cycle.py design D9: dense on both units, reads the downstream camera load, drops to ~0 W in bus-off windows.",
+    "Cycle = complete bus-ON window (power > 0.05 W, gaps <= 90 s tolerated); partial windows at the span edges dropped (bmcam000: 2 dropped).",
+    "Halted-Pi baseline (~0.42-0.44 W) charged to the cycle deliberately.",
+    "Schedules measured from the trace: bmcam003 ~14.8 min on / 30 min period (15/15), bmcam000 ~19.8 min on / 30 min period (20/10)."
+  ],
+  "artifacts": [
+    "ab_coplot.html",
+    "ab_coplot_data.json",
+    "ab_cycles.csv",
+    "ab_summary.json",
+    "RESULTS.md"
+  ]
+}
