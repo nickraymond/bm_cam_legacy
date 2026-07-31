@@ -3,8 +3,7 @@
   "configurations": [
     {
       "name": "bm-command-gui",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/bm-camera-commands-plan-1bba16/tools/bm_command_gui/server.py"],
+      "url": "http://localhost:8770",
       "port": 8770
     }
   ]
