@@ -1,0 +1,39 @@
+{
+  "window_utc": [
+    "2026-07-30T16:19:03Z",
+    "2026-07-31T02:19:03Z"
+  ],
+  "window_h": 10.0,
+  "on_w_threshold": 0.05,
+  "gap_s": 90,
+  "units": [
+    {
+      "label": "bmcam003",
+      "bridge_dir": "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-sprint-09-uart-throughput-22e3e7/8f654f20-2dbc-4b3e-bb24-433cd7955d8a/scratchpad/power_review/bmcam003/bm/c3c564b91856226c",
+      "n_complete_cycles": 20,
+      "n_partial_dropped": 0,
+      "wh_per_cycle": 0.1568,
+      "wh_total": 3.172,
+      "wh_per_h": 0.3172,
+      "on_min_mean": 14.83,
+      "period_min_mean": 30.0
+    },
+    {
+      "label": "bmcam000",
+      "bridge_dir": "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-sprint-09-uart-throughput-22e3e7/8f654f20-2dbc-4b3e-bb24-433cd7955d8a/scratchpad/power_review/bmcam000/bm/0e582dd12c1e1480",
+      "n_complete_cycles": 19,
+      "n_partial_dropped": 2,
+      "wh_per_cycle": 0.2275,
+      "wh_total": 4.571,
+      "wh_per_h": 0.4571,
+      "on_min_mean": 19.83,
+      "period_min_mean": 30.0
+    }
+  ],
+  "savings": {
+    "lower_unit": "bmcam003",
+    "pct_per_cycle": 31.1,
+    "wh_per_cycle": 0.0707,
+    "ratio": 1.45
+  }
+}
