@@ -1,18 +1,28 @@
-# bmcam001 production schedule profile.
-# bmcam001 uses the Pi hardware RTC because its older BM serial bridge firmware
-# does not reliably provide spotter/utc-time messages.
+# bmcam001 field profile — REBUILT 2026-07-31 during the Florida field
+# update (unit moved from legacy HEIC runtime to RC progressive-JPEG,
+# main 0d03a62). Matches the YAML deployed live to the unit that day,
+# including the 10:00-15:00 window set after the verified live transmit.
+# Deltas from BM_Devel_Pi/camera_schedule.yaml: time_source rtc,
+# no spotter clock set, America/New_York, 10:00-15:00 window,
+# capture_mode progressive_jpeg, carried-over camera controls (manual
+# focus 1.82). power_halt stays disabled (bmcam001 does not self-halt).
+# Local deployment schedule for legacy BM camera production runtime.
+#
+# time_source controls where the app gets UTC for the transmit-window decision:
+#   spotter_utc -> subscribe to BM/Spotter topic spotter/utc-time. Use for bmcam002.
+#   rtc         -> set/read Linux time from Pi hardware RTC using hwclock. Use for bmcam001.
+#   system      -> bench-only fallback; not recommended for production.
 time_source: "rtc"
 
-timezone_preset: "sf"
-timezone: "America/Los_Angeles"
+timezone_preset: ""
+timezone: "America/New_York"
 
 enforce_time_window: true
 enforce_spotter_time_window: true
 
-# Development window. Change to 12:00-15:00 for reef production if desired.
 transmit_window:
-  start: "00:01"
-  end: "23:59"
+  start: "10:00"
+  end: "15:00"
 
 set_system_clock_from_spotter: false
 spotter_time_timeout_seconds: 60
@@ -25,6 +35,156 @@ rtc:
   set_system_clock_from_rtc: true
   require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
 
+# Legacy Picamera2 fallback settings. These remain for rollback by setting
+# image_pipeline.enabled: false.
 image:
   resolution_key: "720p"
   image_quality: 25
+
+# DEV bmcam000 libcamera/rpicam image pipeline.
+# Coordinate system: crop x/y/w/h are in native full JPEG coordinates.
+# Spatial density is the output size after cropping/downsampling.
+# Validated bmcam000 production candidate:
+# native 4608x2592 -> fixed 3072x1728 crop -> 2688x1512 output -> HEIC Q20.
+# 3072x1728 output captured successfully, but HEIC encode was unstable on bmcam000.
+image_pipeline:
+  enabled: true
+  capture_backend: "rpicam"
+
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+
+  crop:
+    mode: "fixed"
+    x: 768
+    y: 432
+    w: 3072
+    h: 1728
+
+  spatial:
+    output_width: 2688
+    output_height: 1512
+    resample: "lanczos"
+
+  heic:
+    quality: 20
+
+  # bmcam001 field controls (carried over from the unit's previous deployed
+  # config): manual focus tuned for the reef housing, AWB/AE auto.
+  camera_controls:
+    enabled: true
+    focus:
+      enabled: true
+      mode: "manual"
+      lens_position: 1.82
+      range: "normal"
+      speed: "normal"
+    white_balance:
+      enabled: true
+      mode: "auto"
+    exposure:
+      enabled: true
+      mode: "auto"
+    image_processing:
+      enabled: false
+
+# Sprint08 progressive-JPEG release candidate (RC). Config-gated:
+#   heic             -> known-good production path (main_pi_camera.py), unchanged
+#   progressive_jpeg -> RC entry script (rc_progressive_jpeg.py)
+capture_mode: "progressive_jpeg"
+
+# RC quality ladder + cycle budget (Sprint07 Pi-validated on bmcam000; see
+# sprints/Sprint08_progressive_jpeg_rc.md section 4).
+# Ladder = encode at q_max, step down by quality.step until q_min:
+# defaults give 15 -> 13 -> 11 -> 9. q17+ is dead (206 msgs > 195-msg cap).
+# Pacing/chunking intentionally live only in bm_serial below (single source
+# of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
+progressive_jpeg:
+  max_run_time_min: 16     # field-trial setting (Nick 2026-07-25); S07 measured 16.38 min at the 195 cap
+  message_cap: 195         # field-tested hard cap on messages per image
+  quality:
+    # Field-trial multi-segment ladder (Nick 2026-07-25): 90->30 by 10,
+    # ->15 by 5, ->9 by 2. The adaptive selector steps down until the frame
+    # fits the cap AND the remaining budget, so a high start is safe.
+    # When ladder is set it overrides q_max/q_min/step below.
+    ladder: "90,80,70,60,50,40,30,25,20,15,13,11,9"
+    q_max: 15              # fallback uniform ladder (S07-validated) if ladder is unset
+    q_min: 9
+    step: 2
+  # RC frozen geometry (S07 byte-validated), separate from the HEIC
+  # image_pipeline crop so flipping capture_mode never edits shared geometry.
+  # Coordinates are NATIVE 4608x2592 sensor-equivalent. The default IS the
+  # exact center crop ((4608-1600)/2, (2592-900)/2); the crop is fixed config
+  # constants — no on-device tag detection. Card-centered bench alternative:
+  # x: 1467, y: 1255.
+  crop:
+    x: 1504
+    y: 846
+    w: 1600
+    h: 900
+  output_width: 1000       # lanczos output width; height follows crop aspect (562)
+
+# RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
+# dry_run true logs the halt intent without halting (bench-safe default).
+# Recovery from a real halt is a manual power cycle.
+power_halt:
+  enabled: false
+  dry_run: true
+  mode: "halt"             # halt | poweroff
+  script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
+
+# Bristlemouth/Sofar image-transfer settings.
+# network_type:
+#   0x01 / 1 = legacy sat/cell fallback queue
+#   0x02 / 2 = cellular-only queue
+# Sprint09-measured: 384 chars/msg (<=400 B fast-path payload), 1.0 s/msg (drain-rate floor +25%).
+bm_serial:
+  network_type: 0x02
+  image_buffer_size: 384
+  image_transmit_delay_seconds: 1.0
+
+# Sprint10 remote command daemon (bm_commands branch). Disabled default
+# is byte-identical to the Sprint08/09 cycle (D14). When enabled:
+#   - persisted command state (state_path) OVERLAYS the values above
+#     (progressive_jpeg.crop, camera_controls, max_run_time_min) — this
+#     file is never rewritten; delete the state file to restore stock.
+#   - with --transmit (or bench-only --bench-commands) a listener owns
+#     the UART for the whole cycle and acks commands on the uplink.
+# topic is provisional until Q11/Phase B verification.
+#
+# Sprint11: pre_capture_listen_s is GONE (C1/D2) — the listen moved AFTER
+# the transmit, where the mailbox drain actually arrives (finding 006).
+# Leaving the old key in a config is harmless but prints a loud warning.
+bm_commands:
+  enabled: false
+  topic: "bmcam/cmd"
+  post_transmit_listen_s: 150      # C4/D6 bounded tail before the halt
+  defer_acks_during_transmit: false  # C3/D5: keep acks out of the burst
+  state_path: "/home/pi/BM_Devel_Pi/bm_command_state.json"
+
+# Sprint11 C2 — phase-aware transmit scheduling (rc_transmit_phase.py).
+# Blackouts sit on an absolute 5-minute UTC grid (Sprint10 Phase E: 83 % of
+# gaps within 30 s of a boundary, D ~ 9 s median, 24 s at p90). With this
+# enabled the cycle waits so the whole burst lands inside one clean lane:
+#     [boundary + post_guard, next boundary - pre_guard]  = 250 s usable
+# CONFIG RULE (D3): image_transmit_delay_seconds x message_cap <= 250 s.
+#   1.0 s -> 250 msgs OK    1.25 s -> 200 OK
+#   1.5 s -> 166 (a 194-msg image does NOT fit)   2.0 s -> 125
+# Disabled == pre-Sprint11 unscheduled transmit. A failed Spotter clock read
+# also degrades to exactly that, loudly (D1).
+transmit_phase:
+  enabled: false
+  grid_seconds: 300
+  post_boundary_guard_s: 30
+  pre_boundary_guard_s: 20
+  max_wait_s: 300
+
+# Future hardening, not enabled in this patch:
+# camera:
+#   exposure:
+#   white_balance:
+#   focus:
+#   image_processing:
+#   capture:
