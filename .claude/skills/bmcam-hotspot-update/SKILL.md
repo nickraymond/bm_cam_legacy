@@ -87,9 +87,13 @@ tree) per the bmcam-field-update skill. Extra facts from bmcam001:
   hand-patch around it.
 - Device deltas that matter: bmcam001 = `time_source: rtc` +
   `set_system_clock_from_spotter: false` (older bridge fw, good RTC);
-  bmcam002 = `spotter_utc` (newer fw). Both: America/New_York, window
+  all others = `spotter_utc`. All units: America/New_York, window
   10:00–15:00, `capture_mode: progressive_jpeg`, bm_serial 384/1.0,
-  power_halt disabled (these units do not self-halt), manual focus 1.82.
+  manual focus 1.82, and (production model, 2026-07-31) REAL power_halt
+  — every unit halts at cycle end; an external power cycle wakes it.
+  With real halt, ANY cycle (even a bench --transmit test) halts the
+  box: re-arm cron BEFORE the validation transmit, and treat SSH death
+  ~2 min after the transmit finishes as SUCCESS.
 - Remote commands can NOT change the daily transmit window — the v2 command
   table (`roi foc awb exp win txd cap src ping`) has no window command;
   `win` is the per-cycle run-time budget. Window changes need SSH (or a
@@ -129,8 +133,17 @@ After the hotspot drops, the unit going dark on Tailscale is NORMAL.
 
 | unit | Spotter | time_source | notes |
 |---|---|---|---|
-| bmcam001 | SPOT-33361C | rtc | Florida; recovered + RC runtime 2026-07-31 |
-| bmcam002 | (ask Nick) | spotter_utc | same site; RC update planned |
+| bmcam001 | SPOT-33361C | rtc | Florida (Sombrero); node 0x57ef9a36411412f7 |
+| bmcam002 | SPOT-33361C | spotter_utc | same Spotter; node 0x2f58e75e9f6554b5 |
+| bmcam000 | SPOT-31593C | spotter_utc | bench; production config 2026-07-31 |
+| bmcam003 | SPOT-33507C | spotter_utc | bench; production config 2026-07-31 |
+
+Halt status: bmcam000/003 run REAL halt now; bmcam001/002 still have
+halt disabled on-device — apply at the next hotspot session:
+`ssh pi@bmcamNNN 'cd /home/pi/BM_Devel_Pi && cp camera_schedule.yaml \
+  camera_schedule.yaml.before_halt_enable && sed -i \
+  -e "/^power_halt:/,/^[a-z_]/{s/enabled: false/enabled: true/; \
+  s/dry_run: true/dry_run: false/;}" camera_schedule.yaml'`
 
 Mac-side python (python.org build) lacks root certs — use `curl` with a
 `-K` config file (keeps the token off argv) for Sofar API queries.
