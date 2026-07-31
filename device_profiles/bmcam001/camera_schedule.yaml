@@ -130,8 +130,9 @@ progressive_jpeg:
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.
 power_halt:
-  enabled: false
-  dry_run: true
+  enabled: true            # PRODUCTION (2026-07-31): real halt at cycle end.
+  dry_run: false           # NOT yet applied on the live unit — needs the next
+                           # hotspot session (two-line sed, see PR notes).
   mode: "halt"             # halt | poweroff
   script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
 

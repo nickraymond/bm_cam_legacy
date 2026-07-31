@@ -1,7 +1,6 @@
-# bmcam002 field profile — created 2026-07-31 alongside the bmcam001
-# Florida field update. Same settings as bmcam001 EXCEPT time_source:
-# bmcam002's newer BM bridge firmware reliably receives spotter/utc-time,
-# so it keeps spotter_utc (bmcam001 needs rtc; see its profile).
+# bmcam003 production profile — 2026-07-31 fleet standardization.
+# Identical to bmcam002's field config plus REAL power_halt (production
+# model: every unit halts at cycle end; external power cycle wakes it).
 # Local deployment schedule for legacy BM camera production runtime.
 #
 # time_source controls where the app gets UTC for the transmit-window decision:
@@ -126,9 +125,8 @@ progressive_jpeg:
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.
 power_halt:
-  enabled: true            # PRODUCTION (2026-07-31): real halt at cycle end.
-  dry_run: false           # NOT yet applied on the live unit — needs the next
-                           # hotspot session (two-line sed, see PR notes).
+  enabled: true            # PRODUCTION: real halt at cycle end (2026-07-31)
+  dry_run: false
   mode: "halt"             # halt | poweroff
   script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
 
