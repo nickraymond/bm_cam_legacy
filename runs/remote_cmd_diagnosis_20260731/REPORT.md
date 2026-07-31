@@ -133,6 +133,38 @@ Open items:
   log). The 816-out-of-order delivery suggests the cloud queue can misbehave
   under rapid multi-command load; treat "many pending commands" as a risk state.
 
+## 5b. Phase-2 finding: mailbox drains are decoupled from the unit's bursts
+
+Console record 2026-07-31 (SPOT-33507C): mailbox Rx checks at 03:24, 04:25,
+05:22 — ~hourly `[MS]` syncs (anchor resets on Spotter reboots; "source 7"
+reboots observed 03:21 and 04:21), NOT after image bursts. With bus-on
+windows at :00–:15/:30–:45, every drain landed bus-OFF: ids 1016 and 1017
+were both delivered onto a ~0.15–0.6 V bus and consumed unheard. The
+Sprint10 design assumption "the pre-capture listen window catches what the
+mailbox drains at wake" is wrong on firmware v2.16.6 — delivery timing is
+the Spotter's sync schedule, not the unit's transmit.
+
+Daemon-side facts (corrected 2026-07-31, per Nick + command_daemon.py):
+the reader thread owns RX from process start, so the daemon listens for
+its ENTIRE lifetime (boot→capture→transmit→150 s tail→halt), applying
+mid-transmit commands in pacing slots (D12). Listening coverage is most
+of the bus-on window already — no Pi-side change needed. The gap is purely
+that drains occur while the whole unit is unpowered.
+
+Fix directions (all preserve the short on-time; decision pending):
+- Phase-shift the bus schedule so an on-window covers the sync minute
+  (bridgePowerController keys known: sampleIntervalMs/sampleDurationMs;
+  windows anchor to epoch-round times; no phase/offset key confirmed yet —
+  `bridge cfg status` enumeration pending Nick's OK).
+- If no phase key: non-hour-divisor interval (e.g. 29 min) precesses the
+  window across the sync minute; retry engine converges within hours.
+- Sofar ticket: inbound check per transmit session (docs imply it; firmware
+  doesn't do it), sync cadence configurability, hourly source-7 reboots.
+
+GUI mitigations implemented (commit fd12b23): retry-until-ack (same id,
+idempotent), one pending command per spotter, wake-aimed send mode,
+un-wedge button, retry_exhausted alarm.
+
 ## 6. Sources
 
 - Send audit: `runs/sofar_command_sends.jsonl` (main checkout; includes the 04:05Z
