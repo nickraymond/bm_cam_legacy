@@ -1,0 +1,242 @@
+[2026-07-29T21:04:47Z] run_start: units=['SPOT-33507C', 'SPOT-31593C'] sweep=[1, 2, 3, 0, 4] until_utc=03:30 dry_run=False
+[2026-07-29T21:04:47Z] deadline_resolved: until_utc=03:30 deadline_utc=2026-07-30T03:30:00Z hours_from_now=6.42
+[2026-07-29T21:30:01Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=1 roi=1 label=widest (full frame 4608x2592)
+[2026-07-29T21:30:03Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=1 roi=1 label=widest (full frame 4608x2592)
+[2026-07-29T21:30:29Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-29T21:30:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=1
+[2026-07-29T21:30:35Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-29T21:30:35Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=1
+[2026-07-29T21:30:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=2
+[2026-07-29T21:30:55Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=2
+[2026-07-29T21:31:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=3
+[2026-07-29T21:31:15Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=3
+[2026-07-29T21:31:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=4
+[2026-07-29T21:31:35Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=4
+[2026-07-29T21:31:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=5
+[2026-07-29T21:31:55Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=5
+[2026-07-29T21:32:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=6
+[2026-07-29T21:32:15Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=6
+[2026-07-29T21:32:30Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=7
+[2026-07-29T21:32:36Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=7
+[2026-07-29T21:32:50Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=8
+[2026-07-29T21:32:56Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=8
+[2026-07-29T21:33:10Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=9
+[2026-07-29T21:33:16Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=9
+[2026-07-29T21:33:30Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=10
+[2026-07-29T21:33:36Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=10
+[2026-07-29T21:33:50Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=11
+[2026-07-29T21:33:56Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=11
+[2026-07-29T21:34:10Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=12
+[2026-07-29T21:34:16Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=12
+[2026-07-29T21:34:30Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=13
+[2026-07-29T21:34:36Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=13
+[2026-07-29T21:34:50Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=14
+[2026-07-29T21:34:56Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=14
+[2026-07-29T21:35:10Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=15
+[2026-07-29T21:35:16Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=15
+[2026-07-29T21:35:30Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=16
+[2026-07-29T21:35:36Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=16
+[2026-07-29T21:35:50Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=17
+[2026-07-29T21:35:56Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=17
+[2026-07-29T21:36:10Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 attempt=18
+[2026-07-29T21:36:16Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 attempt=18
+[2026-07-29T21:48:05Z] cmd_no_ack: spot=SPOT-31593C unit=bmcam000 id=4201 roi=1 waited_s=1101 note=no ack this cycle; sweep continues
+[2026-07-29T21:48:11Z] cmd_no_ack: spot=SPOT-33507C unit=bmcam003 id=4200 roi=1 waited_s=1101 note=no ack this cycle; sweep continues
+[2026-07-29T22:00:04Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=2 roi=2 label=wide 3072x1728
+[2026-07-29T22:00:04Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=2 roi=2 label=wide 3072x1728
+[2026-07-29T22:00:28Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-29T22:00:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=1
+[2026-07-29T22:00:34Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-29T22:00:34Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=1
+[2026-07-29T22:00:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=2
+[2026-07-29T22:00:54Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=2
+[2026-07-29T22:01:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=3
+[2026-07-29T22:01:14Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=3
+[2026-07-29T22:01:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=4
+[2026-07-29T22:01:34Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=4
+[2026-07-29T22:01:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=5
+[2026-07-29T22:01:54Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=5
+[2026-07-29T22:02:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=6
+[2026-07-29T22:02:15Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=6
+[2026-07-29T22:02:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=7
+[2026-07-29T22:02:35Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=7
+[2026-07-29T22:02:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=8
+[2026-07-29T22:02:55Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=8
+[2026-07-29T22:03:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=9
+[2026-07-29T22:03:15Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4202 roi=2 attempt=9
+[2026-07-29T22:03:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=10
+[2026-07-29T22:03:31Z] ack: spot=SPOT-33507C unit=bmcam003 id=4202 ok=1 roi=2 tries=9
+[2026-07-29T22:03:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=11
+[2026-07-29T22:04:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=12
+[2026-07-29T22:04:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=13
+[2026-07-29T22:04:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=14
+[2026-07-29T22:05:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=15
+[2026-07-29T22:05:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=16
+[2026-07-29T22:05:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=17
+[2026-07-29T22:06:10Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 attempt=18
+[2026-07-29T22:18:04Z] cmd_no_ack: spot=SPOT-31593C unit=bmcam000 id=4203 roi=2 waited_s=1101 note=no ack this cycle; sweep continues
+[2026-07-29T22:30:01Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=3 roi=3 label=mid 2304x1296
+[2026-07-29T22:30:03Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=3 roi=3 label=mid 2304x1296
+[2026-07-29T22:30:27Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-29T22:30:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=1
+[2026-07-29T22:30:33Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-29T22:30:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=1
+[2026-07-29T22:30:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=2
+[2026-07-29T22:30:54Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=2
+[2026-07-29T22:31:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=3
+[2026-07-29T22:31:14Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=3
+[2026-07-29T22:31:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=4
+[2026-07-29T22:31:34Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=4
+[2026-07-29T22:31:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=5
+[2026-07-29T22:31:54Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=5
+[2026-07-29T22:32:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=6
+[2026-07-29T22:32:14Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=6
+[2026-07-29T22:32:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=7
+[2026-07-29T22:32:34Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=7
+[2026-07-29T22:32:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=8
+[2026-07-29T22:32:54Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=8
+[2026-07-29T22:33:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=9
+[2026-07-29T22:33:14Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4204 roi=3 attempt=9
+[2026-07-29T22:33:28Z] ack: spot=SPOT-33507C unit=bmcam003 id=4204 ok=1 roi=3 tries=9
+[2026-07-29T22:33:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=10
+[2026-07-29T22:33:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=11
+[2026-07-29T22:34:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=12
+[2026-07-29T22:34:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=13
+[2026-07-29T22:34:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=14
+[2026-07-29T22:35:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=15
+[2026-07-29T22:35:29Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=16
+[2026-07-29T22:35:49Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=17
+[2026-07-29T22:36:09Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 attempt=18
+[2026-07-29T22:48:04Z] cmd_no_ack: spot=SPOT-31593C unit=bmcam000 id=4205 roi=3 waited_s=1101 note=no ack this cycle; sweep continues
+[2026-07-29T23:00:01Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=4 roi=0 label=default 1600x900
+[2026-07-29T23:00:03Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=4 roi=0 label=default 1600x900
+[2026-07-29T23:00:27Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-29T23:00:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=1
+[2026-07-29T23:00:33Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-29T23:00:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=1
+[2026-07-29T23:00:47Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=2
+[2026-07-29T23:00:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=2
+[2026-07-29T23:01:07Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=3
+[2026-07-29T23:01:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=3
+[2026-07-29T23:01:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=4
+[2026-07-29T23:01:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=4
+[2026-07-29T23:01:47Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=5
+[2026-07-29T23:01:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=5
+[2026-07-29T23:02:07Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=6
+[2026-07-29T23:02:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=6
+[2026-07-29T23:02:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=7
+[2026-07-29T23:02:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=7
+[2026-07-29T23:02:47Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=8
+[2026-07-29T23:02:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=8
+[2026-07-29T23:03:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=9
+[2026-07-29T23:03:14Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4206 roi=0 attempt=9
+[2026-07-29T23:03:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=10
+[2026-07-29T23:03:30Z] ack: spot=SPOT-33507C unit=bmcam003 id=4206 ok=1 roi=0 tries=9
+[2026-07-29T23:03:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=11
+[2026-07-29T23:04:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=12
+[2026-07-29T23:04:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=13
+[2026-07-29T23:04:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=14
+[2026-07-29T23:05:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=15
+[2026-07-29T23:05:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=16
+[2026-07-29T23:05:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=17
+[2026-07-29T23:06:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 attempt=18
+[2026-07-29T23:18:03Z] cmd_no_ack: spot=SPOT-31593C unit=bmcam000 id=4207 roi=0 waited_s=1102 note=no ack this cycle; sweep continues
+[2026-07-29T23:30:00Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=5 roi=4 label=max detail 1000x562
+[2026-07-29T23:30:02Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=5 roi=4 label=max detail 1000x562
+[2026-07-29T23:30:26Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-29T23:30:26Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=1
+[2026-07-29T23:30:32Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-29T23:30:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=1
+[2026-07-29T23:30:46Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=2
+[2026-07-29T23:30:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=2
+[2026-07-29T23:31:07Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=3
+[2026-07-29T23:31:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=3
+[2026-07-29T23:31:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=4
+[2026-07-29T23:31:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=4
+[2026-07-29T23:31:47Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=5
+[2026-07-29T23:31:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=5
+[2026-07-29T23:32:07Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=6
+[2026-07-29T23:32:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=6
+[2026-07-29T23:32:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=7
+[2026-07-29T23:32:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=7
+[2026-07-29T23:32:47Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=8
+[2026-07-29T23:32:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=8
+[2026-07-29T23:33:07Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=9
+[2026-07-29T23:33:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=9
+[2026-07-29T23:33:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=10
+[2026-07-29T23:33:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4208 roi=4 attempt=10
+[2026-07-29T23:33:47Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=11
+[2026-07-29T23:33:51Z] ack: spot=SPOT-33507C unit=bmcam003 id=4208 ok=1 roi=4 tries=10
+[2026-07-29T23:34:07Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=12
+[2026-07-29T23:34:27Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=13
+[2026-07-29T23:34:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=14
+[2026-07-29T23:35:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=15
+[2026-07-29T23:35:28Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=16
+[2026-07-29T23:35:48Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=17
+[2026-07-29T23:36:08Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 attempt=18
+[2026-07-29T23:48:02Z] cmd_no_ack: spot=SPOT-31593C unit=bmcam000 id=4209 roi=4 waited_s=1101 note=no ack this cycle; sweep continues
+[2026-07-30T00:00:02Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=6 roi=1 label=widest (full frame 4608x2592)
+[2026-07-30T00:00:04Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=6 roi=1 label=widest (full frame 4608x2592)
+[2026-07-30T00:00:26Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-30T00:00:26Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4211 roi=1 attempt=1
+[2026-07-30T00:00:32Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-30T00:00:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=1
+[2026-07-30T00:00:40Z] ack: spot=SPOT-31593C unit=bmcam000 id=4211 ok=1 roi=1 tries=1
+[2026-07-30T00:00:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=2
+[2026-07-30T00:01:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=3
+[2026-07-30T00:01:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=4
+[2026-07-30T00:01:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=5
+[2026-07-30T00:02:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=6
+[2026-07-30T00:02:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=7
+[2026-07-30T00:02:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=8
+[2026-07-30T00:03:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=9
+[2026-07-30T00:03:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4210 roi=1 attempt=10
+[2026-07-30T00:03:35Z] ack: spot=SPOT-33507C unit=bmcam003 id=4210 ok=1 roi=1 tries=10
+[2026-07-30T00:30:02Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=7 roi=2 label=wide 3072x1728
+[2026-07-30T00:30:04Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=7 roi=2 label=wide 3072x1728
+[2026-07-30T00:30:26Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-30T00:30:26Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4213 roi=2 attempt=1
+[2026-07-30T00:30:32Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-30T00:30:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=1
+[2026-07-30T00:30:40Z] ack: spot=SPOT-31593C unit=bmcam000 id=4213 ok=1 roi=2 tries=1
+[2026-07-30T00:30:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=2
+[2026-07-30T00:31:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=3
+[2026-07-30T00:31:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=4
+[2026-07-30T00:31:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=5
+[2026-07-30T00:32:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=6
+[2026-07-30T00:32:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=7
+[2026-07-30T00:32:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=8
+[2026-07-30T00:33:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4212 roi=2 attempt=9
+[2026-07-30T00:33:31Z] ack: spot=SPOT-33507C unit=bmcam003 id=4212 ok=1 roi=2 tries=9
+[2026-07-30T01:00:00Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=8 roi=3 label=mid 2304x1296
+[2026-07-30T01:00:02Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=8 roi=3 label=mid 2304x1296
+[2026-07-30T01:00:26Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-30T01:00:26Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4215 roi=3 attempt=1
+[2026-07-30T01:00:32Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-30T01:00:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=1
+[2026-07-30T01:00:38Z] ack: spot=SPOT-31593C unit=bmcam000 id=4215 ok=1 roi=3 tries=1
+[2026-07-30T01:00:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=2
+[2026-07-30T01:01:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=3
+[2026-07-30T01:01:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=4
+[2026-07-30T01:01:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=5
+[2026-07-30T01:02:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=6
+[2026-07-30T01:02:33Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=7
+[2026-07-30T01:02:53Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=8
+[2026-07-30T01:03:13Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4214 roi=3 attempt=9
+[2026-07-30T01:03:27Z] ack: spot=SPOT-33507C unit=bmcam003 id=4214 ok=1 roi=3 tries=9
+[2026-07-30T01:30:02Z] cycle_detected: spot=SPOT-33507C unit=bmcam003 cycle=9 roi=0 label=default 1600x900
+[2026-07-30T01:30:02Z] cycle_detected: spot=SPOT-31593C unit=bmcam000 cycle=9 roi=0 label=default 1600x900
+[2026-07-30T01:30:26Z] wake_status: spot=SPOT-31593C unit=bmcam000 note=node subscribed and receptive
+[2026-07-30T01:30:26Z] cmd_sent: spot=SPOT-31593C unit=bmcam000 id=4217 roi=0 attempt=1
+[2026-07-30T01:30:32Z] wake_status: spot=SPOT-33507C unit=bmcam003 note=node subscribed and receptive
+[2026-07-30T01:30:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=1
+[2026-07-30T01:30:38Z] ack: spot=SPOT-31593C unit=bmcam000 id=4217 ok=1 roi=0 tries=1
+[2026-07-30T01:30:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=2
+[2026-07-30T01:31:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=3
+[2026-07-30T01:31:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=4
+[2026-07-30T01:31:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=5
+[2026-07-30T01:32:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=6
+[2026-07-30T01:32:32Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=7
+[2026-07-30T01:32:52Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=8
+[2026-07-30T01:33:12Z] cmd_sent: spot=SPOT-33507C unit=bmcam003 id=4216 roi=0 attempt=9
+[2026-07-30T01:33:28Z] ack: spot=SPOT-33507C unit=bmcam003 id=4216 ok=1 roi=0 tries=9

@@ -1,0 +1,92 @@
+{"utc": "2026-07-29T07:48:35Z", "kind": "run_start", "units": ["SPOT-33507C", "SPOT-31593C"], "sweep": [1, 2, 3, 0, 4], "until_utc": "14:00", "dry_run": false}
+{"utc": "2026-07-29T07:49:45Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 1, "roi": 1, "label": "widest (full frame 4608x2592)"}
+{"utc": "2026-07-29T07:49:57Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 1, "roi": 1, "label": "widest (full frame 4608x2592)"}
+{"utc": "2026-07-29T07:50:45Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 3000, "roi": 1, "attempt": 1}
+{"utc": "2026-07-29T07:50:51Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T07:50:51Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 3000, "ok": 1, "roi": 1, "tries": 1}
+{"utc": "2026-07-29T07:50:55Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T07:50:55Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 3001, "roi": 1, "attempt": 1}
+{"utc": "2026-07-29T07:50:57Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 3001, "ok": 1, "roi": 1, "tries": 1}
+{"utc": "2026-07-29T08:00:00Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 2, "roi": 2, "label": "wide 3072x1728"}
+{"utc": "2026-07-29T08:00:02Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 2, "roi": 2, "label": "wide 3072x1728"}
+{"utc": "2026-07-29T08:00:56Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T08:00:56Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 3002, "roi": 2, "attempt": 1}
+{"utc": "2026-07-29T08:00:58Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 3002, "ok": 1, "roi": 2, "tries": 1}
+{"utc": "2026-07-29T08:01:02Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T08:01:02Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 3003, "roi": 2, "attempt": 1}
+{"utc": "2026-07-29T08:01:04Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 3003, "ok": 1, "roi": 2, "tries": 1}
+{"utc": "2026-07-29T08:30:00Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 3, "roi": 3, "label": "mid 2304x1296"}
+{"utc": "2026-07-29T08:30:02Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 3, "roi": 3, "label": "mid 2304x1296"}
+{"utc": "2026-07-29T08:30:56Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T08:30:56Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 3004, "roi": 3, "attempt": 1}
+{"utc": "2026-07-29T08:30:58Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 3004, "ok": 1, "roi": 3, "tries": 1}
+{"utc": "2026-07-29T08:31:02Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T08:31:02Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 3005, "roi": 3, "attempt": 1}
+{"utc": "2026-07-29T08:31:04Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 3005, "ok": 1, "roi": 3, "tries": 1}
+{"utc": "2026-07-29T09:26:35Z", "kind": "ABORT", "reason": "SPOT-31593C: console silent for 45 min"}
+{"utc": "2026-07-29T09:35:22Z", "kind": "run_start", "units": ["SPOT-33507C", "SPOT-31593C"], "sweep": [1, 2, 3, 0, 4], "until_utc": "14:00", "dry_run": false}
+{"utc": "2026-07-29T10:00:00Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 1, "roi": 1, "label": "widest (full frame 4608x2592)"}
+{"utc": "2026-07-29T10:00:00Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 1, "roi": 1, "label": "widest (full frame 4608x2592)"}
+{"utc": "2026-07-29T10:00:54Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T10:00:54Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4001, "roi": 1, "attempt": 1}
+{"utc": "2026-07-29T10:00:56Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4001, "ok": 1, "roi": 1, "tries": 1}
+{"utc": "2026-07-29T10:01:00Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T10:01:00Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4000, "roi": 1, "attempt": 1}
+{"utc": "2026-07-29T10:01:02Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4000, "ok": 1, "roi": 1, "tries": 1}
+{"utc": "2026-07-29T10:30:00Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 2, "roi": 2, "label": "wide 3072x1728"}
+{"utc": "2026-07-29T10:30:04Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 2, "roi": 2, "label": "wide 3072x1728"}
+{"utc": "2026-07-29T10:30:54Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T10:30:54Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4002, "roi": 2, "attempt": 1}
+{"utc": "2026-07-29T10:30:56Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4002, "ok": 1, "roi": 2, "tries": 1}
+{"utc": "2026-07-29T10:31:00Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T10:31:00Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4003, "roi": 2, "attempt": 1}
+{"utc": "2026-07-29T10:31:02Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4003, "ok": 1, "roi": 2, "tries": 1}
+{"utc": "2026-07-29T11:00:00Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 3, "roi": 3, "label": "mid 2304x1296"}
+{"utc": "2026-07-29T11:00:04Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 3, "roi": 3, "label": "mid 2304x1296"}
+{"utc": "2026-07-29T11:00:54Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T11:00:54Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4004, "roi": 3, "attempt": 1}
+{"utc": "2026-07-29T11:00:56Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4004, "ok": 1, "roi": 3, "tries": 1}
+{"utc": "2026-07-29T11:01:00Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T11:01:00Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4005, "roi": 3, "attempt": 1}
+{"utc": "2026-07-29T11:01:02Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4005, "ok": 1, "roi": 3, "tries": 1}
+{"utc": "2026-07-29T11:30:00Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 4, "roi": 0, "label": "default 1600x900"}
+{"utc": "2026-07-29T11:30:04Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 4, "roi": 0, "label": "default 1600x900"}
+{"utc": "2026-07-29T11:30:54Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T11:30:54Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4006, "roi": 0, "attempt": 1}
+{"utc": "2026-07-29T11:30:56Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4006, "ok": 1, "roi": 0, "tries": 1}
+{"utc": "2026-07-29T11:31:00Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T11:31:00Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4007, "roi": 0, "attempt": 1}
+{"utc": "2026-07-29T11:31:02Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4007, "ok": 1, "roi": 0, "tries": 1}
+{"utc": "2026-07-29T11:59:59Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 5, "roi": 4, "label": "max detail 1000x562"}
+{"utc": "2026-07-29T12:00:03Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 5, "roi": 4, "label": "max detail 1000x562"}
+{"utc": "2026-07-29T12:00:54Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T12:00:54Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4008, "roi": 4, "attempt": 1}
+{"utc": "2026-07-29T12:00:56Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4008, "ok": 1, "roi": 4, "tries": 1}
+{"utc": "2026-07-29T12:01:00Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T12:01:00Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4009, "roi": 4, "attempt": 1}
+{"utc": "2026-07-29T12:01:02Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4009, "ok": 1, "roi": 4, "tries": 1}
+{"utc": "2026-07-29T12:29:59Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 6, "roi": 1, "label": "widest (full frame 4608x2592)"}
+{"utc": "2026-07-29T12:30:03Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 6, "roi": 1, "label": "widest (full frame 4608x2592)"}
+{"utc": "2026-07-29T12:30:54Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T12:30:54Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4010, "roi": 1, "attempt": 1}
+{"utc": "2026-07-29T12:30:56Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4010, "ok": 1, "roi": 1, "tries": 1}
+{"utc": "2026-07-29T12:31:00Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T12:31:00Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4011, "roi": 1, "attempt": 1}
+{"utc": "2026-07-29T12:31:02Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4011, "ok": 1, "roi": 1, "tries": 1}
+{"utc": "2026-07-29T12:59:59Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 7, "roi": 2, "label": "wide 3072x1728"}
+{"utc": "2026-07-29T13:00:01Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 7, "roi": 2, "label": "wide 3072x1728"}
+{"utc": "2026-07-29T13:00:52Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T13:00:52Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4012, "roi": 2, "attempt": 1}
+{"utc": "2026-07-29T13:00:54Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4012, "ok": 1, "roi": 2, "tries": 1}
+{"utc": "2026-07-29T13:01:02Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4013, "roi": 2, "attempt": 1}
+{"utc": "2026-07-29T13:01:08Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T13:01:08Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4013, "ok": 1, "roi": 2, "tries": 1}
+{"utc": "2026-07-29T13:30:01Z", "kind": "cycle_detected", "spot": "SPOT-33507C", "unit": "bmcam003", "cycle": 8, "roi": 3, "label": "mid 2304x1296"}
+{"utc": "2026-07-29T13:30:03Z", "kind": "cycle_detected", "spot": "SPOT-31593C", "unit": "bmcam000", "cycle": 8, "roi": 3, "label": "mid 2304x1296"}
+{"utc": "2026-07-29T13:31:01Z", "kind": "cmd_sent", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4014, "roi": 3, "attempt": 1}
+{"utc": "2026-07-29T13:31:01Z", "kind": "wake_status", "spot": "SPOT-31593C", "unit": "bmcam000", "note": "listen window opening"}
+{"utc": "2026-07-29T13:31:01Z", "kind": "cmd_sent", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4015, "roi": 3, "attempt": 1}
+{"utc": "2026-07-29T13:31:03Z", "kind": "ack", "spot": "SPOT-31593C", "unit": "bmcam000", "id": 4015, "ok": 1, "roi": 3, "tries": 1}
+{"utc": "2026-07-29T13:31:07Z", "kind": "wake_status", "spot": "SPOT-33507C", "unit": "bmcam003", "note": "listen window opening"}
+{"utc": "2026-07-29T13:31:07Z", "kind": "ack", "spot": "SPOT-33507C", "unit": "bmcam003", "id": 4014, "ok": 1, "roi": 3, "tries": 1}
+{"utc": "2026-07-29T14:00:01Z", "kind": "deadline_reached", "until_utc": "14:00"}

@@ -1,0 +1,30 @@
+{
+  "run": "E0S384R2",
+  "size": 384,
+  "drain_s": 300,
+  "network_type": "cellular_only",
+  "host": "bmcam000",
+  "started_utc": "2026-07-29T03:30:52Z",
+  "bursts": [
+    {
+      "burst_id": "E0S384R2C200D1500",
+      "count": 200,
+      "delay_ms": 1500,
+      "size": 384,
+      "wall_s": 302.1,
+      "msgs_per_min": 39.7,
+      "started_utc": "2026-07-29T03:30:52Z",
+      "sendlog": "/home/pi/phaseE/sendlog_E0S384R2C200D1500.jsonl"
+    },
+    {
+      "burst_id": "E0S384R2C200D1000",
+      "count": 200,
+      "delay_ms": 1000,
+      "size": 384,
+      "wall_s": 202.0,
+      "msgs_per_min": 59.4,
+      "started_utc": "2026-07-29T03:40:54Z",
+      "sendlog": "/home/pi/phaseE/sendlog_E0S384R2C200D1000.jsonl"
+    }
+  ]
+}

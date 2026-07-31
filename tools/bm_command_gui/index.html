@@ -1,0 +1,256 @@
+<!doctype html>
+<!-- Sprint10 §7 — BM camera operator GUI (served by server.py; local only). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BM Camera Commands</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: -apple-system, Menlo, monospace; background:#14171a;
+         color:#dfe6ec; margin:2rem auto; max-width:900px; padding:0 1rem; }
+  h1 { font-size:1.2rem; } h2 { font-size:1rem; margin-top:1.6rem; }
+  select, button, label { font: inherit; }
+  select, button { background:#22282e; color:#dfe6ec; border:1px solid #3a444d;
+                   border-radius:4px; padding:.35rem .6rem; }
+  button { cursor:pointer; } button:disabled { opacity:.45; cursor:default; }
+  .row { display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;
+         margin:.5rem 0; }
+  table { border-collapse:collapse; width:100%; margin-top:.5rem;
+          font-size:.85rem; }
+  th, td { border:1px solid #3a444d; padding:.3rem .5rem; text-align:left; }
+  .state-awaiting_node { color:#e8c34a; }
+  .state-scheduled_wake { color:#7ab8ff; }
+  .state-acked { color:#5fd068; }
+  .state-cancelled { color:#8b98a5; }
+  .state-mismatch, .state-send_failed,
+  .state-retry_exhausted { color:#ff6b6b; font-weight:bold; }
+  #unwedge { border-color:#8a3030; }
+  .cancelbtn { font-size:.75rem; padding:.1rem .4rem; }
+  #banner { padding:.5rem .8rem; border-radius:4px; margin:.6rem 0;
+            display:none; }
+  #banner.ok { display:block; background:#1d3323; border:1px solid #2f6b3a; }
+  #banner.err { display:block; background:#3a1d1d; border:1px solid #8a3030; }
+  .muted { color:#8b98a5; font-size:.8rem; }
+  code { background:#22282e; padding:.1rem .3rem; border-radius:3px; }
+</style>
+</head>
+<body>
+<h1>BM Camera Commands <span id="ver" class="muted"></span></h1>
+
+<div class="row">
+  <label>Target <select id="target"></select></label>
+  <span class="muted" id="nodeid"></span>
+</div>
+<div class="row">
+  <label>Command <select id="cmd"></select></label>
+  <label>Value <select id="val"></select></label>
+  <label>When <select id="mode">
+    <option value="wake" selected>on next wake (recommended)</option>
+    <option value="now">now</option>
+  </select></label>
+  <button id="send">Send</button>
+  <label id="overrideWrap" style="display:none">
+    <input type="checkbox" id="override"> send anyway (a command is pending)
+  </label>
+</div>
+<div class="row">
+  <button id="unwedge">Un-wedge mailbox (clear queue + ping probe)</button>
+</div>
+<div id="banner"></div>
+<div class="muted">&ldquo;On next wake&rdquo; arms the command locally and
+fires it the moment the target posts a fresh uplink row (unit awake), so
+the mailbox drain lands while the BM bus is on and the daemon is
+listening. Unacked commands are re-sent with the <em>same id</em>
+(idempotent) after the retry window, then flagged. Mailbox is strict
+FIFO with no expiry &mdash; if delivery is dead across retries, use
+Un-wedge (erases every pending cloud command for the target, then sends
+a fresh ping probe; watch for its ack). Rate limit: 1 send/min per
+Spotter.</div>
+
+<h2>Command history</h2>
+<div class="row">
+  <button id="pollnow">Check for acks now</button>
+  <span class="muted" id="pollinfo"></span>
+</div>
+<table id="hist"><thead>
+<tr><th>id</th><th>target</th><th>command</th><th>state</th>
+<th>ack st / detail</th><th>sent (UTC)</th></tr>
+</thead><tbody></tbody></table>
+
+<script>
+let CFG = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+function fillSelect(sel, items, fmt) {
+  sel.innerHTML = "";
+  items.forEach(it => {
+    const o = document.createElement("option");
+    const [value, label] = fmt(it);
+    o.value = value; o.textContent = label;
+    sel.appendChild(o);
+  });
+}
+
+function banner(cls, text) {
+  const b = document.getElementById("banner");
+  b.className = cls; b.textContent = text;
+}
+
+function onCmdChange() {
+  const cmd = document.getElementById("cmd").value;
+  fillSelect(document.getElementById("val"), CFG.commands[cmd],
+             it => [it.v, it.label]);
+}
+
+function onTargetChange() {
+  const t = CFG.targets[document.getElementById("target").selectedIndex];
+  document.getElementById("nodeid").textContent =
+    "expected node: " + t.node_id;
+}
+
+async function refresh() {
+  const st = await api("/api/status");
+  const tbody = document.querySelector("#hist tbody");
+  tbody.innerHTML = "";
+  [...st.commands].reverse().forEach(c => {
+    const tr = document.createElement("tr");
+    const ackTxt = c.mismatch_detail ? ("⚠ " + c.mismatch_detail)
+      : (c.ack ? JSON.stringify(c.ack.st) : "");
+    let stateTxt = c.state.replace(/_/g, " ");
+    if (c.state === "awaiting_node") {
+      stateTxt += ` (try ${c.attempt || 1}/${st.max_attempts}` +
+        (c.next_retry_in_s !== undefined
+          ? `, retry in ${Math.ceil(c.next_retry_in_s / 60)} min)` : ")");
+    } else if (c.state === "scheduled_wake") {
+      stateTxt += ` <button class="cancelbtn" data-cid="${c.cmd_id}">` +
+        "cancel</button>";
+    } else if (c.state === "retry_exhausted") {
+      stateTxt = `NO ACK after ${c.attempt || "?"} attempts — ` +
+        "unit unreachable or mailbox wedged";
+    }
+    tr.innerHTML =
+      `<td>${c.cmd_id}</td>` +
+      `<td>${c.spotter_id || ""}</td>` +
+      `<td>${c.c}${c.v === null || c.v === undefined ? "" : "=" + c.v}` +
+      `${c.cleared_queue ? " (queue cleared)" : ""}</td>` +
+      `<td class="state-${c.state}">${stateTxt}</td>` +
+      `<td>${ackTxt}</td>` +
+      `<td class="muted">${(c.history_utc || c.utc || "")}</td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".cancelbtn").forEach(b => {
+    b.onclick = async () => {
+      const out = await api("/api/cancel", {method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({cmd_id: parseInt(b.dataset.cid, 10)})});
+      banner(out.error ? "err" : "ok",
+        out.error ? ("Cancel failed: " + out.error)
+                  : `Command ${out.cmd_id} cancelled.`);
+      refresh();
+    };
+  });
+  const pending = st.in_flight.length + (st.scheduled || []).length > 0;
+  document.getElementById("overrideWrap").style.display =
+    pending ? "inline" : "none";
+  if (!pending) document.getElementById("override").checked = false;
+  const lp = st.last_poll || {};
+  document.getElementById("pollinfo").textContent = lp.utc
+    ? `last ack poll ${lp.utc} (${lp.acks_seen} acks seen` +
+      (lp.error ? `, ERROR: ${lp.error})` : ")")
+    : "no ack poll yet this session";
+}
+
+async function send() {
+  const btn = document.getElementById("send");
+  btn.disabled = true;
+  try {
+    const t = CFG.targets[document.getElementById("target").selectedIndex];
+    const mode = document.getElementById("mode").value;
+    const body = {
+      spotter_id: t.spotter_id, node_id: t.node_id,
+      c: document.getElementById("cmd").value,
+      v: parseInt(document.getElementById("val").value, 10),
+      override_in_flight: document.getElementById("override").checked,
+      mode: mode,
+    };
+    const out = await api("/api/send", {method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)});
+    if (out.error === "in_flight") {
+      banner("err", "Command(s) " + out.detail.join(", ") + " still pending " +
+        "for this target — one command in flight per Spotter (stacked " +
+        "commands are the mailbox-wedge risk). Tick “send anyway” only " +
+        "if you mean it.");
+    } else if (out.error === "rate_limited") {
+      banner("err", `Sofar allows 1 send/min per Spotter — retry in ` +
+        `${out.retry_in_s}s.`);
+    } else if (out.error) {
+      banner("err", "Send failed: " + out.error + " " +
+        JSON.stringify(out.detail || ""));
+    } else if (out.state === "scheduled_wake") {
+      banner("ok", `Command ${out.cmd_id} armed — it fires the moment ` +
+        `the unit's next uplink appears (bus on, daemon listening).`);
+    } else if (out.http_status === 202) {
+      banner("ok", `Cloud accepted command ${out.cmd_id} (HTTP 202) — ` +
+        `queued for the node's next wake.`);
+    } else {
+      banner("err", `Sofar rejected the send (HTTP ${out.http_status}): ` +
+        JSON.stringify(out.response));
+    }
+  } finally {
+    btn.disabled = false;
+    refresh();
+  }
+}
+
+async function init() {
+  CFG = await api("/api/config");
+  document.getElementById("ver").textContent =
+    `tables v${CFG.tables_version}`;
+  fillSelect(document.getElementById("target"), CFG.targets,
+             t => [t.spotter_id, `${t.label} — ${t.spotter_id}`]);
+  fillSelect(document.getElementById("cmd"), Object.keys(CFG.commands),
+             c => [c, c]);
+  onCmdChange(); onTargetChange();
+  document.getElementById("cmd").onchange = onCmdChange;
+  document.getElementById("target").onchange = onTargetChange;
+  document.getElementById("send").onclick = send;
+  document.getElementById("unwedge").onclick = async () => {
+    const t = CFG.targets[document.getElementById("target").selectedIndex];
+    if (!confirm(`Un-wedge ${t.spotter_id}?\n\nThis ERASES every pending ` +
+        `cloud-mailbox command for this Spotter (cannot be selective), ` +
+        `then enqueues a fresh ping probe. A command already dispatched ` +
+        `to the device may still arrive afterwards.`)) return;
+    const out = await api("/api/unwedge", {method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({spotter_id: t.spotter_id, node_id: t.node_id})});
+    if (out.error === "rate_limited") {
+      banner("err", `Rate limited — retry in ${out.retry_in_s}s.`);
+    } else if (out.error) {
+      banner("err", "Un-wedge failed: " + out.error);
+    } else if (out.http_status === 202) {
+      banner("ok", `Queue cleared; ping probe ${out.cmd_id} enqueued — ` +
+        `its ack (or console echo) confirms delivery is unwedged.`);
+    } else {
+      banner("err", `Sofar rejected the un-wedge (HTTP ${out.http_status}):` +
+        ` ${JSON.stringify(out.response)}`);
+    }
+    refresh();
+  };
+  document.getElementById("pollnow").onclick = async () => {
+    banner("ok", "Polling backend for acks…");
+    await api("/api/poll_now", {method: "POST"});
+    banner("ok", "Ack poll complete.");
+    refresh();
+  };
+  refresh();
+  setInterval(refresh, 10000);
+}
+init();
+</script>
+</body>
+</html>

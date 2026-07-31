@@ -698,7 +698,11 @@ def is_within_local_window(
 def should_transmit_now_from_schedule(
     config_path: str = "camera_schedule.yaml",
     verbose: bool = False,
+    read_spotter_utc_fn=None,
 ) -> Tuple[bool, Dict[str, str]]:
+    """read_spotter_utc_fn: optional replacement for read_spotter_utc —
+    Sprint10's command daemon passes its shared-port reader so the gate
+    does not open the UART a second time. Same signature/return."""
     cfg = load_camera_schedule(config_path)
     validate_schedule(cfg)
     timezone_name = resolve_timezone(cfg)
@@ -718,7 +722,8 @@ def should_transmit_now_from_schedule(
 
     if cfg.time_source == "spotter_utc":
         try:
-            utc_dt = read_spotter_utc(
+            reader = read_spotter_utc_fn or read_spotter_utc
+            utc_dt = reader(
                 timeout_seconds=cfg.spotter_time_timeout_seconds,
                 port=cfg.uart_port,
                 baudrate=cfg.baudrate,

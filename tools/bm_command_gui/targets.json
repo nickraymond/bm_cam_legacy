@@ -1,0 +1,15 @@
+{
+  "_comment": "Registered command targets for the operator GUI. node_id is the BM node expected to ack (verification wired after first Phase C ack shows the sensor-data field). Add units here as they are provisioned.",
+  "targets": [
+    {
+      "label": "bmcam003 (bench)",
+      "spotter_id": "SPOT-33507C",
+      "node_id": "53171fa3d81a8e6f"
+    },
+    {
+      "label": "bmcam000 (field-config test unit)",
+      "spotter_id": "SPOT-31593C",
+      "node_id": ""
+    }
+  ]
+}

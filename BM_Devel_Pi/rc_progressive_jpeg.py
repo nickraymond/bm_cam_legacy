@@ -9,15 +9,25 @@ HEIC path (main_pi_camera.py) is untouched; this script wires the tested RC
 modules into one cycle:
 
   CycleBudget (M1, starts at process start)
-    -> schedule gate (transmit runs only; reuses production Spotter-time gate)
+    -> schedule gate (transmit runs only; reuses production Spotter-time gate;
+       Sprint11: its Spotter UTC read is also the C2 grid clock)
     -> WS wake heartbeat (transmit runs only)
     -> native capture (reuses production _run_native_full_capture:
        watchdog, retries, WS error telemetry, exact libcamera args)
     -> M2 prepare_source (in-process crop+lanczos, S07 byte-validated)
     -> M3 select_quality (ladder step-down vs budget + 195-msg cap)
     -> persist JPEG + metadata sidecar + CSV log
+    -> C2 phase wait: park until the burst fits a clean lane on the
+       5-minute UTC blackout grid (rc_transmit_phase; island-gated)
     -> M5 transmit (complete or bounded-incomplete; --transmit only)
+    -> C3 deferred-ack flush, then C4 bounded post-transmit listen tail
     -> M6 power halt (per power_halt config; runs in finally)
+
+Sprint11 reordered this to CAPTURE-FIRST: the 90 s pre-capture listen
+window is gone (D2). It pushed transmit start from ~:01:00 to ~:03:10 and
+put a 194 s burst through the :05:00 blackout at ~62 % through, and it
+listened at the one time commands never arrive (finding 006). Commands now
+apply from cached state on the NEXT boot.
 
 CLI safety ladder (guardrail sequence: capture-only -> compress-only -> transmit):
   --print-config            resolve + print settings, no cycle (P0 behavior)
@@ -42,6 +52,7 @@ Assumptions / known limitations:
 
 import argparse
 import os
+import shutil
 import sys
 import time
 from datetime import datetime, timezone
@@ -53,6 +64,11 @@ from spotter_time_sync import (
     validate_schedule,
 )
 from bm_serial import load_bm_serial_config
+from command_daemon import load_bm_commands_config
+from command_state import CommandState
+import rc_command_hooks as cmd_hooks
+import rc_media_id
+import rc_transmit_phase
 from process_image_v2 import (
     DEFAULT_BUFFER_SIZE,
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
@@ -159,6 +175,10 @@ def resolve_rc_settings(config_path):
         "budget_seconds": budget_seconds,
         "message_cap": int(cfg.progressive_jpeg_message_cap),
         "budget_messages_if_transmit_only": budget_messages_if_transmit_only,
+        # v2 `src`: None = capture from the camera (shipped behaviour).
+        # Only the src command sets this; there is no YAML key, so a unit
+        # can never boot into reference-image mode by config accident.
+        "source_image_path": None,
         "pacing_chunk_b64_chars": pacing["chunk_b64_chars"],
         "pacing_delay_seconds": pacing["delay_seconds"],
         "pacing_source": pacing["source"],
@@ -189,6 +209,12 @@ def resolve_rc_settings(config_path):
         "source_height": int(cfg.image_pipeline_source_height),
         "source_jpeg_quality": int(cfg.image_pipeline_source_jpeg_quality),
         "enforce_time_window": bool(cfg.enforce_time_window),
+        # Sprint10 media-id island (rc_media_id): absent/off == legacy wire.
+        "media_gid_enabled": bool(
+            rc_media_id.load_media_gid_config(config_path)["enabled"]),
+        # Sprint11 C2 island (rc_transmit_phase): absent/off == unscheduled.
+        "transmit_phase_cfg": rc_transmit_phase.load_transmit_phase_config(
+            config_path),
     }
 
 
@@ -222,6 +248,27 @@ def print_resolved_settings(s):
         f"script={s['power_halt_script_path']}"
     )
     print(f"[RC] schedule: window={s['transmit_window']} tz={s['timezone']}")
+    ph = s.get("transmit_phase_cfg") or {}
+    if ph.get("enabled"):
+        lane = rc_transmit_phase.usable_lane_seconds(
+            ph["grid_seconds"], ph["post_boundary_guard_s"],
+            ph["pre_boundary_guard_s"])
+        max_burst = s["message_cap"] * s["pacing_delay_seconds"]
+        print(f"[RC] transmit_phase (C2): ON grid={ph['grid_seconds']:.0f}s "
+              f"guards={ph['post_boundary_guard_s']:.0f}/"
+              f"{ph['pre_boundary_guard_s']:.0f}s lane={lane:.0f}s")
+        # The D3 config rule, checked at print-config time so a bad
+        # (delay, cap) pair is caught on the bench, not from the gap
+        # pattern in an overnight run.
+        verdict = "fits" if max_burst <= lane else "DOES NOT FIT"
+        print(f"[RC] transmit_phase rule: cap {s['message_cap']} x "
+              f"{s['pacing_delay_seconds']}s = {max_burst:.0f}s vs lane "
+              f"{lane:.0f}s -> {verdict}")
+        if max_burst > lane:
+            print("[RC][WARN] worst-case burst exceeds the clean lane; it "
+                  "WILL cross a blackout (DESIGN D3)")
+    else:
+        print("[RC] transmit_phase (C2): OFF (unscheduled transmit)")
     print(
         f"[RC] geometry (native coords, frozen): crop_xywh={s['crop_native_xywh']} "
         f"output={s['output_size'][0]}x{s['output_size'][1]} backend={s['capture_backend']}"
@@ -263,8 +310,11 @@ def _default_capture(settings, output_dir):
 
     # Apply the same camera_controls the HEIC path applies (e.g. bmcam000's
     # manual focus); _run_native_full_capture already handles the fallback
-    # retry without controls if the camera app rejects them.
-    controls = _load_camera_controls_island(settings["config_path"])
+    # retry without controls if the camera app rejects them. Sprint10:
+    # a command-overlay override (D13) replaces the YAML island when set.
+    controls = settings.get("camera_controls_override")
+    if controls is None:
+        controls = _load_camera_controls_island(settings["config_path"])
     capture_settings = {"camera_controls": controls} if controls else None
 
     capture_info = _run_native_full_capture(
@@ -285,11 +335,107 @@ def _default_bm_open(config_path):
     return _get_bm_serial().spotter_tx
 
 
+def _apply_command_overlay(settings, state):
+    """Command overlay (D13) with this module's island loader bound in."""
+    return cmd_hooks.apply_command_overlay(
+        settings, state, _load_camera_controls_island
+    )
+
+
 def _cpu_temp_text():
     try:
         return f"{get_cpu_temperature():.1f}"
     except Exception:
         return "na"
+
+
+NATIVE_W, NATIVE_H = 4608, 2592
+
+
+def _jpeg_dims(path):
+    """(width, height) from the first JPEG SOF marker, or None.
+
+    Deliberately dependency-free (no PIL): this runs before the pipeline
+    proper and must not be able to fail for import reasons on a field unit.
+    """
+    with open(path, "rb") as fh:
+        data = fh.read()
+    i = 2
+    while i < len(data) - 9:
+        if data[i] != 0xFF:
+            i += 1
+            continue
+        marker = data[i + 1]
+        if marker in (0xC0, 0xC1, 0xC2, 0xC3):
+            h = (data[i + 5] << 8) | data[i + 6]
+            w = (data[i + 7] << 8) | data[i + 8]
+            return w, h
+        if marker in (0xD8, 0xD9):
+            i += 2
+            continue
+        i += 2 + ((data[i + 2] << 8) | data[i + 3])
+    return None
+
+
+def stage_source_image(rel_or_abs_path, output_dir):
+    """Copy a reference native into the cycle's output dir and return the copy.
+
+    TWO failures from soak finding 009 are designed out here, because both
+    cost a full overnight run:
+
+    1. CONSUMABLE INPUT. The pipeline renames/consumes the native it is
+       handed, so pointing it straight at the committed reference destroys
+       the reference and every later cycle dies on a missing file. We always
+       hand it a per-cycle COPY and never the original.
+    2. WRONG DIMENSIONS. The raw reference_reef_coral_*.jpg files are
+       4000x3000; the pipeline requires exactly 4608x2592 and rejects them.
+       The original failure was a `find | head -1` picking a prep artifact.
+       We validate dimensions HERE, before any work, and fail with a message
+       that names the file and both sizes — not 100 s later inside the ladder.
+    """
+    path = rel_or_abs_path
+    if os.path.isabs(path):
+        candidates = [path]
+    else:
+        # SRC_TABLE paths are repo-relative, but the deployed runtime is a
+        # FLAT app dir (/home/pi/BM_Devel_Pi) while reference_images/ lives
+        # at the repo root. Search the plausible roots in priority order so
+        # the same table works in a dev checkout and on a field unit.
+        # BMCAM_REFERENCE_ROOT wins, so a unit with images on external
+        # storage needs no code change.
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        roots = []
+        env_root = os.environ.get("BMCAM_REFERENCE_ROOT")
+        if env_root:
+            roots.append(env_root)
+        roots += [
+            app_dir,                        # images deployed INTO the app dir
+            os.path.dirname(app_dir),       # dev checkout / repo root
+        ]
+        candidates = [os.path.join(r, path) for r in roots]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            path = candidate
+            break
+    else:
+        raise FileNotFoundError(
+            f"src reference image not found: {rel_or_abs_path}\n"
+            f"  tried: {candidates}\n"
+            f"  fix: deploy reference_images/ into the app dir, or set "
+            f"BMCAM_REFERENCE_ROOT"
+        )
+    dims = _jpeg_dims(path)
+    if dims != (NATIVE_W, NATIVE_H):
+        raise ValueError(
+            f"src reference {os.path.basename(path)} is {dims}, expected "
+            f"({NATIVE_W}, {NATIVE_H}) — use the prepared "
+            f"synthetic_native_4608x2592.jpg, not the raw scene file"
+        )
+    os.makedirs(output_dir, exist_ok=True)
+    stem = time.strftime("refsrc_%Y%m%dT%H%M%SZ", time.gmtime())
+    dest = os.path.join(output_dir, f"{stem}_native_full.jpg")
+    shutil.copy2(path, dest)
+    return dest
 
 
 def run_cycle(
@@ -307,9 +453,27 @@ def run_cycle(
     halt_fn=perform_power_halt,
     sleep_fn=time.sleep,
     clock=time.monotonic,
+    bm_commands_cfg=None,
+    command_state=None,
+    bench_commands=False,
+    daemon_factory=cmd_hooks.default_daemon_factory,
+    grid_clock_fn=rc_transmit_phase.acquire_grid_clock,
 ):
     """Run one RC cycle. Returns a summary dict; raises only on runtime failure
-    before the halt (the halt itself runs in finally and never raises)."""
+    before the halt (the halt itself runs in finally and never raises).
+
+    Sprint10: when the bm_commands island is enabled AND the cycle may
+    touch the BM bus (transmit, or the explicit --bench-commands bench
+    flag), a CommandDaemon owns the port for the whole cycle: subscribe
+    at start, shared-port time sync, command pickup in transmit pacing
+    slots, final drain, stop before halt (D11/D12).
+    Disabled (default) leaves the cycle byte-identical to Sprint08/09.
+
+    Sprint11 changes the ORDER, not the contract: no pre-capture listen
+    (C1/D2), a phase wait before transmit (C2/D1), acks deferred out of
+    the burst (C3/D5), and a bounded listen tail after it (C4/D6). C2-C4
+    are island-gated; C1 is unconditional.
+    """
     summary = {
         "budget_seconds": settings["budget_seconds"],
         "transmit": transmit,
@@ -319,7 +483,19 @@ def run_cycle(
         "native_path": native_path,
         "final_path": None,
         "schedule_allowed": True,
+        "command_events": [],
     }
+
+    daemon = None
+    use_daemon = bool(
+        bm_commands_cfg
+        and bm_commands_cfg.get("enabled")
+        and command_state is not None
+        and (transmit or bench_commands)
+    )
+    if use_daemon:
+        daemon = daemon_factory(settings, bm_commands_cfg, command_state)
+        daemon.start()
 
     # M1: ONE budget, charged from here on.
     budget = CycleBudget(
@@ -330,9 +506,18 @@ def run_cycle(
 
     try:
         # Schedule gate — transmit runs only (manual/bench modes must not
-        # touch the BM bus; the Spotter-time read opens the UART).
+        # touch the BM bus; the Spotter-time read opens the UART). With
+        # the daemon active the gate reads Spotter time over the SHARED
+        # port instead of opening its own (D11).
+        gate_info, gate_mono = None, clock()
         if transmit and not skip_time_window and settings["enforce_time_window"]:
-            allowed, info = should_transmit_now_from_schedule(settings["config_path"])
+            allowed, info = should_transmit_now_from_schedule(
+                settings["config_path"], **cmd_hooks.gate_kwargs_for(daemon)
+            )
+            # Sprint11 C2: the gate's Spotter read is also the grid clock.
+            # Pin it to a monotonic instant HERE and extrapolate later; the
+            # transmit decision happens minutes after this read.
+            gate_info, gate_mono = info, clock()
             summary["schedule_allowed"] = allowed
             print(f"[RC] schedule gate: {info.get('reason')}")
             if not allowed:
@@ -365,6 +550,28 @@ def run_cycle(
                 )
             except Exception as exc:
                 debug_print(f"Wake status send failed, continuing safely: {exc}")
+
+        # Sprint11 C1/D2: capture-first. There is NO pre-capture listen
+        # window any more — it moved transmit start from ~:01:00 to
+        # ~:03:10, which put a 194 s burst straight through the :05:00
+        # blackout boundary at ~62 % through (measured first-gap mean
+        # 65.5 %). Commands now apply from cached state on the NEXT boot,
+        # which is already how `win` behaved. The listening moved to the
+        # bounded post-transmit tail, where finding 006 says the mailbox
+        # drain actually arrives.
+
+        # Sprint10 v2: `src` command can substitute a committed reference
+        # native for the camera capture (field debug — separates "camera
+        # broken" from "link broken" without a site visit). CLI
+        # --compress-only still wins, so bench use is unaffected.
+        if native_path is None and settings.get("source_image_path"):
+            native_path = stage_source_image(
+                settings["source_image_path"], output_dir
+            )
+            summary["source_image"] = settings["source_image_path"]
+            summary["source_image_staged"] = native_path
+            print(f"[RC] src override: camera SKIPPED, using reference "
+                  f"{settings['source_image_path']}")
 
         # Capture (or reuse an existing native in --compress-only).
         capture_info = {}
@@ -458,6 +665,9 @@ def run_cycle(
             print(f"[RC] send plan (NO transmit): {encode['message_count']} chunks "
                   f"(+2 START/END) at q{selection['quality']}, "
                   f"est {est_minutes:.1f} min, fits={selection['fits']}")
+            # Bench-commands mode: no image transmit, but late commands
+            # still ack + persist for the next cycle.
+            cmd_hooks.drain_now(daemon, summary, clock=clock)
             return summary
 
         # M5 transmit (complete or bounded).
@@ -470,6 +680,51 @@ def run_cycle(
             "hostname": get_hostname(),
             **storage_health,
         }
+        media_gid = None
+        if settings.get("media_gid_enabled"):
+            media_gid = rc_media_id.next_gid()
+            print(f"[RC] media gid: {media_gid} (chunks <I{media_gid}.i>)")
+
+        # --- Sprint11 C2: wait for a clean lane on the 5-minute grid -----
+        # Everything above this line is cycle-relative; this is the ONE
+        # place that reasons in absolute UTC (DESIGN D1).
+        phase_cfg = settings.get("transmit_phase_cfg") or {}
+        if phase_cfg.get("enabled"):
+            burst_s = rc_transmit_phase.burst_seconds_for(
+                encode["message_count"], settings["pacing_delay_seconds"],
+                incomplete=not selection["fits"],
+            )
+            grid_clock = grid_clock_fn(
+                gate_info, gate_mono, daemon=daemon, clock=clock)
+            plan = rc_transmit_phase.plan_from_clock(
+                grid_clock, burst_s, phase_cfg)
+            print(rc_transmit_phase.describe_plan(plan, burst_s))
+            wait_s = plan["wait_s"]
+            # A wait spends the SAME budget the transmit needs. Waiting into
+            # a budget that can no longer hold the burst would truncate the
+            # image mid-send via the per-chunk guard — the exact failure
+            # this sprint exists to remove. Sending at a bad phase loses
+            # ~7 chunks; a truncated send loses the tail of the image.
+            if wait_s > 0 and not budget.has_time_for(wait_s + burst_s):
+                print(f"[PHASE][WARN] skipping the {wait_s:.0f}s lane wait: "
+                      f"only {budget.remaining_s():.0f}s of budget left, "
+                      f"burst needs {burst_s:.0f}s. Transmitting now, "
+                      f"unscheduled.")
+                plan["reason"] = "skipped_no_budget"
+                plan["skipped_wait_s"] = wait_s
+                plan["wait_s"] = wait_s = 0.0
+                plan["start_phase_s"] = plan["phase_s"]
+                plan["end_phase_s"] = plan["phase_s"] + burst_s
+            if wait_s > 0:
+                sleep_fn(wait_s)
+            summary["transmit_phase"] = {
+                k: plan[k] for k in ("reason", "wait_s", "phase_s",
+                                     "start_phase_s", "end_phase_s",
+                                     "fits_lane", "crosses_boundary")
+            }
+            summary["transmit_phase"]["burst_s"] = burst_s
+            summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
+
         tx = bm_open_fn(settings["config_path"])
         result = transmit_progressive_image(
             tx,
@@ -489,6 +744,15 @@ def run_cycle(
             hostname=get_hostname(),
             sleep_fn=sleep_fn,
             clock=clock,
+            # Sprint11 C3/D5: with defer_acks_during_transmit, no ack is
+            # submitted between the first and last chunk — an ack shares
+            # the same 2-slot cellular queue as the image.
+            ack_drain_fn=cmd_hooks.make_ack_drain_fn(
+                daemon, summary, clock=clock,
+                defer=bool((bm_commands_cfg or {}).get(
+                    "defer_acks_during_transmit"))),
+            pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
+            media_gid=media_gid,
         )
         summary["transmit_result"] = result
         print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "
@@ -521,10 +785,24 @@ def run_cycle(
         except Exception as exc:
             debug_print(f"RC CSV log failed, continuing safely: {exc}")
 
+        # Sprint11 C3: the image is off the wire — release the deferred
+        # acks now, before the tail, so they are not delayed by it.
+        cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                             label="post-transmit ack flush")
+        # Sprint11 C4/D6: bounded listen tail. This is when the mailbox
+        # drain our own transmit triggered actually arrives (finding 006).
+        cmd_hooks.post_transmit_listen(
+            daemon, bm_commands_cfg or {}, summary, budget,
+            clock=clock, sleep_fn=sleep_fn,
+        )
+
         return summary
 
     finally:
-        if transmit:
+        # Last command pickup + reader stop before the port closes.
+        cmd_hooks.shutdown(daemon, summary, debug_print,
+                           clock=clock, sleep_fn=sleep_fn)
+        if transmit or daemon is not None:
             try:
                 bm_close_fn()
             except Exception as exc:
@@ -536,8 +814,11 @@ def run_cycle(
             mode=settings["power_halt_mode"],
             script_path=settings["power_halt_script_path"],
         )
+        # summary holds the budget the cycle actually charged; a win
+        # command re-overlays settings mid-cycle but never rebuilds the
+        # running CycleBudget (Phase B nit, 2026-07-27).
         print(f"[RC] cycle end: elapsed={budget.elapsed_s():.1f}s of "
-              f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+              f"{summary['budget_seconds']}s; halt={summary['halt_result']['action']}")
 
 
 # ---------------------------------------------------------------------------
@@ -558,6 +839,10 @@ def main(argv=None, **cycle_overrides):
                         help="Skip camera; run the ladder on an existing native JPEG")
     parser.add_argument("--transmit", action="store_true",
                         help="Send over the BM bus (the only flag that touches it)")
+    parser.add_argument("--bench-commands", action="store_true",
+                        help="BENCH ONLY: run the command daemon (subscribe + "
+                             "acks DO touch the BM bus) without image transmit. "
+                             "Requires bm_commands.enabled in YAML.")
     parser.add_argument("--skip-time-window", action="store_true",
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
@@ -569,6 +854,21 @@ def main(argv=None, **cycle_overrides):
     except Exception as exc:
         print(f"[RC][ERROR] config load/validation failed: {exc}", file=sys.stderr)
         return 2
+
+    # Sprint10 command overlay (D13/D14): with the island enabled, the
+    # persisted command state overrides YAML values in EVERY mode (a
+    # field fix must govern bench captures too); the daemon itself only
+    # runs when the cycle may touch the bus (--transmit/--bench-commands).
+    bm_commands_cfg = load_bm_commands_config(args.config_path)
+    command_state = None
+    if bm_commands_cfg["enabled"]:
+        command_state = CommandState(path=bm_commands_cfg["state_path"])
+        print(f"[CMD] bm_commands enabled: topic={bm_commands_cfg['topic']} "
+              f"tail={bm_commands_cfg['post_transmit_listen_s']}s "
+              f"defer_acks={bm_commands_cfg['defer_acks_during_transmit']} "
+              f"state={command_state.path} (loaded from "
+              f"{command_state.load_info['source']})")
+        settings = _apply_command_overlay(settings, command_state)
 
     if args.print_config:
         print_resolved_settings(settings)
@@ -588,6 +888,9 @@ def main(argv=None, **cycle_overrides):
             native_path=args.compress_only,
             skip_time_window=args.skip_time_window,
             output_dir=args.output_dir,
+            bm_commands_cfg=bm_commands_cfg,
+            command_state=command_state,
+            bench_commands=args.bench_commands,
             **cycle_overrides,
         )
     except Exception as exc:

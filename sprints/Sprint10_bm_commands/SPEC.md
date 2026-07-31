@@ -87,9 +87,13 @@ and it doubles as a status report.
 - Node duty cycle: ~20 min on / 40 min off. Cloud → Spotter latency is the
   dominant, non-deterministic delay; commands queue in Sofar's cloud while
   the bus is down.
-- Daemon **listens for the entire active window** (bus init + neighbor
-  discovery can eat the first minutes; a short fixed listen window will
-  miss commands). Camera work runs concurrently.
+- *(Revised 2026-07-26, Nick — power savings trump responsiveness; see
+  DESIGN D5.)* Daemon listens from wake until the cycle's normal early
+  halt: a **pre-capture listen window** (default 120 s, YAML-tunable)
+  catches commands queued while the node was off, then capture/transmit
+  run as today with the listener still up. No idle listening after
+  transmit — halt early to save power; a late command applies next
+  cycle. Phase B measures real cloud→bus latency to tune the default.
 - Commands apply on arrival **between captures**, never mid-capture.
   If that proves fragile, fall back to apply-at-next-window (Q8).
 
@@ -144,6 +148,40 @@ See DESIGN D9/D10 for architecture bounds.
 5. **Final acceptance (Nick, via the GUI):** Nick drives the GUI
    end-to-end against the bench unit — the five "definition of done"
    items below, verified by the operator, not the session.
+6. **Phase E — cellular queue drain characterization (added
+   2026-07-28):** measure, don't guess, the pacing/burst values the
+   release ships with. See below.
+
+## Phase E — cellular queue drain characterization (added 2026-07-28)
+
+The 07-27/28 RC soak showed image-scale bursts (~190 messages) lose a
+single **consecutive run** of chunks starting ~140–150 s into every
+lossy transmit and lasting ~6–7 s — a Notecard sync session blacking out
+the Spotter's 2-slot cellular queue (drops are silent to the Pi, which
+logs `sent=N/N complete=True`). Sprint09's 384/1.0 s values were
+measured with 30-message bursts, so this regime was never characterized.
+
+Phase E sends fixed-size, sequence-numbered messages at a controlled
+pace, records the exact send time of every message, and joins backend
+arrivals back to those timestamps to determine:
+
+- whether the blackout is **time-triggered or count-triggered** (same
+  count at different delays discriminates: time → same wall-clock onset,
+  different index; count → same index, different time);
+- blackout onset (mean/σ), duration, and repeat rate within a burst;
+- sustained drain rate (delivered msgs/min) and queue absorption;
+- the loss-vs-delay curve at 100 / 200 / 300-message bursts;
+- the smallest `(image_transmit_delay_seconds, message_cap)` pair that
+  delivers 100 %, with margin and its awake-time cost.
+
+Matrix: counts {100, 200, 300} × delays {1.0, 1.5, 2.0, 3.0, 4.0 s},
+plus a 5.0 s control (the historical 100 % configuration), size fixed at
+384 chars. Model under test: `lost ≈ max(0, blackout_s/delay_s −
+queue_slots)`, which predicts zero loss near 3.5–4.0 s.
+
+Harness `test_queue_drain.py`, analyzer `analyze_queue_drain.py`, and
+the full bench runbook (disarm/re-arm, safety rails, restore checklist)
+live in this sprint folder — see **PHASE_E.md**.
 
 ## Definition of done (Nick, 2026-07-27)
 
@@ -166,8 +204,15 @@ See DESIGN D9/D10 for architecture bounds.
 - All six commands apply correctly via Phase B, with acks observed.
 - Duplicate and malformed commands are safely ignored/rejected (tested).
 - Settings survive a hard power cycle.
-- Daemon runs the full active window without missing a command injected at
-  minute 1 and at minute 19.
+- A command injected during the pre-capture listen window applies to that
+  window's capture; one injected later (e.g. during transmit) is acked,
+  persisted, and governs the next cycle. *(Revised 2026-07-26 with the
+  early-halt decision — was "minute 1 and minute 19 of the full window".)*
 - Zero regressions to the existing capture/compression pipeline.
 - GUI meets definition-of-done items 1–4; Phase D automation passes 3–5
   permutations end-to-end (item 5).
+- *(Added 2026-07-28)* Phase E produces **measured** pacing/burst values
+  — the release ships `image_transmit_delay_seconds` and `message_cap`
+  chosen from the loss-vs-delay curve with stated margin, not from
+  guesswork, and the blackout mechanism is documented well enough to
+  put a precise question to Sofar.

@@ -1,0 +1,12 @@
+# Pi clock vs Mac (bench reference) clock offsets, Phase E
+# measured 2026-07-29T00:55:14Z; offset_s = pi_epoch - mac_epoch (negative = Pi behind)
+bmcam003 sample1 offset_s=2 rtt_s=2
+bmcam003 sample2 offset_s=1 rtt_s=1
+bmcam003 sample3 offset_s=1 rtt_s=1
+bmcam003 ntp=CanNTP=yes
+NTP=yes  synced=NTPSynchronized=yes
+bmcam000 sample1 offset_s=-2773 rtt_s=1
+bmcam000 sample2 offset_s=-2773 rtt_s=0
+bmcam000 sample3 offset_s=-2772 rtt_s=1
+bmcam000 ntp=CanNTP=yes
+NTP=no  synced=NTPSynchronized=no

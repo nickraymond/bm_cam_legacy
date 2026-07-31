@@ -1,0 +1,28 @@
+{
+  "bmcam003": {
+    "arm": "B",
+    "txd": 1.0,
+    "cycles": 12,
+    "mean_awake_s": 347.8,
+    "mean_wh_per_cycle": 0.2684,
+    "total_wh": 3.22,
+    "active_w": 2.778
+  },
+  "bmcam000": {
+    "arm": "A",
+    "txd": 5.0,
+    "cycles": 11,
+    "mean_awake_s": 1047.6,
+    "mean_wh_per_cycle": 0.8084,
+    "total_wh": 8.892,
+    "active_w": 2.778
+  },
+  "comparison": {
+    "faster_arm": "bmcam003 (B, 1.0 s)",
+    "slower_arm": "bmcam000 (A, 5.0 s)",
+    "energy_ratio_slow_over_fast": 3.01,
+    "energy_saving_of_fast_pct": 66.8,
+    "wh_saved_per_cycle": 0.54
+  },
+  "_method": "power profile measured on the densely-sampled unit; energy = active_W x each arm's OWN measured awake time. MODEL, not a direct integration for the sparse unit."
+}
