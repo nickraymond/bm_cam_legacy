@@ -128,6 +128,23 @@ bm_serial:
   image_buffer_size: 384
   image_transmit_delay_seconds: 1.0
 
+# Sprint10/11/12 remote command daemon. Enabled in production since
+# Sprint12 (2026-07-31): hlt (power-halt override), twn (transmit-window
+# override) and trg (one-shot capture/send trigger) are the remote fix
+# for the 2026-07-31 stranding incident — without the daemon a unit's
+# halt/window can only be changed over SSH (site visit / hotspot).
+# Command latency is HOURS, not minutes: inbound mail drains only at the
+# Spotter's ~hourly [MS] sync; re-send-until-acked (the bm_command_gui
+# retry engine) is the delivery doctrine.
+# Persisted command state OVERLAYS this file (which is never rewritten);
+# delete state_path on the unit to restore stock YAML behaviour.
+bm_commands:
+  enabled: true
+  topic: "bmcam/cmd"
+  post_transmit_listen_s: 150      # C4/D6 bounded tail before the halt
+  defer_acks_during_transmit: false  # C3/D5: keep acks out of the burst
+  state_path: "/home/pi/BM_Devel_Pi/bm_command_state.json"
+
 # Future hardening, not enabled in this patch:
 # camera:
 #   exposure:

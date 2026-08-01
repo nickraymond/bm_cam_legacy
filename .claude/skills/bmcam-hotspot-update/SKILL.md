@@ -16,6 +16,26 @@ unit.** The camera/Spotter path is cellular and works without WiFi; Tailscale
 needs WiFi. Check the Sofar dashboard first — if images still arrive, the Pi
 is healthy.
 
+## Phase 0 — since Sprint12: can a REMOTE COMMAND fix it instead?
+
+Halt mode and the transmit window are **no longer SSH-only** (they were the
+two settings that forced the 2026-07-31 site visit). If the unit is running
+Sprint12+ code with `bm_commands.enabled: true` (fleet default since
+2026-07-31), try the cloud mailbox BEFORE anyone drives out:
+
+- wrong/disabled halt → `hlt 1|2|3`, restore YAML with `hlt 0`
+- window misconfigured / unit never transmits → `twn 2` (wide, the remote
+  un-brick), restore with `twn 0`
+- on-demand image or camera-vs-link diagnosis → `trg 2` (capture+send) /
+  `trg 3` (reef reference, camera skipped)
+
+Send: `python3 tools/sofar_send_command.py --spotter-id SPOT-XXXXX --id N
+--cmd twn --value 2` (or the bm_command_gui retry engine). Re-send until
+acked; latency is hours (~hourly [MS] mailbox drain). Full reference:
+`docs/bmcam_command_reference.md`. A hotspot session is still required for:
+units on pre-Sprint12 code, software updates, and anything in the
+provisioning-only list (`REMOTE_CONFIG_AUDIT.md`).
+
 ## Phase 1 — iPhone hotspot (the person on-site)
 
 The Pi auto-joins only networks it already knows, so the hotspot must CLONE a

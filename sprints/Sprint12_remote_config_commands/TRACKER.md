@@ -22,15 +22,21 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
 ## 1. `hlt` command
 - [x] `HLT_TABLE` in command_tables.py, tables_version 2 → 3
       (tests/test_command_tables.py TestSprint12Tables, suite green)
-- [ ] Binding + persisted state (`bm_command_state.json` schema addition)
-      — persistence DONE (test_command_state TestSprint12Settings);
-      binding/overlay is chunk 2
-- [ ] Overlay application: `power_halt` enabled/dry_run from state, next boot
-- [ ] `hlt 0` removes the override (YAML governs)
-- [ ] **Ack-before-halt ordering test** — command mid-cycle on a halting
-      unit, ack reaches the uplink before the halt fires
-- [ ] Boot log states applied halt mode unambiguously
-- [ ] Unit tests (table, persistence, overlay, version mismatch)
+- [x] Binding + persisted state (`bm_command_state.json` schema addition)
+- [x] Overlay application: `power_halt` enabled/dry_run from state, next
+      boot (TestSprint12HltOverlay; next-boot proof in
+      TestSprint12AckBeforeHalt)
+- [x] `hlt 0` removes the override (YAML governs)
+      (test_hlt_0_touched_leaves_yaml_governing)
+- [x] **Ack-before-halt ordering test** — off-device proof on the shared
+      wire timeline: mid-transmit AND listen-tail arrivals ack before
+      halt_fn fires; halt uses boot settings
+      (TestSprint12AckBeforeHalt, tests/test_command_integration.py).
+      Hardware artifact still owed in chunk 4/5.
+- [x] Boot log states applied halt mode unambiguously
+      ([RC] power_halt line + source= stamp + stranding warnings)
+- [x] Unit tests (table, persistence, overlay, version mismatch) —
+      257 green across affected suites (chunks 1+2 commits)
 
 ## 1b. `trg` command (added 2026-07-31, Nick-approved — SPEC Feature 3)
 - [x] `TRG_TABLE` (capture / capture+send / reference sends riding
@@ -38,25 +44,40 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
 - [x] `pending_trigger` state slot: arm/cancel/consume-once, crash-safe
       clear-before-service, v2-file compatibility
       (tests/test_command_state.py TestPendingTrigger)
-- [ ] Orchestrator: next boot consumes trigger — window gate bypassed
+- [x] Orchestrator: next boot consumes trigger — window gate bypassed
       (one-shot), trg 1 = capture-only path, trg 3/4 = one-shot src
-- [ ] Unit tests for orchestrator consumption
+      (service_pending_trigger + apply_trigger; end-to-end through real
+      main() in TestSprint12TriggerEndToEnd)
+- [x] Unit tests for orchestrator consumption (chunk 2 commit)
 - [ ] Bench: out-of-window `trg 2` captures + transmits next boot;
       `trg 3` sends reef reference with camera skipped
 
 ## 2. `twn` command
 - [x] `TWN_TABLE` presets in command_tables.py (tests green)
-- [ ] Binding + persisted state + overlay (`transmit_window` from state)
-      — persistence DONE; overlay + gate override are chunk 2
-- [ ] `twn 0` removes the override
-- [ ] Window interpreted in unit's configured timezone (no tz change)
-- [ ] Test: unit booted outside YAML window transmits after `twn 2` (wide)
-- [ ] Unit tests
+- [x] Binding + persisted state + overlay (`transmit_window` from state)
+- [x] `twn 0` removes the override
+      (test_twn_0_touched_leaves_yaml_governing)
+- [x] Window interpreted in unit's configured timezone (no tz change —
+      gate override passes only start/end; timezone stays YAML;
+      TestSprint12WindowGateOverride uses America/New_York)
+- [x] Test: unit booted outside YAML window transmits after `twn 2` (wide)
+      — off-device (test_twn_wide_override_opens_the_window + D14
+      plumbing tests). On-unit artifact owed in chunk 4/5.
+- [x] Unit tests (chunk 2 commit)
 
 ## 3. Daemon enabled in production configs
-- [ ] `bm_commands.enabled: true` in all four device profiles + template
-- [ ] Confirm cycle byte-behavior otherwise unchanged (D14 parity check)
-- [ ] Document expected command latency (hourly [MS] drain; re-send doctrine)
+- [x] `bm_commands.enabled: true` in all four device profiles + template
+      (template gained the island — it had none; all 5 parse +
+      validate_schedule clean, chunk 3 commit)
+- [x] Confirm cycle byte-behavior otherwise unchanged (D14 parity check)
+      — enabled-but-untouched overlay changes nothing
+      (test_untouched_state_changes_nothing); integration suites run
+      enabled with stock state and produce the normal START/chunks/END
+      wire; gate override key absent unless twn commanded
+      (TestSprint12GateKwargsPlumbing)
+- [x] Document expected command latency (hourly [MS] drain; re-send
+      doctrine) — profile comments, template island comment,
+      docs/bmcam_command_reference.md
 
 ## 4. Bench validation (bmcam003, USB path)
 - [ ] `hlt 2` via Spotter console `bm pub bmcam/cmd ... 1 1` → applied on
@@ -69,7 +90,12 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       (Sofar ack row + boot log artifacts)
 
 ## 6. Wrap
-- [ ] GUI: two new commands in tools/bm_command_gui
-- [ ] Docs + `bmcam-hotspot-update` skill updated (halt/window no longer
-      SSH-only)
+- [x] GUI: new commands in tools/bm_command_gui — zero code change needed
+      (D9: dropdowns generated from tables; hlt/twn/trg + labels verified,
+      tables v3 shown). sofar_send_command.py likewise table-driven;
+      dry-run verified: `--cmd trg --value 3` → 50-byte console line
+- [x] Docs + `bmcam-hotspot-update` skill updated (halt/window no longer
+      SSH-only): docs/bmcam_command_reference.md (new, operator-facing),
+      skill Phase 0 "try a remote command first", REMOTE_CONFIG_AUDIT.md
+      (Sprint13 input: 5 preset candidates + cfg readback à la `post`)
 - [ ] PR → `development`, gates green
