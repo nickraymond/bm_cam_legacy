@@ -28,10 +28,12 @@ from command_daemon import CommandDaemon
 def make_query_render_fn(settings, state, topic):
     """Sprint13: closure the daemon calls to answer help/cfg queries.
 
-    Captures the RESOLVED settings dict (post-overlay — the same dict
-    --print-config prints, so cfg can never disagree with it) and the
-    live CommandState (so a cfg sent after e.g. twn 2 in the same listen
-    window shows the new override as next-boot truth).
+    cfg re-resolves YAML + overlay AT QUERY TIME over the live
+    CommandState, so its answer is the true NEXT-BOOT config even for a
+    command applied seconds earlier in the same listen window (a frozen
+    boot-time dict showed the new source with the OLD value — caught in
+    the 2026-08-01 rehearsal planning). Falls back to the captured
+    boot-time dict if the re-resolve fails.
 
     Returns None if command_help cannot import — a broken/missing help
     renderer must degrade to "queries ack, no output", never kill the
@@ -44,12 +46,28 @@ def make_query_render_fn(settings, state, topic):
               "help/cfg will ack without console output")
         return None
 
+    def _next_boot_view():
+        # Lazy import: rc_progressive_jpeg imports this module, so the
+        # circular import must resolve at call time, not module load.
+        import rc_progressive_jpeg as rc
+        base = rc.resolve_rc_settings(settings["config_path"])
+        fresh, _overrides = overlay_rc_settings(base, state)
+        controls = overlay_camera_controls(
+            rc._load_camera_controls_island(settings["config_path"]), state)
+        return fresh, controls
+
     def render(cmd):
         if cmd == "help":
             return render_help(topic=topic)
         if cmd == "cfg":
-            return render_cfg(settings, state,
-                              settings.get("camera_controls_override"))
+            try:
+                fresh, controls = _next_boot_view()
+            except Exception as exc:
+                print(f"[CMD][WARN] cfg re-resolve failed ({exc}); "
+                      "rendering boot-time view")
+                fresh = settings
+                controls = settings.get("camera_controls_override")
+            return render_cfg(fresh, state, controls)
         return []
 
     return render

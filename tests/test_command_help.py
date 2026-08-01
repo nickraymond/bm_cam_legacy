@@ -437,6 +437,21 @@ class TestHooksConsoleFlush(unittest.TestCase):
         self.assertEqual(self.daemon.bm.printed, ["only line"])
         self.assertIn("applied", summary["command_events"])
 
+    def test_cfg_renders_next_boot_view_of_live_state(self):
+        # A cfg query answered seconds after a settings command in the
+        # SAME listen window must show the new value AND source (the
+        # frozen boot-time dict showed old value + new source).
+        import rc_command_hooks as ch
+        from tests.test_command_integration import write_yaml
+        config_path = write_yaml()
+        self.addCleanup(os.remove, config_path)
+        boot_settings = dict(_resolved_settings(), config_path=config_path)
+        fn = ch.make_query_render_fn(boot_settings, self.state, "bmcam/cmd")
+        self.state.record(3001, "twn", 2)   # lands mid-window
+        text = "\n".join(fn("cfg"))
+        self.assertIn("ALL DAY (24 h)", text)      # new VALUE
+        self.assertIn("command twn=2", text)       # new SOURCE
+
     def test_missing_renderer_module_degrades_not_kills(self):
         # The bmcam003 rehearsal failure (2026-08-01): command_help
         # absent from the deployed runtime must yield render_fn=None
