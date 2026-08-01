@@ -402,8 +402,8 @@ class TestSpotterPrintFrame(unittest.TestCase):
         tail = packet[header_len + 2 + len(topic):]
         self.assertEqual(tail[:8], b"\x00" * 8)          # target node id 0
         self.assertEqual(tail[8:10], (0).to_bytes(2, "little"))   # no fname
-        self.assertEqual(tail[10:12], (3).to_bytes(2, "little"))  # "hi\n"
-        self.assertEqual(tail[12:], b"hi\n")
+        self.assertEqual(tail[10:12], (2).to_bytes(2, "little"))  # "hi"
+        self.assertEqual(tail[12:], b"hi")  # console adds the newline
         self.assertTrue(wire.endswith(b"\x00"))          # COBS delimiter
         self.assertIn(topic, wire)  # ASCII topic survives COBS verbatim
 

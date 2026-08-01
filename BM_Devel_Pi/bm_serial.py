@@ -211,11 +211,13 @@ class BristlemouthSerial:
 
 		Frame mirrors spotter_log (the Sofar SDK layout / bm_core print
 		header): 8-byte target node id (0 = local Spotter), 2-byte
-		filename length (0 — no file), 2-byte data length, data. The
-		trailing newline is counted in the length, same convention as
-		spotter_log. Byte layout derived from our spotter_log, not
-		copied from SDK source — bench-verified against v2.16.6 before
-		the transport gate is ticked.
+		filename length (0 — no file), 2-byte data length, data.
+		Bench-verified on v2.16.6 (2026-08-01, echo proven).
+
+		UNLIKE spotter_log, NO trailing newline: the Spotter console
+		adds its own line break when rendering a printf, so a payload
+		newline double-spaces every line (Nick, demo morning). The \\n
+		convention stays correct for spotter_log (file append).
 		"""
 		topic = b"spotter/printf"
 		packet = (
@@ -224,9 +226,8 @@ class BristlemouthSerial:
 			+ topic
 			+ b"\x00" * 8
 			+ (0).to_bytes(2, "little")
-			+ (len(data) + 1).to_bytes(2, "little")
+			+ len(data).to_bytes(2, "little")
 			+ data.encode()
-			+ b"\n"
 		)
 		cobs = self.finalize_packet(packet)
 		return self.uart.write(cobs)

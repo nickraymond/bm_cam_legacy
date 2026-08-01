@@ -370,6 +370,10 @@ class CommandDaemon:
         except Exception as exc:
             print(f"[CMD][WARN] query '{cmd}' render failed: {exc}")
             return
+        # Blank spacer lines render as stamped empty rows on the Spotter
+        # console (Nick, demo morning) — structure comes from the headers
+        # and dividers, so drop them at the transport boundary.
+        lines = [line for line in lines if line.strip()]
         self._console.extend(lines)
         print(f"[CMD] query '{cmd}': {len(lines)} console line(s) queued")
 
