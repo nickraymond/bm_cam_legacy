@@ -32,10 +32,12 @@ on the console:
 (use the spam pattern if single-shot misses the subscribe frame).
 EXPECT: ~143 reference lines printed on the USB console via
 spotter/printf + the ack `{"id":901,"ok":1,...}`.
-If NOTHING prints but the ack arrives: the printf frame layout needs
-fixing against the real SDK (session had no network to verify) — stop,
-fetch Sofar's bm_serial.py, diff spotter_print, redeploy. That is the
-one known unknown in this demo.
+Frame layout is VERIFIED against upstream bm_core/bm_common_messages
+source (v1 struct, matching our proven fprintf framing — DESIGN
+D-S13-9). The one remaining unknown is behavioral: whether v2.16.6
+echoes printf publications on the USB console at all. If the ack
+arrives but nothing prints, that answer is no — stop and rethink
+transport with Nick (framing is not the suspect).
 
 ## Step 2 — Nick's readability pass (gate 3)
 

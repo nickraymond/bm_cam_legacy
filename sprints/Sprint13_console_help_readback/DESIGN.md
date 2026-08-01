@@ -72,13 +72,22 @@ in the Phase 0 bench pass before the formatting gate is ticked.
 Sofar SDK's own bm_serial (Nick 2026-08-01, overnight session).** Nick
 rejected the SD+`cat` fallback outright and pointed at the SDK's console
 write: `bm_serial.py` now carries the clean trio — `spotter_tx`
-(cellular), `spotter_log` (SD), `spotter_print` (console). Implementation
-note (honesty): no local SDK copy existed on this Mac and the session had
-no network, so `spotter_print` mirrors our own `spotter_log` frame
-(itself SDK-derived; bm_core print header: 8B target node, 2B fname_len,
-2B data_len) with topic `spotter/printf` and fname_len=0 — byte layout is
-DERIVED, not copied. Bench echo test on v2.16.6 is the proof gate; diff
-against real SDK source when network returns. Console lines are queued in
+(cellular), `spotter_log` (SD), `spotter_print` (console). Frame layout VERIFIED against
+upstream source (2026-08-01, network restored): bm_core
+`integrations/spotter.c` shows ONE function (`spotter_log`) serving both
+topics — NULL filename publishes to spotter/printf (console; the
+`spotter_log_console` macro), filename publishes to spotter/fprintf (SD)
+— same `bm_print_publication_t` struct. bm_common_messages history
+settles the header size question: the v1 struct (2023-07, protocol
+version byte 1) is `target_node_id(8) + fname_len(2) + data_len(2) +
+data` — NO print_time; commit d55b642d (2024-08-28) added `print_time`
+and bumped the version byte to 2. Our `get_pub_header()` stamps every
+publication type=1/version=1, so our stack speaks v1 end-to-end — which
+is why the 12-byte fprintf frames already work on Spotter v2.16.6 (a
+13-byte parse would have shifted every SD filename by one char, never
+observed). `spotter_print` uses the identical v1 framing with
+fname_len=0. Remaining bench proof: only that v2.16.6's printf handler
+echoes v1 frames to the USB console (behavioral, not framing). Console lines are queued in
 the daemon and drained at idle points / the listen window / before halt —
 never mid-transmit, never into the cellular queue. Per-line delay 0.05 s
 PROVISIONAL until bench measures.
