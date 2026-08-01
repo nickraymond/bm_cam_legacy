@@ -45,8 +45,11 @@ from command_tables import (
     CAP_TABLE,
     EXP_TABLE,
     FOC_TABLE,
+    HLT_TABLE,
     ROI_TABLE,
     SRC_TABLE,
+    TRG_TABLE,
+    TWN_TABLE,
     TXD_TABLE,
     WIN_TABLE,
 )
@@ -110,6 +113,36 @@ def overlay_rc_settings(settings, state):
         if old != path:
             overrides.append(("source_image_path", old, path, f"src={index}"))
         s["source_image_path"] = path
+
+    # Sprint12 hlt/twn: index 0 carries NO override payload, so the YAML
+    # value governs even though the key is touched (D-S12-1 — the
+    # delete-the-key-to-restore-stock doctrine, implemented table-driven).
+    if "hlt" in state.touched:
+        index = state.settings["hlt"]
+        override = HLT_TABLE[index]["override"]
+        if override is not None:
+            old = (s.get("power_halt_enabled"), s.get("power_halt_dry_run"))
+            new = (override["enabled"], override["dry_run"])
+            if old != new:
+                overrides.append(
+                    ("power_halt (enabled, dry_run)", old, new, f"hlt={index}")
+                )
+            s["power_halt_enabled"] = override["enabled"]
+            s["power_halt_dry_run"] = override["dry_run"]
+            s["power_halt_source"] = f"command hlt={index}"
+
+    if "twn" in state.touched:
+        index = state.settings["twn"]
+        override = TWN_TABLE[index]["override"]
+        if override is not None:
+            old = (s.get("window_start"), s.get("window_end"))
+            new = (override["start"], override["end"])
+            if old != new:
+                overrides.append(("transmit_window", old, new, f"twn={index}"))
+            s["window_start"] = override["start"]
+            s["window_end"] = override["end"]
+            s["transmit_window"] = f"{override['start']}-{override['end']}"
+            s["window_source"] = f"command twn={index}"
 
     # Recompute the derived transmit-only message budget AFTER txd/win, so
     # telemetry never reports a budget computed from the pre-override pacing.
@@ -179,3 +212,56 @@ def describe_overrides(overrides):
         f"[CMD] override {key}: {old} -> {new} ({source})"
         for key, old, new, source in overrides
     ]
+
+
+def stranding_warnings(state):
+    """Loud consequence lines for an active hlt override (Sprint12 SPEC).
+
+    The command is allowed either way — that is the point of hlt — but the
+    boot log must state the stranding trade unambiguously: a wrong halt
+    mode is exactly what stranded bmcam001/002 on 2026-07-31.
+    """
+    if "hlt" not in state.touched:
+        return []
+    index = state.settings["hlt"]
+    override = HLT_TABLE[index]["override"]
+    if override is None:
+        return []
+    if override["enabled"] and not override["dry_run"]:
+        return [f"[CMD][WARN] hlt={index}: REAL power halt commanded — a "
+                "constant-power unit halts at cycle end and stays dark "
+                "until a physical power cycle"]
+    if not override["enabled"]:
+        return [f"[CMD][WARN] hlt={index}: power halt DISABLED by command — "
+                "a battery unit now drains ~0.6 W continuously until "
+                "re-enabled"]
+    return [f"[CMD] hlt={index}: dry-run halt commanded (halt is logged, "
+            "not executed)"]
+
+
+def apply_trigger(settings, trigger):
+    """Map a consumed one-shot trigger onto settings + run flags
+    (D-S12-3/4/5). Pure: returns (new_settings, flags, log_lines).
+
+    flags: skip_time_window is ALWAYS True (D-S12-4 — the trigger boot
+    bypasses the window gate, once); capture_only True for trg 1.
+    A reference trigger sets source_image_path for THIS boot only — the
+    persisted `src` setting is untouched.
+    """
+    entry = TRG_TABLE[trigger["value"]]
+    s = dict(settings)
+    flags = {"skip_time_window": True,
+             "capture_only": entry["action"] == "capture"}
+    lines = [f"[CMD] one-shot trigger id={trigger['id']} "
+             f"trg={trigger['value']} ({entry['label']}): window gate "
+             "BYPASSED for this boot only"]
+    if entry["src"] is not None:
+        path = SRC_TABLE[entry["src"]]["path"]
+        s["source_image_path"] = path
+        lines.append(f"[CMD] trigger source: {path} (camera skipped this "
+                     "boot; persisted src setting untouched)")
+    if flags["capture_only"]:
+        lines.append("[CMD] trigger action: capture only — native to SD, "
+                     "no encode/transmit")
+    s["trigger"] = dict(trigger)
+    return s, flags, lines

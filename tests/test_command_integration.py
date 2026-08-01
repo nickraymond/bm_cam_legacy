@@ -184,7 +184,11 @@ class IntegrationHarness(unittest.TestCase):
                 bm_open_fn=lambda cfg: image_tx,
                 bm_close_fn=lambda: 0,
                 wake_fn=lambda **kw: None,
-                halt_fn=lambda **kw: {"action": "recorded"},
+                # Halt rides the SAME ordered timeline as acks/chunks so
+                # the Sprint12 ack-before-halt assertion is meaningful.
+                halt_fn=lambda **kw: (
+                    self.wire.append(("halt", kw))
+                    or {"action": "recorded", **kw}),
                 sleep_fn=hybrid_sleep,
                 clock=clock,
                 bm_commands_cfg=self.cfg if enabled else
@@ -460,3 +464,154 @@ class TestDisabledRegressionGuard(IntegrationHarness):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSprint12AckBeforeHalt(IntegrationHarness):
+    """SPEC Sprint12 hard requirement (D-S12-7): an hlt arriving mid-cycle
+    is acked on the uplink BEFORE the cycle's halt fires — otherwise the
+    sender's retry engine can never converge on a unit that goes dark at
+    cycle end. And the halt itself uses the settings the cycle BOOTED
+    with (no same-cycle halt changes, Sprint11 D2)."""
+
+    def _ack_and_halt_indices(self, command_id):
+        acks = [i for i, (k, m) in enumerate(self.wire)
+                if k == "ack" and f'"id":{command_id}' in m]
+        halts = [i for i, (k, _) in enumerate(self.wire) if k == "halt"]
+        return acks, halts
+
+    def test_hlt_mid_transmit_ack_precedes_halt(self):
+        frame = make_cmd_frame({"id": 950, "c": "hlt", "v": 1})
+        r = self.run_rc(transmit=True, inject_at_sleep_call=20,
+                        inject_frame=frame)
+        self.assertIn("applied", r.summary["command_events"])
+        acks, halts = self._ack_and_halt_indices(950)
+        self.assertTrue(acks, "hlt ack never reached the wire")
+        self.assertTrue(halts, "halt never fired")
+        self.assertLess(acks[0], halts[0], "halt fired before the hlt ack")
+        # THIS cycle halted with boot settings (harness yaml has no
+        # power_halt block -> enabled False), not the commanded real halt.
+        halt_kw = self.wire[halts[0]][1]
+        self.assertFalse(halt_kw["enabled"])
+        # The NEXT boot's overlay applies the commanded mode from disk.
+        next_state = CommandState(path=self.state_path)
+        settings = rc.resolve_rc_settings(self.config_path)
+        settings = rc._apply_command_overlay(settings, next_state)
+        self.assertTrue(settings["power_halt_enabled"])
+        self.assertFalse(settings["power_halt_dry_run"])
+        self.assertEqual(settings["power_halt_source"], "command hlt=1")
+
+    def test_hlt_arriving_in_listen_tail_still_acks_before_halt(self):
+        # The field-realistic arrival (finding 006): the command lands in
+        # the C4 post-transmit tail; the final flush at shutdown must put
+        # the ack out before halt_fn runs.
+        self.cfg["post_transmit_listen_s"] = 1.0
+        frame = make_cmd_frame({"id": 951, "c": "hlt", "v": 2})
+        r = self.run_rc(transmit=True, inject_after_end=True,
+                        inject_frame=frame)
+        self.assertIn("applied", r.summary["command_events"])
+        acks, halts = self._ack_and_halt_indices(951)
+        self.assertTrue(acks, "tail hlt ack never reached the wire")
+        self.assertLess(acks[0], halts[0], "halt fired before the tail ack")
+
+    def test_stranding_warning_printed_on_next_boot(self):
+        # hlt 1 commanded -> the next boot's overlay logs the stranding
+        # trade loudly (SPEC: "logged loudly, unambiguously").
+        frame = make_cmd_frame({"id": 952, "c": "hlt", "v": 1})
+        self.run_rc(transmit=True, inject_at_sleep_call=20,
+                    inject_frame=frame)
+        next_state = CommandState(path=self.state_path)
+        settings = rc.resolve_rc_settings(self.config_path)
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            rc._apply_command_overlay(settings, next_state)
+        self.assertIn("REAL power halt", stdout.getvalue())
+
+
+class TestSprint12TriggerEndToEnd(IntegrationHarness):
+    """trg through the REAL main() wiring: pending trigger -> one-shot
+    window bypass + reference source -> stock behaviour restored on the
+    following boot (D-S12-3/4/5)."""
+
+    def _write_gated_yaml(self):
+        # A window that blocks essentially always (00:00-00:01 UTC), with
+        # the daemon island pointed at the harness state file. time_source
+        # system: deterministic outside-window verdict without a UART.
+        f = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False,
+                                        encoding="utf-8")
+        f.write(
+            'capture_mode: "progressive_jpeg"\n'
+            "enforce_time_window: true\n"
+            "time_source: system\n"
+            'timezone: "UTC"\n'
+            "transmit_window:\n"
+            '  start: "00:00"\n'
+            '  end: "00:01"\n'
+            "bm_commands:\n"
+            "  enabled: true\n"
+            f'  state_path: "{self.state_path}"\n'
+            "  post_transmit_listen_s: 0.0\n"
+        )
+        f.close()
+        self.addCleanup(os.unlink, f.name)
+        return f.name
+
+    def _run_main(self, config_path):
+        clock = FakeClock()
+
+        def pacing_sleep(seconds):
+            clock.now += float(seconds)
+
+        out_dir = tempfile.mkdtemp(dir=self.tmpdir.name)
+        wire = []
+
+        def image_tx(payload):
+            wire.append(payload.decode("ascii"))
+
+        def no_camera(settings, output_dir):
+            raise AssertionError(
+                "camera capture attempted — reference trigger must skip it")
+
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            rcode = rc.main(
+                ["--config-path", config_path, "--transmit",
+                 "--output-dir", out_dir],
+                capture_fn=no_camera,
+                bm_open_fn=lambda cfg: image_tx,
+                bm_close_fn=lambda: 0,
+                wake_fn=lambda **kw: None,
+                halt_fn=lambda **kw: {"action": "recorded", **kw},
+                sleep_fn=pacing_sleep,
+                clock=clock,
+                daemon_factory=lambda s, c, st: self.daemon,
+            )
+        return types.SimpleNamespace(rcode=rcode, wire=wire,
+                                     stdout=stdout.getvalue())
+
+    def test_trg3_bypasses_window_sends_reference_then_restores(self):
+        config_path = self._write_gated_yaml()
+        # Boot 1, no trigger: gate blocks (outside 00:00-00:01).
+        r1 = self._run_main(config_path)
+        self.assertEqual(r1.rcode, 0)
+        self.assertEqual(r1.wire, [])
+        self.assertIn("Outside transmit window", r1.stdout)
+
+        # Operator arms trg 3 (reef reference, camera skipped).
+        arming = CommandState(path=self.state_path)
+        arming.record(970, "trg", 3)
+
+        # Boot 2: trigger consumed -> gate bypassed, reference transmitted.
+        r2 = self._run_main(config_path)
+        self.assertEqual(r2.rcode, 0)
+        self.assertIn("window gate", r2.stdout)
+        self.assertIn("BYPASSED", r2.stdout)
+        self.assertTrue(r2.wire and r2.wire[0].startswith("<START IMG>"))
+        self.assertIn("<END IMG>", r2.wire[-1])
+        self.assertIn(ct.SRC_TABLE[1]["path"], r2.stdout)
+
+        # Boot 3: trigger gone -> stock gating again, nothing sent.
+        r3 = self._run_main(config_path)
+        self.assertEqual(r3.wire, [])
+        self.assertIn("Outside transmit window", r3.stdout)
+        self.assertIsNone(
+            CommandState(path=self.state_path).pending_trigger)

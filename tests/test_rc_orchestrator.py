@@ -369,3 +369,124 @@ class TestPhaseAwareTransmit(OrchestratorHarness):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestSprint12WindowGateOverride(unittest.TestCase):
+    """D-S12-6 — the twn override reaches should_transmit_now_from_schedule
+    deterministically (fixed Spotter clock via the injectable reader)."""
+
+    FIXED_UTC = "2026-07-31T22:00:00+00:00"  # = 18:00 EDT, outside 10:00-15:00
+
+    def _gate(self, window_override=None):
+        import datetime as dt
+        import spotter_time_sync as sts
+        yaml_text = (
+            'capture_mode: "progressive_jpeg"\n'
+            "enforce_time_window: true\n"
+            'timezone: "America/New_York"\n'
+            "transmit_window:\n"
+            '  start: "10:00"\n'
+            '  end: "15:00"\n'
+        )
+        config_path = write_yaml(yaml_text)
+        self.addCleanup(os.unlink, config_path)
+        fixed = dt.datetime.fromisoformat(self.FIXED_UTC)
+
+        def fake_reader(timeout_seconds, port=None, baudrate=None, verbose=False):
+            return fixed
+
+        kwargs = {"read_spotter_utc_fn": fake_reader}
+        if window_override is not None:
+            kwargs["window_override"] = window_override
+        return sts.should_transmit_now_from_schedule(config_path, **kwargs)
+
+    def test_outside_yaml_window_blocks_without_override(self):
+        allowed, info = self._gate()
+        self.assertFalse(allowed)
+        self.assertIn("Outside transmit window 10:00-15:00", info["reason"])
+
+    def test_twn_wide_override_opens_the_window(self):
+        # The tracker case: unit booted outside its YAML window transmits
+        # after twn 2 (the remote un-brick for a misconfigured window).
+        allowed, info = self._gate(window_override=("00:01", "23:59"))
+        self.assertTrue(allowed)
+        self.assertIn("00:01-23:59 (command override)", info["reason"])
+        self.assertIn("command override", info["window"])
+
+    def test_override_still_respects_time(self):
+        # A commanded window is a window, not a bypass: 18:00 EDT stays
+        # outside a commanded 08:00-12:00 morning window.
+        allowed, _info = self._gate(window_override=("08:00", "12:00"))
+        self.assertFalse(allowed)
+
+
+class TestSprint12GateKwargsPlumbing(unittest.TestCase):
+    """run_cycle passes the commanded window to the gate ONLY when twn is
+    active (D14: un-commanded path byte-identical)."""
+
+    def test_yaml_window_source_adds_no_override(self):
+        import rc_command_hooks as ch
+        settings = {"window_source": "yaml",
+                    "window_start": "10:00", "window_end": "15:00"}
+        self.assertEqual(ch.gate_kwargs_for(None, settings), {})
+
+    def test_commanded_window_source_adds_override(self):
+        import rc_command_hooks as ch
+        settings = {"window_source": "command twn=2",
+                    "window_start": "00:01", "window_end": "23:59"}
+        kwargs = ch.gate_kwargs_for(None, settings)
+        self.assertEqual(kwargs, {"window_override": ("00:01", "23:59")})
+
+    def test_no_settings_matches_legacy_shape(self):
+        import rc_command_hooks as ch
+        self.assertEqual(ch.gate_kwargs_for(None), {})
+
+
+class TestSprint12ServiceTrigger(unittest.TestCase):
+    """service_pending_trigger — consume rules (D-S12-3)."""
+
+    def setUp(self):
+        import tempfile as tf
+        from command_state import CommandState
+        self.tmpdir = tf.TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        self.state = CommandState(
+            path=os.path.join(self.tmpdir.name, "state.json"))
+        self.settings = {"window_source": "yaml"}
+
+    def _service(self, transmit):
+        import rc_command_hooks as ch
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            s, flags = ch.service_pending_trigger(
+                self.settings, self.state, transmit=transmit)
+        return s, flags, stdout.getvalue()
+
+    def test_transmit_boot_consumes_and_sets_flags(self):
+        self.state.record(1, "trg", 2)
+        s, flags, out = self._service(transmit=True)
+        self.assertTrue(flags["skip_time_window"])
+        self.assertFalse(flags["capture_only"])
+        self.assertIsNone(self.state.pending_trigger)
+        self.assertIn("BYPASSED", out)
+        self.assertEqual(s["trigger"], {"id": 1, "value": 2})
+
+    def test_non_transmit_boot_leaves_trigger_armed(self):
+        self.state.record(1, "trg", 2)
+        s, flags, out = self._service(transmit=False)
+        self.assertFalse(flags["skip_time_window"])
+        self.assertEqual(self.state.pending_trigger, {"id": 1, "value": 2})
+        self.assertIn("stays armed", out)
+
+    def test_no_trigger_is_a_no_op(self):
+        s, flags, out = self._service(transmit=True)
+        self.assertEqual(flags, {"skip_time_window": False,
+                                 "capture_only": False})
+        self.assertNotIn("trigger", s)
+
+    def test_no_state_is_a_no_op(self):
+        import rc_command_hooks as ch
+        s, flags = ch.service_pending_trigger(self.settings, None,
+                                              transmit=True)
+        self.assertEqual(flags, {"skip_time_window": False,
+                                 "capture_only": False})

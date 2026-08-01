@@ -186,6 +186,10 @@ def resolve_rc_settings(config_path):
         "power_halt_dry_run": bool(cfg.power_halt_dry_run),
         "power_halt_mode": cfg.power_halt_mode,
         "power_halt_script_path": cfg.power_halt_script_path,
+        # Sprint12: overlay stamps these "command hlt=N"/"command twn=N"
+        # so the boot log states unambiguously WHO set the halt/window.
+        "power_halt_source": "yaml",
+        "window_source": "yaml",
         "timezone": resolve_timezone(cfg),
         "transmit_window": f"{cfg.transmit_start}-{cfg.transmit_end}",
         "window_start": cfg.transmit_start,
@@ -245,9 +249,11 @@ def print_resolved_settings(s):
     print(
         f"[RC] power_halt: enabled={s['power_halt_enabled']} "
         f"dry_run={s['power_halt_dry_run']} mode={s['power_halt_mode']} "
-        f"script={s['power_halt_script_path']}"
+        f"script={s['power_halt_script_path']} "
+        f"source={s.get('power_halt_source', 'yaml')}"
     )
-    print(f"[RC] schedule: window={s['transmit_window']} tz={s['timezone']}")
+    print(f"[RC] schedule: window={s['transmit_window']} tz={s['timezone']} "
+          f"source={s.get('window_source', 'yaml')}")
     ph = s.get("transmit_phase_cfg") or {}
     if ph.get("enabled"):
         lane = rc_transmit_phase.usable_lane_seconds(
@@ -485,6 +491,10 @@ def run_cycle(
         "schedule_allowed": True,
         "command_events": [],
     }
+    # Sprint12: a consumed one-shot trigger rides settings into the summary
+    # so the run artifact records what fired this cycle.
+    if settings.get("trigger"):
+        summary["trigger"] = settings["trigger"]
 
     daemon = None
     use_daemon = bool(
@@ -512,7 +522,8 @@ def run_cycle(
         gate_info, gate_mono = None, clock()
         if transmit and not skip_time_window and settings["enforce_time_window"]:
             allowed, info = should_transmit_now_from_schedule(
-                settings["config_path"], **cmd_hooks.gate_kwargs_for(daemon)
+                settings["config_path"],
+                **cmd_hooks.gate_kwargs_for(daemon, settings)
             )
             # Sprint11 C2: the gate's Spotter read is also the grid clock.
             # Pin it to a monotonic instant HERE and extrapolate later; the
@@ -879,14 +890,23 @@ def main(argv=None, **cycle_overrides):
               "known-good HEIC path owns this cycle. Nothing to do.")
         return 0
 
+    # Sprint12: consume a pending one-shot trg (D-S12-3/4/5). Only a
+    # --transmit boot services it; the flags force the one-shot window
+    # bypass and (trg 1) the capture-only path.
+    trigger_flags = {"skip_time_window": False, "capture_only": False}
+    if command_state is not None:
+        settings, trigger_flags = cmd_hooks.service_pending_trigger(
+            settings, command_state, transmit=args.transmit)
+
     print_resolved_settings(settings)
     try:
         run_cycle(
             settings,
             transmit=args.transmit,
-            capture_only=args.capture_only,
+            capture_only=args.capture_only or trigger_flags["capture_only"],
             native_path=args.compress_only,
-            skip_time_window=args.skip_time_window,
+            skip_time_window=(args.skip_time_window
+                              or trigger_flags["skip_time_window"]),
             output_dir=args.output_dir,
             bm_commands_cfg=bm_commands_cfg,
             command_state=command_state,

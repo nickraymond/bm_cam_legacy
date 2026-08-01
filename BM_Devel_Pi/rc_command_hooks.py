@@ -16,9 +16,11 @@ D5/D11/D12/D13 for the decisions these hooks implement.
 
 from bm_serial import BristlemouthSerial, load_uart_config
 from command_bindings import (
+    apply_trigger,
     describe_overrides,
     overlay_camera_controls,
     overlay_rc_settings,
+    stranding_warnings,
 )
 from command_daemon import CommandDaemon
 
@@ -46,6 +48,9 @@ def apply_command_overlay(settings, state, load_controls_fn):
     settings, overrides = overlay_rc_settings(settings, state)
     for line in describe_overrides(overrides):
         print(line)
+    # Sprint12: an active hlt override states its stranding trade loudly.
+    for line in stranding_warnings(state):
+        print(line)
     controls = overlay_camera_controls(
         load_controls_fn(settings["config_path"]), state
     )
@@ -57,16 +62,51 @@ def apply_command_overlay(settings, state, load_controls_fn):
     return settings
 
 
-def gate_kwargs_for(daemon):
+def gate_kwargs_for(daemon, settings=None):
     """kwargs for should_transmit_now_from_schedule: with a daemon, the
-    Spotter-time read rides the shared port instead of opening its own."""
+    Spotter-time read rides the shared port instead of opening its own.
+
+    Sprint12 (D-S12-6): when a COMMANDED window is active (twn), pass it
+    as an explicit override — the gate re-reads the YAML itself and would
+    otherwise never see the overlay. No commanded window -> no key, so
+    the un-commanded path stays byte-identical (D14).
+    """
+    kwargs = {}
+    if settings is not None and str(
+            settings.get("window_source", "")).startswith("command"):
+        kwargs["window_override"] = (
+            settings["window_start"], settings["window_end"])
     if daemon is None:
-        return {}
-    return {
-        "read_spotter_utc_fn":
-            lambda timeout_seconds, port, baudrate, verbose=False:
-                daemon.wait_for_spotter_utc(timeout_seconds)
-    }
+        return kwargs
+    kwargs["read_spotter_utc_fn"] = (
+        lambda timeout_seconds, port, baudrate, verbose=False:
+            daemon.wait_for_spotter_utc(timeout_seconds))
+    return kwargs
+
+
+def service_pending_trigger(settings, command_state, transmit):
+    """Consume + apply the pending one-shot trigger (D-S12-3/4/5).
+
+    Only a --transmit boot services triggers: bench/manual runs must not
+    burn an operator's armed trigger (and a capture_transmit trigger on a
+    no-transmit invocation could not honour its action anyway — cron
+    production boots always carry --transmit). Returns (settings, flags)
+    where flags = {"skip_time_window": bool, "capture_only": bool}.
+    """
+    flags = {"skip_time_window": False, "capture_only": False}
+    if command_state is None:
+        return settings, flags
+    if command_state.pending_trigger is not None and not transmit:
+        print(f"[CMD] pending trigger {command_state.pending_trigger} NOT "
+              "serviced (not a --transmit boot); it stays armed")
+        return settings, flags
+    trigger = command_state.consume_trigger()
+    if trigger is None:
+        return settings, flags
+    settings, flags, lines = apply_trigger(settings, trigger)
+    for line in lines:
+        print(line)
+    return settings, flags
 
 
 import time as _time
