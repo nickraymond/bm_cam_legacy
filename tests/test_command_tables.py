@@ -278,8 +278,8 @@ class TestV2Tables(unittest.TestCase):
 class TestSprint12Tables(unittest.TestCase):
     """hlt / twn / trg — Sprint12 remote-config commands (2026-07-31)."""
 
-    def test_tables_version_is_3(self):
-        self.assertEqual(ct.TABLES_VERSION, 3)
+    def test_tables_version_is_4(self):
+        self.assertEqual(ct.TABLES_VERSION, 4)
 
     def test_hlt_index_zero_carries_no_override(self):
         # 0 = YAML governs. If someone gives index 0 an override payload, a
@@ -298,7 +298,7 @@ class TestSprint12Tables(unittest.TestCase):
         self.assertIsNone(ct.TWN_TABLE[0]["override"])
 
     def test_twn_windows_match_spec_and_are_valid_hhmm(self):
-        expected = {1: ("10:00", "15:00"), 2: ("00:01", "23:59"),
+        expected = {1: ("10:00", "15:00"), 2: ("00:00", "00:00"),
                     3: ("08:00", "12:00"), 4: ("11:00", "14:00")}
         for index, (start, end) in expected.items():
             override = ct.TWN_TABLE[index]["override"]
@@ -314,12 +314,17 @@ class TestSprint12Tables(unittest.TestCase):
                 self.assertTrue(0 <= int(hh) <= 23, f"twn[{index}].{key}")
                 self.assertTrue(0 <= int(mm) <= 59, f"twn[{index}].{key}")
 
-    def test_twn_windows_are_start_before_end(self):
+    def test_twn_windows_are_start_before_end_except_all_day(self):
         # Overnight windows are supported by the gate but NOT offered as
         # presets — a wrapped preset chosen by accident would look like
-        # "unit transmits at 3am". Add one deliberately if ever needed.
+        # "unit transmits at 3am". The ONE exception is the deliberate
+        # full-circle pair (start == end == all day, D-S12-9) on index 2.
         for index, entry in ct.TWN_TABLE.items():
             if entry["override"] is None:
+                continue
+            if index == 2:
+                self.assertEqual(entry["override"]["start"],
+                                 entry["override"]["end"], "twn[2] full-circle")
                 continue
             self.assertLess(entry["override"]["start"],
                             entry["override"]["end"], f"twn[{index}]")

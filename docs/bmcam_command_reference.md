@@ -68,7 +68,11 @@ unit = dark until a physical power cycle; `hlt 3` on a battery unit =
 
 ### twn — transmit-window override
 
-`0` yaml governs · `1` 10:00–15:00 · `2` 00:01–23:59 (wide) · `3` 08:00–12:00 · `4` 11:00–14:00.
+`0` yaml governs · `1` 10:00–15:00 · `2` all day (24 h) · `3` 08:00–12:00 · `4` 11:00–14:00.
+
+`twn 2` uses the full-circle pair `00:00–00:00` = true 24 h with no quiet
+gap (start == end means all day since tables v4; `24:00` is not a valid
+HH:MM). In YAML, `start: "00:00" / end: "00:00"` gives the same thing.
 
 Times in the unit's OWN configured timezone (twn never changes timezone).
 `twn 2` is the remote un-brick for "window misconfigured, unit never

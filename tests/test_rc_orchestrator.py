@@ -405,12 +405,13 @@ class TestSprint12WindowGateOverride(unittest.TestCase):
         self.assertFalse(allowed)
         self.assertIn("Outside transmit window 10:00-15:00", info["reason"])
 
-    def test_twn_wide_override_opens_the_window(self):
+    def test_twn_all_day_override_opens_the_window(self):
         # The tracker case: unit booted outside its YAML window transmits
         # after twn 2 (the remote un-brick for a misconfigured window).
-        allowed, info = self._gate(window_override=("00:01", "23:59"))
+        # v4: twn 2 is the FULL-CIRCLE pair (00:00-00:00 = 24 h, D-S12-9).
+        allowed, info = self._gate(window_override=("00:00", "00:00"))
         self.assertTrue(allowed)
-        self.assertIn("00:01-23:59 (command override)", info["reason"])
+        self.assertIn("00:00-00:00 (command override)", info["reason"])
         self.assertIn("command override", info["window"])
 
     def test_override_still_respects_time(self):
@@ -433,9 +434,9 @@ class TestSprint12GateKwargsPlumbing(unittest.TestCase):
     def test_commanded_window_source_adds_override(self):
         import rc_command_hooks as ch
         settings = {"window_source": "command twn=2",
-                    "window_start": "00:01", "window_end": "23:59"}
+                    "window_start": "00:00", "window_end": "00:00"}
         kwargs = ch.gate_kwargs_for(None, settings)
-        self.assertEqual(kwargs, {"window_override": ("00:01", "23:59")})
+        self.assertEqual(kwargs, {"window_override": ("00:00", "00:00")})
 
     def test_no_settings_matches_legacy_shape(self):
         import rc_command_hooks as ch
@@ -490,3 +491,35 @@ class TestSprint12ServiceTrigger(unittest.TestCase):
                                               transmit=True)
         self.assertEqual(flags, {"skip_time_window": False,
                                  "capture_only": False})
+
+
+class TestFullCircleWindow(unittest.TestCase):
+    """D-S12-9: start == end is ALL DAY (was: unsatisfiable empty window).
+    "24:00" stays invalid; 00:00-00:00 is the true no-quiet-gap window."""
+
+    def _probe(self, hh, mm, ss, start, end):
+        import datetime as dt
+        from spotter_time_sync import is_within_local_window
+        utc = dt.datetime(2026, 8, 1, hh, mm, ss, tzinfo=dt.timezone.utc)
+        allowed, _ = is_within_local_window(
+            utc_dt=utc, timezone_name="UTC", start_hhmm=start, end_hhmm=end)
+        return allowed
+
+    def test_equal_pair_allows_all_probes_including_midnight(self):
+        for hh, mm, ss in ((0, 0, 0), (0, 0, 30), (12, 0, 0), (23, 59, 59)):
+            self.assertTrue(self._probe(hh, mm, ss, "00:00", "00:00"),
+                            f"{hh:02d}:{mm:02d}:{ss:02d}")
+
+    def test_any_equal_pair_is_all_day_not_just_midnight(self):
+        self.assertTrue(self._probe(3, 0, 0, "12:00", "12:00"))
+
+    def test_2400_is_still_rejected(self):
+        from spotter_time_sync import _parse_hhmm
+        with self.assertRaises(ValueError):
+            _parse_hhmm("24:00")
+
+    def test_normal_and_overnight_windows_unchanged(self):
+        self.assertTrue(self._probe(12, 0, 0, "10:00", "15:00"))
+        self.assertFalse(self._probe(22, 0, 0, "10:00", "15:00"))
+        self.assertTrue(self._probe(23, 0, 0, "22:00", "02:00"))
+        self.assertFalse(self._probe(12, 0, 0, "22:00", "02:00"))

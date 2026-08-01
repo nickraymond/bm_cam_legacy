@@ -68,6 +68,16 @@ nothing deployed with an intermediate version. Version-mismatch paths:
 old receiver + new sender → normal ERR_CMD ack; new receiver + old state
 file → missing keys load as defaults (tested both ways).
 
+**D-S12-9 — start == end is a FULL-CIRCLE window = all day (2026-08-01,
+Nick request: kill the 2-minute quiet gap).** Tested first: `"24:00"` is
+rejected by `_parse_hhmm`, and an equal pair was previously an
+UNSATISFIABLE empty window (`start <= end` branch) — a never-transmit trap
+with no legitimate use (`enforce_time_window: false` is the off switch).
+The gate now treats `start == end` as always-in. `twn 2` becomes
+`00:00-00:00` "all day 24h" and tables_version bumps 3 → 4 (v3 only ever
+existed on the sprint branch + bench bmcam003). Normal and overnight
+windows are pinned unchanged by tests (TestFullCircleWindow).
+
 ## Open questions
 
 **O2 — arbitrary window times.** Deferred (possible v4). The preset table

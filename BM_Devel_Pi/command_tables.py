@@ -44,7 +44,11 @@ Example:
 # v3 (2026-07-31, Sprint12): added hlt / twn (remote power-halt and
 # transmit-window overrides — the two settings that stranded bmcam001/002
 # on 2026-07-31) and trg (one-shot capture/send trigger).
-TABLES_VERSION = 3
+# v4 (2026-08-01, Sprint12 in-sprint fix): twn 2 became TRUE 24 h
+# (00:00-00:00 full-circle, gate change D-S12-9) — the 00:01-23:59 v3
+# value left 2 min of daily dead time. v3 existed only on the sprint
+# branch / bench bmcam003.
+TABLES_VERSION = 4
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -231,8 +235,8 @@ TWN_TABLE = {
     0: {"label": "yaml default (no override)", "override": None},
     1: {"label": "field 10:00-15:00",
         "override": {"start": "10:00", "end": "15:00"}},
-    2: {"label": "wide 00:01-23:59 (bench/diagnostic)",
-        "override": {"start": "00:01", "end": "23:59"}},
+    2: {"label": "all day 24h (bench/diagnostic)",
+        "override": {"start": "00:00", "end": "00:00"}},
     3: {"label": "morning 08:00-12:00",
         "override": {"start": "08:00", "end": "12:00"}},
     4: {"label": "midday 11:00-14:00",

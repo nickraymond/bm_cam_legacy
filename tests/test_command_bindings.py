@@ -439,12 +439,12 @@ class TestSprint12HltOverlay(BindingsTestCase):
 class TestSprint12TwnOverlay(BindingsTestCase):
     """twn — transmit-window override (D-S12-1/6)."""
 
-    def test_twn_2_opens_the_wide_window(self):
+    def test_twn_2_opens_the_all_day_window(self):
         self.state.record(1, "twn", 2)
         s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
         self.assertEqual((s["window_start"], s["window_end"]),
-                         ("00:01", "23:59"))
-        self.assertEqual(s["transmit_window"], "00:01-23:59")
+                         ("00:00", "00:00"))
+        self.assertEqual(s["transmit_window"], "00:00-00:00")
         self.assertEqual(s["window_source"], "command twn=2")
         self.assertEqual(len(overrides), 1)
         self.assertIn("twn=2", overrides[0][3])

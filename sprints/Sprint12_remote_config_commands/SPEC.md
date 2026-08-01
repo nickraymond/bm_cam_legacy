@@ -76,7 +76,7 @@ Window presets, int-keyed like everything else:
 TWN_TABLE = {
     0: {"label": "yaml default (no override)", "override": None},
     1: {"label": "field 10:00-15:00",  "start": "10:00", "end": "15:00"},
-    2: {"label": "wide 00:01-23:59 (bench/diagnostic)", "start": "00:01", "end": "23:59"},
+    2: {"label": "all day 24h (bench/diagnostic)", "start": "00:00", "end": "00:00"},  # v4/D-S12-9: was 00:01-23:59 (2 min dead time)
     3: {"label": "morning 08:00-12:00", "start": "08:00", "end": "12:00"},
     4: {"label": "midday 11:00-14:00",  "start": "11:00", "end": "14:00"},
 }

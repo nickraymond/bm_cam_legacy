@@ -686,7 +686,15 @@ def is_within_local_window(
     start = _parse_hhmm(start_hhmm)
     end = _parse_hhmm(end_hhmm)
 
-    if start <= end:
+    if start == end:
+        # Full-circle window: start == end means ALL DAY (Sprint12, Nick
+        # 2026-07-31 — "24:00" is not a valid HH:MM, and 00:01-23:59 left
+        # 2 min of dead time daily). The previous behaviour for an equal
+        # pair was an unsatisfiable EMPTY window — a never-transmit trap
+        # with no legitimate use (enforce_time_window: false is the off
+        # switch). twn preset 2 relies on this.
+        allowed = True
+    elif start < end:
         allowed = start <= local_t < end
     else:
         # Supports overnight windows, e.g. 22:00-02:00.
