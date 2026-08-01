@@ -83,3 +83,45 @@ Hardware evidence (cycle logs in the run folder):
   verbose, Spotter-help style, NOT `hlp` — and post-style `cfg` dump;
   customer-facing, copy-paste examples); Sprint14 soak specced. PR to
   development opened for review.
+
+## 2026-08-01 ~06:30Z — SESSION END (archived mid-§5); exact hand-off state
+
+**bmcam003: DONE, field-normal.** v4 build (ecb9a4d), armed, real halt,
+daemon on, bench gate §4 fully PASSed. Spotter SPOT-33507C always-on;
+console `reset` = wake lever. No action needed.
+
+**bmcam000: v4 deployed (7d29566); USB sweep HALF done; left SAFE-IDLE:**
+- Set phase 12/12 PASS: every v4 command applied + persisted via console
+  `bm pub`; 88 acks on the wire (evidence: cron_logs/
+  sprint12_remote_listen_loop.log on the unit + bmcam000_usb_sweep_results.txt
+  in the run folder). NOTE: applies were processed by a concurrently
+  running bench-cycle loop, NOT the per-step driver cycles — that loop's
+  start had been REJECTED in-session but executed anyway (rejection
+  raced the parallel tool call); benign here but it double-opened the
+  UART (D11 violation) — incident-worthy, documented.
+- Factory-reset phase INCOMPLETE: state file still holds the set-phase
+  values (roi2 foc1 awb1 exp1 win1 txd5 cap1 src1 hlt2 twn2). Restore =
+  ten zero-commands, or simply delete
+  /home/pi/BM_Devel_Pi/bm_command_state.json (documented stock path).
+- **OPEN BUG (the blocker):** console `bm pub` → Pi delivery on
+  SPOT-31593C worked at ~05:18Z (cycle A: 7 frames) but has delivered
+  ZERO frames since the 05:52Z Spotter reset, across 2 further resets
+  and 240+ intact, error-free console sends — while spotter/utc-time
+  broadcasts still reach the Pi fine (mote→Pi path alive) and the
+  neighbor re-joins. Not injection (246 intact echoes), not WiFi
+  (power_save now off persistently), not the Pi (loops ran). Decisive
+  next experiment (defined, NOT run): replicate cycle A exactly — set
+  state file aside (src back to live camera = long cycles), ONE
+  listener, one burst; if that still hears nothing, the Spotter-side
+  pub path is genuinely wedged → full physical power cycle of the
+  SPOT-31593C setup is the next lever.
+- Unit left: DISARMED (armed line saved in
+  /home/pi/crontab_armed_sprint12_bmcam000.txt AND
+  crontab_rearm-style backup), bus always-on, Pi idles at boot. With
+  hlt=2 in state it will not halt if cycles run. Re-arm after the sweep
+  finishes.
+- Sofar mailbox: a benign `ping` (id 3002) still queued (+ possible
+  twn 2 id 3001 straggler); dedupe makes both harmless whenever they
+  land.
+
+PR #32 open; §5 tracker updated to match this state.

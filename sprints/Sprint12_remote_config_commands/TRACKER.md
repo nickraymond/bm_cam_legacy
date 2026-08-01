@@ -103,10 +103,14 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       duty cycle gives ~1 min of SSH per hour; relay-tolerant watcher v2
       is hunting. (v1 watcher's 2 s ConnectTimeout could never complete
       a relayed handshake — diagnosed 2026-08-01 ~04:00Z.)
-- [ ] One command via cloud mailbox → delivered, acked, applied next boot
-      (Sofar ack row + boot log artifacts). Plan: `twn 2` + `trg 2`
-      (trg 2 = the live-camera trigger variant not covered on the bench;
-      re-send-until-acked, expect hours of mailbox latency)
+- [ ] CELLULAR PATH SKIPPED per Nick 2026-08-01 (unit indoors); replaced
+      by a full USB console command sweep on bmcam000: SET PHASE 12/12
+      PASS (every v4 command applied + acked; 88 acks; artifacts in
+      runs/sprint12_bench_20260731/). Factory-reset phase INCOMPLETE —
+      blocked by an OPEN BUG: SPOT-31593C console bm pub → Pi delivery
+      died after the 05:52Z reset (see DEV_LOG session-end entry for
+      the full diagnosis + next experiment). bmcam000 left disarmed,
+      safe-idle, v4.
 
 ## 6. Wrap
 - [x] GUI: new commands in tools/bm_command_gui — zero code change needed

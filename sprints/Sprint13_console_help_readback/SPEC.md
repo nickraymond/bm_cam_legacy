@@ -56,7 +56,30 @@ Power halt             power_halt.enabled/dry_run real         command hlt=1
 - Covers at least every command-controllable setting + the audit's
   category-A keys; full list decided in DESIGN.
 
-## Transport — the design question (T1)
+## Transport — the design question (T1) — FIRST EXPERIMENT DONE 2026-08-01
+
+Bench result (bmcam003 idle, three `spotter_log()` lines published on
+`spotter/fprintf`, 104–130 B each, Spotter v2.16.6 console watched
+throughout): **fprintf does NOT echo to the USB console.** It is SD-only.
+Console `cat <path>` exists (Sprint09: files land under
+`/bm/<node id>/`), but none of the candidate paths held the file — even
+production `camera_module.log` was absent at those paths — so either the
+directory layout differs on this firmware or the writes are landing
+elsewhere/failing silently. UNRESOLVED; next probes: `sd err` counters,
+`log dest|level` (console log routing?), SD-over-USB mount (`sd usb`) to
+inspect the real tree, and whether `ls` takes path args at all.
+
+Fallback ladder if no Spotter-native console print exists:
+(a) monitor-side rendering — tools/spotter_serial_monitor.py (and the
+customer terminal docs) recognize a tagged response frame on a
+`bmcam/out` topic and pretty-print it (works ONLY on our tooling — a
+bare `screen` session would not show it; that weakens the customer
+story and should be stated honestly);
+(b) fprintf→SD + `cat` once the real path is found (fully console-native,
+zero quota — still the preferred option if the path mystery resolves);
+(c) `cfg`-only-compact via the cellular ack path (quota; last resort).
+
+## Transport notes (original hypothesis)
 
 Responses must reach the **console** and must NOT ride the cellular
 transmit queue by default (quota + the 2-slot collision problem). Leading
