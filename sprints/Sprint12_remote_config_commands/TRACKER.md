@@ -28,11 +28,11 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       TestSprint12AckBeforeHalt)
 - [x] `hlt 0` removes the override (YAML governs)
       (test_hlt_0_touched_leaves_yaml_governing)
-- [x] **Ack-before-halt ordering test** — off-device proof on the shared
-      wire timeline: mid-transmit AND listen-tail arrivals ack before
-      halt_fn fires; halt uses boot settings
-      (TestSprint12AckBeforeHalt, tests/test_command_integration.py).
-      Hardware artifact still owed in chunk 4/5.
+- [x] **Ack-before-halt ordering test** — off-device proof
+      (TestSprint12AckBeforeHalt) AND hardware proof:
+      runs/sprint12_bench_20260731/cycle4_hlt2.log — applied id=2004,
+      2 acks on the wire, THEN halt_initiated; cycle halted with boot
+      settings (real), commanded dry-run applied next boot.
 - [x] Boot log states applied halt mode unambiguously
       ([RC] power_halt line + source= stamp + stranding warnings)
 - [x] Unit tests (table, persistence, overlay, version mismatch) —
@@ -49,8 +49,11 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       (service_pending_trigger + apply_trigger; end-to-end through real
       main() in TestSprint12TriggerEndToEnd)
 - [x] Unit tests for orchestrator consumption (chunk 2 commit)
-- [ ] Bench: out-of-window `trg 2` captures + transmits next boot;
-      `trg 3` sends reef reference with camera skipped
+- [x] Bench: `trg 3` — YAML window restored (would block), one-shot
+      gate bypass, camera skipped, reef reference 192/192 COMPLETE
+      (runs/sprint12_bench_20260731/cycleD_trg3.log). `trg 2`
+      (live-camera variant) deferred to chunk 5 remote validation —
+      same code path minus the src substitution.
 
 ## 2. `twn` command
 - [x] `TWN_TABLE` presets in command_tables.py (tests green)
@@ -79,11 +82,20 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       doctrine) — profile comments, template island comment,
       docs/bmcam_command_reference.md
 
-## 4. Bench validation (bmcam003, USB path)
-- [ ] `hlt 2` via Spotter console `bm pub bmcam/cmd ... 1 1` → applied on
-      next boot (log artifact)
-- [ ] `twn 2` → window opens next boot (log artifact)
-- [ ] `hlt 0` + `twn 0` → YAML behavior restored (log artifact)
+## 4. Bench validation (bmcam003, USB path) — DONE 2026-08-01Z,
+##    artifacts in runs/sprint12_bench_20260731/ (RESULTS.md + manifest)
+- [x] `hlt 2` via Spotter console `bm pub bmcam/cmd ... 1 1` → applied on
+      next boot (cycle4_hlt2.log + cycle-5 boot log: dry_run=True
+      source=command hlt=2; box stayed up)
+- [x] `twn 2` → window opens next boot (cycleC_twn2_transmit.log:
+      "Within transmit window 00:01-23:59 (command override)" at
+      22:35 EDT; real image q80/142 msgs complete). Baseline skip_win
+      at 22:34 EDT captured first.
+- [x] `hlt 0` + `twn 0` → YAML behavior restored (restore_verification.txt:
+      state hlt=0/twn=0/pending null; print-config both source=yaml).
+      Bonus: twn 0 + trg 3 + hlt 0 all delivered via the 150 s C4 tail —
+      the field-realistic arrival path (finding 006) — with dedupe
+      handling 18 duplicate re-sends.
 
 ## 5. Remote validation (bmcam000, Sofar Command API path)
 - [ ] One command via cloud mailbox → delivered, acked, applied next boot
