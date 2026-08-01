@@ -59,3 +59,35 @@
   isolation, hooks flush ordering.
 - docs/bmcam_command_reference.md → tables v5 (tmz, awb drop, win
   order, exposure-bias wording, on-console help pointer).
+
+## 2026-08-01 (session 1, late overnight) — HIL rehearsal on bmcam003
+
+Nick (before bed): rehearse the ENTIRE demo runbook so his morning demo
+is a re-run of a proven sequence; 2 rehearsal quota images authorized.
+Push unblocked by Nick (classifier denies git push without prompting —
+he ran the first push + added the allow rule); PR #33 opened.
+
+Deploy path per Nick: Pi pulls from git (pi-deploy flow) + known-good
+rc_field_update wrapper. Deployed 3x as fixes landed (79fc3c9 →
+4992c10 → 7468bff), profile YAML installed (win 12 live on-unit).
+
+Rehearsal verdict: ALL RUNBOOK STEPS PASS — full detail in
+runs/sprint13_bench_20260801/RESULTS.md. Headlines:
+- T1 PROOF: spotter/printf echoes on v2.16.6 — 123/123 help lines
+  intact on the USB console, zero drops at 0.05 s/line.
+- cfg on-console: boxes aligned, source column flips proven (hlt, twn),
+  live next-boot view proven (hlt 2 → cfg seconds later correct).
+- trg 2: live camera 105/105 COMPLETE, window bypassed.
+  trg 3: reef 192/192 COMPLETE, camera skipped, trigger self-cleared.
+- Three real bugs found+fixed by the rehearsal (manifest gap, bench
+  listen tail, cfg frozen-view) — each with tests; suite 555 green.
+- One operational scar: overlapped manual cycles (no flock) let the
+  PREVIOUS cycle's real halt kill the box mid-run — diagnosed via
+  Spotter power telemetry (0.034 A awake / 0.018 A halted) + cycle
+  logs. All manual cycles now take cron's flock; runbook updated.
+- End state: state file all-zeros + no pending, hlt 0 → yaml real halt,
+  re-armed from backup, box up. Demo-ready.
+
+Open at handoff: Sofar backend rows for the 2 rehearsal images (13-30
+min lag; re-poll pre-merge). tmz on-hardware smoke optional in demo.
+Out-of-window command-deafness flagged as a Sprint14 doctrine question.

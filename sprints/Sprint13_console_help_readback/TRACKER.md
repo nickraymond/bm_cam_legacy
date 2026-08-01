@@ -45,20 +45,32 @@ Nick sign-off.
 - [x] query_render_fn wired over the RESOLVED settings
       (make_query_render_fn — cfg can never disagree with
       --print-config); mock_mote decodes spotter/printf frames
-- [ ] BENCH: spotter/printf echoes on v2.16.6 (the D-S13-9 proof gate);
-      line pacing measured (0.05 s provisional)
-- [ ] Fresh Spotter `help`/`post` capture (D-S13-8 format cross-check)
+- [x] BENCH: spotter/printf echoes on v2.16.6 (the D-S13-9 proof gate) —
+      123/123 help lines intact, node-id prefixed, zero drops at 0.05 s
+      pacing (runs/sprint13_bench_20260801/help_echo_cycle2.txt)
+- [x] Fresh Spotter `help`/`post` capture
+      (runs/sprint13_bench_20260801/spotter_{help,post}_capture.txt)
+- [x] Rehearsal-found fixes: manifest gap + import hardening (4992c10),
+      bench listen tail (2088064), cfg live next-boot view (7468bff)
 
-## 3. Bench validation (bmcam003, USB console)
-- [ ] `help` prints the full reference, readable, no wrapping (terminal
-      log artifact)
-- [ ] `cfg` matches --print-config resolved values incl. an active
-      command override with correct source column (send twn 1 → cfg →
-      twn 0 → cfg; artifacts)
+## 3. Bench validation (bmcam003, USB console) — HIL rehearsal DONE
+##    2026-08-01, artifacts runs/sprint13_bench_20260801/ (RESULTS.md)
+- [x] `help` prints the full reference, readable, no wrapping
+      (help_echo_cycle2.txt; dedupe: 1 print for 4 sends)
+- [x] `cfg` matches resolved values incl. active command override with
+      correct source column (hlt 2 live view cycle3; twn 1 flip cycle6;
+      all-yaml restore cycle8) — and answers with the live NEXT-BOOT
+      view for commands applied in the same window (fix 7468bff)
+- [x] trg 2 live capture+send rehearsed: gate bypassed, 105/105
+      COMPLETE (cycle5); trg 3 reef: 192/192 COMPLETE, camera skipped,
+      trigger self-cleared (cycle7). Sofar rows: re-poll before merge.
 - [ ] tmz smoke on hardware (tmz 1 → gate log shows override → tmz 0)
-- [ ] Unit left field-normal: re-armed from saved crontab backup, real
-      halt, daemon on
-- [ ] win 12 sanity: one full cycle on the 12-min budget completes clean
+      — NOT yet run on-unit (unit tests + gate plumbing tests only);
+      cheap to fold into the demo if Nick wants it
+- [x] Unit left field-normal: re-armed from
+      crontab_armed_sprint13_backup_20260801T065232Z.txt, hlt 0
+      restored (yaml real halt), state all-zeros, box up
+- [x] win 12 sanity: all cycles ran on the 12-min budget (720 s) clean
 
 ## 4. Sign-off + docs
 - [ ] **Nick reads help/cfg on his terminal and signs off on customer

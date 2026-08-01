@@ -1,0 +1,40 @@
+cfg  - SHOW CURRENT SETTINGS and where each came from
+help - SHOW THIS REFERENCE
++====================================================================+
+Config file on the camera: camera_schedule.yaml (via SSH).
+A command overrides the file for that one setting; sending v=0
+hands control back to the file. All-zeros = full factory reset.
++====================================================================+
++====================================================================+
+|         bmcam CAMERA - CURRENT SETTINGS (next wake cycle)          |
++====================================================================+
+ CAMERA
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Crop (roi)          | 1600x900 - default        | config file    |
+ | Focus (foc)         | manual (lens 1.82)        | config file    |
+ | White balance (awb) | auto                      | config file    |
+ | Exposure bias (exp) | auto                      | config file    |
+ | Source (src)        | live camera               | config file    |
+ +---------------------+---------------------------+----------------+
+ TRANSMISSION
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Time budget (win)   | 12 min per wake           | config file    |
+ | Pacing (txd)        | 1 s per message           | config file    |
+ | Message limit (cap) | 195 per image             | config file    |
+ | Window (twn)        | 10:00 - 15:00             | config file    |
+ +---------------------+---------------------------+----------------+
+ POWER & SCHEDULE
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Power halt (hlt)    | halt DRY-RUN (logs only)  | command hlt=2  |
+ | Timezone (tmz)      | America/New_York          | config file    |
+ | Pending trigger     | none                      | -              |
+ +---------------------+---------------------------+----------------+
+ To change a row: see its command in `help`.  To give a row back
+ to the config file: send that command with v=0.
+                                                             tables v5

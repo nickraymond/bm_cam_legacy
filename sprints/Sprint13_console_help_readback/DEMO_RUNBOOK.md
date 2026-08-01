@@ -1,85 +1,74 @@
 # Sprint13 morning demo — runbook (bmcam003, USB console)
 
-Nick's acceptance test before PR approval: read `help`/`cfg` on the
-terminal, then personally trigger a live camera capture (`trg 2`) and a
-reef reference transfer (`trg 3`). Two quota images, both his.
+REHEARSED END-TO-END 2026-08-01 ~07:00-08:00Z — every step below passed
+on this exact build (7468bff). Artifacts + step-by-step evidence:
+runs/sprint13_bench_20260801/RESULTS.md. Nick's demo is a re-run.
 
-State going in: bmcam003 ARMED (real halt, Pi down between cycles),
-Spotter SPOT-33507C always-on at /dev/cu.usbmodemSPOT_33507C1, serial
-monitor running (Sprint12 instance, log root
-`.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/sprint12_bench_20260731/spotter_logs`).
-The unit still runs the Sprint12 v4 build — STEP 0 IS MANDATORY.
+State going in (left by the rehearsal): bmcam003 ARMED (crontab
+restored, flock @reboot), box UP, Sprint13 build 7468bff deployed,
+win 12 live, command state all-zeros (YAML governs, REAL halt on next
+boot), no pending trigger. Two rehearsal images already spent.
 
-## Step 0 — deploy the Sprint13 build (~10 min, needs network restored)
+## The one operational rule learned the hard way
 
-1. Wake the Pi: write `reset` to the SPOT-33507C `cmd.txt` (Spotter
-   power-cycles, bus bounces, Pi boots and runs a cycle).
-2. Catch it awake over SSH (LAN-direct), disarm: back up crontab, then
-   `crontab -r` equivalent per bmcam-field-update flow.
-3. `tools/rc_field_update.sh` to branch sha `42acce0`
-   (claude/sprint13-console-help-cfg-966167). Expect drift = sprint13
-   files only. Keep the bmcam003 profile (now win=12).
-4. Sanity on-unit: `python3 rc_progressive_jpeg.py --print-config`
-   → tables v5 path loads, max_run_time_min=12, everything source=yaml.
+NEVER start a manual cycle while another cycle may be running — the
+older cycle's halt WILL kill the box mid-run. Always use the flock:
 
-## Step 1 — printf echo proof (T1 close-out, ~5 min)
+    /usr/bin/flock -n /tmp/bmcam_rc_capture.lock python3 -u rc_progressive_jpeg.py ...
 
-With the unit awake and a cycle running (or `--bench-commands`), inject
-on the console:
+(and check `pgrep -f rc_progressive` first). Spotter `reset` is
+rate-limited — if "Reboot limit reached, ignoring" appears, wait ~2.5
+min and re-send.
 
-    bm pub bmcam/cmd {"id":901,"c":"help"} 1 1
+## Demo flow (Nick at his terminal)
 
-(use the spam pattern if single-shot misses the subscribe frame).
-EXPECT: ~143 reference lines printed on the USB console via
-spotter/printf + the ack `{"id":901,"ok":1,...}`.
-Frame layout is VERIFIED against upstream bm_core/bm_common_messages
-source (v1 struct, matching our proven fprintf framing — DESIGN
-D-S13-9). The one remaining unknown is behavioral: whether v2.16.6
-echoes printf publications on the USB console at all. If the ack
-arrives but nothing prints, that answer is no — stop and rethink
-transport with Nick (framing is not the suspect).
+The camera hears commands while a cycle's daemon is listening. Before
+10:00 ET the armed boot cycle is GATED (short, ~20 s of daemon life) —
+so for the demo, run a bench cycle over SSH (150 s listen window,
+box stays up if hlt 2 is active; first one real-halts):
 
-## Step 2 — Nick's readability pass (gate 3)
+    ssh pi@bmcam003
+    cd /home/pi/BM_Devel_Pi && /usr/bin/flock -n /tmp/bmcam_rc_capture.lock python3 -u rc_progressive_jpeg.py --bench-commands
 
-At his own terminal (screen /dev/cu.usbmodemSPOT_33507C1 115200 or the
-monitor tail):
+Then at the Spotter console (screen /dev/cu.usbmodemSPOT_33507C1 115200
+or the serial monitor), paste during the cycle — repeat a line if no
+ack (repeats are free):
 
-    bm pub bmcam/cmd {"id":902,"c":"help"} 1 1
-    bm pub bmcam/cmd {"id":903,"c":"cfg"} 1 1
+1. Readability pass (gate 3 — yours):
+       bm pub bmcam/cmd {"id":950,"c":"help"} 1 1
+       bm pub bmcam/cmd {"id":951,"c":"cfg"} 1 1
+   EXPECT: full reference prints (~30 s at line pacing); cfg shows
+   win 12, halt ON (power savings), window 10:00-15:00, all
+   "config file".
 
-cfg must show: win 12 min, halt ON (power savings), window 10:00-15:00,
-timezone America/New_York — every row `config file`.
+2. OPTIONAL keep-up convenience: send hlt 2 first so later cycles
+   don't halt the box between steps (restore with hlt 0 at the end):
+       bm pub bmcam/cmd {"id":952,"c":"hlt","v":2} 1 1
 
-## Step 3 — live capture trigger (Nick types it, from help's own text)
+3. Live capture (your acceptance image 1) — paste from help's own
+   QUICK ACTIONS:
+       bm pub bmcam/cmd {"id":953,"c":"trg","v":2} 1 1
+   Ack = ARMED. Then run a --transmit cycle (or `reset` if armed-boot
+   flow preferred):
+       cd /home/pi/BM_Devel_Pi && /usr/bin/flock -n /tmp/bmcam_rc_capture.lock python3 -u rc_progressive_jpeg.py --transmit
+   EXPECT: "window gate BYPASSED for this boot only" → live image
+   COMPLETE on console (rehearsal: 105/105, 108 s) → Sofar row within
+   ~13-30 min.
 
-    bm pub bmcam/cmd {"id":904,"c":"trg","v":2} 1 1
+4. Reef reference (image 2): same with {"id":954,"c":"trg","v":3} —
+   EXPECT "camera skipped this boot", reference COMPLETE (rehearsal:
+   192/192, 196 s).
 
-Ack = ARMED. Then `reset` → the trigger boot: window gate BYPASSED,
-live camera capture, full transmit. EXPECT image COMPLETE at the
-Spotter, then the Sofar row (backend lag 13–30 min is normal).
-
-## Step 4 — reef reference transfer
-
-    bm pub bmcam/cmd {"id":905,"c":"trg","v":3} 1 1
-
-then `reset`. EXPECT: "camera skipped this boot", reef reference
-transmitted, persisted src untouched.
-
-## Step 5 — leave field-normal + close out
-
-- `cfg` one last time: no stray overrides (all `config file`),
-  pending trigger none.
-- Re-arm from the saved crontab backup; verify @reboot line; unit will
-  real-halt at next cycle end.
-- Artifacts → runs/sprint13_demo_<date>/ (console log slices, cfg
-  captures, Sofar screenshots); tick TRACKER §3/§4; PR → development.
+5. Close-out: hlt 0 (if you sent hlt 2), final cfg (all rows
+   "config file", pending none), leave armed. Merge PR #33 only after
+   BOTH your images land at Sofar.
 
 ## If something misfires
 
-- No ack at all: command sent before the daemon's subscribe frame —
-  re-send (dedupe makes repeats free). First-byte-eaten: echo-verify.
-- help prints garbled/interleaved with cycle logs: raise
-  console_line_delay_s (daemon arg, 0.05 provisional) and note the
-  measured value in DESIGN D-S13-9.
-- trg image blocked: it can't be the window (trigger bypasses it) —
-  check cycle log for capture/encode errors.
+- No ack: command landed outside the listen window — re-send during
+  the cycle (watch for "[CMD] subscribed" in the cycle output).
+- First-byte-eaten ("m pub"): re-send; dedupe makes repeats free.
+- help prints interleaved with cycle logs: cosmetic; raise
+  console_line_delay_s if wanted (0.05 s was clean in rehearsal).
+- Box halted unexpectedly: `reset` at the Spotter console (respect the
+  rate limit), then check cycle log under /home/pi/s13_bench/.
