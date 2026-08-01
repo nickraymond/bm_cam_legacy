@@ -31,16 +31,23 @@ Nick sign-off.
       round-trip, cfg parity + source column, query semantics + dedupe,
       tmz overlay/gate, roi clamp, version fallout
 
-## 2. Transport + daemon wiring (chunk 2 — needs T1 finished)
-- [ ] T1 probes on bmcam003: fresh Spotter `help`/`post` capture;
-      spotter/printf echo test; sd err / log dest|level; sd usb tree map
-      (find where fprintf files + camera_module.log actually land);
-      console ls/cat path args. Artifacts → runs/sprint13_t1_*/
-- [ ] Transport decision recorded in DESIGN (printf vs SD+cat vs both)
-- [ ] bm_serial method for the chosen transport (+ pacing from bench
-      measurements); daemon emits help/cfg responses; duplicate id =
-      ack only, no re-print (test)
-- [ ] Proactive boot-time SD write of help/cfg files (if SD path proven)
+## 2. Transport + daemon wiring (chunk 2)
+- [x] Transport DECIDED by Nick (2026-08-01 overnight): console write
+      via `spotter/printf`, per the Sofar SDK's bm_serial — SD+cat
+      rejected. D-S13-9; clean trio in bm_serial.py
+      (tx=cellular / log=SD / print=console)
+- [x] `bm_serial.spotter_print()` (frame mirrors spotter_log, empty
+      fname; byte-layout tests) — DERIVED layout, bench echo proof owed
+- [x] Daemon: query responses queued + drain_console at idle points /
+      listen window / pre-halt; duplicate id = ack only, NO re-print;
+      render failure never kills processing; send failure requeues
+      (tests; 550 green)
+- [x] query_render_fn wired over the RESOLVED settings
+      (make_query_render_fn — cfg can never disagree with
+      --print-config); mock_mote decodes spotter/printf frames
+- [ ] BENCH: spotter/printf echoes on v2.16.6 (the D-S13-9 proof gate);
+      line pacing measured (0.05 s provisional)
+- [ ] Fresh Spotter `help`/`post` capture (D-S13-8 format cross-check)
 
 ## 3. Bench validation (bmcam003, USB console)
 - [ ] `help` prints the full reference, readable, no wrapping (terminal

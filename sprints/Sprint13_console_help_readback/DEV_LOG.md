@@ -28,10 +28,34 @@
 - Caught in review: sub-1000px roi crops would have CRASHED the overlay
   (output_size_for_crop raises on upsample) — clamp added + tests.
   Also cfg column overflow on long trigger labels — generic clip added.
-- Tests: 542 green (was 507). New: content-complete help (every
+- Tests: 542 green (was 507) at chunk-1 commit. New: content-complete help (every
   command + every index + every note), example lines round-trip
   parse_command (a help example can never go stale), cfg source-column
   semantics incl. index-0, query no-state-change + dedupe, tmz
   overlay/gate/kwargs, roi clamp. Fallout updated: command set/version
   pins, ack byte-pin (+tmz), win reorder, awb removal (gains path kept
   covered via patched temp entry), repo-YAML 12-min pins.
+
+## 2026-08-01 (session 1, overnight) — chunk 2: console transport
+
+- Nick (before bed): live demo in the AM — he will trigger trg 2 (camera
+  capture+send) and trg 3 (reef transfer) himself as the acceptance test
+  before approving the PR. Network access to this session STOPPED for the
+  night: no SSH deploy, no Sofar API; console reset also skipped (no
+  deploy possible → no reason to power-cycle; zero SD-corruption risk
+  overnight). Deploy to bmcam003 becomes the pre-demo step.
+- Nick decision (D-S13-9): NO SD+cat — add the Sofar SDK's console
+  write to our bm_serial.py. Done: `spotter_print()` (spotter/printf,
+  fname_len=0, frame mirrors spotter_log). No local SDK copy on this
+  Mac + no network → layout DERIVED not copied; bench echo on v2.16.6
+  is the proof gate, diff vs real SDK when network returns.
+- Daemon wiring: query responses render via make_query_render_fn (over
+  the RESOLVED settings dict) → console queue → drain_console at idle
+  drains, listen windows, and pre-halt (help must beat the power cut).
+  Duplicate id acks WITHOUT re-print (D-S13-10). mock_mote now decodes
+  spotter/printf frames for off-device runs.
+- Tests 550 green (+8): frame byte-layout, console-vs-cellular
+  separation, dedupe no-reprint, send-failure requeue, renderer-failure
+  isolation, hooks flush ordering.
+- docs/bmcam_command_reference.md → tables v5 (tmz, awb drop, win
+  order, exposure-bias wording, on-console help pointer).

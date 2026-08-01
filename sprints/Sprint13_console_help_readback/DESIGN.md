@@ -68,15 +68,31 @@ overlong values (alignment beats completeness — full wording lives in
 help). Final layout gets re-checked against a fresh Spotter help capture
 in the Phase 0 bench pass before the formatting gate is ticked.
 
+**D-S13-9 — Transport is the console write (`spotter/printf`), per the
+Sofar SDK's own bm_serial (Nick 2026-08-01, overnight session).** Nick
+rejected the SD+`cat` fallback outright and pointed at the SDK's console
+write: `bm_serial.py` now carries the clean trio — `spotter_tx`
+(cellular), `spotter_log` (SD), `spotter_print` (console). Implementation
+note (honesty): no local SDK copy existed on this Mac and the session had
+no network, so `spotter_print` mirrors our own `spotter_log` frame
+(itself SDK-derived; bm_core print header: 8B target node, 2B fname_len,
+2B data_len) with topic `spotter/printf` and fname_len=0 — byte layout is
+DERIVED, not copied. Bench echo test on v2.16.6 is the proof gate; diff
+against real SDK source when network returns. Console lines are queued in
+the daemon and drained at idle points / the listen window / before halt —
+never mid-transmit, never into the cellular queue. Per-line delay 0.05 s
+PROVISIONAL until bench measures.
+
+**D-S13-10 — Duplicate query ids ack but do NOT re-print (2026-08-01).**
+The blanket re-send doctrine (spam_cmd.sh, mailbox re-sends) must not
+print help ten times; dedupe answers a re-send with the ack alone.
+
 ## Open
 
-**T1 — transport (carried from SPEC, partially done 2026-08-01):**
-spotter/fprintf proven SD-only on v2.16.6 (no USB console echo); SD path
-mystery unresolved. Next probes: `spotter/printf` topic (bm_core's
-console printf — public-SDK knowledge, UNVERIFIED on v2.16.6),
-`sd err`, `log dest|level`, console `ls` path args, `sd usb` tree map.
-Decision after probes; leading plan is printf for live response +
-proactive boot-time SD write of bmcam_help.txt/bmcam_cfg.txt via
-fprintf (readable with `cat` even while the Pi is halted).
+**T1 remainder (bench, pre-demo):** verify spotter/printf actually echoes
+on v2.16.6 + measure line pacing; fresh Spotter `help`/`post` capture
+(format cross-check, D-S13-8); optional SD probes (`sd err`,
+`log dest|level`, `sd usb` tree) now demoted to curiosity — no feature
+depends on the SD path anymore.
 
 **O1 — cfg over cellular on request:** still open, still deferred.

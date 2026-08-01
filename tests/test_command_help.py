@@ -252,36 +252,54 @@ class TestQuerySemantics(HelpTestCase):
                          after.get("pending_trigger"))
 
 
+class FakeBM:
+    def __init__(self):
+        self.sent = []           # spotter_tx (cellular)
+        self.printed = []        # spotter_print (console)
+        self.fail_print = False
+
+    def spotter_tx(self, data):
+        self.sent.append(data)
+
+    def spotter_print(self, data):
+        if self.fail_print:
+            raise IOError("uart gone")
+        self.printed.append(data)
+
+
+def _bare_daemon(state, render_fn=None):
+    import queue as pyqueue
+    from command_daemon import CommandDaemon
+
+    daemon = CommandDaemon.__new__(CommandDaemon)
+    daemon.bm = FakeBM()
+    daemon.state = state
+    daemon.query_render_fn = render_fn
+    daemon.console_line_delay_s = 0.0
+    daemon._inbound = pyqueue.Queue()
+    daemon._acks = []
+    daemon._console = []
+    daemon._last_ack_ts = None
+    daemon.ack_interval_s = 0.0
+    daemon.stats = {"applied": 0, "rejected": 0, "duplicates": 0,
+                    "unackable": 0, "acks_sent": 0, "console_lines_sent": 0}
+    return daemon
+
+
 class TestDaemonQueryPath(unittest.TestCase):
-    """process_pending applies a query like any command: ack + dedupe,
-    zero settings change (transport emission is wired in chunk 2)."""
+    """process_pending applies a query like any command (ack + dedupe,
+    zero settings change) and queues its console response; drain_console
+    emits via bm.spotter_print — never the cellular queue."""
 
     def setUp(self):
-        import queue as pyqueue
-        from command_daemon import CommandDaemon
-
         self.tmpdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmpdir.cleanup)
         self.state = CommandState(
             path=os.path.join(self.tmpdir.name, "state.json"))
-
-        class FakeBM:
-            def __init__(self):
-                self.sent = []
-
-            def spotter_tx(self, data):
-                self.sent.append(data)
-
-        self.bm = FakeBM()
-        self.daemon = CommandDaemon.__new__(CommandDaemon)
-        self.daemon.bm = self.bm
-        self.daemon.state = self.state
-        self.daemon._inbound = pyqueue.Queue()
-        self.daemon._acks = []
-        self.daemon._last_ack_ts = None
-        self.daemon.ack_interval_s = 0.0
-        self.daemon.stats = {"applied": 0, "rejected": 0, "duplicates": 0,
-                             "unackable": 0, "acks_sent": 0}
+        self.daemon = _bare_daemon(
+            self.state, render_fn=lambda cmd: [f"{cmd} line 1",
+                                               f"{cmd} line 2"])
+        self.bm = self.daemon.bm
 
     def test_help_applied_acked_no_settings_change(self):
         before = dict(self.state.settings)
@@ -291,16 +309,142 @@ class TestDaemonQueryPath(unittest.TestCase):
         self.assertEqual(self.state.settings, before)
         self.assertEqual(self.daemon.pending_acks, 1)
         self.daemon.drain_acks(clock=lambda: 0)
-        self.assertIn(b'"id":700' if isinstance(self.bm.sent[0], bytes)
-                      else '"id":700', self.bm.sent[0])
+        self.assertIn('"id":700', self.bm.sent[0])
 
-    def test_duplicate_query_acks_without_reapply(self):
+    def test_query_response_reaches_console_not_cellular(self):
+        self.daemon._inbound.put(b'{"id":702,"c":"help"}')
+        self.daemon.process_pending()
+        self.assertEqual(self.daemon.pending_console_lines, 2)
+        sent = self.daemon.drain_console(sleep_fn=lambda s: None)
+        self.assertEqual(sent, 2)
+        self.assertEqual(self.bm.printed, ["help line 1", "help line 2"])
+        self.assertEqual(self.bm.sent, [])  # no cellular traffic yet
+
+    def test_duplicate_query_acks_without_reprint(self):
         self.daemon._inbound.put(b'{"id":701,"c":"cfg"}')
         self.daemon.process_pending()
+        self.daemon.drain_console(sleep_fn=lambda s: None)
+        printed_once = list(self.bm.printed)
         self.daemon._inbound.put(b'{"id":701,"c":"cfg"}')
         events = self.daemon.process_pending()
         self.assertEqual(events[0]["action"], "duplicate")
         self.assertEqual(self.daemon.stats["duplicates"], 1)
+        self.daemon.drain_console(sleep_fn=lambda s: None)
+        self.assertEqual(self.bm.printed, printed_once)  # no re-print
+
+    def test_console_send_failure_requeues_and_stops(self):
+        self.daemon._inbound.put(b'{"id":703,"c":"help"}')
+        self.daemon.process_pending()
+        self.bm.fail_print = True
+        sent = self.daemon.drain_console(sleep_fn=lambda s: None)
+        self.assertEqual(sent, 0)
+        self.assertEqual(self.daemon.pending_console_lines, 2)
+        self.bm.fail_print = False
+        self.assertEqual(self.daemon.drain_console(sleep_fn=lambda s: None), 2)
+
+    def test_no_renderer_still_acks_quietly(self):
+        daemon = _bare_daemon(self.state, render_fn=None)
+        daemon._inbound.put(b'{"id":704,"c":"help"}')
+        events = daemon.process_pending()
+        self.assertEqual(events[0]["action"], "applied")
+        self.assertEqual(daemon.pending_console_lines, 0)
+        self.assertEqual(daemon.pending_acks, 1)
+
+    def test_render_failure_never_kills_processing(self):
+        def boom(cmd):
+            raise RuntimeError("render broke")
+        daemon = _bare_daemon(self.state, render_fn=boom)
+        daemon._inbound.put(b'{"id":705,"c":"cfg"}')
+        events = daemon.process_pending()
+        self.assertEqual(events[0]["action"], "applied")
+        self.assertEqual(daemon.pending_console_lines, 0)
+
+
+class TestSpotterPrintFrame(unittest.TestCase):
+    """bm_serial.spotter_print — frame layout mirrors spotter_log with
+    topic spotter/printf and a zero-length filename (bm_core print
+    header). Bench-verified against v2.16.6 before the transport gate."""
+
+    def _packet_for(self, call):
+        from bm_serial import BristlemouthSerial
+
+        class FakeUart:
+            def __init__(self):
+                self.written = b""
+
+            def write(self, data):
+                self.written += bytes(data)
+                return len(data)
+
+        uart = FakeUart()
+        bm = BristlemouthSerial(uart=uart, network_type=1)
+        captured = {}
+        original = bm.finalize_packet
+
+        def capture(packet):
+            captured["packet"] = bytes(packet)
+            return original(packet)
+
+        bm.finalize_packet = capture
+        call(bm)
+        return captured["packet"], uart.written
+
+    def test_frame_structure(self):
+        packet, wire = self._packet_for(lambda bm: bm.spotter_print("hi"))
+        header_len = len(bytearray.fromhex("02000000")) + 8 + 2  # pub header
+        topic = b"spotter/printf"
+        self.assertEqual(
+            packet[header_len:header_len + 2],
+            len(topic).to_bytes(2, "little"))
+        self.assertEqual(
+            packet[header_len + 2:header_len + 2 + len(topic)], topic)
+        tail = packet[header_len + 2 + len(topic):]
+        self.assertEqual(tail[:8], b"\x00" * 8)          # target node id 0
+        self.assertEqual(tail[8:10], (0).to_bytes(2, "little"))   # no fname
+        self.assertEqual(tail[10:12], (3).to_bytes(2, "little"))  # "hi\n"
+        self.assertEqual(tail[12:], b"hi\n")
+        self.assertTrue(wire.endswith(b"\x00"))          # COBS delimiter
+        self.assertIn(topic, wire)  # ASCII topic survives COBS verbatim
+
+    def test_print_and_log_share_header_convention(self):
+        # Same layout as the SD twin: only topic + fname differ.
+        p_print, _ = self._packet_for(lambda bm: bm.spotter_print("x"))
+        p_log, _ = self._packet_for(lambda bm: bm.spotter_log("f.txt", "x"))
+        self.assertEqual(p_print[:4], p_log[:4])
+        self.assertIn(b"spotter/printf", p_print)
+        self.assertIn(b"spotter/fprintf", p_log)
+        self.assertNotIn(b"spotter/transmit-data", p_print)  # never cellular
+
+
+class TestHooksConsoleFlush(unittest.TestCase):
+    """rc_command_hooks: console lines flush at idle drains and before
+    the halt (a help response must beat the power cut)."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        self.state = CommandState(
+            path=os.path.join(self.tmpdir.name, "state.json"))
+        self.daemon = _bare_daemon(
+            self.state, render_fn=lambda cmd: ["only line"])
+
+    def test_drain_now_flushes_console(self):
+        import rc_command_hooks as ch
+        self.daemon._inbound.put(b'{"id":710,"c":"help"}')
+        summary = {"command_events": []}
+        ch.drain_now(self.daemon, summary, clock=lambda: 0)
+        self.assertEqual(self.daemon.bm.printed, ["only line"])
+        self.assertIn("applied", summary["command_events"])
+
+    def test_shutdown_flushes_console_before_stop(self):
+        import rc_command_hooks as ch
+        self.daemon._inbound.put(b'{"id":711,"c":"cfg"}')
+        self.daemon.process_pending()
+        self.daemon.stop = lambda: None
+        summary = {"command_events": []}
+        ch.shutdown(self.daemon, summary, debug_print=lambda m: None,
+                    clock=lambda: 0, sleep_fn=lambda s: None)
+        self.assertEqual(self.daemon.bm.printed, ["only line"])
 
 
 if __name__ == "__main__":

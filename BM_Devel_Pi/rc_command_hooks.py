@@ -25,6 +25,26 @@ from command_bindings import (
 from command_daemon import CommandDaemon
 
 
+def make_query_render_fn(settings, state, topic):
+    """Sprint13: closure the daemon calls to answer help/cfg queries.
+
+    Captures the RESOLVED settings dict (post-overlay — the same dict
+    --print-config prints, so cfg can never disagree with it) and the
+    live CommandState (so a cfg sent after e.g. twn 2 in the same listen
+    window shows the new override as next-boot truth)."""
+    from command_help import render_cfg, render_help
+
+    def render(cmd):
+        if cmd == "help":
+            return render_help(topic=topic)
+        if cmd == "cfg":
+            return render_cfg(settings, state,
+                              settings.get("camera_controls_override"))
+        return []
+
+    return render
+
+
 def default_daemon_factory(settings, bm_commands_cfg, state):
     """Open the UART ONCE for the whole cycle (D11) and build the command
     daemon on it. Installs the shared BristlemouthSerial as
@@ -38,7 +58,11 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
     bm = BristlemouthSerial(uart=uart)
     process_image_v2.bm = bm
     print(f"[CMD] shared UART open: {port}@{baudrate} (single port owner)")
-    return CommandDaemon(bm, state, topic=bm_commands_cfg["topic"])
+    return CommandDaemon(
+        bm, state, topic=bm_commands_cfg["topic"],
+        query_render_fn=make_query_render_fn(
+            settings, state, bm_commands_cfg["topic"]),
+    )
 
 
 def apply_command_overlay(settings, state, load_controls_fn):
@@ -127,12 +151,15 @@ TAIL_SAFETY_S = 20.0
 
 
 def drain_now(daemon, summary, clock=_time.monotonic):
-    """Pick up pending commands and send acks (paced; idle-point drain)."""
+    """Pick up pending commands and send acks (paced; idle-point drain).
+    Sprint13: queued help/cfg console lines flush here too — an idle
+    point is exactly where a long console print belongs."""
     if daemon is None:
         return 0
     summary["command_events"].extend(
         e["action"] for e in daemon.process_pending()
     )
+    daemon.drain_console()
     return daemon.drain_acks(clock=clock)
 
 
@@ -246,9 +273,15 @@ def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
 def shutdown(daemon, summary, debug_print,
              clock=_time.monotonic, sleep_fn=_time.sleep):
     """Final pickup + PACED ack flush + reader stop; never raises (runs
-    in finally, on the success AND the failure path)."""
+    in finally, on the success AND the failure path). Sprint13: queued
+    console lines flush BEFORE the ack flush budget starts — a help
+    response must beat the halt the same way acks do."""
     if daemon is None:
         return
+    try:
+        daemon.drain_console(sleep_fn=sleep_fn)
+    except Exception as exc:
+        debug_print(f"console flush failed: {exc}")
     flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
                label="final drain at halt")
     try:
