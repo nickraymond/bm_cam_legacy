@@ -30,14 +30,18 @@ Classification of every key in `device_profiles/*/camera_schedule.yaml`:
 | transmit_phase.enabled | `phs` — off/on | toggle C2 scheduling remotely |
 | bm_commands.post_transmit_listen_s | `tal` — 0/60/150/300 s | energy vs. command-latency lever |
 
-Plus the standout capability request (Nick 2026-07-31, "like `post` on
-the Spotter terminal"): **`cfg` — config readback**. Dump the effective
-RESOLVED config (YAML + overlay, the values the next cycle will actually
-use) up the uplink as one compact message. Today acks report only command
-indices; readback closes the loop on "what is this unit actually running"
-without SSH. Design notes for Sprint13: payload must fit one 384-char
-chunk (abbreviate keys), and it is a QUERY not a setting — likely rides
-the trg-style action path (one-shot, next cycle transmits it).
+Plus the standout capability request (Nick 2026-07-31/08-01) — now
+SPECCED as Sprint13 (sprints/Sprint13_console_help_readback/SPEC.md):
+
+- **`help`** (verbose name, NOT `hlp` — Nick feedback): Spotter-help-style
+  verbose console reference — commands, shorthand meanings, value tables,
+  copy-paste examples (e.g. force-capture trg lines). Customer-facing.
+- **`cfg`**: post-style dump of the effective RESOLVED config — human
+  name / variable syntax / value / source (yaml vs command) per line.
+
+Console-print transport (candidate: spotter/fprintf, zero cellular
+quota) is Sprint13's design question T1; remote/cellular readback of
+`cfg` is its O1.
 
 ## C. Provisioning-only — deliberately NEVER remote
 

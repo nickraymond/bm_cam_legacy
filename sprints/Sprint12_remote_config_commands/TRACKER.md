@@ -98,8 +98,15 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       handling 18 duplicate re-sends.
 
 ## 5. Remote validation (bmcam000, Sofar Command API path)
+- [ ] Deploy Sprint12 v4 build to bmcam000 + enable daemon + re-arm
+      — IN FLIGHT at PR time: bmcam000 rides a DERP relay and its 15/45
+      duty cycle gives ~1 min of SSH per hour; relay-tolerant watcher v2
+      is hunting. (v1 watcher's 2 s ConnectTimeout could never complete
+      a relayed handshake — diagnosed 2026-08-01 ~04:00Z.)
 - [ ] One command via cloud mailbox → delivered, acked, applied next boot
-      (Sofar ack row + boot log artifacts)
+      (Sofar ack row + boot log artifacts). Plan: `twn 2` + `trg 2`
+      (trg 2 = the live-camera trigger variant not covered on the bench;
+      re-send-until-acked, expect hours of mailbox latency)
 
 ## 6. Wrap
 - [x] GUI: new commands in tools/bm_command_gui — zero code change needed
@@ -110,4 +117,10 @@ chunks (Nick 2026-07-31): 1 tables/state → 2 overlay/orchestrator →
       SSH-only): docs/bmcam_command_reference.md (new, operator-facing),
       skill Phase 0 "try a remote command first", REMOTE_CONFIG_AUDIT.md
       (Sprint13 input: 5 preset candidates + cfg readback à la `post`)
-- [ ] PR → `development`, gates green
+- [ ] PR → `development`, gates green — PR opened 2026-08-01 for Nick's
+      review; §5 (bmcam000 remote path) completes in parallel and will
+      be appended to the PR before merge. Follow-on sprints specced per
+      Nick's close-out: Sprint13 (console `help` + `cfg` readback,
+      customer-facing) and Sprint14 (overnight command soak / ROI sweep
+      on the reef reference — deliberately parked until Sprint13 is
+      merged AND Nick has tested `help`).

@@ -64,3 +64,22 @@ Hardware evidence (cycle logs in the run folder):
   (field-normal). Bench gate (§4) fully ticked; two quota images spent
   (twn-opened camera image + trg-3 reference, both COMPLETE at the
   Spotter — Sofar API rows to be confirmed in chunk 5's window).
+
+## 2026-08-01Z (late) — v4 all-day window, bmcam000 hunt, close-out
+
+- **tables v4 / D-S12-9** (`ecb9a4d`): Nick asked for a true 24 h window
+  ("00:00-24:00?"). Tested first: "24:00" rejected by the parser, and an
+  equal start/end pair was an UNSATISFIABLE empty window (never-transmit
+  trap). Gate now defines start==end = full-circle ALL DAY; twn 2 =
+  00:00-00:00. 507 tests green. bmcam003 redeployed to v4 + re-armed
+  (verified on-unit: tables v4, twn2 = 00:00/00:00).
+- **bmcam000**: correct IP, seen online at ~03:20Z (its 15/45 window),
+  but watcher v1's 2 s SSH ConnectTimeout can never complete the DERP
+  relay handshake ("relay sfo") — bmcam003 never hit this because it is
+  LAN-direct. Watcher v2 (10 s timeout, back-to-back attempts) hunting;
+  deploy + §5 remote validation proceed when caught.
+- **Close-out per Nick**: ROI sweep deferred to Sprint14 (after Sprint13
+  `help` is merged AND Nick-tested); Sprint13 specced (console `help` —
+  verbose, Spotter-help style, NOT `hlp` — and post-style `cfg` dump;
+  customer-facing, copy-paste examples); Sprint14 soak specced. PR to
+  development opened for review.
