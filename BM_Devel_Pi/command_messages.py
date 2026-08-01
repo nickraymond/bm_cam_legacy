@@ -18,17 +18,23 @@ Validation rules (DESIGN D3 — reject anything not exactly right):
   - "id" must be a non-bool int in [0, 2**32) -> else error "id".
     An invalid id means NO ack is possible (nothing to correlate); the
     caller logs and drops. Every other error still acks (ok=0 + code).
-  - "c"  must be one of the six v1 commands -> else error "cmd"
+  - "c"  must be a known command name -> else error "cmd". An OLD receiver
+    getting a NEWER sender's command (e.g. v2 tables receiving "hlt")
+    rejects it with this code — the version-mismatch path is a normal
+    ack, never a crash.
   - "v"  must be a valid table index for "c" -> else error "val".
-    ping may omit "v" (defaults to 0); settings commands must carry it.
+    ping may omit "v" (defaults to 0); settings commands must carry it,
+    and so must trg (arming a trigger with no value would be ambiguous).
   - unknown extra keys are TOLERATED (forward compatibility: a newer
     sender may add fields; ignoring them cannot mis-apply a setting)
 
-Ack shape: {"id":N,"ok":1,"st":{roi,foc,awb,exp,win}} — plus "e":"<code>"
-when ok=0. `st` always carries all five settings keys (missing input keys
-are filled from factory defaults) so any single ack tells the operator
-the complete truth (DESIGN D4). Compact separators; a full ack is ~60
-bytes, far under the 384-char uplink chunk (Sprint09 locked values).
+Ack shape: {"id":N,"ok":1,"st":{roi,...,hlt,twn}} — plus "e":"<code>"
+when ok=0. `st` always carries every SETTINGS_COMMANDS key (missing input
+keys are filled from factory defaults) so any single ack tells the
+operator the complete truth (DESIGN D4). A trg ack means ARMED, not
+captured — execution proof is the image/wake status on the next boot.
+Compact separators; a full ack is ~80 bytes, far under the 384-char
+uplink chunk (Sprint09 locked values).
 
 Example:
   >>> from command_messages import parse_command, build_ack

@@ -184,5 +184,108 @@ class TestCorruptRecovery(StateTestCase):
         self.assertIsNone(rebooted.load_info["error"])
 
 
+class TestSprint12Settings(StateTestCase):
+    """hlt/twn ride the existing settings machinery unchanged."""
+
+    def test_hlt_twn_persist_across_restart(self):
+        state = CommandState(path=self.path)
+        state.record(500, "hlt", 2)
+        state.record(501, "twn", 2)
+        rebooted = CommandState(path=self.path)
+        self.assertEqual(rebooted.settings["hlt"], 2)
+        self.assertEqual(rebooted.settings["twn"], 2)
+        self.assertEqual(rebooted.touched, {"hlt", "twn"})
+
+    def test_v2_state_file_loads_with_sprint12_defaults(self):
+        # A deployed unit's existing state file has no hlt/twn/pending_trigger
+        # keys. It must load clean: defaults, no reset warnings, field fixes
+        # (roi etc.) intact.
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump({
+                "schema": STATE_SCHEMA, "tables_version": 2,
+                "settings": {"roi": 2, "foc": 0, "awb": 0, "exp": 0,
+                             "win": 0, "txd": 5, "cap": 0, "src": 1},
+                "touched": ["roi", "txd", "src"],
+                "applied_ids": [415, 416, 417],
+            }, f)
+        state = CommandState(path=self.path)
+        self.assertEqual(state.settings["roi"], 2)      # field fix kept
+        self.assertEqual(state.settings["hlt"], 0)      # default
+        self.assertEqual(state.settings["twn"], 0)      # default
+        self.assertIsNone(state.pending_trigger)
+        self.assertEqual(state.load_info["reset_keys"], [])
+
+
+class TestPendingTrigger(StateTestCase):
+    def test_trg_arms_and_persists(self):
+        state = CommandState(path=self.path)
+        state.record(600, "trg", 2)
+        self.assertEqual(state.pending_trigger, {"id": 600, "value": 2})
+        # trg is an action, never a setting: settings/touched untouched.
+        self.assertEqual(state.settings, ct.DEFAULT_SETTINGS)
+        self.assertEqual(state.touched, set())
+        rebooted = CommandState(path=self.path)
+        self.assertEqual(rebooted.pending_trigger, {"id": 600, "value": 2})
+        self.assertTrue(rebooted.is_duplicate(600))
+
+    def test_consume_returns_once_and_clears_persistently(self):
+        state = CommandState(path=self.path)
+        state.record(600, "trg", 2)
+        rebooted = CommandState(path=self.path)
+        self.assertEqual(rebooted.consume_trigger(), {"id": 600, "value": 2})
+        self.assertIsNone(rebooted.consume_trigger())
+        # The clear survives a crash-after-consume: a fresh load (next
+        # boot) must NOT see the trigger again.
+        rebooted2 = CommandState(path=self.path)
+        self.assertIsNone(rebooted2.consume_trigger())
+
+    def test_trg_zero_cancels(self):
+        state = CommandState(path=self.path)
+        state.record(600, "trg", 2)
+        state.record(601, "trg", 0)
+        self.assertIsNone(state.pending_trigger)
+        rebooted = CommandState(path=self.path)
+        self.assertIsNone(rebooted.pending_trigger)
+
+    def test_rearm_replaces_pending(self):
+        state = CommandState(path=self.path)
+        state.record(600, "trg", 1)
+        state.record(601, "trg", 3)
+        self.assertEqual(state.pending_trigger, {"id": 601, "value": 3})
+
+    def test_duplicate_trg_id_does_not_rearm_after_consume(self):
+        # Cloud re-send of an already-consumed trg must ack (dedupe) but
+        # never fire a second image. The daemon checks is_duplicate BEFORE
+        # record(); this pins the store side of that contract.
+        state = CommandState(path=self.path)
+        state.record(600, "trg", 2)
+        self.assertEqual(state.consume_trigger(), {"id": 600, "value": 2})
+        self.assertTrue(state.is_duplicate(600))
+        self.assertIsNone(state.pending_trigger)
+
+    def test_malformed_pending_trigger_dropped_on_load(self):
+        for bad in ({"id": 1, "value": 99},        # out of table
+                    {"id": 1, "value": 0},         # cancel is never pending
+                    {"id": True, "value": 2},      # bool id
+                    {"value": 2},                  # id missing
+                    "trigger", 7, []):
+            with open(self.path, "w", encoding="utf-8") as f:
+                json.dump({"schema": STATE_SCHEMA,
+                           "settings": dict(ct.DEFAULT_SETTINGS),
+                           "applied_ids": [],
+                           "pending_trigger": bad}, f)
+            state = CommandState(path=self.path)
+            self.assertIsNone(state.pending_trigger, f"pending={bad!r}")
+
+    def test_consume_with_unwritable_path_defers_trigger(self):
+        # Persist-the-clear fails -> trigger must NOT be serviced this boot
+        # (one quiet boot beats a capture loop) and must still be armed.
+        state = CommandState(path=self.path)
+        state.record(600, "trg", 2)
+        state.path = os.path.join(self.tmpdir.name, "no_such_dir", "state.json")
+        self.assertIsNone(state.consume_trigger())
+        self.assertEqual(state.pending_trigger, {"id": 600, "value": 2})
+
+
 if __name__ == "__main__":
     unittest.main()

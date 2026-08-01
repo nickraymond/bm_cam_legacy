@@ -1,7 +1,9 @@
-# Sprint12 — Remote config commands: power-halt + transmit window
+# Sprint12 — Remote config commands: power-halt + transmit window + trigger
 
-Status: SPECCED (not started). Written 2026-07-31 immediately after the fleet
-standardization that motivated it. Nick-approved scope, two features.
+Status: IN PROGRESS (started 2026-07-31). Written 2026-07-31 immediately after
+the fleet standardization that motivated it. Nick-approved scope: originally
+two features; Feature 3 (`trg`, incl. reference-image trigger) added
+2026-07-31 in-session, Nick-approved. Decisions recorded in DESIGN.md.
 
 ## Why this sprint exists (the 2026-07-31 incident)
 
@@ -93,6 +95,38 @@ TWN_TABLE = {
   currently skips transmit; after `twn 2` it must transmit on next boot.
   This is also the remote un-brick for "window misconfigured, unit never
   transmits, can't reach it" — the twin of the halt incident.
+
+## Feature 3 — `trg`: one-shot capture/send trigger (added 2026-07-31)
+
+Nick: "a simple command to trigger an image, and trigger an image + send" —
+plus triggering a REFERENCE image so link performance can be verified
+independent of the camera (e.g. bench in a dim room).
+
+```python
+TRG_TABLE = {
+    0: {"label": "cancel pending trigger", "action": None, "src": None},
+    1: {"label": "capture only (to SD, no transmit)", "action": "capture", "src": None},
+    2: {"label": "capture + send", "action": "capture_transmit", "src": None},
+    3: {"label": "send reef reference (camera skipped)", "action": "capture_transmit", "src": 1},
+    4: {"label": "send reference card (camera skipped)", "action": "capture_transmit", "src": 9},
+}
+```
+
+Semantics (all decisions in DESIGN.md D-S12-3..5):
+
+- A one-shot ACTION, not a setting: arms `pending_trigger` in the state
+  file; the next boot consumes it exactly once (cleared-and-persisted
+  BEFORE the cycle acts, so a crash cannot re-fire it).
+- The trigger boot ALWAYS bypasses the transmit-window gate
+  (Nick-confirmed 2026-07-31). One-shot, so it cannot strand a unit the
+  way a bad persistent window could. Everything else is a stock cycle:
+  normal budget, pacing, halt.
+- `src` values index into SRC_TABLE (paths stay single-source-of-truth;
+  finding-009 dimension checks apply).
+- Ack means ARMED, not captured. Execution proof = the image (trg 2/3/4)
+  or wake status + SD artifact (trg 1). Dedupe makes cloud re-sends safe.
+- Realistic latency on a duty-cycled unit: command arms during one
+  cycle's listen tail, fires on the next boot (~one duty cycle later).
 
 ## Prerequisite / enabling change — daemon on in production
 

@@ -41,7 +41,10 @@ Example:
 # tell which table revision a device or GUI was built against.
 # v2 (2026-07-29, Nick-approved): added txd / cap / src for field control of
 # transmit pacing, message cap, and reference-image injection.
-TABLES_VERSION = 2
+# v3 (2026-07-31, Sprint12): added hlt / twn (remote power-halt and
+# transmit-window overrides — the two settings that stranded bmcam001/002
+# on 2026-07-31) and trg (one-shot capture/send trigger).
+TABLES_VERSION = 3
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -50,18 +53,28 @@ NATIVE_HEIGHT = 2592
 # All ROI presets downsample to this output width (height follows aspect).
 ROI_OUTPUT_WIDTH = 1000
 
-# The v1 commands (SPEC; Q4 closed) + the v2 transport/debug trio.
-# Anything else is rejected.
-COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src", "ping")
+# The v1 commands (SPEC; Q4 closed) + the v2 transport/debug trio + the
+# v3 Sprint12 additions. Anything else is rejected.
+COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
+            "hlt", "twn", "trg", "ping")
 
-# Commands that carry persistent settings state (everything but ping).
-SETTINGS_COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src")
+# Commands that carry persistent settings state. NOTE the two exclusions:
+# ping (stateless) and trg (a ONE-SHOT action — it arms a pending trigger
+# in the state file's `pending_trigger` slot, not a persistent setting;
+# see command_state.py).
+SETTINGS_COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
+                     "hlt", "twn")
+
+# One-shot action commands: applied once on the next boot, then cleared.
+ACTION_COMMANDS = ("trg",)
 
 # Factory state: all-zero is the documented factory reset (SPEC). Index 0 of
 # EVERY table must therefore be the current production default, so that a
 # factory reset lands a unit on shipped behaviour and never on a test mode.
+# For hlt/twn, index 0 means "no override — the YAML value governs", which
+# IS the shipped behaviour.
 DEFAULT_SETTINGS = {"roi": 0, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-                    "txd": 0, "cap": 0, "src": 0}
+                    "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0}
 
 
 def _centered(w, h):
@@ -187,6 +200,69 @@ SRC_TABLE = {
     9: {"label": "reference card", "path": "reference_images/reference_card_native_imx708.jpg"},
 }
 
+# hlt — power-halt override (Sprint12). Persisted like every settings
+# command but applied at NEXT boot only (Sprint11 D2 — the running cycle
+# halts with whatever it booted with; ack-before-halt ordering is tested
+# in test_rc_orchestrator). Index 0 carries NO override payload: the YAML
+# power_halt block governs, which is the delete-the-key-to-restore-stock
+# doctrine. mode/script_path stay YAML-owned — only enabled/dry_run are
+# remotely commandable.
+#
+# STRANDING TRADE (deliberate, SPEC): hlt 1 on a constant-power unit halts
+# at cycle end and stays dark until a physical power cycle; hlt 3 on a
+# battery unit drains ~0.6 W continuously. The overlay logs both loudly.
+HLT_TABLE = {
+    0: {"label": "yaml default (no override)", "override": None},
+    1: {"label": "halt enabled (real)",
+        "override": {"enabled": True, "dry_run": False}},
+    2: {"label": "halt dry-run (log only)",
+        "override": {"enabled": True, "dry_run": True}},
+    3: {"label": "halt disabled",
+        "override": {"enabled": False, "dry_run": True}},
+}
+
+# twn — transmit-window override (Sprint12). Vetted presets, not arbitrary
+# times (a finite table cannot fat-finger 25:00; arbitrary times are
+# DESIGN O2, deferred). Times are HH:MM in the unit's OWN configured
+# timezone — twn never changes timezone (one variable per command).
+# Index 2 (wide) is the remote equivalent of --skip-time-window: the
+# un-brick for "window misconfigured, unit never transmits".
+TWN_TABLE = {
+    0: {"label": "yaml default (no override)", "override": None},
+    1: {"label": "field 10:00-15:00",
+        "override": {"start": "10:00", "end": "15:00"}},
+    2: {"label": "wide 00:01-23:59 (bench/diagnostic)",
+        "override": {"start": "00:01", "end": "23:59"}},
+    3: {"label": "morning 08:00-12:00",
+        "override": {"start": "08:00", "end": "12:00"}},
+    4: {"label": "midday 11:00-14:00",
+        "override": {"start": "11:00", "end": "14:00"}},
+}
+
+# trg — one-shot capture/send trigger (Sprint12; Nick 2026-07-31). NOT a
+# setting: arms `pending_trigger` in the state file; the next boot consumes
+# it exactly once (cleared BEFORE the cycle runs, so a crash cannot re-fire
+# it every boot). The trigger boot ALWAYS bypasses the transmit-window gate
+# (Nick-confirmed) — in-window it adds nothing and out-of-window it would
+# be a silent no-op otherwise. One-shot, so it cannot strand a unit the
+# way a bad persistent window could.
+#
+# `src` values index into SRC_TABLE (single source of truth for reference
+# paths — finding 009's dimension check covers these too). A reference
+# trigger sends a known-good image with the camera skipped: verifies the
+# whole encode+transmit+backend chain independent of optics/light (e.g.
+# bench testing in a dim room).
+TRG_TABLE = {
+    0: {"label": "cancel pending trigger", "action": None, "src": None},
+    1: {"label": "capture only (to SD, no transmit)",
+        "action": "capture", "src": None},
+    2: {"label": "capture + send", "action": "capture_transmit", "src": None},
+    3: {"label": "send reef reference (camera skipped)",
+        "action": "capture_transmit", "src": 1},
+    4: {"label": "send reference card (camera skipped)",
+        "action": "capture_transmit", "src": 9},
+}
+
 # ping carries no value; a single index keeps the lookup API uniform
 # (parser treats a missing `v` as 0 for ping).
 PING_TABLE = {
@@ -202,12 +278,15 @@ _TABLES = {
     "txd": TXD_TABLE,
     "cap": CAP_TABLE,
     "src": SRC_TABLE,
+    "hlt": HLT_TABLE,
+    "twn": TWN_TABLE,
+    "trg": TRG_TABLE,
     "ping": PING_TABLE,
 }
 
 
 def is_command(cmd):
-    """True if `cmd` is one of the six v1 command names."""
+    """True if `cmd` is a known command name (any table revision)."""
     return cmd in _TABLES
 
 

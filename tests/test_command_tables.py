@@ -24,23 +24,27 @@ import command_tables as ct  # noqa: E402
 
 
 class TestCommandSet(unittest.TestCase):
-    def test_v2_command_set_exact(self):
+    def test_v3_command_set_exact(self):
         self.assertEqual(
             ct.COMMANDS,
-            ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src", "ping"),
+            ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
+             "hlt", "twn", "trg", "ping"),
         )
 
-    def test_settings_commands_exclude_ping(self):
+    def test_settings_commands_exclude_ping_and_trg(self):
+        # trg is a one-shot ACTION (pending_trigger slot), never a setting.
         self.assertEqual(
             ct.SETTINGS_COMMANDS,
-            ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src"),
+            ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
+             "hlt", "twn"),
         )
+        self.assertEqual(ct.ACTION_COMMANDS, ("trg",))
 
     def test_factory_defaults_all_zero(self):
         self.assertEqual(
             ct.DEFAULT_SETTINGS,
             {"roi": 0, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-             "txd": 0, "cap": 0, "src": 0}
+             "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0}
         )
 
     def test_every_command_has_a_table_with_index_zero(self):
@@ -269,3 +273,92 @@ class TestV2Tables(unittest.TestCase):
 
     def test_tables_version_bumped_for_v2(self):
         self.assertGreaterEqual(ct.TABLES_VERSION, 2)
+
+
+class TestSprint12Tables(unittest.TestCase):
+    """hlt / twn / trg — Sprint12 remote-config commands (2026-07-31)."""
+
+    def test_tables_version_is_3(self):
+        self.assertEqual(ct.TABLES_VERSION, 3)
+
+    def test_hlt_index_zero_carries_no_override(self):
+        # 0 = YAML governs. If someone gives index 0 an override payload, a
+        # factory reset would start overriding the YAML instead of clearing.
+        self.assertIsNone(ct.HLT_TABLE[0]["override"])
+
+    def test_hlt_overrides_match_spec(self):
+        self.assertEqual(ct.HLT_TABLE[1]["override"],
+                         {"enabled": True, "dry_run": False})
+        self.assertEqual(ct.HLT_TABLE[2]["override"],
+                         {"enabled": True, "dry_run": True})
+        self.assertEqual(ct.HLT_TABLE[3]["override"],
+                         {"enabled": False, "dry_run": True})
+
+    def test_twn_index_zero_carries_no_override(self):
+        self.assertIsNone(ct.TWN_TABLE[0]["override"])
+
+    def test_twn_windows_match_spec_and_are_valid_hhmm(self):
+        expected = {1: ("10:00", "15:00"), 2: ("00:01", "23:59"),
+                    3: ("08:00", "12:00"), 4: ("11:00", "14:00")}
+        for index, (start, end) in expected.items():
+            override = ct.TWN_TABLE[index]["override"]
+            self.assertEqual((override["start"], override["end"]),
+                             (start, end), f"twn[{index}]")
+        # Every preset must parse as HH:MM with sane ranges — the entire
+        # point of a preset table is that a bad time cannot exist in it.
+        for index, entry in ct.TWN_TABLE.items():
+            if entry["override"] is None:
+                continue
+            for key in ("start", "end"):
+                hh, mm = entry["override"][key].split(":")
+                self.assertTrue(0 <= int(hh) <= 23, f"twn[{index}].{key}")
+                self.assertTrue(0 <= int(mm) <= 59, f"twn[{index}].{key}")
+
+    def test_twn_windows_are_start_before_end(self):
+        # Overnight windows are supported by the gate but NOT offered as
+        # presets — a wrapped preset chosen by accident would look like
+        # "unit transmits at 3am". Add one deliberately if ever needed.
+        for index, entry in ct.TWN_TABLE.items():
+            if entry["override"] is None:
+                continue
+            self.assertLess(entry["override"]["start"],
+                            entry["override"]["end"], f"twn[{index}]")
+
+    def test_trg_index_zero_is_cancel(self):
+        self.assertIsNone(ct.TRG_TABLE[0]["action"])
+        self.assertIsNone(ct.TRG_TABLE[0]["src"])
+
+    def test_trg_actions_are_known(self):
+        for index, entry in ct.TRG_TABLE.items():
+            if index == 0:
+                continue
+            self.assertIn(entry["action"], ("capture", "capture_transmit"),
+                          f"trg[{index}]")
+
+    def test_trg_src_indices_point_into_src_table(self):
+        # Reference triggers ride SRC_TABLE (single source of truth for
+        # paths — finding 009's dimension test covers them there).
+        for index, entry in ct.TRG_TABLE.items():
+            if entry["src"] is None:
+                continue
+            self.assertIn(entry["src"], ct.SRC_TABLE, f"trg[{index}]")
+            self.assertIsNotNone(ct.SRC_TABLE[entry["src"]]["path"],
+                                 f"trg[{index}] points at live-camera src 0")
+
+    def test_trg_reference_triggers_transmit(self):
+        # A reference trigger that didn't transmit would be pointless: the
+        # image is already on the SD card in the repo.
+        for index, entry in ct.TRG_TABLE.items():
+            if entry["src"] is not None:
+                self.assertEqual(entry["action"], "capture_transmit",
+                                 f"trg[{index}]")
+
+    def test_new_commands_validate_indices_strictly(self):
+        for cmd, table in (("hlt", ct.HLT_TABLE), ("twn", ct.TWN_TABLE),
+                           ("trg", ct.TRG_TABLE)):
+            for index in table:
+                self.assertTrue(ct.valid_value(cmd, index))
+            self.assertFalse(ct.valid_value(cmd, max(table) + 1))
+            self.assertFalse(ct.valid_value(cmd, -1))
+            self.assertFalse(ct.valid_value(cmd, True))
+            self.assertFalse(ct.valid_value(cmd, "0"))

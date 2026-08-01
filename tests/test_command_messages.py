@@ -160,14 +160,14 @@ class TestParserRejects(unittest.TestCase):
 
 class TestAckBuilder(unittest.TestCase):
     def test_applied_ack_exact_string(self):
-        # Byte-exact wire pin. Updated for TABLES_VERSION 2 (txd/cap/src);
+        # Byte-exact wire pin. Updated for TABLES_VERSION 3 (hlt/twn);
         # key order follows SETTINGS_COMMANDS.
         st = {"roi": 2, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-              "txd": 0, "cap": 0, "src": 0}
+              "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0}
         self.assertEqual(
             build_ack(417, True, st),
             '{"id":417,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,'
-            '"txd":0,"cap":0,"src":0}}',
+            '"txd":0,"cap":0,"src":0,"hlt":0,"twn":0}}',
         )
 
     def test_reject_ack_carries_error_code(self):
@@ -185,7 +185,7 @@ class TestAckBuilder(unittest.TestCase):
         self.assertEqual(
             ack["st"],
             {"roi": 4, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-             "txd": 0, "cap": 0, "src": 0},
+             "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0},
         )
 
     def test_st_always_complete_and_int(self):
@@ -204,6 +204,25 @@ class TestAckBuilder(unittest.TestCase):
             error=ERR_CMD,
         )
         self.assertLess(len(worst.encode("ascii")), 384)
+
+    def test_trg_requires_explicit_value(self):
+        # Only ping may omit "v" — arming a trigger with no value would be
+        # ambiguous (Sprint12).
+        result = parse_command('{"id": 9, "c": "trg"}')
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"], ERR_VAL)
+
+    def test_version_mismatch_old_receiver_rejects_new_commands(self):
+        # Sprint12 version-mismatch path: an OLD (v2-tables) receiver
+        # getting hlt/twn/trg answers a normal ERR_CMD ack — simulated here
+        # by the documented contract that unknown commands reject as "cmd"
+        # (identical code path an old deploy would take).
+        result = parse_command('{"id": 9, "c": "future_cmd", "v": 1}')
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"], ERR_CMD)
+        ack = json.loads(build_ack(result["id"], False, FACTORY,
+                                   error=result["error"]))
+        self.assertEqual(ack["e"], "cmd")
 
     def test_roundtrip_with_parser_errors(self):
         # End-to-end shape: parse a bad-value command, ack it, re-parse ack.
