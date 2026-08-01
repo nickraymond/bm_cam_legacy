@@ -91,3 +91,27 @@ runs/sprint13_bench_20260801/RESULTS.md. Headlines:
 Open at handoff: Sofar backend rows for the 2 rehearsal images (13-30
 min lag; re-poll pre-merge). tmz on-hardware smoke optional in demo.
 Out-of-window command-deafness flagged as a Sprint14 doctrine question.
+
+## 2026-08-01 (day, Nick remote) — dev state + console formatting
+
+- Nick's morning demo hit the OLD formatting (double-spaced help): his
+  CoolTerm owned the USB port from 14:56 (Spotter power-cycle), so
+  overnight monitor was dead. Per Nick: took the console back (CoolTerm
+  killed after graceful quit failed), fresh monitor from this worktree
+  (runs/sprint13_bench_20260801/spotter_logs/).
+- Formatting fixes (3d00676): spotter_print drops the payload newline
+  (Spotter console adds its own -> was double-spacing every line);
+  blank spacer lines filtered at the transport boundary. VERIFIED on
+  hardware: help_echo_singlespaced_cycle9.txt — dense, 123 content
+  lines, no blank stamped rows.
+- Timestamp prefix (epoch + node id): CANNOT be removed — probes proved
+  v2 print_time=0 renders identically to v1 on v2.16.6; the prefix is
+  Spotter-side console rendering. Recorded as a known cosmetic.
+- Dev state per Nick (console commands, dev_mode.sh tool SKIPPED but
+  committed for later, 0e56e84): crontab disarmed (backup
+  crontab_armed_devpause_20260801.txt), hlt 3 commanded via bm pub
+  (12/12 acked), box up >90 min no halt, bus always-on. Two scheduled
+  in-window images were spent by armed wake cycles during the morning
+  (14:58 Nick power-cycle, 15:53 my reset) — flagged to Nick.
+- bmcam003 END STATE: DEVELOPER MODE — disarmed, hlt=3, box up,
+  build 0e56e84, cfg shows "halt OFF (developer mode) | command hlt=3".
