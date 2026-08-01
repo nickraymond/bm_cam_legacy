@@ -1,0 +1,30 @@
+2026-08-01T07:04:39Z 1785567877.074 c3c564b91856226c, power | tick: 16410274, rtc: 2026-08-01T07:04:37.062, addr: 65, voltage: 23.892799, current: 0.034250
+2026-08-01T07:04:39Z 1785567877.605 53171fa3d81a8e6f, power | tick: 16410264, rtc: 2026-08-01T07:04:37.593, addr: 65, voltage: 23.854401, current: 0.034000
+2026-08-01T07:04:49Z 1785567887.070 c3c564b91856226c, power | tick: 16420274, rtc: 2026-08-01T07:04:47.058, addr: 65, voltage: 23.892799, current: 0.033750
+2026-08-01T07:04:49Z 1785567887.605 53171fa3d81a8e6f, power | tick: 16420264, rtc: 2026-08-01T07:04:47.589, addr: 65, voltage: 23.856001, current: 0.034000
+2026-08-01T07:04:53Z post
+2026-08-01T07:04:53Z baroErrorState:            INIT_ERR
+2026-08-01T07:04:53Z battErrorState:            OK
+2026-08-01T07:04:53Z bridgeErrorState:          OK
+2026-08-01T07:04:53Z bspErrorState:             OK
+2026-08-01T07:04:53Z busIErrorState:            OK
+2026-08-01T07:04:53Z busMonErrorState:          OK
+2026-08-01T07:04:53Z busVErrorState:            OK
+2026-08-01T07:04:53Z cellularErrorState:        OK
+2026-08-01T07:04:53Z cellularSignalErrorState:  OK
+2026-08-01T07:04:53Z chargerErrorState:         OK
+2026-08-01T07:04:53Z gpsErrorState:             NO_SIGNAL
+2026-08-01T07:04:53Z htuErrorState:             OK
+2026-08-01T07:04:53Z ioExpErrorState:           OK
+2026-08-01T07:04:53Z iridiumErrorState:         OK
+2026-08-01T07:04:53Z micErrorState:             N/A
+2026-08-01T07:04:53Z potErrorState:             OK
+2026-08-01T07:04:53Z sdInitErrorState:          OK
+2026-08-01T07:04:53Z solarErrorState:           LOW
+2026-08-01T07:04:53Z sstErrorState:             N/A
+2026-08-01T07:04:53Z visibilityLEDErrorState:   N/A
+2026-08-01T07:04:53Z gpsPowerManagerErrorState: N/A
+2026-08-01T07:04:53Z sdQueueErrorState:         OK
+2026-08-01T07:04:53Z post end
+2026-08-01T07:04:59Z 1785567897.070 c3c564b91856226c, power | tick: 16430273, rtc: 2026-08-01T07:04:57.062, addr: 65, voltage: 23.892799, current: 0.034250
+2026-08-01T07:05:00Z 1785567897.605 53171fa3d81a8e6f, power | tick: 16430264, rtc: 2026-08-01T07:04:57.593, addr: 65, voltage: 23.854401, current: 0.034250

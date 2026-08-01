@@ -31,8 +31,18 @@ def make_query_render_fn(settings, state, topic):
     Captures the RESOLVED settings dict (post-overlay — the same dict
     --print-config prints, so cfg can never disagree with it) and the
     live CommandState (so a cfg sent after e.g. twn 2 in the same listen
-    window shows the new override as next-boot truth)."""
-    from command_help import render_cfg, render_help
+    window shows the new override as next-boot truth).
+
+    Returns None if command_help cannot import — a broken/missing help
+    renderer must degrade to "queries ack, no output", never kill the
+    capture cycle (found the hard way on bmcam003, 2026-08-01: the
+    module missing from the deploy manifest failed the whole boot)."""
+    try:
+        from command_help import render_cfg, render_help
+    except Exception as exc:
+        print(f"[CMD][WARN] command_help unavailable ({exc}); "
+              "help/cfg will ack without console output")
+        return None
 
     def render(cmd):
         if cmd == "help":

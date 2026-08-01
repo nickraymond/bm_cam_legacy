@@ -25,6 +25,7 @@ import os
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
@@ -435,6 +436,24 @@ class TestHooksConsoleFlush(unittest.TestCase):
         ch.drain_now(self.daemon, summary, clock=lambda: 0)
         self.assertEqual(self.daemon.bm.printed, ["only line"])
         self.assertIn("applied", summary["command_events"])
+
+    def test_missing_renderer_module_degrades_not_kills(self):
+        # The bmcam003 rehearsal failure (2026-08-01): command_help
+        # absent from the deployed runtime must yield render_fn=None
+        # (queries ack, no output) — never an exception.
+        import builtins
+        import rc_command_hooks as ch
+        real_import = builtins.__import__
+
+        def broken_import(name, *args, **kwargs):
+            if name == "command_help":
+                raise ImportError("No module named 'command_help'")
+            return real_import(name, *args, **kwargs)
+
+        with unittest.mock.patch.object(builtins, "__import__",
+                                        side_effect=broken_import):
+            fn = ch.make_query_render_fn({}, self.state, "bmcam/cmd")
+        self.assertIsNone(fn)
 
     def test_shutdown_flushes_console_before_stop(self):
         import rc_command_hooks as ch

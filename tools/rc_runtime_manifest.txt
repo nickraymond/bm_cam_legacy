@@ -36,6 +36,7 @@ BM_Devel_Pi/command_messages.py
 BM_Devel_Pi/command_state.py
 BM_Devel_Pi/command_bindings.py
 BM_Devel_Pi/command_daemon.py
+BM_Devel_Pi/command_help.py
 BM_Devel_Pi/bm_frame_decoder.py
 BM_Devel_Pi/rc_command_hooks.py
 
