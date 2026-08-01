@@ -24,27 +24,29 @@ import command_tables as ct  # noqa: E402
 
 
 class TestCommandSet(unittest.TestCase):
-    def test_v3_command_set_exact(self):
+    def test_v5_command_set_exact(self):
         self.assertEqual(
             ct.COMMANDS,
             ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-             "hlt", "twn", "trg", "ping"),
+             "hlt", "twn", "tmz", "trg", "ping", "help", "cfg"),
         )
 
-    def test_settings_commands_exclude_ping_and_trg(self):
-        # trg is a one-shot ACTION (pending_trigger slot), never a setting.
+    def test_settings_commands_exclude_ping_trg_and_queries(self):
+        # trg is a one-shot ACTION (pending_trigger slot), never a setting;
+        # help/cfg are QUERIES (Sprint13) — no state beyond the dedupe id.
         self.assertEqual(
             ct.SETTINGS_COMMANDS,
             ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-             "hlt", "twn"),
+             "hlt", "twn", "tmz"),
         )
         self.assertEqual(ct.ACTION_COMMANDS, ("trg",))
+        self.assertEqual(ct.QUERY_COMMANDS, ("help", "cfg"))
 
     def test_factory_defaults_all_zero(self):
         self.assertEqual(
             ct.DEFAULT_SETTINGS,
             {"roi": 0, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-             "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0}
+             "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0, "tmz": 0}
         )
 
     def test_every_command_has_a_table_with_index_zero(self):
@@ -83,12 +85,16 @@ class TestRoiGeometry(unittest.TestCase):
             )
 
     def test_no_crop_upsamples_at_output(self):
-        # SPEC: the 1000-wide floor guarantees output never upsamples.
+        # v5: crops may be NARROWER than the 1000-wide output (reef-test
+        # presets 5/6) — the overlay clamps output width to the crop width
+        # so nothing ever upsamples. The invariant is now min(), matching
+        # the clamp in command_bindings.overlay_rc_settings.
+        from rc_jpeg_encoder import output_size_for_crop
         for v, entry in ct.ROI_TABLE.items():
-            w = entry["crop"][2]
-            self.assertGreaterEqual(
-                w, ct.ROI_OUTPUT_WIDTH, f"roi[{v}] narrower than output width"
-            )
+            w, h = entry["crop"][2], entry["crop"][3]
+            out_w = min(ct.ROI_OUTPUT_WIDTH, w)
+            out = output_size_for_crop(w, h, out_w)  # raises on upsample
+            self.assertLessEqual(out[0], w, f"roi[{v}] upsampled")
 
     def test_zoom_presets_are_centered(self):
         # Q3: zoom only, no pan — every preset (incl. full frame) centers
@@ -113,15 +119,15 @@ class TestOtherTables(unittest.TestCase):
             self.assertGreaterEqual(entry["lens_position"], 0.0, f"foc[{v}]")
 
     def test_awb_modes(self):
+        # v5: the untuned custom-gain underwater preset (old index 3) was
+        # dropped (Nick 2026-08-01 — nothing ships untested). Only the
+        # libcamera presets remain until a tank-tuned entry returns.
         self.assertEqual(ct.AWB_TABLE[0]["mode"], "auto")
         self.assertEqual(ct.AWB_TABLE[1]["mode"], "daylight")
         self.assertEqual(ct.AWB_TABLE[2]["mode"], "cloudy")
-        self.assertEqual(ct.AWB_TABLE[3]["mode"], "custom")
-        # Custom preset must carry both gains (rpicam --awbgains R,B).
-        gains = ct.AWB_TABLE[3]["gains"]
-        self.assertEqual(len(gains), 2)
-        for g in gains:
-            self.assertGreater(g, 0.0)
+        self.assertEqual(sorted(ct.AWB_TABLE), [0, 1, 2])
+        for entry in ct.AWB_TABLE.values():
+            self.assertIsNone(entry["gains"])
 
     def test_exp_zero_is_auto_and_steps_are_floats(self):
         self.assertIsNone(ct.EXP_TABLE[0]["ev"])
@@ -130,9 +136,11 @@ class TestOtherTables(unittest.TestCase):
                 continue
             self.assertIsInstance(entry["ev"], float, f"exp[{v}]")
 
-    def test_win_values_fixed_by_spec(self):
+    def test_win_values_production_spec(self):
+        # v5 (Nick 2026-08-01): 12 min is the production default (index 0
+        # = shipped YAML behaviour, factory-reset doctrine).
         minutes = {v: e["minutes"] for v, e in ct.WIN_TABLE.items()}
-        self.assertEqual(minutes, {0: 16, 1: 12, 2: 8, 3: 5})
+        self.assertEqual(minutes, {0: 12, 1: 5, 2: 8, 3: 16})
 
 
 class TestLookupHelpers(unittest.TestCase):
@@ -278,8 +286,8 @@ class TestV2Tables(unittest.TestCase):
 class TestSprint12Tables(unittest.TestCase):
     """hlt / twn / trg — Sprint12 remote-config commands (2026-07-31)."""
 
-    def test_tables_version_is_4(self):
-        self.assertEqual(ct.TABLES_VERSION, 4)
+    def test_tables_version_is_5(self):
+        self.assertEqual(ct.TABLES_VERSION, 5)
 
     def test_hlt_index_zero_carries_no_override(self):
         # 0 = YAML governs. If someone gives index 0 an override payload, a

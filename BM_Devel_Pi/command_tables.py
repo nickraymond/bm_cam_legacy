@@ -48,7 +48,17 @@ Example:
 # (00:00-00:00 full-circle, gate change D-S12-9) — the 00:01-23:59 v3
 # value left 2 min of daily dead time. v3 existed only on the sprint
 # branch / bench bmcam003.
-TABLES_VERSION = 4
+# v5 (2026-08-01, Sprint13, Nick-approved): customer-facing console pass.
+#   - roi: pixels-first labels + two smaller 16:9 reef-test crops
+#     (800x450 / 640x360 — values to be validated in the next ROI sweep)
+#   - win: 12 min is the new production default (index 0), profiles moved
+#     with it; order 12/5/8/16
+#   - hlt: customer labels (power savings / developer mode)
+#   - awb 3: labeled (untuned) until tank-tuned
+#   - tmz: NEW timezone override command (LA / New York / UTC presets) —
+#     revises the Sprint12 audit's category-C stance, see Sprint13 DESIGN
+#   - help / cfg: NEW query commands (no state change; console output)
+TABLES_VERSION = 5
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -58,19 +68,26 @@ NATIVE_HEIGHT = 2592
 ROI_OUTPUT_WIDTH = 1000
 
 # The v1 commands (SPEC; Q4 closed) + the v2 transport/debug trio + the
-# v3 Sprint12 additions. Anything else is rejected.
+# v3 Sprint12 additions + the v5 Sprint13 additions (tmz setting, help/cfg
+# queries). Anything else is rejected.
 COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-            "hlt", "twn", "trg", "ping")
+            "hlt", "twn", "tmz", "trg", "ping", "help", "cfg")
 
-# Commands that carry persistent settings state. NOTE the two exclusions:
-# ping (stateless) and trg (a ONE-SHOT action — it arms a pending trigger
-# in the state file's `pending_trigger` slot, not a persistent setting;
-# see command_state.py).
+# Commands that carry persistent settings state. NOTE the exclusions:
+# ping (stateless), help/cfg (queries) and trg (a ONE-SHOT action — it
+# arms a pending trigger in the state file's `pending_trigger` slot, not
+# a persistent setting; see command_state.py).
 SETTINGS_COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-                     "hlt", "twn")
+                     "hlt", "twn", "tmz")
 
 # One-shot action commands: applied once on the next boot, then cleared.
 ACTION_COMMANDS = ("trg",)
+
+# Query commands (Sprint13): read-only — they change NO state beyond the
+# dedupe id record, and their "result" is console output (help text /
+# config dump), not a setting. `v` is optional on the wire (defaults 0),
+# same as ping.
+QUERY_COMMANDS = ("help", "cfg")
 
 # Factory state: all-zero is the documented factory reset (SPEC). Index 0 of
 # EVERY table must therefore be the current production default, so that a
@@ -78,7 +95,8 @@ ACTION_COMMANDS = ("trg",)
 # For hlt/twn, index 0 means "no override — the YAML value governs", which
 # IS the shipped behaviour.
 DEFAULT_SETTINGS = {"roi": 0, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-                    "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0}
+                    "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0,
+                    "tmz": 0}
 
 
 def _centered(w, h):
@@ -88,15 +106,20 @@ def _centered(w, h):
 
 # roi — concentric centered 16:9 zoom presets (Q3: zoom only, no pan).
 # Index 0 is the current production default (S07 byte-validated center
-# crop); 1 is widest (full frame); 4 is max detail (1000-wide floor so the
-# output never upsamples). Rects for 1-4 are PLACEHOLDER until final field
-# framing is chosen.
+# crop); 1 is widest (full frame). Indices 5/6 (Sprint13, Nick) are
+# smaller-than-output reef-test crops: the overlay clamps the output
+# width to the crop width so they transmit at native crop size — never
+# upsampled. All rects to be exercised in the next ROI sweep sprint.
 ROI_TABLE = {
-    0: {"label": "default 1600x900", "crop": _centered(1600, 900)},
-    1: {"label": "widest (full frame)", "crop": (0, 0, NATIVE_WIDTH, NATIVE_HEIGHT)},
-    2: {"label": "wide 3072x1728", "crop": _centered(3072, 1728)},
-    3: {"label": "mid 2304x1296", "crop": _centered(2304, 1296)},
-    4: {"label": "max detail 1000x562", "crop": _centered(1000, 562)},
+    0: {"label": "1600x900 - default", "crop": _centered(1600, 900)},
+    1: {"label": "4608x2592 - full frame (widest)",
+        "crop": (0, 0, NATIVE_WIDTH, NATIVE_HEIGHT)},
+    2: {"label": "3072x1728 - wide", "crop": _centered(3072, 1728)},
+    3: {"label": "2304x1296 - mid", "crop": _centered(2304, 1296)},
+    4: {"label": "1000x562 - max detail", "crop": _centered(1000, 562)},
+    5: {"label": "800x450 - reef test A", "crop": _centered(800, 450)},
+    6: {"label": "640x360 - reef test B (tightest)",
+        "crop": _centered(640, 360)},
 }
 
 # foc — 0 = autofocus; 1..N = manual lens positions at fixed distances.
@@ -112,35 +135,41 @@ FOC_TABLE = {
     5: {"label": "manual 0.25 m", "mode": "manual", "lens_position": 4.0},
 }
 
-# awb — rpicam-still --awb modes; index 3 is a fixed-gain underwater
-# preset (--awb custom --awbgains R,B). Gains are PLACEHOLDER — tune
-# against underwater reference-card captures before deployment.
+# awb — rpicam-still --awb modes (libcamera presets from the Pi camera
+# stack). v5: the untuned custom-gain "underwater preset" (old index 3)
+# was DROPPED (Nick 2026-08-01 — not shipping untested values); it can
+# return as a new index once tank-tuned against reference-card captures.
+# The `gains` key stays in the schema for that future entry.
 AWB_TABLE = {
     0: {"label": "auto", "mode": "auto", "gains": None},
     1: {"label": "daylight", "mode": "daylight", "gains": None},
     2: {"label": "cloudy", "mode": "cloudy", "gains": None},
-    3: {"label": "underwater preset", "mode": "custom", "gains": (1.8, 1.2)},
 }
 
-# exp — 0 = full auto exposure; 1..N = EV compensation steps
-# (rpicam-still --ev, in stops). Step list is PLACEHOLDER.
+# exp — EXPOSURE BIAS (naming Nick-approved 2026-08-01): 0 = full auto
+# exposure; 1..N bias the auto-metered result darker/brighter via EV
+# compensation (rpicam-still --ev, in stops). Deliberately NOT a fixed
+# shutter time — underwater ambient light swings too much for a fixed
+# shutter preset to stay usable across a day.
 EXP_TABLE = {
     0: {"label": "auto", "ev": None},
-    1: {"label": "-2 EV", "ev": -2.0},
-    2: {"label": "-1 EV", "ev": -1.0},
-    3: {"label": "-0.5 EV", "ev": -0.5},
-    4: {"label": "+0.5 EV", "ev": 0.5},
-    5: {"label": "+1 EV", "ev": 1.0},
-    6: {"label": "+2 EV", "ev": 2.0},
+    1: {"label": "darker -2 EV", "ev": -2.0},
+    2: {"label": "darker -1 EV", "ev": -1.0},
+    3: {"label": "darker -0.5 EV", "ev": -0.5},
+    4: {"label": "brighter +0.5 EV", "ev": 0.5},
+    5: {"label": "brighter +1 EV", "ev": 1.0},
+    6: {"label": "brighter +2 EV", "ev": 2.0},
 }
 
 # win — active-window duration (progressive_jpeg.max_run_time_min).
-# Values fixed by SPEC; index 0 is the current field-trial setting.
+# v5 (Nick 2026-08-01): 12 min is the production spec now — index 0 moved
+# from 16 to 12 and the device profiles moved with it in the same commit
+# (factory-reset doctrine: index 0 must equal shipped YAML behaviour).
 WIN_TABLE = {
-    0: {"label": "16 min (default)", "minutes": 16},
-    1: {"label": "12 min", "minutes": 12},
+    0: {"label": "12 min - default", "minutes": 12},
+    1: {"label": "5 min", "minutes": 5},
     2: {"label": "8 min", "minutes": 8},
-    3: {"label": "5 min", "minutes": 5},
+    3: {"label": "16 min", "minutes": 16},
 }
 
 # txd — transmit pacing, seconds per message
@@ -157,12 +186,12 @@ WIN_TABLE = {
 #
 # Index 0 = 1.0 s = the shipped Sprint09 value, so factory reset is a no-op.
 TXD_TABLE = {
-    0: {"label": "1.0 s (Sprint09 default)", "seconds": 1.0},
+    0: {"label": "1.0 s - default", "seconds": 1.0},
     1: {"label": "1.5 s", "seconds": 1.5},
     2: {"label": "2.0 s", "seconds": 2.0},
     3: {"label": "3.0 s", "seconds": 3.0},
     4: {"label": "4.0 s", "seconds": 4.0},
-    5: {"label": "5.0 s (Phase E zero-loss)", "seconds": 5.0},
+    5: {"label": "5.0 s - zero-loss safe", "seconds": 5.0},
 }
 
 # cap — hard ceiling on messages per image (progressive_jpeg.message_cap).
@@ -173,7 +202,7 @@ TXD_TABLE = {
 # budget allows only 192 messages, and `cap` above 192 has no effect at all.
 # Raise `win` as well if you need a larger cap at slow pacing.
 CAP_TABLE = {
-    0: {"label": "195 (field default)", "messages": 195},
+    0: {"label": "195 - default", "messages": 195},
     1: {"label": "100", "messages": 100},
     2: {"label": "150", "messages": 150},
     3: {"label": "250", "messages": 250},
@@ -192,7 +221,7 @@ CAP_TABLE = {
 # 009, which cost an entire overnight run. Paths are validated at pack time
 # by tests/test_command_tables.py, not merely assumed to exist.
 SRC_TABLE = {
-    0: {"label": "live camera (default)", "path": None},
+    0: {"label": "live camera - default", "path": None},
     1: {"label": "reef primary", "path": "reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg"},
     2: {"label": "reef alt 01", "path": "reference_images/prepared/reference_reef_coral_alt_01/synthetic_native_4608x2592.jpg"},
     3: {"label": "reef alt 02", "path": "reference_images/prepared/reference_reef_coral_alt_02/synthetic_native_4608x2592.jpg"},
@@ -215,13 +244,17 @@ SRC_TABLE = {
 # STRANDING TRADE (deliberate, SPEC): hlt 1 on a constant-power unit halts
 # at cycle end and stays dark until a physical power cycle; hlt 3 on a
 # battery unit drains ~0.6 W continuously. The overlay logs both loudly.
+# Customer labels (Nick 2026-08-01): production profiles ship with the
+# halt ENABLED in YAML, so index 0 ("config file governs") lands on halt
+# ON for a factory unit; 1 is tagged power savings, 3 developer mode.
 HLT_TABLE = {
-    0: {"label": "yaml default (no override)", "override": None},
-    1: {"label": "halt enabled (real)",
+    0: {"label": "use config file setting (factory: halt ON)",
+        "override": None},
+    1: {"label": "halt ON - power savings (production)",
         "override": {"enabled": True, "dry_run": False}},
-    2: {"label": "halt dry-run (log only)",
+    2: {"label": "halt DRY-RUN - logs only, stays awake",
         "override": {"enabled": True, "dry_run": True}},
-    3: {"label": "halt disabled",
+    3: {"label": "halt OFF - developer mode (always awake)",
         "override": {"enabled": False, "dry_run": True}},
 }
 
@@ -232,15 +265,24 @@ HLT_TABLE = {
 # Index 2 (wide) is the remote equivalent of --skip-time-window: the
 # un-brick for "window misconfigured, unit never transmits".
 TWN_TABLE = {
-    0: {"label": "yaml default (no override)", "override": None},
-    1: {"label": "field 10:00-15:00",
-        "override": {"start": "10:00", "end": "15:00"}},
-    2: {"label": "all day 24h (bench/diagnostic)",
-        "override": {"start": "00:00", "end": "00:00"}},
-    3: {"label": "morning 08:00-12:00",
-        "override": {"start": "08:00", "end": "12:00"}},
-    4: {"label": "midday 11:00-14:00",
-        "override": {"start": "11:00", "end": "14:00"}},
+    0: {"label": "use config file setting", "override": None},
+    1: {"label": "10:00 - 15:00", "override": {"start": "10:00", "end": "15:00"}},
+    2: {"label": "ALL DAY (24 h)", "override": {"start": "00:00", "end": "00:00"}},
+    3: {"label": "08:00 - 12:00", "override": {"start": "08:00", "end": "12:00"}},
+    4: {"label": "11:00 - 14:00", "override": {"start": "11:00", "end": "14:00"}},
+}
+
+# tmz — timezone override for the transmit window (Sprint13, Nick request
+# 2026-08-01). REVISES the Sprint12 audit's category-C stance on timezone:
+# a preset table of three vetted IANA zones (DST handled by tzdata) is
+# reversible (tmz 0) and its worst failure is a window shifted by hours —
+# recoverable with twn 2. Never changes the clock source, only how the
+# window HH:MM is interpreted. See Sprint13 DESIGN.
+TMZ_TABLE = {
+    0: {"label": "use config file setting", "tz": None},
+    1: {"label": "USA West Coast (Los Angeles)", "tz": "America/Los_Angeles"},
+    2: {"label": "USA East Coast (New York)", "tz": "America/New_York"},
+    3: {"label": "UTC (no timezone)", "tz": "UTC"},
 }
 
 # trg — one-shot capture/send trigger (Sprint12; Nick 2026-07-31). NOT a
@@ -257,20 +299,82 @@ TWN_TABLE = {
 # whole encode+transmit+backend chain independent of optics/light (e.g.
 # bench testing in a dim room).
 TRG_TABLE = {
-    0: {"label": "cancel pending trigger", "action": None, "src": None},
-    1: {"label": "capture only (to SD, no transmit)",
+    0: {"label": "cancel a pending trigger", "action": None, "src": None},
+    1: {"label": "capture to SD card only (no transmit)",
         "action": "capture", "src": None},
     2: {"label": "capture + send", "action": "capture_transmit", "src": None},
-    3: {"label": "send reef reference (camera skipped)",
+    3: {"label": "send stored reef reference (camera bypassed)",
         "action": "capture_transmit", "src": 1},
-    4: {"label": "send reference card (camera skipped)",
+    4: {"label": "send stored reference card (camera bypassed)",
         "action": "capture_transmit", "src": 9},
 }
 
 # ping carries no value; a single index keeps the lookup API uniform
-# (parser treats a missing `v` as 0 for ping).
+# (parser treats a missing `v` as 0 for ping and the query commands).
 PING_TABLE = {
     0: {"label": "ping (liveness)"},
+}
+
+# help / cfg — Sprint13 query commands. Single-index like ping; the
+# "result" is console output rendered by command_help.py from these very
+# tables (D9: help can never describe a value the daemon can't apply).
+HELP_TABLE = {
+    0: {"label": "print the command reference"},
+}
+
+CFG_TABLE = {
+    0: {"label": "print current settings + sources"},
+}
+
+# ---------------------------------------------------------------------------
+# Customer-facing command metadata (Sprint13). Everything the console help
+# and cfg output say about a command lives HERE, next to the value tables,
+# so the on-console text can never drift from what the daemon accepts.
+#   title    — heading in `help` (verbose, customer wording)
+#   cfg_name — row name in `cfg` (short; command name is appended)
+#   category — cfg grouping: camera / transmission / power
+#   notes    — extra help lines under the value list ("! " = caution)
+# ---------------------------------------------------------------------------
+COMMAND_INFO = {
+    "roi": {"title": "REGION OF INTEREST (image crop, centered zoom)",
+            "cfg_name": "Crop", "category": "camera", "notes": []},
+    "foc": {"title": "FOCUS",
+            "cfg_name": "Focus", "category": "camera", "notes": []},
+    "awb": {"title": "WHITE BALANCE",
+            "cfg_name": "White balance", "category": "camera", "notes": []},
+    "exp": {"title": "EXPOSURE BIAS (brighter/darker)",
+            "cfg_name": "Exposure bias", "category": "camera", "notes": []},
+    "win": {"title": "CYCLE TIME BUDGET (minutes per wake)",
+            "cfg_name": "Time budget", "category": "transmission",
+            "notes": []},
+    "txd": {"title": "TRANSMIT PACING (seconds between messages)",
+            "cfg_name": "Pacing", "category": "transmission", "notes": []},
+    "cap": {"title": "MESSAGE LIMIT (max messages per image)",
+            "cfg_name": "Message limit", "category": "transmission",
+            "notes": []},
+    "src": {"title": "IMAGE SOURCE (persistent; for one-shot tests use trg 3/4)",
+            "cfg_name": "Source", "category": "camera", "notes": []},
+    "hlt": {"title": "POWER HALT (sleep between cycles)",
+            "cfg_name": "Power halt", "category": "power",
+            "notes": ["! CAUTION: v=1 on wall power = dark until "
+                      "physically power cycled"]},
+    "twn": {"title": "TRANSMIT WINDOW (in the camera's timezone)",
+            "cfg_name": "Window", "category": "transmission", "notes": []},
+    "tmz": {"title": "TIMEZONE (for the transmit window)",
+            "cfg_name": "Timezone", "category": "power", "notes": []},
+    "trg": {"title": "TRIGGER, one-shot (fires on next wake, then auto-clears)",
+            "cfg_name": "Pending trigger", "category": "power",
+            "notes": ["! Triggers IGNORE the transmit window - you always "
+                      "get your image.",
+                      "! The ack means ARMED. Proof of firing is the "
+                      "image arriving."]},
+    "ping": {"title": "LIVENESS CHECK (no \"v\" needed - replies with full "
+                      "settings)",
+             "cfg_name": None, "category": None, "notes": []},
+    "help": {"title": "SHOW THIS REFERENCE",
+             "cfg_name": None, "category": None, "notes": []},
+    "cfg": {"title": "SHOW CURRENT SETTINGS and where each came from",
+            "cfg_name": None, "category": None, "notes": []},
 }
 
 _TABLES = {
@@ -284,8 +388,11 @@ _TABLES = {
     "src": SRC_TABLE,
     "hlt": HLT_TABLE,
     "twn": TWN_TABLE,
+    "tmz": TMZ_TABLE,
     "trg": TRG_TABLE,
     "ping": PING_TABLE,
+    "help": HELP_TABLE,
+    "cfg": CFG_TABLE,
 }
 
 

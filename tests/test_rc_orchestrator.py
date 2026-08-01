@@ -443,6 +443,94 @@ class TestSprint12GateKwargsPlumbing(unittest.TestCase):
         self.assertEqual(ch.gate_kwargs_for(None), {})
 
 
+class TestSprint13TimezoneGateOverride(unittest.TestCase):
+    """Sprint13 `tmz` — the commanded timezone reaches the gate via the
+    same explicit-parameter pattern as twn (D-S12-6). Same fixed clock
+    as the Sprint12 window tests: 22:00 UTC = 18:00 New York."""
+
+    FIXED_UTC = "2026-07-31T22:00:00+00:00"
+
+    def _gate_tz(self, timezone_override=None, window_override=None):
+        import datetime as dt
+        import spotter_time_sync as sts
+        yaml_text = (
+            'capture_mode: "progressive_jpeg"\n'
+            "enforce_time_window: true\n"
+            'timezone: "America/New_York"\n'
+            "transmit_window:\n"
+            '  start: "10:00"\n'
+            '  end: "15:00"\n'
+        )
+        config_path = write_yaml(yaml_text)
+        self.addCleanup(os.unlink, config_path)
+        fixed = dt.datetime.fromisoformat(self.FIXED_UTC)
+
+        def fake_reader(timeout_seconds, port=None, baudrate=None, verbose=False):
+            return fixed
+
+        kwargs = {"read_spotter_utc_fn": fake_reader}
+        if timezone_override is not None:
+            kwargs["timezone_override"] = timezone_override
+        if window_override is not None:
+            kwargs["window_override"] = window_override
+        return sts.should_transmit_now_from_schedule(config_path, **kwargs)
+
+    def test_tmz_override_moves_the_window_decision(self):
+        # 22:00 UTC: 18:00 New York blocks a 10:00-16:00 window; the same
+        # instant is 15:00 Los Angeles — inside. tmz + twn may be active
+        # together, so the flip is asserted with both overrides passed.
+        allowed_ny, _info = self._gate_tz(window_override=("10:00", "16:00"))
+        self.assertFalse(allowed_ny)
+        allowed_la, info_la = self._gate_tz(
+            timezone_override="America/Los_Angeles",
+            window_override=("10:00", "16:00"))
+        self.assertTrue(allowed_la)
+        self.assertIn("America/Los_Angeles (command override)",
+                      info_la["timezone"])
+
+    def test_tmz_utc_override(self):
+        # 22:00 UTC with a UTC override: outside 10:00-15:00 — the zone
+        # label must still show the override stamp.
+        allowed, info = self._gate_tz(timezone_override="UTC")
+        self.assertFalse(allowed)
+        self.assertIn("UTC (command override)", info["timezone"])
+
+    def test_invalid_tz_name_fails_loud(self):
+        with self.assertRaises(Exception):
+            self._gate_tz(timezone_override="Not/AZone")
+
+    def test_every_tmz_preset_is_a_real_zone(self):
+        # Belt + suspenders: only vetted TMZ_TABLE presets reach the gate
+        # argument — so every non-None preset must resolve in tzdata.
+        from zoneinfo import ZoneInfo
+        import command_tables as ct
+        for v, entry in ct.TMZ_TABLE.items():
+            if entry["tz"] is not None:
+                ZoneInfo(entry["tz"])  # raises on a bad name
+
+
+class TestSprint13TmzKwargsPlumbing(unittest.TestCase):
+    """gate_kwargs_for passes the commanded timezone ONLY when tmz is
+    active (D14: un-commanded path byte-identical)."""
+
+    def test_yaml_timezone_source_adds_no_override(self):
+        import rc_command_hooks as ch
+        settings = {"window_source": "yaml", "timezone_source": "yaml",
+                    "timezone": "America/New_York",
+                    "window_start": "10:00", "window_end": "15:00"}
+        self.assertEqual(ch.gate_kwargs_for(None, settings), {})
+
+    def test_commanded_timezone_adds_override(self):
+        import rc_command_hooks as ch
+        settings = {"window_source": "yaml",
+                    "timezone_source": "command tmz=1",
+                    "timezone": "America/Los_Angeles",
+                    "window_start": "10:00", "window_end": "15:00"}
+        kwargs = ch.gate_kwargs_for(None, settings)
+        self.assertEqual(kwargs,
+                         {"timezone_override": "America/Los_Angeles"})
+
+
 class TestSprint12ServiceTrigger(unittest.TestCase):
     """service_pending_trigger — consume rules (D-S12-3)."""
 

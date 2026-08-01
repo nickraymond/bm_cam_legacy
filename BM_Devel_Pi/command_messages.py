@@ -23,8 +23,9 @@ Validation rules (DESIGN D3 — reject anything not exactly right):
     rejects it with this code — the version-mismatch path is a normal
     ack, never a crash.
   - "v"  must be a valid table index for "c" -> else error "val".
-    ping may omit "v" (defaults to 0); settings commands must carry it,
-    and so must trg (arming a trigger with no value would be ambiguous).
+    ping and the query commands (help/cfg) may omit "v" (defaults to 0);
+    settings commands must carry it, and so must trg (arming a trigger
+    with no value would be ambiguous).
   - unknown extra keys are TOLERATED (forward compatibility: a newer
     sender may add fields; ignoring them cannot mis-apply a setting)
 
@@ -46,7 +47,13 @@ Example:
 
 import json
 
-from command_tables import DEFAULT_SETTINGS, SETTINGS_COMMANDS, is_command, valid_value
+from command_tables import (
+    DEFAULT_SETTINGS,
+    QUERY_COMMANDS,
+    SETTINGS_COMMANDS,
+    is_command,
+    valid_value,
+)
 
 # Compact error codes (ride in the ack "e" field; keep them short).
 ERR_JSON = "json"  # not UTF-8 / not JSON / not an object
@@ -101,8 +108,8 @@ def parse_command(payload):
         return _result(False, command_id=command_id, error=ERR_CMD)
 
     value = data.get("v")
-    if value is None and cmd == "ping":
-        value = 0  # ping carries no value (SPEC); normalize to index 0
+    if value is None and (cmd == "ping" or cmd in QUERY_COMMANDS):
+        value = 0  # ping/help/cfg carry no value; normalize to index 0
 
     if not valid_value(cmd, value):
         return _result(False, command_id=command_id, cmd=cmd, error=ERR_VAL)

@@ -69,13 +69,17 @@ def gate_kwargs_for(daemon, settings=None):
     Sprint12 (D-S12-6): when a COMMANDED window is active (twn), pass it
     as an explicit override — the gate re-reads the YAML itself and would
     otherwise never see the overlay. No commanded window -> no key, so
-    the un-commanded path stays byte-identical (D14).
+    the un-commanded path stays byte-identical (D14). Sprint13: a
+    commanded timezone (tmz) rides the same pattern.
     """
     kwargs = {}
     if settings is not None and str(
             settings.get("window_source", "")).startswith("command"):
         kwargs["window_override"] = (
             settings["window_start"], settings["window_end"])
+    if settings is not None and str(
+            settings.get("timezone_source", "")).startswith("command"):
+        kwargs["timezone_override"] = settings["timezone"]
     if daemon is None:
         return kwargs
     kwargs["read_spotter_utc_fn"] = (

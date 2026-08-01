@@ -19,6 +19,7 @@ import sys
 import tempfile
 import types
 import unittest
+import unittest.mock
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
@@ -61,6 +62,9 @@ YAML_SETTINGS = {
     "window_end": "15:00",
     "transmit_window": "10:00-15:00",
     "window_source": "yaml",
+    # Sprint13 tmz slice.
+    "timezone": "America/New_York",
+    "timezone_source": "yaml",
 }
 
 
@@ -96,7 +100,8 @@ class TestOverlaySettings(BindingsTestCase):
         self.assertEqual(s["crop_native_xywh"], ct.ROI_TABLE[0]["crop"])
 
     def test_win_override_updates_budget(self):
-        self.state.record(2, "win", 3)
+        # v5 table order: win 1 = 5 min (12/5/8/16).
+        self.state.record(2, "win", 1)
         s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
         self.assertEqual(s["max_run_time_min"], 5)
         self.assertEqual(s["budget_seconds"], 300)
@@ -143,13 +148,20 @@ class TestOverlayCameraControls(BindingsTestCase):
         self.assertNotIn("lens_position", controls["focus"])
 
     def test_awb_custom_carries_gains(self):
-        self.state.record(1, "awb", 3)
-        controls = overlay_camera_controls(None, self.state)
+        # v5 dropped the untuned underwater preset from the table, but the
+        # custom-gains code path stays for the future tank-tuned entry —
+        # covered here via a temporary table entry.
+        custom = {"label": "test custom", "mode": "custom", "gains": (1.8, 1.2)}
+        with unittest.mock.patch.dict(ct.AWB_TABLE, {3: custom}):
+            self.state.record(1, "awb", 3)
+            controls = overlay_camera_controls(None, self.state)
         wb = controls["white_balance"]
         self.assertEqual(wb["mode"], "custom")
-        self.assertEqual(
-            (wb["red_gain"], wb["blue_gain"]), ct.AWB_TABLE[3]["gains"]
-        )
+        self.assertEqual((wb["red_gain"], wb["blue_gain"]), (1.8, 1.2))
+
+    def test_awb_3_no_longer_a_valid_wire_value(self):
+        # v5: an old sender's awb=3 must reject cleanly (ERR_VAL path).
+        self.assertFalse(ct.valid_value("awb", 3))
 
     def test_exp_auto_has_no_ev_key(self):
         self.state.record(1, "exp", 0)
@@ -188,11 +200,14 @@ class TestProductionArgBuilder(BindingsTestCase):
         self.assertEqual(args[args.index("--awb") + 1], "daylight")
 
     def test_awb_custom_gains_flags(self):
-        self.state.record(1, "awb", 3)
-        args = self._args()
+        # Same temporary-entry trick as test_awb_custom_carries_gains: the
+        # --awbgains flag path outlives the dropped v4 preset.
+        custom = {"label": "test custom", "mode": "custom", "gains": (1.8, 1.2)}
+        with unittest.mock.patch.dict(ct.AWB_TABLE, {3: custom}):
+            self.state.record(1, "awb", 3)
+            args = self._args()
         self.assertEqual(args[args.index("--awb") + 1], "custom")
-        red, blue = ct.AWB_TABLE[3]["gains"]
-        self.assertEqual(args[args.index("--awbgains") + 1], f"{red},{blue}")
+        self.assertEqual(args[args.index("--awbgains") + 1], "1.8,1.2")
 
     def test_ev_flag(self):
         self.state.record(1, "exp", 6)
@@ -465,6 +480,42 @@ class TestSprint12TwnOverlay(BindingsTestCase):
         self.assertEqual((s["window_start"], s["window_end"]),
                          ("10:00", "15:00"))
         self.assertEqual(s["window_source"], "yaml")
+
+    # ---- Sprint13 tmz (same index-0 doctrine as hlt/twn) ----
+
+    def test_tmz_override_sets_timezone_and_source(self):
+        self.state.record(1, "tmz", 1)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(s["timezone"], "America/Los_Angeles")
+        self.assertEqual(s["timezone_source"], "command tmz=1")
+        self.assertEqual(len(overrides), 1)
+        self.assertEqual(overrides[0][0], "timezone")
+
+    def test_tmz_equal_to_yaml_applies_without_override_line(self):
+        # tmz 2 == the New_York already in the YAML slice: source flips
+        # to command, nothing to report as a change.
+        self.state.record(1, "tmz", 2)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(overrides, [])
+        self.assertEqual(s["timezone_source"], "command tmz=2")
+
+    def test_tmz_0_touched_leaves_yaml_governing(self):
+        self.state.record(1, "tmz", 3)
+        self.state.record(2, "tmz", 0)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(overrides, [])
+        self.assertEqual(s["timezone"], "America/New_York")
+        self.assertEqual(s["timezone_source"], "yaml")
+
+    def test_roi_reef_test_crops_clamp_output_no_upsample(self):
+        # v5 roi 5/6 are narrower than output_width=1000: output must
+        # equal the native crop size, never upsampled.
+        self.state.record(1, "roi", 5)
+        s, _overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(s["output_size"], (800, 450))
+        self.state.record(2, "roi", 6)
+        s, _overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(s["output_size"], (640, 360))
 
 
 class TestApplyTrigger(BindingsTestCase):
