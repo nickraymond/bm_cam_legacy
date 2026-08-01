@@ -708,6 +708,7 @@ def should_transmit_now_from_schedule(
     verbose: bool = False,
     read_spotter_utc_fn=None,
     window_override=None,
+    timezone_override=None,
 ) -> Tuple[bool, Dict[str, str]]:
     """read_spotter_utc_fn: optional replacement for read_spotter_utc —
     Sprint10's command daemon passes its shared-port reader so the gate
@@ -715,13 +716,24 @@ def should_transmit_now_from_schedule(
 
     window_override: optional ("HH:MM", "HH:MM") replacing the YAML
     transmit window — Sprint12 `twn` command (D-S12-6). The gate re-reads
-    the YAML itself, so a commanded window must be passed in explicitly;
-    timezone and every other gate input stay YAML-owned. Validated here
-    with the same parser as the YAML values (belt + suspenders: only
-    vetted TWN_TABLE presets can reach this argument)."""
+    the YAML itself, so a commanded window must be passed in explicitly.
+    Validated here with the same parser as the YAML values (belt +
+    suspenders: only vetted TWN_TABLE presets can reach this argument).
+
+    timezone_override: optional IANA name replacing the YAML timezone for
+    the window interpretation — Sprint13 `tmz` command, same explicit-
+    parameter pattern. Validated with ZoneInfo like the YAML value; only
+    vetted TMZ_TABLE presets can reach this argument. The clock SOURCE
+    (spotter/rtc/system) is never overridable."""
     cfg = load_camera_schedule(config_path)
     validate_schedule(cfg)
     timezone_name = resolve_timezone(cfg)
+
+    tz_label = ""
+    if timezone_override is not None:
+        ZoneInfo(timezone_override)  # fail loud on an invalid name
+        timezone_name = timezone_override
+        tz_label = " (command override)"
 
     start_hhmm, end_hhmm = cfg.transmit_start, cfg.transmit_end
     window_label = ""
@@ -733,7 +745,7 @@ def should_transmit_now_from_schedule(
 
     info: Dict[str, str] = {
         "time_source": cfg.time_source,
-        "timezone": timezone_name,
+        "timezone": f"{timezone_name}{tz_label}",
         "window": f"{start_hhmm}-{end_hhmm}{window_label}",
     }
     if cfg.timezone_preset:

@@ -57,6 +57,7 @@ import time
 
 from bm_frame_decoder import RawPubScanner
 from command_messages import build_ack, parse_command
+from command_tables import QUERY_COMMANDS
 from spotter_time_sync import (
     TOPIC as UTC_TOPIC,
     _build_subscribe_frame,
@@ -183,22 +184,36 @@ class CommandDaemon:
     # 1.0 s is the Sprint09-locked uplink pacing; the same floor applies.
     ACK_INTERVAL_S = 1.0
 
+    # Sprint13: spacing between spotter/printf console lines. These never
+    # touch the cellular queue, so the ack pacing floor does not apply —
+    # this is only UART/console-buffer courtesy. PROVISIONAL until the
+    # bench measures the real limit (a full help is ~143 lines).
+    CONSOLE_LINE_DELAY_S = 0.05
+
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
-                 ack_interval_s=ACK_INTERVAL_S):
+                 ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
+                 console_line_delay_s=CONSOLE_LINE_DELAY_S):
         self.bm = bm              # BristlemouthSerial; uart MUST have a timeout
         self.state = state        # CommandState (main-thread only)
         self.topic = topic
         self.ack_interval_s = float(ack_interval_s)
+        # Sprint13 query commands: render_fn(cmd) -> list of console lines
+        # (rc_command_hooks wires it to command_help over the RESOLVED
+        # settings). None = queries ack but print nothing (pre-wire shape).
+        self.query_render_fn = query_render_fn
+        self.console_line_delay_s = float(console_line_delay_s)
         self.accumulator = RawPubScanner(topic=topic)
         self._inbound = queue.Queue()      # reader -> main: payload bytes
         self._acks = []                    # main-thread only
-        self._last_ack_ts = None           # pacing clock value of last send
+        self._console = []                 # queued console lines (main thread)
         self._raw = bytearray()            # rolling buffer for clock scan
+        self._last_ack_ts = None           # pacing clock value of last send
         self._raw_lock = threading.Lock()
         self._stop = threading.Event()
         self._reader = None
         self.stats = {"read_errors": 0, "applied": 0, "duplicates": 0,
-                      "rejected": 0, "unackable": 0, "acks_sent": 0}
+                      "rejected": 0, "unackable": 0, "acks_sent": 0,
+                      "console_lines_sent": 0}
 
     # ------------------------------------------------------------------
     # Lifecycle (main thread)
@@ -336,8 +351,31 @@ class CommandDaemon:
                     print(f"[CMD] applied id={result['id']} "
                           f"{result['cmd']}={result['value']} "
                           f"st={self.state.settings}")
+                    # Sprint13: a query's "apply" is queueing its console
+                    # response. Duplicates deliberately DON'T re-queue
+                    # (the blanket re-send doctrine must not print help
+                    # ten times) — the ack alone answers a re-send.
+                    if result["cmd"] in QUERY_COMMANDS:
+                        self._queue_console_response(result["cmd"])
             events.append(event)
         return events
+
+    def _queue_console_response(self, cmd):
+        if self.query_render_fn is None:
+            print(f"[CMD][WARN] query '{cmd}' acked but no renderer wired; "
+                  "no console output")
+            return
+        try:
+            lines = list(self.query_render_fn(cmd))
+        except Exception as exc:
+            print(f"[CMD][WARN] query '{cmd}' render failed: {exc}")
+            return
+        # Blank spacer lines render as stamped empty rows on the Spotter
+        # console (Nick, demo morning) — structure comes from the headers
+        # and dividers, so drop them at the transport boundary.
+        lines = [line for line in lines if line.strip()]
+        self._console.extend(lines)
+        print(f"[CMD] query '{cmd}': {len(lines)} console line(s) queued")
 
     def _queue_ack(self, command_id, ok, error=None):
         self._acks.append(build_ack(command_id, ok, self.state.settings, error=error))
@@ -345,6 +383,33 @@ class CommandDaemon:
     @property
     def pending_acks(self):
         return len(self._acks)
+
+    @property
+    def pending_console_lines(self):
+        return len(self._console)
+
+    def drain_console(self, max_lines=None, sleep_fn=time.sleep):
+        """Send queued help/cfg lines to the Spotter console
+        (bm.spotter_print). NOT the cellular queue — no ack pacing floor,
+        just a per-line courtesy delay. A send failure re-queues the line
+        and stops (same recovery shape as drain_acks). Returns lines sent."""
+        sent = 0
+        while self._console and (max_lines is None or sent < max_lines):
+            line = self._console.pop(0)
+            try:
+                self.bm.spotter_print(line)
+            except Exception as exc:
+                self._console.insert(0, line)
+                print(f"[CMD][WARN] console line send failed (requeued): {exc}")
+                break
+            sent += 1
+            self.stats["console_lines_sent"] += 1
+            if self._console and self.console_line_delay_s > 0:
+                sleep_fn(self.console_line_delay_s)
+        if sent:
+            print(f"[CMD] console: {sent} line(s) sent, "
+                  f"{len(self._console)} queued")
+        return sent
 
     def drain_acks(self, max_n=None, clock=time.monotonic):
         """Send queued acks via the outbound path (main thread only).
@@ -398,6 +463,7 @@ class CommandDaemon:
         while clock() < deadline:
             events.extend(self.process_pending())
             self.drain_acks(clock=clock)
+            self.drain_console(sleep_fn=sleep_fn)
             sleep_fn(0.2)
         print(f"[CMD] {label} window done: {len(events)} command(s) processed, "
               f"{self.pending_acks} ack(s) still queued")

@@ -1,9 +1,18 @@
-# bmcam remote command reference (tables v3, Sprint12)
+# bmcam remote command reference (tables v5, Sprint13)
 
 The operator-facing list of every command a bmcam unit accepts, and how to
 send one. Source of truth for values: `BM_Devel_Pi/command_tables.py`
 (this doc lists semantics, not the full tables — the GUI dropdowns are
 generated from the tables and are always current).
+
+**On-console since Sprint13:** the camera is self-documenting at the
+Spotter USB terminal — send `help` for the full generated reference
+(every command, every value, copy-paste examples) and `cfg` for a
+post-style dump of the resolved settings with per-row source
+(config file vs command N). Both are zero-quota console output
+(`spotter/printf`), and both tolerate re-sends (dedupe: ack, no
+re-print). This doc stays as the repo-side copy; when they disagree,
+the on-console output is generated from the tables and wins.
 
 ## How to send a command
 
@@ -42,18 +51,21 @@ Index 0 = production default; the all-zero sequence is the factory reset.
 
 | cmd | what it controls | notes |
 |-----|------------------|-------|
-| roi | crop preset (native coords) | concentric zoom, no pan |
+| roi | crop preset (native coords) | concentric zoom, no pan; v5 adds 800x450 / 640x360 reef-test crops (output clamps to crop width, never upsamples) |
 | foc | focus (auto / manual presets) | |
-| awb | white balance | index 3 = underwater gains |
-| exp | EV compensation | |
-| win | cycle budget minutes | |
+| awb | white balance | auto / daylight / cloudy only — the untested underwater preset was dropped in v5 |
+| exp | exposure bias (EV compensation) | biases auto-metering darker/brighter; NOT a shutter time |
+| win | cycle budget minutes | v5: 12 min is the production default (index 0); order 12/5/8/16 |
 | txd | transmit pacing s/msg | Spotter queue lever, not UART |
 | cap | message cap per image | effective cap = min(cap, win·60/txd) |
 | src | image source (live / reference) | persistent — see trg 3/4 for one-shot |
 | hlt | power-halt override (Sprint12) | see below |
 | twn | transmit-window override (Sprint12) | see below |
+| tmz | timezone override (Sprint13) | presets: LA / New York / UTC; window interpretation only, never the clock source |
 | trg | one-shot capture/send trigger (Sprint12) | see below |
 | ping | liveness (ack only) | no value |
+| help | print the on-console command reference | query — no state change; `v` optional |
+| cfg | print resolved settings + sources | query — matches --print-config; `v` optional |
 
 ### hlt — power-halt override
 

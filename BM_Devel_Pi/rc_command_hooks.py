@@ -25,6 +25,54 @@ from command_bindings import (
 from command_daemon import CommandDaemon
 
 
+def make_query_render_fn(settings, state, topic):
+    """Sprint13: closure the daemon calls to answer help/cfg queries.
+
+    cfg re-resolves YAML + overlay AT QUERY TIME over the live
+    CommandState, so its answer is the true NEXT-BOOT config even for a
+    command applied seconds earlier in the same listen window (a frozen
+    boot-time dict showed the new source with the OLD value — caught in
+    the 2026-08-01 rehearsal planning). Falls back to the captured
+    boot-time dict if the re-resolve fails.
+
+    Returns None if command_help cannot import — a broken/missing help
+    renderer must degrade to "queries ack, no output", never kill the
+    capture cycle (found the hard way on bmcam003, 2026-08-01: the
+    module missing from the deploy manifest failed the whole boot)."""
+    try:
+        from command_help import render_cfg, render_help
+    except Exception as exc:
+        print(f"[CMD][WARN] command_help unavailable ({exc}); "
+              "help/cfg will ack without console output")
+        return None
+
+    def _next_boot_view():
+        # Lazy import: rc_progressive_jpeg imports this module, so the
+        # circular import must resolve at call time, not module load.
+        import rc_progressive_jpeg as rc
+        base = rc.resolve_rc_settings(settings["config_path"])
+        fresh, _overrides = overlay_rc_settings(base, state)
+        controls = overlay_camera_controls(
+            rc._load_camera_controls_island(settings["config_path"]), state)
+        return fresh, controls
+
+    def render(cmd):
+        if cmd == "help":
+            return render_help(topic=topic)
+        if cmd == "cfg":
+            try:
+                fresh, controls = _next_boot_view()
+            except Exception as exc:
+                print(f"[CMD][WARN] cfg re-resolve failed ({exc}); "
+                      "rendering boot-time view")
+                fresh = settings
+                controls = settings.get("camera_controls_override")
+            return render_cfg(fresh, state, controls)
+        return []
+
+    return render
+
+
 def default_daemon_factory(settings, bm_commands_cfg, state):
     """Open the UART ONCE for the whole cycle (D11) and build the command
     daemon on it. Installs the shared BristlemouthSerial as
@@ -38,7 +86,11 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
     bm = BristlemouthSerial(uart=uart)
     process_image_v2.bm = bm
     print(f"[CMD] shared UART open: {port}@{baudrate} (single port owner)")
-    return CommandDaemon(bm, state, topic=bm_commands_cfg["topic"])
+    return CommandDaemon(
+        bm, state, topic=bm_commands_cfg["topic"],
+        query_render_fn=make_query_render_fn(
+            settings, state, bm_commands_cfg["topic"]),
+    )
 
 
 def apply_command_overlay(settings, state, load_controls_fn):
@@ -69,13 +121,17 @@ def gate_kwargs_for(daemon, settings=None):
     Sprint12 (D-S12-6): when a COMMANDED window is active (twn), pass it
     as an explicit override — the gate re-reads the YAML itself and would
     otherwise never see the overlay. No commanded window -> no key, so
-    the un-commanded path stays byte-identical (D14).
+    the un-commanded path stays byte-identical (D14). Sprint13: a
+    commanded timezone (tmz) rides the same pattern.
     """
     kwargs = {}
     if settings is not None and str(
             settings.get("window_source", "")).startswith("command"):
         kwargs["window_override"] = (
             settings["window_start"], settings["window_end"])
+    if settings is not None and str(
+            settings.get("timezone_source", "")).startswith("command"):
+        kwargs["timezone_override"] = settings["timezone"]
     if daemon is None:
         return kwargs
     kwargs["read_spotter_utc_fn"] = (
@@ -123,12 +179,15 @@ TAIL_SAFETY_S = 20.0
 
 
 def drain_now(daemon, summary, clock=_time.monotonic):
-    """Pick up pending commands and send acks (paced; idle-point drain)."""
+    """Pick up pending commands and send acks (paced; idle-point drain).
+    Sprint13: queued help/cfg console lines flush here too — an idle
+    point is exactly where a long console print belongs."""
     if daemon is None:
         return 0
     summary["command_events"].extend(
         e["action"] for e in daemon.process_pending()
     )
+    daemon.drain_console()
     return daemon.drain_acks(clock=clock)
 
 
@@ -242,9 +301,15 @@ def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
 def shutdown(daemon, summary, debug_print,
              clock=_time.monotonic, sleep_fn=_time.sleep):
     """Final pickup + PACED ack flush + reader stop; never raises (runs
-    in finally, on the success AND the failure path)."""
+    in finally, on the success AND the failure path). Sprint13: queued
+    console lines flush BEFORE the ack flush budget starts — a help
+    response must beat the halt the same way acks do."""
     if daemon is None:
         return
+    try:
+        daemon.drain_console(sleep_fn=sleep_fn)
+    except Exception as exc:
+        debug_print(f"console flush failed: {exc}")
     flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
                label="final drain at halt")
     try:

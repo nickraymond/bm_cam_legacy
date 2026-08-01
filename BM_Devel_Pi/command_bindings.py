@@ -48,6 +48,7 @@ from command_tables import (
     HLT_TABLE,
     ROI_TABLE,
     SRC_TABLE,
+    TMZ_TABLE,
     TRG_TABLE,
     TWN_TABLE,
     TXD_TABLE,
@@ -74,7 +75,12 @@ def overlay_rc_settings(settings, state):
         if old_crop != crop:
             overrides.append(("crop_native_xywh", old_crop, crop, f"roi={index}"))
         s["crop_native_xywh"] = crop
-        s["output_size"] = output_size_for_crop(crop[2], crop[3], s["output_width"])
+        # Sprint13: reef-test crops (roi 5/6) are NARROWER than the fixed
+        # output width — clamp so they transmit at native crop size.
+        # output_size_for_crop refuses to upsample (raises), so without
+        # this a sub-1000px crop would kill the cycle at overlay time.
+        out_w = min(int(s["output_width"]), crop[2])
+        s["output_size"] = output_size_for_crop(crop[2], crop[3], out_w)
 
     if "win" in state.touched:
         index = state.settings["win"]
@@ -143,6 +149,21 @@ def overlay_rc_settings(settings, state):
             s["window_end"] = override["end"]
             s["transmit_window"] = f"{override['start']}-{override['end']}"
             s["window_source"] = f"command twn={index}"
+
+    # Sprint13 tmz: same index-0-carries-no-payload doctrine as hlt/twn.
+    # Overrides how the window HH:MM is interpreted; the clock source and
+    # everything else in the time chain stay YAML-owned. The gate re-reads
+    # YAML itself, so rc_command_hooks.gate_kwargs_for passes this through
+    # as timezone_override (the D-S12-6 pattern).
+    if "tmz" in state.touched:
+        index = state.settings["tmz"]
+        tz = TMZ_TABLE[index]["tz"]
+        if tz is not None:
+            old = s.get("timezone")
+            if old != tz:
+                overrides.append(("timezone", old, tz, f"tmz={index}"))
+            s["timezone"] = tz
+            s["timezone_source"] = f"command tmz={index}"
 
     # Recompute the derived transmit-only message budget AFTER txd/win, so
     # telemetry never reports a budget computed from the pre-override pacing.
