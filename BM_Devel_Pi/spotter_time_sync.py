@@ -686,7 +686,15 @@ def is_within_local_window(
     start = _parse_hhmm(start_hhmm)
     end = _parse_hhmm(end_hhmm)
 
-    if start <= end:
+    if start == end:
+        # Full-circle window: start == end means ALL DAY (Sprint12, Nick
+        # 2026-07-31 — "24:00" is not a valid HH:MM, and 00:01-23:59 left
+        # 2 min of dead time daily). The previous behaviour for an equal
+        # pair was an unsatisfiable EMPTY window — a never-transmit trap
+        # with no legitimate use (enforce_time_window: false is the off
+        # switch). twn preset 2 relies on this.
+        allowed = True
+    elif start < end:
         allowed = start <= local_t < end
     else:
         # Supports overnight windows, e.g. 22:00-02:00.
@@ -699,18 +707,34 @@ def should_transmit_now_from_schedule(
     config_path: str = "camera_schedule.yaml",
     verbose: bool = False,
     read_spotter_utc_fn=None,
+    window_override=None,
 ) -> Tuple[bool, Dict[str, str]]:
     """read_spotter_utc_fn: optional replacement for read_spotter_utc —
     Sprint10's command daemon passes its shared-port reader so the gate
-    does not open the UART a second time. Same signature/return."""
+    does not open the UART a second time. Same signature/return.
+
+    window_override: optional ("HH:MM", "HH:MM") replacing the YAML
+    transmit window — Sprint12 `twn` command (D-S12-6). The gate re-reads
+    the YAML itself, so a commanded window must be passed in explicitly;
+    timezone and every other gate input stay YAML-owned. Validated here
+    with the same parser as the YAML values (belt + suspenders: only
+    vetted TWN_TABLE presets can reach this argument)."""
     cfg = load_camera_schedule(config_path)
     validate_schedule(cfg)
     timezone_name = resolve_timezone(cfg)
 
+    start_hhmm, end_hhmm = cfg.transmit_start, cfg.transmit_end
+    window_label = ""
+    if window_override is not None:
+        start_hhmm, end_hhmm = window_override
+        _parse_hhmm(start_hhmm)
+        _parse_hhmm(end_hhmm)
+        window_label = " (command override)"
+
     info: Dict[str, str] = {
         "time_source": cfg.time_source,
         "timezone": timezone_name,
-        "window": f"{cfg.transmit_start}-{cfg.transmit_end}",
+        "window": f"{start_hhmm}-{end_hhmm}{window_label}",
     }
     if cfg.timezone_preset:
         info["timezone_preset"] = cfg.timezone_preset
@@ -782,20 +806,20 @@ def should_transmit_now_from_schedule(
     allowed, local_dt = is_within_local_window(
         utc_dt=utc_dt,
         timezone_name=timezone_name,
-        start_hhmm=cfg.transmit_start,
-        end_hhmm=cfg.transmit_end,
+        start_hhmm=start_hhmm,
+        end_hhmm=end_hhmm,
     )
 
     info["local_time"] = local_dt.isoformat()
 
     if allowed:
         info["reason"] = (
-            f"Within transmit window {cfg.transmit_start}-{cfg.transmit_end} "
+            f"Within transmit window {start_hhmm}-{end_hhmm}{window_label} "
             f"{timezone_name}; local_time={local_dt.isoformat()}"
         )
     else:
         info["reason"] = (
-            f"Outside transmit window {cfg.transmit_start}-{cfg.transmit_end} "
+            f"Outside transmit window {start_hhmm}-{end_hhmm}{window_label} "
             f"{timezone_name}; local_time={local_dt.isoformat()}"
         )
 

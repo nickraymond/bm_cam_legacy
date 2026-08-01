@@ -153,7 +153,11 @@ bm_serial:
 # the transmit, where the mailbox drain actually arrives (finding 006).
 # Leaving the old key in a config is harmless but prints a loud warning.
 bm_commands:
-  enabled: false
+  enabled: true             # Sprint12: hlt/twn/trg remote config commands.
+                            # Command latency is HOURS, not minutes: inbound
+                            # mail drains only at the Spotter's ~hourly [MS]
+                            # sync; re-send-until-acked (GUI retry engine)
+                            # is the delivery doctrine.
   topic: "bmcam/cmd"
   post_transmit_listen_s: 150      # C4/D6 bounded tail before the halt
   defer_acks_during_transmit: false  # C3/D5: keep acks out of the burst

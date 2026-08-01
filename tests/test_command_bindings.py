@@ -37,9 +37,11 @@ except ImportError:
 
 import command_tables as ct  # noqa: E402
 from command_bindings import (  # noqa: E402
+    apply_trigger,
     describe_overrides,
     overlay_camera_controls,
     overlay_rc_settings,
+    stranding_warnings,
 )
 from command_state import CommandState  # noqa: E402
 from process_image_v2 import _camera_controls_from_settings  # noqa: E402
@@ -51,6 +53,14 @@ YAML_SETTINGS = {
     "output_size": (1000, 562),
     "max_run_time_min": 16,
     "budget_seconds": 960,
+    # Sprint12 slice: production-shaped halt/window keys.
+    "power_halt_enabled": True,
+    "power_halt_dry_run": False,
+    "power_halt_source": "yaml",
+    "window_start": "10:00",
+    "window_end": "15:00",
+    "transmit_window": "10:00-15:00",
+    "window_source": "yaml",
 }
 
 
@@ -367,3 +377,123 @@ class TestStageSourceImage(unittest.TestCase):
         import command_tables as ct2
         staged = self.rpj.stage_source_image(ct2.SRC_TABLE[1]["path"], self.tmp.name)
         self.assertTrue(os.path.basename(staged).endswith("_native_full.jpg"))
+
+
+class TestSprint12HltOverlay(BindingsTestCase):
+    """hlt — power-halt override (D-S12-1/2)."""
+
+    def test_hlt_1_forces_real_halt(self):
+        self.state.record(1, "hlt", 1)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertTrue(s["power_halt_enabled"])
+        self.assertFalse(s["power_halt_dry_run"])
+        self.assertEqual(s["power_halt_source"], "command hlt=1")
+
+    def test_hlt_2_forces_dry_run(self):
+        self.state.record(1, "hlt", 2)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertTrue(s["power_halt_enabled"])
+        self.assertTrue(s["power_halt_dry_run"])
+        self.assertEqual(len(overrides), 1)
+        self.assertIn("hlt=2", overrides[0][3])
+
+    def test_hlt_3_disables_halt(self):
+        self.state.record(1, "hlt", 3)
+        s, _ = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertFalse(s["power_halt_enabled"])
+
+    def test_hlt_0_touched_leaves_yaml_governing(self):
+        # The delete-the-override doctrine: commanded back to 0, the YAML
+        # values pass through untouched and no override line is emitted.
+        self.state.record(1, "hlt", 2)
+        self.state.record(2, "hlt", 0)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(overrides, [])
+        self.assertTrue(s["power_halt_enabled"])       # yaml value
+        self.assertFalse(s["power_halt_dry_run"])      # yaml value
+        self.assertEqual(s["power_halt_source"], "yaml")
+
+    def test_mode_and_script_are_never_touched(self):
+        settings = dict(YAML_SETTINGS,
+                        power_halt_mode="halt",
+                        power_halt_script_path="/home/pi/x.sh")
+        self.state.record(1, "hlt", 3)
+        s, _ = overlay_rc_settings(settings, self.state)
+        self.assertEqual(s["power_halt_mode"], "halt")
+        self.assertEqual(s["power_halt_script_path"], "/home/pi/x.sh")
+
+    def test_stranding_warnings_per_mode(self):
+        # hlt 1 (real) and hlt 3 (disabled) must WARN; hlt 2 informs;
+        # hlt 0 / untouched say nothing.
+        self.assertEqual(stranding_warnings(self.state), [])
+        self.state.record(1, "hlt", 1)
+        self.assertIn("REAL power halt", stranding_warnings(self.state)[0])
+        self.state.record(2, "hlt", 3)
+        self.assertIn("DISABLED", stranding_warnings(self.state)[0])
+        self.state.record(3, "hlt", 2)
+        self.assertIn("dry-run", stranding_warnings(self.state)[0])
+        self.state.record(4, "hlt", 0)
+        self.assertEqual(stranding_warnings(self.state), [])
+
+
+class TestSprint12TwnOverlay(BindingsTestCase):
+    """twn — transmit-window override (D-S12-1/6)."""
+
+    def test_twn_2_opens_the_all_day_window(self):
+        self.state.record(1, "twn", 2)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual((s["window_start"], s["window_end"]),
+                         ("00:00", "00:00"))
+        self.assertEqual(s["transmit_window"], "00:00-00:00")
+        self.assertEqual(s["window_source"], "command twn=2")
+        self.assertEqual(len(overrides), 1)
+        self.assertIn("twn=2", overrides[0][3])
+
+    def test_twn_1_equal_to_yaml_applies_without_override_line(self):
+        # twn 1 == the production 10:00-15:00 already in the YAML slice:
+        # source flips to command, but nothing to report as a change.
+        self.state.record(1, "twn", 1)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(overrides, [])
+        self.assertEqual(s["window_source"], "command twn=1")
+
+    def test_twn_0_touched_leaves_yaml_governing(self):
+        self.state.record(1, "twn", 2)
+        self.state.record(2, "twn", 0)
+        s, overrides = overlay_rc_settings(YAML_SETTINGS, self.state)
+        self.assertEqual(overrides, [])
+        self.assertEqual((s["window_start"], s["window_end"]),
+                         ("10:00", "15:00"))
+        self.assertEqual(s["window_source"], "yaml")
+
+
+class TestApplyTrigger(BindingsTestCase):
+    """trg — one-shot trigger mapping (D-S12-3/4/5)."""
+
+    def test_trg_2_bypasses_window_and_keeps_camera(self):
+        s, flags, lines = apply_trigger(YAML_SETTINGS, {"id": 9, "value": 2})
+        self.assertTrue(flags["skip_time_window"])
+        self.assertFalse(flags["capture_only"])
+        self.assertNotIn("source_image_path", s)  # live camera untouched
+        self.assertEqual(s["trigger"], {"id": 9, "value": 2})
+        self.assertTrue(any("BYPASSED" in l for l in lines))
+
+    def test_trg_1_is_capture_only(self):
+        s, flags, lines = apply_trigger(YAML_SETTINGS, {"id": 9, "value": 1})
+        self.assertTrue(flags["skip_time_window"])
+        self.assertTrue(flags["capture_only"])
+
+    def test_trg_3_sends_reef_reference_one_shot(self):
+        s, flags, lines = apply_trigger(YAML_SETTINGS, {"id": 9, "value": 3})
+        self.assertEqual(s["source_image_path"], ct.SRC_TABLE[1]["path"])
+        self.assertFalse(flags["capture_only"])
+        self.assertTrue(flags["skip_time_window"])
+
+    def test_trg_4_sends_reference_card(self):
+        s, _, _ = apply_trigger(YAML_SETTINGS, {"id": 9, "value": 4})
+        self.assertEqual(s["source_image_path"], ct.SRC_TABLE[9]["path"])
+
+    def test_trigger_does_not_mutate_input_settings(self):
+        before = dict(YAML_SETTINGS)
+        apply_trigger(YAML_SETTINGS, {"id": 9, "value": 3})
+        self.assertEqual(YAML_SETTINGS, before)
