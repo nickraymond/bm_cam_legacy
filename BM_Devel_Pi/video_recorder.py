@@ -36,8 +36,16 @@ import subprocess
 import time
 from datetime import datetime, timezone
 
+import rc_command_hooks as cmd_hooks
+import video_manifest
 import video_ring
-from process_image_v2 import _camera_controls_from_settings
+from process_image_v2 import (
+    _camera_controls_from_settings,
+    close_bm_serial,
+    debug_print,
+    get_cpu_temperature,
+    send_compact_text_message,
+)
 from rc_power_halt import perform_power_halt
 
 # Native sensor-equivalent frame every crop is expressed in (IMX708 full).
@@ -543,6 +551,32 @@ def _resolve_controls(settings):
     return controls or None
 
 
+def _sync_clock_from_spotter(daemon, config_path):
+    """Best-effort Spotter clock sync at video start (constraint 6).
+
+    The stills cycle syncs the system clock inside its transmit gate;
+    video mode has no gate, so this is the one read. The Pi drifts badly
+    when no cycles run (fake-hwclock, no GPS), and D-S15-4 clip names
+    inherit the Spotter chain. A failed read logs loudly and records
+    anyway — bench units (time_source: system) skip entirely.
+    """
+    if daemon is None:
+        return
+    from spotter_time_sync import load_camera_schedule, set_system_clock_utc
+    try:
+        cfg = load_camera_schedule(config_path)
+        if cfg.time_source != "spotter_utc":
+            print(f"[VID] clock: time_source={cfg.time_source}, "
+                  "no Spotter sync")
+            return
+        utc = daemon.wait_for_spotter_utc(cfg.spotter_time_timeout_seconds)
+        set_system_clock_utc(utc)
+        print(f"[VID] clock synced from Spotter: {utc.isoformat()}")
+    except Exception as exc:
+        print(f"[VID][WARN] Spotter clock sync failed ({exc}); "
+              "recording with the current system clock")
+
+
 def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
                    command_state=None, bench_commands=False,
                    max_clips=None, run_fn=_default_run,
@@ -550,15 +584,27 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
                    now_fn=lambda: datetime.now(timezone.utc),
                    clock=time.monotonic, sleep_fn=time.sleep,
                    halt_fn=perform_power_halt,
+                   daemon_factory=cmd_hooks.default_daemon_factory,
+                   clock_sync_fn=_sync_clock_from_spotter,
+                   status_send_fn=send_compact_text_message,
+                   cpu_temp_fn=get_cpu_temperature,
+                   disk_usage_fn=shutil.disk_usage,
+                   ui_server_factory=None,
                    on_clip_fn=None, on_pause_fn=None):
-    """The video runtime (D-S15-1/2/8): sweep debris, then loop
-    ring-check -> record clip -> boundary work until the session ends
-    (session_minutes > 0), max_clips is reached (bench), or power dies.
+    """The video runtime (D-S15-1/2/7/8/9): sweep debris, start the UI
+    thread and (when the bm_commands island allows) the shared-UART
+    command daemon, then loop ring-check -> record clip -> boundary work
+    until the session ends (session_minutes > 0), max_clips attempts are
+    reached (bench), or power dies.
 
-    on_clip_fn(clip_result, ring_result): chunk-3 boundary hook (sidecar,
-    manifest, status message, daemon drain). on_pause_fn(ring_result):
-    chunk-3 pause telemetry. Both optional and never allowed to kill the
-    loop — recording is the mission.
+    Clip-boundary work (D-S15-2 order): sidecar -> manifest -> status
+    line queued -> status flush -> daemon drain. The UART only carries
+    status/acks when `transmit` (or bench_commands for acks) — a plain
+    bench run prints its status lines instead (stills doctrine: only
+    --transmit touches the BM bus).
+
+    on_clip_fn/on_pause_fn remain optional test hooks, called AFTER the
+    internal boundary work; no hook failure can kill the loop.
 
     Returns 0 (the loop only ends by design; per-clip failures self-heal).
     """
@@ -578,6 +624,76 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
     controls = _resolve_controls(settings)
     sweep_boot_debris(video_dir)
 
+    # D-S15-7: the daemon owns the UART for the WHOLE session so a
+    # deployed video unit stays reachable (hlt/twn/help/cfg, later wap).
+    # Same gating as the stills cycle: island enabled + a mode that may
+    # touch the bus. The encoder owns the camera, the daemon owns the
+    # UART — they never contend.
+    summary = {"command_events": []}
+    daemon = None
+    use_daemon = bool(
+        bm_commands_cfg
+        and bm_commands_cfg.get("enabled")
+        and command_state is not None
+        and (transmit or bench_commands)
+    )
+    if use_daemon:
+        daemon = daemon_factory(settings, bm_commands_cfg, command_state)
+        daemon.start()
+        clock_sync_fn(daemon, settings["config_path"])
+
+    # D-S15-9: gallery UI on its own daemon thread. A dead UI must never
+    # kill recording — recording is the mission.
+    ui_server = None
+    if vcfg["ui"]["enabled"]:
+        try:
+            factory = ui_server_factory
+            if factory is None:
+                import videoui_server
+                factory = videoui_server.start_ui_server
+            ui_server = factory(video_dir, vcfg["ui"]["port"])
+        except Exception as exc:
+            print(f"[VID][WARN] UI server failed to start: {exc}; "
+                  "recording continues without the gallery")
+
+    status_queue = video_manifest.StatusQueue()
+
+    def _flush_status():
+        if transmit:
+            status_queue.flush(status_send_fn)
+        else:
+            status_queue.drain_print()
+
+    def _boundary(clip_result, ring_result):
+        """Everything that happens between clips, in D-S15-2 order.
+        Defensive throughout: metadata/telemetry must never stop clips."""
+        if clip_result is not None and clip_result["ok"]:
+            try:
+                cpu_temp = None
+                try:
+                    cpu_temp = cpu_temp_fn()
+                except Exception:
+                    pass
+                disk = None
+                try:
+                    disk = disk_usage_fn(video_dir)
+                except Exception:
+                    pass
+                record = video_manifest.build_clip_record(
+                    clip_result, settings, vcfg, ring_result,
+                    cpu_temp_c=cpu_temp, disk_usage=disk)
+                video_manifest.write_sidecar(
+                    video_dir, clip_result["basename"], record)
+                video_manifest.write_manifest(
+                    video_dir,
+                    generated_utc=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"))
+                status_queue.append(
+                    video_manifest.status_line_from_record(record))
+            except Exception as exc:
+                print(f"[VID][WARN] clip metadata failed: {exc}")
+        _flush_status()
+        cmd_hooks.drain_now(daemon, summary, clock=clock)
+
     session_s = float(vcfg["session_minutes"]) * 60.0
     session_deadline = clock() + session_s if session_s > 0 else None
     print(f"[VID] session: "
@@ -587,6 +703,7 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
     clips_done = 0
     clips_failed = 0
     session_expired = False
+    was_paused = False
     try:
         while True:
             if session_deadline is not None and clock() >= session_deadline:
@@ -605,6 +722,12 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
             ring_result = video_ring.ensure_room(
                 video_dir, vcfg["storage"])
             if ring_result["paused"]:
+                if not was_paused:
+                    # Edge-triggered pause telemetry (D-S15-5): one line
+                    # per pause episode, not one per recheck minute.
+                    status_queue.append(
+                        video_manifest.pause_status_line(ring_result))
+                was_paused = True
                 if on_pause_fn is not None:
                     try:
                         on_pause_fn(ring_result)
@@ -614,8 +737,11 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
                       f"(used={ring_result['used_pct']}% "
                       f"free={ring_result['free_gb']}GiB); recheck in "
                       f"{PAUSE_RECHECK_S}s")
+                _flush_status()
+                cmd_hooks.drain_now(daemon, summary, clock=clock)
                 sleep_fn(PAUSE_RECHECK_S)
                 continue
+            was_paused = False
 
             clip_result = record_one_clip(
                 settings, vcfg, video_dir,
@@ -628,6 +754,7 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
                 print(f"[VID] failed clip; retrying in "
                       f"{FAILED_CLIP_RETRY_S}s")
                 sleep_fn(FAILED_CLIP_RETRY_S)
+            _boundary(clip_result, ring_result)
             if on_clip_fn is not None:
                 try:
                     on_clip_fn(clip_result, ring_result)
@@ -636,6 +763,22 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
     finally:
         print(f"[VID] loop end: {clips_done} clips ok, "
               f"{clips_failed} failed")
+        try:
+            _flush_status()
+        except Exception as exc:
+            print(f"[VID][WARN] final status flush failed: {exc}")
+        cmd_hooks.shutdown(daemon, summary, debug_print,
+                           clock=clock, sleep_fn=sleep_fn)
+        if daemon is not None:
+            try:
+                close_bm_serial()
+            except Exception as exc:
+                debug_print(f"BM serial close failed: {exc}")
+        if ui_server is not None:
+            try:
+                ui_server.shutdown()
+            except Exception:
+                pass
         if session_expired:
             # D-S15-8: the OPTIONAL Pi-side duty-cycle lever reuses the
             # normal cycle-end halt machinery untouched.

@@ -46,12 +46,21 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       2026-08-17
 
 ## 3. Status + manifest + UI (chunk 3)
-- [ ] Per-clip status JSON on the existing cellular tx path (size
-      bound tested; queue/retry never blocks recording)
-- [ ] Sidecars + manifest.json regeneration
-- [ ] videoui_server.py gallery (stdlib, Range support) + static page
-- [ ] Command daemon serviced at clip boundaries (mock-UART test)
-- [ ] Full suite green incl. all existing stills tests
+- [x] Per-clip status JSON on the existing cellular tx path (size
+      bound tested vs 280 B; StatusQueue drop-oldest cap 12; send
+      failure retries at next boundary, never blocks recording; plain
+      no-transmit runs PRINT lines instead — bus doctrine)
+- [x] Sidecars + manifest.json regeneration (atomic writes; manifest
+      degrades gracefully on missing sidecar/thumb; sha256_16 in
+      sidecar) — video_manifest.py
+- [x] videoui_server.py gallery (stdlib, single-range 206s for Safari
+      scrubbing, basename+suffix+realpath hardening) + inline static
+      page; UI failure never kills recording
+- [x] Command daemon serviced at clip boundaries (fake-daemon test;
+      gating identical to stills: island enabled + transmit/bench);
+      Spotter clock sync at video start (drift hazard)
+- [x] Full suite green incl. all existing stills tests — 644 OK
+      (+32), 2026-08-17. New modules added to rc_runtime_manifest.txt
 
 ## 4. Bench smoke (bmcam000, short clips)
 - [ ] 3 consecutive clips → 3 playable MP4s + thumbs + sidecars +

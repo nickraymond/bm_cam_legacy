@@ -324,5 +324,204 @@ class TestRunLoop(RecorderDirMixin, unittest.TestCase):
         self.assertIn("removed crash debris stale.h264.part", log)
 
 
+class FakeDaemon:
+    """Minimal stand-in satisfying cmd_hooks.drain_now/shutdown and the
+    clock-sync read (the real CommandDaemon owns a UART)."""
+
+    def __init__(self):
+        self.started = False
+        self.stopped = False
+        self.process_pending_calls = 0
+        self.pending_acks = 0
+
+    def start(self):
+        self.started = True
+
+    def stop(self, join_timeout=None):
+        self.stopped = True
+
+    def process_pending(self):
+        self.process_pending_calls += 1
+        return []
+
+    def drain_console(self, max_lines=None, sleep_fn=None):
+        pass
+
+    def drain_acks(self, max_n=None, clock=None):
+        return 0
+
+    def wait_for_spotter_utc(self, timeout_seconds, **kwargs):
+        return NOW
+
+
+class TestChunk3Boundaries(RecorderDirMixin, unittest.TestCase):
+    """Chunk 3: clip-boundary work — sidecar + manifest + status queue +
+    daemon servicing (D-S15-2/6/7)."""
+
+    def _run(self, ring_results=None, **kwargs):
+        out = io.StringIO()
+        kwargs.setdefault("run_fn", make_run_fn())
+        kwargs.setdefault("encoder_binary", "/fake/libcamera-vid")
+        kwargs.setdefault("ffmpeg_binary", "/fake/ffmpeg")
+        kwargs.setdefault("sleep_fn", lambda s: None)
+        kwargs.setdefault("cpu_temp_fn", lambda: 52.1)
+        kwargs.setdefault("clock_sync_fn", lambda daemon, path: None)
+        counter = {"n": 0}
+
+        def now_fn():
+            counter["n"] += 1
+            return datetime(2026, 8, 17, 23, 40, counter["n"],
+                            tzinfo=timezone.utc)
+        kwargs.setdefault("now_fn", now_fn)
+
+        results = list(ring_results or [RING_OK])
+
+        def fake_ring(*a, **k):
+            return results.pop(0) if len(results) > 1 else results[0]
+
+        with mock.patch.object(video_ring, "ensure_room",
+                               side_effect=fake_ring):
+            with contextlib.redirect_stdout(out):
+                code = vr.run_video_mode(self.settings, **kwargs)
+        return code, out.getvalue()
+
+    def test_sidecar_manifest_status_after_each_clip(self):
+        sent = []
+        code, log = self._run(max_clips=2, transmit=True,
+                              status_send_fn=sent.append)
+        self.assertEqual(code, 0)
+        names = self._names()
+        mp4s = [n for n in names if n.endswith(".mp4")]
+        sidecars = [n for n in names
+                    if n.endswith(".json") and n != "manifest.json"]
+        self.assertEqual(len(mp4s), 2)
+        self.assertEqual(len(sidecars), 2)
+        self.assertIn("manifest.json", names)
+        import json as _json
+        with open(os.path.join(self.dir, "manifest.json")) as f:
+            manifest = _json.load(f)
+        self.assertEqual(manifest["count"], 2)
+        self.assertEqual(manifest["clips"][0]["dur"], 3)   # 0.05 min clip
+        # one status line per clip, on the injected tx path
+        self.assertEqual(len(sent), 2)
+        first = _json.loads(sent[0])
+        self.assertEqual(first["t"], "vid")
+        self.assertEqual(first["res"], "1000x562")
+        self.assertEqual(first["tmp"], 52.1)
+        with open(os.path.join(self.dir, sidecars[0])) as f:
+            sidecar = _json.load(f)
+        self.assertEqual(len(sidecar["sha256_16"]), 16)
+
+    def test_no_transmit_prints_instead_of_sending(self):
+        sent = []
+        code, log = self._run(max_clips=1, transmit=False,
+                              status_send_fn=sent.append)
+        self.assertEqual(code, 0)
+        self.assertEqual(sent, [])
+        self.assertIn("[VID] status (NO transmit):", log)
+
+    def test_failed_send_queues_and_retries(self):
+        calls = {"n": 0}
+        sent = []
+
+        def flaky(payload):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise RuntimeError("uart busy")
+            sent.append(payload)
+
+        code, log = self._run(max_clips=2, transmit=True,
+                              status_send_fn=flaky)
+        self.assertEqual(code, 0)
+        # clip 1's line fails at its boundary, then drains at clip 2's
+        # boundary together with clip 2's line — nothing lost.
+        self.assertEqual(len(sent), 2)
+        self.assertIn("status send failed", log)
+
+    def test_daemon_serviced_at_boundaries_and_shutdown(self):
+        daemon = FakeDaemon()
+        code, log = self._run(
+            max_clips=3, transmit=True, status_send_fn=lambda p: None,
+            bm_commands_cfg={"enabled": True,
+                             "post_transmit_listen_s": 0,
+                             "defer_acks_during_transmit": False},
+            command_state=object(),
+            daemon_factory=lambda s, cfg, st: daemon)
+        self.assertEqual(code, 0)
+        self.assertTrue(daemon.started)
+        self.assertTrue(daemon.stopped)
+        # serviced at every clip boundary + the shutdown drain
+        self.assertGreaterEqual(daemon.process_pending_calls, 3)
+
+    def test_daemon_not_started_without_bus_mode(self):
+        # enabled island but neither transmit nor bench_commands: the
+        # bus must stay untouched (stills doctrine).
+        factory = mock.Mock()
+        code, _ = self._run(
+            max_clips=1, transmit=False,
+            bm_commands_cfg={"enabled": True},
+            command_state=object(),
+            daemon_factory=factory)
+        self.assertEqual(code, 0)
+        factory.assert_not_called()
+
+    def test_clock_sync_called_with_daemon(self):
+        daemon = FakeDaemon()
+        synced = []
+        code, _ = self._run(
+            max_clips=1, transmit=True, status_send_fn=lambda p: None,
+            bm_commands_cfg={"enabled": True,
+                             "post_transmit_listen_s": 0,
+                             "defer_acks_during_transmit": False},
+            command_state=object(),
+            daemon_factory=lambda s, cfg, st: daemon,
+            clock_sync_fn=lambda d, path: synced.append((d, path)))
+        self.assertEqual(code, 0)
+        self.assertEqual(synced, [(daemon, self.settings["config_path"])])
+
+    def test_pause_status_edge_triggered(self):
+        paused = dict(RING_OK, used_pct=91.2, free_gb=1.0, paused=True)
+        sent = []
+        code, log = self._run(
+            ring_results=[paused, paused, RING_OK],
+            max_clips=1, transmit=True, status_send_fn=sent.append)
+        self.assertEqual(code, 0)
+        import json as _json
+        pauses = [l for l in sent if _json.loads(l).get("a") == "pause"]
+        self.assertEqual(len(pauses), 1)     # one per episode, not per poll
+        clips = [l for l in sent if "fn" in _json.loads(l)]
+        self.assertEqual(len(clips), 1)
+
+    def test_ui_started_and_stopped(self):
+        server = mock.Mock()
+        seen = []
+
+        def factory(video_dir, port):
+            seen.append((video_dir, port))
+            return server
+
+        code, _ = self._run(max_clips=1, ui_server_factory=factory)
+        self.assertEqual(code, 0)
+        self.assertEqual(seen, [(self.dir, 8080)])
+        server.shutdown.assert_called_once()
+
+    def test_ui_failure_not_fatal(self):
+        def factory(video_dir, port):
+            raise OSError("port in use")
+
+        code, log = self._run(max_clips=1, ui_server_factory=factory)
+        self.assertEqual(code, 0)
+        self.assertIn("UI server failed to start", log)
+        self.assertEqual(
+            len([n for n in self._names() if n.endswith(".mp4")]), 1)
+
+    def test_ui_disabled_never_started(self):
+        self.settings["video"]["ui"]["enabled"] = False
+        factory = mock.Mock()
+        code, _ = self._run(max_clips=1, ui_server_factory=factory)
+        self.assertEqual(code, 0)
+        factory.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()
