@@ -304,3 +304,33 @@ Requirements:
 - Telemetry records missing chunks, received/expected chunks, START/END metadata, and reconstruction status.
 - Normal gallery can show the full capture timeline without relying on the admin BM probe endpoint.
 
+---
+
+### TODO-BM-011 — bmcam000 recovery: Tailscale re-join + update to development
+
+**Status:** Open (logged 2026-08-17, Nick priority #1)
+**Area:** Fleet ops / bmcam000
+
+bmcam000 (LAN 192.168.86.23) is not reachable over Tailscale. Recover it,
+then bring it current with `development`.
+
+Steps:
+
+1. **Before touching the unit:** check the SPOT-31593C Sofar cloud
+   mailbox for the stale `twn 2` (id 3001) queued during Sprint12 §5 —
+   it may still deliver on the next successful drain (hazard carried in
+   the Sprint13 tracker).
+2. Re-join Tailscale (LAN SSH via 192.168.86.23; pi-tailscale-setup
+   skill if a reinstall/re-auth is needed). Mind the 15/45 duty cycle +
+   real halt: the unit is only up ~15 min/hr, and prior SSH attempts
+   failed on the DERP relay with short connect timeouts.
+3. Update via `tools/rc_field_update.sh --ref development` (disarm →
+   sync → deploy runtime → patch bm_serial values → UART gate →
+   validate → re-arm). bmcam-field-update skill is the runbook.
+4. Optionally complete the orphaned Sprint12 §5 remote validation
+   (`twn 2` + `trg 2` via Sofar Command API) while the unit is healthy —
+   record the decision either way.
+
+**Acceptance:** unit on the tailnet, running development tip, armed,
+completing a normal transmit cycle; command state file clean.
+
