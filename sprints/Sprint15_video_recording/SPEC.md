@@ -72,7 +72,11 @@ video:
                            # (the light-duty-cycle lever, reuses
                            # power_halt machinery unchanged)
   storage:
-    min_free_gb: 10        # ring buffer: keep at least this free
+    max_used_pct: 75       # ring cap: prune oldest clips past this
+                           # (primary knob — Nick 2026-08-17; portable
+                           # across card sizes for AOML-class reuse)
+    min_free_gb: 10        # absolute hard floor backstop; stricter of
+                           # the two wins
     ring_dry_run: false    # TODO-BM-008 doctrine: dry-run capable
   ui:
     enabled: true

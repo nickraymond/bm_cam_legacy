@@ -54,10 +54,14 @@ by (constraint 8).
 
 ## D-S15-5 — Ring buffer (video_ring.py; TODO-BM-008 made real)
 
-Before each clip starts: if free space < `min_free_gb`, delete the
-OLDEST completed clip triple (mp4 + thumb + sidecar) until the floor is
-met, then log + include `ring_deleted` count in the next status
-message. Rules (all from TODO-BM-008): only completed video triples in
+Before each clip starts, read statvfs and prune if EITHER trigger
+fires (stricter wins): filesystem used > `max_used_pct` (default 75 —
+the primary, card-size-portable knob, Nick 2026-08-17) OR free <
+`min_free_gb` (default 10, absolute backstop). Prune = delete the
+OLDEST completed clip triple (mp4 + thumb + sidecar), oldest-first by
+timestamp filename, repeating until under both limits, then log +
+include the `rd` count in the next status message. At 75% on the
+116 GB card this is a rolling window of ~3.8 days of newest footage. Rules (all from TODO-BM-008): only completed video triples in
 the video directory are candidates — never .part/.tmp, never stills
 artifacts, never logs, never anything outside the directory;
 `ring_dry_run: true` reports what WOULD be deleted; every deletion is
