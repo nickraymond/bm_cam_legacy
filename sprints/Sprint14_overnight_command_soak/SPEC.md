@@ -4,6 +4,11 @@ Status: SPECCED-STUB (2026-08-01). HARD PREREQUISITE: Sprint13 (`help` +
 `cfg`) merged AND tested by Nick. Design agreed with Nick during the
 Sprint12 close-out; parked deliberately.
 
+PRIORITY UPDATE (Nick, 2026-08-17): Sprint15 (video recording + local
+storage + customer download UI, sprints/Sprint15_video_recording/) jumps
+the queue ahead of this sprint. Sprint14 stays parked — prerequisites
+unchanged — and runs only when Nick re-prioritizes it.
+
 ## Goal
 
 A continuous overnight hardware test that exercises the whole Sprint12
