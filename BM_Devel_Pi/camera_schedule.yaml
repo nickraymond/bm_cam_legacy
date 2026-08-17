@@ -99,6 +99,27 @@ progressive_jpeg:
     h: 900
   output_width: 1000       # lanczos output width; height follows crop aspect (562)
 
+# Sprint15 video mode (capture_mode: video). One YAML value flips a unit
+# between stills and video production (SPEC constraint 10). Geometry
+# (ROI + output size) is INHERITED from progressive_jpeg.crop/output_width
+# above — there are NO video geometry keys (D-S15-3): the native crop box
+# converts to libcamera --roi fractions, output 1000x562 becomes
+# --width/--height. Values below are the SPEC-locked defaults; a missing
+# island resolves to exactly these.
+video:
+  clip_minutes: 5          # per-clip length limit, minutes (fractional OK for bench, e.g. 0.25 = 15 s)
+  fps: 15
+  bitrate_mbps: 2.0        # hardware H.264 via /dev/video11; ~75 MB per 5-min clip
+  session_minutes: 0       # 0 = record until power loss; >0 = N min then the NORMAL halt path
+  # dir: /home/pi/BM_Devel_Pi/videos   # clip directory (default shown)
+  storage:
+    max_used_pct: 75       # ring cap: prune oldest clip triples past this (primary knob)
+    min_free_gb: 10        # absolute hard floor backstop; stricter of the two wins
+    ring_dry_run: false    # true = report what WOULD be deleted, delete nothing
+  ui:
+    enabled: true
+    port: 8080
+
 # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.

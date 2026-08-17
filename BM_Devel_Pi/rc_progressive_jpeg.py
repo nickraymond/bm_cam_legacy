@@ -146,8 +146,23 @@ def resolve_rc_settings(config_path):
     # remain the uniform-step fallback.
     ladder_spec = (cfg.progressive_jpeg_quality_ladder or "").strip()
     if ladder_spec:
-        ladder = parse_ladder_spec(ladder_spec)
-        ladder_source = "explicit"
+        try:
+            ladder = parse_ladder_spec(ladder_spec)
+            ladder_source = "explicit"
+        except Exception:
+            # Sprint15: video mode never encodes JPEGs, so a broken ladder
+            # string must not fail-closed a video unit (HEIC-gate doctrine).
+            # Stills mode keeps the loud failure.
+            if cfg.capture_mode != "video":
+                raise
+            print("[RC][WARN] bad quality ladder ignored in video mode; "
+                  "using computed fallback")
+            ladder = compute_quality_ladder(
+                cfg.progressive_jpeg_q_max,
+                cfg.progressive_jpeg_q_min,
+                cfg.progressive_jpeg_q_step,
+            )
+            ladder_source = "computed"
     else:
         ladder = compute_quality_ladder(
             cfg.progressive_jpeg_q_max,
@@ -229,6 +244,8 @@ def print_resolved_settings(s):
 
     if s["capture_mode"] == "progressive_jpeg":
         print("[RC] capture_mode=progressive_jpeg (RC path selected)")
+    elif s["capture_mode"] == "video":
+        print("[RC] capture_mode=video (Sprint15 video path selected)")
     else:
         print(f"[RC] capture_mode={s['capture_mode']} (RC inactive; known-good HEIC path owns this cycle)")
 
@@ -891,6 +908,34 @@ def main(argv=None, **cycle_overrides):
               f"state={command_state.path} (loaded from "
               f"{command_state.load_info['source']})")
         settings = _apply_command_overlay(settings, command_state)
+
+    # Sprint15 (D-S15-1): capture_mode video dispatches to the video runtime
+    # right after config load + command-overlay resolution. Cron line, lock,
+    # and overlay doctrine unchanged; a video unit and a stills unit differ
+    # by one YAML value. Lazy import keeps the stills path untouched.
+    if settings["capture_mode"] == "video":
+        import video_recorder
+        try:
+            settings["video"] = video_recorder.load_video_config(args.config_path)
+        except Exception as exc:
+            print(f"[RC][ERROR] video config load/validation failed: {exc}",
+                  file=sys.stderr)
+            return 2
+        print_resolved_settings(settings)
+        video_recorder.print_video_settings(settings["video"])
+        if args.print_config:
+            return 0
+        try:
+            return video_recorder.run_video_mode(
+                settings,
+                transmit=args.transmit,
+                bm_commands_cfg=bm_commands_cfg,
+                command_state=command_state,
+                bench_commands=args.bench_commands,
+            )
+        except Exception as exc:
+            print(f"[RC][ERROR] video mode failed: {exc}", file=sys.stderr)
+            return 1
 
     if args.print_config:
         print_resolved_settings(settings)

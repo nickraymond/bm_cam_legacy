@@ -15,15 +15,22 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
 - [x] bmcam000 in developer state (dev_mode.sh on, dev tip, tailnet OK)
 
 ## 1. Config + geometry (chunk 1)
-- [ ] `video:` island parsing + validation (defaults per SPEC; loud
-      failures on nonsense values)
-- [ ] capture_mode: video dispatch in rc_progressive_jpeg.py (stills
-      path byte-identical when mode != video)
-- [ ] crop_xywh → libcamera-vid --roi conversion (exact-value tests;
-      coordinate systems labeled)
-- [ ] Camera-controls args reused from the stills builder (no video
-      keys)
-- [ ] Unit tests green
+- [x] `video:` island parsing + validation (defaults per SPEC; loud
+      failures on nonsense values) — video_recorder.load_video_config,
+      tests/test_video_config.py (island in camera_schedule.yaml; added
+      optional `dir` key, default /home/pi/BM_Devel_Pi/videos)
+- [x] capture_mode: video dispatch in rc_progressive_jpeg.py (stills
+      path byte-identical when mode != video; video branch is an
+      added-only `if` + lazy import) — dispatch tests in
+      test_video_config.py TestModeDispatch
+- [x] crop_xywh → libcamera-vid --roi conversion (exact-value tests;
+      coordinate systems labeled) — crop (1504,846,1600,900) ->
+      "0.326389,0.326389,0.347222,0.347222"
+- [x] Camera-controls args reused from the stills builder (no video
+      keys) — build_encoder_command wraps
+      process_image_v2._camera_controls_from_settings
+- [x] Unit tests green — full suite 584 tests OK (was 555 baseline;
+      +29 in tests/test_video_config.py), 2026-08-17
 
 ## 2. Recorder + ring (chunk 2)
 - [ ] video_recorder.py clip loop (subprocess-injected encoder/muxer;

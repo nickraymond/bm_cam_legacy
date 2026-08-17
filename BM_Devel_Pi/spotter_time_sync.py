@@ -341,6 +341,13 @@ def load_camera_schedule(path: str = "camera_schedule.yaml") -> CameraSchedule:
             if section == "bm_serial":
                 continue
 
+            # Sprint15: the video island is parsed by
+            # video_recorder.load_video_config(). Firewall its keys from the
+            # top-level fallthrough below (e.g. a future video key colliding
+            # with a top-level name must not leak in here).
+            if section == "video":
+                continue
+
             if key == "time_source":
                 cfg.time_source = value
             elif key == "capture_mode":
@@ -437,8 +444,8 @@ def validate_schedule(cfg: CameraSchedule) -> None:
             raise ValueError("image_pipeline.heic.quality must be between 0 and 100")
 
     cfg.capture_mode = (cfg.capture_mode or "").strip().lower()
-    if cfg.capture_mode not in {"heic", "progressive_jpeg"}:
-        raise ValueError("capture_mode must be heic or progressive_jpeg")
+    if cfg.capture_mode not in {"heic", "progressive_jpeg", "video"}:
+        raise ValueError("capture_mode must be heic, progressive_jpeg, or video")
 
     # Strict RC validation only when the RC path is selected, so a mistyped
     # progressive_jpeg/power_halt block can never fail-closed a field unit
@@ -453,6 +460,13 @@ def validate_schedule(cfg: CameraSchedule) -> None:
             raise ValueError("progressive_jpeg.max_run_time_min must be > 0")
         if int(cfg.progressive_jpeg_message_cap) <= 0:
             raise ValueError("progressive_jpeg.message_cap must be > 0")
+
+    # Sprint15: video derives its ROI/output size from the SAME
+    # progressive_jpeg geometry keys (D-S15-3) and shares the power_halt
+    # block, so both RC-family modes validate them. The JPEG quality/budget
+    # checks above stay stills-only — a broken quality block must never
+    # fail-closed a video unit (same doctrine as the HEIC gate).
+    if cfg.capture_mode in {"progressive_jpeg", "video"}:
         if cfg.progressive_jpeg_crop_x < 0 or cfg.progressive_jpeg_crop_y < 0:
             raise ValueError("progressive_jpeg.crop x/y must be >= 0")
         if cfg.progressive_jpeg_crop_w <= 0 or cfg.progressive_jpeg_crop_h <= 0:
