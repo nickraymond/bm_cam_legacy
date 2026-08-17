@@ -1,0 +1,222 @@
++====================================================================+
+|              bmcam CAMERA - REMOTE COMMAND REFERENCE               |
+|                            (tables v5)                             |
++====================================================================+
+HOW TO SEND A COMMAND
+---------------------
+Type at this console:
+    bm pub bmcam/cmd {"id":123,"c":"<cmd>","v":<index>} 1 1
+  * "id"  : any number you haven't used before - just count up
+  * "v"   : an INDEX from the tables below, never a raw value
+  * v=0   : always means "factory default (config file governs)"
+GOOD TO KNOW
+------------
+  * Settings take effect on the camera's NEXT wake cycle.
+  * The camera only listens while awake. No ack? Send it again -
+    duplicates are free and never double-applied.
+  * Success looks like:  {"id":123,"ok":1,"st":{...}}
+QUICK ACTIONS - copy, paste, bump the id
+----------------------------------------
+  Capture + send an image now:
+      bm pub bmcam/cmd {"id":101,"c":"trg","v":2} 1 1
+  Send a test image (camera bypassed - checks the link):
+      bm pub bmcam/cmd {"id":102,"c":"trg","v":3} 1 1
+  Open the transmit window all day:
+      bm pub bmcam/cmd {"id":103,"c":"twn","v":2} 1 1
+  Is the camera alive?
+      bm pub bmcam/cmd {"id":104,"c":"ping"} 1 1
+  Show current settings:
+      bm pub bmcam/cmd {"id":105,"c":"cfg"} 1 1
+  Show this reference:
+      bm pub bmcam/cmd {"id":106,"c":"help"} 1 1
++====================================================================+
+|                              COMMANDS                              |
++====================================================================+
+roi - REGION OF INTEREST (image crop, centered zoom)
+    v=0   1600x900 - default
+    v=1   4608x2592 - full frame (widest)
+    v=2   3072x1728 - wide
+    v=3   2304x1296 - mid
+    v=4   1000x562 - max detail
+    v=5   800x450 - reef test A
+    v=6   640x360 - reef test B (tightest)
+foc - FOCUS
+    v=0   autofocus
+    v=1   manual infinity
+    v=2   manual 2 m
+    v=3   manual 1 m
+    v=4   manual 0.5 m
+    v=5   manual 0.25 m
+awb - WHITE BALANCE
+    v=0   auto
+    v=1   daylight
+    v=2   cloudy
+exp - EXPOSURE BIAS (brighter/darker)
+    v=0   auto
+    v=1   darker -2 EV
+    v=2   darker -1 EV
+    v=3   darker -0.5 EV
+    v=4   brighter +0.5 EV
+    v=5   brighter +1 EV
+    v=6   brighter +2 EV
+win - CYCLE TIME BUDGET (minutes per wake)
+    v=0   12 min - default
+    v=1   5 min
+    v=2   8 min
+    v=3   16 min
+txd - TRANSMIT PACING (seconds between messages)
+    v=0   1.0 s - default
+    v=1   1.5 s
+    v=2   2.0 s
+    v=3   3.0 s
+    v=4   4.0 s
+    v=5   5.0 s - zero-loss safe
+cap - MESSAGE LIMIT (max messages per image)
+    v=0   195 - default
+    v=1   100
+    v=2   150
+    v=3   250
+    v=4   300
+src - IMAGE SOURCE (persistent; for one-shot tests use trg 3/4)
+    v=0   live camera - default
+    v=1   reef primary
+    v=2   reef alt 01
+    v=3   reef alt 02
+    v=4   reef alt 03
+    v=5   reef alt 04
+    v=6   reef alt 05
+    v=7   reef alt 06
+    v=8   reef alt 07
+    v=9   reference card
+hlt - POWER HALT (sleep between cycles)
+    v=0   use config file setting (factory: halt ON)
+    v=1   halt ON - power savings (production)
+    v=2   halt DRY-RUN - logs only, stays awake
+    v=3   halt OFF - developer mode (always awake)
+    ! CAUTION: v=1 on wall power = dark until physically power cycled
+twn - TRANSMIT WINDOW (in the camera's timezone)
+    v=0   use config file setting
+    v=1   10:00 - 15:00
+    v=2   ALL DAY (24 h)
+    v=3   08:00 - 12:00
+    v=4   11:00 - 14:00
+tmz - TIMEZONE (for the transmit window)
+    v=0   use config file setting
+    v=1   USA West Coast (Los Angeles)
+    v=2   USA East Coast (New York)
+    v=3   UTC (no timezone)
+trg - TRIGGER, one-shot (fires on next wake, then auto-clears)
+    v=0   cancel a pending trigger
+    v=1   capture to SD card only (no transmit)
+    v=2   capture + send
+    v=3   send stored reef reference (camera bypassed)
+    v=4   send stored reference card (camera bypassed)
+    ! Triggers IGNORE the transmit window - you always get your image.
+    ! The ack means ARMED. Proof of firing is the image arriving.
+ping - LIVENESS CHECK (no "v" needed - replies with full settings)
+cfg  - SHOW CURRENT SETTINGS and where each came from
+help - SHOW THIS REFERENCE
++====================================================================+
+Config file on the camera: camera_schedule.yaml (via SSH).
+A command overrides the file for that one setting; sending v=0
+hands control back to the file. All-zeros = full factory reset.
++====================================================================+
++====================================================================+
+|         bmcam CAMERA - CURRENT SETTINGS (next wake cycle)          |
++====================================================================+
+ CAMERA
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Crop (roi)          | 1600x900 - default        | config file    |
+ | Focus (foc)         | manual (lens 1.82)        | config file    |
+ | White balance (awb) | auto                      | config file    |
+ | Exposure bias (exp) | auto                      | config file    |
+ | Source (src)        | live camera               | config file    |
+ +---------------------+---------------------------+----------------+
+ TRANSMISSION
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Time budget (win)   | 12 min per wake           | config file    |
+ | Pacing (txd)        | 1 s per message           | config file    |
+ | Message limit (cap) | 195 per image             | config file    |
+ | Window (twn)        | 10:00 - 15:00             | config file    |
+ +---------------------+---------------------------+----------------+
+ POWER & SCHEDULE
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Power halt (hlt)    | halt DRY-RUN (logs only)  | command hlt=2  |
+ | Timezone (tmz)      | America/New_York          | config file    |
+ | Pending trigger     | none                      | -              |
+ +---------------------+---------------------------+----------------+
+ To change a row: see its command in `help`.  To give a row back
+ to the config file: send that command with v=0.
+                                                             tables v5
++====================================================================+
+|         bmcam CAMERA - CURRENT SETTINGS (next wake cycle)          |
++====================================================================+
+ CAMERA
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Crop (roi)          | 1600x900 - default        | config file    |
+ | Focus (foc)         | manual (lens 1.82)        | config file    |
+ | White balance (awb) | auto                      | config file    |
+ | Exposure bias (exp) | auto                      | config file    |
+ | Source (src)        | live camera               | config file    |
+ +---------------------+---------------------------+----------------+
+ TRANSMISSION
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Time budget (win)   | 12 min per wake           | config file    |
+ | Pacing (txd)        | 1 s per message           | config file    |
+ | Message limit (cap) | 195 per image             | config file    |
+ | Window (twn)        | 10:00 - 15:00             | command twn=1  |
+ +---------------------+---------------------------+----------------+
+ POWER & SCHEDULE
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Power halt (hlt)    | halt DRY-RUN (logs only)  | command hlt=2  |
+ | Timezone (tmz)      | America/New_York          | config file    |
+ | Pending trigger     | none                      | -              |
+ +---------------------+---------------------------+----------------+
+ To change a row: see its command in `help`.  To give a row back
+ to the config file: send that command with v=0.
+                                                             tables v5
++====================================================================+
+|         bmcam CAMERA - CURRENT SETTINGS (next wake cycle)          |
++====================================================================+
+ CAMERA
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Crop (roi)          | 1600x900 - default        | config file    |
+ | Focus (foc)         | manual (lens 1.82)        | config file    |
+ | White balance (awb) | auto                      | config file    |
+ | Exposure bias (exp) | auto                      | config file    |
+ | Source (src)        | live camera               | config file    |
+ +---------------------+---------------------------+----------------+
+ TRANSMISSION
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Time budget (win)   | 12 min per wake           | config file    |
+ | Pacing (txd)        | 1 s per message           | config file    |
+ | Message limit (cap) | 195 per image             | config file    |
+ | Window (twn)        | 10:00 - 15:00             | config file    |
+ +---------------------+---------------------------+----------------+
+ POWER & SCHEDULE
+ +---------------------+---------------------------+----------------+
+ | Setting             | Value                     | Controlled by  |
+ +---------------------+---------------------------+----------------+
+ | Power halt (hlt)    | halt ON (power savings)   | config file    |
+ | Timezone (tmz)      | America/New_York          | config file    |
+ | Pending trigger     | none                      | -              |
+ +---------------------+---------------------------+----------------+
+ To change a row: see its command in `help`.  To give a row back
+ to the config file: send that command with v=0.
+                                                             tables v5

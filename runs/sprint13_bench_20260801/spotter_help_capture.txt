@@ -1,0 +1,120 @@
+2026-08-01T07:04:29Z hwcfg:
+2026-08-01T07:04:29Z  * hwcfg - print hardware configuration
+2026-08-01T07:04:29Z  * hwcfg <name> <value> - set hardware configuration
+2026-08-01T07:04:29Z  * hwcfg save - commit changes to EEPROM
+2026-08-01T07:04:29Z cfg:
+2026-08-01T07:04:29Z  * cfg - list configuration
+2026-08-01T07:04:29Z  * cfg defaults - set all configurations to default values
+2026-08-01T07:04:29Z  * cfg save - save configuration to eeprom
+2026-08-01T07:04:29Z  * cfg <name> - Get configuration for specific item
+2026-08-01T07:04:29Z  * cfg <name> <val> - Set configuration for specific item
+2026-08-01T07:04:29Z  * cfg update <name> - Update configuration values to older cfg file
+2026-08-01T07:04:29Z sst:
+2026-08-01T07:04:29Z  * sst sn
+2026-08-01T07:04:29Z cal:
+2026-08-01T07:04:29Z  * cal baro <duration in ms> <current pressure in Pa>
+2026-08-01T07:04:29Z log:
+2026-08-01T07:04:29Z  * list
+2026-08-01T07:04:29Z  * dest <log name|log index> <destination: a|c|f|n>
+2026-08-01T07:04:29Z  * level <log name|log index> <level: n|e|w|i|d>
+2026-08-01T07:04:29Z  * flush
+2026-08-01T07:04:29Z sd:
+2026-08-01T07:04:29Z  * format - format the SD card
+2026-08-01T07:04:29Z  * benchmark - Run SD card benchmark
+2026-08-01T07:04:29Z  * err - print number of write/read errors
+2026-08-01T07:04:29Z  * usb - make the SD card available over usb as READ ONLY
+2026-08-01T07:04:29Z  * usbrw - make the SD card available over usb as READ and WRITE
+2026-08-01T07:04:29Z  * update <reset | get> - reset or get the number of automatic SD card update attempts
+2026-08-01T07:04:29Z  * count <reset | get> - reset the SD mount hang counter/get current count
+2026-08-01T07:04:29Z ls
+2026-08-01T07:04:29Z cat <filename> - Print entire file (CAREFUL WITH LARGE FILES)
+2026-08-01T07:04:29Z head <filename> - Print first 1kB of the file
+2026-08-01T07:04:29Z tail <filename> - Print last 1kB of the file
+2026-08-01T07:04:29Z pwd
+2026-08-01T07:04:29Z cd <directory>
+2026-08-01T07:04:29Z sensors - print most recent sensor data
+2026-08-01T07:04:29Z error:
+2026-08-01T07:04:29Z  * set <errorTypeId> <value> - Sets the error type to the specified value (value must be unencoded)
+2026-08-01T07:04:29Z  * reset - reset all error values
+2026-08-01T07:04:29Z  * debug - prints all error values
+2026-08-01T07:04:29Z info:
+2026-08-01T07:04:29Z  Display device information
+2026-08-01T07:04:29Z debug:
+2026-08-01T07:04:29Z  * reset - Reset device
+2026-08-01T07:04:29Z  * crash - Generate crash
+2026-08-01T07:04:29Z  * hardfault - Generate hardfault
+2026-08-01T07:04:29Z  * null - Dereference null pointer
+2026-08-01T07:04:29Z  * mem - Get some memory statistics
+2026-08-01T07:04:29Z  * tasks - Print task statistics
+2026-08-01T07:04:29Z  * hang - Hang the process
+2026-08-01T07:04:29Z  * bootloader - Restart and enter bootloader
+2026-08-01T07:04:29Z uptime:
+2026-08-01T07:04:29Z  Show system uptime
+2026-08-01T07:04:29Z reset:
+2026-08-01T07:04:29Z  Reset device
+2026-08-01T07:04:29Z bootloader:
+2026-08-01T07:04:29Z  Restart and enter bootloader
+2026-08-01T07:04:29Z sdmq
+2026-08-01T07:04:29Z    add <msgid> <msg> - add a message to the sd message queue.
+2026-08-01T07:04:29Z    get - dequeue a message and print out its contents
+2026-08-01T07:04:29Z    size - get the size of the queueupdate:
+2026-08-01T07:04:29Z  * update <filename> - update firmware from specified file
+2026-08-01T07:04:29Z rtc <set YYYY MM DD hh mm ss>
+2026-08-01T07:04:29Z gpio:
+2026-08-01T07:04:29Z  * gpio list - show available pins
+2026-08-01T07:04:29Z  * gpio <set|clr|get> <pin name>
+2026-08-01T07:04:29Z orch:
+2026-08-01T07:04:29Z  * orch cfg
+2026-08-01T07:04:29Z  * orch err
+2026-08-01T07:04:29Z sensor
+2026-08-01T07:04:29Z  * <enable|disable> <SST|HTU|BARO|PWR> - Enable or disable sampling of given sensor
+2026-08-01T07:04:29Z memfault:
+2026-08-01T07:04:29Z  * test - test coredump storage
+2026-08-01T07:04:29Z  * trig - trigger serialization
+2026-08-01T07:04:29Z  * print - print metrics
+2026-08-01T07:04:29Z gps - config <Position Period(ms)> <Antenna Stats Rate>
+2026-08-01T07:04:29Z gpspwr - <on/off>
+2026-08-01T07:04:29Z bridge:
+2026-08-01T07:04:29Z  * test
+2026-08-01T07:04:29Z  * rtc
+2026-08-01T07:04:29Z  * dfu <filename> <node_id> <timeoutMs> <force>
+2026-08-01T07:04:29Z  * baudrate <57600|115200|1M>
+2026-08-01T07:04:29Z  * bootloader <enter/exit>
+2026-08-01T07:04:29Z  * hw_version
+2026-08-01T07:04:29Z  * cfg get <node_id> <partition(u/s/h)> <key>
+2026-08-01T07:04:29Z  * cfg set <node_id> <partition(u/s/h)> <type(u/i/f/s/b)> <key> <value>
+2026-08-01T07:04:29Z  * cfg commit <node_id> <partition(u/s/h)>
+2026-08-01T07:04:29Z  * cfg status <node_id> <partition(u/s/h)>
+2026-08-01T07:04:29Z  * cfg del <node_id> <partition(u/s/h)> <key>
+2026-08-01T07:04:29Z smsync - send full bm config to wavefleet
+2026-08-01T07:04:29Z bm:
+2026-08-01T07:04:29Z  * topo
+2026-08-01T07:04:29Z  * cfg get <node_id> <partition(u/s/h)> <key>
+2026-08-01T07:04:29Z  * cfg set <node_id> <partition(u/s)> <type(u/i/f/s/b)> <key> <value>
+2026-08-01T07:04:29Z  * cfg commit <node_id> <partition(u/s)>
+2026-08-01T07:04:29Z  * cfg clear <node_id> <partition(u/s)>
+2026-08-01T07:04:29Z  * cfg status <node_id> <partition(u/s/h)>
+2026-08-01T07:04:29Z  * cfg del <node_id> <partition(u/s)> <key>
+2026-08-01T07:04:29Z  * pub <topic> <data> <type> <version>
+2026-08-01T07:04:29Z  * info <node_id>
+2026-08-01T07:04:29Z  * resources
+2026-08-01T07:04:29Z  * resources <node_id>
+2026-08-01T07:04:29Z note:
+2026-08-01T07:04:29Z  * enable - enable notecard modem
+2026-08-01T07:04:29Z  * disable - disable notecard modem
+2026-08-01T07:04:29Z  * tx <message> - Write a new message note with <message> payload
+2026-08-01T07:04:29Z  * txs <message> - Write a new message note with <message> payload, and request instant sync
+2026-08-01T07:04:29Z  * sync - Force note sync.
+2026-08-01T07:04:29Z  * txd - Delete outgoing notes
+2026-08-01T07:04:29Z  * rx - Attempt to receive a binary payload from notehub, don't delete note
+2026-08-01T07:04:29Z  * rxd - Attempt to receive a binary payload from notehub, delete note
+2026-08-01T07:04:29Z  * updateinfo -  dumps the noinit update info
+2026-08-01T07:04:29Z  * restore -  factory reset notecard and reboot
+2026-08-01T07:04:29Z  * extsiminfo - if inserted, get the external SIM card's info
+2026-08-01T07:04:29Z  * fwclr - Clear last fw update
+2026-08-01T07:04:29Z  * fwupdate - Start firmware update
+2026-08-01T07:04:30Z 1785567867.605 53171fa3d81a8e6f, power | tick: 16400264, rtc: 2026-08-01T07:04:27.593, addr: 65, voltage: 23.849600, current: 0.038250
+2026-08-01T07:04:39Z 1785567877.074 c3c564b91856226c, power | tick: 16410274, rtc: 2026-08-01T07:04:37.062, addr: 65, voltage: 23.892799, current: 0.034250
+2026-08-01T07:04:39Z 1785567877.605 53171fa3d81a8e6f, power | tick: 16410264, rtc: 2026-08-01T07:04:37.593, addr: 65, voltage: 23.854401, current: 0.034000
+2026-08-01T07:04:49Z 1785567887.070 c3c564b91856226c, power | tick: 16420274, rtc: 2026-08-01T07:04:47.058, addr: 65, voltage: 23.892799, current: 0.033750
+2026-08-01T07:04:49Z 1785567887.605 53171fa3d81a8e6f, power | tick: 16420264, rtc: 2026-08-01T07:04:47.589, addr: 65, voltage: 23.856001, current: 0.034000

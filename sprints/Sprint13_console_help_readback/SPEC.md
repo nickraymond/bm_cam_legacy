@@ -69,6 +69,31 @@ monitor recognizes a tagged response and pretty-prints it), (b) SD-log
 retrieval instructions. Measure fprintf size/pacing limits — `help` is
 long and will need line pacing.
 
+**T1 partial results (2026-08-01, bench):** `spotter/fprintf` does NOT
+echo to the USB console — SD-only, proven on Spotter firmware v2.16.6.
+The fprintf→SD + console `cat` fallback is plausible but the SD path
+mystery is unresolved: even production `camera_module.log` was not at
+Sprint09's documented `/bm/<node-id>/` path. Remaining probes (chunk 2,
+see DESIGN "Open"): `spotter/printf` (bm_core's console-printf twin of
+fprintf — public-SDK knowledge, UNVERIFIED on v2.16.6), `sd err`,
+`log dest|level`, whether console `ls`/`cat` take path args, and an
+`sd usb` Mac mount to map the real SD tree. Leading plan if printf
+echoes: printf for the live console response + a proactive boot-time
+fprintf write of bmcam_help.txt / bmcam_cfg.txt (kills the bootstrap
+problem — `cat bmcam_help.txt` works with zero prior knowledge, even
+while the Pi is halted).
+
+**T1 FINAL (2026-08-01, bench, D-S13-9):** `spotter/printf` IS the
+transport — Nick's call after the SDK-source review, then proven on
+hardware: on Spotter firmware v2.16.6 every printf frame echoes on the
+USB console (123/123 `help` lines intact, node-id prefixed, zero drops
+at 0.05 s pacing — runs/sprint13_bench_20260801/help_echo_cycle2.txt).
+The SD+`cat` fallback was rejected. Epoch/node-id line prefix is
+Spotter-side console rendering and cannot be removed (probed
+print_time=0: renders identically) — recorded as a known cosmetic.
+`bm_serial.py` now carries the clean transport trio: tx=cellular /
+log=SD / print=console.
+
 Remote (mailbox) use of help/cfg is a non-goal for the console-print
 path; `cfg` output additionally reaching the cellular uplink on request
 is an open question (O1) — it would close the audit's remote-readback

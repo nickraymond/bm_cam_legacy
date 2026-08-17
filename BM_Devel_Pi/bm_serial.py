@@ -203,6 +203,35 @@ class BristlemouthSerial:
 		cobs = self.finalize_packet(packet)
 		return self.uart.write(cobs)
 
+	def spotter_print(self, data):
+		"""Print one line on the Spotter's USB console (topic
+		spotter/printf) — Sprint13 T1 transport for help/cfg responses
+		(Nick 2026-08-01: console write, NOT SD+cat). Zero cellular
+		quota: never enters the transmit queue.
+
+		Frame mirrors spotter_log (the Sofar SDK layout / bm_core print
+		header): 8-byte target node id (0 = local Spotter), 2-byte
+		filename length (0 — no file), 2-byte data length, data.
+		Bench-verified on v2.16.6 (2026-08-01, echo proven).
+
+		UNLIKE spotter_log, NO trailing newline: the Spotter console
+		adds its own line break when rendering a printf, so a payload
+		newline double-spaces every line (Nick, demo morning). The \\n
+		convention stays correct for spotter_log (file append).
+		"""
+		topic = b"spotter/printf"
+		packet = (
+			self.get_pub_header()
+			+ len(topic).to_bytes(2, "little")
+			+ topic
+			+ b"\x00" * 8
+			+ (0).to_bytes(2, "little")
+			+ len(data).to_bytes(2, "little")
+			+ data.encode()
+		)
+		cobs = self.finalize_packet(packet)
+		return self.uart.write(cobs)
+
 	def finalize_packet(self, packet):
 		checksum = self.crc(0, packet)
 		packet[2] = checksum & 0xFF

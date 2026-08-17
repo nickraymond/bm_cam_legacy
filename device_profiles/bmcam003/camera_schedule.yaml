@@ -97,7 +97,7 @@ capture_mode: "progressive_jpeg"
 # Pacing/chunking intentionally live only in bm_serial below (single source
 # of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
 progressive_jpeg:
-  max_run_time_min: 16     # field-trial setting (Nick 2026-07-25); S07 measured 16.38 min at the 195 cap
+  max_run_time_min: 12     # production spec (Nick 2026-08-01, Sprint13); was 16 (field trial, S07)
   message_cap: 195         # field-tested hard cap on messages per image
   quality:
     # Field-trial multi-segment ladder (Nick 2026-07-25): 90->30 by 10,

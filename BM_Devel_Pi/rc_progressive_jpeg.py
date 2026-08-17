@@ -679,6 +679,17 @@ def run_cycle(
             # Bench-commands mode: no image transmit, but late commands
             # still ack + persist for the next cycle.
             cmd_hooks.drain_now(daemon, summary, clock=clock)
+            # Sprint13: without a transmit there is no C4 tail, which
+            # left a bench_commands cycle listening for only ~15 s —
+            # untestable from a console (found on bmcam003, 2026-08-01).
+            # Bench cycles now hold the same bounded listen window.
+            # Gated on bench_commands so every production path (transmit
+            # and plain no-transmit runs) stays byte-identical.
+            if bench_commands and daemon is not None:
+                cmd_hooks.post_transmit_listen(
+                    daemon, bm_commands_cfg or {}, summary, budget,
+                    clock=clock, sleep_fn=sleep_fn,
+                )
             return summary
 
         # M5 transmit (complete or bounded).

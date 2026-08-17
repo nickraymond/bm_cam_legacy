@@ -160,14 +160,14 @@ class TestParserRejects(unittest.TestCase):
 
 class TestAckBuilder(unittest.TestCase):
     def test_applied_ack_exact_string(self):
-        # Byte-exact wire pin. Updated for TABLES_VERSION 3 (hlt/twn);
+        # Byte-exact wire pin. Updated for TABLES_VERSION 5 (tmz);
         # key order follows SETTINGS_COMMANDS.
         st = {"roi": 2, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-              "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0}
+              "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0, "tmz": 0}
         self.assertEqual(
             build_ack(417, True, st),
             '{"id":417,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,'
-            '"txd":0,"cap":0,"src":0,"hlt":0,"twn":0}}',
+            '"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}',
         )
 
     def test_reject_ack_carries_error_code(self):
@@ -185,7 +185,7 @@ class TestAckBuilder(unittest.TestCase):
         self.assertEqual(
             ack["st"],
             {"roi": 4, "foc": 0, "awb": 0, "exp": 0, "win": 0,
-             "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0},
+             "txd": 0, "cap": 0, "src": 0, "hlt": 0, "twn": 0, "tmz": 0},
         )
 
     def test_st_always_complete_and_int(self):

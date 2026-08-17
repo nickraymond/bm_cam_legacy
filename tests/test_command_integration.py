@@ -448,6 +448,34 @@ class TestListenTailBudgetClamp(unittest.TestCase):
         )
 
 
+class TestBenchListenTail(IntegrationHarness):
+    """Sprint13: a --bench-commands cycle holds the bounded listen window
+    even without a transmit — found on bmcam003 (2026-08-01): the daemon
+    was up ~15 s per bench cycle, untestable from a console. Gated on
+    bench_commands: the plain no-transmit path stays byte-identical."""
+
+    def test_bench_cycle_runs_listen_tail(self):
+        self.cfg["post_transmit_listen_s"] = 5.0
+        r = self.run_rc(transmit=False, bench_commands=True)
+        self.assertGreater(r.summary.get("listen_tail_s", 0.0), 0.0)
+        self.assertIn("post-transmit listen window", r.stdout)
+
+    def test_bench_cycle_hears_command_in_tail(self):
+        # The rehearsal scenario end-to-end: a help query arriving in the
+        # bench tail is applied + acked before the halt.
+        self.cfg["post_transmit_listen_s"] = 5.0
+        frame = make_cmd_frame({"id": 903, "c": "help"})
+        r = self.run_rc(transmit=False, bench_commands=True,
+                        inject_at_sleep_call=3, inject_frame=frame)
+        self.assertIn("applied", r.summary["command_events"])
+        self.assertIn(b'"id":903', self.ack_blob())
+
+    def test_plain_no_transmit_run_has_no_tail(self):
+        self.cfg["post_transmit_listen_s"] = 5.0
+        r = self.run_rc(transmit=False, bench_commands=False)
+        self.assertEqual(r.summary.get("listen_tail_s", 0.0), 0.0)
+
+
 class TestDisabledRegressionGuard(IntegrationHarness):
     def test_disabled_island_runs_without_daemon_or_port(self):
         r = self.run_rc(transmit=False, enabled=False)

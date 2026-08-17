@@ -36,6 +36,14 @@ acked; latency is hours (~hourly [MS] mailbox drain). Full reference:
 units on pre-Sprint12 code, software updates, and anything in the
 provisioning-only list (`REMOTE_CONFIG_AUDIT.md`).
 
+Since Sprint13 (tables v5): anyone at the Spotter USB console — including
+the customer — can send `help` (full generated command reference with
+copy-paste examples) and `cfg` (resolved settings with per-row source).
+Zero quota, prints on the console. If someone is on-site at a console,
+have them run `help` before walking them through anything from memory:
+
+    bm pub bmcam/cmd {"id":106,"c":"help"} 1 1
+
 ## Phase 1 — iPhone hotspot (the person on-site)
 
 The Pi auto-joins only networks it already knows, so the hotspot must CLONE a

@@ -86,6 +86,11 @@ def describe_frame(block):
     if topic == "spotter/transmit-data" and len(payload) >= 1:
         return (f"TRANSMIT-DATA net=0x{payload[0]:02x} crc_ok={crc_ok} "
                 f"payload={payload[1:129]!r}")
+    if topic == "spotter/printf" and len(payload) >= 12:
+        # Sprint13 console print: 8B target node, 2B fname_len (0),
+        # 2B data_len, then the line (trailing \n counted in len).
+        text = payload[12:].decode("utf-8", "replace").rstrip("\n")
+        return f"CONSOLE crc_ok={crc_ok} |{text}"
     return f"PUB topic={topic!r} crc_ok={crc_ok} payload={payload[:96]!r}"
 
 
