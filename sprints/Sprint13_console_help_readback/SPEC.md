@@ -83,6 +83,17 @@ fprintf write of bmcam_help.txt / bmcam_cfg.txt (kills the bootstrap
 problem — `cat bmcam_help.txt` works with zero prior knowledge, even
 while the Pi is halted).
 
+**T1 FINAL (2026-08-01, bench, D-S13-9):** `spotter/printf` IS the
+transport — Nick's call after the SDK-source review, then proven on
+hardware: on Spotter firmware v2.16.6 every printf frame echoes on the
+USB console (123/123 `help` lines intact, node-id prefixed, zero drops
+at 0.05 s pacing — runs/sprint13_bench_20260801/help_echo_cycle2.txt).
+The SD+`cat` fallback was rejected. Epoch/node-id line prefix is
+Spotter-side console rendering and cannot be removed (probed
+print_time=0: renders identically) — recorded as a known cosmetic.
+`bm_serial.py` now carries the clean transport trio: tx=cellular /
+log=SD / print=console.
+
 Remote (mailbox) use of help/cfg is a non-goal for the console-print
 path; `cfg` output additionally reaching the cellular uplink on request
 is an open question (O1) — it would close the audit's remote-readback

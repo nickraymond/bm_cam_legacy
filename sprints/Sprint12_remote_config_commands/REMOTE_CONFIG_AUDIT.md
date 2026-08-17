@@ -50,7 +50,7 @@ quota) is Sprint13's design question T1; remote/cellular readback of
 | uart_port, baudrate | wrong value = no comms at all (total brick) |
 | bm_commands.enabled/topic/state_path | remote lockout (disabling the daemon remotely = disabling SSH over SSH) |
 | time_source, rtc.*, set_system_clock_*, allow_system_clock_fallback | clock-integrity chain; wrong source silently breaks the window gate |
-| timezone / timezone_preset | wrong tz + window = schedule confusion; twn is deliberately one-variable |
+| ~~timezone / timezone_preset~~ | **moved C → commandable in Sprint13 (`tmz`, D-S13-4)**: presets only (LA / New York / UTC), window interpretation only — the clock-source chain above stays provisioning-owned |
 | power_halt.mode / script_path | the wire must never point the halt at a different executable |
 | capture_mode | flips the whole runtime path (RC vs legacy HEIC) |
 | image_pipeline.* (HEIC block), image.* | legacy/rollback config |

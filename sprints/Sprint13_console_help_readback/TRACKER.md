@@ -63,30 +63,52 @@ Nick sign-off.
       view for commands applied in the same window (fix 7468bff)
 - [x] trg 2 live capture+send rehearsed: gate bypassed, 105/105
       COMPLETE (cycle5); trg 3 reef: 192/192 COMPLETE, camera skipped,
-      trigger self-cleared (cycle7). Sofar rows: re-poll before merge.
+      trigger self-cleared (cycle7). Sofar re-poll DONE 2026-08-17
+      (sensor-data sweep Jul31–Aug5): the Aug 1 bench images NEVER
+      reached the cloud — SPOT-33507C's last Sofar row is
+      2026-07-31T19:00Z. Console-COMPLETE proven, cloud delivery not;
+      Spotter cellular sync stopped that evening (bench antenna/power
+      suspected). Follow-up item, NOT a Sprint13 gate (gates are
+      console-side; trg/cellular machinery shipped with Sprint12).
 - [ ] tmz smoke on hardware (tmz 1 → gate log shows override → tmz 0)
-      — NOT yet run on-unit (unit tests + gate plumbing tests only);
-      cheap to fold into the demo if Nick wants it
+      — SKIPPED for close-out (2026-08-17 wrap): unit tests + gate
+      plumbing tests only; fold into the next bench session on the
+      unit (Sprint15 work will put hands on hardware anyway)
 - [x] Unit left field-normal: re-armed from
       crontab_armed_sprint13_backup_20260801T065232Z.txt, hlt 0
       restored (yaml real halt), state all-zeros, box up
+      — SUPERSEDED by the later 2026-08-01 dev-state session (see
+      DEV_LOG): bmcam003 END STATE is DEVELOPER MODE — disarmed
+      (backup crontab_armed_devpause_20260801.txt), hlt=3 commanded,
+      box up on build 0e56e84
 - [x] win 12 sanity: all cycles ran on the 12-min budget (720 s) clean
 
 ## 4. Sign-off + docs
 - [ ] **Nick reads help/cfg on his terminal and signs off on customer
-      readability (gate is explicitly his)**
-- [ ] docs/bmcam_command_reference.md updated (tables v5: tmz, awb drop,
-      win order, points to on-console help)
-- [ ] bmcam-hotspot-update skill note (help/cfg exist on-console)
-- [ ] REMOTE_CONFIG_AUDIT.md annotated: timezone moved C → commandable
+      readability (gate is explicitly his)** — sign-off artifact
+      (rendered help + cfg exactly as the console shows them) delivered
+      to Nick 2026-08-17; awaiting his word
+- [x] docs/bmcam_command_reference.md updated (tables v5: tmz, awb drop,
+      win order, points to on-console help; 2026-08-17 fix: timezone
+      removed from the "not remotely configurable" list)
+- [x] bmcam-hotspot-update skill note (help/cfg exist on-console;
+      "have them run `help` first" doctrine)
+- [x] REMOTE_CONFIG_AUDIT.md annotated: timezone moved C → commandable
       (D-S13-4)
-- [ ] SPEC.md updated with T1 results; DEV_LOG current
-- [ ] PR → development, suite green
+- [x] SPEC.md updated with T1 FINAL (spotter/printf proven, D-S13-9);
+      DEV_LOG current through the 2026-08-17 wrap
+- [ ] PR #33 → development, suite green — development (3a1153d,
+      incl. Sprint15 pivot planning) merged in 2026-08-17, 555 tests
+      OK (1 skipped); merges after Nick's sign-off above
 
 ## Known hazards carried in
-- bmcam000: Sprint12 §5 remote validation never completed; a `twn 2`
-  (id 3001) may still sit in the SPOT-31593C cloud mailbox. DO NOT touch
-  bmcam000 without checking the Sofar pending queue first. Not needed
-  for this sprint's gates.
-- bmcam003 is ARMED with real halt: console `reset` is the wake lever;
-  disarm (crontab backup) before bench work, re-arm after.
+- bmcam000: RESOLVED 2026-08-17 — recovered to the tailnet (root cause:
+  17-day clock skew broke TLS), updated to development 3a1153d, stale
+  command overlay retired, left DISARMED. Mailbox check: the feared
+  `twn 2` id 3001 was never actually sent (send log has no such entry).
+- bmcam003 is in DEVELOPER MODE (disarmed, hlt=3, always up) since the
+  2026-08-01 dev session — re-arm from
+  crontab_armed_devpause_20260801.txt before any field-normal use.
+- NEW: SPOT-33507C (bmcam003's Spotter) has pushed no Sofar rows since
+  2026-07-31T19:00Z — cellular sync stalled; check antenna/power/queue
+  next bench session before trusting cloud-side delivery tests.

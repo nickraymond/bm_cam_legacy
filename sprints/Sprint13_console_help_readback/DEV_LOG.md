@@ -115,3 +115,23 @@ Out-of-window command-deafness flagged as a Sprint14 doctrine question.
   (14:58 Nick power-cycle, 15:53 my reset) — flagged to Nick.
 - bmcam003 END STATE: DEVELOPER MODE — disarmed, hlt=3, box up,
   build 0e56e84, cfg shows "halt OFF (developer mode) | command hlt=3".
+
+## 2026-08-17 — wrap session (close-out toward PR #33 merge)
+
+- Merged development 3a1153d into the branch (clean — docs/skills only:
+  PR #34 photo-check skill, PR #35 Sprint15 video-pivot planning).
+  Suite: 555 tests OK (1 skipped).
+- Docs finalized: command reference timezone-list fix, hotspot skill
+  help/cfg note, AUDIT D-S13-4 annotation, SPEC T1 FINAL paragraph.
+- Sofar re-poll (owed from §3): sensor-data sweep Jul31–Aug5 shows
+  SPOT-33507C's LAST cloud row at 2026-07-31T19:00Z — the entire Aug 1
+  bench (trg 2 105/105, trg 3 192/192, both console-COMPLETE) never
+  reached the cloud. Cellular sync stalled that evening. Logged as a
+  carried hazard; not a Sprint13 gate.
+- tmz hardware smoke: SKIPPED for close-out; fold into the next
+  hands-on bench session.
+- Sign-off artifact (rendered help + cfg) delivered to Nick; the
+  readability gate remains his, then PR #33 merges.
+- Context: earlier today bmcam000 was recovered (clock-skew root cause,
+  now on development 3a1153d, disarmed) — see TODO-BM-011 and the
+  Sprint15 planning PR #35.

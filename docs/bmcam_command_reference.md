@@ -120,7 +120,9 @@ index 0 does the same per-setting. The YAML is never rewritten.
 ## Not remotely configurable (deliberate)
 
 UART port/baud, daemon enable/topic/state path, time source/RTC/clock
-chain, timezone, halt mode/script path, capture_mode, legacy HEIC
-pipeline. Each is a lockout/brick vector; they stay SSH/provisioning-
+chain, halt mode/script path, capture_mode, legacy HEIC pipeline.
+(Timezone moved out of this list in Sprint13: `tmz` commands the
+window-interpretation timezone via presets; the clock source itself
+stays SSH/provisioning-owned.) Each is a lockout/brick vector; they stay SSH/provisioning-
 owned. See `sprints/Sprint12_remote_config_commands/REMOTE_CONFIG_AUDIT.md`
 for the full audit and the Sprint13 candidates (incl. config readback).
