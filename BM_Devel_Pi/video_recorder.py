@@ -32,8 +32,13 @@ Known limitations:
 import copy
 import os
 import shutil
+import subprocess
+import time
+from datetime import datetime, timezone
 
+import video_ring
 from process_image_v2 import _camera_controls_from_settings
+from rc_power_halt import perform_power_halt
 
 # Native sensor-equivalent frame every crop is expressed in (IMX708 full).
 NATIVE_W, NATIVE_H = 4608, 2592
@@ -317,9 +322,328 @@ def build_encoder_command(settings, vcfg, h264_path, *, binary=None,
 
 
 # ---------------------------------------------------------------------------
-# Clip loop (D-S15-2) — tracker chunk 2
+# Naming (D-S15-4) + crash-debris sweep (D-S15-2)
 # ---------------------------------------------------------------------------
 
-def run_video_mode(settings, **kwargs):
-    """Per-clip record loop. Implemented in tracker chunk 2."""
-    raise NotImplementedError("video clip loop lands in tracker chunk 2")
+def clip_basename(now_utc, output_wh, fps):
+    """`<UTC>_video_<WxH>_<fps>fps` — lexicographic order == chronological
+    order, which is what the ring prunes by and the UI sorts by."""
+    ts = now_utc.strftime("%Y-%m-%dT%H-%M-%SZ")
+    return f"{ts}_video_{output_wh[0]}x{output_wh[1]}_{int(fps)}fps"
+
+
+def sweep_boot_debris(video_dir, log_fn=print):
+    """Delete orphaned .part/.tmp files at boot (crash debris, D-S15-2).
+
+    A hard power cut mid-clip leaves an unambiguous suffix behind; this
+    sweep is what keeps the crash contract's 'at most the in-flight clip'
+    promise. Completed finals are never touched. Returns count removed.
+    """
+    removed = 0
+    try:
+        names = sorted(os.listdir(video_dir))
+    except FileNotFoundError:
+        return 0
+    for name in names:
+        if not (name.endswith(".part") or name.endswith(".tmp")):
+            continue
+        path = os.path.join(video_dir, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            size = os.path.getsize(path)
+            os.remove(path)
+            removed += 1
+            log_fn(f"[VID] boot sweep: removed crash debris {name} ({size} B)")
+        except OSError as exc:
+            log_fn(f"[VID][WARN] boot sweep could not remove {name}: {exc}")
+    if removed == 0:
+        log_fn("[VID] boot sweep: no crash debris")
+    return removed
+
+
+# ---------------------------------------------------------------------------
+# Clip pipeline (D-S15-2): record -> mux -> poster -> fsync -> atomic rename
+# ---------------------------------------------------------------------------
+
+# Watchdog margins over the nominal clip length — an encoder that overruns
+# its own -t is wedged and gets killed so the NEXT clip can self-heal.
+ENCODER_TIMEOUT_MARGIN_S = 60
+MUX_TIMEOUT_S = 180          # -c copy of a ~75 MB clip on Pi Zero SD I/O
+POSTER_TIMEOUT_S = 60
+PAUSE_RECHECK_S = 60         # ring-paused poll interval
+FAILED_CLIP_RETRY_S = 10     # breather after a failed clip (no tight spin
+                             # while e.g. another process holds the camera)
+
+
+def _default_run(argv, timeout_s):
+    """Run one pipeline subprocess with a hard timeout.
+
+    Returns (returncode, duration_s); -1 return code on timeout (process
+    killed). Injected/faked by every unit test — only the bench runs this.
+    """
+    started = time.monotonic()
+    try:
+        result = subprocess.run(
+            argv, timeout=timeout_s, check=False,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        duration = time.monotonic() - started
+        if result.returncode != 0:
+            tail = (result.stderr or "").strip().splitlines()[-3:]
+            print(f"[VID][ERROR] {os.path.basename(argv[0])} rc="
+                  f"{result.returncode}: {' | '.join(tail)}")
+        return result.returncode, duration
+    except subprocess.TimeoutExpired:
+        print(f"[VID][ERROR] {os.path.basename(argv[0])} TIMEOUT after "
+              f"{timeout_s:.0f}s (killed)")
+        return -1, time.monotonic() - started
+
+
+def _fsync_path(path):
+    fd = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _remove_quiet(path):
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+
+
+def build_mux_command(ffmpeg_binary, fps, part_path, mp4_tmp_path):
+    """ffmpeg stream-copy mux: raw .h264.part -> .mp4.tmp. No re-encode,
+    no faststart rewrite (a second full-file pass would stretch the
+    clip-boundary gap; Safari scrubs via Range requests, D-S15-9)."""
+    return [
+        ffmpeg_binary, "-hide_banner", "-loglevel", "error", "-y",
+        "-framerate", str(int(fps)),
+        "-i", part_path,
+        "-c", "copy",
+        mp4_tmp_path,
+    ]
+
+
+def build_poster_command(ffmpeg_binary, mp4_tmp_path, thumb_tmp_path):
+    """First-frame poster JPEG (the GoPro-style gallery tile, D-S15-9)."""
+    return [
+        ffmpeg_binary, "-hide_banner", "-loglevel", "error", "-y",
+        "-i", mp4_tmp_path,
+        "-frames:v", "1", "-q:v", "4",
+        thumb_tmp_path,
+    ]
+
+
+def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
+                    ffmpeg_binary, controls=None, run_fn=_default_run,
+                    now_fn=lambda: datetime.now(timezone.utc)):
+    """One clip through the full crash-safe pipeline (D-S15-2).
+
+    record .h264.part -> mux .mp4.tmp -> poster _thumb.jpg.tmp -> fsync
+    -> atomic rename to finals -> delete the .part. Any failure cleans
+    its debris and returns ok=False — the caller starts the next clip
+    (per-clip processes self-heal at the boundary; nothing retries
+    in-place).
+
+    Returns a dict: ok, stage, basename, mp4/thumb paths, bytes,
+    encode_s, boundary_s, requested camera-control metadata.
+    """
+    (w, h), _ = even_video_output_size(settings["output_size"])
+    base = clip_basename(now_fn(), (w, h), vcfg["fps"])
+    part = os.path.join(video_dir, base + ".h264.part")
+    mp4_tmp = os.path.join(video_dir, base + ".mp4.tmp")
+    mp4 = os.path.join(video_dir, base + ".mp4")
+    thumb_tmp = os.path.join(video_dir, base + "_thumb.jpg.tmp")
+    thumb = os.path.join(video_dir, base + "_thumb.jpg")
+
+    result = {"ok": False, "stage": "encode", "basename": base,
+              "mp4": None, "thumb": None, "bytes": 0,
+              "encode_s": 0.0, "boundary_s": 0.0}
+
+    argv, requested = build_encoder_command(
+        settings, vcfg, part, binary=encoder_binary, controls=controls)
+    result["requested_controls"] = requested
+    clip_s = float(vcfg["clip_minutes"]) * 60.0
+    print(f"[VID] clip start: {base} ({clip_s:.0f}s nominal, "
+          f"{w}x{h}@{vcfg['fps']}fps {vcfg['bitrate_mbps']}Mbps)")
+
+    rc_enc, encode_s = run_fn(argv, clip_s + ENCODER_TIMEOUT_MARGIN_S)
+    result["encode_s"] = encode_s
+    part_bytes = os.path.getsize(part) if os.path.exists(part) else 0
+    if rc_enc != 0 or part_bytes <= 0:
+        print(f"[VID][ERROR] encode failed for {base} "
+              f"(rc={rc_enc}, part_bytes={part_bytes}); clip dropped")
+        _remove_quiet(part)
+        return result
+
+    boundary_started = time.monotonic()
+    result["stage"] = "mux"
+    rc_mux, _ = run_fn(
+        build_mux_command(ffmpeg_binary, vcfg["fps"], part, mp4_tmp),
+        MUX_TIMEOUT_S)
+    mp4_bytes = os.path.getsize(mp4_tmp) if os.path.exists(mp4_tmp) else 0
+    if rc_mux != 0 or mp4_bytes <= 0:
+        print(f"[VID][ERROR] mux failed for {base} "
+              f"(rc={rc_mux}, mp4_bytes={mp4_bytes}); clip dropped")
+        _remove_quiet(part)
+        _remove_quiet(mp4_tmp)
+        return result
+
+    # Poster failure is non-fatal: a clip without a gallery tile beats no
+    # clip. The UI falls back to a nameplate for missing thumbs.
+    result["stage"] = "poster"
+    rc_thumb, _ = run_fn(
+        build_poster_command(ffmpeg_binary, mp4_tmp, thumb_tmp),
+        POSTER_TIMEOUT_S)
+    have_thumb = rc_thumb == 0 and os.path.exists(thumb_tmp) \
+        and os.path.getsize(thumb_tmp) > 0
+    if not have_thumb:
+        print(f"[VID][WARN] poster extraction failed for {base} "
+              "(clip kept without thumb)")
+        _remove_quiet(thumb_tmp)
+
+    # Crash contract: fsync BEFORE the atomic rename — after this block a
+    # hard power cut can only ever cost the NEXT (in-flight) clip.
+    result["stage"] = "finalize"
+    _fsync_path(mp4_tmp)
+    os.rename(mp4_tmp, mp4)
+    if have_thumb:
+        _fsync_path(thumb_tmp)
+        os.rename(thumb_tmp, thumb)
+    _remove_quiet(part)          # raw stream is a duplicate of the mp4
+    _fsync_path(video_dir)       # persist the renames themselves
+
+    result.update({
+        "ok": True, "stage": "done", "mp4": mp4,
+        "thumb": thumb if have_thumb else None, "bytes": mp4_bytes,
+        "boundary_s": time.monotonic() - boundary_started,
+    })
+    print(f"[VID] clip done: {os.path.basename(mp4)} ({mp4_bytes} B, "
+          f"encode={encode_s:.1f}s boundary={result['boundary_s']:.1f}s"
+          f"{'' if have_thumb else ', NO THUMB'})")
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Clip loop (D-S15-2 / D-S15-8)
+# ---------------------------------------------------------------------------
+
+def _resolve_controls(settings):
+    """Same controls resolution as the stills capture (_default_capture):
+    command overlay wins, else the YAML island. Lazy import breaks the
+    rc_progressive_jpeg <-> video_recorder cycle."""
+    controls = settings.get("camera_controls_override")
+    if controls is None:
+        import rc_progressive_jpeg as rc
+        controls = rc._load_camera_controls_island(settings["config_path"])
+    return controls or None
+
+
+def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
+                   command_state=None, bench_commands=False,
+                   max_clips=None, run_fn=_default_run,
+                   encoder_binary=None, ffmpeg_binary=None,
+                   now_fn=lambda: datetime.now(timezone.utc),
+                   clock=time.monotonic, sleep_fn=time.sleep,
+                   halt_fn=perform_power_halt,
+                   on_clip_fn=None, on_pause_fn=None):
+    """The video runtime (D-S15-1/2/8): sweep debris, then loop
+    ring-check -> record clip -> boundary work until the session ends
+    (session_minutes > 0), max_clips is reached (bench), or power dies.
+
+    on_clip_fn(clip_result, ring_result): chunk-3 boundary hook (sidecar,
+    manifest, status message, daemon drain). on_pause_fn(ring_result):
+    chunk-3 pause telemetry. Both optional and never allowed to kill the
+    loop — recording is the mission.
+
+    Returns 0 (the loop only ends by design; per-clip failures self-heal).
+    """
+    vcfg = settings["video"]
+    video_dir = vcfg["dir"]
+    os.makedirs(video_dir, exist_ok=True)
+
+    if encoder_binary is None:
+        encoder_binary, backend = _select_video_command(
+            settings["capture_backend"])
+        print(f"[VID] encoder: {encoder_binary} ({backend})")
+    if ffmpeg_binary is None:
+        ffmpeg_binary = shutil.which("ffmpeg")
+        if not ffmpeg_binary:
+            raise RuntimeError("ffmpeg not found; video mode cannot mux")
+
+    controls = _resolve_controls(settings)
+    sweep_boot_debris(video_dir)
+
+    session_s = float(vcfg["session_minutes"]) * 60.0
+    session_deadline = clock() + session_s if session_s > 0 else None
+    print(f"[VID] session: "
+          f"{'continuous (until power loss)' if session_deadline is None else f'{session_s:.0f}s then halt'}"
+          f"{f', max_clips={max_clips}' if max_clips else ''} dir={video_dir}")
+
+    clips_done = 0
+    clips_failed = 0
+    session_expired = False
+    try:
+        while True:
+            if session_deadline is not None and clock() >= session_deadline:
+                session_expired = True
+                print(f"[VID] session_minutes reached "
+                      f"({clips_done} clips); normal halt path")
+                break
+            # max_clips bounds ATTEMPTS (bench/test bail-out): a
+            # persistently failing encoder must end a bounded bench run,
+            # not spin it forever. Production (max_clips=None) retries
+            # indefinitely — self-heal at the boundary is the design.
+            if max_clips is not None and (clips_done + clips_failed) >= max_clips:
+                print(f"[VID] max_clips={max_clips} attempts reached; stopping")
+                break
+
+            ring_result = video_ring.ensure_room(
+                video_dir, vcfg["storage"])
+            if ring_result["paused"]:
+                if on_pause_fn is not None:
+                    try:
+                        on_pause_fn(ring_result)
+                    except Exception as exc:
+                        print(f"[VID][WARN] pause hook failed: {exc}")
+                print(f"[VID][PAUSE] storage over limit "
+                      f"(used={ring_result['used_pct']}% "
+                      f"free={ring_result['free_gb']}GiB); recheck in "
+                      f"{PAUSE_RECHECK_S}s")
+                sleep_fn(PAUSE_RECHECK_S)
+                continue
+
+            clip_result = record_one_clip(
+                settings, vcfg, video_dir,
+                encoder_binary=encoder_binary, ffmpeg_binary=ffmpeg_binary,
+                controls=controls, run_fn=run_fn, now_fn=now_fn)
+            if clip_result["ok"]:
+                clips_done += 1
+            else:
+                clips_failed += 1
+                print(f"[VID] failed clip; retrying in "
+                      f"{FAILED_CLIP_RETRY_S}s")
+                sleep_fn(FAILED_CLIP_RETRY_S)
+            if on_clip_fn is not None:
+                try:
+                    on_clip_fn(clip_result, ring_result)
+                except Exception as exc:
+                    print(f"[VID][WARN] clip boundary hook failed: {exc}")
+    finally:
+        print(f"[VID] loop end: {clips_done} clips ok, "
+              f"{clips_failed} failed")
+        if session_expired:
+            # D-S15-8: the OPTIONAL Pi-side duty-cycle lever reuses the
+            # normal cycle-end halt machinery untouched.
+            halt_result = halt_fn(
+                enabled=settings["power_halt_enabled"],
+                dry_run=settings["power_halt_dry_run"],
+                mode=settings["power_halt_mode"],
+                script_path=settings["power_halt_script_path"],
+            )
+            print(f"[VID] halt: {halt_result['action']}")
+    return 0

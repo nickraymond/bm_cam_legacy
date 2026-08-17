@@ -33,11 +33,17 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       +29 in tests/test_video_config.py), 2026-08-17
 
 ## 2. Recorder + ring (chunk 2)
-- [ ] video_recorder.py clip loop (subprocess-injected encoder/muxer;
-      .part/.tmp → atomic rename; boot-time debris sweep)
-- [ ] video_ring.py floor guard (TODO-BM-008 rules; pause-not-brick
-      when floor unmeetable; dry-run mode)
-- [ ] Unit tests green (crash-contract simulations included)
+- [x] video_recorder.py clip loop (subprocess-injected encoder/muxer;
+      .part/.tmp → atomic rename; boot-time debris sweep) —
+      record_one_clip + run_video_mode; poster failure non-fatal;
+      max_clips bounds ATTEMPTS (bench bail); 10 s failed-clip backoff
+- [x] video_ring.py floor guard (TODO-BM-008 rules; pause-not-brick
+      when floor unmeetable; dry-run mode; dry-run still pauses at the
+      REAL floor — unbrickable beats convenient)
+- [x] Unit tests green (crash-contract simulations included:
+      failure-stage debris cleanup + boot sweep) — full suite 612 OK
+      (+28: tests/test_video_ring.py, tests/test_video_recorder.py),
+      2026-08-17
 
 ## 3. Status + manifest + UI (chunk 3)
 - [ ] Per-clip status JSON on the existing cellular tx path (size
