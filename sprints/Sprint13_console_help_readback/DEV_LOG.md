@@ -135,3 +135,25 @@ Out-of-window command-deafness flagged as a Sprint14 doctrine question.
 - Context: earlier today bmcam000 was recovered (clock-skew root cause,
   now on development 3a1153d, disarmed) — see TODO-BM-011 and the
   Sprint15 planning PR #35.
+
+## 2026-08-17 (later) — merge + on-hardware demo + fleet pivot
+
+- PR #33 MERGED into development (10cd9f7) on Nick's readability
+  sign-off from the rendered artifact.
+- FLEET REVELATION (Nick): bmcam003 + bmcam004 are POTTED (no SD
+  access); bmcam003 off by intention. bmcam000 is the development unit
+  now, and bench SPOT-33507C hosts bmcam000. First `help` attempt on
+  the Spotter console taught the lesson the runbook warned about,
+  live: nothing listens between cycles (no standing UART service —
+  Sprint10 doctrine), and the first bench cycle real-halted the box
+  (YAML halt) before Nick's paste landed.
+- Round 2: bmcam000 updated to 10cd9f7 via rc_field_update
+  (--leave-disarmed), hlt=2 dry-run seeded via the CommandState API
+  (id 9001), clock re-synced (fake-hwclock stale again — no cycles =
+  no GPS sync), `--bench-commands` cycle: help id=107 applied,
+  123/123 console lines, Nick read it at the terminal. DEMO DONE.
+- bmcam000 then placed in developer state for Sprint15 work
+  (tools/dev_mode.sh on: hlt=3 overlay + disarmed with fixed-path
+  backup; Spotter bus always-on on the bench).
+- Reminder recorded: bmcam000 still has the DEFAULT pi password —
+  change before any deployment.
