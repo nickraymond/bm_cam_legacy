@@ -84,10 +84,11 @@ Nick sign-off.
 - [x] win 12 sanity: all cycles ran on the 12-min budget (720 s) clean
 
 ## 4. Sign-off + docs
-- [ ] **Nick reads help/cfg on his terminal and signs off on customer
-      readability (gate is explicitly his)** — sign-off artifact
-      (rendered help + cfg exactly as the console shows them) delivered
-      to Nick 2026-08-17; awaiting his word
+- [x] **Nick reads help/cfg on his terminal and signs off on customer
+      readability (gate is explicitly his)** — SIGNED OFF 2026-08-17
+      ("the output looks fine") from the rendered sign-off artifact;
+      on-hardware `help` demo runs on bmcam000 post-merge (bmcam003 is
+      now potted — see fleet note below)
 - [x] docs/bmcam_command_reference.md updated (tables v5: tmz, awb drop,
       win order, points to on-console help; 2026-08-17 fix: timezone
       removed from the "not remotely configurable" list)
@@ -106,9 +107,13 @@ Nick sign-off.
   17-day clock skew broke TLS), updated to development 3a1153d, stale
   command overlay retired, left DISARMED. Mailbox check: the feared
   `twn 2` id 3001 was never actually sent (send log has no such entry).
-- bmcam003 is in DEVELOPER MODE (disarmed, hlt=3, always up) since the
-  2026-08-01 dev session — re-arm from
-  crontab_armed_devpause_20260801.txt before any field-normal use.
+- bmcam003 is in DEVELOPER MODE (disarmed, hlt=3) since the 2026-08-01
+  dev session — re-arm from crontab_armed_devpause_20260801.txt before
+  any field-normal use. FLEET NOTE (Nick, 2026-08-17): bmcam003 and
+  bmcam004 are now POTTED (encapsulated, no SD access) and bmcam003 is
+  powered off by intention; bmcam000 (SD still swappable) is the
+  development unit going forward, and SPOT-33507C now hosts bmcam000
+  on the bench.
 - NEW: SPOT-33507C (bmcam003's Spotter) has pushed no Sofar rows since
   2026-07-31T19:00Z — cellular sync stalled; check antenna/power/queue
   next bench session before trusting cloud-side delivery tests.
