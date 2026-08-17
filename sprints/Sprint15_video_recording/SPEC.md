@@ -61,4 +61,12 @@ Work order agreed 2026-08-17:
   deployment-workflow answer.
 - Does video recording coexist with the halt/duty-cycle power model, or
   is this a different (powered) deployment profile?
-- Which unit is the bench target (bmcam003 assumed)?
+- ~~Which unit is the bench target (bmcam003 assumed)?~~ ANSWERED
+  (Nick, 2026-08-17): **bmcam000** — bmcam003 and bmcam004 are now
+  potted (no SD access; bmcam003 off by intention), so bmcam000 (SD
+  still swappable) is the development unit. It sits on the bench hosted
+  by SPOT-33507C, in developer state (dev_mode.sh on), on development
+  10cd9f7. NOTE: still has the default pi password — change before any
+  deployment. Also carried in: SPOT-33507C has pushed no Sofar cloud
+  rows since 2026-07-31T19:00Z (cellular stall — check antenna/queue
+  before any cloud-delivery testing).

@@ -98,9 +98,15 @@ Nick sign-off.
       (D-S13-4)
 - [x] SPEC.md updated with T1 FINAL (spotter/printf proven, D-S13-9);
       DEV_LOG current through the 2026-08-17 wrap
-- [ ] PR #33 → development, suite green — development (3a1153d,
-      incl. Sprint15 pivot planning) merged in 2026-08-17, 555 tests
-      OK (1 skipped); merges after Nick's sign-off above
+- [x] PR #33 → development, suite green — MERGED 2026-08-17 (10cd9f7)
+      after Nick's sign-off; 555 tests OK (1 skipped)
+- [x] ON-HARDWARE DEMO (2026-08-17, post-merge, bmcam000 + SPOT-33507C
+      console): `help` id=107 applied during a `--bench-commands` cycle,
+      123 console lines sent / 0 dropped, ack delivered, Nick read the
+      full reference at the Spotter terminal ("Ok, i got it"). Halt
+      handled with a seeded hlt=2 dry-run overlay (first attempt's
+      cycle real-halted the box before the paste landed — YAML halt
+      working as designed). SPRINT13 DONE.
 
 ## Known hazards carried in
 - bmcam000: RESOLVED 2026-08-17 — recovered to the tailnet (root cause:
