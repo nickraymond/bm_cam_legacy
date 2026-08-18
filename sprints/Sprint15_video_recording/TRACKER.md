@@ -103,7 +103,14 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       one build
 - [ ] Runs overnight; morning: clip count matches wall clock, no
       gaps beyond clip-boundary seconds, temps sane, ring behavior
-      as expected
+      as expected. NOTE for the morning read: config changed MID-HIL
+      per Nick (2026-08-18T02:14Z, via the settings GUI): clips before
+      02:14Z are 1000x562@2Mbps manual-focus; after are
+      1600x900@4Mbps autofocus. Reboots at ~01:26/01:40/02:0x/02:14Z
+      are the GUI work + Nick's settings sessions, not failures.
+      GUI save-poison bug (float 2.0 vs "2") found by Nick, fixed +
+      regression-tested; full save→UI-restart→persist loop verified
+      through HTTP 2026-08-18T02:14Z
 - [ ] Per-clip status messages queued to cellular (Sofar rows if
       SPOT-33507C's stall is cleared; console evidence otherwise —
       check antenna/queue first)
