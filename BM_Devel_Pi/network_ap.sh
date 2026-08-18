@@ -98,6 +98,44 @@ require_timer_or_refuse() {
     log "revert timer armed: boot default restored in ${timeout_min} min"
 }
 
+# ---- AP-mode LED indicator (best-effort; Nick 2026-08-18) -----------------
+# Fast continuous blink on the onboard ACT LED while the AP is up; the
+# LED's previous trigger (normally mmc0 = SD activity) is saved and
+# restored on ANY exit from AP mode. A reboot resets the sysfs trigger
+# on its own, so the LED can never stick — same no-persistence doctrine
+# as the network state. LED failure must never affect networking.
+
+led_dir() {
+    local d
+    for d in /sys/class/leds/ACT /sys/class/leds/led0; do
+        [[ -d "$d" ]] && { echo "$d"; return 0; }
+    done
+    return 1
+}
+
+led_blink_fast() {
+    local d
+    d="$(led_dir)" || { log "WARN: no ACT LED found; skipping AP blink"; return 0; }
+    mkdir -p "$RUN_DIR"
+    # Save the current (bracketed) trigger once per AP session.
+    if [[ ! -f "$RUN_DIR/led_trigger" ]]; then
+        sed -n 's/.*\[\(.*\)\].*/\1/p' "$d/trigger" > "$RUN_DIR/led_trigger" 2>/dev/null
+    fi
+    echo timer > "$d/trigger" 2>/dev/null
+    echo 100 > "$d/delay_on" 2>/dev/null
+    echo 100 > "$d/delay_off" 2>/dev/null
+    log "ACT LED: fast blink (AP mode indicator)"
+}
+
+led_restore() {
+    local d prev
+    d="$(led_dir)" || return 0
+    prev="$(cat "$RUN_DIR/led_trigger" 2>/dev/null)"
+    [[ -z "$prev" ]] && prev="mmc0"
+    echo "$prev" > "$d/trigger" 2>/dev/null
+    rm -f "$RUN_DIR/led_trigger"
+}
+
 # ---- ssh exposure guard on the open AP (best-effort, D-S16-6) -------------
 
 nft_block_ssh() {
@@ -123,38 +161,66 @@ drop_session_cons() {
     nmcli connection down "$CUST_CON" >/dev/null 2>&1
     nmcli connection delete "$CUST_CON" >/dev/null 2>&1
     nft_unblock_ssh
+    led_restore
 }
 
 # ---- modes ----------------------------------------------------------------
 
+nm_ready() {
+    # Boot race (bmcam000 2026-08-18): cron @reboot dispatches the boot
+    # default before NetworkManager is up, and every nmcli call fails.
+    # nm-online -s waits for NM startup to complete (not connectivity).
+    if command -v nm-online >/dev/null 2>&1; then
+        nm-online -s -q --timeout 60 \
+            || log "WARN: NetworkManager not ready after 60s; proceeding"
+    fi
+}
+
 ap_up() {
     drop_session_cons
-    local ssid
+    local ssid err
     ssid="$(hostname)"
     # OPEN AP (no wifi-sec block = no password), in-memory only (save no),
     # NM `shared` runs its own DHCP for the 192.168.50.0/24 clients.
-    if ! nmcli connection add type wifi ifname "$WLAN_IF" con-name "$AP_CON" \
-            save no autoconnect no ssid "$ssid" \
+    if ! err=$(nmcli connection add type wifi ifname "$WLAN_IF" \
+            con-name "$AP_CON" save no autoconnect no ssid "$ssid" \
             802-11-wireless.mode ap 802-11-wireless.band bg \
             ipv4.method shared ipv4.addresses "$AP_IP/24" \
-            ipv6.method disabled >/dev/null 2>&1; then
-        log "ERROR: nmcli add $AP_CON failed"
+            ipv6.method disabled 2>&1 >/dev/null); then
+        log "ERROR: nmcli add $AP_CON failed: $err"
         return 1
     fi
-    if ! nmcli -w 20 connection up "$AP_CON" >/dev/null 2>&1; then
-        log "ERROR: nmcli up $AP_CON failed"
+    if ! err=$(nmcli -w 20 connection up "$AP_CON" 2>&1 >/dev/null); then
+        log "ERROR: nmcli up $AP_CON failed: $err"
         nmcli connection delete "$AP_CON" >/dev/null 2>&1
         return 1
     fi
     nft_block_ssh
+    led_blink_fast
     set_mode "ap"
     log "AP UP (open): ssid=$ssid ip=$AP_IP gallery=http://$AP_IP:8080"
 }
 
+active_ssid() {
+    nmcli -t -f ACTIVE,SSID device wifi list 2>/dev/null \
+        | sed -n 's/^yes://p' | head -1
+}
+
 hq_up() {
+    local wait_s="${1:-45}" err hq_ssid
     drop_session_cons
-    if ! nmcli -w 45 connection up "$HQ_CON" >/dev/null 2>&1; then
-        log "ERROR: could not activate '$HQ_CON' profile"
+    if ! err=$(nmcli -w "$wait_s" connection up "$HQ_CON" 2>&1 >/dev/null); then
+        # Autoconnect may already own the device with the SAME network
+        # (e.g. the flash-time netplan profile) — that IS home; do not
+        # fail the boot path over the profile name (bmcam000 2026-08-18).
+        hq_ssid="$(nmcli -g 802-11-wireless.ssid connection show "$HQ_CON" 2>/dev/null)"
+        sleep 10
+        if [[ -n "$hq_ssid" && "$(active_ssid)" == "$hq_ssid" ]]; then
+            log "already on '$hq_ssid' via autoconnect; treating as HQ"
+            set_mode "client:$HQ_CON"
+            return 0
+        fi
+        log "ERROR: could not activate '$HQ_CON' profile: $err"
         return 1
     fi
     set_mode "client:$HQ_CON"
@@ -194,12 +260,13 @@ apply_default() {
     local mode="$1" fallback_s="${2:-$DEFAULT_FALLBACK_S}"
     mkdir -p "$RUN_DIR"; echo "$mode" > "$DEFAULT_FILE"
     disarm_timer
+    nm_ready
     case "$mode" in
         ap)
             ap_up || exit 1
             ;;
         nereus_hq)
-            if hq_up; then
+            if hq_up "$fallback_s"; then
                 :
             else
                 # 90 s AP fallback (Nick 2026-08-18): never boot unreachable.
