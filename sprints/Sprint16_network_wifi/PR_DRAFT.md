@@ -36,6 +36,20 @@ Two bugs found live, fixed, regression-tested:
 Plus a boot race (network dispatch before NM was ready) → `nm-online`
 guard + autoconnect-same-SSID counts as home + nmcli stderr logged.
 
+## Overnight fleet HIL (2026-08-18 08:06Z → 15:07Z, all three units on this branch)
+
+~7 h continuous video on bmcam000/003/004 (same build, client WiFi):
+**0 drops, 0 lost videos, 0 errors, 0 debris**; manifest == mp4 count
+everywhere; temps ≤ 42.9 °C; network log SILENT after the boot join —
+the Sprint16 boot path held all night on three units. Full rollup:
+`runs/sprint16_overnight_20260818/`.
+
+Findings feeding TODO-BM-013 (explained, not failures): bitrate is a
+ceiling not a floor (dark scenes undershoot; daylight fills the cap);
+per-clip mux dead time grows with file size (~5 s at 75 MB → 33-45 s
+at 300 MB, ~13 % at 30 fps/8 Mbps); 8 Mbps daylight ≈ 86 GB/day → ~1-day
+ring window.
+
 ## Remaining (tracked in TRACKER.md §4)
 
 - `wap` over the REAL BM bus (needs a Spotter hosting the unit).

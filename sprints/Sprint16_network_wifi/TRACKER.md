@@ -111,6 +111,26 @@ and wap-shape updates (2026-08-18).
       + the (buggy-boot) fallback firing; a clean HQ-absent 90 s
       fallback run is future evidence
 
+## Fleet YAML alignment (Nick request, 2026-08-18 evening)
+All three units now expose EVERY settings-GUI field as editable
+(verified per-unit against each unit's own FIELDS list):
+- bmcam004 was the gap: no `image_pipeline.camera_controls` block at
+  all (bmcam001-lineage config) → focus fields were view-only. Block
+  inserted on-unit matching its prior full-auto behavior (backup
+  camera_schedule.yaml.before_controls_fix_*; applies next boot).
+- bmcam000 (12 fields incl. Sprint16 network.default) and bmcam003
+  (11 fields) were already complete; 003/004 gain the 12th field when
+  the merged Sprint16 build reaches them.
+- Sprint16 future-proofing applied to bmcam003/004 (inert to their
+  Sprint15 code, prevents the AP-strand hazard at rollout): netplan
+  WiFi profile CLONED to `nereus-hq` + `network:` island
+  (default: nereus_hq) appended. HIL verified undisturbed after all
+  edits (32/38 clips, parts rolling).
+- NEXT (Nick, tomorrow): TODO-BM-013 — video-only resolution ladder
+  (real 1080p needs its own crop: a deliberate SPEC-constraint-4
+  change) + exposing the hidden H.264 quality knobs (qp, profile,
+  intra, denoise, sharpness, sensor mode).
+
 ## Bench findings for the docs (2026-08-18)
 - Both office routers broadcast SSID "Ford": a client-mode unit's LAN
   IP roams between 192.168.1.x (UniFi) and 192.168.86.x (Nest) across
@@ -121,9 +141,19 @@ and wap-shape updates (2026-08-18).
 
 ## 5. Wrap
 - [x] docs: command reference wap v7 rewrite, tracker evidence
+- [x] Fleet overnight HIL on this branch (2026-08-18, ~7 h, all three
+      units): 0 drops / 0 losses / 0 errors / 0 debris; network log
+      silent post-boot; evidence runs/sprint16_overnight_20260818/.
+      Findings (daylight-vs-bitrate, mux dead time at big files,
+      8 Mbps ≈ 1-day ring window) recorded there + in TODO-BM-013
 - [ ] PR → development, Nick review
-- [ ] Post-merge: re-point bmcam000 to blessed git bits (it runs a
-      dev-mode scratch copy of this branch)
+- [ ] Post-merge: re-point ALL THREE units to blessed git bits (fleet
+      runs the a4f0da7-sprint16-rsync scratch deploy)
+- [ ] NEXT (parallel streams, Nick 2026-08-18 morning): Sprint17
+      video quality on bmcam000 (KICKOFF_PROMPT in
+      sprints/Sprint17_video_quality/) + Sprint18 UI tuning on
+      bmcam003 (KICKOFF_PROMPT in sprints/Sprint18_video_ui/);
+      bmcam004 = untouched control
 
 ## Hazards carried in
 - Every mode flip can drop the operator's own connection — attended

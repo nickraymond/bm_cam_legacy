@@ -380,3 +380,47 @@ demonstrated on a Trixie unit; boot-default honored for both YAML
 values; ephemeral customer creds gone after power cycle; auto-revert
 proven with a bogus SSID; command reference + skills updated (replaces
 the wap NOT-FIELD-READY entry).
+
+---
+
+### TODO-BM-013 — Video-only resolution ladder + hidden H.264 quality knobs (1080p underwater)
+
+**Status:** Open (logged 2026-08-18 evening, Nick — tomorrow's work)
+**Area:** video pipeline / settings GUI / SPEC change
+
+Nick wants crisp underwater HD: more VIDEO-ONLY resolution options
+(e.g. real 1080p) plus access to the H.264 quality levers that are
+currently hidden (encoder runs on rpicam-vid defaults for everything
+except bitrate/fps).
+
+**Design tension to resolve first (deliberate SPEC change):** Sprint15
+constraint 4 says video inherits the STILLS geometry — today that is a
+1600x900 native crop → 1600 output max. True 1920x1080 needs a wider
+native crop, so this sprint must introduce video-only geometry
+(e.g. `video.resolution: 1080p` presets mapping to their own
+crop+output), leaving stills geometry untouched. Upscaling past the
+crop stays forbidden (no fake resolution).
+
+**Hidden knobs to consider exposing (from build_encoder_command — we
+pass only width/height/fps/bitrate/roi today, everything else is
+rpicam-vid defaults):**
+- `--qp` — constant quantizer, the true "JPEG quality" analog
+  (constant quality, variable size) vs today's `--bitrate` targeting
+- `--profile high` / `--level` — H.264 profile (compression
+  efficiency at the same bitrate)
+- `--intra` — keyframe interval (GOP)
+- `--denoise cdn_hq|cdn_fast|cdn_off` — colour-denoise mode, likely a
+  big lever for underwater particulate scenes
+- `--sharpness` / `--contrast` / `--saturation` — ISP tuning
+- sensor mode: binned 2304x1296 vs full 4608x2592 readout (detail vs
+  CPU/power; Zero 2W H.264 encoder is comfortable to ~1080p30)
+
+**Approach sketch:** `video.resolution` preset table (video-only crop +
+output + the encoder extras per preset), GUI dropdown, bench A/B on
+bmcam000 with side-by-side clips in the gallery; power/thermal check at
+1080p (encode time must stay < clip wall time; watch CPU temp in
+sidecars).
+
+**Acceptance:** 1080p clips ffprobe-verified at 1920x1080 from a
+≥1920x1080 native crop; A/B cut of denoise/qp/profile variants for
+Nick's eyeball; suite green; stills path byte-identical.
