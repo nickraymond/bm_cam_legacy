@@ -1,0 +1,6 @@
+part: 2026-08-18T05-00-03Z_video_1000x562_15fps.h264.part 10625024 -> 11837440 bytes (growing: YES)
+gallery: 200
+manifest: 200
+range: 206
+[VID] session: continuous (until power loss) dir=/home/pi/BM_Devel_Pi/videos
+[VID] clip start: 2026-08-18T05-00-03Z_video_1000x562_15fps (300s nominal, 1000x562@15fps 2.0Mbps)
