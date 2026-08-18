@@ -28,6 +28,7 @@ import posixpath
 import subprocess
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import urllib.parse
 from urllib.parse import parse_qs, unquote, urlparse
 
 import video_settings
@@ -365,6 +366,19 @@ class VideoUIHandler(BaseHTTPRequestHandler):
         self._send_bytes(200, page.encode("utf-8"),
                          "text/html; charset=utf-8")
 
+    def _redirect(self, location):
+        # Post/Redirect/Get: every POST answers 303 so a page refresh can
+        # NEVER re-fire the action (bmcam000 2026-08-18: Safari replayed a
+        # cached /restart POST mid-AP-session and rebooted the camera).
+        self.send_response(303)
+        self.send_header("Location", location)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def _send_settings_redirect(self, message, error=False):
+        q = urllib.parse.urlencode({"m": message, "e": "1" if error else "0"})
+        self._redirect(f"/settings?{q}")
+
     def do_POST(self):
         try:
             path = posixpath.normpath(urlparse(self.path).path)
@@ -376,14 +390,10 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 try:
                     type(self).restart_fn()
                 except Exception as exc:
-                    self._send_settings(f"Restart failed: {exc}", error=True)
+                    self._send_settings_redirect(f"Restart failed: {exc}",
+                                                 error=True)
                     return
-                self._send_bytes(
-                    200,
-                    b"<meta charset='utf-8'>Restarting &mdash; the camera "
-                    b"and this page come back in about a minute. "
-                    b"<a href='/'>Reload</a>",
-                    "text/html; charset=utf-8")
+                self._redirect("/restarted")
                 return
             if path == "/settings/join":
                 # Sprint16 (D-S16-4): session-only customer WiFi join.
@@ -393,31 +403,25 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 ssid = (form.get("wifi_ssid") or [""])[0].strip()
                 psk = (form.get("wifi_psk") or [""])[0]
                 if not ssid or not 1 <= len(ssid.encode()) <= 32:
-                    self._send_settings("WiFi NOT changed: enter a network "
-                                        "name (up to 32 characters).",
-                                        error=True)
+                    self._send_settings_redirect(
+                        "WiFi NOT changed: enter a network name (up to 32 "
+                        "characters).", error=True)
                     return
                 if not 8 <= len(psk) <= 63:
-                    self._send_settings("WiFi NOT changed: WPA2 passwords "
-                                        "are 8-63 characters.", error=True)
+                    self._send_settings_redirect(
+                        "WiFi NOT changed: WPA2 passwords are 8-63 "
+                        "characters.", error=True)
                     return
                 print(f"[UI] customer WiFi join requested: ssid={ssid!r} "
                       "(session only; psk not logged)")
                 try:
                     type(self).join_fn(ssid, psk)
                 except Exception as exc:
-                    self._send_settings(f"WiFi NOT changed: {exc}",
-                                        error=True)
+                    self._send_settings_redirect(f"WiFi NOT changed: {exc}",
+                                                 error=True)
                     return
-                self._send_bytes(
-                    200,
-                    ("<meta charset='utf-8'>Connecting to <b>"
-                     f"{html.escape(ssid)}</b> in a few seconds &mdash; "
-                     "this page will drop off the camera hotspot. If the "
-                     "details were wrong, the hotspot returns by itself "
-                     "so you can retry. The camera forgets this network "
-                     "at its next power-on.").encode("utf-8"),
-                    "text/html; charset=utf-8")
+                self._redirect("/joining?"
+                               + urllib.parse.urlencode({"ssid": ssid}))
                 return
             if path == "/settings":
                 length = int(self.headers.get("Content-Length", 0) or 0)
@@ -429,17 +433,18 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                         self.config_path, changes)
                 except Exception as exc:
                     print(f"[UI][WARN] settings save rejected: {exc}")
-                    self._send_settings(f"NOT saved: {exc}", error=True)
+                    self._send_settings_redirect(f"NOT saved: {exc}",
+                                                 error=True)
                     return
                 if result["changed"]:
                     changed = ", ".join(result["changed"])
                     print(f"[UI] settings saved: {changed} "
                           f"(backup {result['backup']})")
-                    self._send_settings(
+                    self._send_settings_redirect(
                         f"Saved: {changed}. Takes effect at the next "
                         "camera restart.")
                 else:
-                    self._send_settings("No changes.")
+                    self._send_settings_redirect("No changes.")
                 return
             self._send_bytes(404, b"not found", "text/plain")
         except (BrokenPipeError, ConnectionResetError):
@@ -459,7 +464,33 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 if self.config_path is None:
                     self._send_bytes(404, b"not found", "text/plain")
                     return
-                self._send_settings()
+                # PRG landing: the post-action message rides the query
+                # string so a refresh re-renders it harmlessly.
+                q = parse_qs(urlparse(self.path).query)
+                msg = (q.get("m") or [None])[0]
+                self._send_settings(message=msg,
+                                    error=(q.get("e") or ["0"])[0] == "1")
+                return
+            if path == "/restarted":
+                self._send_bytes(
+                    200,
+                    b"<meta charset='utf-8'>Restarting &mdash; the camera "
+                    b"and this page come back in about a minute. "
+                    b"<a href='/'>Reload</a>",
+                    "text/html; charset=utf-8")
+                return
+            if path == "/joining":
+                q = parse_qs(urlparse(self.path).query)
+                ssid = (q.get("ssid") or ["the network"])[0]
+                self._send_bytes(
+                    200,
+                    ("<meta charset='utf-8'>Connecting to <b>"
+                     f"{html.escape(ssid)}</b> in a few seconds &mdash; "
+                     "this page will drop off the camera hotspot. If the "
+                     "details were wrong, the hotspot returns by itself "
+                     "so you can retry. The camera forgets this network "
+                     "at its next power-on.").encode("utf-8"),
+                    "text/html; charset=utf-8")
                 return
             if path == "/manifest.json":
                 mpath = os.path.join(self.video_dir, "manifest.json")

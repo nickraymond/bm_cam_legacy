@@ -281,6 +281,30 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
         self.assertEqual(self.joins, [])
         self.assertEqual(open(self.yaml).read(), SAMPLE_YAML)
 
+    def test_posts_redirect_not_replayable(self):
+        # PRG regression (bmcam000 2026-08-18): Safari replayed a cached
+        # /restart POST on page refresh and rebooted the camera mid-AP.
+        # Every POST must answer 303 so a refresh re-GETs harmlessly.
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k):
+                return None
+        opener = urllib.request.build_opener(NoRedirect)
+        for route, data in (
+                ("/restart", {}),
+                ("/settings", {"video.fps": "15"}),
+                ("/settings/join",
+                 {"wifi_ssid": "X", "wifi_psk": "hunter2hunter2"})):
+            body = urllib.parse.urlencode(data).encode()
+            req = urllib.request.Request(
+                f"http://127.0.0.1:{self.port}{route}", data=body)
+            with contextlib.redirect_stdout(io.StringIO()):
+                try:
+                    opener.open(req, timeout=5)
+                    self.fail(f"{route} did not redirect")
+                except urllib.error.HTTPError as e:
+                    self.assertEqual(e.code, 303, route)
+                    self.assertTrue(e.headers["Location"], route)
+
     def test_open_ap_banner_tracks_mode_file(self):
         mode_file = os.path.join(self.dir, "mode")
         with open(mode_file, "w") as f:

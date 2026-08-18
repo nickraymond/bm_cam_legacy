@@ -31,6 +31,13 @@ import subprocess
 
 NETWORK_SCRIPT = "/home/pi/BM_Devel_Pi/network_ap.sh"
 
+# Written (as root) by network_ap.sh apply_default; lives on tmpfs so a
+# power cycle clears it. Its existence means "the boot default has been
+# applied this boot" — runtime RESTARTS must not re-apply it (bmcam000
+# 2026-08-18: a settings-page restart mid-AP-session yanked wlan0 back
+# to HQ because every cycle start re-ran the default).
+BOOT_APPLIED_MARKER = "/run/bmcam_net/boot_applied"
+
 VALID_DEFAULTS = ("ap", "nereus_hq")
 
 _DEFAULTS = {
@@ -129,13 +136,19 @@ def print_network_settings(cfg):
 
 
 def apply_boot_default(cfg, *, script_path=NETWORK_SCRIPT,
-                       popen_fn=subprocess.Popen):
-    """Fire-and-forget `network_ap.sh default <mode> <fallback_s>`.
+                       popen_fn=subprocess.Popen,
+                       marker_path=BOOT_APPLIED_MARKER):
+    """Fire-and-forget `network_ap.sh default <mode> <fallback_s>` —
+    ONCE PER BOOT (marker on tmpfs; the script writes it as root).
 
     Never blocks or raises into the capture path: a WiFi problem must
     not cost a clip/photo cycle (script output lands in the cron log
     via inherited stdout). Returns the argv used (None if no-op)."""
     if cfg is None:
+        return None
+    if os.path.exists(marker_path):
+        print("[NET] boot default already applied this boot; leaving the "
+              "network alone (runtime restart)")
         return None
     argv = ["sudo", "-n", script_path, "default",
             cfg["default"], str(cfg["ap_fallback_s"])]

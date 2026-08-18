@@ -259,6 +259,10 @@ join_up() {
 apply_default() {
     local mode="$1" fallback_s="${2:-$DEFAULT_FALLBACK_S}"
     mkdir -p "$RUN_DIR"; echo "$mode" > "$DEFAULT_FILE"
+    # Once-per-boot latch for the runtime's boot apply (tmpfs — a power
+    # cycle clears it). wap 0 / revert still work: they call this verb
+    # directly and the marker only gates the RUNTIME's automatic call.
+    date -u +%Y-%m-%dT%H:%M:%SZ > "$RUN_DIR/boot_applied"
     disarm_timer
     nm_ready
     case "$mode" in
