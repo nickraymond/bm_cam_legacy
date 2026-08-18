@@ -133,10 +133,16 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       BLOCKED 2026-08-18 by the fleet OS split: network_ap.sh as
       merged speaks Bullseye (hostapd/dnsmasq/dhcpcd) and matches NO
       unit once bmcam000 is on Trixie — a NetworkManager (nmcli
-      hotspot) variant is required first (next sprint, with
-      TODO-BM-012 WiFi-credentials command). Command-path layers
+      hotspot) variant is required first. Command-path layers
       (tables v6, daemon immediate-apply, help/cfg) are stack-agnostic
-      and stay as merged
+      and stay as merged. NEXT SPRINT SCOPE locked by Nick 2026-08-18
+      (full spec in TODO-BM-012): nmcli rewrite with three behaviors —
+      (1) join Nereus HQ WiFi (stored creds), (2) OPEN AP with
+      SSID = hostname (no password, field-tech friendly), (3)
+      ephemeral customer SSID/password (this power cycle only, entered
+      via settings GUI or BM) — plus a `network:` YAML island + GUI
+      control for the boot default (nereus_hq for bench, ap for
+      customer-ship units)
 - [x] Suite green — 655 OK (+11 tests/test_wap_command.py;
       version-guard tests updated with the v5→v6 bump), 2026-08-18
 
