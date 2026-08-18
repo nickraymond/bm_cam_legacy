@@ -111,27 +111,38 @@ arriving (2/3/4) or the wake status + SD artifact (1). Realistic latency
 on a duty-cycled unit: arms during one cycle's listen tail, fires next
 boot (~one duty cycle later).
 
-### wap — WiFi access-point toggle (Sprint15, tables v6) — NOT FIELD-READY
+### wap — WiFi mode switch (Sprint16, tables v7)
 
-`0` client WiFi (normal) · `1` AP mode (SSID `bmcamNNN-video`, WPA2 pw
-`bristlemouth`, gallery at `http://192.168.50.1:8080`).
+`0` boot default (as the YAML `network.default` says: AP or Nereus HQ)
+· `1` open hotspot NOW — SSID = the camera's hostname, NO password,
+gallery at `http://192.168.50.1:8080` · `2` Nereus HQ WiFi NOW.
 
 Like `trg`, applied IMMEDIATELY on command (documented exception to the
-apply-next-boot doctrine). Design is revert-first (D-S15-10): a systemd
-one-shot timer is armed and VERIFIED before any flip and force-restores
-client WiFi after `ap_timeout_min` (default 60); the script refuses to
-flip if the timer cannot arm, and nothing persists across reboot — a
-power cycle is the second un-brick.
+apply-next-boot doctrine). NetworkManager-backed (`network_ap.sh`,
+Sprint16 D-S16-1): every runtime switch is SESSION-ONLY — a power cycle
+always returns the unit to its YAML boot default. Remote flips (1/2)
+arm and VERIFY a systemd one-shot revert timer BEFORE touching the
+network (default 60 min, `network.ap_timeout_min`); the script refuses
+to flip if the timer cannot arm. Revert target is the boot default.
 
-**DO NOT SEND `wap 1` yet (as of 2026-08-18).** The backing script
-`network_ap.sh` speaks the Bullseye stack (hostapd/dnsmasq/dhcpcd) and
-matches NO current unit: bmcam003/004 (and bmcam000 post-reflash) are
-Trixie/NetworkManager, where hostapd is not even installed — the script
-fails safe before flipping, but the command does nothing useful. A
-NetworkManager (`nmcli` hotspot) rewrite + attended bench rehearsal
-(Sprint15 tracker §6) must land first; this entry is updated when it
-does. Related planned work: TODO-BM-012 (join a customer WiFi network
-over BM).
+While the hotspot is up: the green ACT LED blinks fast and steadily
+(normal state is a faint SD-activity flicker), anyone in WiFi range can
+reach the gallery/settings pages (open network — the UI shows a
+banner), ssh on the WiFi interface is blocked, and the camera is off
+the internet (no remote commands until revert). Recording continues
+through every switch.
+
+Bench-rehearsed end-to-end on bmcam000 (2026-08-18, attended): AP join
++ gallery + download, auto-revert (twice), customer-WiFi join via the
+settings page with failed-join AP re-raise, and the power-cycle forget.
+REMAINING: delivery over the real BM bus (needs a Spotter hosting the
+unit) — the daemon's immediate-apply path is unit-tested but has not
+carried a live `wap` frame yet.
+
+SHIP PREP (Nick 2026-08-18): customer units must ship with
+`network.default: ap` (the rc_field_template value) — flip it in the
+settings GUI or YAML before shipment; the office/dev fleet runs
+`nereus_hq`.
 
 ## State-file doctrine
 
