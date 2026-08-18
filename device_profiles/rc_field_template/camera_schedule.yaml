@@ -112,6 +112,14 @@ progressive_jpeg:
 # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.
+# Sprint16 network boot default: customer/field ships default to the OPEN
+# AP (SSID = hostname) so the download UI is always reachable; runtime
+# switches are session-only and every power cycle returns here (D-S16-3).
+network:
+  default: ap
+  ap_fallback_s: 90
+  ap_timeout_min: 60
+
 power_halt:
   enabled: true            # FIELD: halt at cycle end (power-cycle cadence model)
   dry_run: false

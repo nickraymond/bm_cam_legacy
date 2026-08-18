@@ -77,12 +77,17 @@ def payload(command_id, cmd="wap", value=1):
 
 class TestWapTable(unittest.TestCase):
     def test_table_shape(self):
-        self.assertEqual(sorted(ct.WAP_TABLE), [0, 1])
+        # Sprint16 v7: 0 = boot default, 1 = AP now, 2 = HQ now.
+        self.assertEqual(sorted(ct.WAP_TABLE), [0, 1, 2])
         # Factory-reset doctrine: index 0 must be shipped behaviour —
-        # client WiFi, never the AP.
-        self.assertFalse(ct.WAP_TABLE[0]["ap"])
-        self.assertTrue(ct.WAP_TABLE[1]["ap"])
+        # the YAML boot default, never a forced flip.
+        self.assertEqual(ct.WAP_TABLE[0]["verb"], "default")
+        self.assertEqual(ct.WAP_TABLE[1]["verb"], "ap")
+        self.assertEqual(ct.WAP_TABLE[2]["verb"], "hq")
+        # Remote flips carry a timer default; wap 0 must NOT (it cancels).
         self.assertEqual(ct.WAP_TABLE[1]["timeout_min"], 60)
+        self.assertEqual(ct.WAP_TABLE[2]["timeout_min"], 60)
+        self.assertNotIn("timeout_min", ct.WAP_TABLE[0])
 
     def test_wap_is_immediate_not_setting(self):
         self.assertIn("wap", ct.COMMANDS)
@@ -91,7 +96,8 @@ class TestWapTable(unittest.TestCase):
         self.assertNotIn("wap", ct.ACTION_COMMANDS)
         self.assertNotIn("wap", ct.DEFAULT_SETTINGS)
         self.assertTrue(ct.valid_value("wap", 1))
-        self.assertFalse(ct.valid_value("wap", 2))
+        self.assertTrue(ct.valid_value("wap", 2))   # v7: HQ now
+        self.assertFalse(ct.valid_value("wap", 3))
 
 
 class TestDaemonDispatch(unittest.TestCase):
@@ -156,17 +162,29 @@ class TestDaemonDispatch(unittest.TestCase):
 class TestHelpCfg(unittest.TestCase):
     def test_help_includes_wap(self):
         text = "\n".join(ch.render_help())
-        self.assertIn("wap - WIFI HOTSPOT", text)
-        self.assertIn("ACCESS POINT for 60 min", text)
+        self.assertIn("wap - WIFI MODE", text)
+        self.assertIn("open hotspot (SSID = camera name)", text)
+        self.assertIn("Nereus HQ WiFi", text)
         self.assertIn("192.168.50.1:8080", text)
         self.assertIn('"c":"wap","v":1', text)      # quick action line
 
-    def test_wap_text_reads_live_marker(self):
+    def test_wap_text_reads_live_mode_file(self):
+        # Sprint16: the mode FILE CONTENT drives the text (v6 read mere
+        # existence).
         self.assertEqual(ch._wap_text("/nonexistent/marker"),
                          "normal WiFi (client)")
-        with tempfile.NamedTemporaryFile() as marker:
-            self.assertEqual(ch._wap_text(marker.name),
-                             "WiFi HOTSPOT (temporary)")
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".mode",
+                                         delete=False) as f:
+            f.write("ap\n")
+        self.addCleanup(os.unlink, f.name)
+        self.assertEqual(ch._wap_text(f.name),
+                         "WiFi HOTSPOT (open, temporary)")
+        with open(f.name, "w") as fh:
+            fh.write("client:nereus-hq\n")
+        self.assertEqual(ch._wap_text(f.name), "client WiFi (nereus-hq)")
+        with open(f.name, "w") as fh:
+            fh.write("joining\n")
+        self.assertEqual(ch._wap_text(f.name), "joining a WiFi network...")
 
     def test_help_lines_stay_under_width(self):
         for line in ch.render_help():
@@ -174,16 +192,39 @@ class TestHelpCfg(unittest.TestCase):
 
 
 class TestActionBuilder(unittest.TestCase):
-    def test_action_argv(self):
+    def _argvs(self, yaml_body, values):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml",
+                                         delete=False) as f:
+            f.write(yaml_body)
+        self.addCleanup(os.unlink, f.name)
         with mock.patch("subprocess.Popen") as popen:
-            action = hooks.make_wap_action_fn("/x/network_ap.sh")
+            action = hooks.make_wap_action_fn("/x/network_ap.sh",
+                                              config_path=f.name)
             with contextlib.redirect_stdout(io.StringIO()):
-                action(1)
-                action(0)
-        argvs = [c.args[0] for c in popen.call_args_list]
-        self.assertEqual(argvs[0],
-                         ["sudo", "-n", "/x/network_ap.sh", "up", "60"])
-        self.assertEqual(argvs[1], ["sudo", "-n", "/x/network_ap.sh", "down"])
+                for v in values:
+                    action(v)
+        return [c.args[0] for c in popen.call_args_list]
+
+    def test_action_argv_with_island(self):
+        yaml_body = ("capture_mode: \"video\"\nnetwork:\n  default: ap\n"
+                     "  ap_fallback_s: 120\n  ap_timeout_min: 30\n")
+        argvs = self._argvs(yaml_body, (1, 2, 0))
+        # Remote flips pass the island's timer; the script arms+verifies
+        # the revert timer BEFORE flipping (refuses otherwise).
+        self.assertEqual(argvs[0], ["sudo", "-n", "/x/network_ap.sh",
+                                    "ap", "30"])
+        self.assertEqual(argvs[1], ["sudo", "-n", "/x/network_ap.sh",
+                                    "hq", "30"])
+        # wap 0 re-applies the YAML boot default (here: ap).
+        self.assertEqual(argvs[2], ["sudo", "-n", "/x/network_ap.sh",
+                                    "default", "ap", "120"])
+
+    def test_action_argv_without_island_uses_defaults(self):
+        argvs = self._argvs("capture_mode: \"video\"\n", (1, 0))
+        self.assertEqual(argvs[0], ["sudo", "-n", "/x/network_ap.sh",
+                                    "ap", "60"])
+        self.assertEqual(argvs[1], ["sudo", "-n", "/x/network_ap.sh",
+                                    "default", "nereus_hq", "90"])
 
 
 if __name__ == "__main__":

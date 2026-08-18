@@ -58,7 +58,7 @@ Example:
 #   - tmz: NEW timezone override command (LA / New York / UTC presets) —
 #     revises the Sprint12 audit's category-C stance, see Sprint13 DESIGN
 #   - help / cfg: NEW query commands (no state change; console output)
-TABLES_VERSION = 6
+TABLES_VERSION = 7
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -317,18 +317,21 @@ TRG_TABLE = {
         "action": "capture_transmit", "src": 9},
 }
 
-# wap — WiFi access-point toggle (Sprint15 D-S15-10). The field delivery
-# path for the video gallery: the camera becomes a WPA2 hotspot an iPhone
-# joins to browse/download clips at http://192.168.50.1:8080. IMMEDIATE
-# (see IMMEDIATE_COMMANDS) and ephemeral: network_ap.sh arms a systemd
-# one-shot revert timer BEFORE the flip, so the unit can only ever be
-# TEMPORARILY off the tailnet — a garbled command or wedged AP stack
-# self-heals at the timer (revert-first design). wap 0 reverts early.
+# wap — WiFi mode switch (Sprint16 D-S16-2, v7; supersedes the v6 AP
+# toggle). Session-only, IMMEDIATE (see IMMEDIATE_COMMANDS), NM-backed
+# via network_ap.sh. Remote flips (1/2) arm a verified auto-revert timer
+# BEFORE touching the network; revert target is the YAML boot default —
+# a garbled command self-heals at the timer, a power cycle always boots
+# the default (revert-first, D-S15-10 doctrine). The AP is an OPEN
+# network, SSID = the unit hostname (D-S16-6); gallery at
+# http://192.168.50.1:8080. wap 0 cancels timers + re-applies the default.
 WAP_TABLE = {
-    0: {"label": "normal WiFi (client mode, back on the internet)",
-        "ap": False},
-    1: {"label": "ACCESS POINT for 60 min, then auto-revert",
-        "ap": True, "timeout_min": 60},
+    0: {"label": "boot default (as configured: AP or Nereus HQ)",
+        "verb": "default"},
+    1: {"label": "open hotspot (SSID = camera name), 60 min then default",
+        "verb": "ap", "timeout_min": 60},
+    2: {"label": "Nereus HQ WiFi, 60 min then default",
+        "verb": "hq", "timeout_min": 60},
 }
 
 # ping carries no value; a single index keeps the lookup API uniform
@@ -390,15 +393,15 @@ COMMAND_INFO = {
                       "get your image.",
                       "! The ack means ARMED. Proof of firing is the "
                       "image arriving."]},
-    "wap": {"title": "WIFI HOTSPOT (browse/download videos from a phone)",
+    "wap": {"title": "WIFI MODE (hotspot for phone downloads, or client WiFi)",
             "cfg_name": "WiFi mode", "category": "power",
             "notes": ["! While the hotspot is ON the camera is OFF the "
                       "internet (no remote",
-                      "! commands). It ALWAYS reverts to normal WiFi after "
-                      "60 minutes.",
-                      "! Join WiFi '<camera>-video' (password: "
-                      "bristlemouth), then open",
-                      "! http://192.168.50.1:8080"]},
+                      "! commands). 1/2 ALWAYS revert to the boot default "
+                      "after 60 minutes.",
+                      "! Hotspot is OPEN (no password): join the WiFi "
+                      "named for the camera,",
+                      "! then open http://192.168.50.1:8080"]},
     "ping": {"title": "LIVENESS CHECK (no \"v\" needed - replies with full "
                       "settings)",
              "cfg_name": None, "category": None, "notes": []},

@@ -74,23 +74,43 @@ def make_query_render_fn(settings, state, topic):
 
 
 WAP_SCRIPT = "/home/pi/BM_Devel_Pi/network_ap.sh"
+CONFIG_PATH = "/home/pi/BM_Devel_Pi/camera_schedule.yaml"
 
 
-def make_wap_action_fn(script_path=WAP_SCRIPT):
-    """The Sprint15 wap dispatch (D-S15-10): fire-and-forget the AP flip
-    script so the daemon never blocks on network reconfiguration. The
-    script owns ALL safety (revert timer armed before the flip); output
-    inherits stdout and lands in the cron log."""
+def make_wap_action_fn(script_path=WAP_SCRIPT, config_path=None):
+    """The wap dispatch (Sprint16 D-S16-2, v7): fire-and-forget the
+    network script so the daemon never blocks on reconfiguration. The
+    script owns ALL safety (remote flips arm+verify the revert timer
+    before touching the network); output inherits stdout and lands in
+    the cron log.
+
+    The YAML network island is read lazily AT FIRE TIME (the boot
+    default / timer values may have been GUI-edited since boot). A
+    missing island falls back to nereus_hq/60 — on a unit without the
+    profile that fails loudly and harmlessly inside the script."""
     import subprocess
     from command_tables import WAP_TABLE
 
     def wap_action(value):
+        import network_config
         entry = WAP_TABLE[value]
-        if entry.get("ap"):
-            args = ["sudo", "-n", script_path, "up",
-                    str(entry.get("timeout_min", 60))]
-        else:
-            args = ["sudo", "-n", script_path, "down"]
+        cfg = None
+        try:
+            cfg = network_config.load_network_config(
+                config_path or CONFIG_PATH)
+        except Exception as exc:
+            print(f"[CMD][WARN] network island unreadable ({exc}); "
+                  "using defaults")
+        default_mode = cfg["default"] if cfg else "nereus_hq"
+        fallback_s = cfg["ap_fallback_s"] if cfg else 90
+        timeout_min = (cfg["ap_timeout_min"] if cfg
+                       else entry.get("timeout_min", 60))
+        verb = entry["verb"]
+        if verb == "default":
+            args = ["sudo", "-n", script_path, "default",
+                    default_mode, str(fallback_s)]
+        else:  # ap | hq — REMOTE flip: script arms the timer first
+            args = ["sudo", "-n", script_path, verb, str(timeout_min)]
         print(f"[CMD] wap={value}: dispatching {' '.join(args)}")
         subprocess.Popen(args)
 

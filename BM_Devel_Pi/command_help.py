@@ -62,7 +62,7 @@ QUICK_ACTIONS = (
     ("Capture + send an image now:", "trg", 2),
     ("Send a test image (camera bypassed - checks the link):", "trg", 3),
     ("Open the transmit window all day:", "twn", 2),
-    ("Phone download mode - 60 min WiFi hotspot (video units):", "wap", 1),
+    ("Phone download mode - 60 min open WiFi hotspot:", "wap", 1),
     ("Is the camera alive?", "ping", None),
     ("Show current settings:", "cfg", None),
     ("Show this reference:", "help", None),
@@ -78,14 +78,24 @@ CFG_GROUPS = (
     ("POWER & SCHEDULE", ("hlt", "tmz", "wap", "trg")),
 )
 
-# Marker maintained by network_ap.sh while the AP is up — cfg reads LIVE
-# network state, not the (deliberately unpersisted) command history.
-_AP_MARKER = "/run/bmcam_ap/ap_active"
+# Mode file maintained by network_ap.sh (Sprint16: ap | client:<name> |
+# joining) — cfg reads LIVE network state, not the (deliberately
+# unpersisted) command history.
+_NET_MODE_FILE = "/run/bmcam_net/mode"
 
 
-def _wap_text(marker_path=_AP_MARKER):
-    if os.path.exists(marker_path):
-        return "WiFi HOTSPOT (temporary)"
+def _wap_text(marker_path=_NET_MODE_FILE):
+    try:
+        with open(marker_path, "r", encoding="utf-8") as f:
+            mode = f.read().strip()
+    except OSError:
+        return "normal WiFi (client)"
+    if mode == "ap":
+        return "WiFi HOTSPOT (open, temporary)"
+    if mode.startswith("client:"):
+        return f"client WiFi ({mode.split(':', 1)[1]})"
+    if mode == "joining":
+        return "joining a WiFi network..."
     return "normal WiFi (client)"
 
 _BAR = "+" + "=" * (MAX_LINE_CHARS - 4) + "+"

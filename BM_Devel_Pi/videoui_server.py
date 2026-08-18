@@ -138,7 +138,30 @@ SETTINGS_CSS = """
 """
 
 
-def render_settings_page(current, message=None, error=False):
+# Sprint16 (D-S16-6): live network mode written by network_ap.sh. Read
+# per-request so the banner tracks flips without a server restart.
+NET_MODE_FILE = "/run/bmcam_net/mode"
+
+
+def net_mode(path=None):
+    try:
+        with open(path or NET_MODE_FILE, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return None
+
+
+def open_ap_banner(mode):
+    """The open-network notice (D-S16-6), shown while the AP is up."""
+    if mode != "ap":
+        return ""
+    return ('<div style="background:#7a4a12;color:#ffe2b8;padding:8px 12px;'
+            'font-size:13px;text-align:center">Open hotspot mode — this '
+            'camera\'s pages are visible to anyone in WiFi range until it '
+            'returns to its normal network.</div>')
+
+
+def render_settings_page(current, message=None, error=False, mode=None):
     """The /settings form, values pre-selected from the live YAML."""
     rows = []
     if message:
@@ -180,12 +203,31 @@ def render_settings_page(current, message=None, error=False):
         'resumes automatically about a minute later.\')">'
         '<button class="restart" type="submit">Restart camera '
         '(apply saved settings)</button></form>')
+    # Sprint16 (D-S16-4): session-only customer WiFi join. Submitting
+    # flips the camera off this network — said out loud on the button.
+    rows.append(
+        '<h2 style="margin:18px 0 6px;font-size:15px">Connect to a WiFi '
+        'network (until next power-off)</h2>'
+        '<form method="POST" action="/settings/join" '
+        'onsubmit="return confirm(\'Connect now? This page will drop off '
+        'the camera hotspot. If the WiFi details are wrong, the hotspot '
+        'comes back by itself so you can retry.\')">'
+        '<div class="field"><label>Network name (SSID)</label>'
+        '<input name="wifi_ssid" maxlength="32" autocomplete="off"></div>'
+        '<div class="field"><label>Password</label>'
+        '<input name="wifi_psk" type="password" maxlength="63" '
+        'autocomplete="off"></div>'
+        '<div class="help">The camera joins this network for the current '
+        'power cycle only — it forgets the password and returns to its '
+        'normal WiFi setting at the next power-on.</div>'
+        '<button class="save" type="submit">Connect to this WiFi</button>'
+        '</form>')
     body = "\n".join(rows)
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>bmcam settings</title><style>{SETTINGS_CSS}</style></head>
-<body><header><h1>bmcam settings</h1></header><main>
+<body>{open_ap_banner(mode)}<header><h1>bmcam settings</h1></header><main>
 <div class="help" style="margin-bottom:10px">Saved changes take effect
 when the camera restarts. A timestamped backup of the config is kept on
 the camera before every save.</div>
@@ -198,11 +240,32 @@ def _default_restart():
     subprocess.Popen(["sudo", "-n", "/sbin/reboot"])
 
 
+NETWORK_SCRIPT = "/home/pi/BM_Devel_Pi/network_ap.sh"
+
+
+def _default_join(ssid, psk, script_path=NETWORK_SCRIPT):
+    """Sprint16 session-only customer join (D-S16-4).
+
+    PSK hygiene: written to a mkstemp file (0600) that network_ap.sh
+    deletes after use — the password never appears in any argv or log.
+    The 3 s delay lets this HTTP response reach the phone before wlan0
+    flips out from under the connection."""
+    import tempfile
+    fd, psk_path = tempfile.mkstemp(prefix="bmcam_psk_")
+    with os.fdopen(fd, "w") as f:
+        f.write(f"802-11-wireless-security.psk:{psk}\n")
+    subprocess.Popen(
+        ["sudo", "-n", "bash", "-c",
+         'sleep 3; exec "$0" join "$1" "$2"',
+         script_path, ssid, psk_path])
+
+
 class VideoUIHandler(BaseHTTPRequestHandler):
     # Set by the server factory.
     video_dir = None
     config_path = None            # None = settings page disabled (404)
     restart_fn = staticmethod(_default_restart)
+    join_fn = staticmethod(_default_join)     # Sprint16, injectable
     protocol_version = "HTTP/1.1"
 
     # ------------------------------------------------------------------
@@ -297,7 +360,8 @@ class VideoUIHandler(BaseHTTPRequestHandler):
     # ------------------------------------------------------------------
     def _send_settings(self, message=None, error=False):
         current = video_settings.read_current(self.config_path)
-        page = render_settings_page(current, message=message, error=error)
+        page = render_settings_page(current, message=message, error=error,
+                                    mode=net_mode())
         self._send_bytes(200, page.encode("utf-8"),
                          "text/html; charset=utf-8")
 
@@ -319,6 +383,40 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                     b"<meta charset='utf-8'>Restarting &mdash; the camera "
                     b"and this page come back in about a minute. "
                     b"<a href='/'>Reload</a>",
+                    "text/html; charset=utf-8")
+                return
+            if path == "/settings/join":
+                # Sprint16 (D-S16-4): session-only customer WiFi join.
+                length = int(self.headers.get("Content-Length", 0) or 0)
+                form = parse_qs(
+                    self.rfile.read(length).decode("utf-8", errors="replace"))
+                ssid = (form.get("wifi_ssid") or [""])[0].strip()
+                psk = (form.get("wifi_psk") or [""])[0]
+                if not ssid or not 1 <= len(ssid.encode()) <= 32:
+                    self._send_settings("WiFi NOT changed: enter a network "
+                                        "name (up to 32 characters).",
+                                        error=True)
+                    return
+                if not 8 <= len(psk) <= 63:
+                    self._send_settings("WiFi NOT changed: WPA2 passwords "
+                                        "are 8-63 characters.", error=True)
+                    return
+                print(f"[UI] customer WiFi join requested: ssid={ssid!r} "
+                      "(session only; psk not logged)")
+                try:
+                    type(self).join_fn(ssid, psk)
+                except Exception as exc:
+                    self._send_settings(f"WiFi NOT changed: {exc}",
+                                        error=True)
+                    return
+                self._send_bytes(
+                    200,
+                    ("<meta charset='utf-8'>Connecting to <b>"
+                     f"{html.escape(ssid)}</b> in a few seconds &mdash; "
+                     "this page will drop off the camera hotspot. If the "
+                     "details were wrong, the hotspot returns by itself "
+                     "so you can retry. The camera forgets this network "
+                     "at its next power-on.").encode("utf-8"),
                     "text/html; charset=utf-8")
                 return
             if path == "/settings":
@@ -352,7 +450,9 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             path = urlparse(self.path).path
             path = posixpath.normpath(path)
             if path in ("/", "/index.html"):
-                self._send_bytes(200, GALLERY_HTML.encode("utf-8"),
+                gallery = GALLERY_HTML.replace(
+                    "<body>", "<body>" + open_ap_banner(net_mode()), 1)
+                self._send_bytes(200, gallery.encode("utf-8"),
                                  "text/html; charset=utf-8")
                 return
             if path == "/settings":
@@ -388,15 +488,18 @@ class VideoUIHandler(BaseHTTPRequestHandler):
 
 
 def start_ui_server(video_dir, port, host="0.0.0.0", config_path=None,
-                    restart_fn=None):
+                    restart_fn=None, join_fn=None):
     """Start the gallery server on a daemon thread; returns the server
     (call .shutdown() to stop). Raises on bind failure — the CALLER
     decides that a dead UI must not kill recording. config_path enables
-    the /settings editor page (None = gallery only)."""
+    the /settings editor page (None = gallery only). join_fn (Sprint16)
+    handles the session-only customer WiFi join; injectable for tests."""
     attrs = {"video_dir": os.path.realpath(video_dir),
              "config_path": config_path}
     if restart_fn is not None:
         attrs["restart_fn"] = staticmethod(restart_fn)
+    if join_fn is not None:
+        attrs["join_fn"] = staticmethod(join_fn)
     handler = type("BoundVideoUIHandler", (VideoUIHandler,), attrs)
     server = ThreadingHTTPServer((host, int(port)), handler)
     server.daemon_threads = True
