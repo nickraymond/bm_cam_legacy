@@ -432,16 +432,23 @@ def build_mux_command(ffmpeg_binary, fps, part_path, mp4_tmp_path):
         "-framerate", str(int(fps)),
         "-i", part_path,
         "-c", "copy",
+        # ffmpeg infers the container from the extension; the crash-safe
+        # .mp4.tmp name defeats that (bmcam000 bench, 2026-08-18), so the
+        # format is explicit.
+        "-f", "mp4",
         mp4_tmp_path,
     ]
 
 
 def build_poster_command(ffmpeg_binary, mp4_tmp_path, thumb_tmp_path):
-    """First-frame poster JPEG (the GoPro-style gallery tile, D-S15-9)."""
+    """Poster JPEG (the GoPro-style gallery tile, D-S15-9). Seeks 1 s in:
+    frame 0 is mid AGC/AWB ramp (washed-out tiles, bmcam000 bench
+    2026-08-18); -ss before -i is a fast keyframe seek."""
     return [
         ffmpeg_binary, "-hide_banner", "-loglevel", "error", "-y",
-        "-i", mp4_tmp_path,
+        "-ss", "1", "-i", mp4_tmp_path,
         "-frames:v", "1", "-q:v", "4",
+        "-f", "image2",           # explicit: .jpg.tmp hides the extension
         thumb_tmp_path,
     ]
 

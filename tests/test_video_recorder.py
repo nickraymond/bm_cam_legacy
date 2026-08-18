@@ -182,6 +182,10 @@ class TestClipPipeline(RecorderDirMixin, unittest.TestCase):
         mux = " ".join(calls[1])
         self.assertIn("-c copy", mux)
         self.assertIn(EXPECTED_BASE + ".h264.part", mux)
+        # .tmp suffixes hide the extension from ffmpeg — formats must be
+        # explicit (found on bmcam000, 2026-08-18)
+        self.assertIn("-f mp4", mux)
+        self.assertIn("-f image2", " ".join(calls[2]))
 
     def test_encode_failure_cleans_part(self):
         result, log = self._record(make_run_fn(fail_stage="encode"))

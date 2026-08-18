@@ -1,0 +1,43 @@
+{
+ "schema": "bmcam_video_manifest_v1",
+ "generated_utc": "2026-08-18T00:06:41Z",
+ "count": 4,
+ "clips": [
+  {
+   "name": "2026-08-18T00-06-23Z_video_1000x562_15fps.mp4",
+   "bytes": 1256354,
+   "utc": "2026-08-18T00:06:23Z",
+   "thumb": "2026-08-18T00-06-23Z_video_1000x562_15fps_thumb.jpg",
+   "dur": 15,
+   "res": "1000x562",
+   "fps": 15
+  },
+  {
+   "name": "2026-08-18T00-06-04Z_video_1000x562_15fps.mp4",
+   "bytes": 1858571,
+   "utc": "2026-08-18T00:06:04Z",
+   "thumb": "2026-08-18T00-06-04Z_video_1000x562_15fps_thumb.jpg",
+   "dur": 15,
+   "res": "1000x562",
+   "fps": 15
+  },
+  {
+   "name": "2026-08-18T00-05-46Z_video_1000x562_15fps.mp4",
+   "bytes": 2017848,
+   "utc": "2026-08-18T00:05:46Z",
+   "thumb": "2026-08-18T00-05-46Z_video_1000x562_15fps_thumb.jpg",
+   "dur": 15,
+   "res": "1000x562",
+   "fps": 15
+  },
+  {
+   "name": "2026-08-18T00-05-27Z_video_1000x562_15fps.mp4",
+   "bytes": 1516865,
+   "utc": "2026-08-18T00:05:27Z",
+   "thumb": "2026-08-18T00-05-27Z_video_1000x562_15fps_thumb.jpg",
+   "dur": 15,
+   "res": "1000x562",
+   "fps": 15
+  }
+ ]
+}

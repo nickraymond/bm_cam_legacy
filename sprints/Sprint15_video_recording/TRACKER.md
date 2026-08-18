@@ -63,16 +63,41 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       (+32), 2026-08-17. New modules added to rc_runtime_manifest.txt
 
 ## 4. Bench smoke (bmcam000, short clips)
-- [ ] 3 consecutive clips → 3 playable MP4s + thumbs + sidecars +
-      manifest (artifacts in runs/sprint15_bench_<date>/)
-- [ ] Status lines observed on the Spotter console path
-- [ ] Ring dry-run against an artificial floor reports correctly
-- [ ] Crash test: power cut mid-clip → reboot → auto-resume, only
-      in-flight clip lost
-- [ ] UI from a phone/laptop on the LAN: gallery, play, download
+- [x] 3 consecutive clips → 3 playable MP4s + thumbs + sidecars +
+      manifest — runs 2+3 gave 8 clean 15 s triples (h264 1000x562
+      @15.0fps by ffprobe, ~2.0 s boundary gap); artifacts in
+      runs/sprint15_bench_20260818/. Found+fixed on hardware: explicit
+      ffmpeg -f mp4/-f image2 (.tmp suffix hides extension); poster
+      -ss 1 (frame-0 AGC ramp washed out tiles)
+- [x] Status lines on the Spotter tx path — --transmit run: 4x
+      "[VID] status sent" (160 B JSON) via shared-UART spotter_tx;
+      Spotter clock sync worked (D-S15-7). Spotter USB console NOT on
+      the Mac → console capture pending; cloud check confirms the
+      SPOT-33507C stall persists (latest Sofar row still
+      2026-07-31T19:03:49Z, 18-day lookback) — antenna/queue needs
+      physical attention (Nick)
+- [x] Ring dry-run against an artificial floor (min_free_gb 200):
+      listed all 8 triples oldest-first, deleted nothing (25 files
+      intact), paused — exact TODO-BM-008 contract
+- [x] Crash test x2 (sysrq-b hard reset = no-sync power-cut
+      equivalent): (a) mid-boundary — swept manifest.json.tmp, zero
+      clips lost; (b) mid-encode with confirmed 1 MB in-flight .part —
+      part swept (0 B, unsynced), cron auto-resumed ~48 s, ext4 clean.
+      Bonus finding: fake-hwclock stamps a stale RUN_TS at crash boots
+      (two boots shared one cron log name) — clip names stayed correct
+      because the Spotter clock sync runs before the first clip
+- [ ] UI from a phone/laptop on the LAN: gallery, play, download —
+      NICK (gallery live at http://bmcam000:8080 / LAN
+      http://192.168.86.23:8080; Mac-side curl: gallery 200, manifest
+      OK, Range 206 verified)
 
 ## 5. HIL overnight (bmcam000)
-- [ ] Production-like YAML (clip_minutes 5, session 0) armed via cron
+- [x] Production-like YAML (clip_minutes 5, session 0) armed via cron
+      — armed 2026-08-18T00:28Z; @reboot flock line restored (backup
+      ~/crontab_before_sprint15_arm_*), first 300 s clip in flight,
+      .part growing. Unit YAML backups:
+      camera_schedule.yaml.before_sprint15_bench_20260818T000331Z,
+      .bak_sess, .bak_hil
 - [ ] Runs overnight; morning: clip count matches wall clock, no
       gaps beyond clip-boundary seconds, temps sane, ring behavior
       as expected
