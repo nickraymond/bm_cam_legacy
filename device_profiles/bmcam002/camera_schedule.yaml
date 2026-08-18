@@ -98,7 +98,17 @@ capture_mode: "progressive_jpeg"
 # Pacing/chunking intentionally live only in bm_serial below (single source
 # of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
 progressive_jpeg:
-  max_run_time_min: 16     # field-trial setting (Nick 2026-07-25); S07 measured 16.38 min at the 195 cap
+  # 2026-08-18: customer shortened the power cycle 20 min -> 10 min, so the
+  # cycle ceiling drops 16 -> 8 min to leave a ~2 min buffer. This is a SAFETY
+  # ceiling only, not a quality knob: effective cap =
+  #   min(message_cap, floor(max_run_time_min*60 / image_transmit_delay_seconds))
+  #   = min(195, floor(8*60/1.0)) = 195  -> unchanged, the message cap still binds.
+  # Sibling evidence (bmcam001 — same runtime 0d03a62, same geometry and
+  # pacing): a healthy cycle measures ~3.1 min there (2026-08-18 live run:
+  # 177.5 s total, 173 msgs @ q70). NOT yet measured on bmcam002 itself;
+  # confirm against this unit's own first cycle log.
+  # Prior value 16 (field-trial Nick 2026-07-25; S07 measured 16.38 min at the cap).
+  max_run_time_min: 8
   message_cap: 195         # field-tested hard cap on messages per image
   quality:
     # Field-trial multi-segment ladder (Nick 2026-07-25): 90->30 by 10,
@@ -126,8 +136,14 @@ progressive_jpeg:
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.
 power_halt:
-  enabled: false
-  dry_run: true
+  # 2026-08-18: ARMED. The cycle finishes in ~3 min inside a 10 min customer
+  # power window; halting at cycle end parks the Pi at ~0.26 W for the
+  # remaining ~7 min instead of idling. The halt runs in the RC orchestrator's
+  # `finally`, so it fires on an EARLY finish as well as on budget exhaustion.
+  # Preconditions verified on-unit 2026-08-18: tuned_halt.sh deployed +x,
+  # passwordless sudo OK. RECOVERY FROM A REAL HALT IS A POWER CYCLE ONLY.
+  enabled: true
+  dry_run: false
   mode: "halt"             # halt | poweroff
   script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"   # deployed copy of tools/power/tuned_halt.sh
 
