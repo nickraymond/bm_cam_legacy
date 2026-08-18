@@ -1,0 +1,22 @@
+{
+  "tool": "sprint17_ab_rollup.py",
+  "sprint": "Sprint17",
+  "utc": "2026-08-18T20:43:25.023140+00:00",
+  "units": [
+    {
+      "host": "bmcam003",
+      "label": "high_9.3Mbps"
+    },
+    {
+      "host": "bmcam004",
+      "label": "lean_6.0Mbps"
+    },
+    {
+      "host": "bmcam000",
+      "label": "migration_1000p"
+    }
+  ],
+  "since": "2026-08-18T20:28Z",
+  "limit": 4,
+  "clips": 4
+}

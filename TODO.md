@@ -385,7 +385,15 @@ the wap NOT-FIELD-READY entry).
 
 ### TODO-BM-013 — Video-only resolution ladder + hidden H.264 quality knobs (1080p underwater)
 
-**Status:** Open (logged 2026-08-18 evening, Nick — tomorrow's work)
+**Status:** IN PROGRESS — Sprint17 (feature/sprint17-video-quality).
+SPEC locked 2026-08-18; implementation + hardware gates 1-4/6-7 done;
+gate 5 (lit-scene A/B) open. `--qp` DROPPED: it does not exist in
+rpicam-apps v1.12.0 and libav is not compiled in, so constant-quality
+encoding needs a capture-path change (Picamera2) — Research-grade.
+Root cause found and fixed: video was 1.88x UPSCALED because
+rpicam-vid picks the sensor mode from --width/--height alone and
+`--roi` is relative to that mode's field, not the sensor.
+See sprints/Sprint17_video_quality/{SPEC,TRACKER}.md.
 **Area:** video pipeline / settings GUI / SPEC change
 
 Nick wants crisp underwater HD: more VIDEO-ONLY resolution options
