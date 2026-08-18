@@ -123,6 +123,62 @@ was not verifiable end to end.)
 **`/tmp` is cleared on reboot.** Scripts staged there for a maintenance session
 must be re-staged after any power cycle.
 
+## Operational lessons — tooling and process
+
+These cost time during the 2026-08-18 session. They are about *how to work on
+these units*, not about their configuration.
+
+**Do not trust "SSH answers" as proof a unit rebooted.** The first boot watcher
+connected to the box in the window between issuing `reboot` and the box actually
+going down, read a stale `uptime -s` and a stale cycle log, and reported a halt
+that had not happened. Key the wait on the **boot stamp changing**:
+`uptime -s` before, then poll until it differs.
+
+**`timeout` does not exist on stock macOS.** Two watcher scripts died the instant
+they caught a unit, with `timeout: command not found`, and one emitted a false
+"NOT ARMED" alarm as a result. Use `ssh -o ConnectTimeout=N` instead — it bounds
+the connect phase without an external binary.
+
+**`nohup cmd &` over SSH holds the channel open.** The ssh client waits on the
+backgrounded process's inherited stdout, so the session hangs (observed: a full
+2 min block, and the client can hang far longer on a dead TCP session after a
+halt). Use `setsid nohup cmd </dev/null > logfile 2>&1 &`.
+
+**`pgrep -f <pattern>` matches your own SSH command line.** Checking for camera
+processes with a pattern that appears in the command you are running reports
+phantom processes every time. Match on the exact invocation
+(`python3 -u rc_progressive_jpeg`) and read the results critically.
+
+**Log to a file on the Pi, never through the SSH pipe**, for anything that ends
+in a halt. The halt kills the connection abruptly and piped output is lost; the
+on-disk log survives for the next power window.
+
+**Multiple cycles can share one log file.** The cron log name is generated at
+boot from the system clock, but under `spotter_utc` the clock is not corrected
+until the gate reads Spotter time seconds later. Consecutive fast boots land on
+the same filename and append — bmcam002 was observed with 5 complete cycles in
+one file. Nothing is lost, but do not assume one file equals one cycle.
+
+**Reading Tailscale status correctly.** `last seen Nm ago` *growing* means the
+node is gone; *advancing* means it is still checking in. A climbing `tx` with a
+flat `rx` means we are sending and nothing is coming back — the box is down, not
+slow. Note also that a `relay` path is not evidence of a network fault: during
+this session both units were simply powered off, and came back on a `direct`
+path the moment they booted. Do not diagnose a NAT/firewall problem from
+`relay` + unreachable; check whether the unit is actually up first.
+
+**The disarm/re-arm race is the main hazard.** Disarming is required to work on a
+unit whose halt is live, but a unit left disarmed captures nothing. During this
+session bmcam001 was disarmed for a config change, the power cycle beat the
+re-arm by about a minute, and the unit sat idle through several cycles before it
+could be caught again. Re-arm in the *same* session as the change wherever
+possible, and always verify the `@reboot` line is active before disconnecting.
+
+**Consider `power_halt.dry_run: true` during maintenance windows.** It rehearses
+the halt (verifying the script exists and printing the exact command) without
+executing it, so the unit stays reachable. Costs the power saving — ~0.6 W idle
+versus ~0.26 W halted — but converts a ~3 min access window into an open one.
+
 ## Rollback
 
 On-unit, timestamped backups (both units):
