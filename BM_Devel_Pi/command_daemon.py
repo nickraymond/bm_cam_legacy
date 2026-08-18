@@ -192,7 +192,8 @@ class CommandDaemon:
 
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
-                 console_line_delay_s=CONSOLE_LINE_DELAY_S):
+                 console_line_delay_s=CONSOLE_LINE_DELAY_S,
+                 wap_action_fn=None):
         self.bm = bm              # BristlemouthSerial; uart MUST have a timeout
         self.state = state        # CommandState (main-thread only)
         self.topic = topic
@@ -202,6 +203,11 @@ class CommandDaemon:
         # settings). None = queries ack but print nothing (pre-wire shape).
         self.query_render_fn = query_render_fn
         self.console_line_delay_s = float(console_line_delay_s)
+        # Sprint15 wap (D-S15-10): action_fn(value_index) flips the WiFi
+        # AP the moment the command applies (IMMEDIATE_COMMANDS — the
+        # documented exception to next-boot semantics). None = wap acks
+        # but performs nothing, loudly (pre-wire shape, like queries).
+        self.wap_action_fn = wap_action_fn
         self.accumulator = RawPubScanner(topic=topic)
         self._inbound = queue.Queue()      # reader -> main: payload bytes
         self._acks = []                    # main-thread only
@@ -357,6 +363,22 @@ class CommandDaemon:
                     # ten times) — the ack alone answers a re-send.
                     if result["cmd"] in QUERY_COMMANDS:
                         self._queue_console_response(result["cmd"])
+                    # Sprint15 wap: immediate side effect on first apply
+                    # only (dedupe already swallowed re-sends above). A
+                    # failed dispatch keeps the ok ack — the operator's
+                    # proof of the flip is the gallery appearing, and the
+                    # revert timer doctrine means there is nothing to
+                    # roll back on failure.
+                    if result["cmd"] == "wap":
+                        if self.wap_action_fn is None:
+                            print("[CMD][WARN] wap acked but no action "
+                                  "wired; network unchanged")
+                        else:
+                            try:
+                                self.wap_action_fn(result["value"])
+                            except Exception as exc:
+                                print(f"[CMD][WARN] wap action failed: "
+                                      f"{exc}")
             events.append(event)
         return events
 
