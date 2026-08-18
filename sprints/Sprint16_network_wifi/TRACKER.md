@@ -141,9 +141,19 @@ All three units now expose EVERY settings-GUI field as editable
 
 ## 5. Wrap
 - [x] docs: command reference wap v7 rewrite, tracker evidence
+- [x] Fleet overnight HIL on this branch (2026-08-18, ~7 h, all three
+      units): 0 drops / 0 losses / 0 errors / 0 debris; network log
+      silent post-boot; evidence runs/sprint16_overnight_20260818/.
+      Findings (daylight-vs-bitrate, mux dead time at big files,
+      8 Mbps ≈ 1-day ring window) recorded there + in TODO-BM-013
 - [ ] PR → development, Nick review
-- [ ] Post-merge: re-point bmcam000 to blessed git bits (it runs a
-      dev-mode scratch copy of this branch)
+- [ ] Post-merge: re-point ALL THREE units to blessed git bits (fleet
+      runs the a4f0da7-sprint16-rsync scratch deploy)
+- [ ] NEXT (parallel streams, Nick 2026-08-18 morning): Sprint17
+      video quality on bmcam000 (KICKOFF_PROMPT in
+      sprints/Sprint17_video_quality/) + Sprint18 UI tuning on
+      bmcam003 (KICKOFF_PROMPT in sprints/Sprint18_video_ui/);
+      bmcam004 = untouched control
 
 ## Hazards carried in
 - Every mode flip can drop the operator's own connection — attended
