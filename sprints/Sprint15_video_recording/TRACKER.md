@@ -175,8 +175,18 @@ bmcam004: both to the merged dev tip + HIL.
       2026-08-18 (no code changes this closeout; docs/artifacts only)
 - [ ] morning read of the bmcam003/004 HIL (clip count vs wall clock,
       gaps, temps, ring) — owns the §5 evidence duty
-- [ ] bmcam000 re-provision on Trixie (Nick reformatted 2026-08-18;
-      bringup at 192.168.1.241 in progress — bmcam-provision skill)
+- [x] bmcam000 re-provisioned on Trixie (Nick reformatted 2026-08-18;
+      bmcam-provision skill): deps + ffmpeg, repo at 4132c31, UART
+      boot config CHECK PASS incl. bm_serial open test, tailnet
+      re-auth (100.83.240.117; host key changed with the reflash —
+      verified via LAN fingerprint match before trusting), deploy
+      --fresh --profile bmcam000, validation --print-config +
+      --capture-only (1.55 MB JPEG 05:24Z, no halt). END STATE:
+      developer mode (dev_mode.sh on — halt overridden hlt=3, cron
+      DISARMED — deliberate deviation from the skill's armed
+      criterion: the unit's next job is the §6/TODO-BM-012 nmcli
+      work, same dev state it held before the reformat). LAN is now
+      192.168.1.241 (UniFi subnet, was 192.168.86.23)
 - [ ] PR → development, Nick review
 
 ## Known hazards carried in
