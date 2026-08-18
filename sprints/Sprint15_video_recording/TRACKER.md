@@ -86,10 +86,11 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       Bonus finding: fake-hwclock stamps a stale RUN_TS at crash boots
       (two boots shared one cron log name) — clip names stayed correct
       because the Spotter clock sync runs before the first clip
-- [ ] UI from a phone/laptop on the LAN: gallery, play, download —
-      NICK (gallery live at http://bmcam000:8080 / LAN
-      http://192.168.86.23:8080; Mac-side curl: gallery 200, manifest
-      OK, Range 206 verified)
+- [x] UI from a phone/laptop on the LAN: gallery, play, download —
+      Nick verified from laptop 2026-08-17 evening (PASS); Mac-side
+      curl: gallery 200, manifest OK, Range 206. iPhone check via LAN
+      http://192.168.86.23:8080 still worthwhile for gate-5 wording
+      (no tailnet needed)
 
 ## 5. HIL overnight (bmcam000)
 - [x] Production-like YAML (clip_minutes 5, session 0) armed via cron
@@ -97,7 +98,9 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       ~/crontab_before_sprint15_arm_*), first 300 s clip in flight,
       .part growing. Unit YAML backups:
       camera_schedule.yaml.before_sprint15_bench_20260818T000331Z,
-      .bak_sess, .bak_hil
+      .bak_sess, .bak_hil. Restarted 2026-08-18T00:43Z on the exact
+      PR tip (a2991f9) after the wap deploy — overnight evidence is
+      one build
 - [ ] Runs overnight; morning: clip count matches wall clock, no
       gaps beyond clip-boundary seconds, temps sane, ring behavior
       as expected
@@ -106,11 +109,19 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       check antenna/queue first)
 
 ## 6. wap AP mode (tables v6) — PRUNE-FIRST, only after §5 is running
-- [ ] network_ap.sh + auto-revert timer (revert-first design)
-- [ ] `wap` in tables v6 + help/cfg rows + daemon immediate-apply
+- [x] network_ap.sh + auto-revert timer (revert-first design: timer
+      armed + VERIFIED before any flip; refuses to flip otherwise;
+      never persisted — reboot = second un-brick). Deployed to
+      bmcam000, sudo -n + py_compile verified, NOT flipped
+- [x] `wap` in tables v6 + help/cfg rows + daemon immediate-apply
+      (IMMEDIATE_COMMANDS; fires once, duplicates never re-fire) +
+      quick action; cfg WiFi row reads live marker
 - [ ] Bench rehearsal: wap 1 → iPhone joins AP → gallery/download →
-      auto-revert restores client WiFi + tailnet
-- [ ] Suite green
+      auto-revert restores client WiFi + tailnet — WITH NICK (kills
+      WiFi while active; needs his iPhone on SSID bmcam000-video,
+      password bristlemouth, gallery http://192.168.50.1:8080)
+- [x] Suite green — 655 OK (+11 tests/test_wap_command.py;
+      version-guard tests updated with the v5→v6 bump), 2026-08-18
 
 ## 7. Wrap
 - [ ] PR → development, gates green, Nick review
