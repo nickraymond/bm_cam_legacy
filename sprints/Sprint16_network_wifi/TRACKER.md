@@ -8,11 +8,24 @@ Tick a box only when an artifact proves it. SPECCED 2026-08-18.
       proposal), wap v7, GUI-only creds, open AP + banner — locked in
       SPEC.md
 - [x] DESIGN.md D-S16-1..7 written
-- [ ] Bench prerequisites: bmcam000 (dev mode, Trixie, tailnet OK —
-      done 2026-08-18), Nick's iPhone available for AP joins; HQ NM
-      profile = the unit's EXISTING office-WiFi connection, adopted by
-      rename to `nereus-hq` (D-S16-5 — no password re-entry needed,
-      Nick 2026-08-18)
+- [x] Bench prerequisites: bmcam000 (dev mode, Trixie, tailnet OK —
+      done 2026-08-18); HQ NM profile ADOPTED 2026-08-18: the netplan
+      profile (netplan-wlan0-Ford, /run-generated so a rename would
+      not persist) was CLONED to a persistent `nereus-hq` connection
+      (nmcli clone — creds copied on-unit, never seen off-unit;
+      original left intact as fallback, key-mgmt wpa-psk verified).
+      Sprint16 runtime staged to the unit (dev-mode scratch copy;
+      blessed deploy after merge), network island added to unit YAML
+      (backup camera_schedule.yaml.before_sprint16_net_*).
+      UNATTENDED BENCH PASS (2026-08-18T06:20Z): `default nereus_hq
+      90` applied live on the steady-state path — switched netplan →
+      nereus-hq profile with NO SSH drop, mode file client:nereus-hq,
+      stored default correct, tailnet intact, cfg row renders
+      "client WiFi (nereus-hq)". Hardware note: fresh provisions lack
+      ~/BM_Devel_Pi/cron_logs until first cron run — the script
+      handles it (mkdir -p in log()); only external shell redirects
+      into that dir need the mkdir first.
+      STILL NEEDED: Nick's iPhone for the AP-join gates (§4)
 
 ## 1. nmcli network layer (network_ap.sh rewrite)
 - [x] `status` / `default` / `ap` / `hq` / `join <ssid> <psk_file>` /
