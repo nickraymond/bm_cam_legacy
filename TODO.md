@@ -334,3 +334,37 @@ Steps:
 **Acceptance:** unit on the tailnet, running development tip, armed,
 completing a normal transmit cycle; command state file clean.
 
+
+---
+
+### TODO-BM-012 — BM command to join a customer WiFi network (SSID + password over the bus)
+
+**Status:** Open (logged 2026-08-18, Nick feature request)
+**Area:** Fleet ops / command daemon / networking
+**Priority:** Test when convenient — explicitly NOT a blocker (Nick)
+
+Let an operator tell a bmcam unit, over the Bristlemouth bus, to
+connect to a new client WiFi network — so customers can join the
+camera to their local WiFi without SSH or SD-card access.
+
+Sketch (post-OS-unification, all units Trixie/NetworkManager):
+
+- New command in the tables (next version bump), immediate-apply like
+  `wap`: carries SSID + password down the existing Spotter → BM →
+  shared-UART daemon path.
+- Implementation is one `nmcli` connection add/modify + activate; keep
+  the previous connection profile intact as the fallback.
+- Same revert-first doctrine as `wap` (D-S15-10): if the new network
+  never comes up, auto-fall-back to the prior profile after a timer —
+  a typo'd SSID must not strand the unit.
+- Constraints to solve at design time: BM message size vs SSID+PSK
+  length, plaintext credentials on the bus (customer is told; log
+  redaction on the Pi), and the command-ack story when the network
+  flip drops connectivity mid-ack.
+- Depends on: fleet on Trixie/NetworkManager (bmcam000 reflash), and
+  pairs naturally with the nmcli rewrite of `network_ap.sh` (Sprint15
+  tracker §6 note).
+
+**Acceptance:** bench rehearsal — command sent over BM, unit joins the
+new SSID, UI reachable on the new network, fallback proven by sending
+a bogus SSID and watching the unit restore its prior WiFi.

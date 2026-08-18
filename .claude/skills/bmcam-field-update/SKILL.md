@@ -113,6 +113,31 @@ token in `SOFAR_API_TOKEN_BM_REEF`):
 - PASS = all chunk indexes 0..N-1 present + START + END; the website render
   follows its own poll cadence after that
 
+## Video-mode units (Sprint15)
+
+A unit with `capture_mode: "video"` and `session_minutes: 0` records
+continuously and does NOT self-halt — the catch-it-awake race above
+does not apply; SSH in any time. What still applies, plus differences:
+
+- **Disarm the same way** (comment the `@reboot` line, then
+  `pkill -TERM -f 'rc_run_capture_cycle.sh|rc_progressive_jpeg.py'`).
+  SIGTERM at most costs the in-flight clip (`.part` — swept at next
+  boot, crash contract D-S15-2). The encoder owns the camera while
+  recording: any bench `rpicam-*` command fails "in use" until then.
+- **ffmpeg is a runtime dependency** (mux + posters), NOT preinstalled
+  on trixie: `sudo apt-get install -y ffmpeg` before first video run
+  (found missing on bmcam003/004, 2026-08-18).
+- **Settings GUI**: `http://<unit>:8080/settings` edits
+  `camera_schedule.yaml` with timestamped backups
+  (`camera_schedule.yaml.before_gui_*`). LEAVE the backups — they are
+  the customer's undo. Changes apply on restart (reboot or runtime
+  restart), not live; the gallery lives at `http://<unit>:8080/`.
+- **Re-arm + verify**: after update, reboot and confirm a `.part` is
+  growing in `~/BM_Devel_Pi/videos/` and the gallery answers 200 —
+  clip triples + manifest are the delivery evidence (no Sofar image
+  rows in video mode; per-clip `{"t":"vid",...}` status lines ride the
+  cellular path instead, when a Spotter is attached and transmitting).
+
 ## Failure modes seen / expected
 
 - **Cycle running at preflight** → script aborts; wait for the halt, power

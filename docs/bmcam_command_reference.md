@@ -111,6 +111,28 @@ arriving (2/3/4) or the wake status + SD artifact (1). Realistic latency
 on a duty-cycled unit: arms during one cycle's listen tail, fires next
 boot (~one duty cycle later).
 
+### wap — WiFi access-point toggle (Sprint15, tables v6) — NOT FIELD-READY
+
+`0` client WiFi (normal) · `1` AP mode (SSID `bmcamNNN-video`, WPA2 pw
+`bristlemouth`, gallery at `http://192.168.50.1:8080`).
+
+Like `trg`, applied IMMEDIATELY on command (documented exception to the
+apply-next-boot doctrine). Design is revert-first (D-S15-10): a systemd
+one-shot timer is armed and VERIFIED before any flip and force-restores
+client WiFi after `ap_timeout_min` (default 60); the script refuses to
+flip if the timer cannot arm, and nothing persists across reboot — a
+power cycle is the second un-brick.
+
+**DO NOT SEND `wap 1` yet (as of 2026-08-18).** The backing script
+`network_ap.sh` speaks the Bullseye stack (hostapd/dnsmasq/dhcpcd) and
+matches NO current unit: bmcam003/004 (and bmcam000 post-reflash) are
+Trixie/NetworkManager, where hostapd is not even installed — the script
+fails safe before flipping, but the command does nothing useful. A
+NetworkManager (`nmcli` hotspot) rewrite + attended bench rehearsal
+(Sprint15 tracker §6) must land first; this entry is updated when it
+does. Related planned work: TODO-BM-012 (join a customer WiFi network
+over BM).
+
 ## State-file doctrine
 
 One file survives power cycles: `bm_command_state.json` (atomic writes).
