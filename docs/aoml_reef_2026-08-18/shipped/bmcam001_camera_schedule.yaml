@@ -1,18 +1,3 @@
-# bmcam001 field profile — REBUILT 2026-07-31 during the Florida field
-# update (unit moved from legacy HEIC runtime to RC progressive-JPEG,
-# main 0d03a62). Matches the YAML deployed live to the unit that day,
-# including the 10:00-15:00 window set after the verified live transmit.
-# Deltas from BM_Devel_Pi/camera_schedule.yaml: time_source rtc,
-# no spotter clock set, America/New_York, 10:00-15:00 window,
-# capture_mode progressive_jpeg, carried-over camera controls (manual
-# focus 1.82).
-#
-# UPDATED 2026-08-18 (config only; runtime stays at main 0d03a62): the
-# customer shortened the power cycle 20 min -> 10 min, so
-# progressive_jpeg.max_run_time_min 16 -> 8 and power_halt is now ARMED
-# (enabled true, dry_run false) so the unit parks at ~0.26 W for the ~7 min
-# left after its ~3 min cycle. Supersedes the earlier note that bmcam001
-# does not self-halt. See both inline blocks below for the rationale.
 # Local deployment schedule for legacy BM camera production runtime.
 #
 # time_source controls where the app gets UTC for the transmit-window decision:

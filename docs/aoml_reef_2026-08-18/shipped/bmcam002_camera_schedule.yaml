@@ -1,32 +1,9 @@
-# bmcam001 field profile — REBUILT 2026-07-31 during the Florida field
-# update (unit moved from legacy HEIC runtime to RC progressive-JPEG,
-# main 0d03a62). Matches the YAML deployed live to the unit that day,
-# including the 10:00-15:00 window set after the verified live transmit.
-# Deltas from BM_Devel_Pi/camera_schedule.yaml: time_source rtc,
-# no spotter clock set, America/New_York, 10:00-15:00 window,
-# capture_mode progressive_jpeg, carried-over camera controls (manual
-# focus 1.82).
-#
-# UPDATED 2026-08-18 (config only; runtime stays at main 0d03a62): the
-# customer shortened the power cycle 20 min -> 10 min, so
-# progressive_jpeg.max_run_time_min 16 -> 8 and power_halt is now ARMED
-# (enabled true, dry_run false) so the unit parks at ~0.26 W for the ~7 min
-# left after its ~3 min cycle. Supersedes the earlier note that bmcam001
-# does not self-halt. See both inline blocks below for the rationale.
 # Local deployment schedule for legacy BM camera production runtime.
 #
 # time_source controls where the app gets UTC for the transmit-window decision:
 #   spotter_utc -> subscribe to BM/Spotter topic spotter/utc-time. Use for bmcam002.
 #   rtc         -> set/read Linux time from Pi hardware RTC using hwclock. Use for bmcam001.
 #   system      -> bench-only fallback; not recommended for production.
-# 2026-08-18: switched rtc -> spotter_utc so bmcam001 matches bmcam002, which
-# Nick confirmed as the correct setup. The earlier rtc choice was made because
-# this unit's BM bridge firmware was thought not to receive spotter/utc-time
-# reliably; if that is still true the schedule gate FAILS CLOSED and the cycle
-# transmits nothing (allow_system_clock_fallback is false — see
-# spotter_time_sync.py, 'Spotter time unavailable and fallback disabled').
-# Revert = set this back to "rtc" and set_system_clock_from_spotter to false;
-# the rtc: block below is intentionally retained for exactly that.
 time_source: "spotter_utc"
 
 timezone_preset: ""
@@ -86,8 +63,8 @@ image_pipeline:
   heic:
     quality: 20
 
-  # bmcam001 field controls (carried over from the unit's previous deployed
-  # config): manual focus tuned for the reef housing, AWB/AE auto.
+  # bmcam002 field controls (mirrors bmcam001 2026-07-31 deploy): manual
+  # focus tuned for the reef housing, AWB/AE auto.
   camera_controls:
     enabled: true
     focus:
@@ -122,8 +99,10 @@ progressive_jpeg:
   # ceiling only, not a quality knob: effective cap =
   #   min(message_cap, floor(max_run_time_min*60 / image_transmit_delay_seconds))
   #   = min(195, floor(8*60/1.0)) = 195  -> unchanged, the message cap still binds.
-  # A healthy cycle measures ~3.0 min on this unit (cron log
-  # rc_cycle_20260818T165907Z: 177.4 s total, 165 msgs @ q80).
+  # Sibling evidence (bmcam001 — same runtime 0d03a62, same geometry and
+  # pacing): a healthy cycle measures ~3.1 min there (2026-08-18 live run:
+  # 177.5 s total, 173 msgs @ q70). NOT yet measured on bmcam002 itself;
+  # confirm against this unit's own first cycle log.
   # Prior value 16 (field-trial Nick 2026-07-25; S07 measured 16.38 min at the cap).
   max_run_time_min: 8
   message_cap: 195         # field-tested hard cap on messages per image
