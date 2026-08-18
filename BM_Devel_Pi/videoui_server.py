@@ -148,14 +148,19 @@ def render_settings_page(current, message=None, error=False):
     for field in video_settings.FIELDS:
         key = field["key"]
         cur = current.get(key)
+        # Match the current value to its canonical choice NUMERICALLY
+        # (YAML 2.0 == dropdown "2") so the form never submits a
+        # non-canonical echo — the bmcam000 2026-08-18 save-poison bug.
+        selected = (video_settings.normalize_choice(key, cur)
+                    if cur is not None else None)
         options = list(field["choices"])
-        if cur is not None and str(cur) not in {c[0] for c in options}:
-            # The file holds a value outside the presets: show it as-is
-            # so the form always tells the truth.
+        if cur is not None and selected is None:
+            # Genuinely off-menu value: show it honestly.
+            selected = str(cur)
             options.insert(0, (str(cur), f"current: {cur}"))
         opts = "".join(
             f'<option value="{html.escape(v)}"'
-            f'{" selected" if cur is not None and str(cur) == v else ""}>'
+            f'{" selected" if v == selected else ""}>'
             f'{html.escape(label)}</option>'
             for v, label in options)
         missing = "" if cur is not None else (

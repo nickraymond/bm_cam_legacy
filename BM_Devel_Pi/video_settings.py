@@ -164,11 +164,35 @@ def field_for(key):
     return _FIELDS_BY_KEY[key]
 
 
-def valid_choice(key, value):
+def normalize_choice(key, value):
+    """Map a raw value onto its canonical choice string, or None.
+
+    Numeric choices match NUMERICALLY: a YAML `2.0` is the same setting
+    as the dropdown's "2" (bmcam000 2026-08-18: the form echoes every
+    current value back, so ONE float-formatted value poisoned every
+    save with 'invalid value ... 2.0' until normalized here)."""
     f = _FIELDS_BY_KEY.get(key)
     if f is None:
-        return False
-    return str(value) in {c[0] for c in f["choices"]}
+        return None
+    text = str(value).strip()
+    for choice, _label in f["choices"]:
+        if text == choice:
+            return choice
+    try:
+        num = float(text)
+    except ValueError:
+        return None
+    for choice, _label in f["choices"]:
+        try:
+            if float(choice) == num:
+                return choice
+        except ValueError:
+            continue
+    return None
+
+
+def valid_choice(key, value):
+    return normalize_choice(key, value) is not None
 
 
 # ---------------------------------------------------------------------------
@@ -224,11 +248,15 @@ def patch_yaml(config_path, changes, *, validate=True):
     first; validates after; restores the backup on ANY validation
     failure so the config on disk is never invalid.
     """
+    normalized = {}
     for key, value in changes.items():
         if key not in _FIELDS_BY_KEY:
             raise ValueError(f"not an editable setting: {key}")
-        if not valid_choice(key, value):
+        canon = normalize_choice(key, value)
+        if canon is None:
             raise ValueError(f"invalid value for {key}: {value!r}")
+        normalized[key] = canon
+    changes = normalized
 
     with open(config_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
@@ -257,8 +285,10 @@ def patch_yaml(config_path, changes, *, validate=True):
             comment = "   # " + comment_text.strip()
         # Compare VALUES, not formatting: an unchanged value must leave
         # its line (alignment, quoting, inline comment) byte-identical.
+        # Numeric equivalence counts as unchanged (2.0 == "2").
         current_value = rest.strip().strip('"').strip("'")
-        if current_value == str(value):
+        if (current_value == str(value)
+                or normalize_choice(dotted, current_value) == value):
             continue
         rendered = _render_value(_FIELDS_BY_KEY[dotted], value)
         lines[i] = f"{head}: {rendered}{comment}{newline}"

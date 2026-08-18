@@ -234,6 +234,74 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
         self.assertIn("Restarting", page)
         self.assertEqual(self.restarts, [1])
 
+    def _form_echo(self):
+        """What a real browser submits: EVERY field's current value."""
+        current = vs.read_current(self.yaml)
+        return {f["key"]: current[f["key"]] for f in vs.FIELDS
+                if f["key"] in current}
+
+    def _save(self, **changes):
+        form = self._form_echo()
+        form.update({k: str(v) for k, v in changes.items()})
+        with contextlib.redirect_stdout(io.StringIO()):
+            return self._post("/settings", form)
+
+    def test_float_formatted_yaml_echo_saves(self):
+        # THE bmcam000 2026-08-18 bug: yaml holds 2.0, dropdown says "2";
+        # the full-form echo must not poison an unrelated field's save.
+        with open(self.yaml, "w") as f:
+            f.write(SAMPLE_YAML.replace("bitrate_mbps: 2.0",
+                                        "bitrate_mbps: 2.0")
+                    .replace("fps: 15", "fps: 15.0")
+                    .replace("max_used_pct: 75", "max_used_pct: 75.0"))
+        status, page = self._save(**{"video.clip_minutes": "1"})
+        self.assertIn("Saved: video.clip_minutes", page)
+        text = open(self.yaml).read()
+        self.assertIn("clip_minutes: 1", text)
+        self.assertIn("fps: 15.0", text)        # untouched fields untouched
+        # And the form pre-selects the canonical option, not "current: 2.0"
+        status, form_page = self._get("/settings")
+        self.assertNotIn("current: 2.0", form_page)
+        self.assertIn('value="2" selected', form_page)
+
+    def test_combination_saves_persist(self):
+        # Multi-field combos through the UI path, applied sequentially
+        # like a customer session; each must land and accumulate.
+        combos = [
+            {"image_pipeline.camera_controls.focus.mode": "auto",
+             "progressive_jpeg.output_width": "1600",
+             "video.bitrate_mbps": "4"},
+            {"video.clip_minutes": "0.25", "video.fps": "30",
+             "video.storage.ring_dry_run": "true"},
+            {"video.session_minutes": "60",
+             "video.storage.max_used_pct": "50",
+             "video.storage.min_free_gb": "20"},
+        ]
+        for combo in combos:
+            status, page = self._save(**combo)
+            self.assertEqual(status, 200)
+            self.assertIn("Saved:", page)
+        current = vs.read_current(self.yaml)
+        self.assertEqual(
+            current["image_pipeline.camera_controls.focus.mode"], "auto")
+        self.assertEqual(current["progressive_jpeg.output_width"], "1600")
+        self.assertEqual(current["video.bitrate_mbps"], "4")
+        self.assertEqual(current["video.clip_minutes"], "0.25")
+        self.assertEqual(current["video.fps"], "30")
+        self.assertEqual(current["video.storage.ring_dry_run"], "true")
+        self.assertEqual(current["video.session_minutes"], "60")
+        self.assertEqual(current["video.storage.max_used_pct"], "50")
+        self.assertEqual(current["video.storage.min_free_gb"], "20")
+        # The whole accumulated file still passes runtime validation.
+        vs._validate_config(self.yaml)
+
+    def test_mode_switch_roundtrip(self):
+        status, page = self._save(capture_mode="progressive_jpeg")
+        self.assertIn("Saved: capture_mode", page)
+        status, page = self._save(capture_mode="video")
+        self.assertIn("Saved: capture_mode", page)
+        self.assertIn('capture_mode: "video"', open(self.yaml).read())
+
     def test_settings_404_without_config_path(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
