@@ -197,42 +197,84 @@ class TestVideoIslandValidation(unittest.TestCase):
         self._assert_rejects("video:\n  ui:\n    enabled: sometimes\n", "video.ui.enabled")
 
 
-class TestGeometry(unittest.TestCase):
-    def test_default_crop_exact_roi(self):
-        # 1504/4608 = 846/2592 = 0.326389; 1600/4608 = 900/2592 = 0.347222
-        self.assertEqual(
-            vr.crop_xywh_to_roi((1504, 846, 1600, 900)),
-            "0.326389,0.326389,0.347222,0.347222",
-        )
+class TestGeometryIsResolvedAtConfigTime(unittest.TestCase):
+    """Sprint17: the video island resolves (and upscale-checks) its OWN
+    geometry. Sprint15's crop_xywh_to_roi/even_video_output_size are gone —
+    they encoded the bug where --roi was divided by the native frame
+    regardless of which sensor mode rpicam-vid had actually picked. The
+    arithmetic now lives in video_geometry; see tests/test_video_geometry.py.
+    """
 
-    def test_full_frame_roi(self):
-        self.assertEqual(
-            vr.crop_xywh_to_roi((0, 0, 4608, 2592)),
-            "0.000000,0.000000,1.000000,1.000000",
-        )
+    def test_removed_sprint15_helpers_are_really_gone(self):
+        # A future edit must not quietly reintroduce the buggy helpers.
+        self.assertFalse(hasattr(vr, "crop_xywh_to_roi"))
+        self.assertFalse(hasattr(vr, "even_video_output_size"))
 
-    def test_roi_bounds_validated(self):
-        with self.assertRaises(ValueError):
-            vr.crop_xywh_to_roi((4000, 0, 1600, 900))  # x+w > 4608
-        with self.assertRaises(ValueError):
-            vr.crop_xywh_to_roi((-1, 0, 100, 100))
-        with self.assertRaises(ValueError):
-            vr.crop_xywh_to_roi((0, 0, 0, 100))
+    def test_empty_island_resolves_to_migration_preset(self):
+        vcfg = _quiet_load("/nonexistent/nowhere.yaml")
+        geo = vcfg["geometry"]
+        self.assertEqual(geo["preset"], "stills_roi_1000p")
+        self.assertEqual(geo["source"], "migration-default")
+        # The intended stills box, on the full sensor mode, at 0.625x —
+        # i.e. a genuine downscale where Sprint15 recorded a 1.88x upscale.
+        self.assertEqual(tuple(geo["crop_native_xywh"]), (1504, 846, 1600, 900))
+        self.assertEqual(geo["sensor_mode"], "4608x2592")
+        self.assertEqual(geo["available_px"], (1600, 900))
+        self.assertLess(geo["scale"], 1.0)
 
-    def test_even_output_size_passthrough(self):
-        (wh, adjusted) = vr.even_video_output_size((1000, 562))
-        self.assertEqual(wh, (1000, 562))
-        self.assertFalse(adjusted)
+    def test_fps_clamped_to_sensor_mode_readout_limit(self):
+        # The full-sensor mode reads out at ~14.35 fps; a 15 fps island must
+        # be clamped LOUDLY, not refused (rule 5: record, do not brick).
+        vcfg = _quiet_load("/nonexistent/nowhere.yaml")
+        self.assertEqual(vcfg["geometry"]["fps"], 14)     # effective
+        self.assertEqual(vcfg["fps"], 15)                 # still what was asked
+        self.assertTrue(any("readout limit" in n
+                            for n in vcfg["geometry"]["notes"]))
 
-    def test_even_output_size_rounds_down(self):
-        with contextlib.redirect_stdout(io.StringIO()):
-            (wh, adjusted) = vr.even_video_output_size((1001, 563))
-        self.assertEqual(wh, (1000, 562))
-        self.assertTrue(adjusted)
+    def test_upscaling_config_is_refused_by_name(self):
+        yaml = ("video:\n"
+                "  crop_native_xywh: \"1504,846,1600,900\"\n"
+                "  output: \"1920x1080\"\n"
+                "  sensor_mode: \"2304x1296\"\n")
+        # 1600 native px on the binned mode = 800 available px, far under a
+        # 1920 px output. This is the Sprint15 defect shape; it must not boot.
+        with self._temp_yaml(yaml) as path:
+            with self.assertRaises(ValueError) as ctx:
+                _quiet_load(path)
+        self.assertIn("refusing to upscale", str(ctx.exception))
 
-    def test_even_output_size_too_small(self):
-        with self.assertRaises(ValueError):
-            vr.even_video_output_size((1, 1))
+    def test_preset_selects_its_own_geometry(self):
+        yaml = "video:\n  preset: \"wide_1080p\"\n  fps: 15\n"
+        with self._temp_yaml(yaml) as path:
+            vcfg = _quiet_load(path)
+        geo = vcfg["geometry"]
+        self.assertEqual(geo["output_wh"], (1920, 1080))
+        self.assertEqual(geo["sensor_mode"], "2304x1296")
+        self.assertEqual(geo["roi"], "0.000000,0.000000,1.000000,1.000000")
+        self.assertEqual(geo["fps"], 15)
+
+    def test_1080p30_is_blocked(self):
+        yaml = "video:\n  preset: \"wide_1080p\"\n  fps: 30\n"
+        with self._temp_yaml(yaml) as path:
+            with self.assertRaises(ValueError) as ctx:
+                _quiet_load(path)
+        self.assertIn("blocked", str(ctx.exception))
+
+    def test_30fps_still_allowed_at_720p(self):
+        yaml = "video:\n  preset: \"wide_720p\"\n  fps: 30\n"
+        with self._temp_yaml(yaml) as path:
+            vcfg = _quiet_load(path)
+        self.assertEqual(vcfg["geometry"]["fps"], 30)
+
+    @contextlib.contextmanager
+    def _temp_yaml(self, text):
+        fd, path = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, "w") as f:
+            f.write(text)
+        try:
+            yield path
+        finally:
+            os.unlink(path)
 
 
 class TestEncoderCommand(unittest.TestCase):
@@ -254,9 +296,14 @@ class TestEncoderCommand(unittest.TestCase):
         self.assertIn("-t 300000", joined)              # 5 min in ms
         self.assertIn("--codec h264", joined)
         self.assertIn("--width 1000 --height 562", joined)
-        self.assertIn("--framerate 15", joined)
+        # Sprint17: 14, not 15 — the full-sensor mode the migration preset
+        # uses reads out at ~14.35 fps, so the island's 15 is clamped.
+        self.assertIn("--framerate 14", joined)
         self.assertIn("--bitrate 2000000", joined)
         self.assertIn("--roi 0.326389,0.326389,0.347222,0.347222", joined)
+        # D-S17-2: the sensor mode is ALWAYS named. Auto-selection is what
+        # picked the 1536x864 mode and produced the 1.88x upscale.
+        self.assertIn("--mode 4608:2592:10:P", joined)
         self.assertIn("-o /tmp/clip.h264.part", joined)
         self.assertFalse(requested["camera_controls_enabled"])
 

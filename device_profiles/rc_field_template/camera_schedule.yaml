@@ -73,6 +73,29 @@ image_pipeline:
   heic:
     quality: 20
 
+  # Camera controls. PRESENT-BUT-AUTO on purpose: a unit with NO
+  # camera_controls block behaves as full auto, but the settings GUI can only
+  # EDIT keys that already exist — without this block the focus fields render
+  # view-only on a fresh unit (the exact gap found on bmcam004, 2026-08-18).
+  # These values reproduce the previous full-auto behaviour; per-unit bench
+  # focus is set by changing mode to "manual" and picking a lens_position.
+  camera_controls:
+    enabled: true
+    focus:
+      enabled: true
+      mode: "auto"
+      lens_position: 1.82    # dioptres (1/m); 1.82 = 55 cm. Used when mode is manual.
+      range: "normal"
+      speed: "normal"
+    white_balance:
+      enabled: true
+      mode: "auto"
+    exposure:
+      enabled: true
+      mode: "auto"
+    image_processing:
+      enabled: false
+
 # Sprint08 progressive-JPEG release candidate (RC). Config-gated:
 #   heic             -> known-good production path (main_pi_camera.py), unchanged
 #   progressive_jpeg -> RC entry script (rc_progressive_jpeg.py)
@@ -117,6 +140,11 @@ progressive_jpeg:
 # them; bench finding bmcam000 2026-08-18). capture_mode governs
 # whether video actually runs.
 video:
+  # Sprint17 D-S17-1: VIDEO-ONLY geometry. The preset carries its own crop,
+  # sensor mode and output size — video no longer inherits the stills crop.
+  # An island with no preset/crop/output keys resolves to stills_roi_1000p
+  # (the Sprint17 migration default) and says so loudly at boot.
+  preset: "stills_roi_1000p"
   clip_minutes: 5
   fps: 15
   bitrate_mbps: 2.0
@@ -125,6 +153,15 @@ video:
     max_used_pct: 75
     min_free_gb: 10
     ring_dry_run: false
+  # Sprint17 D-S17-4: encoder knobs. Empty string / 0 = leave the camera
+  # default (the flag is not passed at all). Present here so the settings
+  # GUI can edit them — the GUI edits configs, it never authors keys.
+  encoder:
+    profile: ""            # baseline|main|high
+    level: ""              # 4|4.1|4.2
+    intra: 0               # keyframe interval; 0 = camera default
+    denoise: ""            # auto|off|cdn_off|cdn_fast|cdn_hq
+    sharpness: 1.0         # 0..16, 1.0 = normal
   ui:
     enabled: true
     port: 8080

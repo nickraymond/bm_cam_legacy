@@ -404,5 +404,36 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
             bare.server_close()
 
 
+class TestShippedTemplateCarriesEveryField(unittest.TestCase):
+    """The GUI edits configs, it never authors keys — patch_yaml REFUSES a key
+    that is not already in the file. That is not theoretical: on bmcam000
+    (2026-08-18) a missing video island made real settings view-only, and
+    bmcam004's missing camera_controls block did the same to the focus fields.
+
+    So the shipped template must contain every editable key, or the settings
+    page silently degrades on a fresh unit.
+    """
+
+    TEMPLATE = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "device_profiles", "rc_field_template", "camera_schedule.yaml")
+
+    def test_every_field_key_present_in_rc_field_template(self):
+        present = set(vs.read_current(self.TEMPLATE))
+        missing = sorted({f["key"] for f in vs.FIELDS} - present)
+        self.assertEqual(
+            missing, [],
+            f"rc_field_template is missing GUI-editable keys {missing} — the "
+            f"settings page would render them view-only on a fresh unit")
+
+    def test_template_values_are_all_valid_choices(self):
+        current = vs.read_current(self.TEMPLATE)
+        for key, value in current.items():
+            self.assertIsNotNone(
+                vs.normalize_choice(key, value),
+                f"{key}={value!r} in rc_field_template is not an offered "
+                f"choice, so the settings form would reject its own echo")
+
+
 if __name__ == "__main__":
     unittest.main()

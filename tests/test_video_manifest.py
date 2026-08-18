@@ -15,6 +15,7 @@ Run: python3 -m unittest tests.test_video_manifest -v
 
 import collections
 import contextlib
+import copy
 import io
 import json
 import os
@@ -27,16 +28,28 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
 
 import video_manifest as vm  # noqa: E402
+import video_recorder  # noqa: E402
 
 Usage = collections.namedtuple("Usage", "total used free")
 
-BASE = "2026-08-17T23-40-00Z_video_1000x562_15fps"
+BASE = "2026-08-17T23-40-00Z_video_1000x562_14fps"
 
+# Sprint17: the sidecar's geometry comes from the VIDEO island, not the stills
+# keys. SETTINGS is kept only for the arguments build_clip_record still takes.
 SETTINGS = {
     "output_size": (1000, 562),
     "crop_native_xywh": (1504, 846, 1600, 900),
 }
-VCFG = {"clip_minutes": 5, "fps": 15, "bitrate_mbps": 2.0}
+
+
+def _make_vcfg(**over):
+    cfg = copy.deepcopy(video_recorder.DEFAULT_VIDEO_CONFIG)
+    cfg.update(over)
+    with contextlib.redirect_stdout(io.StringIO()):
+        return video_recorder.validate_video_config(cfg)
+
+
+VCFG = _make_vcfg(clip_minutes=5, bitrate_mbps=2.0)
 RING = {"deleted_count": 2}
 
 
@@ -68,7 +81,7 @@ class TestClipRecord(SidecarMixin, unittest.TestCase):
         self.assertEqual(record["fn"], BASE + ".mp4")
         self.assertEqual(record["sz"], 1000)
         self.assertEqual(record["res"], "1000x562")
-        self.assertEqual(record["fps"], 15)
+        self.assertEqual(record["fps"], 14)   # effective (mode readout clamp)
         self.assertEqual(record["br"], 2.0)
         self.assertEqual(record["dur"], 300)
         self.assertEqual(record["tmp"], 52.1)
@@ -116,7 +129,8 @@ class TestStatusLine(SidecarMixin, unittest.TestCase):
         # Worst-realistic-case values must stay one message.
         record = vm.build_clip_record(
             self._clip_result(bytes=99_999_999_999), SETTINGS,
-            {"clip_minutes": 60, "fps": 30, "bitrate_mbps": 25.0},
+            _make_vcfg(clip_minutes=60, bitrate_mbps=25.0,
+                       preset="wide_720p", fps=30),
             {"deleted_count": 9999},
             cpu_temp_c=99.9,
             disk_usage=Usage(1000 * vm.GIB, 999 * vm.GIB, vm.GIB))

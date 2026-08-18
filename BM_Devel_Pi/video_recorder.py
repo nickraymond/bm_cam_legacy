@@ -37,6 +37,7 @@ import time
 from datetime import datetime, timezone
 
 import rc_command_hooks as cmd_hooks
+import video_geometry
 import video_manifest
 import video_ring
 from process_image_v2 import (
@@ -62,6 +63,23 @@ DEFAULT_VIDEO_CONFIG = {
     "bitrate_mbps": 2.0,
     "session_minutes": 0,    # 0 = record until power loss; >0 = N min then normal halt
     "dir": DEFAULT_VIDEO_DIR,
+    # Sprint17 (D-S17-1): VIDEO-ONLY geometry. None = "not stated"; an island
+    # stating none of these resolves to the migration preset (SPEC 5.1 A).
+    # These no longer come from progressive_jpeg.* — stills and video are
+    # independent settings now (Nick 2026-08-18).
+    "preset": None,             # named row of video_geometry.PRESETS
+    "crop_native_xywh": None,   # NATIVE 4608x2592 px, "x,y,w,h"
+    "output": None,             # OUTPUT px, "WxH"
+    "sensor_mode": None,        # explicit readout mode; never auto (D-S17-2)
+    # Sprint17 (D-S17-4): hidden encoder knobs. Empty/None = do not pass the
+    # flag at all, so an absent block reproduces today's rpicam-vid defaults.
+    "encoder": {
+        "profile": "",          # baseline|main|high
+        "level": "",            # 4|4.1|4.2
+        "intra": 0,             # GOP; 0 = encoder default
+        "denoise": "",          # auto|off|cdn_off|cdn_fast|cdn_hq
+        "sharpness": None,      # 0..16, 1.0 = normal
+    },
     "storage": {
         "max_used_pct": 75.0,   # ring cap primary knob (D-S15-5)
         "min_free_gb": 10.0,    # absolute floor backstop; stricter wins
@@ -130,7 +148,60 @@ def validate_video_config(cfg):
     ui = cfg["ui"]
     ui["enabled"] = _parse_strict_bool("ui.enabled", ui["enabled"])
     ui["port"] = _parse_number("ui.port", ui["port"], 1, 65535, integer=True)
+    _validate_encoder_block(cfg["encoder"])
+    # Geometry resolves (and REFUSES upscaling) at config time, so a bad crop
+    # fails on the bench with a named message instead of quietly recording
+    # fake resolution for a month. Cached on the cfg — every consumer reads
+    # this one dict rather than re-deriving geometry (D-S17-1).
+    cfg["geometry"] = video_geometry.resolve_geometry(cfg)
+    # NOTE: cfg["fps"] stays the REQUESTED value (what the YAML/GUI says);
+    # geometry["fps"] is the EFFECTIVE one after the sensor mode's readout
+    # clamp. Everything that builds argv, filenames or sidecars reads the
+    # effective value — keeping them separate means the settings page still
+    # echoes what the customer chose instead of silently rewriting it.
     return cfg
+
+
+# Allowed values mirror rpicam-apps v1.12.0 as verified on bmcam000
+# 2026-08-18. "" means "do not pass the flag" (today's default behaviour).
+ENCODER_PROFILES = {"", "baseline", "main", "high"}
+ENCODER_LEVELS = {"", "4", "4.1", "4.2"}
+ENCODER_DENOISE = {"", "auto", "off", "cdn_off", "cdn_fast", "cdn_hq"}
+
+
+def _validate_encoder_block(enc):
+    """Range/choice-check video.encoder in place. Loud and named per key —
+    a typo here silently changes picture quality, so it must fail at boot."""
+    profile = str(enc.get("profile", "") or "").strip().lower()
+    if profile not in ENCODER_PROFILES:
+        raise ValueError(
+            f"video.encoder.profile must be one of "
+            f"{sorted(x for x in ENCODER_PROFILES if x)}, got {profile!r}")
+    enc["profile"] = profile
+
+    level = str(enc.get("level", "") or "").strip()
+    if level not in ENCODER_LEVELS:
+        raise ValueError(
+            f"video.encoder.level must be one of "
+            f"{sorted(x for x in ENCODER_LEVELS if x)}, got {level!r}")
+    enc["level"] = level
+
+    enc["intra"] = _parse_number("encoder.intra", enc.get("intra", 0) or 0,
+                                 0, 3000, integer=True)
+
+    denoise = str(enc.get("denoise", "") or "").strip().lower()
+    if denoise not in ENCODER_DENOISE:
+        raise ValueError(
+            f"video.encoder.denoise must be one of "
+            f"{sorted(x for x in ENCODER_DENOISE if x)}, got {denoise!r}")
+    enc["denoise"] = denoise
+
+    sharpness = enc.get("sharpness", None)
+    if sharpness in (None, ""):
+        enc["sharpness"] = None
+    else:
+        enc["sharpness"] = _parse_number("encoder.sharpness", sharpness, 0, 16)
+    return enc
 
 
 def load_video_config(config_path):
@@ -192,6 +263,10 @@ def load_video_config(config_path):
                     cfg["session_minutes"] = value
                 elif key == "dir":
                     cfg["dir"] = value
+                elif key in ("preset", "crop_native_xywh", "output",
+                             "sensor_mode"):
+                    # Sprint17 video-only geometry (D-S17-1).
+                    cfg[key] = value
                 else:
                     print(f"[VID][WARN] unknown key video.{key} ignored")
                     continue
@@ -204,6 +279,14 @@ def load_video_config(config_path):
                     saw_key = True
                 else:
                     print(f"[VID][WARN] unknown key video.storage.{key} ignored")
+                continue
+
+            if subsection == "encoder":
+                if key in ("profile", "level", "intra", "denoise", "sharpness"):
+                    cfg["encoder"][key] = value
+                    saw_key = True
+                else:
+                    print(f"[VID][WARN] unknown key video.encoder.{key} ignored")
                 continue
 
             if subsection == "ui":
@@ -222,9 +305,22 @@ def load_video_config(config_path):
 def print_video_settings(vcfg):
     """One loud line per fact, print-config style."""
     print(f"[VID] video island (source={vcfg['source']}): "
-          f"clip_minutes={vcfg['clip_minutes']} fps={vcfg['fps']} "
+          f"clip_minutes={vcfg['clip_minutes']} fps={vcfg['fps']} (requested) "
           f"bitrate_mbps={vcfg['bitrate_mbps']} "
           f"session_minutes={vcfg['session_minutes']}")
+    # Sprint17: geometry is printed in full at every boot, with both the
+    # available detail and the scale factor, so a unit whose framing changed
+    # ANNOUNCES it instead of being discovered later in the gallery (D-S17-1).
+    for line in video_geometry.describe(vcfg["geometry"], vcfg["bitrate_mbps"]):
+        print(line)
+    enc = vcfg["encoder"]
+    if any(v not in (None, "", 0) for v in enc.values()):
+        print(f"[VID] encoder knobs: profile={enc['profile'] or 'default'} "
+              f"level={enc['level'] or 'default'} intra={enc['intra'] or 'default'} "
+              f"denoise={enc['denoise'] or 'default'} "
+              f"sharpness={enc['sharpness'] if enc['sharpness'] is not None else 'default'}")
+    else:
+        print("[VID] encoder knobs: all rpicam-vid defaults")
     st, ui = vcfg["storage"], vcfg["ui"]
     print(f"[VID] storage ring: max_used_pct={st['max_used_pct']} "
           f"min_free_gb={st['min_free_gb']} dry_run={st['ring_dry_run']} "
@@ -236,41 +332,14 @@ def print_video_settings(vcfg):
 # Geometry — derived from the stills keys (D-S15-3), never restated
 # ---------------------------------------------------------------------------
 
-def crop_xywh_to_roi(crop_xywh, native_wh=(NATIVE_W, NATIVE_H)):
-    """NATIVE-coordinate crop box -> libcamera --roi normalized fractions.
-
-    Input coords are native 4608x2592 sensor-equivalent pixels — the SAME
-    progressive_jpeg.crop values the stills path crops with, so a YAML (or
-    roi-command) crop change moves both paths together (constraint 4).
-    """
-    x, y, w, h = [int(v) for v in crop_xywh]
-    nw, nh = int(native_wh[0]), int(native_wh[1])
-    if x < 0 or y < 0 or w <= 0 or h <= 0:
-        raise ValueError(
-            f"crop x/y must be >= 0 and w/h > 0, got {(x, y, w, h)}")
-    if x + w > nw or y + h > nh:
-        raise ValueError(
-            f"crop {(x, y, w, h)} exceeds native frame {nw}x{nh}")
-    return f"{x / nw:.6f},{y / nh:.6f},{w / nw:.6f},{h / nh:.6f}"
-
-
-def even_video_output_size(output_size):
-    """Round the stills output size DOWN to even dims (H.264 requirement).
-
-    Returns ((w, h), adjusted). Today's 1000x562 passes through untouched;
-    a crop/output combination that lands odd is corrected (never upscaled)
-    with a loud note instead of failing the boot — a video unit must
-    record, not brick, on a geometry nit (constraint 5 doctrine).
-    """
-    w, h = int(output_size[0]), int(output_size[1])
-    w2, h2 = w - (w % 2), h - (h % 2)
-    if w2 <= 0 or h2 <= 0:
-        raise ValueError(f"output size {w}x{h} too small for H.264")
-    adjusted = (w2, h2) != (w, h)
-    if adjusted:
-        print(f"[VID][WARN] output {w}x{h} -> {w2}x{h2} "
-              f"(H.264 needs even dimensions; rounded down)")
-    return (w2, h2), adjusted
+# Sprint15's crop_xywh_to_roi()/even_video_output_size() were REMOVED in
+# Sprint17. crop_xywh_to_roi divided the crop by the native frame
+# unconditionally, which is only correct for sensor modes whose field of view
+# IS the whole sensor — on the 1536x864 mode rpicam-vid actually picked, it
+# silently moved the picture (measured: intended (1504,846,1600,900) landed at
+# (1770,996,1066,599)). Both jobs now live in video_geometry, which computes
+# the ROI against the SELECTED MODE's field and refuses upscaling outright.
+# See video_geometry.crop_to_roi / parse_output.
 
 
 def _select_video_command(capture_backend):
@@ -293,40 +362,72 @@ def _select_video_command(capture_backend):
 
 def build_encoder_command(settings, vcfg, h264_path, *, binary=None,
                           controls=None):
-    """argv for ONE clip's encoder process (D-S15-2).
+    """argv for ONE clip's encoder process (D-S15-2, geometry per D-S17-1..4).
 
-    - geometry: settings['crop_native_xywh'] -> --roi, settings
-      ['output_size'] -> --width/--height (evened). BOTH come from the
-      stills keys via resolve_rc_settings — no video geometry exists.
-    - camera controls: the SAME _camera_controls_from_settings builder the
-      stills capture uses (focus/AWB/exposure parity, constraint 4).
-    - --inline repeats SPS/PPS headers so the raw .h264.part muxes cleanly
+    Geometry comes from vcfg['geometry'] — the VIDEO-only keys, resolved and
+    upscale-checked at config time. It no longer derives from the stills keys:
+    stills and video are independent settings (Nick 2026-08-18), which also
+    removes the whole class of bug where one number meant two things.
+
+    - `--mode` is ALWAYS passed (D-S17-2). Letting rpicam-vid choose is what
+      selected the 1536x864 mode and produced the 1.88x upscale.
+    - `--roi` fractions are relative to THAT MODE's field of view, computed by
+      video_geometry.crop_to_roi.
+    - encoder knobs (profile/level/intra/denoise/sharpness) are appended only
+      when set, so an absent block reproduces today's rpicam-vid defaults.
+    - `--inline` repeats SPS/PPS headers so the raw .h264.part muxes cleanly
       even when a clip is cut mid-stream.
+    - camera controls ride the SAME builder the stills capture uses.
 
     Returns (argv, requested_controls_metadata).
     """
     if binary is None:
         binary, _ = _select_video_command(settings["capture_backend"])
+    geo = vcfg["geometry"]
     duration_ms = int(round(float(vcfg["clip_minutes"]) * 60 * 1000))
-    (w, h), _ = even_video_output_size(settings["output_size"])
-    roi = crop_xywh_to_roi(settings["crop_native_xywh"])
+    w, h = geo["output_wh"]
     argv = [
         binary,
         "-n",                       # no preview (headless field unit)
         "-t", str(duration_ms),
         "--codec", "h264",
         "--inline",
+        "--mode", geo["mode_arg"],  # D-S17-2: never leave this to auto
         "--width", str(w),
         "--height", str(h),
-        "--framerate", str(int(vcfg["fps"])),
+        "--framerate", str(int(geo["fps"])),
         "--bitrate", str(int(round(float(vcfg["bitrate_mbps"]) * 1_000_000))),
-        "--roi", roi,
+        "--roi", geo["roi"],
         "-o", h264_path,
     ]
+    argv.extend(build_encoder_knob_args(vcfg.get("encoder") or {}))
     controls_args, requested = _camera_controls_from_settings(
         {"camera_controls": controls} if controls else None)
     argv.extend(controls_args)
     return argv, requested
+
+
+def build_encoder_knob_args(enc):
+    """video.encoder -> argv fragments (D-S17-4). Only SET knobs are emitted.
+
+    All five verified present in rpicam-apps v1.12.0 on bmcam000. Note that
+    `--qp` is NOT among them — it does not exist in this build, and the libav
+    path that would offer constant-quality encoding is not compiled in
+    (libav:0), so constant quality is out of reach without moving video to
+    Picamera2. Dropped from Sprint17 by decision (SPEC 5, item 3).
+    """
+    args = []
+    if enc.get("profile"):
+        args += ["--profile", str(enc["profile"])]
+    if enc.get("level"):
+        args += ["--level", str(enc["level"])]
+    if enc.get("intra"):
+        args += ["--intra", str(int(enc["intra"]))]
+    if enc.get("denoise"):
+        args += ["--denoise", str(enc["denoise"])]
+    if enc.get("sharpness") is not None:
+        args += ["--sharpness", str(enc["sharpness"])]
+    return args
 
 
 # ---------------------------------------------------------------------------
@@ -467,8 +568,9 @@ def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
     Returns a dict: ok, stage, basename, mp4/thumb paths, bytes,
     encode_s, boundary_s, requested camera-control metadata.
     """
-    (w, h), _ = even_video_output_size(settings["output_size"])
-    base = clip_basename(now_fn(), (w, h), vcfg["fps"])
+    geo = vcfg["geometry"]
+    w, h = geo["output_wh"]
+    base = clip_basename(now_fn(), (w, h), geo["fps"])
     part = os.path.join(video_dir, base + ".h264.part")
     mp4_tmp = os.path.join(video_dir, base + ".mp4.tmp")
     mp4 = os.path.join(video_dir, base + ".mp4")
@@ -484,7 +586,9 @@ def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
     result["requested_controls"] = requested
     clip_s = float(vcfg["clip_minutes"]) * 60.0
     print(f"[VID] clip start: {base} ({clip_s:.0f}s nominal, "
-          f"{w}x{h}@{vcfg['fps']}fps {vcfg['bitrate_mbps']}Mbps)")
+          f"{w}x{h}@{geo['fps']}fps {vcfg['bitrate_mbps']}Mbps, "
+          f"mode {geo['sensor_mode']}, {geo['available_px'][0]}x"
+          f"{geo['available_px'][1]} available px, scale {geo['scale']}x)")
 
     rc_enc, encode_s = run_fn(argv, clip_s + ENCODER_TIMEOUT_MARGIN_S)
     result["encode_s"] = encode_s
@@ -498,7 +602,7 @@ def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
     boundary_started = time.monotonic()
     result["stage"] = "mux"
     rc_mux, _ = run_fn(
-        build_mux_command(ffmpeg_binary, vcfg["fps"], part, mp4_tmp),
+        build_mux_command(ffmpeg_binary, geo["fps"], part, mp4_tmp),
         MUX_TIMEOUT_S)
     mp4_bytes = os.path.getsize(mp4_tmp) if os.path.exists(mp4_tmp) else 0
     if rc_mux != 0 or mp4_bytes <= 0:
