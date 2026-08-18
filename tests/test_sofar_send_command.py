@@ -13,6 +13,8 @@ Run (repo root):
   python3 -m unittest tests.test_sofar_send_command -v
 """
 
+import contextlib
+import io
 import json
 import os
 import sys
@@ -141,7 +143,10 @@ class TestMainSendPath(unittest.TestCase):
                                               "message": "enqueued"}
         with mock.patch.object(ssc, "post_command",
                                return_value=(status, resp)) as p:
-            rc = ssc.main(argv)
+            # Swallow main()'s console output so mocked "[OK] enqueued"
+            # lines can't be mistaken for a real Sofar API send.
+            with contextlib.redirect_stdout(io.StringIO()):
+                rc = ssc.main(argv)
         return rc, p
 
     def test_dry_run_sends_nothing_logs_nothing(self):
