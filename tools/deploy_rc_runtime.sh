@@ -96,13 +96,17 @@ run mkdir -p "$BACKUP_DIR" "$DST"
 # ---- backup ---------------------------------------------------------------
 if [[ -d "$DST" ]] && [[ -n "$(ls -A "$DST" 2>/dev/null)" ]]; then
   BACKUP_PATH="$BACKUP_DIR/BM_Devel_Pi_before_rc_deploy_${HOSTNAME_VALUE}_${TS}.tgz"
-  log "backing up runtime code/config to $BACKUP_PATH (images/buffers/logs excluded)"
+  log "backing up runtime code/config to $BACKUP_PATH (images/buffers/logs/videos excluded)"
+  # videos/ excluded 2026-08-18: a video-mode unit carries GBs of clips
+  # (bmcam003: 2.3 GB tarred for 13+ min on a Zero 2W). Clips are data
+  # with their own lifecycle (ring buffer), not runtime code/config.
   if [[ "$DRY_RUN" == "true" ]]; then
-    echo "[DRY-RUN] tar czf $BACKUP_PATH --exclude images --exclude buffer --exclude cron_logs --exclude __pycache__ -C $(dirname "$DST") $(basename "$DST")"
+    echo "[DRY-RUN] tar czf $BACKUP_PATH --exclude images --exclude buffer --exclude cron_logs --exclude videos --exclude __pycache__ -C $(dirname "$DST") $(basename "$DST")"
   else
     tar czf "$BACKUP_PATH" \
       --exclude "$(basename "$DST")/images" --exclude "$(basename "$DST")/buffer" \
       --exclude "$(basename "$DST")/cron_logs" --exclude "$(basename "$DST")/__pycache__" \
+      --exclude "$(basename "$DST")/videos" \
       -C "$(dirname "$DST")" "$(basename "$DST")"
   fi
   log "restore command: tar xzf $BACKUP_PATH -C $(dirname "$DST")"
