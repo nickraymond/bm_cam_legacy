@@ -60,14 +60,18 @@ the existing YAML-write machinery (timestamped
 session-only, clearly labeled "until next power cycle". UI shows an
 open-network banner whenever mode == ap (D-S16-6).
 
-## D-S16-5 — HQ credentials (provision-time, never in-repo)
+## D-S16-5 — HQ credentials (adopt the existing NM profile)
 
-`nereus-hq` NM profile installed during provisioning (new
-bmcam-provision step: human supplies SSID/PSK at the keyboard or via
-a file that is shredded after `nmcli connection add`). The repo,
-YAML, logs, and BM bus never carry the PSK. The profile name is the
-contract (`hq` verb activates it); its absence makes `wap 2` fail
-loudly and harmlessly.
+The office-WiFi NM profile ALREADY on each unit (written at flash
+time by Raspberry Pi Imager; it is how the fleet is connected today)
+IS the HQ credential store — keep it as-is (Nick 2026-08-18). Adoption
+is one metadata rename, no password re-entry:
+`nmcli connection modify <current-name> connection.id nereus-hq`.
+The profile name `nereus-hq` is the contract (`hq` verb activates
+it); its absence makes `wap 2` fail loudly and harmlessly. Only a
+future unit flashed WITHOUT baked-in WiFi needs the provision-time
+add (bmcam-provision note). The repo, YAML, logs, and BM bus never
+carry the PSK.
 
 ## D-S16-6 — Open-AP exposure posture
 

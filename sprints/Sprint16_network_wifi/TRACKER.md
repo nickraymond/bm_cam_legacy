@@ -10,8 +10,9 @@ Tick a box only when an artifact proves it. SPECCED 2026-08-18.
 - [x] DESIGN.md D-S16-1..7 written
 - [ ] Bench prerequisites: bmcam000 (dev mode, Trixie, tailnet OK —
       done 2026-08-18), Nick's iPhone available for AP joins; HQ NM
-      profile provisioned on bmcam000 (D-S16-5 — needs Nick for the
-      PSK at the keyboard)
+      profile = the unit's EXISTING office-WiFi connection, adopted by
+      rename to `nereus-hq` (D-S16-5 — no password re-entry needed,
+      Nick 2026-08-18)
 
 ## 1. nmcli network layer (network_ap.sh rewrite)
 - [ ] `status` / `default` / `ap` / `hq` / `join <ssid> <psk>` /
