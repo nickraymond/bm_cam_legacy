@@ -1,0 +1,256 @@
+COMMAND: rpicam-vid -n -v 2 -t 6000 --codec h264 --inline --width 1600 --height 900 --framerate 15 --bitrate 4000000 --roi 0.326389,0.326389,0.347222,0.347222 -o /home/pi/sprint17_probe_20260818T192651Z/prod_crop_1to1_fullmode.h264 --mode 4608:2592:10:P
+[11:20:32.349796896] [8297]  INFO Camera camera_manager.cpp:340 libcamera v0.7.1+rpt20260609
+[11:20:32.395586077] [8301]  WARN CameraSensorProperties camera_sensor_properties.cpp:548 No static properties available for 'imx708_wide'
+[11:20:32.395700555] [8301]  WARN CameraSensorProperties camera_sensor_properties.cpp:550 Please consider updating the camera sensor properties database
+[11:20:32.478858066] [8301]  INFO RPI pipeline_base.cpp:1133 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+[11:20:32.557117420] [8301]  INFO IPAProxy ipa_proxy.cpp:184 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+[11:20:32.571511526] [8301]  WARN CameraSensor camera_sensor_legacy.cpp:502 'imx708_wide': No sensor delays found in static properties. Assuming unverified defaults.
+[11:20:32.572831833] [8301]  INFO Camera camera_manager.cpp:223 Adding camera '/base/soc/i2c0mux/i2c@1/imx708@1a' for pipeline handler rpi/vc4
+[11:20:32.572926780] [8301]  INFO RPI vc4.cpp:445 Registered camera /base/soc/i2c0mux/i2c@1/imx708@1a to Unicam device /dev/media2 and ISP device /dev/media0
+Options:
+    verbose: 2
+    info_text:
+    timeout: 6000ms
+    width: 1600
+    height: 900
+    output: /home/pi/sprint17_probe_20260818T192651Z/prod_crop_1to1_fullmode.h264
+    post_process_file: 
+    post_process_libs: 
+    preview: none
+    qt-preview: 0
+    transform: identity
+    roi: 0.326389,0.326389,0.347222,0.347222
+    metering: centre
+    exposure: normal
+    ev: 0
+    awb: auto
+    flush: false
+    wrap: 0
+    brightness: 0
+    contrast: 1
+    saturation: 1
+    sharpness: 1
+    framerate: 15
+    denoise: auto
+    viewfinder-width: 0
+    viewfinder-height: 0
+    tuning-file: (libcamera)
+    lores-width: 0
+    lores-height: 0
+    lores-par: 0
+    autofocus-range: normal
+    autofocus-speed: normal
+    autofocus-window: all
+    hdr: off
+    mode: 4608:2592:10:P
+    viewfinder-mode: unspecified
+    metadata: 
+    metadata-format: json
+Running without preview window
+Opening camera...
+Acquired camera /base/soc/i2c0mux/i2c@1/imx708@1a
+Configuring video...
+Mode selection for 4608:2592:10:P(15)
+    SRGGB10_CSI2P,1536x864/120.135 - Score: 9600
+    SRGGB10_CSI2P,2304x1296/56.0255 - Score: 7200
+    SRGGB10_CSI2P,4608x2592/14.3536 - Score: 1292.83
+[11:20:32.586238182] [8297]  INFO Camera camera.cpp:1216 configuring streams: (0) 1600x900-YUV420/Rec709 (1) 4608x2592-SBGGR10_CSI2P/RAW
+[11:20:32.586770680] [8301]  INFO RPI vc4.cpp:620 Sensor: /base/soc/i2c0mux/i2c@1/imx708@1a - Selected sensor format: 4608x2592-SBGGR10_1X10/RAW - Selected unicam format: 4608x2592-pBAA/RAW
+Camera streams configured
+Available controls:
+    AwbEnable : [false..true]
+    NoiseReductionMode : [0..4]
+    ColourGains : [0.000000..32.000000]
+    AwbMode : [0..7]
+    ColourTemperature : [100..100000]
+    Saturation : [0.000000..32.000000]
+    SyncMode : [0..2]
+    AeEnable : [false..true]
+    CnnEnableInputTensor : [false..true]
+    AeExposureMode : [0..3]
+    HdrMode : [0..4]
+    AeConstraintMode : [0..3]
+    AfTrigger : [0..1]
+    LensPosition : [0.000000..35.000000]
+    Contrast : [0.000000..32.000000]
+    AfWindows : [(0, 0)/0x0..(65535, 65535)/65535x65535]
+    AeFlickerPeriod : [100..1000000]
+    AfSpeed : [0..1]
+    StatsOutputEnable : [false..true]
+    AfMetering : [0..1]
+    AeMeteringMode : [0..3]
+    AfRange : [0..2]
+    FrameDurationLimits : [69669..220535845]
+    AfMode : [0..2]
+    AnalogueGainMode : [0..1]
+    AfPause : [0..2]
+    AnalogueGain : [1.122807..16.000000]
+    ColourCorrectionMatrix : [0.000000..8.000000]
+    Brightness : [-1.000000..1.000000]
+    ExposureTime : [26..220416802]
+    AeFlickerMode : [0..1]
+    ExposureValue : [-8.000000..8.000000]
+    ExposureTimeMode : [0..1]
+    SyncFrames : [100..100000]
+    Sharpness : [0.000000..16.000000]
+    ScalerCrop : [(0, 0)/64x64..(0, 0)/4608x2592]
+Buffers allocated and mapped
+Video setup complete
+Opened H264Encoder on /dev/video11 as fd 30
+Got 6 output buffers
+Got 12 capture buffers
+Codec streaming started
+Requests created
+Using crop (main) (1504, 846)/1599x899
+Camera started!
+Viewfinder frame 0
+Viewfinder frame 1
+FileOutput: opened output file /home/pi/sprint17_probe_20260818T192651Z/prod_crop_1to1_fullmode.h264
+FileOutput: output buffer 0x7f88130000 size 13294
+FileOutput: output buffer 0x7f88070000 size 2532
+Viewfinder frame 2
+FileOutput: output buffer 0x7f7cd52000 size 2684
+Viewfinder frame 3
+FileOutput: output buffer 0x7f7cc92000 size 3749
+Viewfinder frame 4
+FileOutput: output buffer 0x7f7cbd2000 size 6132
+Viewfinder frame 5
+FileOutput: output buffer 0x7f7cb12000 size 8293
+Viewfinder frame 6
+FileOutput: output buffer 0x7f7ca52000 size 11752
+Viewfinder frame 7
+FileOutput: output buffer 0x7f7c992000 size 14503
+Viewfinder frame 8
+FileOutput: output buffer 0x7f7c8d2000 size 18393
+Viewfinder frame 9
+FileOutput: output buffer 0x7f7c812000 size 25698
+Viewfinder frame 10
+FileOutput: output buffer 0x7f7c752000 size 26833
+Viewfinder frame 11
+FileOutput: output buffer 0x7f7c692000 size 25147
+Viewfinder frame 12
+FileOutput: output buffer 0x7f88130000 size 25191
+Viewfinder frame 13
+FileOutput: output buffer 0x7f88070000 size 24763
+Viewfinder frame 14
+FileOutput: output buffer 0x7f7cd52000 size 24622
+Viewfinder frame 15
+FileOutput: output buffer 0x7f7cc92000 size 24895
+Viewfinder frame 16
+FileOutput: output buffer 0x7f7cbd2000 size 24652
+Viewfinder frame 17
+FileOutput: output buffer 0x7f7cb12000 size 24574
+Viewfinder frame 18
+FileOutput: output buffer 0x7f7ca52000 size 24627
+Viewfinder frame 19
+FileOutput: output buffer 0x7f7c992000 size 24476
+Viewfinder frame 20
+FileOutput: output buffer 0x7f7c8d2000 size 24584
+Viewfinder frame 21
+FileOutput: output buffer 0x7f7c812000 size 24640
+Viewfinder frame 22
+FileOutput: output buffer 0x7f7c752000 size 24253
+Viewfinder frame 23
+FileOutput: output buffer 0x7f7c692000 size 24473
+Viewfinder frame 24
+FileOutput: output buffer 0x7f88130000 size 24681
+Viewfinder frame 25
+FileOutput: output buffer 0x7f88070000 size 24471
+Viewfinder frame 26
+FileOutput: output buffer 0x7f7cd52000 size 24597
+Viewfinder frame 27
+FileOutput: output buffer 0x7f7cc92000 size 24470
+Viewfinder frame 28
+FileOutput: output buffer 0x7f7cbd2000 size 24561
+Viewfinder frame 29
+FileOutput: output buffer 0x7f7cb12000 size 24200
+Viewfinder frame 30
+FileOutput: output buffer 0x7f7ca52000 size 24556
+Viewfinder frame 31
+FileOutput: output buffer 0x7f7c992000 size 24199
+Viewfinder frame 32
+FileOutput: output buffer 0x7f7c8d2000 size 24529
+Viewfinder frame 33
+FileOutput: output buffer 0x7f7c812000 size 24738
+Viewfinder frame 34
+FileOutput: output buffer 0x7f7c752000 size 24355
+Viewfinder frame 35
+FileOutput: output buffer 0x7f7c692000 size 24500
+Viewfinder frame 36
+FileOutput: output buffer 0x7f88130000 size 24074
+Viewfinder frame 37
+FileOutput: output buffer 0x7f88070000 size 24282
+Viewfinder frame 38
+FileOutput: output buffer 0x7f7cd52000 size 23904
+Viewfinder frame 39
+FileOutput: output buffer 0x7f7cc92000 size 24273
+Viewfinder frame 40
+FileOutput: output buffer 0x7f7cbd2000 size 24284
+Viewfinder frame 41
+FileOutput: output buffer 0x7f7cb12000 size 24118
+Viewfinder frame 42
+FileOutput: output buffer 0x7f7ca52000 size 24281
+Viewfinder frame 43
+FileOutput: output buffer 0x7f7c992000 size 24395
+Viewfinder frame 44
+FileOutput: output buffer 0x7f7c8d2000 size 24585
+Viewfinder frame 45
+FileOutput: output buffer 0x7f7c812000 size 24450
+Viewfinder frame 46
+FileOutput: output buffer 0x7f7c752000 size 24254
+Viewfinder frame 47
+FileOutput: output buffer 0x7f7c692000 size 24319
+Viewfinder frame 48
+FileOutput: output buffer 0x7f88130000 size 24445
+Viewfinder frame 49
+FileOutput: output buffer 0x7f88070000 size 24151
+Viewfinder frame 50
+FileOutput: output buffer 0x7f7cd52000 size 24187
+Viewfinder frame 51
+FileOutput: output buffer 0x7f7cc92000 size 24226
+Viewfinder frame 52
+FileOutput: output buffer 0x7f7cbd2000 size 24357
+Viewfinder frame 53
+FileOutput: output buffer 0x7f7cb12000 size 24485
+Viewfinder frame 54
+FileOutput: output buffer 0x7f7ca52000 size 24503
+Viewfinder frame 55
+FileOutput: output buffer 0x7f7c992000 size 24271
+Viewfinder frame 56
+FileOutput: output buffer 0x7f7c8d2000 size 24380
+Viewfinder frame 57
+FileOutput: output buffer 0x7f7c812000 size 24349
+Viewfinder frame 58
+FileOutput: output buffer 0x7f7c752000 size 24610
+Viewfinder frame 59
+FileOutput: output buffer 0x7f7c692000 size 24634
+Viewfinder frame 60
+FileOutput: output buffer 0x7f88130000 size 57338
+Viewfinder frame 61
+FileOutput: output buffer 0x7f88070000 size 27012
+Viewfinder frame 62
+FileOutput: output buffer 0x7f7cd52000 size 24845
+Viewfinder frame 63
+FileOutput: output buffer 0x7f7cc92000 size 24421
+Viewfinder frame 64
+FileOutput: output buffer 0x7f7cbd2000 size 24341
+Viewfinder frame 65
+FileOutput: output buffer 0x7f7cb12000 size 24178
+Viewfinder frame 66
+FileOutput: output buffer 0x7f7ca52000 size 24443
+Viewfinder frame 67
+FileOutput: output buffer 0x7f7c992000 size 24181
+Viewfinder frame 68
+FileOutput: output buffer 0x7f7c8d2000 size 24212
+Viewfinder frame 69
+FileOutput: output buffer 0x7f7c812000 size 24256
+Viewfinder frame 70
+FileOutput: output buffer 0x7f7c752000 size 24257
+Viewfinder frame 71
+Halting: reached timeout of 6000 milliseconds.
+Camera stopped!
+H264Encoder closed
+Closing RPiCam application(frames displayed 71, dropped 0)
+Camera stopped!
+Tearing down requests, buffers and configuration
+Camera closed
