@@ -1,15 +1,17 @@
 # Sprint16 — Tracker
 
-Tick a box only when an artifact proves it. DRAFT 2026-08-18 —
-work does NOT start until Nick reviews SPEC.md (spec session).
+Tick a box only when an artifact proves it. SPECCED 2026-08-18.
 
 ## 0. Setup
-- [ ] Spec session with Nick: command surface (wap v7 vs `net`
-      family), HQ-credential provisioning story, open-AP mitigations
-      (or explicitly none), timer defaults — locked into SPEC.md
-- [ ] DESIGN.md D-S16-N decisions written
+- [x] Spec session with Nick 2026-08-18: boot model (strict YAML
+      default + session-only switches + 90 s AP fallback, Nick's own
+      proposal), wap v7, GUI-only creds, open AP + banner — locked in
+      SPEC.md
+- [x] DESIGN.md D-S16-1..7 written
 - [ ] Bench prerequisites: bmcam000 (dev mode, Trixie, tailnet OK —
-      done 2026-08-18), Nick's iPhone available for AP joins
+      done 2026-08-18), Nick's iPhone available for AP joins; HQ NM
+      profile provisioned on bmcam000 (D-S16-5 — needs Nick for the
+      PSK at the keyboard)
 
 ## 1. nmcli network layer (network_ap.sh rewrite)
 - [ ] `status` / `default` / `ap` / `hq` / `join <ssid> <psk>` /
