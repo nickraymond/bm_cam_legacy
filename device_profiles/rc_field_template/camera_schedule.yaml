@@ -112,6 +112,23 @@ progressive_jpeg:
 # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.
+# Sprint15 video island — present even on stills-mode units so the
+# settings GUI can edit these keys (it edits configs, never authors
+# them; bench finding bmcam000 2026-08-18). capture_mode governs
+# whether video actually runs.
+video:
+  clip_minutes: 5
+  fps: 15
+  bitrate_mbps: 2.0
+  session_minutes: 0
+  storage:
+    max_used_pct: 75
+    min_free_gb: 10
+    ring_dry_run: false
+  ui:
+    enabled: true
+    port: 8080
+
 # Sprint16 network boot default: customer/field ships default to the OPEN
 # AP (SSID = hostname) so the download UI is always reachable; runtime
 # switches are session-only and every power cycle returns here (D-S16-3).
