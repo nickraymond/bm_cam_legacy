@@ -120,6 +120,18 @@ video:
     enabled: true
     port: 8080
 
+# Sprint16 network boot default (D-S16-3/4) — the ONE persistent piece of
+# WiFi state. Runtime switches (wap 0/1/2, the GUI join form) are
+# session-only: every power cycle returns to this. `ap` = open hotspot,
+# SSID = hostname (the customer-ship value); `nereus_hq` = join the
+# provisioned office-WiFi NM profile, falling back to the AP if it is not
+# joined within ap_fallback_s (a unit can never boot unreachable).
+# No island at all = WiFi left entirely to the OS (pre-Sprint16 behavior).
+network:
+  default: nereus_hq       # ap | nereus_hq (ship value: ap)
+  ap_fallback_s: 90        # AP fallback window for a client default
+  ap_timeout_min: 60       # auto-revert timer for REMOTE wap flips
+
 # RC power-savings halt (M6 wraps tools/power/tuned_halt.sh, ~0.26 W validated).
 # dry_run true logs the halt intent without halting (bench-safe default).
 # Recovery from a real halt is a manual power cycle.

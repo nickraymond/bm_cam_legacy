@@ -909,6 +909,19 @@ def main(argv=None, **cycle_overrides):
               f"{command_state.load_info['source']})")
         settings = _apply_command_overlay(settings, command_state)
 
+    # Sprint16 (D-S16-3): apply the network boot default (fire-and-forget;
+    # a WiFi problem must never cost a capture cycle). No island = no-op,
+    # so pre-Sprint16 configs behave exactly as before. Skipped for
+    # --print-config (inspection must have zero side effects).
+    if not args.print_config:
+        try:
+            import network_config
+            net_cfg = network_config.load_network_config(args.config_path)
+            network_config.print_network_settings(net_cfg)
+            network_config.apply_boot_default(net_cfg)
+        except Exception as exc:
+            print(f"[NET][WARN] network island skipped: {exc}")
+
     # Sprint15 (D-S15-1): capture_mode video dispatches to the video runtime
     # right after config load + command-overlay resolution. Cron line, lock,
     # and overlay doctrine unchanged; a video unit and a stills unit differ

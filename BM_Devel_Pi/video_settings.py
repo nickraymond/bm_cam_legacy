@@ -155,6 +155,21 @@ FIELDS = [
                     ("true", "On — only report what WOULD be deleted")],
         "help": "Diagnostic mode. Leave Off for deployments.",
     },
+    {
+        # Sprint16 D-S16-4: the ship switch. Session-only wap/join flips
+        # never touch this; every power cycle returns here.
+        "key": "network.default",
+        "label": "WiFi at power-on (boot default)",
+        "kind": "choice",
+        "choices": [("ap", "Hotspot (open, named after the camera) — "
+                           "ship setting"),
+                    ("nereus_hq", "Nereus HQ office WiFi (dev/bench)")],
+        "help": "What network the camera provides or joins every time it "
+                "powers on. Temporary switches (commands, the join form "
+                "below) always fall back to this at the next power cycle. "
+                "If the office WiFi can't be found, the hotspot comes up "
+                "instead.",
+    },
 ]
 
 _FIELDS_BY_KEY = {f["key"]: f for f in FIELDS}
@@ -320,3 +335,8 @@ def _validate_config(config_path):
         import video_recorder
 
         video_recorder.load_video_config(config_path)
+    # Sprint16: a present-but-invalid network island must also block the
+    # save (absent island is fine — load returns None).
+    import network_config
+
+    network_config.load_network_config(config_path)

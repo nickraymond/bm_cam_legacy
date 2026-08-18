@@ -24,6 +24,7 @@ import sys
 import tempfile
 import types
 import unittest
+from unittest import mock
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -77,6 +78,11 @@ video:
   ui:
     enabled: true
     port: 8080
+
+network:
+  default: nereus_hq       # ap | nereus_hq (ship value: ap)
+  ap_fallback_s: 90
+  ap_timeout_min: 60
 """
 
 
@@ -175,11 +181,13 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.restarts = []
+        self.joins = []
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             self.server = videoui_server.start_ui_server(
                 self.dir, 0, host="127.0.0.1", config_path=self.yaml,
-                restart_fn=lambda: self.restarts.append(1))
+                restart_fn=lambda: self.restarts.append(1),
+                join_fn=lambda ssid, psk: self.joins.append((ssid, psk)))
         self.addCleanup(self.server.server_close)
         self.addCleanup(self.server.shutdown)
         self.port = self.server.server_address[1]
@@ -233,6 +241,84 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("Restarting", page)
         self.assertEqual(self.restarts, [1])
+
+    # ---- Sprint16 (D-S16-4): network default + session-only join -----
+
+    def test_settings_page_shows_network_default(self):
+        status, page = self._get("/settings")
+        self.assertIn("WiFi at power-on", page)
+        self.assertIn('value="nereus_hq" selected', page)
+        self.assertIn("Connect to a WiFi network", page)
+
+    def test_post_changes_network_default(self):
+        current = vs.read_current(self.yaml)
+        form = dict(current)
+        form["network.default"] = "ap"
+        with contextlib.redirect_stdout(io.StringIO()):
+            status, page = self._post("/settings", form)
+        self.assertIn("Saved: network.default", page)
+        self.assertIn("default: ap", open(self.yaml).read())
+
+    def test_join_route_uses_injected_fn(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            status, page = self._post(
+                "/settings/join",
+                {"wifi_ssid": "CustomerNet", "wifi_psk": "hunter2hunter2"})
+        self.assertEqual(status, 200)
+        self.assertIn("Connecting to", page)
+        self.assertIn("forgets this network", page)
+        self.assertEqual(self.joins, [("CustomerNet", "hunter2hunter2")])
+
+    def test_join_rejects_short_psk_and_empty_ssid(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            _, page = self._post("/settings/join",
+                                 {"wifi_ssid": "X", "wifi_psk": "short"})
+        self.assertIn("NOT changed", page)
+        with contextlib.redirect_stdout(io.StringIO()):
+            _, page = self._post("/settings/join",
+                                 {"wifi_ssid": "", "wifi_psk": "longenough"})
+        self.assertIn("NOT changed", page)
+        self.assertEqual(self.joins, [])
+        self.assertEqual(open(self.yaml).read(), SAMPLE_YAML)
+
+    def test_posts_redirect_not_replayable(self):
+        # PRG regression (bmcam000 2026-08-18): Safari replayed a cached
+        # /restart POST on page refresh and rebooted the camera mid-AP.
+        # Every POST must answer 303 so a refresh re-GETs harmlessly.
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k):
+                return None
+        opener = urllib.request.build_opener(NoRedirect)
+        for route, data in (
+                ("/restart", {}),
+                ("/settings", {"video.fps": "15"}),
+                ("/settings/join",
+                 {"wifi_ssid": "X", "wifi_psk": "hunter2hunter2"})):
+            body = urllib.parse.urlencode(data).encode()
+            req = urllib.request.Request(
+                f"http://127.0.0.1:{self.port}{route}", data=body)
+            with contextlib.redirect_stdout(io.StringIO()):
+                try:
+                    opener.open(req, timeout=5)
+                    self.fail(f"{route} did not redirect")
+                except urllib.error.HTTPError as e:
+                    self.assertEqual(e.code, 303, route)
+                    self.assertTrue(e.headers["Location"], route)
+
+    def test_open_ap_banner_tracks_mode_file(self):
+        mode_file = os.path.join(self.dir, "mode")
+        with open(mode_file, "w") as f:
+            f.write("ap\n")
+        with mock.patch.object(videoui_server, "NET_MODE_FILE", mode_file):
+            _, gallery = self._get("/")
+            _, settings = self._get("/settings")
+        self.assertIn("Open hotspot mode", gallery)
+        self.assertIn("Open hotspot mode", settings)
+        with open(mode_file, "w") as f:
+            f.write("client:nereus-hq\n")
+        with mock.patch.object(videoui_server, "NET_MODE_FILE", mode_file):
+            _, gallery = self._get("/")
+        self.assertNotIn("Open hotspot mode", gallery)
 
     def _form_echo(self):
         """What a real browser submits: EVERY field's current value."""

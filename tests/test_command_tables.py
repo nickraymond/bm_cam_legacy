@@ -289,10 +289,11 @@ class TestV2Tables(unittest.TestCase):
 class TestSprint12Tables(unittest.TestCase):
     """hlt / twn / trg — Sprint12 remote-config commands (2026-07-31)."""
 
-    def test_tables_version_is_6(self):
-        # v6 = Sprint15 wap (this assert exists to force a conscious bump
-        # on ANY table change — update it WITH the change, never alone).
-        self.assertEqual(ct.TABLES_VERSION, 6)
+    def test_tables_version_is_7(self):
+        # v7 = Sprint16 wap 0/1/2 (this assert exists to force a conscious
+        # bump on ANY table change — update it WITH the change, never
+        # alone).
+        self.assertEqual(ct.TABLES_VERSION, 7)
 
     def test_hlt_index_zero_carries_no_override(self):
         # 0 = YAML governs. If someone gives index 0 an override payload, a
