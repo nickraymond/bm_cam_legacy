@@ -1,0 +1,57 @@
+{
+  "run_tag": "sprint15_hil_20260818_bmcam003_004",
+  "purpose": "Sprint15 closeout replan: deploy the merged development tip to bmcam003 + bmcam004 (both Trixie/NetworkManager), bench-verify the video pipeline on each, arm continuous HIL. Replaces the deferred bmcam000 HIL morning review (bmcam000 reformatted to Trixie by Nick the same morning).",
+  "date_utc": "2026-08-18",
+  "build": {
+    "ref": "development",
+    "sha": "4132c31a3289c58757b5e676405334380c9bcd93",
+    "note": "merge of PR #38 (Sprint15 video recording)"
+  },
+  "units": {
+    "bmcam003": {
+      "os": "Debian 13 trixie, kernel 6.18.34+rpt-rpi-v8",
+      "camera": "imx708_wide",
+      "ffmpeg": "7.1.5-0+deb13u1+rpt1 (installed 2026-08-18, was missing)",
+      "yaml_backup": "camera_schedule.yaml.before_sprint15_video_20260818T045535Z",
+      "crontab_backup": "/home/pi/backups/crontab_before_rc_deploy_bmcam003_20260818T045851Z.txt",
+      "optics": "manual focus lens 1.82, AWB/exposure auto (unit stills keys, inherited)",
+      "hil_start_utc": "2026-08-18T05:00:03Z"
+    },
+    "bmcam004": {
+      "os": "Debian 13 trixie, kernel 6.18.34+rpt-rpi-v8",
+      "camera": "imx708_wide",
+      "ffmpeg": "7.1.5-0+deb13u1+rpt1 (installed 2026-08-18, was missing)",
+      "yaml_backup": "camera_schedule.yaml.before_sprint15_video_20260818T045539Z",
+      "crontab_backup": "/home/pi/backups/crontab_before_rc_deploy_bmcam004_20260818T045902Z.txt",
+      "optics": "camera_controls_enabled=false (full auto; unit stills keys, inherited)",
+      "hil_start_utc": "2026-08-18T04:59:42Z"
+    }
+  },
+  "config": {
+    "capture_mode": "video",
+    "clip_minutes": 5,
+    "fps": 15,
+    "bitrate_mbps": 2.0,
+    "session_minutes": 0,
+    "resolution": "1000x562 (inherited from stills keys, crop_xywh 1504,846,1600,900)",
+    "power_halt": "disabled/dry-run on both units (bench-safe; potted units must not self-halt)",
+    "storage_ring": "max_used_pct 75 / min_free_gb 10, ~107 GB free at start"
+  },
+  "bench_evidence": {
+    "per_unit": "4 consecutive 15 s clips (clip_minutes 0.25, session_minutes 1), all complete triples (mp4 + thumb + sidecar), manifest 4 entries, zero .part/.tmp debris, clean session end, no halt",
+    "ffprobe": "h264 1000x562, ~14.4-14.5 s per 15 s nominal clip",
+    "boundary_gap_s": "2.2-3.8",
+    "cpu_temp_c": "33.2-35.4",
+    "files": ["bench_session_bmcam003.log", "bench_session_bmcam004.log", "bench_rollup.csv"]
+  },
+  "hil_evidence": {
+    "armed_via": "tools/deploy_rc_runtime.sh --install-cron (@reboot flock line), reboot 2026-08-18T~04:59Z",
+    "verified": "both units: .part growing, gallery 200, manifest.json 200, Range request 206, cron log shows continuous session",
+    "files": ["hil_start_bmcam003.log", "hil_start_bmcam004.log"]
+  },
+  "notes": [
+    "Sofar 'vid' status rows not expected: bench units, plain cron path sends over UART only when a transmitting Spotter hosts the unit; morning review of this HIL owns that check.",
+    "Sidecar size differs between units (963 B vs 577 B) because bmcam003 carries requested_controls detail (manual focus) while bmcam004 has camera_controls_enabled=false — per-unit stills-key drift, by design.",
+    "wap/AP rehearsal deferred: network_ap.sh is Bullseye-stack (hostapd) and needs an nmcli rewrite for Trixie (tracker section 6, TODO-BM-012)."
+  ]
+}

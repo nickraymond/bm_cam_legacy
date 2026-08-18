@@ -30,9 +30,14 @@ Wait for `NOPASSWD_OK` before proceeding — everything below needs non-interact
 
 Fresh trixie is missing git and the Python camera stack (`yaml` is present; `serial`, `PIL`, `picamera2` are not). Install via apt (never pip — these must match the system libcamera):
 ```
-ssh pi@bmcamNNN 'sudo apt-get install -y git python3-serial python3-pil python3-picamera2'
+ssh pi@bmcamNNN 'sudo apt-get install -y git python3-serial python3-pil python3-picamera2 ffmpeg'
 ```
 Sanity: `which rpicam-still` should already exist on Raspberry Pi OS; if it doesn't, the wrong OS image was flashed — stop.
+
+`ffmpeg` is for Sprint15 video mode (mux + poster frames) and is NOT
+preinstalled on trixie (found missing on bmcam003/004, 2026-08-18).
+Install it unconditionally — a stills unit flipped to video in the field
+must not discover the gap then.
 
 ## Phase 3 — Clone
 
@@ -94,6 +99,33 @@ cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
 - `--print-config` and `--capture-only` both pass; a real JPEG exists in `images/`.
 - `crontab -l` has the RC `@reboot` line ACTIVE (not `#BENCH-DISABLED`) before you walk away.
 - No lingering `tailscale up` process; `/tmp/ts_up_root_*.log` removed.
+
+## Video mode (Sprint15)
+
+A video unit differs from a stills unit by ONE YAML value:
+`capture_mode: "video"` plus the `video:` island (see
+`BM_Devel_Pi/camera_schedule.yaml` in the repo for the commented block;
+SPEC-locked defaults: clip_minutes 5, fps 15, bitrate_mbps 2.0,
+session_minutes 0). Geometry/focus/AWB inherit the stills keys — never
+add video geometry keys.
+
+- Validation ladder for video: `--print-config` must print the `[VID]`
+  island lines, then a short bench session (set `clip_minutes: 0.25`,
+  `session_minutes: 1`, run `python3 rc_progressive_jpeg.py`) must leave
+  playable `.mp4` + `_thumb.jpg` + `.json` triples in
+  `/home/pi/BM_Devel_Pi/videos/` and a `manifest.json`. Restore
+  clip/session values afterwards. ffprobe (ships with ffmpeg) verifies
+  codec/resolution/fps.
+- Gallery UI: `http://<unit>:8080/` (posters, tap-to-play, per-file
+  download). Settings GUI: `http://<unit>:8080/settings` edits
+  `camera_schedule.yaml` with timestamped backups
+  (`camera_schedule.yaml.before_gui_*`) — LEAVE the backups in place
+  (they are the customer's undo); changes apply on runtime restart, not
+  live.
+- `session_minutes: 0` video units record until power loss and do NOT
+  self-halt — the power_halt race in bmcam-field-update does not apply,
+  but the encoder owns the camera continuously (any `rpicam-*` bench
+  command will fail with "in use" until the recorder is stopped).
 
 ## Known failure modes
 

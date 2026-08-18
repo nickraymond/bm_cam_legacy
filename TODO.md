@@ -334,3 +334,49 @@ Steps:
 **Acceptance:** unit on the tailnet, running development tip, armed,
 completing a normal transmit cycle; command state file clean.
 
+
+---
+
+### TODO-BM-012 — NetworkManager WiFi control over Bristlemouth (AP / HQ / customer WiFi)
+
+**Status:** Open (logged 2026-08-18; expanded same day — Nick spec, next work item)
+**Area:** Fleet ops / command daemon / networking / settings GUI
+**Priority:** Next sprint. Customer-WiFi entry over BM is test-when-convenient, NOT a blocker (Nick).
+
+All units are (or are becoming) Trixie/NetworkManager. Rewrite
+`network_ap.sh` around `nmcli` and give the fleet three switchable
+network behaviors, BM-commandable and YAML-defaulted:
+
+1. **Nereus HQ WiFi** — join the office network using credentials
+   stored on the unit (provisioned, persistent NM profile).
+2. **AP mode** — open hotspot (NO password — confirmed possible with
+   NM), SSID = the unit hostname (e.g. `bmcam000`), so field techs just
+   tap the unit's name in their WiFi list. Gallery/settings at the AP
+   address. CAVEAT (accepted, documented): open AP means anyone in
+   radio range can reach the gallery + settings UI while AP is up.
+3. **Customer WiFi (ephemeral)** — user-supplied SSID + password,
+   valid for the CURRENT power cycle only, forgotten on reboot
+   (NM in-memory connection — `nmcli connection add save no`; verify
+   flag support on the Trixie NM version). Entry paths:
+   - Settings GUI page (primary — customer joins the AP, opens
+     /settings, types their WiFi creds; no BM message-size limits)
+   - BM command (remote path; must solve SSID+PSK vs message size cap
+     and log redaction on the Pi)
+
+**Boot default (the ship switch):** a `network:` YAML island +
+settings-GUI control choosing what the unit does at power-on:
+`default: nereus_hq` (bench/office fleet) or `default: ap` (customer
+ship config — Nick ships units defaulting to AP so customers can
+always reach the download UI). Reboot = return to the default, which
+also makes the power cycle the universal un-brick for behavior 3.
+
+**Safety doctrine carried over from D-S15-10:** any REMOTE flip away
+from the current working network arms a verified auto-revert timer
+BEFORE flipping; nothing a garbled command can do strands the unit
+past a timer + power cycle.
+
+**Acceptance (bench, attended):** each of the three behaviors
+demonstrated on a Trixie unit; boot-default honored for both YAML
+values; ephemeral customer creds gone after power cycle; auto-revert
+proven with a bogus SSID; command reference + skills updated (replaces
+the wap NOT-FIELD-READY entry).

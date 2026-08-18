@@ -1,0 +1,37 @@
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/home/pi/BM_Devel_Pi/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=16 (960 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0
+[RC] derived (informational): transmit-only budget holds 960 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=False dry_run=True mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=08:00-15:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=0.25 fps=15 bitrate_mbps=2.0 session_minutes=1
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VID] encoder: /usr/bin/rpicam-vid (rpicam)
+[VID] boot sweep: no crash debris
+[UI] gallery serving on 0.0.0.0:8080 (dir=/home/pi/BM_Devel_Pi/videos)
+[VID] session: 60s then halt dir=/home/pi/BM_Devel_Pi/videos
+[VID] clip start: 2026-08-18T04-56-15Z_video_1000x562_15fps (15s nominal, 1000x562@15fps 2.0Mbps)
+[VID] clip done: 2026-08-18T04-56-15Z_video_1000x562_15fps.mp4 (3607825 B, encode=16.3s boundary=3.0s)
+[VID] status (NO transmit): {"t":"vid","fn":"2026-08-18T04-56-15Z_video_1000x562_15fps.mp4","sz":3607825,"res":"1000x562","fps":15,"br":2.0,"dur":15,"tmp":34.3,"du":3.6,"dt":114.7,"rd":0}
+[VID] clip start: 2026-08-18T04-56-34Z_video_1000x562_15fps (15s nominal, 1000x562@15fps 2.0Mbps)
+[VID] clip done: 2026-08-18T04-56-34Z_video_1000x562_15fps.mp4 (3620658 B, encode=15.5s boundary=2.4s)
+[VID] status (NO transmit): {"t":"vid","fn":"2026-08-18T04-56-34Z_video_1000x562_15fps.mp4","sz":3620658,"res":"1000x562","fps":15,"br":2.0,"dur":15,"tmp":35.4,"du":3.6,"dt":114.7,"rd":0}
+[VID] clip start: 2026-08-18T04-56-52Z_video_1000x562_15fps (15s nominal, 1000x562@15fps 2.0Mbps)
+[VID] clip done: 2026-08-18T04-56-52Z_video_1000x562_15fps.mp4 (3627712 B, encode=15.5s boundary=2.3s)
+[VID] status (NO transmit): {"t":"vid","fn":"2026-08-18T04-56-52Z_video_1000x562_15fps.mp4","sz":3627712,"res":"1000x562","fps":15,"br":2.0,"dur":15,"tmp":34.9,"du":3.6,"dt":114.7,"rd":0}
+[VID] clip start: 2026-08-18T04-57-10Z_video_1000x562_15fps (15s nominal, 1000x562@15fps 2.0Mbps)
+[VID] clip done: 2026-08-18T04-57-10Z_video_1000x562_15fps.mp4 (3620819 B, encode=15.5s boundary=2.3s)
+[VID] status (NO transmit): {"t":"vid","fn":"2026-08-18T04-57-10Z_video_1000x562_15fps.mp4","sz":3620819,"res":"1000x562","fps":15,"br":2.0,"dur":15,"tmp":34.9,"du":3.6,"dt":114.7,"rd":0}
+[VID] session_minutes reached (4 clips); normal halt path
+[VID] loop end: 4 clips ok, 0 failed
+[RC][halt] power_halt.enabled=false; skipping halt
+[VID] halt: disabled
+
+[exited with code 0]

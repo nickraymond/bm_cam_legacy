@@ -101,19 +101,22 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
       .bak_sess, .bak_hil. Restarted 2026-08-18T00:43Z on the exact
       PR tip (a2991f9) after the wap deploy — overnight evidence is
       one build
-- [ ] Runs overnight; morning: clip count matches wall clock, no
-      gaps beyond clip-boundary seconds, temps sane, ring behavior
-      as expected. NOTE for the morning read: config changed MID-HIL
-      per Nick (2026-08-18T02:14Z, via the settings GUI): clips before
-      02:14Z are 1000x562@2Mbps manual-focus; after are
-      1600x900@4Mbps autofocus. Reboots at ~01:26/01:40/02:0x/02:14Z
-      are the GUI work + Nick's settings sessions, not failures.
-      GUI save-poison bug (float 2.0 vs "2") found by Nick, fixed +
-      regression-tested; full save→UI-restart→persist loop verified
-      through HTTP 2026-08-18T02:14Z
-- [ ] Per-clip status messages queued to cellular (Sofar rows if
-      SPOT-33507C's stall is cleared; console evidence otherwise —
-      check antenna/queue first)
+- [ ] DEFERRED to next sprint (Nick, 2026-08-18): the bmcam000 morning
+      review was never performed — Nick reformatted bmcam000 to Trixie
+      the same morning (fleet OS split, see hazards), so the overnight
+      evidence was not analyzed and this box stays UNFINISHED. Context
+      preserved for the record: config changed MID-HIL per Nick
+      (2026-08-18T02:14Z, via the settings GUI): clips before 02:14Z
+      are 1000x562@2Mbps manual-focus; after are 1600x900@4Mbps
+      autofocus. Reboots at ~01:26/01:40/02:0x/02:14Z were the GUI
+      work + Nick's settings sessions, not failures. GUI save-poison
+      bug (float 2.0 vs "2") found by Nick, fixed + regression-tested;
+      full save→UI-restart→persist loop verified through HTTP
+      2026-08-18T02:14Z. HIL evidence duty moves to bmcam003/004
+      (see §7).
+- [ ] DEFERRED with the box above: per-clip status messages to
+      cellular (Sofar rows if SPOT-33507C's stall is cleared; console
+      evidence otherwise — antenna/queue still an open physical item)
 
 ## 6. wap AP mode (tables v6) — PRUNE-FIRST, only after §5 is running
 - [x] network_ap.sh + auto-revert timer (revert-first design: timer
@@ -126,16 +129,65 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
 - [ ] Bench rehearsal: wap 1 → iPhone joins AP → gallery/download →
       auto-revert restores client WiFi + tailnet — WITH NICK (kills
       WiFi while active; needs his iPhone on SSID bmcam000-video,
-      password bristlemouth, gallery http://192.168.50.1:8080)
+      password bristlemouth, gallery http://192.168.50.1:8080).
+      BLOCKED 2026-08-18 by the fleet OS split: network_ap.sh as
+      merged speaks Bullseye (hostapd/dnsmasq/dhcpcd) and matches NO
+      unit once bmcam000 is on Trixie — a NetworkManager (nmcli
+      hotspot) variant is required first. Command-path layers
+      (tables v6, daemon immediate-apply, help/cfg) are stack-agnostic
+      and stay as merged. NEXT SPRINT SCOPE locked by Nick 2026-08-18
+      (full spec in TODO-BM-012): nmcli rewrite with three behaviors —
+      (1) join Nereus HQ WiFi (stored creds), (2) OPEN AP with
+      SSID = hostname (no password, field-tech friendly), (3)
+      ephemeral customer SSID/password (this power cycle only, entered
+      via settings GUI or BM) — plus a `network:` YAML island + GUI
+      control for the boot default (nereus_hq for bench, ap for
+      customer-ship units)
 - [x] Suite green — 655 OK (+11 tests/test_wap_command.py;
       version-guard tests updated with the v5→v6 bump), 2026-08-18
 
-## 7. Wrap
-- [ ] PR → development, gates green, Nick review
-- [ ] bmcam003: wake, field-update to the merged build, video YAML,
-      re-verify (tomorrow)
-- [ ] docs: bmcam_command_reference.md (wap, if it survives),
-      fleet/skill notes
+## 7. Wrap (REPLANNED 2026-08-18 — fleet OS split found)
+Probe (2026-08-18T04:50Z, all three over SSH): bmcam000 = Bullseye
+(dhcpcd/wpa_supplicant, hostapd present); bmcam003/004 = Trixie
+(NetworkManager, no hostapd/dnsmasq, rpicam-* only). Nick's calls:
+(a) bmcam000 reformat to Trixie — NICK owns; (b) bmcam000 re-point +
+HIL morning review — deferred (§5); (c) Claude owns bmcam003 AND
+bmcam004: both to the merged dev tip + HIL.
+- [x] bmcam003: merged tip (4132c31) + ffmpeg 7.1.5, video YAML
+      (capture_mode video; clip 5 / session 0 / fps 15 / 2.0 Mbps;
+      1000x562 inherited; power_halt stays disabled — bench-safe),
+      4 verified 15 s bench triples (ffprobe h264, boundary 2.2-3.8 s,
+      zero debris), HIL armed via --install-cron + reboot, first 300 s
+      clip in flight 05:00:03Z; gallery 200 / manifest 200 / Range 206.
+      Artifacts: runs/sprint15_hil_20260818_bmcam003_004/ (bench logs,
+      rollup CSV, run_manifest.json); YAML backup
+      camera_schedule.yaml.before_sprint15_video_20260818T045535Z,
+      crontab backup crontab_before_rc_deploy_bmcam003_20260818T045851Z
+- [x] bmcam004: same evidence set, HIL first clip 04:59:42Z (was
+      untouched; Nick handed it over 2026-08-18). Note: unit runs
+      camera_controls_enabled=false (full-auto optics) vs bmcam003's
+      manual focus 1.82 — pre-existing stills-key drift, by design
+- [x] docs: bmcam_command_reference.md (wap documented NOT-FIELD-READY
+      with the Trixie/nmcli caveat), field-update + provision skills
+      updated (video mode, ffmpeg dep, settings GUI), TODO-BM-012
+      filed (customer-WiFi join over BM)
+- [x] Full suite green on the closeout branch: 673 OK (skipped=1),
+      2026-08-18 (no code changes this closeout; docs/artifacts only)
+- [ ] morning read of the bmcam003/004 HIL (clip count vs wall clock,
+      gaps, temps, ring) — owns the §5 evidence duty
+- [x] bmcam000 re-provisioned on Trixie (Nick reformatted 2026-08-18;
+      bmcam-provision skill): deps + ffmpeg, repo at 4132c31, UART
+      boot config CHECK PASS incl. bm_serial open test, tailnet
+      re-auth (100.83.240.117; host key changed with the reflash —
+      verified via LAN fingerprint match before trusting), deploy
+      --fresh --profile bmcam000, validation --print-config +
+      --capture-only (1.55 MB JPEG 05:24Z, no halt). END STATE:
+      developer mode (dev_mode.sh on — halt overridden hlt=3, cron
+      DISARMED — deliberate deviation from the skill's armed
+      criterion: the unit's next job is the §6/TODO-BM-012 nmcli
+      work, same dev state it held before the reformat). LAN is now
+      192.168.1.241 (UniFi subnet, was 192.168.86.23)
+- [ ] PR → development, Nick review
 
 ## Known hazards carried in
 - SPOT-33507C cellular stall (no Sofar rows since 2026-07-31T19:00Z)
@@ -146,3 +198,9 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
   budget wake + field-update + state reset time tomorrow.
 - AP mode kills client WiFi (and with it Tailscale/SSH) while active —
   the auto-revert timer is the only un-brick; never skip arming it.
+- FLEET OS SPLIT (found 2026-08-18): bmcam000 Bullseye vs bmcam003/004
+  Trixie/NetworkManager. network_ap.sh needs an nmcli variant; stills
+  and video runtimes are already dual-stack (rpicam-*/libcamera-*
+  fallback in code). bmcam000 being reflashed to Trixie by Nick to
+  unify the fleet; ffmpeg is NOT preinstalled on Trixie (installed by
+  hand on 003/004 2026-08-18 — add to provision docs).
