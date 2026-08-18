@@ -657,7 +657,10 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
             factory = ui_server_factory
             if factory is None:
                 import videoui_server
-                factory = videoui_server.start_ui_server
+
+                def factory(d, p):
+                    return videoui_server.start_ui_server(
+                        d, p, config_path=settings["config_path"])
             ui_server = factory(video_dir, vcfg["ui"]["port"])
         except Exception as exc:
             print(f"[VID][WARN] UI server failed to start: {exc}; "

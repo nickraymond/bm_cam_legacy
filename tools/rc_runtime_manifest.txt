@@ -51,6 +51,7 @@ BM_Devel_Pi/video_recorder.py
 BM_Devel_Pi/video_ring.py
 BM_Devel_Pi/video_manifest.py
 BM_Devel_Pi/videoui_server.py
+BM_Devel_Pi/video_settings.py
 # Sprint15 wap (tables v6): AP flip with revert-first timer (D-S15-10)
 BM_Devel_Pi/network_ap.sh
 

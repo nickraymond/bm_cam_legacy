@@ -21,12 +21,16 @@ Runs as a daemon thread of the video runtime when video.ui.enabled
 `wap` AP later without change.
 """
 
+import html
 import json
 import os
 import posixpath
+import subprocess
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
+
+import video_settings
 
 ALLOWED_SUFFIXES = (".mp4", ".jpg")
 
@@ -62,7 +66,10 @@ GALLERY_HTML = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-<header><h1>bmcam video</h1><div id="meta">loading manifest…</div></header>
+<header><h1>bmcam video
+  <a href="/settings" style="float:right;font-size:13px;color:#7fb0e8">
+    ⚙ Settings</a></h1>
+  <div id="meta">loading manifest…</div></header>
 <div id="grid"></div>
 <div id="player">
   <div class="bar"><span id="pname"></span>
@@ -106,9 +113,91 @@ fetch("/manifest.json").then(r=>r.json()).then(m=>{
 """
 
 
+SETTINGS_CSS = """
+ body{margin:0;font-family:-apple-system,system-ui,sans-serif;
+      background:#10151c;color:#e8edf2}
+ header{padding:14px 18px;background:#1a2230}
+ h1{margin:0;font-size:18px}
+ main{max-width:560px;margin:0 auto;padding:14px}
+ .field{background:#1a2230;border-radius:10px;padding:12px 14px;
+        margin-bottom:10px}
+ label{display:block;font-size:14px;color:#cfe0f0;margin-bottom:6px;
+       font-weight:600}
+ select{width:100%;padding:8px;font-size:15px;border-radius:6px;
+        background:#243044;color:#e8edf2;border:1px solid #38465c}
+ .help{font-size:12px;color:#8fa1b3;margin-top:6px;line-height:1.4}
+ button,a.btn{display:inline-block;padding:10px 18px;margin:8px 8px 0 0;
+        font-size:15px;border-radius:8px;border:none;cursor:pointer;
+        text-decoration:none}
+ .save{background:#2d6cdf;color:#fff}
+ .restart{background:#b3552d;color:#fff}
+ .back{background:#243044;color:#cfe0f0}
+ .notice{background:#233c26;border-radius:10px;padding:12px 14px;
+         margin-bottom:10px;font-size:14px}
+ .error{background:#4a2323}
+"""
+
+
+def render_settings_page(current, message=None, error=False):
+    """The /settings form, values pre-selected from the live YAML."""
+    rows = []
+    if message:
+        rows.append(f'<div class="notice{" error" if error else ""}">'
+                    f'{html.escape(message)}</div>')
+    rows.append('<form method="POST" action="/settings">')
+    for field in video_settings.FIELDS:
+        key = field["key"]
+        cur = current.get(key)
+        options = list(field["choices"])
+        if cur is not None and str(cur) not in {c[0] for c in options}:
+            # The file holds a value outside the presets: show it as-is
+            # so the form always tells the truth.
+            options.insert(0, (str(cur), f"current: {cur}"))
+        opts = "".join(
+            f'<option value="{html.escape(v)}"'
+            f'{" selected" if cur is not None and str(cur) == v else ""}>'
+            f'{html.escape(label)}</option>'
+            for v, label in options)
+        missing = "" if cur is not None else (
+            '<div class="help">! not present in this config file '
+            '(shown for reference, not editable)</div>')
+        disabled = "" if cur is not None else " disabled"
+        rows.append(
+            f'<div class="field"><label>{html.escape(field["label"])}'
+            f'</label><select name="{html.escape(key)}"{disabled}>{opts}'
+            f'</select><div class="help">{html.escape(field["help"])}'
+            f'</div>{missing}</div>')
+    rows.append('<button class="save" type="submit">Save settings</button>'
+                '<a class="btn back" href="/">Back to videos</a></form>')
+    rows.append(
+        '<form method="POST" action="/restart" '
+        'onsubmit="return confirm(\'Restart the camera now? Recording '
+        'resumes automatically about a minute later.\')">'
+        '<button class="restart" type="submit">Restart camera '
+        '(apply saved settings)</button></form>')
+    body = "\n".join(rows)
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bmcam settings</title><style>{SETTINGS_CSS}</style></head>
+<body><header><h1>bmcam settings</h1></header><main>
+<div class="help" style="margin-bottom:10px">Saved changes take effect
+when the camera restarts. A timestamped backup of the config is kept on
+the camera before every save.</div>
+{body}</main></body></html>"""
+
+
+def _default_restart():
+    """Reboot the camera (cron @reboot restarts recording — the pipeline
+    is crash-safe, so this is always a clean apply path)."""
+    subprocess.Popen(["sudo", "-n", "/sbin/reboot"])
+
+
 class VideoUIHandler(BaseHTTPRequestHandler):
     # Set by the server factory.
     video_dir = None
+    config_path = None            # None = settings page disabled (404)
+    restart_fn = staticmethod(_default_restart)
     protocol_version = "HTTP/1.1"
 
     # ------------------------------------------------------------------
@@ -201,6 +290,58 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             remaining -= len(chunk)
 
     # ------------------------------------------------------------------
+    def _send_settings(self, message=None, error=False):
+        current = video_settings.read_current(self.config_path)
+        page = render_settings_page(current, message=message, error=error)
+        self._send_bytes(200, page.encode("utf-8"),
+                         "text/html; charset=utf-8")
+
+    def do_POST(self):
+        try:
+            path = posixpath.normpath(urlparse(self.path).path)
+            if self.config_path is None:
+                self._send_bytes(404, b"not found", "text/plain")
+                return
+            if path == "/restart":
+                print("[UI] restart requested from the settings page")
+                try:
+                    type(self).restart_fn()
+                except Exception as exc:
+                    self._send_settings(f"Restart failed: {exc}", error=True)
+                    return
+                self._send_bytes(
+                    200,
+                    b"<meta charset='utf-8'>Restarting &mdash; the camera "
+                    b"and this page come back in about a minute. "
+                    b"<a href='/'>Reload</a>",
+                    "text/html; charset=utf-8")
+                return
+            if path == "/settings":
+                length = int(self.headers.get("Content-Length", 0) or 0)
+                form = parse_qs(
+                    self.rfile.read(length).decode("utf-8", errors="replace"))
+                changes = {k: v[0] for k, v in form.items() if v}
+                try:
+                    result = video_settings.patch_yaml(
+                        self.config_path, changes)
+                except Exception as exc:
+                    print(f"[UI][WARN] settings save rejected: {exc}")
+                    self._send_settings(f"NOT saved: {exc}", error=True)
+                    return
+                if result["changed"]:
+                    changed = ", ".join(result["changed"])
+                    print(f"[UI] settings saved: {changed} "
+                          f"(backup {result['backup']})")
+                    self._send_settings(
+                        f"Saved: {changed}. Takes effect at the next "
+                        "camera restart.")
+                else:
+                    self._send_settings("No changes.")
+                return
+            self._send_bytes(404, b"not found", "text/plain")
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def do_GET(self):
         try:
             path = urlparse(self.path).path
@@ -208,6 +349,12 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             if path in ("/", "/index.html"):
                 self._send_bytes(200, GALLERY_HTML.encode("utf-8"),
                                  "text/html; charset=utf-8")
+                return
+            if path == "/settings":
+                if self.config_path is None:
+                    self._send_bytes(404, b"not found", "text/plain")
+                    return
+                self._send_settings()
                 return
             if path == "/manifest.json":
                 mpath = os.path.join(self.video_dir, "manifest.json")
@@ -235,12 +382,17 @@ class VideoUIHandler(BaseHTTPRequestHandler):
     do_HEAD = do_GET
 
 
-def start_ui_server(video_dir, port, host="0.0.0.0"):
+def start_ui_server(video_dir, port, host="0.0.0.0", config_path=None,
+                    restart_fn=None):
     """Start the gallery server on a daemon thread; returns the server
     (call .shutdown() to stop). Raises on bind failure — the CALLER
-    decides that a dead UI must not kill recording."""
-    handler = type("BoundVideoUIHandler", (VideoUIHandler,),
-                   {"video_dir": os.path.realpath(video_dir)})
+    decides that a dead UI must not kill recording. config_path enables
+    the /settings editor page (None = gallery only)."""
+    attrs = {"video_dir": os.path.realpath(video_dir),
+             "config_path": config_path}
+    if restart_fn is not None:
+        attrs["restart_fn"] = staticmethod(restart_fn)
+    handler = type("BoundVideoUIHandler", (VideoUIHandler,), attrs)
     server = ThreadingHTTPServer((host, int(port)), handler)
     server.daemon_threads = True
     thread = threading.Thread(
