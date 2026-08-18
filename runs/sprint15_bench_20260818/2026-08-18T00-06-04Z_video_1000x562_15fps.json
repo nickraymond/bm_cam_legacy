@@ -1,0 +1,38 @@
+{
+ "metadata_schema": "bmcam_video_sidecar_v1",
+ "fn": "2026-08-18T00-06-04Z_video_1000x562_15fps.mp4",
+ "sz": 1858571,
+ "res": "1000x562",
+ "fps": 15,
+ "br": 2.0,
+ "dur": 15,
+ "utc": "2026-08-18T00:06:04Z",
+ "tmp": 41.9,
+ "du": 7.3,
+ "dt": 115.7,
+ "rd": 0,
+ "thumb": "2026-08-18T00-06-04Z_video_1000x562_15fps_thumb.jpg",
+ "encode_s": 16.5,
+ "boundary_s": 2.0,
+ "crop_native_xywh": [
+  1504,
+  846,
+  1600,
+  900
+ ],
+ "requested_controls": {
+  "camera_control_source": "image_pipeline.camera_controls",
+  "camera_controls_enabled": true,
+  "requested_focus_enabled": true,
+  "requested_focus_mode": "manual",
+  "requested_lens_position": 1.82,
+  "requested_focus_range": "normal",
+  "requested_focus_speed": "normal",
+  "requested_white_balance_enabled": true,
+  "requested_white_balance_mode": "auto",
+  "requested_exposure_enabled": true,
+  "requested_exposure_mode": "auto",
+  "requested_image_processing_enabled": false
+ },
+ "sha256_16": "0c2fad98b8e0261a"
+}

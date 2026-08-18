@@ -15,55 +15,120 @@ Chunked: 1 config/geometry → 2 recorder+ring → 3 status+manifest+UI →
 - [x] bmcam000 in developer state (dev_mode.sh on, dev tip, tailnet OK)
 
 ## 1. Config + geometry (chunk 1)
-- [ ] `video:` island parsing + validation (defaults per SPEC; loud
-      failures on nonsense values)
-- [ ] capture_mode: video dispatch in rc_progressive_jpeg.py (stills
-      path byte-identical when mode != video)
-- [ ] crop_xywh → libcamera-vid --roi conversion (exact-value tests;
-      coordinate systems labeled)
-- [ ] Camera-controls args reused from the stills builder (no video
-      keys)
-- [ ] Unit tests green
+- [x] `video:` island parsing + validation (defaults per SPEC; loud
+      failures on nonsense values) — video_recorder.load_video_config,
+      tests/test_video_config.py (island in camera_schedule.yaml; added
+      optional `dir` key, default /home/pi/BM_Devel_Pi/videos)
+- [x] capture_mode: video dispatch in rc_progressive_jpeg.py (stills
+      path byte-identical when mode != video; video branch is an
+      added-only `if` + lazy import) — dispatch tests in
+      test_video_config.py TestModeDispatch
+- [x] crop_xywh → libcamera-vid --roi conversion (exact-value tests;
+      coordinate systems labeled) — crop (1504,846,1600,900) ->
+      "0.326389,0.326389,0.347222,0.347222"
+- [x] Camera-controls args reused from the stills builder (no video
+      keys) — build_encoder_command wraps
+      process_image_v2._camera_controls_from_settings
+- [x] Unit tests green — full suite 584 tests OK (was 555 baseline;
+      +29 in tests/test_video_config.py), 2026-08-17
 
 ## 2. Recorder + ring (chunk 2)
-- [ ] video_recorder.py clip loop (subprocess-injected encoder/muxer;
-      .part/.tmp → atomic rename; boot-time debris sweep)
-- [ ] video_ring.py floor guard (TODO-BM-008 rules; pause-not-brick
-      when floor unmeetable; dry-run mode)
-- [ ] Unit tests green (crash-contract simulations included)
+- [x] video_recorder.py clip loop (subprocess-injected encoder/muxer;
+      .part/.tmp → atomic rename; boot-time debris sweep) —
+      record_one_clip + run_video_mode; poster failure non-fatal;
+      max_clips bounds ATTEMPTS (bench bail); 10 s failed-clip backoff
+- [x] video_ring.py floor guard (TODO-BM-008 rules; pause-not-brick
+      when floor unmeetable; dry-run mode; dry-run still pauses at the
+      REAL floor — unbrickable beats convenient)
+- [x] Unit tests green (crash-contract simulations included:
+      failure-stage debris cleanup + boot sweep) — full suite 612 OK
+      (+28: tests/test_video_ring.py, tests/test_video_recorder.py),
+      2026-08-17
 
 ## 3. Status + manifest + UI (chunk 3)
-- [ ] Per-clip status JSON on the existing cellular tx path (size
-      bound tested; queue/retry never blocks recording)
-- [ ] Sidecars + manifest.json regeneration
-- [ ] videoui_server.py gallery (stdlib, Range support) + static page
-- [ ] Command daemon serviced at clip boundaries (mock-UART test)
-- [ ] Full suite green incl. all existing stills tests
+- [x] Per-clip status JSON on the existing cellular tx path (size
+      bound tested vs 280 B; StatusQueue drop-oldest cap 12; send
+      failure retries at next boundary, never blocks recording; plain
+      no-transmit runs PRINT lines instead — bus doctrine)
+- [x] Sidecars + manifest.json regeneration (atomic writes; manifest
+      degrades gracefully on missing sidecar/thumb; sha256_16 in
+      sidecar) — video_manifest.py
+- [x] videoui_server.py gallery (stdlib, single-range 206s for Safari
+      scrubbing, basename+suffix+realpath hardening) + inline static
+      page; UI failure never kills recording
+- [x] Command daemon serviced at clip boundaries (fake-daemon test;
+      gating identical to stills: island enabled + transmit/bench);
+      Spotter clock sync at video start (drift hazard)
+- [x] Full suite green incl. all existing stills tests — 644 OK
+      (+32), 2026-08-17. New modules added to rc_runtime_manifest.txt
 
 ## 4. Bench smoke (bmcam000, short clips)
-- [ ] 3 consecutive clips → 3 playable MP4s + thumbs + sidecars +
-      manifest (artifacts in runs/sprint15_bench_<date>/)
-- [ ] Status lines observed on the Spotter console path
-- [ ] Ring dry-run against an artificial floor reports correctly
-- [ ] Crash test: power cut mid-clip → reboot → auto-resume, only
-      in-flight clip lost
-- [ ] UI from a phone/laptop on the LAN: gallery, play, download
+- [x] 3 consecutive clips → 3 playable MP4s + thumbs + sidecars +
+      manifest — runs 2+3 gave 8 clean 15 s triples (h264 1000x562
+      @15.0fps by ffprobe, ~2.0 s boundary gap); artifacts in
+      runs/sprint15_bench_20260818/. Found+fixed on hardware: explicit
+      ffmpeg -f mp4/-f image2 (.tmp suffix hides extension); poster
+      -ss 1 (frame-0 AGC ramp washed out tiles)
+- [x] Status lines on the Spotter tx path — --transmit run: 4x
+      "[VID] status sent" (160 B JSON) via shared-UART spotter_tx;
+      Spotter clock sync worked (D-S15-7). Spotter USB console NOT on
+      the Mac → console capture pending; cloud check confirms the
+      SPOT-33507C stall persists (latest Sofar row still
+      2026-07-31T19:03:49Z, 18-day lookback) — antenna/queue needs
+      physical attention (Nick)
+- [x] Ring dry-run against an artificial floor (min_free_gb 200):
+      listed all 8 triples oldest-first, deleted nothing (25 files
+      intact), paused — exact TODO-BM-008 contract
+- [x] Crash test x2 (sysrq-b hard reset = no-sync power-cut
+      equivalent): (a) mid-boundary — swept manifest.json.tmp, zero
+      clips lost; (b) mid-encode with confirmed 1 MB in-flight .part —
+      part swept (0 B, unsynced), cron auto-resumed ~48 s, ext4 clean.
+      Bonus finding: fake-hwclock stamps a stale RUN_TS at crash boots
+      (two boots shared one cron log name) — clip names stayed correct
+      because the Spotter clock sync runs before the first clip
+- [x] UI from a phone/laptop on the LAN: gallery, play, download —
+      Nick verified from laptop 2026-08-17 evening (PASS); Mac-side
+      curl: gallery 200, manifest OK, Range 206. iPhone check via LAN
+      http://192.168.86.23:8080 still worthwhile for gate-5 wording
+      (no tailnet needed)
 
 ## 5. HIL overnight (bmcam000)
-- [ ] Production-like YAML (clip_minutes 5, session 0) armed via cron
+- [x] Production-like YAML (clip_minutes 5, session 0) armed via cron
+      — armed 2026-08-18T00:28Z; @reboot flock line restored (backup
+      ~/crontab_before_sprint15_arm_*), first 300 s clip in flight,
+      .part growing. Unit YAML backups:
+      camera_schedule.yaml.before_sprint15_bench_20260818T000331Z,
+      .bak_sess, .bak_hil. Restarted 2026-08-18T00:43Z on the exact
+      PR tip (a2991f9) after the wap deploy — overnight evidence is
+      one build
 - [ ] Runs overnight; morning: clip count matches wall clock, no
       gaps beyond clip-boundary seconds, temps sane, ring behavior
-      as expected
+      as expected. NOTE for the morning read: config changed MID-HIL
+      per Nick (2026-08-18T02:14Z, via the settings GUI): clips before
+      02:14Z are 1000x562@2Mbps manual-focus; after are
+      1600x900@4Mbps autofocus. Reboots at ~01:26/01:40/02:0x/02:14Z
+      are the GUI work + Nick's settings sessions, not failures.
+      GUI save-poison bug (float 2.0 vs "2") found by Nick, fixed +
+      regression-tested; full save→UI-restart→persist loop verified
+      through HTTP 2026-08-18T02:14Z
 - [ ] Per-clip status messages queued to cellular (Sofar rows if
       SPOT-33507C's stall is cleared; console evidence otherwise —
       check antenna/queue first)
 
 ## 6. wap AP mode (tables v6) — PRUNE-FIRST, only after §5 is running
-- [ ] network_ap.sh + auto-revert timer (revert-first design)
-- [ ] `wap` in tables v6 + help/cfg rows + daemon immediate-apply
+- [x] network_ap.sh + auto-revert timer (revert-first design: timer
+      armed + VERIFIED before any flip; refuses to flip otherwise;
+      never persisted — reboot = second un-brick). Deployed to
+      bmcam000, sudo -n + py_compile verified, NOT flipped
+- [x] `wap` in tables v6 + help/cfg rows + daemon immediate-apply
+      (IMMEDIATE_COMMANDS; fires once, duplicates never re-fire) +
+      quick action; cfg WiFi row reads live marker
 - [ ] Bench rehearsal: wap 1 → iPhone joins AP → gallery/download →
-      auto-revert restores client WiFi + tailnet
-- [ ] Suite green
+      auto-revert restores client WiFi + tailnet — WITH NICK (kills
+      WiFi while active; needs his iPhone on SSID bmcam000-video,
+      password bristlemouth, gallery http://192.168.50.1:8080)
+- [x] Suite green — 655 OK (+11 tests/test_wap_command.py;
+      version-guard tests updated with the v5→v6 bump), 2026-08-18
 
 ## 7. Wrap
 - [ ] PR → development, gates green, Nick review

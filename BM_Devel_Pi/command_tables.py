@@ -58,7 +58,7 @@ Example:
 #   - tmz: NEW timezone override command (LA / New York / UTC presets) —
 #     revises the Sprint12 audit's category-C stance, see Sprint13 DESIGN
 #   - help / cfg: NEW query commands (no state change; console output)
-TABLES_VERSION = 5
+TABLES_VERSION = 6
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -69,9 +69,10 @@ ROI_OUTPUT_WIDTH = 1000
 
 # The v1 commands (SPEC; Q4 closed) + the v2 transport/debug trio + the
 # v3 Sprint12 additions + the v5 Sprint13 additions (tmz setting, help/cfg
-# queries). Anything else is rejected.
+# queries) + the v6 Sprint15 wap (WiFi AP toggle). Anything else is
+# rejected.
 COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-            "hlt", "twn", "tmz", "trg", "ping", "help", "cfg")
+            "hlt", "twn", "tmz", "trg", "wap", "ping", "help", "cfg")
 
 # Commands that carry persistent settings state. NOTE the exclusions:
 # ping (stateless), help/cfg (queries) and trg (a ONE-SHOT action — it
@@ -82,6 +83,13 @@ SETTINGS_COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
 
 # One-shot action commands: applied once on the next boot, then cleared.
 ACTION_COMMANDS = ("trg",)
+
+# Immediate commands (Sprint15 D-S15-10): applied by the daemon THE MOMENT
+# they arrive — a documented exception to next-boot semantics, like trg's
+# window bypass. NOT persistent state: a reboot always comes up in client
+# WiFi (the state file records only the dedupe id), so a power cycle is
+# itself an un-brick. The hard auto-revert timer is armed BEFORE the flip.
+IMMEDIATE_COMMANDS = ("wap",)
 
 # Query commands (Sprint13): read-only — they change NO state beyond the
 # dedupe id record, and their "result" is console output (help text /
@@ -309,6 +317,20 @@ TRG_TABLE = {
         "action": "capture_transmit", "src": 9},
 }
 
+# wap — WiFi access-point toggle (Sprint15 D-S15-10). The field delivery
+# path for the video gallery: the camera becomes a WPA2 hotspot an iPhone
+# joins to browse/download clips at http://192.168.50.1:8080. IMMEDIATE
+# (see IMMEDIATE_COMMANDS) and ephemeral: network_ap.sh arms a systemd
+# one-shot revert timer BEFORE the flip, so the unit can only ever be
+# TEMPORARILY off the tailnet — a garbled command or wedged AP stack
+# self-heals at the timer (revert-first design). wap 0 reverts early.
+WAP_TABLE = {
+    0: {"label": "normal WiFi (client mode, back on the internet)",
+        "ap": False},
+    1: {"label": "ACCESS POINT for 60 min, then auto-revert",
+        "ap": True, "timeout_min": 60},
+}
+
 # ping carries no value; a single index keeps the lookup API uniform
 # (parser treats a missing `v` as 0 for ping and the query commands).
 PING_TABLE = {
@@ -368,6 +390,15 @@ COMMAND_INFO = {
                       "get your image.",
                       "! The ack means ARMED. Proof of firing is the "
                       "image arriving."]},
+    "wap": {"title": "WIFI HOTSPOT (browse/download videos from a phone)",
+            "cfg_name": "WiFi mode", "category": "power",
+            "notes": ["! While the hotspot is ON the camera is OFF the "
+                      "internet (no remote",
+                      "! commands). It ALWAYS reverts to normal WiFi after "
+                      "60 minutes.",
+                      "! Join WiFi '<camera>-video' (password: "
+                      "bristlemouth), then open",
+                      "! http://192.168.50.1:8080"]},
     "ping": {"title": "LIVENESS CHECK (no \"v\" needed - replies with full "
                       "settings)",
              "cfg_name": None, "category": None, "notes": []},
@@ -390,6 +421,7 @@ _TABLES = {
     "twn": TWN_TABLE,
     "tmz": TMZ_TABLE,
     "trg": TRG_TABLE,
+    "wap": WAP_TABLE,
     "ping": PING_TABLE,
     "help": HELP_TABLE,
     "cfg": CFG_TABLE,

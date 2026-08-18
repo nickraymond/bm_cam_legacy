@@ -24,12 +24,15 @@ import command_tables as ct  # noqa: E402
 
 
 class TestCommandSet(unittest.TestCase):
-    def test_v5_command_set_exact(self):
+    def test_v6_command_set_exact(self):
+        # v6 adds wap (Sprint15 D-S15-10) — an IMMEDIATE command, neither
+        # setting nor one-shot trigger.
         self.assertEqual(
             ct.COMMANDS,
             ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-             "hlt", "twn", "tmz", "trg", "ping", "help", "cfg"),
+             "hlt", "twn", "tmz", "trg", "wap", "ping", "help", "cfg"),
         )
+        self.assertEqual(ct.IMMEDIATE_COMMANDS, ("wap",))
 
     def test_settings_commands_exclude_ping_trg_and_queries(self):
         # trg is a one-shot ACTION (pending_trigger slot), never a setting;
@@ -286,8 +289,10 @@ class TestV2Tables(unittest.TestCase):
 class TestSprint12Tables(unittest.TestCase):
     """hlt / twn / trg — Sprint12 remote-config commands (2026-07-31)."""
 
-    def test_tables_version_is_5(self):
-        self.assertEqual(ct.TABLES_VERSION, 5)
+    def test_tables_version_is_6(self):
+        # v6 = Sprint15 wap (this assert exists to force a conscious bump
+        # on ANY table change — update it WITH the change, never alone).
+        self.assertEqual(ct.TABLES_VERSION, 6)
 
     def test_hlt_index_zero_carries_no_override(self):
         # 0 = YAML governs. If someone gives index 0 an override payload, a

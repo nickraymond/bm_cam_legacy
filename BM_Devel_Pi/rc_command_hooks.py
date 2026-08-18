@@ -73,6 +73,30 @@ def make_query_render_fn(settings, state, topic):
     return render
 
 
+WAP_SCRIPT = "/home/pi/BM_Devel_Pi/network_ap.sh"
+
+
+def make_wap_action_fn(script_path=WAP_SCRIPT):
+    """The Sprint15 wap dispatch (D-S15-10): fire-and-forget the AP flip
+    script so the daemon never blocks on network reconfiguration. The
+    script owns ALL safety (revert timer armed before the flip); output
+    inherits stdout and lands in the cron log."""
+    import subprocess
+    from command_tables import WAP_TABLE
+
+    def wap_action(value):
+        entry = WAP_TABLE[value]
+        if entry.get("ap"):
+            args = ["sudo", "-n", script_path, "up",
+                    str(entry.get("timeout_min", 60))]
+        else:
+            args = ["sudo", "-n", script_path, "down"]
+        print(f"[CMD] wap={value}: dispatching {' '.join(args)}")
+        subprocess.Popen(args)
+
+    return wap_action
+
+
 def default_daemon_factory(settings, bm_commands_cfg, state):
     """Open the UART ONCE for the whole cycle (D11) and build the command
     daemon on it. Installs the shared BristlemouthSerial as
@@ -90,6 +114,7 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
         bm, state, topic=bm_commands_cfg["topic"],
         query_render_fn=make_query_render_fn(
             settings, state, bm_commands_cfg["topic"]),
+        wap_action_fn=make_wap_action_fn(),
     )
 
 

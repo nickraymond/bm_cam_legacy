@@ -32,6 +32,8 @@ capture; the Phase 0 bench pass re-checks it against a fresh capture and
 the real console width before the formatting gate is ticked.
 """
 
+import os
+
 from command_tables import (
     COMMAND_INFO,
     COMMANDS,
@@ -60,6 +62,7 @@ QUICK_ACTIONS = (
     ("Capture + send an image now:", "trg", 2),
     ("Send a test image (camera bypassed - checks the link):", "trg", 3),
     ("Open the transmit window all day:", "twn", 2),
+    ("Phone download mode - 60 min WiFi hotspot (video units):", "wap", 1),
     ("Is the camera alive?", "ping", None),
     ("Show current settings:", "cfg", None),
     ("Show this reference:", "help", None),
@@ -67,12 +70,23 @@ QUICK_ACTIONS = (
 _QUICK_ACTION_FIRST_ID = 101
 
 # cfg row grouping (box heading -> commands, in row order). `trg` renders
-# as the pending-trigger row. Timezone rides in POWER & SCHEDULE.
+# as the pending-trigger row; `wap` (Sprint15) as the live WiFi-mode row.
+# Timezone rides in POWER & SCHEDULE.
 CFG_GROUPS = (
     ("CAMERA", ("roi", "foc", "awb", "exp", "src")),
     ("TRANSMISSION", ("win", "txd", "cap", "twn")),
-    ("POWER & SCHEDULE", ("hlt", "tmz", "trg")),
+    ("POWER & SCHEDULE", ("hlt", "tmz", "wap", "trg")),
 )
+
+# Marker maintained by network_ap.sh while the AP is up — cfg reads LIVE
+# network state, not the (deliberately unpersisted) command history.
+_AP_MARKER = "/run/bmcam_ap/ap_active"
+
+
+def _wap_text(marker_path=_AP_MARKER):
+    if os.path.exists(marker_path):
+        return "WiFi HOTSPOT (temporary)"
+    return "normal WiFi (client)"
 
 _BAR = "+" + "=" * (MAX_LINE_CHARS - 4) + "+"
 
@@ -317,6 +331,12 @@ def render_cfg(settings, state, controls=None):
                 source = f" command trg={trigger['value']}" if trigger else " -"
                 lines.append(_row(f" {info['cfg_name']}",
                                   f" {_trigger_text(state)}", source))
+                continue
+            if cmd == "wap":
+                # Live state (marker file), not command history — wap is
+                # ephemeral by design (Sprint15 D-S15-10).
+                lines.append(_row(f" {info['cfg_name']}",
+                                  f" {_wap_text()}", " live"))
                 continue
             name = f" {info['cfg_name']} ({cmd})"
             value = f" {_cfg_value(cmd, settings, state, controls)}"
