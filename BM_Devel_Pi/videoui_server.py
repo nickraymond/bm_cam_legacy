@@ -24,9 +24,13 @@ Runs as a daemon thread of the video runtime when video.ui.enabled
 import html
 import json
 import os
+import calendar
 import posixpath
+import socket
+import shutil
 import subprocess
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import urllib.parse
 from urllib.parse import parse_qs, unquote, urlparse
@@ -35,79 +39,443 @@ import video_settings
 
 ALLOWED_SUFFIXES = (".mp4", ".jpg")
 
+# Sprint18: the stills gallery. Same directory the stills runtime writes
+# to (process_image_v2.IMAGE_DIRECTORY) -- not imported, because that
+# module pulls in PIL and this server must stay stdlib-only.
+DEFAULT_IMAGES_DIR = "/home/pi/BM_Devel_Pi/images"
+IMAGE_SUFFIX = "_compressed.jpg"          # the transmitted copy
+IMAGE_META_SUFFIX = "_compressed.jpg.capture_metadata.json"
+
+# When this process started. A config file newer than this means settings
+# were saved but the runtime has not restarted onto them yet -- derived
+# state, no database, and it self-clears after a reboot.
+PROCESS_START = time.time()
+
+GIB = 1024 ** 3
+
 GALLERY_HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bmcam video</title>
+<title>Nereus Vision camera</title>
 <style>
- body{margin:0;font-family:-apple-system,system-ui,sans-serif;
-      background:#10151c;color:#e8edf2}
- header{padding:14px 18px;background:#1a2230;position:sticky;top:0}
- h1{margin:0;font-size:18px} #meta{color:#8fa1b3;font-size:13px}
- #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-       gap:12px;padding:14px}
- .card{background:#1a2230;border-radius:10px;overflow:hidden}
- .card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;
-           background:#2a3444;cursor:pointer}
- .noThumb{width:100%;aspect-ratio:16/9;display:flex;align-items:center;
-          justify-content:center;background:#2a3444;color:#8fa1b3;
-          font-size:12px;cursor:pointer}
- .card .info{padding:8px 10px;font-size:12px;line-height:1.5}
- .name{word-break:break-all;color:#cfe0f0}
- .sub{color:#8fa1b3}
- a.dl{display:inline-block;margin-top:6px;padding:4px 10px;background:#2d6cdf;
-      color:#fff;border-radius:6px;text-decoration:none;font-size:12px}
- #player{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;
-         align-items:center;justify-content:center;flex-direction:column}
- #player video{max-width:96vw;max-height:80vh;background:#000}
- #player .bar{color:#cfe0f0;font-size:13px;padding:10px;word-break:break-all}
- #player button{margin-left:12px;padding:4px 12px}
+/* Nereus palette: same tokens as the fleet dashboard (backend/dashboard).
+   No webfont is LOADED on purpose -- this page is served by the camera
+   over an offline hotspot, so a CDN link would silently fail. The
+   dashboard falls back the same way. */
+:root{--bg:#eef3f7;--panel:#fff;--panel-soft:#f4f7fb;--border:#cfd9e4;
+ --text:#22364d;--muted:#5c748f;--brand:#2e77b6;--brand-dark:#24659e;
+ --shadow:0 8px 24px rgba(25,52,79,.08);--radius:14px;--radius-lg:18px;
+ --ok:#39a85a;--warn:#e0a21a;--bad:#cc4b4b;
+ --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,
+ Helvetica,Arial,sans-serif;
+ --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);color:var(--text);background:var(--bg)}
+#app{max-width:430px;margin:0 auto;min-height:100vh}
+.hide{display:none!important}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:13px 16px;background:linear-gradient(180deg,var(--brand),
+ var(--brand-dark));color:#fff;position:sticky;top:0;z-index:30;
+ box-shadow:0 6px 20px rgba(36,101,158,.18)}
+.brand{font-weight:700;font-size:19px}
+.btn{background:linear-gradient(180deg,var(--brand),var(--brand-dark));
+ color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:600;
+ cursor:pointer;font-family:var(--sans);font-size:15px;text-decoration:none;
+ display:inline-block;text-align:center}
+.btn.secondary{background:#fff;color:var(--brand-dark);
+ border:1px solid var(--border)}
+.btn.wide{width:100%;padding:14px;min-height:48px}
+.topbar .btn{padding:9px 14px;font-size:14px;min-height:40px}
+.unitrow{background:var(--panel);border-bottom:1px solid var(--border);
+ padding:11px 16px}
+.unitname{font-weight:700;font-size:16px;display:flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.storage{margin-top:5px;display:flex;align-items:center;gap:7px;
+ font-size:11.5px;color:var(--muted)}
+.gauge{flex:none;width:104px;height:5px;border-radius:3px;background:#dfe8f1;
+ overflow:hidden;position:relative}
+.gauge i{display:block;height:100%;background:var(--ok)}
+.mediatabs{display:flex;gap:8px;padding:12px 16px 0}
+.mediatabs button{flex:1;background:var(--panel);border:1px solid var(--border);
+ border-radius:999px;padding:10px;font-size:14.5px;font-weight:600;
+ color:var(--muted);font-family:var(--sans);cursor:pointer;min-height:44px;
+ display:flex;align-items:center;justify-content:center;gap:7px}
+.mediatabs button .n{font-size:11.5px;background:var(--panel-soft);
+ border-radius:999px;padding:2px 7px;font-variant-numeric:tabular-nums}
+.mediatabs button[aria-selected="true"]{background:linear-gradient(180deg,
+ var(--brand),var(--brand-dark));color:#fff;border-color:var(--brand-dark)}
+.mediatabs button[aria-selected="true"] .n{background:rgba(255,255,255,.22)}
+.filters{padding:12px 16px 0}
+.frow{display:flex;gap:8px;align-items:center;font-size:12px;
+ color:var(--muted);margin-bottom:8px}
+.frow label{flex:none;width:74px;font-weight:600}
+.select,.input{flex:1;min-width:0;border:1px solid var(--border);
+ border-radius:10px;background:#fff;color:var(--text);padding:10px 11px;
+ font-family:var(--mono);font-size:15px;min-height:44px}
+.frow input[type=date]{font-size:13.5px;padding:10px 8px}
+.fmeta{display:flex;justify-content:space-between;align-items:baseline;
+ font-size:11.5px;color:var(--muted)}
+.fmeta button{background:none;border:none;color:var(--brand);font-size:12px;
+ cursor:pointer;font-family:var(--sans);font-weight:600;padding:4px 0}
+.fhint{font-size:11.5px;color:var(--muted);padding-top:6px}
+#grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px 20px}
+.daysep{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:11px;
+ font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+ color:var(--muted);padding:6px 0 0}
+.daysep:after{content:"";flex:1;height:1px;background:var(--border);order:1}
+.daysep .dn{order:2;font-weight:600;letter-spacing:0}
+.card{background:var(--panel);border:1px solid var(--border);
+ border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+ cursor:pointer;-webkit-tap-highlight-color:transparent}
+.poster{position:relative;aspect-ratio:16/9;background:#cfdcea}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.tstamp{position:absolute;left:0;top:0;background:rgba(13,35,56,.74);color:#fff;
+ font-family:var(--mono);font-size:11px;padding:3px 7px;
+ border-bottom-right-radius:10px}
+.badge{position:absolute;right:6px;bottom:6px;background:rgba(13,35,56,.78);
+ color:#fff;font-family:var(--mono);font-size:10.5px;padding:2px 6px;
+ border-radius:5px}
+.pills{display:flex;flex-wrap:wrap;gap:5px;padding:8px}
+.pill{border:1px solid var(--border);border-radius:999px;padding:3px 8px;
+ font-size:10.5px;color:var(--muted);background:#fff;font-family:var(--mono);
+ white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.key{background:#eaf2fa;border-color:#c6ddf0;color:var(--brand-dark);
+ font-weight:600}
+#more{grid-column:1/-1}
+#empty{padding:40px 24px;text-align:center;color:var(--muted);font-size:13.5px}
+#detail{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;
+ flex-direction:column}
+#detail.on{display:flex}
+.dtop{flex:none;display:flex;align-items:center;gap:10px;
+ padding:9px 10px 9px 16px;background:linear-gradient(180deg,var(--brand),
+ var(--brand-dark));color:#fff}
+.dtop .dname{flex:1;min-width:0;font-family:var(--mono);font-size:11px;
+ opacity:.92;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#xbtn{flex:none;width:48px;height:48px;border-radius:50%;border:0;
+ background:rgba(255,255,255,.18);color:#fff;font-size:26px;cursor:pointer;
+ display:flex;align-items:center;justify-content:center}
+.dbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+ padding-bottom:24px}
+.stage{background:#0d2338;position:relative}
+.stage video,.stage img{width:100%;display:block;max-height:56vh;
+ object-fit:contain;background:#0d2338}
+.dact{padding:14px 16px 6px}
+.mgroup{margin:0 16px 12px;background:var(--panel);border:1px solid var(--border);
+ border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.mgroup h3{margin:0;padding:10px 14px;font-size:10.5px;letter-spacing:.08em;
+ text-transform:uppercase;color:var(--muted);background:var(--panel-soft);
+ border-bottom:1px solid var(--border);font-weight:700}
+.mgroup table{width:100%;border-collapse:collapse;font-size:13px}
+.mgroup td{padding:9px 14px;border-bottom:1px solid #e7edf2;vertical-align:top}
+.mgroup tr:last-child td{border-bottom:none}
+.mgroup td.k{color:var(--muted);width:42%}
+.mgroup td.v{text-align:right;font-family:var(--mono);
+ font-variant-numeric:tabular-nums}
+.mgroup td.v .sub{display:block;font-family:var(--sans);font-size:11px;
+ color:var(--muted);margin-top:3px;line-height:1.4}
+.mgroup td.v.flag{color:#b9791a}
+.mgroup td.v.info{color:var(--brand-dark)}
+.mgroup td.v.good{color:#2f8b4c}
+.mgroup td.v.dim{color:var(--muted)}
+.skel{display:inline-block;width:66px;height:11px;border-radius:3px;
+ background:#e3ebf3}
 </style>
 </head>
 <body>
-<header><h1>bmcam video
-  <a href="/settings" style="float:right;font-size:13px;color:#7fb0e8">
-    ⚙ Settings</a></h1>
-  <div id="meta">loading manifest…</div></header>
-<div id="grid"></div>
-<div id="player">
-  <div class="bar"><span id="pname"></span>
-    <button onclick="closePlayer()">close</button></div>
-  <video id="pvideo" controls playsinline></video>
+<div id="app">
+ <div class="topbar"><div class="brand">Nereus Vision</div>
+  <a class="btn secondary" href="/settings">Settings</a></div>
+ __BANNER__
+ __PENDING__
+ <div class="unitrow">
+  <div class="unitname"><span class="dot"></span>__UNIT__</div>
+  <div class="storage"><span class="gauge"><i id="gfill"></i></span>
+   <span id="gtext">reading storage&hellip;</span></div>
+ </div>
+ <div class="mediatabs" role="tablist">
+  <button role="tab" data-media="videos" aria-selected="true">Videos
+   <span class="n" id="nvid">&mdash;</span></button>
+  <button role="tab" data-media="images" aria-selected="false">Images
+   <span class="n" id="nimg">&mdash;</span></button>
+ </div>
+ <div class="filters">
+  <div class="frow"><label for="dfrom">Dates UTC</label>
+   <input type="date" class="input" id="dfrom"><span>to</span>
+   <input type="date" class="input" id="dto"></div>
+  <div class="frow"><label for="hfrom">Hours UTC</label>
+   <select class="select" id="hfrom"></select><span>to</span>
+   <select class="select" id="hto"></select></div>
+  <div class="fmeta"><span id="fcount">loading&hellip;</span>
+   <button id="clearf">Clear filters</button></div>
+  <div class="fhint" id="fhint"></div>
+ </div>
+ <div id="grid"></div>
+ <div id="empty" class="hide">Nothing in that window.</div>
+</div>
+<div id="detail" role="dialog" aria-modal="true">
+ <div class="dtop"><span class="dname" id="dname"></span>
+  <button id="xbtn" aria-label="Close">&times;</button></div>
+ <div class="dbody">
+  <div class="stage" id="dstage"></div>
+  <div class="dact"><a class="btn wide" id="ddl" href="#">Download</a></div>
+  <div id="mtables"></div>
+ </div>
 </div>
 <script>
-function fmtMB(b){return (b/1048576).toFixed(1)+" MB"}
-function fmtDur(s){if(s==null)return "";const m=Math.floor(s/60);
-  return m+":"+String(s%60).padStart(2,"0")}
-function openPlayer(name){
-  document.getElementById("pname").textContent=name;
-  const v=document.getElementById("pvideo");
-  v.src="/videos/"+encodeURIComponent(name);
-  document.getElementById("player").style.display="flex"; v.play();}
-function closePlayer(){const v=document.getElementById("pvideo");
-  v.pause(); v.removeAttribute("src"); v.load();
-  document.getElementById("player").style.display="none";}
-fetch("/manifest.json").then(r=>r.json()).then(m=>{
-  document.getElementById("meta").textContent=
-    m.count+" clips (newest first)";
-  const g=document.getElementById("grid");
-  for(const c of m.clips){
-    const card=document.createElement("div"); card.className="card";
-    const thumb=c.thumb
-      ?`<img loading="lazy" src="/videos/${encodeURIComponent(c.thumb)}"
-           onclick="openPlayer('${c.name}')">`
-      :`<div class="noThumb" onclick="openPlayer('${c.name}')">no preview</div>`;
-    card.innerHTML=thumb+
-      `<div class="info"><div class="name">${c.name}</div>`+
-      `<div class="sub">${fmtMB(c.bytes)} · ${fmtDur(c.dur)}`+
-      `${c.res?" · "+c.res:""}</div>`+
-      `<a class="dl" href="/videos/${encodeURIComponent(c.name)}" `+
-      `download>Download</a></div>`;
-    g.appendChild(card);}
-}).catch(e=>{document.getElementById("meta").textContent=
-  "manifest error: "+e});
+var PAGE=26, DATA={videos:null,images:null}, DISK=null;
+var S={media:"videos",dFrom:null,dTo:null,hFrom:0,hTo:23,shown:PAGE};
+function $(i){return document.getElementById(i)}
+function fmtSize(b){return b>=1073741824?(b/1073741824).toFixed(2)+" GB":
+ b>=1048576?(b/1048576).toFixed(0)+" MB":(b/1024).toFixed(0)+" KB"}
+function fmtDur(s){if(s==null)return "\u2014";
+ return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function achieved(c){return c.dur?c.bytes*8/c.dur/1e6:null}
+function mbps(v){return v==null?"\u2014":(v<10?v.toFixed(1):v.toFixed(0))+" Mbps"}
+function uDate(c){return (c.utc||"").slice(0,10)}
+function uHour(c){return +((c.utc||"").slice(11,13)||0)}
+function uHM(c){return (c.utc||"").slice(11,16)}
+function dayLabel(d){var t=new Date(d+"T00:00:00Z"),n=new Date();
+ var diff=Math.round((n.setUTCHours(0,0,0,0)-t)/86400000);
+ var nice=t.toLocaleDateString(undefined,{month:"short",day:"numeric",
+  timeZone:"UTC"});
+ return diff===0?"Today "+nice:diff===1?"Yesterday "+nice:nice}
+function rows0(){return DATA[S.media]||[]}
+</script>
+<script>
+function paintStorage(){
+ if(!DISK)return;
+ var pct=DISK.total?100*DISK.used/DISK.total:0;
+ $("gfill").style.width=pct.toFixed(1)+"%";
+ $("gfill").style.background=pct>DISK.cap_pct?"var(--bad)":
+  pct>DISK.cap_pct*0.8?"var(--warn)":"var(--ok)";
+ var txt=DISK.used.toFixed(1)+" / "+DISK.total.toFixed(1)+" GB";
+ if(DISK.days!=null)txt+=" \u00b7 keeps ~"+DISK.days.toFixed(1)+" days";
+ $("gtext").textContent=txt;
+}
+function buildFilters(){
+ var all=rows0().map(uDate).filter(Boolean).sort();
+ var min=all[0],max=all[all.length-1];
+ var df=$("dfrom"),dt=$("dto");
+ df.min=dt.min=min||"";df.max=dt.max=max||"";
+ if(S.dFrom===null)S.dFrom=min;if(S.dTo===null)S.dTo=max;
+ df.value=S.dFrom||"";dt.value=S.dTo||"";
+ df.onchange=dt.onchange=function(){S.dFrom=df.value||min;S.dTo=dt.value||max;
+  if(S.dTo<S.dFrom){S.dTo=S.dFrom;dt.value=S.dTo}S.shown=PAGE;render()};
+ ["hfrom","hto"].forEach(function(id){var sel=$(id);
+  if(!sel.options.length){for(var h=0;h<24;h++){var o=document.createElement("option");
+   o.value=h;o.textContent=String(h).padStart(2,"0")+(id==="hto"?":59":":00");
+   sel.appendChild(o)}
+   sel.onchange=function(){S.hFrom=+$("hfrom").value;S.hTo=+$("hto").value;
+    if(S.hTo<S.hFrom){S.hTo=S.hFrom;$("hto").value=S.hTo}S.shown=PAGE;render()}}});
+ $("hfrom").value=S.hFrom;$("hto").value=S.hTo;
+}
+function videoPills(c){var a=achieved(c);
+ return '<span class="pill">'+(c.res||"\u2014")+'</span>'+
+  '<span class="pill">'+(c.fps==null?"\u2014":c.fps)+' fps</span>'+
+  '<span class="pill key">'+(a?a.toFixed(1):"\u2014")+' / '+
+  (c.br==null?"\u2014":c.br)+' Mbps</span>'}
+function imagePills(i){
+ return '<span class="pill">'+(i.res||"\u2014")+'</span>'+
+  '<span class="pill key">q'+(i.quality==null?"\u2014":i.quality)+'</span>'}
+function render(){
+ $("nvid").textContent=DATA.videos?DATA.videos.length:"\u2014";
+ $("nimg").textContent=DATA.images?DATA.images.length:"\u2014";
+ var tabs=document.querySelectorAll(".mediatabs button");
+ for(var i=0;i<tabs.length;i++)
+  tabs[i].setAttribute("aria-selected",String(tabs[i].dataset.media===S.media));
+ buildFilters();
+ var src=rows0();
+ var rows=src.filter(function(c){return uDate(c)>=S.dFrom&&uDate(c)<=S.dTo&&
+  uHour(c)>=S.hFrom&&uHour(c)<=S.hTo});
+ var page=rows.slice(0,S.shown);
+ var noun=S.media==="videos"?"clips":"photos";
+ $("fcount").textContent="showing "+page.length+" of "+rows.length+
+  (rows.length!==src.length?" ("+src.length+" total)":"")+" \u00b7 newest first";
+ var spanDays=(new Date(S.dTo)-new Date(S.dFrom))/86400000+1;
+ var narrowed=!(S.hFrom===0&&S.hTo===23);
+ $("fhint").textContent=(spanDays>1&&narrowed)?("Showing "+
+  String(S.hFrom).padStart(2,"0")+":00\u2013"+String(S.hTo).padStart(2,"0")+
+  ":59 UTC on each of "+spanDays+" days."):"";
+ $("empty").classList.toggle("hide",rows.length>0);
+ var g=$("grid");g.innerHTML="";
+ var perDay={};rows.forEach(function(c){perDay[uDate(c)]=(perDay[uDate(c)]||0)+1});
+ var day=null;
+ page.forEach(function(c){
+  if(uDate(c)!==day){day=uDate(c);
+   var s=document.createElement("div");s.className="daysep";
+   s.innerHTML='<span>'+dayLabel(day)+'</span><span class="dn">'+
+    perDay[day]+' '+noun+'</span>';g.appendChild(s)}
+  var card=document.createElement("div");card.className="card";card.tabIndex=0;
+  card.setAttribute("role","button");
+  var badge=S.media==="videos"?fmtDur(c.dur):fmtSize(c.bytes);
+  var url=S.media==="videos"
+   ?(c.thumb?"/videos/"+encodeURIComponent(c.thumb):null)
+   :"/images/"+encodeURIComponent(c.name);
+  card.innerHTML='<div class="poster">'+
+   (url?'<img loading="lazy" src="'+url+'" alt="">':'')+
+   '<span class="tstamp">'+uHM(c)+'Z</span>'+
+   '<span class="badge">'+badge+'</span></div><div class="pills">'+
+   (S.media==="videos"?videoPills(c):imagePills(c))+'</div>';
+  card.onclick=function(){openDetail(c)};
+  card.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){
+   e.preventDefault();openDetail(c)}};
+  g.appendChild(card)});
+ if(rows.length>page.length){var b=document.createElement("button");
+  b.id="more";b.className="btn secondary wide";
+  b.textContent="Show "+Math.min(PAGE,rows.length-page.length)+" more";
+  b.onclick=function(){S.shown+=PAGE;render()};g.appendChild(b)}
+}
+</script>
+<script>
+function row(k,v,sub,cls){return '<tr><td class="k">'+k+'</td><td class="v '+
+ (cls||"")+'">'+v+(sub?'<span class="sub">'+sub+'</span>':'')+'</td></tr>'}
+function group(t,rows){return '<div class="mgroup"><h3>'+t+'</h3><table>'+
+ rows.join("")+'</table></div>'}
+var SKEL='<span class="skel"></span>';
+function lensTxt(l){return l===0?"infinity":l?(l>=1?(100/l).toFixed(0)+" cm":
+ (1/l).toFixed(1)+" m"):"\u2014"}
+function openDetail(c){
+ var isVid=S.media==="videos";
+ $("dname").textContent=c.name;
+ $("ddl").setAttribute("href",(isVid?"/videos/":"/images/")+
+  encodeURIComponent(c.name));
+ $("ddl").setAttribute("download",c.name);
+ $("dstage").innerHTML=isVid
+  ?'<video id="pv" controls playsinline preload="metadata" src="/videos/'+
+   encodeURIComponent(c.name)+'"></video>'
+  :'<img src="/images/'+encodeURIComponent(c.name)+'" alt="">';
+ var local=c.utc?new Date(c.utc).toLocaleString():"\u2014";
+ if(isVid){
+  var a=achieved(c),pct=(a&&c.br)?a/c.br*100:null,under=pct!=null&&pct<60;
+  var up=c.scale!=null&&c.scale>1;
+  $("mtables").innerHTML=
+   group("Recording",[row("Start (UTC)",(c.utc||"").replace("T"," ")),
+    row("Start (phone local)",local),
+    row("Clip length",fmtDur(c.dur),"configured length, not measured"),
+    row("File size",fmtSize(c.bytes))])+
+   group("Quality: asked for vs got",[
+    row("Preset",c.preset||"\u2014",c.preset?null:"predates the presets",
+        c.preset?"":"dim"),
+    row("Recorded size",c.res||"\u2014"),
+    row("Frame rate",(c.fps==null?"\u2014":c.fps)+" fps"),
+    row("Bitrate setting",mbps(c.br),"ceiling, not a target"),
+    row("Bitrate achieved",mbps(a),null,under?"info":"good"),
+    row("Share of ceiling used",pct==null?"\u2014":pct.toFixed(0)+" %",
+        under?"scene had little detail \u2014 the encoder never needed the ceiling":null,
+        under?"info":""),
+    row("Scale to recorded size",c.scale==null?"\u2014":c.scale.toFixed(3)+"\u00d7",
+        c.scale==null?null:(up?"UPSCALED \u2014 bigger than the detail behind it"
+         :"downscale \u2014 every recorded pixel is real sensor detail"),
+        c.scale==null?"":(up?"flag":"good"))])+
+   group("Camera",[row("Focus mode",SKEL),row("Focus distance",SKEL),
+    row("White balance",SKEL),row("Exposure",SKEL),row("Sensor crop",SKEL)])+
+   group("Encoder",[row("Noise reduction",SKEL),row("Sharpness",SKEL),
+    row("H.264 profile",SKEL),row("Keyframe interval",SKEL)])+
+   group("Camera health at this clip",[row("CPU temperature",SKEL),
+    row("Card used",SKEL),row("Old clips deleted",SKEL),
+    row("Encoder wall time",SKEL),row("Gap before next clip",SKEL),
+    row("Checksum",SKEL)]);
+ }else{
+  $("mtables").innerHTML=
+   group("Photo",[row("Taken (UTC)",(c.utc||"").replace("T"," ")),
+    row("Taken (phone local)",local),
+    row("File size",fmtSize(c.bytes),"the transmitted copy"),
+    row("Resolution",c.res||"\u2014")])+
+   group("Transmission sizing",[row("JPEG quality used",SKEL),
+    row("Encode attempts",SKEL),row("Why this quality",SKEL),
+    row("Format",SKEL),row("Messages over the bus",SKEL)])+
+   group("Camera",[row("Exposure time",SKEL),row("Analogue gain",SKEL),
+    row("Scene brightness",SKEL),row("Colour temperature",SKEL),
+    row("Focus distance",SKEL),row("Focus score",SKEL),
+    row("Sensor temperature",SKEL)])+
+   group("Framing",[row("Sensor crop",SKEL),row("Scaler crop",SKEL),
+    row("Checksum",SKEL)]);
+ }
+ $("detail").classList.add("on");
+ document.querySelector(".dbody").scrollTop=0;
+ $("xbtn").focus();
+ var stem=c.name.replace(/[.][^.]+$/,"");
+ fetch((isVid?"/clip/":"/photo/")+encodeURIComponent(stem)+".json")
+  .then(function(r){return r.ok?r.json():null}).then(function(d){
+   if(!d||$("dname").textContent!==c.name)return;
+   var t=document.querySelectorAll(".mgroup");
+   if(isVid){
+    var auto=d.focus_mode==="auto";
+    t[2].querySelector("table").innerHTML=[
+     row("Focus mode",d.focus_mode||"\u2014"),
+     row("Focus distance",auto?"not used":lensTxt(d.lens),
+      auto?"autofocus is on \u2014 the stored lens_position is ignored":null,
+      auto?"dim":""),
+     row("White balance",d.wb||"\u2014"),row("Exposure",d.exp||"\u2014"),
+     row("Sensor crop",d.crop?d.crop.join(", "):"\u2014","native x, y, w, h")
+    ].join("");
+    var e=d.enc||{};
+    function dflt(v){return (v===""||v==null||v===0)?"camera default":v}
+    t[3].querySelector("table").innerHTML=[
+     row("Noise reduction",dflt(e.denoise),null,e.denoise?"":"dim"),
+     row("Sharpness",e.sharpness==null?"\u2014":e.sharpness),
+     row("H.264 profile",dflt(e.profile),null,e.profile?"":"dim"),
+     row("Keyframe interval",dflt(e.intra),null,e.intra?"":"dim")].join("");
+    var slow=d.boundary_s>20;
+    t[4].querySelector("table").innerHTML=[
+     row("CPU temperature",d.tmp==null?"\u2014":d.tmp.toFixed(1)+" \u00b0C"),
+     row("Card used",d.du==null?"\u2014":d.du+" / "+d.dt+" GB"),
+     row("Old clips deleted",d.rd==null?"\u2014":d.rd,
+      d.rd?"ring buffer made room for this clip":null,d.rd?"info":""),
+     row("Encoder wall time",d.encode_s==null?"\u2014":d.encode_s+" s"),
+     row("Gap before next clip",d.boundary_s==null?"\u2014":d.boundary_s+" s",
+      slow?"big file \u2014 the MP4 mux ran long":null,slow?"flag":""),
+     row("Checksum",d.sha||"\u2014","first 16 hex of sha-256")].join("");
+   }else{
+    var why={fit:"first quality that fit the message budget",
+             cap:"capped by the message limit"};
+    t[1].querySelector("table").innerHTML=[
+     row("JPEG quality used",d.quality==null?"\u2014":"q"+d.quality),
+     row("Encode attempts",d.attempts==null?"\u2014":d.attempts,
+      d.attempts>1?"tried a higher quality first, then stepped down":null),
+     row("Why this quality",d.reason||"\u2014",why[d.reason]||null),
+     row("Format",d.fmt==="pjpg"?"progressive JPEG":(d.fmt||"\u2014")),
+     row("Messages over the bus",d.msgs==null?"\u2014":d.msgs,
+      "cellular messages this photo cost")].join("");
+    t[2].querySelector("table").innerHTML=[
+     row("Exposure time",d.exp_us==null?"\u2014":(d.exp_us/1000).toFixed(1)+" ms"),
+     row("Analogue gain",d.gain==null?"\u2014":d.gain.toFixed(1)+"\u00d7"),
+     row("Scene brightness",d.lux==null?"\u2014":d.lux.toFixed(0)+" lux"),
+     row("Colour temperature",d.ctemp==null?"\u2014":d.ctemp+" K"),
+     row("Focus distance",lensTxt(d.lens)),
+     row("Focus score",d.focus_fom==null?"\u2014":d.focus_fom,
+      "higher is sharper (FocusFoM)"),
+     row("Sensor temperature",
+      d.sensor_temp==null?"\u2014":d.sensor_temp.toFixed(1)+" \u00b0C")].join("");
+    t[3].querySelector("table").innerHTML=[
+     row("Sensor crop",d.crop?d.crop.join(", "):"\u2014","native x, y, w, h"),
+     row("Scaler crop",d.scaler||"\u2014"),
+     row("Checksum",d.sha||"\u2014","first 16 hex of sha-256")].join("");
+   }
+  }).catch(function(){});
+}
+function closeDetail(){var v=document.getElementById("pv");
+ if(v){v.pause();v.removeAttribute("src");v.load()}
+ $("detail").classList.remove("on")}
+$("xbtn").onclick=closeDetail;
+document.addEventListener("keydown",function(e){
+ if(e.key==="Escape")closeDetail()});
+$("clearf").onclick=function(){S.dFrom=null;S.dTo=null;S.hFrom=0;S.hTo=23;
+ S.shown=PAGE;render()};
+var tabs=document.querySelectorAll(".mediatabs button");
+for(var i=0;i<tabs.length;i++)tabs[i].onclick=function(){
+ S.media=this.dataset.media;S.dFrom=null;S.dTo=null;S.shown=PAGE;render();
+ window.scrollTo(0,0)};
+function load(){
+ fetch("/manifest.json").then(function(r){return r.json()}).then(function(m){
+  DATA.videos=m.clips||[];DISK=m.disk||null;paintStorage();render()})
+  .catch(function(e){$("fcount").textContent="manifest error: "+e});
+ fetch("/images.json").then(function(r){return r.json()}).then(function(m){
+  DATA.images=m.images||[];render()}).catch(function(){DATA.images=[]});
+}
+load();
 </script>
 </body>
 </html>
@@ -115,28 +483,295 @@ fetch("/manifest.json").then(r=>r.json()).then(m=>{
 
 
 SETTINGS_CSS = """
- body{margin:0;font-family:-apple-system,system-ui,sans-serif;
-      background:#10151c;color:#e8edf2}
- header{padding:14px 18px;background:#1a2230}
- h1{margin:0;font-size:18px}
- main{max-width:560px;margin:0 auto;padding:14px}
- .field{background:#1a2230;border-radius:10px;padding:12px 14px;
-        margin-bottom:10px}
- label{display:block;font-size:14px;color:#cfe0f0;margin-bottom:6px;
-       font-weight:600}
- select{width:100%;padding:8px;font-size:15px;border-radius:6px;
-        background:#243044;color:#e8edf2;border:1px solid #38465c}
- .help{font-size:12px;color:#8fa1b3;margin-top:6px;line-height:1.4}
- button,a.btn{display:inline-block;padding:10px 18px;margin:8px 8px 0 0;
-        font-size:15px;border-radius:8px;border:none;cursor:pointer;
-        text-decoration:none}
- .save{background:#2d6cdf;color:#fff}
- .restart{background:#b3552d;color:#fff}
- .back{background:#243044;color:#cfe0f0}
- .notice{background:#233c26;border-radius:10px;padding:12px 14px;
-         margin-bottom:10px;font-size:14px}
- .error{background:#4a2323}
+:root{--bg:#eef3f7;--panel:#fff;--panel-soft:#f4f7fb;--border:#cfd9e4;
+ --text:#22364d;--muted:#5c748f;--brand:#2e77b6;--brand-dark:#24659e;
+ --shadow:0 8px 24px rgba(25,52,79,.08);--radius:14px;--radius-lg:18px;
+ --ok:#39a85a;--warn:#e0a21a;--bad:#cc4b4b;
+ --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,
+ Helvetica,Arial,sans-serif;
+ --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);color:var(--text);background:var(--bg)}
+#app{max-width:430px;margin:0 auto}
+.hide{display:none!important}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:13px 16px;background:linear-gradient(180deg,var(--brand),
+ var(--brand-dark));color:#fff;position:sticky;top:0;z-index:30;
+ box-shadow:0 6px 20px rgba(36,101,158,.18)}
+.brand{font-weight:700;font-size:19px}
+.btn{background:linear-gradient(180deg,var(--brand),var(--brand-dark));
+ color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:600;
+ cursor:pointer;font-family:var(--sans);font-size:15px;text-decoration:none;
+ display:inline-block;text-align:center}
+.btn.secondary{background:#fff;color:var(--brand-dark);
+ border:1px solid var(--border)}
+.btn.danger{background:linear-gradient(180deg,#d05a5a,var(--bad))}
+.btn.wide{width:100%;padding:14px;min-height:48px}
+.topbar .btn{padding:9px 14px;font-size:14px;min-height:40px}
+main{padding:14px 16px 28px}
+.panel{background:var(--panel);border:1px solid var(--border);
+ border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px;
+ margin-bottom:14px}
+.panel h2{margin:0 0 10px;font-size:11px;letter-spacing:.08em;
+ text-transform:uppercase;color:var(--muted);font-weight:700}
+.bigfig{font-size:27px;font-weight:700;font-variant-numeric:tabular-nums}
+.bigfig span{font-size:13px;font-weight:400;color:var(--muted)}
+.bigauge{height:12px;border-radius:6px;background:#dfe8f1;position:relative;
+ overflow:hidden;margin:8px 0 10px}
+.bigauge i{display:block;height:100%;background:var(--ok)}
+.bigauge .cap{position:absolute;top:0;bottom:0;width:2px;background:var(--warn)}
+.slines{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;
+ font-size:12.5px;margin:0}
+.slines dt{color:var(--muted)}
+.slines dd{margin:0;text-align:right;font-family:var(--mono);
+ font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+.grp{background:var(--panel);border:1px solid var(--border);
+ border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:14px;
+ overflow:hidden}
+.grp > h2{margin:0;padding:12px 16px;font-size:11px;letter-spacing:.08em;
+ text-transform:uppercase;color:var(--muted);background:var(--panel-soft);
+ border-bottom:1px solid var(--border);font-weight:700}
+.modenote{padding:11px 16px;font-size:12px;color:var(--muted);
+ background:#f8fbfe;border-bottom:1px solid var(--border);line-height:1.45}
+.field{padding:14px 16px;border-bottom:1px solid #e7edf2}
+.grp .field:last-child{border-bottom:none}
+label{display:block;font-size:14px;font-weight:600;margin-bottom:7px}
+select,input[type=text],input[type=password]{width:100%;border:1px solid
+ var(--border);border-radius:10px;background:#fff;color:var(--text);
+ padding:11px;font-size:16px;font-family:var(--sans);min-height:44px}
+.help{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.45}
+.why{font-size:12px;color:#b9791a;margin-top:7px;line-height:1.45}
+.field.off{opacity:.5}
+details.adv{background:var(--panel);border:1px solid var(--border);
+ border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:14px}
+details.adv summary{padding:14px 16px;font-size:14px;font-weight:600;
+ cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary:after{content:"+";color:var(--muted);font-size:19px}
+details.adv[open] summary:after{content:"\\2013"}
+.savewrap{display:flex;flex-direction:column;gap:10px}
+.notice{background:#eefaf1;border:1px solid #bfe6cb;color:#1f6b39;
+ border-radius:var(--radius);padding:12px 14px;font-size:13px;
+ margin-bottom:14px;line-height:1.45}
+.notice.error{background:#fdf0f0;border-color:#f0c4c4;color:#9c3232}
+.pendbar{background:#fffbeb;border:1px solid #fde68a;color:#7c5310;
+ border-radius:var(--radius);padding:12px 14px;font-size:13px;
+ margin-bottom:14px;line-height:1.45}
+.foot{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:14px}
 """
+
+
+def _field_html(field, current, mode):
+    """One settings row. Renders the value that is really on disk, even
+    when it is no longer an offered choice (e.g. a unit still set to the
+    retired heic mode) -- shown honestly rather than silently rewritten."""
+    key = field["key"]
+    cur = current.get(key)
+    selected = (video_settings.normalize_choice(key, cur)
+                if cur is not None else None)
+    options = list(field["choices"])
+    if cur is not None and selected is None:
+        selected = str(cur)
+        options.insert(0, (str(cur), f"current: {cur}"))
+    opts = "".join(
+        f'<option value="{html.escape(v)}"'
+        f'{" selected" if v == selected else ""}>{html.escape(label)}</option>'
+        for v, label in options)
+    # A field the current settings make irrelevant stays visible but inert,
+    # with the reason said out loud (an unexplained dead control reads as a
+    # bug). Disabled means it is not submitted at all.
+    why = ""
+    if (key == "image_pipeline.camera_controls.focus.lens_position"
+            and str(current.get(
+                "image_pipeline.camera_controls.focus.mode")) == "auto"):
+        why = "Not used while Focus mode is Autofocus."
+    missing = "" if cur is not None else (
+        '<div class="help">! not present in this config file '
+        '(shown for reference, not editable)</div>')
+    disabled = " disabled" if (cur is None or why) else ""
+    off_class = " off" if why else ""
+    why_html = f'<div class="why">{html.escape(why)}</div>' if why else ""
+    modes = " ".join(field["applies"])
+    esc_key = html.escape(key)
+    return (f'<div class="field{off_class}" data-key="{esc_key}" '
+            f'data-modes="{modes}">'
+            f'<label for="f_{esc_key}">{html.escape(field["label"])}</label>'
+            f'<select id="f_{esc_key}" name="{esc_key}"{disabled}>{opts}'
+            f'</select>'
+            f'<div class="help">{html.escape(field["help"])}</div>'
+            f'{why_html}{missing}</div>')
+
+
+def _storage_panel(disk, mode, storage_cfg=None):
+    """Measured retention, not a guess. See storage_stats()."""
+    if not disk:
+        return ('<div class="panel"><h2>Storage</h2>'
+                '<div class="note">Storage figures unavailable.</div></div>')
+    cap = disk["cap_pct"]
+    pct = 100 * disk["used"] / disk["total"] if disk["total"] else 0
+    colour = ("var(--bad)" if pct > cap
+              else "var(--warn)" if pct > cap * 0.8 else "var(--ok)")
+    lines = [f'<dt>Videos kept</dt><dd>{disk["clips"]}</dd>']
+    if disk.get("images") is not None:
+        lines.append(f'<dt>Photos kept</dt><dd>{disk["images"]}</dd>')
+    if disk.get("oldest"):
+        lines.append(f'<dt>Oldest video</dt><dd>{html.escape(disk["oldest"])}'
+                     f'</dd>')
+    if disk.get("gb_per_hour") is not None:
+        lines.append(f'<dt>Recording now</dt>'
+                     f'<dd>~{disk["gb_per_hour"]:.1f} GB/hour</dd>')
+    lines.append(f'<dt>Deletes oldest at</dt><dd>{cap:.0f}% '
+                 f'({disk["total"] * cap / 100:.0f} GB)</dd>')
+    if mode == "video":
+        if disk.get("days") is not None:
+            note = (f'At the current rate this camera keeps about '
+                    f'<b>{disk["days"]:.1f} days</b> of video. Past '
+                    f'{cap:.0f}% the oldest clips are deleted automatically '
+                    f'&mdash; newest footage always wins.')
+        else:
+            note = ('Not enough recording history yet to estimate how long '
+                    'footage is kept.')
+    else:
+        note = ('In photo mode the camera stores stills, which are thousands '
+                'of times smaller than video. The ring buffer applies to '
+                'video only.')
+    return (f'<div class="panel"><h2>Storage</h2>'
+            f'<div class="bigfig">{disk["used"]:.1f} '
+            f'<span>of {disk["total"]:.1f} GB used</span></div>'
+            f'<div class="bigauge"><i style="width:{min(pct,100):.1f}%;'
+            f'background:{colour}"></i>'
+            f'<span class="cap" style="left:{cap:.0f}%"></span></div>'
+            f'<dl class="slines">{"".join(lines)}</dl>'
+            f'<div class="note">{note}</div></div>')
+
+
+def render_settings_page(current, message=None, error=False, mode=None,
+                         disk=None, pending=False):
+    """The /settings form, values pre-selected from the live YAML.
+
+    Only the fields the CURRENT capture mode uses are rendered live; the
+    rest ride along disabled so switching mode in the browser reveals them
+    without a round trip. Engineering knobs sit behind Advanced.
+    """
+    cap_mode = video_settings.mode_class(current.get("capture_mode", "video"))
+    rows = []
+    if pending:
+        rows.append(
+            '<div class="pendbar"><b>Saved, not yet running.</b> This camera '
+            'has settings saved since it started. They take effect when it '
+            'restarts.</div>')
+    if message:
+        rows.append(f'<div class="notice{" error" if error else ""}">'
+                    f'{html.escape(message)}</div>')
+    rows.append(_storage_panel(disk, cap_mode))
+    rows.append('<form method="POST" action="/settings" id="setform">')
+
+    advanced = set(video_settings.ADVANCED_KEYS)
+    for title, keys in video_settings.GROUPS:
+        fields = [video_settings.field_for(k) for k in keys
+                  if k not in advanced and k in
+                  {f["key"] for f in video_settings.FIELDS}]
+        live = [f for f in fields if cap_mode in f["applies"]]
+        if not live and title != "Network":
+            continue
+        body = "".join(_field_html(f, current, cap_mode) for f in fields)
+        note = ""
+        if title == "Recording" and cap_mode == "stills":
+            note = ('<div class="modenote">Photo mode &mdash; the video '
+                    'recording, quality and ring-buffer settings do not '
+                    'apply and are hidden.</div>')
+        rows.append(f'<div class="grp" data-group="{html.escape(title)}">'
+                    f'<h2>{html.escape(title)}</h2>{note}{body}</div>')
+
+    adv_fields = [video_settings.field_for(k)
+                  for k in video_settings.ADVANCED_KEYS]
+    rows.append('<details class="adv"><summary>Advanced &mdash; engineering '
+                'controls</summary>'
+                + "".join(_field_html(f, current, cap_mode)
+                          for f in adv_fields)
+                + '</details>')
+
+    rows.append(
+        '<div class="savewrap">'
+        '<button class="btn wide" type="submit">Save settings</button>'
+        '<button class="btn wide danger" type="submit" name="then" '
+        'value="restart" onclick="return confirm(\'Save and restart now? '
+        'Recording stops for about a minute, then resumes automatically.\')">'
+        'Save and restart now</button></div></form>')
+
+    rows.append(
+        '<div class="foot">Saved changes take effect when the camera '
+        'restarts. A timestamped backup of the config is kept on the camera '
+        'before every save, so any change can be undone.</div>')
+
+    # Sprint16 (D-S16-4): session-only customer WiFi join.
+    rows.append(
+        '<div class="grp"><h2>Connect to a WiFi network</h2>'
+        '<form method="POST" action="/settings/join" '
+        'onsubmit="return confirm(\'Connect now? This page will drop off '
+        'the camera hotspot. If the WiFi details are wrong, the hotspot '
+        'comes back by itself so you can retry.\')">'
+        '<div class="field"><label for="wifi_ssid">Network name (SSID)</label>'
+        '<input id="wifi_ssid" name="wifi_ssid" type="text" maxlength="32" '
+        'autocomplete="off">'
+        '<div style="height:9px"></div>'
+        '<label for="wifi_psk">Password</label>'
+        '<input id="wifi_psk" name="wifi_psk" type="password" maxlength="63" '
+        'autocomplete="off">'
+        '<div class="help">The camera joins this network for the current '
+        'power cycle only &mdash; it forgets the password and returns to its '
+        'boot setting at the next power-on.</div>'
+        '<div style="height:10px"></div>'
+        '<button class="btn secondary wide" type="submit">Connect to this '
+        'WiFi</button></div></form></div>')
+
+    body = "\n".join(rows)
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nereus Vision camera settings</title>
+<style>{SETTINGS_CSS}</style></head>
+<body><div id="app">
+<div class="topbar"><div class="brand">Nereus Vision</div>
+<a class="btn secondary" href="/">Gallery</a></div>
+{open_ap_banner(mode)}
+<main>{body}</main></div>
+<script>
+/* Show only the fields the chosen camera mode uses. The server already
+   rendered the CURRENT mode correctly; this just keeps the page honest
+   when the customer changes the dropdown, with no round trip. A hidden
+   field is disabled so it is never submitted. */
+(function(){{
+ var sel=document.getElementById("f_capture_mode");
+ if(!sel)return;
+ function apply(){{
+  var mode=sel.value==="video"?"video":"stills";
+  var fields=document.querySelectorAll(".field[data-modes]");
+  for(var i=0;i<fields.length;i++){{
+   var f=fields[i],ok=f.dataset.modes.split(" ").indexOf(mode)>=0;
+   f.classList.toggle("hide",!ok);
+   var input=f.querySelector("select");
+   if(input&&!f.classList.contains("off"))input.disabled=!ok;
+  }}
+  var groups=document.querySelectorAll(".grp[data-group]");
+  for(var j=0;j<groups.length;j++){{
+   var vis=groups[j].querySelectorAll(".field:not(.hide)");
+   groups[j].classList.toggle("hide",vis.length===0);
+  }}
+  var adv=document.querySelector("details.adv");
+  if(adv){{
+   var v=adv.querySelectorAll(".field:not(.hide)");
+   adv.classList.toggle("hide",v.length===0);
+  }}
+ }}
+ sel.addEventListener("change",apply);
+ apply();
+}})();
+</script>
+</body></html>"""
+
+
 
 
 # Sprint16 (D-S16-6): live network mode written by network_ap.sh. Read
@@ -162,77 +797,162 @@ def open_ap_banner(mode):
             'returns to its normal network.</div>')
 
 
-def render_settings_page(current, message=None, error=False, mode=None):
-    """The /settings form, values pre-selected from the live YAML."""
-    rows = []
-    if message:
-        rows.append(f'<div class="notice{" error" if error else ""}">'
-                    f'{html.escape(message)}</div>')
-    rows.append('<form method="POST" action="/settings">')
-    for field in video_settings.FIELDS:
-        key = field["key"]
-        cur = current.get(key)
-        # Match the current value to its canonical choice NUMERICALLY
-        # (YAML 2.0 == dropdown "2") so the form never submits a
-        # non-canonical echo — the bmcam000 2026-08-18 save-poison bug.
-        selected = (video_settings.normalize_choice(key, cur)
-                    if cur is not None else None)
-        options = list(field["choices"])
-        if cur is not None and selected is None:
-            # Genuinely off-menu value: show it honestly.
-            selected = str(cur)
-            options.insert(0, (str(cur), f"current: {cur}"))
-        opts = "".join(
-            f'<option value="{html.escape(v)}"'
-            f'{" selected" if v == selected else ""}>'
-            f'{html.escape(label)}</option>'
-            for v, label in options)
-        missing = "" if cur is not None else (
-            '<div class="help">! not present in this config file '
-            '(shown for reference, not editable)</div>')
-        disabled = "" if cur is not None else " disabled"
-        rows.append(
-            f'<div class="field"><label>{html.escape(field["label"])}'
-            f'</label><select name="{html.escape(key)}"{disabled}>{opts}'
-            f'</select><div class="help">{html.escape(field["help"])}'
-            f'</div>{missing}</div>')
-    rows.append('<button class="save" type="submit">Save settings</button>'
-                '<a class="btn back" href="/">Back to videos</a></form>')
-    rows.append(
-        '<form method="POST" action="/restart" '
-        'onsubmit="return confirm(\'Restart the camera now? Recording '
-        'resumes automatically about a minute later.\')">'
-        '<button class="restart" type="submit">Restart camera '
-        '(apply saved settings)</button></form>')
-    # Sprint16 (D-S16-4): session-only customer WiFi join. Submitting
-    # flips the camera off this network — said out loud on the button.
-    rows.append(
-        '<h2 style="margin:18px 0 6px;font-size:15px">Connect to a WiFi '
-        'network (until next power-off)</h2>'
-        '<form method="POST" action="/settings/join" '
-        'onsubmit="return confirm(\'Connect now? This page will drop off '
-        'the camera hotspot. If the WiFi details are wrong, the hotspot '
-        'comes back by itself so you can retry.\')">'
-        '<div class="field"><label>Network name (SSID)</label>'
-        '<input name="wifi_ssid" maxlength="32" autocomplete="off"></div>'
-        '<div class="field"><label>Password</label>'
-        '<input name="wifi_psk" type="password" maxlength="63" '
-        'autocomplete="off"></div>'
-        '<div class="help">The camera joins this network for the current '
-        'power cycle only — it forgets the password and returns to its '
-        'normal WiFi setting at the next power-on.</div>'
-        '<button class="save" type="submit">Connect to this WiFi</button>'
-        '</form>')
-    body = "\n".join(rows)
-    return f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bmcam settings</title><style>{SETTINGS_CSS}</style></head>
-<body>{open_ap_banner(mode)}<header><h1>bmcam settings</h1></header><main>
-<div class="help" style="margin-bottom:10px">Saved changes take effect
-when the camera restarts. A timestamped backup of the config is kept on
-the camera before every save.</div>
-{body}</main></body></html>"""
+def _clip_utc(stem):
+    """'2026-08-19T02-40-43Z_video_...' -> '2026-08-19T02:40:43Z'."""
+    ts = stem.split("_", 1)[0]
+    if len(ts) >= 20 and ts.endswith("Z"):
+        return ts[:10] + "T" + ts[11:19].replace("-", ":") + "Z"
+    return None
+
+
+def list_images(images_dir):
+    """Newest-first still list for the gallery: one entry per transmitted
+    JPEG, with the few fields the CARD needs. Everything else stays in the
+    per-photo detail route, so this stays one stat + one small read per
+    image. A missing or unreadable sidecar degrades that entry, never the
+    list (same rule as the video manifest)."""
+    out = []
+    try:
+        names = sorted(os.listdir(images_dir), reverse=True)
+    except OSError:
+        return out
+    for name in names:
+        if not name.endswith(IMAGE_SUFFIX):
+            continue
+        path = os.path.join(images_dir, name)
+        try:
+            size = os.path.getsize(path)
+        except OSError:
+            continue
+        stem = name[:-len(IMAGE_SUFFIX)]
+        entry = {"name": name, "stem": stem, "bytes": size,
+                 "utc": _clip_utc(stem), "res": None, "quality": None}
+        meta = os.path.join(images_dir, stem + IMAGE_META_SUFFIX)
+        try:
+            with open(meta, "r", encoding="utf-8") as f:
+                rec = json.load(f)
+            wh = rec.get("output_size") or []
+            if len(wh) == 2:
+                entry["res"] = f"{int(wh[0])}x{int(wh[1])}"
+            entry["quality"] = rec.get("jpeg_quality_used")
+            entry["utc"] = rec.get("utc_capture_timestamp") or entry["utc"]
+        except Exception:
+            pass
+        out.append(entry)
+    out.sort(key=lambda e: e["utc"] or "", reverse=True)
+    return out
+
+
+def photo_detail(images_dir, stem):
+    """The per-photo detail (capture_metadata sidecar), flattened to the
+    handful of fields the detail table shows. None if unreadable."""
+    meta = os.path.join(images_dir, stem + IMAGE_META_SUFFIX)
+    try:
+        with open(meta, "r", encoding="utf-8") as f:
+            m = json.load(f)
+    except Exception:
+        return None
+    return {
+        "quality": m.get("jpeg_quality_used"),
+        "attempts": m.get("enc_attempts"),
+        "reason": m.get("selector_reason"),
+        "fmt": m.get("img_format"),
+        "msgs": m.get("message_count"),
+        "exp_us": m.get("ExposureTime"),
+        "gain": m.get("AnalogueGain"),
+        "lux": m.get("Lux"),
+        "ctemp": m.get("ColourTemperature"),
+        "lens": m.get("LensPosition"),
+        "focus_fom": m.get("FocusFoM"),
+        "sensor_temp": m.get("SensorTemperature"),
+        "crop": m.get("crop_native_xywh"),
+        "scaler": m.get("ScalerCrop"),
+        "sha": (m.get("jpeg_sha256") or "")[:16] or None,
+    }
+
+
+def clip_detail(video_dir, stem):
+    """The per-clip detail (video sidecar), flattened for the table."""
+    try:
+        with open(os.path.join(video_dir, stem + ".json"), "r",
+                  encoding="utf-8") as f:
+            r = json.load(f)
+    except Exception:
+        return None
+    rc = r.get("requested_controls") or {}
+    return {
+        "tmp": r.get("tmp"), "du": r.get("du"), "dt": r.get("dt"),
+        "rd": r.get("rd"), "encode_s": r.get("encode_s"),
+        "boundary_s": r.get("boundary_s"),
+        "crop": r.get("crop_native_xywh"), "sha": r.get("sha256_16"),
+        "sensor_mode": r.get("sensor_mode"), "avail_px": r.get("avail_px"),
+        "enc": r.get("encoder") or {},
+        "focus_mode": rc.get("requested_focus_mode"),
+        "lens": rc.get("requested_lens_position"),
+        "wb": rc.get("requested_white_balance_mode"),
+        "exp": rc.get("requested_exposure_mode"),
+    }
+
+
+def storage_stats(video_dir, clips, storage_cfg=None):
+    """Live disk figures for the header + settings panel.
+
+    The retention window is MEASURED from the recent clip cadence rather
+    than guessed from the preset, because scene complexity moves the real
+    burn rate by 5x between night and daylight (Sprint16 overnight run).
+    Returns None for `days` when there is not enough history to divide by.
+    """
+    try:
+        usage = shutil.disk_usage(video_dir)
+    except OSError:
+        return None
+    cap_pct = float((storage_cfg or {}).get("max_used_pct") or 75)
+    out = {"used": usage.used / GIB, "total": usage.total / GIB,
+           "free": usage.free / GIB, "cap_pct": cap_pct, "days": None,
+           "gb_per_hour": None, "clips": len(clips)}
+    recent = [c for c in clips[:12] if c.get("utc")]
+    if len(recent) >= 2:
+        try:
+            newest = _epoch(recent[0]["utc"])
+            oldest = _epoch(recent[-1]["utc"])
+            span_s = newest - oldest
+            total_bytes = sum(int(c.get("bytes") or 0) for c in recent)
+            if span_s > 0 and total_bytes > 0:
+                gb_h = total_bytes / span_s * 3600 / GIB
+                out["gb_per_hour"] = gb_h
+                headroom = usage.total * cap_pct / 100 - usage.used
+                if gb_h > 0:
+                    out["days"] = max(0.0, headroom / GIB / (gb_h * 24))
+        except Exception:
+            pass
+    return out
+
+
+def _epoch(utc_text):
+    """'2026-08-19T02:40:43Z' -> epoch seconds (UTC), stdlib only."""
+    return calendar.timegm(time.strptime(utc_text, "%Y-%m-%dT%H:%M:%SZ"))
+
+
+def pending_changes(config_path):
+    """True when the config on disk is newer than this running process --
+    i.e. settings were saved but are not what the camera is running."""
+    if not config_path:
+        return False
+    try:
+        return os.path.getmtime(config_path) > PROCESS_START
+    except OSError:
+        return False
+
+
+def pending_banner(config_path):
+    if not pending_changes(config_path):
+        return ""
+    return ('<div style="background:#fffbeb;border-bottom:1px solid #fde68a;'
+            'color:#7c5310;padding:11px 14px;font-size:12.5px;line-height:1.45">'
+            '<b>Saved, not yet running.</b> Settings on this camera have been '
+            'changed since it started. They take effect when it restarts '
+            '&mdash; <a href="/settings" style="color:#8a5a12">open Settings'
+            '</a> to restart now.</div>')
 
 
 def _default_restart():
@@ -264,6 +984,7 @@ def _default_join(ssid, psk, script_path=NETWORK_SCRIPT):
 class VideoUIHandler(BaseHTTPRequestHandler):
     # Set by the server factory.
     video_dir = None
+    images_dir = None             # Sprint18: stills gallery source
     config_path = None            # None = settings page disabled (404)
     restart_fn = staticmethod(_default_restart)
     join_fn = staticmethod(_default_join)     # Sprint16, injectable
@@ -283,8 +1004,15 @@ class VideoUIHandler(BaseHTTPRequestHandler):
         if self.command != "HEAD":
             self.wfile.write(body)
 
-    def _resolve(self, name):
-        """Basename-only, allowed suffixes, inside video_dir — or None."""
+    def _resolve(self, name, base=None):
+        """Basename-only, allowed suffixes, inside `base` — or None.
+
+        base defaults to video_dir; the stills gallery passes images_dir.
+        Same hardening either way: no traversal, no dotfiles, no crash
+        debris, no directory listings."""
+        base = base or self.video_dir
+        if not base:
+            return None
         name = os.path.basename(unquote(name))
         if not name or name.startswith("."):
             return None
@@ -292,10 +1020,21 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             return None
         if name.endswith(".part") or name.endswith(".tmp"):
             return None
-        path = os.path.realpath(os.path.join(self.video_dir, name))
-        if os.path.dirname(path) != os.path.realpath(self.video_dir):
+        path = os.path.realpath(os.path.join(base, name))
+        if os.path.dirname(path) != os.path.realpath(base):
             return None
         return path if os.path.isfile(path) else None
+
+    def _safe_stem(self, raw):
+        """A basename-only stem for the detail routes (no traversal)."""
+        stem = os.path.basename(unquote(raw))
+        if not stem or stem.startswith(".") or "/" in stem:
+            return None
+        return stem
+
+    def _send_json(self, obj):
+        self._send_bytes(200, json.dumps(obj).encode("utf-8"),
+                         "application/json", {"Cache-Control": "no-store"})
 
     def _parse_range(self, size):
         """Single-range 'bytes=a-b' -> (start, end) inclusive, or None."""
@@ -359,10 +1098,28 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             remaining -= len(chunk)
 
     # ------------------------------------------------------------------
+    def _manifest_clips(self):
+        try:
+            with open(os.path.join(self.video_dir, "manifest.json"), "r",
+                      encoding="utf-8") as f:
+                return json.load(f).get("clips") or []
+        except Exception:
+            return []
+
+    def _disk(self):
+        clips = self._manifest_clips()
+        disk = storage_stats(self.video_dir, clips)
+        if disk is not None:
+            disk["oldest"] = (clips[-1].get("utc") if clips else None)
+            disk["images"] = (len(list_images(self.images_dir))
+                              if self.images_dir else None)
+        return disk
+
     def _send_settings(self, message=None, error=False):
         current = video_settings.read_current(self.config_path)
         page = render_settings_page(current, message=message, error=error,
-                                    mode=net_mode())
+                                    mode=net_mode(), disk=self._disk(),
+                                    pending=pending_changes(self.config_path))
         self._send_bytes(200, page.encode("utf-8"),
                          "text/html; charset=utf-8")
 
@@ -428,6 +1185,10 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 form = parse_qs(
                     self.rfile.read(length).decode("utf-8", errors="replace"))
                 changes = {k: v[0] for k, v in form.items() if v}
+                # "Save and restart now" submits the same form with a marker.
+                # It is a UI intent, not a setting -- strip it before the
+                # patcher sees it (which refuses unknown keys).
+                then_restart = changes.pop("then", "") == "restart"
                 try:
                     result = video_settings.patch_yaml(
                         self.config_path, changes)
@@ -440,9 +1201,24 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                     changed = ", ".join(result["changed"])
                     print(f"[UI] settings saved: {changed} "
                           f"(backup {result['backup']})")
+                else:
+                    print("[UI] settings submitted with no changes")
+                if then_restart:
+                    # Save first, restart second: a failed save must never
+                    # cost the customer a reboot.
+                    print("[UI] restart requested with the save")
+                    try:
+                        type(self).restart_fn()
+                    except Exception as exc:
+                        self._send_settings_redirect(
+                            f"Saved, but restart failed: {exc}", error=True)
+                        return
+                    self._redirect("/restarted")
+                    return
+                if result["changed"]:
                     self._send_settings_redirect(
-                        f"Saved: {changed}. Takes effect at the next "
-                        "camera restart.")
+                        f"Saved: {', '.join(result['changed'])}. Takes effect "
+                        "at the next camera restart.")
                 else:
                     self._send_settings_redirect("No changes.")
                 return
@@ -455,10 +1231,44 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             path = urlparse(self.path).path
             path = posixpath.normpath(path)
             if path in ("/", "/index.html"):
-                gallery = GALLERY_HTML.replace(
-                    "<body>", "<body>" + open_ap_banner(net_mode()), 1)
+                gallery = (GALLERY_HTML
+                           .replace("__BANNER__", open_ap_banner(net_mode()), 1)
+                           .replace("__PENDING__",
+                                    pending_banner(self.config_path), 1)
+                           .replace("__UNIT__",
+                                    html.escape(socket.gethostname()), 1))
                 self._send_bytes(200, gallery.encode("utf-8"),
                                  "text/html; charset=utf-8")
+                return
+            if path == "/images.json":
+                images = list_images(self.images_dir) if self.images_dir else []
+                self._send_json({"schema": "bmcam_images_v1",
+                                 "count": len(images), "images": images})
+                return
+            if path.startswith("/clip/") and path.endswith(".json"):
+                stem = self._safe_stem(path[len("/clip/"):-len(".json")])
+                detail = clip_detail(self.video_dir, stem) if stem else None
+                if detail is None:
+                    self._send_bytes(404, b"not found", "text/plain")
+                    return
+                self._send_json(detail)
+                return
+            if path.startswith("/photo/") and path.endswith(".json"):
+                stem = self._safe_stem(path[len("/photo/"):-len(".json")])
+                detail = (photo_detail(self.images_dir, stem)
+                          if stem and self.images_dir else None)
+                if detail is None:
+                    self._send_bytes(404, b"not found", "text/plain")
+                    return
+                self._send_json(detail)
+                return
+            if path.startswith("/images/"):
+                resolved = self._resolve(path[len("/images/"):],
+                                         base=self.images_dir)
+                if resolved is None:
+                    self._send_bytes(404, b"not found", "text/plain")
+                    return
+                self._serve_file(resolved)
                 return
             if path == "/settings":
                 if self.config_path is None:
@@ -494,15 +1304,20 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 return
             if path == "/manifest.json":
                 mpath = os.path.join(self.video_dir, "manifest.json")
+                manifest = {"schema": "bmcam_video_manifest_v1",
+                            "count": 0, "clips": []}
                 if os.path.isfile(mpath):
-                    with open(mpath, "rb") as f:
-                        body = f.read()
-                else:
-                    body = json.dumps(
-                        {"schema": "bmcam_video_manifest_v1",
-                         "count": 0, "clips": []}).encode("utf-8")
-                self._send_bytes(200, body, "application/json",
-                                 {"Cache-Control": "no-store"})
+                    try:
+                        with open(mpath, "r", encoding="utf-8") as f:
+                            manifest = json.load(f)
+                    except Exception as exc:
+                        print(f"[UI][WARN] manifest unreadable: {exc}")
+                # Storage is read HERE, not taken from the manifest file:
+                # the file is only rewritten at a clip boundary, and the
+                # customer needs the card state as it is right now.
+                manifest["disk"] = storage_stats(
+                    self.video_dir, manifest.get("clips") or [])
+                self._send_json(manifest)
                 return
             if path.startswith("/videos/"):
                 resolved = self._resolve(path[len("/videos/"):])
@@ -519,13 +1334,19 @@ class VideoUIHandler(BaseHTTPRequestHandler):
 
 
 def start_ui_server(video_dir, port, host="0.0.0.0", config_path=None,
-                    restart_fn=None, join_fn=None):
+                    restart_fn=None, join_fn=None,
+                    images_dir=DEFAULT_IMAGES_DIR):
     """Start the gallery server on a daemon thread; returns the server
     (call .shutdown() to stop). Raises on bind failure — the CALLER
     decides that a dead UI must not kill recording. config_path enables
     the /settings editor page (None = gallery only). join_fn (Sprint16)
-    handles the session-only customer WiFi join; injectable for tests."""
+    handles the session-only customer WiFi join; injectable for tests.
+    images_dir (Sprint18) is the stills gallery source; a missing
+    directory simply yields an empty Images tab, never an error."""
     attrs = {"video_dir": os.path.realpath(video_dir),
+             "images_dir": (os.path.realpath(images_dir)
+                            if images_dir and os.path.isdir(images_dir)
+                            else None),
              "config_path": config_path}
     if restart_fn is not None:
         attrs["restart_fn"] = staticmethod(restart_fn)
@@ -538,5 +1359,5 @@ def start_ui_server(video_dir, port, host="0.0.0.0", config_path=None,
         target=server.serve_forever, name="videoui", daemon=True)
     thread.start()
     print(f"[UI] gallery serving on {host}:{server.server_address[1]} "
-          f"(dir={video_dir})")
+          f"(video={video_dir} images={attrs['images_dir'] or 'none'})")
     return server
