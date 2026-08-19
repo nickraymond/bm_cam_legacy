@@ -21,7 +21,9 @@ import contextlib
 import io
 import json
 import os
+import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -356,3 +358,173 @@ class TestStillsGallery(unittest.TestCase):
         finally:
             srv.shutdown()
             srv.server_close()
+
+
+# ---------------------------------------------------------------------------
+# Sprint18 defect: gallery renders empty when /images.json wins the race
+# ---------------------------------------------------------------------------
+# Found on the 2026-08-19 fleet HIL run (bmcam000 and bmcam004): the page
+# arrived showing "showing 0 of 0 (269 total)" and "Nothing in that window."
+# load() fires both fetches concurrently and BOTH call render(). Whichever
+# lands first runs buildFilters() against DATA[S.media]; if that list is
+# still null the date range is seeded from an empty array and every later
+# filter compare is false. Measured on bmcam004: /images.json at 736 ms,
+# /manifest.json at 2006 ms -- images wins on any unit with more clips than
+# stills, which is why bench validation on bmcam003 (real stills) missed it.
+#
+# A source-string check cannot see an ordering bug, so this runs the page's
+# own JavaScript against a headless DOM shim and counts the cards render()
+# actually produces. No engine is installed on the Pi, so the JS half skips
+# there; test_date_range_init_tolerates_undefined below always runs.
+
+JS_ENGINE_CANDIDATES = (
+    "/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/"
+    "Helpers/jsc",                       # ships with macOS, no install
+)
+
+
+def _find_js_engine():
+    """Return a path/name of a usable JS engine, or None to skip."""
+    for path in JS_ENGINE_CANDIDATES:
+        if os.path.exists(path):
+            return path
+    for name in ("node", "deno"):
+        found = shutil.which(name)
+        if found:
+            return found
+    return None
+
+
+class TestGalleryLoadRace(unittest.TestCase):
+    """Render the real gallery script with the two fetches resolving in a
+    chosen order and assert the clip cards are there."""
+
+    CLIPS_PER_DAY = 20
+    DAYS = ("2026-08-19", "2026-08-18")
+    PAGE_SIZE = 26                        # PAGE in the gallery script
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dir = tempfile.mkdtemp(prefix="vidui_race_")
+        with open(os.path.join(cls.dir, "manifest.json"), "w") as f:
+            json.dump({"schema": "bmcam_video_manifest_v1", "count": 0,
+                       "clips": []}, f)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            cls.server = videoui_server.start_ui_server(
+                cls.dir, 0, host="127.0.0.1")
+        cls.port = cls.server.server_address[1]
+        cls.engine = _find_js_engine()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+        shutil.rmtree(cls.dir, ignore_errors=True)
+
+    # -- payloads ---------------------------------------------------------
+    @classmethod
+    def _manifest(cls):
+        """A fleet-shaped manifest: many clips, two days, newest first."""
+        clips = []
+        for day in cls.DAYS:
+            for i in range(cls.CLIPS_PER_DAY):
+                stem = f"{day}T{23 - i:02d}-00-00Z_video"
+                clips.append({
+                    "name": stem + ".mp4", "thumb": stem + "_thumb.jpg",
+                    "utc": f"{day}T{23 - i:02d}:00:00Z",
+                    "dur": 300, "bytes": 150 * 1024 * 1024,
+                    "res": "1920x1080", "fps": 15, "br": 6.0,
+                    "scale": 0.833, "preset": "wide_1080p_lean"})
+        return {"schema": "bmcam_video_manifest_v1", "count": len(clips),
+                "clips": clips,
+                "disk": {"used": 30.0, "total": 58.0, "cap_pct": 60,
+                         "days": 2.0}}
+
+    # -- harness ----------------------------------------------------------
+    def _page_scripts(self):
+        """The <script> bodies of the page as actually served."""
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{self.port}/", timeout=5) as resp:
+            html = resp.read().decode("utf-8")
+        blocks = re.findall(r"<script>(.*?)</script>", html, re.S)
+        self.assertGreaterEqual(len(blocks), 3, "gallery scripts not found")
+        return "\n".join(blocks)
+
+    def _run_gallery(self, first, second):
+        """Execute the page with `first` resolving before `second`.
+
+        Returns the engine's stdout. Ordering uses microtask ticks, not
+        timers, so it is deterministic -- no sleeps, no flakiness.
+        """
+        shim = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "fixtures", "videoui_dom_shim.js")
+        with open(shim, encoding="utf-8") as f:
+            shim_src = f.read()
+        payloads = {"/manifest.json": self._manifest(),
+                    "/images.json": {"schema": "bmcam_images_v1",
+                                     "count": 0, "images": []}}
+        total = len(payloads["/manifest.json"]["clips"])
+        driver = """
+var PAYLOADS = %s, EXPECT_CARDS = %d, EXPECT_COUNT = "showing %d of %d";
+check("both endpoints requested",
+  FETCHED.indexOf("/manifest.json") >= 0 &&
+  FETCHED.indexOf("/images.json") >= 0, FETCHED.join(","));
+tick(4).then(function () {
+  PENDING["%s"](PAYLOADS["%s"]);          /* this one wins the race */
+  return tick(8);
+}).then(function () {
+  PENDING["%s"](PAYLOADS["%s"]);          /* the slow one lands late */
+  return tick(8);
+}).then(function () {
+  check("clip cards present", cards().length === EXPECT_CARDS,
+        "got " + cards().length);
+  check("count line reports the whole list",
+        document.getElementById("fcount").textContent.indexOf(
+          EXPECT_COUNT) === 0,
+        document.getElementById("fcount").textContent);
+  check("empty placeholder hidden",
+        document.getElementById("empty").classList.contains("hide") === true);
+  done();
+}).catch(function (e) {
+  print("FAIL - threw: " + e); print("RESULT FAIL 1");
+});
+""" % (json.dumps(payloads), self.PAGE_SIZE, self.PAGE_SIZE, total,
+       first, first, second, second)
+        bundle = os.path.join(self.dir, "bundle.js")
+        with open(bundle, "w", encoding="utf-8") as f:
+            f.write(shim_src + "\n" + self._page_scripts() + "\n" + driver)
+        proc = subprocess.run([self.engine, bundle], capture_output=True,
+                              text=True, timeout=60)
+        return proc.stdout + proc.stderr
+
+    def _assert_gallery_renders(self, first, second):
+        if not self.engine:
+            self.skipTest("no JavaScript engine available (jsc/node/deno)")
+        out = self._run_gallery(first, second)
+        self.assertIn("RESULT PASS", out,
+                      f"{first} first -> gallery did not render:\n{out}")
+
+    # -- the regression ---------------------------------------------------
+    def test_gallery_renders_when_images_json_resolves_first(self):
+        """THE regression. With /images.json first and no stills on the
+        unit, the date range used to be seeded from an empty list and the
+        gallery stayed empty for the whole session."""
+        self._assert_gallery_renders("/images.json", "/manifest.json")
+
+    def test_gallery_renders_when_manifest_resolves_first(self):
+        """The ordering that always worked -- kept so a fix for the race
+        cannot break the common case."""
+        self._assert_gallery_renders("/manifest.json", "/images.json")
+
+    def test_date_range_init_tolerates_undefined(self):
+        """Runs everywhere, including on the Pi where no JS engine exists.
+        `min`/`max` are undefined whenever the other list has not landed,
+        so a === null test leaves the range permanently undefined."""
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{self.port}/", timeout=5) as resp:
+            html = resp.read().decode("utf-8")
+        self.assertIn("if(S.dFrom==null)S.dFrom=min;", html)
+        self.assertIn("if(S.dTo==null)S.dTo=max;", html)
+        self.assertNotIn("if(S.dFrom===null)", html)
+        self.assertNotIn("if(S.dTo===null)", html)
