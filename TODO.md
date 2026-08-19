@@ -432,3 +432,44 @@ sidecars).
 **Acceptance:** 1080p clips ffprobe-verified at 1920x1080 from a
 ≥1920x1080 native crop; A/B cut of denoise/qp/profile variants for
 Nick's eyeball; suite green; stills path byte-identical.
+
+### TODO-BM-014 — Ring buffer must cover STILL IMAGES too (per-mode storage limits)
+
+**Status:** OPEN — raised by Nick 2026-08-19 during the Sprint18 UI
+review. Next sprint.
+
+**Problem:** the Sprint15 ring buffer (video_ring.py, TODO-BM-008) is
+video-only: it prunes completed clip triples in `video.dir` and nothing
+else. The stills path writes to `images/` with **no pruning at all**.
+A photo deployment therefore has no unbrickable-storage guarantee — the
+card fills until the filesystem is full, which is the exact failure mode
+the ring was built to prevent for video.
+
+bmcam003 today: 103 stills, 5.1 MB, so this is not urgent at current
+cadence — but the cadence is a config choice, and the guarantee should
+not depend on one. The Sprint18 settings page now states the risk out
+loud in photo mode ("Photos are not pruned automatically") rather than
+implying the ring covers them.
+
+**What it needs:**
+- Extend the ring (or add a sibling) to prune oldest-first over the
+  stills triple: `<stem>_compressed.jpg`, its `.capture_metadata.json`,
+  `<stem>_native_full.jpg` and the `_native_full.metadata.json` /
+  stdout / stderr logs. Same rules as TODO-BM-008: completed sets only,
+  never in-flight files, dry-run mode, every deletion logged and counted.
+- **Storage limits become per-mode.** `video.storage.{max_used_pct,
+  min_free_gb,ring_dry_run}` currently reads as global in the GUI but
+  only governs video. Either add an `images.storage` island with its own
+  keys, or promote storage to a shared island both modes honour. Decide
+  deliberately — the settings GUI edits-not-authors, so whichever shape
+  wins must be added to rc_field_template and every unit's YAML before
+  the GUI can expose it (the Sprint16 fleet-alignment chore).
+- The native full-resolution JPEG is the space hog (~3.5 MB vs ~50 KB
+  for the transmitted copy). Consider whether it should be kept at all
+  once transmitted, or aged out on a shorter clock than the small one.
+- Settings page: when this lands, replace the photo-mode note with a
+  real retention figure and drop the "not pruned automatically" warning.
+
+**Area:** storage / stills pipeline / settings GUI
+**Depends on:** TODO-BM-008 (video ring, DONE — reuse its rules)
+

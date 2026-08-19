@@ -184,10 +184,7 @@ FIELDS = [
             ("stills_roi_1600p", "1600 px, photo framing — sharpest at that framing"),
         ],
         "help": "Sets the video field of view, sensor readout and recorded "
-                "size together. Wider presets see the whole camera view; the "
-                "photo-framing presets match the still-image crop. Higher "
-                "quality fills the card faster — the Storage panel shows how "
-                "much recent footage this camera is actually keeping.",
+                "size together.",
     },
     {
         "key": "video.encoder.denoise",

@@ -660,7 +660,10 @@ class TestStoragePanelFollowsMode(PatchMixin, unittest.TestCase):
     def test_photo_mode_hides_the_retention_sentence(self):
         page = self._page("progressive_jpeg")
         self.assertIn('data-mode-note="video" hidden', page)
-        self.assertIn("apply to video only", page)
+        # the stills reading is the visible one
+        self.assertIn('data-mode-note="stills">', page)
+        # with no stills history in this fixture it degrades honestly
+        self.assertIn("Not enough recent photos", page)
 
     def test_measured_figures_show_in_both_modes(self):
         """The burn rate and card usage describe the RUNNING camera, so
@@ -676,3 +679,62 @@ class TestStoragePanelFollowsMode(PatchMixin, unittest.TestCase):
         self.assertIn('id="saved-mode">video<', page)
         self.assertIn('data-mode-note="drift"', page)
         self.assertIn("takes effect when you save and restart", page)
+
+
+class TestSprint18Cleanups(PatchMixin, unittest.TestCase):
+    """Review round with Nick, 2026-08-19."""
+
+    DISK = {"used": 40.1, "total": 114.7, "cap_pct": 75.0, "days": 1.6,
+            "gb_per_hour": 1.22, "clips": 270, "images": 103,
+            "oldest": "2026-08-18T04:56:13Z",
+            "stills_gb_per_hour": 0.0026, "stills_mean_kb": 50.0}
+
+    def _page(self, mode="video", focus="auto"):
+        current = vs.read_current(self.yaml)
+        current["capture_mode"] = mode
+        current["image_pipeline.camera_controls.focus.mode"] = focus
+        return videoui_server.render_settings_page(current, disk=self.DISK)
+
+    def test_storage_lines_say_saved(self):
+        page = self._page()
+        self.assertIn("Videos saved", page)
+        self.assertIn("Images saved", page)
+        self.assertNotIn("Videos kept", page)
+
+    def test_save_buttons_are_the_last_boxes_on_the_page(self):
+        """Save applies to everything above it, so it must not land
+        mid-column in the two-column laptop layout."""
+        body = self._page()
+        body = body[body.index("<main>"):]
+        self.assertLess(body.index("</form>"), body.index(">Save settings"))
+        self.assertLess(body.index("Connect to this"),
+                        body.index(">Save settings"))
+        self.assertLess(body.index(">Save settings"), body.index('class="foot"'))
+
+    def test_save_buttons_stay_bound_to_the_settings_form(self):
+        """They sit outside <form> (forms cannot nest around the WiFi
+        box), so the form attribute is what keeps them wired up."""
+        page = self._page()
+        self.assertIn('type="submit" form="setform"', page)
+        self.assertIn('name="then" value="restart"', page)
+        self.assertEqual(page.count("<form"), page.count("</form>"))
+
+    def test_focus_reason_ships_hidden_so_the_browser_can_reveal_it(self):
+        """Server-only greying left the box stuck when focus mode changed
+        in the browser; the rule and its reason must be present either
+        way for the page to re-evaluate it live."""
+        manual = self._page(focus="manual")
+        self.assertIn('data-inert-when="autofocus"', manual)
+        self.assertIn('class="why" hidden', manual)
+        auto = self._page(focus="auto")
+        self.assertIn('data-inert-when="autofocus"', auto)
+        self.assertIn("Not used while Focus mode is Autofocus.", auto)
+
+    def test_stills_mode_estimates_when_the_card_fills(self):
+        page = self._page(mode="progressive_jpeg")
+        self.assertIn("average 50 KB", page)
+        self.assertIn("not pruned automatically", page)
+
+    def test_preset_help_is_one_sentence(self):
+        help_text = vs.field_for("video.preset")["help"]
+        self.assertEqual(help_text.count("."), 1, help_text)

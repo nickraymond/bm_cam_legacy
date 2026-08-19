@@ -401,7 +401,7 @@ function openDetail(c){
   var up=c.scale!=null&&c.scale>1;
   $("mtables").innerHTML=
    group("Recording",[row("Start (UTC)",(c.utc||"").replace("T"," ")),
-    row("Start (phone local)",local),
+    row("Start (local)",local),
     row("Clip length",fmtDur(c.dur),"configured length, not measured"),
     row("File size",fmtSize(c.bytes))])+
    group("Quality: asked for vs got",[
@@ -429,7 +429,7 @@ function openDetail(c){
  }else{
   $("mtables").innerHTML=
    group("Photo",[row("Taken (UTC)",(c.utc||"").replace("T"," ")),
-    row("Taken (phone local)",local),
+    row("Taken (local)",local),
     row("File size",fmtSize(c.bytes),"the transmitted copy"),
     row("Resolution",c.res||"\u2014")])+
    group("Transmission sizing",[row("JPEG quality used",SKEL),
@@ -626,7 +626,9 @@ details.adv[open] summary:after{content:"\\2013"}
  .panel,.grp,details.adv,.savewrap,.foot,.notice,.pendbar{
   break-inside:avoid;-webkit-column-break-inside:avoid;
   page-break-inside:avoid}
- .savewrap{margin-bottom:14px}
+ /* save applies to everything above it: span both columns and sit last */
+ .savewrap,.foot{column-span:all}
+ .savewrap{margin:4px 0 10px}
  /* the storage panel leads the page, so keep it out of column 2 */
  .panel:first-of-type{column-span:all}
 }
@@ -652,21 +654,31 @@ def _field_html(field, current, mode):
     # A field the current settings make irrelevant stays visible but inert,
     # with the reason said out loud (an unexplained dead control reads as a
     # bug). Disabled means it is not submitted at all.
+    # Rendered inert when the current settings make it meaningless. The
+    # REASON is always emitted (hidden when it does not apply) so the
+    # browser can re-evaluate the rule live -- server-only greying left
+    # the box stuck when the customer changed focus mode (Nick 2026-08-19).
     why = ""
-    if (key == "image_pipeline.camera_controls.focus.lens_position"
-            and str(current.get(
-                "image_pipeline.camera_controls.focus.mode")) == "auto"):
-        why = "Not used while Focus mode is Autofocus."
+    inert_when = ""
+    if key == "image_pipeline.camera_controls.focus.lens_position":
+        inert_when = "autofocus"
+        if str(current.get(
+                "image_pipeline.camera_controls.focus.mode")) == "auto":
+            why = "Not used while Focus mode is Autofocus."
     missing = "" if cur is not None else (
         '<div class="help">! not present in this config file '
         '(shown for reference, not editable)</div>')
     disabled = " disabled" if (cur is None or why) else ""
     off_class = " off" if why else ""
-    why_html = f'<div class="why">{html.escape(why)}</div>' if why else ""
+    reason_text = why or ("Not used while Focus mode is Autofocus."
+                          if inert_when else "")
+    why_html = (f'<div class="why"{"" if why else " hidden"}>'
+                f'{html.escape(reason_text)}</div>') if reason_text else ""
+    inert_attr = f' data-inert-when="{inert_when}"' if inert_when else ""
     modes = " ".join(field["applies"])
     esc_key = html.escape(key)
     return (f'<div class="field{off_class}" data-key="{esc_key}" '
-            f'data-modes="{modes}">'
+            f'data-modes="{modes}"{inert_attr}>'
             f'<label for="f_{esc_key}">{html.escape(field["label"])}</label>'
             f'<select id="f_{esc_key}" name="{esc_key}"{disabled}>{opts}'
             f'</select>'
@@ -683,9 +695,9 @@ def _storage_panel(disk, mode, current=None):
     pct = 100 * disk["used"] / disk["total"] if disk["total"] else 0
     colour = ("var(--bad)" if pct > cap
               else "var(--warn)" if pct > cap * 0.8 else "var(--ok)")
-    lines = [f'<dt>Videos kept</dt><dd>{disk["clips"]}</dd>']
+    lines = [f'<dt>Videos saved</dt><dd>{disk["clips"]}</dd>']
     if disk.get("images") is not None:
-        lines.append(f'<dt>Photos kept</dt><dd>{disk["images"]}</dd>')
+        lines.append(f'<dt>Images saved</dt><dd>{disk["images"]}</dd>')
     if disk.get("oldest"):
         lines.append(f'<dt>Oldest video</dt><dd>{html.escape(disk["oldest"])}'
                      f'</dd>')
@@ -706,9 +718,34 @@ def _storage_panel(disk, mode, current=None):
     else:
         video_note = ('Not enough recording history yet to estimate how '
                       'long footage is kept.')
-    stills_note = ('In photo mode the camera stores stills, which are '
-                   'thousands of times smaller than video. The ring buffer '
-                   'and the retention estimate apply to video only.')
+    # Stills are ~1000x smaller than clips, but "small" is not "never":
+    # the customer still deserves a number. Measured the same way as the
+    # video rate -- bytes per wall-clock hour across the recent stills.
+    if disk.get("stills_gb_per_hour"):
+        s_rate = disk["stills_gb_per_hour"]
+        s_head = disk["total"] * cap / 100 - disk["used"]
+        s_days = s_head / (s_rate * 24) if s_rate > 0 else None
+        # Past a year the arithmetic is no longer meaningful (the card
+        # will be serviced long before then), so don't print "93 years".
+        if s_days is not None and s_days > 400:
+            span = '<b>over a year</b>'
+        elif s_days is not None:
+            span = f'about <b>{s_days:.0f} days</b>'
+        else:
+            span = None
+        stills_note = (
+            f'Photos average {disk["stills_mean_kb"]:.0f} KB, so at the '
+            f'recent rate of {s_rate * 1024:.1f} MB/hour this card would '
+            f'take {span} to reach {cap:.0f}%. '
+            f'<b>Photos are not pruned automatically</b> &mdash; the ring '
+            f'buffer covers video only, so a long photo deployment needs '
+            f'the card cleared by hand.') if span else (
+            'In photo mode the camera stores stills, which are thousands of '
+            'times smaller than video.')
+    else:
+        stills_note = ('In photo mode the camera stores stills, which are '
+                       'thousands of times smaller than video. Not enough '
+                       'recent photos to estimate how long the card lasts.')
     # Honesty line: a mode picked in the browser is not what is running
     # until it is saved AND applied, and the numbers above are the running
     # camera's. Shown only when the selection differs from the saved mode.
@@ -795,20 +832,7 @@ def render_settings_page(current, message=None, error=False, mode=None,
                 'controls</summary>'
                 + "".join(_field_html(f, current, cap_mode)
                           for f in adv_fields)
-                + '</details>')
-
-    rows.append(
-        '<div class="savewrap">'
-        '<button class="btn wide" type="submit">Save settings</button>'
-        '<button class="btn wide danger" type="submit" name="then" '
-        'value="restart" onclick="return confirm(\'Save and restart now? '
-        'Recording stops for about a minute, then resumes automatically.\')">'
-        'Save and restart now</button></div></form>')
-
-    rows.append(
-        '<div class="foot">Saved changes take effect when the camera '
-        'restarts. A timestamped backup of the config is kept on the camera '
-        'before every save, so any change can be undone.</div>')
+                + '</details></form>')
 
     # Sprint16 (D-S16-4): session-only customer WiFi join.
     rows.append(
@@ -831,6 +855,22 @@ def render_settings_page(current, message=None, error=False, mode=None,
         '<button class="btn secondary wide" type="submit">Connect to this '
         'WiFi</button></div></form></div>')
 
+    # Save is the last thing on the page: it applies to everything above
+    # it, so on a laptop (where the settings run in two columns) it must
+    # not land halfway down a column (Nick, 2026-08-19).
+    rows.append(
+        '<div class="savewrap">'
+        '<button class="btn wide" type="submit" form="setform">Save settings'
+        '</button>'
+        '<button class="btn wide danger" type="submit" form="setform" '
+        'name="then" value="restart" onclick="return confirm(\'Save and '
+        'restart now? Recording stops for about a minute, then resumes '
+        'automatically.\')">Save and restart now</button></div>')
+    rows.append(
+        '<div class="foot">Saved changes take effect when the camera '
+        'restarts. A timestamped backup of the config is kept on the camera '
+        'before every save, so any change can be undone.</div>')
+
     body = "\n".join(rows)
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -850,14 +890,24 @@ def render_settings_page(current, message=None, error=False, mode=None,
 (function(){{
  var sel=document.getElementById("f_capture_mode");
  if(!sel)return;
+ var focusSel=document.getElementById(
+  "f_image_pipeline.camera_controls.focus.mode");
  function apply(){{
   var mode=sel.value==="video"?"video":"stills";
+  var autofocus=focusSel&&focusSel.value==="auto";
   var fields=document.querySelectorAll(".field[data-modes]");
   for(var i=0;i<fields.length;i++){{
    var f=fields[i],ok=f.dataset.modes.split(" ").indexOf(mode)>=0;
    f.classList.toggle("hide",!ok);
+   /* A field can be inert for a reason unrelated to mode (focus distance
+      is meaningless under autofocus). Both conditions are decided here,
+      so changing either control updates the box immediately. */
+   var inert=(f.dataset.inertWhen==="autofocus")&&autofocus;
+   f.classList.toggle("off",inert);
+   var reason=f.querySelector(".why");
+   if(reason)reason.hidden=!inert;
    var input=f.querySelector("select");
-   if(input&&!f.classList.contains("off"))input.disabled=!ok;
+   if(input)input.disabled=(!ok||inert);
   }}
   var groups=document.querySelectorAll(".grp[data-group]");
   for(var j=0;j<groups.length;j++){{
@@ -881,6 +931,7 @@ def render_settings_page(current, message=None, error=False, mode=None,
   if(drift&&savedEl)drift.hidden=(mode===savedEl.textContent.trim());
  }}
  sel.addEventListener("change",apply);
+ if(focusSel)focusSel.addEventListener("change",apply);
 
  /* ---- live retention estimate -------------------------------------
     Recomputes the "keeps about N days" line from the CURRENTLY SELECTED
@@ -1085,6 +1136,25 @@ def storage_stats(video_dir, clips, storage_cfg=None):
     return out
 
 
+def stills_rate(images, sample=40):
+    """Measured photo burn: bytes per wall-clock hour over the recent
+    stills, plus the mean size. Same approach as the video figure — a
+    measured rate beats a guess, and stills cadence varies with the
+    schedule. Empty dict when there is not enough history."""
+    dated = [i for i in images if i.get("utc")][:sample]
+    if len(dated) < 2:
+        return {}
+    try:
+        span_s = _epoch(dated[0]["utc"]) - _epoch(dated[-1]["utc"])
+    except Exception:
+        return {}
+    total = sum(int(i.get("bytes") or 0) for i in dated)
+    if span_s <= 0 or total <= 0:
+        return {}
+    return {"stills_gb_per_hour": total / span_s * 3600 / GIB,
+            "stills_mean_kb": total / len(dated) / 1024}
+
+
 def _epoch(utc_text):
     """'2026-08-19T02:40:43Z' -> epoch seconds (UTC), stdlib only."""
     return calendar.timegm(time.strptime(utc_text, "%Y-%m-%dT%H:%M:%SZ"))
@@ -1281,10 +1351,12 @@ class VideoUIHandler(BaseHTTPRequestHandler):
     def _disk(self):
         clips = self._manifest_clips()
         disk = storage_stats(self.video_dir, clips)
-        if disk is not None:
-            disk["oldest"] = (clips[-1].get("utc") if clips else None)
-            disk["images"] = (len(list_images(self.images_dir))
-                              if self.images_dir else None)
+        if disk is None:
+            return None
+        disk["oldest"] = (clips[-1].get("utc") if clips else None)
+        images = list_images(self.images_dir) if self.images_dir else []
+        disk["images"] = len(images) if self.images_dir else None
+        disk.update(stills_rate(images))
         return disk
 
     def _send_settings(self, message=None, error=False):
