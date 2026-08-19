@@ -738,3 +738,89 @@ class TestSprint18Cleanups(PatchMixin, unittest.TestCase):
     def test_preset_help_is_one_sentence(self):
         help_text = vs.field_for("video.preset")["help"]
         self.assertEqual(help_text.count("."), 1, help_text)
+
+
+class TestStoragePanelReportsTheRingWindow(PatchMixin, unittest.TestCase):
+    """Sprint18 fleet HIL (2026-08-19), finding 3.
+
+    The panel and its live estimator both divided HEADROOM TO THE CAP by
+    the burn rate, so a unit doing exactly what the ring buffer is for --
+    sitting at its cap -- reported "keeps about 0.0 days of video" while
+    holding 14.6 GiB of footage, and the bitrate selector was inert
+    (1 / 4 / 12 Mbps all read 0.0 d on bmcam000 at cap 60).
+
+    The panel now reports the ring WINDOW, and the estimator predicts
+    from the cap ALLOWANCE rather than from current headroom.
+    """
+
+    # bmcam000 as observed: 68.8 of 114.7 GB used == exactly the 60% cap,
+    # 14.57 GiB of that is prunable video, burning 1.01 GiB/hour.
+    AT_CAP = {"used": 68.82, "total": 114.7, "cap_pct": 60.0,
+              "days": 14.57 / 1.01 / 24, "gb_per_hour": 1.01,
+              "retained_gb": 14.57, "clips": 282, "images": 0,
+              "oldest": "2026-08-18T05:39:29Z"}
+
+    def _page(self, disk=None, mode="video"):
+        current = vs.read_current(self.yaml)
+        current["capture_mode"] = mode
+        return videoui_server.render_settings_page(
+            current, disk=dict(disk or self.AT_CAP))
+
+    def test_at_cap_the_sentence_is_not_zero(self):
+        page = self._page()
+        self.assertNotIn("keeps about <b>0.0 days</b>", page)
+        self.assertIn("keeps about <b>14 hours</b> of video", page)
+
+    def test_retained_footage_is_shown_as_the_evidence(self):
+        """A reviewer must be able to check the division on the panel."""
+        page = self._page()
+        self.assertIn("Footage kept", page)
+        self.assertIn("14.6 GB", page)
+        self.assertIn("~1.0 GB/hour", page)
+
+    def test_the_estimator_gets_the_retained_bytes(self):
+        """Without retainedGb the client cannot separate video the ring
+        can reclaim from bytes it cannot, and falls back to headroom."""
+        page = self._page()
+        self.assertIn('"retainedGb": 14.57', page)
+
+    def test_the_client_no_longer_predicts_from_headroom(self):
+        """The zeroed-by-construction formula must be gone from the page,
+        not merely compensated for elsewhere."""
+        page = self._page()
+        self.assertNotIn("M.total*cap/100-M.used", page)
+        self.assertIn("var other=M.used-(M.retainedGb||0)", page)
+        self.assertIn("var allow=M.total*cap/100-other", page)
+
+    def test_measured_sentence_is_restored_when_nothing_is_selected(self):
+        """"Measured vs predicted" is the distinction Sprint18 built: the
+        measured figure must not drift when the selector returns home."""
+        page = self._page()
+        self.assertIn("var measuredHTML=", page)
+        self.assertIn("vnote.innerHTML=measuredHTML", page)
+
+    def test_a_unit_below_its_cap_still_reads_as_a_window(self):
+        disk = dict(self.AT_CAP, used=38.4, cap_pct=75.0,
+                    retained_gb=60.0, gb_per_hour=1.0,
+                    days=60.0 / 1.0 / 24)
+        self.assertIn("keeps about <b>2.5 days</b> of video",
+                      self._page(disk))
+
+    def test_no_history_still_degrades_honestly(self):
+        disk = dict(self.AT_CAP, days=None, gb_per_hour=None,
+                    retained_gb=0.0)
+        page = self._page(disk)
+        self.assertIn("Not enough recording history", page)
+        self.assertNotIn("Footage kept", page)
+
+    def test_stills_note_at_cap_does_not_claim_zero_days(self):
+        """Same at-cap state, the other sentence: stills are never pruned
+        so headroom IS their model, but at the cap there is none to
+        divide and the panel printed "about 0 days"."""
+        disk = dict(self.AT_CAP, stills_gb_per_hour=0.0026,
+                    stills_mean_kb=50.0)
+        page = self._page(disk, mode="progressive_jpeg")
+        self.assertNotIn("about <b>0 days</b>", page)
+        self.assertNotIn("about <b>-", page)
+        self.assertIn("already reached its 60% mark", page)
+        self.assertIn("not pruned automatically", page)

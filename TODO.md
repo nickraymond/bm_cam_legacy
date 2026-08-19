@@ -473,3 +473,39 @@ implying the ring covers them.
 **Area:** storage / stills pipeline / settings GUI
 **Depends on:** TODO-BM-008 (video ring, DONE — reuse its rules)
 
+
+---
+
+### TODO-BM-015 — Retention window ignores the `min_free_gb` backstop
+
+**Status:** OPEN — raised 2026-08-19 while fixing the Sprint18 fleet HIL
+finding 3 (retention read 0.0 days at the cap). Low priority.
+
+**Problem:** the ring fires on whichever of TWO triggers is stricter —
+`video.storage.max_used_pct` (75) **or** `video.storage.min_free_gb`
+(10, the absolute backstop). The storage panel's *predicted* window
+models only the percentage cap:
+
+    allowance = total * cap/100 - non_video_bytes
+
+On the fleet's 114.7 GB cards the percentage always wins, so the figure
+is right today. On a smaller card it would not be: at 128 GB with the
+shipped 75% / 10 GB pair, 75% used leaves 32 GB free and the cap still
+wins; drop to a 32 GB card and 75% leaves 8 GB free, so `min_free_gb`
+becomes the real limit and the panel would over-promise the window.
+
+The *measured* figure (retained footage / measured burn) is unaffected —
+it reports what is on the card, not what the limits allow.
+
+**What it needs:**
+- Take the stricter of the two allowances in `storage_stats()` and in
+  the settings-page estimator: `min(total*cap/100, total - min_free)`
+  minus the non-video bytes. `_storage_cfg()` already reads
+  `min_free_gb`; it is simply not passed through to the arithmetic.
+- Say which limit is binding in the panel, so a customer who lowers the
+  cap and sees no change understands the floor is holding it.
+- Needs a card small enough for the backstop to bind to test against —
+  none of bmcam000/003/004 qualifies.
+
+**Area:** storage / settings GUI
+**Depends on:** TODO-BM-008 (video ring — the two triggers live there)
