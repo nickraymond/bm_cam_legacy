@@ -314,7 +314,13 @@ function buildFilters(){
  var min=all[0],max=all[all.length-1];
  var df=$("dfrom"),dt=$("dto");
  df.min=dt.min=min||"";df.max=dt.max=max||"";
- if(S.dFrom===null)S.dFrom=min;if(S.dTo===null)S.dTo=max;
+ /* Loose ==null on purpose: it must catch undefined as well as null.
+    /manifest.json and /images.json race, and either one landing first
+    calls render() -> buildFilters(). If the OTHER list is still null,
+    rows0() is [] and min/max are undefined; a === test would then leave
+    the range stuck at undefined and every later filter compare false,
+    so the gallery paints empty even once the manifest lands. */
+ if(S.dFrom==null)S.dFrom=min;if(S.dTo==null)S.dTo=max;
  df.value=S.dFrom||"";dt.value=S.dTo||"";
  df.onchange=dt.onchange=function(){S.dFrom=df.value||min;S.dTo=dt.value||max;
   if(S.dTo<S.dFrom){S.dTo=S.dFrom;dt.value=S.dTo}S.shown=PAGE;render()};
