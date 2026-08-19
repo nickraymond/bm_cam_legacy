@@ -1114,7 +1114,10 @@ def storage_stats(video_dir, clips, storage_cfg=None):
         usage = shutil.disk_usage(video_dir)
     except OSError:
         return None
-    cap_pct = float((storage_cfg or {}).get("max_used_pct") or 75)
+    try:
+        cap_pct = float((storage_cfg or {}).get("max_used_pct") or 75)
+    except (TypeError, ValueError):
+        cap_pct = 75.0
     out = {"used": usage.used / GIB, "total": usage.total / GIB,
            "free": usage.free / GIB, "cap_pct": cap_pct, "days": None,
            "gb_per_hour": None, "clips": len(clips)}
@@ -1348,9 +1351,24 @@ class VideoUIHandler(BaseHTTPRequestHandler):
         except Exception:
             return []
 
+    def _storage_cfg(self):
+        """The unit's REAL ring limits. Without this the panel drew its cap
+        marker and its retention estimate at the 75% default while a unit
+        configured to 60% pruned somewhere else entirely (found on the
+        fleet, 2026-08-19)."""
+        if not self.config_path:
+            return None
+        try:
+            cur = video_settings.read_current(self.config_path)
+            return {"max_used_pct": cur.get("video.storage.max_used_pct"),
+                    "min_free_gb": cur.get("video.storage.min_free_gb")}
+        except Exception as exc:
+            print(f"[UI][WARN] storage limits unreadable: {exc}")
+            return None
+
     def _disk(self):
         clips = self._manifest_clips()
-        disk = storage_stats(self.video_dir, clips)
+        disk = storage_stats(self.video_dir, clips, self._storage_cfg())
         if disk is None:
             return None
         disk["oldest"] = (clips[-1].get("utc") if clips else None)
@@ -1560,7 +1578,8 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 # the file is only rewritten at a clip boundary, and the
                 # customer needs the card state as it is right now.
                 manifest["disk"] = storage_stats(
-                    self.video_dir, manifest.get("clips") or [])
+                    self.video_dir, manifest.get("clips") or [],
+                    self._storage_cfg())
                 self._send_json(manifest)
                 return
             if path.startswith("/videos/"):

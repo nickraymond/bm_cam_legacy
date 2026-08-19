@@ -283,8 +283,29 @@ class TestStillsGallery(unittest.TestCase):
         disk = json.loads(body)["disk"]
         self.assertIn("used", disk)
         self.assertIn("total", disk)
-        self.assertEqual(disk["cap_pct"], 75)
+        self.assertEqual(disk["cap_pct"], 75)   # no config_path -> default
         self.assertGreater(disk["total"], 0)
+
+    def test_cap_comes_from_the_units_config_not_the_default(self):
+        """A unit configured to 60% must not be drawn against 75%: the
+        gauge marker and the retention estimate both hang off this."""
+        cfg = os.path.join(self.vdir, "camera_schedule.yaml")
+        with open(cfg, "w") as f:
+            f.write("video:\n  storage:\n    max_used_pct: 60\n"
+                    "    min_free_gb: 10\n")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            srv = videoui_server.start_ui_server(
+                self.vdir, 0, host="127.0.0.1", images_dir=self.idir,
+                config_path=cfg)
+        try:
+            port = srv.server_address[1]
+            with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/manifest.json", timeout=5) as r:
+                self.assertEqual(json.loads(r.read())["disk"]["cap_pct"], 60)
+        finally:
+            srv.shutdown()
+            srv.server_close()
 
     def test_download_flag_sets_content_disposition(self):
         """A bare <a download> is ignored by iOS Safari and defeated by
