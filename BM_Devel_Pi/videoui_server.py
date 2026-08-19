@@ -161,6 +161,9 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:var(--bg)}
 .stage{background:#0d2338;position:relative}
 .stage video,.stage img{width:100%;display:block;max-height:56vh;
  object-fit:contain;background:#0d2338}
+/* photos: their own aspect, no dark letterbox around them */
+.stage.photo,.stage.photo img{background:var(--panel-soft)}
+.stage.photo img{height:auto;object-fit:contain}
 .dact{padding:14px 16px 6px}
 .mgroup{margin:0 16px 12px;background:var(--panel);border:1px solid var(--border);
  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
@@ -211,7 +214,10 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:var(--bg)}
 @media(min-width:900px){
  .dbody{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
   grid-template-areas:"stage tables" "actions tables";
-  align-content:start;gap:0 20px;max-width:1320px;margin:0 auto;padding:20px}
+  /* items must NOT stretch: a stretched stage grows to the height of the
+     metrics column and letterboxes the media inside it. */
+  align-content:start;align-items:start;
+  gap:0 20px;max-width:1320px;margin:0 auto;padding:20px}
  .stage{grid-area:stage;border-radius:var(--radius);overflow:hidden}
  .stage video,.stage img{max-height:70vh}
  .dact{grid-area:actions;padding:14px 0 0}
@@ -376,9 +382,15 @@ function lensTxt(l){return l===0?"infinity":l?(l>=1?(100/l).toFixed(0)+" cm":
 function openDetail(c){
  var isVid=S.media==="videos";
  $("dname").textContent=c.name;
+ /* ?dl=1 makes the SERVER send Content-Disposition: attachment, which
+    works where the download attribute alone does not (iOS Safari, and
+    any filename containing colons). */
  $("ddl").setAttribute("href",(isVid?"/videos/":"/images/")+
-  encodeURIComponent(c.name));
+  encodeURIComponent(c.name)+"?dl=1");
  $("ddl").setAttribute("download",c.name);
+ /* A photo needs no letterbox: it is shown at its own aspect on a light
+    ground. Only video keeps the dark stage (its own bars are inherent). */
+ $("dstage").className="stage"+(isVid?"":" photo");
  $("dstage").innerHTML=isVid
   ?'<video id="pv" controls playsinline preload="metadata" src="/videos/'+
    encodeURIComponent(c.name)+'"></video>'
@@ -433,7 +445,10 @@ function openDetail(c){
  $("detail").classList.add("on");
  document.querySelector(".dbody").scrollTop=0;
  $("xbtn").focus();
- var stem=c.name.replace(/[.][^.]+$/,"");
+ /* Stills carry their stem in the list: the FILE is
+    "<stem>_compressed.jpg", so stripping the extension leaves a
+    "_compressed" tail the detail route does not know about. */
+ var stem=c.stem||c.name.replace(/[.][^.]+$/,"");
  fetch((isVid?"/clip/":"/photo/")+encodeURIComponent(stem)+".json")
   .then(function(r){return r.ok?r.json():null}).then(function(d){
    if(!d||$("dname").textContent!==c.name)return;
@@ -659,7 +674,7 @@ def _field_html(field, current, mode):
             f'{why_html}{missing}</div>')
 
 
-def _storage_panel(disk, mode, storage_cfg=None):
+def _storage_panel(disk, mode, current=None):
     """Measured retention, not a guess. See storage_stats()."""
     if not disk:
         return ('<div class="panel"><h2>Storage</h2>'
@@ -679,19 +694,46 @@ def _storage_panel(disk, mode, storage_cfg=None):
                      f'<dd>~{disk["gb_per_hour"]:.1f} GB/hour</dd>')
     lines.append(f'<dt>Deletes oldest at</dt><dd>{cap:.0f}% '
                  f'({disk["total"] * cap / 100:.0f} GB)</dd>')
-    if mode == "video":
-        if disk.get("days") is not None:
-            note = (f'At the current rate this camera keeps about '
-                    f'<b>{disk["days"]:.1f} days</b> of video. Past '
-                    f'{cap:.0f}% the oldest clips are deleted automatically '
-                    f'&mdash; newest footage always wins.')
-        else:
-            note = ('Not enough recording history yet to estimate how long '
-                    'footage is kept.')
+    # Both readings are rendered; the mode selector swaps which is shown
+    # (the fields hide immediately, so the sentence must follow or the
+    # panel contradicts the form). The MEASURED figures above stay put in
+    # either mode -- they describe what the camera is doing right now.
+    if disk.get("days") is not None:
+        video_note = (f'At the current rate this camera keeps about '
+                      f'<b>{disk["days"]:.1f} days</b> of video. Past '
+                      f'{cap:.0f}% the oldest clips are deleted '
+                      f'automatically &mdash; newest footage always wins.')
     else:
-        note = ('In photo mode the camera stores stills, which are thousands '
-                'of times smaller than video. The ring buffer applies to '
-                'video only.')
+        video_note = ('Not enough recording history yet to estimate how '
+                      'long footage is kept.')
+    stills_note = ('In photo mode the camera stores stills, which are '
+                   'thousands of times smaller than video. The ring buffer '
+                   'and the retention estimate apply to video only.')
+    # Honesty line: a mode picked in the browser is not what is running
+    # until it is saved AND applied, and the numbers above are the running
+    # camera's. Shown only when the selection differs from the saved mode.
+    # The live estimator's inputs. The customer changes bitrate or the
+    # storage cap to DECIDE, so the retention figure has to answer before
+    # the change is saved -- a number that only updates after a reboot is
+    # useless for choosing (Nick, 2026-08-19).
+    cur = current or {}
+    try:
+        br_now = float(cur.get("video.bitrate_mbps") or 0) or None
+    except (TypeError, ValueError):
+        br_now = None
+    model = json.dumps({
+        "used": round(disk["used"], 3),
+        "total": round(disk["total"], 3),
+        "gbPerHour": (round(disk["gb_per_hour"], 4)
+                      if disk.get("gb_per_hour") is not None else None),
+        "brNow": br_now,
+        "capNow": cap,
+    })
+    running = ('video' if mode == 'video' else 'photo')
+    drift = (f'<div class="note" data-mode-note="drift" hidden>'
+             f'These figures describe what the camera is doing now: '
+             f'recording in <b>{running} mode</b>. A mode change takes '
+             f'effect when you save and restart.</div>')
     return (f'<div class="panel"><h2>Storage</h2>'
             f'<div class="bigfig">{disk["used"]:.1f} '
             f'<span>of {disk["total"]:.1f} GB used</span></div>'
@@ -699,7 +741,14 @@ def _storage_panel(disk, mode, storage_cfg=None):
             f'background:{colour}"></i>'
             f'<span class="cap" style="left:{cap:.0f}%"></span></div>'
             f'<dl class="slines">{"".join(lines)}</dl>'
-            f'<div class="note">{note}</div></div>')
+            f'<div class="note" data-mode-note="video"'
+            f'{"" if mode == "video" else " hidden"}>{video_note}</div>'
+            f'<div class="note" data-mode-note="stills"'
+            f'{" hidden" if mode == "video" else ""}>{stills_note}</div>'
+            f'{drift}'
+            f'<div hidden id="saved-mode">{mode}</div>'
+            f'<script type="application/json" id="storage-model">{model}'
+            f'</script></div>')
 
 
 def render_settings_page(current, message=None, error=False, mode=None,
@@ -720,7 +769,7 @@ def render_settings_page(current, message=None, error=False, mode=None,
     if message:
         rows.append(f'<div class="notice{" error" if error else ""}">'
                     f'{html.escape(message)}</div>')
-    rows.append(_storage_panel(disk, cap_mode))
+    rows.append(_storage_panel(disk, cap_mode, current))
     rows.append('<form method="POST" action="/settings" id="setform">')
 
     advanced = set(video_settings.ADVANCED_KEYS)
@@ -820,8 +869,60 @@ def render_settings_page(current, message=None, error=False, mode=None,
    var v=adv.querySelectorAll(".field:not(.hide)");
    adv.classList.toggle("hide",v.length===0);
   }}
+  /* The storage sentence follows the selected mode, or the panel would
+     contradict the fields the selector just hid. The measured numbers
+     above it do NOT change: they describe the running camera. */
+  var vn=document.querySelector('[data-mode-note="video"]');
+  var sn=document.querySelector('[data-mode-note="stills"]');
+  if(vn)vn.hidden=(mode!=="video");
+  if(sn)sn.hidden=(mode==="video");
+  var savedEl=document.getElementById("saved-mode");
+  var drift=document.querySelector('[data-mode-note="drift"]');
+  if(drift&&savedEl)drift.hidden=(mode===savedEl.textContent.trim());
  }}
  sel.addEventListener("change",apply);
+
+ /* ---- live retention estimate -------------------------------------
+    Recomputes the "keeps about N days" line from the CURRENTLY SELECTED
+    bitrate and storage cap, so the number can be used to choose settings
+    instead of only describing the past.
+
+    The model is anchored on measurement, not theory: the encoder rarely
+    spends its whole ceiling (a dark scene ran 3.0 Mbps against a 9.3 cap),
+    so we take the efficiency this camera is actually achieving now and
+    apply it to the selected ceiling. Same scene, different ceiling.
+    ------------------------------------------------------------------ */
+ var modelEl=document.getElementById("storage-model");
+ var M=null; try{{M=JSON.parse(modelEl.textContent);}}catch(e){{}}
+ var GIB_PER_H_PER_MBPS=1e6/8*3600/1073741824;   /* 0.419 GiB/h per Mbps */
+ var brSel=document.getElementById("f_video.bitrate_mbps");
+ var capSel=document.getElementById("f_video.storage.max_used_pct");
+ var vnote=document.querySelector('[data-mode-note="video"]');
+ function estimate(){{
+  if(!M||!vnote||M.gbPerHour==null||!M.brNow)return;
+  var br=brSel?parseFloat(brSel.value):M.brNow;
+  var cap=capSel?parseFloat(capSel.value):M.capNow;
+  if(!(br>0)||!(cap>0))return;
+  var eff=M.gbPerHour/(M.brNow*GIB_PER_H_PER_MBPS);
+  if(!(eff>0))return;
+  eff=Math.min(Math.max(eff,0.05),1.15);
+  var burn=br*GIB_PER_H_PER_MBPS*eff;
+  var headroom=M.total*cap/100-M.used;
+  var days=headroom>0?headroom/(burn*24):0;
+  var changed=(br!==M.brNow)||(cap!==M.capNow);
+  vnote.innerHTML=(changed
+    ?"At the <b>selected</b> settings this camera would keep about "
+    :"At the current rate this camera keeps about ")+
+   "<b>"+days.toFixed(1)+" days</b> of video"+
+   (changed?" (about "+burn.toFixed(1)+" GB/hour)":"")+
+   ". Past "+cap.toFixed(0)+"% the oldest clips are deleted automatically "+
+   "\u2014 newest footage always wins."+
+   (changed?" <i>Estimated from what this camera is recording now; a "+
+    "busier scene fills the card faster.</i>":"");
+ }}
+ if(brSel)brSel.addEventListener("change",estimate);
+ if(capSel)capSel.addEventListener("change",estimate);
+
  apply();
 }})();
 </script>
@@ -1088,6 +1189,9 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             return None
         return stem
 
+    def _wants_download(self):
+        return (parse_qs(urlparse(self.path).query).get("dl") or ["0"])[0] == "1"
+
     def _send_json(self, obj):
         self._send_bytes(200, json.dumps(obj).encode("utf-8"),
                          "application/json", {"Cache-Control": "no-store"})
@@ -1111,9 +1215,17 @@ class VideoUIHandler(BaseHTTPRequestHandler):
         except ValueError:
             return "invalid"
 
-    def _serve_file(self, path):
+    def _serve_file(self, path, as_download=False):
         size = os.path.getsize(path)
         ctype = "video/mp4" if path.endswith(".mp4") else "image/jpeg"
+        # A bare <a download> is unreliable: iOS Safari ignores it, and a
+        # filename with colons (the stills naming) makes desktop browsers
+        # fall back to navigating. Saying it in the HEADER always works.
+        extra = {}
+        if as_download:
+            safe = os.path.basename(path).replace('"', "")
+            extra["Content-Disposition"] = f'attachment; filename="{safe}"'
+        self._extra_headers = extra
         rng = self._parse_range(size)
         if rng == "invalid":
             self._send_bytes(
@@ -1125,6 +1237,8 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", ctype)
                 self.send_header("Content-Length", str(size))
                 self.send_header("Accept-Ranges", "bytes")
+                for k, v in getattr(self, "_extra_headers", {}).items():
+                    self.send_header(k, v)
                 self.end_headers()
                 if self.command != "HEAD":
                     self._copy(f, size)
@@ -1137,6 +1251,8 @@ class VideoUIHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(length))
             self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
             self.send_header("Accept-Ranges", "bytes")
+            for k, v in getattr(self, "_extra_headers", {}).items():
+                self.send_header(k, v)
             self.end_headers()
             if self.command != "HEAD":
                 self._copy(f, length)
@@ -1324,7 +1440,7 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 if resolved is None:
                     self._send_bytes(404, b"not found", "text/plain")
                     return
-                self._serve_file(resolved)
+                self._serve_file(resolved, as_download=self._wants_download())
                 return
             if path == "/settings":
                 if self.config_path is None:
@@ -1380,7 +1496,7 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 if resolved is None:
                     self._send_bytes(404, b"not found", "text/plain")
                     return
-                self._serve_file(resolved)
+                self._serve_file(resolved, as_download=self._wants_download())
                 return
             self._send_bytes(404, b"not found", "text/plain")
         except (BrokenPipeError, ConnectionResetError):

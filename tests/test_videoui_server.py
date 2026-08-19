@@ -286,6 +286,40 @@ class TestStillsGallery(unittest.TestCase):
         self.assertEqual(disk["cap_pct"], 75)
         self.assertGreater(disk["total"], 0)
 
+    def test_download_flag_sets_content_disposition(self):
+        """A bare <a download> is ignored by iOS Safari and defeated by
+        the colons in stills filenames; the header is what actually works."""
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/images/{IMG_NAME}?dl=1")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("attachment", resp.headers["Content-Disposition"])
+            self.assertIn(IMG_NAME, resp.headers["Content-Disposition"])
+        # video route too
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/videos/{BASE}.mp4?dl=1")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertIn("attachment", resp.headers["Content-Disposition"])
+
+    def test_plain_view_has_no_disposition(self):
+        """Inline viewing (posters, the <video> element) must NOT be sent
+        as an attachment or the gallery would download every thumbnail."""
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/images/{IMG_NAME}")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertIsNone(resp.headers.get("Content-Disposition"))
+
+    def test_images_list_carries_the_detail_stem(self):
+        """The card fetches /photo/<stem>.json using this field. Deriving
+        it by stripping the extension leaves a "_compressed" tail and
+        404s -- that bug shipped and showed as empty stills metadata."""
+        status, body = self._get("/images.json")
+        entry = json.loads(body)["images"][0]
+        self.assertEqual(entry["stem"], IMG_STEM)
+        self.assertTrue(entry["name"].startswith(entry["stem"]))
+        status, _ = self._get(f"/photo/{entry['stem']}.json")
+        self.assertEqual(status, 200)
+
     def test_missing_images_dir_yields_empty_tab(self):
         """A stills-less unit must show an empty Images tab, never a 500."""
         out = io.StringIO()

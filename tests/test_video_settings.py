@@ -625,3 +625,54 @@ class TestPendingChanges(unittest.TestCase):
         self.assertFalse(videoui_server.pending_changes(None))
         self.assertFalse(
             videoui_server.pending_changes(self.path + ".nope"))
+
+
+class TestStoragePanelFollowsMode(PatchMixin, unittest.TestCase):
+    """The storage sentence must track the mode selector.
+
+    Nick, 2026-08-19: toggling Video/Image hid the video-only fields but
+    left the panel saying "keeps about N days of video" -- the panel
+    contradicting the form it sits above. Both readings now ship and the
+    selector swaps them, while the MEASURED figures stay put because they
+    describe the running camera, not the unsaved selection.
+    """
+
+    DISK = {"used": 38.4, "total": 114.7, "cap_pct": 75.0, "days": 1.5,
+            "gb_per_hour": 2.5, "clips": 255, "images": 103,
+            "oldest": "2026-08-18T04:56:13Z"}
+
+    def _page(self, capture_mode):
+        current = vs.read_current(self.yaml)
+        current["capture_mode"] = capture_mode
+        return videoui_server.render_settings_page(current, disk=self.DISK)
+
+    def test_both_readings_are_present_for_the_selector(self):
+        page = self._page("video")
+        self.assertIn('data-mode-note="video"', page)
+        self.assertIn('data-mode-note="stills"', page)
+
+    def test_video_mode_shows_the_retention_sentence(self):
+        page = self._page("video")
+        self.assertIn("keeps about <b>1.5 days</b> of video", page)
+        # the stills reading ships but starts hidden
+        self.assertIn('data-mode-note="stills" hidden', page)
+
+    def test_photo_mode_hides_the_retention_sentence(self):
+        page = self._page("progressive_jpeg")
+        self.assertIn('data-mode-note="video" hidden', page)
+        self.assertIn("apply to video only", page)
+
+    def test_measured_figures_show_in_both_modes(self):
+        """The burn rate and card usage describe the RUNNING camera, so
+        they must not vanish when the selector moves."""
+        for mode in ("video", "progressive_jpeg"):
+            page = self._page(mode)
+            self.assertIn("38.4", page, mode)
+            self.assertIn("2.5 GB/hour", page, mode)
+            self.assertIn("of 114.7 GB used", page, mode)
+
+    def test_saved_mode_is_exposed_for_the_drift_notice(self):
+        page = self._page("video")
+        self.assertIn('id="saved-mode">video<', page)
+        self.assertIn('data-mode-note="drift"', page)
+        self.assertIn("takes effect when you save and restart", page)
