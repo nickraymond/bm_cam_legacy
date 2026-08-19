@@ -1,0 +1,12 @@
+{
+  "tool": "probe_video_sensor_modes.sh",
+  "sprint": "Sprint17",
+  "purpose": "sensor-mode selection vs --roi/--width: is production video upscaled?",
+  "host": "bmcam000",
+  "utc": "2026-08-18T19:35:45+00:00",
+  "clip_ms": 20000,
+  "native_frame": "4608x2592",
+  "encoder": "rpicam-apps build: v1.12.0 12-05-2026 (11:49:26)",
+  "cma_total_kb": 262144,
+  "out_dir": "/home/pi/sprint17_probe_shortlist_20260818T193005Z"
+}

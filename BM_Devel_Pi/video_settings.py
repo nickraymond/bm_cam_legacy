@@ -74,22 +74,28 @@ FIELDS = [
         "kind": "choice",
         "choices": [("1", "1 Mbps (small files)"),
                     ("2", "2 Mbps (standard)"),
+                    ("2.5", "2.5 Mbps"),
                     ("4", "4 Mbps (high)"),
                     ("6", "6 Mbps (very high)"),
-                    ("8", "8 Mbps (maximum)")],
+                    ("6.5", "6.5 Mbps"),
+                    ("8", "8 Mbps"),
+                    ("9.3", "9.3 Mbps (1080p quality class)"),
+                    ("12", "12 Mbps (maximum)")],
         "help": "How many bits per second of video. Higher = crisper "
                 "motion detail, bigger files (2 Mbps ≈ 75 MB per 5 min).",
     },
     {
         "key": "progressive_jpeg.output_width",
-        "label": "Output resolution (video + photo)",
+        "label": "Photo resolution (stills only)",
         "kind": "choice",
         "choices": [("800", "800 px wide"),
                     ("1000", "1000 px wide (standard)"),
                     ("1280", "1280 px wide"),
                     ("1600", "1600 px wide (sharpest, 1:1 with crop)")],
-        "help": "Width of the recorded picture; height follows the crop "
-                "shape. Cannot exceed the crop width (no upscaling).",
+        "help": "Width of the transmitted PHOTO; height follows the crop "
+                "shape. Cannot exceed the crop width (no upscaling). Since "
+                "Sprint17 this no longer affects video — video has its own "
+                "quality preset below.",
     },
     {
         "key": "image_pipeline.camera_controls.focus.mode",
@@ -156,7 +162,86 @@ FIELDS = [
         "help": "Diagnostic mode. Leave Off for deployments.",
     },
     {
-        # Sprint16 D-S16-4: the ship switch. Session-only wap/join flips
+        # Sprint17 D-S17-1: video geometry is now independent of the stills
+        # keys. Each preset carries its own crop, sensor mode and output size;
+        # video_geometry refuses any combination that would upscale.
+        "key": "video.preset",
+        "label": "Video quality preset",
+        "kind": "choice",
+        "quote": True,
+        "choices": [
+            ("wide_1080p", "1080p wide — full view, best quality (~1 day of footage)"),
+            ("wide_1080p_lean", "1080p wide, lean — full view (~1.3 days)"),
+            ("wide_720p", "720p wide — full view (~2 days)"),
+            ("wide_720p_lean", "720p wide, lean — full view (~3.2 days)"),
+            ("stills_roi_1000p", "1000 px, photo framing — matches the photo crop (~3.2 days)"),
+            ("stills_roi_1600p", "1600 px, photo framing — sharpest at that framing (~1.2 days)"),
+        ],
+        "help": "Sets the video field of view, sensor readout and recorded "
+                "size together. Wider presets see the whole camera view; the "
+                "photo-framing presets match the still-image crop. Higher "
+                "quality fills the card faster — the days shown are how much "
+                "recent footage the camera keeps.",
+    },
+    {
+        "key": "video.encoder.denoise",
+        "label": "Video noise reduction (engineering)",
+        "kind": "choice",
+        "quote": True,
+        "choices": [("", "Camera default"),
+                    ("cdn_off", "Off — keep all detail and all noise"),
+                    ("cdn_fast", "Fast"),
+                    ("cdn_hq", "High quality — slowest, cleanest")],
+        "help": "Colour denoise mode. Likely the biggest lever for murky or "
+                "particulate-heavy water; untested underwater as of Sprint17.",
+    },
+    {
+        "key": "video.encoder.sharpness",
+        "label": "Video sharpness (engineering)",
+        "kind": "choice",
+        "choices": [("1.0", "1.0 — normal (camera default)"),
+                    ("0.0", "0.0 — none"),
+                    ("1.5", "1.5 — moderate"),
+                    ("2.0", "2.0 — strong")],
+        "help": "ISP sharpening applied before encoding. Over-sharpening "
+                "makes compression work harder for no real detail.",
+    },
+    {
+        "key": "video.encoder.profile",
+        "label": "H.264 profile (engineering)",
+        "kind": "choice",
+        "quote": True,
+        "choices": [("", "Camera default"),
+                    ("baseline", "baseline"),
+                    ("main", "main"),
+                    ("high", "high — best compression efficiency")],
+        "help": "Higher profiles pack more quality into the same bitrate. "
+                "Every modern player handles high.",
+    },
+    {
+        "key": "video.encoder.level",
+        "label": "H.264 level (engineering)",
+        "kind": "choice",
+        "quote": True,
+        "choices": [("", "Camera default"), ("4", "4"), ("4.1", "4.1"),
+                    ("4.2", "4.2")],
+        "help": "Decoder capability ceiling. Leave at default unless a "
+                "player refuses the file.",
+    },
+    {
+        "key": "video.encoder.intra",
+        "label": "Keyframe interval (engineering)",
+        "kind": "choice",
+        "choices": [("0", "Camera default"),
+                    ("15", "15 frames (~1 s) — fastest seeking"),
+                    ("30", "30 frames"),
+                    ("60", "60 frames"),
+                    ("150", "150 frames — smallest files")],
+        "help": "How often a full frame is written. Frequent keyframes make "
+                "scrubbing snappier and cost bitrate.",
+    },
+    {
+    # Sprint16 D-S16-4: the ship switch. Session-only wap/join flips
         # never touch this; every power cycle returns here.
         "key": "network.default",
         "label": "WiFi at power-on (boot default)",

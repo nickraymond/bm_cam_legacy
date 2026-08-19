@@ -1,0 +1,668 @@
+COMMAND: rpicam-vid -n -v 2 -t 20000 --codec h264 --inline --width 1000 --height 562 --framerate 15 --bitrate 2000000 --roi 0.326389,0.326389,0.347222,0.347222 -o /home/pi/sprint17_probe_shortlist_20260818T193005Z/s_stills_roi_1000p.h264 --mode 4608:2592:10:P
+[11:27:54.258833205] [9427]  INFO Camera camera_manager.cpp:340 libcamera v0.7.1+rpt20260609
+[11:27:54.307568264] [9431]  WARN CameraSensorProperties camera_sensor_properties.cpp:548 No static properties available for 'imx708_wide'
+[11:27:54.307681856] [9431]  WARN CameraSensorProperties camera_sensor_properties.cpp:550 Please consider updating the camera sensor properties database
+[11:27:54.390791099] [9431]  INFO RPI pipeline_base.cpp:1133 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+[11:27:54.507698022] [9431]  INFO IPAProxy ipa_proxy.cpp:184 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+[11:27:54.522046032] [9431]  WARN CameraSensor camera_sensor_legacy.cpp:502 'imx708_wide': No sensor delays found in static properties. Assuming unverified defaults.
+[11:27:54.523289664] [9431]  INFO Camera camera_manager.cpp:223 Adding camera '/base/soc/i2c0mux/i2c@1/imx708@1a' for pipeline handler rpi/vc4
+[11:27:54.523351330] [9431]  INFO RPI vc4.cpp:445 Registered camera /base/soc/i2c0mux/i2c@1/imx708@1a to Unicam device /dev/media2 and ISP device /dev/media0
+Options:
+    verbose: 2
+    info_text:
+    timeout: 20000ms
+    width: 1000
+    height: 562
+    output: /home/pi/sprint17_probe_shortlist_20260818T193005Z/s_stills_roi_1000p.h264
+    post_process_file: 
+    post_process_libs: 
+    preview: none
+    qt-preview: 0
+    transform: identity
+    roi: 0.326389,0.326389,0.347222,0.347222
+    metering: centre
+    exposure: normal
+    ev: 0
+    awb: auto
+    flush: false
+    wrap: 0
+    brightness: 0
+    contrast: 1
+    saturation: 1
+    sharpness: 1
+    framerate: 15
+    denoise: auto
+    viewfinder-width: 0
+    viewfinder-height: 0
+    tuning-file: (libcamera)
+    lores-width: 0
+    lores-height: 0
+    lores-par: 0
+    autofocus-range: normal
+    autofocus-speed: normal
+    autofocus-window: all
+    hdr: off
+    mode: 4608:2592:10:P
+    viewfinder-mode: unspecified
+    metadata: 
+    metadata-format: json
+Running without preview window
+Opening camera...
+Acquired camera /base/soc/i2c0mux/i2c@1/imx708@1a
+Configuring video...
+Mode selection for 4608:2592:10:P(15)
+    SRGGB10_CSI2P,1536x864/120.135 - Score: 9600
+    SRGGB10_CSI2P,2304x1296/56.0255 - Score: 7200
+    SRGGB10_CSI2P,4608x2592/14.3536 - Score: 1292.83
+[11:27:54.538399905] [9427]  INFO Camera camera.cpp:1216 configuring streams: (0) 1000x562-YUV420/SMPTE170M (1) 4608x2592-SBGGR10_CSI2P/RAW
+[11:27:54.538913909] [9431]  INFO RPI vc4.cpp:620 Sensor: /base/soc/i2c0mux/i2c@1/imx708@1a - Selected sensor format: 4608x2592-SBGGR10_1X10/RAW - Selected unicam format: 4608x2592-pBAA/RAW
+Camera streams configured
+Available controls:
+    AwbEnable : [false..true]
+    NoiseReductionMode : [0..4]
+    ColourGains : [0.000000..32.000000]
+    AwbMode : [0..7]
+    ColourTemperature : [100..100000]
+    Saturation : [0.000000..32.000000]
+    SyncMode : [0..2]
+    AeEnable : [false..true]
+    CnnEnableInputTensor : [false..true]
+    AeExposureMode : [0..3]
+    HdrMode : [0..4]
+    AeConstraintMode : [0..3]
+    AfTrigger : [0..1]
+    LensPosition : [0.000000..35.000000]
+    Contrast : [0.000000..32.000000]
+    AfWindows : [(0, 0)/0x0..(65535, 65535)/65535x65535]
+    AeFlickerPeriod : [100..1000000]
+    AfSpeed : [0..1]
+    StatsOutputEnable : [false..true]
+    AfMetering : [0..1]
+    AeMeteringMode : [0..3]
+    AfRange : [0..2]
+    FrameDurationLimits : [69669..220535845]
+    AfMode : [0..2]
+    AnalogueGainMode : [0..1]
+    AfPause : [0..2]
+    AnalogueGain : [1.122807..16.000000]
+    ColourCorrectionMatrix : [0.000000..8.000000]
+    Brightness : [-1.000000..1.000000]
+    ExposureTime : [26..220416802]
+    AeFlickerMode : [0..1]
+    ExposureValue : [-8.000000..8.000000]
+    ExposureTimeMode : [0..1]
+    SyncFrames : [100..100000]
+    Sharpness : [0.000000..16.000000]
+    ScalerCrop : [(0, 0)/64x64..(0, 0)/4608x2592]
+Buffers allocated and mapped
+Video setup complete
+Opened H264Encoder on /dev/video11 as fd 30
+Got 6 output buffers
+Got 12 capture buffers
+Codec streaming started
+Requests created
+Using crop (main) (1504, 846)/1599x899
+Camera started!
+Viewfinder frame 0
+FileOutput: opened output file /home/pi/sprint17_probe_shortlist_20260818T193005Z/s_stills_roi_1000p.h264
+FileOutput: output buffer 0x7fa4231000 size 9077
+Viewfinder frame 1
+FileOutput: output buffer 0x7fa41b1000 size 1488
+Viewfinder frame 2
+FileOutput: output buffer 0x7fa4131000 size 1379
+Viewfinder frame 3
+FileOutput: output buffer 0x7fa40b1000 size 2100
+Viewfinder frame 4
+FileOutput: output buffer 0x7fa4031000 size 3585
+Viewfinder frame 5
+FileOutput: output buffer 0x7f9b84f000 size 4428
+Viewfinder frame 6
+FileOutput: output buffer 0x7f9b7cf000 size 6432
+Viewfinder frame 7
+FileOutput: output buffer 0x7f9b74f000 size 8313
+Viewfinder frame 8
+FileOutput: output buffer 0x7f9b6cf000 size 10358
+Viewfinder frame 9
+FileOutput: output buffer 0x7f9b64f000 size 13685
+Viewfinder frame 10
+FileOutput: output buffer 0x7f9b5cf000 size 13475
+Viewfinder frame 11
+FileOutput: output buffer 0x7f9b54f000 size 11355
+Viewfinder frame 12
+FileOutput: output buffer 0x7fa4231000 size 11238
+Viewfinder frame 13
+FileOutput: output buffer 0x7fa41b1000 size 10623
+Viewfinder frame 14
+FileOutput: output buffer 0x7fa4131000 size 10588
+Viewfinder frame 15
+FileOutput: output buffer 0x7fa40b1000 size 10526
+Viewfinder frame 16
+FileOutput: output buffer 0x7fa4031000 size 10363
+Viewfinder frame 17
+FileOutput: output buffer 0x7f9b84f000 size 10081
+Viewfinder frame 18
+FileOutput: output buffer 0x7f9b7cf000 size 10533
+Viewfinder frame 19
+FileOutput: output buffer 0x7f9b74f000 size 10060
+Viewfinder frame 20
+FileOutput: output buffer 0x7f9b6cf000 size 10196
+Viewfinder frame 21
+FileOutput: output buffer 0x7f9b64f000 size 10425
+Viewfinder frame 22
+FileOutput: output buffer 0x7f9b5cf000 size 10246
+Viewfinder frame 23
+FileOutput: output buffer 0x7f9b54f000 size 10078
+Viewfinder frame 24
+FileOutput: output buffer 0x7fa4231000 size 10126
+Viewfinder frame 25
+FileOutput: output buffer 0x7fa41b1000 size 10447
+Viewfinder frame 26
+FileOutput: output buffer 0x7fa4131000 size 10205
+Viewfinder frame 27
+FileOutput: output buffer 0x7fa40b1000 size 10150
+Viewfinder frame 28
+FileOutput: output buffer 0x7fa4031000 size 10229
+Viewfinder frame 29
+FileOutput: output buffer 0x7f9b84f000 size 10045
+Viewfinder frame 30
+FileOutput: output buffer 0x7f9b7cf000 size 10295
+Viewfinder frame 31
+FileOutput: output buffer 0x7f9b74f000 size 9876
+Viewfinder frame 32
+FileOutput: output buffer 0x7f9b6cf000 size 10114
+Viewfinder frame 33
+FileOutput: output buffer 0x7f9b64f000 size 10286
+Viewfinder frame 34
+FileOutput: output buffer 0x7f9b5cf000 size 9957
+Viewfinder frame 35
+FileOutput: output buffer 0x7f9b54f000 size 10296
+Viewfinder frame 36
+FileOutput: output buffer 0x7fa4231000 size 10289
+Viewfinder frame 37
+FileOutput: output buffer 0x7fa41b1000 size 10105
+Viewfinder frame 38
+FileOutput: output buffer 0x7fa4131000 size 10498
+Viewfinder frame 39
+FileOutput: output buffer 0x7fa40b1000 size 10293
+Viewfinder frame 40
+FileOutput: output buffer 0x7fa4031000 size 10337
+Viewfinder frame 41
+FileOutput: output buffer 0x7f9b84f000 size 9937
+Viewfinder frame 42
+FileOutput: output buffer 0x7f9b7cf000 size 10462
+Viewfinder frame 43
+FileOutput: output buffer 0x7f9b74f000 size 10376
+Viewfinder frame 44
+FileOutput: output buffer 0x7f9b6cf000 size 10877
+Viewfinder frame 45
+FileOutput: output buffer 0x7f9b64f000 size 10304
+Viewfinder frame 46
+FileOutput: output buffer 0x7f9b5cf000 size 10372
+Viewfinder frame 47
+FileOutput: output buffer 0x7f9b54f000 size 10155
+Viewfinder frame 48
+FileOutput: output buffer 0x7fa4231000 size 10358
+Viewfinder frame 49
+FileOutput: output buffer 0x7fa41b1000 size 10436
+Viewfinder frame 50
+FileOutput: output buffer 0x7fa4131000 size 10463
+Viewfinder frame 51
+FileOutput: output buffer 0x7fa40b1000 size 10111
+Viewfinder frame 52
+FileOutput: output buffer 0x7fa4031000 size 10135
+Viewfinder frame 53
+FileOutput: output buffer 0x7f9b84f000 size 10354
+Viewfinder frame 54
+FileOutput: output buffer 0x7f9b7cf000 size 10205
+Viewfinder frame 55
+FileOutput: output buffer 0x7f9b74f000 size 9926
+Viewfinder frame 56
+FileOutput: output buffer 0x7f9b6cf000 size 10860
+Viewfinder frame 57
+FileOutput: output buffer 0x7f9b64f000 size 10060
+Viewfinder frame 58
+FileOutput: output buffer 0x7f9b5cf000 size 10245
+Viewfinder frame 59
+FileOutput: output buffer 0x7f9b54f000 size 10766
+Viewfinder frame 60
+FileOutput: output buffer 0x7fa4231000 size 39926
+Viewfinder frame 61
+FileOutput: output buffer 0x7fa41b1000 size 13355
+Viewfinder frame 62
+FileOutput: output buffer 0x7fa4131000 size 11579
+Viewfinder frame 63
+FileOutput: output buffer 0x7fa40b1000 size 10678
+Viewfinder frame 64
+FileOutput: output buffer 0x7fa4031000 size 10293
+Viewfinder frame 65
+FileOutput: output buffer 0x7f9b84f000 size 10608
+Viewfinder frame 66
+FileOutput: output buffer 0x7f9b7cf000 size 10534
+Viewfinder frame 67
+FileOutput: output buffer 0x7f9b74f000 size 10159
+Viewfinder frame 68
+FileOutput: output buffer 0x7f9b6cf000 size 10137
+Viewfinder frame 69
+FileOutput: output buffer 0x7f9b64f000 size 10288
+Viewfinder frame 70
+FileOutput: output buffer 0x7f9b5cf000 size 10746
+Viewfinder frame 71
+FileOutput: output buffer 0x7f9b54f000 size 9927
+Viewfinder frame 72
+FileOutput: output buffer 0x7fa4231000 size 10277
+Viewfinder frame 73
+FileOutput: output buffer 0x7fa41b1000 size 9897
+Viewfinder frame 74
+FileOutput: output buffer 0x7fa4131000 size 10492
+Viewfinder frame 75
+FileOutput: output buffer 0x7fa40b1000 size 11069
+Viewfinder frame 76
+FileOutput: output buffer 0x7fa4031000 size 11038
+Viewfinder frame 77
+FileOutput: output buffer 0x7f9b84f000 size 10065
+Viewfinder frame 78
+FileOutput: output buffer 0x7f9b7cf000 size 12314
+Viewfinder frame 79
+FileOutput: output buffer 0x7f9b74f000 size 10671
+Viewfinder frame 80
+FileOutput: output buffer 0x7f9b6cf000 size 10165
+Viewfinder frame 81
+FileOutput: output buffer 0x7f9b64f000 size 10076
+Viewfinder frame 82
+FileOutput: output buffer 0x7f9b5cf000 size 10236
+Viewfinder frame 83
+FileOutput: output buffer 0x7f9b54f000 size 9720
+Viewfinder frame 84
+FileOutput: output buffer 0x7fa4231000 size 9788
+Viewfinder frame 85
+FileOutput: output buffer 0x7fa41b1000 size 10243
+Viewfinder frame 86
+FileOutput: output buffer 0x7fa4131000 size 9883
+Viewfinder frame 87
+FileOutput: output buffer 0x7fa40b1000 size 9816
+Viewfinder frame 88
+FileOutput: output buffer 0x7fa4031000 size 9874
+Viewfinder frame 89
+FileOutput: output buffer 0x7f9b84f000 size 9894
+Viewfinder frame 90
+FileOutput: output buffer 0x7f9b7cf000 size 9727
+Viewfinder frame 91
+FileOutput: output buffer 0x7f9b74f000 size 9914
+Viewfinder frame 92
+FileOutput: output buffer 0x7f9b6cf000 size 9839
+Viewfinder frame 93
+FileOutput: output buffer 0x7f9b64f000 size 9698
+Viewfinder frame 94
+FileOutput: output buffer 0x7f9b5cf000 size 9805
+Viewfinder frame 95
+FileOutput: output buffer 0x7f9b54f000 size 9692
+Viewfinder frame 96
+FileOutput: output buffer 0x7fa4231000 size 9891
+Viewfinder frame 97
+FileOutput: output buffer 0x7fa41b1000 size 9856
+Viewfinder frame 98
+FileOutput: output buffer 0x7fa4131000 size 9820
+Viewfinder frame 99
+FileOutput: output buffer 0x7fa40b1000 size 9926
+Viewfinder frame 100
+FileOutput: output buffer 0x7fa4031000 size 9794
+Viewfinder frame 101
+FileOutput: output buffer 0x7f9b84f000 size 9929
+Viewfinder frame 102
+FileOutput: output buffer 0x7f9b7cf000 size 9827
+Viewfinder frame 103
+FileOutput: output buffer 0x7f9b74f000 size 9814
+Viewfinder frame 104
+FileOutput: output buffer 0x7f9b6cf000 size 9778
+Viewfinder frame 105
+FileOutput: output buffer 0x7f9b64f000 size 9830
+Viewfinder frame 106
+FileOutput: output buffer 0x7f9b5cf000 size 9896
+Viewfinder frame 107
+FileOutput: output buffer 0x7f9b54f000 size 9961
+Viewfinder frame 108
+FileOutput: output buffer 0x7fa4231000 size 9928
+Viewfinder frame 109
+FileOutput: output buffer 0x7fa41b1000 size 9830
+Viewfinder frame 110
+FileOutput: output buffer 0x7fa4131000 size 9864
+Viewfinder frame 111
+FileOutput: output buffer 0x7fa40b1000 size 9970
+Viewfinder frame 112
+FileOutput: output buffer 0x7fa4031000 size 9719
+Viewfinder frame 113
+FileOutput: output buffer 0x7f9b84f000 size 9816
+Viewfinder frame 114
+FileOutput: output buffer 0x7f9b7cf000 size 9775
+Viewfinder frame 115
+FileOutput: output buffer 0x7f9b74f000 size 9883
+Viewfinder frame 116
+FileOutput: output buffer 0x7f9b6cf000 size 9797
+Viewfinder frame 117
+FileOutput: output buffer 0x7f9b64f000 size 10004
+Viewfinder frame 118
+FileOutput: output buffer 0x7f9b5cf000 size 9972
+Viewfinder frame 119
+FileOutput: output buffer 0x7f9b54f000 size 9950
+Viewfinder frame 120
+FileOutput: output buffer 0x7fa4231000 size 39467
+Viewfinder frame 121
+FileOutput: output buffer 0x7fa41b1000 size 12219
+Viewfinder frame 122
+FileOutput: output buffer 0x7fa4131000 size 11167
+Viewfinder frame 123
+FileOutput: output buffer 0x7fa40b1000 size 10441
+Viewfinder frame 124
+FileOutput: output buffer 0x7fa4031000 size 10742
+Viewfinder frame 125
+FileOutput: output buffer 0x7f9b84f000 size 9969
+Viewfinder frame 126
+FileOutput: output buffer 0x7f9b7cf000 size 9924
+Viewfinder frame 127
+FileOutput: output buffer 0x7f9b74f000 size 10194
+Viewfinder frame 128
+FileOutput: output buffer 0x7f9b6cf000 size 10175
+Viewfinder frame 129
+FileOutput: output buffer 0x7f9b64f000 size 9755
+Viewfinder frame 130
+FileOutput: output buffer 0x7f9b5cf000 size 10206
+Viewfinder frame 131
+FileOutput: output buffer 0x7f9b54f000 size 9809
+Viewfinder frame 132
+FileOutput: output buffer 0x7fa4231000 size 10052
+Viewfinder frame 133
+FileOutput: output buffer 0x7fa41b1000 size 9743
+Viewfinder frame 134
+FileOutput: output buffer 0x7fa4131000 size 9905
+Viewfinder frame 135
+FileOutput: output buffer 0x7fa40b1000 size 9786
+Viewfinder frame 136
+FileOutput: output buffer 0x7fa4031000 size 9864
+Viewfinder frame 137
+FileOutput: output buffer 0x7f9b84f000 size 9856
+Viewfinder frame 138
+FileOutput: output buffer 0x7f9b7cf000 size 9799
+Viewfinder frame 139
+FileOutput: output buffer 0x7f9b74f000 size 9753
+Viewfinder frame 140
+FileOutput: output buffer 0x7f9b6cf000 size 9893
+Viewfinder frame 141
+FileOutput: output buffer 0x7f9b64f000 size 9803
+Viewfinder frame 142
+FileOutput: output buffer 0x7f9b5cf000 size 10083
+Viewfinder frame 143
+FileOutput: output buffer 0x7f9b54f000 size 9985
+Viewfinder frame 144
+FileOutput: output buffer 0x7fa4231000 size 10508
+Viewfinder frame 145
+FileOutput: output buffer 0x7fa41b1000 size 9961
+Viewfinder frame 146
+FileOutput: output buffer 0x7fa4131000 size 10058
+Viewfinder frame 147
+FileOutput: output buffer 0x7fa40b1000 size 10513
+Viewfinder frame 148
+FileOutput: output buffer 0x7fa4031000 size 10696
+Viewfinder frame 149
+FileOutput: output buffer 0x7f9b84f000 size 10380
+Viewfinder frame 150
+FileOutput: output buffer 0x7f9b7cf000 size 10645
+Viewfinder frame 151
+FileOutput: output buffer 0x7f9b74f000 size 10202
+Viewfinder frame 152
+FileOutput: output buffer 0x7f9b6cf000 size 10854
+Viewfinder frame 153
+FileOutput: output buffer 0x7f9b64f000 size 10438
+Viewfinder frame 154
+FileOutput: output buffer 0x7f9b5cf000 size 10243
+Viewfinder frame 155
+FileOutput: output buffer 0x7f9b54f000 size 9885
+Viewfinder frame 156
+FileOutput: output buffer 0x7fa4231000 size 10060
+Viewfinder frame 157
+FileOutput: output buffer 0x7fa41b1000 size 10045
+Viewfinder frame 158
+FileOutput: output buffer 0x7fa4131000 size 9923
+Viewfinder frame 159
+FileOutput: output buffer 0x7fa40b1000 size 9965
+Viewfinder frame 160
+FileOutput: output buffer 0x7fa4031000 size 9998
+Viewfinder frame 161
+FileOutput: output buffer 0x7f9b84f000 size 9738
+Viewfinder frame 162
+FileOutput: output buffer 0x7f9b7cf000 size 10628
+Viewfinder frame 163
+FileOutput: output buffer 0x7f9b74f000 size 10072
+Viewfinder frame 164
+FileOutput: output buffer 0x7f9b6cf000 size 9922
+Viewfinder frame 165
+FileOutput: output buffer 0x7f9b64f000 size 9794
+Viewfinder frame 166
+FileOutput: output buffer 0x7f9b5cf000 size 10023
+Viewfinder frame 167
+FileOutput: output buffer 0x7f9b54f000 size 9752
+Viewfinder frame 168
+FileOutput: output buffer 0x7fa4231000 size 10066
+Viewfinder frame 169
+FileOutput: output buffer 0x7fa41b1000 size 9867
+Viewfinder frame 170
+FileOutput: output buffer 0x7fa4131000 size 10075
+Viewfinder frame 171
+FileOutput: output buffer 0x7fa40b1000 size 9910
+Viewfinder frame 172
+FileOutput: output buffer 0x7fa4031000 size 10227
+Viewfinder frame 173
+FileOutput: output buffer 0x7f9b84f000 size 9998
+Viewfinder frame 174
+FileOutput: output buffer 0x7f9b7cf000 size 10013
+Viewfinder frame 175
+FileOutput: output buffer 0x7f9b74f000 size 10775
+Viewfinder frame 176
+FileOutput: output buffer 0x7f9b6cf000 size 10211
+Viewfinder frame 177
+FileOutput: output buffer 0x7f9b64f000 size 9867
+Viewfinder frame 178
+FileOutput: output buffer 0x7f9b5cf000 size 9905
+Viewfinder frame 179
+FileOutput: output buffer 0x7f9b54f000 size 9868
+Viewfinder frame 180
+FileOutput: output buffer 0x7fa4231000 size 39435
+Viewfinder frame 181
+FileOutput: output buffer 0x7fa41b1000 size 12037
+Viewfinder frame 182
+FileOutput: output buffer 0x7fa4131000 size 10644
+Viewfinder frame 183
+FileOutput: output buffer 0x7fa40b1000 size 10018
+Viewfinder frame 184
+FileOutput: output buffer 0x7fa4031000 size 10034
+Viewfinder frame 185
+FileOutput: output buffer 0x7f9b84f000 size 9757
+Viewfinder frame 186
+FileOutput: output buffer 0x7f9b7cf000 size 10187
+Viewfinder frame 187
+FileOutput: output buffer 0x7f9b74f000 size 9803
+Viewfinder frame 188
+FileOutput: output buffer 0x7f9b6cf000 size 9983
+Viewfinder frame 189
+FileOutput: output buffer 0x7f9b64f000 size 9975
+Viewfinder frame 190
+FileOutput: output buffer 0x7f9b5cf000 size 9947
+Viewfinder frame 191
+FileOutput: output buffer 0x7f9b54f000 size 9744
+Viewfinder frame 192
+FileOutput: output buffer 0x7fa4231000 size 9944
+Viewfinder frame 193
+FileOutput: output buffer 0x7fa41b1000 size 9660
+Viewfinder frame 194
+FileOutput: output buffer 0x7fa4131000 size 9823
+Viewfinder frame 195
+FileOutput: output buffer 0x7fa40b1000 size 9592
+Viewfinder frame 196
+FileOutput: output buffer 0x7fa4031000 size 9655
+Viewfinder frame 197
+FileOutput: output buffer 0x7f9b84f000 size 9678
+Viewfinder frame 198
+FileOutput: output buffer 0x7f9b7cf000 size 9556
+Viewfinder frame 199
+FileOutput: output buffer 0x7f9b74f000 size 9664
+Viewfinder frame 200
+FileOutput: output buffer 0x7f9b6cf000 size 10692
+Viewfinder frame 201
+FileOutput: output buffer 0x7f9b64f000 size 9969
+Viewfinder frame 202
+FileOutput: output buffer 0x7f9b5cf000 size 9885
+Viewfinder frame 203
+FileOutput: output buffer 0x7f9b54f000 size 9875
+Viewfinder frame 204
+FileOutput: output buffer 0x7fa4231000 size 9644
+Viewfinder frame 205
+FileOutput: output buffer 0x7fa41b1000 size 9613
+Viewfinder frame 206
+FileOutput: output buffer 0x7fa4131000 size 9974
+Viewfinder frame 207
+FileOutput: output buffer 0x7fa40b1000 size 9770
+Viewfinder frame 208
+FileOutput: output buffer 0x7fa4031000 size 10000
+Viewfinder frame 209
+FileOutput: output buffer 0x7f9b84f000 size 9897
+Viewfinder frame 210
+FileOutput: output buffer 0x7f9b7cf000 size 9922
+Viewfinder frame 211
+FileOutput: output buffer 0x7f9b74f000 size 9992
+Viewfinder frame 212
+FileOutput: output buffer 0x7f9b6cf000 size 10104
+Viewfinder frame 213
+FileOutput: output buffer 0x7f9b64f000 size 9922
+Viewfinder frame 214
+FileOutput: output buffer 0x7f9b5cf000 size 9820
+Viewfinder frame 215
+FileOutput: output buffer 0x7f9b54f000 size 9784
+Viewfinder frame 216
+FileOutput: output buffer 0x7fa4231000 size 9972
+Viewfinder frame 217
+FileOutput: output buffer 0x7fa41b1000 size 9738
+Viewfinder frame 218
+FileOutput: output buffer 0x7fa4131000 size 9727
+Viewfinder frame 219
+FileOutput: output buffer 0x7fa40b1000 size 9832
+Viewfinder frame 220
+FileOutput: output buffer 0x7fa4031000 size 9791
+Viewfinder frame 221
+FileOutput: output buffer 0x7f9b84f000 size 9724
+Viewfinder frame 222
+FileOutput: output buffer 0x7f9b7cf000 size 10087
+Viewfinder frame 223
+FileOutput: output buffer 0x7f9b74f000 size 10018
+Viewfinder frame 224
+FileOutput: output buffer 0x7f9b6cf000 size 9898
+Viewfinder frame 225
+FileOutput: output buffer 0x7f9b64f000 size 9679
+Viewfinder frame 226
+FileOutput: output buffer 0x7f9b5cf000 size 9833
+Viewfinder frame 227
+FileOutput: output buffer 0x7f9b54f000 size 10373
+Viewfinder frame 228
+FileOutput: output buffer 0x7fa4231000 size 10057
+Viewfinder frame 229
+FileOutput: output buffer 0x7fa41b1000 size 10967
+Viewfinder frame 230
+FileOutput: output buffer 0x7fa4131000 size 10234
+Viewfinder frame 231
+FileOutput: output buffer 0x7fa40b1000 size 9981
+Viewfinder frame 232
+FileOutput: output buffer 0x7fa4031000 size 9873
+Viewfinder frame 233
+FileOutput: output buffer 0x7f9b84f000 size 9790
+Viewfinder frame 234
+FileOutput: output buffer 0x7f9b7cf000 size 10003
+Viewfinder frame 235
+FileOutput: output buffer 0x7f9b74f000 size 9843
+Viewfinder frame 236
+FileOutput: output buffer 0x7f9b6cf000 size 9888
+Viewfinder frame 237
+FileOutput: output buffer 0x7f9b64f000 size 9917
+Viewfinder frame 238
+FileOutput: output buffer 0x7f9b5cf000 size 9881
+Viewfinder frame 239
+FileOutput: output buffer 0x7f9b54f000 size 9977
+Viewfinder frame 240
+FileOutput: output buffer 0x7fa4231000 size 39180
+Viewfinder frame 241
+FileOutput: output buffer 0x7fa41b1000 size 12093
+Viewfinder frame 242
+FileOutput: output buffer 0x7fa4131000 size 10592
+Viewfinder frame 243
+FileOutput: output buffer 0x7fa40b1000 size 10213
+Viewfinder frame 244
+FileOutput: output buffer 0x7fa4031000 size 10042
+Viewfinder frame 245
+FileOutput: output buffer 0x7f9b84f000 size 10137
+Viewfinder frame 246
+FileOutput: output buffer 0x7f9b7cf000 size 9883
+Viewfinder frame 247
+FileOutput: output buffer 0x7f9b74f000 size 10007
+Viewfinder frame 248
+FileOutput: output buffer 0x7f9b6cf000 size 10029
+Viewfinder frame 249
+FileOutput: output buffer 0x7f9b64f000 size 9889
+Viewfinder frame 250
+FileOutput: output buffer 0x7f9b5cf000 size 9872
+Viewfinder frame 251
+FileOutput: output buffer 0x7f9b54f000 size 9938
+Viewfinder frame 252
+FileOutput: output buffer 0x7fa4231000 size 9831
+Viewfinder frame 253
+FileOutput: output buffer 0x7fa41b1000 size 9676
+Viewfinder frame 254
+FileOutput: output buffer 0x7fa4131000 size 10035
+Viewfinder frame 255
+FileOutput: output buffer 0x7fa40b1000 size 10029
+Viewfinder frame 256
+FileOutput: output buffer 0x7fa4031000 size 10057
+Viewfinder frame 257
+FileOutput: output buffer 0x7f9b84f000 size 9765
+Viewfinder frame 258
+FileOutput: output buffer 0x7f9b7cf000 size 9952
+Viewfinder frame 259
+FileOutput: output buffer 0x7f9b74f000 size 10289
+Viewfinder frame 260
+FileOutput: output buffer 0x7f9b6cf000 size 9976
+Viewfinder frame 261
+FileOutput: output buffer 0x7f9b64f000 size 10038
+Viewfinder frame 262
+FileOutput: output buffer 0x7f9b5cf000 size 10201
+Viewfinder frame 263
+FileOutput: output buffer 0x7f9b54f000 size 10118
+Viewfinder frame 264
+FileOutput: output buffer 0x7fa4231000 size 10006
+Viewfinder frame 265
+FileOutput: output buffer 0x7fa41b1000 size 10855
+Viewfinder frame 266
+FileOutput: output buffer 0x7fa4131000 size 9960
+Viewfinder frame 267
+FileOutput: output buffer 0x7fa40b1000 size 9808
+Viewfinder frame 268
+FileOutput: output buffer 0x7fa4031000 size 9859
+Viewfinder frame 269
+FileOutput: output buffer 0x7f9b84f000 size 9897
+Viewfinder frame 270
+FileOutput: output buffer 0x7f9b7cf000 size 10031
+Viewfinder frame 271
+FileOutput: output buffer 0x7f9b74f000 size 9905
+Viewfinder frame 272
+FileOutput: output buffer 0x7f9b6cf000 size 9797
+Viewfinder frame 273
+FileOutput: output buffer 0x7f9b64f000 size 9908
+Viewfinder frame 274
+FileOutput: output buffer 0x7f9b5cf000 size 9894
+Viewfinder frame 275
+FileOutput: output buffer 0x7f9b54f000 size 9937
+Viewfinder frame 276
+FileOutput: output buffer 0x7fa4231000 size 9848
+Viewfinder frame 277
+Halting: reached timeout of 20000 milliseconds.
+Camera stopped!
+H264Encoder closed
+Closing RPiCam application(frames displayed 277, dropped 0)
+Camera stopped!
+Tearing down requests, buffers and configuration
+Camera closed

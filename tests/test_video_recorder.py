@@ -49,7 +49,9 @@ import video_recorder as vr  # noqa: E402
 import video_ring  # noqa: E402
 
 NOW = datetime(2026, 8, 17, 23, 40, 0, tzinfo=timezone.utc)
-EXPECTED_BASE = "2026-08-17T23-40-00Z_video_1000x562_15fps"
+# 14 fps, not 15: the migration preset reads out on the full sensor mode,
+# which caps at ~14.35 fps (Sprint17 probe). The clamp is in the filename.
+EXPECTED_BASE = "2026-08-17T23-40-00Z_video_1000x562_14fps"
 
 
 def make_run_fn(fail_stage=None, calls=None):
@@ -86,6 +88,11 @@ def make_settings(video_dir, **vcfg_over):
     vcfg["dir"] = video_dir
     vcfg["clip_minutes"] = 0.05          # 3 s nominal; run_fn is fake anyway
     vcfg.update(vcfg_over)
+    # Sprint17: geometry is resolved (and upscale-checked) by validation, and
+    # every consumer reads vcfg["geometry"] — so fixtures must go through the
+    # real validator rather than hand-building a config the runtime never sees.
+    with contextlib.redirect_stdout(io.StringIO()):
+        vcfg = vr.validate_video_config(vcfg)
     return {
         "capture_backend": "rpicam",
         "crop_native_xywh": (1504, 846, 1600, 900),
@@ -123,7 +130,7 @@ class RecorderDirMixin:
 class TestNaming(unittest.TestCase):
     def test_clip_basename_format(self):
         self.assertEqual(
-            vr.clip_basename(NOW, (1000, 562), 15), EXPECTED_BASE)
+            vr.clip_basename(NOW, (1000, 562), 14), EXPECTED_BASE)
 
     def test_lexicographic_is_chronological(self):
         earlier = vr.clip_basename(

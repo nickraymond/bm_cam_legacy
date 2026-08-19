@@ -1,0 +1,27 @@
+{
+  "tool": "validate_video_presets.py",
+  "sprint": "Sprint17",
+  "gates": [
+    "2 no-upscale (ffprobe)",
+    "4 roi vs mode fov",
+    "6 encode_s < clip_s, CMA"
+  ],
+  "utc": "2026-08-18T20:21:43.267463+00:00",
+  "host": "bmcam000",
+  "repo": "/home/pi/repos/bm_cam_legacy_sprint17",
+  "git_sha": "unknown",
+  "encoder_version": [
+    "rpicam-apps build: v1.12.0 12-05-2026 (11:49:26)",
+    "rpicam-apps capabilites: egl:0 qt:0 drm:1 libav:0"
+  ],
+  "seconds_per_preset": 20.0,
+  "cma_total_kb": 262144,
+  "argv": {
+    "wide_1080p": "/usr/bin/rpicam-vid -v 2 -n -t 20000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 9300000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_presets_20260818T201729Z/wide_1080p.h264",
+    "wide_1080p_lean": "/usr/bin/rpicam-vid -v 2 -n -t 20000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 6000000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_presets_20260818T201729Z/wide_1080p_lean.h264",
+    "wide_720p": "/usr/bin/rpicam-vid -v 2 -n -t 20000 --codec h264 --inline --mode 2304:1296:10:P --width 1280 --height 720 --framerate 30 --bitrate 4000000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_presets_20260818T201729Z/wide_720p.h264",
+    "wide_720p_lean": "/usr/bin/rpicam-vid -v 2 -n -t 20000 --codec h264 --inline --mode 2304:1296:10:P --width 1280 --height 720 --framerate 30 --bitrate 2500000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_presets_20260818T201729Z/wide_720p_lean.h264",
+    "stills_roi_1000p": "/usr/bin/rpicam-vid -v 2 -n -t 20000 --codec h264 --inline --mode 4608:2592:10:P --width 1000 --height 562 --framerate 14 --bitrate 2500000 --roi 0.326389,0.326389,0.347222,0.347222 -o /home/pi/sprint17_presets_20260818T201729Z/stills_roi_1000p.h264",
+    "stills_roi_1600p": "/usr/bin/rpicam-vid -v 2 -n -t 20000 --codec h264 --inline --mode 4608:2592:10:P --width 1600 --height 900 --framerate 14 --bitrate 6500000 --roi 0.326389,0.326389,0.347222,0.347222 -o /home/pi/sprint17_presets_20260818T201729Z/stills_roi_1600p.h264"
+  }
+}

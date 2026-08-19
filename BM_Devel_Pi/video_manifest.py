@@ -60,13 +60,18 @@ def build_clip_record(clip_result, settings, vcfg, ring_result, *,
     fields). cpu_temp_c/disk_usage are read by the caller so tests and
     the Mac never touch Pi sysfs."""
     base = clip_result["basename"]
-    w, h = settings["output_size"]
+    # Sprint17: geometry is the VIDEO island's, not the stills keys'. The
+    # sidecar now carries the sensor mode and the available-detail figures,
+    # because "res" alone cannot tell an honest 1080p from an upscaled one —
+    # which is precisely how the Sprint15 defect stayed invisible.
+    geo = vcfg["geometry"]
+    w, h = geo["output_wh"]
     record = {
-        "metadata_schema": "bmcam_video_sidecar_v1",
+        "metadata_schema": "bmcam_video_sidecar_v2",
         "fn": base + ".mp4",
         "sz": int(clip_result["bytes"]),
         "res": f"{int(w)}x{int(h)}",
-        "fps": int(vcfg["fps"]),
+        "fps": int(geo["fps"]),
         "br": float(vcfg["bitrate_mbps"]),
         "dur": int(round(float(vcfg["clip_minutes"]) * 60)),
         "utc": utc_from_basename(base),
@@ -78,7 +83,12 @@ def build_clip_record(clip_result, settings, vcfg, ring_result, *,
         if clip_result.get("thumb") else None,
         "encode_s": round(float(clip_result.get("encode_s", 0.0)), 1),
         "boundary_s": round(float(clip_result.get("boundary_s", 0.0)), 1),
-        "crop_native_xywh": list(settings["crop_native_xywh"]),
+        "crop_native_xywh": list(geo["crop_native_xywh"]),
+        "preset": geo["preset"],
+        "sensor_mode": geo["sensor_mode"],
+        "avail_px": f"{geo['available_px'][0]}x{geo['available_px'][1]}",
+        "scale": geo["scale"],
+        "encoder": dict(vcfg.get("encoder") or {}),
         "requested_controls": clip_result.get("requested_controls"),
     }
     if disk_usage is not None:

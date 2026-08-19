@@ -404,5 +404,73 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
             bare.server_close()
 
 
+class TestShippedTemplateCarriesEveryField(unittest.TestCase):
+    """The GUI edits configs, it never authors keys — patch_yaml REFUSES a key
+    that is not already in the file. That is not theoretical: on bmcam000
+    (2026-08-18) a missing video island made real settings view-only, and
+    bmcam004's missing camera_controls block did the same to the focus fields.
+
+    So the shipped template must contain every editable key, or the settings
+    page silently degrades on a fresh unit.
+    """
+
+    TEMPLATE = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "device_profiles", "rc_field_template", "camera_schedule.yaml")
+
+    def test_every_field_key_present_in_rc_field_template(self):
+        present = set(vs.read_current(self.TEMPLATE))
+        missing = sorted({f["key"] for f in vs.FIELDS} - present)
+        self.assertEqual(
+            missing, [],
+            f"rc_field_template is missing GUI-editable keys {missing} — the "
+            f"settings page would render them view-only on a fresh unit")
+
+    def test_template_values_are_all_valid_choices(self):
+        current = vs.read_current(self.TEMPLATE)
+        for key, value in current.items():
+            self.assertIsNotNone(
+                vs.normalize_choice(key, value),
+                f"{key}={value!r} in rc_field_template is not an offered "
+                f"choice, so the settings form would reject its own echo")
+
+
+class TestRuntimeManifestCoversTheVideoPath(unittest.TestCase):
+    """A field update copies ONLY the files in tools/rc_runtime_manifest.txt.
+    A video module missing from that list installs a runtime that cannot
+    import — the bmcam003 2026-08-01 lesson, and a live risk again in
+    Sprint17 when video_geometry.py was added.
+    """
+
+    REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    MANIFEST = os.path.join(REPO, "tools", "rc_runtime_manifest.txt")
+    PI_DIR = os.path.join(REPO, "BM_Devel_Pi")
+
+    def _manifest_entries(self):
+        with open(self.MANIFEST) as f:
+            return {line.strip() for line in f
+                    if line.strip() and not line.startswith("#")}
+
+    def test_every_video_module_is_shipped(self):
+        entries = self._manifest_entries()
+        on_disk = {f"BM_Devel_Pi/{n}" for n in os.listdir(self.PI_DIR)
+                   if n.startswith("video") and n.endswith(".py")}
+        missing = sorted(on_disk - entries)
+        self.assertEqual(
+            missing, [],
+            f"{missing} exist but are not in rc_runtime_manifest.txt — a field "
+            f"update would install a runtime that fails to import")
+
+    def test_boot_syntax_gate_covers_every_video_module(self):
+        gate = open(os.path.join(self.PI_DIR, "rc_run_capture_cycle.sh")).read()
+        for name in os.listdir(self.PI_DIR):
+            if name.startswith("video") and name.endswith(".py"):
+                self.assertIn(
+                    name, gate,
+                    f"{name} is not in rc_run_capture_cycle.sh's py_compile "
+                    f"gate, so a syntax error there would only surface when "
+                    f"the first clip fails")
+
+
 if __name__ == "__main__":
     unittest.main()

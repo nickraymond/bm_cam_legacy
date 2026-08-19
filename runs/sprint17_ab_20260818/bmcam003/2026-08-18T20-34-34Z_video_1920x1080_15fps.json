@@ -1,0 +1,49 @@
+{
+ "metadata_schema": "bmcam_video_sidecar_v2",
+ "fn": "2026-08-18T20-34-34Z_video_1920x1080_15fps.mp4",
+ "sz": 203107968,
+ "res": "1920x1080",
+ "fps": 15,
+ "br": 9.3,
+ "dur": 300,
+ "utc": "2026-08-18T20:34:34Z",
+ "tmp": 44.5,
+ "du": 21.7,
+ "dt": 114.7,
+ "rd": 0,
+ "thumb": "2026-08-18T20-34-34Z_video_1920x1080_15fps_thumb.jpg",
+ "encode_s": 300.7,
+ "boundary_s": 22.3,
+ "crop_native_xywh": [
+  0,
+  0,
+  4608,
+  2592
+ ],
+ "preset": "wide_1080p",
+ "sensor_mode": "2304x1296",
+ "avail_px": "2304x1296",
+ "scale": 0.833,
+ "encoder": {
+  "profile": "",
+  "level": "",
+  "intra": 0,
+  "denoise": "",
+  "sharpness": 1.0
+ },
+ "requested_controls": {
+  "camera_control_source": "image_pipeline.camera_controls",
+  "camera_controls_enabled": true,
+  "requested_focus_enabled": true,
+  "requested_focus_mode": "auto",
+  "requested_lens_position": 1.82,
+  "requested_focus_range": "normal",
+  "requested_focus_speed": "normal",
+  "requested_white_balance_enabled": true,
+  "requested_white_balance_mode": "auto",
+  "requested_exposure_enabled": true,
+  "requested_exposure_mode": "auto",
+  "requested_image_processing_enabled": false
+ },
+ "sha256_16": "5329729ab06ac709"
+}
