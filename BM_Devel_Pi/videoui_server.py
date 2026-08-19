@@ -181,6 +181,43 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:var(--bg)}
 .mgroup td.v.dim{color:var(--muted)}
 .skel{display:inline-block;width:66px;height:11px;border-radius:3px;
  background:#e3ebf3}
+
+/* ---------------------------------------------------------------------
+   Wider screens. The layout above is the phone layout and stays exactly
+   as it is; everything here is additive (min-width only). A laptop gets
+   more columns and a side-by-side detail view instead of a 430px ribbon
+   down the middle of a 1440px display.
+   --------------------------------------------------------------------- */
+@media(min-width:700px){
+ #app{max-width:700px}
+ #grid{grid-template-columns:repeat(3,1fr);padding:16px 20px 24px}
+ .filters,.mediatabs{padding-left:20px;padding-right:20px}
+ .unitrow,.topbar{padding-left:20px;padding-right:20px}
+ /* dates and hours sit side by side once there is room */
+ .filters{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;
+  align-items:start}
+ .fmeta,.fhint{grid-column:1/-1}
+}
+@media(min-width:1000px){
+ #app{max-width:1000px}
+ #grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:1320px){
+ #app{max-width:1320px}
+ #grid{grid-template-columns:repeat(5,1fr)}
+}
+/* Detail: stacked on a phone, two columns on a laptop -- the clip plays
+   at a usable size while its metrics stay readable beside it. */
+@media(min-width:900px){
+ .dbody{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+  grid-template-areas:"stage tables" "actions tables";
+  align-content:start;gap:0 20px;max-width:1320px;margin:0 auto;padding:20px}
+ .stage{grid-area:stage;border-radius:var(--radius);overflow:hidden}
+ .stage video,.stage img{max-height:70vh}
+ .dact{grid-area:actions;padding:14px 0 0}
+ #mtables{grid-area:tables;overflow-y:auto;max-height:calc(100vh - 120px)}
+ .mgroup{margin:0 0 12px}
+}
 </style>
 </head>
 <body>
@@ -559,6 +596,25 @@ details.adv[open] summary:after{content:"\\2013"}
  border-radius:var(--radius);padding:12px 14px;font-size:13px;
  margin-bottom:14px;line-height:1.45}
 .foot{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:14px}
+
+/* Wider screens (additive, min-width only -- the phone layout is
+   untouched). Settings become a two-column board so the whole camera
+   configuration is visible without scrolling on a laptop. */
+@media(min-width:700px){
+ #app{max-width:700px}
+ .topbar{padding-left:20px;padding-right:20px}
+ main{padding:18px 20px 32px}
+}
+@media(min-width:1000px){
+ #app{max-width:1080px}
+ main{columns:2;column-gap:20px}
+ .panel,.grp,details.adv,.savewrap,.foot,.notice,.pendbar{
+  break-inside:avoid;-webkit-column-break-inside:avoid;
+  page-break-inside:avoid}
+ .savewrap{margin-bottom:14px}
+ /* the storage panel leads the page, so keep it out of column 2 */
+ .panel:first-of-type{column-span:all}
+}
 """
 
 
