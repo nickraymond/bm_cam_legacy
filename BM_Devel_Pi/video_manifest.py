@@ -167,6 +167,14 @@ def write_manifest(video_dir, generated_utc=None):
             "dur": None,
             "res": None,
             "fps": None,
+            # Sprint18: the gallery card shows achieved-vs-set bitrate and
+            # whether the recorded size is real detail. bytes/dur gives
+            # achieved; br/preset/scale must come from the sidecar. Three
+            # small fields here keep the LIST cheap — everything else stays
+            # in the per-clip detail route.
+            "br": None,
+            "preset": None,
+            "scale": None,
         }
         thumb = os.path.join(video_dir, stem + "_thumb.jpg")
         if os.path.exists(thumb):
@@ -176,7 +184,7 @@ def write_manifest(video_dir, generated_utc=None):
             try:
                 with open(sidecar, "r", encoding="utf-8") as f:
                     rec = json.load(f)
-                for key in ("dur", "res", "fps"):
+                for key in ("dur", "res", "fps", "br", "preset", "scale"):
                     entry[key] = rec.get(key)
             except Exception:
                 pass

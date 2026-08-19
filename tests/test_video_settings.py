@@ -204,14 +204,32 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
         with urllib.request.urlopen(req, timeout=5) as resp:
             return resp.status, resp.read().decode()
 
+    def _post_raw(self, path, data):
+        """POST WITHOUT following the redirect — returns (code, Location).
+        The PRG contract is the thing under test in several places."""
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k):
+                return None
+        opener = urllib.request.build_opener(NoRedirect)
+        body = urllib.parse.urlencode(data).encode()
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}{path}", data=body)
+        try:
+            resp = opener.open(req, timeout=5)
+            return resp.status, resp.headers.get("Location")
+        except urllib.error.HTTPError as err:
+            return err.code, err.headers.get("Location")
+
     def test_settings_page_shows_current_values(self):
         status, page = self._get("/settings")
         self.assertEqual(status, 200)
-        self.assertIn("bmcam settings", page)
+        self.assertIn("Nereus Vision camera settings", page)
         self.assertIn('value="video" selected', page)
         self.assertIn('value="1.82" selected', page)
         self.assertIn("Save settings", page)
-        self.assertIn("Restart camera", page)
+        # Sprint18: restart rides the save form as an intent marker
+        self.assertIn("Save and restart now", page)
+        self.assertIn('name="then" value="restart"', page)
 
     def test_gallery_links_settings(self):
         status, page = self._get("/")
@@ -234,6 +252,33 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("NOT saved", page)
         self.assertEqual(open(self.yaml).read(), SAMPLE_YAML)
+
+    def test_save_and_restart_saves_first_then_restarts(self):
+        """The combined button must persist the edit BEFORE rebooting."""
+        with contextlib.redirect_stdout(io.StringIO()):
+            status, location = self._post_raw(
+                "/settings", {"video.fps": "30", "then": "restart"})
+        self.assertEqual(status, 303)
+        self.assertEqual(location, "/restarted")
+        self.assertIn("fps: 30", open(self.yaml).read())
+        self.assertEqual(self.restarts, [1])
+
+    def test_failed_save_never_costs_a_reboot(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            status, location = self._post_raw(
+                "/settings", {"video.fps": "120", "then": "restart"})
+        self.assertEqual(status, 303)
+        self.assertIn("/settings?", location)        # back to the form
+        self.assertEqual(self.restarts, [])          # no reboot
+        self.assertEqual(open(self.yaml).read(), SAMPLE_YAML)
+
+    def test_then_marker_is_not_treated_as_a_setting(self):
+        """'then' is UI intent; the patcher refuses unknown keys."""
+        with contextlib.redirect_stdout(io.StringIO()):
+            status, location = self._post_raw("/settings", {"then": "restart"})
+        self.assertEqual(status, 303)
+        self.assertEqual(location, "/restarted")
+        self.assertEqual(self.restarts, [1])
 
     def test_restart_route_uses_injected_fn(self):
         with contextlib.redirect_stdout(io.StringIO()):
@@ -474,3 +519,222 @@ class TestRuntimeManifestCoversTheVideoPath(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSprint18Fields(PatchMixin, unittest.TestCase):
+    """Sprint18: retired HEIC, mode-aware fields, honest preset labels."""
+
+    def test_heic_is_not_an_offered_choice(self):
+        values = [v for v, _ in vs.field_for("capture_mode")["choices"]]
+        self.assertEqual(values, ["video", "progressive_jpeg"])
+
+    def test_capture_mode_labels_are_video_and_image(self):
+        labels = [l for _, l in vs.field_for("capture_mode")["choices"]]
+        self.assertEqual(labels, ["Video", "Image"])
+
+    def test_preset_labels_carry_no_day_estimates(self):
+        """The measured Storage panel owns the retention claim; two
+        different numbers for it on one screen destroys trust."""
+        for _v, label in vs.field_for("video.preset")["choices"]:
+            self.assertNotIn("day", label.lower(), label)
+            self.assertNotIn("~", label, label)
+
+    def test_every_field_declares_a_mode(self):
+        for f in vs.FIELDS:
+            self.assertTrue(f["applies"], f["key"])
+            for m in f["applies"]:
+                self.assertIn(m, ("video", "stills"), f["key"])
+
+    def test_video_only_fields_hidden_in_stills_mode(self):
+        self.assertTrue(vs.applies_to("video.clip_minutes", "video"))
+        self.assertFalse(vs.applies_to("video.clip_minutes", "stills"))
+        self.assertFalse(vs.applies_to("video.preset", "stills"))
+        # Sprint17 made the photo width stills-only
+        self.assertFalse(
+            vs.applies_to("progressive_jpeg.output_width", "video"))
+        self.assertTrue(
+            vs.applies_to("progressive_jpeg.output_width", "stills"))
+        # focus + network follow the camera in both modes
+        self.assertTrue(vs.applies_to("network.default", "stills"))
+
+    def test_mode_class_maps_capture_mode(self):
+        self.assertEqual(vs.mode_class("video"), "video")
+        self.assertEqual(vs.mode_class("progressive_jpeg"), "stills")
+        self.assertEqual(vs.mode_class("heic"), "stills")
+
+    def test_groups_and_advanced_cover_every_field(self):
+        """No field may go missing from the page."""
+        grouped = {k for _t, keys in vs.GROUPS for k in keys}
+        grouped |= set(vs.ADVANCED_KEYS)
+        self.assertEqual(grouped, {f["key"] for f in vs.FIELDS})
+
+
+class TestRetiredValueDoesNotPoisonSaves(PatchMixin, unittest.TestCase):
+    """Retiring a choice must not break saves on a unit still set to it.
+
+    The form echoes every field back, so without this guard a config
+    reading capture_mode: heic would fail EVERY save -- including one
+    that only touches frame rate. Same shape as the bmcam000 float-echo
+    save-poison, 2026-08-18.
+    """
+
+    def test_echoed_retired_value_is_a_noop_not_an_error(self):
+        with open(self.yaml, "r") as f:
+            text = f.read()
+        with open(self.yaml, "w") as f:
+            f.write(text.replace('capture_mode: "video"',
+                                 'capture_mode: "heic"'))
+        result = vs.patch_yaml(self.yaml, {"capture_mode": "heic",
+                                           "video.fps": "30"},
+                               validate=False)
+        self.assertEqual(result["changed"], ["video.fps"])
+        self.assertIn('capture_mode: "heic"', open(self.yaml).read())
+
+    def test_a_real_off_menu_value_is_still_refused(self):
+        with self.assertRaises(ValueError):
+            vs.patch_yaml(self.yaml, {"video.fps": "120"})
+        self.assertEqual(open(self.yaml).read(), SAMPLE_YAML)
+
+
+class TestPendingChanges(unittest.TestCase):
+    """Saved != running. Derived from the config mtime vs process start,
+    so it needs no state file and clears itself after a reboot."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="pending_")
+        self.path = os.path.join(self.dir, "camera_schedule.yaml")
+        with open(self.path, "w") as f:
+            f.write(SAMPLE_YAML)
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_config_older_than_process_is_not_pending(self):
+        os.utime(self.path, (1, 1))          # far in the past
+        self.assertFalse(videoui_server.pending_changes(self.path))
+        self.assertEqual(videoui_server.pending_banner(self.path), "")
+
+    def test_config_newer_than_process_is_pending(self):
+        future = videoui_server.PROCESS_START + 60
+        os.utime(self.path, (future, future))
+        self.assertTrue(videoui_server.pending_changes(self.path))
+        self.assertIn("Saved, not yet running",
+                      videoui_server.pending_banner(self.path))
+
+    def test_missing_config_is_never_pending(self):
+        self.assertFalse(videoui_server.pending_changes(None))
+        self.assertFalse(
+            videoui_server.pending_changes(self.path + ".nope"))
+
+
+class TestStoragePanelFollowsMode(PatchMixin, unittest.TestCase):
+    """The storage sentence must track the mode selector.
+
+    Nick, 2026-08-19: toggling Video/Image hid the video-only fields but
+    left the panel saying "keeps about N days of video" -- the panel
+    contradicting the form it sits above. Both readings now ship and the
+    selector swaps them, while the MEASURED figures stay put because they
+    describe the running camera, not the unsaved selection.
+    """
+
+    DISK = {"used": 38.4, "total": 114.7, "cap_pct": 75.0, "days": 1.5,
+            "gb_per_hour": 2.5, "clips": 255, "images": 103,
+            "oldest": "2026-08-18T04:56:13Z"}
+
+    def _page(self, capture_mode):
+        current = vs.read_current(self.yaml)
+        current["capture_mode"] = capture_mode
+        return videoui_server.render_settings_page(current, disk=self.DISK)
+
+    def test_both_readings_are_present_for_the_selector(self):
+        page = self._page("video")
+        self.assertIn('data-mode-note="video"', page)
+        self.assertIn('data-mode-note="stills"', page)
+
+    def test_video_mode_shows_the_retention_sentence(self):
+        page = self._page("video")
+        self.assertIn("keeps about <b>1.5 days</b> of video", page)
+        # the stills reading ships but starts hidden
+        self.assertIn('data-mode-note="stills" hidden', page)
+
+    def test_photo_mode_hides_the_retention_sentence(self):
+        page = self._page("progressive_jpeg")
+        self.assertIn('data-mode-note="video" hidden', page)
+        # the stills reading is the visible one
+        self.assertIn('data-mode-note="stills">', page)
+        # with no stills history in this fixture it degrades honestly
+        self.assertIn("Not enough recent photos", page)
+
+    def test_measured_figures_show_in_both_modes(self):
+        """The burn rate and card usage describe the RUNNING camera, so
+        they must not vanish when the selector moves."""
+        for mode in ("video", "progressive_jpeg"):
+            page = self._page(mode)
+            self.assertIn("38.4", page, mode)
+            self.assertIn("2.5 GB/hour", page, mode)
+            self.assertIn("of 114.7 GB used", page, mode)
+
+    def test_saved_mode_is_exposed_for_the_drift_notice(self):
+        page = self._page("video")
+        self.assertIn('id="saved-mode">video<', page)
+        self.assertIn('data-mode-note="drift"', page)
+        self.assertIn("takes effect when you save and restart", page)
+
+
+class TestSprint18Cleanups(PatchMixin, unittest.TestCase):
+    """Review round with Nick, 2026-08-19."""
+
+    DISK = {"used": 40.1, "total": 114.7, "cap_pct": 75.0, "days": 1.6,
+            "gb_per_hour": 1.22, "clips": 270, "images": 103,
+            "oldest": "2026-08-18T04:56:13Z",
+            "stills_gb_per_hour": 0.0026, "stills_mean_kb": 50.0}
+
+    def _page(self, mode="video", focus="auto"):
+        current = vs.read_current(self.yaml)
+        current["capture_mode"] = mode
+        current["image_pipeline.camera_controls.focus.mode"] = focus
+        return videoui_server.render_settings_page(current, disk=self.DISK)
+
+    def test_storage_lines_say_saved(self):
+        page = self._page()
+        self.assertIn("Videos saved", page)
+        self.assertIn("Images saved", page)
+        self.assertNotIn("Videos kept", page)
+
+    def test_save_buttons_are_the_last_boxes_on_the_page(self):
+        """Save applies to everything above it, so it must not land
+        mid-column in the two-column laptop layout."""
+        body = self._page()
+        body = body[body.index("<main>"):]
+        self.assertLess(body.index("</form>"), body.index(">Save settings"))
+        self.assertLess(body.index("Connect to this"),
+                        body.index(">Save settings"))
+        self.assertLess(body.index(">Save settings"), body.index('class="foot"'))
+
+    def test_save_buttons_stay_bound_to_the_settings_form(self):
+        """They sit outside <form> (forms cannot nest around the WiFi
+        box), so the form attribute is what keeps them wired up."""
+        page = self._page()
+        self.assertIn('type="submit" form="setform"', page)
+        self.assertIn('name="then" value="restart"', page)
+        self.assertEqual(page.count("<form"), page.count("</form>"))
+
+    def test_focus_reason_ships_hidden_so_the_browser_can_reveal_it(self):
+        """Server-only greying left the box stuck when focus mode changed
+        in the browser; the rule and its reason must be present either
+        way for the page to re-evaluate it live."""
+        manual = self._page(focus="manual")
+        self.assertIn('data-inert-when="autofocus"', manual)
+        self.assertIn('class="why" hidden', manual)
+        auto = self._page(focus="auto")
+        self.assertIn('data-inert-when="autofocus"', auto)
+        self.assertIn("Not used while Focus mode is Autofocus.", auto)
+
+    def test_stills_mode_estimates_when_the_card_fills(self):
+        page = self._page(mode="progressive_jpeg")
+        self.assertIn("average 50 KB", page)
+        self.assertIn("not pruned automatically", page)
+
+    def test_preset_help_is_one_sentence(self):
+        help_text = vs.field_for("video.preset")["help"]
+        self.assertEqual(help_text.count("."), 1, help_text)

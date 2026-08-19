@@ -2,13 +2,17 @@
 # filename: test_videoui_server.py
 # description: Sprint15 chunk 3 — gallery server: routes, Range, hardening.
 """
-Sprint15 UI server tests against a live ThreadingHTTPServer on an
+Sprint15/18 UI server tests against a live ThreadingHTTPServer on an
 ephemeral port (stdlib urllib client, loopback only).
 
 Covers: gallery page, manifest (present + fallback), full-file serving,
 single-range 206s (start-end, open-ended, suffix), 416 on bad ranges,
 and the serving rules (traversal, dotfiles, debris suffixes, unknown
 extensions all 404).
+
+Sprint18 adds: the stills gallery (/images.json, /images/<name>), the
+per-item detail routes (/clip/<stem>.json, /photo/<stem>.json), and the
+live storage block injected into /manifest.json.
 
 Run: python3 -m unittest tests.test_videoui_server -v
 """
@@ -71,8 +75,9 @@ class TestVideoUIServer(unittest.TestCase):
         status, headers, body = self._get("/")
         self.assertEqual(status, 200)
         self.assertIn("text/html", headers["Content-Type"])
-        self.assertIn(b"bmcam video", body)
+        self.assertIn(b"Nereus Vision", body)      # Sprint18 branding
         self.assertIn(b"/manifest.json", body)
+        self.assertIn(b"/images.json", body)        # Sprint18 stills tab
 
     def test_manifest_served(self):
         status, headers, body = self._get("/manifest.json")
@@ -148,3 +153,206 @@ class TestVideoUIServer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+IMG_STEM = "2026-08-01T17-49-30Z_image"
+IMG_NAME = IMG_STEM + "_compressed.jpg"
+
+
+class TestStillsGallery(unittest.TestCase):
+    """Sprint18: the Images tab and the per-item detail routes."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.vdir = tempfile.mkdtemp(prefix="vidui_v_")
+        cls.idir = tempfile.mkdtemp(prefix="vidui_i_")
+        with open(os.path.join(cls.vdir, BASE + ".mp4"), "wb") as f:
+            f.write(MP4_BYTES)
+        # a full sidecar so /clip/<stem>.json has something to flatten
+        with open(os.path.join(cls.vdir, BASE + ".json"), "w") as f:
+            json.dump({"metadata_schema": "bmcam_video_sidecar_v2",
+                       "tmp": 42.4, "du": 17.8, "dt": 114.7, "rd": 0,
+                       "encode_s": 300.6, "boundary_s": 12.7,
+                       "sensor_mode": "2304x1296", "avail_px": "2304x1296",
+                       "encoder": {"denoise": "cdn_hq", "sharpness": 1.0},
+                       "sha256_16": "5abde7208c22fb0e",
+                       "crop_native_xywh": [1504, 846, 1600, 900],
+                       "requested_controls": {
+                           "requested_focus_mode": "auto",
+                           "requested_lens_position": 1.82}}, f)
+        with open(os.path.join(cls.vdir, "manifest.json"), "w") as f:
+            json.dump({"schema": "bmcam_video_manifest_v1", "count": 1,
+                       "clips": [{"name": BASE + ".mp4", "bytes": 1024,
+                                  "utc": "2026-08-17T23:40:00Z"}]}, f)
+        # two stills, newest second on disk to prove the sort
+        for stem, utc, q in ((IMG_STEM, "2026-08-01T17:49:36Z", 80),
+                             ("2026-07-31T09-00-00Z_image",
+                              "2026-07-31T09:00:05Z", 50)):
+            with open(os.path.join(cls.idir, stem + "_compressed.jpg"),
+                      "wb") as f:
+                f.write(b"jpegdata" * 8)
+            with open(os.path.join(
+                    cls.idir, stem + "_compressed.jpg.capture_metadata.json"),
+                    "w") as f:
+                json.dump({"output_size": [1000, 562], "jpeg_quality_used": q,
+                           "utc_capture_timestamp": utc, "enc_attempts": 2,
+                           "selector_reason": "fit", "img_format": "pjpg",
+                           "message_count": 176, "Lux": 193.13,
+                           "ExposureTime": 46954, "AnalogueGain": 2.0,
+                           "ColourTemperature": 3537, "LensPosition": 1.82,
+                           "FocusFoM": 12371, "SensorTemperature": 26.0,
+                           "crop_native_xywh": [1504, 846, 1600, 900],
+                           "ScalerCrop": "(0, 0)/4608x2592",
+                           "jpeg_sha256": "72b49b7c98c55938cc"}, f)
+        # a stranger the gallery must ignore
+        with open(os.path.join(cls.idir, "notes.txt"), "w") as f:
+            f.write("not an image")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            cls.server = videoui_server.start_ui_server(
+                cls.vdir, 0, host="127.0.0.1", images_dir=cls.idir)
+        cls.port = cls.server.server_address[1]
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+        shutil.rmtree(cls.vdir, ignore_errors=True)
+        shutil.rmtree(cls.idir, ignore_errors=True)
+
+    def _get(self, path):
+        req = urllib.request.Request(f"http://127.0.0.1:{self.port}{path}")
+        try:
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                return resp.status, resp.read()
+        except urllib.error.HTTPError as err:
+            return err.code, err.read()
+
+    def test_images_json_lists_newest_first(self):
+        status, body = self._get("/images.json")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        self.assertEqual(data["count"], 2)
+        self.assertEqual(data["images"][0]["name"], IMG_NAME)
+        self.assertEqual(data["images"][0]["res"], "1000x562")
+        self.assertEqual(data["images"][0]["quality"], 80)
+        # the .txt stranger never appears
+        self.assertTrue(all(e["name"].endswith("_compressed.jpg")
+                            for e in data["images"]))
+
+    def test_image_file_served(self):
+        status, body = self._get("/images/" + IMG_NAME)
+        self.assertEqual(status, 200)
+        self.assertEqual(body, b"jpegdata" * 8)
+
+    def test_image_hardening(self):
+        for bad in ("/images/../notes.txt", "/images/notes.txt",
+                    "/images/.hidden.jpg", "/images/nope.jpg"):
+            status, _ = self._get(bad)
+            self.assertEqual(status, 404, bad)
+
+    def test_photo_detail_route(self):
+        status, body = self._get(f"/photo/{IMG_STEM}.json")
+        self.assertEqual(status, 200)
+        d = json.loads(body)
+        self.assertEqual(d["quality"], 80)
+        self.assertEqual(d["msgs"], 176)
+        self.assertEqual(d["reason"], "fit")
+        self.assertEqual(d["sha"], "72b49b7c98c55938")  # trimmed to 16
+        self.assertAlmostEqual(d["lux"], 193.13, places=2)
+
+    def test_clip_detail_route(self):
+        status, body = self._get(f"/clip/{BASE}.json")
+        self.assertEqual(status, 200)
+        d = json.loads(body)
+        self.assertEqual(d["tmp"], 42.4)
+        self.assertEqual(d["boundary_s"], 12.7)
+        self.assertEqual(d["focus_mode"], "auto")
+        self.assertEqual(d["enc"]["denoise"], "cdn_hq")
+        self.assertEqual(d["sensor_mode"], "2304x1296")
+
+    def test_detail_routes_404_on_unknown_and_traversal(self):
+        for bad in ("/clip/nope.json", "/photo/nope.json",
+                    "/clip/..%2F..%2Fetc%2Fpasswd.json"):
+            status, _ = self._get(bad)
+            self.assertEqual(status, 404, bad)
+
+    def test_manifest_carries_live_storage(self):
+        status, body = self._get("/manifest.json")
+        self.assertEqual(status, 200)
+        disk = json.loads(body)["disk"]
+        self.assertIn("used", disk)
+        self.assertIn("total", disk)
+        self.assertEqual(disk["cap_pct"], 75)   # no config_path -> default
+        self.assertGreater(disk["total"], 0)
+
+    def test_cap_comes_from_the_units_config_not_the_default(self):
+        """A unit configured to 60% must not be drawn against 75%: the
+        gauge marker and the retention estimate both hang off this."""
+        cfg = os.path.join(self.vdir, "camera_schedule.yaml")
+        with open(cfg, "w") as f:
+            f.write("video:\n  storage:\n    max_used_pct: 60\n"
+                    "    min_free_gb: 10\n")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            srv = videoui_server.start_ui_server(
+                self.vdir, 0, host="127.0.0.1", images_dir=self.idir,
+                config_path=cfg)
+        try:
+            port = srv.server_address[1]
+            with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/manifest.json", timeout=5) as r:
+                self.assertEqual(json.loads(r.read())["disk"]["cap_pct"], 60)
+        finally:
+            srv.shutdown()
+            srv.server_close()
+
+    def test_download_flag_sets_content_disposition(self):
+        """A bare <a download> is ignored by iOS Safari and defeated by
+        the colons in stills filenames; the header is what actually works."""
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/images/{IMG_NAME}?dl=1")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("attachment", resp.headers["Content-Disposition"])
+            self.assertIn(IMG_NAME, resp.headers["Content-Disposition"])
+        # video route too
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/videos/{BASE}.mp4?dl=1")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertIn("attachment", resp.headers["Content-Disposition"])
+
+    def test_plain_view_has_no_disposition(self):
+        """Inline viewing (posters, the <video> element) must NOT be sent
+        as an attachment or the gallery would download every thumbnail."""
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/images/{IMG_NAME}")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertIsNone(resp.headers.get("Content-Disposition"))
+
+    def test_images_list_carries_the_detail_stem(self):
+        """The card fetches /photo/<stem>.json using this field. Deriving
+        it by stripping the extension leaves a "_compressed" tail and
+        404s -- that bug shipped and showed as empty stills metadata."""
+        status, body = self._get("/images.json")
+        entry = json.loads(body)["images"][0]
+        self.assertEqual(entry["stem"], IMG_STEM)
+        self.assertTrue(entry["name"].startswith(entry["stem"]))
+        status, _ = self._get(f"/photo/{entry['stem']}.json")
+        self.assertEqual(status, 200)
+
+    def test_missing_images_dir_yields_empty_tab(self):
+        """A stills-less unit must show an empty Images tab, never a 500."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            srv = videoui_server.start_ui_server(
+                self.vdir, 0, host="127.0.0.1",
+                images_dir="/nonexistent/path/xyz")
+        try:
+            port = srv.server_address[1]
+            with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/images.json", timeout=5) as r:
+                self.assertEqual(json.loads(r.read())["count"], 0)
+        finally:
+            srv.shutdown()
+            srv.server_close()
