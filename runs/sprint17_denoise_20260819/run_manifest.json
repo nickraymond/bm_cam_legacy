@@ -1,0 +1,47 @@
+{
+  "tool": "sprint17_denoise_sweep.py",
+  "sprint": "Sprint17",
+  "utc": "2026-08-19T02:32:41.708569+00:00",
+  "host": "bmcam003",
+  "repo": "/home/pi/repos/bm_cam_legacy_sprint17",
+  "held_fixed": {
+    "preset": "wide_1080p",
+    "crop_native_xywh": [
+      0,
+      0,
+      4608,
+      2592
+    ],
+    "sensor_mode": "2304x1296",
+    "output": [
+      1920,
+      1080
+    ],
+    "fps": 15,
+    "bitrate_mbps": 9.3,
+    "seconds": 30.0
+  },
+  "swept": {
+    "denoise": [
+      "auto",
+      "off",
+      "cdn_off",
+      "cdn_fast",
+      "cdn_hq"
+    ]
+  },
+  "frame_times_s": [
+    5,
+    15,
+    25
+  ],
+  "crop_px_1to1": 640,
+  "luma_drift_levels": 0.8000000000000114,
+  "argv": {
+    "auto": "/usr/bin/rpicam-vid -n -t 30000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 9300000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_denoise_20260819T022853Z/auto.h264 --sharpness 1.0",
+    "off": "/usr/bin/rpicam-vid -n -t 30000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 9300000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_denoise_20260819T022853Z/off.h264 --denoise off --sharpness 1.0",
+    "cdn_off": "/usr/bin/rpicam-vid -n -t 30000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 9300000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_denoise_20260819T022853Z/cdn_off.h264 --denoise cdn_off --sharpness 1.0",
+    "cdn_fast": "/usr/bin/rpicam-vid -n -t 30000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 9300000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_denoise_20260819T022853Z/cdn_fast.h264 --denoise cdn_fast --sharpness 1.0",
+    "cdn_hq": "/usr/bin/rpicam-vid -n -t 30000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 15 --bitrate 9300000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/sprint17_denoise_20260819T022853Z/cdn_hq.h264 --denoise cdn_hq --sharpness 1.0"
+  }
+}
