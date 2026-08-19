@@ -188,6 +188,53 @@ Started 2026-08-19 06:00Z. See `runs/sprint18_fleet_ring_20260819/`.
       currently run rsync'd scratch copies from
       `~/repos/bm_cam_legacy_sprint18`)
 
+## 11. Post-merge fix — fleet HIL finding 3 (retention read 0.0 days)
+
+Branch `feature/sprint18-ring-window-fix`, off `development` at 7f87939.
+
+- [x] **Root cause:** both the server figure (`storage_stats()`) and the
+      settings-page estimator divided **headroom to the cap** by the burn
+      rate. The ring exists to drive used% *up to* the cap, so at steady
+      state headroom -> 0 and the retention figure was zeroed by the ring
+      succeeding. Observed on bmcam000 and bmcam004 at cap 60%.
+- [x] **The selector was inert, not just wrong:** swept live on bmcam000
+      at cap 60 — 1 / 4 / 12 Mbps all read 0.0 d, because every choice
+      divided the same zero. At cap 90 (headroom exists) it behaved.
+      So the control Sprint18 built for *choosing* gave no signal at all
+      exactly where the fleet sits.
+- [x] **Now reports the ring WINDOW** — footage actually retained over
+      the measured burn. bmcam000: 14.57 GiB / 1.01 GiB/h = **14 hours**.
+      bmcam004: 26.60 GiB / 2.45 GiB/h = **11 hours**.
+- [x] Predicted (selector moved) uses the **cap allowance** minus the
+      non-video bytes the ring cannot reclaim, not current headroom. The
+      two agree at the cap by construction, which is the check that the
+      measured/predicted split is consistent.
+- [x] Sub-day windows render in hours (`retention_text()` + its two JS
+      twins). "0.6 days" is true and useless, and sub-day is the NORMAL
+      case for a unit at its cap.
+- [x] `Footage kept  14.6 GB` added to the panel — the evidence behind
+      the sentence, so a reviewer can check the division.
+- [x] Same at-cap state fixed in the stills note, which printed "about
+      0 days" (and could go negative) when headroom was gone. Headroom
+      IS the right model there — stills are never pruned — but there is
+      none to divide at the cap, so it now says so.
+- [x] **The measured burn rate is untouched.** It read 1.03 / 2.45 GiB/h
+      against real recent burn and tracked the daylight rise correctly;
+      it was never the bug.
+- [x] Regression tests: 20 new (795 OK, skipped=1, up from 775), led by
+      the at-cap assertion this fix exists for. Also asserts the measured
+      figure does NOT move with the cap, and that the headroom formula is
+      gone from the page rather than compensated for.
+- [x] Verified in a browser against the bmcam000 at-cap fixture — the
+      sweep that was flat now reads 2.4 days / 14 hours / 5 hours at
+      1 / 4 / 12 Mbps, and returning to the saved settings restores the
+      measured sentence verbatim.
+- [x] TODO-BM-015 filed: the predicted window still ignores the
+      `min_free_gb` backstop (harmless on 114.7 GB cards, wrong on small
+      ones).
+- [ ] Re-check on the fleet after the ballast cleanup, when the units are
+      back at `max_used_pct: 75`.
+
 ## Hazards carried in
 
 - Settings GUI **edits, does not author**: a unit's YAML must contain
@@ -202,3 +249,5 @@ Started 2026-08-19 06:00Z. See `runs/sprint18_fleet_ring_20260819/`.
 - Units run scratch copies, not blessed bits, until post-merge redeploy.
 - Open-AP banner unproven on hardware.
 - Stills have no ring buffer (TODO-BM-014).
+- Retention window ignores `min_free_gb` (TODO-BM-015) — right
+  on the fleet's cards, wrong on a small one.

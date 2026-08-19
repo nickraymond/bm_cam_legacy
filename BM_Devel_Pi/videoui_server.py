@@ -287,6 +287,13 @@ function dayLabel(d){var t=new Date(d+"T00:00:00Z"),n=new Date();
 function rows0(){return DATA[S.media]||[]}
 </script>
 <script>
+function winText(d){
+ if(d>=1)return d.toFixed(1)+" days";
+ var h=d*24;
+ if(h>=1.5)return h.toFixed(0)+" hours";
+ if(h>=1)return "1 hour";
+ return (h*60).toFixed(0)+" minutes";
+}
 function paintStorage(){
  if(!DISK)return;
  var pct=DISK.total?100*DISK.used/DISK.total:0;
@@ -294,7 +301,12 @@ function paintStorage(){
  $("gfill").style.background=pct>DISK.cap_pct?"var(--bad)":
   pct>DISK.cap_pct*0.8?"var(--warn)":"var(--ok)";
  var txt=DISK.used.toFixed(1)+" / "+DISK.total.toFixed(1)+" GB";
- if(DISK.days!=null)txt+=" \u00b7 keeps ~"+DISK.days.toFixed(1)+" days";
+ /* DISK.days is the ring WINDOW (footage held / measured burn), not
+    headroom to the cap -- headroom is 0 whenever the ring is doing its
+    job, which read as "keeps ~0.0 days" on the fleet (HIL 2026-08-19).
+    Twin of retention_text() / windowText(): sub-day windows are normal
+    at the cap, so print hours there. */
+ if(DISK.days!=null)txt+=" \u00b7 keeps ~"+winText(DISK.days);
  $("gtext").textContent=txt;
 }
 function buildFilters(){
@@ -710,15 +722,24 @@ def _storage_panel(disk, mode, current=None):
     if disk.get("gb_per_hour") is not None:
         lines.append(f'<dt>Recording now</dt>'
                      f'<dd>~{disk["gb_per_hour"]:.1f} GB/hour</dd>')
+    # The evidence behind the retention sentence below. Without it the
+    # window is a bare claim; with it a reviewer can check the division.
+    if disk.get("retained_gb"):
+        lines.append(f'<dt>Footage kept</dt>'
+                     f'<dd>{disk["retained_gb"]:.1f} GB</dd>')
     lines.append(f'<dt>Deletes oldest at</dt><dd>{cap:.0f}% '
                  f'({disk["total"] * cap / 100:.0f} GB)</dd>')
     # Both readings are rendered; the mode selector swaps which is shown
     # (the fields hide immediately, so the sentence must follow or the
     # panel contradicts the form). The MEASURED figures above stay put in
     # either mode -- they describe what the camera is doing right now.
-    if disk.get("days") is not None:
+    # The ring WINDOW (footage held / measured burn), not headroom to the
+    # cap -- see storage_stats(). At the cap these differ by everything:
+    # headroom said 0.0 days while the camera held 14 hours of video.
+    window = retention_text(disk.get("days"))
+    if window:
         video_note = (f'At the current rate this camera keeps about '
-                      f'<b>{disk["days"]:.1f} days</b> of video. Past '
+                      f'<b>{window}</b> of video. Past '
                       f'{cap:.0f}% the oldest clips are deleted '
                       f'automatically &mdash; newest footage always wins.')
     else:
@@ -729,25 +750,40 @@ def _storage_panel(disk, mode, current=None):
     # video rate -- bytes per wall-clock hour across the recent stills.
     if disk.get("stills_gb_per_hour"):
         s_rate = disk["stills_gb_per_hour"]
+        # Headroom IS the right model for stills -- they are never pruned,
+        # so the question really is "how long until the card fills". But
+        # a unit already at its cap has no headroom, and the arithmetic
+        # printed "about 0 days" / "about -1 days" there (same at-cap
+        # state as finding 3). Say what is actually true instead.
         s_head = disk["total"] * cap / 100 - disk["used"]
-        s_days = s_head / (s_rate * 24) if s_rate > 0 else None
-        # Past a year the arithmetic is no longer meaningful (the card
-        # will be serviced long before then), so don't print "93 years".
-        if s_days is not None and s_days > 400:
-            span = '<b>over a year</b>'
-        elif s_days is not None:
-            span = f'about <b>{s_days:.0f} days</b>'
-        else:
+        if s_head <= 0:
             span = None
-        stills_note = (
-            f'Photos average {disk["stills_mean_kb"]:.0f} KB, so at the '
-            f'recent rate of {s_rate * 1024:.1f} MB/hour this card would '
-            f'take {span} to reach {cap:.0f}%. '
-            f'<b>Photos are not pruned automatically</b> &mdash; the ring '
-            f'buffer covers video only, so a long photo deployment needs '
-            f'the card cleared by hand.') if span else (
-            'In photo mode the camera stores stills, which are thousands of '
-            'times smaller than video.')
+        else:
+            s_days = s_head / (s_rate * 24) if s_rate > 0 else None
+            # Past a year the arithmetic is no longer meaningful (the card
+            # will be serviced long before then), so don't print "93 years".
+            if s_days is not None and s_days > 400:
+                span = '<b>over a year</b>'
+            elif s_days is not None:
+                span = f'about <b>{s_days:.0f} days</b>'
+            else:
+                span = None
+        by_hand = ('<b>Photos are not pruned automatically</b> &mdash; the '
+                   'ring buffer covers video only, so a long photo '
+                   'deployment needs the card cleared by hand.')
+        if span:
+            stills_note = (
+                f'Photos average {disk["stills_mean_kb"]:.0f} KB, so at the '
+                f'recent rate of {s_rate * 1024:.1f} MB/hour this card would '
+                f'take {span} to reach {cap:.0f}%. {by_hand}')
+        elif s_head <= 0:
+            stills_note = (
+                f'Photos average {disk["stills_mean_kb"]:.0f} KB at a recent '
+                f'{s_rate * 1024:.1f} MB/hour, but this card has already '
+                f'reached its {cap:.0f}% mark. {by_hand}')
+        else:
+            stills_note = ('In photo mode the camera stores stills, which '
+                           'are thousands of times smaller than video.')
     else:
         stills_note = ('In photo mode the camera stores stills, which are '
                        'thousands of times smaller than video. Not enough '
@@ -764,9 +800,13 @@ def _storage_panel(disk, mode, current=None):
         br_now = float(cur.get("video.bitrate_mbps") or 0) or None
     except (TypeError, ValueError):
         br_now = None
+    # retainedGb lets the estimator separate video (which the ring can
+    # reclaim) from everything else on the card (which it cannot), so a
+    # predicted window is cap allowance MINUS the non-video bytes.
     model = json.dumps({
         "used": round(disk["used"], 3),
         "total": round(disk["total"], 3),
+        "retainedGb": round(disk.get("retained_gb") or 0.0, 3),
         "gbPerHour": (round(disk["gb_per_hour"], 4)
                       if disk.get("gb_per_hour") is not None else None),
         "brNow": br_now,
@@ -940,7 +980,7 @@ def render_settings_page(current, message=None, error=False, mode=None,
  if(focusSel)focusSel.addEventListener("change",apply);
 
  /* ---- live retention estimate -------------------------------------
-    Recomputes the "keeps about N days" line from the CURRENTLY SELECTED
+    Recomputes the "keeps about N" line from the CURRENTLY SELECTED
     bitrate and storage cap, so the number can be used to choose settings
     instead of only describing the past.
 
@@ -948,6 +988,12 @@ def render_settings_page(current, message=None, error=False, mode=None,
     spends its whole ceiling (a dark scene ran 3.0 Mbps against a 9.3 cap),
     so we take the efficiency this camera is actually achieving now and
     apply it to the selected ceiling. Same scene, different ceiling.
+
+    What it predicts is the ring WINDOW -- the footage the ring would
+    hold once it settles at the cap -- NOT headroom to the cap. Headroom
+    is zero at steady state by construction, which made this selector
+    completely inert on the fleet: at cap 60% on bmcam000, 1 / 4 / 12
+    Mbps all read 0.0 days (HIL 2026-08-19, finding 3).
     ------------------------------------------------------------------ */
  var modelEl=document.getElementById("storage-model");
  var M=null; try{{M=JSON.parse(modelEl.textContent);}}catch(e){{}}
@@ -955,27 +1001,49 @@ def render_settings_page(current, message=None, error=False, mode=None,
  var brSel=document.getElementById("f_video.bitrate_mbps");
  var capSel=document.getElementById("f_video.storage.max_used_pct");
  var vnote=document.querySelector('[data-mode-note="video"]');
+ /* The server-rendered MEASURED sentence, kept verbatim so that backing
+    the selector out restores it exactly rather than re-deriving it. */
+ var measuredHTML=vnote?vnote.innerHTML:"";
+ /* Twin of retention_text() in videoui_server.py -- a 14 h window read
+    as "0.6 days" is useless, and sub-day is the normal case at the cap. */
+ function windowText(d){{
+  if(d>=1)return d.toFixed(1)+" days";
+  var h=d*24;
+  if(h>=1.5)return h.toFixed(0)+" hours";
+  if(h>=1)return "1 hour";
+  return (h*60).toFixed(0)+" minutes";
+ }}
  function estimate(){{
   if(!M||!vnote||M.gbPerHour==null||!M.brNow)return;
   var br=brSel?parseFloat(brSel.value):M.brNow;
   var cap=capSel?parseFloat(capSel.value):M.capNow;
   if(!(br>0)||!(cap>0))return;
+  /* MEASURED figures never move with the selector: they describe the
+     running camera. Back at the saved settings, put the server's own
+     sentence back rather than recomputing it here. */
+  if(br===M.brNow&&cap===M.capNow){{vnote.innerHTML=measuredHTML;return;}}
   var eff=M.gbPerHour/(M.brNow*GIB_PER_H_PER_MBPS);
   if(!(eff>0))return;
   eff=Math.min(Math.max(eff,0.05),1.15);
   var burn=br*GIB_PER_H_PER_MBPS*eff;
-  var headroom=M.total*cap/100-M.used;
-  var days=headroom>0?headroom/(burn*24):0;
-  var changed=(br!==M.brNow)||(cap!==M.capNow);
-  vnote.innerHTML=(changed
-    ?"At the <b>selected</b> settings this camera would keep about "
-    :"At the current rate this camera keeps about ")+
-   "<b>"+days.toFixed(1)+" days</b> of video"+
-   (changed?" (about "+burn.toFixed(1)+" GB/hour)":"")+
-   ". Past "+cap.toFixed(0)+"% the oldest clips are deleted automatically "+
-   "\u2014 newest footage always wins."+
-   (changed?" <i>Estimated from what this camera is recording now; a "+
-    "busier scene fills the card faster.</i>":"");
+  /* Non-video bytes (OS, stills, ballast) are outside the ring's reach,
+     so the video the ring may hold at the cap is the cap allowance minus
+     them. At the cap this equals what is retained today, which is why
+     the measured and predicted figures agree when nothing is changed. */
+  var other=M.used-(M.retainedGb||0);
+  var allow=M.total*cap/100-other;
+  if(!(allow>0)){{
+   vnote.innerHTML="A <b>"+cap.toFixed(0)+"%</b> cap is below what is "+
+    "already on this card outside the video folder, so recording would "+
+    "pause rather than delete its way down. Choose a higher cap.";
+   return;
+  }}
+  vnote.innerHTML="At the <b>selected</b> settings this camera would keep "+
+   "about <b>"+windowText(allow/(burn*24))+"</b> of video (about "+
+   burn.toFixed(1)+" GB/hour). Past "+cap.toFixed(0)+"% the oldest clips "+
+   "are deleted automatically \u2014 newest footage always wins. "+
+   "<i>Estimated from what this camera is recording now; a busier scene "+
+   "fills the card faster.</i>";
  }}
  if(brSel)brSel.addEventListener("change",estimate);
  if(capSel)capSel.addEventListener("change",estimate);
@@ -1108,12 +1176,51 @@ def clip_detail(video_dir, stem):
     }
 
 
+def retention_text(days):
+    """Render a ring window as the unit a human would use.
+
+    A 14-hour window printed as "0.6 days" is technically true and
+    practically useless, and the sub-day case is the normal one on a
+    fleet unit at its cap. Returns None for None so callers can fall
+    back to the "not enough history" sentence.
+    """
+    if days is None:
+        return None
+    if days >= 1:
+        return f"{days:.1f} days"
+    hours = days * 24
+    if hours >= 1.5:
+        return f"{hours:.0f} hours"
+    if hours >= 1:
+        return "1 hour"
+    return f"{hours * 60:.0f} minutes"
+
+
 def storage_stats(video_dir, clips, storage_cfg=None):
     """Live disk figures for the header + settings panel.
 
-    The retention window is MEASURED from the recent clip cadence rather
-    than guessed from the preset, because scene complexity moves the real
-    burn rate by 5x between night and daylight (Sprint16 overnight run).
+    `days` is the ring WINDOW -- how much footage the camera is actually
+    holding right now -- computed as retained video / measured burn.
+
+    It used to be headroom-to-cap (time until pruning starts), which is
+    zeroed BY CONSTRUCTION by the ring working: the ring exists to drive
+    used% up to the cap, so at steady state headroom -> 0 and the panel
+    reported "keeps ~0.0 days" while sitting on 14 GiB of footage. Seen
+    live on bmcam000 and bmcam004 at cap 60% (fleet HIL 2026-08-19,
+    finding 3); the bitrate selector was completely inert there because
+    every choice divided the same zero.
+
+    The burn rate is MEASURED from the recent clip cadence rather than
+    guessed from the preset, because scene complexity moves the real
+    burn by 5x between night and daylight (Sprint16 overnight run). That
+    part was never wrong and is unchanged.
+
+    Retained bytes are summed from the manifest (mp4 only), the same
+    field the burn rate integrates, so the division is exact in those
+    units. Thumbs and sidecars ride along on disk but are ~0.5% of a
+    triple and are deliberately not counted here -- reading them would
+    cost ~900 stat() calls per page load on a Pi Zero.
+
     Returns None for `days` when there is not enough history to divide by.
     """
     try:
@@ -1124,9 +1231,11 @@ def storage_stats(video_dir, clips, storage_cfg=None):
         cap_pct = float((storage_cfg or {}).get("max_used_pct") or 75)
     except (TypeError, ValueError):
         cap_pct = 75.0
+    retained_bytes = sum(int(c.get("bytes") or 0) for c in clips)
     out = {"used": usage.used / GIB, "total": usage.total / GIB,
            "free": usage.free / GIB, "cap_pct": cap_pct, "days": None,
-           "gb_per_hour": None, "clips": len(clips)}
+           "gb_per_hour": None, "clips": len(clips),
+           "retained_gb": retained_bytes / GIB}
     recent = [c for c in clips[:12] if c.get("utc")]
     if len(recent) >= 2:
         try:
@@ -1137,9 +1246,8 @@ def storage_stats(video_dir, clips, storage_cfg=None):
             if span_s > 0 and total_bytes > 0:
                 gb_h = total_bytes / span_s * 3600 / GIB
                 out["gb_per_hour"] = gb_h
-                headroom = usage.total * cap_pct / 100 - usage.used
-                if gb_h > 0:
-                    out["days"] = max(0.0, headroom / GIB / (gb_h * 24))
+                if gb_h > 0 and retained_bytes > 0:
+                    out["days"] = retained_bytes / GIB / (gb_h * 24)
         except Exception:
             pass
     return out

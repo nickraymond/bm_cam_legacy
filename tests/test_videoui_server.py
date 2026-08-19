@@ -360,6 +360,121 @@ class TestStillsGallery(unittest.TestCase):
             srv.server_close()
 
 
+class TestRingWindowAtCap(unittest.TestCase):
+    """Sprint18 fleet HIL (2026-08-19), finding 3 — the retention figure
+    collapsed to zero exactly where customers sit.
+
+    The panel divided HEADROOM TO THE CAP by the burn rate. The ring
+    buffer's whole job is to drive used% up to the cap, so at steady
+    state headroom -> 0 and the number was zeroed by the ring succeeding.
+    Observed live on bmcam000 and bmcam004 at cap 60%: every bitrate from
+    1 to 12 Mbps read "keeps ~0.0 days" while the units held 14.6 and
+    26.6 GiB of footage.
+
+    The figure now reports the ring WINDOW: retained video / measured
+    burn. The measured burn itself was honest and is not touched here.
+    """
+
+    GIB = 1024 ** 3
+    TOTAL = 114.7 * GIB
+    CAP = 60.0
+
+    def _stats(self, clips, used_frac=CAP / 100, cap=CAP, total=TOTAL):
+        """storage_stats() against a synthetic card. used_frac defaults to
+        sitting exactly ON the cap, i.e. headroom == 0."""
+        fake = type("Usage", (), {"total": int(total),
+                                  "used": int(total * used_frac),
+                                  "free": int(total * (1 - used_frac))})()
+        real = videoui_server.shutil.disk_usage
+        videoui_server.shutil.disk_usage = lambda _p: fake
+        try:
+            return videoui_server.storage_stats(".", clips,
+                                                {"max_used_pct": cap})
+        finally:
+            videoui_server.shutil.disk_usage = real
+
+    def _clips(self, n=282, gib_per_clip=14.57 / 282, period_s=300):
+        """Newest-first clips, evenly spaced — the manifest's own order."""
+        base = 1755576000                     # fixed epoch, no wall clock
+        step = period_s
+        return [{"utc": videoui_server.time.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ",
+                    videoui_server.time.gmtime(base - i * step)),
+                 "bytes": int(gib_per_clip * self.GIB)}
+                for i in range(n)]
+
+    # ---- the regression this ticket exists for -----------------------
+    def test_at_cap_with_prunable_footage_the_window_is_not_zero(self):
+        clips = self._clips()
+        disk = self._stats(clips)
+        headroom = disk["total"] * disk["cap_pct"] / 100 - disk["used"]
+        self.assertAlmostEqual(headroom, 0.0, places=6,
+                               msg="fixture must sit ON the cap")
+        self.assertIsNotNone(disk["days"])
+        self.assertGreater(disk["days"], 0.0,
+                           "a card full of prunable footage keeps footage")
+        self.assertGreater(disk["retained_gb"], 14.0)
+        self.assertIsNotNone(videoui_server.retention_text(disk["days"]))
+
+    def test_window_is_retained_footage_over_measured_burn(self):
+        disk = self._stats(self._clips())
+        expected = disk["retained_gb"] / (disk["gb_per_hour"] * 24)
+        self.assertAlmostEqual(disk["days"], expected, places=9)
+
+    def test_measured_window_does_not_move_with_the_cap(self):
+        """The MEASURED figure describes footage the camera is holding
+        now; only the PREDICTED (selector) figure may follow the cap."""
+        clips = self._clips()
+        at_60 = self._stats(clips, cap=60.0)
+        at_90 = self._stats(clips, cap=90.0, used_frac=0.60)
+        self.assertAlmostEqual(at_60["days"], at_90["days"], places=9)
+
+    def test_burn_rate_still_measured_from_recent_clips(self):
+        """Guard the part that was NOT broken: the burn rate tracked the
+        real daylight rise on the fleet and must keep doing so."""
+        slow = self._stats(self._clips(gib_per_clip=0.05))
+        fast = self._stats(self._clips(gib_per_clip=0.20))
+        self.assertAlmostEqual(fast["gb_per_hour"] / slow["gb_per_hour"],
+                               4.0, places=6)
+
+    def test_over_cap_still_reports_a_window(self):
+        """bmcam004 carried a nudge file and sat slightly OVER the cap;
+        negative headroom must not produce a negative or zero window."""
+        disk = self._stats(self._clips(gib_per_clip=26.60 / 282),
+                           used_frac=0.63)
+        self.assertGreater(disk["days"], 0.0)
+
+    def test_no_footage_degrades_to_no_claim(self):
+        self.assertIsNone(self._stats([])["days"])
+        self.assertEqual(self._stats([])["retained_gb"], 0.0)
+
+    def test_clips_without_sizes_make_no_claim(self):
+        clips = [dict(c, bytes=0) for c in self._clips(n=4)]
+        self.assertIsNone(self._stats(clips)["days"])
+
+
+class TestRetentionText(unittest.TestCase):
+    """A 14-hour ring window printed as "0.6 days" is true and useless;
+    sub-day windows are the NORMAL case on a unit at its cap."""
+
+    def test_days_above_one(self):
+        self.assertEqual(videoui_server.retention_text(1.55), "1.6 days")
+
+    def test_sub_day_reads_in_hours(self):
+        self.assertEqual(videoui_server.retention_text(14.4 / 24), "14 hours")
+        self.assertEqual(videoui_server.retention_text(0.5), "12 hours")
+
+    def test_sub_hour_reads_in_minutes(self):
+        self.assertEqual(videoui_server.retention_text(0.5 / 24),
+                         "30 minutes")
+
+    def test_one_hour_is_singular(self):
+        self.assertEqual(videoui_server.retention_text(1.2 / 24), "1 hour")
+
+    def test_none_passes_through(self):
+        self.assertIsNone(videoui_server.retention_text(None))
+
+
 # ---------------------------------------------------------------------------
 # Sprint18 defect: gallery renders empty when /images.json wins the race
 # ---------------------------------------------------------------------------
