@@ -1,0 +1,12 @@
+{
+  "method": "seathru_mono (hainh/sea-thru + Depth Anything V2 Small)",
+  "research_only": true,
+  "image": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+  "output": "runs/seathru_bench_20260901/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_seathru.png",
+  "depth_model": "depth-anything/Depth-Anything-V2-Small-hf",
+  "z_near": 0.5,
+  "z_far": 4.0,
+  "p": 0.01,
+  "f": 2.0,
+  "l": 0.5
+}

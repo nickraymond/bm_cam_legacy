@@ -1,0 +1,30 @@
+{
+  "method": "gray_world",
+  "kind": "linear",
+  "matrix": [
+    [
+      6.308134,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.536599,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.022616
+    ]
+  ],
+  "offset": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "baseline; uses whole image, ignores the card"
+  ]
+}
