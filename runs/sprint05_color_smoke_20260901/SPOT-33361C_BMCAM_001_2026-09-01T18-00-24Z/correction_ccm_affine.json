@@ -1,0 +1,31 @@
+{
+  "method": "ccm_affine",
+  "kind": "linear",
+  "matrix": [
+    [
+      14.924691,
+      0.888883,
+      0.258801
+    ],
+    [
+      -3.895019,
+      2.064391,
+      -0.374809
+    ],
+    [
+      -3.612824,
+      0.178431,
+      2.005284
+    ]
+  ],
+  "offset": [
+    -0.126055,
+    -0.282905,
+    -0.1663
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "solved on 17 patches (grays + colors), plain least squares",
+    "heavily clipped patches included in fit: green, cyan, blue"
+  ]
+}

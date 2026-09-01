@@ -1,0 +1,495 @@
+[
+  {
+    "id": "gray_white",
+    "type": "gray",
+    "label": "white_reference",
+    "target_srgb": [
+      255,
+      255,
+      255
+    ],
+    "median_srgb": [
+      37.0,
+      205.0,
+      174.0
+    ],
+    "mean_srgb": [
+      37.28,
+      204.61,
+      174.15
+    ],
+    "std_srgb": [
+      1.24,
+      1.57,
+      1.27
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": false
+  },
+  {
+    "id": "gray_light",
+    "type": "gray",
+    "label": "neutral_gray_light",
+    "target_srgb": [
+      200,
+      200,
+      200
+    ],
+    "median_srgb": [
+      43.0,
+      199.0,
+      159.0
+    ],
+    "mean_srgb": [
+      41.2,
+      195.77,
+      158.04
+    ],
+    "std_srgb": [
+      4.92,
+      6.2,
+      5.63
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": true,
+    "use_for_matrix": false
+  },
+  {
+    "id": "gray_mid",
+    "type": "gray",
+    "label": "neutral_gray_mid",
+    "target_srgb": [
+      128,
+      128,
+      128
+    ],
+    "median_srgb": [
+      20.0,
+      149.0,
+      109.0
+    ],
+    "mean_srgb": [
+      20.71,
+      147.62,
+      108.59
+    ],
+    "std_srgb": [
+      1.03,
+      2.46,
+      3.17
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": true,
+    "use_for_matrix": false
+  },
+  {
+    "id": "gray_dark",
+    "type": "gray",
+    "label": "neutral_gray_dark",
+    "target_srgb": [
+      74,
+      74,
+      74
+    ],
+    "median_srgb": [
+      12.0,
+      120.0,
+      86.0
+    ],
+    "mean_srgb": [
+      12.15,
+      120.25,
+      86.19
+    ],
+    "std_srgb": [
+      1.31,
+      1.54,
+      1.37
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": true,
+    "use_for_matrix": false
+  },
+  {
+    "id": "gray_black",
+    "type": "gray",
+    "label": "black_reference",
+    "target_srgb": [
+      0,
+      0,
+      0
+    ],
+    "median_srgb": [
+      14.0,
+      117.0,
+      83.0
+    ],
+    "mean_srgb": [
+      13.98,
+      116.79,
+      83.23
+    ],
+    "std_srgb": [
+      2.56,
+      1.31,
+      1.28
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": false
+  },
+  {
+    "id": "cream",
+    "type": "color",
+    "label": "cream_low_saturation",
+    "target_srgb": [
+      255,
+      249,
+      230
+    ],
+    "median_srgb": [
+      55.0,
+      213.0,
+      170.0
+    ],
+    "mean_srgb": [
+      55.17,
+      212.74,
+      169.0
+    ],
+    "std_srgb": [
+      2.84,
+      2.3,
+      3.24
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "tan",
+    "type": "color",
+    "label": "tan",
+    "target_srgb": [
+      239,
+      212,
+      167
+    ],
+    "median_srgb": [
+      46.0,
+      195.0,
+      142.0
+    ],
+    "mean_srgb": [
+      46.04,
+      195.68,
+      141.99
+    ],
+    "std_srgb": [
+      3.29,
+      2.77,
+      3.49
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "ochre",
+    "type": "color",
+    "label": "ochre",
+    "target_srgb": [
+      217,
+      169,
+      109
+    ],
+    "median_srgb": [
+      52.0,
+      182.0,
+      117.0
+    ],
+    "mean_srgb": [
+      52.77,
+      182.3,
+      118.55
+    ],
+    "std_srgb": [
+      2.2,
+      0.96,
+      4.3
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "orange",
+    "type": "color",
+    "label": "orange",
+    "target_srgb": [
+      216,
+      146,
+      54
+    ],
+    "median_srgb": [
+      54.0,
+      177.0,
+      104.0
+    ],
+    "mean_srgb": [
+      53.79,
+      176.84,
+      104.56
+    ],
+    "std_srgb": [
+      1.31,
+      0.92,
+      2.22
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "brown",
+    "type": "color",
+    "label": "brown",
+    "target_srgb": [
+      185,
+      109,
+      42
+    ],
+    "median_srgb": [
+      47.0,
+      157.0,
+      99.0
+    ],
+    "mean_srgb": [
+      46.68,
+      157.18,
+      98.66
+    ],
+    "std_srgb": [
+      1.08,
+      1.17,
+      0.86
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "dark_brown",
+    "type": "color",
+    "label": "dark_brown",
+    "target_srgb": [
+      99,
+      55,
+      25
+    ],
+    "median_srgb": [
+      21.0,
+      121.0,
+      83.0
+    ],
+    "mean_srgb": [
+      21.03,
+      121.2,
+      82.36
+    ],
+    "std_srgb": [
+      1.83,
+      1.22,
+      2.99
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "red_orange",
+    "type": "color",
+    "label": "red_orange",
+    "target_srgb": [
+      240,
+      74,
+      24
+    ],
+    "median_srgb": [
+      62.0,
+      140.0,
+      97.0
+    ],
+    "mean_srgb": [
+      62.36,
+      140.36,
+      96.6
+    ],
+    "std_srgb": [
+      2.44,
+      2.55,
+      3.63
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "yellow",
+    "type": "color",
+    "label": "yellow",
+    "target_srgb": [
+      247,
+      185,
+      30
+    ],
+    "median_srgb": [
+      72.0,
+      190.0,
+      107.0
+    ],
+    "mean_srgb": [
+      72.48,
+      189.26,
+      107.01
+    ],
+    "std_srgb": [
+      4.14,
+      2.94,
+      5.98
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "green",
+    "type": "color",
+    "label": "green",
+    "target_srgb": [
+      108,
+      176,
+      80
+    ],
+    "median_srgb": [
+      7.0,
+      187.0,
+      122.0
+    ],
+    "mean_srgb": [
+      5.8,
+      186.07,
+      120.66
+    ],
+    "std_srgb": [
+      1.62,
+      1.48,
+      1.77
+    ],
+    "clip_low_frac": 0.0124,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "cyan",
+    "type": "color",
+    "label": "cyan",
+    "target_srgb": [
+      92,
+      200,
+      208
+    ],
+    "median_srgb": [
+      1.0,
+      193.0,
+      172.0
+    ],
+    "mean_srgb": [
+      0.76,
+      193.31,
+      172.61
+    ],
+    "std_srgb": [
+      0.74,
+      1.14,
+      2.39
+    ],
+    "clip_low_frac": 0.9879,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "blue",
+    "type": "color",
+    "label": "blue",
+    "target_srgb": [
+      12,
+      102,
+      199
+    ],
+    "median_srgb": [
+      0.0,
+      159.0,
+      162.0
+    ],
+    "mean_srgb": [
+      0.3,
+      159.4,
+      161.34
+    ],
+    "std_srgb": [
+      0.61,
+      2.58,
+      2.21
+    ],
+    "clip_low_frac": 0.9892,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  },
+  {
+    "id": "magenta",
+    "type": "color",
+    "label": "magenta",
+    "target_srgb": [
+      180,
+      70,
+      163
+    ],
+    "median_srgb": [
+      31.0,
+      134.0,
+      138.0
+    ],
+    "mean_srgb": [
+      31.72,
+      134.09,
+      139.13
+    ],
+    "std_srgb": [
+      3.09,
+      2.84,
+      2.05
+    ],
+    "clip_low_frac": 0.0,
+    "clip_high_frac": 0.0,
+    "use_for_gray_balance": false,
+    "use_for_matrix": true
+  }
+]

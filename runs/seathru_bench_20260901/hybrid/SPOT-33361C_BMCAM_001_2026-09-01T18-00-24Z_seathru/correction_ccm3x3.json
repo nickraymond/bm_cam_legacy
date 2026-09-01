@@ -1,0 +1,31 @@
+{
+  "method": "ccm3x3",
+  "kind": "linear",
+  "matrix": [
+    [
+      2.402883,
+      0.001884,
+      0.437946
+    ],
+    [
+      -0.196151,
+      0.41708,
+      0.157081
+    ],
+    [
+      -0.406373,
+      -0.162006,
+      0.761658
+    ]
+  ],
+  "offset": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "solved on 17 patches (grays + colors), plain least squares",
+    "heavily clipped patches included in fit: gray_white, gray_light, cream, tan, ochre, orange, yellow, green, cyan, blue, magenta"
+  ]
+}
