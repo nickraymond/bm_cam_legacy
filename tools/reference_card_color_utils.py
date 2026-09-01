@@ -30,8 +30,9 @@ Adding a new correction method (e.g. from ongoing underwater color research):
   (it iterates METHOD_REGISTRY and exposes names via --methods).
 
 Known limitations:
-  - CIE76 delta-E (adequate for MVP ranking; not perceptually uniform in blue).
   - No chromatic-adaptation transform; matrices are plain least squares.
+  - Gray angular error uses the linear-RGB achromatic axis (Sea-thru paper
+    metric); the black patch is excluded (near-zero vector, unstable angle).
 """
 from __future__ import annotations
 
@@ -78,6 +79,66 @@ def srgb_to_lab(srgb_255: np.ndarray) -> np.ndarray:
 def delta_e76(rgb_a_255: np.ndarray, rgb_b_255: np.ndarray) -> np.ndarray:
     """CIE76 delta-E between two sRGB 0..255 arrays of shape (..., 3)."""
     return np.linalg.norm(srgb_to_lab(rgb_a_255) - srgb_to_lab(rgb_b_255), axis=-1)
+
+
+def delta_e2000(rgb_a_255: np.ndarray, rgb_b_255: np.ndarray) -> np.ndarray:
+    """CIEDE2000 between two sRGB 0..255 arrays of shape (..., 3).
+
+    Implemented from Sharma, Wu & Dalal (2005); validated against their
+    published test pairs in tests/test_reference_card_color_utils.py.
+    """
+    lab1 = srgb_to_lab(rgb_a_255)
+    lab2 = srgb_to_lab(rgb_b_255)
+    return _ciede2000_lab(lab1, lab2)
+
+
+def _ciede2000_lab(lab1: np.ndarray, lab2: np.ndarray) -> np.ndarray:
+    L1, a1, b1 = lab1[..., 0], lab1[..., 1], lab1[..., 2]
+    L2, a2, b2 = lab2[..., 0], lab2[..., 1], lab2[..., 2]
+
+    C1 = np.hypot(a1, b1)
+    C2 = np.hypot(a2, b2)
+    C_bar = (C1 + C2) / 2.0
+    G = 0.5 * (1.0 - np.sqrt(C_bar ** 7 / (C_bar ** 7 + 25.0 ** 7)))
+    a1p, a2p = (1.0 + G) * a1, (1.0 + G) * a2
+    C1p, C2p = np.hypot(a1p, b1), np.hypot(a2p, b2)
+
+    def _hp(a, b):
+        h = np.degrees(np.arctan2(b, a))
+        return np.where(h < 0, h + 360.0, h)
+
+    h1p = np.where((b1 == 0) & (a1p == 0), 0.0, _hp(a1p, b1))
+    h2p = np.where((b2 == 0) & (a2p == 0), 0.0, _hp(a2p, b2))
+
+    dLp = L2 - L1
+    dCp = C2p - C1p
+    dh = h2p - h1p
+    dh = np.where(dh > 180.0, dh - 360.0, np.where(dh < -180.0, dh + 360.0, dh))
+    dh = np.where(C1p * C2p == 0, 0.0, dh)
+    dHp = 2.0 * np.sqrt(C1p * C2p) * np.sin(np.radians(dh / 2.0))
+
+    Lp_bar = (L1 + L2) / 2.0
+    Cp_bar = (C1p + C2p) / 2.0
+    hsum = h1p + h2p
+    habs = np.abs(h1p - h2p)
+    hp_bar = np.where(
+        C1p * C2p == 0, hsum,
+        np.where(habs <= 180.0, hsum / 2.0,
+                 np.where(hsum < 360.0, (hsum + 360.0) / 2.0, (hsum - 360.0) / 2.0)))
+
+    T = (1.0 - 0.17 * np.cos(np.radians(hp_bar - 30.0))
+         + 0.24 * np.cos(np.radians(2.0 * hp_bar))
+         + 0.32 * np.cos(np.radians(3.0 * hp_bar + 6.0))
+         - 0.20 * np.cos(np.radians(4.0 * hp_bar - 63.0)))
+    d_theta = 30.0 * np.exp(-(((hp_bar - 275.0) / 25.0) ** 2))
+    R_C = 2.0 * np.sqrt(Cp_bar ** 7 / (Cp_bar ** 7 + 25.0 ** 7))
+    S_L = 1.0 + 0.015 * (Lp_bar - 50.0) ** 2 / np.sqrt(20.0 + (Lp_bar - 50.0) ** 2)
+    S_C = 1.0 + 0.045 * Cp_bar
+    S_H = 1.0 + 0.015 * Cp_bar * T
+    R_T = -np.sin(np.radians(2.0 * d_theta)) * R_C
+
+    return np.sqrt((dLp / S_L) ** 2 + (dCp / S_C) ** 2 + (dHp / S_H) ** 2
+                   + R_T * (dCp / S_C) * (dHp / S_H))
 
 
 def rel_luminance_linear(lin: np.ndarray) -> np.ndarray:
@@ -166,15 +227,41 @@ def sample_patches(rect_rgb: np.ndarray, layout: dict,
 # Correction models
 # ---------------------------------------------------------------------------
 
+def _root_poly_expand(lin: np.ndarray, degree: int) -> np.ndarray:
+    """Finlayson 2015 root-polynomial expansion of linear RGB (..., 3).
+
+    degree 2 -> 6 terms:  r, g, b, (rg)^1/2, (rb)^1/2, (gb)^1/2
+    degree 3 -> 13 terms: + (rg^2)^1/3, (r^2g)^1/3, (rb^2)^1/3, (r^2b)^1/3,
+                            (gb^2)^1/3, (g^2b)^1/3, (rgb)^1/3
+    Each term scales linearly with exposure, which is the method's point.
+    """
+    v = np.clip(np.asarray(lin, dtype=np.float64), 0.0, None)
+    r, g, b = v[..., 0], v[..., 1], v[..., 2]
+    terms = [r, g, b, np.sqrt(r * g), np.sqrt(r * b), np.sqrt(g * b)]
+    if degree >= 3:
+        terms += [np.cbrt(r * g * g), np.cbrt(r * r * g),
+                  np.cbrt(r * b * b), np.cbrt(r * r * b),
+                  np.cbrt(g * b * b), np.cbrt(g * g * b),
+                  np.cbrt(r * g * b)]
+    return np.stack(terms, axis=-1)
+
+
 @dataclass
 class CorrectionModel:
-    """A solved correction, applied in linear RGB as out = lin @ matrix + offset."""
+    """A solved correction applied in linear RGB.
+
+    kind "linear":     out = lin @ matrix.T + offset          (matrix 3x3)
+    kind "root_polyN": out = expand(lin, N) @ matrix.T        (matrix 3xK)
+    """
     method: str
-    matrix: np.ndarray               # (3,3) linear-RGB matrix (diag for gains)
+    matrix: np.ndarray
     offset: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    kind: str = "linear"
     notes: List[str] = field(default_factory=list)
 
     def apply_linear(self, lin: np.ndarray) -> np.ndarray:
+        if self.kind.startswith("root_poly"):
+            return _root_poly_expand(lin, int(self.kind[-1])) @ self.matrix.T
         return lin @ self.matrix.T + self.offset
 
     def apply_srgb255(self, srgb_255: np.ndarray) -> np.ndarray:
@@ -185,6 +272,7 @@ class CorrectionModel:
     def to_dict(self) -> dict:
         return {
             "method": self.method,
+            "kind": self.kind,
             "matrix": [[round(float(v), 6) for v in row] for row in self.matrix],
             "offset": [round(float(v), 6) for v in self.offset],
             "applied_in": "linear_rgb",
@@ -255,13 +343,39 @@ def _matrix_lstsq(samples: List[PatchSample], affine: bool):
 def solve_ccm3x3(samples: List[PatchSample], img_lin: np.ndarray) -> CorrectionModel:
     """Least-squares 3x3 matrix, observed -> target, all patches, linear RGB."""
     matrix, offset, notes = _matrix_lstsq(samples, affine=False)
-    return CorrectionModel("ccm3x3", matrix, offset, notes)
+    return CorrectionModel("ccm3x3", matrix, offset, notes=notes)
 
 
 def solve_ccm_affine(samples: List[PatchSample], img_lin: np.ndarray) -> CorrectionModel:
     """3x3 matrix + offset; the offset term absorbs underwater veiling light."""
     matrix, offset, notes = _matrix_lstsq(samples, affine=True)
-    return CorrectionModel("ccm_affine", matrix, offset, notes)
+    return CorrectionModel("ccm_affine", matrix, offset, notes=notes)
+
+
+def _solve_root_poly(samples: List[PatchSample], degree: int) -> CorrectionModel:
+    """Finlayson 2015 root-polynomial fit, observed -> target, linear RGB.
+
+    Exposure-invariant chart correction; implemented in-house from the
+    published method (no third-party code) for commercial-path cleanliness.
+    """
+    obs, tgt = _patch_lin(samples)
+    A = _root_poly_expand(obs, degree)
+    n_terms = A.shape[-1]
+    notes = [f"root-polynomial degree {degree} ({n_terms} terms), "
+             f"{len(samples)} patches, plain least squares"]
+    if len(samples) < 2 * n_terms:
+        notes.append(f"only {len(samples)} patches for {n_terms} terms; overfit likely")
+    coef, *_ = np.linalg.lstsq(A, tgt, rcond=None)
+    return CorrectionModel(f"root_poly{degree}", coef.T, kind=f"root_poly{degree}",
+                           notes=notes)
+
+
+def solve_root_poly2(samples: List[PatchSample], img_lin: np.ndarray) -> CorrectionModel:
+    return _solve_root_poly(samples, 2)
+
+
+def solve_root_poly3(samples: List[PatchSample], img_lin: np.ndarray) -> CorrectionModel:
+    return _solve_root_poly(samples, 3)
 
 
 # Registry the smoke-test tool iterates. Order = order on the cut sheet.
@@ -272,6 +386,8 @@ METHOD_REGISTRY: Dict[str, Callable[[List[PatchSample], np.ndarray], CorrectionM
     "gray_balance": solve_gray_balance,
     "ccm3x3": solve_ccm3x3,
     "ccm_affine": solve_ccm_affine,
+    "root_poly2": solve_root_poly2,
+    "root_poly3": solve_root_poly3,
 }
 
 
@@ -298,13 +414,52 @@ def gray_neutrality(samples: List[PatchSample],
 
 
 def patch_delta_e(samples: List[PatchSample],
-                  model: Optional[CorrectionModel] = None) -> Dict[str, float]:
-    """Per-patch CIE76 delta-E vs target, optionally after correction."""
+                  model: Optional[CorrectionModel] = None,
+                  metric: str = "de76") -> Dict[str, float]:
+    """Per-patch delta-E ("de76" or "de2000") vs target, optionally corrected."""
+    fn = delta_e76 if metric == "de76" else delta_e2000
     out = {}
     for s in samples:
         rgb = model.apply_srgb255(s.median_srgb) if model else s.median_srgb
-        out[s.patch_id] = float(delta_e76(rgb, s.target_srgb))
+        out[s.patch_id] = float(fn(rgb, s.target_srgb))
     return out
+
+
+def gray_angular_error_deg(samples: List[PatchSample],
+                           model: Optional[CorrectionModel] = None) -> float:
+    """Mean angle (degrees) between gray-patch linear RGB and the achromatic
+    axis — the Sea-thru paper's psi-bar evaluation metric (Sec. 6).
+
+    Uses white + the gray-balance grays; the black patch is excluded (its
+    near-zero vector makes the angle numerically meaningless).
+    """
+    axis = np.ones(3) / np.sqrt(3.0)
+    angles = []
+    for s in samples:
+        if s.patch_type != "gray" or s.patch_id == "gray_black":
+            continue
+        rgb = model.apply_srgb255(s.median_srgb) if model else s.median_srgb
+        lin = srgb_to_linear(np.clip(rgb, 0, 255) / 255.0)
+        norm = float(np.linalg.norm(lin))
+        if norm < 1e-6:
+            continue
+        cosang = float(np.clip(np.dot(lin / norm, axis), -1.0, 1.0))
+        angles.append(np.degrees(np.arccos(cosang)))
+    return float(np.mean(angles)) if angles else float("nan")
+
+
+def card_red_health(samples: List[PatchSample]) -> dict:
+    """Red-channel health of the card (research brief: white-patch red below
+    ~5% of full scale means the card is too far for ANY method to recover red).
+    """
+    white = next(s for s in samples if s.patch_id == "gray_white")
+    frac = float(white.median_srgb[0]) / 255.0
+    snr = float(white.median_srgb[0]) / max(float(white.std_srgb[0]), 1e-6)
+    return {
+        "white_patch_red_frac": round(frac, 4),
+        "white_patch_red_snr": round(snr, 2),
+        "red_signal_ok": bool(frac >= 0.05),
+    }
 
 
 def clip_stats_srgb255(img_255: np.ndarray) -> dict:

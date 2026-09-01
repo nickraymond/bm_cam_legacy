@@ -154,9 +154,13 @@ def build_cutsheet(qm, out_path: Path, stem: str, run_tag: str, detect_info: dic
     y += max(h1, h2) + 18
     d.text((MARGIN, y),
            f"gray_neutrality={before_metrics.get('gray_neutrality_before'):.3f}   "
-           f"mean_dE76_all_patches={before_metrics.get('mean_patch_de_before'):.1f}   "
+           f"psi_gray={before_metrics.get('gray_angular_deg_before')}deg   "
+           f"mean_dE76={before_metrics.get('mean_patch_de_before'):.1f}   "
+           f"mean_dE2000={before_metrics.get('mean_patch_de2000_before'):.1f}   "
            f"mean_luma={before_metrics.get('mean_luma_before'):.1f}   "
-           f"clip%low/high={before_metrics.get('clip_percent_low_before')}/{before_metrics.get('clip_percent_high_before')}",
+           f"clip%low/high={before_metrics.get('clip_percent_low_before')}/{before_metrics.get('clip_percent_high_before')}   "
+           f"white-patch red={100*before_metrics.get('white_patch_red_frac', 0):.1f}% of scale"
+           f"{'' if before_metrics.get('red_signal_ok') else '  (RED UNRECOVERABLE <5%)'}",
            font=f_txt, fill=INK)
     y += 34
 
@@ -185,11 +189,16 @@ def build_cutsheet(qm, out_path: Path, stem: str, run_tag: str, detect_info: dic
         m = res["metrics"]
         lines = [
             f"mean_dE76 all/color: {m['mean_patch_de_after']:.1f} / {m['mean_patch_de_color_after']:.1f}"
-            f"   (before {before_metrics.get('mean_patch_de_before'):.1f})",
+            f"   (before {before_metrics.get('mean_patch_de_before'):.1f})"
+            f"   mean_dE2000: {m['mean_patch_de2000_after']:.1f}"
+            f" (before {before_metrics.get('mean_patch_de2000_before'):.1f})",
+            f"psi_gray: {m['gray_angular_deg_after']:.1f}deg"
+            f" (before {before_metrics.get('gray_angular_deg_before'):.1f})   "
             f"max_dE76: {m['max_patch_de_after']:.1f}   gray_neutrality: {m['gray_neutrality_after']:.3f}"
             f"   (before {before_metrics.get('gray_neutrality_before'):.3f})",
             f"mean_luma: {m['mean_luma_after']:.1f}   clip%low/high: "
-            f"{m['clip_percent_low_after']}/{m['clip_percent_high_after']}",
+            f"{m['clip_percent_low_after']}/{m['clip_percent_high_after']}"
+            + (f"   MODEL FROM: {Path(m['model_from']).stem}" if m.get("model_from") else ""),
         ] + [f"note: {n}" for n in res["model"].notes]
         for j, line in enumerate(lines):
             d.text((tx, y + j * 24), line, font=f_txt, fill=INK)
@@ -225,7 +234,14 @@ def load_manual_corners(path: Path) -> dict:
 
 
 def process_image(qm, img_path: Path, out_dir: Path, layout, template_rgb,
-                  methods: list, args, manual_corners: dict, run_tag: str) -> dict:
+                  methods: list, args, manual_corners: dict, run_tag: str,
+                  frozen_models: dict | None = None):
+    """Process one image; returns (summary_row, solved_models_by_name).
+
+    If frozen_models is given (--apply-model-from), those models are applied
+    instead of solving on this image's own card; metrics still come from this
+    image's own patches.
+    """
     stem = img_path.stem
     img_dir = out_dir / stem
     img_dir.mkdir(parents=True, exist_ok=True)
@@ -283,7 +299,7 @@ def process_image(qm, img_path: Path, out_dir: Path, layout, template_rgb,
         row["notes"].append("card not detected; no correction attempted")
         print("  FAIL: card not detected (and no manual corners) — skipping correction")
         (img_dir / "metrics.json").write_text(json.dumps(row, indent=2), encoding="utf-8")
-        return row
+        return row, {}
 
     row["card_detected"] = True
     rect_bgr = qm.rectify_quad(img_bgr, card_quad, CANONICAL_W, CANONICAL_H)
@@ -295,25 +311,45 @@ def process_image(qm, img_path: Path, out_dir: Path, layout, template_rgb,
     (img_dir / "patch_samples.json").write_text(
         json.dumps([s.to_dict() for s in samples], indent=2), encoding="utf-8")
     de_before = ccu.patch_delta_e(samples)
+    de2000_before = ccu.patch_delta_e(samples, metric="de2000")
     img_lin = ccu.srgb_to_linear(img_rgb.astype(np.float64) / 255.0)
+    red_health = ccu.card_red_health(samples)
     row.update({
         "patch_count_used": len(samples),
         "gray_neutrality_before": round(ccu.gray_neutrality(samples), 4),
+        "gray_angular_deg_before": round(ccu.gray_angular_error_deg(samples), 2),
         "mean_patch_de_before": round(float(np.mean(list(de_before.values()))), 2),
+        "mean_patch_de2000_before": round(float(np.mean(list(de2000_before.values()))), 2),
         "mean_luma_before": round(float(img_rgb.mean()), 1),
         **{k + "_before": v for k, v in ccu.clip_stats_srgb255(img_rgb).items()},
+        **red_health,
     })
     grays = " ".join(f"{s.patch_id}={[round(v) for v in s.median_srgb]}"
                      for s in samples if s.patch_type == "gray")
     print(f"  sampled {len(samples)} patches; gray medians: {grays}")
     print(f"  before: gray_neutrality={row['gray_neutrality_before']} "
-          f"mean_dE={row['mean_patch_de_before']}")
+          f"mean_dE={row['mean_patch_de_before']} "
+          f"psi_gray={row['gray_angular_deg_before']}deg")
+    if not red_health["red_signal_ok"]:
+        row["notes"].append(
+            f"white-patch red only {red_health['white_patch_red_frac']:.1%} of full "
+            "scale (<5%): red is unrecoverable by ANY method at this range/light")
+        print(f"  WARN: red signal {red_health['white_patch_red_frac']:.1%} of full "
+              "scale — below the 5% recoverability floor")
 
     # --- run each correction method ---------------------------------------
     method_results = []
+    solved_models: dict = {}
     for name in methods:
         try:
-            model = ccu.METHOD_REGISTRY[name](samples, img_lin)
+            if frozen_models is not None:
+                if name not in frozen_models:
+                    row["notes"].append(f"{name}: no frozen model from reference image")
+                    continue
+                model = frozen_models[name]
+            else:
+                model = ccu.METHOD_REGISTRY[name](samples, img_lin)
+                solved_models[name] = model
             corrected = np.clip(np.rint(model.apply_srgb255(img_rgb)), 0, 255).astype(np.uint8)
             corrected_rect = np.clip(np.rint(model.apply_srgb255(rect_rgb)), 0, 255).astype(np.uint8)
             Image.fromarray(corrected).save(img_dir / f"after_{name}.jpg", quality=95)
@@ -321,24 +357,30 @@ def process_image(qm, img_path: Path, out_dir: Path, layout, template_rgb,
             (img_dir / f"correction_{name}.json").write_text(
                 json.dumps(model.to_dict(), indent=2), encoding="utf-8")
             de_after = ccu.patch_delta_e(samples, model)
+            de2000_after = ccu.patch_delta_e(samples, model, metric="de2000")
             de_color = [v for k, v in de_after.items()
                         if next(s for s in samples if s.patch_id == k).patch_type == "color"]
             metrics = {
                 "gray_neutrality_after": round(ccu.gray_neutrality(samples, model), 4),
+                "gray_angular_deg_after": round(ccu.gray_angular_error_deg(samples, model), 2),
                 "mean_patch_de_after": round(float(np.mean(list(de_after.values()))), 2),
+                "mean_patch_de2000_after": round(float(np.mean(list(de2000_after.values()))), 2),
                 "mean_patch_de_color_after": round(float(np.mean(de_color)), 2),
                 "max_patch_de_after": round(float(np.max(list(de_after.values()))), 2),
                 "mean_luma_after": round(float(corrected.mean()), 1),
                 **{k + "_after": v for k, v in ccu.clip_stats_srgb255(corrected).items()},
                 "per_patch_de_after": {k: round(v, 2) for k, v in de_after.items()},
             }
+            if frozen_models is not None:
+                metrics["model_from"] = args.apply_model_from
             method_results.append({"method": name, "model": model, "metrics": metrics,
                                    "corrected_full": corrected,
                                    "corrected_rect": corrected_rect})
-            print(f"  {name:12s} mean_dE {row['mean_patch_de_before']:6.1f} -> "
+            print(f"  {name:12s} dE76 {row['mean_patch_de_before']:6.1f} -> "
                   f"{metrics['mean_patch_de_after']:6.1f}   "
-                  f"neutrality {row['gray_neutrality_before']:.3f} -> "
-                  f"{metrics['gray_neutrality_after']:.3f}")
+                  f"dE2000 -> {metrics['mean_patch_de2000_after']:5.1f}   "
+                  f"psi {row['gray_angular_deg_before']:5.1f} -> "
+                  f"{metrics['gray_angular_deg_after']:5.1f}deg")
         except Exception as exc:  # keep going; failures must stay visible
             row["notes"].append(f"{name} failed: {type(exc).__name__}: {exc}")
             print(f"  {name:12s} FAILED: {exc}")
@@ -355,7 +397,7 @@ def process_image(qm, img_path: Path, out_dir: Path, layout, template_rgb,
                    before_metrics=row, method_results=method_results)
     row["cutsheet_path"] = str(cutsheet)
     print(f"  cutsheet: {cutsheet}")
-    return row
+    return row, solved_models
 
 
 # ---------------------------------------------------------------------------
@@ -382,6 +424,10 @@ def main() -> None:
                     help="fraction shaved off each patch-box side before sampling")
     ap.add_argument("--manual-card-corners", default="",
                     help="JSON fallback corners per Sprint05 §7")
+    ap.add_argument("--apply-model-from", default="",
+                    help="solve correction models on THIS image only and apply "
+                         "them frozen to every input image (cross-application "
+                         "test: separates solver instability from scene change)")
     args = ap.parse_args()
 
     images = [Path(p).expanduser().resolve() for p in args.images]
@@ -416,10 +462,25 @@ def main() -> None:
 
     qm = load_quality_module()
     rows = []
+
+    frozen_models = None
+    if args.apply_model_from:
+        ref_path = Path(args.apply_model_from).expanduser().resolve()
+        print(f"\nsolving frozen models on: {ref_path.name}")
+        ref_row, frozen_models = process_image(
+            qm, ref_path, out_dir, layout, template_rgb,
+            args.methods, args, manual_corners, run_tag)
+        rows.append(ref_row)
+        if not frozen_models:
+            raise SystemExit("no models solved on --apply-model-from image")
+        images = [p for p in images if p != ref_path]
+
     for img_path in images:
         try:
-            rows.append(process_image(qm, img_path, out_dir, layout, template_rgb,
-                                      args.methods, args, manual_corners, run_tag))
+            row, _ = process_image(qm, img_path, out_dir, layout, template_rgb,
+                                   args.methods, args, manual_corners, run_tag,
+                                   frozen_models=frozen_models)
+            rows.append(row)
         except Exception as exc:
             print(f"  ERROR on {img_path.name}: {type(exc).__name__}: {exc}")
             rows.append({"image": img_path.name, "card_detected": False,
@@ -430,9 +491,12 @@ def main() -> None:
     (out_dir / "summary.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
     csv_fields = ["image", "timestamp_utc", "card_detected", "quality_status",
                   "corner_source", "tag_count", "tag_ids", "tag_side_px_min",
-                  "patch_count_used", "method",
+                  "patch_count_used", "white_patch_red_frac", "red_signal_ok",
+                  "method", "model_from",
                   "gray_neutrality_before", "gray_neutrality_after",
+                  "gray_angular_deg_before", "gray_angular_deg_after",
                   "mean_patch_de_before", "mean_patch_de_after",
+                  "mean_patch_de2000_before", "mean_patch_de2000_after",
                   "mean_patch_de_color_after", "max_patch_de_after",
                   "mean_luma_before", "mean_luma_after",
                   "clip_percent_low_after", "clip_percent_high_after",
