@@ -84,6 +84,26 @@ highlight clip 1.7/3.6% (vs 10-13% for the old luma mode), gamut compression
 <=2.6%. Cut sheet vs raw + sea-thru: `cutsheet_v2_raw_nereus_seathru.jpg`.
 This is the v2 preset candidate.
 
+## Shadow + yellow tuning pair (2026-09-02, hist_compare/)
+
+Histogram diagnosis vs sea-thru (`hist_compare/hist_v2_vs_seathru.png`,
+`stats.txt`): (1) v2's display blacks walled at 0.14 — the sRGB encode of
+`--stretch-black 0.02` LINEAR; (2) mean luminance identical, sea-thru just
+allocates it to upper-mids + true blacks (contrast, not exposure); (3)
+sea-thru's yellow is b* +11..+14 in the L*50-80 band only — our global 1.4x
+blue WB gain kills it. New `--blue-wb-cap` flag (finish v2 only; default
+None = unchanged, verified bit-exact).
+
+Pair (one variable at a time), cut sheet `cutsheet_sb0_pair.jpg`,
+histograms `hist_compare/hist_sb0_pair.png`, scores `scores_sb0/`:
+- `v2_sb0/` (+`--stretch-black 0.0`): shadow mass now overlays sea-thru's
+  luminance curve; dE2000 26.4/29.7 (slightly better than v2).
+- `v2_sb0_bc115/` (+`--blue-wb-cap 1.15`): midtone b* lands +8..+13 in
+  L*50-80 — on top of sea-thru's curve (17:00 exact, 18:00 close).
+  Tradeoff: card whites drift warm (b* +6..+8 in L*80-100 vs their ~0);
+  dE2000 27.1/30.6. Remaining gaps: their extra 0.4-0.7 luminance mass and
+  warmer dark-mids on the 18:00 frame.
+
 ## Commercial cleanliness
 
 Nothing new was added: every op is already in the in-house tool (published

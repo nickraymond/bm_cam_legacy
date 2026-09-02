@@ -319,8 +319,8 @@ def _compress_over_gamut(out: np.ndarray) -> float:
 
 def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
               red_wb_cap: float = 1.1, sharpen: float = 0.4,
-              black_point: float = 0.02,
-              card_wb: bool = True) -> tuple[np.ndarray, dict]:
+              black_point: float = 0.02, card_wb: bool = True,
+              blue_wb_cap: float | None = None) -> tuple[np.ndarray, dict]:
     """Clip-safe single-WB finish (order-of-operations fix, 2026-09-02).
 
     v1's finish ran card WB, then a per-channel stretch — a second,
@@ -369,6 +369,12 @@ def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
     # nearly dead underwater, so its raw gain can be 20x+ — normalizing
     # first would let that one number swallow the whole exposure.
     gains[0] = min(gains[0], red_wb_cap * gains[1])
+    if blue_wb_cap is not None:
+        # Histogram comparison vs sea-thru (hist_compare/, 2026-09-02): their
+        # yellow reads as b* +11..+14 in the L*50-80 band; our uncapped blue
+        # gain (~1.4x from the card white's blue deficit) drives b* negative
+        # frame-wide. Capping blue leaves whites slightly warm on purpose.
+        gains[2] = min(gains[2], blue_wb_cap * gains[1])
     gains = gains / max(float(ccu.rel_luminance_linear(gains)), 1e-6)
     out *= gains
     info["wb_gains"] = np.round(gains, 3).tolist()
@@ -567,6 +573,11 @@ def main() -> None:
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
                          "default: same cap as other channels")
+    ap.add_argument("--blue-wb-cap", type=float, default=None,
+                    help="finish v2 only: cap blue's WB gain at this multiple "
+                         "of green's — leaves whites slightly warm so coral "
+                         "midtones keep yellow (sea-thru's b* lives at "
+                         "+11..+14 in L*50-80; our uncapped blue gain kills it)")
     ap.add_argument("--finish-style", default="v1", choices=["v1", "v2"],
                     help="v1: locked finish (card WB then per-channel stretch; "
                          "stacked red gains). v2: clip-safe single-WB order — "
@@ -678,7 +689,8 @@ def main() -> None:
                     recovered_lin, card_quad, qm, layout,
                     red_wb_cap=args.red_wb_cap, sharpen=args.sharpen,
                     black_point=args.stretch_black,
-                    card_wb=not args.no_card_color)
+                    card_wb=not args.no_card_color,
+                    blue_wb_cap=args.blue_wb_cap)
                 print(f"  finish v2: wb_gains={finish_info['wb_gains']} "
                       f"gamut_compressed={finish_info['wb_gamut_compressed_pct']}% "
                       f"tv_weight={finish_info['tv_weight']}")
