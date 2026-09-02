@@ -168,6 +168,38 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
     return np.clip(ratio * chan_scale, 0.0, 4.0)
 
 
+def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
+           red_wb_cap: float = 1.5) -> tuple[np.ndarray, dict]:
+    """Sea-thru-style finishing, card-anchored (all BSD/our code):
+
+    1. White balance from the card's WHITE patch measured in the recovered
+       image — per-channel gains toward its design value, red capped at
+       red_wb_cap (forcing dead red to target floods the scene).
+    2. TV-Chambolle denoise (scikit-image, BSD) with sigma-estimated weight —
+       knocks down the amplified JPEG noise like sea-thru's last step.
+    """
+    from skimage.restoration import denoise_tv_chambolle, estimate_sigma
+
+    rect = qm.rectify_quad(recovered_lin, card_quad, CANONICAL_W, CANONICAL_H)
+    p_w = next(p for p in layout["patches"] if p["id"] == "gray_white")
+    sx = CANONICAL_W / layout["template_width_px"]
+    sy = CANONICAL_H / layout["template_height_px"]
+    box = rect[int((p_w["y"] + 0.3 * p_w["h"]) * sy):int((p_w["y"] + 0.7 * p_w["h"]) * sy),
+               int((p_w["x"] + 0.3 * p_w["w"]) * sx):int((p_w["x"] + 0.7 * p_w["w"]) * sx)]
+    obs_white = np.median(box.reshape(-1, 3), axis=0)
+    tgt_white = ccu.srgb_to_linear(np.asarray(p_w["target_srgb"]) / 255.0)
+    gains = tgt_white / np.maximum(obs_white, 1e-4)
+    gains[0] = min(gains[0], red_wb_cap)
+    out = np.clip(recovered_lin * gains, 0.0, 1.0)
+
+    sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
+    out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
+    return np.clip(out, 0.0, 1.0), {
+        "wb_gains": np.round(gains, 3).tolist(),
+        "tv_weight": round(max(sigma, 0.005), 5),
+    }
+
+
 def recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
             max_boost: float, z_cap: float) -> np.ndarray:
     z3 = z[..., None]
@@ -228,6 +260,9 @@ def main() -> None:
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
                          "default: same cap as other channels")
+    ap.add_argument("--finish", action="store_true",
+                    help="card-anchored white balance (red-capped) + TV "
+                         "denoise as the final step (sea-thru-style finish)")
     ap.add_argument("--no-polish", action="store_true",
                     help="skip the final fit on recovered card patches")
     ap.add_argument("--polish-method", default="root_poly2",
@@ -303,6 +338,12 @@ def main() -> None:
             else:
                 recovered_lin = recover(img_lin, z, phys, args.max_boost,
                                         args.z_cap * args.z_card)
+            finish_info = None
+            if args.finish:
+                recovered_lin, finish_info = finish(recovered_lin, card_quad, qm,
+                                                    layout, args.patch_inset)
+                print(f"  finish: wb_gains={finish_info['wb_gains']} "
+                      f"tv_weight={finish_info['tv_weight']}")
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
                                 0, 255).astype(np.uint8)
             nopolish_path = out_dir / f"{img_path.stem}_hybrid_nopolish.png"
@@ -334,6 +375,7 @@ def main() -> None:
                 "beta_D_per_z": np.round(phys["beta_D"], 4).tolist(),
                 "far_pixel_count": phys["far_pixel_count"],
                 "max_boost": args.max_boost, "z_cap": args.z_cap,
+                "finish": finish_info,
                 "polish": None if polish_model is None else polish_model.to_dict(),
             })
             print(f"  saved {out_png}")
