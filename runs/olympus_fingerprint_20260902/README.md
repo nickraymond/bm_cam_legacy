@@ -51,3 +51,22 @@ red WB relative to green (TG-7's UW preset applies strong red gain), or an
 a*-anchored green trim in the L*35-80 bands. Run our full card-anchored
 pipeline on P9011394 itself (card is in frame) to separate camera physics
 from correction error.
+
+## Card test on P9011394 (2026-09-02, follow-up)
+
+- **Depth metadata: yes.** TG-7 MakerNote (exiftool): WaterDepth 1.2 m,
+  ManometerPressure 111.7 kPa, SceneMode "Underwater Wide1", PictureMode
+  "Underwater", ambient 33.6 C. Deployment team: bmcam is ~1 m from the reef
+  and at roughly the same depth => the a* gap vs our renders is pipeline,
+  not water. (Our run args said --water-depth-m 4.57 — stale/wrong metadata,
+  unused in the math; flag for the profile.)
+- **Card is BOWED in this frame** (propped against coral, visibly curved).
+  Planar homography lands the small color-patch boxes on white background
+  (tg7_card_rectified_boxes.png); a hue-guided local re-search collapses
+  neighboring warm patches onto one region (tg7_card_bowfix_boxes.png).
+  Per-patch COLOR dE is unmeasurable here. VALID: the 5 tall gray patches —
+  gray angular 22.2 deg, white patch observed [139,177,204] (B-R = +65,
+  strong blue cast). The TG-7's underwater mode renders coral a*~0 while
+  leaving the card blue — it grades the subject, it does not neutralize.
+- Field guidance: stake the card flat (bmcam-style) for reference shots.
+  Bow-aware (spline) rectification is possible future tooling.
