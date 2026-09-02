@@ -30,3 +30,28 @@ sheets and regenerate exactly by rerunning the commands in each
 
 Metric definitions: see tools/reference_card_color_utils.py docstrings.
 Targets are nominal design sRGB (not measured print values).
+
+## Update 2026-09-01 (later): hybrid rounds v2–v5 (PR #49)
+
+The hybrid pipeline went through five iterations the same day (evidence in
+runs/hybrid_physics_20260901*/):
+
+- **v4** (`--illumination lsac --finish --red-wb-cap 1.3 --stretch-mode
+  perchannel`): Nick's preferred visualization render. Card dE76 40.5/47.9.
+- **v5** adds the now-default 2x-refined DA-V2 depth (internal res was
+  silently ~518px before) and the measured ground-plane cap (camera 0.25 m
+  off the sand + card at 1.5 m solve pitch -6.1 deg; corrected 43,841
+  sand-as-far pixels on the 18:00 frame). Card dE76 unchanged (40.7/48.6) —
+  the wins are scene-wide haze correctness, not card-local.
+- Moody sweep (black point 0, bs-guard 0.9/0.95): warmer/darker, judged too
+  red. Cardless experiment (--no-card-color): render nearly identical to v4
+  (the per-channel stretch does most of the WB); card's real jobs are
+  measurement, frame-to-frame stability, and geometry.
+- Benchmarks: OceanLens (MIT) ties v4 on-card (46/48), greener cast;
+  sea-thru stays the visual reference but never colorimetric (54-63);
+  depth-binned dark-pixel backscatter (patent-flagged, quarantined) LOSES
+  to the card anchor on this scene type.
+- Measurement layer unchanged: root_poly2 (17.5-18.2), with cheung2004_t7
+  (10.5/14.8, colour-science BSD) pending cross-frame stability testing.
+- Capture-side red fix captured as Sprint 20 / TODO-CAM-001 (frame stacking
+  + red-channel HDR bracket).

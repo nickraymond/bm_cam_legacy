@@ -1,0 +1,30 @@
+{
+  "image": "SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+  "output": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-09-uart-throughput-22e3e7/runs/hybrid_physics_20260901_gbonly/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_hybrid.png",
+  "nopolish": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-09-uart-throughput-22e3e7/runs/hybrid_physics_20260901_gbonly/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_hybrid_nopolish.png",
+  "depth_anchor": {
+    "disp_at_card": 0.7617,
+    "z_near": 0.4,
+    "z_at_card": 1.0,
+    "z_max": 2.918
+  },
+  "B_inf_linear": [
+    0.0,
+    0.20156,
+    0.10224
+  ],
+  "beta_B_per_z": [
+    2.9957,
+    2.142,
+    1.8711
+  ],
+  "beta_D_per_z": [
+    3.155,
+    0.7664,
+    1.2564
+  ],
+  "far_pixel_count": 12422,
+  "max_boost": 32.0,
+  "z_cap": 2.0,
+  "polish": null
+}

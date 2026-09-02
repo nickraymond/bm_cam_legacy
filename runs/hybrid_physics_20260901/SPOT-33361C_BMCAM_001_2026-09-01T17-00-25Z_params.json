@@ -1,0 +1,67 @@
+{
+  "image": "SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+  "output": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-09-uart-throughput-22e3e7/runs/hybrid_physics_20260901/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_hybrid.png",
+  "nopolish": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-09-uart-throughput-22e3e7/runs/hybrid_physics_20260901/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_hybrid_nopolish.png",
+  "depth_anchor": {
+    "disp_at_card": 0.7617,
+    "z_near": 0.4,
+    "z_at_card": 1.0,
+    "z_max": 2.918
+  },
+  "B_inf_linear": [
+    0.0,
+    0.20156,
+    0.10224
+  ],
+  "beta_B_per_z": [
+    2.9957,
+    2.142,
+    1.8711
+  ],
+  "beta_D_per_z": [
+    3.155,
+    0.7664,
+    1.2564
+  ],
+  "far_pixel_count": 12422,
+  "max_boost": 32.0,
+  "polish": {
+    "method": "root_poly2",
+    "kind": "root_poly2",
+    "matrix": [
+      [
+        0.687062,
+        0.458725,
+        0.126123,
+        -0.404628,
+        0.77923,
+        -0.451982
+      ],
+      [
+        -0.206354,
+        -0.172081,
+        -0.777429,
+        0.188061,
+        0.21353,
+        1.646474
+      ],
+      [
+        -0.268169,
+        -1.288872,
+        0.092028,
+        0.644657,
+        -0.08841,
+        1.700813
+      ]
+    ],
+    "offset": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "applied_in": "linear_rgb",
+    "notes": [
+      "root-polynomial degree 2 (6 terms), 17 patches, plain least squares"
+    ]
+  }
+}
