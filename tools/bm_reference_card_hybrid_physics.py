@@ -166,7 +166,8 @@ def guided_filter(guide: np.ndarray, src: np.ndarray, radius: int,
 
 
 def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
-                 sigma_frac: float, lsac_filter: str = "gaussian") -> np.ndarray:
+                 sigma_frac: float, lsac_filter: str = "gaussian",
+                 bs_guard: float = 0.8) -> np.ndarray:
     """Backscatter subtraction + LSAC illumination normalization.
 
     LSAC (Local Space Average Color, Ebner; the illuminant estimate Sea-thru
@@ -182,7 +183,7 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
     # beta_B overshoots (print black reflects ~5% and camera AWB inflates it),
     # and unguarded subtraction annihilates G/B on every shaded coral, leaving
     # red-only pixels. Physically, observed >= backscatter always.
-    direct = img_lin - np.minimum(B_model, 0.8 * img_lin)
+    direct = img_lin - np.minimum(B_model, bs_guard * img_lin)
     sigma = max(sigma_frac * img_lin.shape[1], 8.0)
     if lsac_filter in ("guided", "guided_luma"):
         if lsac_filter == "guided":
@@ -209,7 +210,7 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
 
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
            red_wb_cap: float = 1.5, stretch: str = "perchannel",
-           sharpen: float = 0.6) -> tuple[np.ndarray, dict]:
+           sharpen: float = 0.6, black_point: float = 0.02) -> tuple[np.ndarray, dict]:
     """Finishing, card-anchored (all BSD/our code, standard photography ops):
 
     1. White balance from the card's WHITE patch measured in the recovered
@@ -248,8 +249,8 @@ def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
         # luminance-preserving stretch faithfully keeps.
         los = np.percentile(out.reshape(-1, 3), 1.0, axis=0)
         his = np.percentile(out.reshape(-1, 3), 99.0, axis=0)
-        out = np.clip(0.02 + (out - los) / np.maximum(his - los, 1e-6)
-                      * (0.95 - 0.02), 0.0, 1.0)
+        out = np.clip(black_point + (out - los) / np.maximum(his - los, 1e-6)
+                      * (0.95 - black_point), 0.0, 1.0)
         info["stretch_perchannel_p1_p99"] = [np.round(los, 4).tolist(),
                                              np.round(his, 4).tolist()]
 
@@ -327,6 +328,12 @@ def main() -> None:
                          "bleeding haze across coral silhouettes")
     ap.add_argument("--red-wb-cap", type=float, default=1.5,
                     help="max red gain in the --finish white balance")
+    ap.add_argument("--stretch-black", type=float, default=0.02,
+                    help="black point of the --finish stretch (0.0 = crushed "
+                         "sea-thru-style shadows; costs shadow detail)")
+    ap.add_argument("--bs-guard", type=float, default=0.8,
+                    help="max fraction of a pixel's own signal the backscatter "
+                         "subtraction may remove (higher = darker shadows)")
     ap.add_argument("--sharpen", type=float, default=0.6,
                     help="unsharp amount in --finish (0 disables)")
     ap.add_argument("--stretch-mode", default="perchannel",
@@ -394,7 +401,7 @@ def main() -> None:
 
             if args.illumination == "lsac":
                 recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac,
-                                             args.lsac_filter)
+                                             args.lsac_filter, args.bs_guard)
                 # Card-anchored exposure: scale so the mid-gray patch lands on
                 # its design luminance, then clip.
                 rect_lin = qm.rectify_quad(recovered_lin, card_quad,
@@ -421,7 +428,7 @@ def main() -> None:
                 recovered_lin, finish_info = finish(
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
-                    sharpen=args.sharpen)
+                    sharpen=args.sharpen, black_point=args.stretch_black)
                 print(f"  finish: wb_gains={finish_info['wb_gains']} "
                       f"tv_weight={finish_info['tv_weight']}")
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
