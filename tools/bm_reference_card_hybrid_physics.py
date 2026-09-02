@@ -295,6 +295,99 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
     return np.clip(ratio * chan_scale, 0.0, 4.0)
 
 
+def card_patch_median(img: np.ndarray, card_quad, qm, layout,
+                      patch_id: str) -> np.ndarray:
+    """Median linear-RGB of one card patch (central 40%) sampled from img."""
+    rect = qm.rectify_quad(img, card_quad, CANONICAL_W, CANONICAL_H)
+    p = next(q for q in layout["patches"] if q["id"] == patch_id)
+    sx = CANONICAL_W / layout["template_width_px"]
+    sy = CANONICAL_H / layout["template_height_px"]
+    box = rect[int((p["y"] + 0.3 * p["h"]) * sy):int((p["y"] + 0.7 * p["h"]) * sy),
+               int((p["x"] + 0.3 * p["w"]) * sx):int((p["x"] + 0.7 * p["w"]) * sx)]
+    return np.median(box.reshape(-1, 3), axis=0)
+
+
+def _compress_over_gamut(out: np.ndarray) -> float:
+    """Scale pixels whose max channel exceeds 1 back into gamut (hue-
+    preserving; brightens nothing). Returns the affected-pixel percentage."""
+    maxc = out.max(axis=-1)
+    over = maxc > 1.0
+    if over.any():
+        out[over] /= maxc[over][..., None]
+    return round(100.0 * float(over.mean()), 3)
+
+
+def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
+              red_wb_cap: float = 1.1, sharpen: float = 0.4,
+              black_point: float = 0.02,
+              card_wb: bool = True) -> tuple[np.ndarray, dict]:
+    """Clip-safe single-WB finish (order-of-operations fix, 2026-09-02).
+
+    v1's finish ran card WB, then a per-channel stretch — a second,
+    scene-statistics white balance that re-weighted red AFTER the card had
+    been consulted (the stacked red gains behind the red-coral defect;
+    runs/color_v2_orderops_20260902) — and its luma stretch mode clipped
+    10-13% of highlight pixels. v2 keeps ONE color-balance op:
+
+    1. Luma-only percentile stretch (p1 -> black_point, p99 -> 0.95). The
+       per-pixel gain is capped so no channel leaves gamut (highlights
+       compress instead of clipping/hue-shifting) and capped at 4x so p1
+       shadow noise is not amplified.
+    2. Card white balance — the ONLY channel re-weighting, applied after the
+       stretch so nothing re-balances behind it. Gains are luminance-
+       normalized (WB moves color, not exposure); red is capped at
+       red_wb_cap x the GREEN gain — a safety bound on reconstructed red,
+       no longer stacked with any stretch slope.
+    3. TV-Chambolle denoise (unchanged from v1).
+    4. Luminance-only unsharp: chroma untouched, so sharpening cannot ring
+       in color at silhouettes (v1 sharpened RGB in linear light). Gain
+       bounded [0.5, 2] and kept in gamut.
+    """
+    from skimage.restoration import denoise_tv_chambolle, estimate_sigma
+
+    info = {"finish_style": "v2"}
+    out = recovered_lin.copy()
+
+    lum = np.maximum(ccu.rel_luminance_linear(out), 1e-6)
+    lo, hi = np.percentile(lum, [1.0, 99.0])
+    target = np.clip(black_point + (lum - lo) / max(hi - lo, 1e-6)
+                     * (0.95 - black_point), 0.0, 0.95)
+    gain = np.minimum(target / lum, 4.0)
+    gain = np.minimum(gain, 1.0 / np.maximum(out.max(axis=-1), 1e-6))
+    out *= gain[..., None]
+    info["stretch_p1_p99"] = [round(float(lo), 4), round(float(hi), 4)]
+
+    if card_wb:
+        obs_white = card_patch_median(out, card_quad, qm, layout, "gray_white")
+        p_w = next(p for p in layout["patches"] if p["id"] == "gray_white")
+        tgt_white = ccu.srgb_to_linear(np.asarray(p_w["target_srgb"]) / 255.0)
+        gains = tgt_white / np.maximum(obs_white, 1e-4)
+    else:
+        p95 = np.percentile(out.reshape(-1, 3), 95.0, axis=0)
+        gains = float(p95.mean()) / np.maximum(p95, 1e-4)
+    # Cap red BEFORE luminance-normalizing: the card white's red channel is
+    # nearly dead underwater, so its raw gain can be 20x+ — normalizing
+    # first would let that one number swallow the whole exposure.
+    gains[0] = min(gains[0], red_wb_cap * gains[1])
+    gains = gains / max(float(ccu.rel_luminance_linear(gains)), 1e-6)
+    out *= gains
+    info["wb_gains"] = np.round(gains, 3).tolist()
+    info["wb_gamut_compressed_pct"] = _compress_over_gamut(out)
+
+    sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
+    out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
+    info["tv_weight"] = round(max(sigma, 0.005), 5)
+
+    if sharpen > 0:
+        lum = np.maximum(ccu.rel_luminance_linear(out), 1e-6)
+        blur = cv2.GaussianBlur(lum.astype(np.float32), (0, 0), 1.5).astype(np.float64)
+        g = np.clip((lum + sharpen * (lum - blur)) / lum, 0.5, 2.0)
+        out = out * g[..., None]
+        info["unsharp_amount"] = sharpen
+        info["sharpen_gamut_compressed_pct"] = _compress_over_gamut(out)
+    return np.clip(out, 0.0, 1.0), info
+
+
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
            red_wb_cap: float = 1.5, stretch: str = "perchannel",
            sharpen: float = 0.6, black_point: float = 0.02,
@@ -474,6 +567,11 @@ def main() -> None:
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
                          "default: same cap as other channels")
+    ap.add_argument("--finish-style", default="v1", choices=["v1", "v2"],
+                    help="v1: locked finish (card WB then per-channel stretch; "
+                         "stacked red gains). v2: clip-safe single-WB order — "
+                         "luma stretch first, card WB LAST and only once, "
+                         "luminance-only sharpen (2026-09-02 order-of-ops fix)")
     ap.add_argument("--no-finish", action="store_true",
                     help="skip the finish (card WB + stretch + denoise + sharpen)")
     ap.add_argument("--polish", action="store_true",
@@ -575,7 +673,16 @@ def main() -> None:
                 recovered_lin = recover(img_lin, z, phys, args.max_boost,
                                         args.z_cap * args.z_card)
             finish_info = None
-            if not args.no_finish:
+            if not args.no_finish and args.finish_style == "v2":
+                recovered_lin, finish_info = finish_v2(
+                    recovered_lin, card_quad, qm, layout,
+                    red_wb_cap=args.red_wb_cap, sharpen=args.sharpen,
+                    black_point=args.stretch_black,
+                    card_wb=not args.no_card_color)
+                print(f"  finish v2: wb_gains={finish_info['wb_gains']} "
+                      f"gamut_compressed={finish_info['wb_gamut_compressed_pct']}% "
+                      f"tv_weight={finish_info['tv_weight']}")
+            elif not args.no_finish:
                 recovered_lin, finish_info = finish(
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
