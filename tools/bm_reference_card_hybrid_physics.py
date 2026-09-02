@@ -255,13 +255,18 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
     else:
         illum = cv2.GaussianBlur(direct.astype(np.float32), (0, 0), sigma).astype(np.float64)
     if lsac_mode == "chroma":
-        # Chroma-only normalization (default): divide by the illumination but
-        # scale back by its LUMINANCE, so local color cast is removed while
-        # the captured luminance structure is preserved — plain flattening
-        # LSAC lifts dark shadows toward their local mean (Nick 2026-09-01:
-        # shadows rendered brighter than the original/sea-thru).
+        # Chroma normalization (default): remove only the SPATIAL variation of
+        # the color cast; keep global balance for the card WB/stretch to
+        # handle exactly once. out = direct * m_c * L_illum / illum, where m_c
+        # is the illumination's global mean chroma. BUG HISTORY: without m_c
+        # this forces every neighborhood to average NEUTRAL — a local
+        # gray-world hiding a ~19x red gain (v6: yellows/browns destroyed,
+        # Nick 2026-09-01). With m_c, regions matching the global cast pass
+        # through untouched; shadows keep their captured luminance.
         illum_lum = ccu.rel_luminance_linear(illum)[..., None]
-        return np.clip(direct * illum_lum / np.maximum(illum, 1e-4), 0.0, 4.0)
+        m = illum.reshape(-1, 3).mean(axis=0)
+        m = m / max(float(ccu.rel_luminance_linear(m)), 1e-6)
+        return np.clip(direct * m * illum_lum / np.maximum(illum, 1e-4), 0.0, 4.0)
     ratio = direct / np.maximum(illum, 1e-4)
     # Flatten mode (v2-v5 behavior): restore each channel's GLOBAL level —
     # pure LSAC lifts even the dead red channel to mid-gray locally; the
