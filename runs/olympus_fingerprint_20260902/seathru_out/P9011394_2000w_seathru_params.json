@@ -1,0 +1,12 @@
+{
+  "method": "seathru_mono (hainh/sea-thru + Depth Anything V2 Small)",
+  "research_only": true,
+  "image": "runs/olympus_fingerprint_20260902/P9011394_2000w.png",
+  "output": "runs/olympus_fingerprint_20260902/seathru_out/P9011394_2000w_seathru.png",
+  "depth_model": "depth-anything/Depth-Anything-V2-Small-hf",
+  "z_near": 0.5,
+  "z_far": 4.0,
+  "p": 0.01,
+  "f": 2.0,
+  "l": 0.5
+}
