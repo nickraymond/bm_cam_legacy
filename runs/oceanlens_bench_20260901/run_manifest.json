@@ -1,0 +1,53 @@
+{
+  "run_tag": "oceanlens_bench_20260901",
+  "date_utc": "2026-09-01",
+  "purpose": "Internal benchmark: OceanLens underwater image enhancement on two BMCAM_001 reef images (compare against sea-thru bench).",
+  "model": {
+    "name": "OceanLens",
+    "repo": "https://github.com/AIRLabIISc/OceanLens",
+    "commit": "5bd049e8f3a1b125b48973ad6fe1ca170edde583",
+    "license": "MIT (repo LICENSE, AIRLabIISc 2024). No non-MIT third-party weights used: the run trains the two small CNNs from scratch per batch; the repo's bundled sample checkpoints (Model Checkpoints (Sample)/) were NOT used.",
+    "how_it_runs": "Sea-thru-style self-supervised per-batch optimization (Ocean_Lens/train.py). No pretrained enhancement weights required; BackscatterNet + DeattenuateNet are optimized on the input batch itself (adaptive backscatter loss + deattenuation losses), then the corrected image is saved."
+  },
+  "inputs": {
+    "images": [
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg"
+    ],
+    "image_size_px": "1000x562 (processed at native size; --height 562 --width 1000, so the model's Resize is an identity)",
+    "preprocessing": "None. Note: the OceanLens paper optionally pre-applies gray-world white balance and gamma correction; this run fed the raw JPEGs (no WB/gamma) to keep the benchmark comparable to the sea-thru run."
+  },
+  "depth": {
+    "source": "Depth-Anything-V2-Small (transformers pipeline('depth-estimation', model='depth-anything/Depth-Anything-V2-Small-hf'))",
+    "note": "Paper used Depth-Anything-V2-Large / Monodepth2; Small used here per bench setup (already in HF cache). Pipeline output (brighter = nearer) was normalized to 0-255 and INVERTED (255 - v) so larger = farther, then saved as 8-bit grayscale PNG, matching how OceanLens's data loader consumes depth (relative units, not metres; --depth_16u not set).",
+    "generator_script": "scratchpad/oceanlens_bench/make_depth.py"
+  },
+  "invocation": {
+    "cwd": "scratchpad/oceanlens_bench/OceanLens/Ocean_Lens",
+    "python": "scratchpad/seathru_bench/venv/bin/python (torch 2.13.0 CPU, torchvision 0.28.0, kornia/pandas/openpyxl/tensorboard added for this run)",
+    "command": "python train.py --images <bench>/inputs/images --depth <bench>/inputs/depth --output <bench>/output --checkpoints <bench>/output/check --height 562 --width 1000 --batch_size 2 --init_iters 500 --iters 500 --seed 1337 --save_intermediates",
+    "iterations": "500 per network (both images in one batch of 2); --seed 1337 passed but train.py never uses it, so weight init is unseeded (results vary slightly run to run)",
+    "device": "CPU (repo code only checks CUDA; MPS not used)",
+    "runtime_sec": 261,
+    "final_losses": {"backscatter": 1.242878079, "deattenuation": 0.218511403}
+  },
+  "outputs": {
+    "corrected_pngs": [
+      "runs/oceanlens_bench_20260901/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_oceanlens.png",
+      "runs/oceanlens_bench_20260901/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_oceanlens.png"
+    ],
+    "model_reported_metrics": {
+      "note": "From train.py's built-in evaluation (on 256x256-resized outputs for UIQM); full xlsx + intermediates (direct/backscatter/attenuation maps, checkpoint) in scratchpad oceanlens_bench/output/",
+      "T17-00-25Z": {"UCIQE": 3.7506, "UIQM": 1.0026},
+      "T18-00-24Z": {"UCIQE": 4.3114, "UIQM": 0.9495}
+    }
+  },
+  "deviations_and_caveats": [
+    "Repo's Ocean_Lens/inference.py is a tkinter GUI and needs a trained checkpoint; the README's custom-input path is train.py (per-batch self-optimization), which is what was run.",
+    "Depth-Anything-V2-Small instead of the paper's Large/Monodepth2 depth sources.",
+    "Depth maps are relative 8-bit (0-255) with a hand-chosen inversion convention, not metric depth.",
+    "No WB/gamma preprocessing applied (paper sometimes pre-applies both).",
+    "Optimization is per-batch and unseeded in practice, so exact pixel values are not reproducible run to run.",
+    "Inputs are the 1000x562 transmitted JPEGs, not native captures."
+  ]
+}
