@@ -52,7 +52,7 @@ def run_in_venv(args) -> None:
     cmd = [str(py), __file__, "--stage2", "--bench-dir", args.bench_dir,
            "--out-dir", args.out_dir, "--z-near", str(args.z_near),
            "--z-far", str(args.z_far), "--p", str(args.p), "--f", str(args.f),
-           "--l", str(args.l)]
+           "--l", str(args.l), "--tag", args.tag]
     for img in args.image:
         cmd += ["--image", img]
     raise SystemExit(subprocess.run(cmd).returncode)
@@ -101,10 +101,11 @@ def stage2(args) -> None:
                                 output_graphs=False)
         print("  running sea-thru pipeline (slow: LSAC illumination)...")
         recovered = seathru.run_pipeline(img01, depths.astype(np.float64), ns)
-        out_png = out_dir / f"{img_path.stem}_seathru.png"
+        suffix = f"_seathru{('_' + args.tag) if args.tag else ''}"
+        out_png = out_dir / f"{img_path.stem}{suffix}.png"
         Image.fromarray(np.clip(np.rint(recovered * 255.0), 0, 255)
                         .astype(np.uint8)).save(out_png)
-        (out_dir / f"{img_path.stem}_params.json").write_text(json.dumps({
+        (out_dir / f"{img_path.stem}{suffix}_params.json").write_text(json.dumps({
             "method": "seathru_mono (hainh/sea-thru + Depth Anything V2 Small)",
             "research_only": True,
             "image": str(img_path), "output": str(out_png),
@@ -123,6 +124,7 @@ def main() -> None:
     ap.add_argument("--stage2", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--image", action="append", default=[])
     ap.add_argument("--out-dir", default="seathru_bench_out")
+    ap.add_argument("--tag", default="", help="suffix for output filenames (variant runs)")
     ap.add_argument("--z-near", type=float, default=0.5)
     ap.add_argument("--z-far", type=float, default=4.0)
     ap.add_argument("--p", type=float, default=0.01)

@@ -1,0 +1,294 @@
+#!/usr/bin/env python3
+"""
+Card-anchored physics color correction (hybrid, research brief Option C).
+
+Purpose:
+  Range-aware underwater correction where EVERY parameter of the image
+  formation model is estimated from things we can see and trust: the Reef
+  Reference Card V2 (known reflectances at one known image location) and a
+  monocular relative depth map (Depth Anything V2 Small, Apache-2.0). This is
+  the commercial-path candidate: our own code implementing the published
+  Akkaynak-Treibitz model, with the card — not Sea-thru's dark-pixel
+  statistics — supplying the coefficients. (Patent review before productizing
+  is still noted in docs/underwater_color_correction_research_202609.md §4b.)
+
+Model (per channel c, linear RGB):
+  I_c(x) = J_c(x) * exp(-beta_D_c * z(x))  +  B_inf_c * (1 - exp(-beta_B_c * z(x)))
+
+Estimation (all card/scene anchored):
+  z map     : DA-V2 Small relative disparity -> z = a + b*(1 - disp_n),
+              anchored so z(card) = --z-card and z(nearest pixel) =
+              --near-ratio * z-card. beta*z products make the correction
+              invariant to the absolute scale of z, so uncalibrated units are
+              fine as long as the card sits correctly in the map.
+  B_inf     : median color of the farthest --far-quantile of pixels
+              (open water column).
+  beta_B    : from the card's black patch (its direct signal ~0, so what we
+              see there is backscatter at z_card).
+  beta_D    : from the gray patches (known reflectance at z_card) after
+              backscatter subtraction. Assumed z-constant (a single card
+              distance cannot measure beta_D(z); known limitation).
+  recovery  : J = (I - B) * exp(beta_D * z), channel boost capped at
+              --max-boost to bound far-field red noise.
+  polish    : optional root_poly2 fit on the RECOVERED card patches
+              (default on) to absorb residual error.
+
+Install (beyond the card-analysis stack):
+  python3 -m pip install torch transformers   # depth model, ~2 GB
+  (guarded import; everything else is the existing opencv/numpy/Pillow stack)
+
+Example:
+  <bench venv python> tools/bm_reference_card_hybrid_physics.py \
+    --images ~/Downloads/SPOT-...Z.jpg --output-dir runs/hybrid_physics_20260901
+
+Outputs per image: <stem>_hybrid.png (+ _nopolish.png), depth png,
+params.json with every fitted coefficient; summary.json for the run.
+Score results with tools/bm_reference_card_score_external.py.
+
+Known limitations:
+  - Relative depth from a land-trained model; shape errors propagate.
+  - beta_D assumed constant in z (needs card at 2+ distances to do better).
+  - 8-bit JPEG input: below ~5% white-patch red the recovery is noise-bound.
+"""
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import cv2
+import numpy as np
+from PIL import Image
+
+TOOLS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(TOOLS_DIR))
+
+import reference_card_color_utils as ccu  # noqa: E402
+
+DEFAULT_TEMPLATE_DIR = TOOLS_DIR / "reference_card_color_correction" / "reference_card_template_v2"
+CANONICAL_W, CANONICAL_H = 3000, 1000
+DEPTH_MODEL = "depth-anything/Depth-Anything-V2-Small-hf"
+
+
+def load_quality_module():
+    path = TOOLS_DIR / "bm_reference_card_quality_v2.py"
+    spec = importlib.util.spec_from_file_location("bm_reference_card_quality_v2", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def get_depth_pipe():
+    try:
+        from transformers import pipeline as hf_pipeline
+    except ImportError:
+        raise SystemExit("transformers/torch missing — install with:\n"
+                         "  python3 -m pip install torch transformers")
+    print(f"loading depth model {DEPTH_MODEL}...")
+    return hf_pipeline("depth-estimation", model=DEPTH_MODEL)
+
+
+def relative_depth(depth_pipe, pil_img: Image.Image) -> np.ndarray:
+    """Normalized disparity map in [0,1]; larger = closer to the camera."""
+    pred = depth_pipe(pil_img)["predicted_depth"].squeeze().numpy()
+    disp = np.asarray(Image.fromarray(pred).resize(pil_img.size, Image.BILINEAR))
+    return (disp - disp.min()) / max(disp.max() - disp.min(), 1e-9)
+
+
+def anchor_depth(disp_n: np.ndarray, card_quad: np.ndarray, z_card: float,
+                 near_ratio: float) -> tuple[np.ndarray, dict]:
+    """z = a + b*(1-disp_n), with z at the card = z_card and z at the nearest
+    pixel = near_ratio * z_card. Returns (z map, info)."""
+    mask = np.zeros(disp_n.shape, dtype=np.uint8)
+    cv2.fillPoly(mask, [np.asarray(card_quad, dtype=np.int32)], 1)
+    d_card = float(np.median(disp_n[mask == 1]))
+    z_near = near_ratio * z_card
+    denom = max(1.0 - d_card, 1e-3)
+    b = (z_card - z_near) / denom
+    z = z_near + b * (1.0 - disp_n)
+    return z, {"disp_at_card": round(d_card, 4), "z_near": z_near,
+               "z_at_card": z_card, "z_max": round(float(z.max()), 3)}
+
+
+def solve_physics(img_lin: np.ndarray, z: np.ndarray, samples, z_card: float,
+                  far_quantile: float) -> dict:
+    """Estimate B_inf, beta_B, beta_D from the scene + card patches (linear RGB)."""
+    flat = img_lin.reshape(-1, 3)
+    far = z.reshape(-1) >= np.quantile(z, far_quantile)
+    B_inf = np.median(flat[far], axis=0)                       # open-water color
+
+    by_id = {s.patch_id: s for s in samples}
+    black = ccu.srgb_to_linear(by_id["gray_black"].median_srgb / 255.0)
+    # Black patch: direct signal ~0, so observed = B_inf*(1-exp(-beta_B*z_card)).
+    ratio = np.clip(black / np.maximum(B_inf, 1e-6), 0.0, 0.95)
+    beta_B = -np.log(1.0 - ratio) / z_card
+
+    grays = [s for s in samples if s.use_for_gray_balance]
+    obs = ccu.srgb_to_linear(np.array([s.median_srgb for s in grays]) / 255.0)
+    tgt = ccu.srgb_to_linear(np.array([s.target_srgb for s in grays]) / 255.0)
+    direct = np.maximum(obs - B_inf * (1.0 - np.exp(-beta_B * z_card)), 1e-6)
+    # direct = J * exp(-beta_D*z_card)  ->  beta_D from the mean ratio.
+    with np.errstate(divide="ignore"):
+        beta_D = -np.log(np.clip((direct / tgt).mean(axis=0), 1e-6, 1.0)) / z_card
+
+    return {"B_inf": B_inf, "beta_B": beta_B, "beta_D": beta_D,
+            "far_pixel_count": int(far.sum())}
+
+
+def recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
+            max_boost: float, z_cap: float) -> np.ndarray:
+    z3 = z[..., None]
+    backscatter = phys["B_inf"] * (1.0 - np.exp(-phys["beta_B"] * z3))
+    direct = np.clip(img_lin - backscatter, 0.0, None)
+    # Attenuation compensation saturates at z_cap: beyond ~2x the card's
+    # distance the red boost exp(beta_D*z) amplifies pure sensor noise, so we
+    # correct fully out to z_cap and hold that gain constant farther away.
+    z_att = np.minimum(z3, z_cap)
+    boost = np.minimum(np.exp(phys["beta_D"] * z_att), max_boost)
+    if phys.get("red_boost_cap") is not None:
+        # Red is mostly sensor noise at these ranges: per-channel inversion
+        # amplifies it into a red glow. Cap the physics-stage red gain and let
+        # the cross-channel polish reconstruct red from healthy G/B instead.
+        boost[..., 0] = np.minimum(boost[..., 0], phys["red_boost_cap"])
+    return np.clip(direct * boost, 0.0, 1.0)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("--images", nargs="+", required=True)
+    ap.add_argument("--output-dir", default="")
+    ap.add_argument("--template-dir", default=str(DEFAULT_TEMPLATE_DIR))
+    ap.add_argument("--tag-family", default="DICT_APRILTAG_36h11")
+    ap.add_argument("--scales", nargs="+", type=float, default=[1, 2, 3, 4, 6, 8])
+    ap.add_argument("--corner-map", default="tl:0,tr:1,bl:2,br:3")
+    ap.add_argument("--card-expand-x", type=float, default=1.25)
+    ap.add_argument("--card-expand-y", type=float, default=2.0)
+    ap.add_argument("--patch-inset", type=float, default=0.30)
+    ap.add_argument("--z-card", type=float, default=1.0,
+                    help="card distance in arbitrary units (correction is "
+                         "invariant to the absolute scale)")
+    ap.add_argument("--near-ratio", type=float, default=0.4,
+                    help="nearest-pixel distance as a fraction of z-card")
+    ap.add_argument("--far-quantile", type=float, default=0.98,
+                    help="pixels at/above this z quantile define open water (B_inf)")
+    ap.add_argument("--max-boost", type=float, default=32.0,
+                    help="cap on per-channel attenuation gain exp(beta_D*z)")
+    ap.add_argument("--z-cap", type=float, default=2.0,
+                    help="attenuation compensation saturates at this z (in "
+                         "z-card units); beyond it the gain is held constant")
+    ap.add_argument("--red-boost-cap", type=float, default=None,
+                    help="cap the physics-stage RED gain (e.g. 2.0) and let "
+                         "the cross-channel polish reconstruct red from G/B; "
+                         "default: same cap as other channels")
+    ap.add_argument("--no-polish", action="store_true",
+                    help="skip the final fit on recovered card patches")
+    ap.add_argument("--polish-method", default="root_poly2",
+                    choices=["root_poly2", "gray_balance", "white_patch", "ccm3x3"],
+                    help="registry method for the final polish (root_poly2's "
+                         "cross-channel terms can flood scenes with "
+                         "reconstructed red when the physics stage leaves "
+                         "card red crushed — gray_balance is the safe pick)")
+    args = ap.parse_args()
+
+    run_tag = f"hybrid_physics_{datetime.now(timezone.utc).strftime('%Y%m%d')}"
+    out_dir = (Path(args.output_dir).expanduser().resolve() if args.output_dir
+               else TOOLS_DIR.parent / "runs" / run_tag)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    layout = ccu.load_template(Path(args.template_dir) / "template_layout.json")
+    qm = load_quality_module()
+    corner_map = qm.parse_corner_map(args.corner_map)
+    depth_pipe = get_depth_pipe()
+
+    print(f"run_tag={run_tag}\noutput={out_dir}")
+    rows = []
+    for img_path in [Path(p).expanduser().resolve() for p in args.images]:
+        print(f"\n=== {img_path.name} ===")
+        row = {"image": img_path.name}
+        try:
+            img_bgr = qm.load_image_bgr(img_path)
+            img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+            pil_img = Image.fromarray(img_rgb)
+
+            _, corners_by_id, _, _ = qm.detect_tags(img_bgr, args.tag_family, args.scales)
+            fid_quad, _, _ = qm.infer_card_corners_from_tags(corners_by_id, corner_map)
+            if fid_quad is None:
+                raise RuntimeError("card not detected")
+            card_quad = qm.expand_quad(fid_quad, args.card_expand_x, args.card_expand_y)
+            rect_rgb = cv2.cvtColor(
+                qm.rectify_quad(img_bgr, card_quad, CANONICAL_W, CANONICAL_H),
+                cv2.COLOR_BGR2RGB)
+            samples = ccu.sample_patches(rect_rgb, layout, args.patch_inset)
+
+            print("  estimating depth...")
+            disp_n = relative_depth(depth_pipe, pil_img)
+            z, zinfo = anchor_depth(disp_n, card_quad, args.z_card, args.near_ratio)
+            Image.fromarray((disp_n * 255).astype(np.uint8)).save(
+                out_dir / f"{img_path.stem}_depth.png")
+
+            img_lin = ccu.srgb_to_linear(img_rgb.astype(np.float64) / 255.0)
+            phys = solve_physics(img_lin, z, samples, args.z_card, args.far_quantile)
+            phys["red_boost_cap"] = args.red_boost_cap
+            print(f"  B_inf(lin)={np.round(phys['B_inf'], 4).tolist()} "
+                  f"beta_B={np.round(phys['beta_B'], 3).tolist()} "
+                  f"beta_D={np.round(phys['beta_D'], 3).tolist()} (per unit z)")
+
+            recovered_lin = recover(img_lin, z, phys, args.max_boost,
+                                    args.z_cap * args.z_card)
+            recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
+                                0, 255).astype(np.uint8)
+            nopolish_path = out_dir / f"{img_path.stem}_hybrid_nopolish.png"
+            Image.fromarray(recovered).save(nopolish_path)
+
+            polish_model = None
+            final = recovered
+            if not args.no_polish:
+                # Re-sample the card from the RECOVERED image (same quad) and fit
+                # root_poly2 on what physics left over.
+                rect_rec = cv2.cvtColor(
+                    qm.rectify_quad(cv2.cvtColor(recovered, cv2.COLOR_RGB2BGR),
+                                    card_quad, CANONICAL_W, CANONICAL_H),
+                    cv2.COLOR_BGR2RGB)
+                samples_rec = ccu.sample_patches(rect_rec, layout, args.patch_inset)
+                polish_model = ccu.METHOD_REGISTRY[args.polish_method](
+                    samples_rec, ccu.srgb_to_linear(
+                        recovered.astype(np.float64) / 255.0))
+                final = np.clip(np.rint(polish_model.apply_srgb255(recovered)),
+                                0, 255).astype(np.uint8)
+
+            out_png = out_dir / f"{img_path.stem}_hybrid.png"
+            Image.fromarray(final).save(out_png)
+            row.update({
+                "output": str(out_png), "nopolish": str(nopolish_path),
+                "depth_anchor": zinfo,
+                "B_inf_linear": np.round(phys["B_inf"], 5).tolist(),
+                "beta_B_per_z": np.round(phys["beta_B"], 4).tolist(),
+                "beta_D_per_z": np.round(phys["beta_D"], 4).tolist(),
+                "far_pixel_count": phys["far_pixel_count"],
+                "max_boost": args.max_boost, "z_cap": args.z_cap,
+                "polish": None if polish_model is None else polish_model.to_dict(),
+            })
+            print(f"  saved {out_png}")
+        except Exception as exc:
+            row["error"] = f"{type(exc).__name__}: {exc}"
+            print(f"  ERROR: {row['error']}")
+        (out_dir / f"{img_path.stem}_params.json").write_text(
+            json.dumps(row, indent=2), encoding="utf-8")
+        rows.append(row)
+
+    (out_dir / "summary.json").write_text(json.dumps({
+        "run_tag": run_tag, "depth_model": DEPTH_MODEL,
+        "args": {k: v for k, v in vars(args).items()},
+        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "images": rows,
+    }, indent=2), encoding="utf-8")
+    print(f"\nsummary={out_dir / 'summary.json'}")
+    if all("error" in r for r in rows):
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
