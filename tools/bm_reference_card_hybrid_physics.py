@@ -210,7 +210,8 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
 
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
            red_wb_cap: float = 1.5, stretch: str = "perchannel",
-           sharpen: float = 0.6, black_point: float = 0.02) -> tuple[np.ndarray, dict]:
+           sharpen: float = 0.6, black_point: float = 0.02,
+           card_wb: bool = True) -> tuple[np.ndarray, dict]:
     """Finishing, card-anchored (all BSD/our code, standard photography ops):
 
     1. White balance from the card's WHITE patch measured in the recovered
@@ -223,15 +224,21 @@ def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
     """
     from skimage.restoration import denoise_tv_chambolle, estimate_sigma
 
-    rect = qm.rectify_quad(recovered_lin, card_quad, CANONICAL_W, CANONICAL_H)
-    p_w = next(p for p in layout["patches"] if p["id"] == "gray_white")
-    sx = CANONICAL_W / layout["template_width_px"]
-    sy = CANONICAL_H / layout["template_height_px"]
-    box = rect[int((p_w["y"] + 0.3 * p_w["h"]) * sy):int((p_w["y"] + 0.7 * p_w["h"]) * sy),
-               int((p_w["x"] + 0.3 * p_w["w"]) * sx):int((p_w["x"] + 0.7 * p_w["w"]) * sx)]
-    obs_white = np.median(box.reshape(-1, 3), axis=0)
-    tgt_white = ccu.srgb_to_linear(np.asarray(p_w["target_srgb"]) / 255.0)
-    gains = tgt_white / np.maximum(obs_white, 1e-4)
+    if card_wb:
+        rect = qm.rectify_quad(recovered_lin, card_quad, CANONICAL_W, CANONICAL_H)
+        p_w = next(p for p in layout["patches"] if p["id"] == "gray_white")
+        sx = CANONICAL_W / layout["template_width_px"]
+        sy = CANONICAL_H / layout["template_height_px"]
+        box = rect[int((p_w["y"] + 0.3 * p_w["h"]) * sy):int((p_w["y"] + 0.7 * p_w["h"]) * sy),
+                   int((p_w["x"] + 0.3 * p_w["w"]) * sx):int((p_w["x"] + 0.7 * p_w["w"]) * sx)]
+        obs_white = np.median(box.reshape(-1, 3), axis=0)
+        tgt_white = ccu.srgb_to_linear(np.asarray(p_w["target_srgb"]) / 255.0)
+        gains = tgt_white / np.maximum(obs_white, 1e-4)
+    else:
+        # Cardless (sea-thru philosophy): make the top of each channel's
+        # histogram neutral — p95 per channel mapped to a common level.
+        p95 = np.percentile(recovered_lin.reshape(-1, 3), 95.0, axis=0)
+        gains = float(p95.mean()) / np.maximum(p95, 1e-4)
     gains[0] = min(gains[0], red_wb_cap)
     out = np.clip(recovered_lin * gains, 0.0, 1.0)
 
@@ -328,6 +335,13 @@ def main() -> None:
                          "bleeding haze across coral silhouettes")
     ap.add_argument("--red-wb-cap", type=float, default=1.5,
                     help="max red gain in the --finish white balance")
+    ap.add_argument("--no-card-color", action="store_true",
+                    help="EXPERIMENT: drop every card COLOR anchor (beta_B, "
+                         "exposure, finish WB become scene-statistics; card "
+                         "still anchors depth geometry)")
+    ap.add_argument("--fixed-beta-b", type=float, default=1.0,
+                    help="per-meter backscatter growth used with "
+                         "--no-card-color (no black patch to fit from)")
     ap.add_argument("--stretch-black", type=float, default=0.02,
                     help="black point of the --finish stretch (0.0 = crushed "
                          "sea-thru-style shadows; costs shadow detail)")
@@ -395,6 +409,8 @@ def main() -> None:
             img_lin = ccu.srgb_to_linear(img_rgb.astype(np.float64) / 255.0)
             phys = solve_physics(img_lin, z, samples, args.z_card, args.far_quantile)
             phys["red_boost_cap"] = args.red_boost_cap
+            if args.no_card_color:
+                phys["beta_B"] = np.full(3, args.fixed_beta_b)
             print(f"  B_inf(lin)={np.round(phys['B_inf'], 4).tolist()} "
                   f"beta_B={np.round(phys['beta_B'], 3).tolist()} "
                   f"beta_D={np.round(phys['beta_D'], 3).tolist()} (per unit z)")
@@ -413,10 +429,14 @@ def main() -> None:
                                int((p_mid["y"] + 0.7 * p_mid["h"]) * sy),
                                int((p_mid["x"] + 0.3 * p_mid["w"]) * sx):
                                int((p_mid["x"] + 0.7 * p_mid["w"]) * sx)]
-                lum = float(ccu.rel_luminance_linear(
-                    np.median(box.reshape(-1, 3), axis=0)))
-                target_lum = float(ccu.rel_luminance_linear(
-                    ccu.srgb_to_linear(np.asarray(p_mid["target_srgb"]) / 255.0)))
+                if args.no_card_color:
+                    lum = float(np.median(ccu.rel_luminance_linear(recovered_lin)))
+                    target_lum = 0.18  # scene median to mid-gray (gray-world)
+                else:
+                    lum = float(ccu.rel_luminance_linear(
+                        np.median(box.reshape(-1, 3), axis=0)))
+                    target_lum = float(ccu.rel_luminance_linear(
+                        ccu.srgb_to_linear(np.asarray(p_mid["target_srgb"]) / 255.0)))
                 recovered_lin = np.clip(recovered_lin * target_lum / max(lum, 1e-6),
                                         0.0, 1.0)
                 print(f"  LSAC exposure anchor: gray_mid lum {lum:.3f} -> {target_lum:.3f}")
@@ -428,7 +448,8 @@ def main() -> None:
                 recovered_lin, finish_info = finish(
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
-                    sharpen=args.sharpen, black_point=args.stretch_black)
+                    sharpen=args.sharpen, black_point=args.stretch_black,
+                    card_wb=not args.no_card_color)
                 print(f"  finish: wb_gains={finish_info['wb_gains']} "
                       f"tv_weight={finish_info['tv_weight']}")
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
