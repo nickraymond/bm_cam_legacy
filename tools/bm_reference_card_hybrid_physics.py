@@ -322,7 +322,8 @@ def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
               black_point: float = 0.02, card_wb: bool = True,
               blue_wb_cap: float | None = None, white_point: float = 0.95,
               warm_blend: bool = False,
-              green_trim: float = 0.0) -> tuple[np.ndarray, dict]:
+              green_trim: float = 0.0,
+              look_profile: dict | None = None) -> tuple[np.ndarray, dict]:
     """Clip-safe single-WB finish (order-of-operations fix, 2026-09-02).
 
     v1's finish ran card WB, then a per-channel stretch — a second,
@@ -413,6 +414,22 @@ def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
                                lab[..., 1])
         out = ccu.srgb_to_linear(np.clip(skcolor.lab2rgb(lab), 0.0, 1.0))
         info["green_trim"] = green_trim
+
+    if look_profile is not None:
+        # Site look profile (runs/tg7_look_transfer_20260902): per-L*-band
+        # a*/b* deltas fitted once against a trusted reference camera's shot
+        # of the same site, applied as a smooth L*-interpolated chroma
+        # offset. 12 numbers per site; refit from any new reference dive.
+        from skimage import color as skcolor
+        centers = np.asarray(look_profile["L_centers"], dtype=np.float64)
+        srgb = ccu.linear_to_srgb(np.clip(out, 0.0, 1.0))
+        lab = skcolor.rgb2lab(srgb)
+        lab[..., 1] += np.interp(lab[..., 0], centers,
+                                 np.asarray(look_profile["delta_a"]))
+        lab[..., 2] += np.interp(lab[..., 0], centers,
+                                 np.asarray(look_profile["delta_b"]))
+        out = ccu.srgb_to_linear(np.clip(skcolor.lab2rgb(lab), 0.0, 1.0))
+        info["look_profile"] = look_profile.get("fit", "applied")
 
     sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
     out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
@@ -616,6 +633,11 @@ def main() -> None:
                     help="finish v2 only: luma-stretch p99 target (sea-thru "
                          "lets highlights run to ~1.0; 0.98 recovers their "
                          "upper-mid brightness)")
+    ap.add_argument("--look-profile", default="",
+                    help="finish v2 only: JSON file with L_centers/delta_a/"
+                         "delta_b — a per-site chroma look profile fitted "
+                         "against a reference camera shot of the same site "
+                         "(see runs/tg7_look_transfer_20260902)")
     ap.add_argument("--green-trim", type=float, default=0.0,
                     help="finish v2 only: compress negative a* (green cast) "
                          "by this fraction, scaled with L* — the a*-axis "
@@ -740,7 +762,10 @@ def main() -> None:
                     blue_wb_cap=args.blue_wb_cap,
                     white_point=args.stretch_white,
                     warm_blend=args.warm_blend,
-                    green_trim=args.green_trim)
+                    green_trim=args.green_trim,
+                    look_profile=(json.loads(Path(args.look_profile)
+                                             .expanduser().read_text())
+                                  if args.look_profile else None))
                 print(f"  finish v2: wb_gains={finish_info['wb_gains']} "
                       f"gamut_compressed={finish_info['wb_gamut_compressed_pct']}% "
                       f"tv_weight={finish_info['tv_weight']}")
