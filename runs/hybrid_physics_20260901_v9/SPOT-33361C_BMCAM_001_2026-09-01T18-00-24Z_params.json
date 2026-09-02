@@ -1,0 +1,63 @@
+{
+  "image": "SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg",
+  "output": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-09-uart-throughput-22e3e7/runs/hybrid_physics_20260901_v9/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_hybrid.png",
+  "nopolish": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint-09-uart-throughput-22e3e7/runs/hybrid_physics_20260901_v9/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_hybrid_nopolish.png",
+  "depth_anchor": {
+    "disp_at_card": 0.7025,
+    "z_near": 0.675,
+    "z_at_card": 1.5,
+    "z_max": 3.448,
+    "ground_plane": {
+      "pitch_deg": -6.14,
+      "f_px_assumed": 1025.2,
+      "hfov_deg_assumed": 52.0,
+      "ground_rows_capped": 11547,
+      "z_ground_bottom_row": 1.574
+    }
+  },
+  "B_inf_linear": [
+    0.0003,
+    0.19462,
+    0.10462
+  ],
+  "beta_B_per_z": [
+    1.9972,
+    0.8627,
+    0.6753
+  ],
+  "beta_D_per_z": [
+    2.5775,
+    0.834,
+    1.0068
+  ],
+  "far_pixel_count": 11888,
+  "max_boost": 32.0,
+  "z_cap": 2.0,
+  "finish": {
+    "wb_gains": [
+      1.2,
+      1.0,
+      1.0
+    ],
+    "stretch_perchannel_p1_p99": [
+      [
+        0.0,
+        0.0401,
+        0.0178
+      ],
+      [
+        0.5284,
+        1.0,
+        1.0
+      ]
+    ],
+    "stretch_slopes": [
+      1.259,
+      0.969,
+      0.947
+    ],
+    "tv_weight": 0.005,
+    "unsharp_amount": 0.6
+  },
+  "polish": null
+}

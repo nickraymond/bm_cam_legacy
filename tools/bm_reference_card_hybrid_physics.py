@@ -288,7 +288,7 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
            red_wb_cap: float = 1.5, stretch: str = "perchannel",
            sharpen: float = 0.6, black_point: float = 0.02,
-           card_wb: bool = True) -> tuple[np.ndarray, dict]:
+           card_wb: bool = True, red_stretch_cap: float = 1.3) -> tuple[np.ndarray, dict]:
     """Finishing, card-anchored (all BSD/our code, standard photography ops):
 
     1. White balance from the card's WHITE patch measured in the recovered
@@ -328,15 +328,20 @@ def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
         out = np.clip(out * (new_lum / lum)[..., None], 0.0, 1.0)
         info["stretch_p1_p99"] = [round(float(lo), 4), round(float(hi), 4)]
     elif stretch == "perchannel":
-        # Per-channel p1->0.02 / p99->0.95: pulling each channel's black level
-        # to the floor removes the residual veiling cast (the "fade"), which a
-        # luminance-preserving stretch faithfully keeps.
+        # Per-channel p1->black_point / p99->0.95 removes the residual veiling
+        # cast — but red's narrow histogram means an unbounded per-channel
+        # stretch gives red ~1.8x more gain than green (an implicit extra red
+        # WB; audited 2026-09-01). Cap red's slope at red_stretch_cap x the
+        # green slope; red's headroom simply stays partly unused.
         los = np.percentile(out.reshape(-1, 3), 1.0, axis=0)
         his = np.percentile(out.reshape(-1, 3), 99.0, axis=0)
-        out = np.clip(black_point + (out - los) / np.maximum(his - los, 1e-6)
-                      * (0.95 - black_point), 0.0, 1.0)
+        span = np.maximum(his - los, 1e-6)
+        slope = (0.95 - black_point) / span
+        slope[0] = min(slope[0], red_stretch_cap * slope[1])
+        out = np.clip(black_point + (out - los) * slope, 0.0, 1.0)
         info["stretch_perchannel_p1_p99"] = [np.round(los, 4).tolist(),
                                              np.round(his, 4).tolist()]
+        info["stretch_slopes"] = np.round(slope, 3).tolist()
 
     sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
     out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
@@ -431,6 +436,9 @@ def main() -> None:
                     help="'guided' = depth-guided filter (He 2010): the "
                          "illumination map follows depth edges instead of "
                          "bleeding haze across coral silhouettes")
+    ap.add_argument("--red-stretch-cap", type=float, default=1.3,
+                    help="cap red's contrast-stretch slope at this multiple "
+                         "of green's (unbounded = implicit extra red WB)")
     ap.add_argument("--red-wb-cap", type=float, default=1.5,
                     help="max red gain in the --finish white balance")
     ap.add_argument("--no-card-color", action="store_true",
@@ -561,7 +569,8 @@ def main() -> None:
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
                     sharpen=args.sharpen, black_point=args.stretch_black,
-                    card_wb=not args.no_card_color)
+                    card_wb=not args.no_card_color,
+                    red_stretch_cap=args.red_stretch_cap)
                 print(f"  finish: wb_gains={finish_info['wb_gains']} "
                       f"tv_weight={finish_info['tv_weight']}")
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
