@@ -222,7 +222,8 @@ def guided_filter(guide: np.ndarray, src: np.ndarray, radius: int,
 
 def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
                  sigma_frac: float, lsac_filter: str = "gaussian",
-                 bs_guard: float = 0.8, lsac_mode: str = "chroma") -> np.ndarray:
+                 bs_guard: float = 0.8, lsac_mode: str = "chroma",
+                 lsac_lift: float = 0.35) -> np.ndarray:
     """Backscatter subtraction + LSAC illumination normalization.
 
     LSAC (Local Space Average Color, Ebner; the illuminant estimate Sea-thru
@@ -266,7 +267,16 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
         illum_lum = ccu.rel_luminance_linear(illum)[..., None]
         m = illum.reshape(-1, 3).mean(axis=0)
         m = m / max(float(ccu.rel_luminance_linear(m)), 1e-6)
-        return np.clip(direct * m * illum_lum / np.maximum(illum, 1e-4), 0.0, 4.0)
+        out = direct * m * illum_lum / np.maximum(illum, 1e-4)
+        if lsac_lift > 0:
+            # Controlled shadow lift: brighten toward the global illumination
+            # level with a fractional exponent. 0 = keep captured luminance
+            # exactly (v7, reads dark/moody); 1 = flatten's full local
+            # brightening (lifts shadows unnaturally). Factor capped at 4x.
+            L_ref = float(illum_lum.mean())
+            factor = np.minimum((L_ref / np.maximum(illum_lum, 1e-4)) ** lsac_lift, 4.0)
+            out = out * factor
+        return np.clip(out, 0.0, 4.0)
     ratio = direct / np.maximum(illum, 1e-4)
     # Flatten mode (v2-v5 behavior): restore each channel's GLOBAL level —
     # pure LSAC lifts even the dead red channel to mid-gray locally; the
@@ -407,6 +417,10 @@ def main() -> None:
                          "constraint (IMX708 behind a flat port)")
     ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
                     help="LSAC Gaussian sigma as a fraction of image width")
+    ap.add_argument("--lsac-lift", type=float, default=0.35,
+                    help="shadow lift toward the global illumination level "
+                         "(0 = captured luminance exactly, 1 = full local "
+                         "brightening)")
     ap.add_argument("--lsac-mode", default="chroma",
                     choices=["chroma", "flatten"],
                     help="chroma: remove local color cast, keep captured "
@@ -515,7 +529,7 @@ def main() -> None:
             if args.illumination == "lsac":
                 recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac,
                                              args.lsac_filter, args.bs_guard,
-                                             args.lsac_mode)
+                                             args.lsac_mode, args.lsac_lift)
                 # Card-anchored exposure: scale so the mid-gray patch lands on
                 # its design luminance, then clip.
                 rect_lin = qm.rectify_quad(recovered_lin, card_quad,
