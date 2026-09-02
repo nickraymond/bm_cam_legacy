@@ -509,3 +509,31 @@ it reports what is on the card, not what the limits allow.
 
 **Area:** storage / settings GUI
 **Depends on:** TODO-BM-008 (video ring — the two triggers live there)
+
+---
+
+### TODO-CAM-001 — Capture-side frame stacking + red-channel HDR bracket (Sprint 20, captured 2026-09-01)
+
+**Problem:** transmitted 8-bit JPEGs from the AOML reef carry white-patch
+red at 3.5–14% of full scale — at/below the ~5% recoverability floor.
+Every color-correction method (chart fits, physics hybrid, sea-thru,
+OceanLens) is red-noise-bound; the fix has to happen at capture.
+
+**What it needs:** two separately-tested experiments on the same hardware
+(bmcam000 bench first): (A) N-frame locked-AE/AWB stack averaged before
+JPEG encode (~sqrt(N) SNR, smaller files); (B) channel-wise HDR merge —
+red from a +2/+3 EV shutter-bracketed frame, G/B from the normal frame
+(4–8x red photons). Acceptance: card red-health (white_patch_red_frac /
+snr) lifted above the 0.05 floor on 18:00-class light, plus the Sprint05
+method leaderboard re-run on stacked vs single frames.
+
+**Known hardware issues:** Pi Zero 2W memory/CMA (use a running
+accumulator or stack at transmit res — never hold N full-res frames);
+Picamera2 BGR888/CMA behavior differs from rpicam-still (bench-test the
+burst path, watch CmaFree); AE/AWB must be frozen across the burst;
+stack before encode (JPEG artifacts are correlated); bracket via
+shutter not gain; measure the energy-per-cycle delta.
+
+**Spec:** sprints/Sprint20_capture_stacking_hdr/SPEC.md
+**Area:** camera capture (BM_Devel_Pi) — production path untouched until bench A/B passes
+**Status:** open, not scheduled — capture only, no action yet (Nick 2026-09-01)
