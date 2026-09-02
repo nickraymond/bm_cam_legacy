@@ -198,10 +198,19 @@ def main() -> None:
     ap.add_argument("--card-expand-y", type=float, default=2.0)
     ap.add_argument("--patch-inset", type=float, default=0.30)
     ap.add_argument("--z-card", type=float, default=1.0,
-                    help="card distance in arbitrary units (correction is "
-                         "invariant to the absolute scale)")
+                    help="card distance; meters when measured (AOML: 1.5), "
+                         "else arbitrary units (correction is invariant to "
+                         "the absolute scale)")
     ap.add_argument("--near-ratio", type=float, default=0.4,
-                    help="nearest-pixel distance as a fraction of z-card")
+                    help="nearest-pixel distance as a fraction of z-card "
+                         "(with the camera ~25cm off the sand and the card at "
+                         "1.5m, the frame-bottom sand sits at ~0.45)")
+    ap.add_argument("--camera-height-m", type=float, default=None,
+                    help="camera height above the seafloor (metadata + future "
+                         "ground-plane depth anchoring)")
+    ap.add_argument("--water-depth-m", type=float, default=None,
+                    help="deployment water depth (metadata + future ambient-"
+                         "illuminant modeling)")
     ap.add_argument("--far-quantile", type=float, default=0.98,
                     help="pixels at/above this z quantile define open water (B_inf)")
     ap.add_argument("--max-boost", type=float, default=32.0,
