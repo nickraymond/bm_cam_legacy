@@ -139,8 +139,34 @@ def solve_physics(img_lin: np.ndarray, z: np.ndarray, samples, z_card: float,
             "far_pixel_count": int(far.sum())}
 
 
+def guided_filter(guide: np.ndarray, src: np.ndarray, radius: int,
+                  eps: float) -> np.ndarray:
+    """He et al. 2010 guided filter (in-house, numpy/cv2 box filters).
+
+    Smooths src while following edges in guide. With the DEPTH MAP as guide
+    the result is piecewise-smooth per depth region — an illumination map
+    that does not bleed water-column haze across coral silhouettes.
+    """
+    ksize = (2 * radius + 1, 2 * radius + 1)
+
+    def box(x):
+        return cv2.boxFilter(x.astype(np.float32), -1, ksize).astype(np.float64)
+
+    out = np.empty_like(src)
+    mean_I = box(guide)
+    var_I = box(guide * guide) - mean_I ** 2
+    for c in range(src.shape[-1]):
+        p = src[..., c]
+        mean_p = box(p)
+        cov_Ip = box(guide * p) - mean_I * mean_p
+        a = cov_Ip / (var_I + eps)
+        b = mean_p - a * mean_I
+        out[..., c] = box(a) * guide + box(b)
+    return out
+
+
 def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
-                 sigma_frac: float) -> np.ndarray:
+                 sigma_frac: float, lsac_filter: str = "gaussian") -> np.ndarray:
     """Backscatter subtraction + LSAC illumination normalization.
 
     LSAC (Local Space Average Color, Ebner; the illuminant estimate Sea-thru
@@ -158,7 +184,20 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
     # red-only pixels. Physically, observed >= backscatter always.
     direct = img_lin - np.minimum(B_model, 0.8 * img_lin)
     sigma = max(sigma_frac * img_lin.shape[1], 8.0)
-    illum = cv2.GaussianBlur(direct.astype(np.float32), (0, 0), sigma).astype(np.float64)
+    if lsac_filter in ("guided", "guided_luma"):
+        if lsac_filter == "guided":
+            # Depth guide: honest depth-aware neighborhoods, but DA-V2's map
+            # is blocky at this resolution and the blocks become halos.
+            guide = (z - z.min()) / max(z.max() - z.min(), 1e-6)
+            eps = 1e-3
+        else:
+            # Luminance guide: edges from the image itself (clean), still
+            # stops illumination bleeding across coral silhouettes.
+            guide = ccu.rel_luminance_linear(direct)
+            eps = float(np.var(guide)) * 0.5 + 1e-6
+        illum = np.maximum(guided_filter(guide, direct, radius=int(sigma), eps=eps), 0.0)
+    else:
+        illum = cv2.GaussianBlur(direct.astype(np.float32), (0, 0), sigma).astype(np.float64)
     ratio = direct / np.maximum(illum, 1e-4)
     # Restore each channel's GLOBAL level: pure LSAC lifts even the dead red
     # channel to mid-gray locally (red-flooded scenes); scaling by the global
@@ -169,14 +208,17 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
 
 
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
-           red_wb_cap: float = 1.5) -> tuple[np.ndarray, dict]:
-    """Sea-thru-style finishing, card-anchored (all BSD/our code):
+           red_wb_cap: float = 1.5, stretch: str = "perchannel",
+           sharpen: float = 0.6) -> tuple[np.ndarray, dict]:
+    """Finishing, card-anchored (all BSD/our code, standard photography ops):
 
     1. White balance from the card's WHITE patch measured in the recovered
        image — per-channel gains toward its design value, red capped at
        red_wb_cap (forcing dead red to target floods the scene).
-    2. TV-Chambolle denoise (scikit-image, BSD) with sigma-estimated weight —
-       knocks down the amplified JPEG noise like sea-thru's last step.
+    2. Percentile contrast stretch on luminance (p1 -> 0.02, p99 -> 0.95 in
+       linear, color ratios preserved) — the "faded" fix.
+    3. TV-Chambolle denoise (scikit-image, BSD) with sigma-estimated weight.
+    4. Mild unsharp mask (amount=sharpen, ~1.5px) — the crispness fix.
     """
     from skimage.restoration import denoise_tv_chambolle, estimate_sigma
 
@@ -192,12 +234,34 @@ def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
     gains[0] = min(gains[0], red_wb_cap)
     out = np.clip(recovered_lin * gains, 0.0, 1.0)
 
+    info = {"wb_gains": np.round(gains, 3).tolist()}
+    if stretch == "luma":
+        lum = np.maximum(ccu.rel_luminance_linear(out), 1e-6)
+        lo, hi = np.percentile(lum, [1.0, 99.0])
+        new_lum = np.clip(0.02 + (lum - lo) / max(hi - lo, 1e-6) * (0.95 - 0.02),
+                          0.0, 1.0)
+        out = np.clip(out * (new_lum / lum)[..., None], 0.0, 1.0)
+        info["stretch_p1_p99"] = [round(float(lo), 4), round(float(hi), 4)]
+    elif stretch == "perchannel":
+        # Per-channel p1->0.02 / p99->0.95: pulling each channel's black level
+        # to the floor removes the residual veiling cast (the "fade"), which a
+        # luminance-preserving stretch faithfully keeps.
+        los = np.percentile(out.reshape(-1, 3), 1.0, axis=0)
+        his = np.percentile(out.reshape(-1, 3), 99.0, axis=0)
+        out = np.clip(0.02 + (out - los) / np.maximum(his - los, 1e-6)
+                      * (0.95 - 0.02), 0.0, 1.0)
+        info["stretch_perchannel_p1_p99"] = [np.round(los, 4).tolist(),
+                                             np.round(his, 4).tolist()]
+
     sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
     out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
-    return np.clip(out, 0.0, 1.0), {
-        "wb_gains": np.round(gains, 3).tolist(),
-        "tv_weight": round(max(sigma, 0.005), 5),
-    }
+    info["tv_weight"] = round(max(sigma, 0.005), 5)
+
+    if sharpen > 0:
+        blur = cv2.GaussianBlur(out.astype(np.float32), (0, 0), 1.5).astype(np.float64)
+        out = out + sharpen * (out - blur)
+        info["unsharp_amount"] = sharpen
+    return np.clip(out, 0.0, 1.0), info
 
 
 def recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
@@ -256,6 +320,19 @@ def main() -> None:
                          "backscatter removal (sea-thru-style, natural render)")
     ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
                     help="LSAC Gaussian sigma as a fraction of image width")
+    ap.add_argument("--lsac-filter", default="gaussian",
+                    choices=["gaussian", "guided", "guided_luma"],
+                    help="'guided' = depth-guided filter (He 2010): the "
+                         "illumination map follows depth edges instead of "
+                         "bleeding haze across coral silhouettes")
+    ap.add_argument("--red-wb-cap", type=float, default=1.5,
+                    help="max red gain in the --finish white balance")
+    ap.add_argument("--sharpen", type=float, default=0.6,
+                    help="unsharp amount in --finish (0 disables)")
+    ap.add_argument("--stretch-mode", default="perchannel",
+                    choices=["perchannel", "luma", "none"],
+                    help="--finish contrast stretch: perchannel also removes "
+                         "residual veiling cast; luma preserves color balance")
     ap.add_argument("--red-boost-cap", type=float, default=None,
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
@@ -316,7 +393,8 @@ def main() -> None:
                   f"beta_D={np.round(phys['beta_D'], 3).tolist()} (per unit z)")
 
             if args.illumination == "lsac":
-                recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac)
+                recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac,
+                                             args.lsac_filter)
                 # Card-anchored exposure: scale so the mid-gray patch lands on
                 # its design luminance, then clip.
                 rect_lin = qm.rectify_quad(recovered_lin, card_quad,
@@ -340,8 +418,10 @@ def main() -> None:
                                         args.z_cap * args.z_card)
             finish_info = None
             if args.finish:
-                recovered_lin, finish_info = finish(recovered_lin, card_quad, qm,
-                                                    layout, args.patch_inset)
+                recovered_lin, finish_info = finish(
+                    recovered_lin, card_quad, qm, layout, args.patch_inset,
+                    red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
+                    sharpen=args.sharpen)
                 print(f"  finish: wb_gains={finish_info['wb_gains']} "
                       f"tv_weight={finish_info['tv_weight']}")
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
