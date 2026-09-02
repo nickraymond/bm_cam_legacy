@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """
-Card-anchored physics color correction (hybrid, research brief Option C).
+Card-anchored physics color correction — Nereus color correction v1.
+
+LOCKED PRESET (Nick, 2026-09-01): the tool's DEFAULTS are the locked v1
+visualization recipe — LSAC chroma illumination (spatial-cast-only), shadow
+lift 0.45, red WB cap 1.2, red stretch cap 1.1, per-channel stretch, finish
+on. Reproduce v1 exactly with just geometry args + the fused site depth map:
+  <bench venv python> tools/bm_reference_card_hybrid_physics.py \
+    --images <img.jpg> --depth-npy runs/depth_fusion_20260901/fused_disp_2frames.npy \
+    --z-card 1.5 --near-ratio 0.45 --camera-height-m 0.25 --water-depth-m 4.57
+The measurement layer (root_poly2 in bm_reference_card_color_smoke.py) is
+separate and never tone-mapped.
 
 Purpose:
   Range-aware underwater correction where EVERY parameter of the image
@@ -222,7 +232,8 @@ def guided_filter(guide: np.ndarray, src: np.ndarray, radius: int,
 
 def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
                  sigma_frac: float, lsac_filter: str = "gaussian",
-                 bs_guard: float = 0.8) -> np.ndarray:
+                 bs_guard: float = 0.8, lsac_mode: str = "chroma",
+                 lsac_lift: float = 0.35) -> np.ndarray:
     """Backscatter subtraction + LSAC illumination normalization.
 
     LSAC (Local Space Average Color, Ebner; the illuminant estimate Sea-thru
@@ -254,11 +265,32 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
         illum = np.maximum(guided_filter(guide, direct, radius=int(sigma), eps=eps), 0.0)
     else:
         illum = cv2.GaussianBlur(direct.astype(np.float32), (0, 0), sigma).astype(np.float64)
+    if lsac_mode == "chroma":
+        # Chroma normalization (default): remove only the SPATIAL variation of
+        # the color cast; keep global balance for the card WB/stretch to
+        # handle exactly once. out = direct * m_c * L_illum / illum, where m_c
+        # is the illumination's global mean chroma. BUG HISTORY: without m_c
+        # this forces every neighborhood to average NEUTRAL — a local
+        # gray-world hiding a ~19x red gain (v6: yellows/browns destroyed,
+        # Nick 2026-09-01). With m_c, regions matching the global cast pass
+        # through untouched; shadows keep their captured luminance.
+        illum_lum = ccu.rel_luminance_linear(illum)[..., None]
+        m = illum.reshape(-1, 3).mean(axis=0)
+        m = m / max(float(ccu.rel_luminance_linear(m)), 1e-6)
+        out = direct * m * illum_lum / np.maximum(illum, 1e-4)
+        if lsac_lift > 0:
+            # Controlled shadow lift: brighten toward the global illumination
+            # level with a fractional exponent. 0 = keep captured luminance
+            # exactly (v7, reads dark/moody); 1 = flatten's full local
+            # brightening (lifts shadows unnaturally). Factor capped at 4x.
+            L_ref = float(illum_lum.mean())
+            factor = np.minimum((L_ref / np.maximum(illum_lum, 1e-4)) ** lsac_lift, 4.0)
+            out = out * factor
+        return np.clip(out, 0.0, 4.0)
     ratio = direct / np.maximum(illum, 1e-4)
-    # Restore each channel's GLOBAL level: pure LSAC lifts even the dead red
-    # channel to mid-gray locally (red-flooded scenes); scaling by the global
-    # channel mean keeps red at its true low weight — sea-thru gets the same
-    # effect by never white-balancing red up.
+    # Flatten mode (v2-v5 behavior): restore each channel's GLOBAL level —
+    # pure LSAC lifts even the dead red channel to mid-gray locally; the
+    # global channel mean keeps red at its true low weight.
     chan_scale = direct.reshape(-1, 3).mean(axis=0)
     return np.clip(ratio * chan_scale, 0.0, 4.0)
 
@@ -266,7 +298,7 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
            red_wb_cap: float = 1.5, stretch: str = "perchannel",
            sharpen: float = 0.6, black_point: float = 0.02,
-           card_wb: bool = True) -> tuple[np.ndarray, dict]:
+           card_wb: bool = True, red_stretch_cap: float = 1.3) -> tuple[np.ndarray, dict]:
     """Finishing, card-anchored (all BSD/our code, standard photography ops):
 
     1. White balance from the card's WHITE patch measured in the recovered
@@ -306,15 +338,20 @@ def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
         out = np.clip(out * (new_lum / lum)[..., None], 0.0, 1.0)
         info["stretch_p1_p99"] = [round(float(lo), 4), round(float(hi), 4)]
     elif stretch == "perchannel":
-        # Per-channel p1->0.02 / p99->0.95: pulling each channel's black level
-        # to the floor removes the residual veiling cast (the "fade"), which a
-        # luminance-preserving stretch faithfully keeps.
+        # Per-channel p1->black_point / p99->0.95 removes the residual veiling
+        # cast — but red's narrow histogram means an unbounded per-channel
+        # stretch gives red ~1.8x more gain than green (an implicit extra red
+        # WB; audited 2026-09-01). Cap red's slope at red_stretch_cap x the
+        # green slope; red's headroom simply stays partly unused.
         los = np.percentile(out.reshape(-1, 3), 1.0, axis=0)
         his = np.percentile(out.reshape(-1, 3), 99.0, axis=0)
-        out = np.clip(black_point + (out - los) / np.maximum(his - los, 1e-6)
-                      * (0.95 - black_point), 0.0, 1.0)
+        span = np.maximum(his - los, 1e-6)
+        slope = (0.95 - black_point) / span
+        slope[0] = min(slope[0], red_stretch_cap * slope[1])
+        out = np.clip(black_point + (out - los) * slope, 0.0, 1.0)
         info["stretch_perchannel_p1_p99"] = [np.round(los, 4).tolist(),
                                              np.round(his, 4).tolist()]
+        info["stretch_slopes"] = np.round(slope, 3).tolist()
 
     sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
     out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
@@ -377,10 +414,14 @@ def main() -> None:
     ap.add_argument("--z-cap", type=float, default=2.0,
                     help="attenuation compensation saturates at this z (in "
                          "z-card units); beyond it the gain is held constant")
-    ap.add_argument("--illumination", default="global", choices=["global", "lsac"],
+    ap.add_argument("--illumination", default="lsac", choices=["global", "lsac"],
                     help="'global': exponential attenuation compensation (v1); "
                          "'lsac': local space-average-color normalization after "
                          "backscatter removal (sea-thru-style, natural render)")
+    ap.add_argument("--depth-npy", default="",
+                    help="load a precomputed normalized disparity map (.npy, "
+                         "image-sized, larger=nearer) instead of running the "
+                         "depth model — e.g. a multi-frame fused site map")
     ap.add_argument("--depth-scale", type=float, default=2.0,
                     help="depth-model internal resolution as multiple of image "
                          "size (ceiling test: 2x resolves coral lobes)")
@@ -391,12 +432,24 @@ def main() -> None:
                          "constraint (IMX708 behind a flat port)")
     ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
                     help="LSAC Gaussian sigma as a fraction of image width")
+    ap.add_argument("--lsac-lift", type=float, default=0.45,
+                    help="shadow lift toward the global illumination level "
+                         "(0 = captured luminance exactly, 1 = full local "
+                         "brightening)")
+    ap.add_argument("--lsac-mode", default="chroma",
+                    choices=["chroma", "flatten"],
+                    help="chroma: remove local color cast, keep captured "
+                         "luminance (shadows stay dark); flatten: v2-v5 "
+                         "behavior (lifts shadows toward local mean)")
     ap.add_argument("--lsac-filter", default="gaussian",
                     choices=["gaussian", "guided", "guided_luma"],
                     help="'guided' = depth-guided filter (He 2010): the "
                          "illumination map follows depth edges instead of "
                          "bleeding haze across coral silhouettes")
-    ap.add_argument("--red-wb-cap", type=float, default=1.5,
+    ap.add_argument("--red-stretch-cap", type=float, default=1.1,
+                    help="cap red's contrast-stretch slope at this multiple "
+                         "of green's (unbounded = implicit extra red WB)")
+    ap.add_argument("--red-wb-cap", type=float, default=1.2,
                     help="max red gain in the --finish white balance")
     ap.add_argument("--no-card-color", action="store_true",
                     help="EXPERIMENT: drop every card COLOR anchor (beta_B, "
@@ -421,11 +474,12 @@ def main() -> None:
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
                          "default: same cap as other channels")
-    ap.add_argument("--finish", action="store_true",
-                    help="card-anchored white balance (red-capped) + TV "
-                         "denoise as the final step (sea-thru-style finish)")
-    ap.add_argument("--no-polish", action="store_true",
-                    help="skip the final fit on recovered card patches")
+    ap.add_argument("--no-finish", action="store_true",
+                    help="skip the finish (card WB + stretch + denoise + sharpen)")
+    ap.add_argument("--polish", action="store_true",
+                    help="EXPERIMENTAL: fit a registry method on the recovered "
+                         "card patches and apply it (red-forcing risk; off by "
+                         "default in the locked v1 recipe)")
     ap.add_argument("--polish-method", default="root_poly2",
                     choices=["root_poly2", "gray_balance", "white_patch", "ccm3x3"],
                     help="registry method for the final polish (root_poly2's "
@@ -441,7 +495,7 @@ def main() -> None:
     layout = ccu.load_template(Path(args.template_dir) / "template_layout.json")
     qm = load_quality_module()
     corner_map = qm.parse_corner_map(args.corner_map)
-    depth_pipe = get_depth_pipe()
+    depth_pipe = None if args.depth_npy else get_depth_pipe()
 
     print(f"run_tag={run_tag}\noutput={out_dir}")
     rows = []
@@ -464,8 +518,13 @@ def main() -> None:
             samples = ccu.sample_patches(rect_rgb, layout, args.patch_inset)
 
             print("  estimating depth...")
-            disp_n = relative_depth(depth_pipe, pil_img, scale=args.depth_scale,
-                                    refine=not args.no_depth_refine)
+            if args.depth_npy:
+                disp_n = np.load(Path(args.depth_npy).expanduser())
+                if disp_n.shape != img_rgb.shape[:2]:
+                    raise RuntimeError(f"--depth-npy shape {disp_n.shape} != image")
+            else:
+                disp_n = relative_depth(depth_pipe, pil_img, scale=args.depth_scale,
+                                        refine=not args.no_depth_refine)
             z, zinfo = anchor_depth(disp_n, card_quad, args.z_card, args.near_ratio)
             if args.camera_height_m:
                 z, ginfo = apply_ground_plane(z, card_quad, args.z_card,
@@ -488,7 +547,8 @@ def main() -> None:
 
             if args.illumination == "lsac":
                 recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac,
-                                             args.lsac_filter, args.bs_guard)
+                                             args.lsac_filter, args.bs_guard,
+                                             args.lsac_mode, args.lsac_lift)
                 # Card-anchored exposure: scale so the mid-gray patch lands on
                 # its design luminance, then clip.
                 rect_lin = qm.rectify_quad(recovered_lin, card_quad,
@@ -515,12 +575,13 @@ def main() -> None:
                 recovered_lin = recover(img_lin, z, phys, args.max_boost,
                                         args.z_cap * args.z_card)
             finish_info = None
-            if args.finish:
+            if not args.no_finish:
                 recovered_lin, finish_info = finish(
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
                     sharpen=args.sharpen, black_point=args.stretch_black,
-                    card_wb=not args.no_card_color)
+                    card_wb=not args.no_card_color,
+                    red_stretch_cap=args.red_stretch_cap)
                 print(f"  finish: wb_gains={finish_info['wb_gains']} "
                       f"tv_weight={finish_info['tv_weight']}")
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
@@ -530,7 +591,7 @@ def main() -> None:
 
             polish_model = None
             final = recovered
-            if not args.no_polish:
+            if args.polish:
                 # Re-sample the card from the RECOVERED image (same quad) and fit
                 # root_poly2 on what physics left over.
                 rect_rec = cv2.cvtColor(
