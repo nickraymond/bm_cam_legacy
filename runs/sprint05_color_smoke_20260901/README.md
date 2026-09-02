@@ -55,3 +55,14 @@ runs/hybrid_physics_20260901*/):
   (10.5/14.8, colour-science BSD) pending cross-frame stability testing.
 - Capture-side red fix captured as Sprint 20 / TODO-CAM-001 (frame stacking
   + red-channel HDR bracket).
+
+## LOCKED: Nereus color correction v1 (2026-09-01, Nick sign-off)
+
+Visualization layer frozen as the DEFAULTS of
+tools/bm_reference_card_hybrid_physics.py: fused site depth
+(runs/depth_fusion_20260901) + ground plane + chroma LSAC (spatial-cast
+only, lift 0.45) + card-anchored finish (red WB cap 1.2, red stretch cap
+1.1, per-channel stretch, TV denoise, unsharp). Reference render + final
+cut sheet: runs/nereus_color_v1_20260901/. Card dE76 41.8/50.8 — the
+locked look deliberately under-corrects red vs the card (Nick's aesthetic
+call); the measurement layer (root_poly2) remains the colorimetric truth.

@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """
-Card-anchored physics color correction (hybrid, research brief Option C).
+Card-anchored physics color correction — Nereus color correction v1.
+
+LOCKED PRESET (Nick, 2026-09-01): the tool's DEFAULTS are the locked v1
+visualization recipe — LSAC chroma illumination (spatial-cast-only), shadow
+lift 0.45, red WB cap 1.2, red stretch cap 1.1, per-channel stretch, finish
+on. Reproduce v1 exactly with just geometry args + the fused site depth map:
+  <bench venv python> tools/bm_reference_card_hybrid_physics.py \
+    --images <img.jpg> --depth-npy runs/depth_fusion_20260901/fused_disp_2frames.npy \
+    --z-card 1.5 --near-ratio 0.45 --camera-height-m 0.25 --water-depth-m 4.57
+The measurement layer (root_poly2 in bm_reference_card_color_smoke.py) is
+separate and never tone-mapped.
 
 Purpose:
   Range-aware underwater correction where EVERY parameter of the image
@@ -404,7 +414,7 @@ def main() -> None:
     ap.add_argument("--z-cap", type=float, default=2.0,
                     help="attenuation compensation saturates at this z (in "
                          "z-card units); beyond it the gain is held constant")
-    ap.add_argument("--illumination", default="global", choices=["global", "lsac"],
+    ap.add_argument("--illumination", default="lsac", choices=["global", "lsac"],
                     help="'global': exponential attenuation compensation (v1); "
                          "'lsac': local space-average-color normalization after "
                          "backscatter removal (sea-thru-style, natural render)")
@@ -422,7 +432,7 @@ def main() -> None:
                          "constraint (IMX708 behind a flat port)")
     ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
                     help="LSAC Gaussian sigma as a fraction of image width")
-    ap.add_argument("--lsac-lift", type=float, default=0.35,
+    ap.add_argument("--lsac-lift", type=float, default=0.45,
                     help="shadow lift toward the global illumination level "
                          "(0 = captured luminance exactly, 1 = full local "
                          "brightening)")
@@ -436,10 +446,10 @@ def main() -> None:
                     help="'guided' = depth-guided filter (He 2010): the "
                          "illumination map follows depth edges instead of "
                          "bleeding haze across coral silhouettes")
-    ap.add_argument("--red-stretch-cap", type=float, default=1.3,
+    ap.add_argument("--red-stretch-cap", type=float, default=1.1,
                     help="cap red's contrast-stretch slope at this multiple "
                          "of green's (unbounded = implicit extra red WB)")
-    ap.add_argument("--red-wb-cap", type=float, default=1.5,
+    ap.add_argument("--red-wb-cap", type=float, default=1.2,
                     help="max red gain in the --finish white balance")
     ap.add_argument("--no-card-color", action="store_true",
                     help="EXPERIMENT: drop every card COLOR anchor (beta_B, "
@@ -464,11 +474,12 @@ def main() -> None:
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
                          "default: same cap as other channels")
-    ap.add_argument("--finish", action="store_true",
-                    help="card-anchored white balance (red-capped) + TV "
-                         "denoise as the final step (sea-thru-style finish)")
-    ap.add_argument("--no-polish", action="store_true",
-                    help="skip the final fit on recovered card patches")
+    ap.add_argument("--no-finish", action="store_true",
+                    help="skip the finish (card WB + stretch + denoise + sharpen)")
+    ap.add_argument("--polish", action="store_true",
+                    help="EXPERIMENTAL: fit a registry method on the recovered "
+                         "card patches and apply it (red-forcing risk; off by "
+                         "default in the locked v1 recipe)")
     ap.add_argument("--polish-method", default="root_poly2",
                     choices=["root_poly2", "gray_balance", "white_patch", "ccm3x3"],
                     help="registry method for the final polish (root_poly2's "
@@ -564,7 +575,7 @@ def main() -> None:
                 recovered_lin = recover(img_lin, z, phys, args.max_boost,
                                         args.z_cap * args.z_card)
             finish_info = None
-            if args.finish:
+            if not args.no_finish:
                 recovered_lin, finish_info = finish(
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,
@@ -580,7 +591,7 @@ def main() -> None:
 
             polish_model = None
             final = recovered
-            if not args.no_polish:
+            if args.polish:
                 # Re-sample the card from the RECOVERED image (same quad) and fit
                 # root_poly2 on what physics left over.
                 rect_rec = cv2.cvtColor(

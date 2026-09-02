@@ -537,3 +537,16 @@ shutter not gain; measure the energy-per-cycle delta.
 **Spec:** sprints/Sprint20_capture_stacking_hdr/SPEC.md
 **Area:** camera capture (BM_Devel_Pi) — production path untouched until bench A/B passes
 **Status:** open, not scheduled — capture only, no action yet (Nick 2026-09-01)
+
+---
+
+### TODO-COLOR-002 — ICEBOX: learned illumination map (DA-V2 analog for lighting)
+
+Intrinsic image decomposition networks (reflectance x shading — e.g.
+Careaga & Aksoy "Ordinal Shading" 2023 / "Colorful Diffuse" 2024) are
+the learned analog of our Gaussian LSAC illumination estimate in
+tools/bm_reference_card_hybrid_physics.py. Worth a quarantined
+benchmark someday (license check first; land-trained caveat applies,
+likely worse underwater). Expected bigger win first: temporal fusion of
+illumination across a deployment, same trick as the fused site depth
+map. Icebox — not scheduled (Nick 2026-09-01).
