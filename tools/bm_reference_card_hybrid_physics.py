@@ -84,19 +84,74 @@ def load_quality_module():
 
 def get_depth_pipe():
     try:
-        from transformers import pipeline as hf_pipeline
+        import torch
+        from transformers import AutoImageProcessor, AutoModelForDepthEstimation
     except ImportError:
         raise SystemExit("transformers/torch missing — install with:\n"
                          "  python3 -m pip install torch transformers")
     print(f"loading depth model {DEPTH_MODEL}...")
-    return hf_pipeline("depth-estimation", model=DEPTH_MODEL)
+    proc = AutoImageProcessor.from_pretrained(DEPTH_MODEL)
+    model = AutoModelForDepthEstimation.from_pretrained(DEPTH_MODEL).eval()
+    return (proc, model, torch)
 
 
-def relative_depth(depth_pipe, pil_img: Image.Image) -> np.ndarray:
-    """Normalized disparity map in [0,1]; larger = closer to the camera."""
-    pred = depth_pipe(pil_img)["predicted_depth"].squeeze().numpy()
-    disp = np.asarray(Image.fromarray(pred).resize(pil_img.size, Image.BILINEAR))
-    return (disp - disp.min()) / max(disp.max() - disp.min(), 1e-9)
+def relative_depth(depth_pipe, pil_img: Image.Image, scale: float = 2.0,
+                   refine: bool = True) -> np.ndarray:
+    """Normalized disparity in [0,1]; larger = closer to the camera.
+
+    scale: internal inference resolution as a multiple of the image size
+    (DA-V2's processor otherwise shrinks everything to ~518px — the ceiling
+    test in runs/depth_ceiling_20260901 showed 2x resolves individual coral
+    lobes). refine: image-guided filter snaps depth edges to image edges.
+    """
+    proc, model, torch = depth_pipe
+    w = min(int(pil_img.width * scale), 2048)
+    h = int(pil_img.height * w / pil_img.width)
+    proc.size = {"height": (h // 14) * 14, "width": (w // 14) * 14}
+    with torch.no_grad():
+        pred = model(**proc(images=pil_img, return_tensors="pt")
+                     ).predicted_depth.squeeze().numpy()
+    disp = cv2.resize(pred, pil_img.size, interpolation=cv2.INTER_LINEAR)
+    disp = (disp - disp.min()) / max(disp.max() - disp.min(), 1e-9)
+    if refine:
+        lum = ccu.rel_luminance_linear(
+            ccu.srgb_to_linear(np.asarray(pil_img, dtype=np.float64) / 255.0))
+        disp = np.clip(guided_filter(lum, disp[..., None], radius=6,
+                                     eps=1e-4)[..., 0], 0.0, 1.0)
+    return disp
+
+
+def apply_ground_plane(z: np.ndarray, card_quad: np.ndarray, z_card: float,
+                       camera_height_m: float, hfov_deg: float) -> tuple[np.ndarray, dict]:
+    """Cap depths with the measured sand plane (camera height above seafloor).
+
+    Geometry: a flat seafloor seen from height H puts the ground at range
+    r(y) = H / sin(theta(y)) for each image row below the horizon. Camera
+    pitch is solved from one known plane point — the card's base row at
+    z_card. Anything rendered at a row below the horizon occludes the ground
+    there, so z(x, y) <= r(y): a per-row CAP that overrides the depth model's
+    known failure (sunlit sand read as far). f comes from the assumed
+    in-water HFOV; both assumptions are recorded in the run params.
+    """
+    h, w = z.shape
+    f_px = (w / 2.0) / np.tan(np.radians(hfov_deg) / 2.0)
+    cy = h / 2.0
+    y_card = float(np.max(np.asarray(card_quad)[:, 1]))       # card base row
+    theta_card = np.arcsin(np.clip(camera_height_m / z_card, -1, 1))
+    pitch = theta_card - np.arctan((y_card - cy) / f_px)
+    rows = np.arange(h, dtype=np.float64)
+    theta = pitch + np.arctan((rows - cy) / f_px)
+    z_ground = np.full(h, np.inf)
+    below = theta > np.radians(2.0)                            # avoid horizon blowup
+    z_ground[below] = camera_height_m / np.sin(theta[below])
+    z_capped = np.minimum(z, z_ground[:, None])
+    return z_capped, {
+        "pitch_deg": round(float(np.degrees(pitch)), 2),
+        "f_px_assumed": round(float(f_px), 1),
+        "hfov_deg_assumed": hfov_deg,
+        "ground_rows_capped": int(np.sum(z > z_ground[:, None])),
+        "z_ground_bottom_row": round(float(z_ground[below][-1]), 3) if below.any() else None,
+    }
 
 
 def anchor_depth(disp_n: np.ndarray, card_quad: np.ndarray, z_card: float,
@@ -326,6 +381,14 @@ def main() -> None:
                     help="'global': exponential attenuation compensation (v1); "
                          "'lsac': local space-average-color normalization after "
                          "backscatter removal (sea-thru-style, natural render)")
+    ap.add_argument("--depth-scale", type=float, default=2.0,
+                    help="depth-model internal resolution as multiple of image "
+                         "size (ceiling test: 2x resolves coral lobes)")
+    ap.add_argument("--no-depth-refine", action="store_true",
+                    help="skip image-guided edge refinement of the depth map")
+    ap.add_argument("--hfov-deg", type=float, default=52.0,
+                    help="assumed in-water horizontal FOV for the ground-plane "
+                         "constraint (IMX708 behind a flat port)")
     ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
                     help="LSAC Gaussian sigma as a fraction of image width")
     ap.add_argument("--lsac-filter", default="gaussian",
@@ -401,8 +464,16 @@ def main() -> None:
             samples = ccu.sample_patches(rect_rgb, layout, args.patch_inset)
 
             print("  estimating depth...")
-            disp_n = relative_depth(depth_pipe, pil_img)
+            disp_n = relative_depth(depth_pipe, pil_img, scale=args.depth_scale,
+                                    refine=not args.no_depth_refine)
             z, zinfo = anchor_depth(disp_n, card_quad, args.z_card, args.near_ratio)
+            if args.camera_height_m:
+                z, ginfo = apply_ground_plane(z, card_quad, args.z_card,
+                                              args.camera_height_m, args.hfov_deg)
+                zinfo["ground_plane"] = ginfo
+                print(f"  ground plane: pitch={ginfo['pitch_deg']}deg "
+                      f"capped {ginfo['ground_rows_capped']} px "
+                      f"(z_ground at bottom row {ginfo['z_ground_bottom_row']}m)")
             Image.fromarray((disp_n * 255).astype(np.uint8)).save(
                 out_dir / f"{img_path.stem}_depth.png")
 
