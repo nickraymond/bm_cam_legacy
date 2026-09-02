@@ -222,7 +222,7 @@ def guided_filter(guide: np.ndarray, src: np.ndarray, radius: int,
 
 def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
                  sigma_frac: float, lsac_filter: str = "gaussian",
-                 bs_guard: float = 0.8) -> np.ndarray:
+                 bs_guard: float = 0.8, lsac_mode: str = "chroma") -> np.ndarray:
     """Backscatter subtraction + LSAC illumination normalization.
 
     LSAC (Local Space Average Color, Ebner; the illuminant estimate Sea-thru
@@ -254,11 +254,18 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
         illum = np.maximum(guided_filter(guide, direct, radius=int(sigma), eps=eps), 0.0)
     else:
         illum = cv2.GaussianBlur(direct.astype(np.float32), (0, 0), sigma).astype(np.float64)
+    if lsac_mode == "chroma":
+        # Chroma-only normalization (default): divide by the illumination but
+        # scale back by its LUMINANCE, so local color cast is removed while
+        # the captured luminance structure is preserved — plain flattening
+        # LSAC lifts dark shadows toward their local mean (Nick 2026-09-01:
+        # shadows rendered brighter than the original/sea-thru).
+        illum_lum = ccu.rel_luminance_linear(illum)[..., None]
+        return np.clip(direct * illum_lum / np.maximum(illum, 1e-4), 0.0, 4.0)
     ratio = direct / np.maximum(illum, 1e-4)
-    # Restore each channel's GLOBAL level: pure LSAC lifts even the dead red
-    # channel to mid-gray locally (red-flooded scenes); scaling by the global
-    # channel mean keeps red at its true low weight — sea-thru gets the same
-    # effect by never white-balancing red up.
+    # Flatten mode (v2-v5 behavior): restore each channel's GLOBAL level —
+    # pure LSAC lifts even the dead red channel to mid-gray locally; the
+    # global channel mean keeps red at its true low weight.
     chan_scale = direct.reshape(-1, 3).mean(axis=0)
     return np.clip(ratio * chan_scale, 0.0, 4.0)
 
@@ -381,6 +388,10 @@ def main() -> None:
                     help="'global': exponential attenuation compensation (v1); "
                          "'lsac': local space-average-color normalization after "
                          "backscatter removal (sea-thru-style, natural render)")
+    ap.add_argument("--depth-npy", default="",
+                    help="load a precomputed normalized disparity map (.npy, "
+                         "image-sized, larger=nearer) instead of running the "
+                         "depth model — e.g. a multi-frame fused site map")
     ap.add_argument("--depth-scale", type=float, default=2.0,
                     help="depth-model internal resolution as multiple of image "
                          "size (ceiling test: 2x resolves coral lobes)")
@@ -391,6 +402,11 @@ def main() -> None:
                          "constraint (IMX708 behind a flat port)")
     ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
                     help="LSAC Gaussian sigma as a fraction of image width")
+    ap.add_argument("--lsac-mode", default="chroma",
+                    choices=["chroma", "flatten"],
+                    help="chroma: remove local color cast, keep captured "
+                         "luminance (shadows stay dark); flatten: v2-v5 "
+                         "behavior (lifts shadows toward local mean)")
     ap.add_argument("--lsac-filter", default="gaussian",
                     choices=["gaussian", "guided", "guided_luma"],
                     help="'guided' = depth-guided filter (He 2010): the "
@@ -441,7 +457,7 @@ def main() -> None:
     layout = ccu.load_template(Path(args.template_dir) / "template_layout.json")
     qm = load_quality_module()
     corner_map = qm.parse_corner_map(args.corner_map)
-    depth_pipe = get_depth_pipe()
+    depth_pipe = None if args.depth_npy else get_depth_pipe()
 
     print(f"run_tag={run_tag}\noutput={out_dir}")
     rows = []
@@ -464,8 +480,13 @@ def main() -> None:
             samples = ccu.sample_patches(rect_rgb, layout, args.patch_inset)
 
             print("  estimating depth...")
-            disp_n = relative_depth(depth_pipe, pil_img, scale=args.depth_scale,
-                                    refine=not args.no_depth_refine)
+            if args.depth_npy:
+                disp_n = np.load(Path(args.depth_npy).expanduser())
+                if disp_n.shape != img_rgb.shape[:2]:
+                    raise RuntimeError(f"--depth-npy shape {disp_n.shape} != image")
+            else:
+                disp_n = relative_depth(depth_pipe, pil_img, scale=args.depth_scale,
+                                        refine=not args.no_depth_refine)
             z, zinfo = anchor_depth(disp_n, card_quad, args.z_card, args.near_ratio)
             if args.camera_height_m:
                 z, ginfo = apply_ground_plane(z, card_quad, args.z_card,
@@ -488,7 +509,8 @@ def main() -> None:
 
             if args.illumination == "lsac":
                 recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac,
-                                             args.lsac_filter, args.bs_guard)
+                                             args.lsac_filter, args.bs_guard,
+                                             args.lsac_mode)
                 # Card-anchored exposure: scale so the mid-gray patch lands on
                 # its design luminance, then clip.
                 rect_lin = qm.rectify_quad(recovered_lin, card_quad,
