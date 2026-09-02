@@ -104,6 +104,28 @@ histograms `hist_compare/hist_sb0_pair.png`, scores `scores_sb0/`:
   dE2000 27.1/30.6. Remaining gaps: their extra 0.4-0.7 luminance mass and
   warmer dark-mids on the 18:00 frame.
 
+## Sea-thru replication close-out — Nereus v2.1 (2026-09-02)
+
+Final pair (`cutsheet_seathru_closeout.jpg`,
+`hist_compare/hist_seathru_closeout.png`, `scores_sw/`):
+- `--stretch-white 0.98` (`v2_sw098/`): bought almost nothing — the
+  0.4-0.7 upper-mid luminance gap vs sea-thru is set by the gamut cap and
+  p99 anchoring, not the target value. Honest miss; kept because harmless.
+- `--warm-blend` (`v2_sw098_warm/`): luma-weighted WB closes the white-point
+  tradeoff exactly — L*80-100 b* falls +7.8 -> -2.2 (17:00) / +6 -> -4.3
+  (18:00), matching sea-thru's neutral whites, while coral mids hold
+  b* +10..+15. dE2000 27.2/30.7, gray angular slightly better than flat cap.
+
+**Nereus v2.1 preset (best sea-thru replication):**
+
+    --lsac-filter guided_luma --finish-style v2 --red-wb-cap 1.1 \
+    --sharpen 0.4 --stretch-black 0.0 --blue-wb-cap 1.15 \
+    --stretch-white 0.98 --warm-blend
+
+Remaining known gaps vs sea-thru: their extra luminance mass at 0.4-0.7 and
+0.9-1.0 (would need a midtone S-curve / letting whites clip, not a p99
+target), and their warmer dark-mids (L*20-50) on the 18:00 frame.
+
 ## Commercial cleanliness
 
 Nothing new was added: every op is already in the in-house tool (published
