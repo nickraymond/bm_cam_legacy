@@ -534,9 +534,27 @@ burst path, watch CmaFree); AE/AWB must be frozen across the burst;
 stack before encode (JPEG artifacts are correlated); bracket via
 shutter not gain; measure the energy-per-cycle delta.
 
+**New evidence (2026-09-02, runs/olympus_fingerprint_20260902):** a
+deployment-team Olympus TG-7 frame of the same reef (same ~1 m range and
+depth, card in frame, EXIF SceneMode "Underwater Wide1") renders coral at
+a* ~ 0 (true brown) because its underwater mode applies heavy red WB gain
+IN-CAMERA, before 8-bit encoding — red survives quantization. Our
+grade-side sweep proved the converse: with card-white red at ~0.05 linear,
+no post WB can recover it (red-cap 1.1 -> 1.5 moved coral a* only ~4 of
+the needed ~25 units; only the cosmetic --green-trim closes the gap).
+
+**Experiment (C) — cheapest, try FIRST:** fixed underwater AWB preset at
+capture: rpicam-still/Picamera2 manual `awbgains` with red-heavy gains
+(sweep e.g. R 2.5-4.0 x B 1.0-1.4 on bench + reef light), locked, not
+auto. No memory cost, no burst, no timing change — one config line.
+Acceptance: same card red-health metric as (A)/(B); expect
+white_patch_red_frac well above the 0.05 floor. If (C) alone lifts red
+above the floor, (A)/(B) become quality improvements instead of
+prerequisites.
+
 **Spec:** sprints/Sprint20_capture_stacking_hdr/SPEC.md
 **Area:** camera capture (BM_Devel_Pi) — production path untouched until bench A/B passes
-**Status:** open, not scheduled — capture only, no action yet (Nick 2026-09-01)
+**Status:** open, not scheduled — capture only, no action yet (Nick 2026-09-01); (C) added from TG-7 evidence (2026-09-02)
 
 ---
 

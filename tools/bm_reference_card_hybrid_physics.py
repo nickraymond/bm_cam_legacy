@@ -295,6 +295,156 @@ def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
     return np.clip(ratio * chan_scale, 0.0, 4.0)
 
 
+def card_patch_median(img: np.ndarray, card_quad, qm, layout,
+                      patch_id: str) -> np.ndarray:
+    """Median linear-RGB of one card patch (central 40%) sampled from img."""
+    rect = qm.rectify_quad(img, card_quad, CANONICAL_W, CANONICAL_H)
+    p = next(q for q in layout["patches"] if q["id"] == patch_id)
+    sx = CANONICAL_W / layout["template_width_px"]
+    sy = CANONICAL_H / layout["template_height_px"]
+    box = rect[int((p["y"] + 0.3 * p["h"]) * sy):int((p["y"] + 0.7 * p["h"]) * sy),
+               int((p["x"] + 0.3 * p["w"]) * sx):int((p["x"] + 0.7 * p["w"]) * sx)]
+    return np.median(box.reshape(-1, 3), axis=0)
+
+
+def _compress_over_gamut(out: np.ndarray) -> float:
+    """Scale pixels whose max channel exceeds 1 back into gamut (hue-
+    preserving; brightens nothing). Returns the affected-pixel percentage."""
+    maxc = out.max(axis=-1)
+    over = maxc > 1.0
+    if over.any():
+        out[over] /= maxc[over][..., None]
+    return round(100.0 * float(over.mean()), 3)
+
+
+def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
+              red_wb_cap: float = 1.1, sharpen: float = 0.4,
+              black_point: float = 0.02, card_wb: bool = True,
+              blue_wb_cap: float | None = None, white_point: float = 0.95,
+              warm_blend: bool = False,
+              green_trim: float = 0.0,
+              look_profile: dict | None = None) -> tuple[np.ndarray, dict]:
+    """Clip-safe single-WB finish (order-of-operations fix, 2026-09-02).
+
+    v1's finish ran card WB, then a per-channel stretch — a second,
+    scene-statistics white balance that re-weighted red AFTER the card had
+    been consulted (the stacked red gains behind the red-coral defect;
+    runs/color_v2_orderops_20260902) — and its luma stretch mode clipped
+    10-13% of highlight pixels. v2 keeps ONE color-balance op:
+
+    1. Luma-only percentile stretch (p1 -> black_point, p99 -> 0.95). The
+       per-pixel gain is capped so no channel leaves gamut (highlights
+       compress instead of clipping/hue-shifting) and capped at 4x so p1
+       shadow noise is not amplified.
+    2. Card white balance — the ONLY channel re-weighting, applied after the
+       stretch so nothing re-balances behind it. Gains are luminance-
+       normalized (WB moves color, not exposure); red is capped at
+       red_wb_cap x the GREEN gain — a safety bound on reconstructed red,
+       no longer stacked with any stretch slope.
+    3. TV-Chambolle denoise (unchanged from v1).
+    4. Luminance-only unsharp: chroma untouched, so sharpening cannot ring
+       in color at silhouettes (v1 sharpened RGB in linear light). Gain
+       bounded [0.5, 2] and kept in gamut.
+    """
+    from skimage.restoration import denoise_tv_chambolle, estimate_sigma
+
+    info = {"finish_style": "v2"}
+    out = recovered_lin.copy()
+
+    lum = np.maximum(ccu.rel_luminance_linear(out), 1e-6)
+    lo, hi = np.percentile(lum, [1.0, 99.0])
+    target = np.clip(black_point + (lum - lo) / max(hi - lo, 1e-6)
+                     * (white_point - black_point), 0.0, white_point)
+    gain = np.minimum(target / lum, 4.0)
+    gain = np.minimum(gain, 1.0 / np.maximum(out.max(axis=-1), 1e-6))
+    out *= gain[..., None]
+    info["stretch_p1_p99"] = [round(float(lo), 4), round(float(hi), 4)]
+
+    if card_wb:
+        obs_white = card_patch_median(out, card_quad, qm, layout, "gray_white")
+        p_w = next(p for p in layout["patches"] if p["id"] == "gray_white")
+        tgt_white = ccu.srgb_to_linear(np.asarray(p_w["target_srgb"]) / 255.0)
+        gains = tgt_white / np.maximum(obs_white, 1e-4)
+    else:
+        p95 = np.percentile(out.reshape(-1, 3), 95.0, axis=0)
+        gains = float(p95.mean()) / np.maximum(p95, 1e-4)
+    # Cap red BEFORE luminance-normalizing: the card white's red channel is
+    # nearly dead underwater, so its raw gain can be 20x+ — normalizing
+    # first would let that one number swallow the whole exposure.
+    gains[0] = min(gains[0], red_wb_cap * gains[1])
+    gains_full = gains / max(float(ccu.rel_luminance_linear(gains)), 1e-6)
+    if blue_wb_cap is not None:
+        # Histogram comparison vs sea-thru (hist_compare/, 2026-09-02): their
+        # yellow reads as b* +11..+14 in the L*50-80 band; our uncapped blue
+        # gain (~1.4x from the card white's blue deficit) drives b* negative
+        # frame-wide. Capping blue leaves whites slightly warm on purpose.
+        gains[2] = min(gains[2], blue_wb_cap * gains[1])
+    gains = gains / max(float(ccu.rel_luminance_linear(gains)), 1e-6)
+    if warm_blend and blue_wb_cap is not None:
+        # Luma-weighted WB: capped (warm) gains in the mids where sea-thru's
+        # yellow lives, blending to the FULL card WB above ~L*80 so whites
+        # (card, sand highlights) stay neutral instead of drifting cream.
+        # Smoothstep over linear luminance 0.55-0.80 (~L* 79-91).
+        w = np.clip((np.maximum(ccu.rel_luminance_linear(out), 1e-6) - 0.55)
+                    / 0.25, 0.0, 1.0)
+        w = (w * w * (3.0 - 2.0 * w))[..., None]
+        out = out * (gains * (1.0 - w) + gains_full * w)
+        info["warm_blend"] = True
+        info["wb_gains_full"] = np.round(gains_full, 3).tolist()
+    else:
+        out *= gains
+    info["wb_gains"] = np.round(gains, 3).tolist()
+    info["wb_gamut_compressed_pct"] = _compress_over_gamut(out)
+
+    if green_trim > 0:
+        # Green-cast trim (TG-7 retarget, runs/olympus_fingerprint_20260902):
+        # the source red channel is 8-bit-crushed (~0.05 linear at the card
+        # white), so no WB gain can neutralize the green — the red
+        # information is gone. Compress NEGATIVE a* only (greens -> neutral;
+        # reds untouched), scaled with L* because the residual cast grows
+        # with luminance (a* -10 shadows -> -44 hilites vs TG-7 ~0 flat).
+        # This is a perceptual grade, not information recovery: truly green
+        # subjects (algae) also move toward neutral at high trim.
+        from skimage import color as skcolor
+        srgb = ccu.linear_to_srgb(np.clip(out, 0.0, 1.0))
+        lab = skcolor.rgb2lab(srgb)
+        wgt = np.clip(lab[..., 0] / 80.0, 0.0, 1.0)
+        neg = lab[..., 1] < 0
+        lab[..., 1] = np.where(neg, lab[..., 1] * (1.0 - green_trim * wgt),
+                               lab[..., 1])
+        out = ccu.srgb_to_linear(np.clip(skcolor.lab2rgb(lab), 0.0, 1.0))
+        info["green_trim"] = green_trim
+
+    if look_profile is not None:
+        # Site look profile (runs/tg7_look_transfer_20260902): per-L*-band
+        # a*/b* deltas fitted once against a trusted reference camera's shot
+        # of the same site, applied as a smooth L*-interpolated chroma
+        # offset. 12 numbers per site; refit from any new reference dive.
+        from skimage import color as skcolor
+        centers = np.asarray(look_profile["L_centers"], dtype=np.float64)
+        srgb = ccu.linear_to_srgb(np.clip(out, 0.0, 1.0))
+        lab = skcolor.rgb2lab(srgb)
+        lab[..., 1] += np.interp(lab[..., 0], centers,
+                                 np.asarray(look_profile["delta_a"]))
+        lab[..., 2] += np.interp(lab[..., 0], centers,
+                                 np.asarray(look_profile["delta_b"]))
+        out = ccu.srgb_to_linear(np.clip(skcolor.lab2rgb(lab), 0.0, 1.0))
+        info["look_profile"] = look_profile.get("fit", "applied")
+
+    sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
+    out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
+    info["tv_weight"] = round(max(sigma, 0.005), 5)
+
+    if sharpen > 0:
+        lum = np.maximum(ccu.rel_luminance_linear(out), 1e-6)
+        blur = cv2.GaussianBlur(lum.astype(np.float32), (0, 0), 1.5).astype(np.float64)
+        g = np.clip((lum + sharpen * (lum - blur)) / lum, 0.5, 2.0)
+        out = out * g[..., None]
+        info["unsharp_amount"] = sharpen
+        info["sharpen_gamut_compressed_pct"] = _compress_over_gamut(out)
+    return np.clip(out, 0.0, 1.0), info
+
+
 def finish(recovered_lin: np.ndarray, card_quad, qm, layout, patch_inset: float,
            red_wb_cap: float = 1.5, stretch: str = "perchannel",
            sharpen: float = 0.6, black_point: float = 0.02,
@@ -474,6 +624,34 @@ def main() -> None:
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
                          "default: same cap as other channels")
+    ap.add_argument("--blue-wb-cap", type=float, default=None,
+                    help="finish v2 only: cap blue's WB gain at this multiple "
+                         "of green's — leaves whites slightly warm so coral "
+                         "midtones keep yellow (sea-thru's b* lives at "
+                         "+11..+14 in L*50-80; our uncapped blue gain kills it)")
+    ap.add_argument("--stretch-white", type=float, default=0.95,
+                    help="finish v2 only: luma-stretch p99 target (sea-thru "
+                         "lets highlights run to ~1.0; 0.98 recovers their "
+                         "upper-mid brightness)")
+    ap.add_argument("--look-profile", default="",
+                    help="finish v2 only: JSON file with L_centers/delta_a/"
+                         "delta_b — a per-site chroma look profile fitted "
+                         "against a reference camera shot of the same site "
+                         "(see runs/tg7_look_transfer_20260902)")
+    ap.add_argument("--green-trim", type=float, default=0.0,
+                    help="finish v2 only: compress negative a* (green cast) "
+                         "by this fraction, scaled with L* — the a*-axis "
+                         "retarget at the TG-7 reference (red info is 8-bit-"
+                         "crushed, so WB cannot do this). 0 = off")
+    ap.add_argument("--warm-blend", action="store_true",
+                    help="finish v2 + --blue-wb-cap only: luma-weighted WB — "
+                         "capped (warm) gains in the mids, full card WB above "
+                         "~L*80 so whites stay neutral")
+    ap.add_argument("--finish-style", default="v1", choices=["v1", "v2"],
+                    help="v1: locked finish (card WB then per-channel stretch; "
+                         "stacked red gains). v2: clip-safe single-WB order — "
+                         "luma stretch first, card WB LAST and only once, "
+                         "luminance-only sharpen (2026-09-02 order-of-ops fix)")
     ap.add_argument("--no-finish", action="store_true",
                     help="skip the finish (card WB + stretch + denoise + sharpen)")
     ap.add_argument("--polish", action="store_true",
@@ -575,7 +753,23 @@ def main() -> None:
                 recovered_lin = recover(img_lin, z, phys, args.max_boost,
                                         args.z_cap * args.z_card)
             finish_info = None
-            if not args.no_finish:
+            if not args.no_finish and args.finish_style == "v2":
+                recovered_lin, finish_info = finish_v2(
+                    recovered_lin, card_quad, qm, layout,
+                    red_wb_cap=args.red_wb_cap, sharpen=args.sharpen,
+                    black_point=args.stretch_black,
+                    card_wb=not args.no_card_color,
+                    blue_wb_cap=args.blue_wb_cap,
+                    white_point=args.stretch_white,
+                    warm_blend=args.warm_blend,
+                    green_trim=args.green_trim,
+                    look_profile=(json.loads(Path(args.look_profile)
+                                             .expanduser().read_text())
+                                  if args.look_profile else None))
+                print(f"  finish v2: wb_gains={finish_info['wb_gains']} "
+                      f"gamut_compressed={finish_info['wb_gamut_compressed_pct']}% "
+                      f"tv_weight={finish_info['tv_weight']}")
+            elif not args.no_finish:
                 recovered_lin, finish_info = finish(
                     recovered_lin, card_quad, qm, layout, args.patch_inset,
                     red_wb_cap=args.red_wb_cap, stretch=args.stretch_mode,

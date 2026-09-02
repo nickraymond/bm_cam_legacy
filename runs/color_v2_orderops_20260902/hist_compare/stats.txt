@@ -1,0 +1,24 @@
+v2 vs sea-thru tone/color stats (display sRGB + CIELAB), 2026-09-02
+
+=== -01T17-00-25Z ===
+v2       lum p1=0.141 p25=0.201 p50=0.254 p75=0.373 p95=0.840 p99=0.884 mean=0.334
+         shadow   67.2%px a*=-14.21 b*= -2.65 chroma=15.20
+         mid      18.8%px a*=-19.43 b*= -1.86 chroma=22.03
+         hilite   14.0%px a*=-39.24 b*= -2.40 chroma=41.84
+seathru  lum p1=0.006 p25=0.123 p50=0.235 p75=0.453 p95=0.967 p99=1.000 mean=0.341
+         shadow   62.1%px a*= -4.67 b*= -0.89 chroma= 9.42
+         mid      18.4%px a*=-16.77 b*= +2.60 chroma=25.43
+         hilite   16.9%px a*=-25.30 b*= +2.54 chroma=31.10
+
+=== -01T18-00-24Z ===
+v2       lum p1=0.137 p25=0.204 p50=0.255 p75=0.384 p95=0.843 p99=0.873 mean=0.343
+         shadow   65.8%px a*=-16.06 b*= -3.26 chroma=17.28
+         mid      18.1%px a*=-21.89 b*= -3.63 chroma=24.68
+         hilite   16.1%px a*=-40.37 b*= -3.83 chroma=44.06
+seathru  lum p1=0.001 p25=0.109 p50=0.218 p75=0.487 p95=0.927 p99=0.998 mean=0.334
+         shadow   63.3%px a*= -7.89 b*= +2.84 chroma=11.23
+         mid      15.5%px a*=-23.00 b*=+11.49 chroma=29.45
+         hilite   20.2%px a*=-32.48 b*= -0.79 chroma=38.22
+
+key: v2 display black wall 0.14-0.15 == sRGB encode of stretch_black 0.02 LINEAR
+     sea-thru b* +11..+14 in L*50-80 (sunlit coral) vs v2 -4..+2 == the yellow cast

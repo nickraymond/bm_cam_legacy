@@ -1,0 +1,60 @@
+{
+  "image": "SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg",
+  "output": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/color_v2_orderops_20260902/v2_gtrim0.5/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_hybrid.png",
+  "nopolish": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/color_v2_orderops_20260902/v2_gtrim0.5/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_hybrid_nopolish.png",
+  "depth_anchor": {
+    "disp_at_card": 0.7025,
+    "z_near": 0.675,
+    "z_at_card": 1.5,
+    "z_max": 3.448,
+    "ground_plane": {
+      "pitch_deg": -6.14,
+      "f_px_assumed": 1025.2,
+      "hfov_deg_assumed": 52.0,
+      "ground_rows_capped": 11547,
+      "z_ground_bottom_row": 1.574
+    }
+  },
+  "B_inf_linear": [
+    0.0003,
+    0.19462,
+    0.10462
+  ],
+  "beta_B_per_z": [
+    1.9972,
+    0.8627,
+    0.6753
+  ],
+  "beta_D_per_z": [
+    2.5775,
+    0.834,
+    1.0068
+  ],
+  "far_pixel_count": 11888,
+  "max_boost": 32.0,
+  "z_cap": 2.0,
+  "finish": {
+    "finish_style": "v2",
+    "stretch_p1_p99": [
+      0.0339,
+      0.807
+    ],
+    "warm_blend": true,
+    "wb_gains_full": [
+      1.041,
+      0.946,
+      1.411
+    ],
+    "wb_gains": [
+      1.066,
+      0.969,
+      1.114
+    ],
+    "wb_gamut_compressed_pct": 2.61,
+    "green_trim": 0.5,
+    "tv_weight": 0.005,
+    "unsharp_amount": 0.4,
+    "sharpen_gamut_compressed_pct": 1.685
+  },
+  "polish": null
+}
