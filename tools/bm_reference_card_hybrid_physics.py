@@ -139,6 +139,35 @@ def solve_physics(img_lin: np.ndarray, z: np.ndarray, samples, z_card: float,
             "far_pixel_count": int(far.sum())}
 
 
+def lsac_recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
+                 sigma_frac: float) -> np.ndarray:
+    """Backscatter subtraction + LSAC illumination normalization.
+
+    LSAC (Local Space Average Color, Ebner; the illuminant estimate Sea-thru
+    uses) approximated by a wide Gaussian of the direct signal: dividing each
+    channel by its own local average is a spatially varying gray-world, so
+    every channel — including the nearly-dead red — is normalized to O(1)
+    locally instead of being globally exponentiated. This is what makes
+    sea-thru renders look natural; published method, implemented in-house.
+    """
+    z3 = z[..., None]
+    B_model = phys["B_inf"] * (1.0 - np.exp(-phys["beta_B"] * z3))
+    # Never subtract more than 80% of a pixel's own signal: the black-patch
+    # beta_B overshoots (print black reflects ~5% and camera AWB inflates it),
+    # and unguarded subtraction annihilates G/B on every shaded coral, leaving
+    # red-only pixels. Physically, observed >= backscatter always.
+    direct = img_lin - np.minimum(B_model, 0.8 * img_lin)
+    sigma = max(sigma_frac * img_lin.shape[1], 8.0)
+    illum = cv2.GaussianBlur(direct.astype(np.float32), (0, 0), sigma).astype(np.float64)
+    ratio = direct / np.maximum(illum, 1e-4)
+    # Restore each channel's GLOBAL level: pure LSAC lifts even the dead red
+    # channel to mid-gray locally (red-flooded scenes); scaling by the global
+    # channel mean keeps red at its true low weight — sea-thru gets the same
+    # effect by never white-balancing red up.
+    chan_scale = direct.reshape(-1, 3).mean(axis=0)
+    return np.clip(ratio * chan_scale, 0.0, 4.0)
+
+
 def recover(img_lin: np.ndarray, z: np.ndarray, phys: dict,
             max_boost: float, z_cap: float) -> np.ndarray:
     z3 = z[..., None]
@@ -180,6 +209,12 @@ def main() -> None:
     ap.add_argument("--z-cap", type=float, default=2.0,
                     help="attenuation compensation saturates at this z (in "
                          "z-card units); beyond it the gain is held constant")
+    ap.add_argument("--illumination", default="global", choices=["global", "lsac"],
+                    help="'global': exponential attenuation compensation (v1); "
+                         "'lsac': local space-average-color normalization after "
+                         "backscatter removal (sea-thru-style, natural render)")
+    ap.add_argument("--lsac-sigma-frac", type=float, default=0.12,
+                    help="LSAC Gaussian sigma as a fraction of image width")
     ap.add_argument("--red-boost-cap", type=float, default=None,
                     help="cap the physics-stage RED gain (e.g. 2.0) and let "
                          "the cross-channel polish reconstruct red from G/B; "
@@ -236,8 +271,29 @@ def main() -> None:
                   f"beta_B={np.round(phys['beta_B'], 3).tolist()} "
                   f"beta_D={np.round(phys['beta_D'], 3).tolist()} (per unit z)")
 
-            recovered_lin = recover(img_lin, z, phys, args.max_boost,
-                                    args.z_cap * args.z_card)
+            if args.illumination == "lsac":
+                recovered_lin = lsac_recover(img_lin, z, phys, args.lsac_sigma_frac)
+                # Card-anchored exposure: scale so the mid-gray patch lands on
+                # its design luminance, then clip.
+                rect_lin = qm.rectify_quad(recovered_lin, card_quad,
+                                           CANONICAL_W, CANONICAL_H)
+                p_mid = next(p for p in layout["patches"] if p["id"] == "gray_mid")
+                sx = CANONICAL_W / layout["template_width_px"]
+                sy = CANONICAL_H / layout["template_height_px"]
+                box = rect_lin[int((p_mid["y"] + 0.3 * p_mid["h"]) * sy):
+                               int((p_mid["y"] + 0.7 * p_mid["h"]) * sy),
+                               int((p_mid["x"] + 0.3 * p_mid["w"]) * sx):
+                               int((p_mid["x"] + 0.7 * p_mid["w"]) * sx)]
+                lum = float(ccu.rel_luminance_linear(
+                    np.median(box.reshape(-1, 3), axis=0)))
+                target_lum = float(ccu.rel_luminance_linear(
+                    ccu.srgb_to_linear(np.asarray(p_mid["target_srgb"]) / 255.0)))
+                recovered_lin = np.clip(recovered_lin * target_lum / max(lum, 1e-6),
+                                        0.0, 1.0)
+                print(f"  LSAC exposure anchor: gray_mid lum {lum:.3f} -> {target_lum:.3f}")
+            else:
+                recovered_lin = recover(img_lin, z, phys, args.max_boost,
+                                        args.z_cap * args.z_card)
             recovered = np.clip(np.rint(ccu.linear_to_srgb(recovered_lin) * 255.0),
                                 0, 255).astype(np.uint8)
             nopolish_path = out_dir / f"{img_path.stem}_hybrid_nopolish.png"
