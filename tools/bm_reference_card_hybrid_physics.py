@@ -321,7 +321,8 @@ def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
               red_wb_cap: float = 1.1, sharpen: float = 0.4,
               black_point: float = 0.02, card_wb: bool = True,
               blue_wb_cap: float | None = None, white_point: float = 0.95,
-              warm_blend: bool = False) -> tuple[np.ndarray, dict]:
+              warm_blend: bool = False,
+              green_trim: float = 0.0) -> tuple[np.ndarray, dict]:
     """Clip-safe single-WB finish (order-of-operations fix, 2026-09-02).
 
     v1's finish ran card WB, then a per-channel stretch — a second,
@@ -393,6 +394,25 @@ def finish_v2(recovered_lin: np.ndarray, card_quad, qm, layout,
         out *= gains
     info["wb_gains"] = np.round(gains, 3).tolist()
     info["wb_gamut_compressed_pct"] = _compress_over_gamut(out)
+
+    if green_trim > 0:
+        # Green-cast trim (TG-7 retarget, runs/olympus_fingerprint_20260902):
+        # the source red channel is 8-bit-crushed (~0.05 linear at the card
+        # white), so no WB gain can neutralize the green — the red
+        # information is gone. Compress NEGATIVE a* only (greens -> neutral;
+        # reds untouched), scaled with L* because the residual cast grows
+        # with luminance (a* -10 shadows -> -44 hilites vs TG-7 ~0 flat).
+        # This is a perceptual grade, not information recovery: truly green
+        # subjects (algae) also move toward neutral at high trim.
+        from skimage import color as skcolor
+        srgb = ccu.linear_to_srgb(np.clip(out, 0.0, 1.0))
+        lab = skcolor.rgb2lab(srgb)
+        wgt = np.clip(lab[..., 0] / 80.0, 0.0, 1.0)
+        neg = lab[..., 1] < 0
+        lab[..., 1] = np.where(neg, lab[..., 1] * (1.0 - green_trim * wgt),
+                               lab[..., 1])
+        out = ccu.srgb_to_linear(np.clip(skcolor.lab2rgb(lab), 0.0, 1.0))
+        info["green_trim"] = green_trim
 
     sigma = float(np.mean(estimate_sigma(out, channel_axis=-1))) / 10.0
     out = denoise_tv_chambolle(out, weight=max(sigma, 0.005), channel_axis=-1)
@@ -596,6 +616,11 @@ def main() -> None:
                     help="finish v2 only: luma-stretch p99 target (sea-thru "
                          "lets highlights run to ~1.0; 0.98 recovers their "
                          "upper-mid brightness)")
+    ap.add_argument("--green-trim", type=float, default=0.0,
+                    help="finish v2 only: compress negative a* (green cast) "
+                         "by this fraction, scaled with L* — the a*-axis "
+                         "retarget at the TG-7 reference (red info is 8-bit-"
+                         "crushed, so WB cannot do this). 0 = off")
     ap.add_argument("--warm-blend", action="store_true",
                     help="finish v2 + --blue-wb-cap only: luma-weighted WB — "
                          "capped (warm) gains in the mids, full card WB above "
@@ -714,7 +739,8 @@ def main() -> None:
                     card_wb=not args.no_card_color,
                     blue_wb_cap=args.blue_wb_cap,
                     white_point=args.stretch_white,
-                    warm_blend=args.warm_blend)
+                    warm_blend=args.warm_blend,
+                    green_trim=args.green_trim)
                 print(f"  finish v2: wb_gains={finish_info['wb_gains']} "
                       f"gamut_compressed={finish_info['wb_gamut_compressed_pct']}% "
                       f"tv_weight={finish_info['tv_weight']}")

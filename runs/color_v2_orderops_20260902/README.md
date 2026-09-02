@@ -143,3 +143,30 @@ still stands before productizing.
 - Future hardening: beta_B from depth-binned dark pixels (our own
   implementation of the published idea) so bs_guard can rise and the residual
   veil disappears.
+
+## a* retarget at the TG-7 reference — Nereus v2.2 candidate (2026-09-02)
+
+TG-7 fingerprint (runs/olympus_fingerprint_20260902) showed our real gap is
+coral a* (-10..-44 vs TG-7 ~0 flat). Two experiments:
+
+1. Red-WB-cap sweep 1.1->1.5 (`v2_redcap*`): nearly inert (a* moved ~4
+   units). ROOT CAUSE: card-white red is ~0.05 linear — 8-bit-crushed at
+   capture; neutralizing needs ~16x red. No WB gain can recover missing
+   information. The TG-7 wins at CAPTURE (in-camera underwater red gain
+   before 8-bit encode).
+2. `--green-trim` (new finish-v2 knob): luminance-scaled compression of
+   NEGATIVE a* only (greens -> neutral, reds untouched, b* verified
+   unchanged). Sweep 0.5/0.75/1.0 (`v2_gtrim*`,
+   `cutsheet_greentrim_sweep.jpg`): trim 1.0 lands coral a* at -0.1
+   (hilites) / -7.6 (L*50-65) vs targets -0.9 / -2.5, and card metrics
+   agree for once: dE2000 27.2 -> 17.1, gray angular 30 -> 7.2 deg —
+   project-best, better than the TG-7's own card numbers.
+
+**v2.2 candidate = v2.1 preset + --green-trim 1.0** (0.75 the conservative
+pick iftruly-green subjects matter). Caveat: perceptual grade, not information
+recovery — bright true-green subjects (algae) also neutralize at 1.0.
+
+**The capture-side fix is the real one**: give bmcam a TG-7-style
+underwater WB at capture (rpicam --awbgains red-heavy) so red survives
+8-bit encoding; ties into TODO-CAM-001 (red-channel HDR bracket). Grade
+knobs stop being load-bearing once red arrives intact.
