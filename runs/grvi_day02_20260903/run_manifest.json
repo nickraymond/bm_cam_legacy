@@ -1,0 +1,24 @@
+{
+  "run_tag": "grvi_20260903T045900Z",
+  "git_commit": "b4426de",
+  "command": "tools/bm_grvi_correct.py --images /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T14-00-22Z.jpg /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T15-00-21Z.jpg /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T16-00-23Z.jpg /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T17-00-23Z.jpg /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T18-00-22Z.jpg --render-targets tools/reference_card_color_correction/render_targets_p9.json --output-dir runs/grvi_day02_20260903",
+  "args": {
+    "images": [
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T14-00-22Z.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T15-00-21Z.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T16-00-23Z.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T17-00-23Z.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T18-00-22Z.jpg"
+    ],
+    "output_dir": "runs/grvi_day02_20260903",
+    "template_dir": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/bmcam001-yaml-config-91b073/tools/reference_card_color_correction/reference_card_template_v2",
+    "water_strength": 0.75,
+    "water_rgb": "16.0,108.5,149.5",
+    "water_bright": 1.3,
+    "coral_tan": 0.0,
+    "coral_lift": 0.0,
+    "render_targets": "tools/reference_card_color_correction/render_targets_p9.json"
+  },
+  "images_ok": 5,
+  "images_total": 5
+}

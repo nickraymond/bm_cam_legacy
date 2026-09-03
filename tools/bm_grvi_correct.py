@@ -60,8 +60,12 @@ def detect_and_sample(img_rgb: np.ndarray, layout: dict):
     """AprilTag card detection -> rectified card -> patch samples (or None)."""
     img_bgr = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
     corner_map = qm.parse_corner_map("tl:0,tr:1,bl:2,br:3")
+    # multi-scale upsampling exists for small transmit frames; on native
+    # multi-MP captures the card is already large and 6x/8x scales take
+    # minutes, so detect at native scale only
+    scales = [1] if img_rgb.shape[1] >= 2000 else [1, 2, 3, 4, 6, 8]
     tag_metrics, corners_by_id, best_scale, _rej = qm.detect_tags(
-        img_bgr, "DICT_APRILTAG_36h11", [1, 2, 3, 4, 6, 8])
+        img_bgr, "DICT_APRILTAG_36h11", scales)
     fid_quad, _status, _resid = qm.infer_card_corners_from_tags(corners_by_id, corner_map)
     if fid_quad is None:
         return None, len(tag_metrics)
@@ -188,6 +192,23 @@ def coral_tan(x: np.ndarray, rot: float, lift: float) -> np.ndarray:
     return x2 * (y / y2) * (1 + lift * warm[..., None])
 
 
+def sharpen_luminance(srgb01: np.ndarray, amt: float) -> np.ndarray:
+    """Luminance unsharp mask, identical to the Render Bench picker: 3 passes
+    of a separable 5-tap gaussian, detail added back to all channels."""
+    if amt <= 0:
+        return srgb01
+    lum = (0.2126 * srgb01[..., 0] + 0.7152 * srgb01[..., 1]
+           + 0.0722 * srgb01[..., 2])
+    k = np.array([0.0625, 0.25, 0.375, 0.25, 0.0625])
+    blur = lum
+    for _ in range(3):
+        pad = np.pad(blur, ((2, 2), (0, 0)), mode="edge")
+        blur = sum(k[j] * pad[j:j + blur.shape[0]] for j in range(5))
+        pad = np.pad(blur, ((0, 0), (2, 2)), mode="edge")
+        blur = sum(k[j] * pad[:, j:j + lum.shape[1]] for j in range(5))
+    return np.clip(srgb01 + (amt * (lum - blur))[..., None], 0.0, 1.0)
+
+
 def correct_image(img_rgb: np.ndarray, model: "ccu.GRVIModel",
                   water_strength: float, water_rgb, water_bright: float,
                   tan_rot: float = 0.4, tan_lift: float = 0.2,
@@ -208,6 +229,7 @@ def correct_image(img_rgb: np.ndarray, model: "ccu.GRVIModel",
         out = warm_grade(out, grade.get("shift_deg", 0.0),
                          grade.get("dark_frac", 0.0),
                          grade.get("sat_scale", 1.0))
+        out = sharpen_luminance(out, grade.get("sharp_amount", 0.0))
     return np.clip(np.rint(out * 255.0), 0, 255).astype(np.uint8)
 
 
@@ -318,11 +340,13 @@ def main() -> None:
                 model.tone_lut_y = ly + (lx - ly) * (1.0 - sh) * np.exp(-lx / 0.12)
             model.notes.append(f"clarity pick: veil_scale={clar.get('veil_scale')} "
                                f"shadow_blend={sh}")
+        grade = None
+        if args.render_targets:
+            grade = dict(cal.get("warm_grade") or {})
+            grade["sharp_amount"] = (cal.get("clarity") or {}).get("sharp_amount", 0.0)
         after = correct_image(img_rgb, model, args.water_strength,
                               water_rgb, args.water_bright,
-                              args.coral_tan, args.coral_lift,
-                              grade=(cal.get("warm_grade")
-                                     if args.render_targets else None))
+                              args.coral_tan, args.coral_lift, grade=grade)
         Image.fromarray(after).save(img_dir / "after_grvi.jpg", quality=95)
         (img_dir / "correction_grvi.json").write_text(
             json.dumps(model.to_dict(), indent=2), encoding="utf-8")
