@@ -193,5 +193,11 @@
     16.0,
     108.5,
     149.5
-  ]
+  ],
+  "warm_grade": {
+    "shift_deg": 0.0,
+    "dark_frac": 0.0,
+    "sat_scale": 0.4,
+    "source": "Coral Tone Bench pick, Nick, 2026-09-03T02:39Z (tone=0 darken=0 rich=-100; hit desat end-stop)"
+  }
 }

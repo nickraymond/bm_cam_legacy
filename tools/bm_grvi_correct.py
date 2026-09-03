@@ -121,6 +121,50 @@ def attach_reference_tone_curve(model: "ccu.GRVIModel", samples,
                        f"({len(xs)} knots, replaces gamma)")
 
 
+def warm_grade(srgb01: np.ndarray, shift_deg: float, dark_frac: float,
+               sat_scale: float) -> np.ndarray:
+    """Warm-band HSV grade, identical math to the Coral Tone Bench picker.
+
+    Operates on final sRGB (0..1) — the same domain the picker's canvas
+    used, so a pick made in the tool reproduces exactly. Weight: hue window
+    16-102 deg (full 38-80), gated by saturation/0.12. Values come from the
+    calibration profile's "warm_grade" block (Nick's saved pick).
+    """
+    if shift_deg == 0 and dark_frac == 0 and sat_scale == 1:
+        return srgb01
+    r, g, b = srgb01[..., 0], srgb01[..., 1], srgb01[..., 2]
+    mx = np.max(srgb01, axis=-1)
+    mn = np.min(srgb01, axis=-1)
+    df = mx - mn
+    h = np.zeros_like(mx)
+    m = df > 0
+    rm = m & (mx == r); h[rm] = np.mod((g[rm] - b[rm]) / df[rm], 6.0)
+    gm = m & (mx == g) & ~rm; h[gm] = (b[gm] - r[gm]) / df[gm] + 2.0
+    bm = m & ~rm & ~gm; h[bm] = (r[bm] - g[bm]) / df[bm] + 4.0
+    h *= 60.0
+    s = np.where(mx > 0, df / np.maximum(mx, 1e-9), 0.0)
+    w = np.zeros_like(h)
+    band = (h > 16) & (h < 102)
+    w[band] = np.where(h[band] < 38, (h[band] - 16) / 22,
+                       np.where(h[band] > 80, (102 - h[band]) / 22, 1.0))
+    w *= np.minimum(1.0, s / 0.12)
+    h2 = h - shift_deg * w
+    s2 = np.minimum(1.0, s * (1 + (sat_scale - 1) * w))
+    v2 = mx * (1 - dark_frac * w)
+    c = v2 * s2
+    x = c * (1 - np.abs(np.mod(h2 / 60.0, 2.0) - 1))
+    mm = v2 - c
+    out = np.empty_like(srgb01)
+    seg0 = h2 < 60
+    seg1 = (h2 >= 60) & (h2 < 120)
+    seg2 = h2 >= 120
+    out[..., 0] = np.select([seg0, seg1, seg2], [c, x, np.zeros_like(c)]) + mm
+    out[..., 1] = np.select([seg0, seg1, seg2], [x, c, c]) + mm
+    out[..., 2] = np.select([seg0, seg1, seg2],
+                            [np.zeros_like(c), np.zeros_like(c), x]) + mm
+    return np.where(w[..., None] > 0, out, srgb01)
+
+
 def coral_tan(x: np.ndarray, rot: float, lift: float) -> np.ndarray:
     """Rendition stage: rotate warm (orange-red) hues toward tan-yellow.
 
@@ -146,8 +190,10 @@ def coral_tan(x: np.ndarray, rot: float, lift: float) -> np.ndarray:
 
 def correct_image(img_rgb: np.ndarray, model: "ccu.GRVIModel",
                   water_strength: float, water_rgb, water_bright: float,
-                  tan_rot: float = 0.4, tan_lift: float = 0.2) -> np.ndarray:
-    """Full-frame GRVI: core -> water prior -> coral tan -> render. uint8 RGB."""
+                  tan_rot: float = 0.4, tan_lift: float = 0.2,
+                  grade: dict | None = None) -> np.ndarray:
+    """Full-frame GRVI: core -> water prior -> coral tan -> render -> warm
+    grade. Returns uint8 RGB."""
     lin = ccu.srgb_to_linear(img_rgb.astype(np.float64) / 255.0)
     x = model.apply_core(lin)
     if water_strength > 0:
@@ -157,8 +203,12 @@ def correct_image(img_rgb: np.ndarray, model: "ccu.GRVIModel",
         wt = wt / ccu.rel_luminance_linear(wt[None, :])[0]
         x = x * (1 - m) + (y * wt * water_bright) * m
     x = coral_tan(x, tan_rot, tan_lift)
-    out = ccu.linear_to_srgb(model.apply_render(x)) * 255.0
-    return np.clip(np.rint(out), 0, 255).astype(np.uint8)
+    out = ccu.linear_to_srgb(model.apply_render(x))
+    if grade:
+        out = warm_grade(out, grade.get("shift_deg", 0.0),
+                         grade.get("dark_frac", 0.0),
+                         grade.get("sat_scale", 1.0))
+    return np.clip(np.rint(out * 255.0), 0, 255).astype(np.uint8)
 
 
 def build_cutsheet(out_path: Path, stem: str, run_tag: str,
@@ -257,7 +307,9 @@ def main() -> None:
             model.vib = 0.2   # P9 warm chroma match (b* 15 vs target 14)
         after = correct_image(img_rgb, model, args.water_strength,
                               water_rgb, args.water_bright,
-                              args.coral_tan, args.coral_lift)
+                              args.coral_tan, args.coral_lift,
+                              grade=(cal.get("warm_grade")
+                                     if args.render_targets else None))
         Image.fromarray(after).save(img_dir / "after_grvi.jpg", quality=95)
         (img_dir / "correction_grvi.json").write_text(
             json.dumps(model.to_dict(), indent=2), encoding="utf-8")
