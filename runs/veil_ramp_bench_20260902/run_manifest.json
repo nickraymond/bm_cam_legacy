@@ -1,0 +1,56 @@
+{
+  "run_tag": "sprint05_color_smoke_20260902",
+  "generated_utc": "2026-09-02T22:56:38+00:00",
+  "git_commit": "9996e84",
+  "command": "tools/bm_reference_card_color_smoke.py --images /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-bmcam001-yaml-config-91b073/3baea3bf-7c17-4ed0-ae64-85ccdc99d05d/scratchpad/inputs/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-bmcam001-yaml-config-91b073/3baea3bf-7c17-4ed0-ae64-85ccdc99d05d/scratchpad/inputs/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg --methods gray_balance ccm_affine root_poly2 veil_ramp veil_poly2 --output-dir runs/veil_ramp_bench_20260902",
+  "args": {
+    "images": [
+      "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-bmcam001-yaml-config-91b073/3baea3bf-7c17-4ed0-ae64-85ccdc99d05d/scratchpad/inputs/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+      "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-bmcam001-yaml-config-91b073/3baea3bf-7c17-4ed0-ae64-85ccdc99d05d/scratchpad/inputs/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg"
+    ],
+    "input_dir": "",
+    "image_glob": "*.jpg",
+    "output_dir": "runs/veil_ramp_bench_20260902",
+    "template_dir": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/bmcam001-yaml-config-91b073/tools/reference_card_color_correction/reference_card_template_v2",
+    "methods": [
+      "gray_balance",
+      "ccm_affine",
+      "root_poly2",
+      "veil_ramp",
+      "veil_poly2"
+    ],
+    "tag_family": "DICT_APRILTAG_36h11",
+    "scales": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      8
+    ],
+    "corner_map": "tl:0,tr:1,bl:2,br:3",
+    "card_expand_x": 1.25,
+    "card_expand_y": 2.0,
+    "patch_inset": 0.3,
+    "manual_card_corners": "",
+    "apply_model_from": ""
+  },
+  "images": [
+    "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-bmcam001-yaml-config-91b073/3baea3bf-7c17-4ed0-ae64-85ccdc99d05d/scratchpad/inputs/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+    "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-bmcam001-yaml-config-91b073/3baea3bf-7c17-4ed0-ae64-85ccdc99d05d/scratchpad/inputs/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg"
+  ],
+  "template_dir": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/bmcam001-yaml-config-91b073/tools/reference_card_color_correction/reference_card_template_v2",
+  "template_name": "nereus_reef_reference_card_v2",
+  "methods": [
+    "gray_balance",
+    "ccm_affine",
+    "root_poly2",
+    "veil_ramp",
+    "veil_poly2"
+  ],
+  "versions": {
+    "python": "3.13.5",
+    "opencv": "5.0.0",
+    "numpy": "2.5.1"
+  }
+}

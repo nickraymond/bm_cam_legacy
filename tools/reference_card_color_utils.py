@@ -258,8 +258,14 @@ class CorrectionModel:
     offset: np.ndarray = field(default_factory=lambda: np.zeros(3))
     kind: str = "linear"
     notes: List[str] = field(default_factory=list)
+    stages: Optional[List["CorrectionModel"]] = None  # kind "chain" only
 
     def apply_linear(self, lin: np.ndarray) -> np.ndarray:
+        if self.kind == "chain":
+            out = lin
+            for stage in self.stages or []:
+                out = stage.apply_linear(out)
+            return out
         if self.kind.startswith("root_poly"):
             return _root_poly_expand(lin, int(self.kind[-1])) @ self.matrix.T
         return lin @ self.matrix.T + self.offset
@@ -270,7 +276,7 @@ class CorrectionModel:
         return linear_to_srgb(self.apply_linear(lin)) * 255.0
 
     def to_dict(self) -> dict:
-        return {
+        d = {
             "method": self.method,
             "kind": self.kind,
             "matrix": [[round(float(v), 6) for v in row] for row in self.matrix],
@@ -278,6 +284,9 @@ class CorrectionModel:
             "applied_in": "linear_rgb",
             "notes": self.notes,
         }
+        if self.stages is not None:
+            d["stages"] = [s.to_dict() for s in self.stages]
+        return d
 
 
 def _patch_lin(samples: List[PatchSample]):
@@ -378,6 +387,245 @@ def solve_root_poly3(samples: List[PatchSample], img_lin: np.ndarray) -> Correct
     return _solve_root_poly(samples, 3)
 
 
+# ---------------------------------------------------------------------------
+# Gray-Ramp Veil Inversion (GRVI) — Nereus in-house method, Sprint "novel
+# underwater correction". Commercial-path clean: solved entirely from OUR
+# card's achromatic ramp; no depth map, no dark-pixel backscatter search, no
+# third-party code. Physics: at the card plane the underwater signal is
+#   observed_c = gain_c * reflectance + veil_c
+# where gain_c = illuminant x direct transmission (multiplicative red/blue
+# loss) and veil_c = additive backscatter ("green haze"). Because the card's
+# gray ramp spans known reflectances at ONE distance, a per-channel linear
+# regression across the ramp separates the two: slope = gain, intercept =
+# veil. Classic chart methods (gray_balance, ccm3x3) fold the veil into the
+# gain and can only trade one error for the other; measuring the intercept is
+# what lets the haze be subtracted instead of merely rebalanced.
+# ---------------------------------------------------------------------------
+
+def solve_veil_ramp(samples: List[PatchSample], img_lin: np.ndarray) -> CorrectionModel:
+    """GRVI stage 1: per-channel (gain, veil) from the achromatic ramp.
+
+    Weighted least squares of observed linear value vs design reflectance
+    over the 5 gray patches; inverse is applied as out = (in - veil) / gain.
+    """
+    notes: List[str] = []
+    grays = [s for s in samples if s.patch_type == "gray"]
+    if len(grays) < 3:
+        raise ValueError(f"need >=3 gray patches for veil ramp, got {len(grays)}")
+    obs, tgt = _patch_lin(grays)                       # (N,3) linear
+    rho = tgt.mean(axis=1)                             # achromatic design reflectance
+    # Down-weight clipped or glinty patches; never zero a patch out entirely.
+    w = np.array([max(0.05, (1.0 - s.clip_high_frac) * (1.0 - s.clip_low_frac)
+                       / (1.0 + float(s.std_srgb.mean()) / 32.0)) for s in grays])
+    A = np.stack([rho, np.ones_like(rho)], axis=1)     # (N,2): [reflectance, 1]
+    Aw = A * w[:, None]
+    gain = np.empty(3)
+    veil = np.empty(3)
+    for c in range(3):
+        (g, v), *_ = np.linalg.lstsq(Aw, obs[:, c] * w, rcond=None)
+        gain[c], veil[c] = g, v
+    # Physical guards: backscatter is non-negative; a collapsed channel
+    # (deep-water red) gets a gain floor rather than an exploding inverse.
+    veil = np.maximum(veil, 0.0)
+    g_floor = 5e-4
+    if np.any(gain < g_floor):
+        low = [ch for ch, g in zip("RGB", gain) if g < g_floor]
+        notes.append(f"gain floored at {g_floor} for {','.join(low)}: "
+                     "channel effectively extinct at card range")
+    gain = np.maximum(gain, g_floor)
+    notes.append("ramp fit per channel: gain="
+                 + str([round(float(g), 5) for g in gain])
+                 + " veil=" + str([round(float(v), 5) for v in veil])
+                 + " (linear RGB at card plane)")
+    return CorrectionModel("veil_ramp", np.diag(1.0 / gain), -veil / gain, notes=notes)
+
+
+def solve_veil_poly2(samples: List[PatchSample], img_lin: np.ndarray) -> CorrectionModel:
+    """GRVI stage 1 + 2: veil inversion, then a chroma refinement matrix.
+
+    Stage 2 is a root-polynomial(2) fit on the veil-corrected patches,
+    ridge-shrunk toward identity with the red row shrunk harder when the
+    card reports weak red signal — a full least-squares fit on red-starved
+    patches turns red noise into a warm cast (known regression direction
+    for this project), so low red SNR must mean "leave red alone", not
+    "amplify harder".
+    """
+    stage1 = solve_veil_ramp(samples, img_lin)
+    obs, tgt = _patch_lin(samples)
+    obs2 = stage1.apply_linear(obs)                    # veil-corrected observations
+    w = np.array([max(0.05, (1.0 - s.clip_high_frac) * (1.0 - s.clip_low_frac))
+                  for s in samples])
+    A = _root_poly_expand(obs2, 2)                     # (N,6)
+    n_terms = A.shape[1]
+    identity = np.zeros((3, n_terms))
+    identity[0, 0] = identity[1, 1] = identity[2, 2] = 1.0
+    # Per-output-channel ridge strength: base for G/B; red scaled by how far
+    # below the 5% recoverability floor the card's white-patch red sits.
+    red = card_red_health(samples)
+    lam = np.full(3, 0.1)
+    red_frac = max(red["white_patch_red_frac"], 1e-4)
+    if red_frac < 0.05:
+        lam[0] = min(1000.0, 0.1 * (0.05 / red_frac) ** 2)
+    notes = [f"stage2 root_poly2 ridge toward identity, lambda={[round(float(l), 3) for l in lam]}"
+             f" (white-patch red {red_frac:.1%} of full scale)"]
+    AtWA = A.T @ (A * w[:, None])
+    coef = np.empty((3, n_terms))
+    for c in range(3):
+        lhs = AtWA + lam[c] * np.eye(n_terms)
+        rhs = A.T @ (w * tgt[:, c]) + lam[c] * identity[c]
+        coef[c] = np.linalg.solve(lhs, rhs)
+    stage2 = CorrectionModel("veil_poly2_stage2", coef, kind="root_poly2", notes=notes)
+    return CorrectionModel("veil_poly2", np.eye(3), kind="chain",
+                           stages=[stage1, stage2],
+                           notes=stage1.notes + notes)
+
+
+# ---------------------------------------------------------------------------
+# GRVI render pipeline (Gray-Ramp Veil Inversion) — the product method.
+# veil_ramp/veil_poly2 above are the colorimetric core; GRVI adds the display
+# rendering that makes the output match a good in-water camera's picture
+# instead of a raw radiance map. Tuned 2026-09-02 on the AOML bmcam001 bench
+# pair against the P9 (Olympus) reference look. All stages are pointwise in
+# linear RGB; the (spatial) water-body rendering prior lives in
+# tools/bm_grvi_correct.py because it needs the whole image.
+# Stages:
+#   1. soft veil subtraction   x = 0.5*(d + sqrt(d^2 + (k*veil)^2)), d = lin - veil
+#      (full backscatter removal for signal >> veil, smooth rolloff, no crush)
+#   2. trusted amplification   A = 1/gain, red amp capped at amax*green amp —
+#      a dead red channel is never noise-amplified (56x-1000x on the bench)
+#   3. chroma reconstruction   ridge root-poly2 toward identity on the
+#      veil-subtracted card patches: red is re-synthesized from the surviving
+#      G/B channels, anchored by the card's warm patches
+#   4. exposure anchor         card white -> expo (0.92) luminance
+#   5. shadow desaturation     chroma * Y/(Y+desat): amplified color noise
+#      cannot tint near-black shadows
+#   6. vibrance                boost low/mid chroma only (never oversaturates)
+#   7. ratio-preserving tone   Y' = Y^gamma applied as a luminance ratio so
+#      chroma is preserved (per-channel gamma mutes color)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class GRVIModel(CorrectionModel):
+    """Pointwise GRVI chain. matrix holds the stage-3 root-poly2 coefs."""
+    veil: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    amp: np.ndarray = field(default_factory=lambda: np.ones(3))
+    soft_k: float = 0.35
+    expo_scale: float = 1.0
+    desat: float = 0.015
+    vib: float = 0.5
+    tone_gamma: float = 0.75
+    # optional reference tone curve (monotone luminance LUT); when set it
+    # replaces the gamma in apply_render. Built by the runner from the
+    # calibration JSON's tone_luma_targets (reference gray-ramp rendition).
+    tone_lut_x: Optional[np.ndarray] = None
+    tone_lut_y: Optional[np.ndarray] = None
+
+    def _soft_sub(self, lin: np.ndarray) -> np.ndarray:
+        d = np.clip(lin, 0.0, None) - self.veil
+        eps = self.soft_k * self.veil + 1e-9
+        return 0.5 * (d + np.sqrt(d * d + eps * eps))
+
+    def apply_core(self, lin: np.ndarray) -> np.ndarray:
+        """Stages 1-4: veil removal, trusted amp, chroma matrix, exposure."""
+        x = self._soft_sub(lin) * self.amp
+        return (_root_poly_expand(x, 2) @ self.matrix.T) * self.expo_scale
+
+    def apply_render(self, x: np.ndarray) -> np.ndarray:
+        """Stages 5-7: shadow desat, vibrance, ratio-preserving tone map."""
+        y = np.clip(rel_luminance_linear(np.clip(x, 0, None)), 1e-9, None)[..., None]
+        s = y / (y + self.desat)
+        chroma = x - y
+        cn = np.linalg.norm(chroma, axis=-1, keepdims=True) / (y + 1e-9)
+        boost = 1.0 + self.vib * np.exp(-(cn / 0.8) ** 2)
+        x = y + chroma * s * boost
+        y = np.clip(rel_luminance_linear(np.clip(x, 0, None)), 1e-9, None)[..., None]
+        if self.tone_lut_x is not None:
+            yt = np.interp(y, self.tone_lut_x, self.tone_lut_y)
+        else:
+            yt = y ** self.tone_gamma
+        return x * (yt / y)
+
+    def apply_linear(self, lin: np.ndarray) -> np.ndarray:
+        return self.apply_render(self.apply_core(lin))
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d.update({
+            "veil": [round(float(v), 6) for v in self.veil],
+            "amp": [round(float(a), 4) for a in self.amp],
+            "soft_k": self.soft_k,
+            "expo_scale": round(self.expo_scale, 4),
+            "desat": self.desat, "vib": self.vib, "tone_gamma": self.tone_gamma,
+        })
+        return d
+
+
+def solve_grvi(samples: List[PatchSample], img_lin: np.ndarray,
+               amax: float = 1.5, lam_red: float = 5.0, lam_gb: float = 0.5,
+               expo: float = 0.92,
+               target_override: Optional[Dict[str, np.ndarray]] = None) -> "GRVIModel":
+    """Solve the full GRVI chain from the card (see block comment above).
+
+    lam_red >> lam_gb keeps the red output row near identity: red stays what
+    was measured (small) instead of being aggressively synthesized, which
+    renders coral yellow-brown/tan (the P9 reference look) rather than
+    orange-red. Lower lam_red toward lam_gb for maximum card-red accuracy at
+    the cost of a redder scene.
+
+    target_override: optional {patch_id: linear-RGB target} replacing the
+    design targets in the stage-3 chroma fit only (stage 1 always regresses
+    against the design gray reflectances — that part is physics). Used for
+    reference-render calibration: pass the card patch colors as rendered by a
+    reference camera (exposure-normalized) and the whole scene inherits that
+    camera's rendition.
+    """
+    ramp = solve_veil_ramp(samples, img_lin)
+    inv_g = np.diag(ramp.matrix)
+    veil = -ramp.offset / inv_g
+    amp = inv_g.copy()
+    amp[0] = min(amp[0], amax * amp[1])            # red trust cap
+    notes = list(ramp.notes)
+    if amp[0] < inv_g[0]:
+        notes.append(f"red amp capped {inv_g[0]:.1f}x -> {amp[0]:.1f}x "
+                     f"({amax}x green); red re-synthesized from G/B in stage 3")
+    model = GRVIModel("grvi", np.eye(3), kind="grvi", notes=notes,
+                      veil=veil, amp=amp)
+    # stage 3: ridge root-poly2 toward identity on veil-corrected patches
+    obs, tgt = _patch_lin(samples)
+    if target_override:
+        tgt = tgt.copy()
+        n_over = 0
+        for i, s in enumerate(samples):
+            if s.patch_id in target_override:
+                tgt[i] = np.asarray(target_override[s.patch_id], dtype=np.float64)
+                n_over += 1
+        notes.append(f"stage3 targets overridden for {n_over} patches "
+                     "(reference-render calibration)")
+    obs2 = model._soft_sub(obs) * amp
+    A = _root_poly_expand(obs2, 2)
+    n_terms = A.shape[1]
+    identity = np.zeros((3, n_terms))
+    identity[0, 0] = identity[1, 1] = identity[2, 2] = 1.0
+    w = np.array([max(0.05, (1.0 - s.clip_high_frac) * (1.0 - s.clip_low_frac))
+                  for s in samples])
+    AtWA = A.T @ (A * w[:, None])
+    coef = np.empty((3, n_terms))
+    lam_rgb = (lam_red, lam_gb, lam_gb)
+    for c in range(3):
+        coef[c] = np.linalg.solve(AtWA + lam_rgb[c] * np.eye(n_terms),
+                                  A.T @ (w * tgt[:, c]) + lam_rgb[c] * identity[c])
+    model.matrix = coef
+    notes.append(f"stage3 ridge root_poly2 lambda_rgb={lam_rgb} "
+                 f"on {len(samples)} patches")
+    # stage 4: exposure anchor on the corrected card white
+    white = next(s for s in samples if s.patch_id == "gray_white")
+    pw = model.apply_core(srgb_to_linear(white.median_srgb[None, :] / 255.0))
+    y_white = float(rel_luminance_linear(np.clip(pw, 0, None))[0])
+    model.expo_scale = expo / max(y_white, 1e-6)
+    notes.append(f"exposure anchor: card white -> Y={expo}")
+    return model
+
+
 # Registry the smoke-test tool iterates. Order = order on the cut sheet.
 # To experiment with a new method, add: "name": solve_name
 METHOD_REGISTRY: Dict[str, Callable[[List[PatchSample], np.ndarray], CorrectionModel]] = {
@@ -388,6 +636,9 @@ METHOD_REGISTRY: Dict[str, Callable[[List[PatchSample], np.ndarray], CorrectionM
     "ccm_affine": solve_ccm_affine,
     "root_poly2": solve_root_poly2,
     "root_poly3": solve_root_poly3,
+    "veil_ramp": solve_veil_ramp,
+    "veil_poly2": solve_veil_poly2,
+    "grvi": solve_grvi,
 }
 
 

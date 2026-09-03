@@ -107,3 +107,69 @@ def test_card_red_health_flags_dead_red():
     samples = _make_samples(lambda lin: lin * np.array([0.001, 0.8, 0.7]))
     health = ccu.card_red_health(samples)
     assert not health["red_signal_ok"]
+
+
+def test_veil_ramp_recovers_gain_and_veil():
+    gains = np.array([0.06, 0.70, 0.45])
+    veil = np.array([0.02, 0.15, 0.10])
+    samples = _make_samples(lambda lin: lin * gains + veil)
+    model = ccu.solve_veil_ramp(samples, np.zeros((2, 2, 3)))
+    # per-channel affine distortion is exactly invertible for ALL patches,
+    # colors included, even though only grays were used to solve
+    de = ccu.patch_delta_e(samples, model)
+    assert max(de.values()) < 1.0
+    # the solved inverse encodes the true physical parameters
+    assert np.allclose(np.diag(model.matrix), 1.0 / gains, rtol=1e-6)
+    assert np.allclose(model.offset, -veil / gains, rtol=1e-6)
+
+
+def test_veil_poly2_corrects_affine_water_distortion():
+    gains = np.array([0.08, 0.65, 0.50])
+    veil = np.array([0.01, 0.12, 0.08])
+    samples = _make_samples(lambda lin: lin * gains + veil)
+    model = ccu.solve_veil_poly2(samples, np.zeros((2, 2, 3)))
+    de = ccu.patch_delta_e(samples, model)
+    assert float(np.mean(list(de.values()))) < 2.0
+
+
+def test_veil_poly2_red_guard_locks_red_row_when_red_dead():
+    gains = np.array([0.002, 0.65, 0.50])  # red effectively extinct
+    veil = np.array([0.0, 0.12, 0.08])
+    samples = _make_samples(lambda lin: lin * gains + veil)
+    model = ccu.solve_veil_poly2(samples, np.zeros((2, 2, 3)))
+    stage2 = model.stages[1]
+    identity_row = np.zeros(stage2.matrix.shape[1])
+    identity_row[0] = 1.0
+    # heavy ridge shrinkage: red output row must stay near identity so red
+    # noise is not amplified into a warm cast
+    assert np.linalg.norm(stage2.matrix[0] - identity_row) < 0.2
+
+
+def test_grvi_neutralizes_grays_and_bounds_red():
+    gains = np.array([0.02, 0.65, 0.50])   # red nearly dead (2%)
+    veil = np.array([0.005, 0.15, 0.08])
+    samples = _make_samples(lambda lin: lin * gains + veil)
+    model = ccu.solve_grvi(samples, np.zeros((2, 2, 3)))
+    # red amplification must be capped at 2x the green amp, not 50x
+    assert model.amp[0] <= 2.0 * model.amp[1] + 1e-9
+    out = model.apply_srgb255(np.array([s.median_srgb for s in samples]))
+    assert np.all(np.isfinite(out))
+    # with red nearly dead, GRVI keeps red conservative: the corrected gray
+    # may be red-deficient (honest) but must never be red-dominant
+    # (hallucinated warmth); G/B must still balance
+    mid = next(i for i, s in enumerate(samples) if s.patch_id == "gray_mid")
+    r, g, b = out[mid]
+    assert r <= g * 1.05
+    assert abs(b - g) / max(g, 1e-6) < 0.15
+
+
+def test_grvi_output_in_display_range():
+    gains = np.array([0.06, 0.70, 0.45])
+    veil = np.array([0.02, 0.15, 0.10])
+    samples = _make_samples(lambda lin: lin * gains + veil)
+    model = ccu.solve_grvi(samples, np.zeros((2, 2, 3)))
+    rng = np.random.default_rng(7)
+    img = rng.uniform(0, 255, size=(8, 8, 3))
+    out = model.apply_srgb255(img)
+    assert np.all(np.isfinite(out))
+    assert out.min() >= 0.0 and out.max() <= 255.0 + 1e-6
