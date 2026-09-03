@@ -1,0 +1,102 @@
+{
+  "method": "veil_poly2",
+  "kind": "chain",
+  "matrix": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "offset": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "ramp fit per channel: gain=[0.00086, 0.41429, 0.30973] veil=[0.00318, 0.13259, 0.06068] (linear RGB at card plane)",
+    "stage2 root_poly2 ridge toward identity, lambda=[0.163, 0.1, 0.1] (white-patch red 3.9% of full scale)"
+  ],
+  "stages": [
+    {
+      "method": "veil_ramp",
+      "kind": "linear",
+      "matrix": [
+        [
+          1161.068994,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          2.413792,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          3.228572
+        ]
+      ],
+      "offset": [
+        -3.697815,
+        -0.320037,
+        -0.195909
+      ],
+      "applied_in": "linear_rgb",
+      "notes": [
+        "ramp fit per channel: gain=[0.00086, 0.41429, 0.30973] veil=[0.00318, 0.13259, 0.06068] (linear RGB at card plane)"
+      ]
+    },
+    {
+      "method": "veil_poly2_stage2",
+      "kind": "root_poly2",
+      "matrix": [
+        [
+          0.021898,
+          0.493268,
+          0.075557,
+          -0.137123,
+          0.035848,
+          0.312277
+        ],
+        [
+          0.002443,
+          1.076568,
+          -0.174722,
+          -0.104983,
+          0.022907,
+          0.063787
+        ],
+        [
+          0.001387,
+          0.180172,
+          0.69996,
+          -0.032104,
+          -0.056654,
+          0.072309
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "applied_in": "linear_rgb",
+      "notes": [
+        "stage2 root_poly2 ridge toward identity, lambda=[0.163, 0.1, 0.1] (white-patch red 3.9% of full scale)"
+      ]
+    }
+  ]
+}

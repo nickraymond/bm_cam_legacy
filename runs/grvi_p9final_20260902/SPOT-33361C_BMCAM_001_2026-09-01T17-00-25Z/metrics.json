@@ -1,0 +1,21 @@
+{
+  "image": "SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+  "card_detected": true,
+  "tag_count": 4,
+  "mean_patch_de_before": 59.24,
+  "gray_angular_deg_before": 36.78,
+  "white_patch_red_frac": 0.1451,
+  "white_patch_red_snr": 29.94,
+  "red_signal_ok": true,
+  "veil": [
+    0.0045,
+    0.1898,
+    0.0837
+  ],
+  "gain": [
+    0.3135,
+    0.4702,
+    0.3614
+  ],
+  "mean_luma_after": 109.9
+}

@@ -1,0 +1,60 @@
+{
+  "method": "grvi",
+  "kind": "grvi",
+  "matrix": [
+    [
+      1.01913,
+      0.223223,
+      0.14084,
+      0.058291,
+      0.042255,
+      0.171359
+    ],
+    [
+      -0.01352,
+      0.931256,
+      0.009678,
+      -0.053351,
+      -0.038948,
+      -0.011328
+    ],
+    [
+      -0.029105,
+      -0.046521,
+      1.135427,
+      -0.09134,
+      -0.066037,
+      0.059542
+    ]
+  ],
+  "offset": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "ramp fit per channel: gain=[0.00153, 0.4065, 0.3434] veil=[0.00138, 0.14924, 0.08035] (linear RGB at card plane)",
+    "red amp capped 653.9x -> 3.7x (1.5x green); red re-synthesized from G/B in stage 3",
+    "stage3 targets overridden for 17 patches (reference-render calibration)",
+    "stage3 ridge root_poly2 lambda_rgb=(5.0, 0.5, 0.5) on 17 patches",
+    "exposure anchor: card white -> Y=0.92",
+    "tone: reference gray-ramp PCHIP curve (7 knots, replaces gamma)",
+    "clarity pick: veil_scale=0.52 shadow_blend=0.12"
+  ],
+  "veil": [
+    0.000715,
+    0.077603,
+    0.041782
+  ],
+  "amp": [
+    3.6901,
+    2.46,
+    2.9121
+  ],
+  "soft_k": 0.35,
+  "expo_scale": 1.0735,
+  "desat": 0.015,
+  "vib": 0.2,
+  "tone_gamma": 0.75
+}

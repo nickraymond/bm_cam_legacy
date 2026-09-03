@@ -1,0 +1,30 @@
+{
+  "method": "veil_ramp",
+  "kind": "linear",
+  "matrix": [
+    [
+      1161.068994,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      2.413792,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      3.228572
+    ]
+  ],
+  "offset": [
+    -3.697815,
+    -0.320037,
+    -0.195909
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "ramp fit per channel: gain=[0.00086, 0.41429, 0.30973] veil=[0.00318, 0.13259, 0.06068] (linear RGB at card plane)"
+  ]
+}

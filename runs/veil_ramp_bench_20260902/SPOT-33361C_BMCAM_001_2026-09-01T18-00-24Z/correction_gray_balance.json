@@ -1,0 +1,30 @@
+{
+  "method": "gray_balance",
+  "kind": "linear",
+  "matrix": [
+    [
+      71.119119,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.10567,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.88446
+    ]
+  ],
+  "offset": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "applied_in": "linear_rgb",
+  "notes": [
+    "grays used: gray_light, gray_mid, gray_dark"
+  ]
+}
