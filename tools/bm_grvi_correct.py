@@ -305,6 +305,19 @@ def main() -> None:
         if args.render_targets and cal.get("tone_luma_targets"):
             attach_reference_tone_curve(model, samples, cal["tone_luma_targets"])
             model.vib = 0.2   # P9 warm chroma match (b* 15 vs target 14)
+        clar = cal.get("clarity") if args.render_targets else None
+        if clar:
+            # Clarity Bench pick: partial veil subtraction keeps some natural
+            # water; shadow_blend pulls the P9 tone curve's hazy dark floor
+            # back toward true blacks (weight exp(-Y/0.12), shadows only).
+            # Applied post-solve, matching the picker tool's math exactly.
+            model.veil = model.veil * clar.get("veil_scale", 1.0)
+            sh = clar.get("shadow_blend", 1.0)
+            if model.tone_lut_x is not None and sh != 1.0:
+                lx, ly = model.tone_lut_x, model.tone_lut_y
+                model.tone_lut_y = ly + (lx - ly) * (1.0 - sh) * np.exp(-lx / 0.12)
+            model.notes.append(f"clarity pick: veil_scale={clar.get('veil_scale')} "
+                               f"shadow_blend={sh}")
         after = correct_image(img_rgb, model, args.water_strength,
                               water_rgb, args.water_bright,
                               args.coral_tan, args.coral_lift,

@@ -199,5 +199,11 @@
     "dark_frac": 0.0,
     "sat_scale": 0.4,
     "source": "Coral Tone Bench pick, Nick, 2026-09-03T02:39Z (tone=0 darken=0 rich=-100; hit desat end-stop)"
+  },
+  "clarity": {
+    "veil_scale": 0.56,
+    "shadow_blend": 0.03,
+    "sharp_amount": 0.0,
+    "source": "Clarity Bench pick, Nick, 2026-09-03T03:21Z"
   }
 }
