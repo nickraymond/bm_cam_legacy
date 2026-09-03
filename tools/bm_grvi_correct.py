@@ -211,7 +211,11 @@ def main() -> None:
         if "--water-rgb" not in " ".join(sys.argv) and cal.get("water_srgb"):
             args.water_rgb = ",".join(str(v) for v in cal["water_srgb"])
         if "--coral-tan" not in " ".join(sys.argv):
-            args.coral_tan = 0.2   # calibrated matrix already carries the rendition
+            # calibrated matrix + tone curve carry the rendition; the tan
+            # rotation on top pushes warm hues past P9 into yellow
+            # (measured: P9 warm pixels a*/b* 6/14, tan 0.2 gave 6/18)
+            args.coral_tan = 0.0
+            args.coral_lift = 0.0
         print(f"render calibration: {cal['source_image']} "
               f"({len(target_override)} patch targets, water {args.water_rgb})")
 
@@ -250,6 +254,7 @@ def main() -> None:
         model = ccu.solve_grvi(samples, img_lin, target_override=target_override)
         if args.render_targets and cal.get("tone_luma_targets"):
             attach_reference_tone_curve(model, samples, cal["tone_luma_targets"])
+            model.vib = 0.2   # P9 warm chroma match (b* 15 vs target 14)
         after = correct_image(img_rgb, model, args.water_strength,
                               water_rgb, args.water_bright,
                               args.coral_tan, args.coral_lift)
