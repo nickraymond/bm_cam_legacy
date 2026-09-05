@@ -1,0 +1,167 @@
+{
+  "run_tag": "reef_intake_20260905T172206Z",
+  "git_commit": "8b7cf97",
+  "command": "tools/bm_reef_frame_intake.py --frames /Users/nickbuemond/Downloads/Day_03/*.jpg /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/*.jpg /Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_*.jpg --delivery-dir runs/sprint21_day0_20260905/delivery --output-dir runs/sprint21_day0_20260905 --corrected-dir /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-cheeca-reef-stacking-plan-402cda/b1f1cf02-878d-4e42-9078-c59c31c57bbc/scratchpad/grvi_day03_probe",
+  "args": {
+    "frames": [
+      "/Users/nickbuemond/Downloads/Day_03/*.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/*.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_*.jpg"
+    ],
+    "delivery_dir": "runs/sprint21_day0_20260905/delivery",
+    "output_dir": "runs/sprint21_day0_20260905",
+    "reference": "",
+    "corrected_dir": "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-cheeca-reef-stacking-plan-402cda/b1f1cf02-878d-4e42-9078-c59c31c57bbc/scratchpad/grvi_day03_probe",
+    "drift_warn_px": 1.0
+  },
+  "captures": 17,
+  "input_files": 26,
+  "skipped_files": [],
+  "registration_reference": "2026-09-01T17:00:25Z",
+  "max_drift_px": 0.88,
+  "mount_stable_single_epoch": true,
+  "delivery_records_matched": 17,
+  "complete_deliveries": 0,
+  "quicklook": [
+    {
+      "file": "quicklook/median_received_all.jpg",
+      "source": "received",
+      "group": "all",
+      "n_frames": 17,
+      "sharpness_lapvar": 39.8
+    },
+    {
+      "file": "quicklook/median_received_day_2026-09-01.jpg",
+      "source": "received",
+      "group": "day_2026-09-01",
+      "n_frames": 2,
+      "sharpness_lapvar": 58.4
+    },
+    {
+      "file": "quicklook/median_received_day_2026-09-02.jpg",
+      "source": "received",
+      "group": "day_2026-09-02",
+      "n_frames": 5,
+      "sharpness_lapvar": 61.5
+    },
+    {
+      "file": "quicklook/median_received_day_2026-09-03.jpg",
+      "source": "received",
+      "group": "day_2026-09-03",
+      "n_frames": 5,
+      "sharpness_lapvar": 49.8
+    },
+    {
+      "file": "quicklook/median_received_day_2026-09-04.jpg",
+      "source": "received",
+      "group": "day_2026-09-04",
+      "n_frames": 5,
+      "sharpness_lapvar": 43.1
+    },
+    {
+      "file": "quicklook/median_received_hour_17Z.jpg",
+      "source": "received",
+      "group": "hour_17Z",
+      "n_frames": 4,
+      "sharpness_lapvar": 52.5
+    },
+    {
+      "file": "quicklook/median_received_hour_18Z.jpg",
+      "source": "received",
+      "group": "hour_18Z",
+      "n_frames": 4,
+      "sharpness_lapvar": 44.2
+    },
+    {
+      "file": "quicklook/median_received_hour_14Z.jpg",
+      "source": "received",
+      "group": "hour_14Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 51.9
+    },
+    {
+      "file": "quicklook/median_received_hour_15Z.jpg",
+      "source": "received",
+      "group": "hour_15Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 41.2
+    },
+    {
+      "file": "quicklook/median_received_hour_16Z.jpg",
+      "source": "received",
+      "group": "hour_16Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 64.4
+    },
+    {
+      "file": "quicklook/median_corrected_all.jpg",
+      "source": "corrected",
+      "group": "all",
+      "n_frames": 16,
+      "sharpness_lapvar": 237.2
+    },
+    {
+      "file": "quicklook/median_corrected_day_2026-09-01.jpg",
+      "source": "corrected",
+      "group": "day_2026-09-01",
+      "n_frames": 1,
+      "sharpness_lapvar": 438.4
+    },
+    {
+      "file": "quicklook/median_corrected_day_2026-09-02.jpg",
+      "source": "corrected",
+      "group": "day_2026-09-02",
+      "n_frames": 5,
+      "sharpness_lapvar": 481.4
+    },
+    {
+      "file": "quicklook/median_corrected_day_2026-09-03.jpg",
+      "source": "corrected",
+      "group": "day_2026-09-03",
+      "n_frames": 5,
+      "sharpness_lapvar": 350.5
+    },
+    {
+      "file": "quicklook/median_corrected_day_2026-09-04.jpg",
+      "source": "corrected",
+      "group": "day_2026-09-04",
+      "n_frames": 5,
+      "sharpness_lapvar": 322.2
+    },
+    {
+      "file": "quicklook/median_corrected_hour_18Z.jpg",
+      "source": "corrected",
+      "group": "hour_18Z",
+      "n_frames": 4,
+      "sharpness_lapvar": 297.0
+    },
+    {
+      "file": "quicklook/median_corrected_hour_14Z.jpg",
+      "source": "corrected",
+      "group": "hour_14Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 397.1
+    },
+    {
+      "file": "quicklook/median_corrected_hour_15Z.jpg",
+      "source": "corrected",
+      "group": "hour_15Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 318.9
+    },
+    {
+      "file": "quicklook/median_corrected_hour_16Z.jpg",
+      "source": "corrected",
+      "group": "hour_16Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 476.9
+    },
+    {
+      "file": "quicklook/median_corrected_hour_17Z.jpg",
+      "source": "corrected",
+      "group": "hour_17Z",
+      "n_frames": 3,
+      "sharpness_lapvar": 451.5
+    }
+  ]
+}

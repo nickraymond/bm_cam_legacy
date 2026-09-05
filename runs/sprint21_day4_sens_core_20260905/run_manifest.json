@@ -1,0 +1,32 @@
+{
+  "run_tag": "sens_20260905T211827Z",
+  "args": {
+    "composites": [
+      "2026-09-02=runs/sprint21_day3_order_20260905/2026-09-02/arms/A2_fuse_then_correct/raw_composite.jpg",
+      "2026-09-03=runs/sprint21_day3_order_20260905/2026-09-03/arms/A2_fuse_then_correct/raw_composite.jpg",
+      "2026-09-04=runs/sprint21_day3_order_20260905/arms/A2_fuse_then_correct/raw_composite.jpg"
+    ],
+    "colonies": "155,343,195,383;545,239,585,279;103,343,143,383;610,174,650,214;454,239,494,279;636,239,676,279",
+    "window_sizes": "24,40,56,72,96",
+    "truth_run": "runs/sprint21_day2_truth_20260905",
+    "inject": "0.05,0.10,0.20,0.40",
+    "prefixes": "0.742,0.766,0.882,0.910,0.911",
+    "quality": 70,
+    "seed": 11,
+    "render_targets": "tools/reference_card_color_correction/render_targets_p9.json",
+    "measure_layer": "core",
+    "output_dir": "runs/sprint21_day4_sens_core_20260905"
+  },
+  "k_sigma": 3.0,
+  "persistence": 2,
+  "transfer_median": 0.809,
+  "sigma_by_window": {
+    "24": 0.16852,
+    "40": 0.19926,
+    "56": 0.19974,
+    "72": 0.19512,
+    "96": 0.16329
+  },
+  "baseline_days": 3,
+  "caveat": "n=3 days; sigma carries ~50% error; the null is UNVERIFIED"
+}

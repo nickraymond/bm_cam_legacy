@@ -1,0 +1,122 @@
+[
+  {
+    "capture_utc": "2026-09-04T14:00:00Z",
+    "date": "2026-09-04",
+    "hour_utc": "14",
+    "archived_as": "frames/2026-09-04T14-00-00Z.jpg",
+    "source_path": "reference_images/reference_reef_coral_card_01.jpg",
+    "bytes": 177783,
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "sharpness_lapvar": 1758.2,
+    "delivery": {
+      "planned_chunks": 366,
+      "received_chunks": 271,
+      "usable_prefix_pct": 74.0,
+      "first_gap_index": 271,
+      "end_seen": false,
+      "complete": false,
+      "encoded_bytes": 105298
+    },
+    "simulated": true,
+    "truth_psnr": 25.38,
+    "truth_ssim": 0.8203
+  },
+  {
+    "capture_utc": "2026-09-04T15:00:00Z",
+    "date": "2026-09-04",
+    "hour_utc": "15",
+    "archived_as": "frames/2026-09-04T15-00-00Z.jpg",
+    "source_path": "reference_images/reference_reef_coral_card_01.jpg",
+    "bytes": 172081,
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "sharpness_lapvar": 1502.7,
+    "delivery": {
+      "planned_chunks": 346,
+      "received_chunks": 265,
+      "usable_prefix_pct": 76.6,
+      "first_gap_index": 265,
+      "end_seen": false,
+      "complete": false,
+      "encoded_bytes": 99394
+    },
+    "simulated": true,
+    "truth_psnr": 21.03,
+    "truth_ssim": 0.8111
+  },
+  {
+    "capture_utc": "2026-09-04T16:00:00Z",
+    "date": "2026-09-04",
+    "hour_utc": "16",
+    "archived_as": "frames/2026-09-04T16-00-00Z.jpg",
+    "source_path": "reference_images/reference_reef_coral_card_01.jpg",
+    "bytes": 210975,
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "sharpness_lapvar": 2633.1,
+    "delivery": {
+      "planned_chunks": 377,
+      "received_chunks": 332,
+      "usable_prefix_pct": 88.1,
+      "first_gap_index": 332,
+      "end_seen": false,
+      "complete": false,
+      "encoded_bytes": 108387
+    },
+    "simulated": true,
+    "truth_psnr": 19.98,
+    "truth_ssim": 0.8381
+  },
+  {
+    "capture_utc": "2026-09-04T17:00:00Z",
+    "date": "2026-09-04",
+    "hour_utc": "17",
+    "archived_as": "frames/2026-09-04T17-00-00Z.jpg",
+    "source_path": "reference_images/reference_reef_coral_card_01.jpg",
+    "bytes": 229747,
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "sharpness_lapvar": 3205.5,
+    "delivery": {
+      "planned_chunks": 399,
+      "received_chunks": 363,
+      "usable_prefix_pct": 91.0,
+      "first_gap_index": 363,
+      "end_seen": false,
+      "complete": false,
+      "encoded_bytes": 114853
+    },
+    "simulated": true,
+    "truth_psnr": 20.0,
+    "truth_ssim": 0.8401
+  },
+  {
+    "capture_utc": "2026-09-04T18:00:00Z",
+    "date": "2026-09-04",
+    "hour_utc": "18",
+    "archived_as": "frames/2026-09-04T18-00-00Z.jpg",
+    "source_path": "reference_images/reference_reef_coral_card_01.jpg",
+    "bytes": 211358,
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "sharpness_lapvar": 2471.0,
+    "delivery": {
+      "planned_chunks": 367,
+      "received_chunks": 334,
+      "usable_prefix_pct": 91.0,
+      "first_gap_index": 334,
+      "end_seen": false,
+      "complete": false,
+      "encoded_bytes": 105647
+    },
+    "simulated": true,
+    "truth_psnr": 24.35,
+    "truth_ssim": 0.8565
+  }
+]

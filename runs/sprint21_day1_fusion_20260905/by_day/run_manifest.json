@@ -1,0 +1,29 @@
+{
+  "run_tag": "fuse_20260905T183517Z",
+  "git_commit": "8b7cf97",
+  "args": {
+    "run_dir": "runs/sprint21_day0_20260905",
+    "output_dir": "runs/sprint21_day1_fusion_20260905/by_day",
+    "group": "day",
+    "reference": "",
+    "min_shift_px": 0.5,
+    "card_box": "440,370,860,540",
+    "hero_crop": "60,330,60,460",
+    "detail_exp": 0.25
+  },
+  "groups": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "rungs": [
+    "L0_median",
+    "L1_mean",
+    "L2_register",
+    "L3_normalise",
+    "L4_delivery",
+    "L5_transient",
+    "L6_multiscale"
+  ],
+  "final_scan_frac_modelled": 0.32
+}

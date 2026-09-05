@@ -1,0 +1,539 @@
+[
+  {
+    "capture_utc": "2026-09-01T17:00:25Z",
+    "date": "2026-09-01",
+    "hour_utc": "17",
+    "archived_as": "frames/2026-09-01T17-00-25Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+    "source_mtime_utc": "2026-09-01T22:11:22Z",
+    "bytes": 50993,
+    "sha256": "afdef43cfa2937e4ba49e2a600d25b69a18930996f1bf904daa63bf2021f878c",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z (1).jpg",
+        "bytes": 50993,
+        "sha256": "afdef43cfa2937e4ba49e2a600d25b69a18930996f1bf904daa63bf2021f878c",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 171,
+      "received_chunks": 143,
+      "first_gap_index": 143,
+      "usable_prefix_pct": 83.6,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 90.6,
+    "shift_px": {
+      "dx": 0.0,
+      "dy": 0.0,
+      "magnitude": 0.0,
+      "response": 1.0
+    }
+  },
+  {
+    "capture_utc": "2026-09-01T18:00:24Z",
+    "date": "2026-09-01",
+    "hour_utc": "18",
+    "archived_as": "frames/2026-09-01T18-00-24Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z (2).jpg",
+    "source_mtime_utc": "2026-09-05T06:00:08Z",
+    "bytes": 38336,
+    "sha256": "01aa97065d4a9ce5fd79766a0056e157b87e7d95b7d392f3e2819dca6d76fee0",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z (1).jpg",
+        "bytes": 38336,
+        "sha256": "01aa97065d4a9ce5fd79766a0056e157b87e7d95b7d392f3e2819dca6d76fee0",
+        "identical_to_canonical": true
+      },
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg",
+        "bytes": 38336,
+        "sha256": "01aa97065d4a9ce5fd79766a0056e157b87e7d95b7d392f3e2819dca6d76fee0",
+        "identical_to_canonical": true
+      },
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z (2).jpg",
+        "bytes": 38336,
+        "sha256": "01aa97065d4a9ce5fd79766a0056e157b87e7d95b7d392f3e2819dca6d76fee0",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 170,
+      "received_chunks": 142,
+      "first_gap_index": 70,
+      "usable_prefix_pct": 41.2,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 65.2,
+    "shift_px": {
+      "dx": -0.005,
+      "dy": 0.051,
+      "magnitude": 0.051,
+      "response": 0.759
+    }
+  },
+  {
+    "capture_utc": "2026-09-02T14:00:22Z",
+    "date": "2026-09-02",
+    "hour_utc": "14",
+    "archived_as": "frames/2026-09-02T14-00-22Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-02T14-00-22Z.jpg",
+    "source_mtime_utc": "2026-09-05T06:00:05Z",
+    "bytes": 52282,
+    "sha256": "931a95a222f21260eb95a87c9c5a073ef817d838ce3210d1afd378fbdca15d1a",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T14-00-22Z.jpg",
+        "bytes": 52282,
+        "sha256": "931a95a222f21260eb95a87c9c5a073ef817d838ce3210d1afd378fbdca15d1a",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 172,
+      "received_chunks": 145,
+      "first_gap_index": 145,
+      "usable_prefix_pct": 84.3,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 70.4,
+    "shift_px": {
+      "dx": -0.046,
+      "dy": 0.797,
+      "magnitude": 0.799,
+      "response": 0.534
+    }
+  },
+  {
+    "capture_utc": "2026-09-02T15:00:21Z",
+    "date": "2026-09-02",
+    "hour_utc": "15",
+    "archived_as": "frames/2026-09-02T15-00-21Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-02T15-00-21Z.jpg",
+    "source_mtime_utc": "2026-09-05T06:00:02Z",
+    "bytes": 52006,
+    "sha256": "6723e55f1e5ee5ebe24c811b15e60d58bfe6a24a81b108c678fdf0d28ca41996",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T15-00-21Z.jpg",
+        "bytes": 52006,
+        "sha256": "6723e55f1e5ee5ebe24c811b15e60d58bfe6a24a81b108c678fdf0d28ca41996",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 170,
+      "received_chunks": 145,
+      "first_gap_index": 145,
+      "usable_prefix_pct": 85.3,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 72.1,
+    "shift_px": {
+      "dx": -0.195,
+      "dy": 0.858,
+      "magnitude": 0.88,
+      "response": 0.58
+    }
+  },
+  {
+    "capture_utc": "2026-09-02T16:00:23Z",
+    "date": "2026-09-02",
+    "hour_utc": "16",
+    "archived_as": "frames/2026-09-02T16-00-23Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-02T16-00-23Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:58Z",
+    "bytes": 51853,
+    "sha256": "2a2669f757aca714351bffcda09636c5364cbc35cd2a94ccb4ee7dc6008cb159",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T16-00-23Z.jpg",
+        "bytes": 51853,
+        "sha256": "2a2669f757aca714351bffcda09636c5364cbc35cd2a94ccb4ee7dc6008cb159",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 172,
+      "received_chunks": 145,
+      "first_gap_index": 145,
+      "usable_prefix_pct": 84.3,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 79.5,
+    "shift_px": {
+      "dx": -0.283,
+      "dy": 0.762,
+      "magnitude": 0.813,
+      "response": 0.596
+    }
+  },
+  {
+    "capture_utc": "2026-09-02T17:00:23Z",
+    "date": "2026-09-02",
+    "hour_utc": "17",
+    "archived_as": "frames/2026-09-02T17-00-23Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-02T17-00-23Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:55Z",
+    "bytes": 52229,
+    "sha256": "2d59eeb399d2e11e3cd2e38598fe56f38171e37750dd7b1ca88309bf149d8ae7",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T17-00-23Z.jpg",
+        "bytes": 52229,
+        "sha256": "2d59eeb399d2e11e3cd2e38598fe56f38171e37750dd7b1ca88309bf149d8ae7",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 175,
+      "received_chunks": 146,
+      "first_gap_index": 146,
+      "usable_prefix_pct": 83.4,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 83.8,
+    "shift_px": {
+      "dx": -0.02,
+      "dy": 0.786,
+      "magnitude": 0.787,
+      "response": 0.619
+    }
+  },
+  {
+    "capture_utc": "2026-09-02T18:00:22Z",
+    "date": "2026-09-02",
+    "hour_utc": "18",
+    "archived_as": "frames/2026-09-02T18-00-22Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-02T18-00-22Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:52Z",
+    "bytes": 52224,
+    "sha256": "763b3d42d946a05f1315d10da4783d7e6c05202bcb24ec6d6d59c0362768e527",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [
+      {
+        "path": "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_Day02/SPOT-33361C_BMCAM_001_2026-09-02T18-00-22Z.jpg",
+        "bytes": 52224,
+        "sha256": "763b3d42d946a05f1315d10da4783d7e6c05202bcb24ec6d6d59c0362768e527",
+        "identical_to_canonical": true
+      }
+    ],
+    "delivery": {
+      "planned_chunks": 173,
+      "received_chunks": 146,
+      "first_gap_index": 146,
+      "usable_prefix_pct": 84.4,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 82.0,
+    "shift_px": {
+      "dx": -0.101,
+      "dy": 0.72,
+      "magnitude": 0.727,
+      "response": 0.615
+    }
+  },
+  {
+    "capture_utc": "2026-09-03T14:00:19Z",
+    "date": "2026-09-03",
+    "hour_utc": "14",
+    "archived_as": "frames/2026-09-03T14-00-19Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-03T14-00-19Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:49Z",
+    "bytes": 51032,
+    "sha256": "62a42f60d989a1ce735348ffddcc8b2cb2cebf7e22c33742ba69f6211be34160",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 158,
+      "received_chunks": 147,
+      "first_gap_index": 147,
+      "usable_prefix_pct": 93.0,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 67.1,
+    "shift_px": {
+      "dx": -0.045,
+      "dy": 0.643,
+      "magnitude": 0.645,
+      "response": 0.412
+    }
+  },
+  {
+    "capture_utc": "2026-09-03T15:00:19Z",
+    "date": "2026-09-03",
+    "hour_utc": "15",
+    "archived_as": "frames/2026-09-03T15-00-19Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-03T15-00-19Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:46Z",
+    "bytes": 38435,
+    "sha256": "9c72beeb0678268b0c9ff55d2281b86d6818335853f8243850eb1e79163609a2",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 157,
+      "received_chunks": 147,
+      "first_gap_index": 87,
+      "usable_prefix_pct": 55.4,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 44.4,
+    "shift_px": {
+      "dx": -0.009,
+      "dy": 0.717,
+      "magnitude": 0.717,
+      "response": 0.486
+    }
+  },
+  {
+    "capture_utc": "2026-09-03T16:00:18Z",
+    "date": "2026-09-03",
+    "hour_utc": "16",
+    "archived_as": "frames/2026-09-03T16-00-18Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-03T16-00-18Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:42Z",
+    "bytes": 52056,
+    "sha256": "d6091249f63e0bc662ad1c7b7097c8f9d71ae44dd58e6ffff520bcc74328761c",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 165,
+      "received_chunks": 149,
+      "first_gap_index": 149,
+      "usable_prefix_pct": 90.3,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 78.4,
+    "shift_px": {
+      "dx": -0.223,
+      "dy": 0.744,
+      "magnitude": 0.776,
+      "response": 0.508
+    }
+  },
+  {
+    "capture_utc": "2026-09-03T17:00:28Z",
+    "date": "2026-09-03",
+    "hour_utc": "17",
+    "archived_as": "frames/2026-09-03T17-00-28Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-03T17-00-28Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:39Z",
+    "bytes": 48404,
+    "sha256": "ddb2067c56e88680d94968584aab0664caf0a982cc6cdb880466eb672c9a8adf",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 153,
+      "received_chunks": 139,
+      "first_gap_index": 139,
+      "usable_prefix_pct": 90.8,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 74.7,
+    "shift_px": {
+      "dx": -0.19,
+      "dy": 0.697,
+      "magnitude": 0.722,
+      "response": 0.511
+    }
+  },
+  {
+    "capture_utc": "2026-09-03T18:00:27Z",
+    "date": "2026-09-03",
+    "hour_utc": "18",
+    "archived_as": "frames/2026-09-03T18-00-27Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-03T18-00-27Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:36Z",
+    "bytes": 49231,
+    "sha256": "7c8911d9c7dfb2be5267d0b8035a405d80ada2e703ed3747d527d19241439e5a",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 159,
+      "received_chunks": 140,
+      "first_gap_index": 140,
+      "usable_prefix_pct": 88.1,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 62.5,
+    "shift_px": {
+      "dx": -0.032,
+      "dy": 0.597,
+      "magnitude": 0.598,
+      "response": 0.525
+    }
+  },
+  {
+    "capture_utc": "2026-09-04T14:00:27Z",
+    "date": "2026-09-04",
+    "hour_utc": "14",
+    "archived_as": "frames/2026-09-04T14-00-27Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-04T14-00-27Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:33Z",
+    "bytes": 46618,
+    "sha256": "291f78e7e9bb54298630dfd580c89830e90ffbb43a42c94c99510664fe6e094d",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 190,
+      "received_chunks": 152,
+      "first_gap_index": 141,
+      "usable_prefix_pct": 74.2,
+      "end_seen": true,
+      "complete": false
+    },
+    "sharpness_lapvar": 40.4,
+    "shift_px": {
+      "dx": 0.02,
+      "dy": 0.444,
+      "magnitude": 0.444,
+      "response": 0.422
+    }
+  },
+  {
+    "capture_utc": "2026-09-04T15:00:27Z",
+    "date": "2026-09-04",
+    "hour_utc": "15",
+    "archived_as": "frames/2026-09-04T15-00-27Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-04T15-00-27Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:30Z",
+    "bytes": 46346,
+    "sha256": "17a0414021352f4e8330999e54d5514e7fa7c29d29a2b3d826dae4dc417f5919",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 184,
+      "received_chunks": 147,
+      "first_gap_index": 141,
+      "usable_prefix_pct": 76.6,
+      "end_seen": true,
+      "complete": false
+    },
+    "sharpness_lapvar": 36.5,
+    "shift_px": {
+      "dx": 0.228,
+      "dy": 0.392,
+      "magnitude": 0.454,
+      "response": 0.44
+    }
+  },
+  {
+    "capture_utc": "2026-09-04T16:00:26Z",
+    "date": "2026-09-04",
+    "hour_utc": "16",
+    "archived_as": "frames/2026-09-04T16-00-26Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-04T16-00-26Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:27Z",
+    "bytes": 49870,
+    "sha256": "b008d403cfb2d21fc29492cef46e0ad33f8350727e09438d0c7a46830616a8e6",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 161,
+      "received_chunks": 142,
+      "first_gap_index": 142,
+      "usable_prefix_pct": 88.2,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 69.3,
+    "shift_px": {
+      "dx": -0.167,
+      "dy": 0.538,
+      "magnitude": 0.563,
+      "response": 0.457
+    }
+  },
+  {
+    "capture_utc": "2026-09-04T17:00:25Z",
+    "date": "2026-09-04",
+    "hour_utc": "17",
+    "archived_as": "frames/2026-09-04T17-00-25Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-04T17-00-25Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:24Z",
+    "bytes": 49422,
+    "sha256": "ce73b8bbe31b465bf98cf9c703c86de704cbdc11f2fd0e58aa2e528cd96b169e",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 156,
+      "received_chunks": 142,
+      "first_gap_index": 142,
+      "usable_prefix_pct": 91.0,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 72.8,
+    "shift_px": {
+      "dx": -0.343,
+      "dy": 0.728,
+      "magnitude": 0.805,
+      "response": 0.487
+    }
+  },
+  {
+    "capture_utc": "2026-09-04T18:00:25Z",
+    "date": "2026-09-04",
+    "hour_utc": "18",
+    "archived_as": "frames/2026-09-04T18-00-25Z.jpg",
+    "source_path": "/Users/nickbuemond/Downloads/Day_03/SPOT-33361C_BMCAM_001_2026-09-04T18-00-25Z.jpg",
+    "source_mtime_utc": "2026-09-05T05:59:20Z",
+    "bytes": 49852,
+    "sha256": "cce335b6b520c5530edc33f73ccffd7bf411746ae85b21096ea950db90c8f7d9",
+    "width": 1000,
+    "height": 562,
+    "duplicate_copies": [],
+    "delivery": {
+      "planned_chunks": 157,
+      "received_chunks": 143,
+      "first_gap_index": 143,
+      "usable_prefix_pct": 91.1,
+      "end_seen": false,
+      "complete": false
+    },
+    "sharpness_lapvar": 65.4,
+    "shift_px": {
+      "dx": -0.28,
+      "dy": 0.603,
+      "magnitude": 0.665,
+      "response": 0.488
+    }
+  }
+]

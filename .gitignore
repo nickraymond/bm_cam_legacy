@@ -45,3 +45,9 @@ tailscaled.state
 runs/sprint10_soak_20260727/reconcile_*
 runs/sprint10_soak_20260727/postrevert_*
 runs/sprint10_soak_20260727/check_*
+
+# Sprint21 fusion runs: the evidence a reviewer needs is the REPORT.md, the CSVs and the
+# run_manifest.json at each run root. The nested per-image colour-runner output and the
+# injection working directories are large, reproducible byproducts -- keep them local.
+runs/**/grvi/
+runs/**/transfer/d*/

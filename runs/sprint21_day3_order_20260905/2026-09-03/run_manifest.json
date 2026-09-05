@@ -1,0 +1,53 @@
+{
+  "run_tag": "order_20260905T202455Z",
+  "args": {
+    "run_dir": "runs/sprint21_day0_20260905",
+    "day": "2026-09-03",
+    "output_dir": "runs/sprint21_day3_order_20260905/2026-09-03",
+    "render_targets": "tools/reference_card_color_correction/render_targets_p9.json",
+    "colonies": "80,120,180,220;300,90,400,190;700,110,800,210"
+  },
+  "reference": "2026-09-03T14:00:19Z",
+  "rung": "L6_multiscale",
+  "frames": [
+    "2026-09-03T14:00:19Z",
+    "2026-09-03T15:00:19Z",
+    "2026-09-03T16:00:18Z",
+    "2026-09-03T17:00:28Z",
+    "2026-09-03T18:00:27Z"
+  ],
+  "scores": [
+    {
+      "arm": "A1_correct_then_fuse",
+      "bg_repeat_pct": 2.81,
+      "bg_worst_pct": 5.28,
+      "lum_repeat_pct": 14.93,
+      "card_de2000": 30.75,
+      "colonies": 3
+    },
+    {
+      "arm": "A2_fuse_then_correct",
+      "bg_repeat_pct": 5.72,
+      "bg_worst_pct": 11.19,
+      "lum_repeat_pct": 14.09,
+      "card_de2000": 30.69,
+      "colonies": 3
+    },
+    {
+      "arm": "A3_card_anchored",
+      "bg_repeat_pct": 9.45,
+      "bg_worst_pct": 11.2,
+      "lum_repeat_pct": 10.45,
+      "card_de2000": 31.09,
+      "colonies": 3
+    },
+    {
+      "arm": "A4_reef_anchored",
+      "bg_repeat_pct": 6.04,
+      "bg_worst_pct": 13.0,
+      "lum_repeat_pct": 27.04,
+      "card_de2000": 31.06,
+      "colonies": 3
+    }
+  ]
+}
