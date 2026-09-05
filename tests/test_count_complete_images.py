@@ -149,6 +149,23 @@ class TestNoise(unittest.TestCase):
         self.assertTrue(images[0].complete())
         self.assertEqual(stats["other"], 3)
 
+    def test_non_binary_sensor_rows_do_not_abort_the_report(self):
+        """A BM temperature node on the same Spotter reports a NUMERIC value.
+
+        bytes.fromhex() raises TypeError on those, which used to kill the whole
+        run for SPOT-33361C (bmcam001 shares its Spotter with a temperature
+        node reporting ~hourly). They must be ignored like any other noise.
+        """
+        rows = image_messages("a.jpg", 5, gid="0a1")
+        rows.append({"value": 32.19, "timestamp": "2026-07-29T20:00:30Z",
+                     "unit_type": "temperature", "units": "\u00b0C"})
+        rows.append({"value": 32, "timestamp": "2026-07-29T20:00:40Z",
+                     "unit_type": "temperature", "units": "\u00b0C"})
+        rows.append({"timestamp": "2026-07-29T20:00:50Z"})  # no value at all
+        images, stats = cci.analyze(rows)
+        self.assertTrue(images[0].complete())
+        self.assertEqual(stats["other"], 3)
+
     def test_no_traffic_is_zero_complete_not_a_crash(self):
         images, stats = cci.analyze([])
         report = cci.summarize(images, stats, "SPOT-TEST", {})

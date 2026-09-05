@@ -1,0 +1,35 @@
+{
+  "run_tag": "truth_20260905T200459Z",
+  "git_commit": "8b7cf97",
+  "args": {
+    "source": "reference_images/reference_reef_coral_card_01.jpg",
+    "output_dir": "runs/sprint21_day2_truth_20260905",
+    "prefixes": "0.742,0.766,0.882,0.910,0.911",
+    "quality": 70,
+    "seed": 7
+  },
+  "chunk_raw_bytes": 288,
+  "synthetic": true,
+  "single_frame_scores": {
+    "2026-09-04T14:00:00Z": [
+      25.38,
+      0.8203
+    ],
+    "2026-09-04T15:00:00Z": [
+      21.03,
+      0.8111
+    ],
+    "2026-09-04T16:00:00Z": [
+      19.98,
+      0.8381
+    ],
+    "2026-09-04T17:00:00Z": [
+      20.0,
+      0.8401
+    ],
+    "2026-09-04T18:00:00Z": [
+      24.35,
+      0.8565
+    ]
+  }
+}

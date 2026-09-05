@@ -1,0 +1,77 @@
+{
+  "generated_utc": "2026-09-05T17:17:52Z",
+  "devices": {
+    "SPOT-33361C": {
+      "spotter_id": "SPOT-33361C",
+      "window": {
+        "start": "2026-09-05T00:00:00Z",
+        "end": "2026-09-05T23:59:59Z"
+      },
+      "images_attempted": 4,
+      "complete_images": 0,
+      "complete_ratio": "0/4",
+      "chunk_delivery_pct": 84.28,
+      "mean_usable_prefix_pct_of_incomplete": 78.5,
+      "attribution": "arrival-order fallback (non-FIFO path: a straggler arriving after the next START can be misattributed)",
+      "parser_stats": {
+        "messages_seen": 673,
+        "chunks_seen": 579,
+        "orphan_chunks": 0,
+        "starts": 4,
+        "ends": 0,
+        "other": 90
+      },
+      "images": [
+        {
+          "filename": "2026-09-05T14:00:22Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-05T14:00:30.000Z",
+          "planned": 178,
+          "received": 144,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 144,
+          "usable_prefix_pct": 80.9
+        },
+        {
+          "filename": "2026-09-05T15:00:25Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-05T15:00:32.000Z",
+          "planned": 174,
+          "received": 145,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 145,
+          "usable_prefix_pct": 83.3
+        },
+        {
+          "filename": "2026-09-05T16:00:24Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-05T16:00:31.000Z",
+          "planned": 173,
+          "received": 144,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 103,
+          "usable_prefix_pct": 59.5
+        },
+        {
+          "filename": "2026-09-05T17:00:23Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-05T17:00:31.000Z",
+          "planned": 162,
+          "received": 146,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 146,
+          "usable_prefix_pct": 90.1
+        }
+      ],
+      "note_last_image": "the final image in the window may still be draining at query time \u2014 re-run later before counting it as incomplete"
+    }
+  }
+}

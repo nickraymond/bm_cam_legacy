@@ -1,0 +1,50 @@
+[
+  {
+    "arm": "A1_correct_then_fuse",
+    "bg_by_day": [
+      5.98,
+      2.81,
+      7.12
+    ],
+    "bg_mean": 5.3,
+    "bg_sd": 2.23,
+    "lum_mean": 13.7,
+    "card_de_mean": 30.3
+  },
+  {
+    "arm": "A2_fuse_then_correct",
+    "bg_by_day": [
+      4.68,
+      5.72,
+      2.3
+    ],
+    "bg_mean": 4.23,
+    "bg_sd": 1.75,
+    "lum_mean": 16.85,
+    "card_de_mean": 30.3
+  },
+  {
+    "arm": "A3_card_anchored",
+    "bg_by_day": [
+      3.69,
+      9.45,
+      15.51
+    ],
+    "bg_mean": 9.55,
+    "bg_sd": 5.91,
+    "lum_mean": 17.99,
+    "card_de_mean": 31.1
+  },
+  {
+    "arm": "A4_reef_anchored",
+    "bg_by_day": [
+      7.0,
+      6.04,
+      5.9
+    ],
+    "bg_mean": 6.31,
+    "bg_sd": 0.6,
+    "lum_mean": 30.29,
+    "card_de_mean": 30.5
+  }
+]

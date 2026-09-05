@@ -540,6 +540,74 @@ shutter not gain; measure the energy-per-cycle delta.
 
 ---
 
+### TODO-FUSE-001 — Ship the daily reef composite as a backend derivative (Sprint 21, 2026-09-05)
+
+**What shipped in Sprint21 (shore-side, Mac):** a validated daily temporal-fusion path.
+Register -> fuse raw -> Nereus v3 once. One composite per calendar day, never across
+days. Beats the BEST single frame against ground truth (SSIM 0.8824 vs 0.8735), roughly
+twice as reproducible, less JPEG blocking. Spec + gates:
+`sprints/Sprint21_temporal_fusion/SPEC.md`; decision memo: `DECISION.md`.
+
+**What it needs to become a product:** a backend derivative per device, built from the
+raw partial bytes in R2 rather than the display derivative, served beside the frames,
+plus the stability map in the gallery. Hooks exist (`image_derivatives.py`, `partial/`
+keys, the completeness fields on media rows). Runtime is ~1-4 s per composite on a Mac.
+
+**Hard rule to carry into the backend:** the composite has TWO outputs that diverge at
+the last step. Measure change on the RAW fused composite; run v3 only on the picture a
+person looks at. Rendering halves change sensitivity (10.6 % -> 25.6 %), and any
+per-composite colour correction is worse still (50-115 %) because the differential index
+already cancels the water cast while a colour fit does not.
+
+**Do NOT ship change flags yet.** Three days cannot set a threshold and the null is
+unverified. Bank the baseline first: daily composites, real colony outlines from AOML,
+CoralWatch readings each dive. Pilot sensitivity is ~10 % blue-over-green on a colony of
+>=3,000 px over a 2-4 week baseline.
+
+**Blocked-by (biggest lever):** TODO-SPOT-001 — every frame today is a partial.
+**Area:** backend / shore-side analysis
+**Status:** open, awaiting Nick's call on memo-vs-feature (DECISION.md item 1)
+
+---
+
+### TODO-SPOT-001 — bmcam001 delivers ZERO complete images: Spotter timing bug (captured 2026-09-05)
+
+**Problem:** SPOT-33361C has not delivered a single complete image in 24
+consecutive cycles (2026-09-01 → 09-05). Nobody noticed because a truncated
+progressive JPEG still renders as a full picture in the gallery.
+
+**Evidence** (`runs/sprint21_day0_20260905/REPORT.md`, `delivery/burst_timing.csv`):
+- The Pi is NOT at fault. On the 4 cycles where `<END IMG>` arrived it reports
+  sending every buffer: `sent_buffers: 190, uart_duration_sec: 194.9`.
+- Sofar receives 139–153 chunks (median 145) regardless of the 153–190 planned;
+  usable prefix 41–93 %, median 84 %.
+- The cut is TIME-aligned, not count-aligned: every burst stops 177–180 s into
+  the 300 s UTC lane — a 3 s spread across 24 cycles — and no burst ever crosses
+  a grid boundary. Bursts start 27–36 s in and run at 0.99 msg/s.
+- Perverse effect: cycles where the ladder picked q80 delivered the WORST frames
+  (74 % prefix, sharpness 36–40) versus q70 cycles at 91 % / 73. A bigger file
+  against a fixed ceiling just loses more of itself.
+
+**Root cause (Nick, 2026-09-05):** a timing bug on the Spotter buoy. Nick owns
+the fix. NOT in the Sprint21 scope of work.
+
+**Possible interim mitigation (Nick's call, not scheduled):** `message_cap` is 195
+on the reef units while the link delivers ~145. Lowering it to ~135 would settle
+the ladder near q55–60, fit inside what actually gets through, and produce
+COMPLETE images at a small quality cost plus less transmit power — the Sprint11
+D8 argument. This is a workaround for the symptom; the Spotter timing fix is the
+real repair, and the cap should be revisited after it lands.
+
+**Also fixed while diagnosing:** `tools/count_complete_images.py` `decode()` crashed
+with `TypeError` on this Spotter because its co-located BM temperature node reports
+a NUMERIC `value`, not a hex string — one such row aborted the entire report.
+Regression test added.
+
+**Area:** Spotter / BM uplink (buoy-side), not the Pi runtime
+**Status:** open, owned by Nick, unscheduled
+
+---
+
 ### TODO-COLOR-002 — ICEBOX: learned illumination map (DA-V2 analog for lighting)
 
 Intrinsic image decomposition networks (reflectance x shading — e.g.

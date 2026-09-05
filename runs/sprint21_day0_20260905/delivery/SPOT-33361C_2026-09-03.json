@@ -1,0 +1,89 @@
+{
+  "generated_utc": "2026-09-05T17:17:51Z",
+  "devices": {
+    "SPOT-33361C": {
+      "spotter_id": "SPOT-33361C",
+      "window": {
+        "start": "2026-09-03T00:00:00Z",
+        "end": "2026-09-03T23:59:59Z"
+      },
+      "images_attempted": 5,
+      "complete_images": 0,
+      "complete_ratio": "0/5",
+      "chunk_delivery_pct": 91.16,
+      "mean_usable_prefix_pct_of_incomplete": 83.5,
+      "attribution": "arrival-order fallback (non-FIFO path: a straggler arriving after the next START can be misattributed)",
+      "parser_stats": {
+        "messages_seen": 846,
+        "chunks_seen": 722,
+        "orphan_chunks": 0,
+        "starts": 5,
+        "ends": 0,
+        "other": 119
+      },
+      "images": [
+        {
+          "filename": "2026-09-03T14:00:19Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-03T14:00:27.000Z",
+          "planned": 158,
+          "received": 147,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 147,
+          "usable_prefix_pct": 93.0
+        },
+        {
+          "filename": "2026-09-03T15:00:19Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-03T15:00:26.000Z",
+          "planned": 157,
+          "received": 147,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 87,
+          "usable_prefix_pct": 55.4
+        },
+        {
+          "filename": "2026-09-03T16:00:18Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-03T16:00:25.000Z",
+          "planned": 165,
+          "received": 149,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 149,
+          "usable_prefix_pct": 90.3
+        },
+        {
+          "filename": "2026-09-03T17:00:28Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-03T17:00:35.000Z",
+          "planned": 153,
+          "received": 139,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 139,
+          "usable_prefix_pct": 90.8
+        },
+        {
+          "filename": "2026-09-03T18:00:27Z_image_compressed.jpg",
+          "gid": null,
+          "started_utc": "2026-09-03T18:00:34.000Z",
+          "planned": 159,
+          "received": 140,
+          "end_seen": false,
+          "sent_buffers_device": null,
+          "complete": false,
+          "first_gap_index": 140,
+          "usable_prefix_pct": 88.1
+        }
+      ],
+      "note_last_image": "the final image in the window may still be draining at query time \u2014 re-run later before counting it as incomplete"
+    }
+  }
+}

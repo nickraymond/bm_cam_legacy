@@ -98,9 +98,17 @@ def fetch(spotter_id, start, end, token, limit=5000):
 
 def decode(entry):
     """Hex payload -> ASCII text, or '' when it is not our traffic."""
+    # A Spotter can carry non-binary BM sensors alongside the camera (bmcam001's
+    # SPOT-33361C reports a temperature node ~hourly). Those entries have a
+    # NUMERIC `value`, which bytes.fromhex() rejects with TypeError -- one of
+    # them used to abort the whole report. They are never image traffic, so
+    # anything that is not a hex string is simply not ours.
+    value = entry.get("value")
+    if not isinstance(value, str):
+        return ""
     try:
-        return bytes.fromhex(entry["value"]).decode("utf-8", "replace")
-    except (KeyError, ValueError):
+        return bytes.fromhex(value).decode("utf-8", "replace")
+    except ValueError:
         return ""
 
 
