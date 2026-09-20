@@ -1,0 +1,65 @@
+{
+ "tool": "tools/bm_video_tx_size_sweep.py",
+ "run_tag": "video_tx_sweep_20260920T051030Z_bmcam003",
+ "utc": "2026-09-20T05:13:50Z",
+ "source": "runs/video_tx_sweep_20260920T051030Z_bmcam003/source/2026-09-20T04-48-48Z_video_1920x1080_15fps_first10s.mp4",
+ "source_bytes": 11665203,
+ "grid": {
+  "durations_s": [
+   3,
+   5
+  ],
+  "widths_px": [
+   240,
+   320,
+   480,
+   640
+  ],
+  "fps": [
+   5,
+   10,
+   15
+  ],
+  "crf": [
+   28,
+   34,
+   40,
+   46
+  ]
+ },
+ "budget": {
+  "b64_chars_per_msg": 384,
+  "raw_bytes_per_msg": 288,
+  "seconds_per_msg": 1.0,
+  "msg_budget_safe": 135,
+  "msg_budget_cap": 195,
+  "provenance": "development rc_field_template bm_serial island (384 / 1.0 s), progressive_jpeg.message_cap 195, TODO-SPOT-001 interim ~135. Overhead msgs excluded."
+ },
+ "encoder": "Mac libx264 -preset veryslow, single keyframe; mac_encode_s is NOT a Pi number",
+ "ffmpeg_version": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+ "example_encode_command": "ffmpeg -hide_banner -loglevel error -y -i runs/video_tx_sweep_20260920T051030Z_bmcam003/source/2026-09-20T04-48-48Z_video_1920x1080_15fps_first10s.mp4 -t 3 -an -vf fps=5,scale=240:-2:flags=lanczos -c:v libx264 -preset veryslow -crf 28 -pix_fmt yuv420p -g 16 -keyint_min 16 -sc_threshold 0 -f h264 runs/video_tx_sweep_20260920T051030Z_bmcam003/encodes/d3s_w240_f5_crf28.h264",
+ "argv": [
+  "tools/bm_video_tx_size_sweep.py",
+  "--source",
+  "runs/video_tx_sweep_20260920T051030Z_bmcam003/source/2026-09-20T04-48-48Z_video_1920x1080_15fps_first10s.mp4",
+  "--run-dir",
+  "runs/video_tx_sweep_20260920T051030Z_bmcam003"
+ ],
+ "counts": {
+  "PASS": 66,
+  "WARN": 12,
+  "FAIL": 18
+ },
+ "outputs": {
+  "csv": "results.csv",
+  "index": "index.html",
+  "cut_sheets": [
+   "cutsheet_3s_5fps.png",
+   "cutsheet_3s_10fps.png",
+   "cutsheet_3s_15fps.png",
+   "cutsheet_5s_5fps.png",
+   "cutsheet_5s_10fps.png",
+   "cutsheet_5s_15fps.png"
+  ]
+ }
+}
