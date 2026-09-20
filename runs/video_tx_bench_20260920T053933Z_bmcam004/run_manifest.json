@@ -1,0 +1,67 @@
+{
+ "run_tag": "video_tx_bench_20260920T053933Z_bmcam004",
+ "purpose": "Step 3: bmcam004 -> UART -> BM bus -> SPOT-33507C, framed video payload via spotter/printf (zero cellular); Mac USB console capture diffed vs sent wire file",
+ "unit": "bmcam004 (development 681ddb0)",
+ "spotter": "SPOT-33507C fw v2.16.6, USB console /dev/cu.usbmodemSPOT_33507C1 @115200 on Nick's Mac",
+ "payload": "runs/video_tx_loopback_20260920T053232Z_bmcam003/payloads/h264_1key.h264 (5 s, 480x270, 10 fps, x264 crf 34, raw Annex-B, 49,327 B, 172 msgs)",
+ "pacing_s_per_msg": 1.0,
+ "transport": "bm_serial.spotter_print (topic spotter/printf) -- NOT the production spotter/transmit-data queue",
+ "tools": [
+  "tools/bm_video_tx_bench_send.py (Pi)",
+  "tools/bm_video_tx_bench_verify.py (Mac)",
+  "origin/development:tools/spotter_serial_monitor.py (Mac console logger)"
+ ],
+ "hardware_state_changes": [
+  "crontab backed up to ~/backups/crontab.before_vtx_bench_20260920T054914Z, NOT modified",
+  "runtime stopped 05:49:14Z (in-progress clip 05-49-02Z lost, 37 MB .part swept at restart)",
+  "runtime restarted 05:54:01Z with the cron command; recording + UI :8080 verified 05:54:47Z",
+  "/tmp test files removed"
+ ],
+ "result": {
+  "tag": "VTXFULL",
+  "console": "runs/video_tx_bench_20260920T053933Z_bmcam004/spotter_logs/SPOT-33507C/console_20260920.log",
+  "wire": "runs/video_tx_loopback_20260920T053232Z_bmcam003/wire/h264_1key.txt",
+  "payload": "runs/video_tx_loopback_20260920T053232Z_bmcam003/payloads/h264_1key.h264",
+  "sent_msgs": 172,
+  "received_msgs": 172,
+  "exact_msgs": 172,
+  "missing_idx": [],
+  "corrupted_idx": [],
+  "duplicates": 0,
+  "node_ids_seen": [
+   "e6fe83ea6b4a2b7f"
+  ],
+  "payload_bytes": 49327,
+  "rebuilt_bytes": 49327,
+  "sha256_sent": "07829b71e8914d909c2d6ecc02e6bef20dbdb34f41755c597794b0ebbe912258",
+  "sha256_rebuilt": "07829b71e8914d909c2d6ecc02e6bef20dbdb34f41755c597794b0ebbe912258",
+  "byte_exact": true,
+  "frames_decoded_from_console_rebuild": 50,
+  "spotter_clock_span_s": 179.165,
+  "gap_s": {
+   "mean": 1.048,
+   "min": 1.016,
+   "max": 1.07,
+   "stdev": 0.005
+  },
+  "effective_payload_bytes_per_s": 275.3,
+  "verdict": "PASS"
+ },
+ "not_tested": [
+  "spotter/transmit-data queue",
+  "Notecard / cellular",
+  "Sofar API delivery",
+  "backend reassembly",
+  "START/END messages",
+  "two units on one Spotter at once"
+ ],
+ "files": {
+  "pre_flight": "spotter_logs/SPOT-33507C/console_20260920.log (post + sensors at 05:39Z)",
+  "send_logs": [
+   "vtx_probe_send.csv",
+   "vtx_full_send.csv"
+  ],
+  "verify": "verify_full/",
+  "bench_logs": "bench_log_0*.txt"
+ }
+}

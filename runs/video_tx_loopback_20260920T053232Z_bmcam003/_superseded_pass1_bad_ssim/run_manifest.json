@@ -1,0 +1,70 @@
+{
+ "tool": "tools/bm_video_tx_loopback.py",
+ "run_tag": "video_tx_loopback_20260920T053232Z_bmcam003",
+ "utc": "2026-09-20T05:32:43Z",
+ "ref": "runs/video_tx_sweep_20260920T051030Z_bmcam003/refs_lossless/ref_d5s_w480_f10.mkv",
+ "crf": 34,
+ "fps": 10,
+ "frames": 50,
+ "geometry": "480x270",
+ "framing": {
+  "source": "BM_Devel_Pi/rc_transmit.split_base64_chunks + rc_media_id.chunk_prefix (imported, not copied)",
+  "b64_chars_per_msg": 384,
+  "raw_bytes_per_msg": 288
+ },
+ "reassembly_policy": {
+  "h264": "skip gaps",
+  "mp4": "zero-fill gaps",
+  "planned_count": "assumed known (START length)"
+ },
+ "seed": 20260919,
+ "argv": [
+  "tools/bm_video_tx_loopback.py",
+  "--ref",
+  "runs/video_tx_sweep_20260920T051030Z_bmcam003/refs_lossless/ref_d5s_w480_f10.mkv",
+  "--crf",
+  "34",
+  "--fps",
+  "10",
+  "--run-dir",
+  "runs/video_tx_loopback_20260920T053232Z_bmcam003"
+ ],
+ "variants": {
+  "h264_1key": {
+   "file": "payloads/h264_1key.h264",
+   "bytes": 49327
+  },
+  "h264_1key_nobf": {
+   "file": "payloads/h264_1key_nobf.h264",
+   "bytes": 51502
+  },
+  "h264_key1s": {
+   "file": "payloads/h264_key1s.h264",
+   "bytes": 69890
+  },
+  "mp4_faststart": {
+   "file": "payloads/mp4_faststart.mp4",
+   "bytes": 50667
+  },
+  "mp4_moov_end": {
+   "file": "payloads/mp4_moov_end.mp4",
+   "bytes": 50667
+  },
+  "mp4_frag_key1s": {
+   "file": "payloads/mp4_frag_key1s.mp4",
+   "bytes": 71557
+  }
+ },
+ "ffmpeg_version": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+ "outputs": {
+  "csv": "results.csv",
+  "cut_sheets": [
+   "cutsheet_h264_1key.png",
+   "cutsheet_h264_1key_nobf.png",
+   "cutsheet_h264_key1s.png",
+   "cutsheet_mp4_faststart.png",
+   "cutsheet_mp4_moov_end.png",
+   "cutsheet_mp4_frag_key1s.png"
+  ]
+ }
+}

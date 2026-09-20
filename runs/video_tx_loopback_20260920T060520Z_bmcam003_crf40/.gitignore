@@ -1,0 +1,7 @@
+# PUBLIC REPO: this run contains bench footage of a person / a home interior.
+# Imagery, and anything that embeds it (base64 wire files, self-contained
+# HTML, lossless refs, console logs), stays local. Manifests + docs only.
+*
+!.gitignore
+!run_manifest.json
+!*/
