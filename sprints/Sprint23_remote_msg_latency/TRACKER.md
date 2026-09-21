@@ -41,26 +41,30 @@ to Sprint22 — never open its port, never send it a command.
 ## Phase 2 — signature discovery (v2.16.8)
 
 - [x] 2a `uptime` delivered in 46 s; receive signature unchanged
-- [ ] 2b `bm pub` delivered with bus OFF; queued/released lines captured
-- [ ] 2c `help` checked for new queue/config commands
-- [ ] Regexes + raw excerpts in `RESULTS.md`
+- [x] 2b held: `Queuing serial command` (USB + remote). Release is SILENT;
+      timed with held `bm info`: ~8 s after bus-on
+- [x] 2c `help`, bridge keys, `cfg`: no replay-delay setting on v2.16.8
+- [x] Signatures + raw excerpts in `RESULTS.md` (`released_regex` stays null:
+      there is no release line to match)
 
 ## Phase 3 — MVP tool
 
 - [x] `tools/remote_msg_tester/` server + page + README
 - [x] Offline replay test passes (decoy rejected, 5 s latency, id + FW
       captured, typed key never written)
-- [ ] One live send end to end
+- [x] Live sends end to end: 13/13 caught by the tester
 - [x] Guards verified offline: reboot-class, bad id, stale log, in-flight,
       foreign origin, token leak grep. Rate limit seen live (UI chip).
 
 ## Phase 4 — characterize + hand off
 
-- [ ] ≥5 live deliveries logged
-- [ ] `RESULTS.md` with before/after table
-- [ ] `HANDOFF.md` for the dashboard session
+- [x] 13 deliveries logged; 7/7 camera acks (Step C), all 7 at the Sofar API
+- [x] `RESULTS.md` (no v2.16.6 baseline — flash came first; July numbers cited)
+- [x] `HANDOFF.md` — for Sprint24 (joint outdoor HIL, PR #56) and the dashboard
 - [ ] **GATE (Nick):** demo — Nick sends a command from the UI
-- [ ] PR to `development`
+- [ ] PR to `development` — branch merged with development locally
+      (0 behind), NOT pushed: waiting for Nick's go
+- [ ] Finding 10 prediction (report at 18:20:00Z 2026-09-21) — unchecked
 
 ## Hazards
 
