@@ -72,6 +72,24 @@ EXAMPLE
     python3 tools/bm_video_tx_loopback.py \
         --ref runs/<sweep>/refs_lossless/ref_d5s_w480_f10.mkv \
         --crf 34 --fps 10 --run-dir runs/video_tx_loopback_<ts>_bmcam003
+
+GOLDEN MODE (Sprint22 Phase 0 -- docs/bm_media_wire_contract.md)
+    --golden DIR generates the wire-contract golden vectors instead of the
+    loss matrix. No --ref: the source is ffmpeg's SYNTHETIC testsrc2 pattern
+    (this repo is public -- never bench footage). Per the contract:
+      * x264's version-string SEI is stripped, so SPS/PPS land in chunk 0
+      * chunk 0 is repeated at the tail, just before END
+      * START/END are real messages. END comes from the production END
+        builder. The video START is built HERE from the production helpers
+        (_clean_value, _start_metadata_pairs; same budget + drop order as
+        rc_uplink_messages.build_rc_start_message) because the production
+        builder hardcodes the still fields. It moves into
+        rc_uplink_messages.py in Sprint22 Phase 2, after the contract gate.
+    The receiver model mirrors the backend parser on staging: dedupe by
+    chunk index keeping the longest payload, join in index order, decode.
+
+    python3 tools/bm_video_tx_loopback.py --golden tests/vectors/bm_media_h264 \
+        --crf 40 --fps 10
 """
 
 import argparse
@@ -93,6 +111,11 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "BM_Devel_Pi"))
 from rc_media_id import chunk_prefix              # noqa: E402  production
 from rc_transmit import split_base64_chunks       # noqa: E402  production
+from process_image_v2 import (                    # noqa: E402  production
+    _build_end_image_message,
+    _clean_value,
+    _start_metadata_pairs,
+)
 
 B64_CHARS_PER_MSG = 384        # bm_serial.image_buffer_size (development)
 RAW_BYTES_PER_MSG = 288
@@ -380,19 +403,286 @@ def build_view_page(rows, variants, fps, rd, run_tag):
     return out
 
 
+# ---- Sprint22 Phase 0: golden vectors ---------------------------------------
+VIDEO_FMT = "h264"
+START_BUDGET_BYTES = 285       # same as build_rc_start_message
+END_BUDGET_BYTES = 295         # same as build_rc_end_message
+# Backend length regex `(?:chunks|length|len|buffers?)` has no word boundary.
+FORBIDDEN_KEY_SUBSTRINGS = ("len", "chunks", "buffer")
+# Still-only START metadata that means nothing for a clip.
+_VIDEO_START_SKIP = {"q", "rk", "ws", "we"}
+# Fixed, obviously-synthetic envelope values: the vectors must be
+# reproducible and must not name a real unit.
+GOLDEN_FILENAME = "2026-09-20T06-10-00Z_video_5s.h264"
+GOLDEN_TIMESTAMP = "2026-09-20T06:10:04Z"
+GOLDEN_START_METADATA = {"timezone": "America/New_York",
+                         "software_sha": "0123456789ab",
+                         "hostname": "bmcamGOLD"}
+GOLDEN_CPU_TEMP = "41.2"
+
+
+def strip_x264_sei(payload):
+    """Drop user_data_unregistered SEI NAL units (NAL type 6, payload type
+    5) from an Annex-B stream -- x264's ~690 B version string. Every other
+    byte, including start-code lengths, is left exactly as encoded.
+    Returns (stripped_bytes, nal_units_removed)."""
+    starts = []
+    for hit in re.finditer(b"\x00\x00\x01", payload):
+        begin = hit.start()
+        if begin > 0 and payload[begin - 1] == 0:
+            begin -= 1                       # 4-byte start code
+        starts.append((begin, hit.end()))
+    out, removed = bytearray(payload[:starts[0][0]] if starts else payload), 0
+    for k, (begin, hdr) in enumerate(starts):
+        end = starts[k + 1][0] if k + 1 < len(starts) else len(payload)
+        is_x264_sei = (payload[hdr] & 0x1F == 6 and hdr + 1 < end
+                       and payload[hdr + 1] == 5)
+        if is_x264_sei:
+            removed += 1
+        else:
+            out += payload[begin:end]
+    return bytes(out), removed
+
+
+def parameter_sets_end(payload):
+    """Byte offset where the first SPS (7) + PPS (8) pair ends, or None."""
+    seen, hits = set(), list(re.finditer(b"\x00\x00\x01", payload))
+    for k, hit in enumerate(hits):
+        nal_type = payload[hit.end()] & 0x1F
+        if nal_type in (7, 8):
+            seen.add(nal_type)
+            if seen == {7, 8}:
+                return hits[k + 1].start() if k + 1 < len(hits) else len(payload)
+    return None
+
+
+def build_video_start_message(filename, timestamp, num_buffers, *, fps, dur,
+                              res, crf, complete=True, start_metadata=None,
+                              max_payload_bytes=START_BUDGET_BYTES):
+    """Video START per the wire contract. Base + video fields are never
+    dropped; optional metadata drops in the still builder's order. Raises
+    instead of truncating: a START that does not fit is a bug, not data."""
+    fps_text = str(int(fps)) if float(fps).is_integer() else f"{float(fps):.2f}"
+    base = [f"filename: {_clean_value(filename, max_len=96)}",
+            f"timestamp: {_clean_value(timestamp, max_len=32)}",
+            f"length: {int(num_buffers)}"]
+    video_pairs = [("fmt", VIDEO_FMT), ("fps", fps_text),
+                   ("dur", f"{float(dur):.1f}"), ("res", res),
+                   ("crf", int(crf)), ("cmp", 1 if complete else 0)]
+    for key, _ in video_pairs:
+        if any(bad in key for bad in FORBIDDEN_KEY_SUBSTRINGS):
+            raise ValueError(f"START key {key!r} collides with the backend "
+                             f"length regex {FORBIDDEN_KEY_SUBSTRINGS}")
+    video = [f"{k}={_clean_value(v, max_len=12)}" for k, v in video_pairs]
+    optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata)
+                if k not in _VIDEO_START_SKIP]
+    drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]
+
+    def render(selected):
+        parts = base + video + [
+            f"{k}={_clean_value(v, max_len=12 if k == 'sha' else 24)}"
+            for k, v in selected]
+        return "<START IMG> " + ", ".join(parts) + "\n"
+
+    selected, msg = list(optional), None
+    for key_to_drop in [None] + drop_order:
+        if key_to_drop is not None:
+            selected = [(k, v) for k, v in selected if k != key_to_drop]
+        msg = render(selected)
+        if len(msg.encode("ascii")) <= max_payload_bytes:
+            return msg
+    while selected:
+        selected.pop()
+        msg = render(selected)
+        if len(msg.encode("ascii")) <= max_payload_bytes:
+            return msg
+    raise ValueError(f"video START base fields exceed {max_payload_bytes} B: "
+                     f"{len(msg.encode('ascii'))} B -- shorten the filename")
+
+
+def build_video_end_message(filename, *, uart_duration_sec, sent_buffers,
+                            cpu_temp_text, fmt=VIDEO_FMT):
+    """Video END = the production END builder + one `fmt` core field."""
+    core = [("filename", filename), ("fmt", fmt),
+            ("uart_duration_sec", f"{float(uart_duration_sec):.1f}"),
+            ("sent_buffers", int(sent_buffers)),
+            ("cpu_temp_c", cpu_temp_text)]
+    return _build_end_image_message(filename, core,
+                                    max_payload_bytes=END_BUDGET_BYTES)
+
+
+def backend_style_reassemble(lines):
+    """Receiver model = nereus-vision-dev bm_image_parser on staging:
+    dedupe by index keeping the LONGEST payload, join the base64 of the
+    chunks that arrived in index order, decode once. Returns
+    (bytes, received_indices)."""
+    got = {}
+    for line in lines:
+        hit = WIRE_RE.match(line.rstrip(b"\n"))
+        if not hit:
+            continue
+        idx, content = int(hit.group(2)), hit.group(3)
+        if idx not in got or len(content) > len(got[idx]):
+            got[idx] = content
+    joined = b"".join(got[i] for i in sorted(got))
+    return base64.b64decode(joined), sorted(got)
+
+
+def generate_golden(out_dir, crf, fps, dur, size):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    width, height = (int(v) for v in size.split("x"))
+    n_frames = int(round(dur * fps))
+    tmp_mp4, tmp_raw = out_dir / "_tmp.mp4", out_dir / "_tmp.h264"
+    encode = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f",
+              "lavfi", "-i", f"testsrc2=size={width}x{height}:rate={fps}",
+              "-t", str(dur), *x264_args(crf, n_frames + 1), str(tmp_mp4)]
+    run(encode)
+    # Same order as build_variants: mp4 first, THEN Annex-B (ladder finding).
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i",
+         str(tmp_mp4), "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f",
+         "h264", str(tmp_raw)])
+    encoded = tmp_raw.read_bytes()
+    payload, sei_removed = strip_x264_sei(encoded)
+    tmp_mp4.unlink()
+    tmp_raw.unlink()
+
+    ps_end = parameter_sets_end(payload)
+    if sei_removed < 1:
+        sys.exit("golden: no x264 SEI found to strip -- encoder changed?")
+    if ps_end is None or ps_end > RAW_BYTES_PER_MSG:
+        sys.exit(f"golden: SPS/PPS end at byte {ps_end}, not inside chunk 0 "
+                 f"(< {RAW_BYTES_PER_MSG}) -- the chunk-0 repeat would not "
+                 f"protect the decoder header")
+
+    chunks = frame_messages(payload)
+    n = len(chunks)
+    start = build_video_start_message(
+        GOLDEN_FILENAME, GOLDEN_TIMESTAMP, n, fps=fps, dur=dur,
+        res=f"{width}x{height}", crf=crf,
+        start_metadata=GOLDEN_START_METADATA).encode("ascii")
+
+    def end_line(fmt=VIDEO_FMT):
+        # sent_buffers counts UNIQUE chunks; the chunk-0 repeat is not one.
+        return build_video_end_message(
+            GOLDEN_FILENAME, uart_duration_sec=float(n + 3),
+            sent_buffers=n, cpu_temp_text=GOLDEN_CPU_TEMP,
+            fmt=fmt).encode("ascii")
+
+    complete = [start, *chunks, chunks[0], end_line()]
+    tail_keep, mid = (n * 2) // 3, n // 2
+    wires = {
+        "complete": complete,
+        # Burst dies mid-send: no tail repeat, no END.
+        "tail_cut": [start, *chunks[:tail_keep]],
+        # First <I0> lost; the tail repeat must rescue it byte-exact.
+        "chunk0_lost": [start, *chunks[1:], chunks[0], end_line()],
+        "mid_lost": [start, *chunks[:mid], *chunks[mid + 1:], chunks[0],
+                     end_line()],
+        # START says h264, END says pjpg: must be FLAGGED, never resolved.
+        "fmt_disagree": [start, *chunks, chunks[0], end_line(fmt="pjpg")],
+    }
+
+    (out_dir / "payload.h264").write_bytes(payload)
+    sha = hashlib.sha256(payload).hexdigest()
+    log(f"=== golden vectors -> {out_dir}")
+    log(f"payload: {len(payload):,} B = {n} msgs  (encoder output "
+        f"{len(encoded):,} B, {sei_removed} SEI NAL stripped)  sha256 {sha}")
+    log(f"SPS+PPS end at byte {ps_end} (chunk 0 = bytes 0-"
+        f"{RAW_BYTES_PER_MSG - 1})")
+    log(f"START {len(start)} B / END {len(end_line())} B")
+
+    variants = {}
+    for name, lines in wires.items():
+        wire_path = out_dir / f"wire_{name}.txt"
+        wire_path.write_bytes(b"".join(lines))
+        data, got = backend_style_reassemble(lines)
+        rec = out_dir / f"_recovered_{name}.h264"
+        rec.write_bytes(data)
+        frames, _ = decode_probe(rec, True, fps)
+        rec.unlink()
+        prefix = 0
+        while prefix in got:
+            prefix += 1
+        variants[name] = {
+            "wire_file": wire_path.name,
+            "wire_sha256": hashlib.sha256(wire_path.read_bytes()).hexdigest(),
+            "wire_lines": len(lines),
+            "longest_line_bytes": max(len(l) for l in lines),
+            "has_end": any(l.startswith(b"<END IMG>") for l in lines),
+            "expected_chunks": n,
+            "received_chunks": len(got),
+            "missing_chunks": [i for i in range(n) if i not in got],
+            "contiguous_prefix_chunks": prefix,
+            "is_complete": len(got) == n,
+            "recovered_bytes": len(data),
+            "recovered_sha256": hashlib.sha256(data).hexdigest(),
+            "payload_byte_exact": hashlib.sha256(data).hexdigest() == sha,
+            "frames_decodable_ffmpeg": frames,
+        }
+        v = variants[name]
+        log(f"  {name:13s} lines {v['wire_lines']:3d}  rx {v['received_chunks']:3d}"
+            f"/{n}  exact={v['payload_byte_exact']!s:5s} frames "
+            f"{frames}/{n_frames}")
+
+    for must_be_exact in ("complete", "chunk0_lost", "fmt_disagree"):
+        if not variants[must_be_exact]["payload_byte_exact"]:
+            sys.exit(f"golden: {must_be_exact} did not reassemble byte-exact")
+
+    manifest = {
+        "contract": "docs/bm_media_wire_contract.md",
+        "tool": "tools/bm_video_tx_loopback.py --golden",
+        "source": "SYNTHETIC ffmpeg lavfi testsrc2 -- no camera footage",
+        "encode": {"size": f"{width}x{height}", "fps": fps, "dur_s": dur,
+                   "crf": crf, "frames": n_frames, "keyframes": 1,
+                   "x264_preset": "veryslow",
+                   "ffmpeg_version": run(["ffmpeg", "-version"]
+                                         ).stdout.splitlines()[0],
+                   "note": "committed bytes are the vector; a re-run with "
+                           "another ffmpeg/x264 may differ and is not a bug"},
+        "framing": {"b64_chars_per_msg": B64_CHARS_PER_MSG,
+                    "raw_bytes_per_msg": RAW_BYTES_PER_MSG,
+                    "chunk_form": "<I{n}> legacy, no gid"},
+        "payload": {"file": "payload.h264", "bytes": len(payload),
+                    "sha256": sha, "sei_nal_stripped": sei_removed,
+                    "encoder_bytes_before_strip": len(encoded),
+                    "sps_pps_end_offset": ps_end},
+        "start_message": start.decode("ascii"),
+        "start_bytes": len(start),
+        "end_message": end_line().decode("ascii"),
+        "end_bytes": len(end_line()),
+        "receiver_model": "dedupe by index keep longest; join b64 in index "
+                          "order; single decode (bm_image_parser, staging)",
+        "variants": variants,
+    }
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
+    log(f"manifest: {out_dir / 'manifest.json'}")
+
+
 def main():
     global _LOG
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--ref", required=True, type=Path)
+    ap.add_argument("--ref", type=Path)
     ap.add_argument("--crf", required=True, type=int)
     ap.add_argument("--fps", required=True, type=int)
-    ap.add_argument("--run-dir", required=True, type=Path)
+    ap.add_argument("--run-dir", type=Path)
+    ap.add_argument("--golden", type=Path, metavar="DIR",
+                    help="write Sprint22 wire-contract golden vectors to DIR "
+                         "(synthetic source; --ref/--run-dir not used)")
+    ap.add_argument("--dur", type=float, default=5.0,
+                    help="golden mode: clip seconds (default 5)")
+    ap.add_argument("--size", default="480x270",
+                    help="golden mode: WxH (default 480x270)")
     args = ap.parse_args()
-    if not args.ref.is_file():
-        sys.exit(f"ref not found: {args.ref}")
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             sys.exit(f"{tool} not on PATH")
+    if args.golden:
+        generate_golden(args.golden, args.crf, args.fps, args.dur, args.size)
+        return
+    if not args.ref or not args.run_dir:
+        sys.exit("--ref and --run-dir are required (or use --golden DIR)")
+    if not args.ref.is_file():
+        sys.exit(f"ref not found: {args.ref}")
 
     rd = args.run_dir
     for sub in ("payloads", "wire", "recovered", "strips"):

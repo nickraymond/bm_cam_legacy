@@ -5,6 +5,13 @@ Units: bmcam004 (transmit; Nick granted ownership for this testing
 2026-09-19), bmcam003 (clip source only — do not transmit), SPOT-33507C
 (shared by both; USB console on Nick's Mac).
 
+> **Hardware scope (Nick, 2026-09-20): this sprint touches bmcam004 and
+> SPOT-33507C ONLY.** A SECOND Spotter is plugged into Nick's laptop for
+> other work — never open its port, never send it a command, never log it.
+> Address the console by its full name (`/dev/cu.usbmodemSPOT_33507C*`),
+> never by a `*SPOT*` glob. See Hazards: the serial monitor auto-discovers
+> every Spotter and must be fixed before Phase 3.
+
 ## Done before the sprint (test ladder, PR #54)
 
 - [x] Step 1 size sweep — 5 s 480x270 10 fps: CRF 34 = 172 msgs, CRF 40 = 88
@@ -16,12 +23,29 @@ Units: bmcam004 (transmit; Nick granted ownership for this testing
 
 ## Phase 0 — contract + vectors
 
-- [ ] Q1: ffmpeg on Render? (read backend deploy config)
-- [ ] Q2: sender lives in the UART-owning process; trigger = BM command?
-- [ ] `docs/bm_media_wire_contract.md`
-- [ ] loopback tool: SEI strip, chunk-0 repeat, real START/END builders
-- [ ] synthetic golden vectors (complete, tail-cut, chunk-0-lost, mid-loss)
-- [ ] **GATE: Nick signs off the contract**
+Branch `feature/sprint22-phase0-contract` (off `d0359d1`, PR #54's head).
+
+- [x] Q1: ffmpeg on Render? — not provable from the repo (no render.yaml /
+      Dockerfile; native Python runtime, no apt). Recommend PyAV wheel:
+      measured decode + libx264 re-encode of the golden clip incl. partials
+      (contract §10). Unverified: the Linux wheel + RSS on Render itself.
+- [x] Q2: confirmed — the in-process command daemon owns the UART for the
+      whole video session. Proposal: send at the clip boundary, trigger
+      `trg 5`, `TABLES_VERSION` 8 (contract §11). Not built.
+- [x] `docs/bm_media_wire_contract.md` (DRAFT until the gate)
+- [x] loopback tool `--golden`: SEI strip (== ffmpeg `filter_units=
+      remove_types=6`, byte-identical), chunk-0 repeat, START from the
+      production helpers + END from the production END builder. Video START
+      builder lives in the TOOL until Phase 2 (no device code pre-gate).
+- [x] synthetic golden vectors `tests/vectors/bm_media_h264/` — testsrc2,
+      36,019 B = 126 msgs (busier than the bench scene's 88; not tuned):
+      complete, tail-cut, chunk-0-lost, mid-loss, fmt-disagree.
+- [x] vectors verified against the REAL staging parser (`516b813`, run from a
+      scratch copy): all 5 reassemble byte-exact to the manifest; chunk-0
+      repeat rescues with zero backend change; the `.h264` → `.jpg` filename
+      rewrite and `sniff=None` landmines reproduced.
+- [x] `tests/test_bm_media_golden_vectors.py` (8 tests)
+- [ ] **GATE: Nick signs off the contract** (open points: contract §13)
 
 ## Phase 1 — backend (feature branch off `staging`)
 
@@ -57,5 +81,10 @@ Units: bmcam004 (transmit; Nick granted ownership for this testing
   in-progress clip (boot sweep deletes `.part`). Kill by PID, never
   `pkill -f` over ssh.
 - The Mac serial monitor holds the Spotter USB port while running.
+- **`tools/spotter_serial_monitor.py` opens EVERY Spotter it finds**
+  (`/dev/cu.usbmodem*SPOT*` glob, no port/serial filter). With Nick's second
+  Spotter on the laptop it would grab that console too. **Phase 3
+  prerequisite:** add an `--only SPOT-33507C` filter (and make the skill's
+  `ls`/`lsof` lines name the serial) BEFORE the monitor is run again.
 - bmcam003 YAML has `power_halt.enabled: true / dry_run: false` — matters
   if it is ever flipped back to stills.
