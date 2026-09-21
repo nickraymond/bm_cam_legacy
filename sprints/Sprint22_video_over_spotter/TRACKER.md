@@ -158,6 +158,12 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
   in-progress clip (boot sweep deletes `.part`). Kill by PID, never
   `pkill -f` over ssh.
 - The Mac serial monitor holds the Spotter USB port while running.
+- **A bare `BristlemouthSerial()` defaults to network type 0x01 = cellular WITH
+  IRIDIUM FALLBACK.** The production runtime is safe only because it applies
+  `cellular_only` from the YAML. Any ad-hoc sender MUST pass
+  `network_type="cellular_only"` on every `spotter_tx` — a test burst falling
+  back to satellite indoors would be expensive. `bm_video_tx_bench_send.py
+  --cellular` forces it (2026-09-21).
 - `tools/spotter_serial_monitor.py` opens EVERY Spotter it finds unless given
   `--only SPOT-33507C` (added 2026-09-21; verified with `lsof`: the second
   Spotter's port stayed with Nick's process). ALWAYS pass `--only`.
