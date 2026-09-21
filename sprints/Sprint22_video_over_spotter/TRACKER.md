@@ -79,7 +79,19 @@ path for THIS pair, or a later "video does not show up" is undiagnosable.
 - [x] admin gear on the dashboard -> registration tools: backend branch
       `feature/dashboard-admin-gear` (`4832552`), admin-token only, verified
       in a browser with/without token. NOT deployed: needs Nick's PR review.
-- [ ] bmcam004 sends one JPEG -> visible on the staging front end
+- [x] bmcam004 sent one JPEG -> visible on the staging front end (2026-09-21).
+      One-shot stills cycle from a temp YAML (`--transmit --skip-time-window`),
+      unit config untouched, video mode restored + verified recording.
+      Sent 180/180 at 05:34-05:37Z; Sofar has START + END + **173/180**;
+      staging `BMCAM_004` media 52682 renders "96% received".
+      - Delivery needed a `note sync`: 17 min after the burst Sofar had
+        nothing, Spotter `post` all-OK, "Notecard is 19 % full". ~80 s after
+        `note sync` everything queued since 05:28Z arrived.
+      - **The 7 lost chunks are consecutive (37-43), sent 05:35:01-05:35:08Z —
+        the 5-minute blackout-lane signature** (`transmit_phase (C2)` was OFF).
+        For video this gap would land in or near the keyframe. The golden
+        clip burst (129 msgs ~ 2 m 15 s) fits INSIDE one 5-minute lane: start
+        it ~15 s after a :00/:05 boundary.
 
 - [ ] parser: `.h264` allowed, `fmt` dispatch, Annex-B sniff, agreement flag
 - [ ] ingest: type/format/content-type/extension, skip Pillow for video
