@@ -243,7 +243,18 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
         `note sync`.
       - Bridge `power.log` gives real bus power at 10 s: recorder 1.62 W,
         record+encode 1.68 W (peak 2.07), transmit burst 0.87 W.
-      - OPEN: why is SPOT-33507C's `log/` empty? Check the card itself.
+      - **RESOLVED 2026-09-21: SPOT-33507C's `log/` is NOT empty.** The card has
+        TWO directory entries named `log/`; macOS opens the empty one, the
+        firmware writes the other (5,357 files / 700 MB, idx 0-276, seen via
+        console `cd log` + `ls`). Logging config is identical on both Spotters
+        (`log list`). Pulled `0264_MS.log` over the console: 17 queue-full lines
+        07:30:31-48Z (console caught 16), 129/129 accepted for the golden send
+        -> **the SD is the better record than the console.**
+      - Both Spotters: app FW **v2.16.8** (`47FF21A4`); `info`'s other
+        "Version" line is the bootloader (33507C v2.16.6, 31593C v2.15.6).
+        Differences that matter: Notecard NOTE-WBGLW fw 6.2.5 (33507C) vs
+        NOTE-WBNA-500 fw 4.2.1 (31593C); `hasBarometer` 1 vs 0 (33507C's red
+        GO LED = `baroErrorState: INIT_ERR`); `sov` 150 vs 75; `vle` 0 vs 1.
 - [ ] SOAK PREREQS: deploy the branch to `~/BM_Devel_Pi` (real deployment, not
       /tmp), YAML `video_tx.enabled: true` + `transmit_phase.enabled: true`
       with `post_boundary_guard_s: 60` + `power_halt` enabled + window not

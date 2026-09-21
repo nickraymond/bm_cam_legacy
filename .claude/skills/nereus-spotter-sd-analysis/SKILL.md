@@ -396,17 +396,51 @@ power-cycle index `NNNN_`):
 `outbox/`, `sent/`, `msgdata/` exist on every card seen so far and were EMPTY on
 both — do not build on them.
 
-### A card whose `log/` is EMPTY
+### A card whose `log/` LOOKS empty on the Mac — it probably is not
 
-`SPOT-33507C_archive.zip` (pulled 2026-09-21): `log/`, `outbox/`, `sent/`,
-`msgdata/` present but with ZERO files; all 678 files were under `bm/<node>/`.
-Sofar's guide says a Spotter ALWAYS logs location and displacement to SD, so an
-empty `log/` means one of: the archive was made without it, logging is off on
-that unit, or the card is not being written by the main firmware. **Check the
-card itself before concluding anything**, and compare against a unit whose
-`log/` is populated. Until it is, that Spotter's SD says NOTHING about cellular
-and a USB console logger (`tools/spotter_serial_monitor.py --only <SPOT-ID>`) is
-the only record of queue rejections.
+`SPOT-33507C_archive.zip` (2026-09-21): `log/` had ZERO files on macOS. From the
+Spotter's own console the same card's `/log` held **5,357 files / 700 MB**,
+indexes 0000-0276, including last night's `0264_MS.log` (334 KB). Cause: the
+card has **two directory entries both named `log/`** (`ls` at `/` prints
+`D log/` twice). macOS resolves one (empty, created on a computer 2026-06-12);
+the firmware writes into the other. The card also carries `.Spotlight-V100`,
+`.fseventsd`, `.Trashes` — it was mounted read-write on a Mac at some point.
+
+Logging config was NOT the cause: `log list` was identical on a unit whose
+`log/` is visible (SPOT-31593C) — `MS`/`BM_TX`/`HDR`/`ORC`/`IRI` dest `ALL`,
+`NCD` dest `FILE`, levels DEBUG/INFO. A red GO LED from `baroErrorState:
+INIT_ERR` (`hasBarometer: 1` with no working barometer) does not stop logging.
+
+So before believing an empty `log/`:
+
+```text
+ls                      # at / — is `log/` listed twice?
+cd log  →  ls           # what the FIRMWARE sees
+cat log/index           # current power-cycle index
+log list                # per-log level + destination (a=all c=console f=file n=none)
+sd err                  # SD write/read error counters
+```
+
+Getting files off such a card WITHOUT touching it: `cat log/NNNN_MS.log` over
+the console (115200 baud ≈ 10 KB/s — fine for one MS/HDR/NCD log, hopeless for
+700 MB), or image the card (`dd`) and extract from the image. **Do not `fsck` /
+"repair" the card first** — a repair may delete the entry that holds the data.
+A clean fix is back up, then `sd format` from the Spotter console (destructive).
+
+Verified equivalence, console vs SD, same night (2026-09-21, SPOT-33507C): the
+SD's `0264_MS.log` holds 17 `Queue MS_Q_CELLULAR_ONLY is full` lines at
+07:30:31-07:30:48Z (the live console capture caught 16) and 129 accepted
+messages for a 129-message burst (console: 129). **The SD is the better record**
+— no mid-line interleaving, nothing lost to a busy console.
+
+Traps:
+- `info` prints TWO versions: `FW Version:` (the application, e.g. v2.16.8) and,
+  under `Bootloader Information:`, `Version:` (e.g. v2.16.6). A firmware update
+  does not change the bootloader line. Read `FW Version`.
+- A log's directory size can lag its real size until it is flushed/closed. Run
+  `log flush` on the console BEFORE pulling a card or cutting power.
+- A Spotter with its card pulled answers `ERR SD card is not mounted!` to every
+  log write and counts `sd err` — expected, not a fault.
 
 ### `bm/<node>/` holds two different things
 
