@@ -70,8 +70,15 @@ Branch `feature/sprint22-phase0-contract` (off `d0359d1`, PR #54's head).
 Pre-flight (Nick, 2026-09-20) — BEFORE any backend code: prove the plain JPEG
 path for THIS pair, or a later "video does not show up" is undiagnosable.
 
-- [ ] bmcam004 registered to SPOT-33507C in the backend (find the tool URL)
-- [ ] admin dashboard links to the registration tool
+- [x] bmcam004 registered to SPOT-33507C (Nick, 2026-09-20): tool =
+      `https://nereus-vision-staging.onrender.com/register.html` (+
+      `/dashboard/external-nodes.html`). Before: staging had NO `BMCAM_004`.
+      Now `BMCAM_004` <- node `0xe6fe83ea6b4a2b7f`, active. Second cause of
+      "no images": bmcam004 runs `capture_mode: "video"`, which never sends a
+      JPEG (last SPOT-33507C media on staging was 2026-07-31).
+- [x] admin gear on the dashboard -> registration tools: backend branch
+      `feature/dashboard-admin-gear` (`4832552`), admin-token only, verified
+      in a browser with/without token. NOT deployed: needs Nick's PR review.
 - [ ] bmcam004 sends one JPEG -> visible on the staging front end
 
 - [ ] parser: `.h264` allowed, `fmt` dispatch, Annex-B sniff, agreement flag
