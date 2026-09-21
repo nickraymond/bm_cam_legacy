@@ -24,7 +24,8 @@ July: 21–66 min on SPOT-33507C; SPOT-31593C 0/16 delivered, ever
 |---|---|---|---|---|---|---|---|
 | 1 | 04:50:09 | `uptime` + `clear_command_queue` | CLI `sofar_send_command.py` | 04:50:55 | **46 s** | 38184 | First remote delivery this Spotter has ever had. Spotter uptime 0.04 h — it was in its post-boot burst of syncs (Rx checks 04:49:36, 04:50:21, 04:51:01), so this is NOT a steady-state number. |
 | 2 | 04:54:46 | `uptime` | tester UI | 05:06:47 | **721 s (12.0 min)** | — | No sync happened 04:51→05:06. Delivered at the sync that the 05:05:34Z `bridge cfg commit` caused (network-config uplink → `Checking for Rx` 05:06:08 → message 40 s later). First live end-to-end catch by the tester. |
-| 3 | 05:08:04 | `bm pub bmcam/s23test {"id":3,"via":"remote"} 1 1` | tester UI | (pending) | | | Sent with bus OFF (off 05:07:36 → on ~06:00:08). The Phase 2b test. |
+| 3 | 05:08:04 | `bm pub bmcam/s23test {"id":3,"via":"remote"} 1 1` | tester UI | 05:30:24 | **1340 s (22.3 min)** | 38186 | INVALID as a bus-off test: it landed inside the 120 s bus-ON re-init window caused by my 05:29:43Z schedule commit (which also produced the uplink that pulled it down). Ran straight through, silent — matches the bus-on USB template. |
+| 4 | 05:31:55 | `bm pub bmcam/s23test {"id":4,"via":"remote"} 1 1` | tester API | (pending) | | | Bus OFF at send. `note sync` over USB at 05:32:11 did NOT cause a Spotter mailbox check. Waiting on a natural uplink. |
 
 Receive signature on v2.16.8 — unchanged from v2.16.6:
 
@@ -70,6 +71,16 @@ Effect seen: bridge re-init, bus on 120 s, then `Sample enabled 1`,
 `Bridge bus power: 0`, `power off for: 3152000` at 05:07:36Z.
 Restore: same two lines with `0`. No node was on the bus (`bm topo`).
 
+05:29:27Z, Nick-approved, to shorten test cycles: `sampleIntervalMs` 3600000 →
+**600000**, `sampleDurationMs` 900000 → **120000**, then commit. Read back in
+`Bridge network config`. Observed: `Sample Duration: 120 s / Interval: 600 s`,
+bus off 05:31:45Z, `power off for: 502000` → next on ~05:40:08Z.
+Restore: set 3600000 / 900000 and commit.
+
+Side effects of ANY `bridge cfg commit`: bridge re-init, bus forced ON 120 s,
+and a network-config uplink → cellular sync → mailbox check. Do not commit
+while a bus-off test is in flight.
+
 ## Findings so far
 
 1. The wedged-mailbox theory held: one `clear_command_queue` and SPOT-31593C
@@ -81,7 +92,14 @@ Restore: same two lines with `0`. No node was on the bus (`bm topo`).
    the Ebox ≈ time until the Spotter's next uplink. A camera that transmits
    often will pull its own commands down quickly; an idle Spotter will not.
    The idle sync period is still unmeasured.
-3. **Open for Phase 2b:** at 04:50:43Z the bridge printed `Sample enabled 0`
+3. `note sync` (USB) makes the Notecard sync but does not make the Spotter run
+   `[MS] Checking for Rx Messages`. It is not a way to force delivery.
+4. Release of a held command printed NOTHING: USB id 2 was queued at
+   05:07:45Z (`Queuing serial command`), the bus came on at 05:29:45Z, and no
+   line mentioned it. Either release is silent, or the bridge re-init dropped
+   the queue. Undecidable from the console alone — needs a listener on the
+   bus (bmcam000) or Sofar's answer.
+5. **(Resolved 05:05Z — controller enabled.)** Original note: at 04:50:43Z the bridge printed `Sample enabled 0`
    (Sample Duration 900 s / Interval 3600 s) and the bus sat at 23.9 V,
    0.000 A at 04:55Z. That reads as: bridge power controller disabled, bus
    always ON, nothing drawing current. The queue-until-bus-on feature can
