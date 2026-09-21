@@ -512,7 +512,7 @@ it reports what is on the card, not what the limits allow.
 
 ---
 
-### TODO-BM-016 — Disable cloud-init on bmcam images to cut ~6 s of boot (captured 2026-09-21, Sprint23)
+### TODO-BM-018 — Disable cloud-init on bmcam images to cut ~6 s of boot (captured 2026-09-21, Sprint23)
 **Status:** open
 **Priority:** low-medium / fleet energy + command latency
 **Context:** Measured on bmcam003 (Trixie) with `systemd-analyze`, read-only: kernel 5.9 s + userspace 29.8 s. `cron.service` (which starts `rc_run_capture_cycle.sh`) comes up at 12.3 s userspace, and ~6 s of that critical chain is cloud-init (`cloud-init-main` 4.0 s, `-local` 1.0 s, `-network` 0.9 s). cloud-init is Raspberry Pi Imager's first-boot provisioning; `cloud-init status` = done, datasource NoCloud from `/boot/firmware/{user-data,meta-data,network-config}`. On every later boot it re-checks and does nothing. Nothing of ours depends on it (only `cloud-init.target` <- `multi-user.target`). It is ~6 s of bus-on energy per cycle, per unit. It does NOT close the Sprint23 replay race (Spotter v2.16.8 replays held `bm` commands ~8 s after bus power-on; Pi subscribes at ~40 s) — see `sprints/Sprint23_remote_msg_latency/RESULTS.md`.
@@ -532,7 +532,7 @@ it reports what is on the card, not what the limits allow.
 ### TODO-BM-017 — Mote-side command cache so held remote commands survive the Pi's boot (captured 2026-09-21, Sprint23)
 **Status:** open
 **Priority:** high for remote configuration of duty-cycled units
-**Context:** Spotter FW v2.16.8 holds a remote `bm …` command that arrives while the BM bus is off, then replays it after a fixed **10 s grace period** from BM network boot (Sofar engineer via Nick, 2026-09-21: not configurable). Measured on SPOT-31593C + bmcam003: replay ~8 s after `Bridge bus power: 1`; the Pi's command daemon subscribes at 38.0 ± 1.1 s. Result: held commands are lost, silently (2/2, daemon `frames=0`). Only commands that happen to arrive while the unit is awake and listening get through (7/7). Evidence: `sprints/Sprint23_remote_msg_latency/RESULTS.md` (Step B, Step C, finding 11). TODO-BM-016 (cloud-init) saves ~6 s and cannot close a ~28 s gap.
+**Context:** Spotter FW v2.16.8 holds a remote `bm …` command that arrives while the BM bus is off, then replays it after a fixed **10 s grace period** from BM network boot (Sofar engineer via Nick, 2026-09-21: not configurable). Measured on SPOT-31593C + bmcam003: replay ~8 s after `Bridge bus power: 1`; the Pi's command daemon subscribes at 38.0 ± 1.1 s. Result: held commands are lost, silently (2/2, daemon `frames=0`). Only commands that happen to arrive while the unit is awake and listening get through (7/7). Evidence: `sprints/Sprint23_remote_msg_latency/RESULTS.md` (Step B, Step C, finding 11). TODO-BM-018 (cloud-init) saves ~6 s and cannot close a ~28 s gap.
 
 **Proposed fix (Sofar's recommendation; Sofar offered to help implement):** the camera's BM mote (`serial_bridge@ENG-v0.13.11-6-g54aff0a3`, alive ~1 s after bus power) caches the message for the command topic and forwards it to the Pi once the Pi is up.
 

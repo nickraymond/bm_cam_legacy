@@ -109,6 +109,7 @@ sprints/Sprint23_remote_msg_latency/overnight_loop.sh 2401 2412
   around those two, with retry-until-ack on the same id (the daemon dedupes).
 - Tell the operator the expected wait: up to 60 min for the next hourly
   report, +72 s, and only if the unit is awake and listening at that moment.
-- Open TODOs: TODO-BM-016 (cloud-init, ~6 s of boot); **TODO-BM-017 (mote-side
+- Open TODOs: TODO-BM-018 (cloud-init, ~6 s of boot; was filed as BM-016
+  until that id collided with Sprint22's on merge); **TODO-BM-017 (mote-side
   command cache — Sofar's recommended fix for held commands being lost;
   Sofar offered to help).**
