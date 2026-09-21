@@ -19,12 +19,11 @@ what to DO with them.
 
 ## 2. State of the bench when this was written
 
-Processes on Nick's Mac (mine — stop them before taking the port):
-
-| What | PID / address | Stop |
-|---|---|---|
-| Serial monitor, `--only SPOT-31593C`, log root `~/spotter_logs` | PID 52489 | `kill 52489` |
-| Tester server | `127.0.0.1:8771` | `pkill -f remote_msg_tester/server.py` |
+Processes on Nick's Mac: **all stopped 2026-09-21 ~17:50Z at Nick's request**
+(serial monitor PID 52489, tester server on 127.0.0.1:8771, the overnight
+loop and its watchers). `/dev/cu.usbmodemSPOT_31593C1` has no holder. Console
+logging for SPOT-31593C therefore ENDS there — restart the monitor with
+`--only` before the next test.
 
 Spotter SPOT-31593C, bridge `0e582dd12c1e1480` — I changed three keys (system
 partition). Current → original:
