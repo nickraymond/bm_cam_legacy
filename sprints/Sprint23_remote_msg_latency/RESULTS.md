@@ -326,6 +326,22 @@ API → Ebox is not a property of the link: each ping was sent ~2 min after the
 previous report, so it measures "time until the next :50 report". Sent at a
 random moment, expect 0–60 min, ~30 min on average, plus ~72 s.
 
+### Finding 9 — the Spotter's 2-slot cellular queue rejects camera traffic, silently
+
+Prompted by the Sprint22 session (their finding: the Spotter queues its own
+6,129-byte `HDR` message every 5 min and it holds the queue). Same on this
+rig: **301 `[MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.` lines** in
+`console_20260921.log`, clustered on report minutes (12 at 07:50). The camera
+gets no error, so bmcam003's 158-message images were losing chunks all night,
+and the 114-byte command acks are exposed to the same loss (0 of 7 dropped).
+Not yet done: count rejections per image cycle; check image completeness at
+the backend.
+
+Also 2026-09-21: Nick pulled both Spotters' SD cards to wipe them. SPOT-31593C
+rebooted 16:29, 16:52, 17:09Z; first new standard report 17:15:30Z. The
+report minute has moved off :50, so the Step C bus-window rule is mis-phased
+until re-measured.
+
 ### Is it reliable?
 
 Repeatable on this bench: yes — 7/7, hourly report on :50:00–:50:02 seven
