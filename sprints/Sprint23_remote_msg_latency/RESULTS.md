@@ -23,7 +23,8 @@ July: 21–66 min on SPOT-33507C; SPOT-31593C 0/16 delivered, ever
 | # | Sent | Command | Via | Received | Latency | Sofar id | Notes |
 |---|---|---|---|---|---|---|---|
 | 1 | 04:50:09 | `uptime` + `clear_command_queue` | CLI `sofar_send_command.py` | 04:50:55 | **46 s** | 38184 | First remote delivery this Spotter has ever had. Spotter uptime 0.04 h — it was in its post-boot burst of syncs (Rx checks 04:49:36, 04:50:21, 04:51:01), so this is NOT a steady-state number. |
-| 2 | 04:54:46 | `uptime` | tester UI | (pending) | | | First send outside the post-boot sync burst. |
+| 2 | 04:54:46 | `uptime` | tester UI | 05:06:47 | **721 s (12.0 min)** | — | No sync happened 04:51→05:06. Delivered at the sync that the 05:05:34Z `bridge cfg commit` caused (network-config uplink → `Checking for Rx` 05:06:08 → message 40 s later). First live end-to-end catch by the tester. |
+| 3 | 05:08:04 | `bm pub bmcam/s23test {"id":3,"via":"remote"} 1 1` | tester UI | (pending) | | | Sent with bus OFF (off 05:07:36 → on ~06:00:08). The Phase 2b test. |
 
 Receive signature on v2.16.8 — unchanged from v2.16.6:
 
@@ -37,13 +38,49 @@ Command not recognised.  Enter 'help' to view a list of available commands.
 
 (`id:NNNNN` is appended by Sofar and runs as an unrecognised command. Harmless.)
 
+## USB reference outputs (v2.16.8) — the template for remote commands
+
+Typed over the USB console via `cmd.txt`, 05:04–05:08Z. A remote message runs
+as the same console line, so these are the expected outputs.
+
+| Command | Bus | Console output |
+|---|---|---|
+| `uptime` | on | `Uptime: 0.26 hours` |
+| `bm topo` | on | `Bristlemouth toplogy: 0e582dd12c1e1480` (bridge only — no camera attached) |
+| `bm info 0e582dd12c1e1480` | on | `Successfully sent info request` + `Neighbor information:` block (Node ID, GIT SHA 1595F804, `bridge@v0.13.11`) |
+| `bm pub bmcam/s23test {"id":1} 1 1` | **on** | **nothing** — silent on success |
+| `bm pub bmcam/s23test {"id":2,"via":"usb"} 1 1` | **off** (0.2 V) | `[BRIDGE] [INFO] Queuing serial command: bm pub bmcam/s23test {"id":2,"via":"usb"} 1 1` |
+| `bridge cfg status 0e582dd12c1e1480 s` | on | 16 keys; `bridgePowerControllerEnabled` = 0 before the change |
+
+**Queue signature found:** `[BRIDGE] [INFO] Queuing serial command: <line>`.
+It fires for a USB-typed `bm` command too, not only for remote messages.
+Release signature: pending the 06:00Z bus-on.
+
+## Bench configuration change (reversible)
+
+05:05:26Z, over USB, Nick-approved:
+
+```text
+bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 1
+bridge cfg commit 0e582dd12c1e1480 s
+```
+
+Was 0 (bus always on). Interval 3,600,000 ms / duration 900,000 ms unchanged.
+Effect seen: bridge re-init, bus on 120 s, then `Sample enabled 1`,
+`Bridge bus power: 0`, `power off for: 3152000` at 05:07:36Z.
+Restore: same two lines with `0`. No node was on the bus (`bm topo`).
+
 ## Findings so far
 
 1. The wedged-mailbox theory held: one `clear_command_queue` and SPOT-31593C
    delivered on the next Rx check.
 2. Delivery happens at a cellular sync (`[MS] Checking for Rx Messages`), same
-   as v2.16.6. Whether v2.16.8 changed the sync cadence is not known yet —
-   test 2 measures it.
+   as v2.16.6, and lands ~35–40 s after that line. A sync happens when the
+   Spotter has something to uplink: test 2 sat 12 min with no sync at all,
+   then rode the uplink my config commit produced. Implication: latency to
+   the Ebox ≈ time until the Spotter's next uplink. A camera that transmits
+   often will pull its own commands down quickly; an idle Spotter will not.
+   The idle sync period is still unmeasured.
 3. **Open for Phase 2b:** at 04:50:43Z the bridge printed `Sample enabled 0`
    (Sample Duration 900 s / Interval 3600 s) and the bus sat at 23.9 V,
    0.000 A at 04:55Z. That reads as: bridge power controller disabled, bus
