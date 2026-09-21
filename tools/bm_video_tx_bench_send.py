@@ -30,6 +30,25 @@ OUTPUTS
     --out CSV: idx, utc, wire_len, bytes_written, sha256_16 of the line
     stdout: progress line per message, summary, nonzero exit on any failure
 
+CELLULAR MODE (--cellular) -- Sprint22 1d staging proof. SPENDS CELLULAR QUOTA.
+    Sends every wire line through bm_serial.spotter_tx (topic
+    spotter/transmit-data = the production path: Spotter transmit queue ->
+    Notecard -> cellular -> Sofar API). Guards, all mandatory:
+      * --approve-msgs N must equal the number of lines exactly, and N <= 300
+        (Nick's standing approval). A typo'd wire file cannot overspend.
+      * network type is forced to CELLULAR-ONLY (0x02) on every message. The
+        bare BristlemouthSerial() default is 0x01 = cellular WITH IRIDIUM
+        FALLBACK -- never let a test burst fall back to satellite.
+      * --start-after-boundary S waits until S seconds past a 5-minute wall
+        clock boundary, and refuses if the burst would not END before the next
+        one. Measured 2026-09-21: 7 consecutive chunks sent 05:35:01-05:35:08Z
+        were lost (blackout-lane signature); a 129-msg clip fits in one lane.
+    The BEGIN/END tag lines still go via spotter_print (console only, free).
+
+    cd ~/BM_Devel_Pi && python3 /tmp/bm_video_tx_bench_send.py --cellular \
+        --wire /tmp/wire_complete.txt --approve-msgs 129 \
+        --start-after-boundary 15 --tag S22GOLD --out /tmp/send_log.csv
+
 KNOWN LIMITATIONS
     * spotter/printf line-length limit is not documented in this repo; the
       --limit probe exists to find out before sending a whole clip.
@@ -43,6 +62,11 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+
+
+CELLULAR_MSG_CEILING = 300     # Nick's standing approval (2026-09-19)
+LANE_SECONDS = 300             # cellular blackout lanes sit on 5-min boundaries
+LANE_TAIL_MARGIN_S = 20        # END must land this long before the next one
 
 
 def runtime_is_running():
@@ -61,6 +85,15 @@ def main():
     ap.add_argument("--tag", default="VTX",
                     help="marker lines printed before/after the burst")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--cellular", action="store_true",
+                    help="SPENDS CELLULAR QUOTA: send via spotter_tx "
+                         "(production path), forced cellular-only")
+    ap.add_argument("--approve-msgs", type=int, default=None,
+                    help="cellular mode: must equal the line count exactly")
+    ap.add_argument("--start-after-boundary", type=float, default=None,
+                    metavar="S", help="start S seconds after a 5-minute wall "
+                                      "clock boundary; refuse if the burst "
+                                      "would cross the next one")
     args = ap.parse_args()
 
     if runtime_is_running():
@@ -74,16 +107,48 @@ def main():
     print(f"[send] wire={args.wire} lines={len(lines)} delay={args.delay}s "
           f"longest={max(map(len, lines))} chars")
 
+    if args.cellular:
+        if args.limit:
+            sys.exit("REFUSING: --limit with --cellular would send a broken "
+                     "group over cellular. Probe with the default printf mode.")
+        if args.approve_msgs != len(lines):
+            sys.exit(f"REFUSING: --approve-msgs {args.approve_msgs} != "
+                     f"{len(lines)} lines in {args.wire}")
+        if len(lines) > CELLULAR_MSG_CEILING:
+            sys.exit(f"REFUSING: {len(lines)} msgs exceeds the "
+                     f"{CELLULAR_MSG_CEILING}-message approval")
+    burst_s = len(lines) * args.delay
+    if args.start_after_boundary is not None:
+        room = LANE_SECONDS - args.start_after_boundary - LANE_TAIL_MARGIN_S
+        if burst_s > room:
+            sys.exit(f"REFUSING: burst {burst_s:.0f} s does not fit the "
+                     f"{room:.0f} s left in a {LANE_SECONDS} s lane")
+
     sys.path.insert(0, ".")
     from bm_serial import BristlemouthSerial           # the unit's own copy
     bm = BristlemouthSerial()
-    print(f"[send] uart={bm.uart.port} @ {bm.uart.baudrate}")
+    print(f"[send] uart={bm.uart.port} @ {bm.uart.baudrate}  mode="
+          f"{'CELLULAR spotter_tx cellular_only' if args.cellular else 'printf (zero cellular)'}")
+
+    def send(line):
+        if args.cellular:
+            # Production lines end in \n. network_type is explicit on EVERY
+            # call: never inherit the 0x01 Iridium-fallback default.
+            return bm.spotter_tx((line + "\n").encode("ascii"),
+                                 network_type="cellular_only")
+        return bm.spotter_print(line)
+
+    if args.start_after_boundary is not None:
+        wait = (args.start_after_boundary - time.time() % LANE_SECONDS) % LANE_SECONDS
+        print(f"[send] waiting {wait:.0f} s for {args.start_after_boundary:g} s "
+              f"past the next 5-minute boundary", flush=True)
+        time.sleep(wait)
 
     rows, t0 = [], time.time()
     bm.spotter_print(f"{args.tag} BEGIN n={len(lines)}")
     time.sleep(args.delay)
     for i, line in enumerate(lines):
-        n = bm.spotter_print(line)
+        n = send(line)
         bm.uart.flush()
         utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
         rows.append([i, utc + "Z", len(line), n,

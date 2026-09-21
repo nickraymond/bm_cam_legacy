@@ -182,6 +182,117 @@ def build_rc_end_message(
     )
 
 
+# ---------------------------------------------------------------------------
+# Sprint22 — video media group (docs/bm_media_wire_contract.md, signed off
+# 2026-09-20). Additive: the still builders above are untouched.
+# ---------------------------------------------------------------------------
+RC_VIDEO_FORMAT = "h264"
+# The backend length regex `(?:chunks|length|len|buffers?)` has no word
+# boundary: a key containing any of these would be read as the chunk count.
+FORBIDDEN_KEY_SUBSTRINGS = ("len", "chunks", "buffer")
+# Still-only START metadata that means nothing for a clip.
+_VIDEO_START_SKIP = {"q", "rk", "ws", "we"}
+
+
+def format_crop(crop_native_xywh):
+    """(x, y, w, h) in NATIVE sensor px -> the wire form `WxH+X+Y` (no commas).
+    None -> "na": no camera behind this clip (a stored reference)."""
+    if crop_native_xywh is None:
+        return "na"
+    x, y, w, h = (int(v) for v in crop_native_xywh)
+    return f"{w}x{h}+{x}+{y}"
+
+
+def build_rc_video_start_message(
+    file_name,
+    current_timestamp,
+    num_buffers,
+    *,
+    fps,
+    dur,
+    res,
+    crop=None,
+    crf=None,
+    br=None,
+    complete=True,
+    start_metadata=None,
+    max_payload_bytes=285,
+):
+    """Build the video START IMG message (wire contract section 3).
+
+    `length` = planned UNIQUE chunks (the chunk-0 repeat is not counted).
+    fmt/fps/dur/res/crop/(br|crf)/cmp are never dropped; optional metadata
+    drops in the still builder's order. Exactly one of `br` (target kbps) or
+    `crf` names the rate control that produced the payload. Raises instead of
+    truncating: a video START that does not fit is a bug, not data.
+    """
+    if (crf is None) == (br is None):
+        raise ValueError("video START needs exactly one of crf= or br=")
+    rate_pair = ("crf", int(crf)) if crf is not None else ("br", int(round(float(br))))
+    fps_text = str(int(fps)) if float(fps).is_integer() else f"{float(fps):.2f}"
+
+    base_parts = [
+        f"filename: {_clean_value(file_name, max_len=96)}",
+        f"timestamp: {_clean_value(current_timestamp, max_len=32)}",
+        f"length: {int(num_buffers)}",
+    ]
+    video_pairs = [
+        ("fmt", RC_VIDEO_FORMAT), ("fps", fps_text), ("dur", f"{float(dur):.1f}"),
+        ("res", res), ("crop", crop), rate_pair, ("cmp", 1 if complete else 0),
+    ]
+    for key, _ in video_pairs:
+        if any(bad in key for bad in FORBIDDEN_KEY_SUBSTRINGS):
+            raise ValueError(f"START key {key!r} collides with the backend "
+                             f"length regex {FORBIDDEN_KEY_SUBSTRINGS}")
+    video_parts = [f"{k}={_clean_value(v, max_len=20)}" for k, v in video_pairs]
+    optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata)
+                if k not in _VIDEO_START_SKIP]
+    drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]
+
+    def render(selected):
+        parts = base_parts + video_parts + [
+            f"{k}={_clean_value(v, max_len=12 if k == 'sha' else 24)}"
+            for k, v in selected]
+        return "<START IMG> " + ", ".join(parts) + "\n"
+
+    selected = list(optional)
+    msg = render(selected)
+    for key_to_drop in drop_order:
+        if len(msg.encode("ascii")) <= max_payload_bytes:
+            return msg
+        selected = [(k, v) for k, v in selected if k != key_to_drop]
+        msg = render(selected)
+    while len(msg.encode("ascii")) > max_payload_bytes and selected:
+        selected.pop()
+        msg = render(selected)
+    if len(msg.encode("ascii")) > max_payload_bytes:
+        raise ValueError(f"video START base fields exceed {max_payload_bytes} B: "
+                         f"{len(msg.encode('ascii'))} B -- shorten the filename")
+    return msg
+
+
+def build_rc_video_end_message(
+    file_name,
+    *,
+    uart_duration_sec,
+    sent_buffers,
+    cpu_temp_text,
+    fmt=RC_VIDEO_FORMAT,
+    max_payload_bytes=295,
+):
+    """Video END = the production END plus one core field `fmt` right after
+    `filename` (contract section 4). `sent_buffers` = UNIQUE chunks sent."""
+    core_fields = [
+        ("filename", file_name),
+        ("fmt", fmt),
+        ("uart_duration_sec", f"{float(uart_duration_sec):.1f}"),
+        ("sent_buffers", int(sent_buffers)),
+        ("cpu_temp_c", cpu_temp_text),
+    ]
+    return _build_end_image_message(file_name, core_fields,
+                                    max_payload_bytes=max_payload_bytes)
+
+
 def build_rc_incomplete_message(
     *,
     quality,

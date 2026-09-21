@@ -41,6 +41,8 @@ from rc_uplink_messages import (
     build_rc_end_message,
     build_rc_incomplete_message,
     build_rc_start_message,
+    build_rc_video_end_message,
+    build_rc_video_start_message,
     reason_code,
 )
 
@@ -195,3 +197,123 @@ def transmit_progressive_image(
         "incomplete_emitted": incomplete_emitted,
         "uart_duration_sec": clock() - uart_start,
     }
+
+
+# ---------------------------------------------------------------------------
+# Sprint22 — video media group (docs/bm_media_wire_contract.md)
+# ---------------------------------------------------------------------------
+# Paced slots a clip needs besides its chunks and its keyframe repeat: START + END.
+VIDEO_ENVELOPE_MSGS = 2
+
+
+def video_burst_messages(payload, chunk_b64_chars, keyframe_chunks=1):
+    """Every paced message one clip puts on the wire."""
+    planned = len(split_base64_chunks(payload, chunk_b64_chars))
+    return planned + min(int(keyframe_chunks), planned) + VIDEO_ENVELOPE_MSGS
+
+
+def transmit_video_clip(
+    tx,
+    budget,
+    *,
+    payload,
+    file_name,
+    fps,
+    dur,
+    res,
+    crop,
+    br=None,
+    crf=None,
+    keyframe_chunks=1,
+    chunk_b64_chars,
+    delay_seconds,
+    start_metadata=None,
+    cpu_temp_text=None,
+    current_timestamp=None,
+    sleep_fn=time.sleep,
+    clock=time.monotonic,
+):
+    """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
+    (contract sections 1 + 5).
+
+    keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
+    are re-sent, in order, after the last chunk. Lose any of them and the whole
+    clip smears — and the camera cannot see a loss: on 2026-09-21 the Spotter
+    rejected the first 16 chunks of a burst ("Queue MS_Q_CELLULAR_ONLY is full",
+    its own scheduled transmission was holding the 2-slot queue) and the Pi got
+    no error at all. The repeat lands ~2 minutes later, outside that window.
+    The backend dedupes by index, so this needs no backend change.
+
+    Separate from transmit_progressive_image on purpose — that loop and its
+    wire are pinned byte-identical by test and carry JPEG-only logic (the
+    bounded partial send, `a=inc`). Same framing (`<I{i}>{chunk}\\n`, legacy
+    form, no gid) and the same pacing pattern (sleep after START and after
+    every chunk, not after END).
+
+    A clip that does not fit the remaining budget is REFUSED before START —
+    never truncated silently (the encoder already sized it; not fitting here
+    means the budget moved). Once started, the per-chunk guard still keeps
+    room for END, so a stall closes the group honestly with
+    sent_buffers < length and the backend stores a partial clip.
+
+    Returns {planned, sent, started, complete_send, repeated, repeat_sent,
+             refused_reason, uart_duration_sec}. repeat_sent = the WHOLE keyframe
+    repeat went out.
+    """
+    delay_seconds = float(delay_seconds)
+    chunks = split_base64_chunks(payload, chunk_b64_chars)
+    planned = len(chunks)
+    uart_start = clock()
+    keyframe_chunks = max(1, min(int(keyframe_chunks), planned)) if planned else 0
+    result = {"planned": planned, "sent": 0, "started": False, "complete_send": False,
+              "repeated": 0, "repeat_sent": False, "refused_reason": None,
+              "uart_duration_sec": 0.0}
+
+    if planned < 1:
+        result["refused_reason"] = "empty_payload"
+        return result
+    needed = planned + keyframe_chunks + VIDEO_ENVELOPE_MSGS
+    if not budget.messages_fit(needed):
+        result["refused_reason"] = (
+            f"budget: clip needs {needed} paced messages, "
+            f"{budget.max_messages_now()} fit in the {budget.remaining_s():.0f}s left")
+        return result
+
+    if current_timestamp is None:
+        current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    tx(build_rc_video_start_message(
+        file_name, current_timestamp, planned, fps=fps, dur=dur, res=res, crop=crop,
+        br=br, crf=crf, complete=True, start_metadata=start_metadata,
+    ).encode("ascii"))
+    result["started"] = True
+    sleep_fn(delay_seconds)
+
+    sent = 0
+    for i in range(planned):
+        # This chunk + the closing END must still fit.
+        if not budget.messages_fit(2):
+            break
+        tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
+        sent += 1
+        sleep_fn(delay_seconds)
+
+    # Keyframe repeat: only after a complete first pass, and each copy still
+    # leaves room for END.
+    if sent == planned:
+        for i in range(keyframe_chunks):
+            if not budget.messages_fit(2):
+                break
+            tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
+            result["repeated"] += 1
+            sleep_fn(delay_seconds)
+        result["repeat_sent"] = result["repeated"] == keyframe_chunks
+
+    tx(build_rc_video_end_message(
+        file_name, uart_duration_sec=clock() - uart_start, sent_buffers=sent,
+        cpu_temp_text=cpu_temp_text if cpu_temp_text is not None else "na",
+    ).encode("ascii"))
+
+    result.update({"sent": sent, "complete_send": sent == planned,
+                   "uart_duration_sec": clock() - uart_start})
+    return result

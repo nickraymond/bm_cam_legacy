@@ -936,6 +936,26 @@ def main(argv=None, **cycle_overrides):
             return 2
         print_resolved_settings(settings)
         video_recorder.print_video_settings(settings["video"])
+
+        # Sprint22: `video_tx.enabled: true` turns a video unit into "one boot =
+        # record a short clip, send it over the BM uplink, halt". Island absent
+        # or disabled (the default) -> the Sprint15 recorder below, unchanged.
+        import rc_video_tx
+        try:
+            video_tx_cfg = rc_video_tx.load_video_tx_config(args.config_path)
+        except Exception as exc:
+            print(f"[RC][ERROR] video_tx config load/validation failed: {exc}",
+                  file=sys.stderr)
+            return 2
+        rc_video_tx.print_video_tx_settings(video_tx_cfg)
+        if video_tx_cfg["enabled"]:
+            if args.print_config:
+                return 0
+            summary = rc_video_tx.run_video_tx_cycle(
+                settings, video_tx_cfg, transmit=args.transmit,
+                skip_time_window=args.skip_time_window)
+            return 1 if summary.get("error") else 0
+
         if args.print_config:
             return 0
         try:

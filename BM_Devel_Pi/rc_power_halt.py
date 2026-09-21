@@ -47,6 +47,16 @@ def build_halt_command(script_path, mode):
     return cmd
 
 
+# Sprint22 bench escape hatch. A duty-cycled unit with the halt ENABLED is only
+# up for minutes per power window and halts itself before anyone can log in —
+# one bad deploy and the box is unreachable without pulling the SD card. While
+# this file exists the halt is skipped (and says so loudly) on every cycle:
+#     ssh pi@bmcamNNN 'touch /home/pi/BM_Devel_Pi/NO_HALT'     # stay up
+#     ssh pi@bmcamNNN 'rm /home/pi/BM_Devel_Pi/NO_HALT'        # back to normal
+# It is a plain file, not config: it survives a YAML redeploy and needs no parser.
+NO_HALT_FLAG = "/home/pi/BM_Devel_Pi/NO_HALT"
+
+
 def perform_power_halt(
     *,
     enabled,
@@ -55,10 +65,11 @@ def perform_power_halt(
     script_path=DEFAULT_HALT_SCRIPT,
     runner=subprocess.run,
     log=print,
+    no_halt_flag=NO_HALT_FLAG,
 ):
     """Execute (or log) the cycle-end power halt. Never raises.
 
-    Returns {"action": "disabled" | "dry_run" | "halt_initiated" | "failed",
+    Returns {"action": "disabled" | "held" | "dry_run" | "halt_initiated" | "failed",
              "command": [...], "script_exists": bool, "detail": str}.
     """
     command = build_halt_command(script_path, mode)
@@ -74,6 +85,13 @@ def perform_power_halt(
         result["action"] = "disabled"
         result["detail"] = "power_halt.enabled=false; skipping halt"
         log(f"[RC][halt] {result['detail']}")
+        return result
+
+    if no_halt_flag and os.path.exists(no_halt_flag):
+        result["action"] = "held"
+        result["detail"] = (f"halt SKIPPED: {no_halt_flag} exists (bench escape hatch). "
+                            f"Remove it to let the unit halt again.")
+        log(f"[RC][halt][WARN] {result['detail']}")
         return result
 
     if dry_run:

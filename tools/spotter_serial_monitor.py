@@ -216,23 +216,21 @@ def main():
                     help="periodic tx-idle 'note sync' every N minutes "
                          "(0 = off)")
     ap.add_argument("--only", action="append", default=[], metavar="SPOT-ID",
-                    help="open ONLY this Spotter (e.g. SPOT-31593C); "
-                         "repeatable. Default: every Spotter found. Use it "
-                         "whenever two sessions share a Mac, so one monitor "
-                         "never grabs the other session's console.")
+                    help="open ONLY this Spotter (repeatable), e.g. "
+                         "SPOT-33507C. Without it EVERY Spotter on the host "
+                         "is opened -- wrong when another Spotter is plugged "
+                         "in for unrelated work.")
     args = ap.parse_args()
-    # Normalize so SPOT_31593C / spot-31593c match discover_ports() ids.
-    only = {o.upper().replace("_", "-") for o in args.only}
+    only = {s.strip().upper().replace("_", "-") for s in args.only}
     os.makedirs(args.log_root, exist_ok=True)
     events_lock = threading.Lock()
     running = {}
-    print(f"[monitor] log root {args.log_root}; scanning for Spotter ports")
-    if only:
-        print(f"[monitor] --only: {sorted(only)} (all other ports ignored)")
+    print(f"[monitor] log root {args.log_root}; scanning for Spotter ports"
+          + (f" (ONLY {sorted(only)})" if only else " (ALL Spotters)"))
     while True:
         for port_id, dev in discover_ports().items():
             if only and port_id.upper() not in only:
-                continue
+                continue                 # never touch a Spotter not asked for
             if port_id not in running:
                 print(f"[monitor] starting {port_id} on {dev}")
                 t = PortMonitor(port_id, dev, args.log_root,

@@ -625,6 +625,42 @@ Regression test added.
 
 ---
 
+### TODO-BM-016 — Short video clips over the Spotter cellular path (Sprint 22, planned 2026-09-19)
+
+**Goal:** a 3–5 s H.264 clip travels bmcam → Spotter → cellular → Sofar →
+backend → dashboard and plays, with the JPEG path byte-identical.
+
+**Already proven** (PR #54, `docs/video_over_spotter_test_ladder_20260920.md`):
+a 5 s 480x270 10 fps clip is 88 msgs at CRF 40 / 172 at CRF 34; the production
+chunk framing is byte-exact for video; raw Annex-B survives a tail cut;
+bmcam004 → SPOT-33507C delivered 172/172 byte-exact over UART + BM bus
+(zero-cellular console capture).
+
+**Decisions (locked, `sprints/Sprint22_video_over_spotter/DECISION.md`):**
+- media type rides the EXISTING `fmt` key in START: `fmt=h264`; absent /
+  `pjpg` / `heic` ⇒ today's behaviour. No new key.
+- chunks stay untyped (`<I n>`, legacy form only — the backend has no `gid`
+  support); the group's START decides the handler.
+- payload = raw Annex-B, single keyframe, x264 SEI stripped; `fps=` required.
+- chunk 0 (SPS/PPS) is sent twice; `fmt` repeated in END; backend flags any
+  disagreement between START / END / extension / sniffed bytes.
+- backend stores the original + an mp4 display variant and poster JPEG.
+- order: wire contract → backend → device → bench → cellular.
+
+**Open:** ffmpeg on the Render backend? · sender must live in the
+UART-owning process; trigger = BM command? · synthetic test vectors only
+(public repo).
+
+**Out of scope:** `gid` chunks, START-loss recovery, retransmit, HEVC,
+multi-cycle clips, customer quality tiers, scheduled sends.
+
+**Area:** device runtime + backend ingest + dashboard
+**Status:** planned; Phase 0 next (`KICKOFF_PROMPT.md`). Cellular approval on
+record: ≤ 300 messages (Nick, 2026-09-19). Related: TODO-SPOT-001 (delivery
+wall), TODO-BM-013 (video quality).
+
+---
+
 ### TODO-COLOR-002 — ICEBOX: learned illumination map (DA-V2 analog for lighting)
 
 Intrinsic image decomposition networks (reflectance x shading — e.g.
