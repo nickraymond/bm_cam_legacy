@@ -112,6 +112,16 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
       automatically on merge. Complete vector stored byte-exact (sha = golden);
       tail cut -> 3.3 s playable; no-ffmpeg -> only the original stored.
       NOT verified: the migration against a real Postgres (offline SQL only).
+- [x] 1b follow-up (`963959b`): exact `video_playable_s` in capture telemetry
+      (`duration_seconds` is an integer column: 3.3 s -> 3).
+- [x] 1c dashboard: API adds `type` / `video_url` / `video_key` (additive);
+      grid keeps `<img>` on the poster + "▶ video · N s" badge; detail view
+      `<video controls poster>`; mp4 download; a video with no poster is a
+      placeholder, never a raw `.h264` in an `<img>`. Verified in a real
+      browser against a mock API with the golden clip's real mp4 (loads 5 s
+      480x270, seek decodes, images/legacy rows unaffected, no console errors).
+- [ ] 1d staging proof — needs Nick: review + merge the backend PR, then the
+      golden-wire cellular send from bmcam004 (129 msgs).
 - FINDING: PLAN's "admin poll against recorded rows" does not exist —
   `sofar-poll-once` only re-polls live Sofar. Nick chose option A: local
   end-to-end for 1b/1c, then send the golden wire file from bmcam004 over
