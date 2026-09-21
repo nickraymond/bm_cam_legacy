@@ -238,6 +238,34 @@ prints `Neighbor information:` on the console when it executes. Holding one
 across a bus-off window gives the replay time relative to `Bridge bus power:
 1`, with no camera involved.
 
+| Event (Spotter's own timestamps where shown) | UTC |
+|---|---|
+| Bus OFF | 06:50:00 |
+| USB `bm info 0e582dd12c1e1480` → `Queuing serial command` | 06:50:15.57 |
+| USB `bm info 53171fa3d81a8e6f` → `Queuing serial command` | 06:50:23.75 |
+| **Remote** 2304 (sent 06:32:21): `Remote message received(53)!` + `id:38189` | 06:50:55.01 |
+| `[BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":2304,"c":"ping"} 1 1` | 06:50:55.01 |
+| `Bridge bus power: 1` | 07:00:00.15 |
+| `Neighbor 53171fa3d81a8e6f added` | 07:00:01.05 |
+| Both held `bm info` execute: 2× `Successfully sent info request`, 2× `Neighbor information:` (bridge, then `serial_bridge@ENG-v0.13.11-6-g54aff0a3`) | host 07:00:07 (≈07:00:08–09 Spotter clock) |
+
+**Results**
+
+- **First remote command held — the v2.16.8 feature works as Sofar described.**
+  Remote ping 2304 arrived bus-OFF and was queued in the same millisecond.
+  Ebox latency 1112 s (18.5 min), delivered on the 06:50 hourly report as
+  predicted.
+- **Replay happens ~8 s after bus power-on**, all held commands at once, in
+  order. Not at subscribe time.
+- **bmcam003's Pi subscribes ~40 s after power-on** (06:40 cycle: power
+  06:40:01, subscribed ~06:40:40). The replay lands ~32 s before anyone is
+  listening. Explanation (a) confirmed; this is why 2303 was lost.
+- Gap to close: ~32 s. Options, none built: Sofar-side delay/replay-on-
+  subscribe (asked via Nick); the camera's BM node (`serial_bridge`, up in
+  1 s) buffering the last message per topic; operator-side retry-until-ack
+  (already the Sprint10 doctrine, GUI retry engine); faster Pi boot does not
+  plausibly reach 8 s.
+
 Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
 Waiting on Nick's choice (he halts it / accepts hard cuts / grants the rule).
