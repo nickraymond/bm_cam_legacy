@@ -536,6 +536,16 @@ it reports what is on the card, not what the limits allow.
 
 **Proposed fix (Sofar's recommendation; Sofar offered to help implement):** the camera's BM mote (`serial_bridge@ENG-v0.13.11-6-g54aff0a3`, alive ~1 s after bus power) caches the message for the command topic and forwards it to the Pi once the Pi is up.
 
+**Design note (Nick + Claude, 2026-09-21; sent to Matt at Sofar as two options — nothing built):**
+- *Option A — config key (simplest, proposed MVP).* One key on the mote names the topic(s) to cache (`bmcam/cmd`). The mote subscribes to it itself at boot, queues what arrives, and flushes to the Pi when the Pi's subscribe frame comes in. Inspectable and settable with `bm cfg` from the Spotter console, which also means it can be set remotely. The key name is a placeholder; Matt owns the firmware.
+- *Option B — learned list (Nick's idea, zero-config for a fleet).* The mote persists the topics the Pi subscribed to on the previous boot, so from the second boot on it is already listening at 1 s. First boot has an empty list; that is acceptable. The Pi keeps the list current.
+- Trap 1, applies to both: **caching must be per topic.** The daemon also subscribes to the Spotter UTC time topic; a cached, ~30 s old time message flushed at subscribe would set the Pi's clock wrong. With option B: learn the whole list, cache only a prefix (`bmcam/`) or topics the Pi flags.
+- Trap 2, option B only: the mote cannot know when the Pi's list is complete. Preferred answer: learning is additive-only, plus an explicit clear command. Alternatives: a fixed settle window after the first subscribe frame (fragile), or a new "list complete" frame in bm_serial (clean, more work).
+- Cache a short QUEUE (~8), not just the last message: the Ebox replays every held command in order, and order matters (`hlt` then `twn`).
+- Cache only until the Pi subscribes; flush once, then pass through live. The daemon already dedupes command ids, which covers any overlap.
+- Write flash only when the list changes (subscriptions almost never change).
+- `bm resources <node_id>` (new in the v2.16.8 `help`) looks like the way to verify what the mote is subscribed to — untested.
+
 **Open questions (unverified — the mote firmware has not been read):**
 - The `bmcam/cmd` subscription is created by the Pi at runtime via the bm_serial subscribe frame. At the 10 s replay the mote holds no subscription. Does the mote need to subscribe itself at boot from a stored topic list / config key?
 - Who builds our `serial_bridge` ENG firmware — patchable by Sofar, or built by us from the open Bristlemouth repo?
