@@ -209,7 +209,34 @@ Bus schedule 06:29:41Z: interval 1200000 / duration 600000 / controller 1
 | USB `bm pub bmcam/cmd {"id":2303,"c":"ping"} 1 1`, bus OFF | 06:32:13 |
 | Console `[BRIDGE] [INFO] Queuing serial command: …2303…` | 06:32:14 |
 | Remote `…{"id":2304,"c":"ping"}…` via tester, HTTP 202 | 06:32:21 |
-| Bus ON / Pi boots / does 2303 get acked? | (pending ~06:40–06:42) |
+| `Bridge bus power: 1` | 06:40:01.04 |
+| `Neighbor 53171fa3d81a8e6f added` (camera's BM node, not the Pi) | 06:40:01.94 |
+| Pi `[CMD] subscribed topic=bmcam/cmd` / Spotter UTC decoded | ~06:40:40 |
+| Pi `transmit done: sent=158/158 complete=True uart=161.7s` | ~06:43:25 |
+| Pi `post-transmit listen window done: 0 command(s) processed` | ~06:45:55 |
+| Pi `[CMD] stopped: applied=0 … frames=0 sig_hits=0` ; `cycle end: elapsed=327.1s` | ~06:46:00 |
+
+**Run 1 result: FAIL — held command 2303 never reached the camera.** The
+daemon listened for the whole 327 s cycle and saw zero frames on `bmcam/cmd`.
+The Spotter printed nothing about a release (BRIDGE / BRIDGE_SYS / BRIDGE_CFG
+logs are already at DEBUG per `log list`). Two explanations remain:
+(a) the Ebox replays at bus power-on / neighbor-added (≤1 s), ~39 s before
+the Pi subscribes; (b) the held command is never replayed at all.
+
+**Finding 8 — the camera's image transmit does not trigger a mailbox check.**
+158 messages went out 06:40:40→06:43:25 on the cell-only queue; no
+`[MS] Checking for Rx Messages` followed (last one 06:30:42, from my commit).
+Matches the `HDR` observation. So on v2.16.8 the 150 s post-transmit tail did
+not catch anything, and the Sprint10 assumption that the unit's own burst
+pulls its mail down does not hold here. Remote ping 2304 (sent 06:32:21) was
+still undelivered at 06:46.
+
+### Step B — run 2: timestamp the replay with `bm info`
+
+`bm info <node>` is a `bm` command (held while the bus is off, per Sofar) and
+prints `Neighbor information:` on the console when it executes. Holding one
+across a bus-off window gives the replay time relative to `Bridge bus power:
+1`, with no camera involved.
 
 Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
