@@ -26,7 +26,7 @@ July: 21–66 min on SPOT-33507C; SPOT-31593C 0/16 delivered, ever
 | 2 | 04:54:46 | `uptime` | tester UI | 05:06:47 | **721 s (12.0 min)** | — | No sync happened 04:51→05:06. Delivered at the sync that the 05:05:34Z `bridge cfg commit` caused (network-config uplink → `Checking for Rx` 05:06:08 → message 40 s later). First live end-to-end catch by the tester. |
 | 3 | 05:08:04 | `bm pub bmcam/s23test {"id":3,"via":"remote"} 1 1` | tester UI | 05:30:24 | **1340 s (22.3 min)** | 38186 | INVALID as a bus-off test: it landed inside the 120 s bus-ON re-init window caused by my 05:29:43Z schedule commit (which also produced the uplink that pulled it down). Ran straight through, silent — matches the bus-on USB template. |
 | 4 | 05:31:55 | `bm pub bmcam/s23test {"id":4,"via":"remote"} 1 1` | tester API | 05:51:06 | **1151 s (19.2 min)** | 38187 | First delivery on an UNFORCED uplink (standard report queued 05:50:00 → Rx check 05:50:26 → message 05:51:06). Bus was ON (window 05:50:00–05:52:00), so not held; silent. `note sync` at 05:32:11 did nothing. |
-| 5 | 05:54:20 | `bm pub bmcam/s23test {"id":5,"via":"remote"} 1 1` | tester API | (pending) | | | On-window cut to 30 s first, so a :51 arrival lands bus-OFF. Expected ~06:51Z. |
+| 5 | 05:54:20 | `bm pub bmcam/s23test {"id":5,"via":"remote"} 1 1` | tester API | 06:01:15 | **415 s (6.9 min)** | 38188 | INVALID as a bus-off test: pulled down by the 06:00:05Z always-on commit (Nick asked for bus-on to wire the camera). Bus ON, silent. |
 
 Receive signature on v2.16.8 — unchanged from v2.16.6:
 
