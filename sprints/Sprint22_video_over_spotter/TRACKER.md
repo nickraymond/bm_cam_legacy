@@ -5,6 +5,14 @@ Units: bmcam004 (transmit; Nick granted ownership for this testing
 2026-09-19), bmcam003 (clip source only — do not transmit), SPOT-33507C
 (shared by both; USB console on Nick's Mac).
 
+> **Approvals on record (Nick, 2026-09-21):** cellular messages are
+> UNLIMITED for this sprint **as long as they stay cellular** — every send
+> must be `cellular_only` (0x02); Iridium fallback is never acceptable.
+> This supersedes the 300-message cap. **bmcam003 has been physically
+> removed from the rig** and is no longer in scope or under agent control;
+> bmcam004 is the only node on SPOT-33507C's bus, so ebox power-cycling
+> affects bmcam004 alone.
+>
 > **Hardware scope (Nick, 2026-09-20): this sprint touches bmcam004 and
 > SPOT-33507C ONLY.** A SECOND Spotter is plugged into Nick's laptop for
 > other work — never open its port, never send it a command, never log it.
