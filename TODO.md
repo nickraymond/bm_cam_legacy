@@ -512,6 +512,23 @@ it reports what is on the card, not what the limits allow.
 
 ---
 
+### TODO-BM-016 — Disable cloud-init on bmcam images to cut ~6 s of boot (captured 2026-09-21, Sprint23)
+**Status:** open
+**Priority:** low-medium / fleet energy + command latency
+**Context:** Measured on bmcam003 (Trixie) with `systemd-analyze`, read-only: kernel 5.9 s + userspace 29.8 s. `cron.service` (which starts `rc_run_capture_cycle.sh`) comes up at 12.3 s userspace, and ~6 s of that critical chain is cloud-init (`cloud-init-main` 4.0 s, `-local` 1.0 s, `-network` 0.9 s). cloud-init is Raspberry Pi Imager's first-boot provisioning; `cloud-init status` = done, datasource NoCloud from `/boot/firmware/{user-data,meta-data,network-config}`. On every later boot it re-checks and does nothing. Nothing of ours depends on it (only `cloud-init.target` <- `multi-user.target`). It is ~6 s of bus-on energy per cycle, per unit. It does NOT close the Sprint23 replay race (Spotter v2.16.8 replays held `bm` commands ~8 s after bus power-on; Pi subscribes at ~40 s) — see `sprints/Sprint23_remote_msg_latency/RESULTS.md`.
+
+**Proposed change (reversible):** `sudo touch /etc/cloud/cloud-init.disabled` (remove the file to undo). Belongs in `bmcam-provision` after first boot has completed.
+
+**Risk to check first:** the Pi has netplan files (`/etc/netplan/90-NM-*.yaml`) that originated from `network-config`. The WiFi profile exists as a normal NetworkManager connection (`nereus-hq.nmconnection`), so it should persist — verify on a bench unit with the Spotter USB console attached before any field unit.
+
+**Acceptance criteria:**
+- Before/after `systemd-analyze` and power-on -> `[CMD] subscribed` time recorded on one bench unit.
+- WiFi client + hotspot fallback + Tailscale still come up over 3 consecutive cold boots.
+- `bmcam-provision` skill updated; fleet rollout decided separately.
+- Other boot-time candidates noted, not done: NetworkManager 13.9 s (off the critical chain), app start -> subscribe (~15 s, unprofiled).
+
+---
+
 ### TODO-CAM-001 — Capture-side frame stacking + red-channel HDR bracket (Sprint 20, captured 2026-09-01)
 
 **Problem:** transmitted 8-bit JPEGs from the AOML reef carry white-patch
