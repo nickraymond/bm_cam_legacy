@@ -27,7 +27,7 @@ Units: bmcam004 (transmit; Nick granted ownership for this testing
 - [x] Step 3 bench UART — bmcam004 → SPOT-33507C 172/172 byte-exact
 - [x] Backend read-only review (`origin/staging` @ 516b813)
 - [x] Skill `spotter-usb-console-capture`
-- [ ] PR #54 reviewed + merged to `development` (Nick)
+- [x] PR #54 merged to `development` 2026-09-20 (Nick)
 
 ## Phase 0 — contract + vectors
 
@@ -210,6 +210,19 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
       - The Pi gets NO signal when the Spotter rejects a message: a queue-full
         loss is invisible on the device and only shows on the USB console.
       - Minor: clip is 49 frames / 4.9 s, not 50 (`-sseof -5` + fps filter).
+- [x] Pre-soak fixes (Nick 2026-09-21), `02467ce`: **keyframe repeat** (contract
+      rev 3; chunks 0..k re-sent at the tail, cap `keyframe_repeat_max` 30; new
+      `keyframe_lost` vector byte-exact; backend needs no change — fixtures
+      synced in nereus-vision-dev PR #42); **exact frame count** (49-frame bug:
+      seek early, take n, COUNT the decoded frames; START `dur` = actual);
+      **`NO_HALT` flag file** holds the halt so a duty-cycled unit stays
+      recoverable. 838 tests, only the pre-existing numpy error.
+- Soak decisions (Nick 2026-09-21): period **16 min** (10 on / 6 off) so the
+  cycle phase walks across the 5-minute grid; **`note sync` OFF** (a forced
+  sync perturbs the queue timing under study; arrival latency is a result);
+  Spotter firmware -> **v2.16.8** first, then one golden-clip baseline on it;
+  Nick pulls the Spotter SD for review (does it log the MS queue?); a
+  monitoring Pi on the Spotter USB console regardless.
 - [ ] SOAK PREREQS: deploy the branch to `~/BM_Devel_Pi` (real deployment, not
       /tmp), YAML `video_tx.enabled: true` + `transmit_phase.enabled: true`
       with `post_boundary_guard_s: 60` + `power_halt` enabled + window not
