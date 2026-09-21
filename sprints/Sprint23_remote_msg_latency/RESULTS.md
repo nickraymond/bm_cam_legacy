@@ -83,6 +83,12 @@ commit, read back. Reason: finding 6. **A Pi cannot boot in 30 s and would be
 hard-cut every 10 min — restore the schedule BEFORE any camera is wired to
 this Ebox.**
 
+05:59:39Z, Nick's request (camera about to be wired in): controller **disabled**
+(`bridgePowerControllerEnabled 0`) and schedule restored to the original
+3600000 / 900000, one commit, read back. Console: `Bridge bus power: 1`,
+`power on for: 4294967295` (always-on signature), bus 23.9 V. This commit
+invalidates test 5 as a bus-off test (forced uplink + bus on).
+
 Side effects of ANY `bridge cfg commit`: bridge re-init, bus forced ON 120 s,
 and a network-config uplink → cellular sync → mailbox check. Do not commit
 while a bus-off test is in flight.

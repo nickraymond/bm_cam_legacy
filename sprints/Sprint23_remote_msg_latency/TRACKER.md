@@ -1,7 +1,9 @@
 # Sprint23 — Tracker
 
 Spec: `SPEC.md` · Plan: `PLAN.md`. Opened 2026-09-20.
-Unit: **SPOT-31593C only** (USB console on Nick's Mac). SPOT-33507C belongs
+Units: **SPOT-31593C** + **bmcam003** (Nick handed over ownership 2026-09-21
+~06:00Z: "clean and not being used by the other session"). Originally
+**SPOT-31593C only** (USB console on Nick's Mac). SPOT-33507C belongs
 to Sprint22 — never open its port, never send it a command.
 
 ## Done before the sprint
