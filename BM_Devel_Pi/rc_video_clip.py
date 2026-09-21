@@ -157,7 +157,16 @@ def fit_clip_to_budget(source_path, work_dir, *, width, height, fps, duration_s,
         if rc != 0:
             raise ClipError(f"x264 pass 1 failed (rc={rc}): {tail.strip()}")
 
-        payload, tries = b"", 0
+        # Rate response is steeply NON-linear on some scenes (bmcam004 2026-09-21:
+        # 55.7k -> 77 % of budget, 69.4k -> 131 %), so a purely proportional
+        # retry can bounce across the budget. Keep the BEST payload that fits,
+        # and once one try is under and one is over, interpolate between them
+        # (log-log) instead of extrapolating from the last miss.
+        import math
+        best = None                                  # (bytes, payload, kbps)
+        under = over = None                          # (kbps, bytes) brackets
+        target_bytes = CORRECTION_AIM * budget_bytes
+        last_payload, tries = b"", 0
         for tries in range(1, MAX_PASS2_TRIES + 1):
             rc, tail = run_fn(quiet + ["-i", ref] + x264(kbps) +
                               ["-pass", "2", "-passlogfile", passlog,
@@ -166,13 +175,28 @@ def fit_clip_to_budget(source_path, work_dir, *, width, height, fps, duration_s,
             if rc != 0 or not os.path.isfile(out) or os.path.getsize(out) <= 0:
                 raise ClipError(f"x264 pass 2 failed (rc={rc}): {tail.strip() or 'no output'}")
             with open(out, "rb") as fh:
-                payload = fh.read()
-            used = len(payload) / budget_bytes
-            log_fn(f"[VTX] encode try {tries}: {kbps:.1f} kbps -> {len(payload)} B "
+                last_payload = fh.read()
+            size = len(last_payload)
+            used = size / budget_bytes
+            log_fn(f"[VTX] encode try {tries}: {kbps:.1f} kbps -> {size} B "
                    f"= {used * 100:.0f}% of {budget_msgs} msgs")
+            if size <= budget_bytes and (best is None or size > best[0]):
+                best = (size, last_payload, kbps)
             if ACCEPT_LOW <= used <= ACCEPT_HIGH:
                 break
-            kbps *= CORRECTION_AIM / used          # same pass-1 notes, new target
+            if size <= budget_bytes:
+                under = (kbps, size) if under is None or size > under[1] else under
+            else:
+                over = (kbps, size) if over is None or size < over[1] else over
+            if under and over:
+                slope = math.log(over[1] / under[1]) / math.log(over[0] / under[0])
+                kbps = under[0] * (target_bytes / under[1]) ** (1.0 / slope)
+            else:
+                kbps *= CORRECTION_AIM / used          # same pass-1 notes, new target
+        if best is not None:
+            payload, kbps = best[1], best[2]
+        else:
+            payload = last_payload                     # every try overshot: trim below
         encode_s = clock() - t1
 
         payload, trimmed = trim_to_budget(payload, budget_bytes)

@@ -197,6 +197,20 @@ class TestFitLoop(unittest.TestCase):
         self.assertTrue(93.0 <= res["used_pct"] <= 100.0, res)
         self.assertLessEqual(res["msgs"], 10)
 
+    def test_steep_rate_response_does_not_oscillate(self):
+        # bmcam004 2026-09-21: 55.7k -> 77 %, 69.4k -> 131 %. Size ~ kbps^2.4.
+        res, targets = self.run_fit(lambda kbps: int(28116 * (kbps / 55.7) ** 2.4), budget_msgs=126)
+        self.assertEqual(len(targets), 3)
+        self.assertTrue(targets[0] < targets[2] < targets[1], targets)   # 3rd try lands BETWEEN
+        self.assertTrue(90.0 <= res["used_pct"] <= 100.0, res)
+        self.assertEqual(res["frames_trimmed"], 0)
+        self.assertAlmostEqual(res["target_kbps"], targets[2], places=1)  # the kbps actually used
+
+    def test_keeps_the_best_fit_not_the_last_try(self):
+        sizes = iter([int(0.90 * 2880), int(1.20 * 2880), int(0.60 * 2880)])
+        res, _ = self.run_fit(lambda kbps: next(sizes))
+        self.assertGreaterEqual(res["used_pct"], 88.0, res)               # the 90 % try, not the 60 % one
+
     def test_on_target_first_try(self):
         res, targets = self.run_fit(lambda kbps: int(kbps * 1000 * 5 / 8))
         self.assertEqual((res["pass2_tries"], len(targets), res["frames_trimmed"]), (1, 1, 0))
