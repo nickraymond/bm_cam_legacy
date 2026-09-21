@@ -174,6 +174,23 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
       Quality at equal fit is the same (SSIM within 0.006) for 2-pass and CRF
       bisect. NOT measured: Pi Zero 2 W encode seconds/energy, the hardware
       encoder, a calm scene.
+- [x] Bite 2 — 2-pass ON THE Pi Zero 2 W (bmcam004, ffmpeg 7.1.5, recorder
+      still running at nice 19, real 5 s clip from its own SD, 2026-09-21).
+      **Decision (Nick): rate control = 2-pass bitrate.**
+      - Cost: 1080p -> 480x270 raw intermediate 8.2 s (decode ONCE, both passes
+        read it); pass 1 ~1.3 s; each pass 2 ~1.2 s. Peak 49.9 C, never throttled.
+      - 2-pass UNDERSHOOTS on a calm scene: 67-83 % of target at 44-126 msgs
+        (the busy Mac scene hit 95-100 %). Scene was not saturated (CRF 18 =
+        242 msgs). Fix = reuse the pass-1 stats, re-run ONLY pass 2 with a
+        proportional correction: lands 94-100 % in <= 3 tries, always fits,
+        ~4.5-5.3 s total.
+      - Preset at equal bytes (88 msgs): ultrafast SSIM 0.970, superfast 0.981,
+        veryfast 0.984, faster 0.985, **medium 0.987** — all ~4.5-5 s, so
+        `medium`.
+      - Scene dependence is large: this calm scene gets SSIM 0.987 at 88 msgs;
+        the hand-waving scene got 0.89 at the same budget.
+      - NOT measured: recorder stopped (boot-cycle case; can only be faster),
+        the hardware encoder (dropped: 2-pass costs ~5 s), energy in joules.
 - [ ] `rc_video_clip.py` (cut → encode → Annex-B, SEI stripped)
 - [ ] video START builder + `fmt` in END
 - [ ] transmit via existing `rc_transmit` loop + chunk-0 repeat
