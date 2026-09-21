@@ -1,5 +1,19 @@
 # Sprint24 — outdoor HIL baseline: video uplink + command downlink, two rigs
 
+> **SCOPE CHANGE — Nick, 2026-09-21 (after this plan was minted): remote
+> commands are OUT of this baseline.** Skip everything below that concerns the
+> command daemon inside `video_tx` (decision 2) and the 1-ping/hour overlay or
+> any ack-rate metric (decision 5). Reason: Sofar confirmed the replay of held
+> `bm` commands is a fixed 10 s grace period after BM network boot; the Pi
+> subscribes at ~38 s; the fix is a mote-side cache being worked with Sofar
+> (**TODO-BM-017**). KEEP the per-cycle `report_utc`, `rx_check_utc` and
+> `queue_full_count_in_cycle` columns — that hourly report minute is where the
+> VIDEO loses chunks. Drop `cmd_arrival_utc`, `held|live`, `ack_utc`.
+> Sprint23 is now pushed and in PR #57 (not "local, NOT pushed" as written
+> below); bench state + restore commands:
+> `sprints/Sprint23_remote_msg_latency/HANDOFF.md` §2. Record:
+> https://github.com/nickraymond/bm_cam_legacy/pull/56#issuecomment-5765169684
+
 Minted by Nick 2026-09-21. Merges Sprint22 (short video over Spotter; merged to
 `development`, PR #55) with Sprint23 (remote-command latency; branch
 `feature/sprint23-remote-msg-latency`, local, NOT pushed, no PR — its
