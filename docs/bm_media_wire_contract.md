@@ -52,8 +52,10 @@ after `length` uses `key=value`.
 | `fmt` | required | `h264` | never | section 2 |
 | `fps` | required | `10` | never | playback rate — raw H.264 carries no timestamps |
 | `dur` | required | `5.0` | never | clip seconds, one decimal |
-| `res` | required | `480x270` | never | encoded WxH |
-| `crf` | required | `40` | never | x264 CRF (lower = better). NOT `q`: `q` is JPEG quality on the opposite scale |
+| `res` | required | `480x270` | never | OUTPUT px: the encoded WxH of the clip that was sent. Says nothing about field of view |
+| `crop` | required | `1600x900+1504+846` | never | FIELD OF VIEW: the sensor rectangle the clip shows, `WxH+X+Y` in NATIVE px (4608x2592 IMX708 frame = `video_geometry.crop_native_xywh`; full sensor = `4608x2592+0+0`). `na` = no camera (stored reference clip). No commas on the wire |
+| `br` | one of `br`/`crf` | `40` | never | rate control = target bitrate, kbps. The product knob (section 6a) |
+| `crf` | one of `br`/`crf` | `40` | never | rate control = x264 constant quality (lower = better). NOT `q`: `q` is JPEG quality on the opposite scale |
 | `cmp` | required | `1` | never | 1 = complete send planned, 0 = bounded |
 | `tz` `sha` `hn` + storage keys | optional | `hn=bmcam004` | yes, still builder's order | unchanged from stills |
 
@@ -69,7 +71,10 @@ Key-naming rules (forced by the parser):
 3. Keys are `[A-Za-z][A-Za-z0-9_]*`, values contain no space, comma, `;`, `>`
    (L100-102). `_clean_value` guarantees it on the device.
 4. Unknown keys are parse-safe: captured into `start_header_fields`, ignored.
-   **Measured:** today's staging parser reads all nine video keys correctly.
+   **Measured:** today's staging parser reads every video key correctly,
+   including `crop=1600x900+1504+846` and `br=40`.
+5. Exactly one of `br` / `crf` is present: it names the rate control that
+   produced the payload. The achieved size is never a key — it is `length`.
 
 ## 4. END keys
 
@@ -117,6 +122,23 @@ device can do it with one ffmpeg flag (no Python NAL parser on the Pi).
 Why raw and not mp4: a tail-cut raw stream plays up to the cut; an mp4 with
 `moov` at the end yields nothing (ladder step 2).
 
+## 6a. `res` vs `crop` vs rate control — three independent customer settings
+
+| Setting | Question it answers | Wire key | Config today (`video:` island) |
+|---|---|---|---|
+| crop | WHAT part of the scene? | `crop` | `crop_native_xywh` / preset (Sprint17, no-upscale rule) |
+| res | HOW MANY pixels for that view? | `res` | output WxH |
+| duration | how long? | `dur` | new in Phase 2 |
+| rate control | how many BYTES (= messages)? | `br` or `crf` | new in Phase 2 |
+
+On this link bytes are messages, so the budget maths is direct:
+`br_kbps = usable_msgs x 288 x 8 / dur_s / 1000` (88 msgs, 5 s -> 40.5 kbps).
+That lets the device reuse the progressive-JPEG time-budget idea
+(`budget.max_messages_now()`) with no trial encodes. `crf` stays legal on the
+wire for bench work. Which x264 mode hits a byte target accurately on a 5 s
+clip (1-pass ABR / 2-pass / CRF+VBV cap) is NOT measured yet — Phase 2's first
+bite re-runs the ladder by byte budget.
+
 ## 7. Partial clips
 
 | What arrived | Backend result |
@@ -154,53 +176,69 @@ H.264 → stored as video, flagged.
 | `sniff_format` | `None` (L207-222) | Annex-B branch |
 | Stored as | `image/jpeg`, `type=image`, complete; worker burns 3 failed jobs | `type=video`, `format=h264`, right Content-Type |
 
-## 10. Q1 — is ffmpeg on the Render backend? **Not provably; use PyAV.**
+## 10. Q1 — is ffmpeg on the Render backend? **Yes (measured 2026-09-20).**
 
-- `origin/staging` has no `render.yaml`, no `Dockerfile`, no build script; docs
-  say native Python runtime (`PYTHON_VERSION=3.13.5`, `requirements.txt`), 512 MB
-  instances, ingest in the `nereus-sofar-ingest-staging` cron. `requirements.txt`
-  has no ffmpeg/PyAV. The build command lives in the Render dashboard.
-- A native runtime has no `apt`, so "add ffmpeg to the build" really means
-  "move the service to Docker" — a deploy-model change, out of proportion.
+Nick ran the probe in the `nereus-vision-staging` Render shell:
+`/usr/bin/ffmpeg`, **ffmpeg 5.1.9-0+deb12u1** (Debian 12), **libx264 encoder
+present**, Python 3.13.5. (`free -m` there reports the 62 GB HOST, not the
+instance's 512 MB limit — not evidence of headroom.)
 
-| Option | Deploy change | Verdict |
+| Option | For | Against |
 |---|---|---|
-| **PyAV (`av` wheel)** | one line in `requirements.txt` (~44 MB installed) | **recommended** |
-| system `ffmpeg` via `subprocess` | unverifiable from the repo; Docker if absent | no |
-| `opencv-python-headless` (already pinned) | none | decodes H.264, but its wheel has no H.264 encoder → cannot write a browser-playable mp4 |
+| **system `ffmpeg` via `subprocess`** (recommended) | zero new dependency; crash/timeout isolated from the ingest process; the same CLI every ladder number was measured with | undeclared: nothing in the repo pins it, Render could change the image |
+| PyAV (`av` wheel) — documented fallback | pinned in `requirements.txt`; measured working on the golden vectors (50/50, 33/50, 50/50 frames) | +44 MB install; bundled FFmpeg libs to keep patched; in-process, so a decoder crash on a damaged stream kills the ingest tick; more code (frame loop vs one argv) |
 
-**Measured** (PyAV 18.1.0 wheel, Python 3.13, Mac): bundles the h264 decoder
-and the libx264 encoder; golden `complete` → mp4 50 frames / 5.0 s / 10 fps;
-`tail_cut` → 33 frames / 3.3 s; `mid_lost` → 50 frames; poster JPEG from frame
-0 via Pillow. The display variant is a **decode + re-encode**, not a `-c copy`
-remux — that sidesteps the ladder's B-frame remux bug (dropped frame, scrambled
-pts) and cleans up concealed damage. `fps` comes from START.
+Guard (Phase 1): resolve `ffmpeg` at ingest; if missing or it fails, still
+store the raw `.h264`, skip the display variant, flag the row, log loudly —
+partial failure never destroys the original.
 
-Not verified: the Linux wheel on Render itself, and peak RSS on the 512 MB
-instance (expected small at 480x270). First Phase 1 step = add `av`, deploy,
-transcode the golden clip on staging.
+The display variant is a **decode + re-encode** at START `fps`, never a
+`-c copy` remux (ladder: remux drops a frame / scrambles pts with B-frames).
+
+Not verified: that the ingest CRON (`nereus-sofar-ingest-staging`, no shell)
+has the same image. First Phase 1 step: log `ffmpeg -version` from one cron
+tick.
 
 ## 11. Q2 — who sends on the device, and what triggers it?
 
-**Confirmed from code:** in video mode `rc_progressive_jpeg.py` dispatches to
-`video_recorder.run_video_mode`, whose in-process command daemon owns
-`/dev/ttyAMA0` for the whole session (D-S15-7). A second process cannot send.
-The send must run inside that process, through its open BM serial.
+Product direction (Nick, 2026-09-20): the primary mechanism is **"record a
+clip from config, then send it"** — commanded over Bristlemouth, or run as the
+routine on wake/boot. "Send a clip that is already on the card" is secondary.
 
-Proposal (Phase 2, not built):
+One pipeline, pluggable source — the same shape as the still `trg` table
+(`action` + `src`):
 
-- **Where:** at the clip boundary in `run_video_mode`, after the existing
-  `status flush -> daemon drain`. rpicam-vid is not running there, so no
-  camera contention; the send reuses the `rc_transmit` loop, whose
-  `pending_pump_fn` / `ack_drain_fn` keep commands flowing mid-burst.
-- **Cost, stated plainly:** recording pauses for encode (5-23 s) + send
-  (~130 s for 126 msgs at 1 msg/s). Acceptable for a commanded demo; a
-  background sender is future work.
-- **Trigger:** new one-shot `trg 5` = "send newest video clip (video mode)",
-  `TABLES_VERSION` 7 → 8. Reuses the persisted `pending_trigger` /
-  `consume_trigger()` machinery; consumed at the next clip boundary instead of
-  the next boot. In stills mode `trg 5` is acked and ignored with a log line.
-  Gated by `video_tx.enabled` (default false).
+```text
+source ──> fit to config (crop, res, dur, byte budget) ──> START/chunks/END
+  cam : record `dur` s now, at the configured crop/res     (product path)
+  ref : stored reference clip, camera bypassed             (pipeline proof)
+  ring: newest finished clip on the card                   (continuous-record units)
+```
+
+| Proposed | Meaning | Mirrors still |
+|---|---|---|
+| `trg 5` | record a video per config + send | `trg 2` capture + send |
+| `trg 6` | send the stored reference video (camera bypassed) | `trg 3/4` |
+| `trg 7` | send the newest recorded clip | — |
+
+Who issues it: a person or the dashboard, through the existing command
+downlink (Sofar API -> Spotter -> BM bus -> camera, Sprint10-13). It is
+persisted as `pending_trigger` and fires at the unit's next opportunity.
+A scheduled/boot routine runs the same `cam` pipeline with no command at all.
+
+UART ownership (confirmed from code) decides WHEN it fires:
+
+| Unit runtime | Who owns `/dev/ttyAMA0` | Trigger fires |
+|---|---|---|
+| wake -> cycle -> halt (stills doctrine) | the cycle process | next boot, like `trg 2`. No contention: nothing else is recording |
+| continuous recorder (`capture_mode: video`) | `run_video_mode`'s in-process daemon, for the whole session (D-S15-7) | next clip boundary, inside that process; recording pauses for encode + send |
+
+The `ref` source is the end-to-end proof: the device sends the committed
+`payload.h264` verbatim, so the backend's sha256 must equal the golden
+`5fd3ce55...` — known start state, known end state, every loss visible
+(testsrc2 burns a frame counter into the picture).
+
+Not built; `TABLES_VERSION` 7 -> 8; gated by `video_tx.enabled` (default false).
 
 ## 12. Golden vectors
 
@@ -213,7 +251,7 @@ scene (25,118 B = 88 chunks at the same settings); the count was not tuned.
 | File | What | Expect |
 |---|---|---|
 | `payload.h264` | the clip, SEI stripped | sha256 `5fd3ce55…ea30fefe` |
-| `wire_complete.txt` | START, 126 chunks, `<I0>` repeat, END | complete, byte-exact, 50 frames |
+| `wire_complete.txt` | START (`crop=na`, `crf=40`), 126 chunks, `<I0>` repeat, END | complete, byte-exact, 50 frames |
 | `wire_tail_cut.txt` | START + chunks 0-83, no repeat, no END | partial, 33 frames |
 | `wire_chunk0_lost.txt` | first `<I0>` removed | complete, byte-exact |
 | `wire_mid_lost.txt` | chunk 63 removed | partial, 50 frames |
@@ -225,8 +263,9 @@ ffmpeg/x264 build may produce different bytes; that is not a bug.
 
 ## 13. Open for Nick at the gate
 
-1. Key names: `fmt` `fps` `dur` `res` `crf` — final?
-2. END spelling `fmt: h264` (section 4) — accept the deviation from DECISION.md's example?
-3. PyAV over system ffmpeg (section 10)?
-4. `trg 5` + send-at-clip-boundary with a recording pause (section 11)?
-5. Filename pattern `<capture UTC>_video_<N>s.h264`?
+1. Key names: `fmt` `fps` `dur` `res` `crop` `br` `crf` — final?
+2. `crop` spelling `WxH+X+Y` in native px, `na` for a reference clip?
+3. END spelling `fmt: h264` (section 4) — accept the deviation from DECISION.md's example?
+4. System ffmpeg + guard, PyAV as fallback (section 10)?
+5. Trigger table `trg 5/6/7` and the two firing rules (section 11)?
+6. Filename pattern `<capture UTC>_video_<N>s.h264`?

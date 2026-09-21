@@ -26,15 +26,15 @@
   "encoder_bytes_before_strip": 36709,
   "sps_pps_end_offset": 42
  },
- "start_message": "<START IMG> filename: 2026-09-20T06-10-00Z_video_5s.h264, timestamp: 2026-09-20T06:10:04Z, length: 126, fmt=h264, fps=10, dur=5.0, res=480x270, crf=40, cmp=1, tz=America/New_York, sha=0123456789ab, hn=bmcamGOLD\n",
- "start_bytes": 211,
+ "start_message": "<START IMG> filename: 2026-09-20T06-10-00Z_video_5s.h264, timestamp: 2026-09-20T06:10:04Z, length: 126, fmt=h264, fps=10, dur=5.0, res=480x270, crop=na, crf=40, cmp=1, tz=America/New_York, sha=0123456789ab, hn=bmcamGOLD\n",
+ "start_bytes": 220,
  "end_message": "<END IMG> filename: 2026-09-20T06-10-00Z_video_5s.h264, fmt: h264, uart_duration_sec: 129.0, sent_buffers: 126, cpu_temp_c: 41.2\n",
  "end_bytes": 129,
  "receiver_model": "dedupe by index keep longest; join b64 in index order; single decode (bm_image_parser, staging)",
  "variants": {
   "complete": {
    "wire_file": "wire_complete.txt",
-   "wire_sha256": "3a3c55c9b13ad9e2a4cb64ded1474f95c5164415b174addd984bb5e13d1b0090",
+   "wire_sha256": "8b22baafb4b56d331b1e6d785676bc653e19941eb4f9b31cb2d23d53f2b7ad8e",
    "wire_lines": 129,
    "longest_line_bytes": 391,
    "has_end": true,
@@ -50,7 +50,7 @@
   },
   "tail_cut": {
    "wire_file": "wire_tail_cut.txt",
-   "wire_sha256": "2dc319830a4603cd3cb61b170d73df0e3af7a0db72f461b64c5de25d759d3845",
+   "wire_sha256": "1e45f944985b9981348c325bbb1f58e09d30d7d2496450c62a1dba5abda6d8fb",
    "wire_lines": 85,
    "longest_line_bytes": 390,
    "has_end": false,
@@ -109,7 +109,7 @@
   },
   "chunk0_lost": {
    "wire_file": "wire_chunk0_lost.txt",
-   "wire_sha256": "7df71d6457b7ee0b38912ad4b4107c4a24ee674decb46f7cc120b5013bebb124",
+   "wire_sha256": "ebb23a12fdb605e7704f0dd364d5cb20195f5e5996bf1eaccab1b2d4a9f124ed",
    "wire_lines": 128,
    "longest_line_bytes": 391,
    "has_end": true,
@@ -125,7 +125,7 @@
   },
   "mid_lost": {
    "wire_file": "wire_mid_lost.txt",
-   "wire_sha256": "b4ca614757a78ab489d51e07c2efb0027a16f7a1be6190e3b741df07533ef0cb",
+   "wire_sha256": "e2584725e674a78e8fb31c23a03d53c21a446847bd0436d5cf1e0ebbd153155b",
    "wire_lines": 128,
    "longest_line_bytes": 391,
    "has_end": true,
@@ -143,7 +143,7 @@
   },
   "fmt_disagree": {
    "wire_file": "wire_fmt_disagree.txt",
-   "wire_sha256": "7340d3f458febe154595038a2dbb05033061f9f898980f5cc05f0911572c2b5a",
+   "wire_sha256": "a6a9ca762fb0640075d2e30b906eaf24b506c807b27512708ee80e2e0eeee691",
    "wire_lines": 129,
    "longest_line_bytes": 391,
    "has_end": true,

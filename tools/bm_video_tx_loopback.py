@@ -457,23 +457,33 @@ def parameter_sets_end(payload):
 
 
 def build_video_start_message(filename, timestamp, num_buffers, *, fps, dur,
-                              res, crf, complete=True, start_metadata=None,
+                              res, crop=None, crf=None, br=None,
+                              complete=True, start_metadata=None,
                               max_payload_bytes=START_BUDGET_BYTES):
     """Video START per the wire contract. Base + video fields are never
     dropped; optional metadata drops in the still builder's order. Raises
-    instead of truncating: a START that does not fit is a bug, not data."""
+    instead of truncating: a START that does not fit is a bug, not data.
+
+    crop: field of view in NATIVE sensor px as "WxH+X+Y" (video_geometry's
+    crop_native_xywh; no commas on the wire). None -> "na" = no camera
+    (stored reference clip). Exactly one of crf (constant quality) or br
+    (target kbps) names the rate control that produced the payload."""
+    if (crf is None) == (br is None):
+        raise ValueError("video START needs exactly one of crf= or br=")
+    rate_pair = ("crf", int(crf)) if crf is not None else ("br", int(br))
     fps_text = str(int(fps)) if float(fps).is_integer() else f"{float(fps):.2f}"
     base = [f"filename: {_clean_value(filename, max_len=96)}",
             f"timestamp: {_clean_value(timestamp, max_len=32)}",
             f"length: {int(num_buffers)}"]
     video_pairs = [("fmt", VIDEO_FMT), ("fps", fps_text),
                    ("dur", f"{float(dur):.1f}"), ("res", res),
-                   ("crf", int(crf)), ("cmp", 1 if complete else 0)]
+                   ("crop", crop), rate_pair,
+                   ("cmp", 1 if complete else 0)]
     for key, _ in video_pairs:
         if any(bad in key for bad in FORBIDDEN_KEY_SUBSTRINGS):
             raise ValueError(f"START key {key!r} collides with the backend "
                              f"length regex {FORBIDDEN_KEY_SUBSTRINGS}")
-    video = [f"{k}={_clean_value(v, max_len=12)}" for k, v in video_pairs]
+    video = [f"{k}={_clean_value(v, max_len=20)}" for k, v in video_pairs]
     optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata)
                 if k not in _VIDEO_START_SKIP]
     drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]

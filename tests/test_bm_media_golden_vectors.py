@@ -93,8 +93,9 @@ class TestGoldenVectors(unittest.TestCase):
         head, tail = start.split("length: ", 1)
         self.assertTrue(head.startswith("<START IMG> filename: "))
         new_keys = [p.split("=")[0].strip() for p in tail.split(", ")[1:]]
-        self.assertEqual(new_keys[:6],
-                         ["fmt", "fps", "dur", "res", "crf", "cmp"])
+        self.assertEqual(new_keys[:7],
+                         ["fmt", "fps", "dur", "res", "crop", "crf", "cmp"])
+        self.assertIn("crop=na,", start)      # synthetic clip: no camera
         for key in new_keys:
             for bad in tool.FORBIDDEN_KEY_SUBSTRINGS:
                 self.assertNotIn(bad, key)
@@ -113,6 +114,15 @@ class TestSeiStrip(unittest.TestCase):
         out, removed = tool.strip_x264_sei(x264_sei + sps + other_sei + idr)
         self.assertEqual(out, sps + other_sei + idr)
         self.assertEqual(removed, 1)
+
+    def test_start_takes_exactly_one_rate_control_key(self):
+        kw = dict(fps=10, dur=5.0, res="480x270", crop="4608x2592+0+0")
+        args = ("a.h264", "2026-09-20T06:10:04Z", 88)
+        self.assertIn(", crop=4608x2592+0+0, br=40, cmp=1",
+                      tool.build_video_start_message(*args, br=40, **kw))
+        for bad in ({}, {"crf": 40, "br": 40}):
+            with self.assertRaises(ValueError):
+                tool.build_video_start_message(*args, **bad, **kw)
 
     def test_start_refuses_a_forbidden_or_oversize_message(self):
         with self.assertRaises(ValueError):

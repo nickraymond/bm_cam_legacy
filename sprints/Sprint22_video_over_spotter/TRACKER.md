@@ -45,7 +45,25 @@ Branch `feature/sprint22-phase0-contract` (off `d0359d1`, PR #54's head).
       repeat rescues with zero backend change; the `.h264` → `.jpg` filename
       rewrite and `sniff=None` landmines reproduced.
 - [x] `tests/test_bm_media_golden_vectors.py` (8 tests)
+- [x] Q1 SETTLED (Nick's Render shell, 2026-09-20): ffmpeg 5.1.9 + libx264
+      present on `nereus-vision-staging`. Contract §10 now recommends system
+      ffmpeg + guard, PyAV as fallback. Unverified: the ingest cron's image.
+- [x] Contract rev 2 (Nick's product direction): `crop=` (field of view,
+      native px) split from `res=` (output px); `br=` (kbps) alongside `crf=`;
+      triggers redesigned as one pipeline with a pluggable source —
+      `trg 5` record+send (product), `trg 6` stored reference, `trg 7` newest
+      clip. Vectors regenerated (payload sha unchanged; START gains `crop=na`).
 - [ ] **GATE: Nick signs off the contract** (open points: contract §13)
+
+### Carried into Phase 2 (device) — decided 2026-09-20, not started
+
+- [ ] FIRST BITE: re-run the quality ladder BY BYTE BUDGET (88 / 126 / 172
+      msgs), not by CRF. Compare 1-pass ABR, 2-pass, CRF+VBV cap, and the
+      Pi's hardware encoder recording directly at target crop/res/bitrate
+      (no re-encode). Score: bytes vs target, SSIM, encode seconds + energy
+      on the Pi Zero 2 W. Backend work does not wait on this.
+- [ ] dynamic message budget -> `br` (reuse `rc_time_budget`)
+- [ ] stored reference video on the unit = the committed golden payload
 
 ## Phase 1 — backend (feature branch off `staging`)
 
