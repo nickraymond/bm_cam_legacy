@@ -12,6 +12,7 @@ what to DO with them.
 | Mailbox check happens only after a standard `MS_Q_LEGACY` report, hourly | PROVEN on this unit, 8 hourly reports | RESULTS findings 2, 6, 8 |
 | `bm …` line arriving bus-OFF is held (`Queuing serial command`) | PROVEN, USB and remote | RESULTS Step B run 2 |
 | Held commands replay ~8 s after `Bridge bus power: 1`, silently | PROVEN once, 2 commands | RESULTS Step B run 2 |
+| The replay delay is a fixed 10 s grace period after BM network boot, not configurable | CONFIRMED BY SOFAR (engineer via Nick, 2026-09-21) | RESULTS finding 11 |
 | Pi listens 38.0 ± 1.1 s after bus power → held commands are lost | PROVEN, 2/2 lost, `frames=0` | RESULTS Step B runs 1–2 |
 | Command arriving LIVE with a listener is acked | PROVEN 7/7, ack in 0.48 ± 0.36 s, all 7 acks at the Sofar API | RESULTS Step C |
 | Report minute = post-boot report rounded up to a 5/10-min boundary | HYPOTHESIS. Prediction: 18:20:00Z on 2026-09-21 | RESULTS finding 10 |
@@ -108,4 +109,6 @@ sprints/Sprint23_remote_msg_latency/overnight_loop.sh 2401 2412
   around those two, with retry-until-ack on the same id (the daemon dedupes).
 - Tell the operator the expected wait: up to 60 min for the next hourly
   report, +72 s, and only if the unit is awake and listening at that moment.
-- Open TODOs: TODO-BM-016 (cloud-init, ~6 s of boot).
+- Open TODOs: TODO-BM-016 (cloud-init, ~6 s of boot); **TODO-BM-017 (mote-side
+  command cache — Sofar's recommended fix for held commands being lost;
+  Sofar offered to help).**

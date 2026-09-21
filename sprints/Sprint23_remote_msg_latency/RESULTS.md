@@ -362,6 +362,26 @@ cellular queue ~45 s: their lost keyframe (17 rejections 07:30:31–07:30:48)
 sits inside it. Same minute is the one commands NEED and image/video bursts
 must AVOID.
 
+### Finding 11 — Sofar confirms the replay timing; it is fixed (2026-09-21)
+
+Source: a Sofar engineer, relayed by Nick (not a published document). On
+v2.16.8 there is a **10-second grace period after the BM network boots**
+before held `bm` commands are sent, and **no configuration changes it**.
+Consistent with the measurement above (~8 s after `Bridge bus power: 1`; his
+clock starts at network boot, slightly earlier than that console line) and
+with finding "not configurable from the console".
+
+His recommendation: cache on the **mote** (the camera's BM node,
+`serial_bridge@ENG-v0.13.11-6-g54aff0a3`, up and listed as a neighbour ~1 s
+after bus power) and forward to the camera once it has booted. He offered to
+help implement it. Logged as TODO-BM-017.
+
+Open point, unverified (mote firmware not read): the `bmcam/cmd` subscription
+is created by the Pi at runtime (bm_serial subscribe frame, ~38 s after
+power-on), so at the 10 s replay the mote holds no subscription. A mote-side
+cache likely needs the mote to subscribe by itself at boot from a stored topic
+list. Asked of Sofar via Nick.
+
 ### Is it reliable?
 
 Repeatable on this bench: yes — 7/7, hourly report on :50:00–:50:02 seven

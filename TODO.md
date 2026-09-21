@@ -529,6 +529,28 @@ it reports what is on the card, not what the limits allow.
 
 ---
 
+### TODO-BM-017 — Mote-side command cache so held remote commands survive the Pi's boot (captured 2026-09-21, Sprint23)
+**Status:** open
+**Priority:** high for remote configuration of duty-cycled units
+**Context:** Spotter FW v2.16.8 holds a remote `bm …` command that arrives while the BM bus is off, then replays it after a fixed **10 s grace period** from BM network boot (Sofar engineer via Nick, 2026-09-21: not configurable). Measured on SPOT-31593C + bmcam003: replay ~8 s after `Bridge bus power: 1`; the Pi's command daemon subscribes at 38.0 ± 1.1 s. Result: held commands are lost, silently (2/2, daemon `frames=0`). Only commands that happen to arrive while the unit is awake and listening get through (7/7). Evidence: `sprints/Sprint23_remote_msg_latency/RESULTS.md` (Step B, Step C, finding 11). TODO-BM-016 (cloud-init) saves ~6 s and cannot close a ~28 s gap.
+
+**Proposed fix (Sofar's recommendation; Sofar offered to help implement):** the camera's BM mote (`serial_bridge@ENG-v0.13.11-6-g54aff0a3`, alive ~1 s after bus power) caches the message for the command topic and forwards it to the Pi once the Pi is up.
+
+**Open questions (unverified — the mote firmware has not been read):**
+- The `bmcam/cmd` subscription is created by the Pi at runtime via the bm_serial subscribe frame. At the 10 s replay the mote holds no subscription. Does the mote need to subscribe itself at boot from a stored topic list / config key?
+- Who builds our `serial_bridge` ENG firmware — patchable by Sofar, or built by us from the open Bristlemouth repo?
+- Cache depth: last message per topic (enough for one-command-in-flight) vs a small queue.
+- Flush trigger: the Pi's subscribe frame, or an explicit "ready" from the Pi.
+- Interaction with the daemon's duplicate-id handling (a flushed command may also be retried by the operator).
+
+**Acceptance criteria:**
+- With the bus OFF at arrival: command is held by the Ebox, replayed at 10 s, cached by the mote, delivered to the Pi after subscribe, acked. Repeat ≥ 5 times on one bench rig, 0 lost.
+- A command arriving live (bus on, Pi listening) still works and is not delivered twice.
+- No effect on image/video uplink pacing (check `MS_Q_CELLULAR_ONLY is full` counts before/after).
+- Until this ships: operator-side retry-until-ack on the same id remains the delivery doctrine (dashboard requirement).
+
+---
+
 ### TODO-CAM-001 — Capture-side frame stacking + red-channel HDR bracket (Sprint 20, captured 2026-09-01)
 
 **Problem:** transmitted 8-bit JPEGs from the AOML reef carry white-patch
