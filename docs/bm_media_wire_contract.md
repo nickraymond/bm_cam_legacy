@@ -1,6 +1,7 @@
 # BM media wire contract — images and short video over Spotter
 
-**Status: SIGNED OFF by Nick 2026-09-20 (Sprint22 Phase 0 gate), rev 2.**
+**Status: SIGNED OFF by Nick 2026-09-20 (Sprint22 Phase 0 gate). Rev 3, 2026-09-21
+(Nick-approved): the tail repeat covers the whole KEYFRAME, not just chunk 0.**
 Key names are hard to change once units are in the field: any change to this
 file after today needs Nick's explicit approval and a new rev line here.
 
@@ -19,7 +20,7 @@ Backend line references are `backend/app/services/bm_image_parser.py` on
 ```text
 <START IMG> ...          one message, <= 285 B
 <I0>...  <I1>...  ...    `length` chunk messages
-<I0>...                  video only: chunk 0 repeated (section 5)
+<I0>..<Ik>               video only: the KEYFRAME chunks again (section 5)
 <END IMG> ...            one message, <= 295 B
 ```
 
@@ -48,7 +49,7 @@ after `length` uses `key=value`.
 |---|---|---|---|---|
 | `filename` | required | `2026-09-20T06-10-00Z_video_5s.h264` | never | `<capture UTC>_video_<N>s.h264` |
 | `timestamp` | required | `2026-09-20T06:10:04Z` | never | send time, UTC |
-| `length` | required | `126` | never | planned UNIQUE chunks (the repeat is not counted) |
+| `length` | required | `126` | never | planned UNIQUE chunks (the keyframe repeat is not counted) |
 | `fmt` | required | `h264` | never | section 2 |
 | `fps` | required | `10` | never | playback rate — raw H.264 carries no timestamps |
 | `dur` | required | `5.0` | never | clip seconds, one decimal |
@@ -87,7 +88,7 @@ Key-naming rules (forced by the parser):
   as `key: value`, and the parser accepts `=` or `:` for any key (L100-102) and
   normalises both to `fmt`. **Measured:** staging reads `end.fmt == "h264"` from
   the `: ` form. Using it means zero change to the END builder.
-- `sent_buffers` = UNIQUE chunks actually sent. The chunk-0 repeat is not
+- `sent_buffers` = UNIQUE chunks actually sent. The keyframe repeat is not
   counted, so `sent_buffers == length` still means "everything went out".
 
 ## 5. Chunks
@@ -101,13 +102,24 @@ Key-naming rules (forced by the parser):
   message costs exactly its own 288 bytes.
 - Chunks carry no media type (D-S22-2): a chunk belongs to the open group for
   its node until END + all chunks, the next START, or a 600 s gap (L369).
-- **Chunk-0 repeat (video only):** after the last chunk and before END, `<I0>`
-  is sent a second time, byte-identical. With the SEI stripped, chunk 0 holds
-  SPS+PPS (byte 42 of 288 in the golden clip) — lose it and 0 frames decode.
-  The backend already dedupes by index keeping the longest payload (L615-617),
-  so the repeat needs no backend change. **Measured:** vector `chunk0_lost`
-  reassembles byte-exact on today's staging parser.
-- Cost: one extra paced message per clip.
+- **Keyframe repeat (video only, rev 3):** after the last chunk and before END,
+  chunks `0..k` are sent a second time, in order, byte-identical, where `k` is
+  the last chunk that holds any byte of SPS, PPS or the IDR frame (the golden
+  clip: keyframe ends at byte 2,236 -> chunks 0-7, 8 messages). The device caps
+  the repeat at `video_tx.keyframe_repeat_max` (default 30).
+  - Why the whole keyframe: every other frame is decoded from it. Lose chunk 0
+    and nothing decodes; lose ANY keyframe chunk and the whole clip smears.
+  - Why it is needed: **the camera cannot see a loss.** Measured 2026-09-21 on
+    SPOT-33507C (fw v2.16.6): the Spotter logged `Queue MS_Q_CELLULAR_ONLY is
+    full` for 16 s, 31-47 s after a 5-minute boundary, while its own scheduled
+    transmission held the 2-slot queue, and silently rejected chunks 1-9 and
+    11-17 of a clip. The Pi got no error. The repeat lands ~2 minutes later,
+    outside that window.
+  - The backend already dedupes by index keeping the longest payload
+    (L615-617), so the repeat needs NO backend change. **Measured:** vectors
+    `chunk0_lost` and `keyframe_lost` reassemble byte-exact.
+  - `length` and `sent_buffers` still count UNIQUE chunks only.
+- Cost: `k+1` extra paced messages per clip (8 on the golden clip; 15-30 typical).
 
 ## 6. Video payload
 
@@ -147,8 +159,8 @@ bite re-runs the ladder by byte budget.
 | all chunks, END lost | complete once the group closes (next START / 600 s gap) |
 | tail cut (prefix only) | `is_complete=False`; transcode what decodes; record playable seconds. Golden: 84/126 chunks → 33/50 frames = 3.3 s |
 | one mid chunk lost | `is_complete=False`; all frames decode with local damage. Golden: 125/126 → 50/50 frames |
-| chunk 0 lost, repeat arrives | complete, byte-exact |
-| chunk 0 AND repeat lost | nothing decodable; keep the raw bytes, no display variant, flagged |
+| chunk 0 / keyframe chunks lost, repeat arrives | complete, byte-exact |
+| a keyframe chunk AND its repeat lost | nothing decodable; keep the raw bytes, no display variant, flagged |
 | START lost | group discarded — same as JPEG today. Not fixed this sprint |
 
 Gaps are SKIPPED, never zero-filled: the backend joins the base64 of the chunks
@@ -251,9 +263,10 @@ scene (25,118 B = 88 chunks at the same settings); the count was not tuned.
 | File | What | Expect |
 |---|---|---|
 | `payload.h264` | the clip, SEI stripped | sha256 `5fd3ce55…ea30fefe` |
-| `wire_complete.txt` | START (`crop=na`, `crf=40`), 126 chunks, `<I0>` repeat, END | complete, byte-exact, 50 frames |
+| `wire_complete.txt` | START (`crop=na`, `crf=40`), 126 chunks, keyframe repeat `<I0>`..`<I7>`, END | complete, byte-exact, 50 frames |
 | `wire_tail_cut.txt` | START + chunks 0-83, no repeat, no END | partial, 33 frames |
 | `wire_chunk0_lost.txt` | first `<I0>` removed | complete, byte-exact |
+| `wire_keyframe_lost.txt` | first-pass chunks 0-7 removed (the 2026-09-21 queue-full failure) | complete, byte-exact |
 | `wire_mid_lost.txt` | chunk 63 removed | partial, 50 frames |
 | `wire_fmt_disagree.txt` | END says `fmt: pjpg` | byte-exact, flagged |
 | `manifest.json` | every expectation above, machine-readable | |
@@ -267,3 +280,7 @@ Approved by Nick 2026-09-20: key names (`fmt` `fps` `dur` `res` `crop` `br`
 `crf`), `crop` as `WxH+X+Y` native px / `na`, END spelling `fmt: h264`, system
 ffmpeg + guard with PyAV as fallback, trigger table `trg 5/6/7`, filename
 pattern `<capture UTC>_video_<N>s.h264`.
+
+Rev 3 approved by Nick 2026-09-21: keyframe repeat (section 5) replaces the
+chunk-0 repeat, after the first real camera send lost its keyframe to a
+Spotter queue-full window.

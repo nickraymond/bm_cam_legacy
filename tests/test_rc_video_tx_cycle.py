@@ -48,6 +48,7 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(cfg["enabled"])
         self.assertEqual((cfg["source"], cfg["output_wh"], cfg["message_cap"], cfg["preset"]),
                          ("defaults", (480, 270), 126, "medium"))
+        self.assertEqual(cfg["keyframe_repeat_max"], 30)
         self.assertFalse(vtx.load_video_tx_config("/nonexistent.yaml")["enabled"])
 
     def test_island_parses_and_stops_at_the_next_section(self):
@@ -115,6 +116,7 @@ class TestCycle(unittest.TestCase):
                 raise fit_error
             return {"payload": payload, "bytes": len(payload), "msgs": 126, "budget_msgs": kw["budget_msgs"],
                     "used_pct": 99.3, "target_kbps": 55.7, "pass2_tries": 2, "frames_trimmed": 0,
+                    "frames": 50, "duration_s": 5.0, "keyframe_end": 2236,
                     "prescale_s": 8.2, "encode_s": 3.7}
 
         halts = []
@@ -137,8 +139,9 @@ class TestCycle(unittest.TestCase):
             "<START IMG> filename: 2026-09-21T07-30-05Z_video_5s.h264, timestamp: "))
         self.assertIn(", length: 126, fmt=h264, fps=10, dur=5.0, res=480x270, "
                       "crop=4608x2592+0+0, br=56, cmp=1", start)
-        self.assertEqual(len(wire), 129)
-        self.assertEqual(wire[127], wire[1])
+        self.assertEqual(len(wire), 126 + 8 + 2)                        # chunks + keyframe repeat + START/END
+        self.assertEqual(wire[127:135], wire[1:9])
+        self.assertEqual(summary["fit"]["keyframe_chunks"], 8)
         self.assertIn(b"fmt: h264", wire[-1])
         self.assertTrue(summary["transmit_result"]["complete_send"])
         self.assertEqual((summary["stage"], summary["error"], len(halts)), ("done", None, 1))
@@ -153,7 +156,7 @@ class TestCycle(unittest.TestCase):
 
     def test_budget_is_what_the_time_budget_can_still_pace(self):
         _, _, calls, _ = self.run_cycle(settings_kw={"budget_seconds": 100})
-        self.assertEqual(calls[2][1], 100 - 3)                          # 100 paceable - START/repeat/END
+        self.assertEqual(calls[2][1], 100 - 2 - 30)                     # paceable - START/END - repeat reserve
 
     def test_failures_report_the_stage_and_still_halt(self):
         summary, wire, _, halts = self.run_cycle(record_ok=False)
@@ -169,7 +172,7 @@ class TestCycle(unittest.TestCase):
         self.assertEqual((wire, summary["schedule_allowed"], len(halts)), ([], False, 1))
         self.assertNotIn(("record", 7.0), calls)
         summary, wire, _, _ = self.run_cycle(gate_allowed=False)       # not enforced -> runs
-        self.assertEqual(len(wire), 129)
+        self.assertEqual(len(wire), 136)
 
 
 if __name__ == "__main__":

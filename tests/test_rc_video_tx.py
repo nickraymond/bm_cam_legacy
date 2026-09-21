@@ -34,7 +34,7 @@ except ImportError:                       # same stub pattern as test_rc_transmi
 
 import rc_video_clip as clip  # noqa: E402
 from rc_time_budget import CycleBudget  # noqa: E402
-from rc_transmit import VIDEO_OVERHEAD_MSGS, transmit_video_clip, video_burst_messages  # noqa: E402
+from rc_transmit import VIDEO_ENVELOPE_MSGS, transmit_video_clip, video_burst_messages  # noqa: E402
 from rc_uplink_messages import build_rc_video_start_message, format_crop  # noqa: E402
 
 VEC = os.path.join(REPO_ROOT, "tests", "vectors", "bm_media_h264")
@@ -78,27 +78,41 @@ class TestTransmitVideoClip(unittest.TestCase):
         result = transmit_video_clip(
             wire.append, CycleBudget(1000.0, 1.0, clock=clk), payload=_read("payload.h264"),
             file_name="2026-09-20T06-10-00Z_video_5s.h264", fps=10, dur=5.0, res="480x270",
-            crop="na", crf=40, chunk_b64_chars=384, delay_seconds=1.0, start_metadata=GOLD_META,
+            crop="na", crf=40, keyframe_chunks=clip.keyframe_end_offset(_read("payload.h264")) // 288 + 1,
+            chunk_b64_chars=384, delay_seconds=1.0, start_metadata=GOLD_META,
             cpu_temp_text="41.2", current_timestamp="2026-09-20T06:10:04Z",
             sleep_fn=clk.sleep, clock=lambda: next(ticks))
         self.assertEqual(b"".join(wire), golden)
         self.assertEqual((result["planned"], result["sent"], result["complete_send"],
-                          result["repeat_sent"]), (126, 126, True, True))
+                          result["repeated"], result["repeat_sent"]), (126, 126, True, 8, True))
 
     def test_shape_and_pacing(self):
-        result, wire = send(_read("payload.h264"))
+        result, wire = send(_read("payload.h264"), keyframe_chunks=8)
         self.assertTrue(wire[0].startswith(b"<START IMG> ") and b"length: 126, fmt=h264" in wire[0])
         self.assertTrue(wire[1].startswith(b"<I0>") and wire[126].startswith(b"<I125>"))
-        self.assertEqual(wire[127], wire[1])                       # chunk 0 repeated, identical
-        self.assertTrue(wire[128].startswith(b"<END IMG> ") and b"sent_buffers: 126" in wire[128])
-        self.assertEqual(len(wire), video_burst_messages(_read("payload.h264"), 384))
-        self.assertEqual(result["uart_duration_sec"], 128.0)       # no sleep after END
+        self.assertEqual(wire[127:135], wire[1:9])                 # keyframe chunks 0-7 repeated, identical
+        self.assertTrue(wire[135].startswith(b"<END IMG> ") and b"sent_buffers: 126" in wire[135])
+        self.assertEqual(len(wire), video_burst_messages(_read("payload.h264"), 384, keyframe_chunks=8))
+        self.assertEqual(result["uart_duration_sec"], 135.0)       # no sleep after END
+
+    def test_default_repeat_is_chunk_zero_and_repeat_is_clamped(self):
+        _, wire = send(_read("payload.h264"))
+        self.assertEqual((len(wire), wire[127]), (129, wire[1]))
+        _, wire = send(_read("payload.h264")[:500], keyframe_chunks=99)    # 2-chunk clip
+        self.assertEqual(len(wire), 2 + 2 + VIDEO_ENVELOPE_MSGS)
+
+    def test_repeat_stops_early_but_end_still_goes_out(self):
+        result, wire = send(_read("payload.h264"), keyframe_chunks=8, budget_s=126 + 8 + 2)
+        self.assertTrue(result["complete_send"])
+        result, wire = send(_read("payload.h264"), keyframe_chunks=8, budget_s=1000)
+        self.assertEqual(result["repeated"], 8)
 
     def test_refused_before_start_when_budget_cannot_hold_it(self):
-        result, wire = send(_read("payload.h264"), budget_s=126 + VIDEO_OVERHEAD_MSGS - 1)
+        result, wire = send(_read("payload.h264"), keyframe_chunks=8,
+                            budget_s=126 + 8 + VIDEO_ENVELOPE_MSGS - 1)
         self.assertEqual(wire, [])
         self.assertFalse(result["started"])
-        self.assertIn("budget: clip needs 129", result["refused_reason"])
+        self.assertIn("budget: clip needs 136", result["refused_reason"])
 
     def test_stall_mid_send_closes_with_an_honest_end(self):
         clk, wire = FakeClock(), []
@@ -162,6 +176,8 @@ class TestPayloadHelpers(unittest.TestCase):
 class TestFitLoop(unittest.TestCase):
     """The correction loop, with a fake ffmpeg whose pass-2 size = f(target kbps)."""
 
+    y4m_frames = 50
+
     def run_fit(self, size_for_kbps, budget_msgs=10):
         tmp = tempfile.mkdtemp()
         src = os.path.join(tmp, "src.mp4")
@@ -171,7 +187,9 @@ class TestFitLoop(unittest.TestCase):
         def fake_run(argv, timeout_s):
             out = argv[-1]
             if out.endswith(".y4m"):
-                open(out, "wb").write(b"ref")
+                with open(out, "wb") as fh:
+                    fh.write(b"YUV4MPEG2 W4 H2 F10:1\n" + b"FRAME\n" + b"\x00" * 12)
+                    fh.write((b"FRAME\n" + b"\x00" * 12) * (self.y4m_frames - 1))
             elif "-pass" in argv and argv[argv.index("-pass") + 1] == "2":
                 kbps = float(argv[argv.index("-b:v") + 1].rstrip("k"))
                 targets.append(kbps)
@@ -211,6 +229,14 @@ class TestFitLoop(unittest.TestCase):
         res, _ = self.run_fit(lambda kbps: next(sizes))
         self.assertGreaterEqual(res["used_pct"], 88.0, res)               # the 90 % try, not the 60 % one
 
+    def test_short_source_sends_a_shorter_clip_and_says_so(self):
+        self.y4m_frames = 49
+        try:
+            res, _ = self.run_fit(lambda kbps: int(kbps * 1000 * 4.9 / 8))
+        finally:
+            self.y4m_frames = 50
+        self.assertEqual((res["frames"], res["duration_s"]), (49, 4.9))
+
     def test_on_target_first_try(self):
         res, targets = self.run_fit(lambda kbps: int(kbps * 1000 * 5 / 8))
         self.assertEqual((res["pass2_tries"], len(targets), res["frames_trimmed"]), (1, 1, 0))
@@ -244,6 +270,8 @@ class TestRealEncode(unittest.TestCase):
                                               duration_s=5, budget_msgs=budget, source_wh=(1280, 720),
                                               preset="veryfast", log_fn=lambda *_: None)
                 self.assertLessEqual(res["msgs"], budget, res)
+                self.assertEqual((res["frames"], res["duration_s"]), (50, 5.0), res)   # the 49-frame bug
+                self.assertGreater(res["keyframe_end"], 100)
                 self.assertGreaterEqual(res["used_pct"], 85.0, res)
                 clip.check_payload(res["payload"])
         finally:

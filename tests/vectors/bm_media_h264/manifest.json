@@ -24,7 +24,9 @@
   "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe",
   "sei_nal_stripped": 1,
   "encoder_bytes_before_strip": 36709,
-  "sps_pps_end_offset": 42
+  "sps_pps_end_offset": 42,
+  "keyframe_end_offset": 2236,
+  "keyframe_chunks": 8
  },
  "start_message": "<START IMG> filename: 2026-09-20T06-10-00Z_video_5s.h264, timestamp: 2026-09-20T06:10:04Z, length: 126, fmt=h264, fps=10, dur=5.0, res=480x270, crop=na, crf=40, cmp=1, tz=America/New_York, sha=0123456789ab, hn=bmcamGOLD\n",
  "start_bytes": 220,
@@ -34,8 +36,8 @@
  "variants": {
   "complete": {
    "wire_file": "wire_complete.txt",
-   "wire_sha256": "8b22baafb4b56d331b1e6d785676bc653e19941eb4f9b31cb2d23d53f2b7ad8e",
-   "wire_lines": 129,
+   "wire_sha256": "85f1acea5477ff63dbc2a5feb515af592f25425491065ab4d24c7da47c74a7fd",
+   "wire_lines": 136,
    "longest_line_bytes": 391,
    "has_end": true,
    "expected_chunks": 126,
@@ -109,7 +111,23 @@
   },
   "chunk0_lost": {
    "wire_file": "wire_chunk0_lost.txt",
-   "wire_sha256": "ebb23a12fdb605e7704f0dd364d5cb20195f5e5996bf1eaccab1b2d4a9f124ed",
+   "wire_sha256": "72aec9a1509bd25ff8a7b56120249835d740bd241ef15481c33f699517e58038",
+   "wire_lines": 135,
+   "longest_line_bytes": 391,
+   "has_end": true,
+   "expected_chunks": 126,
+   "received_chunks": 126,
+   "missing_chunks": [],
+   "contiguous_prefix_chunks": 126,
+   "is_complete": true,
+   "recovered_bytes": 36019,
+   "recovered_sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe",
+   "payload_byte_exact": true,
+   "frames_decodable_ffmpeg": 50
+  },
+  "keyframe_lost": {
+   "wire_file": "wire_keyframe_lost.txt",
+   "wire_sha256": "f9285c656d57617cfda5ad88c15209a691a54b4304632ca5b51ae11912462aea",
    "wire_lines": 128,
    "longest_line_bytes": 391,
    "has_end": true,
@@ -125,8 +143,8 @@
   },
   "mid_lost": {
    "wire_file": "wire_mid_lost.txt",
-   "wire_sha256": "e2584725e674a78e8fb31c23a03d53c21a446847bd0436d5cf1e0ebbd153155b",
-   "wire_lines": 128,
+   "wire_sha256": "fda1369e4a2f82c7b94a5830148b8233ad795e9b646e65624f7da251db03d65c",
+   "wire_lines": 135,
    "longest_line_bytes": 391,
    "has_end": true,
    "expected_chunks": 126,
@@ -143,8 +161,8 @@
   },
   "fmt_disagree": {
    "wire_file": "wire_fmt_disagree.txt",
-   "wire_sha256": "a6a9ca762fb0640075d2e30b906eaf24b506c807b27512708ee80e2e0eeee691",
-   "wire_lines": 129,
+   "wire_sha256": "b6eac31c08f42508bd86c24ff95f8c44c059af84050d5ffc8c562068cee7478b",
+   "wire_lines": 136,
    "longest_line_bytes": 391,
    "has_end": true,
    "expected_chunks": 126,

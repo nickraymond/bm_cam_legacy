@@ -42,6 +42,7 @@ TARGET_FRACTION = 0.96                 # aim low: a 2-pass miss can land either 
 ACCEPT_LOW, ACCEPT_HIGH = 0.93, 1.0    # fraction of the budget a payload may use
 CORRECTION_AIM = 0.965                 # what a corrected retry steers toward
 MAX_PASS2_TRIES = 3
+SEEK_SLACK_FRAMES = 2                  # extra source time so the tail yields n whole frames
 ENCODE_TIMEOUT_S = 180
 _START_CODE = re.compile(b"\x00\x00\x01")
 
@@ -70,6 +71,35 @@ def nal_units(payload):
         if hit.end() < len(payload):
             out.append((begin, payload[hit.end()] & 0x1F))
     return out
+
+
+def count_y4m_frames(path):
+    """Frames in a yuv4mpeg file = its `FRAME` markers. Streams the file: the
+    intermediate is ~10 MB and this runs on a Pi Zero 2 W."""
+    count, carry = 0, b""
+    with open(path, "rb") as fh:
+        while True:
+            block = fh.read(1 << 20)
+            if not block:
+                return count
+            data = carry + block
+            count += data.count(b"FRAME\n") + data.count(b"FRAME ")
+            carry = data[-6:]
+            count -= carry.count(b"FRAME\n") + carry.count(b"FRAME ")   # recounted next block
+
+
+def keyframe_end_offset(payload):
+    """Byte offset where the clip's keyframe ends = the start of the first NAL
+    after the IDR slice(s). Everything before it (SPS, PPS, IDR) is what no
+    frame can decode without: lose any of it and the WHOLE clip smears."""
+    units = nal_units(payload)
+    seen_idr = False
+    for offset, nal_type in units:
+        if nal_type == 5:
+            seen_idr = True
+        elif seen_idr:
+            return offset
+    return len(payload)
 
 
 def check_payload(payload, raw_bytes_per_msg=RAW_BYTES_PER_MSG_DEFAULT):
@@ -113,7 +143,8 @@ def fit_clip_to_budget(source_path, work_dir, *, width, height, fps, duration_s,
     """Encode the LAST `duration_s` seconds of `source_path` to fit `budget_msgs`.
 
     Returns {payload, bytes, msgs, budget_msgs, used_pct, target_kbps, pass2_tries,
-             frames_trimmed, prescale_s, encode_s}. Raises ClipError on failure;
+             frames, duration_s (both ACTUAL), keyframe_end, frames_trimmed,
+             prescale_s, encode_s}. Raises ClipError on failure;
     every temp file is removed either way.
     """
     width, height, fps = int(width), int(height), int(fps)
@@ -141,15 +172,29 @@ def fit_clip_to_budget(source_path, work_dir, *, width, height, fps, duration_s,
 
     try:
         t0 = clock()
-        rc, tail = run_fn(quiet + ["-sseof", f"-{float(duration_s):g}", "-i", source_path,
+        # Seek a little EARLIER than duration_s and take exactly n_frames: an
+        # exact -sseof lands on/after the last frame boundary and came back one
+        # frame short (49 of 50 on bmcam004, 2026-09-21). The recording's
+        # lead-in guarantees the extra slack exists.
+        seek_back = float(duration_s) + SEEK_SLACK_FRAMES / float(fps)
+        rc, tail = run_fn(quiet + ["-sseof", f"-{seek_back:g}", "-i", source_path,
                                    "-vf", f"scale={width}:{height},fps={fps}",
                                    "-frames:v", str(n_frames), "-pix_fmt", "yuv420p",
                                    "-f", "yuv4mpegpipe", ref], ENCODE_TIMEOUT_S)
         if rc != 0 or not os.path.isfile(ref) or os.path.getsize(ref) <= 0:
             raise ClipError(f"prescale failed (rc={rc}): {tail.strip() or 'no output'}")
         prescale_s = clock() - t0
+        # Trust the artifact, not the request: count what was actually decoded.
+        got_frames = count_y4m_frames(ref)
+        if got_frames < 1:
+            raise ClipError("prescale produced no frames")
+        if got_frames != n_frames:
+            log_fn(f"[VTX][WARN] wanted {n_frames} frames, source gave {got_frames}; "
+                   f"sending a {got_frames / fps:.1f} s clip (is video_tx.lead_in_s too small?)")
+            n_frames = got_frames
+        actual_duration_s = n_frames / float(fps)
 
-        kbps = budget_bytes * 8 / float(duration_s) / 1000 * TARGET_FRACTION
+        kbps = budget_bytes * 8 / actual_duration_s / 1000 * TARGET_FRACTION
         t1 = clock()
         rc, tail = run_fn(quiet + ["-i", ref] + x264(kbps) +
                           ["-pass", "1", "-passlogfile", passlog, "-f", "null", os.devnull],
@@ -209,6 +254,8 @@ def fit_clip_to_budget(source_path, work_dir, *, width, height, fps, duration_s,
             "msgs": -(-len(payload) // int(raw_bytes_per_msg)), "budget_msgs": budget_msgs,
             "used_pct": round(100.0 * len(payload) / budget_bytes, 1),
             "target_kbps": round(kbps, 1), "pass2_tries": tries,
+            "frames": n_frames - trimmed, "duration_s": round((n_frames - trimmed) / float(fps), 1),
+            "keyframe_end": keyframe_end_offset(payload),
             "frames_trimmed": trimmed, "prescale_s": round(prescale_s, 1),
             "encode_s": round(encode_s, 1),
         }

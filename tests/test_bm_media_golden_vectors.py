@@ -66,7 +66,9 @@ class TestGoldenVectors(unittest.TestCase):
             tool.GOLDEN_FILENAME, uart_duration_sec=float(len(chunks) + 3),
             sent_buffers=len(chunks),
             cpu_temp_text=tool.GOLDEN_CPU_TEMP).encode("ascii")
-        wire = b"".join([start, *chunks, chunks[0], end])
+        kf = self.man["payload"]["keyframe_chunks"]
+        self.assertEqual(kf, 8)
+        wire = b"".join([start, *chunks, *chunks[:kf], end])
         self.assertEqual(wire, _read("wire_complete.txt"))
 
     def test_variants_reassemble_as_promised(self):
@@ -83,6 +85,15 @@ class TestGoldenVectors(unittest.TestCase):
         v = self.man["variants"]["chunk0_lost"]
         lines = _read(v["wire_file"]).splitlines(keepends=True)
         self.assertFalse(lines[1].startswith(b"<I0>"))   # first <I0> is gone
+        data, _ = tool.backend_style_reassemble(lines)
+        self.assertEqual(data, self.payload)
+
+    def test_keyframe_repeat_rescues_a_lost_keyframe(self):
+        # The 2026-09-21 failure: the Spotter rejected the first chunks of a burst.
+        kf = self.man["payload"]["keyframe_chunks"]
+        lines = _read(self.man["variants"]["keyframe_lost"]["wire_file"]).splitlines(keepends=True)
+        self.assertTrue(lines[1].startswith(b"<I%d>" % kf))              # first pass starts AFTER it
+        self.assertEqual([l[:4] for l in lines[-1 - kf:-1]][0], b"<I0>")  # repeat begins with chunk 0
         data, _ = tool.backend_style_reassemble(lines)
         self.assertEqual(data, self.payload)
 

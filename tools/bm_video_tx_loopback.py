@@ -78,7 +78,7 @@ GOLDEN MODE (Sprint22 Phase 0 -- docs/bm_media_wire_contract.md)
     loss matrix. No --ref: the source is ffmpeg's SYNTHETIC testsrc2 pattern
     (this repo is public -- never bench footage). Per the contract:
       * x264's version-string SEI is stripped, so SPS/PPS land in chunk 0
-      * chunk 0 is repeated at the tail, just before END
+      * the keyframe chunks (SPS/PPS + IDR) are repeated at the tail, before END
       * START/END are real messages. END comes from the production END
         builder. The video START is built HERE from the production helpers
         (_clean_value, _start_metadata_pairs; same budget + drop order as
@@ -111,6 +111,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "BM_Devel_Pi"))
 from rc_media_id import chunk_prefix              # noqa: E402  production
 from rc_transmit import split_base64_chunks       # noqa: E402  production
+from rc_video_clip import keyframe_end_offset      # noqa: E402  production
 from rc_uplink_messages import (                  # noqa: E402  production
     FORBIDDEN_KEY_SUBSTRINGS,
     build_rc_video_end_message,
@@ -510,24 +511,31 @@ def generate_golden(out_dir, crf, fps, dur, size):
         start_metadata=GOLDEN_START_METADATA).encode("ascii")
 
     def end_line(fmt=VIDEO_FMT):
-        # sent_buffers counts UNIQUE chunks; the chunk-0 repeat is not one.
+        # sent_buffers counts UNIQUE chunks; the keyframe repeat is not counted.
         return build_video_end_message(
             GOLDEN_FILENAME, uart_duration_sec=float(n + 3),
             sent_buffers=n, cpu_temp_text=GOLDEN_CPU_TEMP,
             fmt=fmt).encode("ascii")
 
-    complete = [start, *chunks, chunks[0], end_line()]
+    # Contract rev 3: the KEYFRAME chunks (SPS/PPS + IDR) are re-sent at the
+    # tail, not just chunk 0.
+    kf = -(-keyframe_end_offset(payload) // RAW_BYTES_PER_MSG)
+    repeat = chunks[:kf]
+    complete = [start, *chunks, *repeat, end_line()]
     tail_keep, mid = (n * 2) // 3, n // 2
     wires = {
         "complete": complete,
         # Burst dies mid-send: no tail repeat, no END.
         "tail_cut": [start, *chunks[:tail_keep]],
         # First <I0> lost; the tail repeat must rescue it byte-exact.
-        "chunk0_lost": [start, *chunks[1:], chunks[0], end_line()],
-        "mid_lost": [start, *chunks[:mid], *chunks[mid + 1:], chunks[0],
+        "chunk0_lost": [start, *chunks[1:], *repeat, end_line()],
+        # The real failure of 2026-09-21: the Spotter's queue was full for the
+        # first seconds of the burst and the whole keyframe was rejected.
+        "keyframe_lost": [start, *chunks[kf:], *repeat, end_line()],
+        "mid_lost": [start, *chunks[:mid], *chunks[mid + 1:], *repeat,
                      end_line()],
         # START says h264, END says pjpg: must be FLAGGED, never resolved.
-        "fmt_disagree": [start, *chunks, chunks[0], end_line(fmt="pjpg")],
+        "fmt_disagree": [start, *chunks, *repeat, end_line(fmt="pjpg")],
     }
 
     (out_dir / "payload.h264").write_bytes(payload)
@@ -572,7 +580,7 @@ def generate_golden(out_dir, crf, fps, dur, size):
             f"/{n}  exact={v['payload_byte_exact']!s:5s} frames "
             f"{frames}/{n_frames}")
 
-    for must_be_exact in ("complete", "chunk0_lost", "fmt_disagree"):
+    for must_be_exact in ("complete", "chunk0_lost", "keyframe_lost", "fmt_disagree"):
         if not variants[must_be_exact]["payload_byte_exact"]:
             sys.exit(f"golden: {must_be_exact} did not reassemble byte-exact")
 
@@ -593,7 +601,9 @@ def generate_golden(out_dir, crf, fps, dur, size):
         "payload": {"file": "payload.h264", "bytes": len(payload),
                     "sha256": sha, "sei_nal_stripped": sei_removed,
                     "encoder_bytes_before_strip": len(encoded),
-                    "sps_pps_end_offset": ps_end},
+                    "sps_pps_end_offset": ps_end,
+                    "keyframe_end_offset": keyframe_end_offset(payload),
+                    "keyframe_chunks": kf},
         "start_message": start.decode("ascii"),
         "start_bytes": len(start),
         "end_message": end_line().decode("ascii"),

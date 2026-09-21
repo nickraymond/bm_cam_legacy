@@ -37,7 +37,8 @@ transmit windows beyond the existing gate.
     lead_in_s: 2         # extra seconds recorded first: AE/AWB settle, discarded
     output: "480x270"    # send geometry; never above the recording's
     fps: 10
-    message_cap: 126     # hard ceiling on chunk messages per clip
+    message_cap: 126     # hard ceiling on (unique) chunk messages per clip
+    keyframe_repeat_max: 30  # most keyframe chunks re-sent at the tail (>= 1)
     preset: "medium"     # x264 preset (bmcam004 2026-09-21: best SSIM, same time)
 """
 
@@ -52,7 +53,7 @@ import video_recorder
 import video_ring
 from rc_power_halt import perform_power_halt
 from rc_time_budget import CycleBudget
-from rc_transmit import VIDEO_OVERHEAD_MSGS, transmit_video_clip
+from rc_transmit import VIDEO_ENVELOPE_MSGS, transmit_video_clip
 from rc_uplink_messages import format_crop
 
 DEFAULT_VIDEO_TX_CONFIG = {
@@ -62,6 +63,7 @@ DEFAULT_VIDEO_TX_CONFIG = {
     "output": "480x270",
     "fps": 10,
     "message_cap": 126,
+    "keyframe_repeat_max": 30,
     "preset": "medium",
 }
 X264_PRESETS = ("ultrafast", "superfast", "veryfast", "faster", "fast", "medium")
@@ -123,6 +125,7 @@ def validate_video_tx_config(cfg):
     number("lead_in_s", 0, 10)
     number("fps", 1, 30, integer=True)
     number("message_cap", 8, 1000, integer=True)
+    number("keyframe_repeat_max", 1, 200, integer=True)
     try:
         w, h = (int(v) for v in str(cfg["output"]).lower().split("x"))
         if w < 16 or h < 16 or w % 2 or h % 2:
@@ -139,6 +142,7 @@ def print_video_tx_settings(cfg):
     w, h = cfg["output_wh"]
     print(f"[VTX] video_tx: enabled={cfg['enabled']} send {cfg['duration_s']:g}s "
           f"(+{cfg['lead_in_s']:g}s lead-in) {w}x{h}@{cfg['fps']}fps cap={cfg['message_cap']} msgs "
+          f"keyframe_repeat_max={cfg['keyframe_repeat_max']} "
           f"preset={cfg['preset']} source={cfg['source']}")
 
 
@@ -239,16 +243,22 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         summary["stage"] = "fit"
         chunk_chars = int(settings["pacing_chunk_b64_chars"])
         raw_per_msg = int(chunk_chars * RAW_BYTES_PER_B64_CHAR)
-        affordable = budget.max_messages_now() - VIDEO_OVERHEAD_MSGS
+        # Reserve the envelope AND the largest keyframe repeat before sizing
+        # the clip: the repeat is only known once the clip is encoded.
+        reserve = VIDEO_ENVELOPE_MSGS + int(vtx["keyframe_repeat_max"])
+        affordable = budget.max_messages_now() - reserve
         budget_msgs = min(int(vtx["message_cap"]), affordable)
         print(f"[VTX] message budget: cap={vtx['message_cap']} affordable_now={affordable} "
-              f"-> {budget_msgs} chunk msgs ({budget_msgs * raw_per_msg} B)")
+              f"(after reserving {reserve}) -> {budget_msgs} chunk msgs ({budget_msgs * raw_per_msg} B)")
         geo = vcfg["geometry"]
         fit = fit_fn(clip["mp4"], WORK_DIR, width=vtx["output_wh"][0], height=vtx["output_wh"][1],
                      fps=vtx["fps"], duration_s=vtx["duration_s"], budget_msgs=budget_msgs,
                      raw_bytes_per_msg=raw_per_msg, source_wh=tuple(geo["output_wh"]),
                      preset=vtx["preset"], ffmpeg_binary=ffmpeg_binary, clock=clock)
         payload = fit.pop("payload")
+        keyframe_chunks = min(-(-int(fit["keyframe_end"]) // raw_per_msg),
+                              int(vtx["keyframe_repeat_max"]))
+        fit["keyframe_chunks"] = keyframe_chunks
         summary["fit"] = fit
         print(f"[VTX] payload: {fit['bytes']} B = {fit['msgs']} msgs ({fit['used_pct']}% of budget) "
               f"{fit['pass2_tries']} pass-2 tries, prescale {fit['prescale_s']}s encode {fit['encode_s']}s"
@@ -256,9 +266,10 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
 
         # The file name IS the capture time: the recorder's basename starts with it.
         stamp = clip["basename"].split("_video_")[0]
-        file_name = f"{stamp}_video_{vtx['duration_s']:g}s.h264"
+        file_name = f"{stamp}_video_{fit['duration_s']:g}s.h264"
         send_args = dict(
-            payload=payload, file_name=file_name, fps=vtx["fps"], dur=vtx["duration_s"],
+            payload=payload, file_name=file_name, fps=vtx["fps"], dur=fit["duration_s"],
+            keyframe_chunks=keyframe_chunks,
             res=f"{vtx['output_wh'][0]}x{vtx['output_wh'][1]}",
             crop=format_crop(geo.get("crop_native_xywh")), br=fit["target_kbps"],
             chunk_b64_chars=chunk_chars, delay_seconds=settings["pacing_delay_seconds"],
@@ -268,7 +279,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
 
         if not transmit:
             print(f"[VTX] send plan (NO transmit): {file_name} {fit['msgs']} chunks "
-                  f"+{VIDEO_OVERHEAD_MSGS} (START, chunk-0 repeat, END)")
+                  f"+ {keyframe_chunks} keyframe repeat + START/END")
             summary["stage"] = "done_no_transmit"
             return summary
 
@@ -277,7 +288,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         phase_cfg = settings.get("transmit_phase_cfg") or {}
         if phase_cfg.get("enabled"):
             burst_s = rc_transmit_phase.burst_seconds_for(
-                fit["msgs"] + 1, settings["pacing_delay_seconds"])      # +1: the chunk-0 repeat
+                fit["msgs"] + keyframe_chunks, settings["pacing_delay_seconds"])
             grid_clock = rc_transmit_phase.acquire_grid_clock(gate_info, gate_mono, clock=clock)
             plan = rc_transmit_phase.plan_from_clock(grid_clock, burst_s, phase_cfg)
             print(rc_transmit_phase.describe_plan(plan, burst_s))
@@ -301,7 +312,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                   f"on the SD card: {clip['mp4']}")
         else:
             print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
-                  f"complete={result['complete_send']} repeat={result['repeat_sent']} "
+                  f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "
                   f"uart={result['uart_duration_sec']:.1f}s file={file_name}")
         summary["stage"] = "done"
         return summary
