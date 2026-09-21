@@ -1,5 +1,11 @@
 # Sprint22 — duty-cycle video soak: runbook
 
+> **SUPERSEDED IN PART by `sprints/Sprint24_outdoor_hil_baseline/PLAN.md`
+> (Nick, 2026-09-21):** the run is now an OUTDOOR two-rig baseline. **No lane
+> guard** (`transmit_phase.enabled: false`), the BM command daemon must run
+> during `video_tx`, and both rigs run the same test. Everything else here
+> (YAML delta, window arithmetic, bridge commands, NO_HALT recovery) still holds.
+
 Goal (Nick, 2026-09-21): evaluate the video pipeline **from camera glass to
 computer screen**, under a production-like power cycle, and learn how the
 Spotter's cellular queue and timing actually behave before changing how we

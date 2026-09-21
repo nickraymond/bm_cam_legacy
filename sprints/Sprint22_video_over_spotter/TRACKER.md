@@ -294,3 +294,12 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
   Spotter's port stayed with Nick's process). ALWAYS pass `--only`.
 - bmcam003 YAML has `power_halt.enabled: true / dry_run: false` — matters
   if it is ever flipped back to stills.
+
+## Handoff (2026-09-21)
+
+Sprint22 closes here. The hardware soak moves to **Sprint24 — outdoor HIL
+baseline** (`sprints/Sprint24_outdoor_hil_baseline/`), merged with Sprint23's
+command-downlink work. Finding that reshaped it: the keyframe loss of 07:30Z sat
+inside SPOT-33507C's HOURLY report window (report 07:29:59, sync 07:30:02,
+mailbox check 07:30:40), not an ordinary 5-minute boundary.
+
