@@ -46,8 +46,14 @@ self-contained. Run it in the background; leave `--sync-min` off (a
 `note sync` is a cellular action).
 
 ```bash
-python3 -u tools/spotter_serial_monitor.py --log-root runs/<run>/spotter_logs
+python3 -u tools/spotter_serial_monitor.py --only SPOT-33507C --log-root runs/<run>/spotter_logs
 ```
+
+**Always pass `--only <SPOT-ID>`.** Without it the monitor opens EVERY
+Spotter on the host. The bench Mac often has a second Spotter plugged in
+for unrelated work (2026-09-20: SPOT-31593C, held by Nick's own process) —
+never open, command, or log a Spotter you were not given. Confirm afterwards
+with `lsof /dev/cu.usbmodemSPOT_*`: your monitor's PID on your port only.
 
 - Log: `runs/<run>/spotter_logs/SPOT-33507C/console_YYYYMMDD.log`
 - Send a console command: `printf 'post\n' > .../SPOT-33507C/cmd.txt`

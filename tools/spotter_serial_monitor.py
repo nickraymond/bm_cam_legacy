@@ -215,13 +215,22 @@ def main():
     ap.add_argument("--sync-min", type=float, default=0,
                     help="periodic tx-idle 'note sync' every N minutes "
                          "(0 = off)")
+    ap.add_argument("--only", action="append", default=[], metavar="SPOT-ID",
+                    help="open ONLY this Spotter (repeatable), e.g. "
+                         "SPOT-33507C. Without it EVERY Spotter on the host "
+                         "is opened -- wrong when another Spotter is plugged "
+                         "in for unrelated work.")
     args = ap.parse_args()
+    only = {s.strip().upper().replace("_", "-") for s in args.only}
     os.makedirs(args.log_root, exist_ok=True)
     events_lock = threading.Lock()
     running = {}
-    print(f"[monitor] log root {args.log_root}; scanning for Spotter ports")
+    print(f"[monitor] log root {args.log_root}; scanning for Spotter ports"
+          + (f" (ONLY {sorted(only)})" if only else " (ALL Spotters)"))
     while True:
         for port_id, dev in discover_ports().items():
+            if only and port_id.upper() not in only:
+                continue                 # never touch a Spotter not asked for
             if port_id not in running:
                 print(f"[monitor] starting {port_id} on {dev}")
                 t = PortMonitor(port_id, dev, args.log_root,

@@ -113,10 +113,8 @@ path for THIS pair, or a later "video does not show up" is undiagnosable.
   in-progress clip (boot sweep deletes `.part`). Kill by PID, never
   `pkill -f` over ssh.
 - The Mac serial monitor holds the Spotter USB port while running.
-- **`tools/spotter_serial_monitor.py` opens EVERY Spotter it finds**
-  (`/dev/cu.usbmodem*SPOT*` glob, no port/serial filter). With Nick's second
-  Spotter on the laptop it would grab that console too. **Phase 3
-  prerequisite:** add an `--only SPOT-33507C` filter (and make the skill's
-  `ls`/`lsof` lines name the serial) BEFORE the monitor is run again.
+- `tools/spotter_serial_monitor.py` opens EVERY Spotter it finds unless given
+  `--only SPOT-33507C` (added 2026-09-21; verified with `lsof`: the second
+  Spotter's port stayed with Nick's process). ALWAYS pass `--only`.
 - bmcam003 YAML has `power_halt.enabled: true / dry_run: false` — matters
   if it is ever flipped back to stills.
