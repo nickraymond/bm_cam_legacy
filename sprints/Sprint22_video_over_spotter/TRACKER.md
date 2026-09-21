@@ -160,6 +160,20 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
 
 ## Phase 2 — device (feature branch off `development`)
 
+- [x] Bite 1 — ladder BY BYTE BUDGET (`tools/bm_video_tx_budget_ladder.py`,
+      same reference scene as the CRF ladder, Mac, 2026-09-21; run folders
+      local-only). Budgets 66/88/126/172/195 msgs x {veryslow, veryfast}:
+      | mode | budget used | fits | encodes | verdict |
+      |---|---|---|---|---|
+      | 1-pass ABR | 72-75 % | always | 1 | wastes ~1/4 of the paid-for messages: rate control cannot converge in 5 s |
+      | 1-pass ABR + VBV | 87-90 % | always | 1 | better, still leaves ~10 % |
+      | 2-pass ABR | 99-104 % | ~half | 2 | on target but either side of it |
+      | **2-pass at 96 %** | 95-100 % | 9 of 10 | 2 | **pick**; one miss (+3 msgs) at the smallest budget |
+      | CRF + VBV cap | 121-127 % | never | 1 | unusable: the cap does not bind on a 5 s clip |
+      | CRF bisect (old way) | 92-100 % | always | 5-6 | same quality as 2-pass, 3x the encodes |
+      Quality at equal fit is the same (SSIM within 0.006) for 2-pass and CRF
+      bisect. NOT measured: Pi Zero 2 W encode seconds/energy, the hardware
+      encoder, a calm scene.
 - [ ] `rc_video_clip.py` (cut → encode → Annex-B, SEI stripped)
 - [ ] video START builder + `fmt` in END
 - [ ] transmit via existing `rc_transmit` loop + chunk-0 repeat
