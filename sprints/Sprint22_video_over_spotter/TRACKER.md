@@ -223,6 +223,38 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
   Spotter firmware -> **v2.16.8** first, then one golden-clip baseline on it;
   Nick pulls the Spotter SD for review (does it log the MS queue?); a
   monitoring Pi on the Spotter USB console regardless.
+- [x] PRs merged 2026-09-21: bm_cam_legacy #55 -> `development` (`8a8a4d5`),
+      nereus-vision-dev #42 -> `staging`.
+- [x] Spotter SD review (Nick's `SPOT-33507C_archive.zip`, pulled 2026-09-21):
+      **`log/` is EMPTY on that archive** (also `outbox/ sent/ msgdata/`); all
+      678 files are `bm/<node>/` power logs + node fprintf logs -> ZERO cellular
+      information. BUT a populated `log/` (SPOT-31593C dump, 2026-07-29) holds
+      everything the console shows, per module and cleaner: `MS.log` (incl.
+      `Queue MS_Q_CELLULAR_ONLY is full`), `BM_TX.log` (hex of every message),
+      `HDR.log`, `NCD.log`, `ORC.log`, `IRI.log`. Skill §10 written.
+      - Blackout mechanism: `HDR.log` = the Spotter queues its OWN 6,129-byte
+        header message every 5 minutes ~2 s after the boundary; it holds the
+        2-slot cellular queue while it goes to the Notecard.
+      - July card, 443 rejections: 62 % within +40 s of the boundary, ~none
+        +40..+150 s, second plateau +150..+300 s (probably the camera's own
+        burst outrunning the queue). Different unit/firmware/pacing: a shape.
+      - `NCD.log`: Notecard `"mode":"periodic","outbound":30` = syncs every
+        **30 minutes** -> explains the 17+ min arrival latency without
+        `note sync`.
+      - Bridge `power.log` gives real bus power at 10 s: recorder 1.62 W,
+        record+encode 1.68 W (peak 2.07), transmit burst 0.87 W.
+      - **RESOLVED 2026-09-21: SPOT-33507C's `log/` is NOT empty.** The card has
+        TWO directory entries named `log/`; macOS opens the empty one, the
+        firmware writes the other (5,357 files / 700 MB, idx 0-276, seen via
+        console `cd log` + `ls`). Logging config is identical on both Spotters
+        (`log list`). Pulled `0264_MS.log` over the console: 17 queue-full lines
+        07:30:31-48Z (console caught 16), 129/129 accepted for the golden send
+        -> **the SD is the better record than the console.**
+      - Both Spotters: app FW **v2.16.8** (`47FF21A4`); `info`'s other
+        "Version" line is the bootloader (33507C v2.16.6, 31593C v2.15.6).
+        Differences that matter: Notecard NOTE-WBGLW fw 6.2.5 (33507C) vs
+        NOTE-WBNA-500 fw 4.2.1 (31593C); `hasBarometer` 1 vs 0 (33507C's red
+        GO LED = `baroErrorState: INIT_ERR`); `sov` 150 vs 75; `vle` 0 vs 1.
 - [ ] SOAK PREREQS: deploy the branch to `~/BM_Devel_Pi` (real deployment, not
       /tmp), YAML `video_tx.enabled: true` + `transmit_phase.enabled: true`
       with `post_boundary_guard_s: 60` + `power_halt` enabled + window not
@@ -262,3 +294,12 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
   Spotter's port stayed with Nick's process). ALWAYS pass `--only`.
 - bmcam003 YAML has `power_halt.enabled: true / dry_run: false` — matters
   if it is ever flipped back to stills.
+
+## Handoff (2026-09-21)
+
+Sprint22 closes here. The hardware soak moves to **Sprint24 — outdoor HIL
+baseline** (`sprints/Sprint24_outdoor_hil_baseline/`), merged with Sprint23's
+command-downlink work. Finding that reshaped it: the keyframe loss of 07:30Z sat
+inside SPOT-33507C's HOURLY report window (report 07:29:59, sync 07:30:02,
+mailbox check 07:30:40), not an ordinary 5-minute boundary.
+

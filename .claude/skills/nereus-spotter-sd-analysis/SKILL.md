@@ -8,6 +8,9 @@ description: >
   the charging / thermal-fault conventions, and how to render the self-contained
   HTML dashboards. Use when asked to analyze, parse, or plot Spotter SD-card
   data, power logs, battery/thermal behavior, or to extend that analysis.
+  ALSO use it to explain missing/late cellular data: §10 covers the Spotter's
+  own system logs (MS.log message queue + queue-full rejections, HDR.log,
+  NCD.log Notecard sync cadence, BM_TX.log) and what an EMPTY log/ means.
   For bench bmcam000/bmcam003 energy-per-cycle comparisons, use the fast
   path in §9 (repo tool tools/sd_bridge_ab_coplot.py) instead of rebuilding
   the pipeline.
@@ -367,7 +370,117 @@ baseline reads 0.42–0.44 W at ~23.9 V; bmcam000 on 20/10 measured
 `runs/sprint10_overnight_20260729/` (pacing A/B) and
 `runs/power_review_20260730/` (schedule comparison, 15/15 vs 20/10).
 
-## 10. Quick reference — the pipeline in order
+## 10. The Spotter's own SYSTEM logs — message queue, Notecard, BM transmit
+
+Explored 2026-09-21 (Sprint22). Sections 1-9 use only the power / temperature
+files; `log/` holds far more, and for "why did my image/video not arrive" it is
+the best record there is. **When `log/` is populated it carries everything the
+USB console shows, split one file per firmware module, with ms timestamps and
+WITHOUT the console's mid-line interleaving.**
+
+Measured on `20260729_SD_Upload/SPOT-31593C/log/` (file kinds, one set per
+power-cycle index `NNNN_`):
+
+| File | What is in it | Use it for |
+|---|---|---|
+| `MS.log` | message-service queue: `Added message(id: N len: L) to queue MS_Q_CELLULAR_ONLY: (depth)!`, `Notecard is P pct full`, `Sending Cellular message to Notecard`, **`[ERROR] Queue MS_Q_CELLULAR_ONLY is full.`** INFO + DEBUG + ERROR | every message the Spotter ACCEPTED or REJECTED. A rejected message is lost and the sending node gets NO error — this file is the only witness |
+| `BM_TX.log` | `Submitted spotter/transmit-data message to cell-only queue, Len: N` + a full hex dump of every payload; `Unable to submit message…` on a reject | byte-level proof of what a BM node handed over (19 MB for 7 files — it is big) |
+| `HDR.log` | `HDR Message N added to queue (len: 6129)!` — the Spotter's OWN ~6 KB header message, **every 5 minutes, ~2 s after the :00/:05 boundary** | the cause of the "blackout lanes": that one message occupies the 2-slot cellular queue while it is pushed to the Notecard |
+| `NCD.log` | Notecard driver incl. raw JSON: `hub.get` → `"mode":"periodic","inbound":30,"outbound":30`, `note.add`, `card.status`, sync results | cellular timing. **`outbound: 30` = the Notecard syncs every 30 MINUTES**, which is why data sent indoors shows up at Sofar tens of minutes late unless someone issues `note sync` |
+| `ORC.log` | orchestrator: mode, modem enable/disable, `Message N transmitted successfully!` | when the Spotter's own transmissions completed |
+| `IRI.log` | Iridium modem | proof (or not) that nothing fell back to satellite |
+| `SYS.log`, `ERR.log`, `MFLT.log`, `CFG.log` | system, faults, memfault, config changes | reboots, config drift |
+| `BRIDGE.log`, `BRIDGE_SYS.log`, `BRIDGE_CFG.log`, `BM_DFU.log`, `SM.log` | the BM bridge: bus power control, node DFU, smart-mooring | bus power-cycle times (duty-cycle tests) |
+| `SENS_IND.csv`, `SENS_AGG.csv`, `GMN.csv`, `SPC.csv`, `FLT.csv`, `LOC.csv`, `GPS.log`, `BARO.csv`, `HTU.csv`, `PWR.csv` | sensors / waves / position / power | sections 2-5 |
+
+`outbox/`, `sent/`, `msgdata/` exist on every card seen so far and were EMPTY on
+both — do not build on them.
+
+### A card whose `log/` LOOKS empty on the Mac — it probably is not
+
+`SPOT-33507C_archive.zip` (2026-09-21): `log/` had ZERO files on macOS. From the
+Spotter's own console the same card's `/log` held **5,357 files / 700 MB**,
+indexes 0000-0276, including last night's `0264_MS.log` (334 KB). Cause: the
+card has **two directory entries both named `log/`** (`ls` at `/` prints
+`D log/` twice). macOS resolves one (empty, created on a computer 2026-06-12);
+the firmware writes into the other. The card also carries `.Spotlight-V100`,
+`.fseventsd`, `.Trashes` — it was mounted read-write on a Mac at some point.
+
+Logging config was NOT the cause: `log list` was identical on a unit whose
+`log/` is visible (SPOT-31593C) — `MS`/`BM_TX`/`HDR`/`ORC`/`IRI` dest `ALL`,
+`NCD` dest `FILE`, levels DEBUG/INFO. A red GO LED from `baroErrorState:
+INIT_ERR` (`hasBarometer: 1` with no working barometer) does not stop logging.
+
+So before believing an empty `log/`:
+
+```text
+ls                      # at / — is `log/` listed twice?
+cd log  →  ls           # what the FIRMWARE sees
+cat log/index           # current power-cycle index
+log list                # per-log level + destination (a=all c=console f=file n=none)
+sd err                  # SD write/read error counters
+```
+
+Getting files off such a card WITHOUT touching it: `cat log/NNNN_MS.log` over
+the console (115200 baud ≈ 10 KB/s — fine for one MS/HDR/NCD log, hopeless for
+700 MB), or image the card (`dd`) and extract from the image. **Do not `fsck` /
+"repair" the card first** — a repair may delete the entry that holds the data.
+A clean fix is back up, then `sd format` from the Spotter console (destructive).
+
+Verified equivalence, console vs SD, same night (2026-09-21, SPOT-33507C): the
+SD's `0264_MS.log` holds 17 `Queue MS_Q_CELLULAR_ONLY is full` lines at
+07:30:31-07:30:48Z (the live console capture caught 16) and 129 accepted
+messages for a 129-message burst (console: 129). **The SD is the better record**
+— no mid-line interleaving, nothing lost to a busy console.
+
+Traps:
+- `info` prints TWO versions: `FW Version:` (the application, e.g. v2.16.8) and,
+  under `Bootloader Information:`, `Version:` (e.g. v2.16.6). A firmware update
+  does not change the bootloader line. Read `FW Version`.
+- A log's directory size can lag its real size until it is flushed/closed. Run
+  `log flush` on the console BEFORE pulling a card or cutting power.
+- A Spotter with its card pulled answers `ERR SD card is not mounted!` to every
+  log write and counts `sd err` — expected, not a fault.
+
+### `bm/<node>/` holds two different things
+
+1. `NNNN_power.log` — written by the bridge for every node, 10 s cadence
+   (section 3). The BRIDGE node's file is the real bus draw; the LAST node's own
+   file reads ~0 mA because it measures what is downstream of it. Measured on
+   bmcam004 / SPOT-33507C, 2026-09-21: recorder running 1.62 W, record + x264
+   encode 1.68 W (peak 2.07), transmit burst (camera idle, UART only) 0.87 W.
+   Energy of a window = mean(V x I) x seconds — per-cycle joules come free.
+   The first rows after a power-on carry a tick-based stamp (`38803t`) and
+   `rtc: 0` until the clock is set: parse defensively, drop rows without a
+   `T…Z` timestamp.
+2. **Anything a node writes on the `spotter/fprintf` topic**, under the file
+   name the node chose: `camera_module.log` (the HEIC runtime's debug lines),
+   `uart_test.log`, `bmcam_help_test.log`. Zero cellular cost. A camera can log
+   its own view of a cycle (sent counts, budget, errors) to the Spotter's SD
+   this way — but it cannot log a queue-full, because it is never told.
+
+### Recipe — where do queue-full rejections fall on the 5-minute grid?
+
+```python
+import glob, re, collections
+from datetime import datetime
+ts = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.(\d{3})Z")
+def phase(line):                       # seconds after the :00/:05 boundary
+    m = ts.match(line)
+    t = datetime.strptime(m.group(1), "%Y-%m-%dT%H:%M:%S")
+    return (t.minute % 5) * 60 + t.second + int(m.group(2)) / 1000
+full = [phase(l) for f in sorted(glob.glob("log/*_MS.log"))
+        for l in open(f, errors="replace") if "is full" in l and ts.match(l)]
+print(collections.Counter(int(p // 10) * 10 for p in full))
+```
+
+SPOT-31593C, 2026-07-26..29 (443 rejections, HEIC camera at a different
+pacing — a DIFFERENT unit and firmware, so a shape, not a spec): 62 % fell in
+the first 40 s after the boundary (the HDR push), almost none from +40 s to
++150 s, and a second plateau from +150 s to +300 s that is probably the
+camera's own burst outrunning the 2-slot queue. Re-measure per unit.
+
+## 11. Quick reference — the pipeline in order
 
 1. `PWR.csv` (all prefixes) → buoy solar/batt/bus V·I, `solarP/busP/netP`, battT,
    `stat`/`fault`.
