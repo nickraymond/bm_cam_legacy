@@ -51,3 +51,7 @@ runs/sprint10_soak_20260727/check_*
 # injection working directories are large, reproducible byproducts -- keep them local.
 runs/**/grvi/
 runs/**/transfer/d*/
+
+# Sprint22: the ONE committed .h264 — a synthetic ffmpeg test pattern
+# (golden wire-contract vector). Every other .h264 stays ignored.
+!tests/vectors/bm_media_h264/payload.h264

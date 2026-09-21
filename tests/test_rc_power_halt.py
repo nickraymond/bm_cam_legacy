@@ -95,6 +95,22 @@ class TestDisabled(unittest.TestCase):
         self.assertEqual(runner.calls, [])
         self.assertTrue(any("skipping halt" in l for l in log.lines))
 
+    def test_no_halt_flag_holds_a_real_halt_and_says_so(self):
+        import tempfile
+        runner, log = RecordingRunner(), RecordingLog()
+        with tempfile.NamedTemporaryFile() as flag:
+            result = perform_power_halt(enabled=True, dry_run=False, runner=runner,
+                                        log=log, no_halt_flag=flag.name)
+        self.assertEqual(result["action"], "held")
+        self.assertEqual(runner.calls, [])                      # nothing executed
+        self.assertTrue(any("halt SKIPPED" in l and "WARN" in l for l in log.lines))
+
+    def test_absent_flag_changes_nothing(self):
+        runner, log = RecordingRunner(), RecordingLog()
+        result = perform_power_halt(enabled=True, dry_run=True, runner=runner, log=log,
+                                    no_halt_flag="/nonexistent/NO_HALT")
+        self.assertEqual(result["action"], "dry_run")
+
 
 class TestDryRun(unittest.TestCase):
     def test_dry_run_logs_intent_and_executes_nothing(self):
