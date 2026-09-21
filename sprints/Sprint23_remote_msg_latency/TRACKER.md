@@ -14,15 +14,22 @@ to Sprint22 — never open its port, never send it a command.
 
 ## Phase 0 — prep + baseline (v2.16.6)
 
-- [ ] `--only <SPOT-ID>` flag on `tools/spotter_serial_monitor.py`
+- [x] `--only <SPOT-ID>` flag on `tools/spotter_serial_monitor.py` (235→246
+      lines; default unchanged; filter checked via discover_ports(), port not
+      opened — flasher had it)
 - [ ] Monitor running for SPOT-31593C only; 33507C port untouched (`lsof`)
 - [ ] FW banner + `post` / `sensors` recorded
 - [ ] `clear_command_queue` + `uptime` sent (202)
-- [ ] Baseline latency recorded (or no-delivery after 2 syncs)
+- [~] Baseline on v2.16.6 SKIPPED — Nick started the v2.16.8 flash
+      2026-09-20 before Phase 0 ran. "Before" reference = July record:
+      21–66 min E2E on SPOT-33507C, 0/16 on SPOT-31593C
+      (`runs/remote_cmd_diagnosis_20260731/REPORT.md`). Queue clear + first
+      `uptime` move to Phase 2a.
 
 ## Phase 1 — firmware update (Nick)
 
-- [ ] **GATE (Nick):** plan approved, go for update
+- [x] **GATE (Nick):** update started by Nick 2026-09-20 (flasher PID seen
+      holding `/dev/cu.usbmodemSPOT_31593C1`)
 - [ ] Monitor stopped, port free
 - [ ] bmcam000 safe (bus off / halted / unplugged)
 - [ ] Flash: `Successfully updated spotter to: 2.16.8`
