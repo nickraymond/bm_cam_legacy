@@ -104,8 +104,14 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
       re-encode, mp4 (faststart) + poster; complete 50 f/5.0 s, tail_cut
       33 f/3.3 s, mid_lost 50 f; no-ffmpeg / bad fps / headerless fail as
       results, never exceptions.
-- [ ] 1b part 2 — ingest wiring + Alembic: WAITING on Nick (where the mp4 key
-      and the disagreement flag live; how migrations run on Render).
+- [x] 1b part 2 (`0e19a49`): ingest wiring + Alembic `20260921_0009`. Nick's
+      calls: explicit nullable `media.video_key` (mp4; also the home for non-BM
+      video later), poster in `display_key`, wire metadata + disagreement flag
+      in the capture-telemetry JSON, playable seconds in `duration_seconds`.
+      Staging DB is separate from production; Render applies migrations
+      automatically on merge. Complete vector stored byte-exact (sha = golden);
+      tail cut -> 3.3 s playable; no-ffmpeg -> only the original stored.
+      NOT verified: the migration against a real Postgres (offline SQL only).
 - FINDING: PLAN's "admin poll against recorded rows" does not exist —
   `sofar-poll-once` only re-polls live Sofar. Nick chose option A: local
   end-to-end for 1b/1c, then send the golden wire file from bmcam004 over
