@@ -342,6 +342,26 @@ rebooted 16:29, 16:52, 17:09Z; first new standard report 17:15:30Z. The
 report minute has moved off :50, so the Step C bus-window rule is mis-phased
 until re-measured.
 
+### Finding 10 (hypothesis, untested) — where the report minute comes from
+
+Cross-checked with the Sprint22 session's SD `MS.log` for SPOT-33507C: boot
+04:25:44Z, post-boot LEGACY reports 04:25:47 + 04:27:29, then hourly at
+xx:29:59. This unit last night: boot ~04:48:30, post-boot burst 04:49:54,
+then hourly xx:50:00. Both fit: **hourly report = last post-boot LEGACY
+report rounded UP to the next 5- or 10-minute boundary, + 60 min, repeating.**
+Not "boot + 60 min", and not a fixed half-hour grid (ruled out by :50).
+
+Prediction: today's boot 17:09:13Z, post-boot LEGACY 17:15:30Z → hourly report
+at **18:20:00Z ± 2 s**, mailbox check ~18:20:26, a queued command at
+~18:21:12. If true, the report minute always sits on a 5/10-min boundary, so
+a bus window that starts on EVERY such boundary cannot miss it — which would
+rescue the Step C rule after a Spotter reboot.
+
+Sprint22 also showed the hourly report + sync + mailbox check holds the 2-slot
+cellular queue ~45 s: their lost keyframe (17 rejections 07:30:31–07:30:48)
+sits inside it. Same minute is the one commands NEED and image/video bursts
+must AVOID.
+
 ### Is it reliable?
 
 Repeatable on this bench: yes — 7/7, hourly report on :50:00–:50:02 seven
