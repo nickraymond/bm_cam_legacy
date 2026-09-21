@@ -154,10 +154,16 @@ def sofar_groups(entries, node_id):
 
 
 def backend_media(api, device_id):
-    out = subprocess.run(["curl", "-s", "-m", "60", f"{api}/devices/{device_id}/media?page=1&page_size=200"],
+    out = subprocess.run(["curl", "-s", "-m", "60", f"{api}/devices/{device_id}/media?page=1&page_size=72"],
                          stdout=subprocess.PIPE, check=False).stdout
     try:
-        return [m for m in json.loads(out) if m.get("type") == "video"]
+        data = json.loads(out)
+        # Staging caps page_size at 72 (200 returned a validation-error dict, and
+        # iterating that dict crashed here). Anything but a list is an API error.
+        if not isinstance(data, list):
+            print(f"[WARN] backend media query for {device_id} failed: {str(data)[:200]}")
+            return []
+        return [m for m in data if m.get("type") == "video"]
     except ValueError:
         return []
 

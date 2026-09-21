@@ -53,6 +53,12 @@ BM_Devel_Pi/video_ring.py
 BM_Devel_Pi/video_manifest.py
 BM_Devel_Pi/videoui_server.py
 BM_Devel_Pi/video_settings.py
+# Sprint22 video_tx cycle (video_tx island). rc_progressive_jpeg.py imports
+# rc_video_tx for EVERY video-mode boot and rc_run_capture_cycle.sh py_compiles
+# both, so a unit deployed without them fails the cron syntax gate: no cycle,
+# no halt (found on bmcam003/004, Sprint24 deploy 2026-09-21)
+BM_Devel_Pi/rc_video_clip.py
+BM_Devel_Pi/rc_video_tx.py
 # Sprint16 network control (tables v7): nmcli boot default / open AP /
 # HQ / session-only customer join, revert-first timer (D-S16-1..6)
 BM_Devel_Pi/network_ap.sh
