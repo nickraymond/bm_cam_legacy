@@ -5,6 +5,11 @@
       "name": "bm-command-gui",
       "url": "http://localhost:8770",
       "port": 8770
+    },
+    {
+      "name": "remote-msg-tester",
+      "url": "http://localhost:8771",
+      "port": 8771
     }
   ]
 }

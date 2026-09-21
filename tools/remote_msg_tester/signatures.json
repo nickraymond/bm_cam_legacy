@@ -1,0 +1,5 @@
+{
+  "_comment": "Console signatures the tester matches. received_regex: observed on v2.16.6 (2026-07-31, SPOT-33507C) and v2.16.8 (2026-09-21, SPOT-31593C). released_regex: the v2.16.8 queue-until-bus-on release line — NOT YET OBSERVED; leave null until Sprint23 Phase 2b captures it. Do not guess.",
+  "received_regex": "Remote message received\\((?P<n>\\d+)\\)! \"(?P<msg>.*)$",
+  "released_regex": null
+}
