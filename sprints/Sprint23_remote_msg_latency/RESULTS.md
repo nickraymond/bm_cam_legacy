@@ -279,6 +279,16 @@ across a bus-off window gives the replay time relative to `Bridge bus power:
   (already the Sprint10 doctrine, GUI retry engine); faster Pi boot does not
   plausibly reach 8 s.
 
+### Step C scoreboard (live-arrival method, window starts on the report minute)
+
+| Run | id / cmd | API send | Report queued | Pi listening | Arrived at Ebox | After boundary | Margin | Ack on console | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 2305 ping | 07:08:44 | 07:50:0x | 07:50:40.16 | 07:50:50.39 | 50 s | 10.2 s | 07:50:51.20 | PASS, ack at Sofar ≤ 08:22:49 |
+| 2 | 2306 ping | 07:51:27 | 08:50:01.82 | 08:50:39.63 | 08:51:13.68 | 73 s | 34.1 s | 08:51:13.87 | PASS |
+
+Arrival after the report boundary has now been 66, 55, 50, 73 s (n=4); the Pi
+listens at 39.6–40.7 s (n=4). Margin so far 10–34 s.
+
 ### Step C — dodge the race: make the command arrive LIVE (in progress)
 
 Idea: no firmware change. The mailbox check follows the Spotter's hourly
