@@ -120,8 +120,24 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
       placeholder, never a raw `.h264` in an `<img>`. Verified in a real
       browser against a mock API with the golden clip's real mp4 (loads 5 s
       480x270, seek decodes, images/legacy rows unaffected, no console errors).
-- [ ] 1d staging proof — needs Nick: review + merge the backend PR, then the
-      golden-wire cellular send from bmcam004 (129 msgs).
+- [x] **1d STAGING PROOF PASSED 2026-09-21** (backend PR #41 merged; Alembic
+      `20260921_0009` applied by Render; PostgreSQL 18).
+      Golden wire sent from bmcam004 via `bm_video_tx_bench_send.py --cellular`
+      (cellular-only forced): 129/129, 06:40:16 -> 06:42:30Z, inside one
+      5-minute lane; Spotter console counted 129 on `MS_Q_CELLULAR_ONLY`, no
+      queue-full, no satellite path; `note sync` 06:42:50Z.
+      - Sofar by 06:44:18Z: START + END + **126/126 unique chunks** (127 chunk
+        msgs: the chunk-0 repeat arrived too). Zero loss.
+      - Staging media **52691**: `type=video`, `format=h264`, complete, 5 s.
+        Stored original downloaded back: 36,019 B, `video/h264`, sha256
+        `5fd3ce55...ea30fefe` == golden payload, BYTE-EXACT end to end.
+      - mp4 made by the Render ingest cron (so ffmpeg IS on the cron):
+        h264/yuv420p 480x270, 50 frames, 5.0 s. Poster JPEG. Telemetry carries
+        video_fps/duration/playable/resolution/crop/crf.
+      - Live dashboard: grid shows "▶ video · 5 s" on the poster, detail view
+        plays it (seek to 2.5 s shows the burned-in 00:00:02.500 counter), the
+        96 % JPEG beside it unchanged, no console errors.
+      - CAM_0003 / BMCAM_001 / BMCAM_004 image rows unchanged after deploy.
 - FINDING: PLAN's "admin poll against recorded rows" does not exist —
   `sofar-poll-once` only re-polls live Sofar. Nick chose option A: local
   end-to-end for 1b/1c, then send the golden wire file from bmcam004 over
@@ -132,7 +148,7 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
 - [ ] Alembic: `media_format` += `h264` (idempotent)
 - [ ] dashboard: `<video>` in detail view, poster in grid, badge
 - [ ] tests incl. byte-identical JPEG regression + non-BM regression
-- [ ] **GATE: golden clip plays on staging; legacy JPEG unchanged**
+- [x] **GATE PASSED 2026-09-21: golden clip plays on staging; legacy JPEG unchanged**
 
 ## Phase 2 — device (feature branch off `development`)
 
