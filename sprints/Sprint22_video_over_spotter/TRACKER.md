@@ -93,7 +93,24 @@ path for THIS pair, or a later "video does not show up" is undiagnosable.
         clip burst (129 msgs ~ 2 m 15 s) fits INSIDE one 5-minute lane: start
         it ~15 s after a :00/:05 boundary.
 
-- [ ] parser: `.h264` allowed, `fmt` dispatch, Annex-B sniff, agreement flag
+Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed.
+
+- [x] 1a parser (`2cabd6f`): `.h264` allowed, `fmt` dispatch, Annex-B sniff,
+      agreement flag. 5/5 golden vectors match the manifest; legacy JPEG/HEIC
+      baseline recorded from the UNMODIFIED parser — every pre-existing field
+      identical. Pre-existing failure, not ours: `test_w1_partial_ingest`
+      (fake lacks `display_key`) fails the same on unmodified staging.
+- [x] 1b part 1 (`7b4f006`): `video_derivatives.py` — system ffmpeg, decode +
+      re-encode, mp4 (faststart) + poster; complete 50 f/5.0 s, tail_cut
+      33 f/3.3 s, mid_lost 50 f; no-ffmpeg / bad fps / headerless fail as
+      results, never exceptions.
+- [ ] 1b part 2 — ingest wiring + Alembic: WAITING on Nick (where the mp4 key
+      and the disagreement flag live; how migrations run on Render).
+- FINDING: PLAN's "admin poll against recorded rows" does not exist —
+  `sofar-poll-once` only re-polls live Sofar. Nick chose option A: local
+  end-to-end for 1b/1c, then send the golden wire file from bmcam004 over
+  cellular as the 1d staging proof (AFTER 1b/1c deploy, per D-S22-6).
+  Procedure: start ~15 s after a :00/:05 boundary; `note sync` after END.
 - [ ] ingest: type/format/content-type/extension, skip Pillow for video
 - [ ] display variant: mp4 + poster, partial-clip handling
 - [ ] Alembic: `media_format` += `h264` (idempotent)
