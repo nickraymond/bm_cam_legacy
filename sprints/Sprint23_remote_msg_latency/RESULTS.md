@@ -127,3 +127,42 @@ while a bus-off test is in flight.
    only be seen with the bus OFF at delivery time, so Phase 2b needs the
    power controller enabled (a `bridge cfg … commit`, which re-evaluates bus
    power immediately) — Nick's call, not done.
+
+## Camera on the bus — bmcam003 (from 06:05Z)
+
+Nick wired bmcam003 to SPOT-31593C and handed over ownership. Bus always-on.
+`Neighbor 53171fa3d81a8e6f added` 06:05:19Z; bus current 0.09–0.12 A.
+
+State found on the Pi (read-only look, nothing changed):
+
+- cron `@reboot` armed → `rc_progressive_jpeg.py --transmit`,
+  `capture_mode: "video"`, continuous 5-min clips, 1920x1080@15, 9.3 Mbps.
+- Command daemon ALREADY listening: `[CMD] subscribed topic=bmcam/cmd`; the
+  process holds `/dev/ttyAMA0` (single port owner). `TABLES_VERSION = 7`.
+- YAML says `power_halt enabled: true / dry_run: false`, but the stored
+  command `hlt=3` (developer mode, always awake) overrides it → no self-halt.
+- In video mode commands are received at once but APPLIED + ACKED only at the
+  clip boundary (`video_recorder.py` loop: record clip → boundary work →
+  daemon drain). Measured: encode 303 s + boundary 46 s.
+
+### Step A — bus ON, USB `ping` → PASS
+
+| Event | UTC |
+|---|---|
+| USB `bm pub bmcam/cmd {"id":2301,"c":"ping"} 1 1` | 06:07:30 |
+| Pi `[CMD] applied id=2301 ping=0` + `[CMD] ack sent: {"id":2301,"ok":1,…}` | ~06:12:15 (clip boundary) |
+| Spotter console `[BM_TX] Submitted spotter/transmit-data … Len: 114` | 06:12:15 |
+
+Command-to-ack 4 min 45 s, all of it waiting for the clip boundary.
+
+### Step B — bus OFF, held command, release at power-on → NOT RUN YET
+
+Open question this step answers: the Pi needs ~60 s from bus power-on to
+`subscribed`. If the Ebox replays held commands the instant the bus powers
+on, the camera is not listening yet and the command is lost. "Once the bus is
+on and ACTIVE" (Sofar's wording) may mean it waits for a neighbor — unknown.
+Needs an on-window ≥ ~7 min in video mode (boot + one clip + boundary).
+
+Blocked 06:13Z: Claude's session is not permitted to run state-changing
+commands on the Pi, so it cannot halt it cleanly before a bus power cut.
+Waiting on Nick's choice (he halts it / accepts hard cuts / grants the rule).
