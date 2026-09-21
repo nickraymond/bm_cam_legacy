@@ -53,7 +53,7 @@ Branch `feature/sprint22-phase0-contract` (off `d0359d1`, PR #54's head).
       triggers redesigned as one pipeline with a pluggable source —
       `trg 5` record+send (product), `trg 6` stored reference, `trg 7` newest
       clip. Vectors regenerated (payload sha unchanged; START gains `crop=na`).
-- [ ] **GATE: Nick signs off the contract** (open points: contract §13)
+- [x] **GATE: Nick signed off the contract 2026-09-20** (rev 2; record in contract §13)
 
 ### Carried into Phase 2 (device) — decided 2026-09-20, not started
 
@@ -66,6 +66,13 @@ Branch `feature/sprint22-phase0-contract` (off `d0359d1`, PR #54's head).
 - [ ] stored reference video on the unit = the committed golden payload
 
 ## Phase 1 — backend (feature branch off `staging`)
+
+Pre-flight (Nick, 2026-09-20) — BEFORE any backend code: prove the plain JPEG
+path for THIS pair, or a later "video does not show up" is undiagnosable.
+
+- [ ] bmcam004 registered to SPOT-33507C in the backend (find the tool URL)
+- [ ] admin dashboard links to the registration tool
+- [ ] bmcam004 sends one JPEG -> visible on the staging front end
 
 - [ ] parser: `.h264` allowed, `fmt` dispatch, Annex-B sniff, agreement flag
 - [ ] ingest: type/format/content-type/extension, skip Pillow for video
