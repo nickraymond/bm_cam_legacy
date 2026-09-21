@@ -512,6 +512,55 @@ it reports what is on the card, not what the limits allow.
 
 ---
 
+### TODO-BM-018 — Disable cloud-init on bmcam images to cut ~6 s of boot (captured 2026-09-21, Sprint23)
+**Status:** open
+**Priority:** low-medium / fleet energy + command latency
+**Context:** Measured on bmcam003 (Trixie) with `systemd-analyze`, read-only: kernel 5.9 s + userspace 29.8 s. `cron.service` (which starts `rc_run_capture_cycle.sh`) comes up at 12.3 s userspace, and ~6 s of that critical chain is cloud-init (`cloud-init-main` 4.0 s, `-local` 1.0 s, `-network` 0.9 s). cloud-init is Raspberry Pi Imager's first-boot provisioning; `cloud-init status` = done, datasource NoCloud from `/boot/firmware/{user-data,meta-data,network-config}`. On every later boot it re-checks and does nothing. Nothing of ours depends on it (only `cloud-init.target` <- `multi-user.target`). It is ~6 s of bus-on energy per cycle, per unit. It does NOT close the Sprint23 replay race (Spotter v2.16.8 replays held `bm` commands ~8 s after bus power-on; Pi subscribes at ~40 s) — see `sprints/Sprint23_remote_msg_latency/RESULTS.md`.
+
+**Proposed change (reversible):** `sudo touch /etc/cloud/cloud-init.disabled` (remove the file to undo). Belongs in `bmcam-provision` after first boot has completed.
+
+**Risk to check first:** the Pi has netplan files (`/etc/netplan/90-NM-*.yaml`) that originated from `network-config`. The WiFi profile exists as a normal NetworkManager connection (`nereus-hq.nmconnection`), so it should persist — verify on a bench unit with the Spotter USB console attached before any field unit.
+
+**Acceptance criteria:**
+- Before/after `systemd-analyze` and power-on -> `[CMD] subscribed` time recorded on one bench unit.
+- WiFi client + hotspot fallback + Tailscale still come up over 3 consecutive cold boots.
+- `bmcam-provision` skill updated; fleet rollout decided separately.
+- Other boot-time candidates noted, not done: NetworkManager 13.9 s (off the critical chain), app start -> subscribe (~15 s, unprofiled).
+
+---
+
+### TODO-BM-017 — Mote-side command cache so held remote commands survive the Pi's boot (captured 2026-09-21, Sprint23)
+**Status:** open
+**Priority:** high for remote configuration of duty-cycled units
+**Context:** Spotter FW v2.16.8 holds a remote `bm …` command that arrives while the BM bus is off, then replays it after a fixed **10 s grace period** from BM network boot (Sofar engineer via Nick, 2026-09-21: not configurable). Measured on SPOT-31593C + bmcam003: replay ~8 s after `Bridge bus power: 1`; the Pi's command daemon subscribes at 38.0 ± 1.1 s. Result: held commands are lost, silently (2/2, daemon `frames=0`). Only commands that happen to arrive while the unit is awake and listening get through (7/7). Evidence: `sprints/Sprint23_remote_msg_latency/RESULTS.md` (Step B, Step C, finding 11). TODO-BM-018 (cloud-init) saves ~6 s and cannot close a ~28 s gap.
+
+**Proposed fix (Sofar's recommendation; Sofar offered to help implement):** the camera's BM mote (`serial_bridge@ENG-v0.13.11-6-g54aff0a3`, alive ~1 s after bus power) caches the message for the command topic and forwards it to the Pi once the Pi is up.
+
+**Design note (Nick + Claude, 2026-09-21; sent to Matt at Sofar as two options — nothing built):**
+- *Option A — config key (simplest, proposed MVP).* One key on the mote names the topic(s) to cache (`bmcam/cmd`). The mote subscribes to it itself at boot, queues what arrives, and flushes to the Pi when the Pi's subscribe frame comes in. Inspectable and settable with `bm cfg` from the Spotter console, which also means it can be set remotely. The key name is a placeholder; Matt owns the firmware.
+- *Option B — learned list (Nick's idea, zero-config for a fleet).* The mote persists the topics the Pi subscribed to on the previous boot, so from the second boot on it is already listening at 1 s. First boot has an empty list; that is acceptable. The Pi keeps the list current.
+- Trap 1, applies to both: **caching must be per topic.** The daemon also subscribes to the Spotter UTC time topic; a cached, ~30 s old time message flushed at subscribe would set the Pi's clock wrong. With option B: learn the whole list, cache only a prefix (`bmcam/`) or topics the Pi flags.
+- Trap 2, option B only: the mote cannot know when the Pi's list is complete. Preferred answer: learning is additive-only, plus an explicit clear command. Alternatives: a fixed settle window after the first subscribe frame (fragile), or a new "list complete" frame in bm_serial (clean, more work).
+- Cache a short QUEUE (~8), not just the last message: the Ebox replays every held command in order, and order matters (`hlt` then `twn`).
+- Cache only until the Pi subscribes; flush once, then pass through live. The daemon already dedupes command ids, which covers any overlap.
+- Write flash only when the list changes (subscriptions almost never change).
+- `bm resources <node_id>` (new in the v2.16.8 `help`) looks like the way to verify what the mote is subscribed to — untested.
+
+**Open questions (unverified — the mote firmware has not been read):**
+- The `bmcam/cmd` subscription is created by the Pi at runtime via the bm_serial subscribe frame. At the 10 s replay the mote holds no subscription. Does the mote need to subscribe itself at boot from a stored topic list / config key?
+- Who builds our `serial_bridge` ENG firmware — patchable by Sofar, or built by us from the open Bristlemouth repo?
+- Cache depth: last message per topic (enough for one-command-in-flight) vs a small queue.
+- Flush trigger: the Pi's subscribe frame, or an explicit "ready" from the Pi.
+- Interaction with the daemon's duplicate-id handling (a flushed command may also be retried by the operator).
+
+**Acceptance criteria:**
+- With the bus OFF at arrival: command is held by the Ebox, replayed at 10 s, cached by the mote, delivered to the Pi after subscribe, acked. Repeat ≥ 5 times on one bench rig, 0 lost.
+- A command arriving live (bus on, Pi listening) still works and is not delivered twice.
+- No effect on image/video uplink pacing (check `MS_Q_CELLULAR_ONLY is full` counts before/after).
+- Until this ships: operator-side retry-until-ack on the same id remains the delivery doctrine (dashboard requirement).
+
+---
+
 ### TODO-CAM-001 — Capture-side frame stacking + red-channel HDR bracket (Sprint 20, captured 2026-09-01)
 
 **Problem:** transmitted 8-bit JPEGs from the AOML reef carry white-patch

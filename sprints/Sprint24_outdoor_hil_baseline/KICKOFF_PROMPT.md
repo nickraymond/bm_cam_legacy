@@ -1,5 +1,11 @@
 # Sprint24 kickoff — outdoor HIL baseline (video uplink + command downlink)
 
+> **SCOPE CHANGE — Nick, 2026-09-21: remote commands are OUT of this
+> baseline.** Do NOT do "PLAN step 2" (the command daemon inside the
+> `video_tx` cycle) and do NOT run the 1-ping/hour overlay. No code change is
+> a gate for this test any more. Read the banner at the top of `PLAN.md`
+> first; where it and the text below disagree, the banner wins.
+
 You are starting Sprint24. Two earlier sessions did the groundwork; Nick has
 minted the plan. The design is decided — do not re-litigate it. Owner and
 approval gate: **Nick**. Give him your plan before any work and wait for his go.

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remote Message Tester</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --ink: #16202c; --dim: #5d6b7a;
+    --line: #d9dee5; --accent: #0b6bcb; --ok: #12805c; --warn: #b26a00;
+    --bad: #b3261e; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f141a; --card: #18202a; --ink: #e6ebf1; --dim: #93a1b1;
+            --line: #2a3644; --accent: #5aa9f5; --ok: #4fd1a5;
+            --warn: #f0b252; --bad: #ff8a80; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.45 -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  .sub { color: var(--dim); margin: 0 0 18px; font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line);
+          border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: var(--dim);
+          margin: 10px 0 4px; font-weight: 600; letter-spacing: .02em; }
+  input[type=text], input[type=password] {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--line);
+    border-radius: 7px; background: var(--bg); color: var(--ink);
+    font: 14px var(--mono); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+  .checks { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px;
+            font-size: 13px; }
+  .checks label { display: flex; gap: 6px; align-items: center; margin: 0;
+                  font-weight: 400; color: var(--ink); font-size: 13px; }
+  button { margin-top: 14px; padding: 10px 22px; border: 0; border-radius: 7px;
+           background: var(--accent); color: #fff; font-size: 15px;
+           font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--bad);
+                 border: 1px solid var(--line); font-size: 13px;
+                 padding: 6px 12px; margin: 0 0 0 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; }
+  .chip { padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line);
+          color: var(--dim); }
+  .chip.ok { color: var(--ok); border-color: var(--ok); }
+  .chip.bad { color: var(--bad); border-color: var(--bad); }
+  .chip.warn { color: var(--warn); border-color: var(--warn); }
+  #err { color: var(--bad); font-size: 13px; margin-top: 10px; min-height: 18px; }
+  #live { display: none; }
+  .badge { display: inline-block; padding: 5px 12px; border-radius: 6px;
+           font-weight: 700; font-size: 13px; letter-spacing: .04em; }
+  .badge.wait { background: var(--warn); color: #000; }
+  .badge.ok { background: var(--ok); color: #fff; }
+  .badge.bad { background: var(--bad); color: #fff; }
+  .timer { font: 700 44px var(--mono); margin: 8px 0 2px;
+           font-variant-numeric: tabular-nums; }
+  .steps { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px;
+           color: var(--dim); margin-top: 8px; }
+  .steps b { color: var(--ink); font-family: var(--mono); font-weight: 600; }
+  pre { background: var(--bg); border: 1px solid var(--line); border-radius: 7px;
+        padding: 9px; font: 12px var(--mono); overflow-x: auto; margin: 10px 0 0;
+        white-space: pre-wrap; word-break: break-all; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line);
+           white-space: nowrap; }
+  th { color: var(--dim); font-weight: 600; }
+  td.m { font-family: var(--mono); }
+  td.msg { max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
+  .hrow { display: flex; justify-content: space-between; align-items: baseline;
+          margin-bottom: 8px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Remote Message Tester</h1>
+  <p class="sub">Sofar Command API &rarr; cellular mailbox &rarr; Spotter Ebox
+    console. Times how long a command takes to reach the Ebox.</p>
+
+  <div class="card">
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <div>
+        <label for="sid">SPOTTER ID</label>
+        <input type="text" id="sid" value="SPOT-31593C" autocomplete="off">
+      </div>
+      <div>
+        <label for="key">API KEY (optional)</label>
+        <input type="password" id="key" autocomplete="off"
+               placeholder="blank = use the server's environment token">
+      </div>
+    </div>
+    <label for="msg">COMMAND (one Spotter console line)</label>
+    <input type="text" id="msg" value="uptime" autocomplete="off"
+           placeholder='e.g.  uptime   or   bm pub bmcam/cmd {"id":1,"c":"ping"} 1 1'>
+    <div class="checks">
+      <label><input type="checkbox" id="clear"> Clear this Spotter's pending
+        command queue first</label>
+      <label><input type="checkbox" id="reboot"> Allow reboot / commit-class
+        commands</label>
+    </div>
+    <button id="send">Send</button>
+    <div id="err"></div>
+  </div>
+
+  <div class="card" id="live">
+    <span class="badge" id="badge"></span>
+    <button class="ghost" id="abandon">Abandon this test</button>
+    <div class="timer" id="timer">0:00</div>
+    <div class="steps" id="steps"></div>
+    <pre id="line" hidden></pre>
+  </div>
+
+  <div class="card">
+    <div class="hrow">
+      <strong>Test log</strong>
+      <a href="/latency_summary.csv" download>Download CSV</a>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Sent (UTC)</th><th>Spotter</th><th>Command</th>
+          <th>HTTP</th><th>Status</th><th>Received (UTC)</th>
+          <th>Latency</th><th>Bus release</th><th>Firmware</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let state = null, skewMs = 0;
+
+const STATUS_TEXT = {
+  sent: ["QUEUED AT SOFAR — WAITING FOR EBOX", "wait"],
+  received_waiting_release: ["RECEIVED BY EBOX — WAITING FOR BUS RELEASE", "wait"],
+  received: ["RECEIVED BY EBOX", "ok"],
+  released: ["RELEASED TO BUS", "ok"],
+  send_failed: ["SEND FAILED", "bad"],
+  abandoned: ["ABANDONED", "bad"],
+};
+
+function fmtDur(s) {
+  if (s == null) return "—";
+  s = Math.max(0, Math.round(s));
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0");
+}
+function esc(t) {
+  return String(t ?? "").replace(/[&<>"]/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+function chip(text, cls) { return `<span class="chip ${cls}">${esc(text)}</span>`; }
+
+function render() {
+  if (!state) return;
+  const c = [];
+  if (state.fake_send) c.push(chip("FAKE SEND MODE — nothing reaches Sofar", "warn"));
+  c.push(state.monitor_ok
+    ? chip("serial monitor live (" + Math.round(state.monitor_log_age_s) + " s)", "ok")
+    : chip(state.monitor_log_age_s == null ? "no console log for this Spotter"
+           : "console log stale " + fmtDur(state.monitor_log_age_s), "bad"));
+  c.push(state.token_env_set ? chip(state.token_env_name + " set", "ok")
+                             : chip("no environment token — type an API key", "warn"));
+  if (state.cooldown_s > 0) c.push(chip("Sofar rate limit: " + state.cooldown_s + " s", "warn"));
+  if (!state.release_signature_known) c.push(chip("bus-release signature not characterized yet", ""));
+  $("chips").innerHTML = c.join("");
+
+  const sid = $("sid").value.trim().toUpperCase();
+  const mine = state.records.filter(r => r.spotter_id === sid);
+  const cur = mine[0];
+  const pending = cur && (cur.status === "sent" || cur.status === "received_waiting_release");
+  $("send").disabled = pending || (state.cooldown_s > 0 && !state.fake_send);
+
+  $("live").style.display = cur ? "block" : "none";
+  if (cur) {
+    const [text, cls] = STATUS_TEXT[cur.status] || [cur.status, "wait"];
+    $("badge").textContent = text; $("badge").className = "badge " + cls;
+    $("abandon").style.display = pending ? "inline-block" : "none";
+    $("abandon").dataset.id = cur.test_id;
+    const now = Date.now() + skewMs;
+    let secs = cur.latency_s;
+    if (cur.status === "sent") secs = (now - cur.sent_ts * 1000) / 1000;
+    if (cur.status === "received_waiting_release") secs = (now - cur.sent_ts * 1000) / 1000;
+    if (cur.status === "released") secs = cur.release_latency_s;
+    $("timer").textContent = fmtDur(secs);
+    $("steps").innerHTML =
+      `<span>Command <b>${esc(cur.message)}</b></span>` +
+      `<span>Sent <b>${esc(cur.sent_utc)}</b></span>` +
+      `<span>Received <b>${esc(cur.received_utc || "—")}</b></span>` +
+      `<span>Ebox latency <b>${cur.latency_s != null ? fmtDur(cur.latency_s) + " (" + cur.latency_s + " s)" : "—"}</b></span>` +
+      (cur.released_utc ? `<span>Bus release <b>${esc(cur.released_utc)}</b> (+${fmtDur(cur.release_latency_s)})</span>` : "") +
+      (cur.sofar_msg_id ? `<span>Sofar id <b>${esc(cur.sofar_msg_id)}</b></span>` : "");
+    const ln = cur.matched_console_line || (cur.status === "send_failed" ? cur.api_response : "");
+    $("line").hidden = !ln; $("line").textContent = ln;
+  }
+
+  $("rows").innerHTML = state.records.map(r => `<tr>
+    <td class="m">${esc(r.sent_utc)}</td><td class="m">${esc(r.spotter_id)}</td>
+    <td class="m msg" title="${esc(r.message)}">${esc(r.message)}${r.clear_command_queue ? " ⟲" : ""}</td>
+    <td class="m">${esc(r.http_status)}</td>
+    <td>${esc((STATUS_TEXT[r.status] || [r.status])[0].split(" — ")[0])}${r.fake_send ? " (fake)" : ""}</td>
+    <td class="m">${esc(r.received_utc || "—")}</td>
+    <td class="m">${r.latency_s != null ? fmtDur(r.latency_s) : "—"}</td>
+    <td class="m">${r.release_latency_s != null ? fmtDur(r.release_latency_s) : "—"}</td>
+    <td class="m">${esc(r.fw_version || "—")}</td></tr>`).join("")
+    || `<tr><td colspan="9" style="color:var(--dim)">No tests yet.</td></tr>`;
+}
+
+async function poll() {
+  try {
+    const sid = encodeURIComponent($("sid").value.trim());
+    const r = await fetch("/api/status?spotter_id=" + sid, { cache: "no-store" });
+    state = await r.json();
+    skewMs = Date.parse(state.now_utc) - Date.now();
+    if (Math.abs(skewMs) < 1500) skewMs = 0;  // now_utc has 1 s resolution
+  } catch (e) {
+    $("chips").innerHTML = chip("tester server not reachable", "bad");
+    return;
+  }
+  render();
+}
+
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  return j.result;
+}
+
+$("send").onclick = async () => {
+  $("err").textContent = ""; $("send").disabled = true;
+  try {
+    await post("/api/send", {
+      spotter_id: $("sid").value, api_key: $("key").value,
+      message: $("msg").value, clear_command_queue: $("clear").checked,
+      allow_reboot_class: $("reboot").checked });
+    $("clear").checked = false; $("reboot").checked = false;
+  } catch (e) { $("err").textContent = e.message; }
+  await poll();
+};
+$("abandon").onclick = async () => {
+  if (!confirm("Stop waiting for this test? The command may still be queued at Sofar.")) return;
+  try { $("err").textContent = await post("/api/abandon", { test_id: $("abandon").dataset.id }); }
+  catch (e) { $("err").textContent = e.message; }
+  await poll();
+};
+
+poll();
+setInterval(poll, 1000);
+setInterval(render, 250);
+</script>
+</body>
+</html>
