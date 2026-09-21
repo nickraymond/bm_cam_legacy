@@ -28,6 +28,8 @@ exec >> "$LOG_FILE" 2>&1
 echo "============================================================"
 echo "[RC-CRON] Sprint08 progressive-JPEG RC cycle starting"
 echo "[RC-CRON] start_utc=$(date -u --iso-8601=seconds 2>/dev/null || date)"
+# Sprint22: seconds from kernel boot to this line = "power-on to runtime start".
+echo "[RC-CRON] uptime_s=$(cut -d' ' -f1 /proc/uptime 2>/dev/null || echo na)"
 echo "[RC-CRON] user=$(whoami)"
 echo "[RC-CRON] hostname=$(hostname 2>/dev/null || echo unknown_hostname)"
 echo "[RC-CRON] app_dir=$APP_DIR"
