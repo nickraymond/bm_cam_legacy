@@ -287,8 +287,61 @@ across a bus-off window gives the replay time relative to `Bridge bus power:
 | 2 | 2306 ping | 07:51:27 | 08:50:01.82 | 08:50:39.63 | 08:51:13.68 | 73 s | 34.1 s | 08:51:13.87 | PASS |
 | 3 | 2307 ping | 08:51:56 | 09:50:02.02 | 09:50:39.09 | 09:51:13.52 | 73 s | 34.4 s | 09:51:13.70 | PASS |
 
-Runs 4–8 (ids 2308–2312) run unattended via `overnight_loop.sh`; raw output in
+| 4 | 2308 ping | 09:51:49 | 10:50:02 | 10:50:37.9* | 10:51:13.71 | 71.5 s | 35.1 s | +0.34 s | PASS |
+| 5 | 2309 ping | 10:52:31 | 11:50:02 | 11:50:37.5* | 11:51:13.54 | 71.1 s | 35.5 s | +0.96 s | PASS |
+| 6 | 2310 ping | 11:52:29 | 12:50:02 | 12:50:37.3* | 12:51:13.89 | 71.3 s | 36.3 s | +0.08 s | PASS |
+| 7 | 2311 ping | 12:52:25 | 13:50:02 | 13:50:37.0* | 13:51:16.72 | 73.9 s | 39.2 s | +0.78 s | PASS |
+| 8 | 2312 ping | 13:52:30 | — | — | UNOBSERVED | | | | NO RESULT |
+
+(* = bus-on time + the Pi's `spotter UTC decoded` offset.) Runs 4–8 ran
+unattended via `overnight_loop.sh`; raw output in
 `runs/remote_msg_latency/overnight_20260921.log`.
+
+Run 8: the USB console dropped at 14:47:58Z (`port LOST`; `pmset` shows the
+Mac on battery and asleep from 14:44Z, woke 15:50Z; the `/dev/cu` device is
+gone and bmcam003 is unreachable from the Mac's current network). The 14:51Z
+delivery could not be observed, and no ack for 2312 is at the Sofar backend
+as of 16:15Z. Cause unknown — not counted as pass or fail.
+
+**All 7 observed runs: delivered live, acked by the camera, and all 7 acks
+are readable from the Sofar API** (`sofar_poll_acks`, 16:15Z).
+
+### Step C timing statistics (n = 7, sample SD)
+
+| Element | Mean | SD | Min | Max |
+|---|---|---|---|---|
+| Pi listening after bus power-on | 38.0 s | 1.1 s | 36.5 | 39.6 |
+| Command at Ebox after the hourly report | 68.6 s | 8.8 s | 48.8 | 73.9 |
+| Command at Ebox after bus power-on | 70.2 s | 9.0 s | 49.9 | 75.7 |
+| **Margin (arrival − Pi listening)** | **32.1 s** | **9.8 s** | **10.3** | 39.2 |
+| Ebox arrival → camera ack on console | 0.48 s | 0.36 s | 0.08 | 0.96 |
+| API send → Ebox | 56.7 min | 6.5 min | 42.1 | 59.8 |
+
+Run 1 is the outlier (arrived 48.8 s after the report; the other six are
+71.1–73.9 s). Excluding it (n = 6): after-report 71.9 ± 1.0 s, margin
+35.8 ± 1.9 s, API → Ebox 59.1 ± 0.4 min. Why run 1 was 23 s early is not
+known; it was the first hourly report after the 07:06Z bridge commit.
+
+API → Ebox is not a property of the link: each ping was sent ~2 min after the
+previous report, so it measures "time until the next :50 report". Sent at a
+random moment, expect 0–60 min, ~30 min on average, plus ~72 s.
+
+### Is it reliable?
+
+Repeatable on this bench: yes — 7/7, hourly report on :50:00–:50:02 seven
+hours running, Pi subscribe time SD 1.1 s. Reliable for deployment: not
+shown yet. Known ways it breaks:
+
+1. The report minute is anchored to the Spotter's boot, not the wall clock
+   (04:49:54 post-boot → :50). A Spotter reboot moves it, and July's logs
+   show this Spotter model rebooting several times a day ("source 7").
+   Tonight: zero reboots in 9 h. After a reboot the bus window no longer
+   starts on the report minute and commands go back to being held and lost.
+2. A command that lands before ~38 s is lost (live pass-through, nobody
+   listening). Worst case seen: 10 s of margin.
+3. n = 7, one Spotter, one camera, one night, good bench cellular, stills mode
+   with halt OFF, `ping` only.
+4. There is no retry anywhere in the path; a lost command is silent.
 
 Arrival after the report boundary has now been 66, 55, 50, 73 s (n=4); the Pi
 listens at 39.6–40.7 s (n=4). Margin so far 10–34 s.
