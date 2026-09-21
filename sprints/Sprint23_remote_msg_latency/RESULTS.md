@@ -309,8 +309,12 @@ bus → camera → ack.**
 - Margin between "Pi listening" and "command arrives": **10.2 s**. Thin. The
   command landed 50 s after the report boundary this time (55 s and 66 s on
   the two earlier hourly deliveries), so the margin has ranged ~10–26 s.
-- Not yet checked: the ack's arrival at the Sofar backend (`sofar_poll_acks`,
-  13–30 min lag).
+- **Round trip closed:** ack 2305 readable from the Sofar API
+  (`tools/sofar_poll_acks.py`) by 08:22:49Z: `id=2305 ok=1
+  node=53171fa3d81a8e6f`, stamped 07:50:51Z. Backend lag ≤ 32 min (polled
+  every 2 min from 07:52). Acks 2301 and 2302 (USB-injected) were also
+  there. Full loop API → camera → API: sent 07:08:44, ack visible ≤ 08:22:49
+  = ≤ 74 min, of which 42 min was the wait for the hourly report.
 
 Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
