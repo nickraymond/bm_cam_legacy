@@ -163,6 +163,35 @@ on, the camera is not listening yet and the command is lost. "Once the bus is
 on and ACTIVE" (Sofar's wording) may mean it waits for a neighbor — unknown.
 Needs an on-window ≥ ~7 min in video mode (boot + one clip + boundary).
 
-Blocked 06:13Z: Claude's session is not permitted to run state-changing
+06:26Z, Nick's decision: switch bmcam003 to stills, keep halt OFF (`hlt=3`),
+accept hard power cuts (OK as long as no MP4 is mid-write).
+
+- 06:26:30Z `capture_mode` "video" → **"progressive_jpeg"** via the camera's
+  own settings page (:8080, "Save and restart now" — clean restart, recorder
+  stopped properly). Backup on the Pi:
+  `camera_schedule.yaml.before_gui_20260921T062630Z`. Restore = set Camera
+  mode back to Video in the same page (the page only runs in video mode, so
+  restoring needs the YAML edited or the backup copied back on the Pi).
+- Verified after restart: `[RC] capture_mode=progressive_jpeg`,
+  `power_halt: enabled=False … hlt=3`, `[CMD] subscribed topic=bmcam/cmd`.
+
+**Finding 7 — a stills unit outside its transmit window is deaf.** Window is
+10:00–15:00 America/New_York; at 02:27 local the cycle logged `a=skip_win`,
+stopped the daemon and exited after **3.1 s** (`[RC] cycle end: elapsed=3.1s`).
+With halt off the Pi stays up but nothing owns the UART, and the settings UI
+is down too (it lives inside the video session). The documented un-brick,
+`twn=2` (ALL DAY), is itself a command and needs a listener. Product
+implication for remote config: outside the window a unit listens ~3 s per
+boot, so a remote command — including the one that widens the window — has
+almost no chance. Worth a TODO: keep the bounded listen tail on skipped
+cycles.
+
+Unblock (needs one command run on the Pi by Nick): a manual bench cycle,
+`python3 -u rc_progressive_jpeg.py --bench-commands --skip-time-window`
+(no image transmit, holds the 150 s listen window). Claude sends `twn=2` over
+USB inside that window; it persists in `bm_command_state.json`, and every
+later boot runs a full cycle at any hour.
+
+Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
 Waiting on Nick's choice (he halts it / accepts hard cuts / grants the rule).
