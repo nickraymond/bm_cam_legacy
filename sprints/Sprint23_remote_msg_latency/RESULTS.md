@@ -192,6 +192,25 @@ Unblock (needs one command run on the Pi by Nick): a manual bench cycle,
 USB inside that window; it persists in `bm_command_state.json`, and every
 later boot runs a full cycle at any hour.
 
+06:29Z unblocked: Nick started the bench cycle; USB
+`bm pub bmcam/cmd {"id":2302,"c":"twn","v":2} 1 1` at 06:29:17Z → Spotter
+console ack `[BM_TX] Submitted spotter/transmit-data … Len: 114` at
+06:29:18Z (**~1 s command-to-ack in stills mode**, vs ~5 min in video mode).
+State file read back: `twn=2, hlt=3`, 2302 in `applied_ids`.
+
+### Step B — run 1 (in progress)
+
+Bus schedule 06:29:41Z: interval 1200000 / duration 600000 / controller 1
+(10 min on / 10 min off, windows :00 :20 :40). Read back OK. Bus OFF
+06:32:04Z, `power off for: 484000` → on ~06:40:09Z.
+
+| Event | UTC |
+|---|---|
+| USB `bm pub bmcam/cmd {"id":2303,"c":"ping"} 1 1`, bus OFF | 06:32:13 |
+| Console `[BRIDGE] [INFO] Queuing serial command: …2303…` | 06:32:14 |
+| Remote `…{"id":2304,"c":"ping"}…` via tester, HTTP 202 | 06:32:21 |
+| Bus ON / Pi boots / does 2303 get acked? | (pending ~06:40–06:42) |
+
 Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
 Waiting on Nick's choice (he halts it / accepts hard cuts / grants the rule).
