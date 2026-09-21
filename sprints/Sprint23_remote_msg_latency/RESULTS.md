@@ -292,6 +292,26 @@ Remote `bm pub bmcam/cmd {"id":2305,"c":"ping"} 1 1` sent 07:08:44Z (202),
 after the commit's own mailbox checks (07:06:58, 07:07:06) and with the bus
 off. Expected: delivery ~07:50:55, ack within seconds.
 
+**Step C run 1 — PASS. First complete remote command: Sofar API → Ebox →
+bus → camera → ack.**
+
+| Event | UTC (Spotter clock where ms shown) |
+|---|---|
+| API send, HTTP 202 (id 2305) | 07:08:44 |
+| `Bridge bus power: 1` | 07:50:00.52 |
+| Pi `[CMD] spotter UTC decoded` (daemon up, subscribed) | 07:50:40.16 |
+| `Remote message received(53)! "bm pub bmcam/cmd {"id":2305,"c":"ping"} 1 1` + `id:38190` — NOT queued (bus live) | 07:50:50.39 |
+| Pi `[CMD] applied id=2305 ping=0` / `ack sent: {"id":2305,"ok":1,…}` | ~07:50:51 |
+| Spotter `[BM_TX] Submitted spotter/transmit-data … Len: 114` (the ack) | 07:50:51.20 |
+
+- API → Ebox: 2525 s (42.1 min) — all of it waiting for the :50 hourly report.
+- Ebox → camera ack: **0.8 s**.
+- Margin between "Pi listening" and "command arrives": **10.2 s**. Thin. The
+  command landed 50 s after the report boundary this time (55 s and 66 s on
+  the two earlier hourly deliveries), so the margin has ranged ~10–26 s.
+- Not yet checked: the ack's arrival at the Sofar backend (`sofar_poll_acks`,
+  13–30 min lag).
+
 Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
 Waiting on Nick's choice (he halts it / accepts hard cuts / grants the rule).
