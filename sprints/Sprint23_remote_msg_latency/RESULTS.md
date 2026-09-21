@@ -260,11 +260,37 @@ across a bus-off window gives the replay time relative to `Bridge bus power:
 - **bmcam003's Pi subscribes ~40 s after power-on** (06:40 cycle: power
   06:40:01, subscribed ~06:40:40). The replay lands ~32 s before anyone is
   listening. Explanation (a) confirmed; this is why 2303 was lost.
+- 07:00 cycle confirmed the same loss for the REMOTE held ping 2304: Pi
+  `spotter UTC decoded: 07:00:40.5`, `[CMD] stopped: applied=0 … frames=0`.
+- Not configurable from the console on v2.16.8 (checked 07:04Z): nothing in
+  `help` (saved output: 128 lines; `bm` gained only `resources`), none of the
+  bridge's 16 system keys, none of the Spotter's 142 `cfg` keys.
+- bmcam003 boot budget (`systemd-analyze`, read-only): kernel 5.9 s +
+  userspace 29.8 s; `cron.service` starts at 12.3 s userspace, ~6 s of that
+  chain is cloud-init; NetworkManager 13.9 s is off the critical chain. App
+  start → `subscribed` takes the rest, landing at ~40 s from bus power. GPU
+  firmware/bootloader time before the kernel is NOT measured. A 5 s boot is
+  not reachable on this OS: kernel alone is 5.9 s. Trimming cloud-init and
+  starting a tiny early listener might reach ~12–15 s (estimate, untested),
+  still slower than the ~8 s replay.
 - Gap to close: ~32 s. Options, none built: Sofar-side delay/replay-on-
   subscribe (asked via Nick); the camera's BM node (`serial_bridge`, up in
   1 s) buffering the last message per topic; operator-side retry-until-ack
   (already the Sprint10 doctrine, GUI retry engine); faster Pi boot does not
   plausibly reach 8 s.
+
+### Step C — dodge the race: make the command arrive LIVE (in progress)
+
+Idea: no firmware change. The mailbox check follows the Spotter's hourly
+report at :50:00, and the message lands 55–66 s later (measured 05:51:06,
+06:50:55). If a bus window STARTS at :50:00, the Pi subscribes at ~:50:40 and
+the command arrives ~:50:55 onto a live bus with a listener — margin 15–26 s.
+
+07:06:10Z schedule: interval 600000 / duration 360000 (6 min on / 4 min off,
+windows :00 :10 … :50; a stills cycle needs ~5.5 min). Read back OK.
+Remote `bm pub bmcam/cmd {"id":2305,"c":"ping"} 1 1` sent 07:08:44Z (202),
+after the commit's own mailbox checks (07:06:58, 07:07:06) and with the bus
+off. Expected: delivery ~07:50:55, ack within seconds.
 
 Earlier block, 06:13Z: Claude's session is not permitted to run state-changing
 commands on the Pi, so it cannot halt it cleanly before a bus power cut.
