@@ -41,6 +41,8 @@ from rc_uplink_messages import (
     build_rc_end_message,
     build_rc_incomplete_message,
     build_rc_start_message,
+    build_rc_video_end_message,
+    build_rc_video_start_message,
     reason_code,
 )
 
@@ -195,3 +197,104 @@ def transmit_progressive_image(
         "incomplete_emitted": incomplete_emitted,
         "uart_duration_sec": clock() - uart_start,
     }
+
+
+# ---------------------------------------------------------------------------
+# Sprint22 — video media group (docs/bm_media_wire_contract.md)
+# ---------------------------------------------------------------------------
+# Paced slots a clip needs besides its chunks: START + the chunk-0 repeat + END.
+VIDEO_OVERHEAD_MSGS = 3
+
+
+def video_burst_messages(payload, chunk_b64_chars):
+    """Every paced message one clip puts on the wire."""
+    return len(split_base64_chunks(payload, chunk_b64_chars)) + VIDEO_OVERHEAD_MSGS
+
+
+def transmit_video_clip(
+    tx,
+    budget,
+    *,
+    payload,
+    file_name,
+    fps,
+    dur,
+    res,
+    crop,
+    br=None,
+    crf=None,
+    chunk_b64_chars,
+    delay_seconds,
+    start_metadata=None,
+    cpu_temp_text=None,
+    current_timestamp=None,
+    sleep_fn=time.sleep,
+    clock=time.monotonic,
+):
+    """Send one H.264 clip: START, chunks, chunk 0 AGAIN, END (contract sections 1 + 5).
+
+    Separate from transmit_progressive_image on purpose — that loop and its
+    wire are pinned byte-identical by test and carry JPEG-only logic (the
+    bounded partial send, `a=inc`). Same framing (`<I{i}>{chunk}\\n`, legacy
+    form, no gid) and the same pacing pattern (sleep after START and after
+    every chunk, not after END).
+
+    A clip that does not fit the remaining budget is REFUSED before START —
+    never truncated silently (the encoder already sized it; not fitting here
+    means the budget moved). Once started, the per-chunk guard still keeps
+    room for END, so a stall closes the group honestly with
+    sent_buffers < length and the backend stores a partial clip.
+
+    Returns {planned, sent, started, complete_send, repeat_sent, refused_reason,
+             uart_duration_sec}.
+    """
+    delay_seconds = float(delay_seconds)
+    chunks = split_base64_chunks(payload, chunk_b64_chars)
+    planned = len(chunks)
+    uart_start = clock()
+    result = {"planned": planned, "sent": 0, "started": False, "complete_send": False,
+              "repeat_sent": False, "refused_reason": None, "uart_duration_sec": 0.0}
+
+    if planned < 1:
+        result["refused_reason"] = "empty_payload"
+        return result
+    if not budget.messages_fit(planned + VIDEO_OVERHEAD_MSGS):
+        result["refused_reason"] = (
+            f"budget: clip needs {planned + VIDEO_OVERHEAD_MSGS} paced messages, "
+            f"{budget.max_messages_now()} fit in the {budget.remaining_s():.0f}s left")
+        return result
+
+    if current_timestamp is None:
+        current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    tx(build_rc_video_start_message(
+        file_name, current_timestamp, planned, fps=fps, dur=dur, res=res, crop=crop,
+        br=br, crf=crf, complete=True, start_metadata=start_metadata,
+    ).encode("ascii"))
+    result["started"] = True
+    sleep_fn(delay_seconds)
+
+    sent = 0
+    for i in range(planned):
+        # This chunk + the closing END must still fit.
+        if not budget.messages_fit(2):
+            break
+        tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
+        sent += 1
+        sleep_fn(delay_seconds)
+
+    # Chunk 0 carries SPS/PPS: lose it and nothing decodes. The backend dedupes
+    # by index, so a second copy costs one message and needs no backend change.
+    if sent == planned and budget.messages_fit(2):
+        tx(f"{chunk_prefix(0, None)}{chunks[0]}\n".encode("ascii"))
+        result["repeat_sent"] = True
+        sleep_fn(delay_seconds)
+
+    tx(build_rc_video_end_message(
+        file_name, uart_duration_sec=clock() - uart_start, sent_buffers=sent,
+        cpu_temp_text=cpu_temp_text if cpu_temp_text is not None else "na",
+    ).encode("ascii"))
+
+    result.update({"sent": sent, "complete_send": sent == planned,
+                   "uart_duration_sec": clock() - uart_start})
+    return result
