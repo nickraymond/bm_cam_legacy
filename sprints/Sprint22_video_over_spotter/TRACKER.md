@@ -191,6 +191,31 @@ Backend branch `feature/sprint22-video-ingest` (nereus-vision-dev), NOT deployed
         the hand-waving scene got 0.89 at the same budget.
       - NOT measured: recorder stopped (boot-cycle case; can only be faster),
         the hardware encoder (dropped: 2-pass costs ~5 s), energy in joules.
+- [x] Bite 3 — on-camera cycle, branch `feature/sprint22-video-tx`:
+      `rc_video_clip.py` (budget fit), production video START/END builders,
+      `transmit_video_clip` (reproduces the golden wire byte-for-byte),
+      `rc_video_tx.py` (`video_tx:` island, DISABLED by default; cycle = Spotter
+      time -> record 5 s + 2 s lead-in, 1080p kept on SD -> fit -> lane wait ->
+      send cellular-only -> halt). 830 tests, only the pre-existing numpy error.
+- [x] **FIRST REAL CAMERA VIDEO ON THE FRONT END — 2026-09-21** (bmcam004, code
+      run from /tmp on the Pi; the unit's deployed software untouched).
+      | run | result |
+      |---|---|
+      | A, no transmit | record 7 s, fit 125/126 msgs (98.9 %), cycle 25 s |
+      | B1, transmit, 30 s post-boundary guard | sent 87/87 but **Spotter rejected 16: "Queue MS_Q_CELLULAR_ONLY is full" 07:30:31-07:30:47Z** (its own scheduled transmission held the 2-slot queue, +31..+47 s after the boundary). Sofar 71/87, chunks 1-9 + 11-17 (the keyframe) lost -> staging media 52700, 81 %, badly damaged |
+      | B2, transmit, 60 s guard | sent 122/122, Spotter queued 125/125, **0 queue-full**, Sofar 122/122 + repeat -> staging media **52705**, complete, plays 4.9 s 480x270 |
+      - Encoder bug found + fixed from B1: proportional correction bounced
+        77 % -> 131 % -> 69 % and shipped the 69 % try. Now brackets +
+        interpolates (B2: 77 -> 133 -> 97 %) and keeps the best fit.
+      - The Pi gets NO signal when the Spotter rejects a message: a queue-full
+        loss is invisible on the device and only shows on the USB console.
+      - Minor: clip is 49 frames / 4.9 s, not 50 (`-sseof -5` + fps filter).
+- [ ] SOAK PREREQS: deploy the branch to `~/BM_Devel_Pi` (real deployment, not
+      /tmp), YAML `video_tx.enabled: true` + `transmit_phase.enabled: true`
+      with `post_boundary_guard_s: 60` + `power_halt` enabled + window not
+      enforced, ebox duty cycle (10 min on / 5 off), periodic `note sync`.
+- [ ] OPEN: keyframe protection beyond the chunk-0 repeat (a 16 s queue-full
+      window at the START of a burst destroys the clip).
 - [ ] `rc_video_clip.py` (cut → encode → Annex-B, SEI stripped)
 - [ ] video START builder + `fmt` in END
 - [ ] transmit via existing `rc_transmit` loop + chunk-0 repeat
