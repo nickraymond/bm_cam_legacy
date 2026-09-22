@@ -1,84 +1,107 @@
-# Sprint25 part 2 — self-healing media, DEVICE side (design v2, 2026-09-22, under engineering review)
+# Sprint25 part 2 — self-healing media, DEVICE side (design v3, 2026-09-22, post engineering review)
 
-Companion to `nereus-vision-dev/backend/docs/SPEC_resend_heal.md` v2 (decisions D1–D9 live there).
-No code until the review closes. Applies to images AND video (D7).
+Companion to `nereus-vision-dev/backend/docs/SPEC_resend_heal.md` v3 (§0a decisions, §0b open
+questions). Review record: `REVIEW_20260922.md` in this folder. No code until §0b is signed.
+v2 → v3 changes marked **[Rn]** (A = wire/backend review, B = device review, C = rollout review).
 
-## 1. Daemon first (D3) — the structural fix
+## 1. Daemon lifecycle (D3) — created in `main()`, stopped inside each cycle [R-B1, R-B2, R-C11]
 
-Today `rc_progressive_jpeg.main()` loads settings, then **dispatches video cycles to
-`rc_video_tx` before the point where the stills cycle starts the command daemon**
-(`run_cycle` → `daemon_factory` → `daemon.start()`, `rc_progressive_jpeg.py:520-525`; the video
-dispatch is at `:929`). So the daemon is a feature of the stills cycle, not of the wake.
+Today `rc_progressive_jpeg.main()` dispatches `capture_mode: video` to `rc_video_tx` (`:929`)
+before the stills cycle starts the daemon (`run_cycle`, `:517-525`), so `video_tx` wakes never
+listen. The continuous recorder (`video_recorder.run_video_mode`) already runs its own daemon.
 
-Change: in `main()`, right after the YAML is loaded and the serial port is available, start the
-daemon (`bm_commands.enabled`), pass it into BOTH `run_cycle(...)` and
-`rc_video_tx.run_video_tx_cycle(...)` as an argument, stop it in one `finally`. The cycles keep
-their existing hooks (`make_pending_pump_fn` / `make_ack_drain_fn` in the pacing slots,
-`flush_acks` + `post_transmit_listen` after the burst) — the Sprint24 step 2 recipe, now owned by
-`main()`. Golden-wire test byte-identical for both modes.
+Change (scope: stills + `video_tx` wakes; continuous video keeps its daemon):
+- `main()` keeps the D11 predicate (`bm_commands.enabled` AND (transmit OR bench_commands);
+  `--capture-only` / `--print-config` never open the port) [R-B9], creates the daemon after settings
+  load, and passes it into `run_cycle(...)` and `run_video_tx_cycle(...)`.
+- **Ordering is owned by the cycle's `finally`: `cmd_hooks.shutdown(daemon)` → close the shared port
+  → halt.** Never in `main()`'s `finally` (that runs after `systemctl halt` against a closed UART and
+  loses the final ack flush and any `<HL>`). Extend `test_hlt_mid_transmit_ack_precedes_halt` to
+  the video cycle.
+- The `video_tx` port, item by item (Sprint24 step 2): the time gate uses `gate_kwargs_for(daemon)`
+  (today `_default_gate` opens `/dev/ttyAMA0` privately and would race the daemon's reader);
+  `transmit_video_clip` gains two optional callables (`pending_pump_fn`, `ack_drain_fn`, default
+  None → wire unchanged); **video runs pump-only during the burst; acks and `<HL>` go out only after
+  END via `flush_acks`, i.e. `defer=True` forced for video regardless of YAML** (an ack in a pacing
+  slot during a 4–5 s stall costs one chunk) [R-B8]; `post_transmit_listen` after the burst;
+  `_default_tx_open` already reuses the shared port.
 
-**Benchmark (required, before and after):** console timestamp of `Bridge bus power: 1` → the Pi's
-subscribe frame on `bmcam/cmd`; 10 cold boots per unit; report median and worst. Baseline
-(Sprint23): ~38 s. Expected after: 22–28 s (Pi boot ~18 s + Python + serial open) — a guess until
-measured. The Spotter replays held commands 10 s after bus power, so this number is what the
-mote-side cache (TODO-BM-017) must cover; re-send-until-acked remains the doctrine.
+**Benchmark, redefined [R-B3].** The Sprint23 ~38 s was stills, where the daemon already starts
+before the gate; daemon-first moves ~0–2 s there. Report four `/proc/uptime` segments — `[RC-CRON]
+uptime_s`, `main()` entry, `[CMD] subscribed`, `spotter UTC decoded` — plus one Spotter-clock anchor
+(`Bridge bus power: 1` → the Pi's decoded UTC), 10 cold boots per mode on the unit that ships it.
+Targets: video_tx = "subscribed exists at all" (today never); stills = no regression. The ~20 s
+between cron and subscribe is `rc_run_capture_cycle.sh` (`py_compile` of 20 modules) + Python
+imports — a separate, optional optimisation, not part of this change.
 
-## 2. Keyed messages (D6, wire rev 5)
+## 2. Keyed messages (D6, rev 5) [R-B5, R-B6, R-B12, R-C8]
 
-`key` = capture instant as 6 base-36 chars (seconds since 2026-01-01Z). Chunks become
-`<I{key}.{n}>…` — the Sprint10 `<I{gid}.{n}>` form with `gid := key`; START and END carry `key=`.
-Same code path for images (`rc_transmit.transmit_image`) and video (`transmit_video_clip`). The
-message-size ceiling is measured first (backend spec §2): if there is no headroom, chunk payload
-drops from 384 to 376 base64 chars (`pacing_chunk_b64_chars`), +2 messages per clip.
+- `key` = 6 lowercase base-36 chars, seconds since 2026-01-01Z, **from the Spotter UTC read of this
+  wake** (`daemon.wait_for_spotter_utc` / the gate). No Spotter time this wake → send the legacy
+  form (no key). Persist `last_key` in `bm_command_state.json`; a computed key ≤ `last_key` → legacy
+  form + a log line (stale clock). Out-of-range → legacy form.
+- Chunks `<I{key}.{n}>` (398 B); START `key=` right after `length` as a core key; **END unchanged**
+  (P4). Same builder for images (`rc_transmit` image path) and video (`transmit_video_clip`). The
+  Spotter limit is 1000 B hard / ~430 B fast path (Sprint09) → no payload shrink.
+- Behind a YAML island (`media_key.enabled`, default OFF until the backend M0 is live). With it OFF
+  every rev 3 golden-wire test stays byte-identical; with it ON a **separate rev 5 golden set**.
+  `rc_media_id` (3-char gid) is retired.
 
-## 3. Persisted sent payload (D7, images and video)
+## 3. Persisted sent payload (D7) [R-B4, R-C9]
 
-After a successful fit/encode, before START, write next to the media in the ring buffer
-(`video.dir`, default `/home/pi/BM_Devel_Pi/videos`; images: the existing final-JPEG folder):
-`<stamp>_<name>.sent` (the exact bytes chunked onto the wire) and `<stamp>_<name>.sent.json`
-`{key, fmt, chunk_b64_chars, raw_bytes_per_msg, msgs, keyframe_chunks, sha256, sent_utc, res, crop, br, fps, dur}`.
-~40 KB per clip, ~4 MB/day at 4 clips/h; `video_ring.ensure_room` bounds it. Retention follows the
-heal window (24 h now, up to 30 d later, D8): the ring keeps `.sent` files at least that long.
-Chunking is deterministic (`split_base64_chunks`), so a resend is a file read + slice.
+- Video: the fitted payload exists only in tmpfs and is deleted in `fit`'s `finally` → write
+  `<stamp>_<name>.sent` + `.sent.json` before START (tmp + fsync + rename, as `video_recorder` does).
+- Images: the compressed JPEG on disk IS the wire bytes (`rc_transmit` chunks the file) → sidecar
+  only (`.sent.json`: key, fmt, chunk_b64_chars, msgs, sha256, sent_utc).
+- Resend chunks with the **sidecar's** `chunk_b64_chars`, never the live YAML.
+- Retention is NOT covered by `video_ring` (it prunes only `.mp4` triples) and images have none:
+  add one `sent/` prune — age ≤ heal window, hard cap 30 d (~120 MB) — run before START in both
+  modes. The backend is the sole source of truth for "what is missing"; the device only validates
+  `index < msgs`.
 
-## 4. `rsd` command (D2, tables v8) and the pending list (D5)
+## 4. `rsd` (tables v8) and the pending list [R-B7, R-B10, R-C6, R-C7]
 
-`{"id":N,"c":"rsd","v":<k>,"f":"<key>","r":"17,40-42"}` — validation in the backend spec §5.
-State: `bm_command_state.json` gains `pending_heals: [{key, ranges, id, wakes_left: 3}]`, ≤ 8
-entries, **newest key first**; `v=3` clears one/all. Ack immediately on receipt.
+`{"id":N,"c":"rsd","h":[["<key>","17,40-42"],…]}` (≤ 8 heals) or `{"id":N,"c":"rsd","x":1}` = cancel
+all. Ids are allocated by the backend. `parse_command`/`CommandState.record/save` are extended
+explicitly (schema note) to carry `h` and `pending_heals`. Validation per heal: key
+`^[0-9a-z]{6}$` + `.sent` exists + in window; ranges expand → dedupe → reject reversed / ≥ `msgs`;
+≤ 60 chunks per **wake** across all heals. Refused heals are recorded so a re-sent command is
+acked-duplicate, not re-refused with a fresh `<HL>`. Pending list: dedupe by key (newest id wins),
+≤ 8, newest first, `wakes_left` 3 → `<HL a=dropped>`.
 
-Execution, each wake: run the normal capture + burst; then while the budget allows
-(`budget.has_time_for(n + 1)`), pop the newest pending heal and send its chunks as ordinary keyed
-chunks at the normal pacing, then one `<HL v=1 key=… a=sent n=…>` line. A heal that does not fit
-decrements `wakes_left`; at 0 it is dropped with `<HL a=dropped>`. Refusals (`no such clip`, key
-outside the retention window, bad ranges) are acked `ok:0` and reported with `<HL a=refused>`.
+**Heal slot (Q1 for Nick).** Recommended: when the pending list is non-empty, send heals **before**
+the new START (3–5 messages at +57 s, in the clean lane, capture delayed by seconds); anything left
+goes after the burst only if it ends by **+240 s of the window** (`seconds_to_next_5min_boundary −
+15`), else waits. `budget.has_time_for` is not boundary-aware — the boundary rule is new. `v=1`
+whole-clip and `v=2` keyframe-only resends are cut from MVP.
 
-## 5. Heal status line `<HL …>`
-
-`<HL v=1 key=<key> a=<requested|sent|refused|dropped> n=<n> r=<reason> id=<cmd id>>`, sent on the
-same topic as `<WS …>`; ~60 B; the backend parses it into telemetry (spec §4).
+## 5. `<HL>` line
+`<HL v=1 key=<key> a=<requested|sent|refused|dropped> n=<n> r=<one-token> id=<id> w=<wake key>>`
+built with `compact_kv_message`, sent through the cycle's `tx` (video: `cellular_only`), one per
+key per wake, only after END.
 
 ## 6. Where it fails, honestly
 
 | Failure | Effect | Mitigation |
 |---|---|---|
-| command held while the bus is off (today's normal) | never heard | re-send until acked; BM-017 |
-| `.sent` rotated out | `ok:0 no_such_clip`, `<HL refused>` | backend offers only in-window candidates |
-| backend still on rev 3 | keyed chunks silently dropped (contract §5 today) | **backend deploys first**, accepts both forms |
-| resend chunks rejected again by the Spotter stall | still partial | idempotent; the backend asks again |
-| burst + heals exceed the budget | heal deferred | ≤ 62 msgs per heal; 3-wake limit |
-| Spotter reset before the Notecard syncs | heal lost like any clip | operating rule; `<HL sent>` tells the backend it was tried |
+| command held while the bus is off | never heard | re-send until acked; re-commit the grid after a Spotter reset; BM-017 |
+| report minute outside the ~190 s listening span | never heard | same; §6 of the backend spec states the numbers |
+| `.sent` pruned | `ok:0 no_such_clip`, `<HL refused>` | backend offers only in-window candidates |
+| backend still rev 3 | keyed chunks would be dropped | **M0 lossless fallback deploys first**; key island OFF until then |
+| stall rejects the resend again | still partial | idempotent; backend asks again; heal-chunk rejections counted separately |
+| heals + burst cross the boundary | HDR/report collision | +240 s rule; ≤ 60 chunks/wake |
+| stale clock | key reuse | Spotter-UTC-only keys, monotonic `last_key`, backend flags collisions |
+| Spotter reset before Notecard sync | heal lost like any clip | ops rule; `<HL sent>` proves it was tried |
 
 ## 7. Test ladder (device half)
-
-1. Unit: daemon-first ordering (fakes, zero sleep); `parse_command` rejects; planner byte-identity
-   vs the `.sent` file; keyed framing golden vectors for image and video.
-2. USB console: keyed burst from the bench unit; drop START by hand; publish `rsd` on the Spotter
-   console; ack; keyed resend; `<HL>`; reassembly with `spotter-usb-console-capture`.
-3. One rig on cellular (bench), then release, then bmcam001 (reef) images.
+1. Unit: lifecycle ordering for both modes (fakes, zero sleep); `rsd` list validation; planner
+   byte-identity vs `.sent`; key derivation (no Spotter time → legacy; monotonic); rev 3 golden
+   wires unchanged with the island OFF; rev 5 golden set with it ON.
+2. USB console: keyed burst; START dropped by hand; publish `rsd` on the Spotter console; ack; heal
+   before START; `<HL>` after END; reassembly with `spotter-usb-console-capture`.
+3. Rig B outdoors ≥ 24 h on cellular (backend spec §7.3); then release; live fire bmcam003/004.
 
 ## 8. Effort (estimates)
-
-Daemon-first + benchmark ~1 day; keyed chunks + persisted payload (both modes) ~1 day; `rsd` +
-pending list + `<HL>` + tests ~1 day; ladder 2–3 ~1 day. Backend (spec §3) ~2 days. Nothing starts
-before the engineering review closes.
+Lifecycle + video port + benchmark ~1.5 days; keyed chunks + island + payload/sidecar + prune ~1
+day; `rsd` list + pending list + `<HL>` + tests ~1 day; ladder 2 ~0.5 day; ladder 3 = 1 day of
+rig time. Backend (spec §3) ~3 days. Nothing starts before §0b is signed.
