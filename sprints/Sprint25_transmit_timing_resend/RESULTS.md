@@ -137,3 +137,91 @@ gateway they arrived through (W3b) on both cameras since the first flag-on poll.
 - B's 15:20Z clip: accepted by the Spotter (155 submissions, 0 rejections), absent at Sofar
   2 h later. Card pull at 15:41 or the swap power-cut are the suspects; undecided.
 - The stills cycles before 18:49Z are listed (`stills-not-parsed`) but not joined.
+
+---
+
+# Part 1b — indoor 15-minute run, 2026-09-22 18:26Z → 22:00Z (cards pulled 22:00Z)
+
+Run folder `runs/sprint25_indoor15_20260922T1840Z/` (SD sets: SPOT-31593C `0002`+`0003`,
+SPOT-33507C `0004`..`0006`; the 19:23–21:39Z stretch has no console record, the SD is the
+only witness). Cameras swapped: rig A = bmcam003 on SPOT-33507C, rig B = bmcam004 on
+SPOT-31593C. Schedule: `sampleIntervalMs 840000`, duration 600 s, alignment 1 → a
+**15-minute period**, both rigs in phase (:40/:55/:10/:25 from 18:40, then :05/:20/:35/:50
+after Nick's 19:01Z ebox power cut re-anchored both). Restore = `sampleIntervalMs 960000`.
+
+## What the bridge actually does with the interval (measured)
+
+| commit / boot | interval | next windows | period |
+|---|---|---|---|
+| 2026-09-21 20:06:57Z | 960 s | :20, :40, :00 | 20 min |
+| 2026-09-22 18:26:37Z | 840 s | 18:40, 18:55, 19:10 | 15 min |
+| boot 19:01:18Z | 840 s (persisted) | 19:05, 19:20, 19:35 | 15 min |
+
+The period is the interval rounded up to 5-minute multiples, but the grid is anchored at
+the first window after the commit/boot, not at the hour. Every commit and every boot costs
+one cut camera cycle (the forced 120 s bus-on boots the Pi and cuts its burst).
+
+## How each rig did (12 cycles each, 19:05 → 21:50Z)
+
+| | Rig A bmcam003 / SPOT-33507C / WBGLW 6.2.5 | Rig B bmcam004 / SPOT-31593C / WBNA-500 4.2.1 |
+|---|---|---|
+| clips complete at Sofar | 5 of 12 (21:35 stuck at 81/125 and 21:50 never arrived: SPOT-33507C self-reset 22:01:15Z, `Reboot Controller`) | 8 of 12 |
+| chunks rejected by the Spotter | 22 (0–4 per clip) | 11 (0–2 per clip) |
+| HDR push inside a burst | 0 | 0 |
+| hourly report on the window boundary (:05:00) | 2 cases, both clean | 2 cases, both clean |
+| health-check alert inside a burst | 0 (check at :01, in the off gap) | 0 |
+| clips lost to resets | 18:55 (Nick's 19:01 power cut) + 21:50 whole and 44 chunks of 21:35 (22:01 self-reset) | 18:55 (19:01 power cut) |
+| Notecard backlog | ≤ 30 %, drains within minutes | up to 42 %, periodic 30-min sync, clips land 30–40 min late |
+
+Staging matches Sofar chunk for chunk; the cron ingests with `BM_AUTO_PROVISION=1` (Gate 2
+closed 18:27Z).
+
+## Why chunks are dropped — the mechanism, measured on both rigs
+
+The Spotter hands each accepted message to the Notecard (`card.status` + `note.add`) and
+the MS task logs `Sending Cellular message to Notecard` for each. During a burst those
+hand-offs are spaced 1.0 s (1581 of ~1650 on A, 1558 on B). **Occasionally one hand-off
+stalls**; the camera keeps sending at 1 msg/s; the Spotter's 2-slot cellular queue absorbs
+two arrivals and rejects the rest, silently.
+
+| hand-off stall | rig A: count → rejections | rig B: count → rejections |
+|---|---|---|
+| 2–3 s | 29 → 0 | 83 → 0 |
+| 4–5 s | 15 → 15 | 12 → 9 |
+| 7 s (camera-side gaps: keyframe repeat / END) | 12 → 0 | 1 → 0 |
+| 10–13 s | 6 → 6 | 1 → 0 |
+
+So: a stall under ~3 s is free, a stall of 4–5 s costs exactly one chunk, and rig A stalls
+more often and longer than rig B (Notecard model / firmware). Only 3 of 22 (A) and 2 of 11
+(B) rejections fell inside a Notecard sync session; the stalls are not phase-locked to any
+10 s tick (start phase mod 10 s is flat). The "pairs 10 chunks apart" seen from Sofar were
+two consecutive stalls, not one periodic job. Every rejected chunk is a one-second hole:
+one chunk (288 bytes) of video, decoded with local damage, the clip marked partial.
+
+What timing can and cannot do: the aligned 15-minute grid removed every HDR and report
+collision (0 of 24 bursts). The stall losses are independent of where the burst sits.
+They can only be reduced by (a) slower pacing — at 1.5 s/msg a 4.5 s stall still lets 3
+messages arrive against 2 slots (marginal), at 2.0 s/msg the 155-message burst takes 310 s
+and crosses the next HDR push; (b) a bigger Spotter queue (Sofar firmware); (c) a resend of
+the exact missing indices (part 2, ~2 messages per clip here).
+
+## Recommendation for the outdoor test
+
+Keep everything as it is, plus one operating rule:
+
+1. `alignmentInterval5Min 1`, `sampleIntervalMs 840000`, `sampleDurationMs 600000` on both
+   bridges (15-minute period, 4 clips/hour, burst at +57..+226 s of its window). Do not
+   enable `transmit_phase`; keep pacing 1.0 s and `keyframe_repeat_max 30`.
+2. **No ebox/Spotter power cuts within 40 minutes of a burst** (WBNA-500 rig) — a cut
+   erases every unsynced clip (four events today; on the 22:01Z self-reset SPOT-33507C's `Notecard is N pct full` dropped 21 % → 5 % at the reset itself, i.e. the Spotter re-init empties the Notecard's outbound queue rather than syncing it). If a restart is unavoidable, check
+   `Notecard is N pct full` on the console first and wait for it to drop.
+3. Accept 1–2 stall rejections per clip as the outdoor baseline (97–99 % of chunks) and
+   measure it there: outdoors the GPS is steady, so the health-check alert that cost ~30
+   chunks twice indoors should be rare — that is the one number the outdoor run adds.
+4. Deploy nothing new to the cameras for this run. The resend feature (part 2) is the fix
+   for the residual and is designed, not built.
+
+If Nick prefers a camera-side change for outdoors, the only safe single variable is
+pacing 1.0 → 1.2 s/msg (`pacing_delay_seconds` in the YAML on both units; burst 186 s,
+ends at +243 s, 57 s clear of the boundary) — it should convert some 4 s stalls into
+free ones. It costs a redeploy to both units and a second variable versus today's data.
