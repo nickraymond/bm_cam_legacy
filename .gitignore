@@ -58,3 +58,5 @@ runs/**/transfer/d*/
 
 # Sprint25: Spotter SD card copies live next to the reports; never commit card contents
 runs/sprint25_sd_*/SPOT-*/
+runs/sprint25_indoor15_*/SPOT-*/
+runs/sprint25_indoor15_*/console_as_sd/
