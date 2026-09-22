@@ -561,6 +561,32 @@ it reports what is on the card, not what the limits allow.
 
 ---
 
+### TODO-BM-019 — FAST FOLLOW: admin tools for Spotter + token registration (gateways), captured 2026-09-22
+**Status:** open
+**Priority:** high / admin tooling must stay current with the backend
+**Context:** `nereus-vision-dev` PR #43 (node identity, Gate 1, live on staging 2026-09-22 05:41Z) moved "which Spotters do we poll, with which token" into a new `external_gateways` table (`POST/GET /admin/ingest/gateways`, token by env-var NAME only). The poll worker and `POST /admin/ingest/sofar-poll-once` now iterate gateways — a Spotter with no gateway row is never polled (poll-once 404s). Nick's existing admin tools are behind that: `/register.html` still drives `register-device` + `/admin/ingest/sources` (the per-node binding the backend now owns), and the External Nodes page's "assigned" status is registry-only (ingest never reads it). Spec: `nereus-vision-dev/backend/docs/SPEC_node_identity.md` §5 A3, §10.
+
+**Scope (Gate 3 A3 of the spec, pulled forward):**
+- "Add Spotter" admin form/page = `POST /admin/ingest/gateways` (Spotter id + token env-var name, pause/resume, notes) + a list view fed by `GET /admin/ingest/gateways` (status, last poll/success, last_error, bound device ids).
+- `sofar-discover` flow uses the gateway's token (no alphabetical fallback).
+- External Nodes page → fleet view per device: name (`PATCH /devices/{id}`), node id, current Spotter (from `DeviceOut.system_id/node_id`), last seen, last complete media, move history (`device_gateway_history`). Retire `register.html` (keep a redirect) and `/admin/ingest/systems-devices`.
+- Keep `bm_cam_legacy` docs/skills that mention `register.html` in sync (`docs/SPOTTER_DEVICE_REGISTRATION.md` in the backend already carries a banner).
+
+**Acceptance:** a new Spotter + camera goes from unboxed to ingesting with ONE admin action (add the Spotter); a camera moved between two listed Spotters needs zero admin actions once Gate 2 (`BM_AUTO_PROVISION=1`) is on.
+
+---
+
+### TODO-BM-020 — Admin operation to delete a system AND its data (captured 2026-09-22)
+**Status:** open (not before TODO-BM-019)
+**Priority:** medium / housekeeping
+**Context:** PR #43 made `DELETE /admin/systems/{id}` non-destructive by design (spec §5 A2): it refuses while any device has the system as its current gateway or while site events reference it, and it DETACHES media/telemetry (`system_id → NULL`) instead of deleting them, so a camera's history survives a Spotter being retired. `delete_r2` is now a documented no-op. That leaves no admin path to purge a test system and everything it produced.
+
+**Scope:** a separate, explicitly destructive admin op — "delete system + its devices + their media (DB rows AND R2 objects) + telemetry + history" — with a dry-run preview that lists counts and R2 object totals, a typed confirmation of the system id, and a refusal for systems that have a customer-facing device (or an allow-list of purgeable prefixes, e.g. `SYS_*` test systems). Also the device-level equivalent (`DELETE /admin/devices/{id}` with the same preview/confirm).
+
+**Acceptance:** purging a bench system removes every row and R2 object attributed to it and nothing else; the preview's counts match what was removed; production customer systems cannot be purged without the explicit allow-list.
+
+---
+
 ### TODO-CAM-001 — Capture-side frame stacking + red-channel HDR bracket (Sprint 20, captured 2026-09-01)
 
 **Problem:** transmitted 8-bit JPEGs from the AOML reef carry white-patch
