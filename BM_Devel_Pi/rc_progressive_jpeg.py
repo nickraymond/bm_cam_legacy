@@ -514,15 +514,10 @@ def run_cycle(
         summary["trigger"] = settings["trigger"]
 
     daemon = None
-    use_daemon = bool(
-        bm_commands_cfg
-        and bm_commands_cfg.get("enabled")
-        and command_state is not None
-        and (transmit or bench_commands)
-    )
-    if use_daemon:
+    if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
         daemon = daemon_factory(settings, bm_commands_cfg, command_state)
         daemon.start()
+        cmd_hooks.boot_mark("cmd_subscribed")
 
     # M1: ONE budget, charged from here on.
     budget = CycleBudget(
@@ -546,6 +541,7 @@ def run_cycle(
             # Pin it to a monotonic instant HERE and extrapolate later; the
             # transmit decision happens minutes after this read.
             gate_info, gate_mono = info, clock()
+            cmd_hooks.boot_mark("spotter_utc_read")
             summary["schedule_allowed"] = allowed
             print(f"[RC] schedule gate: {info.get('reason')}")
             if not allowed:
@@ -765,6 +761,7 @@ def run_cycle(
             summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
 
         tx = bm_open_fn(settings["config_path"])
+        cmd_hooks.boot_mark("transmit_start")
         result = transmit_progressive_image(
             tx,
             budget,
@@ -847,6 +844,7 @@ def run_cycle(
             except Exception as exc:
                 debug_print(f"BM serial close failed: {exc}")
         # M6: halt runs on success AND failure/exhaustion paths (never raises).
+        cmd_hooks.boot_mark("halt")
         summary["halt_result"] = halt_fn(
             enabled=settings["power_halt_enabled"],
             dry_run=settings["power_halt_dry_run"],
@@ -865,6 +863,7 @@ def run_cycle(
 # ---------------------------------------------------------------------------
 
 def main(argv=None, **cycle_overrides):
+    cmd_hooks.boot_mark("main_entry")   # Sprint25 S3 benchmark segment
     parser = argparse.ArgumentParser(
         description="Sprint08 progressive-JPEG RC cycle (config-gated; see module docstring)."
     )
@@ -951,9 +950,14 @@ def main(argv=None, **cycle_overrides):
         if video_tx_cfg["enabled"]:
             if args.print_config:
                 return 0
+            # Sprint25 S3: the one-clip video cycle now runs the command daemon
+            # too (same D11 predicate as stills) — before S3 a video_tx wake
+            # never listened, so no command (or heal request) could reach it.
             summary = rc_video_tx.run_video_tx_cycle(
                 settings, video_tx_cfg, transmit=args.transmit,
-                skip_time_window=args.skip_time_window)
+                skip_time_window=args.skip_time_window,
+                bm_commands_cfg=bm_commands_cfg, command_state=command_state,
+                bench_commands=args.bench_commands)
             return 1 if summary.get("error") else 0
 
         if args.print_config:

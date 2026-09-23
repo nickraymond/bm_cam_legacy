@@ -212,6 +212,16 @@ def video_burst_messages(payload, chunk_b64_chars, keyframe_chunks=1):
     return planned + min(int(keyframe_chunks), planned) + VIDEO_ENVELOPE_MSGS
 
 
+def _pump(pending_pump_fn):
+    """Run the mid-burst command pump if there is one; never let it break a send."""
+    if pending_pump_fn is None:
+        return
+    try:
+        pending_pump_fn()
+    except Exception as exc:
+        print(f"[CMD][WARN] mid-burst command pump failed: {exc}")
+
+
 def transmit_video_clip(
     tx,
     budget,
@@ -232,9 +242,16 @@ def transmit_video_clip(
     current_timestamp=None,
     sleep_fn=time.sleep,
     clock=time.monotonic,
+    pending_pump_fn=None,
 ):
     """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
     (contract sections 1 + 5).
+
+    pending_pump_fn (Sprint25 S3): called in every pacing slot to parse and
+    PERSIST commands that arrived mid-burst. It touches NO wire — video is
+    pump-only during the burst; acks go out after END (RESEND_DEVICE.md §1:
+    an ack in a pacing slot during a 4-5 s Spotter stall costs one chunk).
+    None (default) = the wire and the timing are byte-identical to before.
 
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
@@ -287,6 +304,7 @@ def transmit_video_clip(
         br=br, crf=crf, complete=True, start_metadata=start_metadata,
     ).encode("ascii"))
     result["started"] = True
+    _pump(pending_pump_fn)
     sleep_fn(delay_seconds)
 
     sent = 0
@@ -296,6 +314,7 @@ def transmit_video_clip(
             break
         tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
         sent += 1
+        _pump(pending_pump_fn)
         sleep_fn(delay_seconds)
 
     # Keyframe repeat: only after a complete first pass, and each copy still
@@ -306,6 +325,7 @@ def transmit_video_clip(
                 break
             tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
             result["repeated"] += 1
+            _pump(pending_pump_fn)
             sleep_fn(delay_seconds)
         result["repeat_sent"] = result["repeated"] == keyframe_chunks
 

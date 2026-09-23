@@ -25,9 +25,17 @@ The message budget for a clip = min(video_tx.message_cap, what the cycle's time
 budget can still pace) — the same "how many messages can I afford" idea as the
 progressive JPEG, solved with arithmetic instead of a quality ladder.
 
-NOT in this module (v1, stated so nobody assumes it): the BM command daemon
-(no remote commands are picked up during a video_tx cycle) and scheduled
-transmit windows beyond the existing gate.
+Command daemon (Sprint25 S3, RESEND_DEVICE.md §1): the same D11 predicate as the
+stills cycle (rc_command_hooks.should_run_daemon). With it on, the daemon owns the
+UART for the whole cycle: the time gate reads Spotter UTC over the SHARED port,
+the burst is pump-only (commands parsed + persisted, nothing on the wire), acks
+flush after END, a bounded listen tail follows, and the `finally` runs
+shutdown(daemon) -> close the port -> halt, in that order. With the island off
+(or no --transmit/--bench-commands) the cycle is byte-identical to Sprint22.
+Before S3 a video_tx wake never listened at all.
+
+NOT in this module: scheduled transmit windows beyond the existing gate, and
+one-shot `trg` servicing (stills only).
 
 `video_tx:` island (camera_schedule.yaml), every key optional:
 
@@ -47,6 +55,7 @@ import shutil
 import time
 from datetime import datetime, timezone
 
+import rc_command_hooks as cmd_hooks
 import rc_transmit_phase
 import rc_video_clip
 import video_recorder
@@ -157,9 +166,12 @@ def _default_tx_open(config_path):
     return lambda data: bm.spotter_tx(data, network_type="cellular_only")
 
 
-def _default_gate(config_path):
+def _default_gate(config_path, **gate_kwargs):
+    """gate_kwargs (S3): cmd_hooks.gate_kwargs_for(daemon, settings) — with a
+    daemon the Spotter-time read rides the shared port instead of opening
+    /dev/ttyAMA0 privately (which would race the daemon's reader thread)."""
     from spotter_time_sync import should_transmit_now_from_schedule
-    return should_transmit_now_from_schedule(config_path)
+    return should_transmit_now_from_schedule(config_path, **gate_kwargs)
 
 
 def _default_close():
@@ -190,25 +202,47 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                        bm_close_fn=_default_close, halt_fn=perform_power_halt,
                        ensure_room_fn=video_ring.ensure_room, sleep_fn=time.sleep,
                        clock=time.monotonic, now_fn=lambda: datetime.now(timezone.utc),
-                       encoder_binary=None, ffmpeg_binary=None):
+                       encoder_binary=None, ffmpeg_binary=None,
+                       bm_commands_cfg=None, command_state=None, bench_commands=False,
+                       daemon_factory=None):
     """Run one record -> fit -> send cycle. Returns a summary dict; the halt
-    runs in `finally` on every path and never raises."""
+    runs in `finally` on every path and never raises.
+
+    bm_commands_cfg / command_state / bench_commands (S3): the command daemon,
+    under the stills D11 predicate. daemon_factory defaults to
+    cmd_hooks.default_daemon_factory (opens the UART once, installs the shared
+    port as process_image_v2's instance, so _default_tx_open reuses it)."""
     vcfg = settings["video"]
     summary = {"transmit": transmit, "clip": None, "fit": None, "transmit_result": None,
-               "schedule_allowed": True, "stage": "start", "error": None, "halt_result": None}
+               "schedule_allowed": True, "stage": "start", "error": None, "halt_result": None,
+               "command_events": []}
     budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"], clock=clock)
     print(f"[VTX] cycle start: budget={settings['budget_seconds']}s "
           f"pacing={settings['pacing_delay_seconds']}s/msg transmit={transmit}")
     opened = False
+    daemon = None
     try:
+        # 0. S3: the command daemon, when the cycle may touch the bus. Inside the
+        #    try so a UART failure still reaches the halt.
+        if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
+            summary["stage"] = "daemon_start"
+            factory = daemon_factory or cmd_hooks.default_daemon_factory
+            opened = True     # set BEFORE the factory: it may open the UART and then fail
+            daemon = factory(settings, bm_commands_cfg, command_state)
+            daemon.start()
+            cmd_hooks.boot_mark("cmd_subscribed")
+
         # 1. Spotter time first: no RTC, so until this read the clock can be
         #    years off — and the clip's filename is its capture time.
         gate_info, gate_mono = None, clock()
         if transmit:
             summary["stage"] = "time_gate"
-            opened = True                       # the gate opens the UART
-            allowed, gate_info = gate_fn(settings["config_path"])
+            opened = True                       # the gate opens the UART (or rides the daemon's)
+            gate_kwargs = cmd_hooks.gate_kwargs_for(daemon, settings)
+            allowed, gate_info = (gate_fn(settings["config_path"], **gate_kwargs) if gate_kwargs
+                                  else gate_fn(settings["config_path"]))
             gate_mono = clock()
+            cmd_hooks.boot_mark("spotter_utc_read")
             print(f"[VTX] schedule gate: {gate_info.get('reason')}")
             if settings.get("enforce_time_window") and not skip_time_window and not allowed:
                 summary["schedule_allowed"] = False
@@ -280,6 +314,13 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         if not transmit:
             print(f"[VTX] send plan (NO transmit): {file_name} {fit['msgs']} chunks "
                   f"+ {keyframe_chunks} keyframe repeat + START/END")
+            # S3, bench-commands mode (mirrors the stills cycle): late commands
+            # still ack + persist, inside the same bounded listen window.
+            if daemon is not None:
+                cmd_hooks.drain_now(daemon, summary, clock=clock)
+                if bench_commands:
+                    cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                                   clock=clock, sleep_fn=sleep_fn)
             summary["stage"] = "done_no_transmit"
             return summary
 
@@ -289,7 +330,8 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         if phase_cfg.get("enabled"):
             burst_s = rc_transmit_phase.burst_seconds_for(
                 fit["msgs"] + keyframe_chunks, settings["pacing_delay_seconds"])
-            grid_clock = rc_transmit_phase.acquire_grid_clock(gate_info, gate_mono, clock=clock)
+            grid_clock = rc_transmit_phase.acquire_grid_clock(gate_info, gate_mono, daemon=daemon,
+                                                              clock=clock)
             plan = rc_transmit_phase.plan_from_clock(grid_clock, burst_s, phase_cfg)
             print(rc_transmit_phase.describe_plan(plan, burst_s))
             wait_s = plan["wait_s"]
@@ -305,7 +347,13 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         # 5. Send.
         summary["stage"] = "transmit"
         opened = True
-        result = transmit_video_clip(tx_open_fn(settings["config_path"]), budget, **send_args)
+        tx = tx_open_fn(settings["config_path"])
+        cmd_hooks.boot_mark("transmit_start")
+        # S3: pump-only during the burst (no ack on the wire between START and END).
+        pump = cmd_hooks.make_pending_pump_fn(daemon, summary)
+        if pump is not None:
+            send_args["pending_pump_fn"] = pump
+        result = transmit_video_clip(tx, budget, **send_args)
         summary["transmit_result"] = result
         if result["refused_reason"]:
             print(f"[VTX][ERROR] clip NOT sent — {result['refused_reason']}. The recording is "
@@ -314,6 +362,13 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
                   f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "
                   f"uart={result['uart_duration_sec']:.1f}s file={file_name}")
+        # S3: the clip is off the wire — release the deferred acks, then the
+        # bounded listen tail (the mailbox drain our own transmit triggers).
+        if daemon is not None:
+            cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                                 label="post-transmit ack flush")
+            cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                           clock=clock, sleep_fn=sleep_fn)
         summary["stage"] = "done"
         return summary
 
@@ -322,11 +377,16 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         print(f"[VTX][ERROR] cycle failed at stage {summary['stage']!r}: {summary['error']}")
         return summary
     finally:
+        # S3 ordering (RESEND_DEVICE.md §1): final pickup + paced ack flush +
+        # reader stop -> close the shared port -> halt. Never in main()'s
+        # finally: that would run after the halt against a closed UART.
+        cmd_hooks.shutdown(daemon, summary, print, clock=clock, sleep_fn=sleep_fn)
         if opened:
             try:
                 bm_close_fn()
             except Exception as exc:
                 print(f"[VTX][WARN] BM serial close failed: {exc}")
+        cmd_hooks.boot_mark("halt")
         summary["halt_result"] = halt_fn(
             enabled=settings["power_halt_enabled"], dry_run=settings["power_halt_dry_run"],
             mode=settings["power_halt_mode"], script_path=settings["power_halt_script_path"])
