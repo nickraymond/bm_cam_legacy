@@ -68,6 +68,7 @@ from command_daemon import load_bm_commands_config
 from command_state import CommandState
 import rc_command_hooks as cmd_hooks
 import rc_media_id
+import rc_media_key
 import rc_transmit_phase
 from process_image_v2 import (
     DEFAULT_BUFFER_SIZE,
@@ -134,6 +135,15 @@ def resolve_pacing(config_path):
         "delay_seconds": delay_seconds,
         "source": "yaml" if (chunk_from_yaml and delay_from_yaml) else "default",
     }
+
+
+def _load_media_key_cfg(config_path):
+    """media_key island; refuses to coexist with the retired 3-char media_gid."""
+    cfg = rc_media_key.load_media_key_config(config_path)
+    if cfg["enabled"] and rc_media_id.load_media_gid_config(config_path)["enabled"]:
+        raise ValueError("media_key and media_gid are both enabled; media_gid is retired "
+                         "by wire rev 5 — disable it")
+    return cfg
 
 
 def resolve_rc_settings(config_path):
@@ -231,6 +241,8 @@ def resolve_rc_settings(config_path):
         # Sprint10 media-id island (rc_media_id): absent/off == legacy wire.
         "media_gid_enabled": bool(
             rc_media_id.load_media_gid_config(config_path)["enabled"]),
+        # Sprint25 S4 rev 5 media key island (rc_media_key): absent/off == legacy.
+        "media_key_cfg": _load_media_key_cfg(config_path),
         # Sprint11 C2 island (rc_transmit_phase): absent/off == unscheduled.
         "transmit_phase_cfg": rc_transmit_phase.load_transmit_phase_config(
             config_path),
@@ -760,6 +772,11 @@ def run_cycle(
             summary["transmit_phase"]["burst_s"] = burst_s
             summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
 
+        media_key = rc_media_key.prepare_keyed_send(
+            settings, gate_info=gate_info, daemon=daemon,
+            stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
+            payload=encode["jpeg_data"], payload_path=final_path,
+            chunk_b64_chars=settings["pacing_chunk_b64_chars"])
         tx = bm_open_fn(settings["config_path"])
         cmd_hooks.boot_mark("transmit_start")
         result = transmit_progressive_image(
@@ -789,6 +806,7 @@ def run_cycle(
                     "defer_acks_during_transmit"))),
             pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
             media_gid=media_gid,
+            media_key=media_key,
         )
         summary["transmit_result"] = result
         print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "

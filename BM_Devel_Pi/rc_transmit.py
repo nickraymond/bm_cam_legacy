@@ -83,6 +83,7 @@ def transmit_progressive_image(
     ack_drain_fn=None,
     pending_pump_fn=None,
     media_gid=None,
+    media_key=None,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
 
@@ -101,9 +102,15 @@ def transmit_progressive_image(
     media_gid: optional 3-char group id (rc_media_id island). When set,
     chunks go out as `<I{gid}.{i}>` and START carries `gid:` — exact
     chunk->image attribution for non-FIFO backends. None = legacy wire.
+    media_key: Sprint25 S4 rev 5 key (rc_media_key). START gets `key=`, chunks
+    go out as `<I{key}.{i}>` (398 B at 384 chars). Exclusive with media_gid.
+    None = legacy wire, byte-identical.
     Returns {planned, send_target, sent, started, complete_send,
              incomplete_emitted, uart_duration_sec}.
     """
+    if media_key is not None and media_gid is not None:
+        raise ValueError("media_key and media_gid are mutually exclusive")
+    chunk_tag = media_key if media_key is not None else media_gid
     delay_seconds = float(delay_seconds)
     chunks = split_base64_chunks(jpeg_data, chunk_b64_chars)
     planned = len(chunks)
@@ -157,6 +164,7 @@ def transmit_progressive_image(
         reason=wire_reason,
         start_metadata=start_metadata,
         gid=media_gid,
+        key=media_key,
     )
     tx(start_msg.encode("ascii"))
     sleep_fn(delay_seconds)
@@ -166,7 +174,7 @@ def transmit_progressive_image(
         # Per-chunk guard: this chunk + the closing END must still fit.
         if not budget.messages_fit(2):
             break
-        tx(f"{chunk_prefix(i, media_gid)}{chunks[i]}\n".encode("ascii"))
+        tx(f"{chunk_prefix(i, chunk_tag)}{chunks[i]}\n".encode("ascii"))
         sent += 1
         sleep_fn(delay_seconds)
         # Sprint11 C3: persist inbound commands mid-burst, wire untouched.
@@ -243,6 +251,7 @@ def transmit_video_clip(
     sleep_fn=time.sleep,
     clock=time.monotonic,
     pending_pump_fn=None,
+    media_key=None,
 ):
     """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
     (contract sections 1 + 5).
@@ -252,6 +261,10 @@ def transmit_video_clip(
     pump-only during the burst; acks go out after END (RESEND_DEVICE.md §1:
     an ack in a pacing slot during a 4-5 s Spotter stall costs one chunk).
     None (default) = the wire and the timing are byte-identical to before.
+
+    media_key (Sprint25 S4, rev 5 §14): START gets `key=` and every chunk,
+    including the keyframe repeat, goes out as `<I{key}.{i}>`. END unchanged.
+    None = the rev 3 wire, byte-identical.
 
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
@@ -301,7 +314,7 @@ def transmit_video_clip(
 
     tx(build_rc_video_start_message(
         file_name, current_timestamp, planned, fps=fps, dur=dur, res=res, crop=crop,
-        br=br, crf=crf, complete=True, start_metadata=start_metadata,
+        br=br, crf=crf, complete=True, start_metadata=start_metadata, key=media_key,
     ).encode("ascii"))
     result["started"] = True
     _pump(pending_pump_fn)
@@ -312,7 +325,7 @@ def transmit_video_clip(
         # This chunk + the closing END must still fit.
         if not budget.messages_fit(2):
             break
-        tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
+        tx(f"{chunk_prefix(i, media_key)}{chunks[i]}\n".encode("ascii"))
         sent += 1
         _pump(pending_pump_fn)
         sleep_fn(delay_seconds)
@@ -323,7 +336,7 @@ def transmit_video_clip(
         for i in range(keyframe_chunks):
             if not budget.messages_fit(2):
                 break
-            tx(f"{chunk_prefix(i, None)}{chunks[i]}\n".encode("ascii"))
+            tx(f"{chunk_prefix(i, media_key)}{chunks[i]}\n".encode("ascii"))
             result["repeated"] += 1
             _pump(pending_pump_fn)
             sleep_fn(delay_seconds)

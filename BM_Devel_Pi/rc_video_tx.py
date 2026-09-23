@@ -56,6 +56,7 @@ import time
 from datetime import datetime, timezone
 
 import rc_command_hooks as cmd_hooks
+import rc_media_key
 import rc_transmit_phase
 import rc_video_clip
 import video_recorder
@@ -347,6 +348,15 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         # 5. Send.
         summary["stage"] = "transmit"
         opened = True
+        # S4: this wake's media key (Spotter UTC only) + the sent record a heal
+        # re-sends from, written BEFORE START. None -> the rev 3 wire.
+        media_key = rc_media_key.prepare_keyed_send(
+            settings, gate_info=gate_info, daemon=daemon,
+            stem=os.path.splitext(file_name)[0], fmt="h264", filename=file_name,
+            payload=payload, chunk_b64_chars=chunk_chars)
+        if media_key is not None:
+            send_args["media_key"] = media_key
+            summary["media_key"] = media_key
         tx = tx_open_fn(settings["config_path"])
         cmd_hooks.boot_mark("transmit_start")
         # S3: pump-only during the burst (no ack on the wire between START and END).
