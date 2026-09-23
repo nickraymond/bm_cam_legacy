@@ -345,3 +345,24 @@ still pending, per the kickoff.
 - `runs/sprint25_outdoor_20260923T0240Z/report_SPOT-33507C/{cycles.md,loss_by_stage.md,timeline_SPOT-33507C.svg}`
 - `runs/sprint25_outdoor_20260923T0240Z/report_SPOT-31593C/{cycles.md,loss_by_stage.md,timeline_SPOT-31593C.svg}` (01:05/01:20 merge, see ³)
 - `runs/sprint25_outdoor_20260923T0240Z/analysis/{sofar_dump.py,stall_analysis.py,stall_lengths.py}`
+
+---
+
+# Part 1d — overnight indoor pacing test (SETUP, results pending)
+
+One variable: **rig A (bmcam003 / SPOT-33507C) `bm_serial.image_transmit_delay_seconds` 1.0 → 1.3**,
+patched 2026-09-23T04:00:49Z with `tools/patch_camera_schedule.py` while the unit was awake. Backup:
+`/home/pi/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T040049Z`. Cron left armed; no code deploy.
+Rig B (bmcam004 / SPOT-31593C) unchanged at 1.0 s (control). Both bridges stay on `sampleIntervalMs 840000`.
+
+- Both Spotters powered on 03:45Z with no SD card (SPOT-33507C also did a `Reboot Controller` reset at
+  03:46:03Z). Bus windows :00/:15/:30/:45. Console monitor PID 26536 is the record until cards go back in.
+- First cycle at 1.3 s: 04:15Z, measured arrival spacing on the console **1.320 s**, 0 rejections so far.
+  The 04:00 cycle had already loaded 1.0 s (1.019 s).
+- Known confound, on both rigs: the hourly health check runs at the boot instant (A :46:03, B :45:2x),
+  at the start of each :45 burst. The first check after boot usually alerts, so expect the 04:45 bursts
+  to take a sync hit. The analysis tags sync stalls separately.
+- Prediction (Part 1c model): rig A stall rejections outside syncs → 0 (from ~1.4 per clip); rig B unchanged,
+  ~0.7 per clip. Pass = A has 0 in ≥ 12 cycles.
+- Rollback: `cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T040049Z /home/pi/BM_Devel_Pi/camera_schedule.yaml`
+  (or `patch_camera_schedule.py --set bm_serial.image_transmit_delay_seconds=1.0`) during a bus window.
