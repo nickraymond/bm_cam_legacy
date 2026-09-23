@@ -355,8 +355,8 @@ patched 2026-09-23T04:00:49Z with `tools/patch_camera_schedule.py` while the uni
 `/home/pi/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T040049Z`. Cron left armed; no code deploy.
 Rig B (bmcam004 / SPOT-31593C) unchanged at 1.0 s (control). Both bridges stay on `sampleIntervalMs 840000`.
 
-- Both Spotters powered on 03:45Z with no SD card (SPOT-33507C also did a `Reboot Controller` reset at
-  03:46:03Z). Bus windows :00/:15/:30/:45. Console monitor PID 26536 is the record until cards go back in.
+- Both Spotters powered on 03:45Z with the SD cards in (first power-on, not an insertion reset; SPOT-33507C also did a `Reboot Controller` reset at
+  03:46:03Z). Bus windows :00/:15/:30/:45. SD cards and console monitor PID 26536 both record.
 - First cycle at 1.3 s: 04:15Z, measured arrival spacing on the console **1.320 s**, 0 rejections so far.
   The 04:00 cycle had already loaded 1.0 s (1.019 s).
 - Known confound, on both rigs: the hourly health check runs at the boot instant (A :46:03, B :45:2x),
