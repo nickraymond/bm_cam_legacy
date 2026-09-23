@@ -225,3 +225,123 @@ If Nick prefers a camera-side change for outdoors, the only safe single variable
 pacing 1.0 → 1.2 s/msg (`pacing_delay_seconds` in the YAML on both units; burst 186 s,
 ends at +243 s, 57 s clear of the boundary) — it should convert some 4 s stalls into
 free ones. It costs a redeploy to both units and a second variable versus today's data.
+
+---
+
+# Part 1c — outdoor 15-minute run, 2026-09-22 22:35Z → 2026-09-23 02:20Z (16 cycles per rig)
+
+Run folder `runs/sprint25_outdoor_20260923T0240Z/`. Sources: both cards, whole history (SPOT-33507C sets
+`0000`..`0007`, SPOT-31593C `0000`..`0004`; outdoor = `0007` / `0004`, no Spotter reset during the run),
+Sofar `sensor-data` to 02:49Z. Same rigs as part 1b (A = bmcam003 on SPOT-33507C / WBGLW 6.2.5,
+B = bmcam004 on SPOT-31593C / WBNA-500 4.2.1), same settings. Both Spotters booted on SD insertion at
+22:20:35Z / 22:20:42Z; bus windows :05/:20/:35/:50; hourly LEGACY report :25:00 on both (verified).
+Excluded: the 22:21 cycles (insertion boot, burst cut by the forced 120 s bus-on) and the 02:35 cycles
+(Nick powered off mid-burst). Tool check: the indoor15 SPOT-33507C table regenerated from this card
+matches the committed one exactly.
+
+## Comparison (rows keyed by Spotter/Notecard — the stall behaviour follows the Notecard, not the camera)
+
+| | A overnight 20-min | A indoor 15-min | **A outdoor 15-min** | B overnight 20-min | B indoor 15-min | **B outdoor 15-min** |
+|---|---|---|---|---|---|---|
+| camera | bmcam004 | bmcam003 | bmcam003 | bmcam003 | bmcam004 | bmcam004 |
+| clips (aligned, window) | 58 | 12 | **16** | 47 | 12 | **16** |
+| complete at Sofar | 33 (57 %) | 5 (42 %) | **5 (31 %)** | 29 (62 %) | 7 (58 %)¹ | **9 (56 %)** |
+| chunks lost / clip, stall only | 0.88 | 1.1 | **1.13** | 0.49 | 0.42 | **0.47** |
+| chunks lost / clip, all causes | 1.83 | 4.6 | **1.13** | 0.49² | 0.42 | **0.50** |
+| Spotter rejections / clip | 2.9 | 1.75 | **2.5** | 0.74 | 0.83 | **1.4** |
+| hand-off stalls ≥ 3 s / clip | 1.34 | 1.75 | **1.38** | 0.76 | 0.83 | **0.69** |
+| stall length (min / median / max) | 3.65 / 3.66 / 3.68 s | 3.65 / 3.66 / 3.81 s | **3.65 / 3.66 / 3.68 s** | 3.36 / 3.37 / 3.39 s | 3.35 / 3.37 / 3.61 s | **3.36 / 3.37 / 3.38 s** |
+| stalls ≥ 4 s outside report syncs | 0 | 0 | **0** | 0 | 0 | **0** |
+| hourly-report collisions | 0 | 0 (2 on the boundary, clean) | **0** | 0 | 0 (2 on the boundary, clean) | **0** |
+| health-check alert inside a burst | 2 → 57 chunks | 0 | **1 → 1 chunk** | 0 | 0 | **1 → 1 chunk** |
+| HDR push inside a burst | 0 | 0 | **0** | 0 | 0 | **0**³ |
+| clips lost to resets / cuts | 0 in window⁴ | 21:35 (44 chunks) + 21:50 whole | **0** | 13:28 commit cut, 15:20 whole | 0 | **0** |
+| Notecard drain (burst end → first `pct full` drop), median / max | 16 / 27 min | 26 / 28 min | **13 / 21 min** | 11 / 31 min | 21 / 36 min | **13 / 26 min** |
+
+¹ Part 1b said 8 of 12; the regenerated table in the window 19:05–21:50 gives 7 (one clip counted in a different window or later at Sofar). ² excludes the 13:28 commit cut (68 chunks). ³ The tool shows 1 on B's 01:05 row: the 01:20Z START line was dropped from BM_TX.log (logging-queue drop), so 01:05 and 01:20 were merged into one 1054 s "burst". The 01:20 clip is complete at Sofar (121/121) with 0 rejections in MS.log. ⁴ The 19:01Z self-reset (2 whole clips) was before the aligned window.
+
+Stall method (replaces part 1b's): a stall is the gap between consecutive MS `Queuing message <id>` lines
+(one per `note.add`), not the `Sending Cellular message to Notecard` line (one per batch, so its spacing
+also includes draining the backlog after a stall; that is why part 1b's table showed 4–13 s). Rejections =
+stalls exactly on every run (e.g. A outdoor 22 stalls ↔ 22 rejections outside the one sync).
+
+## What changed outdoors (evidence per claim)
+
+1. **Stall length: nothing.** Every stall outside a report sync lasts a fixed time per Notecard:
+   **A 3.65–3.68 s, B 3.36–3.39 s**, the same to 0.01 s in all three runs (177 stalls). The enclosure
+   temperature (HTU.csv) went from 23–27 °C indoors to **15–26 °C** outdoors; the stall length did not
+   change. A constant this tight looks like a Notecard firmware timeout, not radio conditions.
+   **Cellular signal could not be measured**: neither card logs bars/RSSI (`card.wireless` only
+   returns modem on/off at boot).
+2. **Stall rate: nothing.** A 1.38 per clip outdoors vs 1.34 / 1.75 indoors; B 0.69 vs 0.76 / 0.83.
+   Chunks lost to stalls per clip: A 1.13 vs 0.88 / 1.1; B 0.47 vs 0.49 / 0.42.
+3. **Health check: collided by construction, but cheap this time.** The check runs at the **boot
+   instant every hour** (22:20:35 → 23:20:38, drifting −0.6 s/h), not at boot minute + 1. Outdoors
+   the insertion boot landed 35–42 s after a 15-min window boundary, so every hourly check falls
+   15–20 s before a :20 burst. **The first check after a boot usually queues a 37 B alert** (7 of the 10 boot
+   sets that ran a check, both rigs; later checks alerted 2 of 51 times, both indoors, GPS flapping):
+   23:20 on both rigs → hub.sync → 19 (A) / 12 (B) rejections. They hit chunks 3–20, inside the
+   keyframe-repeat prefix (chunks 0–29 are sent twice), so each cost **1 chunk**. The same collision
+   mid-burst indoors cost 27–30 chunks. Later outdoor checks (00:20, 01:20, 02:20): 0 of 6 alerted. Too
+   few samples to say GPS-steady made a difference (indoors 2 of 45 later checks alerted).
+4. **Resets: none.** SPOT-33507C did not self-reset in 4 h 15 min outdoors (indoors 19:01 and 22:01 on
+   2026-09-22, but 20 h without one overnight). No clips lost to resets; the only lost clips were operator
+   events (insertion boot, power-off).
+5. **Notecard drain faster** (median 13 min on both vs 11–26 min indoors), but it is a proxy (first
+   `pct full` drop after the burst), and nothing was lost in the queue either way.
+
+**Net: outdoors made no difference to the loss mechanism.** The residual is ~1.1 (A) / ~0.5 (B)
+chunks per clip, all from fixed-length note.add stalls. That is why only 31 % / 56 % of clips are
+complete even though 99 % of chunks arrive.
+
+## Why a fixed stall costs exactly one chunk, and what pacing does
+
+The MS task hands a message to the Notecard ~0.05–0.12 s after it arrives, so a stall always starts
+just after an arrival. The next arrivals land at `T − lag`, `2T − lag`, `3T − lag` (T = arrival
+spacing, 1.02 s today). The 2-slot queue absorbs two; **the third is rejected if `3T − lag < S`**.
+Measured against every stall on the cards:
+
+| arrival spacing T | A stalls that still cost a chunk (121) | B stalls that still cost a chunk (56) |
+|---|---|---|
+| 1.02 s (today) | 121 | 56 |
+| 1.10 s | 121 | 56 |
+| **1.20 s** | **121** | **1** |
+| 1.25 s | 1 | 0 |
+| **1.30 s** | **0** | **0** |
+
+So **1.2 s/msg fixes rig B but not rig A.** 1.3 s/msg fixes both, with 0.17 s of margin on A's
+longest normal stall. Burst 158 s → ~203 s: it ends at +260..+265 s, 35–40 s before the next
+boundary's HDR push and the :25:00 hourly report. Note T is the *arrival* spacing: today's 1.0 s setting
+arrives every 1.02 s, so set 1.3 and check the measured spacing on the SD.
+
+## Ranked: what would reduce dropped messages (measured effect targeted)
+
+1. **Pacing 1.0 → 1.3 s/msg** (`pacing_delay_seconds`), camera-side, one YAML value. Targets the stall
+   loss: A 1.13 and B 0.47 chunks per clip, i.e. every outdoor loss except the health-check sync.
+   Prediction from the table above: 0 stall rejections on either rig. Cost: +45 s bus-on per cycle
+   (energy) and a smaller boundary margin (40 s). **Test: one variable, rig A only (the harder
+   Notecard), B unchanged as control, ≥ 12 cycles**; pass = A rejections outside report syncs → 0.
+   Needs Nick's go and a redeploy to bmcam003.
+2. **Resend/heal** (`SPEC_resend_heal.md` v3, approved). Covers what pacing cannot: health-check syncs,
+   bus cuts, reset partials (21:35 indoors: 44 chunks). At today's pacing it would need ~1–2 resends
+   per clip (A) and ~0.5 (B); with 1.3 s pacing it becomes the safety net rather than the main fix.
+3. **Keep Spotter boots away from window boundaries.** The first health check after any boot always
+   alerts, at the boot instant + 1 h, then every hour. A boot 0–4 min after a 15-min window boundary puts
+   every check in front of or inside a burst. After an SD insertion or reset, either re-commit the
+   bus grid (one cut cycle) or check where boot mod 15 min falls. Outdoors it cost 1 chunk per rig
+   (it hit the keyframe-repeat prefix); mid-burst it costs 27–30.
+4. **No power cuts / card pulls while the Notecard holds unsynced clips.** Drain takes 13 min median,
+   21–26 min worst outdoors. Wait ≥ 30 min after the last burst, or check `Notecard is N pct full` on the console.
+5. **Ask Sofar**: (a) what the fixed 3.37 s (WBNA-500 4.2.1) / 3.66 s (WBGLW 6.2.5) `note.add` stall is,
+   and whether a Notecard setting removes it; (b) whether `MS_Q_CELLULAR_ONLY` can be ≥ 4 slots.
+   Either one removes the stall loss with no camera change.
+
+Rigs were not changed during or after this analysis. Restore commands (`sampleIntervalMs 960000`) are
+still pending, per the kickoff.
+
+## Artifacts
+
+- `runs/sprint25_outdoor_20260923T0240Z/run_manifest.json`
+- `runs/sprint25_outdoor_20260923T0240Z/report_SPOT-33507C/{cycles.md,loss_by_stage.md,timeline_SPOT-33507C.svg}`
+- `runs/sprint25_outdoor_20260923T0240Z/report_SPOT-31593C/{cycles.md,loss_by_stage.md,timeline_SPOT-31593C.svg}` (01:05/01:20 merge, see ³)
+- `runs/sprint25_outdoor_20260923T0240Z/analysis/{sofar_dump.py,stall_analysis.py,stall_lengths.py}`

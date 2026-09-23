@@ -1,0 +1,23 @@
+{
+  "run_tag": "sprint25_outdoor_20260923T0240Z",
+  "purpose": "Sprint25 part 1c: outdoor 15-min run vs the two indoor runs; what changed outdoors and what would reduce dropped messages",
+  "window": "2026-09-22T22:35Z .. 2026-09-23T02:20Z cycles (16 per rig). Excluded: 22:21 cycles (SD-insertion boot, forced 120 s bus-on cut the burst) and 02:35 cycles (Nick powered off during the burst; operator event, not analysed)",
+  "inputs": {
+    "SPOT-33507C": "~/Downloads/SPOT-33507C_outdoor_09222026.zip (whole card; outdoor set 0007_*, overnight 0000+0001, indoor15 0006)",
+    "SPOT-31593C": "~/Downloads/SPOT-31593C_outdoor_09222026.zip (whole card; outdoor set 0004_*, overnight 0000, indoor15 0003)",
+    "sofar": "sensor-data 2026-09-21T18:00Z..2026-09-23T02:49Z, SOFAR_API_TOKEN_BM_REEF, 4 h slices via analysis/sofar_dump.py; raw JSON in the session scratchpad only (hex = bench footage)"
+  },
+  "rigs": {
+    "A": {"spotter": "SPOT-33507C", "notecard": "NOTE-WBGLW fw 6.2.5", "camera": "bmcam003", "node": "0x53171fa3d81a8e6f", "device": "BMCAM_003", "boot": "2026-09-22T22:20:35Z SD card insertion reset"},
+    "B": {"spotter": "SPOT-31593C", "notecard": "NOTE-WBNA-500 fw 4.2.1", "camera": "bmcam004", "node": "0xe6fe83ea6b4a2b7f", "device": "BMCAM_004", "boot": "2026-09-22T22:20:42Z SD card insertion reset"}
+  },
+  "commands": [
+    "python3 tools/bm_video_soak_report.py --sd-log <scratch>/logs/SPOT-33507C_outdoor (symlinks to 0007_*) --sofar-json <scratch>/SPOT-33507C_all.json --spotter-id SPOT-33507C --node-id 0x53171fa3d81a8e6f --device-id BMCAM_003 --start 2026-09-22T22:15:00Z --end 2026-09-23T02:49:00Z --run-tag sprint25_outdoor_20260923T0240Z --out runs/sprint25_outdoor_20260923T0240Z/report_SPOT-33507C",
+    "python3 tools/bm_video_soak_report.py --sd-log <scratch>/logs/SPOT-31593C_outdoor (symlinks to 0004_*) --sofar-json <scratch>/SPOT-31593C_all.json --spotter-id SPOT-31593C --node-id 0xe6fe83ea6b4a2b7f --device-id BMCAM_004 --start 2026-09-22T22:15:00Z --end 2026-09-23T02:49:00Z --run-tag sprint25_outdoor_20260923T0240Z --out runs/sprint25_outdoor_20260923T0240Z/report_SPOT-31593C",
+    "python3 analysis/stall_analysis.py <label> <start> <end> <MS.log...>   (stall buckets, sync stalls, Notecard drain proxy)",
+    "python3 analysis/stall_lengths.py <label> <start> <end> <MS.log...>    (exact stall lengths + pacing prediction)"
+  ],
+  "tool_check": "the indoor15 SPOT-33507C cycles.md was regenerated from this card and matches the committed table exactly",
+  "known_issue": "report_SPOT-31593C: the 01:20Z START line was dropped from BM_TX.log (logging-queue drop), so the tool merged the 01:20 cycle into the 01:05 row (burst_s 1054, hdr_in_burst 3). At Sofar the 01:20 clip is complete (121/121); MS.log shows 0 rejections for it.",
+  "git_ignored": "card contents runs/sprint25_outdoor_*/SPOT-*/ ; cycles.csv (*.csv)"
+}
