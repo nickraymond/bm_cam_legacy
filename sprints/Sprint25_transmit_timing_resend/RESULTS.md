@@ -366,3 +366,40 @@ Rig B (bmcam004 / SPOT-31593C) unchanged at 1.0 s (control). Both bridges stay o
   ~0.7 per clip. Pass = A has 0 in ≥ 12 cycles.
 - Rollback: `cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T040049Z /home/pi/BM_Devel_Pi/camera_schedule.yaml`
   (or `patch_camera_schedule.py --set bm_serial.image_transmit_delay_seconds=1.0`) during a bus window.
+
+## Part 1d — RESULTS (cards pulled ~14:20Z 2026-09-23)
+
+Run folder `runs/sprint25_pacing13_20260923/` (SPOT-33507C sets `0010`..`0013`, SPOT-31593C `0006`; Sofar to 23:27Z).
+Steady window: A 04:55 → 13:40Z (36 cycles at 1.3 s, after A's 04:46–04:49 resets), B 04:00 → 13:45Z (40 cycles at 1.0 s).
+
+| | Rig A bmcam003 / SPOT-33507C, **1.3 s/msg** | Rig B bmcam004 / SPOT-31593C, 1.0 s/msg (control) |
+|---|---|---|
+| cycles | 36 | 40 |
+| complete at Sofar | **35 (97 %)** | 26 (65 %) |
+| hand-off stalls (3.4–3.7 s) | **0** in 5592 hand-offs | 18, all 3.36–3.38 s |
+| rejections from stalls | **0** | 18 → 17 chunks lost (0.43 / clip) |
+| rejections from a report sync | 32 (one cycle, 11:55) → 8 chunks lost | 0 |
+| measured arrival spacing | 1.32 s | 1.02 s |
+| burst length | ~200 s (ends +260 s) | ~155 s |
+| Notecard drain (median / max) | 26 / 28 min | 12 / 27 min |
+
+1. **1.3 s removed the stall loss completely.** At 1.0 s rig A stalled ~1.4 times per clip (Parts 1b/1c). At 1.3 s
+   there was not one 3.4–3.7 s hand-off gap in 36 bursts. The stalls are not just absorbed by the queue, they
+   stop happening. The Notecard seems to stall only under a sustained ~1 msg/s `note.add` rate. B at 1.0 s
+   behaved as before (0.45 stalls per clip, 3.37 s each).
+2. **The one partial clip on A was the hourly report, not pacing.** A's resets re-anchored its grid (windows
+   :10/:25/:40/:55, report at :54:59, on a window boundary). 8 of 9 report syncs ended before the burst
+   started (+60 s). At 11:55 the sync ran 73 s (`Checking for Rx Messages` at 11:56:13), and the Notecard
+   then stalled for 8–20 s four times inside the burst → 32 rejections, 8 chunks lost. Slower pacing cannot
+   fix this. The resend can, or a grid whose report does not sit on a window boundary.
+3. **Clips lost to resets and the card pull (operational, not in the table):** A's 04:46 `Reboot Controller`
+   self-reset (then an SD-insertion and a charge-mode reset at 04:48/04:49) lost the 04:30 clip (accepted by
+   the Spotter, never at Sofar) and cut 04:45/04:46/04:50. At the ~14:20 pull, A 13:55/14:10 and B 14:00/14:15
+   were still in the Notecard and were lost. Same no-power-cut rule as Part 1c.
+
+**1.5 s or 2.0 s: not needed, and worse.** 1.3 s already gives 0 stall loss. What is left (report sync,
+resets) does not depend on pacing. Longer bursts only add exposure: 1.5 s → ~233 s burst, ending ~7 s before
+the next 5-minute boundary's HDR push; 2.0 s → ~310 s, crossing it (Sprint22: 10–17 rejections per HDR crossing).
+
+**Recommendation:** roll 1.3 s to bmcam004 (rig B) as well; the Part 1c model predicts 0 stalls there too (its stall
+is shorter). Keep the resend work for the report-sync and reset cases.

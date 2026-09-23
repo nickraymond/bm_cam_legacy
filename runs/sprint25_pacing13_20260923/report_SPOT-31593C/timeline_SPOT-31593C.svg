@@ -1,0 +1,414 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" font-family="Helvetica, Arial, sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="90" y="24" font-size="18" font-weight="bold">Sprint25 control 1.0 s — SPOT-31593C / BMCAM_004</text>
+<text x="90" y="42">run sprint25_pacing13_20260923 · SPOT-31593C · 2026-09-23 03:45Z to 2026-09-23 23:27Z · 42 bursts · cut sheet is a review artifact: time axes linear, bar heights not to scale</text>
+<text x="4" y="74" font-size="11">bus ON</text>
+<line x1="90" y1="70" x2="1570" y2="70" stroke="#eee"/>
+<text x="4" y="104" font-size="11">bursts</text>
+<line x1="90" y1="100" x2="1570" y2="100" stroke="#eee"/>
+<text x="4" y="144" font-size="11">queue full</text>
+<line x1="90" y1="140" x2="1570" y2="140" stroke="#eee"/>
+<text x="4" y="169" font-size="11">HDR push</text>
+<line x1="90" y1="165" x2="1570" y2="165" stroke="#eee"/>
+<text x="4" y="194" font-size="11">LEGACY report</text>
+<line x1="90" y1="190" x2="1570" y2="190" stroke="#eee"/>
+<text x="4" y="219" font-size="11">Rx check</text>
+<line x1="90" y1="215" x2="1570" y2="215" stroke="#eee"/>
+<text x="4" y="244" font-size="11">reset</text>
+<line x1="90" y1="240" x2="1570" y2="240" stroke="#eee"/>
+<line x1="108.8" y1="60" x2="108.8" y2="255" stroke="#ddd"/>
+<text x="108.8" y="268" font-size="10" text-anchor="middle">04Z</text>
+<line x1="183.9" y1="60" x2="183.9" y2="255" stroke="#ddd"/>
+<text x="183.9" y="268" font-size="10" text-anchor="middle">05Z</text>
+<line x1="259.0" y1="60" x2="259.0" y2="255" stroke="#ddd"/>
+<text x="259.0" y="268" font-size="10" text-anchor="middle">06Z</text>
+<line x1="334.2" y1="60" x2="334.2" y2="255" stroke="#ddd"/>
+<text x="334.2" y="268" font-size="10" text-anchor="middle">07Z</text>
+<line x1="409.3" y1="60" x2="409.3" y2="255" stroke="#ddd"/>
+<text x="409.3" y="268" font-size="10" text-anchor="middle">08Z</text>
+<line x1="484.4" y1="60" x2="484.4" y2="255" stroke="#ddd"/>
+<text x="484.4" y="268" font-size="10" text-anchor="middle">09Z</text>
+<line x1="559.5" y1="60" x2="559.5" y2="255" stroke="#ddd"/>
+<text x="559.5" y="268" font-size="10" text-anchor="middle">10Z</text>
+<line x1="634.7" y1="60" x2="634.7" y2="255" stroke="#ddd"/>
+<text x="634.7" y="268" font-size="10" text-anchor="middle">11Z</text>
+<line x1="709.8" y1="60" x2="709.8" y2="255" stroke="#ddd"/>
+<text x="709.8" y="268" font-size="10" text-anchor="middle">12Z</text>
+<line x1="784.9" y1="60" x2="784.9" y2="255" stroke="#ddd"/>
+<text x="784.9" y="268" font-size="10" text-anchor="middle">13Z</text>
+<line x1="860.1" y1="60" x2="860.1" y2="255" stroke="#ddd"/>
+<text x="860.1" y="268" font-size="10" text-anchor="middle">14Z</text>
+<line x1="935.2" y1="60" x2="935.2" y2="255" stroke="#ddd"/>
+<text x="935.2" y="268" font-size="10" text-anchor="middle">15Z</text>
+<line x1="1010.3" y1="60" x2="1010.3" y2="255" stroke="#ddd"/>
+<text x="1010.3" y="268" font-size="10" text-anchor="middle">16Z</text>
+<line x1="1085.4" y1="60" x2="1085.4" y2="255" stroke="#ddd"/>
+<text x="1085.4" y="268" font-size="10" text-anchor="middle">17Z</text>
+<line x1="1160.6" y1="60" x2="1160.6" y2="255" stroke="#ddd"/>
+<text x="1160.6" y="268" font-size="10" text-anchor="middle">18Z</text>
+<line x1="1235.7" y1="60" x2="1235.7" y2="255" stroke="#ddd"/>
+<text x="1235.7" y="268" font-size="10" text-anchor="middle">19Z</text>
+<line x1="1310.8" y1="60" x2="1310.8" y2="255" stroke="#ddd"/>
+<text x="1310.8" y="268" font-size="10" text-anchor="middle">20Z</text>
+<line x1="1385.9" y1="60" x2="1385.9" y2="255" stroke="#ddd"/>
+<text x="1385.9" y="268" font-size="10" text-anchor="middle">21Z</text>
+<line x1="1461.1" y1="60" x2="1461.1" y2="255" stroke="#ddd"/>
+<text x="1461.1" y="268" font-size="10" text-anchor="middle">22Z</text>
+<line x1="1536.2" y1="60" x2="1536.2" y2="255" stroke="#ddd"/>
+<text x="1536.2" y="268" font-size="10" text-anchor="middle">23Z</text>
+<line x1="93.3" y1="180" x2="93.3" y2="200" stroke="#000" stroke-width="2"><title>boot 03:47:37Z</title></line>
+<line x1="94.0" y1="208" x2="94.0" y2="222" stroke="#333"/>
+<line x1="94.1" y1="208" x2="94.1" y2="222" stroke="#333"/>
+<line x1="115.0" y1="158" x2="115.0" y2="172" stroke="#5b8def"/>
+<rect x="108.8" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="121.3" y1="158" x2="121.3" y2="172" stroke="#5b8def"/>
+<line x1="127.6" y1="158" x2="127.6" y2="172" stroke="#5b8def"/>
+<line x1="130.7" y1="132" x2="130.7" y2="148" stroke="#e0a800"/>
+<line x1="133.8" y1="158" x2="133.8" y2="172" stroke="#5b8def"/>
+<line x1="140.1" y1="158" x2="140.1" y2="172" stroke="#5b8def"/>
+<rect x="127.6" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="146.4" y1="158" x2="146.4" y2="172" stroke="#5b8def"/>
+<line x1="152.6" y1="158" x2="152.6" y2="172" stroke="#5b8def"/>
+<line x1="158.9" y1="158" x2="158.9" y2="172" stroke="#5b8def"/>
+<rect x="146.4" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="165.1" y1="158" x2="165.1" y2="172" stroke="#5b8def"/>
+<line x1="165.7" y1="180" x2="165.7" y2="200" stroke="#ff6f00" stroke-width="2"><title>health 04:45:25Z</title></line>
+<line x1="166.2" y1="208" x2="166.2" y2="222" stroke="#333"/>
+<line x1="167.1" y1="132" x2="167.1" y2="148" stroke="#e0a800"/>
+<line x1="171.4" y1="180" x2="171.4" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 04:50:00Z</title></line>
+<line x1="171.4" y1="158" x2="171.4" y2="172" stroke="#5b8def"/>
+<line x1="171.9" y1="208" x2="171.9" y2="222" stroke="#333"/>
+<line x1="177.7" y1="158" x2="177.7" y2="172" stroke="#5b8def"/>
+<rect x="165.1" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="183.9" y1="158" x2="183.9" y2="172" stroke="#5b8def"/>
+<line x1="190.2" y1="158" x2="190.2" y2="172" stroke="#5b8def"/>
+<line x1="196.4" y1="158" x2="196.4" y2="172" stroke="#5b8def"/>
+<rect x="183.9" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="202.7" y1="158" x2="202.7" y2="172" stroke="#5b8def"/>
+<line x1="205.5" y1="132" x2="205.5" y2="148" stroke="#e0a800"/>
+<line x1="209.0" y1="158" x2="209.0" y2="172" stroke="#5b8def"/>
+<line x1="215.2" y1="158" x2="215.2" y2="172" stroke="#5b8def"/>
+<rect x="202.7" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="221.5" y1="158" x2="221.5" y2="172" stroke="#5b8def"/>
+<line x1="227.7" y1="158" x2="227.7" y2="172" stroke="#5b8def"/>
+<line x1="234.0" y1="158" x2="234.0" y2="172" stroke="#5b8def"/>
+<rect x="221.5" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="240.3" y1="158" x2="240.3" y2="172" stroke="#5b8def"/>
+<line x1="246.5" y1="180" x2="246.5" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 05:50:00Z</title></line>
+<line x1="246.5" y1="158" x2="246.5" y2="172" stroke="#5b8def"/>
+<line x1="247.1" y1="208" x2="247.1" y2="222" stroke="#333"/>
+<line x1="252.8" y1="158" x2="252.8" y2="172" stroke="#5b8def"/>
+<rect x="240.3" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="259.0" y1="158" x2="259.0" y2="172" stroke="#5b8def"/>
+<line x1="265.3" y1="158" x2="265.3" y2="172" stroke="#5b8def"/>
+<rect x="259.0" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="271.6" y1="158" x2="271.6" y2="172" stroke="#5b8def"/>
+<line x1="277.8" y1="158" x2="277.8" y2="172" stroke="#5b8def"/>
+<line x1="281.1" y1="132" x2="281.1" y2="148" stroke="#e0a800"/>
+<line x1="281.8" y1="132" x2="281.8" y2="148" stroke="#e0a800"/>
+<line x1="284.1" y1="158" x2="284.1" y2="172" stroke="#5b8def"/>
+<rect x="277.8" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="290.4" y1="158" x2="290.4" y2="172" stroke="#5b8def"/>
+<line x1="296.6" y1="158" x2="296.6" y2="172" stroke="#5b8def"/>
+<line x1="302.9" y1="158" x2="302.9" y2="172" stroke="#5b8def"/>
+<rect x="296.6" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="309.1" y1="158" x2="309.1" y2="172" stroke="#5b8def"/>
+<line x1="315.4" y1="158" x2="315.4" y2="172" stroke="#5b8def"/>
+<line x1="317.4" y1="132" x2="317.4" y2="148" stroke="#e0a800"/>
+<line x1="318.4" y1="132" x2="318.4" y2="148" stroke="#e0a800"/>
+<line x1="321.7" y1="180" x2="321.7" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 06:50:00Z</title></line>
+<line x1="321.7" y1="158" x2="321.7" y2="172" stroke="#5b8def"/>
+<line x1="322.3" y1="208" x2="322.3" y2="222" stroke="#333"/>
+<rect x="315.4" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="327.9" y1="158" x2="327.9" y2="172" stroke="#5b8def"/>
+<line x1="334.2" y1="158" x2="334.2" y2="172" stroke="#5b8def"/>
+<line x1="340.4" y1="158" x2="340.4" y2="172" stroke="#5b8def"/>
+<rect x="334.2" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="346.7" y1="158" x2="346.7" y2="172" stroke="#5b8def"/>
+<line x1="353.0" y1="158" x2="353.0" y2="172" stroke="#5b8def"/>
+<line x1="359.2" y1="158" x2="359.2" y2="172" stroke="#5b8def"/>
+<rect x="353.0" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="365.5" y1="158" x2="365.5" y2="172" stroke="#5b8def"/>
+<line x1="371.7" y1="158" x2="371.7" y2="172" stroke="#5b8def"/>
+<line x1="378.0" y1="158" x2="378.0" y2="172" stroke="#5b8def"/>
+<rect x="371.7" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="384.3" y1="158" x2="384.3" y2="172" stroke="#5b8def"/>
+<line x1="390.5" y1="158" x2="390.5" y2="172" stroke="#5b8def"/>
+<line x1="394.1" y1="132" x2="394.1" y2="148" stroke="#e0a800"/>
+<line x1="396.8" y1="180" x2="396.8" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 07:50:01Z</title></line>
+<line x1="396.8" y1="158" x2="396.8" y2="172" stroke="#5b8def"/>
+<line x1="397.3" y1="208" x2="397.3" y2="222" stroke="#333"/>
+<rect x="390.5" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="403.1" y1="158" x2="403.1" y2="172" stroke="#5b8def"/>
+<line x1="409.3" y1="158" x2="409.3" y2="172" stroke="#5b8def"/>
+<line x1="415.6" y1="158" x2="415.6" y2="172" stroke="#5b8def"/>
+<rect x="409.3" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="421.8" y1="158" x2="421.8" y2="172" stroke="#5b8def"/>
+<line x1="428.1" y1="158" x2="428.1" y2="172" stroke="#5b8def"/>
+<line x1="434.4" y1="158" x2="434.4" y2="172" stroke="#5b8def"/>
+<rect x="428.1" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="440.6" y1="158" x2="440.6" y2="172" stroke="#5b8def"/>
+<line x1="446.9" y1="158" x2="446.9" y2="172" stroke="#5b8def"/>
+<line x1="453.1" y1="158" x2="453.1" y2="172" stroke="#5b8def"/>
+<rect x="446.9" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="459.4" y1="158" x2="459.4" y2="172" stroke="#5b8def"/>
+<line x1="465.7" y1="158" x2="465.7" y2="172" stroke="#5b8def"/>
+<line x1="471.9" y1="180" x2="471.9" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 08:50:01Z</title></line>
+<line x1="471.9" y1="158" x2="471.9" y2="172" stroke="#5b8def"/>
+<line x1="472.5" y1="208" x2="472.5" y2="222" stroke="#333"/>
+<rect x="465.6" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="478.2" y1="158" x2="478.2" y2="172" stroke="#5b8def"/>
+<line x1="484.4" y1="158" x2="484.4" y2="172" stroke="#5b8def"/>
+<line x1="487.0" y1="132" x2="487.0" y2="148" stroke="#e0a800"/>
+<line x1="490.7" y1="158" x2="490.7" y2="172" stroke="#5b8def"/>
+<rect x="484.4" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="497.0" y1="158" x2="497.0" y2="172" stroke="#5b8def"/>
+<line x1="503.2" y1="158" x2="503.2" y2="172" stroke="#5b8def"/>
+<line x1="505.2" y1="132" x2="505.2" y2="148" stroke="#e0a800"/>
+<line x1="509.5" y1="158" x2="509.5" y2="172" stroke="#5b8def"/>
+<rect x="503.2" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="515.7" y1="158" x2="515.7" y2="172" stroke="#5b8def"/>
+<line x1="522.0" y1="158" x2="522.0" y2="172" stroke="#5b8def"/>
+<line x1="528.3" y1="158" x2="528.3" y2="172" stroke="#5b8def"/>
+<rect x="522.0" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="534.5" y1="158" x2="534.5" y2="172" stroke="#5b8def"/>
+<line x1="540.8" y1="158" x2="540.8" y2="172" stroke="#5b8def"/>
+<line x1="543.0" y1="132" x2="543.0" y2="148" stroke="#e0a800"/>
+<line x1="547.1" y1="180" x2="547.1" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 09:50:01Z</title></line>
+<line x1="547.1" y1="158" x2="547.1" y2="172" stroke="#5b8def"/>
+<line x1="547.6" y1="208" x2="547.6" y2="222" stroke="#333"/>
+<rect x="540.8" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="553.3" y1="158" x2="553.3" y2="172" stroke="#5b8def"/>
+<line x1="559.6" y1="158" x2="559.6" y2="172" stroke="#5b8def"/>
+<line x1="563.1" y1="132" x2="563.1" y2="148" stroke="#e0a800"/>
+<line x1="565.8" y1="158" x2="565.8" y2="172" stroke="#5b8def"/>
+<rect x="559.6" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="572.1" y1="158" x2="572.1" y2="172" stroke="#5b8def"/>
+<line x1="578.4" y1="158" x2="578.4" y2="172" stroke="#5b8def"/>
+<line x1="584.6" y1="158" x2="584.6" y2="172" stroke="#5b8def"/>
+<rect x="578.3" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="590.9" y1="158" x2="590.9" y2="172" stroke="#5b8def"/>
+<line x1="597.1" y1="158" x2="597.1" y2="172" stroke="#5b8def"/>
+<line x1="603.4" y1="158" x2="603.4" y2="172" stroke="#5b8def"/>
+<rect x="597.1" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="609.7" y1="158" x2="609.7" y2="172" stroke="#5b8def"/>
+<line x1="615.9" y1="158" x2="615.9" y2="172" stroke="#5b8def"/>
+<line x1="619.5" y1="132" x2="619.5" y2="148" stroke="#e0a800"/>
+<line x1="622.2" y1="180" x2="622.2" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 10:50:01Z</title></line>
+<line x1="622.2" y1="158" x2="622.2" y2="172" stroke="#5b8def"/>
+<line x1="622.7" y1="208" x2="622.7" y2="222" stroke="#333"/>
+<rect x="615.9" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="628.4" y1="158" x2="628.4" y2="172" stroke="#5b8def"/>
+<line x1="634.7" y1="158" x2="634.7" y2="172" stroke="#5b8def"/>
+<line x1="637.0" y1="132" x2="637.0" y2="148" stroke="#e0a800"/>
+<line x1="641.0" y1="158" x2="641.0" y2="172" stroke="#5b8def"/>
+<rect x="634.7" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="647.2" y1="158" x2="647.2" y2="172" stroke="#5b8def"/>
+<line x1="653.5" y1="158" x2="653.5" y2="172" stroke="#5b8def"/>
+<line x1="659.8" y1="158" x2="659.8" y2="172" stroke="#5b8def"/>
+<rect x="653.5" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="666.0" y1="158" x2="666.0" y2="172" stroke="#5b8def"/>
+<line x1="672.3" y1="158" x2="672.3" y2="172" stroke="#5b8def"/>
+<line x1="678.5" y1="158" x2="678.5" y2="172" stroke="#5b8def"/>
+<rect x="672.2" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="684.8" y1="158" x2="684.8" y2="172" stroke="#5b8def"/>
+<line x1="691.1" y1="158" x2="691.1" y2="172" stroke="#5b8def"/>
+<line x1="697.3" y1="158" x2="697.3" y2="172" stroke="#5b8def"/>
+<line x1="697.3" y1="180" x2="697.3" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 11:50:02Z</title></line>
+<line x1="698.0" y1="208" x2="698.0" y2="222" stroke="#333"/>
+<rect x="691.0" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="709.8" y1="158" x2="709.8" y2="172" stroke="#5b8def"/>
+<line x1="716.1" y1="158" x2="716.1" y2="172" stroke="#5b8def"/>
+<rect x="709.8" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="722.4" y1="158" x2="722.4" y2="172" stroke="#5b8def"/>
+<line x1="728.6" y1="158" x2="728.6" y2="172" stroke="#5b8def"/>
+<line x1="730.8" y1="132" x2="730.8" y2="148" stroke="#e0a800"/>
+<line x1="732.1" y1="132" x2="732.1" y2="148" stroke="#e0a800"/>
+<line x1="734.9" y1="158" x2="734.9" y2="172" stroke="#5b8def"/>
+<rect x="728.6" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="741.1" y1="158" x2="741.1" y2="172" stroke="#5b8def"/>
+<line x1="747.4" y1="158" x2="747.4" y2="172" stroke="#5b8def"/>
+<line x1="753.7" y1="158" x2="753.7" y2="172" stroke="#5b8def"/>
+<rect x="747.4" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="759.9" y1="158" x2="759.9" y2="172" stroke="#5b8def"/>
+<line x1="766.2" y1="158" x2="766.2" y2="172" stroke="#5b8def"/>
+<line x1="772.4" y1="180" x2="772.4" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 12:50:02Z</title></line>
+<line x1="772.4" y1="158" x2="772.4" y2="172" stroke="#5b8def"/>
+<line x1="773.0" y1="208" x2="773.0" y2="222" stroke="#333"/>
+<rect x="766.1" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="778.7" y1="158" x2="778.7" y2="172" stroke="#5b8def"/>
+<line x1="785.0" y1="158" x2="785.0" y2="172" stroke="#5b8def"/>
+<line x1="791.2" y1="158" x2="791.2" y2="172" stroke="#5b8def"/>
+<rect x="784.9" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="797.5" y1="158" x2="797.5" y2="172" stroke="#5b8def"/>
+<line x1="803.7" y1="158" x2="803.7" y2="172" stroke="#5b8def"/>
+<line x1="806.7" y1="132" x2="806.7" y2="148" stroke="#e0a800"/>
+<line x1="807.0" y1="132" x2="807.0" y2="148" stroke="#e0a800"/>
+<line x1="810.0" y1="158" x2="810.0" y2="172" stroke="#5b8def"/>
+<rect x="803.7" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="816.3" y1="158" x2="816.3" y2="172" stroke="#5b8def"/>
+<line x1="822.5" y1="158" x2="822.5" y2="172" stroke="#5b8def"/>
+<line x1="828.8" y1="158" x2="828.8" y2="172" stroke="#5b8def"/>
+<rect x="822.5" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="835.1" y1="158" x2="835.1" y2="172" stroke="#5b8def"/>
+<line x1="841.3" y1="158" x2="841.3" y2="172" stroke="#5b8def"/>
+<line x1="847.6" y1="180" x2="847.6" y2="200" stroke="#c0392b" stroke-width="2"><title>hourly 13:50:02Z</title></line>
+<line x1="847.6" y1="158" x2="847.6" y2="172" stroke="#5b8def"/>
+<line x1="848.2" y1="208" x2="848.2" y2="222" stroke="#333"/>
+<rect x="841.3" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="853.8" y1="158" x2="853.8" y2="172" stroke="#5b8def"/>
+<line x1="860.1" y1="158" x2="860.1" y2="172" stroke="#5b8def"/>
+<line x1="866.4" y1="158" x2="866.4" y2="172" stroke="#5b8def"/>
+<rect x="860.1" y="62" width="12.5" height="14" fill="#9ec9ff"/>
+<line x1="872.6" y1="158" x2="872.6" y2="172" stroke="#5b8def"/>
+<line x1="878.9" y1="158" x2="878.9" y2="172" stroke="#5b8def"/>
+<line x1="885.1" y1="158" x2="885.1" y2="172" stroke="#5b8def"/>
+<rect x="878.9" y="62" width="691.1" height="14" fill="#9ec9ff"/>
+<rect x="110.0" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T04-00-35Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="128.8" y="92" width="3.3" height="18" fill="#e0a800"><title>2026-09-23T04-15-35Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="147.6" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T04-30-35Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="166.4" y="92" width="3.3" height="18" fill="#e0a800"><title>2026-09-23T04-45-35Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=health</title></rect>
+<rect x="185.1" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T05-00-35Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="203.9" y="92" width="3.3" height="18" fill="#e0a800"><title>2026-09-23T05-15-35Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="222.7" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T05-30-34Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="241.5" y="92" width="3.1" height="18" fill="#2a9d3f"><title>2026-09-23T05-45-34Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="260.3" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T06-00-34Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="279.1" y="92" width="3.1" height="18" fill="#e0a800"><title>2026-09-23T06-15-34Z_video_5s.h264 spotter-reject missing 1 qfull=2 report=</title></rect>
+<rect x="297.9" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T06-30-34Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="316.6" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T06-45-34Z_video_5s.h264 spotter-reject missing 2 qfull=2 report=</title></rect>
+<rect x="335.4" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T07-00-34Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="354.2" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T07-15-33Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="373.0" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T07-30-33Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="391.8" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T07-45-33Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="410.5" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T08-00-33Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="429.3" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T08-15-33Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="448.1" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T08-30-33Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="466.9" y="92" width="3.1" height="18" fill="#2a9d3f"><title>2026-09-23T08-45-33Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="485.6" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T09-00-32Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="504.4" y="92" width="3.1" height="18" fill="#e0a800"><title>2026-09-23T09-15-32Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="523.2" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T09-30-32Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="542.0" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T09-45-32Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="560.8" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T10-00-32Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="579.5" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T10-15-32Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="598.3" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T10-30-32Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="617.1" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T10-45-31Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="635.9" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T11-00-31Z_video_5s.h264 spotter-reject missing 1 qfull=1 report=</title></rect>
+<rect x="654.7" y="92" width="3.1" height="18" fill="#2a9d3f"><title>2026-09-23T11-15-31Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="673.4" y="92" width="3.1" height="18" fill="#2a9d3f"><title>2026-09-23T11-30-31Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="692.2" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T11-45-31Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="711.0" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T12-00-31Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="729.8" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T12-15-31Z_video_5s.h264 spotter-reject missing 2 qfull=2 report=</title></rect>
+<rect x="748.6" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T12-30-31Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="767.3" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T12-45-30Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="786.1" y="92" width="3.1" height="18" fill="#2a9d3f"><title>2026-09-23T13-00-30Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="804.9" y="92" width="3.2" height="18" fill="#e0a800"><title>2026-09-23T13-15-30Z_video_5s.h264 spotter-reject missing 2 qfull=2 report=</title></rect>
+<rect x="823.7" y="92" width="3.2" height="18" fill="#2a9d3f"><title>2026-09-23T13-30-30Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="842.4" y="92" width="3.3" height="18" fill="#2a9d3f"><title>2026-09-23T13-45-30Z_video_5s.h264 OK missing 0 qfull=0 report=</title></rect>
+<rect x="861.4" y="92" width="3.3" height="18" fill="#8e44ad"><title>2026-09-23T14-00-40Z_video_5s.h264 no-START-at-sofar qfull=0 report=</title></rect>
+<rect x="880.2" y="92" width="3.2" height="18" fill="#8e44ad"><title>2026-09-23T14-15-40Z_video_5s.h264 no-START-at-sofar qfull=0 report=</title></rect>
+<rect x="90" y="282" width="12" height="12" fill="#2a9d3f"/><text x="106" y="292" font-size="11">OK</text>
+<rect x="240" y="282" width="12" height="12" fill="#e0a800"/><text x="256" y="292" font-size="11">spotter-reject</text>
+<rect x="390" y="282" width="12" height="12" fill="#7a7a7a"/><text x="406" y="292" font-size="11">bus-cut</text>
+<rect x="540" y="282" width="12" height="12" fill="#c0392b"/><text x="556" y="292" font-size="11">after-spotter</text>
+<rect x="690" y="282" width="12" height="12" fill="#8e44ad"/><text x="706" y="292" font-size="11">no-START-at-sofar</text>
+<rect x="840" y="282" width="12" height="12" fill="#bbbbbb"/><text x="856" y="292" font-size="11">no-burst</text>
+<text x="990" y="292" font-size="11">reports: <tspan fill="#c0392b">hourly</tspan> <tspan fill="#ff6f00">health</tspan> <tspan fill="#8e44ad">network</tspan> <tspan>boot</tspan></text>
+<text x="90" y="322" font-size="14" font-weight="bold">Folded onto the 5-minute grid (seconds after a :00/:05 boundary) — where each event lands relative to the boundary</text>
+<line x1="90.0" y1="330" x2="90.0" y2="530" stroke="#eee"/>
+<text x="90.0" y="544" font-size="10" text-anchor="middle">+0s</text>
+<line x1="238.0" y1="330" x2="238.0" y2="530" stroke="#eee"/>
+<text x="238.0" y="544" font-size="10" text-anchor="middle">+30s</text>
+<line x1="386.0" y1="330" x2="386.0" y2="530" stroke="#eee"/>
+<text x="386.0" y="544" font-size="10" text-anchor="middle">+60s</text>
+<line x1="534.0" y1="330" x2="534.0" y2="530" stroke="#eee"/>
+<text x="534.0" y="544" font-size="10" text-anchor="middle">+90s</text>
+<line x1="682.0" y1="330" x2="682.0" y2="530" stroke="#eee"/>
+<text x="682.0" y="544" font-size="10" text-anchor="middle">+120s</text>
+<line x1="830.0" y1="330" x2="830.0" y2="530" stroke="#eee"/>
+<text x="830.0" y="544" font-size="10" text-anchor="middle">+150s</text>
+<line x1="978.0" y1="330" x2="978.0" y2="530" stroke="#eee"/>
+<text x="978.0" y="544" font-size="10" text-anchor="middle">+180s</text>
+<line x1="1126.0" y1="330" x2="1126.0" y2="530" stroke="#eee"/>
+<text x="1126.0" y="544" font-size="10" text-anchor="middle">+210s</text>
+<line x1="1274.0" y1="330" x2="1274.0" y2="530" stroke="#eee"/>
+<text x="1274.0" y="544" font-size="10" text-anchor="middle">+240s</text>
+<line x1="1422.0" y1="330" x2="1422.0" y2="530" stroke="#eee"/>
+<text x="1422.0" y="544" font-size="10" text-anchor="middle">+270s</text>
+<line x1="1570.0" y1="330" x2="1570.0" y2="530" stroke="#eee"/>
+<text x="1570.0" y="544" font-size="10" text-anchor="middle">+300s</text>
+<text x="4" y="354" font-size="11">bursts (start→end)</text>
+<text x="4" y="404" font-size="11">queue full</text>
+<text x="4" y="434" font-size="11">HDR push</text>
+<text x="4" y="464" font-size="11">LEGACY report</text>
+<text x="4" y="494" font-size="11">Rx check</text>
+<rect x="386.0" y="352" width="774.5" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="381.1" y="346" width="779.5" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="352" width="779.5" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="381.1" y="352" width="779.5" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="348" width="789.3" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="381.1" y="352" width="774.5" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="354" width="769.6" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="348" width="730.1" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="348" width="744.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="348" width="740.0" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="390.9" y="352" width="749.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="348" width="744.9" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="354" width="759.7" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="344" width="759.7" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="348" width="759.7" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="390.9" y="354" width="744.9" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="342" width="774.5" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="390.9" y="352" width="764.7" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="386.0" y="346" width="744.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="381.1" y="342" width="730.1" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="381.1" y="342" width="749.9" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="346" width="740.0" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="344" width="764.7" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="381.1" y="346" width="754.8" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="354" width="759.7" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="376.1" y="354" width="749.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="376.1" y="342" width="744.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="376.1" y="348" width="754.8" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="381.1" y="344" width="749.9" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="376.1" y="350" width="740.0" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="376.1" y="346" width="740.0" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="376.1" y="344" width="774.5" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="371.2" y="346" width="764.7" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="371.2" y="344" width="749.9" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="376.1" y="342" width="749.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="371.2" y="350" width="754.8" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="371.2" y="346" width="735.1" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="366.3" y="350" width="754.8" height="4" fill="#e0a800" opacity="0.7"/>
+<rect x="371.2" y="344" width="744.9" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="361.3" y="352" width="774.5" height="4" fill="#2a9d3f" opacity="0.7"/>
+<rect x="410.7" y="354" width="789.3" height="4" fill="#8e44ad" opacity="0.7"/>
+<rect x="405.7" y="348" width="749.9" height="4" fill="#8e44ad" opacity="0.7"/>
+<rect x="534.0" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +90s: 1</title></rect>
+<rect x="558.7" y="397.3" width="24.7" height="14.7" fill="#e0a800"><title>queue_full +95s: 2</title></rect>
+<rect x="583.3" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +100s: 1</title></rect>
+<rect x="608.0" y="397.3" width="24.7" height="14.7" fill="#e0a800"><title>queue_full +105s: 2</title></rect>
+<rect x="706.7" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +125s: 1</title></rect>
+<rect x="731.3" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +130s: 1</title></rect>
+<rect x="780.7" y="397.3" width="24.7" height="14.7" fill="#e0a800"><title>queue_full +140s: 2</title></rect>
+<rect x="830.0" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +150s: 1</title></rect>
+<rect x="854.7" y="397.3" width="24.7" height="14.7" fill="#e0a800"><title>queue_full +155s: 2</title></rect>
+<rect x="904.0" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +165s: 1</title></rect>
+<rect x="928.7" y="390.0" width="24.7" height="22.0" fill="#e0a800"><title>queue_full +170s: 3</title></rect>
+<rect x="1027.3" y="404.7" width="24.7" height="7.3" fill="#e0a800"><title>queue_full +190s: 1</title></rect>
+<text x="1570" y="404" font-size="10" text-anchor="end">max 3/5 s bin</text>
+<rect x="90.0" y="420.0" width="24.7" height="22.0" fill="#5b8def"><title>hdr_push +0s: 123</title></rect>
+<text x="1570" y="434" font-size="10" text-anchor="end">max 123/5 s bin</text>
+<rect x="90.0" y="450.0" width="24.7" height="22.0" fill="#c0392b"><title>legacy_report +0s: 10</title></rect>
+<rect x="213.3" y="469.8" width="24.7" height="2.2" fill="#c0392b"><title>legacy_report +25s: 1</title></rect>
+<rect x="854.7" y="469.8" width="24.7" height="2.2" fill="#c0392b"><title>legacy_report +155s: 1</title></rect>
+<text x="1570" y="464" font-size="10" text-anchor="end">max 10/5 s bin</text>
+<rect x="213.3" y="480.0" width="24.7" height="22.0" fill="#333"><title>rx_check +25s: 8</title></rect>
+<rect x="238.0" y="499.2" width="24.7" height="2.8" fill="#333"><title>rx_check +30s: 1</title></rect>
+<rect x="262.7" y="499.2" width="24.7" height="2.8" fill="#333"><title>rx_check +35s: 1</title></rect>
+<rect x="336.7" y="499.2" width="24.7" height="2.8" fill="#333"><title>rx_check +50s: 1</title></rect>
+<rect x="1027.3" y="499.2" width="24.7" height="2.8" fill="#333"><title>rx_check +190s: 1</title></rect>
+<rect x="1052.0" y="499.2" width="24.7" height="2.8" fill="#333"><title>rx_check +195s: 1</title></rect>
+<text x="1570" y="494" font-size="10" text-anchor="end">max 8/5 s bin</text>
+<text x="90" y="564" font-size="11">bursts coloured by loss_stage; report markers: hourly = the Spotter's hourly LEGACY report, health = the boot-anchored hourly health check alert, network = bridge topology change / cfg commit.</text>
+<text x="90" y="579" font-size="11">video bursts 42, complete 26; chunks lost by stage {'OK': 0, 'spotter-reject': 17}; SD BM_TX.log can under-count submissions (Spotter logging queue drops lines under load).</text>
+</svg>
