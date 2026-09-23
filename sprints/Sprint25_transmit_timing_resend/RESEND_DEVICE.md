@@ -1,7 +1,7 @@
-# Sprint25 part 2 — self-healing media, DEVICE side (design v3, 2026-09-22, post engineering review)
+# Sprint25 part 2 — self-healing media, DEVICE side (design v3, APPROVED by Nick 2026-09-22)
 
 Companion to `nereus-vision-dev/backend/docs/SPEC_resend_heal.md` v3 (§0a decisions, §0b open
-questions). Review record: `REVIEW_20260922.md` in this folder. No code until §0b is signed.
+questions). Review record: `REVIEW_20260922.md` in this folder. §0b signed: heals first, ≤ 8 per command, 40 chunks/wake to start (ceiling 60).
 v2 → v3 changes marked **[Rn]** (A = wire/backend review, B = device review, C = rollout review).
 
 ## 1. Daemon lifecycle (D3) — created in `main()`, stopped inside each cycle [R-B1, R-B2, R-C11]
@@ -65,11 +65,11 @@ imports — a separate, optional optimisation, not part of this change.
 all. Ids are allocated by the backend. `parse_command`/`CommandState.record/save` are extended
 explicitly (schema note) to carry `h` and `pending_heals`. Validation per heal: key
 `^[0-9a-z]{6}$` + `.sent` exists + in window; ranges expand → dedupe → reject reversed / ≥ `msgs`;
-≤ 60 chunks per **wake** across all heals. Refused heals are recorded so a re-sent command is
+≤ 40 chunks per **wake** across all heals to start (ceiling 60; each heal chunk delays the clip's end by 1 s, so 40 keeps it ≤ +266 s of the window). Refused heals are recorded so a re-sent command is
 acked-duplicate, not re-refused with a fresh `<HL>`. Pending list: dedupe by key (newest id wins),
 ≤ 8, newest first, `wakes_left` 3 → `<HL a=dropped>`.
 
-**Heal slot (Q1 for Nick).** Recommended: when the pending list is non-empty, send heals **before**
+**Heal slot (Q1: decided).** When the pending list is non-empty, send heals **before**
 the new START (3–5 messages at +57 s, in the clean lane, capture delayed by seconds); anything left
 goes after the burst only if it ends by **+240 s of the window** (`seconds_to_next_5min_boundary −
 15`), else waits. `budget.has_time_for` is not boundary-aware — the boundary rule is new. `v=1`
