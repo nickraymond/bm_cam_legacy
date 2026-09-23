@@ -403,3 +403,25 @@ the next 5-minute boundary's HDR push; 2.0 s → ~310 s, crossing it (Sprint22: 
 
 **Recommendation:** roll 1.3 s to bmcam004 (rig B) as well; the Part 1c model predicts 0 stalls there too (its stall
 is shorter). Keep the resend work for the report-sync and reset cases.
+
+## DECISION (Nick, 2026-09-23): video pacing 1.3 s/msg on the video units
+
+`bm_serial.image_transmit_delay_seconds: 1.3` on **bmcam003** (done 2026-09-23T04:00:49Z) and **bmcam004**
+(to be applied by the session that holds the hardware). Not tested: 1.5 or 2.0 s (not needed, see above).
+
+How to apply on bmcam004 (awake during a bus window; cron stays armed, no code deploy; takes effect next cycle):
+
+```
+scp tools/patch_camera_schedule.py pi@bmcam004:/tmp/
+ssh pi@bmcam004 'python3 /tmp/patch_camera_schedule.py /home/pi/BM_Devel_Pi/camera_schedule.yaml \
+    --set bm_serial.image_transmit_delay_seconds=1.3 && grep -n image_transmit_delay_seconds /home/pi/BM_Devel_Pi/camera_schedule.yaml'
+```
+
+Check afterwards: on the Spotter console or SD `MS.log`, arrivals on SPOT-31593C are spaced ~1.32 s, and the
+following bursts show no `Queue MS_Q_CELLULAR_ONLY is full` outside report syncs. Rollback: copy back the
+`camera_schedule.yaml.bak_<TS>` the patch tool writes.
+
+Repo: `device_profiles/bmcam003/camera_schedule.yaml` is set to 1.3, because `rc_field_update.sh` re-applies
+this value from the profile. **No `device_profiles/bmcam004/` exists**; `rc_field_template` and the
+other units stay at 1.0 (stills-mode units: `1.3 × message_cap 195 = 253 s` would break config rule D3
+if `transmit_phase` is enabled; revisit per unit).
