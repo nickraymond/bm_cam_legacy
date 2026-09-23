@@ -47,6 +47,14 @@ previous gate is green.
   the no-regression control for every backend step. Bench dev unit for S3–S5: bmcam000 (ASSUMPTION:
   on the bench and reachable over Tailscale; verify with Nick).
 
+## UPDATE 2026-09-23 03:50Z — S0 backend half is ALREADY MERGED
+nereus-vision-dev PR #49 (`563022f`, "S25 S0 / M0: parse keyed chunks <I{key}.{n}> as <I{n}>
+(lossless fallback)") is on `origin/staging`; PR #47 (spec v3) merged too. Remaining S0 items: the
+contract rev 5 section + Nick's sign-off line in `docs/bm_media_wire_contract.md` (this repo), and the
+48 h gate below. Migration order note (Fish-Count session, pending Nick's ruling): a fish-count
+migration may merge before 0011/0012; whichever of 0011/0012 is written next takes the head at that
+time as `down_revision` — one head, names unchanged.
+
 ## S0 — what to build (small PR to `staging`)
 1. Contract: append the rev 5 section to `docs/bm_media_wire_contract.md` (bm_cam_legacy): key
    definition (6 base-36 chars, seconds since 2026-01-01Z, from Spotter UTC only, monotonic), START
