@@ -1,0 +1,22 @@
+{
+  "run_tag": "sprint25_sd_20260922T1640Z",
+  "purpose": "Sprint25 step 2: where does video loss fall — Spotter SD log/ of both indoor rigs (overnight 2026-09-21T18Z..2026-09-22T15:41Z) joined with Sofar and staging",
+  "inputs": {
+    "SPOT-31593C": "~/Downloads/SPOT-31593C_indoors.zip (card pulled 2026-09-22 15:41Z, log/index 0 -> set 0000_*)",
+    "SPOT-33507C": "~/Downloads/SPOT-33507C_indoor.zip (card pulled 2026-09-22 15:41Z, log/index 1 -> sets 0000_* to the 19:01:11Z self-reset, then 0001_*)",
+    "sofar": "api.sofarocean.com sensor-data, SOFAR_API_TOKEN_BM_REEF, 2026-09-21T18:00Z..2026-09-22T16:00Z in 4 h slices (raw JSON kept in the session scratchpad only: hex payloads are bench footage)",
+    "staging": "https://nereus-vision-staging.onrender.com /devices/<id>/media and STAGING_DATABASE_URL media table"
+  },
+  "camera_logs": "NOT available (units halted between cycles; pull ~/bm_cam_legacy/BM_Devel_Pi/cron_logs/rc_cycle_*.log during a bus window to add the camera columns)",
+  "rigs": {
+    "A": {"spotter": "SPOT-33507C", "notecard": "NOTE-WBGLW fw 6.2.5", "camera": "bmcam004", "node": "0xe6fe83ea6b4a2b7f", "device": "BMCAM_004", "note": "pre-swap; the cameras were swapped onto each other's Spotter at ~15:45Z on 2026-09-22, after these cards were pulled"},
+    "B": {"spotter": "SPOT-31593C", "notecard": "NOTE-WBNA-500 fw 4.2.1", "camera": "bmcam003", "node": "0x53171fa3d81a8e6f", "device": "BMCAM_003"}
+  },
+  "commands": [
+    "python3 tools/bm_video_soak_report.py --sd-log runs/sprint25_sd_20260922T1640Z/SPOT-31593C/log --sofar-json <scratch>/SPOT-31593C_20260921T18_20260922T16.json --spotter-id SPOT-31593C --node-id 0x53171fa3d81a8e6f --device-id BMCAM_003 --start 2026-09-21T18:00:00Z --end 2026-09-22T16:00:00Z --run-tag sprint25_sd_20260922T1640Z --out runs/sprint25_sd_20260922T1640Z/report_SPOT-31593C",
+    "python3 tools/bm_video_soak_report.py --sd-log runs/sprint25_sd_20260922T1640Z/SPOT-33507C/log --sofar-json <scratch>/SPOT-33507C_20260921T18_20260922T16.json --spotter-id SPOT-33507C --node-id 0xe6fe83ea6b4a2b7f --device-id BMCAM_004 --start 2026-09-21T18:00:00Z --end 2026-09-22T16:00:00Z --run-tag sprint25_sd_20260922T1640Z --out runs/sprint25_sd_20260922T1640Z/report_SPOT-33507C"
+  ],
+  "outputs": ["report_<SPOT>/cycles.csv", "report_<SPOT>/cycles.md", "report_<SPOT>/loss_by_stage.md", "report_<SPOT>/timeline_<SPOT>.svg"],
+  "git_ignored": "*.log and *.csv are git-ignored; the card contents (log/, bm/) are never committed",
+  "tool_version": "tools/bm_video_soak_report.py on branch claude/sprint25-transmit-timing-backend-02b53c (SD sources + step-7 columns added 2026-09-22)"
+}

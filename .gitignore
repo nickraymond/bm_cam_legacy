@@ -55,3 +55,8 @@ runs/**/transfer/d*/
 # Sprint22: the ONE committed .h264 — a synthetic ffmpeg test pattern
 # (golden wire-contract vector). Every other .h264 stays ignored.
 !tests/vectors/bm_media_h264/payload.h264
+
+# Sprint25: Spotter SD card copies live next to the reports; never commit card contents
+runs/sprint25_sd_*/SPOT-*/
+runs/sprint25_indoor15_*/SPOT-*/
+runs/sprint25_indoor15_*/console_as_sd/
