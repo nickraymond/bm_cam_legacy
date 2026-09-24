@@ -11,7 +11,9 @@ Runs next to spotter_serial_monitor.py (same Pi, same log root). For every rig
   1. check the outstanding heal command (if any): every media it names complete
      at the backend (GET /admin/ingest/media/{id}/missing -> 409 complete|nothing_missing)
      -> log `healed` and clear it; published on HEAL_WAKES wakes without finishing
-     -> log `expired` and clear it (the unit drops it after 3 wakes too)
+     -> log `expired` and clear it (the unit drops it after 3 wakes too); every
+     unfinished media answers 409 `still_arriving` (chunks landing at the backend)
+     -> log `waiting`, publish nothing, do not count the wake (at most MAX_WAIT_WAKES)
   2. no outstanding command -> GET heal-candidates; if any, POST heal-commands
      (backend allocates the id + packs <= 40 chunks) -> new outstanding command
   3. publish the outstanding command's console line (`bm pub bmcam/cmd {...} 1 1`)
@@ -50,6 +52,13 @@ PUBLISH_OFFSETS_S = (30, 40, 50, 260)
 HEAL_WAKES = 3
 DEFAULT_API = "https://nereus-vision-staging.onrender.com"
 DONE_REASONS = ("complete", "nothing_missing")
+# Backend says chunks for the media are still landing (receive-time rule, nvd BUGS.md B19):
+# the heal we published may have just arrived, or the original tail is arriving late from
+# Sofar. Publishing again now would only re-send bytes that are already in flight, so the
+# wake is not counted against HEAL_WAKES and nothing is published. Bounded: after
+# MAX_WAIT_WAKES consecutive waits the command is treated as a normal wake again.
+STILL_ARRIVING = "still_arriving"
+MAX_WAIT_WAKES = 2
 
 
 def utc_now():
@@ -135,6 +144,16 @@ class Driver:
             elif cmd["wakes"] >= HEAL_WAKES:
                 self.event(spotter, "expired", command_id=cmd["command_id"], media=status)
                 cmd = None
+            elif (all(r in DONE_REASONS or r == STILL_ARRIVING for r in status.values())
+                  and cmd.get("waits", 0) < MAX_WAIT_WAKES):
+                # Every media not yet done is still receiving chunks at the backend:
+                # not a used wake, nothing published; re-check next wake.
+                cmd["waits"] = cmd.get("waits", 0) + 1
+                self.event(spotter, "waiting", command_id=cmd["command_id"], media=status,
+                           waits=cmd["waits"], wakes_published=cmd["wakes"])
+                with self.lock:
+                    self._save()
+                return
         if cmd is None:
             cmd = self._new_command(spotter, device)
         with self.lock:
