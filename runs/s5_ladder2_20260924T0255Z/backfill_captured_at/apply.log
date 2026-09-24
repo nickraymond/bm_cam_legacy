@@ -1,0 +1,6 @@
+[backfill_captured_at] {'scanned': 1674, 'no_filename': 0, 'colon_or_unstamped': 1404, 'already_correct': 6, 'delta_out_of_range': 1, 'to_update': 263}
+[backfill_captured_at] NOT updated (delta > 1800 s): media 52691 2026-09-20T06-10-00Z_video_5s.h264 stored 2026-09-21T06:42:29+00:00 derived 2026-09-20T06:10:00+00:00
+[backfill_captured_at] csv: /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/bmcam-setup-testing-2eb470/runs/s5_ladder2_20260924T0255Z/backfill_captured_at/backfill_captured_at_20260924T025600Z.csv
+[backfill_captured_at] sql: /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/bmcam-setup-testing-2eb470/runs/s5_ladder2_20260924T0255Z/backfill_captured_at/backfill_captured_at_20260924T025600Z.sql
+[backfill_captured_at] stored - derived, s: min 26 median 183 max 1046
+[backfill_captured_at] APPLIED: 263/263 rows updated
