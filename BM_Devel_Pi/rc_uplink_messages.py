@@ -70,6 +70,15 @@ def _rc_field_pairs(quality, enc_attempts, complete, reason):
     return pairs
 
 
+def _valid_key(key):
+    """A rev 5 media key: exactly 6 lowercase base-36 chars (raise otherwise —
+    a malformed key on the wire would be silently rejected by the backend)."""
+    if (not isinstance(key, str) or len(key) != 6
+            or any(c not in "0123456789abcdefghijklmnopqrstuvwxyz" for c in key)):
+        raise ValueError(f"malformed media key {key!r}")
+    return key
+
+
 def build_rc_start_message(
     compressed_file_name,
     current_timestamp,
@@ -82,6 +91,7 @@ def build_rc_start_message(
     start_metadata=None,
     max_payload_bytes=285,
     gid=None,
+    key=None,
 ):
     """Build the RC START IMG message (one unchunked BM message).
 
@@ -94,12 +104,20 @@ def build_rc_start_message(
     base field binds this image's chunk group id to the filename, so
     backend parsers can attribute `<I{gid}.{i}>` chunks exactly. Absent
     by default — legacy wire is byte-identical.
+
+    key (Sprint25 S4, wire contract rev 5 §14): the 6-char media key as
+    `key=<key>` right after `length` — a core field, never dropped. Mutually
+    exclusive with gid. None = legacy wire, byte-identical.
     """
     base_parts = [
         f"filename: {_clean_value(compressed_file_name, max_len=96)}",
         f"timestamp: {_clean_value(current_timestamp, max_len=32)}",
         f"length: {int(num_buffers)}",
     ]
+    if key is not None:
+        if gid is not None:
+            raise ValueError("START: media key and 3-char gid are mutually exclusive")
+        base_parts.append(f"key={_valid_key(key)}")
     if gid is not None:
         base_parts.append(f"gid: {_clean_value(gid, max_len=6)}")
     rc_parts = [
@@ -217,8 +235,12 @@ def build_rc_video_start_message(
     complete=True,
     start_metadata=None,
     max_payload_bytes=285,
+    key=None,
 ):
     """Build the video START IMG message (wire contract section 3).
+
+    key (Sprint25 S4, rev 5 §14): `key=<key>` right after `length`, before fmt,
+    never dropped. None = the rev 3 wire, byte-identical.
 
     `length` = planned UNIQUE chunks (the chunk-0 repeat is not counted).
     fmt/fps/dur/res/crop/(br|crf)/cmp are never dropped; optional metadata
@@ -236,6 +258,8 @@ def build_rc_video_start_message(
         f"timestamp: {_clean_value(current_timestamp, max_len=32)}",
         f"length: {int(num_buffers)}",
     ]
+    if key is not None:
+        base_parts.append(f"key={_valid_key(key)}")
     video_pairs = [
         ("fmt", RC_VIDEO_FORMAT), ("fps", fps_text), ("dur", f"{float(dur):.1f}"),
         ("res", res), ("crop", crop), rate_pair, ("cmp", 1 if complete else 0),
