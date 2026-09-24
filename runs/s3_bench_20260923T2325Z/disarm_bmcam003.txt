@@ -1,0 +1,8 @@
+HOST=bmcam003 UTC=2026-09-23T23:27:47Z UPTIME=69.44
+crontab backup: ~/backups/crontab.before_s3_bench_20260923T232747Z (1 lines)
+crontab now:
+#S3BENCH @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+cycle pid=634 age_s=49 children=[]
+after: cycle= halt_script=
+last cron log lines:
+DONE bmcam003 23:27:50

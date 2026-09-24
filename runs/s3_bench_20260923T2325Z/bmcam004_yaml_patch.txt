@@ -1,0 +1,18 @@
+[PATCH] bm_serial.image_transmit_delay_seconds: 1.0 -> 1.3   [set]
+[PATCH] bm_commands.enabled: (absent) -> true   [block_created]
+[PATCH] bm_commands.topic: (absent) -> bmcam/cmd   [key_created]
+[PATCH] bm_commands.post_transmit_listen_s: (absent) -> 150   [key_created]
+[PATCH] bm_commands.defer_acks_during_transmit: (absent) -> false   [key_created]
+[PATCH] bm_commands.state_path: (absent) -> /home/pi/BM_Devel_Pi/bm_command_state.json   [key_created]
+[PATCH] wrote /home/pi/BM_Devel_Pi/camera_schedule.yaml (backup: /home/pi/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T234018Z)
+146:  image_transmit_delay_seconds: 1.3
+bm_commands:
+  state_path: /home/pi/BM_Devel_Pi/bm_command_state.json
+  defer_acks_during_transmit: false
+  post_transmit_listen_s: 150
+  topic: bmcam/cmd
+  enabled: true
+/home/pi/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T234018Z
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state.json (loaded from defaults)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=126 msgs keyframe_repeat_max=30 preset=medium source=yaml

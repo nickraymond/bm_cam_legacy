@@ -223,6 +223,35 @@ FINAL_ACK_FLUSH_S = 15.0
 TAIL_SAFETY_S = 20.0
 
 
+def should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
+    """D11: the command daemon owns the UART for a cycle only when the island is
+    enabled, the persisted state loaded, and the cycle may touch the BM bus
+    (--transmit, or the explicit --bench-commands flag). One predicate for the
+    stills cycle and the one-clip video cycle (Sprint25 S3); the continuous
+    recorder (video_recorder.run_video_mode) keeps its own, unchanged."""
+    return bool(
+        bm_commands_cfg
+        and bm_commands_cfg.get("enabled")
+        and command_state is not None
+        and (transmit or bench_commands)
+    )
+
+
+def boot_mark(label, uptime_path="/proc/uptime"):
+    """Sprint25 S3 benchmark: one `[BOOT] <label> uptime_s=<s>` line per boot
+    segment (RESEND_DEVICE.md §1 "Benchmark, redefined"). /proc/uptime is the
+    one clock that is right before the Spotter time read. Never raises; off a
+    Pi (no /proc/uptime) it prints uptime_s=na. Returns the seconds or None."""
+    try:
+        with open(uptime_path) as fh:
+            value = float(fh.read().split()[0])
+    except Exception:
+        value = None
+    print(f"[BOOT] {label} uptime_s={value:.2f}" if value is not None
+          else f"[BOOT] {label} uptime_s=na")
+    return value
+
+
 def drain_now(daemon, summary, clock=_time.monotonic):
     """Pick up pending commands and send acks (paced; idle-point drain).
     Sprint13: queued help/cfg console lines flush here too — an idle
