@@ -58,7 +58,12 @@ Example:
 #   - tmz: NEW timezone override command (LA / New York / UTC presets) —
 #     revises the Sprint12 audit's category-C stance, see Sprint13 DESIGN
 #   - help / cfg: NEW query commands (no state change; console output)
-TABLES_VERSION = 7
+# v6/v7: wap (Sprint15/16).
+# v8 (2026-09-24, Sprint25 S5, Nick-approved SPEC_resend_heal.md §5): rsd —
+#   re-send chunks of a keyed media from the unit's sent record. Its payload
+#   is a list, not a table index: {"id":N,"c":"rsd","h":[["<key>","17,40-42"],...]}
+#   (<= 8 heals, <= 40 chunks) or {"id":N,"c":"rsd","x":1} (cancel all).
+TABLES_VERSION = 8
 
 # Native sensor-equivalent frame (IMX708 full res) — ROI rects live here.
 NATIVE_WIDTH = 4608
@@ -72,7 +77,13 @@ ROI_OUTPUT_WIDTH = 1000
 # queries) + the v6 Sprint15 wap (WiFi AP toggle). Anything else is
 # rejected.
 COMMANDS = ("roi", "foc", "awb", "exp", "win", "txd", "cap", "src",
-            "hlt", "twn", "tmz", "trg", "wap", "ping", "help", "cfg")
+            "hlt", "twn", "tmz", "trg", "wap", "ping", "help", "cfg", "rsd")
+
+# Heal commands (Sprint25 S5, v8): the payload carries a heal LIST ("h") or a
+# cancel ("x"), validated by command_messages.parse_rsd — not a table index.
+# Not a setting (the pending heals live in their own state slot) and not a
+# one-shot trigger.
+HEAL_COMMANDS = ("rsd",)
 
 # Commands that carry persistent settings state. NOTE the exclusions:
 # ping (stateless), help/cfg (queries) and trg (a ONE-SHOT action — it
@@ -351,6 +362,13 @@ CFG_TABLE = {
     0: {"label": "print current settings + sources"},
 }
 
+# rsd — Sprint25 S5 (v8). Single documentation row: the real payload is the
+# "h" heal list or "x":1 (command_messages.parse_rsd). Index 0 exists only so
+# every command has a table (help, GUI, tests).
+RSD_TABLE = {
+    0: {"label": '"h":[["<key>","17,40-42"]] <=8 heals/40 chunks; "x":1 cancel'},
+}
+
 # ---------------------------------------------------------------------------
 # Customer-facing command metadata (Sprint13). Everything the console help
 # and cfg output say about a command lives HERE, next to the value tables,
@@ -409,6 +427,12 @@ COMMAND_INFO = {
              "cfg_name": None, "category": None, "notes": []},
     "cfg": {"title": "SHOW CURRENT SETTINGS and where each came from",
             "cfg_name": None, "category": None, "notes": []},
+    "rsd": {"title": "RESEND missing chunks of a recent clip/image (heal)",
+            "cfg_name": None, "category": None,
+            "notes": ["! Get the exact line from the backend heal-commands "
+                      "endpoint.",
+                      "! Sent on the next wakes, before the capture; "
+                      "3 wakes max."]},
 }
 
 _TABLES = {
@@ -428,6 +452,7 @@ _TABLES = {
     "ping": PING_TABLE,
     "help": HELP_TABLE,
     "cfg": CFG_TABLE,
+    "rsd": RSD_TABLE,
 }
 
 

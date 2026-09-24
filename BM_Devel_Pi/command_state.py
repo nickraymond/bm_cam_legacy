@@ -16,7 +16,16 @@ File shape (schema versioned for future migration):
    "settings": {"roi": 2, "foc": 0, "awb": 0, "exp": 0, "win": 0},
    "touched": ["roi"],
    "applied_ids": [415, 416, 417],
-   "pending_trigger": {"id": 418, "value": 2}}
+   "pending_trigger": {"id": 418, "value": 2},
+   "pending_heals": [{"key": "0dhnso", "n": [17, 40], "id": 100003,
+                      "wakes_left": 3}]}
+
+`pending_heals` (Sprint25 S5, tables v8) is the rsd heal list: chunks of an
+already-sent keyed media to re-send before the next START (rc_heal). Newest
+first, one entry per key (a newer command for the same key replaces it), at
+most PENDING_HEALS_MAX. Each entry lives `wakes_left` wakes, then rc_heal
+drops it with `<HL a=dropped>`. Absent in older files (loads as []); older
+code ignores the extra key.
 
 `pending_trigger` (Sprint12) is the armed one-shot `trg` action, or
 null/absent. It is NOT a setting: the next boot consume_trigger()s it —
@@ -56,9 +65,12 @@ per-wake process, and D2 gives the daemon a single apply point).
 import json
 import os
 
+import re
+
 from command_tables import (
     ACTION_COMMANDS,
     DEFAULT_SETTINGS,
+    HEAL_COMMANDS,
     SETTINGS_COMMANDS,
     TABLES_VERSION,
     valid_value,
@@ -76,6 +88,28 @@ DEFAULT_STATE_PATH = os.environ.get(
 # history than one duty cycle can deliver, at ~6 bytes/id in the file.
 DEDUPE_KEEP = 32
 
+# Sprint25 S5 heal list (SPEC_resend_heal.md §5).
+PENDING_HEALS_MAX = 8
+HEAL_WAKES = 3
+_RE_KEY = re.compile(r"^[0-9a-z]{6}$")
+
+
+def _valid_heal(item):
+    """A persisted pending heal, or None if anything is off (tolerant load)."""
+    if not isinstance(item, dict):
+        return None
+    key, ns, hid, wakes = (item.get(k) for k in ("key", "n", "id", "wakes_left"))
+    if not isinstance(key, str) or not _RE_KEY.match(key):
+        return None
+    if (not isinstance(ns, list) or not ns
+            or any(isinstance(n, bool) or not isinstance(n, int) or n < 0 for n in ns)):
+        return None
+    if isinstance(hid, bool) or not isinstance(hid, int):
+        return None
+    if isinstance(wakes, bool) or not isinstance(wakes, int) or not 1 <= wakes <= HEAL_WAKES:
+        return None
+    return {"key": key, "n": sorted(set(ns)), "id": hid, "wakes_left": wakes}
+
 
 class CommandState:
     """Applied settings + dedupe ids, persisted atomically on change."""
@@ -86,6 +120,7 @@ class CommandState:
         self.touched = set()
         self.applied_ids = []
         self.pending_trigger = None  # Sprint12: armed one-shot trg, or None
+        self.pending_heals = []      # Sprint25 S5: rsd heal list, newest first
         # Load provenance for the daemon's startup log line.
         self.load_info = {"source": "defaults", "reset_keys": [], "error": None}
         self._load()
@@ -154,6 +189,19 @@ class CommandState:
             print(f"[CMD][WARN] pending_trigger {raw_trigger!r} not an object; "
                   "dropped")
 
+        # Sprint25 S5: pending heals. Bad entries drop one by one, loudly.
+        raw_heals = data.get("pending_heals")
+        if isinstance(raw_heals, list):
+            for item in raw_heals:
+                heal = _valid_heal(item)
+                if heal is None:
+                    print(f"[CMD][WARN] pending heal {item!r} invalid; dropped")
+                elif all(h["key"] != heal["key"] for h in self.pending_heals):
+                    self.pending_heals.append(heal)
+            self.pending_heals = self.pending_heals[:PENDING_HEALS_MAX]
+        elif raw_heals is not None:
+            print(f"[CMD][WARN] pending_heals {raw_heals!r} not a list; dropped")
+
     # ------------------------------------------------------------------
     # Dedupe + record (apply path)
     # ------------------------------------------------------------------
@@ -183,9 +231,38 @@ class CommandState:
                 self.pending_trigger = None
             else:
                 self.pending_trigger = {"id": command_id, "value": value}
+        elif cmd in HEAL_COMMANDS:
+            self._record_heals(command_id, value)
         if not self.is_duplicate(command_id):
             self.applied_ids.append(command_id)
             self.applied_ids = self.applied_ids[-DEDUPE_KEEP:]
+        self.save()
+
+    def _record_heals(self, command_id, value):
+        """rsd: {"x": 1} cancels every pending heal; {"h": [[key, ns], ...]}
+        holds the ACCEPTED heals (the daemon already removed refused ones — an
+        all-refused command arrives as {"h": []} and changes nothing but the id
+        record, so a re-send is acked-duplicate, not re-refused; spec §5).
+        A key already pending is replaced (newest id wins); the command's heals
+        go to the front in command order; the list keeps PENDING_HEALS_MAX."""
+        value = value or {}
+        if value.get("x"):
+            self.pending_heals = []
+            return
+        new = [{"key": key, "n": sorted(set(ns)), "id": command_id,
+                "wakes_left": HEAL_WAKES} for key, ns in value.get("h", [])]
+        new_keys = {h["key"] for h in new}
+        kept = [h for h in self.pending_heals if h["key"] not in new_keys]
+        merged = new + kept
+        for evicted in merged[PENDING_HEALS_MAX:]:
+            print(f"[CMD][WARN] pending heal list full; oldest heal "
+                  f"key={evicted['key']} id={evicted['id']} evicted")
+        self.pending_heals = merged[:PENDING_HEALS_MAX]
+
+    def set_pending_heals(self, heals):
+        """rc_heal's end-of-wake update (sent/dropped heals removed,
+        wakes_left decremented). Persists; raises on I/O failure."""
+        self.pending_heals = [h for h in (_valid_heal(x) for x in heals) if h][:PENDING_HEALS_MAX]
         self.save()
 
     def consume_trigger(self):
@@ -225,6 +302,7 @@ class CommandState:
             "touched": sorted(self.touched),
             "applied_ids": list(self.applied_ids),
             "pending_trigger": self.pending_trigger,
+            "pending_heals": list(self.pending_heals),
         }
         tmp_path = f"{self.path}.tmp"
         with open(tmp_path, "w", encoding="utf-8") as f:

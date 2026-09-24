@@ -57,7 +57,7 @@ import time
 
 from bm_frame_decoder import RawPubScanner
 from command_messages import build_ack, parse_command
-from command_tables import QUERY_COMMANDS
+from command_tables import HEAL_COMMANDS, QUERY_COMMANDS
 from spotter_time_sync import (
     TOPIC as UTC_TOPIC,
     _build_subscribe_frame,
@@ -193,7 +193,7 @@ class CommandDaemon:
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
                  console_line_delay_s=CONSOLE_LINE_DELAY_S,
-                 wap_action_fn=None):
+                 wap_action_fn=None, heal_validate_fn=None):
         self.bm = bm              # BristlemouthSerial; uart MUST have a timeout
         self.state = state        # CommandState (main-thread only)
         self.topic = topic
@@ -208,6 +208,13 @@ class CommandDaemon:
         # documented exception to next-boot semantics). None = wap acks
         # but performs nothing, loudly (pre-wire shape, like queries).
         self.wap_action_fn = wap_action_fn
+        # Sprint25 S5 rsd: validate_fn(key, ns) -> (ok, reason) checks the sent
+        # record on disk (rc_heal.make_heal_validate_fn). None = every heal is
+        # refused (`no_validator`), loudly — never re-send what cannot be checked.
+        self.heal_validate_fn = heal_validate_fn
+        # Per-wake heal outcomes from rsd commands, for the <HL> lines after
+        # END: {"key", "a": requested|refused, "n", "r", "id"} (main thread).
+        self.heal_events = []
         self.accumulator = RawPubScanner(topic=topic)
         self._inbound = queue.Queue()      # reader -> main: payload bytes
         self._acks = []                    # main-thread only
@@ -341,6 +348,10 @@ class CommandDaemon:
                 self._queue_ack(result["id"], True)
                 print(f"[CMD] duplicate id={result['id']} acked, not re-applied")
             else:
+                ok, error = True, None
+                if result["cmd"] in HEAL_COMMANDS:
+                    result["value"], ok = self._screen_heals(result["id"], result["value"])
+                    error = None if ok else "rsd"
                 try:
                     self.state.record(result["id"], result["cmd"], result["value"])
                 except Exception as exc:
@@ -351,10 +362,10 @@ class CommandDaemon:
                     print(f"[CMD][ERROR] state persist failed for "
                           f"id={result['id']}: {exc}")
                 else:
-                    self.stats["applied"] += 1
-                    event["action"] = "applied"
-                    self._queue_ack(result["id"], True)
-                    print(f"[CMD] applied id={result['id']} "
+                    self.stats["applied" if ok else "rejected"] += 1
+                    event["action"] = "applied" if ok else "rejected"
+                    self._queue_ack(result["id"], ok, error)
+                    print(f"[CMD] {'applied' if ok else 'recorded (all heals refused)'} id={result['id']} "
                           f"{result['cmd']}={result['value']} "
                           f"st={self.state.settings}")
                     # Sprint13: a query's "apply" is queueing its console
@@ -381,6 +392,34 @@ class CommandDaemon:
                                       f"{exc}")
             events.append(event)
         return events
+
+    def _screen_heals(self, command_id, value):
+        """rsd: keep only the heals whose sent record checks out.
+
+        Returns (value_to_record, ok). A cancel is always ok. ok=False when no
+        heal survives; the id is still recorded by the caller (spec §5: a re-sent
+        command must be acked-duplicate, not re-refused with a fresh <HL>)."""
+        if value.get("x"):
+            print(f"[CMD] rsd id={command_id}: cancel all pending heals")
+            return value, True
+        accepted = []
+        for key, ns in value["h"]:
+            if self.heal_validate_fn is None:
+                ok, reason = False, "no_validator"
+            else:
+                try:
+                    ok, reason = self.heal_validate_fn(key, ns)
+                except Exception as exc:
+                    ok, reason = False, "validate_err"
+                    print(f"[CMD][WARN] heal validate failed for {key}: {exc}")
+            self.heal_events.append({"key": key, "a": "requested" if ok else "refused",
+                                     "n": len(ns), "r": "ok" if ok else reason,
+                                     "id": command_id})
+            print(f"[CMD] rsd id={command_id} key={key} n={len(ns)}: "
+                  f"{'accepted' if ok else 'REFUSED ' + reason}")
+            if ok:
+                accepted.append([key, ns])
+        return {"h": accepted}, bool(accepted)
 
     def _queue_console_response(self, cmd):
         if self.query_render_fn is None:

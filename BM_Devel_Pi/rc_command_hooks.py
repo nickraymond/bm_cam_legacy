@@ -23,6 +23,7 @@ from command_bindings import (
     stranding_warnings,
 )
 from command_daemon import CommandDaemon
+import rc_heal
 
 
 def make_query_render_fn(settings, state, topic):
@@ -135,6 +136,8 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
         query_render_fn=make_query_render_fn(
             settings, state, bm_commands_cfg["topic"]),
         wap_action_fn=make_wap_action_fn(),
+        # Sprint25 S5: rsd heals are checked against the sent records.
+        heal_validate_fn=rc_heal.make_heal_validate_fn(rc_heal._sent_dir(settings)),
     )
 
 
