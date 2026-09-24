@@ -1,0 +1,84 @@
+{
+ "purpose": "Sprint25 S3 bench: keep bus power on so bmcam003/004 can be disarmed and benchmarked (Nick 2026-09-23: 'you can now own the hardware')",
+ "console_path": "existing repo monitor PID 26536 (tools/spotter_serial_monitor.py, started 2026-09-21 by the Sprint24 session), cmd via ~/spotter_logs/<SPOT>/cmd.txt, logs ~/spotter_logs/<SPOT>/console_YYYYMMDD.log",
+ "spotters": {
+  "SPOT-33507C": {
+   "bridge": "c3c564b91856226c",
+   "camera": "bmcam003",
+   "before": {
+    "sampleIntervalMs": 840000,
+    "sampleDurationMs": 600000,
+    "bridgePowerControllerEnabled": 1,
+    "alignmentInterval5Min": 1
+   },
+   "restore": [
+    "bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 1",
+    "bridge cfg commit c3c564b91856226c s",
+    "bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled"
+   ]
+  },
+  "SPOT-31593C": {
+   "bridge": "0e582dd12c1e1480",
+   "camera": "bmcam004",
+   "before": {
+    "sampleIntervalMs": 840000,
+    "sampleDurationMs": 600000,
+    "bridgePowerControllerEnabled": 1,
+    "alignmentInterval5Min": 1
+   },
+   "restore": [
+    "bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 1",
+    "bridge cfg commit 0e582dd12c1e1480 s",
+    "bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled"
+   ]
+  }
+ },
+ "changes": [
+  {
+   "utc": "2026-09-23T23:26:28Z",
+   "where": "SPOT-33507C",
+   "what": "bridgePowerControllerEnabled 1 -> 0 + commit",
+   "evidence": "commit dump key5=0; 'power on for: 4294967295'; 'Bridge bus power: 1'"
+  },
+  {
+   "utc": "2026-09-23T23:26:52Z",
+   "where": "SPOT-31593C",
+   "what": "bridgePowerControllerEnabled 1 -> 0 + commit",
+   "evidence": "'power on for: 4294967295'; 'Bridge bus power: 1'"
+  },
+  {
+   "utc": "2026-09-23T23:27:47Z",
+   "where": "bmcam003",
+   "what": "crontab backed up to ~/backups/crontab.before_s3_bench_20260923T232747Z; @reboot line commented '#S3BENCH'; running cycle pid 634 SIGTERM (uptime 69.4s, before transmit; no halt)",
+   "restore": "crontab ~/backups/crontab.before_s3_bench_<ts> ; then reboot or start: nohup /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh &"
+  },
+  {
+   "utc": "2026-09-23T23:27:48Z",
+   "where": "bmcam004",
+   "what": "crontab backed up to ~/backups/crontab.before_s3_bench_20260923T232748Z; @reboot line commented '#S3BENCH'; running cycle pid 633 SIGTERM (uptime 47.0s, before transmit; no halt)",
+   "restore": "crontab ~/backups/crontab.before_s3_bench_<ts> ; then reboot or start: nohup /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh &"
+  },
+  {
+   "utc": "2026-09-23T23:39:41Z",
+   "where": "bmcam004",
+   "what": "rc_field_update.sh --ref feature/s3-daemon-every-wake --profile bmcam003 --leave-disarmed (S3 code deployed; runtime tar in ~/backups)"
+  },
+  {
+   "utc": "2026-09-23T23:40:18Z",
+   "where": "bmcam004",
+   "what": "camera_schedule.yaml: image_transmit_delay_seconds 1.0->1.3 (PR #65); bm_commands island added (enabled, tail 150)",
+   "restore": "cp ~/BM_Devel_Pi/camera_schedule.yaml.bak_20260923T234018Z ~/BM_Devel_Pi/camera_schedule.yaml"
+  },
+  {
+   "utc": "2026-09-23T23:41:26Z..2026-09-24T00:24:57Z",
+   "where": "bmcam004 + SPOT-31593C",
+   "what": "lean benchmark: crontab re-armed, 7 cold boots via bridge cfg commit after self-halt; capture_mode video->progressive_jpeg->video (restored); crontab disarmed again (#S3BENCH)"
+  }
+ ],
+ "state_at_end": {
+  "bmcam003": "awake, disarmed, untouched code (Sprint24), 1.3 s",
+  "bmcam004": "awake, disarmed, S3 code, video mode, 1.3 s, bm_commands on",
+  "SPOT-33507C": "bus always on",
+  "SPOT-31593C": "bus always on"
+ }
+}
