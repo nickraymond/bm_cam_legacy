@@ -1,0 +1,10 @@
+{
+ "key": "0dp0eo",
+ "fmt": "h264",
+ "filename": "2026-09-24T05-25-36Z_video_5s.h264",
+ "chunk_b64_chars": 384,
+ "msgs": 122,
+ "sha256": "006841c197c428f5a28d371f1481e211bc42eeb22df1d364f32b473f3dfd5029",
+ "payload": "/home/pi/BM_Devel_Pi/sent/2026-09-24T05-25-36Z_video_5s.sent",
+ "sent_utc": "2026-09-24T05:25:58Z"
+}

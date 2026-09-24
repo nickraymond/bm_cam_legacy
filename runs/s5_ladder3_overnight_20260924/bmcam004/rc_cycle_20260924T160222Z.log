@@ -1,0 +1,75 @@
+============================================================
+[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+[RC-CRON] start_utc=2026-09-24T16:02:22+00:00
+[RC-CRON] uptime_s=17.69
+[RC-CRON] user=pi
+[RC-CRON] hostname=bmcam004
+[RC-CRON] app_dir=/home/pi/BM_Devel_Pi
+[RC-CRON] log_file=/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260924T160222Z.log
+[RC-CRON] disk: /dev/mmcblk0p2  115G   86G   25G  79% /
+[RC-CRON] images_dir: 8.6M
+[RC-CRON] checking Python syntax...
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[BOOT] main_entry uptime_s=20.69
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state.json (loaded from file)
+[NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+[NET] applying boot default: sudo -n /home/pi/BM_Devel_Pi/network_ap.sh default nereus_hq 90
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/home/pi/BM_Devel_Pi/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=126 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[BOOT] cmd_subscribed uptime_s=21.31
+[CMD] time-sync subscribe sent; waiting up to 60s
+[NET] 2026-09-24T16:02:30Z client WiFi UP: profile=nereus-hq
+[CMD] spotter UTC decoded: 2026-09-24T16:10:36.433000+00:00
+Thu 24 Sep 16:10:36 UTC 2026
+[BOOT] spotter_utc_read uptime_s=27.39
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-24T09:10:36.433000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-24T16-10-36Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-24T16-10-36Z_video_1920x1080_15fps.mp4 (2722453 B, encode=8.5s boundary=6.4s)
+[VTX] message budget: cap=126 affordable_now=320 (after reserving 32) -> 126 chunk msgs (36288 B)
+[VTX] encode try 1: 55.7 kbps -> 33058 B = 91% of 126 msgs
+[VTX] encode try 2: 59.0 kbps -> 36743 B = 101% of 126 msgs
+[VTX] encode try 3: 57.5 kbps -> 34603 B = 95% of 126 msgs
+[VTX] payload: 34603 B = 121 msgs (95.4% of budget) 3 pass-2 tries, prescale 4.0s encode 6.0s
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0dpu9o from Spotter UTC 2026-09-24T16:10:36.433000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-24T16-10-36Z_video_5s.sent.json (121 msgs)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=52.60
+[VTX] transmit done: sent=121/121 complete=True keyframe_repeat=30/30 uart=200.4s file=2026-09-24T16-10-36Z_video_5s.h264
+[CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[CMD] stopped: applied=0 dup=0 rejected=0 unackable=0 acks=0 frames=0 sig_hits=0 crc_scan_fail=0 bad_start=0 read_err=0
+[BOOT] halt uptime_s=403.16
+[RC][halt] executing: sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh (SSH/process death after this is SUCCESS)
+[RC][halt] halt command returned 0; system shutdown in progress
+[VTX] cycle end: stage=done elapsed=392.5s of 480s; halt=halt_initiated
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-09-24T16:17:03+00:00
+============================================================
