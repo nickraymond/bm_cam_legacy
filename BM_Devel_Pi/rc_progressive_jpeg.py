@@ -68,6 +68,7 @@ from command_daemon import load_bm_commands_config
 from command_state import CommandState
 import rc_command_hooks as cmd_hooks
 import rc_media_id
+import rc_heal
 import rc_media_key
 import rc_transmit_phase
 from process_image_v2 import (
@@ -732,13 +733,20 @@ def run_cycle(
             media_gid = rc_media_id.next_gid()
             print(f"[RC] media gid: {media_gid} (chunks <I{media_gid}.i>)")
 
+        # Sprint25 S5: this wake's rsd heals go right before START; plan them
+        # now so the lane plan below counts them. None without a daemon.
+        heals = rc_heal.begin_wake(
+            daemon, settings, summary,
+            pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
+        heal_msgs = heals.planned_msgs if heals is not None else 0
+
         # --- Sprint11 C2: wait for a clean lane on the 5-minute grid -----
         # Everything above this line is cycle-relative; this is the ONE
         # place that reasons in absolute UTC (DESIGN D1).
         phase_cfg = settings.get("transmit_phase_cfg") or {}
         if phase_cfg.get("enabled"):
             burst_s = rc_transmit_phase.burst_seconds_for(
-                encode["message_count"], settings["pacing_delay_seconds"],
+                encode["message_count"] + heal_msgs, settings["pacing_delay_seconds"],
                 incomplete=not selection["fits"],
             )
             grid_clock = grid_clock_fn(
@@ -779,6 +787,12 @@ def run_cycle(
             chunk_b64_chars=settings["pacing_chunk_b64_chars"])
         tx = bm_open_fn(settings["config_path"])
         cmd_hooks.boot_mark("transmit_start")
+        if heals is not None and heal_msgs:
+            # Reserve the image's whole burst: START + chunks + END (+ a=inc).
+            heals.send_before_start(
+                tx, budget,
+                reserve_msgs=encode["message_count"] + 2 + (0 if selection["fits"] else 1),
+                delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
         result = transmit_progressive_image(
             tx,
             budget,
@@ -843,6 +857,11 @@ def run_cycle(
         # acks now, before the tail, so they are not delayed by it.
         cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
                              label="post-transmit ack flush")
+        # Sprint25 S5: one <HL> per key after END, paced, on the image's tx.
+        if heals is not None:
+            heals.send_status_after_end(
+                tx, budget, wake_key=media_key,
+                delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
         # Sprint11 C4/D6: bounded listen tail. This is when the mailbox
         # drain our own transmit triggered actually arrives (finding 006).
         cmd_hooks.post_transmit_listen(
@@ -899,11 +918,25 @@ def main(argv=None, **cycle_overrides):
                         help="BENCH ONLY: run the command daemon (subscribe + "
                              "acks DO touch the BM bus) without image transmit. "
                              "Requires bm_commands.enabled in YAML.")
+    parser.add_argument("--bench-drop-chunks", default=None, metavar="N[,N...]",
+                        help="BENCH ONLY (video_tx): do not put these clip chunk "
+                             "indices on the wire (slots still paced) so the "
+                             "backend holds a partial to heal (Sprint25 S5)")
     parser.add_argument("--skip-time-window", action="store_true",
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
     args = parser.parse_args(argv)
+    bench_drop_chunks = None
+    if args.bench_drop_chunks:
+        try:
+            bench_drop_chunks = sorted({int(x) for x in args.bench_drop_chunks.split(",")})
+            if any(n < 0 for n in bench_drop_chunks):
+                raise ValueError("negative index")
+        except ValueError as exc:
+            print(f"[RC][ERROR] --bench-drop-chunks {args.bench_drop_chunks!r}: {exc}",
+                  file=sys.stderr)
+            return 2
 
     try:
         settings = resolve_rc_settings(args.config_path)
@@ -975,7 +1008,7 @@ def main(argv=None, **cycle_overrides):
                 settings, video_tx_cfg, transmit=args.transmit,
                 skip_time_window=args.skip_time_window,
                 bm_commands_cfg=bm_commands_cfg, command_state=command_state,
-                bench_commands=args.bench_commands)
+                bench_commands=args.bench_commands, bench_drop_chunks=bench_drop_chunks)
             return 1 if summary.get("error") else 0
 
         if args.print_config:

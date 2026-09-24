@@ -43,6 +43,8 @@ BM_Devel_Pi/rc_command_hooks.py
 # Sprint10 media gid (config-gated by the media_gid YAML island; inert
 # when disabled — legacy chunk wire is byte-identical)
 BM_Devel_Pi/rc_media_id.py
+BM_Devel_Pi/rc_media_key.py        # Sprint25 S4 keyed media (was missing: import crash on deploy)
+BM_Devel_Pi/rc_heal.py             # Sprint25 S5 rsd heals + <HL>
 
 # Sprint15 video mode (config-gated by capture_mode: video; the stills
 # path never imports these, but a video unit fails its boot WITHOUT them

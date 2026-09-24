@@ -42,6 +42,8 @@ FACTORY = dict(ct.DEFAULT_SETTINGS)
 class TestParserAccepts(unittest.TestCase):
     def test_every_command_every_valid_index_accepted(self):
         for cmd in ct.COMMANDS:
+            if cmd in ct.HEAL_COMMANDS:
+                continue  # rsd carries "h"/"x", not a table index (S5; test_s5_heal)
             for v in ct.table_for(cmd):
                 payload = json.dumps({"id": 1, "c": cmd, "v": v})
                 result = parse_command(payload)

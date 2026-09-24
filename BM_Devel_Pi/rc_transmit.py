@@ -252,6 +252,7 @@ def transmit_video_clip(
     clock=time.monotonic,
     pending_pump_fn=None,
     media_key=None,
+    bench_drop_chunks=None,
 ):
     """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
     (contract sections 1 + 5).
@@ -265,6 +266,10 @@ def transmit_video_clip(
     media_key (Sprint25 S4, rev 5 §14): START gets `key=` and every chunk,
     including the keyframe repeat, goes out as `<I{key}.{i}>`. END unchanged.
     None = the rev 3 wire, byte-identical.
+
+    bench_drop_chunks (Sprint25 S5, BENCH ONLY, `--bench-drop-chunks`): chunk
+    indices NOT put on the wire — the slot is still paced and counted as sent,
+    so the backend sees a real partial to heal. None/empty = no effect.
 
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
@@ -294,6 +299,14 @@ def transmit_video_clip(
     chunks = split_base64_chunks(payload, chunk_b64_chars)
     planned = len(chunks)
     uart_start = clock()
+    drop = frozenset(bench_drop_chunks or ())
+    if drop:
+        print(f"[VTX][BENCH] NOT sending chunk(s) {sorted(drop)} (slots still paced)")
+
+    def send_chunk(i):
+        if i not in drop:
+            tx(f"{chunk_prefix(i, media_key)}{chunks[i]}\n".encode("ascii"))
+
     keyframe_chunks = max(1, min(int(keyframe_chunks), planned)) if planned else 0
     result = {"planned": planned, "sent": 0, "started": False, "complete_send": False,
               "repeated": 0, "repeat_sent": False, "refused_reason": None,
@@ -325,7 +338,7 @@ def transmit_video_clip(
         # This chunk + the closing END must still fit.
         if not budget.messages_fit(2):
             break
-        tx(f"{chunk_prefix(i, media_key)}{chunks[i]}\n".encode("ascii"))
+        send_chunk(i)
         sent += 1
         _pump(pending_pump_fn)
         sleep_fn(delay_seconds)
@@ -336,7 +349,7 @@ def transmit_video_clip(
         for i in range(keyframe_chunks):
             if not budget.messages_fit(2):
                 break
-            tx(f"{chunk_prefix(i, media_key)}{chunks[i]}\n".encode("ascii"))
+            send_chunk(i)
             result["repeated"] += 1
             _pump(pending_pump_fn)
             sleep_fn(delay_seconds)

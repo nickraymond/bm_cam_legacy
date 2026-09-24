@@ -34,6 +34,11 @@ shutdown(daemon) -> close the port -> halt, in that order. With the island off
 (or no --transmit/--bench-commands) the cycle is byte-identical to Sprint22.
 Before S3 a video_tx wake never listened at all.
 
+Heals (Sprint25 S5, rc_heal): with the daemon on and an `rsd` heal pending, the
+requested chunks of an earlier keyed media are re-sent right BEFORE this clip's
+START (paced, pump-only, never eating the clip's room) and one `<HL>` status line
+per key goes out after END. No daemon or nothing pending = the wire is unchanged.
+
 NOT in this module: scheduled transmit windows beyond the existing gate, and
 one-shot `trg` servicing (stills only).
 
@@ -56,6 +61,7 @@ import time
 from datetime import datetime, timezone
 
 import rc_command_hooks as cmd_hooks
+import rc_heal
 import rc_media_key
 import rc_transmit_phase
 import rc_video_clip
@@ -205,14 +211,17 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                        clock=time.monotonic, now_fn=lambda: datetime.now(timezone.utc),
                        encoder_binary=None, ffmpeg_binary=None,
                        bm_commands_cfg=None, command_state=None, bench_commands=False,
-                       daemon_factory=None):
+                       daemon_factory=None, bench_drop_chunks=None):
     """Run one record -> fit -> send cycle. Returns a summary dict; the halt
     runs in `finally` on every path and never raises.
 
     bm_commands_cfg / command_state / bench_commands (S3): the command daemon,
     under the stills D11 predicate. daemon_factory defaults to
     cmd_hooks.default_daemon_factory (opens the UART once, installs the shared
-    port as process_image_v2's instance, so _default_tx_open reuses it)."""
+    port as process_image_v2's instance, so _default_tx_open reuses it).
+
+    bench_drop_chunks (S5, BENCH ONLY): clip chunk indices skipped on the wire
+    (slot still paced) so the backend holds a partial to heal."""
     vcfg = settings["video"]
     summary = {"transmit": transmit, "clip": None, "fit": None, "transmit_result": None,
                "schedule_allowed": True, "stage": "start", "error": None, "halt_result": None,
@@ -325,12 +334,16 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             summary["stage"] = "done_no_transmit"
             return summary
 
-        # 4. Keep the burst inside one cellular lane when the island is on.
+        # 4. S5: plan this wake's heals (they go right before START, so the
+        #    lane plan counts them), then keep the burst inside one cellular lane.
         summary["stage"] = "lane_wait"
+        pump = cmd_hooks.make_pending_pump_fn(daemon, summary)
+        heals = rc_heal.begin_wake(daemon, settings, summary, pump_fn=pump)
+        heal_msgs = heals.planned_msgs if heals is not None else 0
         phase_cfg = settings.get("transmit_phase_cfg") or {}
         if phase_cfg.get("enabled"):
             burst_s = rc_transmit_phase.burst_seconds_for(
-                fit["msgs"] + keyframe_chunks, settings["pacing_delay_seconds"])
+                fit["msgs"] + keyframe_chunks + heal_msgs, settings["pacing_delay_seconds"])
             grid_clock = rc_transmit_phase.acquire_grid_clock(gate_info, gate_mono, daemon=daemon,
                                                               clock=clock)
             plan = rc_transmit_phase.plan_from_clock(grid_clock, burst_s, phase_cfg)
@@ -359,10 +372,16 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             summary["media_key"] = media_key
         tx = tx_open_fn(settings["config_path"])
         cmd_hooks.boot_mark("transmit_start")
+        # S5: heals first, never eating the clip's own room.
+        if heals is not None and heal_msgs:
+            heals.send_before_start(
+                tx, budget, reserve_msgs=fit["msgs"] + keyframe_chunks + VIDEO_ENVELOPE_MSGS,
+                delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
         # S3: pump-only during the burst (no ack on the wire between START and END).
-        pump = cmd_hooks.make_pending_pump_fn(daemon, summary)
         if pump is not None:
             send_args["pending_pump_fn"] = pump
+        if bench_drop_chunks:
+            send_args["bench_drop_chunks"] = bench_drop_chunks
         result = transmit_video_clip(tx, budget, **send_args)
         summary["transmit_result"] = result
         if result["refused_reason"]:
@@ -377,6 +396,11 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         if daemon is not None:
             cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
                                  label="post-transmit ack flush")
+            # S5: one <HL> per key after END, paced, on the clip's own tx.
+            if heals is not None:
+                heals.send_status_after_end(tx, budget, wake_key=media_key,
+                                            delay_seconds=settings["pacing_delay_seconds"],
+                                            sleep_fn=sleep_fn)
             cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
                                            clock=clock, sleep_fn=sleep_fn)
         summary["stage"] = "done"

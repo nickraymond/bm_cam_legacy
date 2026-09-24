@@ -46,9 +46,11 @@ Example:
 """
 
 import json
+import re
 
 from command_tables import (
     DEFAULT_SETTINGS,
+    HEAL_COMMANDS,
     QUERY_COMMANDS,
     SETTINGS_COMMANDS,
     is_command,
@@ -64,6 +66,12 @@ ERR_VAL = "val"    # value index not in the command's table
 # id must fit uint32: satellite-side senders stay small, and the dedupe
 # store never grows unbounded entries.
 MAX_COMMAND_ID = 2**32 - 1
+
+# rsd (Sprint25 S5, tables v8; SPEC_resend_heal.md §5). Limits are per command.
+RSD_MAX_HEALS = 8        # 270 B Sofar cap holds ~6-8 heals (spec §0c S2b record)
+RSD_MAX_CHUNKS = 40      # per command AND per wake to start (spec §0b Q1; ceiling 60)
+RE_MEDIA_KEY = re.compile(r"^[0-9a-z]{6}$")
+RE_RANGES = re.compile(r"^\d+(-\d+)?(,\d+(-\d+)?)*$")
 
 
 def _result(ok, command_id=None, cmd=None, value=None, error=None):
@@ -111,10 +119,74 @@ def parse_command(payload):
     if value is None and (cmd == "ping" or cmd in QUERY_COMMANDS):
         value = 0  # ping/help/cfg carry no value; normalize to index 0
 
+    if cmd in HEAL_COMMANDS:
+        heal = parse_rsd(data)
+        if heal is None:
+            return _result(False, command_id=command_id, cmd=cmd, error=ERR_VAL)
+        return _result(True, command_id=command_id, cmd=cmd, value=heal)
+
     if not valid_value(cmd, value):
         return _result(False, command_id=command_id, cmd=cmd, error=ERR_VAL)
 
     return _result(True, command_id=command_id, cmd=cmd, value=value)
+
+
+def expand_ranges(text, max_chunks=RSD_MAX_CHUNKS):
+    """"17,40-42" -> [17, 40, 41, 42], or None if malformed, reversed ("42-40"),
+    duplicated ("3,1-4"), or more than max_chunks indices. Counts BEFORE expanding,
+    so a hostile "0-99999999" costs nothing."""
+    if not isinstance(text, str) or not RE_RANGES.match(text):
+        return None
+    spans, total = [], 0
+    for part in text.split(","):
+        lo, _, hi = part.partition("-")
+        lo = int(lo)
+        hi = int(hi) if hi else lo
+        if hi < lo:
+            return None
+        total += hi - lo + 1
+        if total > max_chunks:
+            return None
+        spans.append((lo, hi))
+    out = [n for lo, hi in spans for n in range(lo, hi + 1)]
+    if len(set(out)) != len(out):
+        return None
+    return sorted(out)
+
+
+def parse_rsd(data):
+    """Validate an rsd payload (already a JSON object). Returns
+    {"x": 1} (cancel all pending heals) or {"h": [[key, [n, ...]], ...]}, or None.
+
+    Rules (SPEC_resend_heal.md §5): exactly one of "x" / "h"; "x" must be 1;
+    "h" is 1..8 [key, ranges] pairs, key ^[0-9a-z]{6}$ and unique within the
+    command, ranges per expand_ranges; <= 40 chunks across the whole command.
+    Whether each key has a sent record and every n < its msgs is the daemon's
+    check (heal_validate_fn) — it needs the filesystem.
+    """
+    has_x, has_h = "x" in data, "h" in data
+    if has_x == has_h:
+        return None
+    if has_x:
+        x = data["x"]
+        return {"x": 1} if (x == 1 and not isinstance(x, bool)) else None
+    heals = data["h"]
+    if not isinstance(heals, list) or not 1 <= len(heals) <= RSD_MAX_HEALS:
+        return None
+    out, keys, total = [], set(), 0
+    for item in heals:
+        if not isinstance(item, list) or len(item) != 2:
+            return None
+        key, ranges = item
+        if not isinstance(key, str) or not RE_MEDIA_KEY.match(key) or key in keys:
+            return None
+        ns = expand_ranges(ranges, RSD_MAX_CHUNKS - total)
+        if ns is None:
+            return None
+        keys.add(key)
+        total += len(ns)
+        out.append([key, ns])
+    return {"h": out}
 
 
 def build_ack(command_id, ok, settings, error=None):
