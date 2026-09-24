@@ -126,6 +126,10 @@ class TestKey(unittest.TestCase):
 
 
 class TestIsland(unittest.TestCase):
+    def test_default_retention_is_14_days(self):
+        # Nick 2026-09-24: the heal window is 14 d (sent records kept that long).
+        self.assertEqual(mk.DEFAULT_CONFIG["retain_days"], 14.0)
+
     def yaml(self, text):
         fh = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False)
         fh.write(text)

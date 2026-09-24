@@ -30,7 +30,8 @@ Sent record (what a heal re-sends, S5)
 
   media_key:
     enabled: false      # true only once the backend M0+ is live (it is, 2026-09-23)
-    retain_days: 3      # sent/ records kept this long (heal window; hard cap 30)
+    retain_days: 14     # sent/ records kept this long = the heal window (hard cap 30)
+                        # (Nick 2026-09-24: 14 d; healing 2-week-old data is valuable)
 
 Mutually exclusive with the retired Sprint10 `media_gid` island (3-char gid).
 """
@@ -52,7 +53,7 @@ SPOTTER_TIME_SOURCES = ("spotter", "spotter_explicit")
 _HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_STATE_PATH = os.path.join(_HERE, "bm_media_key_last.txt")
 DEFAULT_SENT_DIR = os.path.join(_HERE, "sent")
-DEFAULT_CONFIG = {"enabled": False, "retain_days": 3.0, "source": "defaults",
+DEFAULT_CONFIG = {"enabled": False, "retain_days": 14.0, "source": "defaults",
                   "sent_dir": DEFAULT_SENT_DIR, "state_path": DEFAULT_STATE_PATH}
 
 

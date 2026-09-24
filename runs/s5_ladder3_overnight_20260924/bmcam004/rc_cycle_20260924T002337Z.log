@@ -1,0 +1,48 @@
+============================================================
+[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+[RC-CRON] start_utc=2026-09-24T00:23:37+00:00
+[RC-CRON] uptime_s=17.88
+[RC-CRON] user=pi
+[RC-CRON] hostname=bmcam004
+[RC-CRON] app_dir=/home/pi/BM_Devel_Pi
+[RC-CRON] log_file=/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260924T002337Z.log
+[RC-CRON] disk: /dev/mmcblk0p2  115G   86G   25G  79% /
+[RC-CRON] images_dir: 6.9M
+[RC-CRON] checking Python syntax...
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[BOOT] main_entry uptime_s=20.82
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state.json (loaded from defaults)
+[NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+[NET] applying boot default: sudo -n /home/pi/BM_Devel_Pi/network_ap.sh default nereus_hq 90
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/home/pi/BM_Devel_Pi/camera_schedule.yaml
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[BOOT] cmd_subscribed uptime_s=21.43
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s
+[CMD] spotter UTC decoded: 2026-09-24T00:24:49.542000+00:00
+Thu 24 Sep 00:24:49 UTC 2026
+[BOOT] spotter_utc_read uptime_s=24.57
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-23T17:24:49.542000-07:00
+[DEBUG] Sent compact telemetry message (114 bytes): <WS v=1 a=cap tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=1000x562 q=90 ct=39.7 sha=3acc55e00341 hn=bmcam004>
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-24T00:24:49Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-24T00:24:49Z_image_native_full.jpg
+[NET] 2026-09-24T00:24:50Z client WiFi UP: profile=nereus-hq
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-24T00:24:49Z_image_native_full.jpg, bytes=1771172, duration_sec=4.71, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-24T00:24:49Z_image_native_full.jpg (1771172 B, elapsed=7.9s)
+Terminated
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-09-24T00:24:54+00:00
+============================================================
