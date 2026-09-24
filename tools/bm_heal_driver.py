@@ -50,6 +50,8 @@ PUBLISH_OFFSETS_S = (30, 40, 50, 260)
 HEAL_WAKES = 3
 DEFAULT_API = "https://nereus-vision-staging.onrender.com"
 DONE_REASONS = ("complete", "nothing_missing")
+# Candidate lookback = the unit's sent-record retention (rc_media_key retain_days, 14 d).
+DEFAULT_HOURS = 14 * 24
 
 
 def utc_now():
@@ -89,8 +91,9 @@ class Backend:
 
 
 class Driver:
-    def __init__(self, log_root, rigs, backend):
+    def __init__(self, log_root, rigs, backend, hours=DEFAULT_HOURS):
         self.log_root = log_root
+        self.hours = int(hours)
         self.rigs = rigs                      # {spotter_id: device_id}
         self.backend = backend
         self.dir = os.path.join(log_root, "heal_driver")
@@ -164,7 +167,7 @@ class Driver:
         return out
 
     def _new_command(self, spotter, device):
-        code, body = self.backend.call("GET", f"/admin/ingest/devices/{device}/heal-candidates?hours=24")
+        code, body = self.backend.call("GET", f"/admin/ingest/devices/{device}/heal-candidates?hours={self.hours}")
         if code != 200:
             self.event(spotter, "backend_error", call="heal-candidates", status=code, body=str(body)[:200])
             return None
@@ -230,11 +233,13 @@ def main():
     ap.add_argument("--rig", action="append", required=True, help="SPOT-ID=DEVICE_ID (repeatable)")
     ap.add_argument("--env-file", default=os.path.expanduser("~/.config/nereus/heal_driver.env"))
     ap.add_argument("--api", default=DEFAULT_API)
+    ap.add_argument("--hours", type=int, default=DEFAULT_HOURS,
+                    help="heal-candidate lookback (default 336 = 14 d, the unit sent-record retention)")
     args = ap.parse_args()
     rigs = dict(r.split("=", 1) for r in args.rig)
-    driver = Driver(args.log_root, rigs, Backend(args.api, read_token(args.env_file)))
+    driver = Driver(args.log_root, rigs, Backend(args.api, read_token(args.env_file)), hours=args.hours)
     for spotter in rigs:
-        driver.event(spotter, "driver_start", api=args.api, offsets=PUBLISH_OFFSETS_S)
+        driver.event(spotter, "driver_start", api=args.api, offsets=PUBLISH_OFFSETS_S, hours=args.hours)
         threading.Thread(target=driver.follow, args=(spotter,), name=f"follow-{spotter}", daemon=True).start()
     while True:
         time.sleep(3600)
