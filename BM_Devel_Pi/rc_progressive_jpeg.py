@@ -67,7 +67,6 @@ from bm_serial import load_bm_serial_config
 from command_daemon import load_bm_commands_config
 from command_state import CommandState
 import rc_command_hooks as cmd_hooks
-import rc_media_id
 import rc_heal
 import rc_media_key
 import rc_transmit_phase
@@ -139,12 +138,10 @@ def resolve_pacing(config_path):
 
 
 def _load_media_key_cfg(config_path):
-    """media_key island; refuses to coexist with the retired 3-char media_gid."""
-    cfg = rc_media_key.load_media_key_config(config_path)
-    if cfg["enabled"] and rc_media_id.load_media_gid_config(config_path)["enabled"]:
-        raise ValueError("media_key and media_gid are both enabled; media_gid is retired "
-                         "by wire rev 5 — disable it")
-    return cfg
+    """media_key island. A YAML that still enables the retired 3-char media_gid
+    gets a loud warning and is otherwise ignored (never a failed boot)."""
+    rc_media_key.warn_retired_media_gid(config_path)
+    return rc_media_key.load_media_key_config(config_path)
 
 
 def resolve_rc_settings(config_path):
@@ -239,9 +236,6 @@ def resolve_rc_settings(config_path):
         "source_height": int(cfg.image_pipeline_source_height),
         "source_jpeg_quality": int(cfg.image_pipeline_source_jpeg_quality),
         "enforce_time_window": bool(cfg.enforce_time_window),
-        # Sprint10 media-id island (rc_media_id): absent/off == legacy wire.
-        "media_gid_enabled": bool(
-            rc_media_id.load_media_gid_config(config_path)["enabled"]),
         # Sprint25 S4 rev 5 media key island (rc_media_key): absent/off == legacy.
         "media_key_cfg": _load_media_key_cfg(config_path),
         # Sprint11 C2 island (rc_transmit_phase): absent/off == unscheduled.
@@ -728,10 +722,6 @@ def run_cycle(
             "hostname": get_hostname(),
             **storage_health,
         }
-        media_gid = None
-        if settings.get("media_gid_enabled"):
-            media_gid = rc_media_id.next_gid()
-            print(f"[RC] media gid: {media_gid} (chunks <I{media_gid}.i>)")
 
         # Sprint25 S5: this wake's rsd heals go right before START; plan them
         # now so the lane plan below counts them. None without a daemon.
@@ -819,7 +809,6 @@ def run_cycle(
                 defer=bool((bm_commands_cfg or {}).get(
                     "defer_acks_during_transmit"))),
             pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
-            media_gid=media_gid,
             media_key=media_key,
         )
         summary["transmit_result"] = result

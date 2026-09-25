@@ -11,7 +11,7 @@ PURPOSE
          A progressive JPEG survives a truncated burst; does video?
 
     The framing is NOT re-implemented here: it imports split_base64_chunks()
-    from BM_Devel_Pi/rc_transmit.py and chunk_prefix() from rc_media_id.py, the
+    from BM_Devel_Pi/rc_transmit.py and chunk_prefix() from rc_media_key.py, the
     same functions the unit's still-image path uses.
 
     One variable per axis: payload VARIANT (container / GOP) x LOSS SCENARIO.
@@ -109,7 +109,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "BM_Devel_Pi"))
-from rc_media_id import chunk_prefix              # noqa: E402  production
+from rc_media_key import chunk_prefix             # noqa: E402  production
 from rc_transmit import split_base64_chunks       # noqa: E402  production
 from rc_video_clip import keyframe_end_offset      # noqa: E402  production
 from rc_uplink_messages import (                  # noqa: E402  production
@@ -729,7 +729,7 @@ def main():
         "ref": str(args.ref), "crf": args.crf, "fps": args.fps,
         "frames": n_frames, "geometry": f"{ref_w}x{ref_h}",
         "framing": {"source": "BM_Devel_Pi/rc_transmit.split_base64_chunks + "
-                              "rc_media_id.chunk_prefix (imported, not copied)",
+                              "rc_media_key.chunk_prefix (imported, not copied)",
                     "b64_chars_per_msg": B64_CHARS_PER_MSG,
                     "raw_bytes_per_msg": RAW_BYTES_PER_MSG},
         "reassembly_policy": {"h264": "skip gaps", "mp4": "zero-fill gaps",

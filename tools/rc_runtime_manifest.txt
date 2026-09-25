@@ -40,9 +40,7 @@ BM_Devel_Pi/command_help.py
 BM_Devel_Pi/bm_frame_decoder.py
 BM_Devel_Pi/rc_command_hooks.py
 
-# Sprint10 media gid (config-gated by the media_gid YAML island; inert
-# when disabled — legacy chunk wire is byte-identical)
-BM_Devel_Pi/rc_media_id.py
+# Sprint25 keyed media + heals (media_key YAML island; inert when disabled)
 BM_Devel_Pi/rc_media_key.py        # Sprint25 S4 keyed media (was missing: import crash on deploy)
 BM_Devel_Pi/rc_heal.py             # Sprint25 S5 rsd heals + <HL>
 

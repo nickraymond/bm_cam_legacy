@@ -36,7 +36,7 @@ import base64
 import time
 from datetime import datetime, timezone
 
-from rc_media_id import chunk_prefix
+from rc_media_key import chunk_prefix
 from rc_uplink_messages import (
     build_rc_end_message,
     build_rc_incomplete_message,
@@ -82,7 +82,6 @@ def transmit_progressive_image(
     clock=time.monotonic,
     ack_drain_fn=None,
     pending_pump_fn=None,
-    media_gid=None,
     media_key=None,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
@@ -99,18 +98,13 @@ def transmit_progressive_image(
     paced slot and no message: burst length is unchanged, which is the
     whole point — an ack riding a pacing slot silently lengthens the burst
     and can push its tail onto a blackout boundary.
-    media_gid: optional 3-char group id (rc_media_id island). When set,
-    chunks go out as `<I{gid}.{i}>` and START carries `gid:` — exact
-    chunk->image attribution for non-FIFO backends. None = legacy wire.
     media_key: Sprint25 S4 rev 5 key (rc_media_key). START gets `key=`, chunks
-    go out as `<I{key}.{i}>` (398 B at 384 chars). Exclusive with media_gid.
-    None = legacy wire, byte-identical.
+    go out as `<I{key}.{i}>` (398 B at 384 chars). None = legacy wire,
+    byte-identical. (The Sprint10 3-char media_gid was retired in Sprint26 S1.)
     Returns {planned, send_target, sent, started, complete_send,
              incomplete_emitted, uart_duration_sec}.
     """
-    if media_key is not None and media_gid is not None:
-        raise ValueError("media_key and media_gid are mutually exclusive")
-    chunk_tag = media_key if media_key is not None else media_gid
+    chunk_tag = media_key
     delay_seconds = float(delay_seconds)
     chunks = split_base64_chunks(jpeg_data, chunk_b64_chars)
     planned = len(chunks)
@@ -163,7 +157,6 @@ def transmit_progressive_image(
         complete=fits,
         reason=wire_reason,
         start_metadata=start_metadata,
-        gid=media_gid,
         key=media_key,
     )
     tx(start_msg.encode("ascii"))

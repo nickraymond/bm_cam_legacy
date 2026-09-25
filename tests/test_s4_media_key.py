@@ -147,10 +147,22 @@ class TestIsland(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, f"media_key.{key}"):
                 mk.load_media_key_config(self.yaml(f"media_key:\n  {body}\n"))
 
-    def test_media_gid_and_key_refused(self):
+    def test_retired_media_gid_is_warned_and_ignored(self):
+        # Sprint26 S1 (DESIGN_supervisor.md §8.3): a stale island never fails a boot.
+        import contextlib
+        import io
         import rc_progressive_jpeg as rc
-        with self.assertRaisesRegex(ValueError, "media_gid is retired"):
-            rc._load_media_key_cfg(self.yaml("media_key:\n  enabled: true\nmedia_gid:\n  enabled: true\n"))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            cfg = rc._load_media_key_cfg(self.yaml("media_key:\n  enabled: true\nmedia_gid:\n  enabled: true\n"))
+        self.assertTrue(cfg["enabled"])
+        self.assertIn("media_gid.enabled is true", out.getvalue())
+        self.assertFalse(mk.warn_retired_media_gid(self.yaml("media_gid:\n  enabled: false\n")))
+
+    def test_chunk_prefix(self):
+        self.assertEqual(mk.chunk_prefix(7), "<I7>")
+        self.assertEqual(mk.chunk_prefix(173), "<I173>")
+        self.assertEqual(mk.chunk_prefix(7, KEY), f"<I{KEY}.7>")
 
 
 class TestRev5Golden(unittest.TestCase):
@@ -200,8 +212,6 @@ class TestStillsKeyed(unittest.TestCase):
         self.assertNotIn(b"key", wire[-1])
         legacy = self.send()
         self.assertTrue(legacy[1].startswith(b"<I0>") and b"key=" not in legacy[0])
-        with self.assertRaises(ValueError):
-            self.send(media_key=KEY, media_gid="ab1")
         with self.assertRaises(ValueError):
             self.send(media_key="0DHNSO")
 

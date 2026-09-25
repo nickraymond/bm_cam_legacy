@@ -78,7 +78,6 @@
   "enforce_time_window": true,
   "ladder_source": "explicit",
   "max_run_time_min": 12,
-  "media_gid_enabled": false,
   "media_key_cfg": {
    "enabled": false,
    "retain_days": 14.0,
@@ -169,7 +168,6 @@
   "enforce_time_window": true,
   "ladder_source": "explicit",
   "max_run_time_min": 12,
-  "media_gid_enabled": false,
   "media_key_cfg": {
    "enabled": false,
    "retain_days": 14.0,
