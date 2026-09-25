@@ -50,7 +50,8 @@ import config_v2 as C  # noqa: E402
 from command_state import CommandState  # noqa: E402
 
 BMCAM003 = os.path.join(REPO, "device_profiles", "bmcam003", "camera_schedule.yaml")
-MIGRATABLE = ["bmcam000", "bmcam001", "bmcam002", "bmcam003", "rc_field_template"]
+MIGRATABLE = ["bmcam000", "bmcam001", "bmcam002", "bmcam003", "rc_field_template",
+              "bmcam003/live_20260925", "bmcam004/live_20260925"]   # live = pulled 2026-09-25
 
 
 def quiet(fn, *a, **k):

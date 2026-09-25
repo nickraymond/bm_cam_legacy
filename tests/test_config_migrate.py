@@ -47,7 +47,8 @@ from command_state import CommandState  # noqa: E402
 
 BMCAM003 = os.path.join(REPO, "device_profiles", "bmcam003", "camera_schedule.yaml")
 TOOL = os.path.join(REPO, "tools", "config_migrate_v1_v2.py")
-MIGRATABLE = ["bmcam000", "bmcam001", "bmcam002", "bmcam003", "rc_field_template"]
+MIGRATABLE = ["bmcam000", "bmcam001", "bmcam002", "bmcam003", "rc_field_template",
+              "bmcam003/live_20260925", "bmcam004/live_20260925"]   # live = pulled 2026-09-25
 
 
 def quiet(fn, *a, **k):
@@ -235,6 +236,24 @@ class TestState(unittest.TestCase):
         self.assertEqual(m.problems, [])
         self.assertIsNone(m.state)
         self.assertFalse(yaml.safe_load(m.config_text)["commands"]["enabled"])
+
+
+class TestLivePulls(unittest.TestCase):
+    """The bench units' own files (runs/s2_live_pull_20260925/PULL.md)."""
+
+    def test_live_config_and_state_migrate(self):
+        for unit in ("bmcam003", "bmcam004"):
+            d = os.path.join(REPO, "device_profiles", unit, "live_20260925")
+            m = quiet(M.migrate, os.path.join(d, "camera_schedule.yaml"),
+                      os.path.join(d, "bm_command_state.json"))
+            self.assertEqual(m.problems, [], unit)
+            self.assertEqual(m.values["mode.media"], "video", unit)
+            self.assertEqual(m.values["uplink.network_type"], 2, unit)
+            self.assertTrue(m.values["uplink.media_key.enabled"], unit)
+            with open(os.path.join(d, "bm_command_state.json")) as fh:
+                v1 = json.load(fh)
+            self.assertEqual(m.state["v8"]["applied_ids"], v1["applied_ids"][-32:], unit)
+            self.assertEqual(M.overlay_from_v8(m.state["v8"]), {}, unit)
 
 
 class TestRefusedProfiles(unittest.TestCase):

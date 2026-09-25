@@ -12,14 +12,19 @@ bm_command_state_v2.json beside them, and the runtime's own boot path picks v2,
 renders it to a v1-shaped file (tmpfs stand-in) and runs.
 
   wire      trace.txt byte-identical to the golden (every frame, port open,
-            subprocess, clock set, halt); the cycle summary, sidecars and sent
+            subprocess, clock set, halt; the fake recorder's VREC controls dict is
+            compared by the flags rc_capture builds from it, see vrec_by_effect);
+            the cycle summary, sidecars and sent
             records identical; the command state the run leaves in the v2 file's
             v8 section equals the v1 state file the golden recorded; the only new
             files are the v2 config, its state, the render and last-known-good
   settings  every loader's output equal to the golden settings.json, after
             normalising only: paths (render vs v1 file, v2 state file), the
             loaders' `source` provenance fields (a migrated file states every
-            block, so "defaults" becomes "yaml"), and the added [CFG] log lines
+            block, so "defaults" becomes "yaml"), the added [CFG] log lines, and
+            camera-controls dicts compared by what rc_capture builds from them
+            (flags + requested telemetry): a group v1 omitted and the render's
+            {enabled: false} are the same camera behaviour
 
 The two `field_*_main` scenarios run main's committed runtime (no config v2 there)
 and are not part of this gate.
@@ -102,6 +107,7 @@ class ConfigV2Parity(unittest.TestCase):
             want_trace = fh.read()
         with open(os.path.join(out, "trace.txt"), encoding="utf-8") as fh:
             got_trace = fh.read()
+        want_trace, got_trace = self.vrec_by_effect(want_trace), self.vrec_by_effect(got_trace)
         if got_trace != want_trace:
             type(self)._kept = True
         self.assertEqual(got_trace, want_trace, f"{name}: wire differs via v2 (kept in {out})")
@@ -127,6 +133,38 @@ class ConfigV2Parity(unittest.TestCase):
             self.assertEqual(v8, body, f"{name}: v8 state section")
 
     # ------------------------------------------------------------ settings
+    @staticmethod
+    def controls_effect(controls):
+        """What rc_capture BUILDS from a camera_controls dict: the rpicam flags
+        plus the requested-controls telemetry (END rfm/rlp/rwb/...). A group v1
+        left out and a group the render states as {enabled: false} build the
+        same thing; comparing raw dicts would flag that as a difference."""
+        if not isinstance(controls, dict) or "error" in controls:
+            return controls
+        sys.path.insert(0, os.path.join(REPO, "BM_Devel_Pi"))
+        import contextlib
+        import io
+        import rc_capture
+        with contextlib.redirect_stdout(io.StringIO()):
+            args, requested = rc_capture._camera_controls_from_settings(
+                {"camera_controls": controls})
+        return {"args": args, "requested": requested}
+
+    def vrec_by_effect(self, trace):
+        """The fake recorder's VREC line logs the RAW controls dict (the harness
+        does not trace the rpicam-vid argv, tests/golden/README.md). The real
+        recorder turns that dict into flags with the stills builder
+        (video_recorder.py:404), so that one field is compared by effect. Every
+        other byte of the trace is compared as is."""
+        out = []
+        for line in trace.split("\n"):
+            if line.startswith("VREC {"):
+                rec = json.loads(line[5:])
+                rec["controls"] = self.controls_effect(rec.get("controls"))
+                line = "VREC " + json.dumps(rec, sort_keys=True)
+            out.append(line)
+        return "\n".join(out)
+
     def normalise(self, doc):
         text = json.dumps(doc, sort_keys=True)
         text = text.replace("{TMP}/render/camera_schedule.yaml", "{TMP}/camera_schedule.yaml")
@@ -138,6 +176,11 @@ class ConfigV2Parity(unittest.TestCase):
         for block in ("resolved", "overlaid"):
             if isinstance(doc.get(block), dict) and isinstance(doc[block].get("media_key_cfg"), dict):
                 doc[block]["media_key_cfg"].pop("source", None)
+        doc["camera_controls_island"] = self.controls_effect(doc.get("camera_controls_island"))
+        for block in ("resolved", "overlaid"):
+            if isinstance(doc.get(block), dict) and "camera_controls_override" in doc[block]:
+                doc[block]["camera_controls_override"] = self.controls_effect(
+                    doc[block]["camera_controls_override"])
         doc["print_config"] = [re.sub(r"\(source=(yaml|defaults)\)", "(source=*)", line)
                                for line in doc.get("print_config", [])
                                if not line.startswith("[CFG]")]
