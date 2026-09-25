@@ -237,7 +237,10 @@ class CommandState:
         semantics is not expected, but rejects also don't change state,
         so recording them would only bloat the file).
         """
+        journal = None
         if cmd in SETTINGS_COMMANDS:
+            if self.is_v2:
+                journal = (cmd, self.settings[cmd] if cmd in self.touched else None, value)
             self.settings[cmd] = value
             self.touched.add(cmd)
         elif cmd in ACTION_COMMANDS:
@@ -253,6 +256,14 @@ class CommandState:
             self.applied_ids.append(command_id)
             self.applied_ids = self.applied_ids[-DEDUPE_KEEP:]
         self.save()
+        if journal is not None:
+            # Sprint26 S2e: a config-v2 unit journals every v8 setting change
+            # AFTER the state is persisted (the state is the truth; a journal
+            # failure is logged, never fatal). old None = was not overridden.
+            import config_journal
+            config_journal.append(config_journal.path_beside(self.path), "v8",
+                                  key=f"v8.{journal[0]}", old=journal[1], new=journal[2],
+                                  cid=command_id)
 
     def _record_heals(self, command_id, value):
         """rsd: {"x": 1} cancels every pending heal; {"h": [[key, ns], ...]}
@@ -308,7 +319,7 @@ class CommandState:
     # ------------------------------------------------------------------
 
     def save(self):
-        """Atomic write: tmp file in the same dir + fsync + os.replace.
+        """Atomic write (atomic_io): unique tmp + fsync + os.replace + dir fsync.
         Raises on I/O failure — the caller decides whether an unpersisted
         apply should still ack (daemon policy, §2)."""
         body = {
@@ -323,9 +334,7 @@ class CommandState:
                            tables_version=TABLES_VERSION, v8=body)
         else:
             payload = dict(schema=STATE_SCHEMA, tables_version=TABLES_VERSION, **body)
-        tmp_path = f"{self.path}.tmp"
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, separators=(",", ":"))
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp_path, self.path)
+        # Sprint26 S2e: unique tmp name + fsync + rename + fsync of the
+        # directory (atomic_io); the bytes are the same as before.
+        import atomic_io
+        atomic_io.write_text(self.path, json.dumps(payload, separators=(",", ":")))

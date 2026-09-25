@@ -11,9 +11,11 @@ Inputs:  --config  v1 YAML          (default /home/pi/BM_Devel_Pi/camera_schedul
          --app     runtime dir whose v1 loaders are used (default: the repo's BM_Devel_Pi)
 Outputs: dry-run (default): the diff report on stdout, nothing written.
          --write: <out-dir>/camera_config.yaml, <out-dir>/bm_command_state_v2.json
-         (commands on only) and <out-dir>/config_migration_report.md, each written
-         atomically. Refuses to replace an existing v2 file unless --force (the
-         old one is then kept as <name>.before_migrate_<UTC>).
+         (commands on and a v1 state to carry) and <out-dir>/config_migration_report.md,
+         each written atomically, plus one `migrate` line in config_journal.jsonl.
+         Refuses to replace an existing v2 file unless --force (the old one is then
+         kept as <name>.before_migrate_<UTC>), and refuses an --out-dir that is not
+         where the migrated commands.state_path points.
 Exit:    0 OK · 3 refused (a human must decide; nothing written) · 2 usage / IO error.
 
 Stops for a human (REVIEW R1/R2/X3): missing or heic capture_mode; network_type
@@ -51,7 +53,9 @@ def main(argv=None):
 
     sys.path.insert(0, os.path.abspath(args.app))
     import atomic_io
+    import config_journal
     import config_migrate
+    import config_v2
 
     if not os.path.exists(args.config):
         print(f"[MIGRATE][ERROR] v1 YAML not found: {args.config}", file=sys.stderr)
@@ -73,6 +77,15 @@ def main(argv=None):
         print("[MIGRATE] dry-run OK: re-run with --write to create the v2 files")
         return 0
 
+    # One truth for where the v2 state lives: the migrated config's own
+    # commands.state_path. It must be the file this tool writes.
+    state_target = os.path.join(out_dir, V2_STATE)
+    if m.values["commands.state_path"] != os.path.abspath(state_target):
+        print(f"[MIGRATE][ERROR] the migrated config says commands.state_path="
+              f"{m.values['commands.state_path']}, but this run would write the state to "
+              f"{state_target}; run with --out-dir {os.path.dirname(m.values['commands.state_path'])}",
+              file=sys.stderr)
+        return 2
     targets = [(os.path.join(out_dir, V2_CONFIG), m.config_text)]
     if m.state is not None:
         targets.append((os.path.join(out_dir, V2_STATE), None))
@@ -92,6 +105,14 @@ def main(argv=None):
             print(f"[MIGRATE] wrote {os.path.join(out_dir, V2_STATE)}")
         atomic_io.write_text(os.path.join(out_dir, REPORT), report)
         print(f"[MIGRATE] wrote {os.path.join(out_dir, REPORT)}")
+        journal = config_journal.path_beside(m.values["commands.state_path"])
+        effective = dict(m.values)
+        effective.update(config_migrate.overlay_from_v8(m.state["v8"]) if m.state else {})
+        config_journal.append(journal, "migrate", key="*", new="config v2",
+                              h=config_v2.config_hash(effective),
+                              note=f"from {os.path.abspath(args.config)} sha256 "
+                                   f"{m.report['source']['yaml_sha256'][:16]}")
+        print(f"[MIGRATE] journaled in {journal} (hash {config_v2.config_hash(effective)})")
     except OSError as exc:
         print(f"[MIGRATE][ERROR] write failed: {exc}", file=sys.stderr)
         return 2

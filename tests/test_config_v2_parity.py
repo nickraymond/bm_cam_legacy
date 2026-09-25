@@ -49,7 +49,7 @@ SETTINGS = {t.replace("/", "__"): t for t in S.SETTINGS_PROFILES
             if t.startswith("device_profiles/")}
 SETTINGS.update({f"bmcam003+{f}": f"bmcam003+{f}" for f in S.STATE_FIXTURES})
 NEW_FILES = {"camera_config.yaml", "camera_config.lkg.json", "render/camera_schedule.yaml",
-             "state/bm_command_state_v2.json"}
+             "state/bm_command_state_v2.json", "state/config_journal.jsonl"}
 STATE_V1 = "state/bm_command_state.json"
 
 

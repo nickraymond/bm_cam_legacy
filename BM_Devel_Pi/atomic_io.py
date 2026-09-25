@@ -33,8 +33,31 @@ def fsync_dir(dirpath):
         os.close(fd)
 
 
+STALE_TMP_S = 600       # a tmp file this old was left by a writer killed mid-write
+
+
+def _sweep_stale_tmp(dirpath, base, now):
+    """Remove tmp files a killed writer left behind (never a live writer's:
+    those are seconds old)."""
+    prefix = f".{base}."
+    try:
+        names = os.listdir(dirpath)
+    except OSError:
+        return
+    for name in names:
+        if name.startswith(prefix) and name.endswith(".tmp"):
+            p = os.path.join(dirpath, name)
+            try:
+                if now - os.stat(p).st_mtime > STALE_TMP_S:
+                    os.unlink(p)
+            except OSError:
+                pass
+
+
 def write_bytes(path, data, mode=0o644):
+    import time
     dirpath = os.path.dirname(os.path.abspath(path))
+    _sweep_stale_tmp(dirpath, os.path.basename(path), time.time())
     fd, tmp = tempfile.mkstemp(prefix=f".{os.path.basename(path)}.", suffix=".tmp",
                                dir=dirpath)
     try:

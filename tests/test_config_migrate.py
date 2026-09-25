@@ -256,7 +256,9 @@ class TestCli(unittest.TestCase):
     def setUp(self):
         self.tmp = TmpDir(self)
         with open(BMCAM003, encoding="utf-8") as fh:
-            text = fh.read()
+            text = fh.read().replace('"/home/pi/BM_Devel_Pi/bm_command_state.json"',
+                                     f'"{self.tmp.join("bm_command_state.json")}"')
+        self.bmcam003_text = text
         self.cfg = self.tmp.join("camera_schedule.yaml")
         with open(self.cfg, "w", encoding="utf-8") as fh:
             fh.write(text)
@@ -274,12 +276,12 @@ class TestCli(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         made = set(os.listdir(self.tmp.path)) - set(self.before)
         self.assertEqual(made, {"camera_config.yaml", "bm_command_state_v2.json",
-                                "config_migration_report.md"})
+                                "config_migration_report.md", "config_journal.jsonl"})
         self.assertFalse([n for n in os.listdir(self.tmp.path) if n.endswith(".tmp")])
         with open(self.tmp.join("bm_command_state_v2.json")) as fh:
             self.assertEqual(json.load(fh)["v8"]["settings"]["hlt"], 3)
-        with open(self.cfg, encoding="utf-8") as fh, open(BMCAM003, encoding="utf-8") as g:
-            self.assertEqual(fh.read(), g.read())                # v1 untouched
+        with open(self.cfg, encoding="utf-8") as fh:
+            self.assertEqual(fh.read(), self.bmcam003_text)      # v1 untouched
         r = self.run_tool("--config", self.cfg, "--state", self.state, "--write")
         self.assertEqual(r.returncode, 2)
         self.assertIn("refusing to replace", r.stderr)
@@ -287,6 +289,18 @@ class TestCli(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         kept = [n for n in os.listdir(self.tmp.path) if ".before_migrate_" in n]
         self.assertEqual(len(kept), 2)
+        import config_journal
+        entries = config_journal.read(self.tmp.join("config_journal.jsonl"))
+        self.assertEqual([e["src"] for e in entries], ["migrate", "migrate"])
+        self.assertRegex(entries[0]["h"], r"^[0-9a-f]{8}$")
+
+    def test_out_dir_must_hold_the_state(self):
+        other = TmpDir(self)
+        r = self.run_tool("--config", self.cfg, "--state", self.state, "--write",
+                          "--out-dir", other.path)
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("commands.state_path", r.stderr)
+        self.assertEqual(os.listdir(other.path), [])
 
     def test_refusal_exits_3(self):
         with open(self.cfg, "a", encoding="utf-8") as fh:
