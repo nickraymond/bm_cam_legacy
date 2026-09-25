@@ -377,6 +377,8 @@ def _state_path_v2(v1_path):
     import command_state
     base = v1_path or command_state.DEFAULT_STATE_PATH
     root, ext = os.path.splitext(base)
+    if root.endswith("_v2"):
+        return base              # already the v2 file (reading a v2 render back)
     return f"{root}_v2{ext or '.json'}"
 
 

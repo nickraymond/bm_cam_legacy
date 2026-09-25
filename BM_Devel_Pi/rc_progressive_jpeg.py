@@ -903,6 +903,10 @@ def main(argv=None, **cycle_overrides):
                         help="Path to camera_schedule.yaml")
     parser.add_argument("--print-config", action="store_true",
                         help="Resolve + print settings, run nothing")
+    parser.add_argument("--config-format", choices=("auto", "v1", "v2"), default="auto",
+                        help="auto (default): config v2 when camera_config.yaml sits "
+                             "beside --config-path, else the v1 file; v1/v2 force one "
+                             "(Sprint26 S2d)")
     parser.add_argument("--json", action="store_true",
                         help="With --print-config: print every config loader's output "
                              "as one JSON line (last line of stdout), run nothing")
@@ -925,6 +929,23 @@ def main(argv=None, **cycle_overrides):
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
     args = parser.parse_args(argv)
+    # Sprint26 S2d (PLAN_S2.md G2): on a config-v2 unit the v1 loaders below
+    # read a v1-shaped render of camera_config.yaml on tmpfs; with no v2 file
+    # nothing changes. Never raises: a bad v2 file falls back (v1 file, then
+    # last-known-good, then safe-minimal = nothing to do this boot).
+    if args.config_format != "v1":
+        import config_v2
+        if args.config_format == "v2" and not os.path.exists(os.path.join(
+                os.path.dirname(os.path.abspath(args.config_path)), config_v2.V2_NAME)):
+            print(f"[RC][ERROR] --config-format v2: no {config_v2.V2_NAME} beside "
+                  f"{args.config_path}", file=sys.stderr)
+            return 2
+        selected, _boot = config_v2.select_for_legacy_runtime(
+            args.config_path, args.config_format, persist=not args.print_config)
+        if selected is None:
+            print("[RC] SAFE-MINIMAL: no usable config; nothing to do this boot.")
+            return 0
+        args.config_path = selected
     if args.json:
         # Sprint26 S2b: machine-readable config for deploy/migration parity.
         # Before any other step, so it has zero side effects (no network

@@ -7,7 +7,8 @@ The v1 -> v2 migration (DESIGN_supervisor.md §5 "Migration", PLAN_S2.md G1).
   migrate(v1_yaml, v1_state) -> Migration
       .config_text   camera_config.yaml text: EVERY registry key spelled out,
                      registry order, one help comment per key
-      .state         bm_command_state_v2.json object (None when commands are off)
+      .state         bm_command_state_v2.json object (None when commands are off or
+                     there is no v1 state to carry)
       .problems      stop conditions: a human must decide; nothing is written
       .report        dict for the diff report (per key: value, v1 source, notes)
 
@@ -167,11 +168,12 @@ def migrate_state(v1_state_path, commands_enabled):
             problems.append("the v1 CommandState loader dropped or reset something: "
                             + " | ".join(buf.getvalue().strip().splitlines()))
     else:
-        notes.append(f"no v1 state at {v1_state_path}: v2 state starts from factory "
-                     "defaults (every v8 index 0, nothing touched)")
-        with contextlib.redirect_stdout(io.StringIO()):
-            cs = CommandState(path=os.path.join(os.path.dirname(v1_state_path or "/"),
-                                                ".no_such_state.json"))
+        # Nothing to carry: create no v2 file, so the runtime starts from
+        # factory defaults exactly as v1 did ("loaded from defaults") and
+        # writes the v2 file on its first save.
+        notes.append(f"no v1 state at {v1_state_path}: no v2 state created; the runtime "
+                     "starts from factory defaults, as v1 did")
+        return None, notes, problems
 
     settings = {cmd: cs.settings[cmd] for cmd in T.SETTINGS_COMMANDS}
     touched = set(cs.touched)
@@ -196,8 +198,7 @@ def migrate_state(v1_state_path, commands_enabled):
         "result_cache": {},
         "high_water": {},
         "v8": v8,
-        "migrated_from": ({"path": v1_state_path, "sha256": _sha256(v1_state_path)}
-                          if raw is not None else None),
+        "migrated_from": {"path": v1_state_path, "sha256": _sha256(v1_state_path)},
     }
     if touched:
         notes.append(f"v8 overlay carried: settings={settings} touched={sorted(touched)}")

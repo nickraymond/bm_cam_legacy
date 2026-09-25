@@ -12,6 +12,9 @@ images, logs) can land in the repo.
 Usage (repo root, PyYAML required — see tests/golden/README.md):
   python tests/golden/run_scenario.py wire <scenario> <outdir> [--app-src DIR]
   python tests/golden/run_scenario.py settings <target> <outdir> [--app-src DIR]
+  ... [--via-v2]   Sprint26 S2d: migrate the scenario's v1 config + state to
+                   config v2 first and run through the v2 boot path (the render);
+                   tests/test_config_v2_parity.py compares that with the goldens
 
   <target> is a repo-relative profile path, or "bmcam003+<state fixture>".
 
@@ -209,6 +212,26 @@ def seed(scenario, mods, tmp):
     return key
 
 
+VIA_V2 = False
+
+
+def to_v2(tmp, config_path):
+    """--via-v2: migrate the v1 YAML + command state beside it to config v2
+    (camera_config.yaml, bm_command_state_v2.json), as a unit would be at S2f.
+    The v1 files stay; the runtime's own boot path then picks v2."""
+    import atomic_io
+    import config_migrate
+    m = config_migrate.migrate(config_path, None, generated_by="golden --via-v2")
+    if m.problems:
+        fail(f"--via-v2: migration refused: {m.problems}", 6)
+    atomic_io.write_text(os.path.join(os.path.dirname(config_path), "camera_config.yaml"),
+                         m.config_text)
+    if m.state is not None:
+        atomic_io.write_json(m.values["commands.state_path"], m.state)
+    os.environ["BMCAM_RENDER_DIR"] = os.path.join(tmp, "render")
+    return m
+
+
 def substitute_key(rules, key):
     for rule in rules:
         rule["payload"] = json.loads(json.dumps(rule["payload"]).replace("{KEY}", key or "nokey"))
@@ -293,6 +316,13 @@ def file_listing(tmp):
     return out
 
 
+def _read_json(path):
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 def read_json_files(tmp, suffix):
     out = {}
     for root, _dirs, files in os.walk(tmp):
@@ -326,6 +356,8 @@ def run_wire(name, outdir, app_src):
     patch_app(mods, tmp)
     key = seed(sc, mods, tmp)
     substitute_key(W.WORLD.rules, key)
+    if VIA_V2:
+        to_v2(tmp, config_path)
 
     rc, vtx = mods["rc_progressive_jpeg"], mods.get("rc_video_tx")
     captured = {}
@@ -366,6 +398,8 @@ def run_wire(name, outdir, app_src):
         "scenario": name, "notes": sc.get("notes"), "exit_code": code,
         "unfired_rules": [r["payload"] for r in W.WORLD.unfired()],
         "cycle": captured.get("cycle"), "state_file": state,
+        **({"state_file_v2": _read_json(os.path.join(tmp, "state", "bm_command_state_v2.json"))}
+           if VIA_V2 else {}),
         "sidecars": read_json_files(tmp, ".capture_metadata.json"),
         "sent_records": read_json_files(tmp, ".sent.json"),
         "files": file_listing(tmp),
@@ -415,6 +449,13 @@ def run_settings(target, outdir, app_src):
         state = mods["command_state"].CommandState(path=state_path)
         for cid, cmd, value in S.STATE_FIXTURES[fixture]:
             state.record(cid, cmd, value)
+    v1_config_path = config_path
+    if VIA_V2:
+        m = to_v2(tmp, config_path)
+        state_path = m.values["commands.state_path"]
+        with contextlib.redirect_stdout(io.StringIO()):
+            config_path, _boot = importlib.import_module("config_v2").select_for_legacy_runtime(
+                v1_config_path, persist=False)
 
     def attempt(fn):
         try:
@@ -445,7 +486,7 @@ def run_settings(target, outdir, app_src):
     out["uart"] = attempt(lambda: list(bms.load_uart_config(config_path)))
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        out["print_config_exit"] = attempt(lambda: rc.main(["--config-path", config_path,
+        out["print_config_exit"] = attempt(lambda: rc.main(["--config-path", v1_config_path,
                                                             "--print-config"]))
     out["print_config"] = buf.getvalue().splitlines()
     os.makedirs(outdir, exist_ok=True)
@@ -455,16 +496,18 @@ def run_settings(target, outdir, app_src):
     # loaders above resolved (it is the parity probe deploy and migration use).
     # Written beside settings.json, never into it (settings goldens unchanged).
     with open(os.path.join(outdir, "json_check.json"), "w", encoding="utf-8") as fh:
-        json.dump(check_print_config_json(rc, config_path, out, fixture), fh, indent=1)
+        json.dump(check_print_config_json(rc, v1_config_path, config_path, out, fixture), fh,
+                  indent=1)
     shutil.rmtree(tmp, ignore_errors=True)
 
 
-def check_print_config_json(rc, config_path, out, fixture):
-    """Compare `--print-config --json` with the per-loader collection `out`."""
+def check_print_config_json(rc, argv_config_path, config_path, out, fixture):
+    """Compare `--print-config --json` with the per-loader collection `out`.
+    config_path = what the loaders read (the render under --via-v2)."""
     import config_dump
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        code = rc.main(["--config-path", config_path, "--print-config", "--json"])
+        code = rc.main(["--config-path", argv_config_path, "--print-config", "--json"])
     got = json.loads(buf.getvalue().splitlines()[-1])
     keys = ["resolved", "camera_controls_island", "bm_commands", "video", "video_tx",
             "media_key", "transmit_phase", "network", "bm_serial", "network_type", "uart"]
@@ -483,7 +526,10 @@ def main():
     ap.add_argument("target")
     ap.add_argument("outdir")
     ap.add_argument("--app-src", default=os.path.join(REPO, "BM_Devel_Pi"))
+    ap.add_argument("--via-v2", action="store_true")
     args = ap.parse_args()
+    global VIA_V2
+    VIA_V2 = args.via_v2
     try:
         info = env_info()
     except ImportError as exc:
