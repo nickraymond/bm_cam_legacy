@@ -48,7 +48,6 @@ import os
 import time
 
 import rc_media_key
-from rc_media_id import chunk_prefix
 
 HEAL_CAP_PER_WAKE = 40
 HL_PRIORITY = {"sent": 3, "dropped": 2, "refused": 1, "requested": 0}
@@ -100,7 +99,7 @@ def heal_lines(record, ns):
     if any(n >= total for n in ns):
         raise HealRefused("range")
     key = record["key"]
-    return [(n, f"{chunk_prefix(n, key)}{b64[n * width:(n + 1) * width]}\n".encode("ascii"))
+    return [(n, f"{rc_media_key.chunk_prefix(n, key)}{b64[n * width:(n + 1) * width]}\n".encode("ascii"))
             for n in ns]
 
 

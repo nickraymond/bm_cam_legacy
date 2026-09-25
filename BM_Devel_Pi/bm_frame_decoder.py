@@ -51,6 +51,8 @@ Example:
   >>> payloads = scanner.feed(uart_chunk)   # -> [payload_bytes, ...]
 """
 
+import bm_codec
+
 # Max bytes of un-delimited garbage to buffer before dropping. Real
 # frames are small (topic + payload << 1 KB); 8 KB of no-delimiter data
 # means we are reading noise or a firehose we don't understand.
@@ -60,42 +62,10 @@ FRAME_TYPE_PUB = 0x02
 _HEADER_LEN = 16  # type(4 incl CRC) + node_id(8) + pub bytes(2) + topic_len(2)
 
 
-def crc16(seed, src):
-    """Same CRC as bm_serial.BristlemouthSerial.crc (kept byte-identical)."""
-    for i in src:
-        e = (seed ^ i) & 0xFF
-        f = e ^ ((e << 4) & 0xFF)
-        seed = (seed >> 8) ^ (((f << 8) & 0xFFFF) ^ ((f << 3) & 0xFFFF)) ^ (f >> 4)
-    return seed
-
-
-def cobs_decode(data):
-    """Decode one COBS block (no 0x00 delimiter included).
-
-    Returns the decoded bytes, or None if the block is malformed
-    (embedded zero, or a code byte pointing past the end).
-    """
-    if not data:
-        return None
-    out = bytearray()
-    idx = 0
-    length = len(data)
-    while idx < length:
-        code = data[idx]
-        if code == 0:
-            return None  # zeros are delimiters; never valid inside a block
-        end = idx + code
-        if end > length:
-            return None  # code points past the block: truncated/corrupt
-        chunk = data[idx + 1 : end]
-        if 0 in chunk:
-            return None
-        out += chunk
-        idx = end
-        # A maximal (0xFF) code means "254 bytes, no implicit zero".
-        if code != 0xFF and idx < length:
-            out.append(0)
-    return bytes(out)
+# Sprint26 S1: one codec. crc16 / cobs_decode are bm_codec's (re-exported
+# here for existing importers: tests, tools/mock_mote.py).
+crc16 = bm_codec.crc16
+cobs_decode = bm_codec.cobs_decode
 
 
 def verify_crc(packet):

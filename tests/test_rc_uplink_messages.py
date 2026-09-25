@@ -122,9 +122,7 @@ class TestStartMessage(unittest.TestCase):
             "sd_free_bytes": 19 * 1024**3,
             "sd_used_pct": 38.7,
             "images_dir_bytes": 900 * 1024**2,
-            "buffer_dir_bytes": 42 * 1024,
             "cron_logs_dir_bytes": 77 * 1024,
-            "zero_byte_heic_count": 0,
         }
         long_name = "X" * 90 + ".jpg"
         msg = build_rc_start_message(
@@ -164,7 +162,7 @@ class TestEndMessage(unittest.TestCase):
         )
 
     def test_byte_identical_to_heic_end(self):
-        from process_image_v2 import _build_end_image_message
+        from rc_telemetry import _build_end_image_message
 
         meta = {"ExposureTime": 39994, "AnalogueGain": 3.98, "Lux": 402.1}
         rc = build_rc_end_message(

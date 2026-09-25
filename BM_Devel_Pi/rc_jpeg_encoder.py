@@ -35,7 +35,9 @@ import hashlib
 import io
 import math
 
-from PIL import Image
+# PIL is imported inside prepare_source (Sprint26 S1): this module is imported on
+# EVERY boot (command_bindings needs output_size_for_crop), and a video boot never
+# encodes a JPEG, so it must not pay for loading PIL.
 
 # Native IMX708 sensor-equivalent size; the RC capture path always produces this.
 NATIVE_SIZE = (4608, 2592)
@@ -69,6 +71,8 @@ def prepare_source(native_path, crop_xywh, output_width, native_size=NATIVE_SIZE
             f"crop {(x, y, w, h)} exceeds native {native_size[0]}x{native_size[1]}"
         )
     out_size = output_size_for_crop(w, h, output_width)
+
+    from PIL import Image
 
     with Image.open(native_path) as im:
         im = im.convert("RGB")

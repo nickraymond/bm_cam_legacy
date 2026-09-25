@@ -1,0 +1,44 @@
+{
+ "cycle": {
+  "budget_seconds": 720,
+  "command_events": [],
+  "final_path": null,
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "native_path": null,
+  "schedule_allowed": false,
+  "selection": null,
+  "transmit": true,
+  "transmit_result": null
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 0.0,
+ "files": {
+  "camera_schedule.yaml": {
+   "bytes": 7711,
+   "sha256": "676b414910d2df13"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "outside the window: skip_win WS, final drain, halt (no listen tail today)",
+ "scenario": "still_window_skip",
+ "sent_records": {},
+ "sidecars": {},
+ "state_file": null,
+ "unfired_rules": []
+}

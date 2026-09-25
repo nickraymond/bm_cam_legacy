@@ -6,8 +6,8 @@
 #   power applied -> boot -> THIS script runs one RC cycle -> RC performs the
 #   power halt (per power_halt YAML) -> Spotter cuts/restores power.
 #
-# Mirrors run_capture_cycle.sh (HEIC wrapper): timestamped log, settle sleep,
-# python syntax gate, exit-code logging. Installed via crontab as:
+# Timestamped log, settle sleep, exit-code logging (the HEIC wrapper this
+# mirrored, run_capture_cycle.sh, was deleted in Sprint26 S1). Installed via crontab as:
 #   @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
 #
 # NOTE: when power_halt.enabled=true (soak config) the box halts at cycle end
@@ -61,20 +61,13 @@ sleep 0.5
 
 cd "$APP_DIR" || exit 1
 
-echo "[RC-CRON] checking Python syntax..."
-/usr/bin/python3 -m py_compile \
-    rc_progressive_jpeg.py rc_time_budget.py rc_jpeg_encoder.py \
-    rc_quality_selector.py rc_uplink_messages.py rc_transmit.py \
-    rc_transmit_phase.py \
-    rc_power_halt.py spotter_time_sync.py bm_serial.py process_image_v2.py \
-    video_geometry.py video_recorder.py video_ring.py video_manifest.py \
-    videoui_server.py video_settings.py \
-    rc_video_clip.py rc_video_tx.py rc_media_key.py rc_heal.py \
-    network_config.py
-if [ $? -ne 0 ]; then
-    echo "[RC-CRON][ERROR] Python syntax check failed"
-    exit 2
-fi
+# Sprint26 S1: no per-boot py_compile any more. The syntax check lives where a
+# broken file can still be fixed by hand: tools/deploy_rc_runtime.sh
+# py_compiles every file in tools/rc_runtime_manifest.txt and runs a
+# --print-config smoke test after copying (tools/rc_field_update.sh wraps it).
+# The old boot list was also stale (it missed the command_* modules), and a
+# syntax error still fails loudly here: python3 prints the traceback into this
+# log and exits nonzero.
 
 echo "[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)..."
 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit

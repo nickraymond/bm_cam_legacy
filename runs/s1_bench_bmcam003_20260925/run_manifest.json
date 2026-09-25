@@ -1,0 +1,18 @@
+{
+  "run": "s1_bench_bmcam003_20260925",
+  "purpose": "Sprint26 S1 bench gate: development vs feature/sprint26-s1-cleanup on real hardware",
+  "unit": {"host": "bmcam003", "spotter": "SPOT-33507C", "bridge_node": "c3c564b91856226c", "mote": "53171fa3d81a8e6f"},
+  "refs": {"dev": "362e6cbe8e02", "branch": "6f21533fc399", "restored_to": "a71b6c774b32 (feature/s5-rsd-heal)"},
+  "env_on_unit": {"python": "3.13.5", "pillow": "11.1.0", "pyyaml": "6.0.2"},
+  "commands": {
+    "spotter_hold_bus_on": ["bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 0", "bridge cfg commit c3c564b91856226c s", "bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled"],
+    "spotter_restore": ["bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 1", "bridge cfg commit c3c564b91856226c s", "bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled"],
+    "deploy": "bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy --ref <development|feature/sprint26-s1-cleanup> --profile bmcam003 --leave-disarmed",
+    "harness_on_unit": "python3 tests/golden/run_scenario.py wire <scenario> <out> [--app-src /home/pi/s1bench/dev/BM_Devel_Pi]",
+    "live_cycle": "python3 -u /home/pi/s1bench/rssrun.py rc_progressive_jpeg.py --config-path /home/pi/s1bench/cfg_<side>_<video|stills>.yaml --transmit --skip-time-window"
+  },
+  "result": "PASS",
+  "delivery_note": "backend delivery incomplete at write time; bench moved outdoors mid-run (network drop + two Spotter power cycles); see RESULTS.md section 4",
+  "approved_by": "Nick 2026-09-25",
+  "coordinated_with": "mote-code session (SPOT-31593C/bmcam004 untouched)"
+}

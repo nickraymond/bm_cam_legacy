@@ -506,15 +506,15 @@ class TestRuntimeManifestCoversTheVideoPath(unittest.TestCase):
             f"{missing} exist but are not in rc_runtime_manifest.txt — a field "
             f"update would install a runtime that fails to import")
 
-    def test_boot_syntax_gate_covers_every_video_module(self):
-        gate = open(os.path.join(self.PI_DIR, "rc_run_capture_cycle.sh")).read()
-        for name in os.listdir(self.PI_DIR):
-            if name.startswith("video") and name.endswith(".py"):
-                self.assertIn(
-                    name, gate,
-                    f"{name} is not in rc_run_capture_cycle.sh's py_compile "
-                    f"gate, so a syntax error there would only surface when "
-                    f"the first clip fails")
+    def test_deploy_syntax_gate_compiles_every_shipped_module(self):
+        # Sprint26 S1: the per-boot py_compile in rc_run_capture_cycle.sh was
+        # removed; the gate is at deploy time. deploy_rc_runtime.sh must collect
+        # EVERY copied .py and py_compile them, so a syntax error in a video
+        # module (all of which are shipped, test above) fails the deploy, not
+        # the first clip.
+        deploy = open(os.path.join(self.REPO, "tools", "deploy_rc_runtime.sh")).read()
+        self.assertIn('[[ "$dest_name" == *.py ]] && COPIED_PY+=("$dest_name")', deploy)
+        self.assertIn('/usr/bin/python3 -m py_compile "${COPIED_PY[@]}"', deploy)
 
 
 if __name__ == "__main__":

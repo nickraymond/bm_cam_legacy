@@ -4,9 +4,10 @@
 """
 Sprint08 progressive-JPEG RC entry script — M7 cycle orchestrator.
 
-Config-gated runtime path (capture_mode: progressive_jpeg). The known-good
-HEIC path (main_pi_camera.py) is untouched; this script wires the tested RC
-modules into one cycle:
+Config-gated runtime path (capture_mode: progressive_jpeg | video). The old
+HEIC path (main_pi_camera.py) was deleted in Sprint26 S1; `capture_mode: heic`
+now means "nothing to do" (see main()). This script wires the RC modules into
+one cycle:
 
   CycleBudget (M1, starts at process start)
     -> schedule gate (transmit runs only; reuses production Spotter-time gate;
@@ -67,29 +68,31 @@ from bm_serial import load_bm_serial_config
 from command_daemon import load_bm_commands_config
 from command_state import CommandState
 import rc_command_hooks as cmd_hooks
-import rc_media_id
 import rc_heal
 import rc_media_key
 import rc_transmit_phase
-from process_image_v2 import (
+import bm_port
+from bm_port import (
     DEFAULT_BUFFER_SIZE,
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
-    IMAGE_DIRECTORY,
-    _get_bm_serial,
+    apply_bm_serial_runtime_settings,
+)
+from rc_capture import (
     _load_libcamera_metadata_json,
     _run_native_full_capture,
     _select_camera_command,
-    apply_bm_serial_runtime_settings,
-    close_bm_serial,
+    generate_filename,
+    update_capture_metadata,
+)
+from rc_telemetry import (
+    IMAGE_DIRECTORY,
     collect_storage_health,
     debug_print,
-    generate_filename,
     get_cpu_temperature,
     get_hostname,
     get_software_sha,
     log_message,
     send_wake_status,
-    update_capture_metadata,
 )
 from rc_jpeg_encoder import output_size_for_crop, prepare_source
 from rc_power_halt import perform_power_halt
@@ -139,12 +142,10 @@ def resolve_pacing(config_path):
 
 
 def _load_media_key_cfg(config_path):
-    """media_key island; refuses to coexist with the retired 3-char media_gid."""
-    cfg = rc_media_key.load_media_key_config(config_path)
-    if cfg["enabled"] and rc_media_id.load_media_gid_config(config_path)["enabled"]:
-        raise ValueError("media_key and media_gid are both enabled; media_gid is retired "
-                         "by wire rev 5 — disable it")
-    return cfg
+    """media_key island. A YAML that still enables the retired 3-char media_gid
+    gets a loud warning and is otherwise ignored (never a failed boot)."""
+    rc_media_key.warn_retired_media_gid(config_path)
+    return rc_media_key.load_media_key_config(config_path)
 
 
 def resolve_rc_settings(config_path):
@@ -239,9 +240,6 @@ def resolve_rc_settings(config_path):
         "source_height": int(cfg.image_pipeline_source_height),
         "source_jpeg_quality": int(cfg.image_pipeline_source_jpeg_quality),
         "enforce_time_window": bool(cfg.enforce_time_window),
-        # Sprint10 media-id island (rc_media_id): absent/off == legacy wire.
-        "media_gid_enabled": bool(
-            rc_media_id.load_media_gid_config(config_path)["enabled"]),
         # Sprint25 S4 rev 5 media key island (rc_media_key): absent/off == legacy.
         "media_key_cfg": _load_media_key_cfg(config_path),
         # Sprint11 C2 island (rc_transmit_phase): absent/off == unscheduled.
@@ -260,7 +258,8 @@ def print_resolved_settings(s):
     elif s["capture_mode"] == "video":
         print("[RC] capture_mode=video (Sprint15 video path selected)")
     else:
-        print(f"[RC] capture_mode={s['capture_mode']} (RC inactive; known-good HEIC path owns this cycle)")
+        print(f"[RC] capture_mode={s['capture_mode']} (RC inactive: the heic path was retired in "
+              "Sprint26; set capture_mode to progressive_jpeg or video)")
 
     print(
         f"[RC] quality ladder ({s['ladder_source']}): q_max={s['q_max']} "
@@ -368,7 +367,7 @@ def _default_capture(settings, output_dir):
 def _default_bm_open(config_path):
     """Apply bm_serial runtime settings and return the production tx callable."""
     apply_bm_serial_runtime_settings(configure_serial=True)
-    return _get_bm_serial().spotter_tx
+    return bm_port.get().spotter_tx
 
 
 def _apply_command_overlay(settings, state):
@@ -484,7 +483,7 @@ def run_cycle(
     output_dir=IMAGE_DIRECTORY,
     capture_fn=_default_capture,
     bm_open_fn=_default_bm_open,
-    bm_close_fn=close_bm_serial,
+    bm_close_fn=bm_port.close,
     wake_fn=send_wake_status,
     halt_fn=perform_power_halt,
     sleep_fn=time.sleep,
@@ -728,10 +727,6 @@ def run_cycle(
             "hostname": get_hostname(),
             **storage_health,
         }
-        media_gid = None
-        if settings.get("media_gid_enabled"):
-            media_gid = rc_media_id.next_gid()
-            print(f"[RC] media gid: {media_gid} (chunks <I{media_gid}.i>)")
 
         # Sprint25 S5: this wake's rsd heals go right before START; plan them
         # now so the lane plan below counts them. None without a daemon.
@@ -819,7 +814,6 @@ def run_cycle(
                 defer=bool((bm_commands_cfg or {}).get(
                     "defer_acks_during_transmit"))),
             pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
-            media_gid=media_gid,
             media_key=media_key,
         )
         summary["transmit_result"] = result
@@ -1030,8 +1024,8 @@ def main(argv=None, **cycle_overrides):
         return 0
 
     if settings["capture_mode"] != "progressive_jpeg":
-        print(f"[RC] capture_mode={settings['capture_mode']} — RC inactive; "
-              "known-good HEIC path owns this cycle. Nothing to do.")
+        print(f"[RC] capture_mode={settings['capture_mode']} — RC inactive: the heic path was "
+              "retired in Sprint26; set capture_mode to progressive_jpeg or video. Nothing to do.")
         return 0
 
     # Sprint12: consume a pending one-shot trg (D-S12-3/4/5). Only a

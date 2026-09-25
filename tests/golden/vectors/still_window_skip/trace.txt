@@ -1,0 +1,8 @@
+OPEN port=/dev/ttyAMA0 baud=115200 timeout=0.1
+W sub bmcam/cmd
+W sub spotter/utc-time
+RX utc 2026-09-24T21:00:00+00:00
+SETCLOCK sudo -n date -u -s 2026-09-24 21:00:00
+W tx.02 <WS v=1 a=skip_win tz=America/New_York lt=1700 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden r=window>\x0a
+CLOSE port=/dev/ttyAMA0
+HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

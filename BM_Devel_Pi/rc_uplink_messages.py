@@ -4,10 +4,10 @@
 """
 Sprint08 M4 — uplink message fields for the progressive-JPEG RC.
 
-String builders ONLY: no serial, no hardware, no edits to the HEIC path's
-builders in process_image_v2.py (their formatting helpers are imported and
-reused; the HEIC messages stay byte-identical). The RC orchestrator (M7)
-sends these strings over the existing spotter_tx path.
+String builders ONLY: no serial, no hardware. The shared formatting helpers
+and the END field builder live in rc_telemetry.py (they were in
+process_image_v2.py until Sprint26 S1). The RC orchestrator (M7) sends these
+strings over the existing spotter_tx path.
 
 Wire additions (P4, Nick-approved; backend parsing is a SEPARATE
 nereus-vision-dev/backend change — this module + tests define the fields):
@@ -34,7 +34,7 @@ are the point of the message); the existing low-value storage/context keys
 drop first, same order as the HEIC START builder.
 """
 
-from process_image_v2 import (
+from rc_telemetry import (
     _build_end_image_message,
     _clean_value,
     _start_metadata_pairs,
@@ -90,7 +90,6 @@ def build_rc_start_message(
     reason=None,
     start_metadata=None,
     max_payload_bytes=285,
-    gid=None,
     key=None,
 ):
     """Build the RC START IMG message (one unchunked BM message).
@@ -100,14 +99,10 @@ def build_rc_start_message(
     budget is exceeded. The RC fields sit ahead of the optional metadata and
     are never dropped.
 
-    gid (Sprint10 media-id island): when set, a never-dropped `gid: xxx`
-    base field binds this image's chunk group id to the filename, so
-    backend parsers can attribute `<I{gid}.{i}>` chunks exactly. Absent
-    by default — legacy wire is byte-identical.
-
     key (Sprint25 S4, wire contract rev 5 §14): the 6-char media key as
-    `key=<key>` right after `length` — a core field, never dropped. Mutually
-    exclusive with gid. None = legacy wire, byte-identical.
+    `key=<key>` right after `length` — a core field, never dropped. None =
+    legacy wire, byte-identical. (The Sprint10 `gid:` field was retired in
+    Sprint26 S1.)
     """
     base_parts = [
         f"filename: {_clean_value(compressed_file_name, max_len=96)}",
@@ -115,11 +110,7 @@ def build_rc_start_message(
         f"length: {int(num_buffers)}",
     ]
     if key is not None:
-        if gid is not None:
-            raise ValueError("START: media key and 3-char gid are mutually exclusive")
         base_parts.append(f"key={_valid_key(key)}")
-    if gid is not None:
-        base_parts.append(f"gid: {_clean_value(gid, max_len=6)}")
     rc_parts = [
         f"{key}={_clean_value(value, max_len=12)}"
         for key, value in _rc_field_pairs(quality, enc_attempts, complete, reason)
@@ -130,7 +121,7 @@ def build_rc_start_message(
     optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata) if k != "q"]
 
     # Same drop order as the HEIC builder (lowest-value fields first).
-    drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]
+    drop_order = ["lg", "im", "st", "su", "tz", "hn", "ws", "we"]
 
     def render(selected_optional):
         parts = list(base_parts) + list(rc_parts)
@@ -271,7 +262,7 @@ def build_rc_video_start_message(
     video_parts = [f"{k}={_clean_value(v, max_len=20)}" for k, v in video_pairs]
     optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata)
                 if k not in _VIDEO_START_SKIP]
-    drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]
+    drop_order = ["lg", "im", "st", "su", "tz", "hn", "ws", "we"]
 
     def render(selected):
         parts = base_parts + video_parts + [

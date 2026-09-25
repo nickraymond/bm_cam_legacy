@@ -1,0 +1,5 @@
+2026-09-24T18:17:54Z 2026-09-24T18:17:55.648Z [BRIDGE_CFG] [INFO] Bridge network config: [[14106792153947972204, "bridge", 362149892, 4146432334, {"sampleIntervalMs": 3600000, "sampleDurationMs": 600000, "subsampleIntervalMs": 300000, "subsampleDurationMs": 30000, "subsampleEnabled": 0, "bridgePowerControllerEnabled": 1, "alignmentInterval5Min": 1, "ticksSamplingEnabled": 0, "samplesPerReport": 1, "transmitAggregations": 0, "currentReadingPeriodMs": 60000, "softReadingPeriodMs": 500, "rbrCodaReadingPeriodMs": 500, "turbidityReadingPeriodMs": 1000, "disableUnusedPortsTimeMs": 0, "salinityReadingPeriodMs": 30000, "sensorsCheckIntervalS": 60, "sensorsPollIntervalMs": 10000}], [5987289018178113135, "serial_bridge", 1420816547, 1030244400, {"disableUnusedPortsTimeMs": 0}]]
+cmd.txt bytes: 0
+2026-09-25T19:08:12Z 1790363295.585 c3c564b91856226c, power | tick: 89430273, rtc: 2026-09-25T19:08:15.578, addr: 65, vo
+2026-09-25T19:08:18Z 1790363301.750 53171fa3d81a8e6f, power | tick: 500264, rtc: 2026-09-25T19:08:21.738, addr: 65, volt
+2026-09-25T19:08:22Z 1790363305.585 c3c564b91856226c, power | tick: 89440273, rtc: 2026-09-25T19:08:25.574, addr: 65, vo

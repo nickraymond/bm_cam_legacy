@@ -19,7 +19,7 @@ Run (repo root, works without pyserial/PyYAML — serial is stubbed):
   python3 -m unittest tests.test_rc_progressive_config -v
   # or: python3 tests/test_rc_progressive_config.py
 
-Assumptions: PIL importable (needed by process_image_v2 import chain).
+Assumptions: PIL importable (rc_jpeg_encoder, via rc_command_hooks).
 """
 
 import contextlib

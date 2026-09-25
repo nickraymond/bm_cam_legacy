@@ -1,0 +1,54 @@
+--- backup (ARMED state, re-arm file)
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+--- survey
+bmcam003
+ 19:17:51 up 1 min,  1 user,  load average: 1.27, 0.47, 0.17
+Fri 25 Sep 19:17:51 UTC 2026
+--- camera procs
+none
+--- killed cycle log
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260925T190834Z.log
+[VID] clip start: 2026-09-25T19-17-06Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[NET] 2026-09-25T19:17:16Z client WiFi UP: profile=nereus-hq
+[VID] clip done: 2026-09-25T19-17-06Z_video_1920x1080_15fps.mp4 (2961067 B, encode=8.5s boundary=9.7s)
+[VTX] message budget: cap=190 affordable_now=320 (after reserving 32) -> 190 chunk msgs (54720 B)
+--- deployed sha
+a71b6c774b32
+20260921T184753Z 1ff1ba719011 mode=update profile=none cron=false
+20260924T044017Z a71b6c774b32 mode=update profile=none cron=false
+--- repo
+a71b6c7 Sprint25 S5 ladder 3: bm_heal_driver — console-path heal loop for the monitor Pi
+feature/s5-rsd-heal
+--- yaml
+61:  enabled: true
+96:capture_mode: "video"
+103:# of truth): image_buffer_size chars/msg, image_transmit_delay_seconds s/msg.
+132:power_halt:
+133:  enabled: true             # Sprint24: REAL halt at cycle end; never let the ebox hard-cut a running Pi
+134:  dry_run: false
+145:  image_buffer_size: 384
+146:  image_transmit_delay_seconds: 1.3
+161:video:
+192:video_tx:
+193:  enabled: true
+203:transmit_phase:
+204:  enabled: false
+206:bm_commands:
+207:  enabled: true
+211:  state_path: /home/pi/BM_Devel_Pi/bm_command_state.json
+213:media_key:
+214:  enabled: true
+--- deps
+Python 3.13.5
+yaml 6.0.2 PIL 11.1.0 serial 3.5
+/usr/bin/ffmpeg
+/usr/bin/rpicam-still
+/usr/bin/rpicam-vid
+--- mem/disk
+               total        used        free      shared  buff/cache   available
+Mem:             415         169         118          10         189         245
+/dev/mmcblk0p2  115G   86G   25G  79% /
+--- state files
+-rw-rw-r-- 1 pi pi 265 Sep 24 20:01 /home/pi/BM_Devel_Pi/bm_command_state.json
+-rw-rw-r-- 1 pi pi   6 Sep 25 19:00 /home/pi/BM_Devel_Pi/bm_media_key_last.txt
+158

@@ -1,0 +1,11 @@
+6f21533fc399
+# DISABLED s1bench 20260925T191606Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+/home/pi/BM_Devel_Pi/bm_codec.py
+/home/pi/BM_Devel_Pi/bm_port.py
+/home/pi/BM_Devel_Pi/rc_capture.py
+/home/pi/BM_Devel_Pi/rc_telemetry.py
+[import] 0.494s PIL=False
+[import] 0.495s PIL=False
+[import] 0.495s PIL=False
+[import] 0.498s PIL=False
+[import] 0.496s PIL=False

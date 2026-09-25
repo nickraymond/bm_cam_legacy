@@ -33,7 +33,8 @@ Sent record (what a heal re-sends, S5)
     retain_days: 14     # sent/ records kept this long = the heal window (hard cap 30)
                         # (Nick 2026-09-24: 14 d; healing 2-week-old data is valuable)
 
-Mutually exclusive with the retired Sprint10 `media_gid` island (3-char gid).
+The retired Sprint10 `media_gid` island (3-char gid) is ignored with a loud
+warning if a YAML still enables it (warn_retired_media_gid).
 """
 
 import base64
@@ -152,8 +153,43 @@ def allocate_key(utc_dt, source, state_path=DEFAULT_STATE_PATH):
 
 # --- config -------------------------------------------------------------------------------
 
+def chunk_prefix(i, key=None):
+    """Wire prefix for chunk i: legacy `<I7>`, or keyed `<I{key}.{i}>` (rev 5)."""
+    if key is None:
+        return f"<I{i}>"
+    return f"<I{key}.{i}>"
+
+
+def warn_retired_media_gid(config_path):
+    """True, with one loud line, if the YAML still enables the retired Sprint10
+    `media_gid:` island. The unit ignores it and runs the key/legacy wire: a stale
+    island must never fail a boot (DESIGN_supervisor.md §8.3 S1 step 3). Deploy and migrate
+    refuse such a file (S2)."""
+    enabled = False
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            in_island = False
+            for raw in f:
+                line = raw.split("#", 1)[0].rstrip()
+                if not line.strip():
+                    continue
+                if not line.startswith(" "):
+                    in_island = line.strip() == "media_gid:"
+                    continue
+                if in_island and ":" in line:
+                    k, v = (x.strip() for x in line.split(":", 1))
+                    if k == "enabled" and v.strip("'\"").lower() == "true":
+                        enabled = True
+    except OSError:
+        return False
+    if enabled:
+        print("[KEY][WARN] media_gid.enabled is true in the YAML, but media_gid was retired "
+              "by wire rev 5 and is IGNORED. Remove the media_gid island.")
+    return enabled
+
+
 def load_media_key_config(config_path):
-    """Read the `media_key:` island (same tolerant line parser as media_gid). Absent =
+    """Read the `media_key:` island (tolerant flat-island line parser). Absent =
     disabled. Raises ValueError on a bad value, naming the key."""
     cfg = dict(DEFAULT_CONFIG)
     try:

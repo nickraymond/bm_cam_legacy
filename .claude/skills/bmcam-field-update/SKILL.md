@@ -35,13 +35,24 @@ a known field state.
      — **this backup captures the ARMED state; it is the re-arm file later**
    - disable the `@reboot` RC line (sed comment), also match the legacy
      HEIC `run_capture_cycle.sh` pattern
-   - `pkill -TERM -f 'rc_run_capture_cycle.sh|rc_progressive_jpeg.py|main_pi_camera.py'`
+   - `pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'`
+     — the `[x]` brackets matter: run inside `ssh '…'`, a plain pattern also matches
+     the remote shell's own command line and kills the rest of your script
+     (bmcam003, 2026-09-25: cron got disarmed, the survey after it never ran)
      — SIGTERM kills Python without running `finally`, so no halt fires
    - survey: hostname/uptime, crontab, processes (want NONE), repo checkout
      path + sha, `software_sha.txt`, deployed `bm_serial:` values, `power_halt`
      state, `/dev/serial0` target
    On bmcam000 the watcher won the race at 8 s after boot. Run it in the
    background, tell the human "power it now".
+
+**Scheduled bus (bridgePowerControllerEnabled 1)?** A disarmed Pi is hard-cut at the
+end of the window (e.g. 10 min). For anything longer, hold the bus on first
+(`bridge cfg set <bridge> s u bridgePowerControllerEnabled 0` + `bridge cfg commit
+<bridge> s` + read-back, via the Spotter console), and restore it at the end with
+the unit DISARMED and halted: the commit power-cycles the bus into a ~2 min stub
+window — catch the Pi there, restore the armed crontab, halt it. Recipe and logs:
+`runs/s1_bench_bmcam003_20260925/` (watcher.sh, rearm_watcher.sh, RESULTS.md §5).
 
 ## Phase 1 — run the update
 
@@ -120,7 +131,7 @@ continuously and does NOT self-halt — the catch-it-awake race above
 does not apply; SSH in any time. What still applies, plus differences:
 
 - **Disarm the same way** (comment the `@reboot` line, then
-  `pkill -TERM -f 'rc_run_capture_cycle.sh|rc_progressive_jpeg.py'`).
+  `pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py'`).
   SIGTERM at most costs the in-flight clip (`.part` — swept at next
   boot, crash contract D-S15-2). The encoder owns the camera while
   recording: any bench `rpicam-*` command fails "in use" until then.

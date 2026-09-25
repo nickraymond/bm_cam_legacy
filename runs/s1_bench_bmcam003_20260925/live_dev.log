@@ -1,0 +1,38 @@
+[side] dev sha=362e6cbe8e02 start=2026-09-25T19:22:10Z
+wrote /home/pi/s1bench/cfg_dev_video.yaml
+wrote /home/pi/s1bench/cfg_dev_stills.yaml
+  File "<string>", line 1
+    import time, sys; sys.path.insert(0, "."); t=time.perf_counter(); import rc_progressive_jpeg; print(f"[import] {time.perf_counter()-t:.3f}s PIL={\"PIL\" in sys.modules}")
+                                                                                                                                                      ^
+SyntaxError: unexpected character after line continuation character
+  File "<string>", line 1
+    import time, sys; sys.path.insert(0, "."); t=time.perf_counter(); import rc_progressive_jpeg; print(f"[import] {time.perf_counter()-t:.3f}s PIL={\"PIL\" in sys.modules}")
+                                                                                                                                                      ^
+SyntaxError: unexpected character after line continuation character
+  File "<string>", line 1
+    import time, sys; sys.path.insert(0, "."); t=time.perf_counter(); import rc_progressive_jpeg; print(f"[import] {time.perf_counter()-t:.3f}s PIL={\"PIL\" in sys.modules}")
+                                                                                                                                                      ^
+SyntaxError: unexpected character after line continuation character
+  File "<string>", line 1
+    import time, sys; sys.path.insert(0, "."); t=time.perf_counter(); import rc_progressive_jpeg; print(f"[import] {time.perf_counter()-t:.3f}s PIL={\"PIL\" in sys.modules}")
+                                                                                                                                                      ^
+SyntaxError: unexpected character after line continuation character
+  File "<string>", line 1
+    import time, sys; sys.path.insert(0, "."); t=time.perf_counter(); import rc_progressive_jpeg; print(f"[import] {time.perf_counter()-t:.3f}s PIL={\"PIL\" in sys.modules}")
+                                                                                                                                                      ^
+SyntaxError: unexpected character after line continuation character
+[old-boot-py_compile] 985 ms for 22 files
+[cycle] video start=2026-09-25T19:22:13Z
+[cycle] video end=2026-09-25T19:29:55Z [BENCH] exit=0 wall_s=461.3 maxrss_self_kb=30144 maxrss_children_kb=122932 cpu_self_s=3.1 cpu_children_s=29.9
+[cycle-video] [BOOT] main_entry uptime_s=336.14
+[cycle-video] [BOOT] cmd_subscribed uptime_s=336.67
+[cycle-video] [BOOT] spotter_utc_read uptime_s=345.23
+[cycle-video] [BOOT] transmit_start uptime_s=372.01
+[cycle-video] [BOOT] halt uptime_s=796.63
+[cycle] stills start=2026-09-25T19:29:55Z
+[cycle] stills end=2026-09-25T19:36:47Z [BENCH] exit=0 wall_s=411.1 maxrss_self_kb=133760 maxrss_children_kb=133760 cpu_self_s=4.2 cpu_children_s=1.2
+[cycle-stills] [BOOT] main_entry uptime_s=798.24
+[cycle-stills] [BOOT] cmd_subscribed uptime_s=798.76
+[cycle-stills] [BOOT] transmit_start uptime_s=804.92
+[cycle-stills] [BOOT] halt uptime_s=1208.32
+[side] dev DONE 2026-09-25T19:36:47Z

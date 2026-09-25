@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
 
 import count_complete_images as cci  # noqa: E402
-from rc_media_id import chunk_prefix  # noqa: E402
+from rc_media_key import chunk_prefix  # noqa: E402
 from rc_uplink_messages import (  # noqa: E402
     build_rc_end_message,
     build_rc_start_message,
@@ -37,10 +37,16 @@ def entry(text, ts):
 
 
 def image_messages(name, planned, *, gid=None, drop=(), t_base=0, end=True):
-    """One image's worth of backend rows, with `drop` chunk indexes missing."""
-    rows = [entry(build_rc_start_message(
-        name, T0, planned, quality=20, enc_attempts=1, complete=True,
-        gid=gid), f"2026-07-29T20:{t_base:02d}:00Z")]
+    """One image's worth of backend rows, with `drop` chunk indexes missing.
+
+    gid reproduces the Sprint10 media_gid wire (`gid: xxx` right after `length`,
+    chunks `<I{gid}.{i}>`). The device stopped sending it in Sprint26 S1, but this
+    tool still has to count that historical data, so the fixture writes it here."""
+    start = build_rc_start_message(name, T0, planned, quality=20, enc_attempts=1,
+                                   complete=True)
+    if gid is not None:
+        start = start.replace(f"length: {planned}", f"length: {planned}, gid: {gid}", 1)
+    rows = [entry(start, f"2026-07-29T20:{t_base:02d}:00Z")]
     for i in range(planned):
         if i in drop:
             continue

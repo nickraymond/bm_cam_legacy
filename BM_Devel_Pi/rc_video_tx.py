@@ -167,9 +167,9 @@ def _default_tx_open(config_path):
     every message. The bare BristlemouthSerial default is 0x01 = cellular with
     IRIDIUM fallback; a clip must never fall back to satellite, whatever the
     YAML says."""
-    from process_image_v2 import _get_bm_serial, apply_bm_serial_runtime_settings
-    apply_bm_serial_runtime_settings(configure_serial=True)
-    bm = _get_bm_serial()
+    import bm_port
+    bm_port.apply_bm_serial_runtime_settings(configure_serial=True)
+    bm = bm_port.get()
     return lambda data: bm.spotter_tx(data, network_type="cellular_only")
 
 
@@ -182,13 +182,13 @@ def _default_gate(config_path, **gate_kwargs):
 
 
 def _default_close():
-    from process_image_v2 import close_bm_serial
-    close_bm_serial()
+    import bm_port
+    bm_port.close()
 
 
 def _cpu_temp_text():
     try:
-        from process_image_v2 import get_cpu_temperature
+        from rc_telemetry import get_cpu_temperature
         return f"{float(get_cpu_temperature()):.1f}"
     except Exception:
         return "na"
@@ -196,7 +196,7 @@ def _cpu_temp_text():
 
 def _start_metadata(settings):
     try:
-        from process_image_v2 import get_hostname, get_software_sha
+        from rc_telemetry import get_hostname, get_software_sha
         return {"timezone": settings.get("timezone"), "software_sha": get_software_sha(),
                 "hostname": get_hostname()}
     except Exception:
@@ -218,7 +218,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
     bm_commands_cfg / command_state / bench_commands (S3): the command daemon,
     under the stills D11 predicate. daemon_factory defaults to
     cmd_hooks.default_daemon_factory (opens the UART once, installs the shared
-    port as process_image_v2's instance, so _default_tx_open reuses it).
+    port as the bm_port handle, so _default_tx_open reuses it).
 
     bench_drop_chunks (S5, BENCH ONLY): clip chunk indices skipped on the wire
     (slot still paced) so the backend holds a partial to heal."""

@@ -1,0 +1,7 @@
+# Dev / test environment (NOT deployed to units). Pinned so golden vectors are
+# reproducible: PyYAML changes which config loaders run; Pillow changes JPEG bytes.
+# See tests/golden/README.md.  Install: .venv-dev/bin/pip install -r requirements-dev.txt
+PyYAML==6.0.2
+Pillow==12.3.0
+pyserial==3.5
+pytest==9.1.1

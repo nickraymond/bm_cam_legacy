@@ -46,8 +46,8 @@ Example (integration wiring lives in rc_progressive_jpeg.py):
   ... capture / transmit(ack_drain_fn=daemon.drain_acks) ...
   daemon.process_pending(); daemon.drain_acks(); daemon.stop()
 
-Known limitations: command topic default is provisional until Q11 /
-Phase B `bm pub` verification (D14). Reader-thread death is non-fatal
+Known limitations: the topic default `bmcam/cmd` is the one every bench unit
+has used since Sprint10 Phase B (`bm pub` verified). Reader-thread death is non-fatal
 by design — the capture mission continues without command handling.
 """
 
@@ -81,7 +81,7 @@ except Exception:  # pragma: no cover - same runtime fallback as bm_serial
 # `post_transmit_listen_s` (C4/D6).
 DEFAULT_BM_COMMANDS_CONFIG = {
     "enabled": False,
-    "topic": "bmcam/cmd",          # provisional until Q11/Phase B
+    "topic": "bmcam/cmd",          # in use since Sprint10 Phase B
     "post_transmit_listen_s": 150.0,   # C4/D6 tail; ~0.017 Wh at ~0.5 W
     "defer_acks_during_transmit": False,   # C3/D5; off == Sprint10 wire
     "state_path": None,             # None -> command_state.py default

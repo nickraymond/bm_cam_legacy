@@ -1,0 +1,9 @@
+[side] branch sha=6f21533fc399 start=2026-09-25T19:42:34Z
+wrote /home/pi/s1bench/cfg_branch_video.yaml
+wrote /home/pi/s1bench/cfg_branch_stills.yaml
+[import] 0.499s PIL=False
+[import] 0.495s PIL=False
+[import] 0.497s PIL=False
+[import] 0.498s PIL=False
+[import] 0.502s PIL=False
+[cycle] video start=2026-09-25T19:42:38Z

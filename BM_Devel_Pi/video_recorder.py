@@ -40,9 +40,9 @@ import rc_command_hooks as cmd_hooks
 import video_geometry
 import video_manifest
 import video_ring
-from process_image_v2 import (
-    _camera_controls_from_settings,
-    close_bm_serial,
+import bm_port
+from rc_capture import _camera_controls_from_settings
+from rc_telemetry import (
     debug_print,
     get_cpu_temperature,
     send_compact_text_message,
@@ -885,7 +885,7 @@ def run_video_mode(settings, *, transmit=False, bm_commands_cfg=None,
                            clock=clock, sleep_fn=sleep_fn)
         if daemon is not None:
             try:
-                close_bm_serial()
+                bm_port.close()
             except Exception as exc:
                 debug_print(f"BM serial close failed: {exc}")
         if ui_server is not None:
