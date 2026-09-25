@@ -47,6 +47,49 @@ def run_py(code):
     return proc.stdout
 
 
+def import_closure(entry="rc_progressive_jpeg"):
+    """Every BM_Devel_Pi module reachable from `entry` through import statements,
+    including lazy imports inside functions (static AST walk)."""
+    import ast
+    local = {n[:-3] for n in os.listdir(APP) if n.endswith(".py")}
+    seen, stack = set(), [entry]
+    while stack:
+        mod = stack.pop()
+        if mod in seen or mod not in local:
+            continue
+        seen.add(mod)
+        with open(os.path.join(APP, mod + ".py"), "r", encoding="utf-8") as fh:
+            tree = ast.parse(fh.read())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                stack += [a.name.split(".")[0] for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+                stack.append(node.module.split(".")[0])
+    return seen
+
+
+def manifest_paths():
+    """Destination-side repo paths in tools/rc_runtime_manifest.txt (first token
+    of each non-comment line; inline comments and `-> dest` renames ignored)."""
+    with open(os.path.join(REPO_ROOT, "tools", "rc_runtime_manifest.txt")) as fh:
+        return {line.split()[0] for line in fh
+                if line.strip() and not line.lstrip().startswith("#")}
+
+
+class TestManifestShipsTheImportClosure(unittest.TestCase):
+    """A field update copies ONLY the manifest. A runtime module missing from it
+    installs a unit that cannot import (rc_media_key after Sprint25 S4). This
+    checks the whole static import closure of the entry script, lazy imports
+    included, so a module added in any stage is caught before a deploy."""
+
+    def test_every_reachable_module_is_shipped(self):
+        closure = import_closure()
+        self.assertIn("rc_video_tx", closure)          # lazy import is followed
+        missing = sorted(f"BM_Devel_Pi/{m}.py" for m in closure
+                         if f"BM_Devel_Pi/{m}.py" not in manifest_paths())
+        self.assertEqual(missing, [], f"reachable but not in tools/rc_runtime_manifest.txt: {missing}")
+
+
 class TestBootImports(unittest.TestCase):
     def yaml(self, text):
         f = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False, encoding="utf-8")
