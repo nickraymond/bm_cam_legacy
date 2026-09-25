@@ -7,9 +7,11 @@
 # an existing runtime, leaving extra files (e.g. legacy HEIC) in place for
 # config-gated rollback.
 #
-# NOTE: process_image_v2.py is required — the RC imports its capture
-# watchdog, telemetry, and metadata helpers. It ships until the planned
-# post-rollout refactor extracts those into a lean shared module.
+# NOTE (Sprint26 S1): process_image_v2.py is gone. Its RC half now ships as
+# bm_port.py (shared BM serial handle), rc_capture.py (capture watchdog +
+# metadata) and rc_telemetry.py (logging, identity, message fields); its HEIC
+# half was deleted. Units updated in place may still carry the old file; it is
+# no longer imported.
 
 # RC modules (Sprint08)
 BM_Devel_Pi/rc_progressive_jpeg.py
@@ -28,7 +30,9 @@ BM_Devel_Pi/rc_run_capture_cycle.sh
 BM_Devel_Pi/spotter_time_sync.py
 BM_Devel_Pi/bm_serial.py
 BM_Devel_Pi/bm_codec.py            # Sprint26 S1: the one CRC16/COBS codec (bm_serial, spotter_time_sync, bm_frame_decoder import it)
-BM_Devel_Pi/process_image_v2.py
+BM_Devel_Pi/bm_port.py            # Sprint26 S1: the one shared BM serial handle (was process_image_v2.bm)
+BM_Devel_Pi/rc_capture.py         # Sprint26 S1: native capture + metadata (from process_image_v2)
+BM_Devel_Pi/rc_telemetry.py       # Sprint26 S1: logging, identity, <WS>/END/START fields (from process_image_v2)
 
 # Sprint10 command daemon (config-gated by the bm_commands YAML island;
 # inert when disabled but always imported by rc_progressive_jpeg)

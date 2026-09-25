@@ -40,8 +40,8 @@ import video_settings
 ALLOWED_SUFFIXES = (".mp4", ".jpg")
 
 # Sprint18: the stills gallery. Same directory the stills runtime writes
-# to (process_image_v2.IMAGE_DIRECTORY) -- not imported, because that
-# module pulls in PIL and this server must stay stdlib-only.
+# to (rc_telemetry.IMAGE_DIRECTORY) -- not imported: this server stays
+# stdlib-only and independent of the runtime modules.
 DEFAULT_IMAGES_DIR = "/home/pi/BM_Devel_Pi/images"
 IMAGE_SUFFIX = "_compressed.jpg"          # the transmitted copy
 IMAGE_META_SUFFIX = "_compressed.jpg.capture_metadata.json"

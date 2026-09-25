@@ -45,7 +45,7 @@ from command_bindings import (  # noqa: E402
     stranding_warnings,
 )
 from command_state import CommandState  # noqa: E402
-from process_image_v2 import _camera_controls_from_settings  # noqa: E402
+from rc_capture import _camera_controls_from_settings  # noqa: E402
 
 # Minimal slice of resolve_rc_settings() output the overlay touches.
 YAML_SETTINGS = {

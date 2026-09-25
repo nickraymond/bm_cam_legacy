@@ -71,25 +71,28 @@ import rc_command_hooks as cmd_hooks
 import rc_heal
 import rc_media_key
 import rc_transmit_phase
-from process_image_v2 import (
+import bm_port
+from bm_port import (
     DEFAULT_BUFFER_SIZE,
     DEFAULT_IMAGE_TRANSMIT_DELAY_SECONDS,
-    IMAGE_DIRECTORY,
-    _get_bm_serial,
+    apply_bm_serial_runtime_settings,
+)
+from rc_capture import (
     _load_libcamera_metadata_json,
     _run_native_full_capture,
     _select_camera_command,
-    apply_bm_serial_runtime_settings,
-    close_bm_serial,
+    generate_filename,
+    update_capture_metadata,
+)
+from rc_telemetry import (
+    IMAGE_DIRECTORY,
     collect_storage_health,
     debug_print,
-    generate_filename,
     get_cpu_temperature,
     get_hostname,
     get_software_sha,
     log_message,
     send_wake_status,
-    update_capture_metadata,
 )
 from rc_jpeg_encoder import output_size_for_crop, prepare_source
 from rc_power_halt import perform_power_halt
@@ -364,7 +367,7 @@ def _default_capture(settings, output_dir):
 def _default_bm_open(config_path):
     """Apply bm_serial runtime settings and return the production tx callable."""
     apply_bm_serial_runtime_settings(configure_serial=True)
-    return _get_bm_serial().spotter_tx
+    return bm_port.get().spotter_tx
 
 
 def _apply_command_overlay(settings, state):
@@ -480,7 +483,7 @@ def run_cycle(
     output_dir=IMAGE_DIRECTORY,
     capture_fn=_default_capture,
     bm_open_fn=_default_bm_open,
-    bm_close_fn=close_bm_serial,
+    bm_close_fn=bm_port.close,
     wake_fn=send_wake_status,
     halt_fn=perform_power_halt,
     sleep_fn=time.sleep,

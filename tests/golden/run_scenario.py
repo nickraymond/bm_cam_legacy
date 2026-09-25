@@ -51,6 +51,7 @@ BASE_PROFILE = os.path.join(REPO, "device_profiles", "bmcam003", "camera_schedul
 # test (e.g. a module S1 deletes) is skipped; any other import error is fatal.
 APP_MODULES = [
     "bm_frame_decoder", "bm_serial", "spotter_time_sync", "process_image_v2",
+    "bm_codec", "bm_port", "rc_telemetry", "rc_capture",
     "command_tables", "command_messages", "command_state", "command_bindings",
     "command_help", "command_daemon", "rc_command_hooks", "rc_heal", "rc_media_key",
     "rc_media_id", "rc_transmit", "rc_transmit_phase", "rc_uplink_messages",

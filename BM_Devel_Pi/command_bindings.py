@@ -17,7 +17,7 @@ values with whatever the field has commanded:
       src -> settings["source_image_path"]     (v2, None = live camera)
   overlay_camera_controls(yaml_controls, state)
       foc/awb/exp -> a camera_controls dict (the production island
-      shape process_image_v2._camera_controls_from_settings consumes)
+      shape rc_capture._camera_controls_from_settings consumes)
 
 Only keys in state.touched override (see command_state.py): a unit
 whose YAML island sets manual focus keeps it until `foc` is explicitly

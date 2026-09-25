@@ -120,16 +120,16 @@ def make_wap_action_fn(script_path=WAP_SCRIPT, config_path=None):
 
 def default_daemon_factory(settings, bm_commands_cfg, state):
     """Open the UART ONCE for the whole cycle (D11) and build the command
-    daemon on it. Installs the shared BristlemouthSerial as
-    process_image_v2's instance so wake status/telemetry/transmit all use
-    the same port. The uart read timeout is required by the reader thread."""
+    daemon on it. Installs the shared BristlemouthSerial as the bm_port
+    handle so wake status/telemetry/transmit all use the same port. The uart
+    read timeout is required by the reader thread."""
     import serial as pyserial
-    import process_image_v2
+    import bm_port
 
     port, baudrate = load_uart_config(settings["config_path"])
     uart = pyserial.Serial(port, baudrate, timeout=0.1)
     bm = BristlemouthSerial(uart=uart)
-    process_image_v2.bm = bm
+    bm_port.install(bm)
     print(f"[CMD] shared UART open: {port}@{baudrate} (single port owner)")
     return CommandDaemon(
         bm, state, topic=bm_commands_cfg["topic"],

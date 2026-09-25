@@ -4,10 +4,10 @@
 """
 Sprint08 M4 — uplink message fields for the progressive-JPEG RC.
 
-String builders ONLY: no serial, no hardware, no edits to the HEIC path's
-builders in process_image_v2.py (their formatting helpers are imported and
-reused; the HEIC messages stay byte-identical). The RC orchestrator (M7)
-sends these strings over the existing spotter_tx path.
+String builders ONLY: no serial, no hardware. The shared formatting helpers
+and the END field builder live in rc_telemetry.py (they were in
+process_image_v2.py until Sprint26 S1). The RC orchestrator (M7) sends these
+strings over the existing spotter_tx path.
 
 Wire additions (P4, Nick-approved; backend parsing is a SEPARATE
 nereus-vision-dev/backend change — this module + tests define the fields):
@@ -34,7 +34,7 @@ are the point of the message); the existing low-value storage/context keys
 drop first, same order as the HEIC START builder.
 """
 
-from process_image_v2 import (
+from rc_telemetry import (
     _build_end_image_message,
     _clean_value,
     _start_metadata_pairs,

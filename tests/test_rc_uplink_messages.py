@@ -164,7 +164,7 @@ class TestEndMessage(unittest.TestCase):
         )
 
     def test_byte_identical_to_heic_end(self):
-        from process_image_v2 import _build_end_image_message
+        from rc_telemetry import _build_end_image_message
 
         meta = {"ExposureTime": 39994, "AnalogueGain": 3.98, "Lux": 402.1}
         rc = build_rc_end_message(
