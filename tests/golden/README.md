@@ -75,7 +75,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3) |
 | `video_trigger_pending` | a video unit never services `trg`; it stays armed | W5 (S3) |
 | `still_trigger` | a trigger boot skips the gate, so the system clock is NOT set from the Spotter | W6 (S3) |
-| all stills | START carries `bf`/`zh` (HEIC-era storage fields) | W1 (S1) |
+| all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
 
 ## Known limitations
