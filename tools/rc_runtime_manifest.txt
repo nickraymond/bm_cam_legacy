@@ -53,6 +53,8 @@ BM_Devel_Pi/rc_heal.py             # Sprint25 S5 rsd heals + <HL>
 BM_Devel_Pi/config_registry.py     # every setting: type, default, guard, v1 source
 BM_Devel_Pi/config_v1_reader.py    # v1 YAML -> v2 values, each key via its own v1 loader
 BM_Devel_Pi/config_dump.py         # --print-config --json (deploy + migration parity)
+BM_Devel_Pi/config_migrate.py      # v1 -> v2 migration logic (tools/config_migrate_v1_v2.py)
+BM_Devel_Pi/atomic_io.py           # crash-safe replace: unique tmp, fsync, rename, fsync dir
 
 # Sprint15 video mode (config-gated by capture_mode: video; the stills
 # path never imports these, but a video unit fails its boot WITHOUT them
