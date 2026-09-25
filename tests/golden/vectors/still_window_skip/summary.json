@@ -32,6 +32,9 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
  "notes": "outside the window: skip_win WS, final drain, halt (no listen tail today)",
  "scenario": "still_window_skip",
  "sent_records": {},

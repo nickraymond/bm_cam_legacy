@@ -126,6 +126,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "transmit_phase on: lane wait computed from the gate's Spotter UTC",
  "scenario": "still_phase",
  "sent_records": {

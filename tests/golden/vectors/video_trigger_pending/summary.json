@@ -86,6 +86,9 @@
    "sha256": "5fd3ce5507f69931"
   }
  },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
  "notes": "today a video unit does NOT service trg: it stays armed (DESIGN W5 changes this)",
  "scenario": "video_trigger_pending",
  "sent_records": {

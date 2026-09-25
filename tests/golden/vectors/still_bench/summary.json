@@ -123,6 +123,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "daemon on, keyed wire: command at boot, mid-burst ack slot, help in the tail",
  "scenario": "still_bench",
  "sent_records": {

@@ -137,6 +137,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "heal chunks before START, <HL> after END; a live rsd replaces the pending one",
  "scenario": "still_heal",
  "sent_records": {

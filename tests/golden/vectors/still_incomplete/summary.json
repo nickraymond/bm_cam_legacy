@@ -170,6 +170,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "the ladder cannot fit 20 messages: bounded incomplete send",
  "scenario": "still_incomplete",
  "sent_records": {},

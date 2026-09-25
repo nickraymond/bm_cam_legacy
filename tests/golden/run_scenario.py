@@ -69,10 +69,14 @@ def fail(msg, code=2):
 
 
 def env_info():
-    import PIL
-    import yaml
-    return {"python": sys.version.split()[0], "pyyaml": yaml.__version__,
-            "pillow": PIL.__version__}
+    """Versions that change recorded bytes. Read from package metadata, NOT by
+    importing: the summary records which heavy modules the cycle itself loaded."""
+    import importlib.metadata as md
+    import importlib.util
+    if importlib.util.find_spec("yaml") is None:
+        raise ImportError("No module named 'yaml'")
+    return {"python": sys.version.split()[0], "pyyaml": md.version("PyYAML"),
+            "pillow": md.version("Pillow")}
 
 
 # ---------------------------------------------------------------------------
@@ -363,6 +367,10 @@ def run_wire(name, outdir, app_src):
         "sent_records": read_json_files(tmp, ".sent.json"),
         "files": file_listing(tmp),
         "fake_clock_elapsed_s": round(clock.elapsed(), 3),
+        # Heavy imports this cycle ended up loading (Sprint26 S1 C2: a video
+        # cycle must not load PIL; a stills cycle needs it for the encode).
+        "heavy_modules_loaded": sorted(m for m in ("PIL", "numpy", "cv2", "yaml")
+                                       if m in sys.modules),
     }
     os.makedirs(outdir, exist_ok=True)
     with open(os.path.join(outdir, "trace.txt"), "w", encoding="utf-8") as fh:

@@ -32,6 +32,9 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
  "notes": "video outside the window",
  "scenario": "video_window_skip",
  "sent_records": {},

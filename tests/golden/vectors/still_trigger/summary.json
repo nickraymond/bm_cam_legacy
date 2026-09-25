@@ -123,6 +123,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "an armed trg 2 bypasses the window once and clears",
  "scenario": "still_trigger",
  "sent_records": {

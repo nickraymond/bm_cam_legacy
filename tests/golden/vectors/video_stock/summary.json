@@ -65,6 +65,9 @@
    "sha256": "5fd3ce5507f69931"
   }
  },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
  "notes": "one-clip video cycle, commands off, rev 3 wire",
  "scenario": "video_stock",
  "sent_records": {},

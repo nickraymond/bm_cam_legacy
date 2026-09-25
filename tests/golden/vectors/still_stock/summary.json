@@ -103,6 +103,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "commands off, no media key: private UTC read, WS, capture, ladder, send, halt",
  "scenario": "still_stock",
  "sent_records": {},

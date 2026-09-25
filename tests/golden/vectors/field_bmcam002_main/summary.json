@@ -107,6 +107,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "bmcam002 as deployed: main's runtime + main's bmcam002 profile (commands off)",
  "scenario": "field_bmcam002_main",
  "sent_records": {},

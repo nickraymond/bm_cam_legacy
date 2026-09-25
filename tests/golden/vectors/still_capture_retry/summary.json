@@ -107,6 +107,10 @@
    "sha256": "306c6ca740756034"
   }
  },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
  "notes": "first camera call fails: retry variant without --metadata succeeds",
  "scenario": "still_capture_retry",
  "sent_records": {},

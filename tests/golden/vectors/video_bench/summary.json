@@ -105,6 +105,9 @@
    "sha256": "5fd3ce5507f69931"
   }
  },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
  "notes": "daemon on, keyed, heal before START, pump-only burst, bench drops 3 and 7",
  "scenario": "video_bench",
  "sent_records": {
