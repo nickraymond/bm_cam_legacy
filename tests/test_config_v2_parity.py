@@ -48,6 +48,9 @@ sys.path.insert(0, GOLDEN)
 
 import scenarios as S  # noqa: E402
 
+sys.path.insert(0, os.path.join(REPO, "tools"))
+import config_parity  # noqa: E402
+
 RUNNER = os.path.join(GOLDEN, "run_scenario.py")
 WIRE = [n for n, sc in S.SCENARIOS.items() if not sc.get("app_ref")]
 SETTINGS = {t.replace("/", "__"): t for t in S.SETTINGS_PROFILES
@@ -135,20 +138,7 @@ class ConfigV2Parity(unittest.TestCase):
     # ------------------------------------------------------------ settings
     @staticmethod
     def controls_effect(controls):
-        """What rc_capture BUILDS from a camera_controls dict: the rpicam flags
-        plus the requested-controls telemetry (END rfm/rlp/rwb/...). A group v1
-        left out and a group the render states as {enabled: false} build the
-        same thing; comparing raw dicts would flag that as a difference."""
-        if not isinstance(controls, dict) or "error" in controls:
-            return controls
-        sys.path.insert(0, os.path.join(REPO, "BM_Devel_Pi"))
-        import contextlib
-        import io
-        import rc_capture
-        with contextlib.redirect_stdout(io.StringIO()):
-            args, requested = rc_capture._camera_controls_from_settings(
-                {"camera_controls": controls})
-        return {"args": args, "requested": requested}
+        return config_parity.controls_effect(controls)
 
     def vrec_by_effect(self, trace):
         """The fake recorder's VREC line logs the RAW controls dict (the harness
@@ -166,25 +156,8 @@ class ConfigV2Parity(unittest.TestCase):
         return "\n".join(out)
 
     def normalise(self, doc):
-        text = json.dumps(doc, sort_keys=True)
-        text = text.replace("{TMP}/render/camera_schedule.yaml", "{TMP}/camera_schedule.yaml")
-        text = text.replace("bm_command_state_v2.json", "bm_command_state.json")
-        doc = json.loads(text)
-        for block in ("video", "video_tx", "media_key"):
-            if isinstance(doc.get(block), dict):
-                doc[block].pop("source", None)
-        for block in ("resolved", "overlaid"):
-            if isinstance(doc.get(block), dict) and isinstance(doc[block].get("media_key_cfg"), dict):
-                doc[block]["media_key_cfg"].pop("source", None)
-        doc["camera_controls_island"] = self.controls_effect(doc.get("camera_controls_island"))
-        for block in ("resolved", "overlaid"):
-            if isinstance(doc.get(block), dict) and "camera_controls_override" in doc[block]:
-                doc[block]["camera_controls_override"] = self.controls_effect(
-                    doc[block]["camera_controls_override"])
-        doc["print_config"] = [re.sub(r"\(source=(yaml|defaults)\)", "(source=*)", line)
-                               for line in doc.get("print_config", [])
-                               if not line.startswith("[CFG]")]
-        return doc
+        # The SAME normalisation deploy uses on the unit (tools/config_parity.py).
+        return config_parity.normalise(doc)
 
     def check_settings(self, slug):
         out = self.outdir("settings", SETTINGS[slug])

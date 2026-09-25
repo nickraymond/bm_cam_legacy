@@ -80,7 +80,8 @@ def main(argv=None):
     # One truth for where the v2 state lives: the migrated config's own
     # commands.state_path. It must be the file this tool writes.
     state_target = os.path.join(out_dir, V2_STATE)
-    if m.values["commands.state_path"] != os.path.abspath(state_target):
+    if os.path.normpath(m.values["commands.state_path"]) != os.path.normpath(
+            os.path.abspath(state_target)):
         print(f"[MIGRATE][ERROR] the migrated config says commands.state_path="
               f"{m.values['commands.state_path']}, but this run would write the state to "
               f"{state_target}; run with --out-dir {os.path.dirname(m.values['commands.state_path'])}",

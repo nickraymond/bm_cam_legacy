@@ -178,8 +178,15 @@ class TestPatchYaml(PatchMixin, unittest.TestCase):
 
 
 class TestSettingsRoutes(PatchMixin, unittest.TestCase):
+    # The legacy save path stays tested (rollback to a pre-S2 runtime uses it,
+    # and S7 reuses the page); the S2 default is read-only (class below).
+    READ_ONLY = False
+
     def setUp(self):
         super().setUp()
+        ro = mock.patch.object(videoui_server, "SETTINGS_READ_ONLY", self.READ_ONLY)
+        ro.start()
+        self.addCleanup(ro.stop)
         self.restarts = []
         self.joins = []
         out = io.StringIO()
@@ -449,6 +456,39 @@ class TestSettingsRoutes(PatchMixin, unittest.TestCase):
             bare.server_close()
 
 
+class TestSettingsReadOnlyS2(TestSettingsRoutes):
+    """Sprint26 S2: the recorder's settings page no longer writes the YAML."""
+    READ_ONLY = True
+
+    def test_post_is_refused_and_the_file_untouched(self):
+        with open(self.yaml, "rb") as fh:
+            before = fh.read()
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            status, page = self._post("/settings", {"video.fps": "30", "then": "restart"})
+        self.assertEqual(status, 200)
+        self.assertIn("NOT saved", page)
+        self.assertIn("read-only", page)
+        with open(self.yaml, "rb") as fh:
+            self.assertEqual(fh.read(), before)
+        self.assertEqual(self.restarts, [])              # a refused save never restarts
+        self.assertIn("REFUSED", out.getvalue())
+
+    def test_page_says_read_only(self):
+        _status, page = self._get("/settings")
+        self.assertIn("read-only", page)
+
+    # The inherited save tests assert the legacy behaviour; not here.
+    test_post_saves_and_reports = None
+    test_save_and_restart_saves_first_then_restarts = None
+    test_post_changes_network_default = None
+    test_float_formatted_yaml_echo_saves = None
+    test_failed_save_never_costs_a_reboot = None
+    test_post_bad_value_rejected_file_untouched = None
+    test_then_marker_is_not_treated_as_a_setting = None
+    test_combination_saves_persist = None
+    test_mode_switch_roundtrip = None
+
+
 class TestShippedTemplateCarriesEveryField(unittest.TestCase):
     """The GUI edits configs, it never authors keys — patch_yaml REFUSES a key
     that is not already in the file. That is not theoretical: on bmcam000
@@ -514,7 +554,9 @@ class TestRuntimeManifestCoversTheVideoPath(unittest.TestCase):
         # the first clip.
         deploy = open(os.path.join(self.REPO, "tools", "deploy_rc_runtime.sh")).read()
         self.assertIn('[[ "$dest_name" == *.py ]] && COPIED_PY+=("$dest_name")', deploy)
-        self.assertIn('/usr/bin/python3 -m py_compile "${COPIED_PY[@]}"', deploy)
+        # Sprint26 S2f: compiled in the staging dir, before anything is installed.
+        self.assertIn('(cd "$STAGE" && "$PY" -m py_compile "${COPIED_PY[@]}")', deploy)
+        self.assertIn('PY="${BMCAM_PYTHON:-/usr/bin/python3}"', deploy)
 
 
 if __name__ == "__main__":
