@@ -122,7 +122,11 @@ warns before it turns off**. To confirm and specify:
 - If it does not: §5.1's uptime anchor + YAML window is the MVP.
 
 ## 8. Decisions needed (Nick)
-1. §5.3 boundary policy: A (pause) or B (heal).
+1. §5.3 boundary policy: A (pause) or B (heal). **DEFERRED (Nick 2026-09-25):** decide after the code
+   refactor lands AND another test round with Matt's integrated mote command code (two development
+   sprints now in flight). Evidence so far: `runs/s26_customer_emulation_20260924/RESULTS.md` — at cap 190
+   the :05 crossing usually lands in the keyframe repeat but hit real chunks 176–181 in 3 of 23 bmcam004
+   wakes (1–3 chunks each, all healed in one wake).
 2. `halt_margin_s` and whether `max_run_time_min` stays as a ceiling.
 3. Video `message_cap` target (190?) and whether stills keep 195.
 
