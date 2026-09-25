@@ -54,15 +54,19 @@ import time
 SPOTTER_NODE = 0xF365           # node id the fake Spotter sends from
 PI_NODE = 0xC0FFEEEEF0CACC1A    # BristlemouthSerial default node id
 
+# Pinned VALUES for collect_storage_health(). The harness keeps the key set the
+# runtime under test really returns (so main's runtime still reports the
+# HEIC-era buffer_dir_bytes / zero_byte_heic_count) and replaces only the values;
+# a key missing here fails the run loudly (a new storage field needs a value).
 FIXED_STORAGE = {
     "sd_total_bytes": 31_000_000_000,
     "sd_used_bytes": 9_000_000_000,
     "sd_free_bytes": 22_000_000_000,
     "sd_used_pct": 29.03,
     "images_dir_bytes": 123_456_789,
-    "buffer_dir_bytes": 0,
     "cron_logs_dir_bytes": 4_567_890,
-    "zero_byte_heic_count": 0,
+    "buffer_dir_bytes": 0,              # retired in development (DESIGN W1); main still sends it
+    "zero_byte_heic_count": 0,          # retired in development (DESIGN W1); main still sends it
 }
 
 # What a real rpicam-still --metadata file carries (the fields the END message reads).

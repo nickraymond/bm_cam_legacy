@@ -122,9 +122,7 @@ class TestStartMessage(unittest.TestCase):
             "sd_free_bytes": 19 * 1024**3,
             "sd_used_pct": 38.7,
             "images_dir_bytes": 900 * 1024**2,
-            "buffer_dir_bytes": 42 * 1024,
             "cron_logs_dir_bytes": 77 * 1024,
-            "zero_byte_heic_count": 0,
         }
         long_name = "X" * 90 + ".jpg"
         msg = build_rc_start_message(

@@ -121,7 +121,7 @@ def build_rc_start_message(
     optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata) if k != "q"]
 
     # Same drop order as the HEIC builder (lowest-value fields first).
-    drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]
+    drop_order = ["lg", "im", "st", "su", "tz", "hn", "ws", "we"]
 
     def render(selected_optional):
         parts = list(base_parts) + list(rc_parts)
@@ -262,7 +262,7 @@ def build_rc_video_start_message(
     video_parts = [f"{k}={_clean_value(v, max_len=20)}" for k, v in video_pairs]
     optional = [(k, v) for k, v in _start_metadata_pairs(start_metadata)
                 if k not in _VIDEO_START_SKIP]
-    drop_order = ["lg", "bf", "im", "st", "su", "tz", "hn", "ws", "we"]
+    drop_order = ["lg", "im", "st", "su", "tz", "hn", "ws", "we"]
 
     def render(selected):
         parts = base_parts + video_parts + [

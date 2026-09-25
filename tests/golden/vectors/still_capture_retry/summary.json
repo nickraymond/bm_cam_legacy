@@ -79,8 +79,8 @@
    "sha256": "12db91e1030d4f9a"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2518,
-   "sha256": "a7ba442d8e29da3f"
+   "bytes": 2468,
+   "sha256": "eb5acb1f3b28dcb8"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
@@ -166,7 +166,6 @@
     }
    ],
    "base64_chars": 73428,
-   "buffer_dir_bytes": 0,
    "camera_control_args": [
     "--autofocus-mode",
     "manual",
@@ -243,8 +242,7 @@
    "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
    "transmit_duration_sec": 250.89999999999122,
    "transmit_success": true,
-   "utc_capture_timestamp": "2026-09-24T15:00:00Z",
-   "zero_byte_heic_count": 0
+   "utc_capture_timestamp": "2026-09-24T15:00:00Z"
   }
  },
  "state_file": null,

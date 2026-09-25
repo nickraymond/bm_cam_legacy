@@ -174,7 +174,10 @@ def patch_app(mods, tmp):
     originals = {getattr(m, "collect_storage_health") for m in modlist
                  if callable(getattr(m, "collect_storage_health", None))}
     for original in originals:
-        W.patch_everywhere(modlist, original, lambda: dict(W.FIXED_STORAGE))
+        def pinned(original=original):
+            # The runtime's own key set, pinned values (see world.FIXED_STORAGE).
+            return {key: W.FIXED_STORAGE[key] for key in original()}
+        W.patch_everywhere(modlist, original, pinned)
 
 
 def seed(scenario, mods, tmp):

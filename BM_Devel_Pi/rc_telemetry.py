@@ -14,9 +14,9 @@ process_image_v2.py in Sprint26 S1 (tests/golden pins every byte they emit).
   _build_end_image_message / _start_metadata_pairs        END / START metadata fields
   log_message()                    the CSV cycle log
 
-Paths (IMAGE_DIRECTORY, BUFFER_DIRECTORY, LOG_FILE, SOFTWARE_*) are the deployed
-runtime's (/home/pi/BM_Devel_Pi). BUFFER_DIRECTORY and zero_byte_heic_count are
-HEIC-era storage fields still sent in START (`bf`, `zh`); DESIGN W1 drops them.
+Paths (IMAGE_DIRECTORY, LOG_FILE, SOFTWARE_*) are the deployed runtime's
+(/home/pi/BM_Devel_Pi). The HEIC-era storage fields (buffer dir size, zero-byte
+HEIC count; START `bf`/`zh`) were dropped in Sprint26 S1 (DESIGN W1).
 """
 
 import csv
@@ -36,7 +36,6 @@ DEBUG = True
 IMAGE_DIRECTORY = "/home/pi/BM_Devel_Pi/images"
 
 
-BUFFER_DIRECTORY = "/home/pi/BM_Devel_Pi/buffer"
 
 
 LOG_FILE = "/home/pi/BM_Devel_Pi/camera_log.csv"
@@ -100,26 +99,6 @@ def _directory_size_bytes(path):
     return int(total)
 
 
-def _zero_byte_heic_count(images_directory=IMAGE_DIRECTORY):
-    """Count zero-byte HEIC artifacts in the local images directory only."""
-    count = 0
-    try:
-        if not os.path.isdir(images_directory):
-            return 0
-        for name in os.listdir(images_directory):
-            if not name.lower().endswith(".heic"):
-                continue
-            path = os.path.join(images_directory, name)
-            try:
-                if os.path.isfile(path) and os.path.getsize(path) == 0:
-                    count += 1
-            except OSError:
-                pass
-    except Exception as exc:
-        debug_print(f"Failed to count zero-byte HEIC files: {exc}")
-    return int(count)
-
-
 def collect_storage_health():
     """Return read-only SD-card/local artifact usage fields for metadata.
 
@@ -147,9 +126,7 @@ def collect_storage_health():
         "sd_free_bytes": free,
         "sd_used_pct": used_pct,
         "images_dir_bytes": _directory_size_bytes(IMAGE_DIRECTORY),
-        "buffer_dir_bytes": _directory_size_bytes(BUFFER_DIRECTORY),
         "cron_logs_dir_bytes": _directory_size_bytes(cron_logs_dir),
-        "zero_byte_heic_count": _zero_byte_heic_count(IMAGE_DIRECTORY),
     }
 
 
@@ -495,9 +472,9 @@ def _start_metadata_pairs(start_metadata):
       sf = SD free MiB
       sp = SD used percent
       im = images dir MiB
-      bf = buffer dir KiB
       lg = cron_logs dir KiB
-      zh = zero-byte HEIC count
+    (bf = buffer dir KiB and zh = zero-byte HEIC count were dropped in
+    Sprint26 S1, DESIGN W1: HEIC-era; the backend reads them as optional.)
     """
     if not start_metadata:
         return []
@@ -520,9 +497,7 @@ def _start_metadata_pairs(start_metadata):
         ("sf", _compact_unit_int(start_metadata.get("sd_free_bytes"), mib)),
         ("sp", _num(start_metadata.get("sd_used_pct"), digits=1)),
         ("im", _compact_unit_int(start_metadata.get("images_dir_bytes"), mib)),
-        ("bf", _compact_unit_int(start_metadata.get("buffer_dir_bytes"), kib)),
         ("lg", _compact_unit_int(start_metadata.get("cron_logs_dir_bytes"), kib)),
-        ("zh", start_metadata.get("zero_byte_heic_count")),
     ]
 
     pairs = []
