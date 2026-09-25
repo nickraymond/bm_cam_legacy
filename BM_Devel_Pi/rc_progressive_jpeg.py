@@ -32,6 +32,7 @@ apply from cached state on the NEXT boot.
 
 CLI safety ladder (guardrail sequence: capture-only -> compress-only -> transmit):
   --print-config            resolve + print settings, no cycle (P0 behavior)
+  --print-config --json     every config loader's output as one JSON line (Sprint26 S2b)
   (default)                 capture + encode + report the send plan; NO BM bus
   --capture-only            stop after native capture + prepare
   --compress-only NATIVE    skip camera; run the ladder on an existing native
@@ -902,6 +903,9 @@ def main(argv=None, **cycle_overrides):
                         help="Path to camera_schedule.yaml")
     parser.add_argument("--print-config", action="store_true",
                         help="Resolve + print settings, run nothing")
+    parser.add_argument("--json", action="store_true",
+                        help="With --print-config: print every config loader's output "
+                             "as one JSON line (last line of stdout), run nothing")
     parser.add_argument("--capture-only", action="store_true",
                         help="Stop after native capture + prepare (no encode/transmit)")
     parser.add_argument("--compress-only", metavar="NATIVE_JPG", default=None,
@@ -921,6 +925,18 @@ def main(argv=None, **cycle_overrides):
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
     args = parser.parse_args(argv)
+    if args.json:
+        # Sprint26 S2b: machine-readable config for deploy/migration parity.
+        # Before any other step, so it has zero side effects (no network
+        # default, no daemon); exit 2 when the stills settings do not resolve,
+        # like the text --print-config.
+        if not args.print_config:
+            print("[RC][ERROR] --json requires --print-config", file=sys.stderr)
+            return 2
+        import config_dump
+        dump = config_dump.collect(args.config_path)
+        print(config_dump.to_json_line(dump))
+        return 2 if "error" in dump["resolved"] else 0
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:

@@ -451,7 +451,30 @@ def run_settings(target, outdir, app_src):
     os.makedirs(outdir, exist_ok=True)
     with open(os.path.join(outdir, "settings.json"), "w", encoding="utf-8") as fh:
         fh.write(dump(out, W.WORLD.trace))
+    # Sprint26 S2b: `--print-config --json` must report exactly what the
+    # loaders above resolved (it is the parity probe deploy and migration use).
+    # Written beside settings.json, never into it (settings goldens unchanged).
+    with open(os.path.join(outdir, "json_check.json"), "w", encoding="utf-8") as fh:
+        json.dump(check_print_config_json(rc, config_path, out, fixture), fh, indent=1)
     shutil.rmtree(tmp, ignore_errors=True)
+
+
+def check_print_config_json(rc, config_path, out, fixture):
+    """Compare `--print-config --json` with the per-loader collection `out`."""
+    import config_dump
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = rc.main(["--config-path", config_path, "--print-config", "--json"])
+    got = json.loads(buf.getvalue().splitlines()[-1])
+    keys = ["resolved", "camera_controls_island", "bm_commands", "video", "video_tx",
+            "media_key", "transmit_phase", "network", "bm_serial", "network_type", "uart"]
+    if fixture:
+        keys.append("overlaid")
+    norm = lambda x: json.loads(json.dumps(x, sort_keys=True, default=config_dump._jsonable))
+    mismatch = [k for k in keys if norm(out[k]) != got.get(k)]
+    if got["env"]["BM_CAMERA_CONFIG_PATH"] != config_path:
+        mismatch.append("env.BM_CAMERA_CONFIG_PATH")
+    return {"exit": code, "compared": keys, "mismatch": mismatch}
 
 
 def main():
