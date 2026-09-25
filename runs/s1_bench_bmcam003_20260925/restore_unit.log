@@ -1,0 +1,15 @@
+no bench/cycle procs
+[restore] extracting code files from the backup
+[restore] removed bench-only bm_codec.py
+[restore] removed bench-only bm_port.py
+[restore] removed bench-only rc_capture.py
+[restore] removed bench-only rc_telemetry.py
+[restore] verification
+  extra .py not in backup: none
+  camera_schedule.yaml: restored (identical)
+  bm_command_state.json: unchanged since backup
+  software_sha.txt: a71b6c774b32 (backup: a71b6c774b32)
+  repo: feature/s5-rsd-heal a71b6c7 (backup: feature/s5-rsd-heal a71b6c7)
+  media key last: 0drziv (pre-bench 0drwt0; kept advanced on purpose)
+  crontab now: # DISABLED s1bench 20260925T191606Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+  print-config: OK

@@ -1,0 +1,22 @@
+total 6144
+drwxrwxr-x 2 pi pi    4096 Sep 25 19:18 .
+drwxrwxr-x 3 pi pi    4096 Sep 25 19:18 ..
+-rw-rw-r-- 1 pi pi     265 Sep 24 20:01 bm_command_state.json
+-rw-rw-r-- 1 pi pi 6250417 Sep 25 19:18 BM_Devel_Pi_code_before_s1bench.tgz
+-rw-rw-r-- 1 pi pi       6 Sep 25 19:00 bm_media_key_last.txt
+-rw-rw-r-- 1 pi pi    7867 Sep 24 18:10 camera_schedule.yaml
+-rw-rw-r-- 1 pi pi      98 Sep 25 19:17 crontab_ARMED.txt
+-rw-rw-r-- 1 pi pi      20 Sep 25 19:18 repo_branch.txt
+-rw-rw-r-- 1 pi pi      41 Sep 25 19:18 repo_head.txt
+-rw-rw-r-- 1 pi pi      13 Sep 24 04:40 software_sha.txt
+8acf76158c499f74  /home/pi/s1bench/backup/bm_command_state.json
+3fa400d5b39adfa1  /home/pi/s1bench/backup/BM_Devel_Pi_code_before_s1bench.tgz
+6951d7bf04b2e890  /home/pi/s1bench/backup/bm_media_key_last.txt
+c5376fa8d06ea5bf  /home/pi/s1bench/backup/camera_schedule.yaml
+6e7a4080576b661e  /home/pi/s1bench/backup/crontab_ARMED.txt
+41ebb5d67e52c3c6  /home/pi/s1bench/backup/repo_branch.txt
+9313b22a48264308  /home/pi/s1bench/backup/repo_head.txt
+d3d4b1ff3fb0a8bb  /home/pi/s1bench/backup/software_sha.txt
+--- live command state
+{"schema":"bm_command_state_v1","tables_version":8,"settings":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0},"touched":[],"applied_ids":[100000,100001,100002,100003,100004,100005],"pending_trigger":null,"pending_heals":[]}
+--- key last: 0drwt0

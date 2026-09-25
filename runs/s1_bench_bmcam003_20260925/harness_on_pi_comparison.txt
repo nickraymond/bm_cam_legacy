@@ -1,0 +1,20 @@
+On-device golden comparison, bmcam003 (Pi Zero 2W, Python 3.13.5, Pillow 11.1.0, PyYAML 6.0.2)
+dev = development 362e6cb runtime (== cdadc95 in BM_Devel_Pi); branch = feature/sprint26-s1-cleanup 6f21533
+Same harness (tests/golden, fake UART/camera/clock) for both sides; traces hashed (sha256[:16]).
+
+scenario                 dev trace        branch trace     dev==branch ==after W1 branch==Mac golden heavy modules dev -> branch
+still_bench              5d7a2fb1bca90667 e63e19f5126534c4 False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_capture_retry      eaabfa437f9a6e84 8969e32e4105e7b4 False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_heal               57ff35bcafdea57e da704767b2e7eb8e False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_incomplete         4d08831e1b2f72cf 05fa5286b7df197d False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_phase              b981593a343425bd db4655452122c420 False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_stock              9820b83463ede73f 94f6034d5636a163 False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_trigger            b40ccbd75bd71bed 593c06d036348c46 False       True       True               ['PIL', 'yaml'] -> ['PIL', 'yaml']
+still_window_skip        583a571cb61a274d 583a571cb61a274d True        True       True               ['PIL', 'yaml'] -> ['yaml']
+video_bench              5d057a0f398fdc09 5d057a0f398fdc09 True        True       True               ['PIL', 'yaml'] -> ['yaml']
+video_stock              fa004d5f5e7db5bb fa004d5f5e7db5bb True        True       True               ['PIL', 'yaml'] -> ['yaml']
+video_trigger_pending    7fd874ebee99338c 7fd874ebee99338c True        True       True               ['PIL', 'yaml'] -> ['yaml']
+video_window_skip        cfb9a6ff21be7eec cfb9a6ff21be7eec True        True       True               ['PIL', 'yaml'] -> ['yaml']
+
+The only dev/branch trace difference is DESIGN W1 (START bf/zh dropped; the freed budget lets lg fit).
+Every branch trace on the Pi is byte-identical to the golden recorded on the Mac (Pillow 12.3.0): JPEG bytes included.

@@ -1,0 +1,43 @@
+wrote 19:16:24Z: bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 0
+consumed 19:16:24Z
+wrote 19:16:28Z: bridge cfg commit c3c564b91856226c s
+consumed 19:16:29Z
+wrote 19:16:39Z: bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+consumed 19:16:40Z
+2026-09-25T19:16:31Z 2026-09-25T19:16:34.671Z [ERR] [INFO] GpsErrorState changed from OK to NO_SIGNAL
+2026-09-25T19:16:32Z 2026-09-25T19:16:35.449Z [ERR] [INFO] GpsErrorState changed from NO_SIGNAL to OK
+2026-09-25T19:16:33Z 2026-09-25T19:16:36.273Z [ERR] [INFO] GpsErrorState changed from OK to NO_SIGNAL
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.074Z [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.082Z [BRIDGE_CFG] [INFO] c3c564b91856226c
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.136Z [BRIDGE_CFG] [INFO] 53171fa3d81a8e6f
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.140Z [BRIDGE_CFG] [INFO] Network configuration change detected! crc: 0x1539bc17 at UTC:1790363798
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.144Z [BRIDGE_CFG] [INFO] Stored CRCs:
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.281Z [BRIDGE_CFG] [INFO] Bridge network config: [[14106792153947972204, "bridge", 362149892, 3303883033, {"sampleIntervalMs": 3600000, "sampleDurationMs": 600000, "subsampleIntervalMs": 300000, "subsampleDurationMs": 30
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.300Z [BRIDGE_CFG] [INFO] Bridge network info CRC: 1539bc17
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.300Z [BRIDGE_CFG] [INFO] Bridge FW Version: Major: 0 Minor: 13 Revision: 11
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.300Z [BRIDGE_CFG] [INFO] Bridge sys config partition CRC: c4ed4119
+2026-09-25T19:16:35Z 2026-09-25T19:16:38.300Z [BRIDGE_CFG] [INFO] Bridge toplogy: c3c564b91856226c | 53171fa3d81a8e6f
+2026-09-25T19:16:40Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-09-25T19:16:40Z 2026-09-25T19:16:43.019Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+"sampleIntervalMs": 3600000
+"sampleDurationMs": 600000
+"bridgePowerControllerEnabled": 0
+"alignmentInterval5Min": 1
+2026-09-25T19:09:58Z 2026-09-25T19:10:01.066Z [BRIDGE_SYS] [INFO] Bridge bus power: 0
+2026-09-25T19:16:30Z 2026-09-25T19:16:33.074Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+wrote 20:07:17Z: bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 1
+consumed 20:07:17Z
+wrote 20:07:21Z: bridge cfg commit c3c564b91856226c s
+consumed 20:07:21Z
+wrote 20:07:33Z: bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+consumed 20:07:34Z
+2026-09-25T20:07:23Z 2026-09-25T20:07:24.589Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 100
+2026-09-25T20:07:23Z 2026-09-25T20:07:24.593Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-25T20:07:23Z 2026-09-25T20:07:24.601Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300
+2026-09-25T20:07:23Z 2026-09-25T20:07:24.605Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60
+2026-09-25T20:07:23Z 2026-09-25T20:07:24.609Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 100
+2026-09-25T20:07:34Z 2026-09-25T20:07:35.605Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+"sampleIntervalMs": 3600000
+"sampleDurationMs": 600000
+"bridgePowerControllerEnabled": 1
+"alignmentInterval5Min": 1

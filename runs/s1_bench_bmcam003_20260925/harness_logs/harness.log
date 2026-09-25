@@ -1,0 +1,49 @@
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:06Z dev still_stock rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:11Z branch still_stock rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:24Z dev still_bench rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:36Z branch still_bench rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:38Z dev still_window_skip rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:40Z branch still_window_skip rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:45Z dev still_trigger rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:50Z branch still_trigger rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:19:56Z dev still_heal rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:01Z branch still_heal rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:06Z dev still_incomplete rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:10Z branch still_incomplete rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:15Z dev still_phase rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:20Z branch still_phase rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:25Z dev still_capture_retry rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:30Z branch still_capture_retry rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:33Z dev video_stock rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:36Z branch video_stock rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:40Z dev video_bench rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:43Z branch video_bench rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:45Z dev video_window_skip rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:48Z branch video_window_skip rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:51Z dev video_trigger_pending rc=0 s
+/home/pi/s1bench/harness.sh: line 9: bc: command not found
+19:20:54Z branch video_trigger_pending rc=0 s
+HARNESS_DONE

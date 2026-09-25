@@ -1,0 +1,22 @@
+[side] branch sha=6f21533fc399 start=2026-09-25T19:51:29Z
+wrote /home/pi/s1bench/cfg_branch_video.yaml
+wrote /home/pi/s1bench/cfg_branch_stills.yaml
+[import] 0.494s PIL=False
+[import] 0.503s PIL=False
+[import] 0.498s PIL=False
+[import] 0.508s PIL=False
+[import] 0.496s PIL=False
+[cycle] video start=2026-09-25T19:51:34Z
+[cycle] video end=2026-09-25T19:59:15Z [BENCH] exit=0 wall_s=461.1 maxrss_self_kb=22772 maxrss_children_kb=128872 cpu_self_s=3.0 cpu_children_s=31.0
+[cycle-video] [BOOT] main_entry uptime_s=446.54
+[cycle-video] [BOOT] cmd_subscribed uptime_s=447.14
+[cycle-video] [BOOT] spotter_utc_read uptime_s=450.31
+[cycle-video] [BOOT] transmit_start uptime_s=478.55
+[cycle-video] [BOOT] halt uptime_s=907.11
+[cycle] stills start=2026-09-25T19:59:15Z
+[cycle] stills end=2026-09-25T20:06:00Z [BENCH] exit=0 wall_s=404.3 maxrss_self_kb=133660 maxrss_children_kb=133660 cpu_self_s=4.6 cpu_children_s=1.2
+[cycle-stills] [BOOT] main_entry uptime_s=908.29
+[cycle-stills] [BOOT] cmd_subscribed uptime_s=908.85
+[cycle-stills] [BOOT] transmit_start uptime_s=915.08
+[cycle-stills] [BOOT] halt uptime_s=1311.83
+[side] branch DONE 2026-09-25T20:06:00Z
