@@ -66,6 +66,7 @@ class Config:
         self.effective = {}
         self.source = {}
         self.errors = []
+        self.warnings = []       # non-fatal: an overlay value dropped (the YAML governs)
         self.hash = None
 
 
@@ -195,12 +196,17 @@ def load_config(path, state=None, strict=True):
         cfg.errors.append((None, f"{path}: {type(exc).__name__}: {exc}"))
         return cfg
     cfg.base, cfg.source, cfg.errors = parse_values(doc, strict)
-    cfg.overlay = state_overlay(state)
+    try:
+        cfg.overlay = state_overlay(state)
+    except Exception as exc:              # a bad state never discards the YAML
+        cfg.warnings.append(f"command state overlay unreadable ({type(exc).__name__}: "
+                            f"{exc}); running the YAML values")
+        cfg.overlay = {}
     for path_, value in list(cfg.overlay.items()):
         key = R.BY_PATH.get(path_)
         why = "unknown key" if key is None else R.check_value(key, value)
         if why:
-            cfg.errors.append((path_, f"overlay value {value!r}: {why}; ignored"))
+            cfg.warnings.append(f"overlay {path_}={value!r}: {why}; ignored")
             del cfg.overlay[path_]
     cfg.effective = dict(cfg.base)
     cfg.effective.update(cfg.overlay)
@@ -215,19 +221,31 @@ def load_config(path, state=None, strict=True):
 # ---------------------------------------------------------------------------
 
 def _q(value):
-    """Quoted string for v1: every v1 parser strips one pair of double quotes,
-    and no value we write contains '#' or '"' (asserted)."""
+    """Quoted string for v1: every v1 parser strips one pair of double quotes;
+    no value may carry '#', '"', '\\' or control characters (registry rule)."""
     text = str(value)
-    if "#" in text or '"' in text or "\n" in text:
-        raise ConfigError(f"value {text!r} cannot be written for the v1 parsers")
+    bad = R._unwritable(text)
+    if bad:
+        raise ConfigError(f"value {text!r} cannot be written for the v1 parsers: {bad}")
     return f'"{text}"'
+
+
+def float_text(value):
+    """A float as YAML reads it back as a float: always a decimal point, never
+    an exponent (PyYAML reads `1e-05` as a STRING)."""
+    text = repr(float(value))
+    if "e" in text or "E" in text or "inf" in text or "nan" in text:
+        text = format(float(value), ".15f").rstrip("0")
+        if text.endswith("."):
+            text += "0"
+    return text
 
 
 def _n(value):
     """Bare number / bool for v1 (safe_load and every hand parser agree)."""
     if isinstance(value, bool):
         return "true" if value else "false"
-    return repr(value) if isinstance(value, float) else str(value)
+    return float_text(value) if isinstance(value, float) else str(value)
 
 
 def render_v1_text(values):
@@ -386,14 +404,15 @@ def load_for_boot(v1_path, v2_path, lkg_path, state_path=None):
         # An error with no key (unreadable file, wrong schema, unknown key) or
         # on a key the active mode uses makes the file unusable for THIS boot;
         # an overlay value that failed was already dropped (the YAML governs).
-        fatal = [(p, m) for p, m in cfg.errors
-                 if (p is None or p in active) and not m.startswith("overlay value")]
+        fatal = [(p, m) for p, m in cfg.errors if p is None or p in active]
         ignored = [(p, m) for p, m in cfg.errors if (p, m) not in fatal]
         if media is None and not any(p == "mode.media" for p, _m in fatal):
             fatal.append(("mode.media", "is required"))
         if not fatal:
             for p, m in ignored:
                 b.lines.append(f"[CFG][WARN] {v2_path}: {p}: {m} (ignored for this boot)")
+            for w in cfg.warnings:
+                b.lines.append(f"[CFG][WARN] {w}")
             b.level, b.values, b.config = "v2", cfg.base, cfg
             b.lines.append(f"[CFG] config v2 {v2_path} media={media} hash={cfg.hash} "
                            f"hv={HASH_VERSION} registry=v{R.REGISTRY_VERSION} "
@@ -456,6 +475,20 @@ def render_dir():
     return base
 
 
+def _render_resolves(render, media):
+    """Raise if the v1 loaders the active mode uses reject the render."""
+    import contextlib
+    import io
+    import rc_progressive_jpeg as rc
+    with contextlib.redirect_stdout(io.StringIO()):
+        rc.resolve_rc_settings(render)
+        if media in ("video", "video_logger"):
+            import rc_video_tx
+            import video_recorder
+            video_recorder.load_video_config(render)
+            rc_video_tx.load_video_tx_config(render)
+
+
 def select_for_legacy_runtime(config_path, fmt="auto", persist=True, announce=print):
     """Decide what the v1 loaders read this boot (PLAN_S2.md G2).
 
@@ -479,8 +512,17 @@ def select_for_legacy_runtime(config_path, fmt="auto", persist=True, announce=pr
     import bm_serial
     import rc_command_hooks
 
-    render = os.path.join(render_dir(), RENDER_NAME)
-    atomic_io.write_text(render, render_v1_text(boot.values))
+    # Render, then prove the v1 loaders accept it BEFORE pointing anything at
+    # it (a value v2 accepts but a v1 loader rejects would otherwise fail the
+    # boot after the v2 load). Any failure: the v1 file, as before S2.
+    try:
+        render = os.path.join(render_dir(), RENDER_NAME)
+        atomic_io.write_text(render, render_v1_text(boot.values))
+        _render_resolves(render, boot.values["mode.media"])
+    except Exception as exc:
+        announce(f"[CFG][ERR] v2 render unusable ({type(exc).__name__}: {exc}); "
+                 f"running the v1 file {config_path}")
+        return config_path, boot
     os.environ["BM_CAMERA_CONFIG_PATH"] = render
     bm_serial.BM_CAMERA_CONFIG_PATH = render
     rc_command_hooks.CONFIG_PATH = render
@@ -491,7 +533,7 @@ def select_for_legacy_runtime(config_path, fmt="auto", persist=True, announce=pr
         try:
             with open(lkg, "r", encoding="utf-8") as fh:
                 same = json.load(fh).get("hash") == config_hash(boot.values)
-        except (OSError, ValueError):
+        except Exception:
             same = False
         if not same:             # write only on change: SD wear
             import datetime as _dt

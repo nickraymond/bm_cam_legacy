@@ -126,7 +126,9 @@ log "preflight: PyYAML present"
 # An ARMED unit can boot into a half-copied runtime or halt mid-deploy.
 if [[ -n "${BMCAM_CRONTAB_FILE:-}" ]]; then CRON_NOW="$(cat "$BMCAM_CRONTAB_FILE" 2>/dev/null || true)"
 else CRON_NOW="$(crontab -l 2>/dev/null || true)"; fi
-if printf '%s\n' "$CRON_NOW" | grep -Eq '^[[:space:]]*@reboot[^#]*rc_run_capture_cycle\.sh'; then
+# Same pattern rc_field_update.sh disarms with (one definition of "armed").
+ARMED_RE='^[[:space:]]*@reboot[^#]*(rc_run_capture_cycle\.sh|rc_progressive_jpeg\.py)'
+if printf '%s\n' "$CRON_NOW" | grep -Eq "$ARMED_RE"; then
   die "the boot cycle is ARMED in crontab — disarm first (tools/rc_field_update.sh does it; bmcam-field-update skill)"
 fi
 log "preflight: boot cycle not armed"
@@ -237,6 +239,13 @@ if [[ -d "$DST" ]] && [[ -n "$(ls -A "$DST" 2>/dev/null)" ]]; then
 fi
 
 # ---- install the staged files (only after every check passed) --------------
+# Room first: a full SD mid-copy would leave a mix of old and new files.
+if [[ "$DRY_RUN" != "true" ]]; then
+  NEED_KB=$(( $(du -sk "$STAGE" | awk '{print $1}') * 2 + 1024 ))
+  FREE_KB=$(df -Pk "$DST" | awk 'NR==2 {print $4}')
+  [[ "$FREE_KB" -gt "$NEED_KB" ]] \
+    || die "only ${FREE_KB} KB free on $DST, need ${NEED_KB} KB; nothing installed (backup taken)"
+fi
 for dest_name in "${DEST_NAMES[@]}"; do
   dest_dir="$(dirname "$DST/$dest_name")"
   [[ "$dest_dir" != "$DST" ]] && run mkdir -p "$dest_dir"

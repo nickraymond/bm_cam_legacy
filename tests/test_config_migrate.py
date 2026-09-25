@@ -30,6 +30,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP = os.path.join(REPO, "BM_Devel_Pi")
@@ -307,11 +308,47 @@ class TestCli(unittest.TestCase):
         r = self.run_tool("--config", self.cfg, "--state", self.state, "--write", "--force")
         self.assertEqual(r.returncode, 0, r.stderr)
         kept = [n for n in os.listdir(self.tmp.path) if ".before_migrate_" in n]
-        self.assertEqual(len(kept), 2)
+        self.assertEqual(kept, [k for k in kept if k.startswith("camera_config.yaml")])
+        self.assertEqual(len(kept), 1)          # the live v2 state is kept, not replaced
         import config_journal
         entries = config_journal.read(self.tmp.join("config_journal.jsonl"))
         self.assertEqual([e["src"] for e in entries], ["migrate", "migrate"])
         self.assertRegex(entries[0]["h"], r"^[0-9a-f]{8}$")
+
+    def test_force_keeps_the_live_v2_state_unless_reset(self):             # review 6
+        r = self.run_tool("--config", self.cfg, "--state", self.state, "--write")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        live = self.tmp.join("bm_command_state_v2.json")
+        st = quiet(CommandState, path=live)
+        quiet(st.record, 900, "roi", 4)                       # a command after migration
+        r = self.run_tool("--config", self.cfg, "--state", self.state, "--write", "--force")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("keeping the existing", r.stdout)
+        with open(live) as fh:
+            self.assertEqual(json.load(fh)["v8"]["settings"]["roi"], 4)
+        r = self.run_tool("--config", self.cfg, "--state", self.state, "--write", "--force",
+                          "--reset-state")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        with open(live) as fh:
+            self.assertEqual(json.load(fh)["v8"]["settings"]["roi"], 0)
+
+    def test_config_is_written_last(self):                                  # review 7
+        sys.path.insert(0, os.path.join(REPO, "tools"))
+        import atomic_io
+        import config_migrate_v1_v2 as tool
+        real = atomic_io.write_text
+
+        def fail_config(path, text, *a, **k):
+            if path.endswith("camera_config.yaml"):
+                raise OSError("disk full")
+            return real(path, text, *a, **k)
+
+        with mock.patch.object(atomic_io, "write_text", side_effect=fail_config), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            code = tool.main(["--config", self.cfg, "--state", self.state, "--write"])
+        self.assertEqual(code, 2)
+        self.assertTrue(os.path.exists(self.tmp.join("bm_command_state_v2.json")))
+        self.assertFalse(os.path.exists(self.tmp.join("camera_config.yaml")))
 
     def test_out_dir_must_hold_the_state(self):
         other = TmpDir(self)

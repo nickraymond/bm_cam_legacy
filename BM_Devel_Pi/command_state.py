@@ -260,10 +260,13 @@ class CommandState:
             # Sprint26 S2e: a config-v2 unit journals every v8 setting change
             # AFTER the state is persisted (the state is the truth; a journal
             # failure is logged, never fatal). old None = was not overridden.
-            import config_journal
-            config_journal.append(config_journal.path_beside(self.path), "v8",
-                                  key=f"v8.{journal[0]}", old=journal[1], new=journal[2],
-                                  cid=command_id)
+            try:
+                import config_journal
+                config_journal.append(config_journal.path_beside(self.path), "v8",
+                                      key=f"v8.{journal[0]}", old=journal[1],
+                                      new=journal[2], cid=command_id)
+            except Exception as exc:   # the state IS saved: never turn that into an err ack
+                print(f"[CMD][WARN] config journal not written: {exc}")
 
     def _record_heals(self, command_id, value):
         """rsd: {"x": 1} cancels every pending heal; {"h": [[key, ns], ...]}

@@ -97,8 +97,13 @@ if [[ "$DRY_RUN" == "true" ]]; then
 else
   (crontab -l 2>/dev/null || true) > "$CRON_BACKUP"
   (crontab -l 2>/dev/null || true) \
-    | sed 's|^@reboot \(.*rc_run_capture_cycle\.sh\)$|# DISABLED field_update '"$TS"': @reboot \1|' \
+    | sed -E 's%^([[:space:]]*@reboot[^#]*(rc_run_capture_cycle\.sh|rc_progressive_jpeg\.py).*)$%# DISABLED field_update '"$TS"': \1%' \
     | crontab -
+  # Verify with the SAME pattern deploy_rc_runtime.sh refuses on.
+  if crontab -l 2>/dev/null | grep -Eq '^[[:space:]]*@reboot[^#]*(rc_run_capture_cycle\.sh|rc_progressive_jpeg\.py)'; then
+    crontab "$CRON_BACKUP"
+    fail "could not disarm the boot cycle (crontab restored from $CRON_BACKUP) — disarm by hand"
+  fi
   log "crontab backed up -> $CRON_BACKUP; RC @reboot line disabled"
 fi
 

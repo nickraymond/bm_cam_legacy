@@ -73,6 +73,15 @@ def overlay_from_v8(v8):
     touched = set(v8.get("touched") or [])
     ov = {}
 
+    tables = {"roi": T.ROI_TABLE, "win": T.WIN_TABLE, "txd": T.TXD_TABLE,
+              "cap": T.CAP_TABLE, "hlt": T.HLT_TABLE, "twn": T.TWN_TABLE,
+              "tmz": T.TMZ_TABLE, "foc": T.FOC_TABLE, "awb": T.AWB_TABLE,
+              "exp": T.EXP_TABLE}
+    # An index outside its table (a table change between deploys) is dropped,
+    # as the v1 CommandState loader resets just that key.
+    touched = {c for c in touched
+               if c not in tables or settings.get(c, T.DEFAULT_SETTINGS[c]) in tables[c]}
+
     def idx(cmd):
         return settings.get(cmd, T.DEFAULT_SETTINGS[cmd])
 
@@ -218,6 +227,12 @@ def _scalar(key, value):
     (strings always quoted, so "08:00" or "on" can never change type)."""
     if key.type == R.NETWORK_TYPE and value in (1, 2):
         return f"0x{value:02x}"
+    import config_v2
+    if isinstance(value, float):
+        return config_v2.float_text(value)          # never `1e-05` (YAML: a string)
+    if isinstance(value, list):
+        return "[" + ", ".join(config_v2.float_text(v) if isinstance(v, float)
+                               else json.dumps(v) for v in value) + "]"
     return json.dumps(value)
 
 

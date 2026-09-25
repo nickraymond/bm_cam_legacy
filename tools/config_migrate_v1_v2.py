@@ -48,7 +48,10 @@ def main(argv=None):
     ap.add_argument("--out-dir", default=None, help="default: the v1 YAML's directory")
     ap.add_argument("--write", action="store_true", help="write the v2 files (else dry-run)")
     ap.add_argument("--force", action="store_true",
-                    help="replace existing v2 files (kept as *.before_migrate_<UTC>)")
+                    help="replace an existing camera_config.yaml (kept as *.before_migrate_<UTC>)")
+    ap.add_argument("--reset-state", action="store_true",
+                    help="with --force: ALSO rebuild bm_command_state_v2.json from the v1 "
+                         "state (reverts every command applied since the first migration)")
     args = ap.parse_args(argv)
 
     sys.path.insert(0, os.path.abspath(args.app))
@@ -87,9 +90,18 @@ def main(argv=None):
               f"{state_target}; run with --out-dir {os.path.dirname(m.values['commands.state_path'])}",
               file=sys.stderr)
         return 2
+    # A re-migration (--force) keeps the unit's live v2 command state: the v1
+    # state file has been frozen since the first migration, so rebuilding from
+    # it would revert every command since (and forget their ids, so replays
+    # would apply again). --reset-state is the explicit opt-in.
+    write_state = m.state is not None
+    if write_state and os.path.exists(state_target) and not args.reset_state:
+        write_state = False
+        print(f"[MIGRATE] keeping the existing {state_target} (live command state; "
+              "--reset-state to rebuild it from the v1 state)")
     targets = [(os.path.join(out_dir, V2_CONFIG), m.config_text)]
-    if m.state is not None:
-        targets.append((os.path.join(out_dir, V2_STATE), None))
+    if write_state:
+        targets.append((state_target, None))
     existing = [p for p, _ in targets if os.path.exists(p)]
     if existing and not args.force:
         print(f"[MIGRATE][ERROR] refusing to replace {existing} (use --force)", file=sys.stderr)
@@ -99,11 +111,13 @@ def main(argv=None):
             keep = f"{path}.before_migrate_{ts}"
             shutil.copy2(path, keep)
             print(f"[MIGRATE] kept {path} -> {keep}")
+        # State FIRST, config LAST: camera_config.yaml's presence is what
+        # switches the unit to v2, so it must never exist without its state.
+        if write_state:
+            atomic_io.write_json(state_target, m.state)
+            print(f"[MIGRATE] wrote {state_target}")
         atomic_io.write_text(os.path.join(out_dir, V2_CONFIG), m.config_text)
         print(f"[MIGRATE] wrote {os.path.join(out_dir, V2_CONFIG)}")
-        if m.state is not None:
-            atomic_io.write_json(os.path.join(out_dir, V2_STATE), m.state)
-            print(f"[MIGRATE] wrote {os.path.join(out_dir, V2_STATE)}")
         atomic_io.write_text(os.path.join(out_dir, REPORT), report)
         print(f"[MIGRATE] wrote {os.path.join(out_dir, REPORT)}")
         journal = config_journal.path_beside(m.values["commands.state_path"])

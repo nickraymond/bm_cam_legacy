@@ -73,7 +73,13 @@ def write_bytes(path, data, mode=0o644):
         except OSError:
             pass
         raise
-    fsync_dir(dirpath)
+    try:
+        fsync_dir(dirpath)
+    except OSError as exc:
+        # The new content is in place (rename done); only the rename's own
+        # durability is unconfirmed. Reporting failure now would make a caller
+        # treat a saved state as unsaved (an err ack for a persisted command).
+        print(f"[IO][WARN] directory fsync failed for {path}: {exc}")
 
 
 def write_text(path, text, mode=0o644):

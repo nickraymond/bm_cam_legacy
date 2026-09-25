@@ -11,7 +11,8 @@ The comparison deploy runs before it installs anything (DESIGN_supervisor.md
                  path / provenance differences (text_lines).
   json V1 V2     two `--print-config --json` outputs: the unit's v1 file vs its
                  migrated v2 file (rendered). Equal per key after normalising only
-                 what differs by design (normalise() below).
+                 what differs by design (normalise() below); the command overlay
+                 is not compared (v1 state is frozen at migration).
 
 Inputs:  two files (the LAST line of a --json file is the JSON).
 Outputs: "PARITY OK" or every differing key/line; exit 0 OK, 1 differs, 2 usage.
@@ -47,13 +48,17 @@ def controls_effect(controls, app=None):
     return {"args": args, "requested": requested}
 
 
-def normalise(doc, app=None):
+def normalise(doc, app=None, keep_overlay=True):
     """Drop only what differs BY DESIGN between a v1 run and a v2 (render) run:
       - paths: the render vs the v1 file; the v2 state file vs the v1 one
       - the loaders' `source` provenance ("defaults" -> "yaml": a migrated file
         states every block)
       - camera-controls dicts, compared by effect (controls_effect)
       - [CFG] / [BOOT] log lines; the json probe's env/wap/loader_output paths
+      - keep_overlay=False (deploy): the command overlay. On a unit the v1 run
+        reads the FROZEN v1 state and the v2 run the live v2 state, so they
+        differ after the first command by design; the base config is what the
+        migration must preserve.
     """
     doc = dict(doc)
     if "print_config" in doc:
@@ -80,6 +85,8 @@ def normalise(doc, app=None):
                                for line in doc["print_config"]]
     for key in ("loader_output", "env", "wap_network"):
         doc.pop(key, None)
+    if not keep_overlay:
+        doc.pop("overlaid", None)
     return doc
 
 
@@ -125,7 +132,8 @@ def main(argv=None):
         for line in difflib.unified_diff(a, b, a_path, b_path, n=1, lineterm=""):
             print(f"  {line}")
         return 1
-    a, b = normalise(last_json(a_path)), normalise(last_json(b_path))
+    a = normalise(last_json(a_path), keep_overlay=False)
+    b = normalise(last_json(b_path), keep_overlay=False)
     keys = diff_docs(a, b)
     if not keys:
         print(f"[PARITY] config json OK ({len(a)} loader outputs equal)")

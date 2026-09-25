@@ -132,6 +132,27 @@ class TestDeploy(unittest.TestCase):
         self.assertEqual([e["src"] for e in entries], ["migrate", "deploy"])
         self.assertEqual(entries[1]["h"], u.history()[-1].rsplit("cfg=", 1)[1])
 
+    def test_v2_unit_with_commands_since_migration_still_deploys(self):     # review 1
+        u = Unit(self)
+        u.migrate()
+        sys.path.insert(0, os.path.join(REPO, "BM_Devel_Pi"))
+        import contextlib, io
+        from command_state import CommandState
+        with contextlib.redirect_stdout(io.StringIO()):
+            st = CommandState(path=os.path.join(u.dst, "bm_command_state_v2.json"))
+            st.record(4242, "hlt", 3)                        # e.g. dev_mode on
+            st.record(4243, "txd", 2)
+        r = u.deploy()
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("config v2 parity OK", r.stdout)
+
+    def test_armed_line_with_a_redirect_is_seen(self):                        # review 10
+        u = Unit(self)
+        with open(u.cron, "w") as fh:
+            fh.write(f"@reboot /usr/bin/flock -n /tmp/x {u.dst}/rc_run_capture_cycle.sh "
+                     "> /tmp/l 2>&1\n")
+        self.assert_refused(u, u.deploy(), "ARMED")
+
     def test_v2_file_that_resolves_differently_is_refused(self):
         u = Unit(self)
         u.migrate()

@@ -456,8 +456,34 @@ def flatten(tree, prefix=""):
     return flat
 
 
+def _unwritable(text):
+    """Characters no value may carry: the v1 hand parsers cut at '#', strip
+    quotes, and PyYAML reads '\\' as an escape (a bad escape makes the whole
+    file unparseable, which three v1 loaders turn into silent defaults —
+    network_type 0x01). Control characters are never meaningful."""
+    for ch in ('#', '"', '\\'):
+        if ch in text:
+            return f"may not contain {ch!r}"
+    if any(ord(c) < 32 or ord(c) == 127 for c in text):
+        return "may not contain control characters"
+    return None
+
+
 def _is_num(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def _runtime_choices(path):
+    """Values the runtime itself accepts for a free-string key (the v1 loaders
+    reject anything else, which would fail a boot after the v2 load)."""
+    if path not in ("video.record.framing", "video.record.sensor_mode"):
+        return None
+    try:
+        import video_geometry
+    except ImportError:
+        return None
+    table = video_geometry.PRESETS if path.endswith("framing") else video_geometry.SENSOR_MODES
+    return set(table)
 
 
 def check_value(key, value):
@@ -483,6 +509,21 @@ def check_value(key, value):
     elif t in (STR, TZ, ISO_UTC):
         if not isinstance(value, str) or not value:
             return "must be a non-empty string"
+        if t == TZ:
+            try:
+                from zoneinfo import ZoneInfo
+                ZoneInfo(value)
+            except Exception:
+                return "must be an IANA time zone (e.g. America/New_York)"
+        if t == ISO_UTC:
+            import datetime as _dt
+            try:
+                _dt.datetime.fromisoformat(value)
+            except ValueError:
+                return "must be an ISO-8601 timestamp"
+        choices = _runtime_choices(key.path)
+        if choices is not None and value not in choices:
+            return f"must be one of {', '.join(sorted(choices))}"
     elif t == PATH:
         if not isinstance(value, str) or not value.startswith("/"):
             return "must be an absolute path"
@@ -527,6 +568,10 @@ def check_value(key, value):
     else:
         return f"unknown registry type {t!r}"
 
+    if isinstance(value, str):
+        bad = _unwritable(value)
+        if bad:
+            return bad
     if key.enum and t != ENUM and value not in key.enum:
         return f"must be one of {', '.join(repr(e) for e in key.enum)}"
     if key.range and _is_num(value):

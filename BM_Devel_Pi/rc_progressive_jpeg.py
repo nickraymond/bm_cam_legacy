@@ -940,8 +940,13 @@ def main(argv=None, **cycle_overrides):
             print(f"[RC][ERROR] --config-format v2: no {config_v2.V2_NAME} beside "
                   f"{args.config_path}", file=sys.stderr)
             return 2
-        selected, _boot = config_v2.select_for_legacy_runtime(
-            args.config_path, args.config_format, persist=not args.print_config)
+        try:
+            selected, _boot = config_v2.select_for_legacy_runtime(
+                args.config_path, args.config_format, persist=not args.print_config)
+        except Exception as exc:      # never brick: the v1 file, as before S2
+            print(f"[CFG][ERR] config v2 selection failed ({type(exc).__name__}: {exc}); "
+                  f"running the v1 file {args.config_path}")
+            selected = args.config_path
         if selected is None:
             print("[RC] SAFE-MINIMAL: no usable config; nothing to do this boot.")
             return 0

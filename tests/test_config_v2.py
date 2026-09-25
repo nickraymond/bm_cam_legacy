@@ -359,3 +359,100 @@ class TestCommandStateV2(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReviewFindings(unittest.TestCase):
+    """Sprint26 S2 review (2026-09-25): each finding pinned."""
+
+    def setUp(self):
+        self.render = tempfile.mkdtemp(prefix="render_")
+        self.addCleanup(shutil.rmtree, self.render, True)
+        env = mock.patch.dict(os.environ, {"BMCAM_RENDER_DIR": self.render})
+        env.start()
+        self.addCleanup(env.stop)
+        import bm_serial
+        import rc_command_hooks
+        for mod, attr in ((bm_serial, "BM_CAMERA_CONFIG_PATH"), (rc_command_hooks, "CONFIG_PATH")):
+            p = mock.patch.object(mod, attr, getattr(mod, attr))
+            p.start()
+            self.addCleanup(p.stop)
+
+    def select(self, u, **kw):
+        lines = []
+        path, boot = C.select_for_legacy_runtime(u.v1, announce=lines.append, **kw)
+        return path, boot, lines
+
+    def test_render_the_v1_loaders_reject_falls_back_to_the_v1_file(self):   # finding 2/5
+        u = Unit(self)
+        with mock.patch.object(C, "_render_resolves", side_effect=ValueError("bad tz")):
+            path, _b, lines = self.select(u)
+        self.assertEqual(path, u.v1)
+        self.assertTrue(any("render unusable" in l for l in lines))
+        self.assertFalse(os.path.exists(u.lkg))                 # LKG never poisoned
+
+    def test_unwritable_render_dir_falls_back(self):                          # finding 2
+        u = Unit(self)
+        blocker = os.path.join(self.render, "file")
+        with open(blocker, "w") as fh:
+            fh.write("x")
+        with mock.patch.dict(os.environ, {"BMCAM_RENDER_DIR": os.path.join(blocker, "sub")}):
+            path, _b, lines = self.select(u)
+        self.assertEqual(path, u.v1)
+
+    def test_main_survives_a_selection_crash(self):                           # finding 2
+        import rc_progressive_jpeg as rc
+        u = Unit(self)
+        buf = io.StringIO()
+        with mock.patch.object(C, "select_for_legacy_runtime", side_effect=RuntimeError("boom")), \
+                contextlib.redirect_stdout(buf):
+            code = rc.main(["--config-path", u.v1, "--print-config"])
+        self.assertEqual(code, 0)
+        self.assertIn("[CFG][ERR] config v2 selection failed", buf.getvalue())
+
+    def test_bad_v8_index_keeps_the_v2_config(self):                         # finding 4
+        u = Unit(self, state_records=[(1, "hlt", 3)])
+        path = u.values["commands.state_path"]
+        with open(path) as fh:
+            st = json.load(fh)
+        st["v8"]["settings"]["roi"] = 99
+        st["v8"]["touched"] = ["hlt", "roi"]
+        with open(path, "w") as fh:
+            json.dump(st, fh)
+        b = u.boot()
+        self.assertEqual(b.level, "v2")
+        self.assertNotIn("still.crop", b.config.overlay)
+        self.assertFalse(b.config.effective["power.halt.enabled"])   # hlt 3 still applied
+        st["v8"] = {"settings": [1, 2], "touched": "roi"}             # garbage section
+        with open(path, "w") as fh:
+            json.dump(st, fh)
+        b = u.boot()
+        self.assertEqual(b.level, "v2")
+
+    def test_lkg_that_is_not_an_object(self):                                # finding 8
+        u = Unit(self)
+        with open(u.lkg, "w") as fh:
+            fh.write("[1]")
+        path, _b, _l = self.select(u)
+        self.assertNotEqual(path, u.v1)                       # still the v2 render
+        with open(u.lkg) as fh:
+            self.assertIn("values", json.load(fh))            # replaced by a good one
+
+    def test_tiny_floats_stay_floats(self):                                  # finding 9
+        self.assertEqual(C.float_text(1e-05), "0.00001")
+        self.assertEqual(yaml.safe_load(C.float_text(1e-05)), 1e-05)
+        values = dict(Unit(self).values, **{"uplink.msg_interval_s": 1e-05})
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "camera_schedule.yaml")
+            with open(path, "w") as fh:
+                fh.write(C.render_v1_text(values))
+            self.assertEqual(V.read_v1(path).values["uplink.msg_interval_s"], 1e-05)
+        m_text = M.render_config_text(values)
+        self.assertEqual(yaml.safe_load(m_text)["uplink"]["msg_interval_s"], 1e-05)
+
+    def test_unwritable_strings_are_invalid_values(self):                     # finding 2/3
+        for bad in ("bmcam/#", 'a"b', "a\\c", "a\nb"):
+            self.assertIsNotNone(R.check_value(R.BY_PATH["commands.topic"], bad), bad)
+        self.assertIsNotNone(R.check_value(R.BY_PATH["schedule.timezone"], "America/LosAngeles"))
+        u = Unit(self)
+        u.edit_v2("schedule.timezone", "America/LosAngeles")
+        self.assertEqual(u.boot().level, "v1_migrated")                         # finding 5

@@ -205,6 +205,27 @@ class TestRecordJournals(unittest.TestCase):
             self.assertEqual([(e["key"], e["old"], e["new"], e["id"]) for e in entries],
                              [("v8.roi", None, 5, 10), ("v8.roi", 5, 2, 11)])
 
+    def test_journal_failure_never_fails_a_saved_record(self):              # review 12
+        import config_journal as cj
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "bm_command_state_v2.json")
+            with mock.patch.object(cj, "append", side_effect=ImportError("x")), \
+                    contextlib.redirect_stdout(io.StringIO()) as out:
+                st = CommandState(path=path)
+                st.record(1, "roi", 5)                      # must not raise
+            self.assertIn("journal not written", out.getvalue())
+            with open(path) as fh:
+                self.assertEqual(json.load(fh)["v8"]["settings"]["roi"], 5)
+
+    def test_dir_fsync_failure_after_rename_is_logged(self):                 # review 12
+        with tempfile.TemporaryDirectory() as d, \
+                mock.patch.object(atomic_io, "fsync_dir", side_effect=OSError("EIO")), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            atomic_io.write_text(os.path.join(d, "x.json"), "{}")
+            with open(os.path.join(d, "x.json")) as fh:
+                self.assertEqual(fh.read(), "{}")
+        self.assertIn("directory fsync failed", out.getvalue())
+
     def test_v1_unit_journals_nothing(self):
         with tempfile.TemporaryDirectory() as d:
             with contextlib.redirect_stdout(io.StringIO()):
