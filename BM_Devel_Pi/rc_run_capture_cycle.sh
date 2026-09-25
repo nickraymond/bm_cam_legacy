@@ -66,7 +66,7 @@ echo "[RC-CRON] checking Python syntax..."
     rc_progressive_jpeg.py rc_time_budget.py rc_jpeg_encoder.py \
     rc_quality_selector.py rc_uplink_messages.py rc_transmit.py \
     rc_transmit_phase.py \
-    rc_power_halt.py spotter_time_sync.py bm_serial.py process_image_v2.py \
+    rc_power_halt.py spotter_time_sync.py bm_serial.py bm_codec.py process_image_v2.py \
     video_geometry.py video_recorder.py video_ring.py video_manifest.py \
     videoui_server.py video_settings.py \
     rc_video_clip.py rc_video_tx.py rc_media_key.py rc_heal.py \

@@ -27,6 +27,7 @@ BM_Devel_Pi/rc_run_capture_cycle.sh
 # Shared runtime (RC imports these)
 BM_Devel_Pi/spotter_time_sync.py
 BM_Devel_Pi/bm_serial.py
+BM_Devel_Pi/bm_codec.py            # Sprint26 S1: the one CRC16/COBS codec (bm_serial, spotter_time_sync, bm_frame_decoder import it)
 BM_Devel_Pi/process_image_v2.py
 
 # Sprint10 command daemon (config-gated by the bm_commands YAML island;
