@@ -1,5 +1,9 @@
 # Sprint26 — remote command loop on an always-on bench (kickoff)
 
+> **Superseded in part (2026-09-25):** §3 stages R1–R2 and decision D1 are replaced by
+> `DESIGN_supervisor.md` (one supervisor, config v2, commands v9; stages S1–S7). §2, D2–D5,
+> R3–R5 and §6 still stand; §5's trigger controls become one-shot `kv` on `trg` (S4).
+
 Written 2026-09-24 from the Sprint25 close-out; decisions §4 taken with Nick the same day.
 Module status was checked against `origin/development` (bm_cam_legacy) and `staging`
 (nereus-vision-dev); "gap" means the code does not exist yet, not that it is untested.
