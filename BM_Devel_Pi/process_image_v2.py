@@ -68,7 +68,6 @@ SOFTWARE_REPO_PATH = "/home/pi/repos/bm_cam_legacy"
 # Convention: lower = smaller file / more compression / lower visual quality.
 # higher = larger file / less compression / higher visual quality.
 IMAGE_QUALITY = 25
-COMPRESSION_QUALITY = IMAGE_QUALITY  # Backward-compatible alias for older log/code references.
 
 RESOLUTION_KEY = "720p"
 
@@ -1950,10 +1949,6 @@ def capture_image(resolution_key="VGA", directory_path=IMAGE_DIRECTORY, image_pi
 
     return image_path
 
-def encode_to_base64(binary_data):
-    return base64.b64encode(binary_data).decode('ascii')
-
-
 def get_cpu_temperature():
     """Get the Raspberry Pi's CPU temperature."""
     result = subprocess.run(["vcgencmd", "measure_temp"], capture_output=True, text=True)
@@ -1966,54 +1961,6 @@ def get_file_size(file_path):
     if os.path.exists(file_path):
         return os.path.getsize(file_path)
     return 0
-
-
-def split_image_jpeg(image_path, buffer_directory, image_quality):
-    """Splits the image into base64-encoded buffers after JPEG encoding."""
-    image_quality = validate_image_quality(image_quality)
-
-    if os.path.exists(buffer_directory):
-        shutil.rmtree(buffer_directory)
-        debug_print("Deleted buffers dir")
-
-    os.makedirs(buffer_directory, exist_ok=True)
-    debug_print("Created buffers dir")
-
-    # Import OpenCV lazily; the HEIC/libcamera MVP path does not need it.
-    import cv2
-
-    image = cv2.imread(image_path)
-    if image is None:
-        raise ValueError(f"Failed to load image from path: {image_path}")
-
-    retval, buffer = cv2.imencode('.jpg', image, [int(cv2.IMWRITE_JPEG_QUALITY), image_quality])
-    if not retval:
-        raise ValueError("Failed to encode image")
-
-    file_dir, file_name = os.path.split(image_path)
-    file_name_no_ext, file_ext = os.path.splitext(file_name)
-    compressed_file_path = os.path.join(file_dir, f"{file_name_no_ext}_compressed{file_ext}")
-
-    with open(compressed_file_path, 'wb') as compressed_file:
-        compressed_file.write(buffer)
-
-    debug_print(f"Compressed image saved as: {compressed_file_path}")
-
-    base64_data = base64.b64encode(buffer).decode("ascii")
-    file_length = len(base64_data)
-    buffer_number = 0
-
-    while buffer_number * BUFFER_SIZE < file_length:
-        start_pos = buffer_number * BUFFER_SIZE
-        current_buffer = base64_data[start_pos:start_pos + BUFFER_SIZE]
-        buffer_path = os.path.join(buffer_directory, f"split_{buffer_number}.txt")
-
-        with open(buffer_path, 'w') as buffer_file:
-            buffer_file.write(current_buffer)
-
-        buffer_number += 1
-
-    debug_print(f"Saved {buffer_number} buffer txt files.")
 
 
 def _heic_helper_path():
