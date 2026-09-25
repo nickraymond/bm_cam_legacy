@@ -62,3 +62,6 @@ runs/sprint25_indoor15_*/SPOT-*/
 runs/sprint25_indoor15_*/console_as_sd/
 runs/sprint25_outdoor_*/SPOT-*/
 runs/sprint25_pacing13_*/SPOT-*/
+
+# Sprint26: local dev venv for golden vectors (tests/golden/README.md)
+.venv-dev/

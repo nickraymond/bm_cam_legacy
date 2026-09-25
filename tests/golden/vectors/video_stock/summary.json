@@ -1,0 +1,74 @@
+{
+ "cycle": {
+  "clip": {
+   "basename": "2026-09-24T15-00-00Z_video_1000x562_15fps",
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T15-00-00Z_video_1000x562_15fps.mp4",
+   "ok": true,
+   "stage": "done"
+  },
+  "command_events": [],
+  "error": null,
+  "fit": {
+   "budget_msgs": 126,
+   "bytes": 36019,
+   "duration_s": 5.0,
+   "encode_s": 0.0,
+   "frames": 50,
+   "frames_trimmed": 0,
+   "keyframe_chunks": 8,
+   "keyframe_end": 2236,
+   "msgs": 126,
+   "pass2_tries": 1,
+   "prescale_s": 0.0,
+   "target_kbps": 57.6,
+   "used_pct": 99.3
+  },
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "schedule_allowed": true,
+  "stage": "done",
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "planned": 126,
+   "refused_reason": null,
+   "repeat_sent": true,
+   "repeated": 8,
+   "sent": 126,
+   "started": true,
+   "uart_duration_sec": 175.49999999999386
+  }
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 175.5,
+ "files": {
+  "camera_schedule.yaml": {
+   "bytes": 7802,
+   "sha256": "dc325135f4e22a9e"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  },
+  "videos/2026-09-24T15-00-00Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  }
+ },
+ "notes": "one-clip video cycle, commands off, rev 3 wire",
+ "scenario": "video_stock",
+ "sent_records": {},
+ "sidecars": {},
+ "state_file": null,
+ "unfired_rules": []
+}

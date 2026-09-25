@@ -1,0 +1,208 @@
+{
+ "bm_commands": {
+  "defer_acks_during_transmit": false,
+  "enabled": false,
+  "post_transmit_listen_s": 150.0,
+  "state_path": "{TMP}/state/bm_command_state.json",
+  "topic": "bmcam/cmd"
+ },
+ "bm_serial": {
+  "image_buffer_size": 384,
+  "image_transmit_delay_seconds": 1.0,
+  "network_type": 2
+ },
+ "camera_controls_island": {},
+ "media_key": {
+  "enabled": false,
+  "retain_days": 14.0,
+  "sent_dir": "{TMP}/app/sent",
+  "source": "defaults",
+  "state_path": "{TMP}/app/bm_media_key_last.txt"
+ },
+ "network": {
+  "ap_fallback_s": 90,
+  "ap_timeout_min": 60,
+  "default": "nereus_hq"
+ },
+ "network_type": "02",
+ "print_config": [
+  "[BOOT] main_entry uptime_s=na",
+  "[RC] Sprint08 progressive-JPEG RC \u2014 resolved settings",
+  "[RC] config_path={TMP}/camera_schedule.yaml",
+  "[RC] capture_mode=heic (RC inactive; known-good HEIC path owns this cycle)",
+  "[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]",
+  "[RC] cycle budget: max_run_time_min=12 (720 s)",
+  "[RC] message cap: 195 msgs (field-tested hard cap)",
+  "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0",
+  "[RC] derived (informational): transmit-only budget holds 720 paced msgs; M1 owns real accounting",
+  "[RC] power_halt: enabled=False dry_run=True mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml",
+  "[RC] schedule: window=08:00-15:00 tz=America/Los_Angeles source=yaml",
+  "[RC] transmit_phase (C2): OFF (unscheduled transmit)",
+  "[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam"
+ ],
+ "print_config_exit": 0,
+ "resolved": {
+  "budget_messages_if_transmit_only": 720,
+  "budget_seconds": 720,
+  "capture_backend": "rpicam",
+  "capture_mode": "heic",
+  "config_path": "{TMP}/camera_schedule.yaml",
+  "crop_native_xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "enforce_time_window": true,
+  "ladder_source": "explicit",
+  "max_run_time_min": 12,
+  "media_gid_enabled": false,
+  "media_key_cfg": {
+   "enabled": false,
+   "retain_days": 14.0,
+   "sent_dir": "{TMP}/app/sent",
+   "source": "defaults",
+   "state_path": "{TMP}/app/bm_media_key_last.txt"
+  },
+  "message_cap": 195,
+  "output_size": [
+   1000,
+   562
+  ],
+  "output_width": 1000,
+  "pacing_chunk_b64_chars": 384,
+  "pacing_delay_seconds": 1.0,
+  "pacing_source": "yaml",
+  "power_halt_dry_run": true,
+  "power_halt_enabled": false,
+  "power_halt_mode": "halt",
+  "power_halt_script_path": "/home/pi/BM_Devel_Pi/tuned_halt.sh",
+  "power_halt_source": "yaml",
+  "q_max": 90,
+  "q_min": 9,
+  "q_step": 2,
+  "quality_ladder": [
+   90,
+   80,
+   70,
+   60,
+   50,
+   40,
+   30,
+   25,
+   20,
+   15,
+   13,
+   11,
+   9
+  ],
+  "source_height": 2592,
+  "source_image_path": null,
+  "source_jpeg_quality": 95,
+  "source_width": 4608,
+  "timezone": "America/Los_Angeles",
+  "transmit_phase_cfg": {
+   "enabled": false,
+   "grid_seconds": 300.0,
+   "max_wait_s": 300.0,
+   "post_boundary_guard_s": 30.0,
+   "pre_boundary_guard_s": 20.0
+  },
+  "transmit_window": "08:00-15:00",
+  "window_end": "15:00",
+  "window_source": "yaml",
+  "window_start": "08:00"
+ },
+ "target": "BM_Devel_Pi/camera_schedule.yaml",
+ "transmit_phase": {
+  "enabled": false,
+  "grid_seconds": 300.0,
+  "max_wait_s": 300.0,
+  "post_boundary_guard_s": 30.0,
+  "pre_boundary_guard_s": 20.0
+ },
+ "uart": [
+  "/dev/ttyAMA0",
+  115200
+ ],
+ "video": {
+  "bitrate_mbps": 2.0,
+  "clip_minutes": 5.0,
+  "crop_native_xywh": null,
+  "dir": "/home/pi/BM_Devel_Pi/videos",
+  "encoder": {
+   "denoise": "",
+   "intra": 0,
+   "level": "",
+   "profile": "",
+   "sharpness": null
+  },
+  "fps": 15,
+  "geometry": {
+   "available_px": [
+    1600,
+    900
+   ],
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "fps": 14,
+   "mode_arg": "4608:2592:10:P",
+   "mode_fov_xywh": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "mode_wh": [
+    4608,
+    2592
+   ],
+   "notes": [
+    "no video geometry keys in the config; resolved to the stills_roi_1000p preset (Sprint17 migration default). The picture WILL change: Sprint15 recorded an unintended (1770,996,1066,599) native box at a 1.88x upscale.",
+    "fps 15 exceeds sensor mode 4608x2592's 14 fps readout limit; clamped to 14"
+   ],
+   "output_wh": [
+    1000,
+    562
+   ],
+   "preset": "stills_roi_1000p",
+   "roi": "0.326389,0.326389,0.347222,0.347222",
+   "scale": 0.625,
+   "sensor_mode": "4608x2592",
+   "source": "migration-default"
+  },
+  "output": null,
+  "preset": null,
+  "sensor_mode": null,
+  "session_minutes": 0,
+  "source": "yaml",
+  "storage": {
+   "max_used_pct": 75.0,
+   "min_free_gb": 10.0,
+   "ring_dry_run": false
+  },
+  "ui": {
+   "enabled": true,
+   "port": 8080
+  }
+ },
+ "video_tx": {
+  "duration_s": 5.0,
+  "enabled": false,
+  "fps": 10,
+  "keyframe_repeat_max": 30,
+  "lead_in_s": 2.0,
+  "message_cap": 126,
+  "output": "480x270",
+  "output_wh": [
+   480,
+   270
+  ],
+  "preset": "medium",
+  "source": "defaults"
+ }
+}
