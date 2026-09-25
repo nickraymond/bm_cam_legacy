@@ -6,10 +6,10 @@ Sprint08 M5 — RC transmit path: complete send + the incomplete-cycle
 bounded partial send (sprint spec section 2).
 
 P5 decisions (Nick-approved):
-  - RC-ONLY send loop. process_image_v2.send_buffers() and bm_serial.py are
-    completely untouched — the known-good HEIC send path stays byte-identical.
+  - RC-ONLY send loop (it was written beside the HEIC send_buffers(), which
+    was deleted in Sprint26 S1; bm_serial.py was not changed for it).
     The chunk framing here (`<I{i}>{chunk}\\n`, START-sleep-chunk-sleep-END
-    pacing) mirrors production exactly and is pinned by test.
+    pacing) is pinned by test and by tests/golden.
   - START `length` = PLANNED chunks (the full image), never the bounded
     count. A bounded partial send therefore looks to the backend exactly
     like the partial-arrival state Sprint07 P4 validated (renders a preview

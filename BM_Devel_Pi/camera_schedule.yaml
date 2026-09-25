@@ -64,7 +64,8 @@ image_pipeline:
     quality: 20
 
 # Sprint08 progressive-JPEG release candidate (RC). Config-gated:
-#   heic             -> known-good production path (main_pi_camera.py), unchanged
+#   heic             -> RETIRED (Sprint26 S1: main_pi_camera.py deleted). The RC does
+#                       nothing in this mode; set progressive_jpeg or video. S2 replaces this key.
 #   progressive_jpeg -> RC entry script (rc_progressive_jpeg.py)
 capture_mode: "heic"
 

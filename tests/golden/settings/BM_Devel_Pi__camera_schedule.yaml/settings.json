@@ -29,7 +29,7 @@
   "[BOOT] main_entry uptime_s=na",
   "[RC] Sprint08 progressive-JPEG RC \u2014 resolved settings",
   "[RC] config_path={TMP}/camera_schedule.yaml",
-  "[RC] capture_mode=heic (RC inactive; known-good HEIC path owns this cycle)",
+  "[RC] capture_mode=heic (RC inactive: the heic path was retired in Sprint26; set capture_mode to progressive_jpeg or video)",
   "[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]",
   "[RC] cycle budget: max_run_time_min=12 (720 s)",
   "[RC] message cap: 195 msgs (field-tested hard cap)",

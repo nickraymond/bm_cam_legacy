@@ -4,9 +4,10 @@
 """
 Sprint08 progressive-JPEG RC entry script — M7 cycle orchestrator.
 
-Config-gated runtime path (capture_mode: progressive_jpeg). The known-good
-HEIC path (main_pi_camera.py) is untouched; this script wires the tested RC
-modules into one cycle:
+Config-gated runtime path (capture_mode: progressive_jpeg | video). The old
+HEIC path (main_pi_camera.py) was deleted in Sprint26 S1; `capture_mode: heic`
+now means "nothing to do" (see main()). This script wires the RC modules into
+one cycle:
 
   CycleBudget (M1, starts at process start)
     -> schedule gate (transmit runs only; reuses production Spotter-time gate;
@@ -254,7 +255,8 @@ def print_resolved_settings(s):
     elif s["capture_mode"] == "video":
         print("[RC] capture_mode=video (Sprint15 video path selected)")
     else:
-        print(f"[RC] capture_mode={s['capture_mode']} (RC inactive; known-good HEIC path owns this cycle)")
+        print(f"[RC] capture_mode={s['capture_mode']} (RC inactive: the heic path was retired in "
+              "Sprint26; set capture_mode to progressive_jpeg or video)")
 
     print(
         f"[RC] quality ladder ({s['ladder_source']}): q_max={s['q_max']} "
@@ -1019,8 +1021,8 @@ def main(argv=None, **cycle_overrides):
         return 0
 
     if settings["capture_mode"] != "progressive_jpeg":
-        print(f"[RC] capture_mode={settings['capture_mode']} — RC inactive; "
-              "known-good HEIC path owns this cycle. Nothing to do.")
+        print(f"[RC] capture_mode={settings['capture_mode']} — RC inactive: the heic path was "
+              "retired in Sprint26; set capture_mode to progressive_jpeg or video. Nothing to do.")
         return 0
 
     # Sprint12: consume a pending one-shot trg (D-S12-3/4/5). Only a
