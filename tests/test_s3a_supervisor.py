@@ -233,8 +233,9 @@ class BootDrainW4(Base):
                 return []
 
         calls = []
+        state = types.SimpleNamespace(pending_trigger=None, consume_trigger=lambda: None)
         sup = rc_supervisor.Boot(dict(SETTINGS), media="video", bm_commands_cfg=CMDS,
-                                 command_state=object(), transmit=True, bench_commands=False,
+                                 command_state=state, transmit=True, bench_commands=False,
                                  action_log=self.log, reresolve_fn=calls.append)
         quiet(sup.start, {}, clock=self.clock, sleep_fn=self.clock.sleep, halt_fn=self.rec.halt,
               bm_close_fn=self.rec.close, daemon_factory=lambda s, c, st: D(), log_fn=print,
@@ -242,8 +243,50 @@ class BootDrainW4(Base):
         before = dict(SETTINGS)
         settings, flags = quiet(sup.boot_drain, before, {"command_events": []}, self.clock.sleep)
         self.assertIs(settings, before)
-        self.assertEqual(calls, [])               # video: no trg before W5 either
+        self.assertEqual(calls, [])               # nothing applied, no trg pending
         self.assertEqual(flags, {"skip_time_window": False, "capture_only": False})
+
+
+class VideoTriggerW5(Base):
+    """W5: a video unit services trg; trg 1 = record to SD, send nothing."""
+
+    def run_video(self, flags):
+        from rc_time_budget import CycleBudget
+        from tests.test_rc_video_tx_cycle import settings as vsettings
+        tmp = tempfile.mkdtemp(dir=self.tmp.name)
+        calls, wire = [], []
+        clk = self.clock
+
+        class FakeBoot:
+            def start(self_inner, summary, **kw):
+                return None, CycleBudget(600, 1.0, clock=clk)
+
+            def boot_drain(self_inner, settings, summary, sleep_fn):
+                return settings, flags
+
+        cfg = vtx.validate_video_tx_config(dict(vtx.DEFAULT_VIDEO_TX_CONFIG, enabled=True,
+                                                source="test"))
+        summary = quiet(
+            vtx.run_video_tx_cycle, vsettings(tmp, enforce_time_window=True), cfg, transmit=True,
+            gate_fn=lambda path: calls.append("gate") or (False, {"reason": "outside"}),
+            record_fn=lambda s, v, d, **kw: calls.append("record") or {
+                "ok": True, "stage": "done", "bytes": 1, "mp4": os.path.join(d, "c.mp4"),
+                "basename": "2026-09-21T07-30-05Z_video_1920x1080_15fps"},
+            fit_fn=lambda *a, **kw: calls.append("fit"), tx_open_fn=lambda p: wire.append,
+            ensure_room_fn=lambda d, st: {"paused": False}, sleep_fn=clk.sleep, clock=clk,
+            encoder_binary="/usr/bin/rpicam-vid", ffmpeg_binary="/usr/bin/ffmpeg",
+            halt_fn=self.rec.halt, bm_close_fn=self.rec.close, supervised=FakeBoot())
+        return summary, calls, wire
+
+    def test_trg1_records_and_sends_nothing_even_outside_the_window(self):
+        summary, calls, wire = self.run_video({"skip_time_window": True, "capture_only": True})
+        self.assertEqual(calls, ["gate", "record"])
+        self.assertEqual((summary["stage"], wire), ("done_capture_only", []))
+        self.assertEqual(self.rec.calls, [])      # the supervisor halts, not the cycle
+
+    def test_trg2_bypasses_the_window(self):
+        summary, calls, _wire = self.run_video({"skip_time_window": True, "capture_only": False})
+        self.assertEqual(calls[:3], ["gate", "record", "fit"])   # not stopped at the window
 
 
 if __name__ == "__main__":

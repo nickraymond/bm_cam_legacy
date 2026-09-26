@@ -221,7 +221,8 @@ def _skip_status(settings, vtx, gate_info, wake_fn=None):
 def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit,
                  skip_time_window, gate_fn, record_fn, fit_fn, tx_open_fn, ensure_room_fn,
                  sleep_fn, clock, now_fn, encoder_binary, ffmpeg_binary, bm_commands_cfg,
-                 bench_commands, bench_drop_chunks, supervised=None, wake_fn=None):
+                 bench_commands, bench_drop_chunks, supervised=None, wake_fn=None,
+                 capture_only=False):
     """The video action (Sprint26 S3a, DESIGN_supervisor.md §4 "Actions"): the body
     of one clip cycle, from the time gate to the listen tail, moved here verbatim
     from run_video_tx_cycle. The daemon and the budget come from the caller, which
@@ -274,6 +275,11 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     summary["clip"] = {k: clip.get(k) for k in ("ok", "stage", "basename", "mp4", "bytes")}
     if not clip.get("ok"):
         raise RuntimeError(f"recording failed at stage {clip.get('stage')!r}; nothing to send")
+    if capture_only:
+        # W5: trg 1 on a video unit = record the clip to SD, send nothing.
+        print(f"[VTX] trigger capture-only: clip kept on SD ({clip['mp4']}), not sent")
+        summary["stage"] = "done_capture_only"
+        return summary
 
     # 3. Budget: what the cap allows AND what the time budget can still pace.
     summary["stage"] = "fit"
@@ -422,6 +428,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                "schedule_allowed": True, "stage": "start", "error": None, "halt_result": None,
                "command_events": []}
     budget = None
+    capture_only = False
     if supervised is None:
         budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"],
                              clock=clock)
@@ -453,8 +460,10 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                 summary, clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
                 bm_close_fn=bm_close_fn, daemon_factory=daemon_factory, log_fn=print,
                 close_warn=close_warn, end_line=end_line)
-            # W4: commands already queued apply THIS boot.
-            settings, _flags = supervised.boot_drain(settings, summary, sleep_fn)
+            # W4: commands already queued apply THIS boot; W5: then the pending trg.
+            settings, trigger_flags = supervised.boot_drain(settings, summary, sleep_fn)
+            skip_time_window = skip_time_window or trigger_flags["skip_time_window"]
+            capture_only = trigger_flags["capture_only"]
         else:
             owner.begin()
         # 0. S3: the command daemon, when the cycle may touch the bus. Inside the
@@ -473,7 +482,8 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             ensure_room_fn=ensure_room_fn, sleep_fn=sleep_fn, clock=clock, now_fn=now_fn,
             encoder_binary=encoder_binary, ffmpeg_binary=ffmpeg_binary,
             bm_commands_cfg=bm_commands_cfg, bench_commands=bench_commands,
-            bench_drop_chunks=bench_drop_chunks, supervised=supervised)
+            bench_drop_chunks=bench_drop_chunks, supervised=supervised,
+            capture_only=capture_only)
 
     except Exception as exc:
         summary["error"] = f"{type(exc).__name__}: {exc}"

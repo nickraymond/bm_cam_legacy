@@ -92,8 +92,8 @@ class Boot:
         normal flush after END). If anything was applied, the command overlay
         is re-resolved from the YAML base, so it governs this boot's action.
         The budget is not rebuilt (it was anchored before the daemon, G1).
-        Then, for stills, a pending trg is serviced (it may have just
-        arrived). -> (settings, flags)."""
+        Then a pending trg is serviced (it may have just arrived; W5: video
+        too). -> (settings, flags)."""
         flags = {"skip_time_window": False, "capture_only": False}
         daemon = self.owner.daemon if self.owner else None
         if daemon is not None:
@@ -103,11 +103,18 @@ class Boot:
             if events and self.reresolve_fn is not None:
                 print(f"[SUP] boot drain: {len(events)} command(s) applied this boot")
                 settings = self.reresolve_fn(settings)
-        if self.media == "still" and self.command_state is not None:
+        if self.command_state is not None:
+            # Stills (W4 ordering) and, since W5, video: a trg is serviced at
+            # this decision point for both media.
             settings, flags = cmd_hooks.service_pending_trigger(
                 settings, self.command_state, transmit=self.transmit)
             if settings.get("trigger"):
                 summary["trigger"] = settings["trigger"]
+                if self.media == "video" and settings.get("source_image_path"):
+                    # trg 3/4 name a stills reference image; a video unit has
+                    # none, so it records and sends a clip (window bypassed).
+                    print(f"[SUP][WARN] trg {settings['trigger'].get('value')} names a stills "
+                          "reference; a video unit records and sends a clip instead")
         self.settings = settings
         return settings, flags
 
