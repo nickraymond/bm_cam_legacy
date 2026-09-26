@@ -1,6 +1,6 @@
 # Sprint26 S3a — one runtime, per_boot parity: implementation plan
 
-Written 2026-09-26. Status: **DRAFT — awaiting Nick's approval before any code.**
+Written 2026-09-26. Status: **APPROVED (Nick, 2026-09-26)** — G1–G5 ruled as proposed; O3 → W10 in S3b.
 Branch `feature/sprint26-s3a-runtime` from `origin/development` a1341f8 (S2 / PR #78 merged).
 Spec: `DESIGN_supervisor.md` §4, §8.1–8.3, §10–11; `REVIEW_20260925.md` K1, K3–K6, R7;
 `PLAN_S2.md` G1 (v8 state stays in the `v8` section) and G2 (v1-shaped render on /dev/shm).
@@ -27,7 +27,7 @@ Facts this plan rests on (from inspection, file:line at a1341f8):
   must keep forwarding `sleep_fn`/`clock`. A supervisor that bypassed those two functions would
   silently lose the fakes (unknown kwdefaults are ignored → real sleep/ffmpeg).
 
-## 0. Gaps in the spec (need a ruling)
+## 0. Gaps in the spec — **Ruled (Nick, 2026-09-26): all five as proposed.**
 
 **G1 — where the one per_boot `CycleBudget` is anchored.** §4/K4 say "at process start".
 Today stills anchors after daemon start, video before it; the fake clock does not advance
