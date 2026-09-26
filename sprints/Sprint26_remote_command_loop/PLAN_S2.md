@@ -1,6 +1,6 @@
 # Sprint26 S2 — settings storage (config v2): implementation plan
 
-Written 2026-09-25. Status: **awaiting Nick's approval — no code before it.**
+Written 2026-09-25. Status: **DONE 2026-09-26** — bench gate PASS on bmcam003 (runs/s2_bench_20260926/RESULTS.md).
 Branch `feature/sprint26-s2-settings` from `origin/development` 684d9c7 (S1 / PR #75 merged).
 Spec: `DESIGN_supervisor.md` §5, §6.2–6.3, §8.1–8.3, §10–11; `REVIEW_20260925.md` K7–K9, X3–X5, R1–R6.
 

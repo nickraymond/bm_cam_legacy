@@ -1,0 +1,22 @@
+== ROLLBACK to a71b6c7
+[RC-DEPLOY] write software_sha.txt=a71b6c774b32
+[RC-DEPLOY] deploy complete
+ROLLBACK print-config == pre-bench capture (byte-identical, v1 files read)
+c5376fa8d06ea5bf59ca3d4338e4b450f39404cbbdc7a99e8156474d05c7dbdb  camera_schedule.yaml
+89301c2652fb06d732cccee6240238ef2e86efd41c99188f51e8b403e98dc3b8  bm_command_state.json
+bm_command_state_v2.json
+camera_config.yaml
+== FORWARD to S2
+[PARITY] print-config text OK (25 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash 81e05dee
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] installed 45 files; staging dir removed
+[RC-DEPLOY] deploy complete
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=81e05dee hv=1 registry=v1 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+20260926T004421Z a71b6c774b32 mode=update profile=none cron=false
+20260926T004433Z 4c4fe8fe8897 mode=update profile=none cron=false cfg=81e05dee
+{"h":"81e05dee","id":null,"key":"*","new":"4c4fe8fe8897","old":null,"src":"deploy","t":"2026-09-26T00:17:39Z"}
+{"h":"81e05dee","id":null,"key":"*","new":"4c4fe8fe8897","old":null,"src":"deploy","t":"2026-09-26T00:44:51Z"}
