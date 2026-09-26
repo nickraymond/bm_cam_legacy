@@ -528,6 +528,14 @@ def still_action(
                 )
             except Exception as exc:
                 debug_print(f"Wake status send failed, continuing safely: {exc}")
+            if supervised is not None:
+                # Sprint26 W3 (DESIGN §4): the listen tail runs after a window
+                # skip too, so a command sent this hour is not lost. Legacy
+                # returns here with no tail.
+                cmd_hooks.post_transmit_listen(
+                    daemon, bm_commands_cfg or {}, summary, budget,
+                    clock=clock, sleep_fn=sleep_fn,
+                )
             return summary
 
     if transmit:

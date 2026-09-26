@@ -204,10 +204,24 @@ def _start_metadata(settings):
         return {"timezone": settings.get("timezone")}
 
 
+def _skip_status(settings, vtx, gate_info, wake_fn=None):
+    """<WS a=skip_win> for a video wake outside its window (W3); never raises."""
+    if wake_fn is None:
+        from rc_telemetry import send_wake_status as wake_fn
+    try:
+        w, h = vtx["output_wh"]
+        wake_fn(action="skip_win", timezone_name=settings["timezone"],
+                local_time=(gate_info or {}).get("local_time"),
+                window_start=settings["window_start"], window_end=settings["window_end"],
+                image_res_key=f"{w}x{h}", image_quality=None, reason="window")
+    except Exception as exc:
+        print(f"[VTX][WARN] wake status send failed, continuing safely: {exc}")
+
+
 def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit,
                  skip_time_window, gate_fn, record_fn, fit_fn, tx_open_fn, ensure_room_fn,
                  sleep_fn, clock, now_fn, encoder_binary, ffmpeg_binary, bm_commands_cfg,
-                 bench_commands, bench_drop_chunks):
+                 bench_commands, bench_drop_chunks, supervised=None, wake_fn=None):
     """The video action (Sprint26 S3a, DESIGN_supervisor.md §4 "Actions"): the body
     of one clip cycle, from the time gate to the listen tail, moved here verbatim
     from run_video_tx_cycle. The daemon and the budget come from the caller, which
@@ -228,6 +242,12 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         print(f"[VTX] schedule gate: {gate_info.get('reason')}")
         if settings.get("enforce_time_window") and not skip_time_window and not allowed:
             summary["schedule_allowed"] = False
+            if supervised is not None:
+                # Sprint26 W3 (DESIGN §4): a skipped video wake reports it like a
+                # stills unit (<WS a=skip_win>), then listens. Legacy sends nothing.
+                _skip_status(settings, vtx, gate_info, wake_fn)
+                cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                               clock=clock, sleep_fn=sleep_fn)
             return summary
 
     # 2. Record with the recorder's own pipeline; the 1080p clip stays on SD.
@@ -451,7 +471,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             ensure_room_fn=ensure_room_fn, sleep_fn=sleep_fn, clock=clock, now_fn=now_fn,
             encoder_binary=encoder_binary, ffmpeg_binary=ffmpeg_binary,
             bm_commands_cfg=bm_commands_cfg, bench_commands=bench_commands,
-            bench_drop_chunks=bench_drop_chunks)
+            bench_drop_chunks=bench_drop_chunks, supervised=supervised)
 
     except Exception as exc:
         summary["error"] = f"{type(exc).__name__}: {exc}"
