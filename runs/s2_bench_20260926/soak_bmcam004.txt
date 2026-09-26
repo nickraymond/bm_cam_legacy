@@ -1,0 +1,40 @@
+cycle logs since 00:4x: 35
+20260926T004640Z 0dsdgw sent=184/184 complete=True level=default cfg_err=0
+20260926T010834Z 0dseuw sent=184/184 complete=True level=default cfg_err=0
+20260926T013834Z 0dsg8w sent=185/185 complete=True level=default cfg_err=0
+20260926T020835Z 0dshmv sent=183/183 complete=True level=default cfg_err=0
+20260926T023833Z 0dsj0v sent=184/184 complete=True level=default cfg_err=0
+20260926T030833Z 0dskev sent=183/183 complete=True level=default cfg_err=0
+20260926T033833Z 0dslsv sent=181/181 complete=True level=default cfg_err=0
+20260926T040833Z 0dsn6u sent=184/184 complete=True level=default cfg_err=0
+20260926T043834Z 0dsoku sent=179/179 complete=True level=default cfg_err=0
+20260926T050833Z 0dspyu sent=177/177 complete=True level=default cfg_err=0
+20260926T053830Z 0dsrct sent=177/177 complete=True level=default cfg_err=0
+20260926T060834Z 0dssqt sent=174/174 complete=True level=default cfg_err=0
+20260926T063819Z 0dsu4t sent=173/173 complete=True level=default cfg_err=0
+20260926T070826Z 0dsvit sent=176/176 complete=True level=default cfg_err=0
+20260926T073821Z 0dswws sent=176/176 complete=True level=default cfg_err=0
+20260926T080832Z 0dsyb2 sent=173/173 complete=True level=default cfg_err=0
+20260926T083825Z 0dszp2 sent=177/177 complete=True level=default cfg_err=0
+20260926T090832Z 0dt131 sent=179/179 complete=True level=default cfg_err=0
+20260926T093832Z 0dt2h1 sent=178/178 complete=True level=default cfg_err=0
+20260926T100832Z 0dt3v1 sent=180/180 complete=True level=default cfg_err=0
+20260926T103832Z 0dt590 sent=178/178 complete=True level=default cfg_err=0
+20260926T110832Z 0dt6n0 sent=182/182 complete=True level=default cfg_err=0
+20260926T113832Z 0dt810 sent=177/177 complete=True level=default cfg_err=0
+20260926T120832Z 0dt9f0 sent=179/179 complete=True level=default cfg_err=0
+20260926T123831Z 0dtasz sent=182/182 complete=True level=default cfg_err=0
+20260926T130831Z 0dtc6z sent=180/180 complete=True level=default cfg_err=0
+20260926T133831Z 0dtdkz sent=182/182 complete=True level=default cfg_err=0
+20260926T140831Z 0dteyy sent=186/186 complete=True level=default cfg_err=0
+20260926T143831Z 0dtgcu sent=184/184 complete=True level=default cfg_err=0
+20260926T150835Z 0dthqu sent=183/183 complete=True level=default cfg_err=0
+20260926T153835Z 0dtj4t sent=185/185 complete=True level=default cfg_err=0
+20260926T160835Z 0dtkit sent=184/184 complete=True level=default cfg_err=0
+20260926T163835Z 0dtlwt sent=186/186 complete=True level=default cfg_err=0
+20260926T170835Z 0dtnat sent=183/183 complete=True level=default cfg_err=0
+20260926T173834Z 0dtoos no-transmit-line level=default cfg_err=0
+--- journal
+--- cache-test commands in cron logs
+[CMD] applied id=26101 twn=2 st={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 2, 'tmz': 
+[CMD] applied id=26102 twn=0 st={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 

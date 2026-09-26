@@ -1,0 +1,224 @@
+{
+ "bm_commands": {
+  "defer_acks_during_transmit": false,
+  "enabled": true,
+  "post_transmit_listen_s": 150.0,
+  "state_path": "/home/pi/BM_Devel_Pi/bm_command_state.json",
+  "topic": "bmcam/cmd"
+ },
+ "bm_serial": {
+  "image_buffer_size": 384,
+  "image_transmit_delay_seconds": 1.3,
+  "network_type": 2
+ },
+ "camera_controls_island": {
+  "enabled": true,
+  "focus": {
+   "enabled": true,
+   "lens_position": 1.82,
+   "mode": "auto"
+  }
+ },
+ "media_key": {
+  "enabled": true,
+  "retain_days": 14.0,
+  "sent_dir": "{TMP}/app/sent",
+  "source": "yaml",
+  "state_path": "{TMP}/app/bm_media_key_last.txt"
+ },
+ "network": {
+  "ap_fallback_s": 90,
+  "ap_timeout_min": 60,
+  "default": "nereus_hq"
+ },
+ "network_type": "02",
+ "print_config": [
+  "[BOOT] main_entry uptime_s=na",
+  "[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state.json (loaded from defaults)",
+  "[RC] Sprint08 progressive-JPEG RC \u2014 resolved settings",
+  "[RC] config_path={TMP}/camera_schedule.yaml",
+  "[RC] capture_mode=video (Sprint15 video path selected)",
+  "[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]",
+  "[RC] cycle budget: max_run_time_min=8 (480 s)",
+  "[RC] message cap: 195 msgs (field-tested hard cap)",
+  "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3",
+  "[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting",
+  "[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml",
+  "[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml",
+  "[RC] transmit_phase (C2): OFF (unscheduled transmit)",
+  "[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam",
+  "[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0",
+  "[VID] geometry preset=wide_1080p_lean (source=preset)",
+  "[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)",
+  "[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)",
+  "[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000",
+  "[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)",
+  "[VID] fps: 15",
+  "[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days",
+  "[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0",
+  "[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos",
+  "[VID] ui: enabled=True port=8080",
+  "[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml"
+ ],
+ "print_config_exit": 0,
+ "resolved": {
+  "budget_messages_if_transmit_only": 369,
+  "budget_seconds": 480,
+  "capture_backend": "rpicam",
+  "capture_mode": "video",
+  "config_path": "{TMP}/camera_schedule.yaml",
+  "crop_native_xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "enforce_time_window": true,
+  "ladder_source": "explicit",
+  "max_run_time_min": 8,
+  "media_key_cfg": {
+   "enabled": true,
+   "retain_days": 14.0,
+   "sent_dir": "{TMP}/app/sent",
+   "source": "yaml",
+   "state_path": "{TMP}/app/bm_media_key_last.txt"
+  },
+  "message_cap": 195,
+  "output_size": [
+   1000,
+   562
+  ],
+  "output_width": 1000,
+  "pacing_chunk_b64_chars": 384,
+  "pacing_delay_seconds": 1.3,
+  "pacing_source": "yaml",
+  "power_halt_dry_run": false,
+  "power_halt_enabled": true,
+  "power_halt_mode": "halt",
+  "power_halt_script_path": "/home/pi/BM_Devel_Pi/tuned_halt.sh",
+  "power_halt_source": "yaml",
+  "q_max": 90,
+  "q_min": 9,
+  "q_step": 2,
+  "quality_ladder": [
+   90,
+   80,
+   70,
+   60,
+   50,
+   40,
+   30,
+   25,
+   20,
+   15,
+   13,
+   11,
+   9
+  ],
+  "source_height": 2592,
+  "source_image_path": null,
+  "source_jpeg_quality": 95,
+  "source_width": 4608,
+  "timezone": "America/Los_Angeles",
+  "transmit_phase_cfg": {
+   "enabled": false,
+   "grid_seconds": 300.0,
+   "max_wait_s": 300.0,
+   "post_boundary_guard_s": 30.0,
+   "pre_boundary_guard_s": 20.0
+  },
+  "transmit_window": "00:00-00:00",
+  "window_end": "00:00",
+  "window_source": "yaml",
+  "window_start": "00:00"
+ },
+ "target": "device_profiles/bmcam003/live_20260925/camera_schedule.yaml",
+ "transmit_phase": {
+  "enabled": false,
+  "grid_seconds": 300.0,
+  "max_wait_s": 300.0,
+  "post_boundary_guard_s": 30.0,
+  "pre_boundary_guard_s": 20.0
+ },
+ "uart": [
+  "/dev/ttyAMA0",
+  115200
+ ],
+ "video": {
+  "bitrate_mbps": 6.0,
+  "clip_minutes": 5.0,
+  "crop_native_xywh": null,
+  "dir": "/home/pi/BM_Devel_Pi/videos",
+  "encoder": {
+   "denoise": "",
+   "intra": 0,
+   "level": "",
+   "profile": "",
+   "sharpness": 1.0
+  },
+  "fps": 15,
+  "geometry": {
+   "available_px": [
+    2304,
+    1296
+   ],
+   "crop_native_xywh": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "fps": 15,
+   "mode_arg": "2304:1296:10:P",
+   "mode_fov_xywh": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "mode_wh": [
+    2304,
+    1296
+   ],
+   "notes": [],
+   "output_wh": [
+    1920,
+    1080
+   ],
+   "preset": "wide_1080p_lean",
+   "roi": "0.000000,0.000000,1.000000,1.000000",
+   "scale": 0.833,
+   "sensor_mode": "2304x1296",
+   "source": "preset"
+  },
+  "output": null,
+  "preset": "wide_1080p_lean",
+  "sensor_mode": null,
+  "session_minutes": 0,
+  "source": "yaml",
+  "storage": {
+   "max_used_pct": 75.0,
+   "min_free_gb": 10.0,
+   "ring_dry_run": false
+  },
+  "ui": {
+   "enabled": true,
+   "port": 8080
+  }
+ },
+ "video_tx": {
+  "duration_s": 5.0,
+  "enabled": true,
+  "fps": 10,
+  "keyframe_repeat_max": 30,
+  "lead_in_s": 2.0,
+  "message_cap": 190,
+  "output": "480x270",
+  "output_wh": [
+   480,
+   270
+  ],
+  "preset": "medium",
+  "source": "yaml"
+ }
+}

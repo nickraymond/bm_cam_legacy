@@ -32,6 +32,7 @@ apply from cached state on the NEXT boot.
 
 CLI safety ladder (guardrail sequence: capture-only -> compress-only -> transmit):
   --print-config            resolve + print settings, no cycle (P0 behavior)
+  --print-config --json     every config loader's output as one JSON line (Sprint26 S2b)
   (default)                 capture + encode + report the send plan; NO BM bus
   --capture-only            stop after native capture + prepare
   --compress-only NATIVE    skip camera; run the ladder on an existing native
@@ -902,6 +903,13 @@ def main(argv=None, **cycle_overrides):
                         help="Path to camera_schedule.yaml")
     parser.add_argument("--print-config", action="store_true",
                         help="Resolve + print settings, run nothing")
+    parser.add_argument("--config-format", choices=("auto", "v1", "v2"), default="auto",
+                        help="auto (default): config v2 when camera_config.yaml sits "
+                             "beside --config-path, else the v1 file; v1/v2 force one "
+                             "(Sprint26 S2d)")
+    parser.add_argument("--json", action="store_true",
+                        help="With --print-config: print every config loader's output "
+                             "as one JSON line (last line of stdout), run nothing")
     parser.add_argument("--capture-only", action="store_true",
                         help="Stop after native capture + prepare (no encode/transmit)")
     parser.add_argument("--compress-only", metavar="NATIVE_JPG", default=None,
@@ -921,6 +929,40 @@ def main(argv=None, **cycle_overrides):
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
     args = parser.parse_args(argv)
+    # Sprint26 S2d (PLAN_S2.md G2): on a config-v2 unit the v1 loaders below
+    # read a v1-shaped render of camera_config.yaml on tmpfs; with no v2 file
+    # nothing changes. Never raises: a bad v2 file falls back (v1 file, then
+    # last-known-good, then safe-minimal = nothing to do this boot).
+    if args.config_format != "v1":
+        import config_v2
+        if args.config_format == "v2" and not os.path.exists(os.path.join(
+                os.path.dirname(os.path.abspath(args.config_path)), config_v2.V2_NAME)):
+            print(f"[RC][ERROR] --config-format v2: no {config_v2.V2_NAME} beside "
+                  f"{args.config_path}", file=sys.stderr)
+            return 2
+        try:
+            selected, _boot = config_v2.select_for_legacy_runtime(
+                args.config_path, args.config_format, persist=not args.print_config)
+        except Exception as exc:      # never brick: the v1 file, as before S2
+            print(f"[CFG][ERR] config v2 selection failed ({type(exc).__name__}: {exc}); "
+                  f"running the v1 file {args.config_path}")
+            selected = args.config_path
+        if selected is None:
+            print("[RC] SAFE-MINIMAL: no usable config; nothing to do this boot.")
+            return 0
+        args.config_path = selected
+    if args.json:
+        # Sprint26 S2b: machine-readable config for deploy/migration parity.
+        # Before any other step, so it has zero side effects (no network
+        # default, no daemon); exit 2 when the stills settings do not resolve,
+        # like the text --print-config.
+        if not args.print_config:
+            print("[RC][ERROR] --json requires --print-config", file=sys.stderr)
+            return 2
+        import config_dump
+        dump = config_dump.collect(args.config_path)
+        print(config_dump.to_json_line(dump))
+        return 2 if "error" in dump["resolved"] else 0
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:

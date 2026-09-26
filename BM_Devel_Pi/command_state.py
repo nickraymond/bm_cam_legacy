@@ -77,6 +77,13 @@ from command_tables import (
 )
 
 STATE_SCHEMA = "bm_command_state_v1"
+# Sprint26 S2 (PLAN_S2.md G1): on a config-v2 unit the same v8 body lives in
+# the `v8` section of bm_command_state_v2.json. Every other top-level field of
+# that file (boot counter, v2 overlay, result cache, high-water marks, ...) is
+# kept byte-for-byte on save: this class owns only the v8 section until S4.
+STATE_SCHEMA_V2 = "bm_command_state_v2"
+V2_SKELETON = {"boot_counter": 0, "overlay": {}, "guarded": {}, "result_cache": {},
+               "high_water": {}}
 
 DEFAULT_STATE_PATH = os.environ.get(
     "BM_COMMAND_STATE_PATH",
@@ -116,6 +123,9 @@ class CommandState:
 
     def __init__(self, path=None):
         self.path = path or DEFAULT_STATE_PATH
+        # v2 file: by name for a new file, by schema for an existing one.
+        self.is_v2 = os.path.basename(self.path).endswith("_v2.json")
+        self.v2_fields = dict(V2_SKELETON)
         self.settings = dict(DEFAULT_SETTINGS)
         self.touched = set()
         self.applied_ids = []
@@ -144,6 +154,12 @@ class CommandState:
             return
 
         self.load_info["source"] = "file"
+
+        if data.get("schema") == STATE_SCHEMA_V2:
+            self.is_v2 = True
+            self.v2_fields = {k: v for k, v in data.items()
+                              if k not in ("schema", "tables_version", "v8")}
+            data = data.get("v8") if isinstance(data.get("v8"), dict) else {}
 
         raw_settings = data.get("settings")
         if not isinstance(raw_settings, dict):
@@ -221,7 +237,10 @@ class CommandState:
         semantics is not expected, but rejects also don't change state,
         so recording them would only bloat the file).
         """
+        journal = None
         if cmd in SETTINGS_COMMANDS:
+            if self.is_v2:
+                journal = (cmd, self.settings[cmd] if cmd in self.touched else None, value)
             self.settings[cmd] = value
             self.touched.add(cmd)
         elif cmd in ACTION_COMMANDS:
@@ -237,6 +256,17 @@ class CommandState:
             self.applied_ids.append(command_id)
             self.applied_ids = self.applied_ids[-DEDUPE_KEEP:]
         self.save()
+        if journal is not None:
+            # Sprint26 S2e: a config-v2 unit journals every v8 setting change
+            # AFTER the state is persisted (the state is the truth; a journal
+            # failure is logged, never fatal). old None = was not overridden.
+            try:
+                import config_journal
+                config_journal.append(config_journal.path_beside(self.path), "v8",
+                                      key=f"v8.{journal[0]}", old=journal[1],
+                                      new=journal[2], cid=command_id)
+            except Exception as exc:   # the state IS saved: never turn that into an err ack
+                print(f"[CMD][WARN] config journal not written: {exc}")
 
     def _record_heals(self, command_id, value):
         """rsd: {"x": 1} cancels every pending heal; {"h": [[key, ns], ...]}
@@ -292,21 +322,22 @@ class CommandState:
     # ------------------------------------------------------------------
 
     def save(self):
-        """Atomic write: tmp file in the same dir + fsync + os.replace.
+        """Atomic write (atomic_io): unique tmp + fsync + os.replace + dir fsync.
         Raises on I/O failure — the caller decides whether an unpersisted
         apply should still ack (daemon policy, §2)."""
-        payload = {
-            "schema": STATE_SCHEMA,
-            "tables_version": TABLES_VERSION,
+        body = {
             "settings": {cmd: self.settings[cmd] for cmd in SETTINGS_COMMANDS},
             "touched": sorted(self.touched),
             "applied_ids": list(self.applied_ids),
             "pending_trigger": self.pending_trigger,
             "pending_heals": list(self.pending_heals),
         }
-        tmp_path = f"{self.path}.tmp"
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, separators=(",", ":"))
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp_path, self.path)
+        if self.is_v2:
+            payload = dict(self.v2_fields, schema=STATE_SCHEMA_V2,
+                           tables_version=TABLES_VERSION, v8=body)
+        else:
+            payload = dict(schema=STATE_SCHEMA, tables_version=TABLES_VERSION, **body)
+        # Sprint26 S2e: unique tmp name + fsync + rename + fsync of the
+        # directory (atomic_io); the bytes are the same as before.
+        import atomic_io
+        atomic_io.write_text(self.path, json.dumps(payload, separators=(",", ":")))

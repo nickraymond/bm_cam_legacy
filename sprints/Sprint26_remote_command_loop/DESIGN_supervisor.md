@@ -533,6 +533,7 @@ Every other commit must leave the goldens byte-identical, including the port-ope
 | W5 | video services `trg` | S3 |
 | W6 | fresh time read per action (buffer cleared, clock stepped only on drift) | S3 |
 | W7 | `exposure.mode` (`rem`) and the `*.enabled` switches reshaped | S2 or later, never inside a parity commit |
+| W9 | *(proposed, O11)* keyed chunk prefix carries the total, `<I{key}.{i}/{M}>`, so a lost START no longer makes a media unhealable | next part, if O11 is accepted |
 | W8 | slim ack; `<CF>`; `<WS>` `up=`/`cfg=`/`a=idle`; START `cfg` (core field) + `tg/r/m/d` (worst-case START ≤ 285 B, tested) | S4 |
 
 ### 8.3 Stages and commits
@@ -586,6 +587,7 @@ and restoring it is part of the rollback command written into each stage's `runs
 | O8 | Until nvd parses `<CF>`, `get` answers are only in raw Sofar data | acceptable until S6 |
 | O9 | Hotspot password? | **RULED (Nick, 2026-09-24): no password by default** (as today, D-S16-6); revisit if customers ask. |
 | O10 | Hotspot on every boot? | **RULED (Nick, 2026-09-24): a setting, `network.ap_boot_min`, default 5.** The AP comes up at boot and turns off if nobody logs in within 5 min; 0 disables it. Energy measured in S7. |
+| O11 | **Proposed deviation (Nick, 2026-09-26; to rule at the start of the next part): self-describing chunks, "N of M".** S2 soak finding F3: when a media's START is lost (Spotter queue-full rejection), the backend never learns how many chunks to expect (`length_unknown`), so the heal loop skips that media forever (bmcam004 `0dtdkz`). Proposal: every keyed chunk carries its total, e.g. `<I{key}.{i}/{M}>` instead of `<I{key}.{i}>`, so any one chunk tells the backend the length and heals can proceed without START. To settle: the byte cost (~2–4 B × ~185 chunks inside the 384-char budget), whether M counts data chunks only, keyframe repeats and heal re-sends (must stay byte-identical to the original chunk, SPEC_resend_heal), and the nvd decoder change (additive: the old prefix must still parse, §11). It is a deliberate wire change: its own W-item (W9) with a reviewed golden diff; bmcam001/002 keep the old wire. Alternative if rejected: let `rsd` request the header (`h` for START). | open |
 
 ## 11. Guardrails (in addition to KICKOFF §6)
 

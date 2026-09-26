@@ -36,6 +36,12 @@ Example:
             created) if absent — for the Sprint11 islands a Sprint10-era
             deployed config will not have.
 
+READ-ONLY since Sprint26 S2 (DESIGN_supervisor.md §5 "One mutation path"):
+the YAML changes only by deploy or migrate. --dry-run still shows what a patch
+would change. Writing is refused, always on a config-v2 unit (camera_config.yaml
+beside the file: the YAML no longer governs), and on a v1 unit unless
+--force-v1-write (a pre-S2 unit that cannot be migrated yet).
+
 Known limitations: flat two-level keys only (BLOCK.KEY). Nested keys such as
 image_pipeline.camera_controls.LensPosition are out of scope by design —
 this is a config nudger, not a YAML editor.
@@ -126,6 +132,8 @@ def main(argv=None):
     ap.add_argument("--ensure", action="append", default=[], metavar="BLOCK.KEY=VAL",
                     help="key/block is created if absent")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--force-v1-write", action="store_true",
+                    help="write a v1 unit's YAML anyway (no camera_config.yaml beside it)")
     args = ap.parse_args(argv)
 
     if not os.path.exists(args.path):
@@ -158,6 +166,18 @@ def main(argv=None):
     if text == original:
         print("[PATCH] no change needed (all values already correct)")
         return 0
+
+    v2 = os.path.join(os.path.dirname(os.path.abspath(args.path)), "camera_config.yaml")
+    if os.path.exists(v2):
+        print(f"[PATCH][ERROR] {v2} exists: this unit runs config v2 and {args.path} no longer "
+              "governs it. File NOT written. Change settings with a command, or re-migrate "
+              "(tools/config_migrate_v1_v2.py).", file=sys.stderr)
+        return 1
+    if not args.force_v1_write:
+        print("[PATCH][ERROR] read-only since Sprint26 S2: the YAML changes by deploy or "
+              "migrate only. File NOT written (--force-v1-write for a pre-S2 v1 unit).",
+              file=sys.stderr)
+        return 1
 
     backup = f"{args.path}.bak_{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}"
     shutil.copy2(args.path, backup)

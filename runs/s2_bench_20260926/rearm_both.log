@@ -1,0 +1,10 @@
+[rearm] bmcam003 reachable 00:47:38
+[rearm] bmcam003 crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+4c4fe8fe8897
+[rearm] bmcam003 halt issued 00:47:39
+[rearm] bmcam004 reachable 00:47:53
+[rearm] bmcam004 crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+9771d535e694
+[rearm] bmcam004 halt issued 00:46:47
+[rearm] bmcam003 dark 00:48:08
+[rearm] bmcam004 dark 00:48:23

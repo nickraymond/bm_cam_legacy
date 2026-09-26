@@ -49,6 +49,15 @@ BM_Devel_Pi/rc_command_hooks.py
 BM_Devel_Pi/rc_media_key.py        # Sprint25 S4 keyed media (was missing: import crash on deploy)
 BM_Devel_Pi/rc_heal.py             # Sprint25 S5 rsd heals + <HL>
 
+# Sprint26 S2 config v2 (registry + v1 reader; the migrator runs on the unit)
+BM_Devel_Pi/config_registry.py     # every setting: type, default, guard, v1 source
+BM_Devel_Pi/config_v1_reader.py    # v1 YAML -> v2 values, each key via its own v1 loader
+BM_Devel_Pi/config_dump.py         # --print-config --json (deploy + migration parity)
+BM_Devel_Pi/config_migrate.py      # v1 -> v2 migration logic (tools/config_migrate_v1_v2.py)
+BM_Devel_Pi/atomic_io.py           # crash-safe replace: unique tmp, fsync, rename, fsync dir
+BM_Devel_Pi/config_v2.py           # v2 loader, boot fallback chain, v1 render for the legacy runtime
+BM_Devel_Pi/config_journal.py      # config_journal.jsonl: 2 x 250 lines, fsync, torn-line tolerant
+
 # Sprint15 video mode (config-gated by capture_mode: video; the stills
 # path never imports these, but a video unit fails its boot WITHOUT them
 # — the bmcam003 2026-08-01 missing-module lesson)

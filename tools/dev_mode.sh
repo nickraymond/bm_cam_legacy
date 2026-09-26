@@ -26,22 +26,29 @@
 
 set -uo pipefail
 
-DST="/home/pi/BM_Devel_Pi"
-STATE="$DST/bm_command_state.json"
+DST="${BMCAM_DST:-/home/pi/BM_Devel_Pi}"
+# Sprint26 S2: a config-v2 unit (camera_config.yaml present) keeps the command
+# state in bm_command_state_v2.json (the v8 section). The v1 file is then only
+# the rollback copy: writing hlt there would change nothing the unit runs.
+if [[ -f "$DST/camera_config.yaml" ]]; then
+    STATE="$DST/bm_command_state_v2.json"
+else
+    STATE="$DST/bm_command_state.json"
+fi
 CRON_BACKUP="/home/pi/crontab_before_dev_mode.txt"
 MODE="${1:-status}"
 
 record_hlt() {
     # Record a local hlt command through the SAME CommandState machinery
     # the daemon uses (id = epoch seconds, unique enough for dedupe).
-    python3 - "$1" <<'PYEOF'
+    python3 - "$1" "$DST" "$STATE" <<'PYEOF'
 import sys, time
-sys.path.insert(0, "/home/pi/BM_Devel_Pi")
+sys.path.insert(0, sys.argv[2])
 from command_state import CommandState
 value = int(sys.argv[1])
-state = CommandState(path="/home/pi/BM_Devel_Pi/bm_command_state.json")
+state = CommandState(path=sys.argv[3])
 state.record(int(time.time()) & 0xFFFFFFFF, "hlt", value)
-print(f"[DEV-MODE] recorded hlt={value} "
+print(f"[DEV-MODE] recorded hlt={value} in {state.path} "
       f"(settings={state.settings}, touched={sorted(state.touched)})")
 PYEOF
 }
@@ -52,10 +59,12 @@ show_status() {
     else
         echo "[DEV-MODE] boot capture : disarmed"
     fi
-    python3 - <<'PYEOF'
-import json
+    python3 - "$STATE" <<'PYEOF'
+import json, sys
 try:
-    d = json.load(open("/home/pi/BM_Devel_Pi/bm_command_state.json"))
+    d = json.load(open(sys.argv[1]))
+    if d.get("schema") == "bm_command_state_v2":
+        d = d.get("v8") or {}
     hlt = d.get("settings", {}).get("hlt", 0)
     names = {0: "config file governs", 1: "halt ON (real)",
              2: "halt DRY-RUN", 3: "halt OFF (developer mode)"}

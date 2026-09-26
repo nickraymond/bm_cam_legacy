@@ -1,0 +1,6 @@
+2026-09-25T22:30:09Z start hosts=bmcam003 bmcam004 bmcam000 deadline=23:20:00Z
+2026-09-25T23:00:43Z bmcam004 reachable; pulling
+2026-09-25T23:00:47Z bmcam004 DONE
+2026-09-25T23:00:59Z bmcam003 reachable; pulling
+2026-09-25T23:01:03Z bmcam003 DONE
+2026-09-25T23:20:01Z end; not reached: bmcam000

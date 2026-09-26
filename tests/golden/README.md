@@ -14,6 +14,10 @@ What is pinned:
 - **`settings/<target>/settings.json`**: every config loader's resolved output
   for each repo profile, plus bmcam003 under each v1 command-state fixture (the
   S2 migration must reproduce these).
+- **`--print-config --json` agreement** (Sprint26 S2b): each settings run also
+  writes `json_check.json` (not recorded) and the test fails if the runtime's
+  JSON probe disagrees with any loader above. Deploy and migration parity
+  (S2f) use that probe on the unit.
 
 The real runtime runs unmodified; `world.py` fakes everything outside the process
 (serial, subprocess, clock, host identity). Each scenario runs in its own

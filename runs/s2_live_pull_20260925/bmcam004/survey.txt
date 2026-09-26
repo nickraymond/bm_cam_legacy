@@ -1,0 +1,29 @@
+bmcam004
+2026-09-25T23:00:45Z
+ 23:00:45 up 0 min,  1 user,  load average: 1.53, 0.39, 0.13
+--- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+--- runtime dir (yaml/json/txt)
+-rw-rw-r-- 1 pi pi  437 Sep 25 20:11 /home/pi/BM_Devel_Pi/bm_command_state.json
+-rw-rw-r-- 1 pi pi    6 Sep 25 22:00 /home/pi/BM_Devel_Pi/bm_media_key_last.txt
+-rw-rw-r-- 1 pi pi 7867 Sep 24 18:10 /home/pi/BM_Devel_Pi/camera_schedule.yaml
+-rw-rw-r-- 1 pi pi   13 Sep 24 02:56 /home/pi/BM_Devel_Pi/software_sha.txt
+--- sha256
+18d6dbe227ae15e0879d3d14ebd30eb8bdb420dd0f3a91f5e6fddb228b175954  camera_schedule.yaml
+5671478427b6786c91dfead5c2019c03e1c4295949db74801ecb2828ca762ff5  bm_command_state.json
+--- deploy_history tail
+20260818T045902Z 4132c31a3289 mode=update profile=none cron=true
+20260819T202049Z 681ddb0d6c6b mode=update profile=none cron=false
+20260921T184646Z 1ff1ba719011 mode=update profile=none cron=false
+20260923T233943Z 3acc55e00341 mode=update profile=none cron=false
+20260924T025653Z f8a1bbf56929 mode=update profile=none cron=false
+--- python/yaml
+3.13.5 6.0.2
+--- repo
+f8a1bbf Sprint25 S5: rsd heals — parser, pending list, daemon dispatch, heal slot, <HL>
+feature/s5-rsd-heal
+--- camera procs
+591 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+592 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+594 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+632 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit

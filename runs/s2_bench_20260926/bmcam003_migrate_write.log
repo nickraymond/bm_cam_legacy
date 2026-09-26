@@ -1,0 +1,28 @@
+[MIGRATE] app=/home/pi/BM_Devel_Pi config=/home/pi/BM_Devel_Pi/camera_schedule.yaml state=(v1 loader default) out_dir=/home/pi/BM_Devel_Pi mode=WRITE
+[MIGRATE] wrote /home/pi/BM_Devel_Pi/bm_command_state_v2.json
+[MIGRATE] wrote /home/pi/BM_Devel_Pi/camera_config.yaml
+[MIGRATE] wrote /home/pi/BM_Devel_Pi/config_migration_report.md
+[MIGRATE] journaled in /home/pi/BM_Devel_Pi/config_journal.jsonl (hash 81e05dee)
+[MIGRATE] OK. v1 files untouched: rollback = redeploy the old SHA.
+-rw-r--r-- 1 pi pi  510 Sep 26 00:17 bm_command_state_v2.json
+-rw-r--r-- 1 pi pi 6066 Sep 26 00:17 camera_config.yaml
+-rw-r--r-- 1 pi pi  189 Sep 26 00:17 config_journal.jsonl
+-rw-r--r-- 1 pi pi 3480 Sep 26 00:17 config_migration_report.md
+{"h":"81e05dee","id":null,"key":"*","new":"config v2","note":"from /home/pi/BM_Devel_Pi/camera_schedule.yaml sha256 c5376fa8d06ea5bf","old":null,"src":"migrate","t":"2026-09-26T00:17:22Z"}
+[PARITY] print-config text OK (25 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash 81e05dee
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] installed 45 files; staging dir removed
+[RC-DEPLOY] service key CREATED: /home/pi/.config/nereus/service.key (mode 600). Copy it to Nereus NOW, then keep it off the repo:
+[RC-DEPLOY] config v2 effective hash: 81e05dee
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=81e05dee hv=1 registry=v1 overlay=0 key(s)
+[RC-DEPLOY] deploy complete
+total 12
+drwx------ 2 pi pi 4096 Sep 26 00:17 .
+drwxr-xr-x 4 pi pi 4096 Sep 26 00:17 ..
+-rw------- 1 pi pi   65 Sep 26 00:17 service.key
+20260926T001722Z 4c4fe8fe8897 mode=update profile=none cron=false cfg=81e05dee
+{"h":"81e05dee","id":null,"key":"*","new":"config v2","note":"from /home/pi/BM_Devel_Pi/camera_schedule.yaml sha256 c5376fa8d06ea5bf","old":null,"src":"migrate","t":"2026-09-26T00:17:22Z"}
+{"h":"81e05dee","id":null,"key":"*","new":"4c4fe8fe8897","old":null,"src":"deploy","t":"2026-09-26T00:17:39Z"}

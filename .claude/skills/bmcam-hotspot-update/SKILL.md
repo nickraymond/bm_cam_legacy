@@ -102,7 +102,8 @@ it transmits garbage or holds the camera. Hard-won safety rules:
 ## Phase 4 — the update
 
 Use `tools/rc_field_update.sh` (stage via `/tmp`, never scp into the repo
-tree) per the bmcam-field-update skill. Extra facts from bmcam001:
+tree, `--profile` REQUIRED) per the bmcam-field-update skill. Extra facts
+from bmcam001:
 
 - A unit still on the LEGACY runtime (cron → `run_capture_cycle.sh` →
   `main_pi_camera.py`, old YAML schema with `image_pipeline`) needs MORE than
@@ -167,7 +168,9 @@ After the hotspot drops, the unit going dark on Tailscale is NORMAL.
 | bmcam003 | SPOT-33507C | spotter_utc | bench; production config 2026-07-31 |
 
 Halt status: bmcam000/003 run REAL halt now; bmcam001/002 still have
-halt disabled on-device — apply at the next hotspot session:
+halt disabled on-device — apply at the next hotspot session (v1 units only:
+on a config-v2 unit, `camera_config.yaml` beside the YAML, this edit changes
+nothing the unit runs — re-migrate instead):
 `ssh pi@bmcamNNN 'cd /home/pi/BM_Devel_Pi && cp camera_schedule.yaml \
   camera_schedule.yaml.before_halt_enable && sed -i \
   -e "/^power_halt:/,/^[a-z_]/{s/enabled: false/enabled: true/; \

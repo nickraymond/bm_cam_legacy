@@ -1,0 +1,41 @@
+--- v8 section
+settings {'roi': 5, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 3, 'twn': 2, 'tmz': 0}
+touched ['hlt', 'roi', 'twn']
+applied_ids [100004, 100005, 928000, 928001, 26001, 26002, 26003, 26004]
+v2 fields kept: {'boot_counter': 0, 'high_water': {}, 'result_cache': {}, 'migrated_from': {'path': '/home/pi/BM_Devel_Pi/bm_command_state.json', 'sha256': '89301c2652fb06d732cccee6240238ef2e86efd41c99188f51e8b403e98dc3b8'}}
+--- journal
+{"h":null,"id":26001,"key":"v8.hlt","new":3,"old":null,"src":"v8","t":"2026-09-26T00:34:44Z"}
+{"h":null,"id":26002,"key":"v8.roi","new":5,"old":null,"src":"v8","t":"2026-09-26T00:34:50Z"}
+{"h":null,"id":26004,"key":"v8.twn","new":2,"old":null,"src":"v8","t":"2026-09-26T00:35:09Z"}
+--- hash after
+[CFG] config v2 /home/pi/s2bench/cfg_cmd/camera_config.yaml media=video hash=0c96fc56 hv=1 registry=v1 overlay=5 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] override crop_native_xywh: (1504, 846, 1600, 900) -> (1904, 1071, 800, 450) (roi=5)
+[CMD] override power_halt (enabled, dry_run): (True, True) -> (False, True) (hlt=3)
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] power_halt: enabled=False dry_run=True mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=command hlt=3
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=command twn=2
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1904, 1071, 800, 450) output=800x450 backend=rpicam
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+--- listener
+[CMD] ack sent: {"id":26001,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":0,"tmz":0}}
+[CMD] ack sent: {"id":26001,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":0,"tmz":0}}
+[CMD] applied id=26003 ping=0 st={'roi': 5, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 3, 'twn': 0, 'tmz': 0}
+[CMD] duplicate id=26003 acked, not re-applied
+[CMD] duplicate id=26003 acked, not re-applied
+[BENCH] cmd id=26003 c=ping v=0 action=applied uptime_s=1452.53 utc=2026-09-26T00:35:02.964Z
+[BENCH] cmd id=26003 c=ping v=0 action=duplicate uptime_s=1452.53 utc=2026-09-26T00:35:02.964Z
+[BENCH] cmd id=26003 c=ping v=0 action=duplicate uptime_s=1452.53 utc=2026-09-26T00:35:02.964Z
+[CMD] ack sent: {"id":26003,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":0,"tmz":0}}
+[CMD] ack sent: {"id":26003,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":0,"tmz":0}}
+[CMD] ack sent: {"id":26003,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":0,"tmz":0}}
+[CMD] applied id=26004 twn=2 st={'roi': 5, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 3, 'twn': 2, 'tmz': 0}
+[CMD] duplicate id=26004 acked, not re-applied
+[CMD] duplicate id=26004 acked, not re-applied
+[BENCH] cmd id=26004 c=twn v=2 action=applied uptime_s=1458.57 utc=2026-09-26T00:35:09.008Z
+[BENCH] cmd id=26004 c=twn v=2 action=duplicate uptime_s=1458.57 utc=2026-09-26T00:35:09.008Z
+[BENCH] cmd id=26004 c=twn v=2 action=duplicate uptime_s=1458.58 utc=2026-09-26T00:35:09.009Z
+[CMD] ack sent: {"id":26004,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":2,"tmz":0}}
+[CMD] ack sent: {"id":26004,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":2,"tmz":0}}
+[CMD] ack sent: {"id":26004,"ok":1,"st":{"roi":5,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":3,"twn":2,"tmz":0}}

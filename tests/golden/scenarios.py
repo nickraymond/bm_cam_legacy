@@ -146,6 +146,24 @@ SCENARIOS = {
     },
 }
 
+# --- Sprint26 S2: bmcam003's live config (pulled read-only 2026-09-25) ------------------
+# The exact file the S2 bench migrates (video_tx on, keyed wire, all-day window, 384/1.3
+# pacing, 190-msg cap). Paths redirected into the run's temp dir; recorder UI off.
+LIVE003 = "device_profiles/bmcam003/live_20260925/camera_schedule.yaml"
+SCENARIOS["video_live_bmcam003"] = {
+    "kind": "video", "utc": IN_WINDOW, "profile": LIVE003,
+    "edits": [(None, "video:", 'video:\n  dir: "{TMP}/videos"'),
+              ("  ui:", "    enabled: true", "    enabled: false"),
+              ("power_halt:", HALT_LINE, HALT_TMP),
+              ("bm_commands:", "  state_path: /home/pi/BM_Devel_Pi/bm_command_state.json",
+               STATE_TMP)],
+    "rules": [
+        {"when": "on_sub", "payload": {"id": 521, "c": "ping"}},
+        {"when": "after_tx", "n": 20, "payload": {"id": 522, "c": "hlt", "v": 3}},
+    ],
+    "notes": "bmcam003 as live on 2026-09-25: one keyed clip at 190 msgs; hlt 3 mid-burst",
+}
+
 # --- field units -----------------------------------------------------------------------
 # bmcam001/002 run `main` with commands off and cannot be updated until the mote
 # cache lands (DESIGN §11): their wire is what the S6 backend must keep ingesting.
@@ -167,6 +185,10 @@ SETTINGS_PROFILES = [
     "device_profiles/bmcam002/camera_schedule.yaml",
     "device_profiles/bmcam003/camera_schedule.yaml",
     "device_profiles/rc_field_template/camera_schedule.yaml",
+    # Sprint26 S2: the bench units' live config, pulled read-only 2026-09-25
+    # (runs/s2_live_pull_20260925/PULL.md) — the migration's source of truth.
+    "device_profiles/bmcam003/live_20260925/camera_schedule.yaml",
+    "device_profiles/bmcam004/live_20260925/camera_schedule.yaml",
 ]
 
 # ... and bmcam003 under each v1 command-state fixture (the S2 migration must

@@ -1,0 +1,46 @@
+cycle logs since 00:4x: 35
+20260926T004804Z 0dsdh0 sent=185/185 complete=True level=v2 cfg_err=0
+20260926T010833Z 0dsev0 sent=184/184 complete=True level=v2 cfg_err=0
+20260926T013833Z 0dsg90 sent=185/185 complete=True level=v2 cfg_err=0
+20260926T020833Z 0dshmz sent=181/181 complete=True level=v2 cfg_err=0
+20260926T023833Z 0dsj0z sent=181/181 complete=True level=v2 cfg_err=0
+20260926T030833Z 0dskez sent=182/182 complete=True level=v2 cfg_err=0
+20260926T033833Z 0dslsz sent=182/182 complete=True level=v2 cfg_err=0
+20260926T040833Z 0dsn6y sent=182/182 complete=True level=v2 cfg_err=0
+20260926T043833Z 0dsoky sent=180/180 complete=True level=v2 cfg_err=0
+20260926T050832Z 0dspyy sent=180/180 complete=True level=v2 cfg_err=0
+20260926T053832Z 0dsrcx sent=180/180 complete=True level=v2 cfg_err=0
+20260926T060831Z 0dssqx sent=184/184 complete=True level=v2 cfg_err=0
+20260926T063832Z 0dsu4x sent=179/179 complete=True level=v2 cfg_err=0
+20260926T070832Z 0dsviw sent=182/182 complete=True level=v2 cfg_err=0
+20260926T073832Z 0dswww sent=178/178 complete=True level=v2 cfg_err=0
+20260926T080832Z 0dsyaw sent=182/182 complete=True level=v2 cfg_err=0
+20260926T083832Z 0dszow sent=177/177 complete=True level=v2 cfg_err=0
+20260926T090832Z 0dt12v sent=176/176 complete=True level=v2 cfg_err=0
+20260926T093832Z 0dt2gv sent=177/177 complete=True level=v2 cfg_err=0
+20260926T100832Z 0dt3uv sent=181/181 complete=True level=v2 cfg_err=0
+20260926T103832Z 0dt58u sent=180/180 complete=True level=v2 cfg_err=0
+20260926T110832Z 0dt6mu sent=179/179 complete=True level=v2 cfg_err=0
+20260926T113828Z 0dt80u sent=182/182 complete=True level=v2 cfg_err=0
+20260926T120832Z 0dt9et sent=175/175 complete=True level=v2 cfg_err=0
+20260926T123832Z 0dtast sent=181/181 complete=True level=v2 cfg_err=0
+20260926T130832Z 0dtc6t sent=181/181 complete=True level=v2 cfg_err=0
+20260926T133830Z 0dtdl2 sent=181/181 complete=True level=v2 cfg_err=0
+20260926T140832Z 0dtez2 sent=186/186 complete=True level=v2 cfg_err=0
+20260926T143832Z 0dtgd2 sent=186/186 complete=True level=v2 cfg_err=0
+20260926T150832Z 0dthr2 sent=184/184 complete=True level=v2 cfg_err=0
+20260926T153832Z 0dtj51 sent=181/181 complete=True level=v2 cfg_err=0
+20260926T160832Z 0dtkj1 sent=184/184 complete=True level=v2 cfg_err=0
+20260926T163833Z 0dtlx1 sent=184/184 complete=True level=v2 cfg_err=0
+20260926T170831Z 0dtnb0 sent=186/186 complete=True level=v2 cfg_err=0
+20260926T173831Z 0dtop0 no-transmit-line level=v2 cfg_err=0
+--- journal
+{"h":"81e05dee","id":null,"key":"*","new":"config v2","note":"from /home/pi/BM_Devel_Pi/camera_schedule.yaml sha256 c5376fa8d06ea5bf","old":null,"src"
+{"h":"81e05dee","id":null,"key":"*","new":"4c4fe8fe8897","old":null,"src":"deploy","t":"2026-09-26T00:17:39Z"}
+{"h":"81e05dee","id":null,"key":"*","new":"4c4fe8fe8897","old":null,"src":"deploy","t":"2026-09-26T00:44:51Z"}
+{"h":null,"id":26101,"key":"v8.twn","new":2,"old":null,"src":"v8","t":"2026-09-26T01:31:00Z"}
+{"h":null,"id":26102,"key":"v8.twn","new":0,"old":2,"src":"v8","t":"2026-09-26T02:00:59Z"}
+--- cache-test commands in cron logs
+[CMD] applied id=26101 twn=2 st={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 2, 'tmz': 
+[CMD] applied id=26102 twn=0 st={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 
+-rw-r--r-- 1 pi pi 3094 Sep 26 00:48 camera_config.lkg.json

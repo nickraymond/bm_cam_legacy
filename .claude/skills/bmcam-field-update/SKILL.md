@@ -62,18 +62,36 @@ The unit's checkout may predate `tools/rc_field_update.sh` — stage it via
 ```
 scp tools/rc_field_update.sh pi@bmcamNNN:/tmp/
 ssh pi@bmcamNNN 'bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy \
-    --ref development --profile bmcamNNN --leave-disarmed'
+    --ref development --profile bmcamNNN/live_20260925 --leave-disarmed'
 ```
+
+`--profile` is REQUIRED (Sprint26 S2): name the profile you mean. A repo
+profile can be stale (bmcam003's was, 2026-09-25); the live pulls live in
+`device_profiles/<unit>/live_<date>/`.
 
 `--leave-disarmed` is deliberate: the script's own crontab backup was taken
 AFTER the watcher disarmed, so its stage-7 restore would restore a DISARMED
 crontab. Re-arm manually in Phase 3 from the WATCHER's backup.
 
 The script stages: preflight → disarm → git sync to ref → deploy_rc_runtime.sh
-(tar backup + manifest + py_compile + config gates) → surgical bm_serial value
-patch from `device_profiles/<profile>/` → UART gate → validation (print-config
-+ real UART open). Any failure leaves the unit disarmed-safe with rollback
-commands printed.
+→ surgical bm_serial value patch from `device_profiles/<profile>/` → UART gate
+→ validation (print-config + real UART open). Any failure leaves the unit
+disarmed-safe with rollback commands printed.
+
+deploy_rc_runtime.sh (Sprint26 S2f) refuses while cron is ARMED and without
+PyYAML, then STAGES the new runtime in `BM_Devel_Pi.next` and checks it before
+touching the live one: py_compile, media_gid refusal, `--print-config` parity
+old vs staged runtime, and on a config-v2 unit a strict load of
+`camera_config.yaml` + v1-vs-v2 parity. A parity diff stops the deploy with the
+diff printed; pass `--accept-print-config-diff` (rc_field_update passes it
+through) ONLY when that change is the point of the ref.
+
+**Config v2 units** (`camera_config.yaml` beside `camera_schedule.yaml`, from
+S2): stage 4 patches NOTHING (the v1 YAML no longer governs; it is the
+rollback copy) and prints the unit's v2 values next to the profile's. To adopt
+a profile: `tools/config_migrate_v1_v2.py --app /home/pi/BM_Devel_Pi` (dry-run,
+read the report) then `--write --force`. Command state lives in
+`bm_command_state_v2.json`; every change is in `config_journal.jsonl`.
 
 ## Phase 2 — review the stage-4 drift report
 
@@ -138,11 +156,10 @@ does not apply; SSH in any time. What still applies, plus differences:
 - **ffmpeg is a runtime dependency** (mux + posters), NOT preinstalled
   on trixie: `sudo apt-get install -y ffmpeg` before first video run
   (found missing on bmcam003/004, 2026-08-18).
-- **Settings GUI**: `http://<unit>:8080/settings` edits
-  `camera_schedule.yaml` with timestamped backups
-  (`camera_schedule.yaml.before_gui_*`). LEAVE the backups — they are
-  the customer's undo. Changes apply on restart (reboot or runtime
-  restart), not live; the gallery lives at `http://<unit>:8080/`.
+- **Settings GUI**: `http://<unit>:8080/settings` is READ-ONLY from
+  Sprint26 S2 until S7 (saves are refused; WiFi join and restart still
+  work). Old `camera_schedule.yaml.before_gui_*` backups: LEAVE them. The
+  gallery lives at `http://<unit>:8080/`.
 - **Re-arm + verify**: after update, reboot and confirm a `.part` is
   growing in `~/BM_Devel_Pi/videos/` and the gallery answers 200 —
   clip triples + manifest are the delivery evidence (no Sofar image
@@ -167,3 +184,8 @@ does not apply; SSH in any time. What still applies, plus differences:
 - crontab: `crontab /home/pi/crontab_before_field_update_<TS>.txt`
 - YAML: `cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.before_field_update_<TS> ...yaml`
 - runtime: `tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_<host>_<TS>.tgz -C /home/pi`
+- config v2 (Sprint26 S2): the v1 files are never touched by the migration,
+  so redeploying a pre-S2 SHA runs the unit on them as before (the v2 files
+  are ignored by old code). Before going FORWARD again, re-migrate if the v1
+  YAML changed meanwhile. To keep an S2+ runtime on v1:
+  `mv camera_config.yaml camera_config.yaml.off_<TS>` (it is only read if present).
