@@ -918,6 +918,22 @@ def run_cycle(
 # CLI
 # ---------------------------------------------------------------------------
 
+RUNTIMES = ("legacy", "supervisor")
+
+
+def resolve_runtime(cli_value, boot):
+    """Sprint26 S3a (PLAN_S3a.md G3): which runtime runs this boot.
+    Precedence: --runtime > commands.runtime in the active config v2 file >
+    legacy (v1-only units, safe fallbacks). -> (runtime, source)."""
+    if cli_value:
+        return cli_value, "cli"
+    values = getattr(boot, "values", None) or {}
+    value = values.get("commands.runtime")
+    if value in RUNTIMES:
+        return value, f"config ({boot.level})"
+    return "legacy", "default"
+
+
 def main(argv=None, **cycle_overrides):
     cmd_hooks.boot_mark("main_entry")   # Sprint25 S3 benchmark segment
     parser = argparse.ArgumentParser(
@@ -952,11 +968,16 @@ def main(argv=None, **cycle_overrides):
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
+    parser.add_argument("--runtime", choices=RUNTIMES, default=None,
+                        help="Override commands.runtime for this run: legacy (the S2 cycle "
+                             "scripts) or supervisor (Sprint26 S3). Default: the config "
+                             "value; v1-only units run legacy.")
     args = parser.parse_args(argv)
     # Sprint26 S2d (PLAN_S2.md G2): on a config-v2 unit the v1 loaders below
     # read a v1-shaped render of camera_config.yaml on tmpfs; with no v2 file
     # nothing changes. Never raises: a bad v2 file falls back (v1 file, then
     # last-known-good, then safe-minimal = nothing to do this boot).
+    boot = None
     if args.config_format != "v1":
         import config_v2
         if args.config_format == "v2" and not os.path.exists(os.path.join(
@@ -965,7 +986,7 @@ def main(argv=None, **cycle_overrides):
                   f"{args.config_path}", file=sys.stderr)
             return 2
         try:
-            selected, _boot = config_v2.select_for_legacy_runtime(
+            selected, boot = config_v2.select_for_legacy_runtime(
                 args.config_path, args.config_format, persist=not args.print_config)
         except Exception as exc:      # never brick: the v1 file, as before S2
             print(f"[CFG][ERR] config v2 selection failed ({type(exc).__name__}: {exc}); "
@@ -987,6 +1008,12 @@ def main(argv=None, **cycle_overrides):
         dump = config_dump.collect(args.config_path)
         print(config_dump.to_json_line(dump))
         return 2 if "error" in dump["resolved"] else 0
+    runtime, runtime_source = resolve_runtime(args.runtime, boot)
+    if not args.print_config:      # inspection output stays as before (settings goldens)
+        print(f"[RUNTIME] {runtime} (source={runtime_source})")
+    if runtime == "supervisor":
+        # S3a.4: the switch exists before the supervisor does (S3a.5).
+        print("[RUNTIME][WARN] the supervisor is not in this build yet; running legacy")
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:

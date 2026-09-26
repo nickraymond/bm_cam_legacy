@@ -98,7 +98,7 @@ class TestRegistryIntegrity(unittest.TestCase):
         self.assertEqual(R.BY_PATH["uplink.chunk_chars"].guard, R.SERVICE)
         self.assertEqual(R.BY_PATH["power.halt.enabled"].guard, R.GUARDED_STAGE)
         for p in ("uplink.uart.port", "uplink.uart.baudrate", "commands.enabled",
-                  "commands.topic", "mode.output"):
+                  "commands.topic", "mode.output", "commands.runtime"):
             self.assertEqual(R.BY_PATH[p].guard, R.GUARDED_REVERT, p)
 
     def test_short_names_unique_and_kickoff_letters(self):
@@ -166,8 +166,8 @@ class TestCoverage(unittest.TestCase):
 
     def test_every_registry_key_names_a_v1_source(self):
         for k in R.KEYS:
-            if k.path in ("mode.run", "mode.output"):
-                continue          # new in v2: v1 had only per_boot + transmit
+            if k.path in ("mode.run", "mode.output", "commands.runtime"):
+                continue          # new in v2: v1 had only per_boot + transmit + legacy
             self.assertTrue(k.v1_sources, k.path)
 
     def test_unit_profiles_read_without_problems(self):

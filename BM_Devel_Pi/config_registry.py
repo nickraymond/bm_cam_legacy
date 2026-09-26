@@ -36,7 +36,7 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 1          # bump when a key is added/removed/retyped
+REGISTRY_VERSION = 2          # bump when a key is added/removed/retyped (2: commands.runtime, S3a)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -345,6 +345,10 @@ KEYS = (
     # ---- commands -----------------------------------------------------------
     Key("commands.enabled", BOOL, False, "Listen for commands on the BM bus.",
         guard=GUARDED_REVERT, apply=NEXT_BOOT, v1_sources=("bm_commands.enabled",)),
+    Key("commands.runtime", ENUM, "legacy", "Which runtime runs the boot: legacy (the S2 "
+        "cycle scripts) or supervisor (Sprint26 S3). Legacy stays selectable until S5.",
+        enum=("legacy", "supervisor"), guard=GUARDED_REVERT, guard_when=("supervisor",),
+        apply=NEXT_BOOT),
     Key("commands.topic", STR, "bmcam/cmd", "Command topic.", guard=GUARDED_REVERT,
         apply=NEXT_BOOT, v1_sources=("bm_commands.topic",)),
     Key("commands.listen_tail_s", FLOAT, 150.0, "Listen after the action (s).",

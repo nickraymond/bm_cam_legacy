@@ -291,6 +291,7 @@ def read_v1(config_path):
         v["mode.media"] = "video" if vtx["enabled"] else "video_logger"
     v["mode.run"] = "per_boot"
     v["mode.output"] = "transmit"
+    v["commands.runtime"] = "legacy"      # S3a: v1 units only ever ran the legacy runtime
 
     # ---- uplink: UART (two v1 readers), bm_serial (PyYAML), lane, media key
     uart = attempt("load_uart_config", bm_serial.load_uart_config, config_path)
