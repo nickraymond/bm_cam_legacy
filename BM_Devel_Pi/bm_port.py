@@ -31,8 +31,11 @@ descriptor with no read timeout, so a long-lived process went deaf after its
 first action. Now:
   - get() after close() raises PortRefused (loud line first) instead of
     reopening; the owner calls new_session() once at the start of a runtime.
-  - a second concurrent descriptor is refused: open_shared()/install() while
-    another handle is held, and private_read() while any handle is held.
+  - a second concurrent descriptor is refused: open_shared() while the shared
+    port is held, install() of a different handle, private_read() while any
+    handle is held. A LAZY handle opened before the session or before the
+    daemon's shared open (debug_print with BM_CAMERA_LOG_TO_SPOTTER=1) is
+    closed loudly and replaced, as install() used to replace it silently.
 The lazy open itself stays (the no-daemon path opens on first use), so every
 port open and close is where it was: tests/golden pins them.
 """
@@ -44,6 +47,7 @@ import serial
 from bm_serial import BristlemouthSerial, load_bm_serial_config
 
 _bm = None
+_shared = False          # _bm came from open_shared() (the daemon's port)
 _closed = False          # close() ran in this session: get() must not reopen
 
 
@@ -56,12 +60,29 @@ def _refuse(why):
     raise PortRefused(why)
 
 
+def _drop_lazy(why):
+    """Close a lazily opened (timeout-less) handle so the owner can open the
+    real one. Before S3a it was silently replaced and left open (a leaked
+    second descriptor); now it is closed, loudly. Only reachable on a dev unit
+    with BM_CAMERA_LOG_TO_SPOTTER=1 (debug_print opens lazily)."""
+    global _bm
+    print(f"[PORT][WARN] closing a lazily opened port: {why}")
+    try:
+        _bm.uart.close()
+    except Exception as exc:
+        print(f"[PORT][WARN] close failed: {exc}")
+    _bm = None
+
+
 def new_session():
-    """Start a runtime's port session: forget an earlier close. Refuses while
-    a handle is still open (that would leak a descriptor)."""
+    """Start a runtime's port session: forget an earlier close. A lazy handle
+    still open from before the session is closed first; the shared port of a
+    running session is refused (its owner never finished)."""
     global _closed
     if _bm is not None:
-        _refuse("new_session() while the previous port is still open")
+        if _shared:
+            _refuse("new_session() while the shared port is still open")
+        _drop_lazy("opened before the port session began")
     _closed = False
 
 
@@ -81,23 +102,25 @@ def open_shared(port, baudrate, timeout):
     """Open THE shared port (the command daemon's, with a read timeout) and
     install it as the handle. Refused if a handle is already held or the
     session's port was closed."""
-    global _bm
+    global _bm, _shared
     if _bm is not None:
-        _refuse("second shared open while a port is held")
+        if _shared:
+            _refuse("second shared open while a port is held")
+        _drop_lazy("the shared port replaces it")
     if _closed:
         _refuse("shared open after close")
     bm = BristlemouthSerial(uart=serial.Serial(port, baudrate, timeout=timeout))
-    _bm = bm
+    _bm, _shared = bm, True
     return bm
 
 
 def install(bm):
     """Make an already-built `bm` the shared handle. Refused if a different
     handle is held (two descriptors on one UART)."""
-    global _bm
+    global _bm, _shared
     if _bm is not None and _bm is not bm:
         _refuse("install() while another port is held")
-    _bm = bm
+    _bm, _shared = bm, True
 
 
 @contextlib.contextmanager
@@ -121,14 +144,14 @@ def current():
 def close():
     """Close the BM serial if it was ever opened, and end the session: get()
     is refused from here on. Returns 0 (cron exit-code shape)."""
-    global _bm, _closed
+    global _bm, _closed, _shared
     _closed = True
     if _bm is None:
         return 0
     try:
         _bm.uart.close()
     finally:
-        _bm = None
+        _bm, _shared = None, False
     return 0
 
 

@@ -121,7 +121,7 @@ class Boot:
             summary["command_events"].extend(e["action"] for e in events)
             if events and self.reresolve_fn is not None:
                 print(f"[SUP] boot drain: {len(events)} command(s) applied this boot")
-                settings = self.reresolve_fn(settings)
+                settings = self._reresolve(settings, summary)
         if self.command_state is not None:
             # Stills (W4 ordering) and, since W5, video: a trg is serviced at
             # this decision point for both media.
@@ -136,6 +136,29 @@ class Boot:
                           "reference; a video unit records and sends a clip instead")
         self.settings = settings
         return settings, flags
+
+    def _reresolve(self, settings, summary):
+        """The overlay re-read after the drain. Everything built from the
+        pre-drain settings follows it: the budget's limits (txd/win; same start,
+        G1), the halt settings the owner uses (hlt) and the summary's budget.
+        A failed re-resolve keeps the pre-drain settings (one loud line): a
+        bad override must not cost the capture."""
+        try:
+            fresh = self.reresolve_fn(settings)
+        except Exception as exc:
+            print(f"[SUP][ERR] boot drain re-resolve failed ({type(exc).__name__}: {exc}); "
+                  "keeping the settings this boot started with")
+            return settings
+        if (fresh["budget_seconds"], fresh["pacing_delay_seconds"]) != (
+                self.budget.budget_seconds, self.budget.seconds_per_message):
+            print(f"[SUP] boot drain: budget {self.budget.budget_seconds:g}s @ "
+                  f"{self.budget.seconds_per_message:g}s/msg -> {fresh['budget_seconds']}s @ "
+                  f"{fresh['pacing_delay_seconds']}s/msg (same start)")
+            self.budget.resize(fresh["budget_seconds"], fresh["pacing_delay_seconds"])
+        if "budget_seconds" in summary:
+            summary["budget_seconds"] = fresh["budget_seconds"]
+        self.owner.settings = fresh
+        return fresh
 
     def finish(self):
         """shutdown -> close -> halt (never raises). An action that failed before

@@ -122,10 +122,15 @@ class GoldenVectors(unittest.TestCase):
                 tail = fh.read()[-3000:]
             type(self)._kept = [True]
             self.fail(f"{mode} {target} exited {code}; log tail:\n{tail}")
+        with open(outdir + ".log", "r", encoding="utf-8", errors="replace") as fh:
+            refused = [line for line in fh if "[PORT][ERROR]" in line]
+        # A port refusal swallowed by a try/except (e.g. debug_print) never
+        # reaches trace.txt; any refusal in a golden run is a failure.
+        self.assertEqual(refused, [], f"{mode} {target}: bm_port refused a port use")
         if RECORD and mode == "wire_supervisor":
-            # Only a difference from the legacy vector is recorded, and only for a
-            # scenario SUPERVISOR_DIFFERS names; anything else fails below.
-            legacy_dir = os.path.join(VECTORS, target)
+            # Only a difference from the legacy output of THIS run is recorded,
+            # and only for a scenario SUPERVISOR_DIFFERS names.
+            legacy_dir = self.results[("wire", target)][0]
             same = all(_read(os.path.join(outdir, n)) == _read(os.path.join(legacy_dir, n))
                        for n in files)
             if same:

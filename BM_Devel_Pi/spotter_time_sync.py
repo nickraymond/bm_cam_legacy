@@ -756,8 +756,10 @@ def should_transmit_now_from_schedule(
             info["utc_time"] = utc_dt.isoformat()
 
             if cfg.set_system_clock_from_spotter:
-                drift_s = (utc_dt - dt.datetime.now(dt.timezone.utc)).total_seconds()
-                if min_clock_step_s is not None and abs(drift_s) < min_clock_step_s:
+                drift_s = None
+                if min_clock_step_s is not None:
+                    drift_s = (utc_dt - dt.datetime.now(dt.timezone.utc)).total_seconds()
+                if drift_s is not None and abs(drift_s) < min_clock_step_s:
                     # Sprint26 W6 (supervisor): step the clock only on drift.
                     info["set_system_clock"] = (f"skipped: drift {drift_s:+.1f}s "
                                                 f"< {min_clock_step_s:g}s")

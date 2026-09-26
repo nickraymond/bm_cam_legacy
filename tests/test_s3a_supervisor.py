@@ -247,6 +247,53 @@ class BootDrainW4(Base):
         self.assertEqual(flags, {"skip_time_window": False, "capture_only": False})
 
 
+class BootDrainFollowUps(Base):
+    """Review fix: what was built from the pre-drain settings follows a drained
+    txd/win/hlt (budget limits with the SAME start, halt settings, summary);
+    a failed re-resolve keeps the pre-drain settings."""
+
+    def boot_with(self, reresolve_fn):
+        class D:
+            def start(self_inner):
+                pass
+
+            def process_pending(self_inner):
+                return [{"action": "applied"}]
+
+        state = types.SimpleNamespace(pending_trigger=None, consume_trigger=lambda: None)
+        sup = rc_supervisor.Boot(dict(SETTINGS), media="still", bm_commands_cfg=CMDS,
+                                 command_state=state, transmit=True, bench_commands=False,
+                                 action_log=self.log, reresolve_fn=reresolve_fn)
+        self.clock.t = 10.0
+        _d, budget = quiet(sup.start, {}, clock=self.clock, sleep_fn=self.clock.sleep,
+                           halt_fn=self.rec.halt, bm_close_fn=self.rec.close,
+                           daemon_factory=lambda s, c, st: D(), log_fn=print,
+                           close_warn=print, end_line=lambda: "end")
+        return sup, budget
+
+    def test_drained_txd_win_hlt_reach_budget_owner_and_summary(self):
+        sup, budget = self.boot_with(lambda s: dict(s, budget_seconds=300,
+                                                    pacing_delay_seconds=5.0,
+                                                    power_halt_dry_run=False))
+        summary = {"command_events": [], "budget_seconds": 600}
+        self.clock.t = 40.0
+        quiet(sup.boot_drain, dict(SETTINGS), summary, self.clock.sleep)
+        self.assertEqual((budget.budget_seconds, budget.seconds_per_message), (300.0, 5.0))
+        self.assertEqual(budget.elapsed_s(), 30.0)             # same start: not re-anchored
+        self.assertEqual(summary["budget_seconds"], 300)
+        self.assertFalse(sup.owner.settings["power_halt_dry_run"])
+
+    def test_failed_reresolve_keeps_the_pre_drain_settings(self):
+        def boom(_s):
+            raise ValueError("bad override")
+        sup, budget = self.boot_with(boom)
+        before = dict(SETTINGS)
+        settings, _flags = quiet(sup.boot_drain, before, {"command_events": []},
+                                 self.clock.sleep)
+        self.assertIs(settings, before)
+        self.assertEqual(budget.budget_seconds, 600.0)
+
+
 class VideoTriggerW5(Base):
     """W5: a video unit services trg; trg 1 = record to SD, send nothing."""
 

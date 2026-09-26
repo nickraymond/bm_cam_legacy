@@ -66,7 +66,7 @@ class FakeBm:
 class PortGuardTests(unittest.TestCase):
     def setUp(self):
         FakeUart.opened = []
-        bm_port._bm, bm_port._closed = None, False
+        bm_port._bm, bm_port._closed, bm_port._shared = None, False, False
         self.patches = [mock.patch.object(bm_port.serial, "Serial", FakeUart),
                         mock.patch.object(bm_port, "BristlemouthSerial", FakeBm)]
         for p in self.patches:
@@ -75,7 +75,7 @@ class PortGuardTests(unittest.TestCase):
     def tearDown(self):
         for p in self.patches:
             p.stop()
-        bm_port._bm, bm_port._closed = None, False
+        bm_port._bm, bm_port._closed, bm_port._shared = None, False, False
 
     def test_lazy_get_opens_once_then_reopen_after_close_is_refused(self):
         a = bm_port.get()
@@ -93,10 +93,25 @@ class PortGuardTests(unittest.TestCase):
         bm_port.get()
         self.assertEqual(len(FakeUart.opened), 2)
 
-    def test_new_session_refused_while_a_port_is_open(self):
-        bm_port.get()
+    def test_new_session_closes_a_lazy_port_opened_before_it(self):
+        # debug_print with BM_CAMERA_LOG_TO_SPOTTER=1 can open lazily before the
+        # owner starts; that handle is closed (it used to leak), never fatal.
+        lazy = bm_port.get()
+        bm_port.new_session()
+        self.assertFalse(lazy.uart.is_open)
+        self.assertIsNone(bm_port.current())
+
+    def test_new_session_refused_while_the_shared_port_is_open(self):
+        bm_port.open_shared("/dev/ttyAMA0", 115200, timeout=0.1)
         with self.assertRaises(bm_port.PortRefused):
             bm_port.new_session()
+
+    def test_shared_open_replaces_a_lazy_handle(self):
+        lazy = bm_port.get()
+        bm = bm_port.open_shared("/dev/ttyAMA0", 115200, timeout=0.1)
+        self.assertFalse(lazy.uart.is_open)
+        self.assertIs(bm_port.current(), bm)
+        self.assertEqual(sum(u.is_open for u in FakeUart.opened), 1)
 
     def test_second_shared_open_refused(self):
         bm = bm_port.open_shared("/dev/ttyAMA0", 115200, timeout=0.1)
