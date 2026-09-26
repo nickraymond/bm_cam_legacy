@@ -97,6 +97,7 @@ from rc_telemetry import (
 )
 from rc_jpeg_encoder import output_size_for_crop, prepare_source
 from rc_power_halt import perform_power_halt
+from rc_port_owner import PortOwner
 # Ladder computation lives in the pure M3 module; re-exported here so entry
 # script callers keep one import point.
 from rc_quality_selector import (  # noqa: F401
@@ -874,11 +875,15 @@ def run_cycle(
     if settings.get("trigger"):
         summary["trigger"] = settings["trigger"]
 
+    # Sprint26 S3a: the port owner runs daemon start and shutdown -> close ->
+    # halt. Legacy order kept: the daemon starts BEFORE the try, so a UART
+    # failure here skips close and halt (PLAN_S3a.md G5; the supervisor differs).
+    owner = PortOwner(settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
+                      clock=clock, sleep_fn=sleep_fn, log_fn=debug_print)
+    owner.begin()
     daemon = None
     if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
-        daemon = daemon_factory(settings, bm_commands_cfg, command_state)
-        daemon.start()
-        cmd_hooks.boot_mark("cmd_subscribed")
+        daemon = owner.start_daemon(daemon_factory, bm_commands_cfg, command_state)
 
     # M1: ONE budget, charged from here on.
     budget = CycleBudget(
@@ -898,22 +903,10 @@ def run_cycle(
         )
 
     finally:
-        # Last command pickup + reader stop before the port closes.
-        cmd_hooks.shutdown(daemon, summary, debug_print,
-                           clock=clock, sleep_fn=sleep_fn)
-        if transmit or daemon is not None:
-            try:
-                bm_close_fn()
-            except Exception as exc:
-                debug_print(f"BM serial close failed: {exc}")
+        # Last command pickup + reader stop before the port closes, then
         # M6: halt runs on success AND failure/exhaustion paths (never raises).
-        cmd_hooks.boot_mark("halt")
-        summary["halt_result"] = halt_fn(
-            enabled=settings["power_halt_enabled"],
-            dry_run=settings["power_halt_dry_run"],
-            mode=settings["power_halt_mode"],
-            script_path=settings["power_halt_script_path"],
-        )
+        owner.finish(summary, close_port=transmit or daemon is not None,
+                     close_warn=lambda exc: debug_print(f"BM serial close failed: {exc}"))
         # summary holds the budget the cycle actually charged; a win
         # command re-overlays settings mid-cycle but never rebuilds the
         # running CycleBudget (Phase B nit, 2026-07-27).

@@ -68,6 +68,7 @@ import rc_video_clip
 import video_recorder
 import video_ring
 from rc_power_halt import perform_power_halt
+from rc_port_owner import PortOwner
 from rc_time_budget import CycleBudget
 from rc_transmit import VIDEO_ENVELOPE_MSGS, transmit_video_clip
 from rc_uplink_messages import format_crop
@@ -405,16 +406,19 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
           f"pacing={settings['pacing_delay_seconds']}s/msg transmit={transmit}")
     port_state = {"opened": False}
     daemon = None
+    # Sprint26 S3a: the port owner runs daemon start and shutdown -> close ->
+    # halt. begin() is inside the try so a refused port session still halts.
+    owner = PortOwner(settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
+                      clock=clock, sleep_fn=sleep_fn, log_fn=print)
     try:
+        owner.begin()
         # 0. S3: the command daemon, when the cycle may touch the bus. Inside the
         #    try so a UART failure still reaches the halt.
         if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
             summary["stage"] = "daemon_start"
             factory = daemon_factory or cmd_hooks.default_daemon_factory
             port_state["opened"] = True     # set BEFORE the factory: it may open the UART and then fail
-            daemon = factory(settings, bm_commands_cfg, command_state)
-            daemon.start()
-            cmd_hooks.boot_mark("cmd_subscribed")
+            daemon = owner.start_daemon(factory, bm_commands_cfg, command_state)
 
         return video_action(
             settings, vtx, summary, daemon, budget, port_state,
@@ -433,15 +437,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         # S3 ordering (RESEND_DEVICE.md §1): final pickup + paced ack flush +
         # reader stop -> close the shared port -> halt. Never in main()'s
         # finally: that would run after the halt against a closed UART.
-        cmd_hooks.shutdown(daemon, summary, print, clock=clock, sleep_fn=sleep_fn)
-        if port_state["opened"]:
-            try:
-                bm_close_fn()
-            except Exception as exc:
-                print(f"[VTX][WARN] BM serial close failed: {exc}")
-        cmd_hooks.boot_mark("halt")
-        summary["halt_result"] = halt_fn(
-            enabled=settings["power_halt_enabled"], dry_run=settings["power_halt_dry_run"],
-            mode=settings["power_halt_mode"], script_path=settings["power_halt_script_path"])
+        owner.finish(summary, close_port=port_state["opened"],
+                     close_warn=lambda exc: print(f"[VTX][WARN] BM serial close failed: {exc}"))
         print(f"[VTX] cycle end: stage={summary['stage']} elapsed={budget.elapsed_s():.1f}s of "
               f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")

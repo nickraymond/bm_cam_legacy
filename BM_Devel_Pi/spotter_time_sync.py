@@ -30,8 +30,6 @@ from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-import serial
-
 import bm_codec
 
 TOPIC = b"spotter/utc-time"
@@ -545,7 +543,10 @@ def read_spotter_utc(
         print(f"[SYNC] opening UART port={port} baudrate={baudrate}")
         print(f"[SYNC] sending official BM_SERIAL_SUB for {TOPIC.decode()}")
 
-    with serial.Serial(port, baudrate=baudrate, timeout=0.1) as ser:
+    # Sprint26 S3a: through the one port accessor, which refuses this private
+    # descriptor while a shared port is held (lazy import: standalone tools).
+    import bm_port
+    with bm_port.private_read(port, baudrate, 0.1) as ser:
         try:
             ser.reset_input_buffer()
         except Exception:
