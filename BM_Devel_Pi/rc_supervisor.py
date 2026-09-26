@@ -41,6 +41,13 @@ import rc_command_hooks as cmd_hooks
 from rc_port_owner import PortOwner
 from rc_time_budget import CycleBudget
 
+# W6 (DESIGN §4 "Time"): after the process's FIRST Spotter read (which always
+# steps the clock: a Pi without an RTC boots with a wrong clock), the system
+# clock is stepped only when a read is off by at least this much ("a few
+# seconds"; filenames have 1 s resolution). per_boot reads once per boot, so
+# the rule first bites in stay_on (S3b); tests/test_s3a_supervisor pins it.
+CLOCK_STEP_MIN_DRIFT_S = 2.0
+
 ACTION_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "cron_logs", "supervisor_actions.jsonl")
 
@@ -63,6 +70,7 @@ class Boot:
         self.summary = None
         self.close_warn = print
         self.end_line = None          # set by the action adapter: its "cycle end" line
+        self.gate_reads = 0           # W6: schedule-gate time reads this process
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -80,8 +88,19 @@ class Boot:
                                        self.transmit, self.bench_commands):
             self.owner.start_daemon(daemon_factory or cmd_hooks.default_daemon_factory,
                                     self.bm_commands_cfg, self.command_state)
+            # W6: every Spotter time read over the shared port is a fresh one.
+            self.owner.daemon.fresh_time_reads = True
         self.end_line = end_line      # only once the action's budget exists
         return self.owner.daemon, self.budget
+
+    def gate_kwargs(self, daemon, settings):
+        """The schedule gate's kwargs under the supervisor (W6): the legacy set,
+        plus the drift-only clock step from the second read of the process on."""
+        kwargs = cmd_hooks.gate_kwargs_for(daemon, settings)
+        if self.gate_reads > 0:
+            kwargs["min_clock_step_s"] = CLOCK_STEP_MIN_DRIFT_S
+        self.gate_reads += 1
+        return kwargs
 
     def boot_drain(self, settings, summary, sleep_fn):
         """W4 (DESIGN §4 "drain queued commands"): apply the commands that are

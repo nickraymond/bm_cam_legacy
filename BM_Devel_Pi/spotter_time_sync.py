@@ -691,8 +691,13 @@ def should_transmit_now_from_schedule(
     read_spotter_utc_fn=None,
     window_override=None,
     timezone_override=None,
+    min_clock_step_s=None,
 ) -> Tuple[bool, Dict[str, str]]:
-    """read_spotter_utc_fn: optional replacement for read_spotter_utc —
+    """min_clock_step_s (Sprint26 W6, supervisor only): step the system clock
+    from the Spotter read only when it is off by at least this many seconds
+    (a long-lived process re-reads per action). None = always step (legacy).
+
+    read_spotter_utc_fn: optional replacement for read_spotter_utc —
     Sprint10's command daemon passes its shared-port reader so the gate
     does not open the UART a second time. Same signature/return.
 
@@ -751,12 +756,18 @@ def should_transmit_now_from_schedule(
             info["utc_time"] = utc_dt.isoformat()
 
             if cfg.set_system_clock_from_spotter:
-                try:
-                    set_system_clock_utc(utc_dt)
-                    info["set_system_clock"] = "ok"
-                except Exception as e:
-                    # Still use Spotter UTC for the window decision.
-                    info["set_system_clock"] = f"failed: {e}"
+                drift_s = (utc_dt - dt.datetime.now(dt.timezone.utc)).total_seconds()
+                if min_clock_step_s is not None and abs(drift_s) < min_clock_step_s:
+                    # Sprint26 W6 (supervisor): step the clock only on drift.
+                    info["set_system_clock"] = (f"skipped: drift {drift_s:+.1f}s "
+                                                f"< {min_clock_step_s:g}s")
+                else:
+                    try:
+                        set_system_clock_utc(utc_dt)
+                        info["set_system_clock"] = "ok"
+                    except Exception as e:
+                        # Still use Spotter UTC for the window decision.
+                        info["set_system_clock"] = f"failed: {e}"
 
         except Exception as e:
             info["source_time"] = "system"

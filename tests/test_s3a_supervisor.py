@@ -261,6 +261,9 @@ class VideoTriggerW5(Base):
             def start(self_inner, summary, **kw):
                 return None, CycleBudget(600, 1.0, clock=clk)
 
+            def gate_kwargs(self_inner, daemon, settings):
+                return {}
+
             def boot_drain(self_inner, settings, summary, sleep_fn):
                 return settings, flags
 
@@ -268,7 +271,7 @@ class VideoTriggerW5(Base):
                                                 source="test"))
         summary = quiet(
             vtx.run_video_tx_cycle, vsettings(tmp, enforce_time_window=True), cfg, transmit=True,
-            gate_fn=lambda path: calls.append("gate") or (False, {"reason": "outside"}),
+            gate_fn=lambda path, **kw: calls.append("gate") or (False, {"reason": "outside"}),
             record_fn=lambda s, v, d, **kw: calls.append("record") or {
                 "ok": True, "stage": "done", "bytes": 1, "mp4": os.path.join(d, "c.mp4"),
                 "basename": "2026-09-21T07-30-05Z_video_1920x1080_15fps"},

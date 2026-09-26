@@ -44,7 +44,7 @@ VECTORS_SUPERVISOR = os.path.join(GOLDEN, "vectors_supervisor")
 SUPERVISOR_DIFFERS = {      # scenario -> the W-item(s) that make it differ
     "still_bench": "W2+W4", "still_heal": "W2",
     "still_window_skip": "W3", "video_window_skip": "W3",
-    "video_trigger_pending": "W5",
+    "video_trigger_pending": "W5", "still_trigger": "W6",
 }
 SETTINGS = os.path.join(GOLDEN, "settings")
 RUNNER = os.path.join(GOLDEN, "run_scenario.py")

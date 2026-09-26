@@ -235,7 +235,8 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     if transmit:
         summary["stage"] = "time_gate"
         port_state["opened"] = True     # the gate opens the UART (or rides the daemon's)
-        gate_kwargs = cmd_hooks.gate_kwargs_for(daemon, settings)
+        gate_kwargs = (supervised.gate_kwargs(daemon, settings) if supervised is not None
+                       else cmd_hooks.gate_kwargs_for(daemon, settings))    # W6
         allowed, gate_info = (gate_fn(settings["config_path"], **gate_kwargs) if gate_kwargs
                               else gate_fn(settings["config_path"]))
         gate_mono = clock()

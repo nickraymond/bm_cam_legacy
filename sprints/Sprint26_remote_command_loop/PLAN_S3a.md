@@ -82,6 +82,16 @@ summarised in the message. Legacy vectors never change (G2).
 Before the bench: an independent reviewer (subagent, fresh context) reviews the whole diff
 against DESIGN §4, K3–K6, R7 and this plan; every finding fixed or answered in writing.
 
+**Implementation note (W6, 2026-09-26):** the golden world's Pi clock always
+agrees with the Spotter (datetime is frozen), so a literal "step only on drift"
+removed `SETCLOCK` from every supervisor scenario and would have moved all 13
+into `vectors_supervisor/`, emptying the "supervisor = legacy" net for every
+later commit. Smallest correction, flagged for Nick: the process's FIRST gate
+read always steps (a Pi without an RTC boots with a wrong clock); every later
+read is drift-gated (`CLOCK_STEP_MIN_DRIFT_S` = 2 s). per_boot reads once per
+boot, so the rule first bites in stay_on (S3b); tests/test_s3a_time_read.py
+pins it. With that, W6 changes `still_trigger` only, as planned.
+
 ## 2. Stage gate (bmcam003 under the supervisor, bmcam004 control)
 
 Recipes from `runs/s2_bench_20260926/` (console.sh, live_side.sh, make_bench_dirs.py);

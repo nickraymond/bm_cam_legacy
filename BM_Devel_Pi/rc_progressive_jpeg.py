@@ -503,18 +503,29 @@ def still_action(
     # the daemon active the gate reads Spotter time over the SHARED
     # port instead of opening its own (D11).
     gate_info, gate_mono = None, clock()
-    if transmit and not skip_time_window and settings["enforce_time_window"]:
+    # Sprint26 W6: under the supervisor every transmitting action reads the
+    # Spotter time (and steps the clock on drift), even when the window is
+    # bypassed (trg, --skip-time-window); only the verdict is ignored then,
+    # as the video cycle always did. Legacy skips the read on a bypass.
+    bypass_verdict = supervised is not None and skip_time_window
+    if transmit and settings["enforce_time_window"] and (not skip_time_window or bypass_verdict):
+        gate_kwargs = (supervised.gate_kwargs(daemon, settings) if supervised is not None
+                       else cmd_hooks.gate_kwargs_for(daemon, settings))
         allowed, info = should_transmit_now_from_schedule(
             settings["config_path"],
-            **cmd_hooks.gate_kwargs_for(daemon, settings)
+            **gate_kwargs
         )
         # Sprint11 C2: the gate's Spotter read is also the grid clock.
         # Pin it to a monotonic instant HERE and extrapolate later; the
         # transmit decision happens minutes after this read.
         gate_info, gate_mono = info, clock()
         cmd_hooks.boot_mark("spotter_utc_read")
+        if bypass_verdict:
+            print(f"[RC] schedule gate: {info.get('reason')} (window bypassed; time read only)")
+            allowed = True
         summary["schedule_allowed"] = allowed
-        print(f"[RC] schedule gate: {info.get('reason')}")
+        if not bypass_verdict:
+            print(f"[RC] schedule gate: {info.get('reason')}")
         if not allowed:
             try:
                 wake_fn(
