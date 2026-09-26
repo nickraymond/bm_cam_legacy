@@ -1,0 +1,39 @@
+93:    fps: 999  # Sent frame rate.
+=== f1
+exit=0
+[CFG][ERR] config v2 /home/pi/s2bench/cfg_f1/camera_config.yaml unusable: /home/pi/s2bench/cfg_f1/camera_config.yaml: ParserError: while parsing a flow node
+[CFG][ERR] running the v1 file /home/pi/s2bench/cfg_f1/camera_schedule.yaml migrated in memory
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v1_migrated)
+[RC] capture_mode=video (Sprint15 video path selected)
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+=== f2
+exit=0
+[CFG][ERR] config v2 /home/pi/s2bench/cfg_f2/camera_config.yaml unusable: video.send.fps: 999: must be in 1..30 — falling back
+[CFG][ERR] running the v1 file /home/pi/s2bench/cfg_f2/camera_schedule.yaml migrated in memory
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v1_migrated)
+[RC] capture_mode=video (Sprint15 video path selected)
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+=== f4
+exit=0
+[CFG] config v2 /home/pi/s2bench/cfg_f4/camera_config.yaml media=video hash=882c7ca1 hv=1 registry=v1 overlay=0 key(s)
+[CFG][ERR] v2 render unusable (FileNotFoundError: [Errno 2] No such file or directory: '/proc/no_such_dir'); running the v1 file /home/pi/s2bench/cfg_f4/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+=== f3 (--transmit: must do nothing, open nothing)
+exit=0 784 ms
+[CFG][ERR] config v2 /home/pi/s2bench/cfg_f3/camera_config.yaml unusable: /home/pi/s2bench/cfg_f3/camera_config.yaml: ParserError: while parsing a flow node
+[CFG][ERR] v1 file /home/pi/s2bench/cfg_f3/camera_schedule.yaml not usable: YAML does not parse (v1 PyYAML loaders would silently use defaults): while parsing a flow node
+[CFG][ERR] no usable last-known-good /home/pi/s2bench/cfg_f3/camera_config.lkg.json: FileNotFoundError: [Errno 2] No such file or directory: '/home/pi/s2bench/cfg_f3/camera_config.lkg.json'
+[CFG][ERR] SAFE-MINIMAL: no usable config; no media action this boot (S2: the legacy runtime cannot listen without one)
+[RC] SAFE-MINIMAL: no usable config; nothing to do this boot.
+=== f5 real stills cycle on a corrupt v2 (fallback to v1 values)
+[CFG][ERR] config v2 /home/pi/s2bench/cfg_stills_f5/camera_config.yaml unusable: /home/pi/s2bench/cfg_stills_f5/camera_config.yaml: ParserError: while parsing a flow node
+[CFG][ERR] running the v1 file /home/pi/s2bench/cfg_stills_f5/camera_schedule.yaml migrated in memory
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v1_migrated)
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[CMD] time-sync subscribe sent; waiting up to 20.0s
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-26T00:36:54Z_image_compressed.sent.json (184 msgs)
+[RC] transmit done: sent=184/184 complete=True incomplete_emitted=False uart=243.9s
+[RC][halt] DRY RUN — script present; real run would drop SSH within ~15 s (that is success)
+[BENCH] exit=0 wall_s=405.3 maxrss_self_kb=100260 maxrss_children_kb=100260 cpu_self_s=6.1 cpu_children_s=1.6
+=== DONE 2026-09-26T00:43:38Z

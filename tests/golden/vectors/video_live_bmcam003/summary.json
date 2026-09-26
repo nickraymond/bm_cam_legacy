@@ -1,0 +1,137 @@
+{
+ "cycle": {
+  "clip": {
+   "basename": "2026-09-24T15-00-00Z_video_1920x1080_15fps",
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T15-00-00Z_video_1920x1080_15fps.mp4",
+   "ok": true,
+   "stage": "done"
+  },
+  "command_events": [
+   "applied",
+   "applied"
+  ],
+  "error": null,
+  "fit": {
+   "budget_msgs": 190,
+   "bytes": 36019,
+   "duration_s": 5.0,
+   "encode_s": 0.0,
+   "frames": 50,
+   "frames_trimmed": 0,
+   "keyframe_chunks": 8,
+   "keyframe_end": 2236,
+   "msgs": 126,
+   "pass2_tries": 1,
+   "prescale_s": 0.0,
+   "target_kbps": 57.6,
+   "used_pct": 65.8
+  },
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "heal": {
+   "hl": []
+  },
+  "listen_tail_s": 150.0,
+  "media_key": "0dpr00",
+  "schedule_allowed": true,
+  "stage": "done",
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "planned": 126,
+   "refused_reason": null,
+   "repeat_sent": true,
+   "repeated": 8,
+   "sent": 126,
+   "started": true,
+   "uart_duration_sec": 175.49999999999386
+  }
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 326.5,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "5fa8e69e461e3634"
+  },
+  "app/sent/2026-09-24T15-00-00Z_video_5s.sent": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "app/sent/2026-09-24T15-00-00Z_video_5s.sent.json": {
+   "bytes": 308,
+   "sha256": "f3d40eef14528b92"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7821,
+   "sha256": "e3c9f9f087feaa96"
+  },
+  "state/bm_command_state.json": {
+   "bytes": 236,
+   "sha256": "525bb9786c70bad2"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  },
+  "videos/2026-09-24T15-00-00Z_video_1920x1080_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "bmcam003 as live on 2026-09-25: one keyed clip at 190 msgs; hlt 3 mid-burst",
+ "scenario": "video_live_bmcam003",
+ "sent_records": {
+  "app/sent/2026-09-24T15-00-00Z_video_5s.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15-00-00Z_video_5s.h264",
+   "fmt": "h264",
+   "key": "0dpr00",
+   "msgs": 126,
+   "payload": "{TMP}/app/sent/2026-09-24T15-00-00Z_video_5s.sent",
+   "sent_utc": "2026-09-24T15:00:00Z",
+   "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
+  }
+ },
+ "sidecars": {},
+ "state_file": {
+  "applied_ids": [
+   521,
+   522
+  ],
+  "pending_heals": [],
+  "pending_trigger": null,
+  "schema": "bm_command_state_v1",
+  "settings": {
+   "awb": 0,
+   "cap": 0,
+   "exp": 0,
+   "foc": 0,
+   "hlt": 3,
+   "roi": 0,
+   "src": 0,
+   "tmz": 0,
+   "twn": 0,
+   "txd": 0,
+   "win": 0
+  },
+  "tables_version": 8,
+  "touched": [
+   "hlt"
+  ]
+ },
+ "unfired_rules": []
+}

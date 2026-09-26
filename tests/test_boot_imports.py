@@ -117,6 +117,24 @@ class TestBootImports(unittest.TestCase):
             """)
             self.assertEqual(out.strip().splitlines()[-1], "0 False", label)
 
+    def test_print_config_json_loads_no_pil_and_needs_print_config(self):
+        # Sprint26 S2b: the deploy/migration parity probe stays as light as the
+        # text --print-config, and refuses to run without it.
+        for label, text in (("video", VIDEO_YAML), ("stills", STILLS_YAML)):
+            path = self.yaml(text)
+            out = run_py(f"""
+                import io, json, contextlib
+                import rc_progressive_jpeg as rc
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    code = rc.main(["--config-path", {path!r}, "--print-config", "--json"])
+                d = json.loads(buf.getvalue().splitlines()[-1])
+                with contextlib.redirect_stdout(io.StringIO()):
+                    bad = rc.main(["--config-path", {path!r}, "--json"])
+                print(code, bad, d["schema"], "PIL" in sys.modules)
+            """)
+            self.assertEqual(out.strip().splitlines()[-1], "0 2 print_config_json/1 False", label)
+
     def test_stills_encode_still_loads_pil(self):
         out = run_py(f"""
             import rc_jpeg_encoder as enc

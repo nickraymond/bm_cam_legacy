@@ -51,6 +51,15 @@ IMAGE_META_SUFFIX = "_compressed.jpg.capture_metadata.json"
 # state, no database, and it self-clears after a reboot.
 PROCESS_START = time.time()
 
+# Sprint26 S2 (DESIGN_supervisor.md §5 "One mutation path"): the YAML changes
+# only by deploy or migrate. This page edited it in place, non-atomically, and
+# on a config-v2 unit an edit would not even be read. Read-only from S2 until
+# S7, when the camera-hosted page writes through the same overlay and
+# validation as a remote `set`. WiFi join and restart stay (they write no YAML).
+SETTINGS_READ_ONLY = True
+READ_ONLY_NOTE = ("Settings are read-only on this camera for now (Sprint26): change them "
+                  "with a command or a field update. WiFi join and restart still work.")
+
 GIB = 1024 ** 3
 
 GALLERY_HTML = """<!DOCTYPE html>
@@ -1492,6 +1501,8 @@ class VideoUIHandler(BaseHTTPRequestHandler):
         return disk
 
     def _send_settings(self, message=None, error=False):
+        if SETTINGS_READ_ONLY and message is None:
+            message = READ_ONLY_NOTE
         current = video_settings.read_current(self.config_path)
         page = render_settings_page(current, message=message, error=error,
                                     mode=net_mode(), disk=self._disk(),
@@ -1561,6 +1572,12 @@ class VideoUIHandler(BaseHTTPRequestHandler):
                 form = parse_qs(
                     self.rfile.read(length).decode("utf-8", errors="replace"))
                 changes = {k: v[0] for k, v in form.items() if v}
+                if SETTINGS_READ_ONLY:
+                    print(f"[UI] settings save REFUSED (read-only since Sprint26 S2): "
+                          f"{sorted(k for k in changes if k != 'then')}")
+                    self._send_settings_redirect(f"NOT saved. {READ_ONLY_NOTE}",
+                                                 error=True)
+                    return
                 # "Save and restart now" submits the same form with a marker.
                 # It is a UI intent, not a setting -- strip it before the
                 # patcher sees it (which refuses unknown keys).

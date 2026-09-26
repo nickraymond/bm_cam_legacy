@@ -71,8 +71,12 @@ Verify artifacts (never trust exit codes alone):
 - `software_sha.txt` matches the cloned commit
 - `crontab -l` shows `@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh`
 - crontab backup exists in `/home/pi/backups/`
+- `--fresh` created the unit's service key `/home/pi/.config/nereus/service.key`
+  (mode 600; signed service commands, Sprint26 S4). Copy it to Nereus right away
+  (`scp pi@bmcamNNN:.config/nereus/service.key ~/.config/nereus/unit_keys/bmcamNNN.key`,
+  chmod 600) and never commit it. Existing units: `--create-service-key`.
 
-**Field update on an existing unit** is the same script with no flags (config + crontab untouched, HEIC left for config-gated rollback): `cd ~/repos/bm_cam_legacy && git pull && ./tools/deploy_rc_runtime.sh`
+**Field update on an existing unit**: use `tools/rc_field_update.sh --profile <name>` (bmcam-field-update skill). The bare script (config + crontab untouched) refuses while the boot cycle is armed (Sprint26 S2f) and stages + parity-checks the runtime in `BM_Devel_Pi.next` before installing.
 
 ## Phase 6 — Validation ladder
 
@@ -117,11 +121,8 @@ add video geometry keys.
   clip/session values afterwards. ffprobe (ships with ffmpeg) verifies
   codec/resolution/fps.
 - Gallery UI: `http://<unit>:8080/` (posters, tap-to-play, per-file
-  download). Settings GUI: `http://<unit>:8080/settings` edits
-  `camera_schedule.yaml` with timestamped backups
-  (`camera_schedule.yaml.before_gui_*`) — LEAVE the backups in place
-  (they are the customer's undo); changes apply on runtime restart, not
-  live.
+  download). Settings GUI: `http://<unit>:8080/settings` is READ-ONLY
+  from Sprint26 S2 until S7 (saves refused; WiFi join + restart work).
 - `session_minutes: 0` video units record until power loss and do NOT
   self-halt — the power_halt race in bmcam-field-update does not apply,
   but the encoder owns the camera continuously (any `rpicam-*` bench

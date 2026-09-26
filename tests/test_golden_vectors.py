@@ -133,6 +133,12 @@ def _wire_test(name):
 def _settings_test(slug, target):
     def test(self):
         self.compare("settings", target, ("settings.json",), os.path.join(SETTINGS, slug))
+        # Sprint26 S2b: --print-config --json agrees with every loader (not recorded).
+        outdir, _code = self.results[("settings", target)]
+        with open(os.path.join(outdir, "json_check.json"), "r", encoding="utf-8") as fh:
+            check = json.load(fh)
+        self.assertEqual(check["mismatch"], [], f"{target}: --print-config --json disagrees")
+        self.assertIn(check["exit"], (0, 2))
     return test
 
 
