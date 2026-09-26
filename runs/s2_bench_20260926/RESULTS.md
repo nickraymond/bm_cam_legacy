@@ -71,8 +71,9 @@ once each. On bmcam003 both are in `config_journal.jsonl` (v8.twn null→2 at 01
   heals recover them: every soak media but the in-flight ones completed.
 - **F3 (heal design gap): a media whose START is lost cannot be healed.** bmcam004's
   `0dtdkz` is `length_unknown` at the backend (the START never arrived), so it is
-  skipped forever. Not S2 (control unit). Candidate for the self-healing backlog: a way
-  to re-request the header.
+  skipped forever. Not S2 (control unit). Nick 2026-09-26: make every chunk
+  self-describing ("N of M"); recorded as proposed deviation **O11 / W9** in
+  DESIGN_supervisor.md §10, to be ruled at the start of the next part.
 - **F4:** the heal driver marked 54338 `expired` after 3 wakes, but it completed later
   (Sofar exposure lag). Harmless; the expiry is early for lagging rows.
 - **Review before the bench:** an independent review of the S2 diff found 12 issues
