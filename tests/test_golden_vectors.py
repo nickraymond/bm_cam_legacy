@@ -41,7 +41,9 @@ VECTORS = os.path.join(GOLDEN, "vectors")
 # supervisor-only wire change (W2-W6) makes it differ, its expected output lives
 # in vectors_supervisor/<scenario>/, and only for the scenarios named here.
 VECTORS_SUPERVISOR = os.path.join(GOLDEN, "vectors_supervisor")
-SUPERVISOR_DIFFERS = {}      # scenario -> the W-item(s) that make it differ
+SUPERVISOR_DIFFERS = {      # scenario -> the W-item(s) that make it differ
+    "still_bench": "W2", "still_heal": "W2",
+}
 SETTINGS = os.path.join(GOLDEN, "settings")
 RUNNER = os.path.join(GOLDEN, "run_scenario.py")
 RECORD = os.environ.get("GOLDEN_RECORD") == "1"

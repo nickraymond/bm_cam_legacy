@@ -91,7 +91,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 
 | scenario | today | changed by |
 |---|---|---|
-| `still_bench` | acks go out mid-burst (`defer_acks_during_transmit: false`) | W2 (S3) |
+| `still_bench`, `still_heal` | acks go out mid-burst (`defer_acks_during_transmit: false`) | W2 (S3a, supervisor only: `vectors_supervisor/`) |
 | `still_window_skip`, `video_window_skip` | no listen tail after a window skip | W3 (S3) |
 | `video_window_skip` | a video unit outside its window sends nothing, not even a `<WS>` | W3 (S3) |
 | `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3) |

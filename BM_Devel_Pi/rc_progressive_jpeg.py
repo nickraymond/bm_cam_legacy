@@ -491,6 +491,7 @@ def still_action(
     bm_commands_cfg,
     bench_commands,
     grid_clock_fn,
+    supervised=None,
 ):
     """The still action (Sprint26 S3a, DESIGN_supervisor.md §4 "Actions"): the body
     of one stills cycle, from the schedule gate to the listen tail, moved here
@@ -766,9 +767,11 @@ def still_action(
         # Sprint11 C3/D5: with defer_acks_during_transmit, no ack is
         # submitted between the first and last chunk — an ack shares
         # the same 2-slot cellular queue as the image.
+        # Sprint26 W2 (DESIGN §4 "Acks"): the supervisor ALWAYS defers them
+        # (video already did); legacy keeps the YAML switch.
         ack_drain_fn=cmd_hooks.make_ack_drain_fn(
             daemon, summary, clock=clock,
-            defer=bool((bm_commands_cfg or {}).get(
+            defer=supervised is not None or bool((bm_commands_cfg or {}).get(
                 "defer_acks_during_transmit"))),
         pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
         media_key=media_key,
@@ -919,6 +922,7 @@ def run_cycle(
             capture_fn=capture_fn, bm_open_fn=bm_open_fn, wake_fn=wake_fn,
             sleep_fn=sleep_fn, clock=clock, bm_commands_cfg=bm_commands_cfg,
             bench_commands=bench_commands, grid_clock_fn=grid_clock_fn,
+            supervised=supervised,
         )
 
     finally:
