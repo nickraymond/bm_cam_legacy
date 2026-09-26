@@ -474,6 +474,354 @@ def stage_source_image(rel_or_abs_path, output_dir):
     return dest
 
 
+def still_action(
+    settings, summary, daemon, budget,
+    *,
+    transmit,
+    capture_only,
+    native_path,
+    skip_time_window,
+    output_dir,
+    capture_fn,
+    bm_open_fn,
+    wake_fn,
+    sleep_fn,
+    clock,
+    bm_commands_cfg,
+    bench_commands,
+    grid_clock_fn,
+):
+    """The still action (Sprint26 S3a, DESIGN_supervisor.md §4 "Actions"): the body
+    of one stills cycle, from the schedule gate to the listen tail, moved here
+    verbatim from run_cycle. The daemon and the budget come from the caller; the
+    caller also owns shutdown -> close -> halt. Returns the summary it fills."""
+    # Schedule gate — transmit runs only (manual/bench modes must not
+    # touch the BM bus; the Spotter-time read opens the UART). With
+    # the daemon active the gate reads Spotter time over the SHARED
+    # port instead of opening its own (D11).
+    gate_info, gate_mono = None, clock()
+    if transmit and not skip_time_window and settings["enforce_time_window"]:
+        allowed, info = should_transmit_now_from_schedule(
+            settings["config_path"],
+            **cmd_hooks.gate_kwargs_for(daemon, settings)
+        )
+        # Sprint11 C2: the gate's Spotter read is also the grid clock.
+        # Pin it to a monotonic instant HERE and extrapolate later; the
+        # transmit decision happens minutes after this read.
+        gate_info, gate_mono = info, clock()
+        cmd_hooks.boot_mark("spotter_utc_read")
+        summary["schedule_allowed"] = allowed
+        print(f"[RC] schedule gate: {info.get('reason')}")
+        if not allowed:
+            try:
+                wake_fn(
+                    action="skip_win",
+                    timezone_name=settings["timezone"],
+                    local_time=info.get("local_time"),
+                    window_start=settings["window_start"],
+                    window_end=settings["window_end"],
+                    image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
+                    image_quality=settings["q_max"],
+                    reason="window",
+                )
+            except Exception as exc:
+                debug_print(f"Wake status send failed, continuing safely: {exc}")
+            return summary
+
+    if transmit:
+        try:
+            wake_fn(
+                action="cap",
+                timezone_name=settings["timezone"],
+                local_time=None,
+                window_start=settings["window_start"],
+                window_end=settings["window_end"],
+                image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
+                image_quality=settings["q_max"],
+                reason=None,
+            )
+        except Exception as exc:
+            debug_print(f"Wake status send failed, continuing safely: {exc}")
+
+    # Sprint11 C1/D2: capture-first. There is NO pre-capture listen
+    # window any more — it moved transmit start from ~:01:00 to
+    # ~:03:10, which put a 194 s burst straight through the :05:00
+    # blackout boundary at ~62 % through (measured first-gap mean
+    # 65.5 %). Commands now apply from cached state on the NEXT boot,
+    # which is already how `win` behaved. The listening moved to the
+    # bounded post-transmit tail, where finding 006 says the mailbox
+    # drain actually arrives.
+
+    # Sprint10 v2: `src` command can substitute a committed reference
+    # native for the camera capture (field debug — separates "camera
+    # broken" from "link broken" without a site visit). CLI
+    # --compress-only still wins, so bench use is unaffected.
+    if native_path is None and settings.get("source_image_path"):
+        native_path = stage_source_image(
+            settings["source_image_path"], output_dir
+        )
+        summary["source_image"] = settings["source_image_path"]
+        summary["source_image_staged"] = native_path
+        print(f"[RC] src override: camera SKIPPED, using reference "
+              f"{settings['source_image_path']}")
+
+    # Capture (or reuse an existing native in --compress-only).
+    capture_info = {}
+    if native_path is None:
+        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        summary["native_path"] = native_path
+    else:
+        image_stem = os.path.splitext(os.path.basename(native_path))[0]
+        if image_stem.endswith("_native_full"):
+            image_stem = image_stem[: -len("_native_full")]
+    print(f"[RC] native ready: {native_path} "
+          f"({os.path.getsize(native_path)} B, elapsed={budget.elapsed_s():.1f}s)")
+
+    # M2 prepare (once per cycle; every ladder attempt reuses it).
+    source = prepare_source(
+        native_path, settings["crop_native_xywh"], settings["output_width"]
+    )
+    print(f"[RC] source prepared: {source.size[0]}x{source.size[1]} "
+          f"(elapsed={budget.elapsed_s():.1f}s)")
+
+    if capture_only:
+        print("[RC] --capture-only: stopping before encode/transmit.")
+        return summary
+
+    # M3 adaptive selection.
+    selection = select_quality(
+        source,
+        budget,
+        ladder=settings["quality_ladder"],
+        message_cap=settings["message_cap"],
+        chunk_b64_chars=settings["pacing_chunk_b64_chars"],
+    )
+    summary["selection"] = {
+        k: selection[k] for k in ("quality", "attempts", "fits", "reason")
+    }
+    summary["selection"]["attempt_log"] = selection["attempt_log"]
+    for a in selection["attempt_log"]:
+        print(f"[RC] attempt q{a['quality']}: {a['jpeg_bytes']} B, "
+              f"{a['message_count']} msgs, over_cap={a['over_cap']}, "
+              f"budget_fit={a['budget_fit']}")
+    print(f"[RC] selection: quality={selection['quality']} "
+          f"attempts={selection['attempts']} fits={selection['fits']} "
+          f"reason={selection['reason']}")
+
+    if selection["encode"] is None:
+        raise RuntimeError("no encode possible within budget (attempts=0)")
+
+    encode = selection["encode"]
+    final_name = f"{image_stem}_compressed.jpg"
+    final_path = os.path.join(output_dir, final_name)
+    with open(final_path, "wb") as f:
+        f.write(encode["jpeg_data"])
+    summary["final_path"] = final_path
+    print(f"[RC] final JPEG: {final_path} ({encode['jpeg_bytes']} B, "
+          f"{encode['message_count']} msgs, sha256={encode['jpeg_sha256'][:16]}...)")
+
+    # Sidecar metadata (production pattern) + libcamera metadata for END.
+    libcamera_metadata = _load_libcamera_metadata_json(capture_info.get("metadata_json"))
+    storage_health = collect_storage_health()
+    try:
+        capture_metadata = update_capture_metadata(final_path, {
+            "software_sha": get_software_sha(),
+            "hostname": get_hostname(),
+            "metadata_schema": "bmcam_runtime_sidecar_v1",
+            "metadata_source": "rc_progressive_jpeg",
+            "utc_capture_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "capture_mode": "progressive_jpeg",
+            "img_format": "pjpg",
+            "jpeg_quality_used": selection["quality"],
+            "enc_attempts": selection["attempts"],
+            "fits": selection["fits"],
+            "selector_reason": selection["reason"],
+            "attempt_log": selection["attempt_log"],
+            "jpeg_bytes": encode["jpeg_bytes"],
+            "base64_chars": encode["base64_len"],
+            "message_count": encode["message_count"],
+            "jpeg_sha256": encode["jpeg_sha256"],
+            "crop_native_xywh": list(settings["crop_native_xywh"]),
+            "output_size": list(settings["output_size"]),
+            "native_path": native_path,
+            **{k: v for k, v in capture_info.items() if k != "requested_camera_controls"},
+            **libcamera_metadata,
+            **storage_health,
+        }) or {}
+    except Exception as exc:
+        debug_print(f"RC sidecar update failed, continuing safely: {exc}")
+        capture_metadata = libcamera_metadata
+
+    est_minutes = encode["message_count"] * settings["pacing_delay_seconds"] / 60.0
+    if not transmit:
+        print(f"[RC] send plan (NO transmit): {encode['message_count']} chunks "
+              f"(+2 START/END) at q{selection['quality']}, "
+              f"est {est_minutes:.1f} min, fits={selection['fits']}")
+        # Bench-commands mode: no image transmit, but late commands
+        # still ack + persist for the next cycle.
+        cmd_hooks.drain_now(daemon, summary, clock=clock)
+        # Sprint13: without a transmit there is no C4 tail, which
+        # left a bench_commands cycle listening for only ~15 s —
+        # untestable from a console (found on bmcam003, 2026-08-01).
+        # Bench cycles now hold the same bounded listen window.
+        # Gated on bench_commands so every production path (transmit
+        # and plain no-transmit runs) stays byte-identical.
+        if bench_commands and daemon is not None:
+            cmd_hooks.post_transmit_listen(
+                daemon, bm_commands_cfg or {}, summary, budget,
+                clock=clock, sleep_fn=sleep_fn,
+            )
+        return summary
+
+    # M5 transmit (complete or bounded).
+    start_metadata = {
+        "image_res_key": f"{settings['output_size'][0]}x{settings['output_size'][1]}",
+        "timezone": settings["timezone"],
+        "window_start": settings["window_start"],
+        "window_end": settings["window_end"],
+        "software_sha": get_software_sha(),
+        "hostname": get_hostname(),
+        **storage_health,
+    }
+
+    # Sprint25 S5: this wake's rsd heals go right before START; plan them
+    # now so the lane plan below counts them. None without a daemon.
+    heals = rc_heal.begin_wake(
+        daemon, settings, summary,
+        pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
+    heal_msgs = heals.planned_msgs if heals is not None else 0
+
+    # --- Sprint11 C2: wait for a clean lane on the 5-minute grid -----
+    # Everything above this line is cycle-relative; this is the ONE
+    # place that reasons in absolute UTC (DESIGN D1).
+    phase_cfg = settings.get("transmit_phase_cfg") or {}
+    if phase_cfg.get("enabled"):
+        burst_s = rc_transmit_phase.burst_seconds_for(
+            encode["message_count"] + heal_msgs, settings["pacing_delay_seconds"],
+            incomplete=not selection["fits"],
+        )
+        grid_clock = grid_clock_fn(
+            gate_info, gate_mono, daemon=daemon, clock=clock)
+        plan = rc_transmit_phase.plan_from_clock(
+            grid_clock, burst_s, phase_cfg)
+        print(rc_transmit_phase.describe_plan(plan, burst_s))
+        wait_s = plan["wait_s"]
+        # A wait spends the SAME budget the transmit needs. Waiting into
+        # a budget that can no longer hold the burst would truncate the
+        # image mid-send via the per-chunk guard — the exact failure
+        # this sprint exists to remove. Sending at a bad phase loses
+        # ~7 chunks; a truncated send loses the tail of the image.
+        if wait_s > 0 and not budget.has_time_for(wait_s + burst_s):
+            print(f"[PHASE][WARN] skipping the {wait_s:.0f}s lane wait: "
+                  f"only {budget.remaining_s():.0f}s of budget left, "
+                  f"burst needs {burst_s:.0f}s. Transmitting now, "
+                  f"unscheduled.")
+            plan["reason"] = "skipped_no_budget"
+            plan["skipped_wait_s"] = wait_s
+            plan["wait_s"] = wait_s = 0.0
+            plan["start_phase_s"] = plan["phase_s"]
+            plan["end_phase_s"] = plan["phase_s"] + burst_s
+        if wait_s > 0:
+            sleep_fn(wait_s)
+        summary["transmit_phase"] = {
+            k: plan[k] for k in ("reason", "wait_s", "phase_s",
+                                 "start_phase_s", "end_phase_s",
+                                 "fits_lane", "crosses_boundary")
+        }
+        summary["transmit_phase"]["burst_s"] = burst_s
+        summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
+
+    media_key = rc_media_key.prepare_keyed_send(
+        settings, gate_info=gate_info, daemon=daemon,
+        stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
+        payload=encode["jpeg_data"], payload_path=final_path,
+        chunk_b64_chars=settings["pacing_chunk_b64_chars"])
+    tx = bm_open_fn(settings["config_path"])
+    cmd_hooks.boot_mark("transmit_start")
+    if heals is not None and heal_msgs:
+        # Reserve the image's whole burst: START + chunks + END (+ a=inc).
+        heals.send_before_start(
+            tx, budget,
+            reserve_msgs=encode["message_count"] + 2 + (0 if selection["fits"] else 1),
+            delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
+    result = transmit_progressive_image(
+        tx,
+        budget,
+        jpeg_data=encode["jpeg_data"],
+        compressed_file_name=final_name,
+        quality=selection["quality"],
+        enc_attempts=selection["attempts"],
+        fits=selection["fits"],
+        selector_reason=selection["reason"],
+        chunk_b64_chars=settings["pacing_chunk_b64_chars"],
+        delay_seconds=settings["pacing_delay_seconds"],
+        start_metadata=start_metadata,
+        capture_metadata=capture_metadata,
+        cpu_temp_text=_cpu_temp_text(),
+        software_sha=get_software_sha(),
+        hostname=get_hostname(),
+        sleep_fn=sleep_fn,
+        clock=clock,
+        # Sprint11 C3/D5: with defer_acks_during_transmit, no ack is
+        # submitted between the first and last chunk — an ack shares
+        # the same 2-slot cellular queue as the image.
+        ack_drain_fn=cmd_hooks.make_ack_drain_fn(
+            daemon, summary, clock=clock,
+            defer=bool((bm_commands_cfg or {}).get(
+                "defer_acks_during_transmit"))),
+        pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
+        media_key=media_key,
+    )
+    summary["transmit_result"] = result
+    print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "
+          f"complete={result['complete_send']} "
+          f"incomplete_emitted={result['incomplete_emitted']} "
+          f"uart={result['uart_duration_sec']:.1f}s")
+
+    try:
+        update_capture_metadata(final_path, {
+            "transmit_success": result["complete_send"],
+            "sent_buffers": result["sent"],
+            "planned_buffers": result["planned"],
+            "transmit_duration_sec": result["uart_duration_sec"],
+        })
+    except Exception as exc:
+        debug_print(f"RC post-transmit sidecar update failed: {exc}")
+
+    try:
+        log_message(
+            datetime.now(),
+            final_name,
+            os.path.getsize(native_path) if native_path and os.path.exists(native_path) else 0,
+            encode["jpeg_bytes"],
+            selection["quality"],
+            result["sent"],
+            budget.elapsed_s() / 60.0,
+            True,
+            float(_cpu_temp_text()) if _cpu_temp_text() != "na" else 0.0,
+        )
+    except Exception as exc:
+        debug_print(f"RC CSV log failed, continuing safely: {exc}")
+
+    # Sprint11 C3: the image is off the wire — release the deferred
+    # acks now, before the tail, so they are not delayed by it.
+    cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                         label="post-transmit ack flush")
+    # Sprint25 S5: one <HL> per key after END, paced, on the image's tx.
+    if heals is not None:
+        heals.send_status_after_end(
+            tx, budget, wake_key=media_key,
+            delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
+    # Sprint11 C4/D6: bounded listen tail. This is when the mailbox
+    # drain our own transmit triggered actually arrives (finding 006).
+    cmd_hooks.post_transmit_listen(
+        daemon, bm_commands_cfg or {}, summary, budget,
+        clock=clock, sleep_fn=sleep_fn,
+    )
+
+    return summary
+
+
 def run_cycle(
     settings,
     *,
@@ -540,331 +888,14 @@ def run_cycle(
           f"pacing={settings['pacing_delay_seconds']}s/msg")
 
     try:
-        # Schedule gate — transmit runs only (manual/bench modes must not
-        # touch the BM bus; the Spotter-time read opens the UART). With
-        # the daemon active the gate reads Spotter time over the SHARED
-        # port instead of opening its own (D11).
-        gate_info, gate_mono = None, clock()
-        if transmit and not skip_time_window and settings["enforce_time_window"]:
-            allowed, info = should_transmit_now_from_schedule(
-                settings["config_path"],
-                **cmd_hooks.gate_kwargs_for(daemon, settings)
-            )
-            # Sprint11 C2: the gate's Spotter read is also the grid clock.
-            # Pin it to a monotonic instant HERE and extrapolate later; the
-            # transmit decision happens minutes after this read.
-            gate_info, gate_mono = info, clock()
-            cmd_hooks.boot_mark("spotter_utc_read")
-            summary["schedule_allowed"] = allowed
-            print(f"[RC] schedule gate: {info.get('reason')}")
-            if not allowed:
-                try:
-                    wake_fn(
-                        action="skip_win",
-                        timezone_name=settings["timezone"],
-                        local_time=info.get("local_time"),
-                        window_start=settings["window_start"],
-                        window_end=settings["window_end"],
-                        image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
-                        image_quality=settings["q_max"],
-                        reason="window",
-                    )
-                except Exception as exc:
-                    debug_print(f"Wake status send failed, continuing safely: {exc}")
-                return summary
-
-        if transmit:
-            try:
-                wake_fn(
-                    action="cap",
-                    timezone_name=settings["timezone"],
-                    local_time=None,
-                    window_start=settings["window_start"],
-                    window_end=settings["window_end"],
-                    image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
-                    image_quality=settings["q_max"],
-                    reason=None,
-                )
-            except Exception as exc:
-                debug_print(f"Wake status send failed, continuing safely: {exc}")
-
-        # Sprint11 C1/D2: capture-first. There is NO pre-capture listen
-        # window any more — it moved transmit start from ~:01:00 to
-        # ~:03:10, which put a 194 s burst straight through the :05:00
-        # blackout boundary at ~62 % through (measured first-gap mean
-        # 65.5 %). Commands now apply from cached state on the NEXT boot,
-        # which is already how `win` behaved. The listening moved to the
-        # bounded post-transmit tail, where finding 006 says the mailbox
-        # drain actually arrives.
-
-        # Sprint10 v2: `src` command can substitute a committed reference
-        # native for the camera capture (field debug — separates "camera
-        # broken" from "link broken" without a site visit). CLI
-        # --compress-only still wins, so bench use is unaffected.
-        if native_path is None and settings.get("source_image_path"):
-            native_path = stage_source_image(
-                settings["source_image_path"], output_dir
-            )
-            summary["source_image"] = settings["source_image_path"]
-            summary["source_image_staged"] = native_path
-            print(f"[RC] src override: camera SKIPPED, using reference "
-                  f"{settings['source_image_path']}")
-
-        # Capture (or reuse an existing native in --compress-only).
-        capture_info = {}
-        if native_path is None:
-            native_path, capture_info, image_stem = capture_fn(settings, output_dir)
-            summary["native_path"] = native_path
-        else:
-            image_stem = os.path.splitext(os.path.basename(native_path))[0]
-            if image_stem.endswith("_native_full"):
-                image_stem = image_stem[: -len("_native_full")]
-        print(f"[RC] native ready: {native_path} "
-              f"({os.path.getsize(native_path)} B, elapsed={budget.elapsed_s():.1f}s)")
-
-        # M2 prepare (once per cycle; every ladder attempt reuses it).
-        source = prepare_source(
-            native_path, settings["crop_native_xywh"], settings["output_width"]
+        return still_action(
+            settings, summary, daemon, budget,
+            transmit=transmit, capture_only=capture_only, native_path=native_path,
+            skip_time_window=skip_time_window, output_dir=output_dir,
+            capture_fn=capture_fn, bm_open_fn=bm_open_fn, wake_fn=wake_fn,
+            sleep_fn=sleep_fn, clock=clock, bm_commands_cfg=bm_commands_cfg,
+            bench_commands=bench_commands, grid_clock_fn=grid_clock_fn,
         )
-        print(f"[RC] source prepared: {source.size[0]}x{source.size[1]} "
-              f"(elapsed={budget.elapsed_s():.1f}s)")
-
-        if capture_only:
-            print("[RC] --capture-only: stopping before encode/transmit.")
-            return summary
-
-        # M3 adaptive selection.
-        selection = select_quality(
-            source,
-            budget,
-            ladder=settings["quality_ladder"],
-            message_cap=settings["message_cap"],
-            chunk_b64_chars=settings["pacing_chunk_b64_chars"],
-        )
-        summary["selection"] = {
-            k: selection[k] for k in ("quality", "attempts", "fits", "reason")
-        }
-        summary["selection"]["attempt_log"] = selection["attempt_log"]
-        for a in selection["attempt_log"]:
-            print(f"[RC] attempt q{a['quality']}: {a['jpeg_bytes']} B, "
-                  f"{a['message_count']} msgs, over_cap={a['over_cap']}, "
-                  f"budget_fit={a['budget_fit']}")
-        print(f"[RC] selection: quality={selection['quality']} "
-              f"attempts={selection['attempts']} fits={selection['fits']} "
-              f"reason={selection['reason']}")
-
-        if selection["encode"] is None:
-            raise RuntimeError("no encode possible within budget (attempts=0)")
-
-        encode = selection["encode"]
-        final_name = f"{image_stem}_compressed.jpg"
-        final_path = os.path.join(output_dir, final_name)
-        with open(final_path, "wb") as f:
-            f.write(encode["jpeg_data"])
-        summary["final_path"] = final_path
-        print(f"[RC] final JPEG: {final_path} ({encode['jpeg_bytes']} B, "
-              f"{encode['message_count']} msgs, sha256={encode['jpeg_sha256'][:16]}...)")
-
-        # Sidecar metadata (production pattern) + libcamera metadata for END.
-        libcamera_metadata = _load_libcamera_metadata_json(capture_info.get("metadata_json"))
-        storage_health = collect_storage_health()
-        try:
-            capture_metadata = update_capture_metadata(final_path, {
-                "software_sha": get_software_sha(),
-                "hostname": get_hostname(),
-                "metadata_schema": "bmcam_runtime_sidecar_v1",
-                "metadata_source": "rc_progressive_jpeg",
-                "utc_capture_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "capture_mode": "progressive_jpeg",
-                "img_format": "pjpg",
-                "jpeg_quality_used": selection["quality"],
-                "enc_attempts": selection["attempts"],
-                "fits": selection["fits"],
-                "selector_reason": selection["reason"],
-                "attempt_log": selection["attempt_log"],
-                "jpeg_bytes": encode["jpeg_bytes"],
-                "base64_chars": encode["base64_len"],
-                "message_count": encode["message_count"],
-                "jpeg_sha256": encode["jpeg_sha256"],
-                "crop_native_xywh": list(settings["crop_native_xywh"]),
-                "output_size": list(settings["output_size"]),
-                "native_path": native_path,
-                **{k: v for k, v in capture_info.items() if k != "requested_camera_controls"},
-                **libcamera_metadata,
-                **storage_health,
-            }) or {}
-        except Exception as exc:
-            debug_print(f"RC sidecar update failed, continuing safely: {exc}")
-            capture_metadata = libcamera_metadata
-
-        est_minutes = encode["message_count"] * settings["pacing_delay_seconds"] / 60.0
-        if not transmit:
-            print(f"[RC] send plan (NO transmit): {encode['message_count']} chunks "
-                  f"(+2 START/END) at q{selection['quality']}, "
-                  f"est {est_minutes:.1f} min, fits={selection['fits']}")
-            # Bench-commands mode: no image transmit, but late commands
-            # still ack + persist for the next cycle.
-            cmd_hooks.drain_now(daemon, summary, clock=clock)
-            # Sprint13: without a transmit there is no C4 tail, which
-            # left a bench_commands cycle listening for only ~15 s —
-            # untestable from a console (found on bmcam003, 2026-08-01).
-            # Bench cycles now hold the same bounded listen window.
-            # Gated on bench_commands so every production path (transmit
-            # and plain no-transmit runs) stays byte-identical.
-            if bench_commands and daemon is not None:
-                cmd_hooks.post_transmit_listen(
-                    daemon, bm_commands_cfg or {}, summary, budget,
-                    clock=clock, sleep_fn=sleep_fn,
-                )
-            return summary
-
-        # M5 transmit (complete or bounded).
-        start_metadata = {
-            "image_res_key": f"{settings['output_size'][0]}x{settings['output_size'][1]}",
-            "timezone": settings["timezone"],
-            "window_start": settings["window_start"],
-            "window_end": settings["window_end"],
-            "software_sha": get_software_sha(),
-            "hostname": get_hostname(),
-            **storage_health,
-        }
-
-        # Sprint25 S5: this wake's rsd heals go right before START; plan them
-        # now so the lane plan below counts them. None without a daemon.
-        heals = rc_heal.begin_wake(
-            daemon, settings, summary,
-            pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
-        heal_msgs = heals.planned_msgs if heals is not None else 0
-
-        # --- Sprint11 C2: wait for a clean lane on the 5-minute grid -----
-        # Everything above this line is cycle-relative; this is the ONE
-        # place that reasons in absolute UTC (DESIGN D1).
-        phase_cfg = settings.get("transmit_phase_cfg") or {}
-        if phase_cfg.get("enabled"):
-            burst_s = rc_transmit_phase.burst_seconds_for(
-                encode["message_count"] + heal_msgs, settings["pacing_delay_seconds"],
-                incomplete=not selection["fits"],
-            )
-            grid_clock = grid_clock_fn(
-                gate_info, gate_mono, daemon=daemon, clock=clock)
-            plan = rc_transmit_phase.plan_from_clock(
-                grid_clock, burst_s, phase_cfg)
-            print(rc_transmit_phase.describe_plan(plan, burst_s))
-            wait_s = plan["wait_s"]
-            # A wait spends the SAME budget the transmit needs. Waiting into
-            # a budget that can no longer hold the burst would truncate the
-            # image mid-send via the per-chunk guard — the exact failure
-            # this sprint exists to remove. Sending at a bad phase loses
-            # ~7 chunks; a truncated send loses the tail of the image.
-            if wait_s > 0 and not budget.has_time_for(wait_s + burst_s):
-                print(f"[PHASE][WARN] skipping the {wait_s:.0f}s lane wait: "
-                      f"only {budget.remaining_s():.0f}s of budget left, "
-                      f"burst needs {burst_s:.0f}s. Transmitting now, "
-                      f"unscheduled.")
-                plan["reason"] = "skipped_no_budget"
-                plan["skipped_wait_s"] = wait_s
-                plan["wait_s"] = wait_s = 0.0
-                plan["start_phase_s"] = plan["phase_s"]
-                plan["end_phase_s"] = plan["phase_s"] + burst_s
-            if wait_s > 0:
-                sleep_fn(wait_s)
-            summary["transmit_phase"] = {
-                k: plan[k] for k in ("reason", "wait_s", "phase_s",
-                                     "start_phase_s", "end_phase_s",
-                                     "fits_lane", "crosses_boundary")
-            }
-            summary["transmit_phase"]["burst_s"] = burst_s
-            summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
-
-        media_key = rc_media_key.prepare_keyed_send(
-            settings, gate_info=gate_info, daemon=daemon,
-            stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
-            payload=encode["jpeg_data"], payload_path=final_path,
-            chunk_b64_chars=settings["pacing_chunk_b64_chars"])
-        tx = bm_open_fn(settings["config_path"])
-        cmd_hooks.boot_mark("transmit_start")
-        if heals is not None and heal_msgs:
-            # Reserve the image's whole burst: START + chunks + END (+ a=inc).
-            heals.send_before_start(
-                tx, budget,
-                reserve_msgs=encode["message_count"] + 2 + (0 if selection["fits"] else 1),
-                delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
-        result = transmit_progressive_image(
-            tx,
-            budget,
-            jpeg_data=encode["jpeg_data"],
-            compressed_file_name=final_name,
-            quality=selection["quality"],
-            enc_attempts=selection["attempts"],
-            fits=selection["fits"],
-            selector_reason=selection["reason"],
-            chunk_b64_chars=settings["pacing_chunk_b64_chars"],
-            delay_seconds=settings["pacing_delay_seconds"],
-            start_metadata=start_metadata,
-            capture_metadata=capture_metadata,
-            cpu_temp_text=_cpu_temp_text(),
-            software_sha=get_software_sha(),
-            hostname=get_hostname(),
-            sleep_fn=sleep_fn,
-            clock=clock,
-            # Sprint11 C3/D5: with defer_acks_during_transmit, no ack is
-            # submitted between the first and last chunk — an ack shares
-            # the same 2-slot cellular queue as the image.
-            ack_drain_fn=cmd_hooks.make_ack_drain_fn(
-                daemon, summary, clock=clock,
-                defer=bool((bm_commands_cfg or {}).get(
-                    "defer_acks_during_transmit"))),
-            pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
-            media_key=media_key,
-        )
-        summary["transmit_result"] = result
-        print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "
-              f"complete={result['complete_send']} "
-              f"incomplete_emitted={result['incomplete_emitted']} "
-              f"uart={result['uart_duration_sec']:.1f}s")
-
-        try:
-            update_capture_metadata(final_path, {
-                "transmit_success": result["complete_send"],
-                "sent_buffers": result["sent"],
-                "planned_buffers": result["planned"],
-                "transmit_duration_sec": result["uart_duration_sec"],
-            })
-        except Exception as exc:
-            debug_print(f"RC post-transmit sidecar update failed: {exc}")
-
-        try:
-            log_message(
-                datetime.now(),
-                final_name,
-                os.path.getsize(native_path) if native_path and os.path.exists(native_path) else 0,
-                encode["jpeg_bytes"],
-                selection["quality"],
-                result["sent"],
-                budget.elapsed_s() / 60.0,
-                True,
-                float(_cpu_temp_text()) if _cpu_temp_text() != "na" else 0.0,
-            )
-        except Exception as exc:
-            debug_print(f"RC CSV log failed, continuing safely: {exc}")
-
-        # Sprint11 C3: the image is off the wire — release the deferred
-        # acks now, before the tail, so they are not delayed by it.
-        cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
-                             label="post-transmit ack flush")
-        # Sprint25 S5: one <HL> per key after END, paced, on the image's tx.
-        if heals is not None:
-            heals.send_status_after_end(
-                tx, budget, wake_key=media_key,
-                delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
-        # Sprint11 C4/D6: bounded listen tail. This is when the mailbox
-        # drain our own transmit triggered actually arrives (finding 006).
-        cmd_hooks.post_transmit_listen(
-            daemon, bm_commands_cfg or {}, summary, budget,
-            clock=clock, sleep_fn=sleep_fn,
-        )
-
-        return summary
 
     finally:
         # Last command pickup + reader stop before the port closes.
