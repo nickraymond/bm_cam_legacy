@@ -94,7 +94,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | `still_bench`, `still_heal` | acks go out mid-burst (`defer_acks_during_transmit: false`) | W2 (S3a, supervisor only: `vectors_supervisor/`) |
 | `still_window_skip`, `video_window_skip` | no listen tail after a window skip | W3 (S3a, supervisor only) |
 | `video_window_skip` | a video unit outside its window sends nothing, not even a `<WS>` | W3 (S3a, supervisor only) |
-| `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3) |
+| `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3a, supervisor only) |
 | `video_trigger_pending` | a video unit never services `trg`; it stays armed | W5 (S3) |
 | `still_trigger` | a trigger boot skips the gate, so the system clock is NOT set from the Spotter | W6 (S3) |
 | all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |

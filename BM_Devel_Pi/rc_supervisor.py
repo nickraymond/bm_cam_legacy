@@ -49,8 +49,9 @@ class Boot:
     """One per_boot run: the budget, the port owner and the action's summary."""
 
     def __init__(self, settings, *, media, bm_commands_cfg, command_state, transmit,
-                 bench_commands, action_log=ACTION_LOG):
+                 bench_commands, action_log=ACTION_LOG, reresolve_fn=None):
         self.settings = settings
+        self.reresolve_fn = reresolve_fn    # W4: settings -> settings with the overlay re-read
         self.media = media
         self.bm_commands_cfg = bm_commands_cfg
         self.command_state = command_state
@@ -81,6 +82,34 @@ class Boot:
                                     self.bm_commands_cfg, self.command_state)
         self.end_line = end_line      # only once the action's budget exists
         return self.owner.daemon, self.budget
+
+    def boot_drain(self, settings, summary, sleep_fn):
+        """W4 (DESIGN §4 "drain queued commands"): apply the commands that are
+        already here, THIS boot. Non-blocking: one yield to the reader thread
+        (sleep_fn(0.0): nothing on the unit; the golden harness's fake sleep
+        lets the reader finish what is on the wire), then what the daemon has
+        decoded is parsed, persisted and its ack queued (acks keep their
+        normal flush after END). If anything was applied, the command overlay
+        is re-resolved from the YAML base, so it governs this boot's action.
+        The budget is not rebuilt (it was anchored before the daemon, G1).
+        Then, for stills, a pending trg is serviced (it may have just
+        arrived). -> (settings, flags)."""
+        flags = {"skip_time_window": False, "capture_only": False}
+        daemon = self.owner.daemon if self.owner else None
+        if daemon is not None:
+            sleep_fn(0.0)
+            events = daemon.process_pending()
+            summary["command_events"].extend(e["action"] for e in events)
+            if events and self.reresolve_fn is not None:
+                print(f"[SUP] boot drain: {len(events)} command(s) applied this boot")
+                settings = self.reresolve_fn(settings)
+        if self.media == "still" and self.command_state is not None:
+            settings, flags = cmd_hooks.service_pending_trigger(
+                settings, self.command_state, transmit=self.transmit)
+            if settings.get("trigger"):
+                summary["trigger"] = settings["trigger"]
+        self.settings = settings
+        return settings, flags
 
     def finish(self):
         """shutdown -> close -> halt (never raises). An action that failed before

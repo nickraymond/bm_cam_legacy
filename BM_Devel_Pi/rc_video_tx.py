@@ -453,6 +453,8 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                 summary, clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
                 bm_close_fn=bm_close_fn, daemon_factory=daemon_factory, log_fn=print,
                 close_warn=close_warn, end_line=end_line)
+            # W4: commands already queued apply THIS boot.
+            settings, _flags = supervised.boot_drain(settings, summary, sleep_fn)
         else:
             owner.begin()
         # 0. S3: the command daemon, when the cycle may touch the bus. Inside the

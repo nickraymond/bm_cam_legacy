@@ -53,6 +53,7 @@ Assumptions / known limitations:
 """
 
 import argparse
+import copy
 import os
 import shutil
 import sys
@@ -919,6 +920,10 @@ def run_cycle(
             summary, clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
             bm_close_fn=bm_close_fn, daemon_factory=daemon_factory, log_fn=debug_print,
             close_warn=close_warn, end_line=end_line)
+        # W4: commands already queued apply THIS boot; then the pending trg.
+        settings, trigger_flags = supervised.boot_drain(settings, summary, sleep_fn)
+        skip_time_window = skip_time_window or trigger_flags["skip_time_window"]
+        capture_only = capture_only or trigger_flags["capture_only"]
     print(f"[RC] cycle start: budget={settings['budget_seconds']}s "
           f"pacing={settings['pacing_delay_seconds']}s/msg")
 
@@ -1063,6 +1068,7 @@ def main(argv=None, **cycle_overrides):
     # runs when the cycle may touch the bus (--transmit/--bench-commands).
     bm_commands_cfg = load_bm_commands_config(args.config_path)
     command_state = None
+    reresolve_fn = None
     if bm_commands_cfg["enabled"]:
         command_state = CommandState(path=bm_commands_cfg["state_path"])
         print(f"[CMD] bm_commands enabled: topic={bm_commands_cfg['topic']} "
@@ -1070,7 +1076,19 @@ def main(argv=None, **cycle_overrides):
               f"defer_acks={bm_commands_cfg['defer_acks_during_transmit']} "
               f"state={command_state.path} (loaded from "
               f"{command_state.load_info['source']})")
+        base_settings = copy.deepcopy(settings)
         settings = _apply_command_overlay(settings, command_state)
+
+        def _reresolve(current):
+            """W4: the overlay re-read onto the YAML base after the boot drain.
+            Only what main() adds AFTER the overlay is carried over (the video
+            block); everything else comes fresh, so an override the new state
+            no longer holds (e.g. camera_controls_override) is dropped."""
+            fresh = _apply_command_overlay(copy.deepcopy(base_settings), command_state)
+            if "video" in current:
+                fresh["video"] = current["video"]
+            return fresh
+        reresolve_fn = _reresolve
 
     # Sprint16 (D-S16-3): apply the network boot default (fire-and-forget;
     # a WiFi problem must never cost a capture cycle). No island = no-op,
@@ -1126,7 +1144,7 @@ def main(argv=None, **cycle_overrides):
                 sup = rc_supervisor.Boot(
                     settings, media="video", bm_commands_cfg=bm_commands_cfg,
                     command_state=command_state, transmit=args.transmit,
-                    bench_commands=args.bench_commands)
+                    bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
                 summary = rc_supervisor.run_per_boot(
                     sup, lambda b: rc_video_tx.run_video_tx_cycle(
                         settings, video_tx_cfg, supervised=b, **video_kwargs))
@@ -1163,7 +1181,12 @@ def main(argv=None, **cycle_overrides):
     # --transmit boot services it; the flags force the one-shot window
     # bypass and (trg 1) the capture-only path.
     trigger_flags = {"skip_time_window": False, "capture_only": False}
-    if command_state is not None:
+    if runtime == "supervisor" and args.capture_only:
+        print("[RUNTIME] --capture-only runs the legacy code until S3c (PLAN_S3a.md G4)")
+        runtime = "legacy"
+    # W4: under the supervisor the trg is serviced after the boot drain
+    # (rc_supervisor.Boot.boot_drain), so a trg queued at boot fires this boot.
+    if command_state is not None and runtime != "supervisor":
         settings, trigger_flags = cmd_hooks.service_pending_trigger(
             settings, command_state, transmit=args.transmit)
 
@@ -1180,16 +1203,13 @@ def main(argv=None, **cycle_overrides):
         bench_commands=args.bench_commands,
         **cycle_overrides,
     )
-    if runtime == "supervisor" and args.capture_only:
-        print("[RUNTIME] --capture-only runs the legacy code until S3c (PLAN_S3a.md G4)")
-        runtime = "legacy"
     try:
         if runtime == "supervisor":
             import rc_supervisor
             sup = rc_supervisor.Boot(
                 settings, media="still", bm_commands_cfg=bm_commands_cfg,
                 command_state=command_state, transmit=args.transmit,
-                bench_commands=args.bench_commands)
+                bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(
                 sup, lambda b: run_cycle(settings, supervised=b, **cycle_kwargs))

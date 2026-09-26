@@ -42,7 +42,7 @@ VECTORS = os.path.join(GOLDEN, "vectors")
 # in vectors_supervisor/<scenario>/, and only for the scenarios named here.
 VECTORS_SUPERVISOR = os.path.join(GOLDEN, "vectors_supervisor")
 SUPERVISOR_DIFFERS = {      # scenario -> the W-item(s) that make it differ
-    "still_bench": "W2", "still_heal": "W2",
+    "still_bench": "W2+W4", "still_heal": "W2",
     "still_window_skip": "W3", "video_window_skip": "W3",
 }
 SETTINGS = os.path.join(GOLDEN, "settings")

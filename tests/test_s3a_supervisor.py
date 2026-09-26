@@ -181,5 +181,70 @@ class OtherPaths(Base):
                          ("supervisor", "per_boot", "still"))
 
 
+class BootDrainW4(Base):
+    """W4: what is queued at boot applies this boot, and a trg that just
+    arrived is serviced AFTER the drain (it fires this boot)."""
+
+    def test_drain_then_reresolve_then_trigger(self):
+        order = []
+
+        class D:
+            def start(self_inner):
+                pass
+
+            def process_pending(self_inner):
+                order.append("process_pending")
+                return [{"action": "applied"}]
+
+        sup = rc_supervisor.Boot(dict(SETTINGS), media="still", bm_commands_cfg=CMDS,
+                                 command_state=object(), transmit=True, bench_commands=False,
+                                 action_log=self.log,
+                                 reresolve_fn=lambda s: order.append("reresolve") or dict(s, roi=2))
+        quiet(sup.start, {}, clock=self.clock, sleep_fn=lambda s: order.append(f"sleep{s}"),
+              halt_fn=self.rec.halt, bm_close_fn=self.rec.close,
+              daemon_factory=lambda s, c, st: D(), log_fn=print, close_warn=print,
+              end_line=lambda: "end")
+        summary = {"command_events": []}
+
+        def fake_trigger(settings, state, transmit):
+            order.append("trigger")
+            return dict(settings, trigger={"id": 9}), {"skip_time_window": True,
+                                                       "capture_only": False}
+
+        orig = rc_supervisor.cmd_hooks.service_pending_trigger
+        rc_supervisor.cmd_hooks.service_pending_trigger = fake_trigger
+        try:
+            settings, flags = quiet(sup.boot_drain, dict(SETTINGS), summary,
+                                    lambda s: order.append(f"sleep{s}"))
+        finally:
+            rc_supervisor.cmd_hooks.service_pending_trigger = orig
+        self.assertEqual(order, ["sleep0.0", "process_pending", "reresolve", "trigger"])
+        self.assertEqual((settings["roi"], settings["trigger"]), (2, {"id": 9}))
+        self.assertTrue(flags["skip_time_window"])
+        self.assertEqual(summary["command_events"], ["applied"])
+        self.assertEqual(summary["trigger"], {"id": 9})
+
+    def test_nothing_queued_keeps_settings(self):
+        class D:
+            def start(self_inner):
+                pass
+
+            def process_pending(self_inner):
+                return []
+
+        calls = []
+        sup = rc_supervisor.Boot(dict(SETTINGS), media="video", bm_commands_cfg=CMDS,
+                                 command_state=object(), transmit=True, bench_commands=False,
+                                 action_log=self.log, reresolve_fn=calls.append)
+        quiet(sup.start, {}, clock=self.clock, sleep_fn=self.clock.sleep, halt_fn=self.rec.halt,
+              bm_close_fn=self.rec.close, daemon_factory=lambda s, c, st: D(), log_fn=print,
+              close_warn=print, end_line=lambda: "end")
+        before = dict(SETTINGS)
+        settings, flags = quiet(sup.boot_drain, before, {"command_events": []}, self.clock.sleep)
+        self.assertIs(settings, before)
+        self.assertEqual(calls, [])               # video: no trg before W5 either
+        self.assertEqual(flags, {"skip_time_window": False, "capture_only": False})
+
+
 if __name__ == "__main__":
     unittest.main()
