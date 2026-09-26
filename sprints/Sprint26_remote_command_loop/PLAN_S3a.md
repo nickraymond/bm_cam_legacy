@@ -1,6 +1,6 @@
 # Sprint26 S3a — one runtime, per_boot parity: implementation plan
 
-Written 2026-09-26. Status: **APPROVED (Nick, 2026-09-26)** — G1–G5 ruled as proposed; O3 → W10 in S3b.
+Written 2026-09-26. Status: **DONE 2026-09-26** — bench gate PASS on bmcam003 (runs/s3a_bench_20260926/RESULTS.md); PR #79. G1–G5 ruled as proposed; O3 → W10 in S3b; bmcam004 follows at the start of S3b (Nick).
 Branch `feature/sprint26-s3a-runtime` from `origin/development` a1341f8 (S2 / PR #78 merged).
 Spec: `DESIGN_supervisor.md` §4, §8.1–8.3, §10–11; `REVIEW_20260925.md` K1, K3–K6, R7;
 `PLAN_S2.md` G1 (v8 state stays in the `v8` section) and G2 (v1-shaped render on /dev/shm).

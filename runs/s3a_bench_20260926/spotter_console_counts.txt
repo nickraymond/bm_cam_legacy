@@ -1,0 +1,4 @@
+legacy_video: queued_cell=215 full=0 unable=0
+supervisor_video: queued_cell=183 full=32 unable=32
+legacy_stills: queued_cell=185 full=0 unable=0
+supervisor_stills: queued_cell=187 full=1 unable=1

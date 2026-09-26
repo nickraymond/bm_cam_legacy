@@ -1,0 +1,13 @@
+{
+  "run": "s3a_bench_20260926",
+  "purpose": "Sprint26 S3a stage gate (PLAN_S3a.md section 2): supervisor runtime on bmcam003, bmcam004 control",
+  "code": {"branch": "feature/sprint26-s3a-runtime", "sha": "fcd7bfd", "pr": 79},
+  "units": {
+    "bmcam003": {"spotter": "SPOT-33507C", "bridge": "c3c564b91856226c", "before": "S2 4c4fe8f, legacy, cfg 81e05dee", "after": "S3a fcd7bfd, supervisor, cfg 5e679ef9, armed"},
+    "bmcam004": {"spotter": "SPOT-31593C", "bridge": "0e582dd12c1e1480", "before": "S2 f73129a, legacy, cfg 81e05dee", "after": "unchanged (moves at the start of S3b)"}
+  },
+  "spotter_changes": ["21:44Z SPOT-33507C bridgePowerControllerEnabled 0 (bus held on)", "22:18Z restored to 1 (hourly 3600000/600000, aligned)"],
+  "commands_sent": ["26301 ping (lost: sent between processes)", "26302 ping (supervisor mid-burst)", "26303 ping (legacy mid-burst)", "26304 ping (lost: stub window)", "26305 ping (queued while bus off, for the 23:00Z wake)"],
+  "result": "PASS",
+  "files": {"RESULTS.md": "the record", "live/": "per-cycle logs pulled from the Pi", "bench.log": "driver output", "console_commands.log": "every Spotter console command", "*_deploy_s3a.log": "field-update log"}
+}

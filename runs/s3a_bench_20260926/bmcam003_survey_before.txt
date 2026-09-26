@@ -1,0 +1,38 @@
+total 6608
+drwxrwxr-x 2 pi pi    4096 Sep 26 21:46 .
+drwxrwxr-x 3 pi pi    4096 Sep 26 21:45 ..
+-rw-rw-r-- 1 pi pi     279 Sep 25 23:01 bm_command_state.json
+-rw-r--r-- 1 pi pi     680 Sep 26 18:01 bm_command_state_v2.json
+-rw-rw-r-- 1 pi pi 6715454 Sep 26 21:46 BM_Devel_Pi_before_s3abench.tgz
+-rw-rw-r-- 1 pi pi       6 Sep 26 21:00 bm_media_key_last.txt
+-rw-r--r-- 1 pi pi    3094 Sep 26 00:48 camera_config.lkg.json
+-rw-r--r-- 1 pi pi    6066 Sep 26 00:17 camera_config.yaml
+-rw-rw-r-- 1 pi pi    7867 Sep 26 00:16 camera_schedule.yaml
+-rw-rw-r-- 1 pi pi      98 Sep 26 21:45 crontab_ARMED.txt
+-rw-rw-r-- 1 pi pi      13 Sep 26 00:44 software_sha.txt
+--- survey
+bmcam003
+ 21:46:07 up 1 min,  1 user,  load average: 0.92, 0.36, 0.13
+Sat 26 Sep 21:46:07 UTC 2026
+--- deployed sha
+4c4fe8fe8897
+20260926T004421Z a71b6c774b32 mode=update profile=none cron=false
+20260926T004433Z 4c4fe8fe8897 mode=update profile=none cron=false cfg=81e05dee
+--- repo
+4c4fe8f S2 bench runbook for bmcam003 (awaiting Nick's OK)
+feature/sprint26-s2-settings
+--- last cycle log
+network_ap.log
+rc_cycle_20260926T210832Z.log
+[NET] 2026-09-26T18:30:43Z client WiFi UP: profile=nereus-hq
+[NET] 2026-09-26T19:00:43Z client WiFi UP: profile=nereus-hq
+[NET] 2026-09-26T20:00:43Z client WiFi UP: profile=nereus-hq
+[NET] 2026-09-26T21:00:43Z client WiFi UP: profile=nereus-hq
+[NET] 2026-09-26T21:45:29Z client WiFi UP: profile=nereus-hq
+--- config
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=81e05dee hv=1 registry=v1 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+--- mem
+               total        used        free      shared  buff/cache   available
+Mem:             415         167         101           2         202         247
+/dev/mmcblk0p2  115G   87G   24G  79% /
