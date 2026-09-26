@@ -67,6 +67,24 @@ harness notices). Two field scenarios run `main`'s committed runtime
 (`field_bmcam001_main`, `field_bmcam002_main`): that is the wire the backend
 must keep ingesting (DESIGN §11).
 
+## Both runtimes (Sprint26 S3a)
+
+Every wire scenario runs twice: under the legacy runtime and under
+`--runtime supervisor` (`test_wire_supervisor_<name>`), compared with the SAME
+vector. The two `field_*_main` scenarios pin `main`'s runtime and run once.
+The supervisor's action log (`app/cron_logs/supervisor_actions.jsonl`) must
+exist (proof the supervisor ran) and is left out of the compared file list.
+
+A deliberate supervisor-only wire change (W2–W6, PLAN_S3a.md G2) records its
+expected output under `vectors_supervisor/<scenario>/`, only for scenarios
+listed in `SUPERVISOR_DIFFERS` (tests/test_golden_vectors.py) with their
+W-item; a test fails if that directory holds anything else. Legacy vectors
+never change in S3a.
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire still_bench /tmp/out --runtime supervisor
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:

@@ -843,6 +843,7 @@ def run_cycle(
     bench_commands=False,
     daemon_factory=cmd_hooks.default_daemon_factory,
     grid_clock_fn=rc_transmit_phase.acquire_grid_clock,
+    supervised=None,
 ):
     """Run one RC cycle. Returns a summary dict; raises only on runtime failure
     before the halt (the halt itself runs in finally and never raises).
@@ -875,20 +876,38 @@ def run_cycle(
     if settings.get("trigger"):
         summary["trigger"] = settings["trigger"]
 
-    # Sprint26 S3a: the port owner runs daemon start and shutdown -> close ->
-    # halt. Legacy order kept: the daemon starts BEFORE the try, so a UART
-    # failure here skips close and halt (PLAN_S3a.md G5; the supervisor differs).
-    owner = PortOwner(settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
-                      clock=clock, sleep_fn=sleep_fn, log_fn=debug_print)
-    owner.begin()
-    daemon = None
-    if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
-        daemon = owner.start_daemon(daemon_factory, bm_commands_cfg, command_state)
+    def end_line():
+        # summary holds the budget the cycle actually charged; a win
+        # command re-overlays settings mid-cycle but never rebuilds the
+        # running CycleBudget (Phase B nit, 2026-07-27).
+        return (f"[RC] cycle end: elapsed={budget.elapsed_s():.1f}s of "
+                f"{summary['budget_seconds']}s; halt={summary['halt_result']['action']}")
 
-    # M1: ONE budget, charged from here on.
-    budget = CycleBudget(
-        settings["budget_seconds"], settings["pacing_delay_seconds"], clock=clock
-    )
+    def close_warn(exc):
+        debug_print(f"BM serial close failed: {exc}")
+
+    if supervised is None:
+        # Sprint26 S3a: the port owner runs daemon start and shutdown -> close
+        # -> halt. Legacy order kept: the daemon starts BEFORE the try, so a
+        # UART failure here skips close and halt (PLAN_S3a.md G5).
+        owner = PortOwner(settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
+                          clock=clock, sleep_fn=sleep_fn, log_fn=debug_print)
+        owner.begin()
+        daemon = None
+        if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
+            daemon = owner.start_daemon(daemon_factory, bm_commands_cfg, command_state)
+
+        # M1: ONE budget, charged from here on.
+        budget = CycleBudget(
+            settings["budget_seconds"], settings["pacing_delay_seconds"], clock=clock
+        )
+    else:
+        # Sprint26 S3a supervisor: the boot owns the budget (anchored before the
+        # daemon, G1), the daemon and shutdown -> close -> halt (always, G5).
+        daemon, budget = supervised.start(
+            summary, clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
+            bm_close_fn=bm_close_fn, daemon_factory=daemon_factory, log_fn=debug_print,
+            close_warn=close_warn, end_line=end_line)
     print(f"[RC] cycle start: budget={settings['budget_seconds']}s "
           f"pacing={settings['pacing_delay_seconds']}s/msg")
 
@@ -905,13 +924,11 @@ def run_cycle(
     finally:
         # Last command pickup + reader stop before the port closes, then
         # M6: halt runs on success AND failure/exhaustion paths (never raises).
-        owner.finish(summary, close_port=transmit or daemon is not None,
-                     close_warn=lambda exc: debug_print(f"BM serial close failed: {exc}"))
-        # summary holds the budget the cycle actually charged; a win
-        # command re-overlays settings mid-cycle but never rebuilds the
-        # running CycleBudget (Phase B nit, 2026-07-27).
-        print(f"[RC] cycle end: elapsed={budget.elapsed_s():.1f}s of "
-              f"{summary['budget_seconds']}s; halt={summary['halt_result']['action']}")
+        # Under the supervisor, run_per_boot does this after the action.
+        if supervised is None:
+            owner.finish(summary, close_port=transmit or daemon is not None,
+                         close_warn=close_warn)
+            print(end_line())
 
 
 # ---------------------------------------------------------------------------
@@ -1011,9 +1028,6 @@ def main(argv=None, **cycle_overrides):
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
     if not args.print_config:      # inspection output stays as before (settings goldens)
         print(f"[RUNTIME] {runtime} (source={runtime_source})")
-    if runtime == "supervisor":
-        # S3a.4: the switch exists before the supervisor does (S3a.5).
-        print("[RUNTIME][WARN] the supervisor is not in this build yet; running legacy")
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:
@@ -1091,15 +1105,27 @@ def main(argv=None, **cycle_overrides):
             # Sprint25 S3: the one-clip video cycle now runs the command daemon
             # too (same D11 predicate as stills) — before S3 a video_tx wake
             # never listened, so no command (or heal request) could reach it.
-            summary = rc_video_tx.run_video_tx_cycle(
-                settings, video_tx_cfg, transmit=args.transmit,
-                skip_time_window=args.skip_time_window,
+            video_kwargs = dict(
+                transmit=args.transmit, skip_time_window=args.skip_time_window,
                 bm_commands_cfg=bm_commands_cfg, command_state=command_state,
                 bench_commands=args.bench_commands, bench_drop_chunks=bench_drop_chunks)
+            if runtime == "supervisor":
+                import rc_supervisor
+                sup = rc_supervisor.Boot(
+                    settings, media="video", bm_commands_cfg=bm_commands_cfg,
+                    command_state=command_state, transmit=args.transmit,
+                    bench_commands=args.bench_commands)
+                summary = rc_supervisor.run_per_boot(
+                    sup, lambda b: rc_video_tx.run_video_tx_cycle(
+                        settings, video_tx_cfg, supervised=b, **video_kwargs))
+            else:
+                summary = rc_video_tx.run_video_tx_cycle(settings, video_tx_cfg, **video_kwargs)
             return 1 if summary.get("error") else 0
 
         if args.print_config:
             return 0
+        if runtime == "supervisor":
+            print("[RUNTIME] the recorder path runs the legacy code until S3c (PLAN_S3a.md G4)")
         try:
             return video_recorder.run_video_mode(
                 settings,
@@ -1130,20 +1156,33 @@ def main(argv=None, **cycle_overrides):
             settings, command_state, transmit=args.transmit)
 
     print_resolved_settings(settings)
+    cycle_kwargs = dict(
+        transmit=args.transmit,
+        capture_only=args.capture_only or trigger_flags["capture_only"],
+        native_path=args.compress_only,
+        skip_time_window=(args.skip_time_window
+                          or trigger_flags["skip_time_window"]),
+        output_dir=args.output_dir,
+        bm_commands_cfg=bm_commands_cfg,
+        command_state=command_state,
+        bench_commands=args.bench_commands,
+        **cycle_overrides,
+    )
+    if runtime == "supervisor" and args.capture_only:
+        print("[RUNTIME] --capture-only runs the legacy code until S3c (PLAN_S3a.md G4)")
+        runtime = "legacy"
     try:
-        run_cycle(
-            settings,
-            transmit=args.transmit,
-            capture_only=args.capture_only or trigger_flags["capture_only"],
-            native_path=args.compress_only,
-            skip_time_window=(args.skip_time_window
-                              or trigger_flags["skip_time_window"]),
-            output_dir=args.output_dir,
-            bm_commands_cfg=bm_commands_cfg,
-            command_state=command_state,
-            bench_commands=args.bench_commands,
-            **cycle_overrides,
-        )
+        if runtime == "supervisor":
+            import rc_supervisor
+            sup = rc_supervisor.Boot(
+                settings, media="still", bm_commands_cfg=bm_commands_cfg,
+                command_state=command_state, transmit=args.transmit,
+                bench_commands=args.bench_commands)
+            # run_cycle is looked up at call time (the golden harness wraps it).
+            rc_supervisor.run_per_boot(
+                sup, lambda b: run_cycle(settings, supervised=b, **cycle_kwargs))
+        else:
+            run_cycle(settings, **cycle_kwargs)
     except Exception as exc:
         print(f"[RC][ERROR] cycle failed: {exc}", file=sys.stderr)
         return 1

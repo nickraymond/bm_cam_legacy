@@ -387,7 +387,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                        clock=time.monotonic, now_fn=lambda: datetime.now(timezone.utc),
                        encoder_binary=None, ffmpeg_binary=None,
                        bm_commands_cfg=None, command_state=None, bench_commands=False,
-                       daemon_factory=None, bench_drop_chunks=None):
+                       daemon_factory=None, bench_drop_chunks=None, supervised=None):
     """Run one record -> fit -> send cycle. Returns a summary dict; the halt
     runs in `finally` on every path and never raises.
 
@@ -401,20 +401,44 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
     summary = {"transmit": transmit, "clip": None, "fit": None, "transmit_result": None,
                "schedule_allowed": True, "stage": "start", "error": None, "halt_result": None,
                "command_events": []}
-    budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"], clock=clock)
+    budget = None
+    if supervised is None:
+        budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"],
+                             clock=clock)
     print(f"[VTX] cycle start: budget={settings['budget_seconds']}s "
           f"pacing={settings['pacing_delay_seconds']}s/msg transmit={transmit}")
     port_state = {"opened": False}
     daemon = None
+
+    def end_line():
+        return (f"[VTX] cycle end: stage={summary['stage']} elapsed={budget.elapsed_s():.1f}s of "
+                f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+
+    def close_warn(exc):
+        print(f"[VTX][WARN] BM serial close failed: {exc}")
+
     # Sprint26 S3a: the port owner runs daemon start and shutdown -> close ->
     # halt. begin() is inside the try so a refused port session still halts.
-    owner = PortOwner(settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
-                      clock=clock, sleep_fn=sleep_fn, log_fn=print)
+    owner = None if supervised is not None else PortOwner(
+        settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn, clock=clock, sleep_fn=sleep_fn,
+        log_fn=print)
     try:
-        owner.begin()
+        if supervised is not None:
+            # Sprint26 S3a supervisor: the boot owns budget, daemon and
+            # shutdown -> close -> halt (run_per_boot, after this returns).
+            if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit,
+                                           bench_commands):
+                summary["stage"] = "daemon_start"
+            daemon, budget = supervised.start(
+                summary, clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
+                bm_close_fn=bm_close_fn, daemon_factory=daemon_factory, log_fn=print,
+                close_warn=close_warn, end_line=end_line)
+        else:
+            owner.begin()
         # 0. S3: the command daemon, when the cycle may touch the bus. Inside the
         #    try so a UART failure still reaches the halt.
-        if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
+        if supervised is None and cmd_hooks.should_run_daemon(
+                bm_commands_cfg, command_state, transmit, bench_commands):
             summary["stage"] = "daemon_start"
             factory = daemon_factory or cmd_hooks.default_daemon_factory
             port_state["opened"] = True     # set BEFORE the factory: it may open the UART and then fail
@@ -437,7 +461,6 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         # S3 ordering (RESEND_DEVICE.md §1): final pickup + paced ack flush +
         # reader stop -> close the shared port -> halt. Never in main()'s
         # finally: that would run after the halt against a closed UART.
-        owner.finish(summary, close_port=port_state["opened"],
-                     close_warn=lambda exc: print(f"[VTX][WARN] BM serial close failed: {exc}"))
-        print(f"[VTX] cycle end: stage={summary['stage']} elapsed={budget.elapsed_s():.1f}s of "
-              f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+        if supervised is None:
+            owner.finish(summary, close_port=port_state["opened"], close_warn=close_warn)
+            print(end_line())
