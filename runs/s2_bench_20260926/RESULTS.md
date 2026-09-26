@@ -79,10 +79,24 @@ once each. On bmcam003 both are in `config_journal.jsonl` (v8.twn null→2 at 01
   (two broke "never brick"); all fixed and pinned by tests before any hardware step
   (commit "S2 review fixes").
 
-## 4. State at close (18:05Z)
+## 4. bmcam004 follows (Nick, 2026-09-26 18:10Z)
 
-- bmcam003: S2 4c4fe8f on config v2, armed. v1 files untouched (rollback copy);
-  backups in `/home/pi/s2bench/backup/`.
-- bmcam004: development 9771d53 (S1), v1, armed. Its S2 migration is the next step.
-- Both Spotters: 30-min schedule (`sampleIntervalMs 1800000`), controller on. nereus000:
-  heal driver enabled, soak controller cron still running. Restore steps: `SOAK.md`.
+Caught at the 18:30 window (`migrate_bmcam004.sh`, log `bmcam004_migrate.log`):
+cron disarmed and the boot cycle stopped before transmit, S2 f73129a deployed from
+origin via `rc_field_update.sh --profile bmcam004/live_20260925` (print-config parity
+vs development: OK), migration dry-run OK, `--write`, redeploy: strict load OK, v1-vs-v2
+json parity OK, **hash 81e05dee = bmcam003's** (the two live YAMLs differ only in key
+order: the hash is canonical). v1 YAML byte-identical to the backup. Service key
+created; Mac copy `~/.config/nereus/unit_keys/bmcam004.key`.
+
+## 5. State at close (18:41Z) — soak stopped, everything restored
+
+- **bmcam003**: S2 4c4fe8f, config v2 (81e05dee), production crontab ARMED, halted.
+- **bmcam004**: S2 f73129a (same runtime; f73129a adds only this record), config v2
+  (81e05dee), production crontab ARMED, halted.
+- **Both Spotters**: back to `sampleIntervalMs 3600000`, `sampleDurationMs 600000`,
+  controller 1, aligned (read back) — as found on 2026-09-25.
+- **nereus000**: soak controller cron removed (no crontab, as found); `bm-heal-driver`
+  disabled again (as found); spotter-monitor running.
+- Rollback for either unit: redeploy the old SHA (v1 files untouched), or
+  `mv camera_config.yaml camera_config.yaml.off_<TS>`; backups in `/home/pi/s2bench/backup/`.

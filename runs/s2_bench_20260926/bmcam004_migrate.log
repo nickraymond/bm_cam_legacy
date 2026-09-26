@@ -1,0 +1,35 @@
+[m004] start 2026-09-26T18:30:40Z
+# DISABLED s2migrate: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+[m004] no cycle running
+[FIELD-UPDATE] repo: 9771d535e694 -> f73129ac6db7 (feature/sprint26-s2-settings)
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] installed 45 files; staging dir removed
+[FIELD-UPDATE] patched: image_buffer_size=384 image_transmit_delay_seconds=1.3 (backup: /home/pi/BM_Devel_Pi/camera_schedule.yaml.before_field_update_20260926T183043Z)
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[MIGRATE] app=/home/pi/BM_Devel_Pi config=/home/pi/BM_Devel_Pi/camera_schedule.yaml state=(v1 loader default) out_dir=/home/pi/BM_Devel_Pi mode=dry-run
+result: OK
+[MIGRATE] dry-run OK: re-run with --write to create the v2 files
+[MIGRATE] app=/home/pi/BM_Devel_Pi config=/home/pi/BM_Devel_Pi/camera_schedule.yaml state=(v1 loader default) out_dir=/home/pi/BM_Devel_Pi mode=WRITE
+[MIGRATE] wrote /home/pi/BM_Devel_Pi/bm_command_state_v2.json
+[MIGRATE] wrote /home/pi/BM_Devel_Pi/camera_config.yaml
+[MIGRATE] wrote /home/pi/BM_Devel_Pi/config_migration_report.md
+[MIGRATE] journaled in /home/pi/BM_Devel_Pi/config_journal.jsonl (hash 81e05dee)
+[MIGRATE] OK. v1 files untouched: rollback = redeploy the old SHA.
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash 81e05dee
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] installed 45 files; staging dir removed
+[RC-DEPLOY] service key CREATED: /home/pi/.config/nereus/service.key (mode 600). Copy it to Nereus NOW, then keep it off the repo:
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=81e05dee hv=1 registry=v1 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+20260926T183105Z f73129ac6db7 mode=update profile=none cron=false cfg=81e05dee
+{"h":"81e05dee","id":null,"key":"*","new":"config v2","note":"from /home/pi/BM_Devel_Pi/camera_schedule.yaml sha256 18d6dbe227ae15e0","old":null,"src":"migrate","t":"2026-09-26T18:31:05Z"}
+{"h":"81e05dee","id":null,"key":"*","new":"f73129ac6db7","old":null,"src":"deploy","t":"2026-09-26T18:31:23Z"}
+18d6dbe227ae15e0879d3d14ebd30eb8bdb420dd0f3a91f5e6fddb228b175954  camera_schedule.yaml
+4eee6295957956dde10a3d6a770ba219ff7d5f3f6de2b1aeaf02ee95b4d7949d  bm_command_state.json
+18d6dbe227ae15e0879d3d14ebd30eb8bdb420dd0f3a91f5e6fddb228b175954  /home/pi/s2bench/backup/camera_schedule.yaml
+5671478427b6786c91dfead5c2019c03e1c4295949db74801ecb2828ca762ff5  /home/pi/s2bench/backup/bm_command_state.json
+[m004] done 2026-09-26T18:31:26Z; halting (cron stays disarmed)
