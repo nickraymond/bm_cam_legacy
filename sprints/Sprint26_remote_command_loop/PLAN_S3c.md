@@ -1,6 +1,6 @@
 # Sprint26 S3c — save_local: implementation plan
 
-Written 2026-09-27. Status: **APPROVED 2026-09-27** (Nick: "move forward with the improvement and proposals"): the §5
+Written 2026-09-27. Status: **DONE 2026-09-27** — bench gate PASS on bmcam003 (runs/s3c_bench_20260927/RESULTS.md: 1 h stay_on × save_local, SD bounded, no media on the uplink, W11 seen; video bound = cap + 2 clips, F3). Was: **APPROVED 2026-09-27** (Nick: "move forward with the improvement and proposals"): the §5
 consensus supersedes §0–§2 where they differ. R1 = defer J8 (recorder) to a follow-up; R2 = the
 shared default stays 10 GiB (changing it would change every video unit's resolved config); card
 sizes are recorded at the gate and the default is revisited then; R3 = save_local is in no RC

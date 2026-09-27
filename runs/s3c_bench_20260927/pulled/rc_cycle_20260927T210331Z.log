@@ -1,0 +1,561 @@
+============================================================
+[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+[RC-CRON] start_utc=2026-09-27T21:03:31+00:00
+[RC-CRON] uptime_s=117.76
+[RC-CRON] user=pi
+[RC-CRON] hostname=bmcam003
+[RC-CRON] app_dir=/home/pi/BM_Devel_Pi
+[RC-CRON] log_file=/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260927T210331Z.log
+[RC-CRON] disk: /dev/mmcblk0p2  115G   86G   25G  79% /
+[RC-CRON] images_dir: 76K
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[BOOT] main_entry uptime_s=118.95
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=317b430d hv=1 registry=v4 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] last-known-good saved /home/pi/BM_Devel_Pi/camera_config.lkg.json
+[RUNTIME] supervisor (source=config (v2))
+[RUN] stay_on interval_s=60 heartbeat_s=300
+[OUTPUT] save_local
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+[NET] applying boot default: sudo -n /home/pi/BM_Devel_Pi/network_ap.sh default nereus_hq 90
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+[VID] storage ring: max_used_pct=74.91 min_free_gb=1.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] stay_on: media=video interval_s=60 (scheduled + trg) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[BOOT] cmd_subscribed uptime_s=119.78
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:03:35.738000+00:00
+Sun 27 Sep 21:03:35 UTC 2026
+[SUP] stay_on boot time read: 2026-09-27T21:03:35.738000+00:00 (clock: ok)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 1 (scheduled) utc=2026-09-27T21:03:35Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[NET] 2026-09-27T21:03:39Z client WiFi UP: profile=nereus-hq
+[CMD] spotter UTC decoded: 2026-09-27T21:03:45.738000+00:00
+[BOOT] spotter_utc_read uptime_s=132.15
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:03:45.738000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-03-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-03-45Z_video_1920x1080_15fps.mp4 (4521893 B, encode=8.7s boundary=8.5s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-03-45Z_video_1920x1080_15fps.mp4 (4521893 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=27.3s
+[SUP] ===== action 1 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 2 (scheduled) utc=2026-09-27T21:04:35Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:04:45.726000+00:00
+[BOOT] spotter_utc_read uptime_s=192.10
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:04:45.726000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-04-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-04-45Z_video_1920x1080_15fps.mp4 (4802431 B, encode=8.7s boundary=5.6s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-04-45Z_video_1920x1080_15fps.mp4 (4802431 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=24.2s
+[SUP] ===== action 2 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 3 (scheduled) utc=2026-09-27T21:05:35Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:05:45.714000+00:00
+[BOOT] spotter_utc_read uptime_s=252.04
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:05:45.714000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-05-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-05-45Z_video_1920x1080_15fps.mp4 (4460028 B, encode=7.7s boundary=3.4s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-05-45Z_video_1920x1080_15fps.mp4 (4460028 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=20.8s
+[SUP] ===== action 3 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 4 (scheduled) utc=2026-09-27T21:06:35Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:06:45.703000+00:00
+[BOOT] spotter_utc_read uptime_s=312.08
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:06:45.703000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-06-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-06-45Z_video_1920x1080_15fps.mp4 (4773934 B, encode=7.7s boundary=3.3s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-06-45Z_video_1920x1080_15fps.mp4 (4773934 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=20.6s
+[SUP] ===== action 4 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 5 (scheduled) utc=2026-09-27T21:07:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:07:45.695000+00:00
+[BOOT] spotter_utc_read uptime_s=372.14
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:07:45.695000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-07-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-07-45Z_video_1920x1080_15fps.mp4 (4508699 B, encode=8.5s boundary=3.7s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-07-45Z_video_1920x1080_15fps.mp4 (4508699 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=21.7s
+[SUP] ===== action 5 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (111 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1408 ws=0000 we=0000 rk=480x270 ct=30.0 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 6 (scheduled) utc=2026-09-27T21:08:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:08:45.683000+00:00
+[BOOT] spotter_utc_read uptime_s=431.98
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:08:45.683000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-08-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-08-45Z_video_1920x1080_15fps.mp4 (4496142 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-08-45Z_video_1920x1080_15fps.mp4 (4496142 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=20.1s
+[SUP] ===== action 6 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 7 (scheduled) utc=2026-09-27T21:09:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:09:45.671000+00:00
+[BOOT] spotter_utc_read uptime_s=491.97
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:09:45.671000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-09-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-09-45Z_video_1920x1080_15fps.mp4 (4759057 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-09-45Z_video_1920x1080_15fps.mp4 (4759057 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=20.0s
+[SUP] ===== action 7 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 8 (scheduled) utc=2026-09-27T21:10:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:10:45.660000+00:00
+[BOOT] spotter_utc_read uptime_s=551.99
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:10:45.660000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-10-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-10-45Z_video_1920x1080_15fps.mp4 (4805025 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-10-45Z_video_1920x1080_15fps.mp4 (4805025 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.9s
+[SUP] ===== action 8 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 9 (scheduled) utc=2026-09-27T21:11:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:11:45.652000+00:00
+[BOOT] spotter_utc_read uptime_s=611.99
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:11:45.652000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-11-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-11-45Z_video_1920x1080_15fps.mp4 (4792270 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-11-45Z_video_1920x1080_15fps.mp4 (4792270 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.8s
+[SUP] ===== action 9 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 10 (scheduled) utc=2026-09-27T21:12:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:12:45.640000+00:00
+[BOOT] spotter_utc_read uptime_s=671.99
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:12:45.640000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-09-27T21-12-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-12-45Z_video_1920x1080_15fps.mp4 (4796730 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-12-45Z_video_1920x1080_15fps.mp4 (4796730 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.7s
+[SUP] ===== action 10 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (111 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1413 ws=0000 we=0000 rk=480x270 ct=30.0 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 11 (scheduled) utc=2026-09-27T21:13:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:13:45.628000+00:00
+[BOOT] spotter_utc_read uptime_s=732.00
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:13:45.628000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-03-45Z_video_1920x1080_15fps (4650033 B, 3 files)
+[VID] clip start: 2026-09-27T21-13-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-13-45Z_video_1920x1080_15fps.mp4 (4800083 B, encode=7.7s boundary=3.4s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-13-45Z_video_1920x1080_15fps.mp4 (4800083 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.9s
+[SUP] ===== action 11 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 12 (scheduled) utc=2026-09-27T21:14:36Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:14:45.617000+00:00
+[BOOT] spotter_utc_read uptime_s=791.98
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:14:45.617000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-04-45Z_video_1920x1080_15fps (4929552 B, 3 files)
+[VID] clip start: 2026-09-27T21-14-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-14-45Z_video_1920x1080_15fps.mp4 (4802366 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-14-45Z_video_1920x1080_15fps.mp4 (4802366 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.5s
+[SUP] ===== action 12 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 13 (scheduled) utc=2026-09-27T21:15:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:15:45.609000+00:00
+[BOOT] spotter_utc_read uptime_s=851.98
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:15:45.609000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-05-45Z_video_1920x1080_15fps (4585342 B, 3 files)
+[VID] clip start: 2026-09-27T21-15-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-15-45Z_video_1920x1080_15fps.mp4 (4795986 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-15-45Z_video_1920x1080_15fps.mp4 (4795986 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.2s
+[SUP] ===== action 13 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 14 (scheduled) utc=2026-09-27T21:16:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:16:45.597000+00:00
+[BOOT] spotter_utc_read uptime_s=911.96
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:16:45.597000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-06-45Z_video_1920x1080_15fps (4899571 B, 3 files)
+[VID] clip start: 2026-09-27T21-16-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-16-45Z_video_1920x1080_15fps.mp4 (4795723 B, encode=7.7s boundary=3.3s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-16-45Z_video_1920x1080_15fps.mp4 (4795723 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.2s
+[SUP] ===== action 14 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 15 (scheduled) utc=2026-09-27T21:17:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:17:45.585000+00:00
+[BOOT] spotter_utc_read uptime_s=971.99
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:17:45.585000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-07-45Z_video_1920x1080_15fps (4634823 B, 3 files)
+[VID] clip start: 2026-09-27T21-17-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-17-45Z_video_1920x1080_15fps.mp4 (4791328 B, encode=8.0s boundary=4.5s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-17-45Z_video_1920x1080_15fps.mp4 (4791328 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=20.6s
+[SUP] ===== action 15 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (111 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1418 ws=0000 we=0000 rk=480x270 ct=31.1 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 16 (scheduled) utc=2026-09-27T21:18:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:18:45.574000+00:00
+[BOOT] spotter_utc_read uptime_s=1031.92
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:18:45.574000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-08-45Z_video_1920x1080_15fps (4622339 B, 3 files)
+[VID] clip start: 2026-09-27T21-18-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-18-45Z_video_1920x1080_15fps.mp4 (4792019 B, encode=7.8s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-18-45Z_video_1920x1080_15fps.mp4 (4792019 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=19.0s
+[SUP] ===== action 16 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 17 (scheduled) utc=2026-09-27T21:19:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:19:45.566000+00:00
+[BOOT] spotter_utc_read uptime_s=1091.96
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:19:45.566000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-09-45Z_video_1920x1080_15fps (4887121 B, 3 files)
+[VID] clip start: 2026-09-27T21-19-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-19-45Z_video_1920x1080_15fps.mp4 (4801166 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-19-45Z_video_1920x1080_15fps.mp4 (4801166 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.8s
+[SUP] ===== action 17 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 18 (scheduled) utc=2026-09-27T21:20:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:20:45.554000+00:00
+[BOOT] spotter_utc_read uptime_s=1151.97
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:20:45.554000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-10-45Z_video_1920x1080_15fps (4932713 B, 3 files)
+[VID] clip start: 2026-09-27T21-20-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-20-45Z_video_1920x1080_15fps.mp4 (4788017 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-20-45Z_video_1920x1080_15fps.mp4 (4788017 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.7s
+[SUP] ===== action 18 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 19 (scheduled) utc=2026-09-27T21:21:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:21:45.542000+00:00
+[BOOT] spotter_utc_read uptime_s=1211.91
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:21:45.542000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-11-45Z_video_1920x1080_15fps (4919417 B, 3 files)
+[VID] clip start: 2026-09-27T21-21-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-21-45Z_video_1920x1080_15fps.mp4 (4800653 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-21-45Z_video_1920x1080_15fps.mp4 (4800653 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.5s
+[SUP] ===== action 19 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 20 (scheduled) utc=2026-09-27T21:22:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:22:45.531000+00:00
+[BOOT] spotter_utc_read uptime_s=1271.86
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:22:45.531000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-12-45Z_video_1920x1080_15fps (4923760 B, 3 files)
+[VID] clip start: 2026-09-27T21-22-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-22-45Z_video_1920x1080_15fps.mp4 (4802524 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-22-45Z_video_1920x1080_15fps.mp4 (4802524 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.4s
+[SUP] ===== action 20 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (111 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1423 ws=0000 we=0000 rk=480x270 ct=31.6 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 21 (scheduled) utc=2026-09-27T21:23:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:23:45.519000+00:00
+[BOOT] spotter_utc_read uptime_s=1331.87
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:23:45.519000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-13-45Z_video_1920x1080_15fps (4928196 B, 3 files)
+[VID] clip start: 2026-09-27T21-23-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-23-45Z_video_1920x1080_15fps.mp4 (4802954 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-23-45Z_video_1920x1080_15fps.mp4 (4802954 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.4s
+[SUP] ===== action 21 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 22 (scheduled) utc=2026-09-27T21:24:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:24:45.511000+00:00
+[BOOT] spotter_utc_read uptime_s=1391.91
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:24:45.511000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-14-45Z_video_1920x1080_15fps (4929225 B, 3 files)
+[VID] clip start: 2026-09-27T21-24-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-24-45Z_video_1920x1080_15fps.mp4 (4799499 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-24-45Z_video_1920x1080_15fps.mp4 (4799499 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.3s
+[SUP] ===== action 22 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 23 (scheduled) utc=2026-09-27T21:25:37Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:25:45.500000+00:00
+[BOOT] spotter_utc_read uptime_s=1451.83
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:25:45.500000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-15-45Z_video_1920x1080_15fps (4922657 B, 3 files)
+[VID] clip start: 2026-09-27T21-25-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-25-45Z_video_1920x1080_15fps.mp4 (4830441 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-25-45Z_video_1920x1080_15fps.mp4 (4830441 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.3s
+[SUP] ===== action 23 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 24 (scheduled) utc=2026-09-27T21:26:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:26:45.488000+00:00
+[BOOT] spotter_utc_read uptime_s=1511.82
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:26:45.488000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-16-45Z_video_1920x1080_15fps (4922929 B, 3 files)
+[VID] clip start: 2026-09-27T21-26-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-26-45Z_video_1920x1080_15fps.mp4 (4777408 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-26-45Z_video_1920x1080_15fps.mp4 (4777408 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=18.0s
+[SUP] ===== action 24 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 25 (scheduled) utc=2026-09-27T21:27:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:27:45.476000+00:00
+[BOOT] spotter_utc_read uptime_s=1571.86
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:27:45.476000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-17-45Z_video_1920x1080_15fps (4917992 B, 3 files)
+[VID] clip start: 2026-09-27T21-27-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-27-45Z_video_1920x1080_15fps.mp4 (4775272 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-27-45Z_video_1920x1080_15fps.mp4 (4775272 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.9s
+[SUP] ===== action 25 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (111 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1428 ws=0000 we=0000 rk=480x270 ct=32.2 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 26 (scheduled) utc=2026-09-27T21:28:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:28:45.468000+00:00
+[BOOT] spotter_utc_read uptime_s=1631.78
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:28:45.468000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-18-45Z_video_1920x1080_15fps (4919617 B, 3 files)
+[VID] clip start: 2026-09-27T21-28-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-28-45Z_video_1920x1080_15fps.mp4 (4799763 B, encode=7.7s boundary=3.2s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-28-45Z_video_1920x1080_15fps.mp4 (4799763 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.8s
+[SUP] ===== action 26 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 27 (scheduled) utc=2026-09-27T21:29:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:29:45.457000+00:00
+[BOOT] spotter_utc_read uptime_s=1691.81
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:29:45.457000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-19-45Z_video_1920x1080_15fps (4928329 B, 3 files)
+[VID] clip start: 2026-09-27T21-29-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-29-45Z_video_1920x1080_15fps.mp4 (4796140 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-29-45Z_video_1920x1080_15fps.mp4 (4796140 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.6s
+[SUP] ===== action 27 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 28 (scheduled) utc=2026-09-27T21:30:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:30:45.445000+00:00
+[BOOT] spotter_utc_read uptime_s=1751.76
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:30:45.445000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-20-45Z_video_1920x1080_15fps (4915716 B, 3 files)
+[VID] clip start: 2026-09-27T21-30-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-30-45Z_video_1920x1080_15fps.mp4 (4802577 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-30-45Z_video_1920x1080_15fps.mp4 (4802577 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.4s
+[SUP] ===== action 28 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 29 (scheduled) utc=2026-09-27T21:31:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:31:45.433000+00:00
+[BOOT] spotter_utc_read uptime_s=1811.84
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:31:45.433000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-21-45Z_video_1920x1080_15fps (4928121 B, 3 files)
+[VID] clip start: 2026-09-27T21-31-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-31-45Z_video_1920x1080_15fps.mp4 (4800994 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-31-45Z_video_1920x1080_15fps.mp4 (4800994 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.3s
+[SUP] ===== action 29 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 30 (scheduled) utc=2026-09-27T21:32:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:32:45.425000+00:00
+[BOOT] spotter_utc_read uptime_s=1871.79
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:32:45.425000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-22-45Z_video_1920x1080_15fps (4929988 B, 3 files)
+[VID] clip start: 2026-09-27T21-32-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-32-45Z_video_1920x1080_15fps.mp4 (4794330 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-32-45Z_video_1920x1080_15fps.mp4 (4794330 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.2s
+[SUP] ===== action 30 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (111 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1433 ws=0000 we=0000 rk=480x270 ct=32.7 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 31 (scheduled) utc=2026-09-27T21:33:38Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:33:45.414000+00:00
+[BOOT] spotter_utc_read uptime_s=1931.81
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:33:45.414000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=74.9% (cap 75%) free=24.1GiB (floor 1GiB) — pruning oldest clips
+[RING] deleted 2026-09-27T21-23-45Z_video_1920x1080_15fps (4930783 B, 3 files)
+[VID] clip start: 2026-09-27T21-33-45Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-09-27T21-33-45Z_video_1920x1080_15fps.mp4 (4798924 B, encode=7.7s boundary=3.1s)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T21-33-45Z_video_1920x1080_15fps.mp4 (4798924 B, record quality, time_source=spotter)
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=saved sent=None/None elapsed=17.2s
+[SUP] ===== action 31 done: stage=saved skipped=False =====
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[SUP] stop requested (signal 15): shutdown -> close, no halt
+[CMD] stopped: applied=0 dup=0 rejected=0 unackable=0 acks=0 frames=0 sig_hits=0 crc_scan_fail=0 bad_start=0 read_err=0
+[VTX] cycle end: stage=saved elapsed=25.1s of 480s; halt=none
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-09-27T21:34:04+00:00
+============================================================
