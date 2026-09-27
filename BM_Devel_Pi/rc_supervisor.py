@@ -74,15 +74,36 @@ class Boot:
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
-        """Bind the action's dependencies and bring the boot up: budget (G1),
-        port session, daemon. -> (daemon, budget). Raises on a UART failure;
-        run_per_boot still runs shutdown -> close -> halt."""
+        """Bind the action's dependencies and bring the action up: its budget,
+        then (first action of the process only) the port session and daemon.
+        -> (daemon, budget). Raises on a UART failure; run_per_boot still runs
+        shutdown -> close -> halt.
+
+        Two scopes (S3b.2): the PROCESS scope (port owner, port session,
+        daemon) comes up once and lives until finish(); the ACTION scope
+        (budget, summary, end line) is rebuilt for every action. per_boot has
+        one action, so the order is exactly S3a's: budget, then daemon (G1).
+        stay_on brings the process scope up before its first decision
+        (start_process) and gets one budget per action (DESIGN §4 "Budget")."""
         self.summary = summary
         self.close_warn = close_warn
         s = self.settings
+        self.budget = CycleBudget(s["budget_seconds"], s["pacing_delay_seconds"], clock=clock)
+        if self.owner is None:
+            self.start_process(clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
+                               bm_close_fn=bm_close_fn, daemon_factory=daemon_factory,
+                               log_fn=log_fn)
+        self.end_line = end_line      # only once the action's budget exists
+        return self.owner.daemon, self.budget
+
+    def start_process(self, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
+                      log_fn=print):
+        """The process scope: port owner, port session, command daemon. Once
+        per process; raises on a UART failure (the owner is set first, so
+        finish() still stops the reader and closes/halts)."""
+        s = self.settings
         self.owner = PortOwner(s, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
                                clock=clock, sleep_fn=sleep_fn, log_fn=log_fn)
-        self.budget = CycleBudget(s["budget_seconds"], s["pacing_delay_seconds"], clock=clock)
         self.owner.begin()
         if cmd_hooks.should_run_daemon(self.bm_commands_cfg, self.command_state,
                                        self.transmit, self.bench_commands):
@@ -90,8 +111,7 @@ class Boot:
                                     self.bm_commands_cfg, self.command_state)
             # W6: every Spotter time read over the shared port is a fresh one.
             self.owner.daemon.fresh_time_reads = True
-        self.end_line = end_line      # only once the action's budget exists
-        return self.owner.daemon, self.budget
+        return self.owner.daemon
 
     def gate_kwargs(self, daemon, settings):
         """The schedule gate's kwargs under the supervisor (W6): the legacy set,
