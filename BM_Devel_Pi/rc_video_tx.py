@@ -246,7 +246,7 @@ def _save_local_tail(daemon, summary, budget, *, bm_commands_cfg, clock, sleep_f
 
 def _save_local_clip(settings, vtx, summary, daemon, budget, *, clip, record_vcfg, ring,
                      time_source, transmit, supervised, tx_open_fn, now_fn, clock, sleep_fn,
-                     bm_commands_cfg, sent):
+                     bm_commands_cfg, sent, wake_fn=None):
     """Sprint26 S3c video x save_local (DESIGN §4 Actions; PLAN_S3c.md J3): the
     clip a transmit action would send, at RECORD quality (video.record.*), kept
     with the recorder's own sidecar and manifest, so the gallery UI and tools
@@ -275,6 +275,13 @@ def _save_local_clip(settings, vtx, summary, daemon, budget, *, clip, record_vcf
     summary["stage"] = "saved"
     print(f"[VTX] saved (save_local): {clip['mp4']} ({clip.get('bytes')} B, record quality, "
           f"time_source={time_source or 'system'})")
+    if transmit and getattr(supervised, "run", "per_boot") == "per_boot":
+        # Sprint26 W11 (PLAN_S3c.md §5 C6): a per_boot video unit that saves
+        # sends one <WS a=saved> per action, so the backend still sees it alive
+        # (stills keep their <WS a=cap>; stay_on has the heartbeat). Staging maps
+        # an unknown a= to wake_action and advances last_seen (PLAN_S3b facts).
+        if _status_line(settings, vtx, wake_fn, "saved", None):
+            sent = True
     if rc_supervisor.save_local_heals(daemon, settings, summary, budget, transmit=transmit,
                                       tx_open_fn=tx_open_fn, clock=clock, sleep_fn=sleep_fn):
         sent = True
@@ -390,7 +397,8 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
                                 record_vcfg=short, ring=ring, time_source=time_source,
                                 transmit=transmit, supervised=supervised,
                                 tx_open_fn=tx_open_fn, now_fn=now_fn, clock=clock,
-                                sleep_fn=sleep_fn, bm_commands_cfg=bm_commands_cfg, sent=sent)
+                                sleep_fn=sleep_fn, bm_commands_cfg=bm_commands_cfg, sent=sent,
+                                wake_fn=wake_fn)
 
     # 3. Budget: what the cap allows AND what the time budget can still pace.
     summary["stage"] = "fit"

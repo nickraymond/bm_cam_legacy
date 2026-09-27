@@ -89,6 +89,13 @@ class VideoSaveLocal(Base):
                          ("save_local", "spotter", 7))
         self.assertTrue(os.path.exists(os.path.join(self.videos, "manifest.json")))
 
+    def test_w11_one_saved_line_per_boot_only(self):
+        self.act((True, {"source_time": "spotter"}))
+        self.assertEqual(self.wakes, ["saved"])
+        self.wakes.clear()
+        self.act((True, {"source_time": "spotter"}), run="stay_on")
+        self.assertEqual(self.wakes, [])
+
     def test_failed_spotter_read_records_anyway(self):
         summary = self.act((False, {"source_time": "system", "spotter_time_error": "timeout",
                                     "reason": "Spotter time unavailable"}))
