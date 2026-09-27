@@ -276,3 +276,55 @@ STAY_ON_SCENARIOS = {
                  "<WS a=crashloop> before the action, listen tail, halt forced to dry-run",
     },
 }
+
+# --- Sprint26 S3c: save_local (supervisor only; the legacy runtime has none) ------------
+# mode.output: save_local needs the supervisor (a v2 cross-key), so these run through
+# config v2 like the stay_on set. per_boot ones: tests/golden/vectors_save_local/<name>/;
+# stay_on + save_local ones are in STAY_ON_SCENARIOS above (vectors_stay_on/).
+SAVE_LOCAL_V2 = {"commands.runtime": "supervisor", "mode.output": "save_local"}
+WINDOW_OFF = [(None, "enforce_time_window: true", "enforce_time_window: false"),
+              (None, "enforce_spotter_time_window: true", "enforce_spotter_time_window: false")]
+
+STAY_ON_SCENARIOS.update({
+    "stay_on_save_local_still": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **SAVE_LOCAL_V2,
+                   **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
+        "rules": [
+            {"when": "at_clock", "t": 700, "payload": {"id": 731, "c": "txd", "v": 1}},
+            {"when": "at_clock", "t": 900, "payload": {"id": 732, "c": "trg", "v": 2}},
+            {"when": "at_clock", "t": 1000, "payload": {"id": 733, "c": "trg", "v": 1}},
+            _sigterm(1900),
+        ],
+        "notes": "stay_on x save_local stills every 600 s: no per-action <WS>, heartbeats "
+                 "every 300 s THROUGH the actions (S3c C1), a command applied while idle "
+                 "keeps it saving (C2), trg 2 saves (C8), trg 1 keeps the native only",
+    },
+})
+
+SAVE_LOCAL_SCENARIOS = {
+    "save_local_still": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": SAVE_LOCAL_V2, "seed": ["old_media", "pending_heal"],
+        "rules": [{"when": "on_sub", "payload": {"id": 541, "c": "txd", "v": 1}}],
+        "notes": "per_boot still x save_local: a command drained at boot (it still saves, C2), "
+                 "<WS a=cap>, capture, one q85 encode saved with its sidecar, the pending heal "
+                 "sent (C14), no START/END, acks, listen tail, halt",
+    },
+    "save_local_still_window_off": {
+        "kind": "stills", "utc": OUT_WINDOW, "edits": BASE_EDITS + WINDOW_OFF,
+        "append": MEDIA_KEY, "v2": SAVE_LOCAL_V2,
+        "notes": "window disabled: the gate reads no time, so save_local reads Spotter time "
+                 "itself and steps the clock (C9)",
+    },
+    "save_local_still_full": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": SAVE_LOCAL_V2, "disk": "full",
+        "notes": "SD over its limit with nothing to prune: no capture, <WS a=skip_err "
+                 "r=storage_full>, listen tail, halt",
+    },
+}
+
+SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS}
+VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},
+               **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS}}

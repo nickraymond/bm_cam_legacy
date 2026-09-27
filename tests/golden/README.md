@@ -114,6 +114,28 @@ is up (before the time read, so its `lt` is the Pi clock), halt dry-run (no HALT
 .venv-dev/bin/python tests/golden/run_scenario.py wire stay_on_still /tmp/out
 ```
 
+## save_local (Sprint26 S3c)
+
+`mode.output: save_local` needs the supervisor (a config v2 cross-key), so these
+scenarios have no legacy counterpart either. `scenarios.SAVE_LOCAL_SCENARIOS` are
+per_boot and recorded under `vectors_save_local/<name>/`; stay_on + save_local ones
+sit in `STAY_ON_SCENARIOS` (`vectors_stay_on/`). `scenarios.SUPERVISOR_ONLY` is the
+union and `scenarios.VECTOR_DIRS` maps each name to its dir; a catalogue test per
+dir keeps them exact. A scenario with `"disk": "full"` puts the SD over every limit
+(the stills guard and the video ring fake); every other run pins the guard's disk
+UNDER the limits (`world.FIXED_DISK_USAGE`), so the guard is a no-op there.
+
+What they pin (PLAN_S3c.md §5): no START/chunks/END; per_boot keeps its one status
+line (`<WS a=cap>` for stills); stay_on sends no per-action `<WS>` and its
+heartbeats keep their 300 s rhythm THROUGH the save actions (C1); a command applied
+at boot or while idle does not turn a save into a send (C2); trg 2 saves (C8); the
+window-off unit reads Spotter time itself (C9); a pending heal still goes out (C14);
+a full SD refuses the capture with `<WS a=skip_err r=storage_full>`.
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire save_local_still /tmp/out
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:

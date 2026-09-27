@@ -264,7 +264,7 @@ def substitute_key(rules, key):
 # Video fakes (function level; the recorder argv is not traced yet)
 # ---------------------------------------------------------------------------
 
-def video_fakes(mods):
+def video_fakes(mods, disk_full=False):
     vr, clip = mods["video_recorder"], mods["rc_video_clip"]
     with open(H264_VECTOR, "rb") as fh:
         payload = fh.read()
@@ -298,6 +298,9 @@ def video_fakes(mods):
                 "prescale_s": 0.0, "encode_s": 0.0}
 
     def room(video_dir, storage):
+        if disk_full:        # Sprint26 S3c: the ring cannot make room
+            return {"paused": True, "used_pct": 99.0, "free_gb": 0.2, "deleted": 0,
+                    "deleted_count": 0}
         return {"paused": False, "used_pct": 29.0, "free_gb": 20.0, "deleted": 0}
 
     return record, fit, room
@@ -384,9 +387,10 @@ def set_v2_keys(tmp, config_path, values):
 
 def run_wire(name, outdir, app_src):
     stay_on = name in S.STAY_ON_SCENARIOS
-    if name not in S.SCENARIOS and not stay_on:
+    supervisor_only = name in S.SUPERVISOR_ONLY       # stay_on + save_local (S3c)
+    if name not in S.SCENARIOS and not supervisor_only:
         fail(f"unknown scenario {name!r}")
-    sc = S.STAY_ON_SCENARIOS[name] if stay_on else S.SCENARIOS[name]
+    sc = S.SUPERVISOR_ONLY[name] if supervisor_only else S.SCENARIOS[name]
     tmp = make_tmp(app_src, name, sc.get("app_ref"))
     config_path = os.path.join(tmp, "camera_schedule.yaml")
     with open(config_path, "w", encoding="utf-8") as fh:
@@ -400,9 +404,12 @@ def run_wire(name, outdir, app_src):
                   rules=sc.get("rules", ()), cam_failures=sc.get("cam_failures", 0))
     mods = import_app(tmp)
     patch_app(mods, tmp)
+    if sc.get("disk") == "full":
+        # Sprint26 S3c: the SD over every limit (the stills guard and the ring).
+        mods["rc_still_storage"].DISK_USAGE_FN = lambda path: W.FULL_DISK_USAGE
     key = seed(sc, mods, tmp)
     substitute_key(W.WORLD.rules, key)
-    if VIA_V2 or stay_on:
+    if VIA_V2 or supervisor_only:
         to_v2(tmp, config_path)
     if sc.get("v2"):
         set_v2_keys(tmp, config_path, sc["v2"])
@@ -427,7 +434,7 @@ def run_wire(name, outdir, app_src):
             return captured["cycle"]
 
         vtx.run_video_tx_cycle = video_cycle
-        record, fit, room = video_fakes(mods)
+        record, fit, room = video_fakes(mods, disk_full=sc.get("disk") == "full")
         orig_vtx.__kwdefaults__.update({
             "sleep_fn": clock.sleep, "clock": clock, "record_fn": record, "fit_fn": fit,
             "ensure_room_fn": room, "encoder_binary": "/usr/bin/rpicam-vid",
@@ -451,12 +458,13 @@ def run_wire(name, outdir, app_src):
     listing = file_listing(tmp)
     if stay_on:
         listing.pop("stay_on.sched", None)    # fake-clock seconds; the loop's own state
+    if supervisor_only:
         # Written by config_v2 at boot with the REAL wall time (it is imported
         # before the app modules are frozen): size is pinned, content is not.
         for rel in WALL_TIME_FILES:
             if rel in listing:
                 listing[rel]["sha256"] = "wall-time"
-    if RUNTIME == "supervisor" or stay_on:
+    if RUNTIME == "supervisor" or supervisor_only:
         if listing.pop(SUPERVISOR_ACTION_LOG, None) is None:
             fail(f"--runtime supervisor left no {SUPERVISOR_ACTION_LOG}: the supervisor did not run")
     summary = {
@@ -464,7 +472,7 @@ def run_wire(name, outdir, app_src):
         "unfired_rules": [r["payload"] for r in W.WORLD.unfired()],
         "cycle": captured.get("cycle"), "state_file": state,
         **({"state_file_v2": _read_json(os.path.join(tmp, "state", "bm_command_state_v2.json"))}
-           if VIA_V2 or stay_on else {}),
+           if VIA_V2 or supervisor_only else {}),
         # Sprint26 S3b: every action of a stay_on process, in order.
         **({"cycles": captured["cycles"]} if stay_on else {}),
         "sidecars": read_json_files(tmp, ".capture_metadata.json"),

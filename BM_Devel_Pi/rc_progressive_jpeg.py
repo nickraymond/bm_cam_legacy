@@ -54,6 +54,7 @@ Assumptions / known limitations:
 
 import argparse
 import copy
+import json
 import os
 import shutil
 import sys
@@ -96,7 +97,7 @@ from rc_telemetry import (
     log_message,
     send_wake_status,
 )
-from rc_jpeg_encoder import output_size_for_crop, prepare_source
+from rc_jpeg_encoder import encode_progressive, output_size_for_crop, prepare_source
 from rc_power_halt import perform_power_halt
 from rc_port_owner import PortOwner
 # Ladder computation lives in the pure M3 module; re-exported here so entry
@@ -476,6 +477,92 @@ def stage_source_image(rel_or_abs_path, output_dir):
     return dest
 
 
+def _save_local_tail(daemon, summary, budget, *, bm_commands_cfg, clock, sleep_fn, supervised):
+    """The end of a save_local action: deferred acks out, then the listen tail
+    (per_boot only; in stay_on post_transmit_listen does nothing, the idle loop
+    listens)."""
+    cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                         label="save_local ack flush")
+    cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                   clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+
+
+def save_local_heals(daemon, settings, summary, budget, *, transmit, tx_open_fn, clock,
+                     sleep_fn):
+    """S3c §5 C14: a save_local action sends the heals that are pending (media
+    sent earlier; <= HEAL_CAP_PER_WAKE chunks, then <HL>), so they neither stall
+    nor stop ageing, on the action's own budget (G1). -> True when it put
+    anything on the uplink. Never raises (a heal must not cost the save)."""
+    if not transmit or daemon is None:
+        return False
+    state = getattr(daemon, "state", None)
+    if not (getattr(state, "pending_heals", None) or getattr(daemon, "heal_events", None)):
+        return False
+    import rc_supervisor
+    try:
+        planned = rc_supervisor.send_pending_heals(daemon, settings, summary, budget,
+                                                   tx_open_fn, clock, sleep_fn)
+    except Exception as exc:
+        print(f"[HEAL][WARN] save_local heal slot failed ({type(exc).__name__}: {exc})")
+        return True                      # something may have gone out: count it
+    return planned is not None
+
+
+def _save_local_still(settings, summary, daemon, budget, *, supervised, source, native_path,
+                      image_stem, capture_info, output_dir, time_source, transmit,
+                      bm_commands_cfg, bm_open_fn, clock, sleep_fn, sent):
+    """Sprint26 S3c still x save_local (DESIGN §4 Actions; PLAN_S3c.md J2 as
+    amended): ONE encode of the prepared crop at still.save.quality (the ladder
+    only exists to fit the uplink), saved atomically next to the native with its
+    sidecar ("output": "save_local"). No START/chunks/END, no camera_log.csv
+    row, no sent record. Pending heals go out (C14), then acks and the tail."""
+    quality = int(supervised.save_quality)
+    encode = encode_progressive(source, quality, settings["pacing_chunk_b64_chars"])
+    final_name = f"{image_stem}_compressed.jpg"
+    final_path = os.path.join(output_dir, final_name)
+    import atomic_io
+    from rc_capture import _json_safe_metadata
+    atomic_io.write_bytes(final_path, encode["jpeg_data"])
+    summary["final_path"] = final_path
+    metadata = {
+        "software_sha": get_software_sha(),
+        "hostname": get_hostname(),
+        "metadata_schema": "bmcam_runtime_sidecar_v1",
+        "metadata_source": "rc_progressive_jpeg",
+        "utc_capture_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "capture_mode": "progressive_jpeg",
+        "img_format": "pjpg",
+        "output": "save_local",
+        "time_source": time_source or "system",
+        "jpeg_quality_used": quality,
+        "jpeg_bytes": encode["jpeg_bytes"],
+        "jpeg_sha256": encode["jpeg_sha256"],
+        "crop_native_xywh": list(settings["crop_native_xywh"]),
+        "output_size": list(settings["output_size"]),
+        "native_path": native_path,
+        **{k: v for k, v in capture_info.items() if k != "requested_camera_controls"},
+        **_load_libcamera_metadata_json(capture_info.get("metadata_json")),
+        **collect_storage_health(),
+    }
+    # The sidecar's own format (rc_capture.save_capture_metadata), written
+    # atomically: for save_local this pair IS the product (§5 C13).
+    atomic_io.write_text(final_path + ".capture_metadata.json",
+                         json.dumps(_json_safe_metadata(metadata), sort_keys=True))
+    summary["saved"] = {"quality": quality, "jpeg_bytes": encode["jpeg_bytes"],
+                        "jpeg_sha256": encode["jpeg_sha256"],
+                        "time_source": metadata["time_source"]}
+    summary["stage"] = "saved"
+    print(f"[RC] saved (save_local): {final_path} ({encode['jpeg_bytes']} B at q{quality}, "
+          f"time_source={metadata['time_source']}) + native {native_path}")
+    if save_local_heals(daemon, settings, summary, budget, transmit=transmit,
+                        tx_open_fn=bm_open_fn, clock=clock, sleep_fn=sleep_fn):
+        sent = True
+    summary["uplinked"] = sent
+    _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                     clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+    return summary
+
+
 def _still_storage_guard(settings, summary, supervised, output_dir):
     """Sprint26 S3c (PLAN_S3c.md §5 C3-C5): the stills storage guard, before
     the capture of every supervisor stills action (both outputs; the legacy
@@ -537,6 +624,11 @@ def still_action(
     # bypassed (trg, --skip-time-window); only the verdict is ignored then,
     # as the video cycle always did. Legacy skips the read on a bypass.
     bypass_verdict = supervised is not None and skip_time_window
+    # Sprint26 S3c: a save_local action (supervisor only) saves instead of
+    # sending; `sent` tracks whether it put anything on the uplink (§5 C1).
+    save_local = supervised is not None and supervised.save_local
+    time_source = None
+    sent = False
     if transmit and settings["enforce_time_window"] and (not skip_time_window or bypass_verdict):
         gate_kwargs = (supervised.gate_kwargs(daemon, settings) if supervised is not None
                        else cmd_hooks.gate_kwargs_for(daemon, settings))
@@ -549,6 +641,13 @@ def still_action(
         # transmit decision happens minutes after this read.
         gate_info, gate_mono = info, clock()
         cmd_hooks.boot_mark("spotter_utc_read")
+        time_source = info.get("source_time")
+        if save_local and info.get("spotter_time_error"):
+            # S3c §5 C9: a wrong timestamp is recoverable, a lost picture is not.
+            # The window is enforced only on a Spotter time.
+            print(f"[RC][WARN] save_local: Spotter time read failed "
+                  f"({info['spotter_time_error']}); saving on the Pi clock, window not enforced")
+            allowed, time_source = True, "system"
         if bypass_verdict:
             print(f"[RC] schedule gate: {info.get('reason')} (window bypassed; time read only)")
             allowed = True
@@ -585,10 +684,39 @@ def still_action(
                 )
             return summary
 
-    # Sprint26 S3c: the stills storage guard (supervisor only; both outputs).
-    _still_storage_guard(settings, summary, supervised, output_dir)
+    if save_local and transmit and not settings["enforce_time_window"]:
+        # S3c §5 C9: the window is off, so the gate read nothing; filenames are
+        # capture time and a Pi has no RTC.
+        time_source = supervised.save_local_time_read(daemon, settings)
 
-    if transmit:
+    # Sprint26 S3c: the stills storage guard (supervisor only; both outputs).
+    full = _still_storage_guard(settings, summary, supervised, output_dir)
+    # stay_on save_local: no per-action <WS> (the heartbeat is the liveness,
+    # PLAN_S3c §5 C6); per_boot keeps today's a=cap as its one status line.
+    wake_line = transmit and not (save_local and supervised.run == "stay_on")
+    if save_local and full:
+        # A save_local action refuses the capture on a full SD (a transmit
+        # action only warns, _still_storage_guard). per_boot says so on the
+        # wire; stay_on through the heartbeat's r=storage_full.
+        summary["error"] = summary["stage"] = "storage_full"
+        print("[RC][ERR] save_local: SD over its limit after pruning; capture refused")
+        if wake_line:
+            try:
+                wake_fn(action="skip_err", timezone_name=settings["timezone"], local_time=None,
+                        window_start=settings["window_start"],
+                        window_end=settings["window_end"],
+                        image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
+                        image_quality=settings["q_max"], reason="storage_full")
+                sent = True
+            except Exception as exc:
+                debug_print(f"Wake status send failed, continuing safely: {exc}")
+        summary["uplinked"] = sent
+        _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                         clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+        return summary
+
+    if wake_line:
+        sent = True
         try:
             wake_fn(
                 action="cap",
@@ -646,7 +774,17 @@ def still_action(
 
     if capture_only:
         print("[RC] --capture-only: stopping before encode/transmit.")
+        if save_local:
+            summary["uplinked"] = sent
         return summary
+
+    if save_local:
+        return _save_local_still(
+            settings, summary, daemon, budget, supervised=supervised, source=source,
+            native_path=native_path, image_stem=image_stem, capture_info=capture_info,
+            output_dir=output_dir, time_source=time_source, transmit=transmit,
+            bm_commands_cfg=bm_commands_cfg, bm_open_fn=bm_open_fn, clock=clock,
+            sleep_fn=sleep_fn, sent=sent)
 
     # M3 adaptive selection.
     selection = select_quality(

@@ -1,0 +1,822 @@
+{
+ "cycle": {
+  "budget_seconds": 720,
+  "command_events": [],
+  "final_path": "{TMP}/images/2026-09-24T15:30:00Z_image_compressed.jpg",
+  "halt_result": {
+   "action": "none",
+   "reason": "stay_on: never halts"
+  },
+  "native_path": "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.jpg",
+  "saved": {
+   "jpeg_bytes": 106355,
+   "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+   "quality": 85,
+   "time_source": "spotter"
+  },
+  "schedule_allowed": true,
+  "selection": null,
+  "stage": "saved",
+  "transmit": true,
+  "transmit_result": null,
+  "uplinked": false
+ },
+ "cycles": [
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
+   "halt_result": null,
+   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
+   "saved": {
+    "jpeg_bytes": 106355,
+    "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+    "quality": 85,
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "selection": null,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:10:00Z_image_compressed.jpg",
+   "halt_result": null,
+   "native_path": "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.jpg",
+   "saved": {
+    "jpeg_bytes": 106355,
+    "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+    "quality": 85,
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "selection": null,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:15:00Z_image_compressed.jpg",
+   "halt_result": null,
+   "native_path": "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.jpg",
+   "saved": {
+    "jpeg_bytes": 106355,
+    "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+    "quality": 85,
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "selection": null,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "trigger": {
+    "id": 732,
+    "value": 2
+   },
+   "uplinked": false
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": null,
+   "halt_result": null,
+   "native_path": "{TMP}/images/2026-09-24T15:16:40Z_image_native_full.jpg",
+   "schedule_allowed": true,
+   "selection": null,
+   "transmit": true,
+   "transmit_result": null,
+   "trigger": {
+    "id": 733,
+    "value": 1
+   },
+   "uplinked": false
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:20:00Z_image_compressed.jpg",
+   "halt_result": null,
+   "native_path": "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.jpg",
+   "saved": {
+    "jpeg_bytes": 106355,
+    "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+    "quality": 85,
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "selection": null,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:30:00Z_image_compressed.jpg",
+   "halt_result": {
+    "action": "none",
+    "reason": "stay_on: never halts"
+   },
+   "native_path": "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.jpg",
+   "saved": {
+    "jpeg_bytes": 106355,
+    "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+    "quality": 85,
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "selection": null,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  }
+ ],
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 1900.2,
+ "files": {
+  "camera_config.lkg.json": {
+   "bytes": 3167,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2408,
+   "sha256": "d338402a01f928de"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7711,
+   "sha256": "676b414910d2df13"
+  },
+  "images/2026-09-24T15:00:00Z_image_compressed.jpg": {
+   "bytes": 106355,
+   "sha256": "9a6ae0ae4f59522f"
+  },
+  "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 1894,
+   "sha256": "21ce743700970e30"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:10:00Z_image_compressed.jpg": {
+   "bytes": 106355,
+   "sha256": "9a6ae0ae4f59522f"
+  },
+  "images/2026-09-24T15:10:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 1894,
+   "sha256": "06e1fa82ae477c4e"
+  },
+  "images/2026-09-24T15:10:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:10:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:10:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:10:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:15:00Z_image_compressed.jpg": {
+   "bytes": 106355,
+   "sha256": "9a6ae0ae4f59522f"
+  },
+  "images/2026-09-24T15:15:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 1894,
+   "sha256": "8972cb2a85b0477b"
+  },
+  "images/2026-09-24T15:15:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:15:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:15:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:15:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:16:40Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:16:40Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:16:40Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:16:40Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:20:00Z_image_compressed.jpg": {
+   "bytes": 106355,
+   "sha256": "9a6ae0ae4f59522f"
+  },
+  "images/2026-09-24T15:20:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 1894,
+   "sha256": "b76c4a785e94ef5c"
+  },
+  "images/2026-09-24T15:20:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:20:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:20:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:20:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:30:00Z_image_compressed.jpg": {
+   "bytes": 106355,
+   "sha256": "9a6ae0ae4f59522f"
+  },
+  "images/2026-09-24T15:30:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 1894,
+   "sha256": "f57da6527a1de10a"
+  },
+  "images/2026-09-24T15:30:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:30:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:30:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:30:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2249,
+   "sha256": "abed23a3ff7fff41"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 324,
+   "sha256": "f270274bb5abf518"
+  },
+  "state/config_journal.jsonl": {
+   "bytes": 92,
+   "sha256": "wall-time"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
+ "notes": "stay_on x save_local stills every 600 s: no per-action <WS>, heartbeats every 300 s THROUGH the actions (S3c C1), a command applied while idle keeps it saving (C2), trg 2 saves (C8), trg 1 keeps the native only",
+ "scenario": "stay_on_save_local_still",
+ "sent_records": {},
+ "sidecars": {
+  "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 106355,
+   "jpeg_quality_used": 85,
+   "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+   "metadata_json": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
+   "output": "save_local",
+   "output_size": [
+    1000,
+    562
+   ],
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
+   "time_source": "spotter",
+   "utc_capture_timestamp": "2026-09-24T15:00:00Z"
+  },
+  "images/2026-09-24T15:10:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 106355,
+   "jpeg_quality_used": 85,
+   "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+   "metadata_json": "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.jpg",
+   "output": "save_local",
+   "output_size": [
+    1000,
+    562
+   ],
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:10:00Z_image_native_full.stdout.log",
+   "time_source": "spotter",
+   "utc_capture_timestamp": "2026-09-24T15:10:00Z"
+  },
+  "images/2026-09-24T15:15:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 106355,
+   "jpeg_quality_used": 85,
+   "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+   "metadata_json": "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.jpg",
+   "output": "save_local",
+   "output_size": [
+    1000,
+    562
+   ],
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:15:00Z_image_native_full.stdout.log",
+   "time_source": "spotter",
+   "utc_capture_timestamp": "2026-09-24T15:15:00Z"
+  },
+  "images/2026-09-24T15:20:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 106355,
+   "jpeg_quality_used": 85,
+   "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+   "metadata_json": "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.jpg",
+   "output": "save_local",
+   "output_size": [
+    1000,
+    562
+   ],
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:20:00Z_image_native_full.stdout.log",
+   "time_source": "spotter",
+   "utc_capture_timestamp": "2026-09-24T15:20:00Z"
+  },
+  "images/2026-09-24T15:30:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 106355,
+   "jpeg_quality_used": 85,
+   "jpeg_sha256": "9a6ae0ae4f59522f1981feaccaa9a49db871d3d919dadd09a45849648bc5d991",
+   "metadata_json": "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.jpg",
+   "output": "save_local",
+   "output_size": [
+    1000,
+    562
+   ],
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:30:00Z_image_native_full.stdout.log",
+   "time_source": "spotter",
+   "utc_capture_timestamp": "2026-09-24T15:30:00Z"
+  }
+ },
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 0,
+  "guarded": {},
+  "high_water": {},
+  "overlay": {},
+  "result_cache": {},
+  "schema": "bm_command_state_v2",
+  "tables_version": 8,
+  "v8": {
+   "applied_ids": [
+    731,
+    732,
+    733
+   ],
+   "pending_heals": [],
+   "pending_trigger": null,
+   "settings": {
+    "awb": 0,
+    "cap": 0,
+    "exp": 0,
+    "foc": 0,
+    "hlt": 0,
+    "roi": 0,
+    "src": 0,
+    "tmz": 0,
+    "twn": 0,
+    "txd": 1,
+    "win": 0
+   },
+   "touched": [
+    "txd"
+   ]
+  }
+ },
+ "unfired_rules": []
+}
