@@ -121,6 +121,12 @@ SCENARIOS = {
         "kind": "stills", "utc": PHASE_UTC, "edits": BASE_EDITS + PHASE_ON, "append": MEDIA_KEY,
         "notes": "transmit_phase on: lane wait computed from the gate's Spotter UTC",
     },
+    "still_capture_only": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "argv": ["--capture-only"],
+        "notes": "--capture-only (bench): gate, <WS a=cap>, capture + prepare, no encode, no "
+                 "send, halt; the same under the supervisor since S3c (G4 closed)",
+    },
     "still_capture_retry": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "cam_failures": 1,
         "notes": "first camera call fails: retry variant without --metadata succeeds",
@@ -286,6 +292,13 @@ WINDOW_OFF = [(None, "enforce_time_window: true", "enforce_time_window: false"),
               (None, "enforce_spotter_time_window: true", "enforce_spotter_time_window: false")]
 
 STAY_ON_SCENARIOS.update({
+    "stay_on_capture_only": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
+        "argv": ["--capture-only"],
+        "notes": "--capture-only on a stay_on unit (bench): one per_boot capture, then the "
+                 "halt as configured; never a loop that drops the flag (S3c J9, C11)",
+    },
     "stay_on_save_local_video": {
         "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
         "append": VIDEO_ISLANDS + MEDIA_KEY,

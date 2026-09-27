@@ -1484,7 +1484,8 @@ def main(argv=None, **cycle_overrides):
         if args.print_config:
             return 0
         if runtime == "supervisor":
-            print("[RUNTIME] the recorder path runs the legacy code until S3c (PLAN_S3a.md G4)")
+            print("[RUNTIME] the recorder path (video_logger) runs the legacy code; it moves "
+                  "under the supervisor in its own follow-up (PLAN_S3c.md §5 R1)")
         try:
             return video_recorder.run_video_mode(
                 settings,
@@ -1510,9 +1511,12 @@ def main(argv=None, **cycle_overrides):
     # --transmit boot services it; the flags force the one-shot window
     # bypass and (trg 1) the capture-only path.
     trigger_flags = {"skip_time_window": False, "capture_only": False}
-    if runtime == "supervisor" and args.capture_only:
-        print("[RUNTIME] --capture-only runs the legacy code until S3c (PLAN_S3a.md G4)")
-        runtime = "legacy"
+    if runtime == "supervisor" and args.capture_only and run_cfg[0] == "stay_on":
+        # Sprint26 S3c (PLAN_S3c.md J9, §5 C11): --capture-only is a bench
+        # one-shot; under the supervisor it runs per_boot (a stay_on loop would
+        # drop the flag and capture forever).
+        print("[RUN] --capture-only runs per_boot (one capture, then the halt as configured)")
+        run_cfg = ("per_boot", 0, 0)
     # W4: under the supervisor the trg is serviced after the boot drain
     # (rc_supervisor.Boot.boot_drain), so a trg queued at boot fires this boot.
     if command_state is not None and runtime != "supervisor":

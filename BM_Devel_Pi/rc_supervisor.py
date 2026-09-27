@@ -28,8 +28,10 @@ rc_video_tx.video_action), still reached through run_cycle /
 run_video_tx_cycle with `supervised=` so their injected dependencies (clock,
 sleep, halt, the golden harness's fakes) bind to this boot on first use.
 
-Scope (G4): still x transmit and video x transmit (video_tx.enabled). The
-recorder, --capture-only and heic paths run the legacy code (S3c).
+Scope: still and video (video_tx.enabled) x transmit (S3a) and x save_local
+(S3c: Boot.output, set by main from mode.output), --capture-only (S3c). The
+recorder (mode.media video_logger) still runs the legacy code: it moves in its
+own follow-up (PLAN_S3c.md §5 R1). heic has nothing left to run.
 
 Example (what main() does):
   boot = rc_supervisor.Boot(settings, media="still", bm_commands_cfg=cfg,
