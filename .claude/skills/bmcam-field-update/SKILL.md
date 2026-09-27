@@ -40,6 +40,12 @@ a known field state.
      the remote shell's own command line and kills the rest of your script
      (bmcam003, 2026-09-25: cron got disarmed, the survey after it never ran)
      — SIGTERM kills Python without running `finally`, so no halt fires
+     — **stay_on units (`mode.run: stay_on`, Sprint26 S3b):** the runtime
+       catches SIGTERM and stops at its next safe point (acks flushed, port
+       closed, never a halt); an in-flight burst finishes first (up to ~5 min),
+       and the wrapper does not restart it. Stop step: `pkill -TERM` as above,
+       then wait until `pgrep -af '[r]c_progressive_jp[e]g'` is empty; only
+       then `pkill -KILL`. A per_boot unit still dies at once on SIGTERM.
    - survey: hostname/uptime, crontab, processes (want NONE), repo checkout
      path + sha, `software_sha.txt`, deployed `bm_serial:` values, `power_halt`
      state, `/dev/serial0` target

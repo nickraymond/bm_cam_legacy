@@ -34,7 +34,8 @@ Config v2 loader (DESIGN_supervisor.md §5.1; PLAN_S2.md G1/G2).
 
 Assumptions: PyYAML present (a hard dependency, checked at deploy).
 Known limitations (S2): the hash is logged, not sent (S4); the guarded-key
-machinery is S4; only mode.run per_boot + mode.output transmit are runnable.
+machinery is S4; only mode.output transmit is runnable (stay_on since S3b, with
+the supervisor runtime and commands on).
 """
 
 import hashlib
@@ -109,6 +110,18 @@ def _cross_key_errors(values):
         if key.runnable and values.get(path) not in key.runnable:
             errs.append((path, f"{values.get(path)!r} is not runnable before S3 "
                                f"(runnable: {', '.join(key.runnable)})"))
+    # S3b (PLAN_S3b H1): stay_on is the supervisor's loop; it needs the command
+    # daemon (trg, heartbeat, idle ticks). A legacy unit told stay_on would
+    # silently run per_boot, so the file is refused instead (boot: v1 fallback).
+    if values.get("mode.run") == "stay_on":
+        if values.get("commands.runtime") != "supervisor":
+            errs.append(("mode.run", "stay_on needs commands.runtime: supervisor"))
+        if values.get("commands.enabled") is not True:
+            errs.append(("mode.run", "stay_on needs commands.enabled: true"))
+    for path in ("mode.interval_s", "mode.heartbeat_s"):
+        v = values.get(path)
+        if isinstance(v, int) and not isinstance(v, bool) and 0 < v < 60:
+            errs.append((path, f"{v} must be 0 (off) or at least 60 s"))
     return errs
 
 

@@ -526,6 +526,12 @@ def still_action(
         summary["schedule_allowed"] = allowed
         if not bypass_verdict:
             print(f"[RC] schedule gate: {info.get('reason')}")
+        if not allowed and supervised is not None and supervised.quiet_skip:
+            # Sprint26 S3b H3: in stay_on only the first skip of a run of
+            # scheduled skips sends <WS a=skip_win>; later ones log only.
+            print("[RC] window skip: <WS> not sent (stay_on: the first skip of this run "
+                  "already was)")
+            return summary
         if not allowed:
             try:
                 wake_fn(
@@ -546,7 +552,7 @@ def still_action(
                 # returns here with no tail.
                 cmd_hooks.post_transmit_listen(
                     daemon, bm_commands_cfg or {}, summary, budget,
-                    clock=clock, sleep_fn=sleep_fn,
+                    clock=clock, sleep_fn=sleep_fn, supervised=supervised,
                 )
             return summary
 
@@ -691,7 +697,7 @@ def still_action(
         if bench_commands and daemon is not None:
             cmd_hooks.post_transmit_listen(
                 daemon, bm_commands_cfg or {}, summary, budget,
-                clock=clock, sleep_fn=sleep_fn,
+                clock=clock, sleep_fn=sleep_fn, supervised=supervised,
             )
         return summary
 
@@ -758,6 +764,10 @@ def still_action(
         stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
         payload=encode["jpeg_data"], payload_path=final_path,
         chunk_b64_chars=settings["pacing_chunk_b64_chars"])
+    if supervised is not None:
+        # The action log's media_key (the stills summary does not carry it;
+        # adding it there would change every stills golden).
+        supervised.media_key = media_key
     tx = bm_open_fn(settings["config_path"])
     cmd_hooks.boot_mark("transmit_start")
     if heals is not None and heal_msgs:
@@ -840,7 +850,7 @@ def still_action(
     # drain our own transmit triggered actually arrives (finding 006).
     cmd_hooks.post_transmit_listen(
         daemon, bm_commands_cfg or {}, summary, budget,
-        clock=clock, sleep_fn=sleep_fn,
+        clock=clock, sleep_fn=sleep_fn, supervised=supervised,
     )
 
     return summary
@@ -979,6 +989,82 @@ def resolve_runtime(cli_value, boot):
     return "legacy", "default"
 
 
+def resolve_run_mode(boot, runtime):
+    """Sprint26 S3b (PLAN_S3b.md H1): per_boot or stay_on, and the stay_on
+    timers, from the active config v2 file. -> (run, interval_s, heartbeat_s).
+    stay_on needs the supervisor: the loader refuses a FILE that pairs it with
+    legacy, but `--runtime legacy` can still override the file, so that case
+    runs per_boot here, loudly."""
+    values = getattr(boot, "values", None) or {}
+    run = values.get("mode.run", "per_boot")
+    if run != "stay_on":
+        return "per_boot", 0, 0
+    if runtime != "supervisor":
+        print("[RUN][WARN] mode.run stay_on needs the supervisor runtime; "
+              f"runtime is {runtime}: running per_boot")
+        return "per_boot", 0, 0
+    return "stay_on", int(values.get("mode.interval_s", 0)), int(values.get("mode.heartbeat_s", 0))
+
+
+def _stay_on_settings_fn(settings, reresolve_fn):
+    """Fresh settings for each stay_on action: the YAML base + the command
+    overlay as it is NOW (commands applied while idle govern the next action,
+    §4 "Decision points"); a one-shot trg key never carries over."""
+    def fresh():
+        if reresolve_fn is not None:
+            return reresolve_fn(copy.deepcopy(settings))
+        return copy.deepcopy(settings)
+    return fresh
+
+
+def _heartbeat_fn(image_res_key, image_quality, action="idle", reason=None):
+    """One <WS a=idle> (PLAN_S3b.md H5): today's wake-status fields, local
+    time from the (Spotter-set) system clock. up=/cfg= arrive with W8 (S4).
+    The crash-loop fallback sends the same line with a=crashloop (H7)."""
+    def send(settings):
+        from zoneinfo import ZoneInfo
+        from rc_telemetry import send_wake_status
+        local = datetime.now(ZoneInfo(settings["timezone"])).isoformat()
+        return send_wake_status(
+            action=action, timezone_name=settings["timezone"], local_time=local,
+            window_start=settings["window_start"], window_end=settings["window_end"],
+            image_res_key=image_res_key(settings), image_quality=image_quality(settings),
+            reason=reason)
+    return send
+
+
+def _crashloop_notice(sup, settings, image_res_key, image_quality):
+    """H7: the crash-loop fallback's one <WS a=crashloop>, sent as soon as the
+    port is up (before the action), so the backend sees why the unit went
+    quiet. Never raises."""
+    send = _heartbeat_fn(image_res_key, image_quality, action="crashloop", reason="restarts")
+
+    def notice():
+        try:
+            send(settings)
+            print("[RUN] crash-loop fallback: <WS a=crashloop> sent")
+        except Exception as exc:
+            print(f"[RUN][WARN] <WS a=crashloop> not sent ({type(exc).__name__}: {exc})")
+    sup.on_process_start = notice
+
+
+def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
+                 cycle_overrides, heal_tx_open_fn):
+    """Hand the process to the stay_on loop with the same injected clock /
+    sleep / halt / close / daemon factory the actions use (golden harness)."""
+    import rc_supervisor
+    _run, interval_s, heartbeat_s = run_cfg
+    return rc_supervisor.run_stay_on(
+        sup, action_fn, settings_fn=_stay_on_settings_fn(settings, reresolve_fn),
+        interval_s=interval_s, heartbeat_s=heartbeat_s, heartbeat_fn=heartbeat_fn,
+        clock=cycle_overrides.get("clock", time.monotonic),
+        sleep_fn=cycle_overrides.get("sleep_fn", time.sleep),
+        halt_fn=cycle_overrides.get("halt_fn", perform_power_halt),
+        bm_close_fn=cycle_overrides.get("bm_close_fn", bm_port.close),
+        daemon_factory=cycle_overrides.get("daemon_factory"),
+        heal_tx_open_fn=heal_tx_open_fn)
+
+
 def main(argv=None, **cycle_overrides):
     cmd_hooks.boot_mark("main_entry")   # Sprint25 S3 benchmark segment
     parser = argparse.ArgumentParser(
@@ -1013,6 +1099,11 @@ def main(argv=None, **cycle_overrides):
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
+    parser.add_argument("--crashloop", action="store_true",
+                        help="Set by rc_run_capture_cycle.sh after 5 stay_on restarts in "
+                             "10 min (Sprint26 S3b H7): run per_boot with the halt forced "
+                             "to dry-run and send one <WS a=crashloop>, so a wall-powered "
+                             "unit stays reachable")
     parser.add_argument("--runtime", choices=RUNTIMES, default=None,
                         help="Override commands.runtime for this run: legacy (the S2 cycle "
                              "scripts) or supervisor (Sprint26 S3). Default: the config "
@@ -1054,8 +1145,16 @@ def main(argv=None, **cycle_overrides):
         print(config_dump.to_json_line(dump))
         return 2 if "error" in dump["resolved"] else 0
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
+    run_cfg = ("per_boot", 0, 0)
     if not args.print_config:      # inspection output stays as before (settings goldens)
         print(f"[RUNTIME] {runtime} (source={runtime_source})")
+        run_cfg = resolve_run_mode(boot, runtime)
+        if args.crashloop:
+            print("[RUN][WARN] crash-loop fallback: per_boot, halt forced to dry-run, one "
+                  "<WS a=crashloop> (the wrapper saw 5 stay_on restarts in 10 min)")
+            run_cfg = ("per_boot", 0, 0)
+        if run_cfg[0] == "stay_on":
+            print(f"[RUN] stay_on interval_s={run_cfg[1]} heartbeat_s={run_cfg[2]}")
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:
@@ -1100,6 +1199,16 @@ def main(argv=None, **cycle_overrides):
                 fresh["video"] = current["video"]
             return fresh
         reresolve_fn = _reresolve
+
+    if args.crashloop:
+        # H7: the halt is forced to dry-run for this boot, including after a
+        # boot-drain re-resolve (an hlt command must not turn it back on).
+        settings["power_halt_dry_run"] = True
+        if reresolve_fn is not None:
+            _inner_reresolve = reresolve_fn
+
+            def reresolve_fn(current):
+                return dict(_inner_reresolve(current), power_halt_dry_run=True)
 
     # Sprint16 (D-S16-3): apply the network boot default (fire-and-forget;
     # a WiFi problem must never cost a capture cycle). No island = no-op,
@@ -1156,9 +1265,23 @@ def main(argv=None, **cycle_overrides):
                     settings, media="video", bm_commands_cfg=bm_commands_cfg,
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+                w, h = video_tx_cfg["output_wh"]
+                sup.min_action_s = (float(video_tx_cfg["duration_s"])
+                                    + float(video_tx_cfg["lead_in_s"])
+                                    + rc_supervisor.W10_VIDEO_MARGIN_S)
+                if args.crashloop:
+                    _crashloop_notice(sup, settings, lambda s: f"{w}x{h}", lambda s: None)
+                if run_cfg[0] == "stay_on":
+                    return _run_stay_on(
+                        sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
+                            s, video_tx_cfg, supervised=b, **video_kwargs),
+                        settings, reresolve_fn, run_cfg,
+                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides,
+                        rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
+                # b.settings: a W10 extra action runs on the re-resolved overlay.
                 summary = rc_supervisor.run_per_boot(
                     sup, lambda b: rc_video_tx.run_video_tx_cycle(
-                        settings, video_tx_cfg, supervised=b, **video_kwargs))
+                        b.settings, video_tx_cfg, supervised=b, **video_kwargs))
             else:
                 summary = rc_video_tx.run_video_tx_cycle(settings, video_tx_cfg, **video_kwargs)
             return 1 if summary.get("error") else 0
@@ -1221,9 +1344,21 @@ def main(argv=None, **cycle_overrides):
                 settings, media="still", bm_commands_cfg=bm_commands_cfg,
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+            still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
+            if args.crashloop:
+                _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])
+            if run_cfg[0] == "stay_on":
+                stay_kwargs = {k: v for k, v in cycle_kwargs.items()
+                               if k not in ("capture_only", "skip_time_window")}
+                return _run_stay_on(
+                    sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
+                                                skip_time_window=False, **stay_kwargs),
+                    settings, reresolve_fn, run_cfg,
+                    _heartbeat_fn(still_rk, lambda s: s["q_max"]),
+                    cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(
-                sup, lambda b: run_cycle(settings, supervised=b, **cycle_kwargs))
+                sup, lambda b: run_cycle(b.settings, supervised=b, **cycle_kwargs))
         else:
             run_cycle(settings, **cycle_kwargs)
     except Exception as exc:

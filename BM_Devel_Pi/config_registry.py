@@ -22,8 +22,9 @@ Rules that bind this file (§5.1, REVIEW K8/X3, S2 plan):
     `camera.exposure.mode` keep their v1 meaning until their own wire commit.
   - No key segment ends in len/length/chunks/buffer/buffers/filename (the
     S2a naming rule; those words named the wrong thing in v1).
-  - Only per_boot + transmit are runnable until S3 (`mode.run`, `mode.output`
-    list the future values so the file format does not change later).
+  - Only transmit is runnable until S3c (`mode.output` lists the future value
+    so the file format does not change later). `mode.run: stay_on` is runnable
+    since S3b, with the supervisor runtime and commands on (config_v2 cross-key).
 
 Known limitations: validation here is per key. Cross-key rules (crop inside
 the native frame, manual WB needs gains, ...) live in the loader (S2d) and the
@@ -36,7 +37,8 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 2          # bump when a key is added/removed/retyped (2: commands.runtime, S3a)
+REGISTRY_VERSION = 3          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+                              # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -112,8 +114,13 @@ KEYS = (
         enum=(_MEDIA_STILL, _MEDIA_VIDEO, _MEDIA_LOGGER), required=True, short="m",
         apply=NEXT_BOOT, v1_sources=("capture_mode", "video_tx.enabled"), wire_visible=True),
     Key("mode.run", ENUM, "per_boot", "per_boot: one action per power-on then halt; "
-        "stay_on: keep running (S3).", enum=("per_boot", "stay_on"), short="r",
-        apply=NEXT_BOOT, runnable=("per_boot",)),
+        "stay_on: keep running (needs commands.enabled and the supervisor runtime).",
+        enum=("per_boot", "stay_on"), short="r", apply=NEXT_BOOT),
+    Key("mode.interval_s", INT, 0, "stay_on: seconds between scheduled actions (start to "
+        "start); 0 = trigger-only. Scheduled repeats obey the window, trg bypasses it. "
+        "0 or 60..86400.", range=(0, 86400), apply=NEXT_BOOT),
+    Key("mode.heartbeat_s", INT, 300, "stay_on: an idle <WS a=idle> this long after the "
+        "last uplink; 0 = off. 0 or 60..86400.", range=(0, 86400), apply=NEXT_BOOT),
     Key("mode.output", ENUM, "transmit", "transmit over the BM uplink, or save_local to SD (S3).",
         enum=("transmit", "save_local"), guard=GUARDED_REVERT, guard_when=("save_local",),
         apply=NEXT_BOOT, runnable=("transmit",)),

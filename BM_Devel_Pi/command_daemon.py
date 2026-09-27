@@ -230,6 +230,7 @@ class CommandDaemon:
         self._raw_lock = threading.Lock()
         self._stop = threading.Event()
         self._reader = None
+        self.consecutive_read_errors = 0     # S3b watchdog (reader_health)
         self.stats = {"read_errors": 0, "applied": 0, "duplicates": 0,
                       "rejected": 0, "unackable": 0, "acks_sent": 0,
                       "console_lines_sent": 0}
@@ -273,17 +274,33 @@ class CommandDaemon:
     # Reader thread — reads ONLY; never writes, never touches state
     # ------------------------------------------------------------------
 
+    # Sprint26 S3b (PLAN_S3b.md H8): the stay_on watchdog trips at this many
+    # uart read errors in a row (~10 s at the 0.5 s back-off below): a reader
+    # that is alive but deaf, e.g. a vanished /dev/ttyAMA0.
+    WATCHDOG_READ_ERRORS = 20
+
+    def reader_health(self):
+        """(ok, why) for the stay_on watchdog: the reader thread is running
+        and not stuck in a run of uart read errors. Main thread; reads only."""
+        if self._reader is None or not self._reader.is_alive():
+            return False, "reader thread not running"
+        if self.consecutive_read_errors >= self.WATCHDOG_READ_ERRORS:
+            return False, f"{self.consecutive_read_errors} uart read errors in a row"
+        return True, ""
+
     def _reader_loop(self):
         while not self._stop.is_set():
             try:
                 chunk = self.bm.uart.read(256)
             except Exception as exc:
                 self.stats["read_errors"] += 1
+                self.consecutive_read_errors += 1
                 if self._stop.is_set():
                     break
                 print(f"[CMD][WARN] uart read error: {exc}")
                 time.sleep(0.5)
                 continue
+            self.consecutive_read_errors = 0
             if not chunk:
                 continue
             with self._raw_lock:
@@ -537,10 +554,13 @@ class CommandDaemon:
     # ------------------------------------------------------------------
 
     def listen_window(self, seconds, clock=time.monotonic, sleep_fn=time.sleep,
-                      label="listen"):
+                      label="listen", until=None):
         """Listen/apply/ack for `seconds`. Also flushes queued acks, which
         is what makes it the natural landing place for C3's deferred ack
-        burst. Returns the command events processed."""
+        burst. Returns the command events processed.
+
+        until (Sprint26 S3b W10, supervisor only): a predicate checked after
+        each pass; True ends the window early (a trg that fires this boot)."""
         print(f"[CMD] {label} window: {seconds:.0f}s")
         deadline = clock() + seconds
         events = []
@@ -548,6 +568,10 @@ class CommandDaemon:
             events.extend(self.process_pending())
             self.drain_acks(clock=clock)
             self.drain_console(sleep_fn=sleep_fn)
+            if until is not None and until():
+                print(f"[CMD] {label} window ended early after "
+                      f"{seconds - (deadline - clock()):.0f}s: a trg fires this boot")
+                break
             sleep_fn(0.2)
         print(f"[CMD] {label} window done: {len(events)} command(s) processed, "
               f"{self.pending_acks} ack(s) still queued")

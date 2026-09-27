@@ -1,0 +1,30 @@
+ssh: connect to host bmcam003 port 22: Operation timed out
+{"utc": "2026-09-27T07:00:01Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "wake"}
+{"utc": "2026-09-27T07:00:28Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100028, "offset_s": 30, "wake_n": 2}
+{"utc": "2026-09-27T07:00:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100031, "offset_s": 30, "wake_n": 2}
+{"utc": "2026-09-27T07:00:38Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100028, "offset_s": 40, "wake_n": 2}
+{"utc": "2026-09-27T07:00:41Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100031, "offset_s": 40, "wake_n": 2}
+{"utc": "2026-09-27T07:00:48Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100028, "offset_s": 50, "wake_n": 2}
+{"utc": "2026-09-27T07:00:51Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100031, "offset_s": 50, "wake_n": 2}
+{"utc": "2026-09-27T07:04:18Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100028, "offset_s": 260, "wake_n": 2}
+{"utc": "2026-09-27T07:04:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100031, "offset_s": 260, "wake_n": 2}
+{"utc": "2026-09-27T07:36:25Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "driver_start", "api": "https://nereus-vision-staging.onrender.com", "offsets": [30, 40, 50, 260]}
+{"utc": "2026-09-27T07:36:25Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "driver_start", "api": "https://nereus-vision-staging.onrender.com", "offsets": [30, 40, 50, 260]}
+{"utc": "2026-09-27T07:59:57Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "wake"}
+{"utc": "2026-09-27T07:59:58Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "candidates", "n": 8, "skipped": 1, "items": [{"media_id": 54615, "key": "0dum0v", "missing": "53-60"}, {"media_id": 54577, "key": "0duj8v", "missing": "30"}, {"media_id": 54562, "key": "0duggw", "missing": "59
+{"utc": "2026-09-27T07:59:58Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "command", "command_id": 100029, "heals": [["0dum0v", "53-60"], ["0duj8v", "30"], ["0duggw", "59-66"], ["0dudox", "99-106"], ["0du5cy", "30"], ["0du2kz", "54-61"], ["0dtx10", "182"]], "chunks": 35, "console_byt
+{"utc": "2026-09-27T08:00:01Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "wake"}
+{"utc": "2026-09-27T08:00:01Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "candidates", "n": 15, "skipped": 0, "items": [{"media_id": 54600, "key": "0dum2d", "missing": "10-19"}, {"media_id": 54599, "key": "0dulz1", "missing": "6-13"}, {"media_id": 54593, "key": "0dulf1", "missing": 
+{"utc": "2026-09-27T08:00:01Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "command", "command_id": 100032, "heals": [["0dum2d", "10-19"], ["0dulz1", "6-13"], ["0dulf1", "11-18"], ["0dukvb", "52-59"], ["0du08i", "129"]], "chunks": 35, "console_bytes": 143, "left_out": [{"media_id": 54
+{"utc": "2026-09-27T08:00:27Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100029, "offset_s": 30, "wake_n": 1}
+{"utc": "2026-09-27T08:00:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100032, "offset_s": 30, "wake_n": 1}
+{"utc": "2026-09-27T08:00:37Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100029, "offset_s": 40, "wake_n": 1}
+{"utc": "2026-09-27T08:00:41Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100032, "offset_s": 40, "wake_n": 1}
+{"utc": "2026-09-27T08:00:47Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100029, "offset_s": 50, "wake_n": 1}
+{"utc": "2026-09-27T08:00:51Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100032, "offset_s": 50, "wake_n": 1}
+{"utc": "2026-09-27T08:04:17Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "command_id": 100029, "offset_s": 260, "wake_n": 1}
+{"utc": "2026-09-27T08:04:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "command_id": 100032, "offset_s": 260, "wake_n": 1}
+BMCAM_003 [('0dulf1', '05:47:25', 16, 20, '15-18'), ('0dul8d', '05:43:25', 5, 20, '5-19'), ('0dukvb', '05-35-36', 72, 76, '52-55'), ('0dukit', '05-28-06', 66, 74, '51-58'), ('0duked', '05-25-26', 71, 79, '36-43'), ('0duj8z', '05-00-35', 175, 183, '175-182'), ('0dudp0', '03-00-36', 162, 178, '153-160,169-176'), ('0du852', '01-00-38', 176, 184, '140-147'), ('0du2kx', '23-00-33', 177, 185, '121-128'), ('0du08i', '22:09:54', 179, 180, '129'), ('0dtzkc', '21-55-24', 166, 183, '30-46')]
+BMCAM_004 [('0durku', '08-00-30', 175, 179, '154-157')]
+
+[exited with code 0]

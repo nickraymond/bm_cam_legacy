@@ -1,0 +1,94 @@
+{
+ "cycle": null,
+ "cycles": [],
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 1000.0,
+ "files": {
+  "app/sent/2026-09-23T15:00:00Z_image_compressed.sent.json": {
+   "bytes": 316,
+   "sha256": "4120d9334b7c0f1f"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3139,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2380,
+   "sha256": "81647ccf25f4271d"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7711,
+   "sha256": "676b414910d2df13"
+  },
+  "old/2026-09-23T15:00:00Z_image_compressed.jpg": {
+   "bytes": 3000,
+   "sha256": "d3859081b6ebe8d1"
+  },
+  "old/key.txt": {
+   "bytes": 6,
+   "sha256": "ccc3acb96f4f11df"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2249,
+   "sha256": "abed23a3ff7fff41"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 314,
+   "sha256": "727dcacde7becc81"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "O5: an rsd heard while idle on a trigger-only unit; after 10 min with no send the heals go out (chunks, then <HL>) with no capture",
+ "scenario": "stay_on_idle_heal",
+ "sent_records": {
+  "app/sent/2026-09-23T15:00:00Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-23T15:00:00Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dnwc0",
+   "msgs": 11,
+   "payload": "{TMP}/old/2026-09-23T15:00:00Z_image_compressed.jpg",
+   "sent_utc": "2026-09-23T15:00:05Z",
+   "sha256": "d3859081b6ebe8d1e0ff6387a734eeb63afe2142343e77be4f836b961e7b141f"
+  }
+ },
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 0,
+  "guarded": {},
+  "high_water": {},
+  "overlay": {},
+  "result_cache": {},
+  "schema": "bm_command_state_v2",
+  "tables_version": 8,
+  "v8": {
+   "applied_ids": [
+    100003
+   ],
+   "pending_heals": [],
+   "pending_trigger": null,
+   "settings": {
+    "awb": 0,
+    "cap": 0,
+    "exp": 0,
+    "foc": 0,
+    "hlt": 0,
+    "roi": 0,
+    "src": 0,
+    "tmz": 0,
+    "twn": 0,
+    "txd": 0,
+    "win": 0
+   },
+   "touched": []
+  }
+ },
+ "unfired_rules": []
+}

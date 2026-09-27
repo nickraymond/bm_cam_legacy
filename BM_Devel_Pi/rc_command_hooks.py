@@ -332,7 +332,7 @@ def flush_acks(daemon, summary, clock=_time.monotonic, sleep_fn=_time.sleep,
 
 
 def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
-                         clock=_time.monotonic, sleep_fn=_time.sleep):
+                         clock=_time.monotonic, sleep_fn=_time.sleep, supervised=None):
     """Sprint11 C4/D6 — the bounded listen tail that replaces the
     pre-capture window.
 
@@ -347,9 +347,15 @@ def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
     TAIL_SAFETY_S, so it can never run into the Spotter's bus-power cut
     mid-write. If there is no room it is SKIPPED, loudly.
 
+    Sprint26 S3b (PLAN_S3b.md H4): a stay_on action has no tail
+    (`supervised.listen_tail` False); its idle loop listens every 0.2 s.
+
     Returns the seconds actually spent listening.
     """
     if daemon is None:
+        return 0.0
+    if supervised is not None and not getattr(supervised, "listen_tail", True):
+        print("[CMD] no listen tail: stay_on (the idle loop listens)")
         return 0.0
     tail_s = float(bm_commands_cfg.get("post_transmit_listen_s", 0.0))
     if tail_s <= 0:
@@ -365,8 +371,12 @@ def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
     if actual_s < tail_s:
         print(f"[CMD] post-transmit tail TRIMMED {tail_s:.0f}s -> "
               f"{actual_s:.0f}s by the cycle budget")
+    # W10 (Sprint26 S3b, supervisor per_boot): a trg that fits this boot's
+    # budget ends the tail; run_per_boot then fires it (O3).
+    until = getattr(supervised, "w10_trigger_fits", None) if supervised is not None else None
+    extra = {"until": until} if until is not None else {}      # legacy call unchanged
     events = daemon.listen_window(actual_s, clock=clock, sleep_fn=sleep_fn,
-                                  label="post-transmit listen")
+                                  label="post-transmit listen", **extra)
     summary["command_events"].extend(e["action"] for e in events)
     summary["listen_tail_s"] = actual_s
     return actual_s

@@ -1,0 +1,278 @@
+{
+ "cycle": {
+  "clip": {
+   "basename": "2026-09-24T15-25-00Z_video_1000x562_15fps",
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T15-25-00Z_video_1000x562_15fps.mp4",
+   "ok": true,
+   "stage": "done"
+  },
+  "command_events": [],
+  "error": null,
+  "fit": {
+   "budget_msgs": 126,
+   "bytes": 36019,
+   "duration_s": 5.0,
+   "encode_s": 0.0,
+   "frames": 50,
+   "frames_trimmed": 0,
+   "keyframe_chunks": 8,
+   "keyframe_end": 2236,
+   "msgs": 126,
+   "pass2_tries": 1,
+   "prescale_s": 0.0,
+   "target_kbps": 57.6,
+   "used_pct": 99.3
+  },
+  "halt_result": {
+   "action": "none",
+   "reason": "stay_on: never halts"
+  },
+  "heal": {
+   "hl": []
+  },
+  "media_key": "0dps5o",
+  "schedule_allowed": true,
+  "stage": "done",
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "planned": 126,
+   "refused_reason": null,
+   "repeat_sent": true,
+   "repeated": 8,
+   "sent": 126,
+   "started": true,
+   "uart_duration_sec": 202.5
+  },
+  "trigger": {
+   "id": 713,
+   "value": 2
+  }
+ },
+ "cycles": [
+  {
+   "clip": {
+    "basename": "2026-09-24T15-06-40Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": {
+    "budget_msgs": 126,
+    "bytes": 36019,
+    "duration_s": 5.0,
+    "encode_s": 0.0,
+    "frames": 50,
+    "frames_trimmed": 0,
+    "keyframe_chunks": 8,
+    "keyframe_end": 2236,
+    "msgs": 126,
+    "pass2_tries": 1,
+    "prescale_s": 0.0,
+    "target_kbps": 57.6,
+    "used_pct": 99.3
+   },
+   "halt_result": null,
+   "heal": {
+    "hl": []
+   },
+   "media_key": "0dprb4",
+   "schedule_allowed": true,
+   "stage": "done",
+   "transmit": true,
+   "transmit_result": {
+    "complete_send": true,
+    "planned": 126,
+    "refused_reason": null,
+    "repeat_sent": true,
+    "repeated": 8,
+    "sent": 126,
+    "started": true,
+    "uart_duration_sec": 175.49999999999386
+   },
+   "trigger": {
+    "id": 711,
+    "value": 2
+   }
+  },
+  {
+   "clip": {
+    "basename": "2026-09-24T15-25-00Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-25-00Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": {
+    "budget_msgs": 126,
+    "bytes": 36019,
+    "duration_s": 5.0,
+    "encode_s": 0.0,
+    "frames": 50,
+    "frames_trimmed": 0,
+    "keyframe_chunks": 8,
+    "keyframe_end": 2236,
+    "msgs": 126,
+    "pass2_tries": 1,
+    "prescale_s": 0.0,
+    "target_kbps": 57.6,
+    "used_pct": 99.3
+   },
+   "halt_result": {
+    "action": "none",
+    "reason": "stay_on: never halts"
+   },
+   "heal": {
+    "hl": []
+   },
+   "media_key": "0dps5o",
+   "schedule_allowed": true,
+   "stage": "done",
+   "transmit": true,
+   "transmit_result": {
+    "complete_send": true,
+    "planned": 126,
+    "refused_reason": null,
+    "repeat_sent": true,
+    "repeated": 8,
+    "sent": 126,
+    "started": true,
+    "uart_duration_sec": 202.5
+   },
+   "trigger": {
+    "id": 713,
+    "value": 2
+   }
+  }
+ ],
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 2000.2,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "b91042bb8ca1a91a"
+  },
+  "app/sent/2026-09-24T15-06-40Z_video_5s.sent": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "app/sent/2026-09-24T15-06-40Z_video_5s.sent.json": {
+   "bytes": 308,
+   "sha256": "d19becbfe9f8159e"
+  },
+  "app/sent/2026-09-24T15-25-00Z_video_5s.sent": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "app/sent/2026-09-24T15-25-00Z_video_5s.sent.json": {
+   "bytes": 308,
+   "sha256": "25243ccfaffbd079"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3125,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2366,
+   "sha256": "13d694960480ba29"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7907,
+   "sha256": "8a8ad15fcd4f5753"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2223,
+   "sha256": "8dedba797bcb93e0"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 324,
+   "sha256": "52f2fa5a623dbdc8"
+  },
+  "state/config_journal.jsonl": {
+   "bytes": 92,
+   "sha256": "wall-time"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  },
+  "videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "videos/2026-09-24T15-25-00Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "trigger-only video: no action at boot, a heartbeat, trg -> clip, a txd applied while idle governs the next clip, trg -> clip, SIGTERM",
+ "scenario": "stay_on_video",
+ "sent_records": {
+  "app/sent/2026-09-24T15-06-40Z_video_5s.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15-06-40Z_video_5s.h264",
+   "fmt": "h264",
+   "key": "0dprb4",
+   "msgs": 126,
+   "payload": "{TMP}/app/sent/2026-09-24T15-06-40Z_video_5s.sent",
+   "sent_utc": "2026-09-24T15:06:40Z",
+   "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
+  },
+  "app/sent/2026-09-24T15-25-00Z_video_5s.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15-25-00Z_video_5s.h264",
+   "fmt": "h264",
+   "key": "0dps5o",
+   "msgs": 126,
+   "payload": "{TMP}/app/sent/2026-09-24T15-25-00Z_video_5s.sent",
+   "sent_utc": "2026-09-24T15:25:00Z",
+   "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
+  }
+ },
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 0,
+  "guarded": {},
+  "high_water": {},
+  "overlay": {},
+  "result_cache": {},
+  "schema": "bm_command_state_v2",
+  "tables_version": 8,
+  "v8": {
+   "applied_ids": [
+    711,
+    712,
+    713
+   ],
+   "pending_heals": [],
+   "pending_trigger": null,
+   "settings": {
+    "awb": 0,
+    "cap": 0,
+    "exp": 0,
+    "foc": 0,
+    "hlt": 0,
+    "roi": 0,
+    "src": 0,
+    "tmz": 0,
+    "twn": 0,
+    "txd": 1,
+    "win": 0
+   },
+   "touched": [
+    "txd"
+   ]
+  }
+ },
+ "unfired_rules": []
+}

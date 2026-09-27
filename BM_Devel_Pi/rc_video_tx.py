@@ -247,9 +247,15 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
             if supervised is not None:
                 # Sprint26 W3 (DESIGN §4): a skipped video wake reports it like a
                 # stills unit (<WS a=skip_win>), then listens. Legacy sends nothing.
-                _skip_status(settings, vtx, gate_info, wake_fn)
+                # S3b H3: in stay_on only the first skip of a run is sent.
+                if supervised.quiet_skip:
+                    print("[VTX] window skip: <WS> not sent (stay_on: the first skip of "
+                          "this run already was)")
+                else:
+                    _skip_status(settings, vtx, gate_info, wake_fn)
                 cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
-                                               clock=clock, sleep_fn=sleep_fn)
+                                               clock=clock, sleep_fn=sleep_fn,
+                                               supervised=supervised)
             return summary
 
     # 2. Record with the recorder's own pipeline; the 1080p clip stays on SD.
@@ -329,7 +335,8 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
             cmd_hooks.drain_now(daemon, summary, clock=clock)
             if bench_commands:
                 cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
-                                               clock=clock, sleep_fn=sleep_fn)
+                                               clock=clock, sleep_fn=sleep_fn,
+                                               supervised=supervised)
         summary["stage"] = "done_no_transmit"
         return summary
 
@@ -401,7 +408,8 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
                                         delay_seconds=settings["pacing_delay_seconds"],
                                         sleep_fn=sleep_fn)
         cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
-                                       clock=clock, sleep_fn=sleep_fn)
+                                       clock=clock, sleep_fn=sleep_fn,
+                                       supervised=supervised)
     summary["stage"] = "done"
     return summary
 

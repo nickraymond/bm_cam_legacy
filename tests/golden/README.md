@@ -85,6 +85,35 @@ never change in S3a.
 .venv-dev/bin/python tests/golden/run_scenario.py wire still_bench /tmp/out --runtime supervisor
 ```
 
+## stay_on (Sprint26 S3b)
+
+`scenarios.STAY_ON_SCENARIOS` are supervisor-only: a long-lived loop has no
+legacy counterpart, so each is recorded once under `vectors_stay_on/<name>/`
+(`test_wire_stay_on_<name>`) and the whole record is new wire, reviewed in full.
+Each migrates its v1 profile to config v2 and then sets the scenario's `v2` keys
+(`mode.run: stay_on`, `commands.runtime: supervisor`, `mode.interval_s`,
+`mode.heartbeat_s`). Commands arrive on `at_clock` rules; a rule with
+`"signal": "TERM"` sends the runtime a real SIGTERM (trace `NOTE SIGTERM ...`),
+which is how every stay_on scenario ends. `summary.json` adds `cycles` (every
+action's summary, in order). `camera_config.lkg.json` and
+`state/config_journal.jsonl` embed the real boot wall time, so their listed
+sha256 is `wall-time` (the size is still pinned).
+
+What they pin (PLAN_S3b.md H2–H6): one port OPEN and one CLOSE for the whole
+process, no HALT, a boot Spotter time read (the only clock step), a scheduled
+action at boot (interval_s > 0) or none (trigger-only), `<WS a=idle>` heartbeats
+heartbeat_s after the last uplink, commands applied and acked while idle, a trg
+action, only the first window skip of a run sending `<WS a=skip_win>`, and no
+listen tail after an action. `stay_on_idle_heal` (S3b.6, O5) is an `rsd` heard
+while idle, sent 10 min after the last send as chunks + `<HL>` with no capture.
+`stay_on_crashloop_fallback` (S3b.4, H7) is the
+wrapper's `--crashloop` run: per_boot, one `<WS a=crashloop>` as soon as the port
+is up (before the time read, so its `lt` is the Pi clock), halt dry-run (no HALT).
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire stay_on_still /tmp/out
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:
@@ -97,6 +126,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3a, supervisor only) |
 | `video_trigger_pending` | a video unit never services `trg`; it stays armed | W5 (S3a, supervisor only) |
 | `still_trigger` | a trigger boot skips the gate, so the system clock is NOT set from the Spotter | W6 (S3a, supervisor only) |
+| `still_trigger_in_tail` | a trg heard in the listen tail stays armed for the next boot | W10 (S3b, supervisor only): the tail ends and it fires this boot on the same budget |
 | all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
 

@@ -563,6 +563,28 @@ def _without_metadata_args(cmd):
     return out
 
 
+# Sprint26 S3b (PLAN_S3b.md H6): a stay_on process points this at its SIGTERM
+# flag (rc_supervisor.install_stop_flag) so the wait between capture attempts
+# ends within a second of a stop request: the "bounded wait during a capture
+# retry" (DESIGN §4). None (per_boot, legacy) = the plain sleep, as before.
+stop_check = None
+
+
+def _retry_wait(seconds):
+    """Sleep `seconds` before the next capture attempt. -> True if a stop was
+    requested (stay_on only), False after the full wait."""
+    if stop_check is None:
+        time.sleep(seconds)
+        return False
+    deadline = time.monotonic() + float(seconds)
+    while not stop_check():
+        left = deadline - time.monotonic()
+        if left <= 0:
+            return False
+        time.sleep(min(1.0, left))
+    return True
+
+
 def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix, settings=None):
     """Capture native/full-source JPEG with rpicam-still or libcamera-still.
 
@@ -780,7 +802,12 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
                 jpeg_quality=jpeg_quality,
                 wait_seconds=CAPTURE_HELPER_RETRY_DELAY_SECONDS,
             )
-            time.sleep(CAPTURE_HELPER_RETRY_DELAY_SECONDS)
+            if _retry_wait(CAPTURE_HELPER_RETRY_DELAY_SECONDS):
+                # Sprint26 S3b H6: a stay_on process asked to stop; the
+                # attempt that ran has ended, no further attempt starts.
+                raise RuntimeError(
+                    f"Native capture stopped (SIGTERM) before attempt {next_attempt}/"
+                    f"{max_attempts}; last_error={last_error!r}")
 
     _send_capture_status(
         action="fail",

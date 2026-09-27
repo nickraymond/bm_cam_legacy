@@ -1,0 +1,38 @@
+[watcher] start 20260927T051657Z
+[watcher] reachable at 05:18:51Z after 22 polls
+[watcher] SIGTERM sent to cycle
+1238 /usr/bin/ffmpeg -hide_banner -nostdin -loglevel error -y -sseof -5.2 -i /home/pi/BM_Devel_Pi/videos/2026-09-27T05-18-35Z_video_1920x1080_15fps.mp4 -vf scale=480:270,fps=10 -frames:v 50 -pix_fmt yuv420p -f yuv4mpegpipe /tmp/rc_video_tx/vtx_ref.y4m
+1289 bash -c set -u B=/home/pi/s3bbench/backup; A=/home/pi/BM_Devel_Pi; mkdir -p $B crontab -l > $B/crontab_ARMED.txt 2>/dev/null crontab -l | sed 's|^@reboot \(.*rc_run_capture_cycle\.sh\)$|# DISABLED s3bbench 20260927T051657Z: @reboot \1|' | crontab - pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py' && echo '[watcher] SIGTERM sent to cycle' || echo '[watcher] no cycle process to stop' sleep 2 pgrep -af '[r]c_progressive|[r]c_run_capture|[r]picam|[f]fmpeg' || echo '[watcher] no camera procs' echo '--- crontab now'; crontab -l tar czf $B/BM_Devel_Pi_before_s3bbench.tgz -C /home/pi --exclude=BM_Devel_Pi/images --exclude=BM_Devel_Pi/videos --exclude=BM_Devel_Pi/cron_logs --exclude=BM_Devel_Pi/sent BM_Devel_Pi 2>/dev/null for f in camera_schedule.yaml camera_schedule.v1.yaml camera_config.yaml camera_config.lkg.json bm_command_state.json bm_command_state_v2.json bm_media_key_last.txt software_sha.txt; do [ -f $A/$f ] && cp -p $A/$f $B/; done ls -la $B echo '--- survey'; hostname; uptime; date -u echo '--- deployed sha'; cat $A/software_sha.txt; tail -2 $A/deploy_history.log 2>/dev/null echo '--- repo'; git -C /home/pi/repos/bm_cam_legacy log --oneline -1; git -C /home/pi/repos/bm_cam_legacy branch --show-current echo '--- config'; cd $A && python3 rc_progressive_jp[e]g.py --print-config 2>&1 | grep -E '^\[CFG\]|capture_mode|media' | head -6 echo '--- mem'; free -m | head -2 
+--- crontab now
+# DISABLED s3bbench 20260927T051657Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+total 6632
+drwxrwxr-x 2 pi pi    4096 Sep 27 05:18 .
+drwxrwxr-x 3 pi pi    4096 Sep 27 05:18 ..
+-rw-rw-r-- 1 pi pi     279 Sep 25 23:01 bm_command_state.json
+-rw-r--r-- 1 pi pi     679 Sep 26 23:01 bm_command_state_v2.json
+-rw-rw-r-- 1 pi pi 6740973 Sep 27 05:18 BM_Devel_Pi_before_s3bbench.tgz
+-rw-rw-r-- 1 pi pi       6 Sep 27 05:00 bm_media_key_last.txt
+-rw-r--r-- 1 pi pi    3126 Sep 26 22:20 camera_config.lkg.json
+-rw-r--r-- 1 pi pi    6140 Sep 26 22:17 camera_config.yaml
+-rw-rw-r-- 1 pi pi    7867 Sep 26 00:16 camera_schedule.yaml
+-rw-rw-r-- 1 pi pi      98 Sep 27 05:18 crontab_ARMED.txt
+-rw-rw-r-- 1 pi pi      13 Sep 26 21:46 software_sha.txt
+--- survey
+bmcam003
+ 05:18:57 up 0 min,  1 user,  load average: 1.30, 0.39, 0.14
+Sun 27 Sep 05:18:57 UTC 2026
+--- deployed sha
+fcd7bfd6be6f
+20260926T004433Z 4c4fe8fe8897 mode=update profile=none cron=false cfg=81e05dee
+20260926T214633Z fcd7bfd6be6f mode=update profile=none cron=false cfg=e3449650
+--- repo
+fcd7bfd S3a review fixes (independent review of a2e3988..40b09dd)
+feature/sprint26-s3a-runtime
+--- config
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=5e679ef9 hv=1 registry=v2 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[RC] capture_mode=video (Sprint15 video path selected)
+--- mem
+               total        used        free      shared  buff/cache   available
+Mem:             415         177          90          11         216         237
+[watcher] done 05:18:58Z

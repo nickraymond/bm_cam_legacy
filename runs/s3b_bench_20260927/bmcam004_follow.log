@@ -1,0 +1,14 @@
+[follow] start 01:00:50
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=e3449650 hv=1 registry=v2 overlay=0 key(s)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=e3449650 hv=1 registry=v2 overlay=0 key(s)
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: f73129ac6db7 -> 1636c8bf17bf | values: chunk=384 delay=1.3
+[follow] level v2 runtime ('supervisor', 'config (v2)') hash 5e679ef9
+[follow] crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+1636c8bf17bf
+[follow] halt issued 01:01:22
+[follow] bmcam004 dark 01:01:51

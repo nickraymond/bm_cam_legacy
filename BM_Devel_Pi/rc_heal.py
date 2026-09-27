@@ -129,6 +129,7 @@ class WakeHeals:
         self.items = []          # [{key, id, lines:[(n, bytes)], refused}]
         self.outcomes = {}       # key -> {a, n, r, id}
         self.sent_ns = {}        # key -> [n sent this wake]
+        self._merged_events = {}  # key -> [daemon heal_events merged into its <HL>]
         self._plan()
 
     def _plan(self):
@@ -224,27 +225,46 @@ class WakeHeals:
     def status_lines(self, wake_key=None):
         """One <HL> per key: this wake's send outcomes merged with the daemon's
         per-command events (requested/refused), highest priority wins."""
+        self._merged_events = {}
         for ev in getattr(self.daemon, "heal_events", []):
             self._outcome(ev["key"], ev["a"], ev["n"], ev["r"], ev["id"])
+            self._merged_events.setdefault(ev["key"], []).append(ev)
         return [build_hl_message(k, o["a"], o["n"], o["r"], o["id"], wake_key)
                 for k, o in self.outcomes.items()]
+
+    def _clear_sent_events(self, keys_sent):
+        """DESIGN §4 "Heal events" (Sprint26 S3b.2): the daemon's per-command
+        events merged into an <HL> that WENT OUT are cleared; the rest stay
+        for the next wake (a failed or budget-cut send keeps them). A
+        long-lived process would otherwise re-send every old event on every
+        action and grow the list without bound. per_boot: no wire change (the
+        daemon stops right after)."""
+        events = getattr(self.daemon, "heal_events", None)
+        if not isinstance(events, list):
+            return
+        sent_ids = {id(ev) for k in keys_sent for ev in self._merged_events.get(k, ())}
+        if sent_ids:
+            events[:] = [ev for ev in events if id(ev) not in sent_ids]
 
     def send_status_after_end(self, tx, budget, *, wake_key=None, delay_seconds,
                               sleep_fn=time.sleep):
         """Send the <HL> lines after END, paced (sleep BEFORE each: END is not
         followed by a sleep). Never raises. Returns the lines sent."""
-        sent = []
+        sent, keys_sent = [], []
         try:
-            for line in self.status_lines(wake_key):
+            lines = self.status_lines(wake_key)
+            for key, line in zip(list(self.outcomes), lines):
                 if not budget.messages_fit(1):
                     print("[HEAL][WARN] no budget left for <HL>; skipped")
                     break
                 sleep_fn(float(delay_seconds))
                 tx(line.encode("ascii"))
                 sent.append(line.strip())
+                keys_sent.append(key)
                 print(f"[HEAL] status: {line.strip()}")
         except Exception as exc:
             print(f"[HEAL][WARN] <HL> send failed: {exc}")
+        self._clear_sent_events(keys_sent)
         self.summary.setdefault("heal", {})["hl"] = sent
         return sent
 
