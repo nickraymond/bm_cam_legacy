@@ -36,6 +36,16 @@ sys.path.insert(0, GOLDEN)
 import scenarios as S  # noqa: E402
 
 VECTORS = os.path.join(GOLDEN, "vectors")
+# Sprint26 S3a (PLAN_S3a.md G2): every wire scenario also runs under
+# --runtime supervisor and is compared with the SAME vector. Where a deliberate
+# supervisor-only wire change (W2-W6) makes it differ, its expected output lives
+# in vectors_supervisor/<scenario>/, and only for the scenarios named here.
+VECTORS_SUPERVISOR = os.path.join(GOLDEN, "vectors_supervisor")
+SUPERVISOR_DIFFERS = {      # scenario -> the W-item(s) that make it differ
+    "still_bench": "W2+W4", "still_heal": "W2",
+    "still_window_skip": "W3", "video_window_skip": "W3",
+    "video_trigger_pending": "W5", "still_trigger": "W6",
+}
 SETTINGS = os.path.join(GOLDEN, "settings")
 RUNNER = os.path.join(GOLDEN, "run_scenario.py")
 RECORD = os.environ.get("GOLDEN_RECORD") == "1"
@@ -48,10 +58,15 @@ def settings_targets():
     return targets
 
 
+def supervisor_scenarios():
+    """Wire scenarios the supervisor runs: all but those pinning another commit."""
+    return [n for n, sc in S.SCENARIOS.items() if not sc.get("app_ref")]
+
+
 def _run(job):
-    mode, target, outdir = job
+    mode, target, outdir, extra = job
     with open(outdir + ".log", "w", encoding="utf-8") as log:
-        proc = subprocess.run([sys.executable, RUNNER, mode, target, outdir],
+        proc = subprocess.run([sys.executable, RUNNER, mode, target, outdir] + list(extra),
                               cwd=REPO, stdout=log, stderr=subprocess.STDOUT, timeout=900)
     return job, proc.returncode
 
@@ -62,14 +77,19 @@ class GoldenVectors(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.work = tempfile.mkdtemp(prefix="golden_check_")
-        jobs = [("wire", name, os.path.join(cls.work, "wire", name)) for name in S.SCENARIOS]
-        jobs += [("settings", target, os.path.join(cls.work, "settings", slug))
+        jobs = [("wire", name, os.path.join(cls.work, "wire", name), ()) for name in S.SCENARIOS]
+        jobs += [("wire_supervisor", name, os.path.join(cls.work, "wire_supervisor", name),
+                  ("--runtime", "supervisor")) for name in supervisor_scenarios()]
+        jobs += [("settings", target, os.path.join(cls.work, "settings", slug), ())
                  for slug, target in settings_targets().items()]
-        for _mode, _target, outdir in jobs:
+        for _mode, _target, outdir, _extra in jobs:
             os.makedirs(os.path.dirname(outdir), exist_ok=True)
         with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
-            for (mode, target, outdir), code in pool.map(_run, jobs):
-                cls.results[(mode, target)] = (outdir, code)
+            for (mode, target, outdir, _extra), code in pool.map(
+                    _run, [(m if m != "wire_supervisor" else "wire", t, o, e)
+                           for m, t, o, e in jobs]):
+                key = "wire_supervisor" if "--runtime" in _extra else mode
+                cls.results[(key, target)] = (outdir, code)
         env_path = os.path.join(VECTORS, "_env.json")
         some_env = next(os.path.join(o, "env.json") for o, _c in cls.results.values()
                         if os.path.exists(os.path.join(o, "env.json")))
@@ -102,7 +122,26 @@ class GoldenVectors(unittest.TestCase):
                 tail = fh.read()[-3000:]
             type(self)._kept = [True]
             self.fail(f"{mode} {target} exited {code}; log tail:\n{tail}")
-        if RECORD:
+        with open(outdir + ".log", "r", encoding="utf-8", errors="replace") as fh:
+            refused = [line for line in fh if "[PORT][ERROR]" in line]
+        # A port refusal swallowed by a try/except (e.g. debug_print) never
+        # reaches trace.txt; any refusal in a golden run is a failure.
+        self.assertEqual(refused, [], f"{mode} {target}: bm_port refused a port use")
+        if RECORD and mode == "wire_supervisor":
+            # Only a difference from the legacy output of THIS run is recorded,
+            # and only for a scenario SUPERVISOR_DIFFERS names.
+            legacy_dir = self.results[("wire", target)][0]
+            same = all(_read(os.path.join(outdir, n)) == _read(os.path.join(legacy_dir, n))
+                       for n in files)
+            if same:
+                shutil.rmtree(golden_dir, ignore_errors=True)
+                return
+            if target in SUPERVISOR_DIFFERS:
+                os.makedirs(golden_dir, exist_ok=True)
+                for name in files:
+                    shutil.copyfile(os.path.join(outdir, name), os.path.join(golden_dir, name))
+                return
+        elif RECORD:
             os.makedirs(golden_dir, exist_ok=True)
             for name in files:
                 shutil.copyfile(os.path.join(outdir, name), os.path.join(golden_dir, name))
@@ -123,11 +162,35 @@ class GoldenVectors(unittest.TestCase):
                 self.fail(f"{mode} {target}: {name} differs (actual kept in {outdir}):\n{diff}")
 
 
+def _read(path):
+    with open(path, "r", encoding="utf-8") as fh:
+        return fh.read()
+
+
 def _wire_test(name):
     def test(self):
         self.compare("wire", name, ("trace.txt", "summary.json"), os.path.join(VECTORS, name))
     test.__doc__ = S.SCENARIOS[name].get("notes")
     return test
+
+
+def _supervisor_wire_test(name):
+    def test(self):
+        override = os.path.join(VECTORS_SUPERVISOR, name)
+        golden_dir = override if name in SUPERVISOR_DIFFERS else os.path.join(VECTORS, name)
+        if RECORD:
+            golden_dir = override
+        self.compare("wire_supervisor", name, ("trace.txt", "summary.json"), golden_dir)
+    test.__doc__ = f"supervisor runtime: {S.SCENARIOS[name].get('notes')}"
+    return test
+
+
+class SupervisorOverrides(unittest.TestCase):
+    def test_only_named_scenarios_differ_under_the_supervisor(self):
+        present = sorted(os.listdir(VECTORS_SUPERVISOR)) if os.path.isdir(VECTORS_SUPERVISOR) else []
+        self.assertEqual(present, sorted(SUPERVISOR_DIFFERS),
+                         "vectors_supervisor/ must hold exactly the scenarios SUPERVISOR_DIFFERS "
+                         "names (each tied to a W-item, DESIGN §8.2)")
 
 
 def _settings_test(slug, target):
@@ -144,6 +207,8 @@ def _settings_test(slug, target):
 
 for _name in S.SCENARIOS:
     setattr(GoldenVectors, f"test_wire_{_name}", _wire_test(_name))
+for _name in supervisor_scenarios():
+    setattr(GoldenVectors, f"test_wire_supervisor_{_name}", _supervisor_wire_test(_name))
 for _slug, _target in settings_targets().items():
     _safe = _slug.replace("+", "_").replace(".", "_").replace("-", "_")
     setattr(GoldenVectors, f"test_settings_{_safe}", _settings_test(_slug, _target))

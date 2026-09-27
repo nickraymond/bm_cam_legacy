@@ -66,6 +66,17 @@ class CycleBudget:
     def seconds_per_message(self):
         return self._seconds_per_message
 
+    def resize(self, budget_seconds, seconds_per_message):
+        """Sprint26 W4: new limits after the supervisor's boot drain applied a
+        command (txd/win), with the SAME start: never a re-anchor (PLAN_S3a G1)."""
+        budget_seconds = float(budget_seconds)
+        seconds_per_message = float(seconds_per_message)
+        if budget_seconds <= 0 or seconds_per_message <= 0:
+            raise ValueError(f"resize needs positive limits, got {budget_seconds}, "
+                             f"{seconds_per_message}")
+        self._budget_seconds = budget_seconds
+        self._seconds_per_message = seconds_per_message
+
     # -- time queries ------------------------------------------------------
 
     def elapsed_s(self):

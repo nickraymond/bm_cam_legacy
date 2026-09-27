@@ -1,0 +1,64 @@
+=== legacy video start 2026-09-26T21:47:33Z
+[side] bmcam003 sha=fcd7bfd6be6f runtime=legacy mode=video start=2026-09-26T21:47:35.294Z
+[side] end=2026-09-26T21:55:16.813Z
+21:47:36.300 [RUNTIME] legacy (source=cli)
+21:47:36.620 [CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+21:47:36.658 [CMD] time-sync subscribe sent; waiting up to 60s
+21:47:41.362 [CMD] spotter UTC decoded: 2026-09-26T21:47:44.191000+00:00
+21:47:44.020 [VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-26T14:47:44.191000-07:00
+21:48:06.191 [KEY] media key 0dtz7k from Spotter UTC 2026-09-26T21:47:44.191000+00:00 (spotter)
+21:48:06.216 [KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-26T21-47-41Z_video_5s.sent.json (182 msgs)
+21:52:47.198 [VTX] transmit done: sent=182/182 complete=True keyframe_repeat=30/30 uart=280.9s file=2026-09-26T21-47-41Z_video_5s.h264
+21:55:16.549 [VTX] cycle end: stage=done elapsed=460.1s of 480s; halt=dry_run
+21:55:16.557 [BENCH] exit=0 wall_s=461.1 maxrss_self_kb=24676 maxrss_children_kb=125508 cpu_self_s=3.3 cpu_children_s=29.7
+=== legacy video end 2026-09-26T21:55:16Z
+=== supervisor video start 2026-09-26T21:55:16Z
+[side] bmcam003 sha=fcd7bfd6be6f runtime=supervisor mode=video start=2026-09-26T21:55:17.811Z
+[side] end=2026-09-26T22:02:54.497Z
+21:55:18.899 [RUNTIME] supervisor (source=cli)
+21:55:19.218 [SUP] per_boot: media=video transmit=True
+21:55:19.237 [CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+21:55:19.257 [CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+21:55:21.149 [CMD] spotter UTC decoded: 2026-09-26T21:55:24.171000+00:00
+21:55:24.022 [VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-26T14:55:24.171000-07:00
+21:55:41.899 [KEY] media key 0dtzkc from Spotter UTC 2026-09-26T21:55:24.171000+00:00 (spotter)
+21:55:41.918 [KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-26T21-55-24Z_video_5s.sent.json (183 msgs)
+22:00:24.169 [VTX] transmit done: sent=183/183 complete=True keyframe_repeat=30/30 uart=282.2s file=2026-09-26T21-55-24Z_video_5s.h264
+22:02:54.299 [SUP] action: media=video stage=done sent=183/183 elapsed=455.2s
+22:02:54.355 [VTX] cycle end: stage=done elapsed=455.2s of 480s; halt=dry_run
+22:02:54.364 [BENCH] exit=0 wall_s=456.4 maxrss_self_kb=27248 maxrss_children_kb=122312 cpu_self_s=3.0 cpu_children_s=28.9
+=== supervisor video end 2026-09-26T22:02:54Z
+=== legacy stills start 2026-09-26T22:02:54Z
+[side] bmcam003 sha=fcd7bfd6be6f runtime=legacy mode=stills start=2026-09-26T22:02:55.285Z
+[ping] 26303 sent 22:05:00
+[side] end=2026-09-26T22:09:34.180Z
+22:02:56.501 [RUNTIME] legacy (source=cli)
+22:02:56.808 [CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+22:03:02.357 [CMD] time-sync subscribe sent; waiting up to 20.0s
+22:03:02.369 [CMD] spotter UTC decoded: 2026-09-26T22:03:04.121000+00:00
+22:03:02.375 [KEY] media key 0dtzx4 from Spotter UTC 2026-09-26T22:03:04.121000+00:00 (spotter_explicit)
+22:03:02.383 [KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-26T22:02:56Z_image_compressed.sent.json (178 msgs)
+22:07:03.737 [RC] transmit done: sent=178/178 complete=True incomplete_emitted=False uart=241.3s
+22:09:34.002 [RC] cycle end: elapsed=397.2s of 480s; halt=dry_run
+22:09:34.010 [BENCH] exit=0 wall_s=398.6 maxrss_self_kb=134092 maxrss_children_kb=134092 cpu_self_s=4.0 cpu_children_s=1.2
+=== legacy stills end 2026-09-26T22:09:34Z
+[ping] 26301 sent 22:09:40 (before the supervisor stills cycle)
+=== supervisor stills start 2026-09-26T22:09:45Z
+[side] bmcam003 sha=fcd7bfd6be6f runtime=supervisor mode=stills start=2026-09-26T22:09:46.759Z
+[ping] 26302 sent 22:11:50
+[side] end=2026-09-26T22:16:29.087Z
+22:09:47.782 [RUNTIME] supervisor (source=cli)
+22:09:48.037 [SUP] per_boot: media=still transmit=True
+22:09:48.094 [CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+22:09:48.118 [CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+22:09:51.009 [CMD] spotter UTC decoded: 2026-09-26T22:09:54.046000+00:00
+22:09:54.020 [RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-26T15:09:54.046000-07:00 (window bypassed; time read only)
+22:09:55.874 [KEY] media key 0du08i from Spotter UTC 2026-09-26T22:09:54.046000+00:00 (spotter)
+22:09:55.886 [KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-26T22:09:54Z_image_compressed.sent.json (180 msgs)
+22:13:54.648 [RC] transmit done: sent=180/180 complete=True incomplete_emitted=False uart=238.7s
+22:16:28.798 [SUP] action: media=still stage=None sent=180/180 elapsed=400.8s
+22:16:28.906 [RC] cycle end: elapsed=400.9s of 480s; halt=dry_run
+22:16:28.915 [BENCH] exit=0 wall_s=402.0 maxrss_self_kb=134384 maxrss_children_kb=134384 cpu_self_s=3.9 cpu_children_s=1.2
+=== supervisor stills end 2026-09-26T22:16:29Z
+[bench] logs pulled
+[bench] DONE 2026-09-26T22:16:30Z

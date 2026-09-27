@@ -1,0 +1,6 @@
+[rearm] bmcam003 reachable 22:19:42
+[rearm] crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+fcd7bfd6be6f
+128:  runtime: "supervisor"  # s3abench 2026-09-26: S3a gate + S3b rig (Nick)
+[rearm] halt issued 22:19:43
+[rearm] bmcam003 dark 22:20:12

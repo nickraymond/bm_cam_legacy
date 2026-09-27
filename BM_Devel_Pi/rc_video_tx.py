@@ -68,6 +68,7 @@ import rc_video_clip
 import video_recorder
 import video_ring
 from rc_power_halt import perform_power_halt
+from rc_port_owner import PortOwner
 from rc_time_budget import CycleBudget
 from rc_transmit import VIDEO_ENVELOPE_MSGS, transmit_video_clip
 from rc_uplink_messages import format_crop
@@ -203,6 +204,208 @@ def _start_metadata(settings):
         return {"timezone": settings.get("timezone")}
 
 
+def _skip_status(settings, vtx, gate_info, wake_fn=None):
+    """<WS a=skip_win> for a video wake outside its window (W3); never raises."""
+    if wake_fn is None:
+        from rc_telemetry import send_wake_status as wake_fn
+    try:
+        w, h = vtx["output_wh"]
+        wake_fn(action="skip_win", timezone_name=settings["timezone"],
+                local_time=(gate_info or {}).get("local_time"),
+                window_start=settings["window_start"], window_end=settings["window_end"],
+                image_res_key=f"{w}x{h}", image_quality=None, reason="window")
+    except Exception as exc:
+        print(f"[VTX][WARN] wake status send failed, continuing safely: {exc}")
+
+
+def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit,
+                 skip_time_window, gate_fn, record_fn, fit_fn, tx_open_fn, ensure_room_fn,
+                 sleep_fn, clock, now_fn, encoder_binary, ffmpeg_binary, bm_commands_cfg,
+                 bench_commands, bench_drop_chunks, supervised=None, wake_fn=None,
+                 capture_only=False):
+    """The video action (Sprint26 S3a, DESIGN_supervisor.md §4 "Actions"): the body
+    of one clip cycle, from the time gate to the listen tail, moved here verbatim
+    from run_video_tx_cycle. The daemon and the budget come from the caller, which
+    also owns shutdown -> close -> halt; port_state["opened"] tells it whether this
+    action may have opened the UART (the close predicate). Returns the summary."""
+    vcfg = settings["video"]
+    # 1. Spotter time first: no RTC, so until this read the clock can be
+    #    years off — and the clip's filename is its capture time.
+    gate_info, gate_mono = None, clock()
+    if transmit:
+        summary["stage"] = "time_gate"
+        port_state["opened"] = True     # the gate opens the UART (or rides the daemon's)
+        gate_kwargs = (supervised.gate_kwargs(daemon, settings) if supervised is not None
+                       else cmd_hooks.gate_kwargs_for(daemon, settings))    # W6
+        allowed, gate_info = (gate_fn(settings["config_path"], **gate_kwargs) if gate_kwargs
+                              else gate_fn(settings["config_path"]))
+        gate_mono = clock()
+        cmd_hooks.boot_mark("spotter_utc_read")
+        print(f"[VTX] schedule gate: {gate_info.get('reason')}")
+        if settings.get("enforce_time_window") and not skip_time_window and not allowed:
+            summary["schedule_allowed"] = False
+            if supervised is not None:
+                # Sprint26 W3 (DESIGN §4): a skipped video wake reports it like a
+                # stills unit (<WS a=skip_win>), then listens. Legacy sends nothing.
+                _skip_status(settings, vtx, gate_info, wake_fn)
+                cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                               clock=clock, sleep_fn=sleep_fn)
+            return summary
+
+    # 2. Record with the recorder's own pipeline; the 1080p clip stays on SD.
+    summary["stage"] = "record"
+    video_dir = vcfg["dir"]
+    os.makedirs(video_dir, exist_ok=True)
+    video_recorder.sweep_boot_debris(video_dir)
+    ring = ensure_room_fn(video_dir, vcfg["storage"])
+    if ring.get("paused"):
+        raise RuntimeError(f"SD storage over its limit (used={ring.get('used_pct')}% "
+                           f"free={ring.get('free_gb')}GiB); not recording. Free space or "
+                           f"raise video.storage.max_used_pct")
+    if encoder_binary is None:
+        encoder_binary, _ = video_recorder._select_video_command(settings["capture_backend"])
+    if ffmpeg_binary is None:
+        ffmpeg_binary = shutil.which("ffmpeg")
+        if not ffmpeg_binary:
+            raise RuntimeError("ffmpeg not found on PATH; install it (apt install ffmpeg)")
+    record_s = vtx["duration_s"] + vtx["lead_in_s"]
+    short = dict(vcfg, clip_minutes=record_s / 60.0)
+    clip = record_fn(settings, short, video_dir, encoder_binary=encoder_binary,
+                     ffmpeg_binary=ffmpeg_binary,
+                     controls=video_recorder._resolve_controls(settings))
+    summary["clip"] = {k: clip.get(k) for k in ("ok", "stage", "basename", "mp4", "bytes")}
+    if not clip.get("ok"):
+        raise RuntimeError(f"recording failed at stage {clip.get('stage')!r}; nothing to send")
+    if capture_only:
+        # W5: trg 1 on a video unit = record the clip to SD, send nothing.
+        print(f"[VTX] trigger capture-only: clip kept on SD ({clip['mp4']}), not sent")
+        summary["stage"] = "done_capture_only"
+        return summary
+
+    # 3. Budget: what the cap allows AND what the time budget can still pace.
+    summary["stage"] = "fit"
+    chunk_chars = int(settings["pacing_chunk_b64_chars"])
+    raw_per_msg = int(chunk_chars * RAW_BYTES_PER_B64_CHAR)
+    # Reserve the envelope AND the largest keyframe repeat before sizing
+    # the clip: the repeat is only known once the clip is encoded.
+    reserve = VIDEO_ENVELOPE_MSGS + int(vtx["keyframe_repeat_max"])
+    affordable = budget.max_messages_now() - reserve
+    budget_msgs = min(int(vtx["message_cap"]), affordable)
+    print(f"[VTX] message budget: cap={vtx['message_cap']} affordable_now={affordable} "
+          f"(after reserving {reserve}) -> {budget_msgs} chunk msgs ({budget_msgs * raw_per_msg} B)")
+    geo = vcfg["geometry"]
+    fit = fit_fn(clip["mp4"], WORK_DIR, width=vtx["output_wh"][0], height=vtx["output_wh"][1],
+                 fps=vtx["fps"], duration_s=vtx["duration_s"], budget_msgs=budget_msgs,
+                 raw_bytes_per_msg=raw_per_msg, source_wh=tuple(geo["output_wh"]),
+                 preset=vtx["preset"], ffmpeg_binary=ffmpeg_binary, clock=clock)
+    payload = fit.pop("payload")
+    keyframe_chunks = min(-(-int(fit["keyframe_end"]) // raw_per_msg),
+                          int(vtx["keyframe_repeat_max"]))
+    fit["keyframe_chunks"] = keyframe_chunks
+    summary["fit"] = fit
+    print(f"[VTX] payload: {fit['bytes']} B = {fit['msgs']} msgs ({fit['used_pct']}% of budget) "
+          f"{fit['pass2_tries']} pass-2 tries, prescale {fit['prescale_s']}s encode {fit['encode_s']}s"
+          f"{', TRIMMED ' + str(fit['frames_trimmed']) + ' frames' if fit['frames_trimmed'] else ''}")
+
+    # The file name IS the capture time: the recorder's basename starts with it.
+    stamp = clip["basename"].split("_video_")[0]
+    file_name = f"{stamp}_video_{fit['duration_s']:g}s.h264"
+    send_args = dict(
+        payload=payload, file_name=file_name, fps=vtx["fps"], dur=fit["duration_s"],
+        keyframe_chunks=keyframe_chunks,
+        res=f"{vtx['output_wh'][0]}x{vtx['output_wh'][1]}",
+        crop=format_crop(geo.get("crop_native_xywh")), br=fit["target_kbps"],
+        chunk_b64_chars=chunk_chars, delay_seconds=settings["pacing_delay_seconds"],
+        start_metadata=_start_metadata(settings), cpu_temp_text=_cpu_temp_text(),
+        current_timestamp=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        sleep_fn=sleep_fn, clock=clock)
+
+    if not transmit:
+        print(f"[VTX] send plan (NO transmit): {file_name} {fit['msgs']} chunks "
+              f"+ {keyframe_chunks} keyframe repeat + START/END")
+        # S3, bench-commands mode (mirrors the stills cycle): late commands
+        # still ack + persist, inside the same bounded listen window.
+        if daemon is not None:
+            cmd_hooks.drain_now(daemon, summary, clock=clock)
+            if bench_commands:
+                cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                               clock=clock, sleep_fn=sleep_fn)
+        summary["stage"] = "done_no_transmit"
+        return summary
+
+    # 4. S5: plan this wake's heals (they go right before START, so the
+    #    lane plan counts them), then keep the burst inside one cellular lane.
+    summary["stage"] = "lane_wait"
+    pump = cmd_hooks.make_pending_pump_fn(daemon, summary)
+    heals = rc_heal.begin_wake(daemon, settings, summary, pump_fn=pump)
+    heal_msgs = heals.planned_msgs if heals is not None else 0
+    phase_cfg = settings.get("transmit_phase_cfg") or {}
+    if phase_cfg.get("enabled"):
+        burst_s = rc_transmit_phase.burst_seconds_for(
+            fit["msgs"] + keyframe_chunks + heal_msgs, settings["pacing_delay_seconds"])
+        grid_clock = rc_transmit_phase.acquire_grid_clock(gate_info, gate_mono, daemon=daemon,
+                                                          clock=clock)
+        plan = rc_transmit_phase.plan_from_clock(grid_clock, burst_s, phase_cfg)
+        print(rc_transmit_phase.describe_plan(plan, burst_s))
+        wait_s = plan["wait_s"]
+        if wait_s > 0 and not budget.has_time_for(wait_s + burst_s):
+            print(f"[VTX][WARN] skipping the {wait_s:.0f}s lane wait: only "
+                  f"{budget.remaining_s():.0f}s of budget left; sending unscheduled")
+            wait_s = 0.0
+        if wait_s > 0:
+            sleep_fn(wait_s)
+        summary["transmit_phase"] = {"reason": plan.get("reason"), "wait_s": wait_s,
+                                     "burst_s": burst_s}
+
+    # 5. Send.
+    summary["stage"] = "transmit"
+    port_state["opened"] = True
+    # S4: this wake's media key (Spotter UTC only) + the sent record a heal
+    # re-sends from, written BEFORE START. None -> the rev 3 wire.
+    media_key = rc_media_key.prepare_keyed_send(
+        settings, gate_info=gate_info, daemon=daemon,
+        stem=os.path.splitext(file_name)[0], fmt="h264", filename=file_name,
+        payload=payload, chunk_b64_chars=chunk_chars)
+    if media_key is not None:
+        send_args["media_key"] = media_key
+        summary["media_key"] = media_key
+    tx = tx_open_fn(settings["config_path"])
+    cmd_hooks.boot_mark("transmit_start")
+    # S5: heals first, never eating the clip's own room.
+    if heals is not None and heal_msgs:
+        heals.send_before_start(
+            tx, budget, reserve_msgs=fit["msgs"] + keyframe_chunks + VIDEO_ENVELOPE_MSGS,
+            delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
+    # S3: pump-only during the burst (no ack on the wire between START and END).
+    if pump is not None:
+        send_args["pending_pump_fn"] = pump
+    if bench_drop_chunks:
+        send_args["bench_drop_chunks"] = bench_drop_chunks
+    result = transmit_video_clip(tx, budget, **send_args)
+    summary["transmit_result"] = result
+    if result["refused_reason"]:
+        print(f"[VTX][ERROR] clip NOT sent — {result['refused_reason']}. The recording is "
+              f"on the SD card: {clip['mp4']}")
+    else:
+        print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
+              f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "
+              f"uart={result['uart_duration_sec']:.1f}s file={file_name}")
+    # S3: the clip is off the wire — release the deferred acks, then the
+    # bounded listen tail (the mailbox drain our own transmit triggers).
+    if daemon is not None:
+        cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                             label="post-transmit ack flush")
+        # S5: one <HL> per key after END, paced, on the clip's own tx.
+        if heals is not None:
+            heals.send_status_after_end(tx, budget, wake_key=media_key,
+                                        delay_seconds=settings["pacing_delay_seconds"],
+                                        sleep_fn=sleep_fn)
+        cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                       clock=clock, sleep_fn=sleep_fn)
+    summary["stage"] = "done"
+    return summary
+
+
 def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                        gate_fn=_default_gate, record_fn=video_recorder.record_one_clip,
                        fit_fn=rc_video_clip.fit_clip_to_budget, tx_open_fn=_default_tx_open,
@@ -211,7 +414,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
                        clock=time.monotonic, now_fn=lambda: datetime.now(timezone.utc),
                        encoder_binary=None, ffmpeg_binary=None,
                        bm_commands_cfg=None, command_state=None, bench_commands=False,
-                       daemon_factory=None, bench_drop_chunks=None):
+                       daemon_factory=None, bench_drop_chunks=None, supervised=None):
     """Run one record -> fit -> send cycle. Returns a summary dict; the halt
     runs in `finally` on every path and never raises.
 
@@ -222,189 +425,66 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
 
     bench_drop_chunks (S5, BENCH ONLY): clip chunk indices skipped on the wire
     (slot still paced) so the backend holds a partial to heal."""
-    vcfg = settings["video"]
     summary = {"transmit": transmit, "clip": None, "fit": None, "transmit_result": None,
                "schedule_allowed": True, "stage": "start", "error": None, "halt_result": None,
                "command_events": []}
-    budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"], clock=clock)
+    budget = None
+    capture_only = False
+    if supervised is None:
+        budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"],
+                             clock=clock)
     print(f"[VTX] cycle start: budget={settings['budget_seconds']}s "
           f"pacing={settings['pacing_delay_seconds']}s/msg transmit={transmit}")
-    opened = False
+    port_state = {"opened": False}
     daemon = None
+
+    def end_line():
+        return (f"[VTX] cycle end: stage={summary['stage']} elapsed={budget.elapsed_s():.1f}s of "
+                f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+
+    def close_warn(exc):
+        print(f"[VTX][WARN] BM serial close failed: {exc}")
+
+    # Sprint26 S3a: the port owner runs daemon start and shutdown -> close ->
+    # halt. begin() is inside the try so a refused port session still halts.
+    owner = None if supervised is not None else PortOwner(
+        settings, bm_close_fn=bm_close_fn, halt_fn=halt_fn, clock=clock, sleep_fn=sleep_fn,
+        log_fn=print)
     try:
+        if supervised is not None:
+            # Sprint26 S3a supervisor: the boot owns budget, daemon and
+            # shutdown -> close -> halt (run_per_boot, after this returns).
+            if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit,
+                                           bench_commands):
+                summary["stage"] = "daemon_start"
+            daemon, budget = supervised.start(
+                summary, clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
+                bm_close_fn=bm_close_fn, daemon_factory=daemon_factory, log_fn=print,
+                close_warn=close_warn, end_line=end_line)
+            # W4: commands already queued apply THIS boot; W5: then the pending trg.
+            settings, trigger_flags = supervised.boot_drain(settings, summary, sleep_fn)
+            skip_time_window = skip_time_window or trigger_flags["skip_time_window"]
+            capture_only = trigger_flags["capture_only"]
+        else:
+            owner.begin()
         # 0. S3: the command daemon, when the cycle may touch the bus. Inside the
         #    try so a UART failure still reaches the halt.
-        if cmd_hooks.should_run_daemon(bm_commands_cfg, command_state, transmit, bench_commands):
+        if supervised is None and cmd_hooks.should_run_daemon(
+                bm_commands_cfg, command_state, transmit, bench_commands):
             summary["stage"] = "daemon_start"
             factory = daemon_factory or cmd_hooks.default_daemon_factory
-            opened = True     # set BEFORE the factory: it may open the UART and then fail
-            daemon = factory(settings, bm_commands_cfg, command_state)
-            daemon.start()
-            cmd_hooks.boot_mark("cmd_subscribed")
+            port_state["opened"] = True     # set BEFORE the factory: it may open the UART and then fail
+            daemon = owner.start_daemon(factory, bm_commands_cfg, command_state)
 
-        # 1. Spotter time first: no RTC, so until this read the clock can be
-        #    years off — and the clip's filename is its capture time.
-        gate_info, gate_mono = None, clock()
-        if transmit:
-            summary["stage"] = "time_gate"
-            opened = True                       # the gate opens the UART (or rides the daemon's)
-            gate_kwargs = cmd_hooks.gate_kwargs_for(daemon, settings)
-            allowed, gate_info = (gate_fn(settings["config_path"], **gate_kwargs) if gate_kwargs
-                                  else gate_fn(settings["config_path"]))
-            gate_mono = clock()
-            cmd_hooks.boot_mark("spotter_utc_read")
-            print(f"[VTX] schedule gate: {gate_info.get('reason')}")
-            if settings.get("enforce_time_window") and not skip_time_window and not allowed:
-                summary["schedule_allowed"] = False
-                return summary
-
-        # 2. Record with the recorder's own pipeline; the 1080p clip stays on SD.
-        summary["stage"] = "record"
-        video_dir = vcfg["dir"]
-        os.makedirs(video_dir, exist_ok=True)
-        video_recorder.sweep_boot_debris(video_dir)
-        ring = ensure_room_fn(video_dir, vcfg["storage"])
-        if ring.get("paused"):
-            raise RuntimeError(f"SD storage over its limit (used={ring.get('used_pct')}% "
-                               f"free={ring.get('free_gb')}GiB); not recording. Free space or "
-                               f"raise video.storage.max_used_pct")
-        if encoder_binary is None:
-            encoder_binary, _ = video_recorder._select_video_command(settings["capture_backend"])
-        if ffmpeg_binary is None:
-            ffmpeg_binary = shutil.which("ffmpeg")
-            if not ffmpeg_binary:
-                raise RuntimeError("ffmpeg not found on PATH; install it (apt install ffmpeg)")
-        record_s = vtx["duration_s"] + vtx["lead_in_s"]
-        short = dict(vcfg, clip_minutes=record_s / 60.0)
-        clip = record_fn(settings, short, video_dir, encoder_binary=encoder_binary,
-                         ffmpeg_binary=ffmpeg_binary,
-                         controls=video_recorder._resolve_controls(settings))
-        summary["clip"] = {k: clip.get(k) for k in ("ok", "stage", "basename", "mp4", "bytes")}
-        if not clip.get("ok"):
-            raise RuntimeError(f"recording failed at stage {clip.get('stage')!r}; nothing to send")
-
-        # 3. Budget: what the cap allows AND what the time budget can still pace.
-        summary["stage"] = "fit"
-        chunk_chars = int(settings["pacing_chunk_b64_chars"])
-        raw_per_msg = int(chunk_chars * RAW_BYTES_PER_B64_CHAR)
-        # Reserve the envelope AND the largest keyframe repeat before sizing
-        # the clip: the repeat is only known once the clip is encoded.
-        reserve = VIDEO_ENVELOPE_MSGS + int(vtx["keyframe_repeat_max"])
-        affordable = budget.max_messages_now() - reserve
-        budget_msgs = min(int(vtx["message_cap"]), affordable)
-        print(f"[VTX] message budget: cap={vtx['message_cap']} affordable_now={affordable} "
-              f"(after reserving {reserve}) -> {budget_msgs} chunk msgs ({budget_msgs * raw_per_msg} B)")
-        geo = vcfg["geometry"]
-        fit = fit_fn(clip["mp4"], WORK_DIR, width=vtx["output_wh"][0], height=vtx["output_wh"][1],
-                     fps=vtx["fps"], duration_s=vtx["duration_s"], budget_msgs=budget_msgs,
-                     raw_bytes_per_msg=raw_per_msg, source_wh=tuple(geo["output_wh"]),
-                     preset=vtx["preset"], ffmpeg_binary=ffmpeg_binary, clock=clock)
-        payload = fit.pop("payload")
-        keyframe_chunks = min(-(-int(fit["keyframe_end"]) // raw_per_msg),
-                              int(vtx["keyframe_repeat_max"]))
-        fit["keyframe_chunks"] = keyframe_chunks
-        summary["fit"] = fit
-        print(f"[VTX] payload: {fit['bytes']} B = {fit['msgs']} msgs ({fit['used_pct']}% of budget) "
-              f"{fit['pass2_tries']} pass-2 tries, prescale {fit['prescale_s']}s encode {fit['encode_s']}s"
-              f"{', TRIMMED ' + str(fit['frames_trimmed']) + ' frames' if fit['frames_trimmed'] else ''}")
-
-        # The file name IS the capture time: the recorder's basename starts with it.
-        stamp = clip["basename"].split("_video_")[0]
-        file_name = f"{stamp}_video_{fit['duration_s']:g}s.h264"
-        send_args = dict(
-            payload=payload, file_name=file_name, fps=vtx["fps"], dur=fit["duration_s"],
-            keyframe_chunks=keyframe_chunks,
-            res=f"{vtx['output_wh'][0]}x{vtx['output_wh'][1]}",
-            crop=format_crop(geo.get("crop_native_xywh")), br=fit["target_kbps"],
-            chunk_b64_chars=chunk_chars, delay_seconds=settings["pacing_delay_seconds"],
-            start_metadata=_start_metadata(settings), cpu_temp_text=_cpu_temp_text(),
-            current_timestamp=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"),
-            sleep_fn=sleep_fn, clock=clock)
-
-        if not transmit:
-            print(f"[VTX] send plan (NO transmit): {file_name} {fit['msgs']} chunks "
-                  f"+ {keyframe_chunks} keyframe repeat + START/END")
-            # S3, bench-commands mode (mirrors the stills cycle): late commands
-            # still ack + persist, inside the same bounded listen window.
-            if daemon is not None:
-                cmd_hooks.drain_now(daemon, summary, clock=clock)
-                if bench_commands:
-                    cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
-                                                   clock=clock, sleep_fn=sleep_fn)
-            summary["stage"] = "done_no_transmit"
-            return summary
-
-        # 4. S5: plan this wake's heals (they go right before START, so the
-        #    lane plan counts them), then keep the burst inside one cellular lane.
-        summary["stage"] = "lane_wait"
-        pump = cmd_hooks.make_pending_pump_fn(daemon, summary)
-        heals = rc_heal.begin_wake(daemon, settings, summary, pump_fn=pump)
-        heal_msgs = heals.planned_msgs if heals is not None else 0
-        phase_cfg = settings.get("transmit_phase_cfg") or {}
-        if phase_cfg.get("enabled"):
-            burst_s = rc_transmit_phase.burst_seconds_for(
-                fit["msgs"] + keyframe_chunks + heal_msgs, settings["pacing_delay_seconds"])
-            grid_clock = rc_transmit_phase.acquire_grid_clock(gate_info, gate_mono, daemon=daemon,
-                                                              clock=clock)
-            plan = rc_transmit_phase.plan_from_clock(grid_clock, burst_s, phase_cfg)
-            print(rc_transmit_phase.describe_plan(plan, burst_s))
-            wait_s = plan["wait_s"]
-            if wait_s > 0 and not budget.has_time_for(wait_s + burst_s):
-                print(f"[VTX][WARN] skipping the {wait_s:.0f}s lane wait: only "
-                      f"{budget.remaining_s():.0f}s of budget left; sending unscheduled")
-                wait_s = 0.0
-            if wait_s > 0:
-                sleep_fn(wait_s)
-            summary["transmit_phase"] = {"reason": plan.get("reason"), "wait_s": wait_s,
-                                         "burst_s": burst_s}
-
-        # 5. Send.
-        summary["stage"] = "transmit"
-        opened = True
-        # S4: this wake's media key (Spotter UTC only) + the sent record a heal
-        # re-sends from, written BEFORE START. None -> the rev 3 wire.
-        media_key = rc_media_key.prepare_keyed_send(
-            settings, gate_info=gate_info, daemon=daemon,
-            stem=os.path.splitext(file_name)[0], fmt="h264", filename=file_name,
-            payload=payload, chunk_b64_chars=chunk_chars)
-        if media_key is not None:
-            send_args["media_key"] = media_key
-            summary["media_key"] = media_key
-        tx = tx_open_fn(settings["config_path"])
-        cmd_hooks.boot_mark("transmit_start")
-        # S5: heals first, never eating the clip's own room.
-        if heals is not None and heal_msgs:
-            heals.send_before_start(
-                tx, budget, reserve_msgs=fit["msgs"] + keyframe_chunks + VIDEO_ENVELOPE_MSGS,
-                delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
-        # S3: pump-only during the burst (no ack on the wire between START and END).
-        if pump is not None:
-            send_args["pending_pump_fn"] = pump
-        if bench_drop_chunks:
-            send_args["bench_drop_chunks"] = bench_drop_chunks
-        result = transmit_video_clip(tx, budget, **send_args)
-        summary["transmit_result"] = result
-        if result["refused_reason"]:
-            print(f"[VTX][ERROR] clip NOT sent — {result['refused_reason']}. The recording is "
-                  f"on the SD card: {clip['mp4']}")
-        else:
-            print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
-                  f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "
-                  f"uart={result['uart_duration_sec']:.1f}s file={file_name}")
-        # S3: the clip is off the wire — release the deferred acks, then the
-        # bounded listen tail (the mailbox drain our own transmit triggers).
-        if daemon is not None:
-            cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
-                                 label="post-transmit ack flush")
-            # S5: one <HL> per key after END, paced, on the clip's own tx.
-            if heals is not None:
-                heals.send_status_after_end(tx, budget, wake_key=media_key,
-                                            delay_seconds=settings["pacing_delay_seconds"],
-                                            sleep_fn=sleep_fn)
-            cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
-                                           clock=clock, sleep_fn=sleep_fn)
-        summary["stage"] = "done"
-        return summary
+        return video_action(
+            settings, vtx, summary, daemon, budget, port_state,
+            transmit=transmit, skip_time_window=skip_time_window, gate_fn=gate_fn,
+            record_fn=record_fn, fit_fn=fit_fn, tx_open_fn=tx_open_fn,
+            ensure_room_fn=ensure_room_fn, sleep_fn=sleep_fn, clock=clock, now_fn=now_fn,
+            encoder_binary=encoder_binary, ffmpeg_binary=ffmpeg_binary,
+            bm_commands_cfg=bm_commands_cfg, bench_commands=bench_commands,
+            bench_drop_chunks=bench_drop_chunks, supervised=supervised,
+            capture_only=capture_only)
 
     except Exception as exc:
         summary["error"] = f"{type(exc).__name__}: {exc}"
@@ -414,15 +494,6 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
         # S3 ordering (RESEND_DEVICE.md §1): final pickup + paced ack flush +
         # reader stop -> close the shared port -> halt. Never in main()'s
         # finally: that would run after the halt against a closed UART.
-        cmd_hooks.shutdown(daemon, summary, print, clock=clock, sleep_fn=sleep_fn)
-        if opened:
-            try:
-                bm_close_fn()
-            except Exception as exc:
-                print(f"[VTX][WARN] BM serial close failed: {exc}")
-        cmd_hooks.boot_mark("halt")
-        summary["halt_result"] = halt_fn(
-            enabled=settings["power_halt_enabled"], dry_run=settings["power_halt_dry_run"],
-            mode=settings["power_halt_mode"], script_path=settings["power_halt_script_path"])
-        print(f"[VTX] cycle end: stage={summary['stage']} elapsed={budget.elapsed_s():.1f}s of "
-              f"{settings['budget_seconds']}s; halt={summary['halt_result']['action']}")
+        if supervised is None:
+            owner.finish(summary, close_port=port_state["opened"], close_warn=close_warn)
+            print(end_line())

@@ -67,18 +67,36 @@ harness notices). Two field scenarios run `main`'s committed runtime
 (`field_bmcam001_main`, `field_bmcam002_main`): that is the wire the backend
 must keep ingesting (DESIGN §11).
 
+## Both runtimes (Sprint26 S3a)
+
+Every wire scenario runs twice: under the legacy runtime and under
+`--runtime supervisor` (`test_wire_supervisor_<name>`), compared with the SAME
+vector. The two `field_*_main` scenarios pin `main`'s runtime and run once.
+The supervisor's action log (`app/cron_logs/supervisor_actions.jsonl`) must
+exist (proof the supervisor ran) and is left out of the compared file list.
+
+A deliberate supervisor-only wire change (W2–W6, PLAN_S3a.md G2) records its
+expected output under `vectors_supervisor/<scenario>/`, only for scenarios
+listed in `SUPERVISOR_DIFFERS` (tests/test_golden_vectors.py) with their
+W-item; a test fails if that directory holds anything else. Legacy vectors
+never change in S3a.
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire still_bench /tmp/out --runtime supervisor
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:
 
 | scenario | today | changed by |
 |---|---|---|
-| `still_bench` | acks go out mid-burst (`defer_acks_during_transmit: false`) | W2 (S3) |
-| `still_window_skip`, `video_window_skip` | no listen tail after a window skip | W3 (S3) |
-| `video_window_skip` | a video unit outside its window sends nothing, not even a `<WS>` | W3 (S3) |
-| `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3) |
-| `video_trigger_pending` | a video unit never services `trg`; it stays armed | W5 (S3) |
-| `still_trigger` | a trigger boot skips the gate, so the system clock is NOT set from the Spotter | W6 (S3) |
+| `still_bench`, `still_heal` | acks go out mid-burst (`defer_acks_during_transmit: false`) | W2 (S3a, supervisor only: `vectors_supervisor/`) |
+| `still_window_skip`, `video_window_skip` | no listen tail after a window skip | W3 (S3a, supervisor only) |
+| `video_window_skip` | a video unit outside its window sends nothing, not even a `<WS>` | W3 (S3a, supervisor only) |
+| `still_bench` | a command waiting at boot applies only on the next boot | W4 (S3a, supervisor only) |
+| `video_trigger_pending` | a video unit never services `trg`; it stays armed | W5 (S3a, supervisor only) |
+| `still_trigger` | a trigger boot skips the gate, so the system clock is NOT set from the Spotter | W6 (S3a, supervisor only) |
 | all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
 

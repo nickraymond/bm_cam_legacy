@@ -9,38 +9,131 @@ rc_command_hooks reached into and overwrote so wake status, telemetry and
 transmit all used the command daemon's port. It now lives here with an explicit
 API, so there is exactly one place a port can come from:
 
-  get()        the installed handle; opens BristlemouthSerial() lazily if none
-               (the no-daemon path, exactly as before)
-  install(bm)  the command daemon's factory hands over its shared port
-  current()    the handle or None, without opening anything
-  close()      close the port if one was ever opened; the next get() reopens
+  get()          the installed handle; opens BristlemouthSerial() lazily if none
+                 (the no-daemon path, exactly as before)
+  open_shared(port, baudrate, timeout)
+                 the command daemon's factory opens the one shared port here
+  install(bm)    hand over an already-built handle (tests, tools)
+  private_read(port, baudrate, timeout)
+                 the schedule gate's own short Spotter-time read when no daemon
+                 runs (a context manager; opens and closes its own descriptor)
+  current()      the handle or None, without opening anything
+  close()        close the port; get() after it is REFUSED until new_session()
+  new_session()  the port owner (rc_port_owner.PortOwner) starts a runtime
 
   apply_bm_serial_runtime_settings(configure_serial)  bm_serial YAML block ->
                BUFFER_SIZE / IMAGE_TRANSMIT_DELAY_SECONDS (+ network type on the
                handle when configure_serial)
 
-Known limitation (DESIGN_supervisor.md §4, S3): get() still opens lazily when no
-handle is installed. S3's PortOwner refuses a second open once an owner exists;
-S1 keeps today's behaviour byte for byte (tests/golden pins the port opens).
+Sprint26 S3a (DESIGN_supervisor.md §4 "Port", review BLOCKER): before S3a,
+close() nulled the handle and the next get() silently opened a SECOND
+descriptor with no read timeout, so a long-lived process went deaf after its
+first action. Now:
+  - get() after close() raises PortRefused (loud line first) instead of
+    reopening; the owner calls new_session() once at the start of a runtime.
+  - a second concurrent descriptor is refused: open_shared() while the shared
+    port is held, install() of a different handle, private_read() while any
+    handle is held. A LAZY handle opened before the session or before the
+    daemon's shared open (debug_print with BM_CAMERA_LOG_TO_SPOTTER=1) is
+    closed loudly and replaced, as install() used to replace it silently.
+The lazy open itself stays (the no-daemon path opens on first use), so every
+port open and close is where it was: tests/golden pins them.
 """
+
+import contextlib
+
+import serial
 
 from bm_serial import BristlemouthSerial, load_bm_serial_config
 
 _bm = None
+_shared = False          # _bm came from open_shared() (the daemon's port)
+_closed = False          # close() ran in this session: get() must not reopen
+
+
+class PortRefused(RuntimeError):
+    """A second descriptor, or a reopen after close, on the one Spotter UART."""
+
+
+def _refuse(why):
+    print(f"[PORT][ERROR] refused: {why}")
+    raise PortRefused(why)
+
+
+def _drop_lazy(why):
+    """Close a lazily opened (timeout-less) handle so the owner can open the
+    real one. Before S3a it was silently replaced and left open (a leaked
+    second descriptor); now it is closed, loudly. Only reachable on a dev unit
+    with BM_CAMERA_LOG_TO_SPOTTER=1 (debug_print opens lazily)."""
+    global _bm
+    print(f"[PORT][WARN] closing a lazily opened port: {why}")
+    try:
+        _bm.uart.close()
+    except Exception as exc:
+        print(f"[PORT][WARN] close failed: {exc}")
+    _bm = None
+
+
+def new_session():
+    """Start a runtime's port session: forget an earlier close. A lazy handle
+    still open from before the session is closed first; the shared port of a
+    running session is refused (its owner never finished)."""
+    global _closed
+    if _bm is not None:
+        if _shared:
+            _refuse("new_session() while the shared port is still open")
+        _drop_lazy("opened before the port session began")
+    _closed = False
 
 
 def get():
-    """The shared handle; lazily opens BristlemouthSerial() if none is installed."""
+    """The shared handle; lazily opens BristlemouthSerial() if none is installed.
+    Refused after close() in the same session (never a silent reopen)."""
     global _bm
     if _bm is None:
+        if _closed:
+            _refuse("port use after close (a lazy reopen would be a second, "
+                    "timeout-less descriptor)")
         _bm = BristlemouthSerial()
     return _bm
 
 
+def open_shared(port, baudrate, timeout):
+    """Open THE shared port (the command daemon's, with a read timeout) and
+    install it as the handle. Refused if a handle is already held or the
+    session's port was closed."""
+    global _bm, _shared
+    if _bm is not None:
+        if _shared:
+            _refuse("second shared open while a port is held")
+        _drop_lazy("the shared port replaces it")
+    if _closed:
+        _refuse("shared open after close")
+    bm = BristlemouthSerial(uart=serial.Serial(port, baudrate, timeout=timeout))
+    _bm, _shared = bm, True
+    return bm
+
+
 def install(bm):
-    """Make `bm` (the command daemon's port) the shared handle."""
-    global _bm
-    _bm = bm
+    """Make an already-built `bm` the shared handle. Refused if a different
+    handle is held (two descriptors on one UART)."""
+    global _bm, _shared
+    if _bm is not None and _bm is not bm:
+        _refuse("install() while another port is held")
+    _bm, _shared = bm, True
+
+
+@contextlib.contextmanager
+def private_read(port, baudrate, timeout):
+    """The schedule gate's own short read (no daemon): opens and closes its own
+    descriptor, as before S3a. Refused while a shared handle is held, since
+    the two would race for the same inbound bytes."""
+    if _bm is not None:
+        _refuse("private read while the shared port is held")
+    if _closed:
+        _refuse("private read after close")
+    with serial.Serial(port, baudrate=baudrate, timeout=timeout) as ser:
+        yield ser
 
 
 def current():
@@ -49,14 +142,16 @@ def current():
 
 
 def close():
-    """Close the BM serial if it was ever opened. Returns 0 (cron exit-code shape)."""
-    global _bm
+    """Close the BM serial if it was ever opened, and end the session: get()
+    is refused from here on. Returns 0 (cron exit-code shape)."""
+    global _bm, _closed, _shared
+    _closed = True
     if _bm is None:
         return 0
     try:
         _bm.uart.close()
     finally:
-        _bm = None
+        _bm, _shared = None, False
     return 0
 
 

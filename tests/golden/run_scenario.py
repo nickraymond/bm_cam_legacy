@@ -54,7 +54,7 @@ BASE_PROFILE = os.path.join(REPO, "device_profiles", "bmcam003", "camera_schedul
 # test (e.g. a module S1 deletes) is skipped; any other import error is fatal.
 APP_MODULES = [
     "bm_frame_decoder", "bm_serial", "spotter_time_sync", "process_image_v2",
-    "bm_codec", "bm_port", "rc_telemetry", "rc_capture",
+    "bm_codec", "bm_port", "rc_port_owner", "rc_supervisor", "rc_telemetry", "rc_capture",
     "command_tables", "command_messages", "command_state", "command_bindings",
     "command_help", "command_daemon", "rc_command_hooks", "rc_heal", "rc_media_key",
     "rc_media_id", "rc_transmit", "rc_transmit_phase", "rc_uplink_messages",
@@ -213,6 +213,11 @@ def seed(scenario, mods, tmp):
 
 
 VIA_V2 = False
+RUNTIME = None          # Sprint26 S3a: --runtime passed to the runtime (None = its default)
+# The supervisor's action log (rc_supervisor.ACTION_LOG): the one file the
+# supervisor adds; its content carries wall time and RSS, so it is checked for
+# presence (proof the supervisor ran) and left out of the compared listing.
+SUPERVISOR_ACTION_LOG = os.path.join("app", "cron_logs", "supervisor_actions.jsonl")
 
 
 def to_v2(tmp, config_path):
@@ -386,6 +391,10 @@ def run_wire(name, outdir, app_src):
 
     argv = ["--config-path", config_path, "--transmit",
             "--output-dir", os.path.join(tmp, "images")] + list(sc.get("argv", []))
+    if RUNTIME:
+        if sc.get("app_ref"):
+            fail(f"{name} pins another commit's runtime; --runtime does not apply")
+        argv += ["--runtime", RUNTIME]
     code = rc.main(argv, sleep_fn=clock.sleep, clock=clock)
     W.WORLD.wait_idle()
 
@@ -394,6 +403,10 @@ def run_wire(name, outdir, app_src):
     if os.path.exists(state_path):
         with open(state_path, "r", encoding="utf-8") as fh:
             state = json.load(fh)
+    listing = file_listing(tmp)
+    if RUNTIME == "supervisor":
+        if listing.pop(SUPERVISOR_ACTION_LOG, None) is None:
+            fail(f"--runtime supervisor left no {SUPERVISOR_ACTION_LOG}: the supervisor did not run")
     summary = {
         "scenario": name, "notes": sc.get("notes"), "exit_code": code,
         "unfired_rules": [r["payload"] for r in W.WORLD.unfired()],
@@ -402,7 +415,7 @@ def run_wire(name, outdir, app_src):
            if VIA_V2 else {}),
         "sidecars": read_json_files(tmp, ".capture_metadata.json"),
         "sent_records": read_json_files(tmp, ".sent.json"),
-        "files": file_listing(tmp),
+        "files": listing,
         "fake_clock_elapsed_s": round(clock.elapsed(), 3),
         # Heavy imports this cycle ended up loading (Sprint26 S1 C2: a video
         # cycle must not load PIL; a stills cycle needs it for the encode).
@@ -527,9 +540,11 @@ def main():
     ap.add_argument("outdir")
     ap.add_argument("--app-src", default=os.path.join(REPO, "BM_Devel_Pi"))
     ap.add_argument("--via-v2", action="store_true")
+    ap.add_argument("--runtime", choices=("legacy", "supervisor"), default=None)
     args = ap.parse_args()
-    global VIA_V2
+    global VIA_V2, RUNTIME
     VIA_V2 = args.via_v2
+    RUNTIME = args.runtime
     try:
         info = env_info()
     except ImportError as exc:

@@ -33,6 +33,8 @@ BM_Devel_Pi/bm_codec.py            # Sprint26 S1: the one CRC16/COBS codec (bm_s
 BM_Devel_Pi/bm_port.py            # Sprint26 S1: the one shared BM serial handle (was process_image_v2.bm)
 BM_Devel_Pi/rc_capture.py         # Sprint26 S1: native capture + metadata (from process_image_v2)
 BM_Devel_Pi/rc_telemetry.py       # Sprint26 S1: logging, identity, <WS>/END/START fields (from process_image_v2)
+BM_Devel_Pi/rc_port_owner.py      # Sprint26 S3a: daemon start, then shutdown -> close -> halt (one owner)
+BM_Devel_Pi/rc_supervisor.py      # Sprint26 S3a: the supervisor runtime (commands.runtime: supervisor)
 
 # Sprint10 command daemon (config-gated by the bm_commands YAML island;
 # inert when disabled but always imported by rc_progressive_jpeg)

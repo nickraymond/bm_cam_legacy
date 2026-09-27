@@ -220,6 +220,12 @@ class CommandDaemon:
         self._acks = []                    # main-thread only
         self._console = []                 # queued console lines (main thread)
         self._raw = bytearray()            # rolling buffer for clock scan
+        # Sprint26 W6 (DESIGN §4 "Time", REVIEW K5): the supervisor sets this.
+        # A fresh read clears the buffer BEFORE its subscribe write, so only a
+        # publish that arrives after it counts, and never returns a time older
+        # than the last one returned. False = the legacy read, unchanged.
+        self.fresh_time_reads = False
+        self._last_utc = None
         self._last_ack_ts = None           # pacing clock value of last send
         self._raw_lock = threading.Lock()
         self._stop = threading.Event()
@@ -298,15 +304,32 @@ class CommandDaemon:
         detection logic), but reads come from the daemon's reader thread.
         Returns UTC datetime or raises TimeoutError."""
         frame = _build_subscribe_frame(UTC_TOPIC)
+        fresh = self.fresh_time_reads
+        if fresh:
+            # _find_clock_payload returns the FIRST (oldest) stamp in the
+            # buffer: without this a long-lived buffer feeds an old time to
+            # the system clock and the media key.
+            with self._raw_lock:
+                self._raw.clear()
         self.bm.uart.write(frame)
-        print(f"[CMD] time-sync subscribe sent; waiting up to {timeout_seconds}s")
+        print(f"[CMD] time-sync subscribe sent; waiting up to {timeout_seconds}s"
+              f"{' (fresh read)' if fresh else ''}")
         deadline = clock() + timeout_seconds
         while clock() < deadline:
             with self._raw_lock:
                 found = _find_clock_payload(bytes(self._raw))
+                if found and fresh and self._last_utc is not None \
+                        and found[2] < self._last_utc:
+                    # Monotonic sanity check: drop this stamp, keep waiting.
+                    print(f"[CMD][WARN] spotter UTC {found[2].isoformat()} is older than "
+                          f"the last read {self._last_utc.isoformat()}; ignored")
+                    del self._raw[: found[0] + 1]
+                    found = None
             if found:
                 _idx, _utc_us, utc_dt = found
                 print(f"[CMD] spotter UTC decoded: {utc_dt.isoformat()}")
+                if fresh:
+                    self._last_utc = utc_dt
                 return utc_dt
             sleep_fn(0.1)
         raise TimeoutError(

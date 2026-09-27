@@ -1,0 +1,68 @@
+21:47:35.953 [BOOT] main_entry uptime_s=164.48
+21:47:36.189 [CFG] config v2 /home/pi/s3abench/cfg_video/camera_config.yaml media=video hash=8b0a66a6 hv=1 registry=v2 overlay=0 key(s)
+21:47:36.278 [CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+21:47:36.295 [CFG] last-known-good saved /home/pi/s3abench/cfg_video/camera_config.lkg.json
+21:47:36.300 [RUNTIME] legacy (source=cli)
+21:47:36.416 [CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/s3abench/cfg_video/bm_command_state_v2.json (loaded from file)
+21:47:36.476 [CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+21:47:36.481 [NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+21:47:36.486 [NET] boot default already applied this boot; leaving the network alone (runtime restart)
+21:47:36.491 [RC] Sprint08 progressive-JPEG RC — resolved settings
+21:47:36.496 [RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+21:47:36.501 [RC] capture_mode=video (Sprint15 video path selected)
+21:47:36.507 [RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+21:47:36.512 [RC] cycle budget: max_run_time_min=8 (480 s)
+21:47:36.517 [RC] message cap: 195 msgs (field-tested hard cap)
+21:47:36.522 [RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+21:47:36.527 [RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+21:47:36.532 [RC] power_halt: enabled=True dry_run=True mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+21:47:36.537 [RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+21:47:36.542 [RC] transmit_phase (C2): OFF (unscheduled transmit)
+21:47:36.547 [RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+21:47:36.553 [VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+21:47:36.558 [VID] geometry preset=wide_1080p_lean (source=preset)
+21:47:36.563 [VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+21:47:36.568 [VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+21:47:36.573 [VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+21:47:36.578 [VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+21:47:36.583 [VID] fps: 15
+21:47:36.588 [VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+21:47:36.594 [VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+21:47:36.599 [VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+21:47:36.604 [VID] ui: enabled=True port=8080
+21:47:36.609 [VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+21:47:36.614 [VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+21:47:36.620 [CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+21:47:36.644 [CMD] subscribed topic=bmcam/cmd frame_bytes=17
+21:47:36.648 [CMD] reader thread started
+21:47:36.653 [BOOT] cmd_subscribed uptime_s=165.17
+21:47:36.658 [CMD] time-sync subscribe sent; waiting up to 60s
+21:47:41.362 [CMD] spotter UTC decoded: 2026-09-26T21:47:44.191000+00:00
+21:47:44.006 Sat 26 Sep 21:47:44 UTC 2026
+21:47:44.013 [BOOT] spotter_utc_read uptime_s=170.01
+21:47:44.020 [VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-26T14:47:44.191000-07:00
+21:47:41.510 [VID] boot sweep: removed crash debris 2026-09-26T21-45-24Z_video_1920x1080_15fps.h264.part (4796061 B)
+21:47:41.516 [VID] boot sweep: removed crash debris 2026-09-26T21-45-24Z_video_1920x1080_15fps.mp4.tmp (4797975 B)
+21:47:41.522 [RING] over limit: used=75.0% (cap 75%) free=24.0GiB (floor 10GiB) — pruning oldest clips
+21:47:41.686 [RING] deleted 2026-08-24T03-32-06Z_video_1920x1080_15fps (348361946 B, 3 files)
+21:47:41.691 [VID] clip start: 2026-09-26T21-47-41Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+21:47:56.980 [VID] clip done: 2026-09-26T21-47-41Z_video_1920x1080_15fps.mp4 (4793759 B, encode=8.7s boundary=6.6s)
+21:47:56.987 [VTX] message budget: cap=190 affordable_now=321 (after reserving 32) -> 190 chunk msgs (54720 B)
+21:48:04.482 [VTX] encode try 1: 84.0 kbps -> 49649 B = 91% of 190 msgs
+21:48:06.111 [VTX] encode try 2: 89.4 kbps -> 52325 B = 96% of 190 msgs
+21:48:06.120 [VTX] payload: 52325 B = 182 msgs (95.6% of budget) 2 pass-2 tries, prescale 4.4s encode 4.6s
+21:48:06.150 [HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+21:48:06.191 [KEY] media key 0dtz7k from Spotter UTC 2026-09-26T21:47:44.191000+00:00 (spotter)
+21:48:06.216 [KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-26T21-47-41Z_video_5s.sent.json (182 msgs)
+21:48:06.291 [DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+21:48:06.296 [BOOT] transmit_start uptime_s=194.83
+21:52:47.198 [VTX] transmit done: sent=182/182 complete=True keyframe_repeat=30/30 uart=280.9s file=2026-09-26T21-47-41Z_video_5s.h264
+21:52:47.206 [CMD] post-transmit tail TRIMMED 150s -> 149s by the cycle budget
+21:52:47.213 [CMD] post-transmit listen window: 149s
+21:55:16.505 [CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+21:55:16.518 [CMD] stopped: applied=0 dup=0 rejected=0 unackable=0 acks=0 frames=0 sig_hits=0 crc_scan_fail=0 bad_start=0 read_err=0
+21:55:16.525 [BOOT] halt uptime_s=625.06
+21:55:16.533 [RC][halt] DRY RUN — would execute: sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh
+21:55:16.541 [RC][halt] DRY RUN — script present; real run would drop SSH within ~15 s (that is success)
+21:55:16.549 [VTX] cycle end: stage=done elapsed=460.1s of 480s; halt=dry_run
+21:55:16.557 [BENCH] exit=0 wall_s=461.1 maxrss_self_kb=24676 maxrss_children_kb=125508 cpu_self_s=3.3 cpu_children_s=29.7

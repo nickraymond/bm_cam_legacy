@@ -14,7 +14,7 @@ See command_daemon.py for the concurrency contract and DESIGN
 D5/D11/D12/D13 for the decisions these hooks implement.
 """
 
-from bm_serial import BristlemouthSerial, load_uart_config
+from bm_serial import load_uart_config
 from command_bindings import (
     apply_trigger,
     describe_overrides,
@@ -123,13 +123,10 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
     daemon on it. Installs the shared BristlemouthSerial as the bm_port
     handle so wake status/telemetry/transmit all use the same port. The uart
     read timeout is required by the reader thread."""
-    import serial as pyserial
     import bm_port
 
     port, baudrate = load_uart_config(settings["config_path"])
-    uart = pyserial.Serial(port, baudrate, timeout=0.1)
-    bm = BristlemouthSerial(uart=uart)
-    bm_port.install(bm)
+    bm = bm_port.open_shared(port, baudrate, timeout=0.1)
     print(f"[CMD] shared UART open: {port}@{baudrate} (single port owner)")
     return CommandDaemon(
         bm, state, topic=bm_commands_cfg["topic"],
