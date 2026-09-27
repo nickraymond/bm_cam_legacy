@@ -1,6 +1,6 @@
 # Sprint26 S3b — stay_on: implementation plan
 
-Written 2026-09-27. Status: **APPROVED (Nick, 2026-09-27): H1–H12 as proposed, heartbeat_s default 300, bench RSS option (a).**
+Written 2026-09-27. Status: **DONE 2026-09-27**: bench gate PASS on bmcam003 (runs/s3b_bench_20260927/RESULTS.md), heal path confirmed; H1–H12 approved as proposed (heartbeat 300, bench RSS option (a)); RSS ceiling 150 MB; H10 amended (prune rotated pieces only).
 Branch `feature/sprint26-s3b-stay-on` from `origin/development` 1636c8b (S3a / PR #79 merged).
 Spec: `DESIGN_supervisor.md` §4 (stay_on, SIGTERM, hardening, Budget, Time), §8.2, §8.3 S3b
 row, §10 O3/O5; `REVIEW_20260925.md` K4, K6, R7 (+ A's amendment); `PLAN_S3a.md` G1–G5 + W6

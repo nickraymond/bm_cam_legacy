@@ -296,3 +296,4 @@
 2026-09-27T06:22:26Z 2026-09-27T06:22:25.562Z [MS] [DEBUG] Attempting to Sync.
 2026-09-27T06:22:26Z 2026-09-27T06:22:25.597Z [MS] [DEBUG] Waiting for TX
 2026-09-27T06:24:12Z nereus000: sudo systemctl enable --now bm-heal-driver (Nick OK in chat)
+2026-09-27T07:36:27Z nereus000: heal driver stale state (100028/100031, targets already complete) cleared; backup state.stale_100028_100031.json

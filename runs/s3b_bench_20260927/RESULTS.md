@@ -49,7 +49,16 @@ The heal driver was re-enabled at 06:24. Candidates at 06:25:
 - **BMCAM_003:** the 3 queue-full clips (8 chunks each), 4 partial stills from the RSS run, and older per_boot clips.
 - **BMCAM_004:** 3 older clips.
 
-Result of the 07:00 wake: see §4a (filled in after the check).
+**§4a. The heal path works on the S3b code: PASS.**
+- **07:00 wake:** the driver re-published its stale commands from 2026-09-26 (100031/100028). Their targets were already complete, and it was holding back new heals. At 07:36 its state was cleared; the backup is `state.stale_100028_100031.json` on nereus000.
+- **08:00 wake:**
+  - bmcam003 (3e01284, supervisor per_boot) got `rsd` 100032: 0dum2d 10-19, 0dulz1 6-13, 0dulf1 11-18, 0dukvb 52-59, 0du08i 129 (35 chunks).
+  - bmcam004 (1636c8b) got 100029: 7 older clips.
+- **Staging at 08:40:**
+  - bmcam003: 0dum2d, 0dulz1 and 0du08i are complete. 0dulf1 is now missing 15-18 (was 11-18) and 0dukvb 52-55 (was 52-59); the rest is still arriving (Sofar exposure lag).
+  - bmcam004: every old candidate healed; only the new 08:00 clip is partial.
+- The driver stays enabled and heals the rest on later wakes.
+- The unit-side log of the 08:00 wake was not read (bmcam003 was unreachable over ssh at 08:04).
 
 ## 5. State at close
 
