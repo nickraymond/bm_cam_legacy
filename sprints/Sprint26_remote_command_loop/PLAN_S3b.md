@@ -148,6 +148,9 @@ as the spec says.
   - The process rotates its own stdout at 5 MB (`os.dup2` onto `rc_cycle_<ts>.log.N`).
   - It keeps the newest 200 `rc_cycle_*.log*` files.
 - **Supervisor, both modes:** `supervisor_actions.jsonl` rotates at 2000 lines → `.1`.
+- **Amended (Nick, 2026-09-27, after the bench):** only the rotated stay_on pieces
+  (`rc_cycle_*.log.N`) are pruned; the per-boot `rc_cycle_*.log` files are never deleted
+  (the first stay_on start on bmcam003 had removed 255 of them).
 - per_boot log pruning stays as today (future hardening).
 
 **H11 — Heals in stay_on.**

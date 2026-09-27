@@ -11,7 +11,8 @@ Pins:
   - the stay_on loop exits EXIT_CRASH on a watchdog trip and EXIT_RSS when the
     RSS is over the ceiling after an action: shutdown -> close, never a halt;
   - the action log carries rss_now_kb;
-  - rotate_stdout_if_big moves fds 1/2 to <log>.N and prunes old rc_cycle logs
+  - rotate_stdout_if_big moves fds 1/2 to <log>.N and prunes only rotated
+    pieces (rc_cycle_*.log.N), never the per_boot rc_cycle_*.log files
     (in a child process: it re-points the process's stdout);
   - the stay_on marker is written while run_stay_on runs and removed after.
 
@@ -96,13 +97,18 @@ print("after rotation", flush=True)
 
 
 class Rotation(unittest.TestCase):
-    def test_rotates_stdout_and_prunes(self):
+    def test_rotates_stdout_and_prunes_only_rotated_pieces(self):
         with tempfile.TemporaryDirectory() as d:
-            for i in range(4):                       # older logs, oldest first
+            for i in range(4):                       # per_boot logs: never pruned
                 p = os.path.join(d, f"rc_cycle_2026092{i}T000000Z.log")
                 with open(p, "w") as fh:
                     fh.write("old\n")
                 os.utime(p, (1000 + i, 1000 + i))
+            for i in range(1, 4):                    # older rotated pieces, oldest first
+                p = os.path.join(d, f"rc_cycle_20260926T000000Z.log.{i}")
+                with open(p, "w") as fh:
+                    fh.write("piece\n")
+                os.utime(p, (2000 + i, 2000 + i))
             log = os.path.join(d, "rc_cycle_20260927T000000Z.log")
             with open(log, "w") as out:
                 subprocess.run([sys.executable, "-c", ROTATE_CHILD,
@@ -115,9 +121,12 @@ class Rotation(unittest.TestCase):
             self.assertIn("continues in rc_cycle_20260927T000000Z.log.1", first)
             self.assertNotIn("after rotation", first)
             self.assertIn("after rotation", second)
-            left = sorted(f for f in os.listdir(d) if f.startswith("rc_cycle_"))
-            self.assertEqual(len(left), 3)            # keep=3, newest by mtime
-            self.assertIn("rc_cycle_20260927T000000Z.log.1", left)
+            left = sorted(os.listdir(d))
+            self.assertEqual(len([f for f in left if f.endswith(".log")]), 5)   # all kept
+            pieces = [f for f in left if not f.endswith(".log")]
+            self.assertEqual(len(pieces), 3)          # keep=3 newest pieces
+            self.assertIn("rc_cycle_20260927T000000Z.log.1", pieces)
+            self.assertNotIn("rc_cycle_20260926T000000Z.log.1", pieces)
 
     def test_small_or_non_file_stdout_is_left_alone(self):
         self.assertIsNone(guard.rotate_stdout_if_big(limit=10**12))

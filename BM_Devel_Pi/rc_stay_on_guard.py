@@ -12,7 +12,8 @@ The pieces of stay_on hardening that are not the loop itself
   rotate_stdout_if_big()  a long-lived process rotates its own log: at
                           LOG_ROTATE_BYTES the stdout/stderr descriptors move to
                           <log>.N (os.dup2), and cron_logs keeps the newest
-                          LOG_KEEP_FILES rc_cycle_*.log* files
+                          LOG_KEEP_FILES rotated pieces (rc_cycle_*.log.N);
+                          per_boot logs (rc_cycle_*.log) are never pruned
   sched_save/_load()      the last scheduled start (/dev/shm), so a restart keeps
                           the slot instead of running an action at once
   marker_set/_clear()     /dev/shm/bmcam_stay_on while a stay_on process runs,
@@ -39,7 +40,7 @@ RSS_CEILING_KB = 150 * 1024          # H9: bmcam003 21 stills actions (2026-09-2
                                      # +0.4 MB over the next 14; encode peak 137 MB (transient).
                                      # 150 MB = ~1.9x the plateau, well under the 415 MB Pi.
 LOG_ROTATE_BYTES = 5 * 1024 * 1024   # H10
-LOG_KEEP_FILES = 200                 # H10: rc_cycle_*.log* files kept in cron_logs
+LOG_KEEP_FILES = 200                 # H10: rotated stay_on pieces (rc_cycle_*.log.N) kept
 MARKER_PATH = os.environ.get("BMCAM_STAY_ON_MARKER", "/dev/shm/bmcam_stay_on")
 # The last scheduled action's start (the loop clock, time.monotonic = seconds
 # since boot on Linux), so a restarted process keeps the schedule (tmpfs:
@@ -103,16 +104,20 @@ def rotate_stdout_if_big(limit=LOG_ROTATE_BYTES, keep=LOG_KEEP_FILES):
 
 
 def prune_logs(log_dir, keep=LOG_KEEP_FILES):
-    """Keep the newest `keep` rc_cycle_*.log* files (mtime); -> number removed."""
+    """Keep the newest `keep` ROTATED stay_on pieces (rc_cycle_*.log.N, by
+    mtime); -> number removed. The per-boot rc_cycle_*.log files are never
+    touched (Nick 2026-09-27, after the first stay_on start on bmcam003
+    pruned 255 per_boot logs)."""
     try:
-        files = sorted(glob.glob(os.path.join(log_dir, "rc_cycle_*.log*")),
+        files = sorted((f for f in glob.glob(os.path.join(log_dir, "rc_cycle_*.log.*"))
+                        if re.search(r"\.log\.\d+$", f)),
                        key=os.path.getmtime, reverse=True)
         gone = 0
         for path in files[keep:]:
             os.remove(path)
             gone += 1
         if gone:
-            print(f"[SUP] pruned {gone} old rc_cycle log(s) (keep {keep})")
+            print(f"[SUP] pruned {gone} rotated stay_on log piece(s) (keep {keep})")
         return gone
     except Exception as exc:
         print(f"[SUP][WARN] log prune skipped ({type(exc).__name__}: {exc})")

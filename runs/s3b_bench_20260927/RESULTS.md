@@ -36,9 +36,9 @@
 
 ## 3. Findings
 
-- **F1 (bench config, not stay_on):** `video.send.message_cap 40` is below what x264 pass 2 can encode (rc=187 "Could not open encoder"). 80 works. The deploy/validator does not catch this; note for S4 `set` validation (a floor for `video.send.message_cap`).
+- **F1 (bench config, not stay_on):** `video.send.message_cap 40` is below what x264 pass 2 can encode (rc=187 "Could not open encoder"). 80 works. The deploy/validator does not catch this; **added to S4** (DESIGN §8.3 S4 validator: a floor for `video.send.message_cap`).
 - **F2 (Spotter, known):** clips 2–4 each lost 8 messages to queue-full (16/9/8 rejections on the console). These were back-to-back bursts hitting the known Notecard hand-off stall (S3a F2). The chunks are heal candidates (§4).
-- **F3 (data loss, H10 as designed):** the first stay_on start pruned bmcam003's `cron_logs` from 455 to 200 `rc_cycle_*.log` files. The older per_boot history on the unit is gone (it was not in the backup tarball). The review flagged the prune as a NIT; prune only rotated stay_on logs? Nick to rule.
+- **F3 (fixed after the bench, Nick):** the first stay_on start pruned bmcam003's `cron_logs` from 455 to 200 `rc_cycle_*.log` files (per_boot history lost; not in the backup tarball). Pruning now touches only rotated stay_on pieces (`rc_cycle_*.log.N`).
 - **F4 (fixed):** the action log had `media_key: null` for stills. Fixed in ba4f8ec.
 - **Heartbeat on hardware:** `<WS v=1 a=idle tz=America/Los_Angeles lt=2235 ws=0000 we=0000 rk=480x270 ct=31.1 sha=71e3642af0ff hn=bmcam003>`, 300 s after the last uplink.
 - **Duplicates (S3a F1):** the mote forwards each console `bm pub` more than once. Dedupe absorbs it (`dup=1` on the first trg).
