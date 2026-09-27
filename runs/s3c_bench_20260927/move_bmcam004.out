@@ -1,0 +1,52 @@
+[watcher] start 20260927T154544Z
+[watcher] reachable at 16:00:39Z after 177 polls
+[watcher] SIGTERM sent to cycle
+973 bash -c set -u B=/home/pi/s3bbench/backup; A=/home/pi/BM_Devel_Pi; mkdir -p $B crontab -l > $B/crontab_ARMED.txt 2>/dev/null crontab -l | sed 's|^@reboot \(.*rc_run_capture_cycle\.sh\)$|# DISABLED s3bbench 20260927T154544Z: @reboot \1|' | crontab - pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py' && echo '[watcher] SIGTERM sent to cycle' || echo '[watcher] no cycle process to stop' sleep 2 pgrep -af '[r]c_progressive|[r]c_run_capture|[r]picam|[f]fmpeg' || echo '[watcher] no camera procs' echo '--- crontab now'; crontab -l tar czf $B/BM_Devel_Pi_before_s3bbench.tgz -C /home/pi --exclude=BM_Devel_Pi/images --exclude=BM_Devel_Pi/videos --exclude=BM_Devel_Pi/cron_logs --exclude=BM_Devel_Pi/sent BM_Devel_Pi 2>/dev/null for f in camera_schedule.yaml camera_schedule.v1.yaml camera_config.yaml camera_config.lkg.json bm_command_state.json bm_command_state_v2.json bm_media_key_last.txt software_sha.txt; do [ -f $A/$f ] && cp -p $A/$f $B/; done ls -la $B echo '--- survey'; hostname; uptime; date -u echo '--- deployed sha'; cat $A/software_sha.txt; tail -2 $A/deploy_history.log 2>/dev/null echo '--- repo'; git -C /home/pi/repos/bm_cam_legacy log --oneline -1; git -C /home/pi/repos/bm_cam_legacy branch --show-current echo '--- config'; cd $A && python3 rc_progressive_jp[e]g.py --print-config 2>&1 | grep -E '^\[CFG\]|capture_mode|media' | head -6 echo '--- mem'; free -m | head -2 
+--- crontab now
+# DISABLED s3bbench 20260927T154544Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+total 6516
+drwxrwxr-x 2 pi pi    4096 Sep 27 16:00 .
+drwxrwxr-x 3 pi pi    4096 Sep 27 16:00 ..
+-rw-rw-r-- 1 pi pi     450 Sep 26 18:01 bm_command_state.json
+-rw-r--r-- 1 pi pi     680 Sep 27 15:01 bm_command_state_v2.json
+-rw-rw-r-- 1 pi pi 6619939 Sep 27 16:00 BM_Devel_Pi_before_s3bbench.tgz
+-rw-rw-r-- 1 pi pi       6 Sep 27 15:00 bm_media_key_last.txt
+-rw-r--r-- 1 pi pi    3126 Sep 27 01:01 camera_config.lkg.json
+-rw-r--r-- 1 pi pi    6149 Sep 27 01:01 camera_config.yaml
+-rw-rw-r-- 1 pi pi    7867 Sep 26 18:31 camera_schedule.yaml
+-rw-rw-r-- 1 pi pi      98 Sep 27 16:00 crontab_ARMED.txt
+-rw-rw-r-- 1 pi pi      13 Sep 27 01:01 software_sha.txt
+--- survey
+bmcam004
+ 16:00:44 up 0 min,  1 user,  load average: 1.58, 0.41, 0.14
+Sun 27 Sep 16:00:44 UTC 2026
+--- deployed sha
+1636c8bf17bf
+20260926T183105Z f73129ac6db7 mode=update profile=none cron=false cfg=81e05dee
+20260927T010056Z 1636c8bf17bf mode=update profile=none cron=false cfg=e3449650
+--- repo
+1636c8b Merge pull request #79 from nickraymond/feature/sprint26-s3a-runtime
+development
+--- config
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=5e679ef9 hv=1 registry=v2 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[RC] capture_mode=video (Sprint15 video path selected)
+--- mem
+               total        used        free      shared  buff/cache   available
+Mem:             415         157         131           2         181         257
+[watcher] done 16:00:46Z
+[follow] start 16:00:46
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] config v2 effective hash: 72a12186
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=72a12186 hv=1 registry=v3 overlay=0 key(s)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=72a12186 hv=1 registry=v3 overlay=0 key(s)
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: 1636c8bf17bf -> 9491f1f54217 | values: chunk=384 delay=1.3
+[follow] level v2 runtime ('supervisor', 'config (v2)') run ('per_boot', 0, 0) hash 72a12186
+[follow] crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+9491f1f54217
+[follow] halt issued 16:01:17
+[follow] bmcam004 dark 16:01:46
