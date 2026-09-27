@@ -1,0 +1,11 @@
+{
+  "tag": "s3b_bench_20260927",
+  "stage": "Sprint26 S3b step 0 (before the S3b code)",
+  "date_utc": "2026-09-27",
+  "steps": [
+    {"utc": "01:00:44-01:01:51", "unit": "bmcam004", "what": "watcher_host.sh (disarm + backup to /home/pi/s3abench/backup) then follow_bmcam004.sh (deploy development 1636c8b, commands.runtime: supervisor, re-arm, halt)", "result": "PASS: f73129a -> 1636c8b, hash 81e05dee -> 5e679ef9, armed, dark 01:01:51Z", "logs": ["move_bmcam004.out", "bmcam004_watcher.log", "bmcam004_follow.log", "bmcam004_deploy_s3a.log"]},
+    {"utc": "01:00:54", "unit": "bmcam003", "what": "read-only copy of the 23:00Z 2026-09-26 cycle log (RESULTS F3, ping 26305)", "result": "applied this boot by the pre-burst pump at ~+50 s, not the boot drain", "logs": ["bmcam003_f3.out", "bmcam003_f3/rc_cycle_20260926T222008Z.log"]}
+  ],
+  "spotter_changes": "none",
+  "state_after": {"bmcam003": "S3a fcd7bfd, supervisor, 5e679ef9, ARMED hourly (untouched)", "bmcam004": "development 1636c8b, supervisor, 5e679ef9, ARMED hourly", "nereus000": "untouched"}
+}

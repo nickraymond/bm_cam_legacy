@@ -1,0 +1,1221 @@
+[FIELD-UPDATE] === stage 0: preflight ===
+[FIELD-UPDATE] repo=/home/pi/repos/bm_cam_legacy ref=development profile=bmcam004/live_20260925 dry_run=false
+[FIELD-UPDATE] preflight OK (24589MB free, no cycle running)
+[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+[FIELD-UPDATE] crontab backed up -> /home/pi/crontab_before_field_update_20260927T010053Z.txt; RC @reboot line disabled
+[FIELD-UPDATE] === stage 2: repo sync ===
+From https://github.com/nickraymond/bm_cam_legacy
+   f73129a..f055dd3  feature/sprint26-s2-settings -> origin/feature/sprint26-s2-settings
+ * [new branch]      feature/sprint26-s3a-runtime -> origin/feature/sprint26-s3a-runtime
+Switched to branch 'development'
+From https://github.com/nickraymond/bm_cam_legacy
+ * branch            development -> FETCH_HEAD
+Updating 1ff1ba7..1636c8b
+Fast-forward
+ .claude/skills/bm-mote-dfu/SKILL.md                |  163 ++
+ .claude/skills/bmcam-field-update/SKILL.md         |   57 +-
+ .claude/skills/bmcam-hotspot-update/SKILL.md       |    7 +-
+ .claude/skills/bmcam-provision/SKILL.md            |   13 +-
+ .gitignore                                         |   10 +
+ .../PATCH_NOTES_BMCAM000_libcamera_pipeline.md     |   81 -
+ BM_Devel_Pi/atomic_io.py                           |   91 +
+ BM_Devel_Pi/bm_codec.py                            |   94 +
+ BM_Devel_Pi/bm_frame_decoder.py                    |   42 +-
+ BM_Devel_Pi/bm_port.py                             |  289 +++
+ BM_Devel_Pi/bm_serial.py                           |   39 +-
+ BM_Devel_Pi/camera_schedule.yaml                   |    3 +-
+ BM_Devel_Pi/command_bindings.py                    |    2 +-
+ BM_Devel_Pi/command_daemon.py                      |   82 +-
+ BM_Devel_Pi/command_messages.py                    |   72 +
+ BM_Devel_Pi/command_state.py                       |  131 +-
+ BM_Devel_Pi/command_tables.py                      |   29 +-
+ BM_Devel_Pi/config_dump.py                         |  104 +
+ BM_Devel_Pi/config_journal.py                      |  112 +
+ BM_Devel_Pi/config_migrate.py                      |  345 +++
+ BM_Devel_Pi/config_registry.py                     |  585 +++++
+ BM_Devel_Pi/config_v1_reader.py                    |  476 ++++
+ BM_Devel_Pi/config_v2.py                           |  546 ++++
+ BM_Devel_Pi/crop_downsample_helper.py              |  283 --
+ BM_Devel_Pi/heic_encode_helper.py                  |   96 -
+ BM_Devel_Pi/main_pi_camera.py                      |  640 -----
+ BM_Devel_Pi/process_image_v2.py                    | 2728 --------------------
+ BM_Devel_Pi/rc_capture.py                          |  798 ++++++
+ BM_Devel_Pi/rc_command_hooks.py                    |   47 +-
+ BM_Devel_Pi/rc_heal.py                             |  264 ++
+ BM_Devel_Pi/rc_jpeg_encoder.py                     |    6 +-
+ BM_Devel_Pi/rc_media_id.py                         |   98 -
+ BM_Devel_Pi/rc_media_key.py                        |  339 +++
+ BM_Devel_Pi/rc_port_owner.py                       |   71 +
+ BM_Devel_Pi/rc_progressive_jpeg.py                 |  970 ++++---
+ BM_Devel_Pi/rc_run_capture_cycle.sh                |   25 +-
+ BM_Devel_Pi/rc_supervisor.py                       |  231 ++
+ BM_Devel_Pi/rc_telemetry.py                        |  561 ++++
+ BM_Devel_Pi/rc_time_budget.py                      |   11 +
+ BM_Devel_Pi/rc_transmit.py                         |   65 +-
+ BM_Devel_Pi/rc_uplink_messages.py                  |   43 +-
+ BM_Devel_Pi/rc_video_tx.py                         |  449 +++-
+ BM_Devel_Pi/read_CPU_temp.py                       |   24 -
+ BM_Devel_Pi/run_capture_cycle.sh                   |   59 -
+ BM_Devel_Pi/spotter_time_sync.py                   |   79 +-
+ BM_Devel_Pi/video_recorder.py                      |    8 +-
+ BM_Devel_Pi/videoui_server.py                      |   21 +-
+ TODO.md                                            |   26 +
+ device_profiles/bmcam003/camera_schedule.yaml      |    6 +-
+ .../bmcam003/live_20260925/bm_command_state.json   |    1 +
+ .../bmcam003/live_20260925/camera_schedule.yaml    |  214 ++
+ .../bmcam004/live_20260925/bm_command_state.json   |    1 +
+ .../bmcam004/live_20260925/camera_schedule.yaml    |  214 ++
+ docs/bm_media_wire_contract.md                     |   83 +
+ requirements-dev.txt                               |    7 +
+ runs/mote_cmd_buffer_20260925/RESULTS.md           |  107 +
+ runs/s1_bench_bmcam003_20260925/RESULTS.md         |  128 +
+ runs/s1_bench_bmcam003_20260925/backend_after.txt  |    6 +
+ runs/s1_bench_bmcam003_20260925/backend_before.txt |    5 +
+ runs/s1_bench_bmcam003_20260925/backup_before.txt  |   22 +
+ runs/s1_bench_bmcam003_20260925/bench.log          |    3 +
+ .../cfg_branch_stills.yaml                         |  214 ++
+ .../cfg_branch_video.yaml                          |  214 ++
+ .../s1_bench_bmcam003_20260925/cfg_dev_stills.yaml |  214 ++
+ runs/s1_bench_bmcam003_20260925/cfg_dev_video.yaml |  214 ++
+ .../console_commands.log                           |   43 +
+ runs/s1_bench_bmcam003_20260925/deploy_branch.log  |  336 +++
+ .../deploy_development.log                         |  945 +++++++
+ .../harness_logs/harness.log                       |   49 +
+ .../harness_on_pi_comparison.txt                   |   20 +
+ runs/s1_bench_bmcam003_20260925/import_time.py     |    7 +
+ .../import_time_branch.txt                         |   11 +
+ .../s1_bench_bmcam003_20260925/import_time_dev.txt |    6 +
+ runs/s1_bench_bmcam003_20260925/live_branch.log    |   22 +
+ .../live_branch/cycle_stills.log                   |   62 +
+ .../live_branch/cycle_video.log                    |   61 +
+ .../live_branch_interrupted_1944Z.log              |    9 +
+ .../live_branch_interrupted_1944Z/cycle_video.log  |   51 +
+ runs/s1_bench_bmcam003_20260925/live_dev.log       |   38 +
+ .../live_dev/cycle_stills.log                      |   59 +
+ .../live_dev/cycle_video.log                       |   60 +
+ runs/s1_bench_bmcam003_20260925/live_side.sh       |   23 +
+ runs/s1_bench_bmcam003_20260925/make_bench_cfgs.py |   29 +
+ runs/s1_bench_bmcam003_20260925/rearm_watcher.log  |    6 +
+ runs/s1_bench_bmcam003_20260925/rearm_watcher.sh   |   14 +
+ runs/s1_bench_bmcam003_20260925/restore_unit.log   |   15 +
+ runs/s1_bench_bmcam003_20260925/restore_unit.sh    |   36 +
+ runs/s1_bench_bmcam003_20260925/rssrun.py          |   19 +
+ runs/s1_bench_bmcam003_20260925/run_manifest.json  |   18 +
+ .../spotter_bridge_cfg_BEFORE.txt                  |    5 +
+ runs/s1_bench_bmcam003_20260925/survey_before.txt  |   54 +
+ runs/s1_bench_bmcam003_20260925/watcher.log        |    3 +
+ runs/s1_bench_bmcam003_20260925/watcher.sh         |   27 +
+ runs/s26_customer_emulation_20260924/RESULTS.md    |   61 +
+ .../bmcam003/rc_cycle_20260924T181855Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T190834Z.log         |   87 +
+ .../bmcam003/rc_cycle_20260924T200834Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T210834Z.log         |   66 +
+ .../bmcam004/rc_cycle_20260924T181858Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T190834Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T200835Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T210836Z.log         |   70 +
+ runs/s2_bench_20260926/PLAN.md                     |   58 +
+ runs/s2_bench_20260926/RESULTS.md                  |  103 +
+ runs/s2_bench_20260926/SOAK.md                     |   31 +
+ runs/s2_bench_20260926/bmcam003_deploy_s2.log      |  151 ++
+ runs/s2_bench_20260926/bmcam003_migrate_dryrun.log |   59 +
+ runs/s2_bench_20260926/bmcam003_migrate_write.log  |   28 +
+ .../bmcam003_print_config_before.txt               |   27 +
+ .../bmcam004_deploy_development.log                |   41 +
+ runs/s2_bench_20260926/bmcam004_migrate.log        |   35 +
+ .../bmcam004_print_config_before.txt               |   27 +
+ .../bmcam004_print_config_development.txt          |   26 +
+ runs/s2_bench_20260926/cmd_test.sh                 |   24 +
+ runs/s2_bench_20260926/cmd_test_report.txt         |   41 +
+ runs/s2_bench_20260926/console.sh                  |    9 +
+ runs/s2_bench_20260926/console_commands.log        |  954 +++++++
+ runs/s2_bench_20260926/fault_test.log              |   39 +
+ runs/s2_bench_20260926/fault_test.sh               |   27 +
+ runs/s2_bench_20260926/import_time.py              |    7 +
+ runs/s2_bench_20260926/live_side.sh                |   20 +
+ runs/s2_bench_20260926/make_bench_dirs.py          |   52 +
+ runs/s2_bench_20260926/migrate_bmcam004.sh         |   19 +
+ runs/s2_bench_20260926/rearm_both.log              |   10 +
+ runs/s2_bench_20260926/rearm_both.sh               |   14 +
+ runs/s2_bench_20260926/rearm_restore.log           |   11 +
+ runs/s2_bench_20260926/rollback_rehearsal.log      |   22 +
+ runs/s2_bench_20260926/rssrun.py                   |   19 +
+ runs/s2_bench_20260926/soak_bmcam003.txt           |   46 +
+ runs/s2_bench_20260926/soak_bmcam004.txt           |   40 +
+ runs/s2_bench_20260926/soak_controller.sh          |   29 +
+ runs/s2_live_pull_20260925/PULL.md                 |   44 +
+ .../bmcam003/software_sha.txt                      |    1 +
+ runs/s2_live_pull_20260925/bmcam003/survey.txt     |   29 +
+ .../bmcam004/software_sha.txt                      |    1 +
+ runs/s2_live_pull_20260925/bmcam004/survey.txt     |   29 +
+ runs/s2_live_pull_20260925/pull.log                |    6 +
+ runs/s2_live_pull_20260925/pull.sh                 |   40 +
+ runs/s3_bench_20260923T2325Z/RESULTS.md            |   33 +
+ .../SPOT-31593C_bridge_status_before.txt           |   34 +
+ .../SPOT-33507C_bridge_status_before.txt           |   38 +
+ .../bmcam004_yaml_patch.txt                        |   18 +
+ runs/s3_bench_20260923T2325Z/disarm_bmcam003.txt   |    8 +
+ runs/s3_bench_20260923T2325Z/disarm_bmcam004.txt   |    8 +
+ runs/s3_bench_20260923T2325Z/disarm_remote.sh      |   17 +
+ runs/s3_bench_20260923T2325Z/lean_bench.sh         |   27 +
+ runs/s3_bench_20260923T2325Z/lean_bench_resume.sh  |   23 +
+ runs/s3_bench_20260923T2325Z/run_manifest.json     |   84 +
+ runs/s3_bench_20260923T2325Z/t0_status             |    1 +
+ runs/s3a_bench_20260926/RESULTS.md                 |  108 +
+ runs/s3a_bench_20260926/bench.log                  |   64 +
+ runs/s3a_bench_20260926/bmcam003_deploy_s3a.log    |  174 ++
+ runs/s3a_bench_20260926/bmcam003_survey_before.txt |   38 +
+ runs/s3a_bench_20260926/console.sh                 |    9 +
+ runs/s3a_bench_20260926/console_commands.log       |  467 ++++
+ runs/s3a_bench_20260926/follow_bmcam004.sh         |   36 +
+ .../live/cycle_legacy_stills.log                   |   70 +
+ .../s3a_bench_20260926/live/cycle_legacy_video.log |   68 +
+ .../live/cycle_supervisor_stills.log               |   76 +
+ .../live/cycle_supervisor_video.log                |   65 +
+ runs/s3a_bench_20260926/live_side.sh               |   17 +
+ runs/s3a_bench_20260926/make_bench_dirs.py         |   52 +
+ runs/s3a_bench_20260926/observe_wake.out           |    3 +
+ runs/s3a_bench_20260926/observe_wake.sh            |   18 +
+ runs/s3a_bench_20260926/rearm.log                  |    6 +
+ runs/s3a_bench_20260926/rearm.sh                   |   12 +
+ runs/s3a_bench_20260926/rssrun.py                  |   19 +
+ runs/s3a_bench_20260926/run_bench.sh               |   28 +
+ runs/s3a_bench_20260926/run_manifest.json          |   13 +
+ runs/s3a_bench_20260926/spotter_console_counts.txt |    4 +
+ runs/s3a_bench_20260926/watcher.log                |    3 +
+ runs/s3a_bench_20260926/watcher.sh                 |   32 +
+ runs/s3a_bench_20260926/watcher_first_run.log      |    3 +
+ runs/s3a_bench_20260926/watcher_host.sh            |   32 +
+ .../2026-09-24T02-58-47Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T03-25-07Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T03-33-07Z_video_5s.sent.json        |   10 +
+ runs/s5_ladder2_20260924T0255Z/RESULTS.md          |   34 +
+ .../backfill_captured_at/apply.log                 |    6 +
+ .../backfill_captured_at_20260924T025550Z.csv      |  264 ++
+ .../backfill_captured_at_20260924T025550Z.sql      |  267 ++
+ .../backfill_captured_at_20260924T025600Z.csv      |  264 ++
+ .../backfill_captured_at_20260924T025600Z.sql      |  267 ++
+ .../backfill_captured_at_20260924T025617Z.csv      |    1 +
+ .../backfill_captured_at_20260924T025617Z.sql      |    4 +
+ .../cycle1_20260924T025836Z.log                    |   60 +
+ .../cycle2_20260924T032503Z.log                    |   63 +
+ .../cycle3_20260924T033258Z.log                    |   63 +
+ .../heal_command_post.json                         |    1 +
+ .../healed_0dotlz_backend.h264                     |  Bin 0 -> 34705 bytes
+ runs/s5_ladder2_20260924T0255Z/run_manifest.json   |   48 +
+ runs/s5_ladder3_overnight_20260924/RESULTS.md      |   54 +
+ .../backend/0dp5yq.h264                            |  Bin 0 -> 34115 bytes
+ .../backend/0dp6nn.h264                            |  Bin 0 -> 35179 bytes
+ .../backend/0dpdlo.h264                            |  Bin 0 -> 35637 bytes
+ .../backend/0dpezo.h264                            |  Bin 0 -> 35322 bytes
+ .../backend/0dpmmm.h264                            |  Bin 0 -> 35519 bytes
+ .../backend/0dpo0m.h264                            |  Bin 0 -> 35958 bytes
+ .../backend/backend_sha256.txt                     |    6 +
+ .../backend/healed_rows.txt                        |    6 +
+ .../2026-09-24T05-02-59Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-10-39Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-25-39Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-40-39Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-55-39Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-10-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-25-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-40-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-55-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-10-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-25-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-40-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-55-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-10-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-25-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-40-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-55-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-10-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-25-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-40-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-55-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-10-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-25-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-40-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-55-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-10-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-25-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-40-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-55-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-10-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-25-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-40-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-55-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-10-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-25-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-40-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-55-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-10-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-25-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-40-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-55-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-10-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-25-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-40-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-55-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T16-10-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T16-25-33Z_video_5s.sent.json        |   10 +
+ .../bmcam003/rc_cycle_20260924T050134Z.log         |   64 +
+ .../bmcam003/rc_cycle_20260924T050403Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T051712Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T053221Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T054709Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T060213Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T061717Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T063210Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T064715Z.log         |   77 +
+ .../bmcam003/rc_cycle_20260924T070219Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T071716Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T073210Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T074710Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T080211Z.log         |   87 +
+ .../bmcam003/rc_cycle_20260924T081803Z.log         |   83 +
+ .../bmcam003/rc_cycle_20260924T083213Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T084713Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T090210Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T091714Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T093215Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T094714Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T100214Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T101716Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T103212Z.log         |   87 +
+ .../bmcam003/rc_cycle_20260924T104802Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T110203Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T111713Z.log         |   87 +
+ .../bmcam003/rc_cycle_20260924T113250Z.log         |   83 +
+ .../bmcam003/rc_cycle_20260924T114717Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T120215Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T121638Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T123213Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T124713Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T130214Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T131713Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T133215Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T134720Z.log         |   86 +
+ .../bmcam003/rc_cycle_20260924T140243Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T141716Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T143221Z.log         |   87 +
+ .../bmcam003/rc_cycle_20260924T144807Z.log         |   82 +
+ .../bmcam003/rc_cycle_20260924T150221Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T151717Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T153214Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T154717Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T160216Z.log         |   74 +
+ .../bmcam003/rc_cycle_20260924T161719Z.log         |   75 +
+ .../bmcam003/rc_cycle_20260924T163216Z.log         |   56 +
+ .../2026-09-24T02-58-47Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T03-25-07Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T03-33-07Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-02-46Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-10-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-25-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-40-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T05-55-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-10-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-25-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-40-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T06-55-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-10-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-25-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-40-35Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T07-55-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-10-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-25-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-40-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T08-55-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-10-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-25-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-40-34Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T09-55-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-10-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-25-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-40-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T10-55-33Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-10-39Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-25-39Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-40-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T11-55-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-10-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-25-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-40-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T12-55-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-10-38Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-25-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-40-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T13-55-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-10-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-25-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-40-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T14-55-37Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-10-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-25-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-40-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T15-55-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T16-10-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T16-25-36Z_video_5s.sent.json        |   10 +
+ .../2026-09-24T16-40-36Z_video_5s.sent.json        |   10 +
+ .../bmcam004/rc_cycle_20260924T000526Z.log         |   51 +
+ .../bmcam004/rc_cycle_20260924T000748Z.log         |   72 +
+ .../bmcam004/rc_cycle_20260924T001539Z.log         |   72 +
+ .../bmcam004/rc_cycle_20260924T002337Z.log         |   48 +
+ .../bmcam004/rc_cycle_20260924T050134Z.log         |   64 +
+ .../bmcam004/rc_cycle_20260924T050348Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T051708Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T053211Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T054712Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T060212Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T061636Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T063206Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T064713Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T070214Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T071712Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T073211Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T074711Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T080202Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T081710Z.log         |   87 +
+ .../bmcam004/rc_cycle_20260924T083240Z.log         |   83 +
+ .../bmcam004/rc_cycle_20260924T084716Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T090209Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T091711Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T093208Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T094705Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T100205Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T101704Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T103206Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T104709Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T110210Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T111715Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T113216Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T114720Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T120220Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T121714Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T123217Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T124715Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T130215Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T131715Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T133215Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T134722Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T140224Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T141727Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T143226Z.log         |   76 +
+ .../bmcam004/rc_cycle_20260924T144723Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T150223Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T151722Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T153221Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T154722Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T160222Z.log         |   75 +
+ .../bmcam004/rc_cycle_20260924T161718Z.log         |   74 +
+ .../bmcam004/rc_cycle_20260924T163221Z.log         |   62 +
+ .../heal_driver_events.jsonl                       |  242 ++
+ runs/sofar_command_sends.jsonl                     |    1 +
+ .../prep_console_as_sd.sh                          |   11 +
+ .../report_SPOT-31593C/cycles.md                   |   25 +
+ .../report_SPOT-31593C/loss_by_stage.md            |   13 +
+ .../report_SPOT-31593C/timeline_SPOT-31593C.svg    |  281 ++
+ .../report_SPOT-33507C/cycles.md                   |   26 +
+ .../report_SPOT-33507C/loss_by_stage.md            |   14 +
+ .../report_SPOT-33507C/timeline_SPOT-33507C.svg    |  334 +++
+ .../analysis/sofar_dump.py                         |    8 +
+ .../analysis/stall_analysis.py                     |   66 +
+ .../analysis/stall_lengths.py                      |   35 +
+ .../report_SPOT-31593C/cycles.md                   |   19 +
+ .../report_SPOT-31593C/loss_by_stage.md            |   12 +
+ .../report_SPOT-31593C/timeline_SPOT-31593C.svg    |  227 ++
+ .../report_SPOT-33507C/cycles.md                   |   20 +
+ .../report_SPOT-33507C/loss_by_stage.md            |   12 +
+ .../report_SPOT-33507C/timeline_SPOT-33507C.svg    |  256 ++
+ .../run_manifest.json                              |   23 +
+ .../report_SPOT-31593C/cycles.md                   |   44 +
+ .../report_SPOT-31593C/loss_by_stage.md            |   12 +
+ .../report_SPOT-31593C/timeline_SPOT-31593C.svg    |  414 +++
+ .../report_SPOT-33507C/cycles.md                   |   45 +
+ .../report_SPOT-33507C/loss_by_stage.md            |   14 +
+ .../report_SPOT-33507C/timeline_SPOT-33507C.svg    |  452 ++++
+ .../report_SPOT-31593C/cycles.md                   |   57 +
+ .../report_SPOT-31593C/loss_by_stage.md            |   15 +
+ .../report_SPOT-31593C/timeline_SPOT-31593C.svg    |  676 +++++
+ .../report_SPOT-33507C/cycles.md                   |   64 +
+ .../report_SPOT-33507C/loss_by_stage.md            |   13 +
+ .../report_SPOT-33507C/timeline_SPOT-33507C.svg    |  919 +++++++
+ runs/sprint25_sd_20260922T1640Z/run_manifest.json  |   22 +
+ .../KICKOFF_S0_implementation.md                   |   67 +
+ .../KICKOFF_S5_continuation.md                     |   92 +
+ .../KICKOFF_outdoor_analysis.md                    |   62 +
+ .../RESEND_DEVICE.md                               |  107 +
+ sprints/Sprint25_transmit_timing_resend/RESULTS.md |  427 +++
+ .../REVIEW_20260922.md                             |   55 +
+ .../s0_gate/README.md                              |   12 +
+ .../s0_gate/baseline_A_20260923T0346Z.txt          |   11 +
+ .../s0_gate/gate_query.sql                         |    9 +
+ sprints/Sprint26_bus_window_transmit/SPEC.md       |  135 +
+ .../DESIGN_supervisor.md                           |  604 +++++
+ sprints/Sprint26_remote_command_loop/KICKOFF.md    |  155 ++
+ sprints/Sprint26_remote_command_loop/PLAN_S2.md    |   78 +
+ sprints/Sprint26_remote_command_loop/PLAN_S3a.md   |  123 +
+ .../REVIEW_20260925.md                             |   78 +
+ tests/golden/README.md                             |  110 +
+ tests/golden/run_scenario.py                       |  563 ++++
+ tests/golden/scenarios.py                          |  204 ++
+ .../settings.json                                  |  207 ++
+ .../settings/bmcam003+awb1_exp4/settings.json      |  318 +++
+ .../bmcam003+foc0_over_manual/settings.json        |  315 +++
+ tests/golden/settings/bmcam003+foc3/settings.json  |  316 +++
+ tests/golden/settings/bmcam003+hlt3/settings.json  |  333 +++
+ tests/golden/settings/bmcam003+roi5/settings.json  |  336 +++
+ .../settings/bmcam003+twn1_tmz2/settings.json      |  319 +++
+ .../settings/bmcam003+win2_txd1_cap1/settings.json |  340 +++
+ .../settings.json                                  |  224 ++
+ .../settings.json                                  |  224 ++
+ .../settings.json                                  |  224 ++
+ .../settings.json                                  |  224 ++
+ .../settings.json                                  |  224 ++
+ .../settings.json                                  |  224 ++
+ .../settings.json                                  |  227 ++
+ tests/golden/vectors/_env.json                     |    4 +
+ .../vectors/field_bmcam001_main/summary.json       |  253 ++
+ tests/golden/vectors/field_bmcam001_main/trace.txt |  199 ++
+ .../vectors/field_bmcam002_main/summary.json       |  253 ++
+ tests/golden/vectors/field_bmcam002_main/trace.txt |  203 ++
+ tests/golden/vectors/still_bench/summary.json      |  304 +++
+ tests/golden/vectors/still_bench/trace.txt         |  346 +++
+ .../vectors/still_capture_retry/summary.json       |  250 ++
+ tests/golden/vectors/still_capture_retry/trace.txt |  204 ++
+ tests/golden/vectors/still_heal/summary.json       |  325 +++
+ tests/golden/vectors/still_heal/trace.txt          |  207 ++
+ tests/golden/vectors/still_incomplete/summary.json |  377 +++
+ tests/golden/vectors/still_incomplete/trace.txt    |   55 +
+ tests/golden/vectors/still_phase/summary.json      |  281 ++
+ tests/golden/vectors/still_phase/trace.txt         |  203 ++
+ tests/golden/vectors/still_stock/summary.json      |  247 ++
+ tests/golden/vectors/still_stock/trace.txt         |  204 ++
+ tests/golden/vectors/still_trigger/summary.json    |  300 +++
+ tests/golden/vectors/still_trigger/trace.txt       |  202 ++
+ .../golden/vectors/still_window_skip/summary.json  |   44 +
+ tests/golden/vectors/still_window_skip/trace.txt   |    8 +
+ tests/golden/vectors/video_bench/summary.json      |  164 ++
+ tests/golden/vectors/video_bench/trace.txt         |  148 ++
+ .../vectors/video_live_bmcam003/summary.json       |  137 +
+ tests/golden/vectors/video_live_bmcam003/trace.txt |  150 ++
+ tests/golden/vectors/video_stock/summary.json      |   77 +
+ tests/golden/vectors/video_stock/trace.txt         |  146 ++
+ .../vectors/video_trigger_pending/summary.json     |  134 +
+ .../golden/vectors/video_trigger_pending/trace.txt |  145 ++
+ .../golden/vectors/video_window_skip/summary.json  |   44 +
+ tests/golden/vectors/video_window_skip/trace.txt   |    7 +
+ .../vectors_supervisor/still_bench/summary.json    |  318 +++
+ .../vectors_supervisor/still_bench/trace.txt       |  323 +++
+ .../vectors_supervisor/still_heal/summary.json     |  325 +++
+ .../golden/vectors_supervisor/still_heal/trace.txt |  207 ++
+ .../vectors_supervisor/still_trigger/summary.json  |  300 +++
+ .../vectors_supervisor/still_trigger/trace.txt     |  203 ++
+ .../still_window_skip/summary.json                 |   45 +
+ .../vectors_supervisor/still_window_skip/trace.txt |    8 +
+ .../video_trigger_pending/summary.json             |  135 +
+ .../video_trigger_pending/trace.txt                |  145 ++
+ .../video_window_skip/summary.json                 |   45 +
+ .../vectors_supervisor/video_window_skip/trace.txt |    8 +
+ tests/golden/world.py                              |  520 ++++
+ tests/test_bm_codec.py                             |  162 ++
+ tests/test_boot_imports.py                         |  148 ++
+ tests/test_command_bindings.py                     |    2 +-
+ tests/test_command_messages.py                     |    2 +
+ tests/test_command_tables.py                       |   15 +-
+ tests/test_config_durability.py                    |  237 ++
+ tests/test_config_migrate.py                       |  371 +++
+ tests/test_config_registry.py                      |  330 +++
+ tests/test_config_v2.py                            |  458 ++++
+ tests/test_config_v2_parity.py                     |  180 ++
+ tests/test_count_complete_images.py                |   16 +-
+ tests/test_deploy_rc_runtime.py                    |  259 ++
+ tests/test_golden_vectors.py                       |  218 ++
+ tests/test_rc_media_id.py                          |  156 --
+ tests/test_rc_progressive_config.py                |    2 +-
+ tests/test_rc_uplink_messages.py                   |    4 +-
+ tests/test_s3_video_tx_daemon.py                   |  251 ++
+ tests/test_s3a_port_owner.py                       |  212 ++
+ tests/test_s3a_runtime_switch.py                   |   96 +
+ tests/test_s3a_supervisor.py                       |  343 +++
+ tests/test_s3a_time_read.py                        |  123 +
+ tests/test_s4_media_key.py                         |  323 +++
+ tests/test_s5_heal.py                              |  489 ++++
+ tests/test_video_settings.py                       |   60 +-
+ .../bm_media_h264_rev5/wire_keyed_complete.txt     |  136 +
+ tools/bm_cmd_bench_listener.py                     |  162 ++
+ tools/bm_cmd_buffer_test_driver.py                 |  113 +
+ tools/bm_heal_driver.py                            |  249 ++
+ tools/bm_video_soak_report.py                      |  474 +++-
+ tools/bm_video_tx_loopback.py                      |    6 +-
+ tools/config_migrate_v1_v2.py                      |  139 +
+ tools/config_parity.py                             |  149 ++
+ tools/deploy_rc_runtime.sh                         |  242 +-
+ tools/deploy_runtime.sh                            |  222 --
+ tools/dev_mode.sh                                  |   27 +-
+ tools/patch_camera_schedule.py                     |   20 +
+ tools/rc_field_update.sh                           |   58 +-
+ tools/rc_runtime_manifest.txt                      |   36 +-
+ 545 files changed, 50143 insertions(+), 5245 deletions(-)
+ create mode 100644 .claude/skills/bm-mote-dfu/SKILL.md
+ delete mode 100644 BM_Devel_Pi/PATCH_NOTES_BMCAM000_libcamera_pipeline.md
+ create mode 100644 BM_Devel_Pi/atomic_io.py
+ create mode 100644 BM_Devel_Pi/bm_codec.py
+ create mode 100644 BM_Devel_Pi/bm_port.py
+ create mode 100644 BM_Devel_Pi/config_dump.py
+ create mode 100644 BM_Devel_Pi/config_journal.py
+ create mode 100644 BM_Devel_Pi/config_migrate.py
+ create mode 100644 BM_Devel_Pi/config_registry.py
+ create mode 100644 BM_Devel_Pi/config_v1_reader.py
+ create mode 100644 BM_Devel_Pi/config_v2.py
+ delete mode 100755 BM_Devel_Pi/crop_downsample_helper.py
+ delete mode 100755 BM_Devel_Pi/heic_encode_helper.py
+ delete mode 100644 BM_Devel_Pi/main_pi_camera.py
+ delete mode 100644 BM_Devel_Pi/process_image_v2.py
+ create mode 100644 BM_Devel_Pi/rc_capture.py
+ create mode 100644 BM_Devel_Pi/rc_heal.py
+ delete mode 100644 BM_Devel_Pi/rc_media_id.py
+ create mode 100644 BM_Devel_Pi/rc_media_key.py
+ create mode 100644 BM_Devel_Pi/rc_port_owner.py
+ create mode 100644 BM_Devel_Pi/rc_supervisor.py
+ create mode 100644 BM_Devel_Pi/rc_telemetry.py
+ delete mode 100644 BM_Devel_Pi/read_CPU_temp.py
+ delete mode 100644 BM_Devel_Pi/run_capture_cycle.sh
+ create mode 100644 device_profiles/bmcam003/live_20260925/bm_command_state.json
+ create mode 100644 device_profiles/bmcam003/live_20260925/camera_schedule.yaml
+ create mode 100644 device_profiles/bmcam004/live_20260925/bm_command_state.json
+ create mode 100644 device_profiles/bmcam004/live_20260925/camera_schedule.yaml
+ create mode 100644 requirements-dev.txt
+ create mode 100644 runs/mote_cmd_buffer_20260925/RESULTS.md
+ create mode 100644 runs/s1_bench_bmcam003_20260925/RESULTS.md
+ create mode 100644 runs/s1_bench_bmcam003_20260925/backend_after.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/backend_before.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/backup_before.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/bench.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/cfg_branch_stills.yaml
+ create mode 100644 runs/s1_bench_bmcam003_20260925/cfg_branch_video.yaml
+ create mode 100644 runs/s1_bench_bmcam003_20260925/cfg_dev_stills.yaml
+ create mode 100644 runs/s1_bench_bmcam003_20260925/cfg_dev_video.yaml
+ create mode 100644 runs/s1_bench_bmcam003_20260925/console_commands.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/deploy_branch.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/deploy_development.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/harness_logs/harness.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/harness_on_pi_comparison.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/import_time.py
+ create mode 100644 runs/s1_bench_bmcam003_20260925/import_time_branch.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/import_time_dev.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_branch.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_branch/cycle_stills.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_branch/cycle_video.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_branch_interrupted_1944Z.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_branch_interrupted_1944Z/cycle_video.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_dev.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_dev/cycle_stills.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_dev/cycle_video.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/live_side.sh
+ create mode 100644 runs/s1_bench_bmcam003_20260925/make_bench_cfgs.py
+ create mode 100644 runs/s1_bench_bmcam003_20260925/rearm_watcher.log
+ create mode 100755 runs/s1_bench_bmcam003_20260925/rearm_watcher.sh
+ create mode 100644 runs/s1_bench_bmcam003_20260925/restore_unit.log
+ create mode 100644 runs/s1_bench_bmcam003_20260925/restore_unit.sh
+ create mode 100644 runs/s1_bench_bmcam003_20260925/rssrun.py
+ create mode 100644 runs/s1_bench_bmcam003_20260925/run_manifest.json
+ create mode 100644 runs/s1_bench_bmcam003_20260925/spotter_bridge_cfg_BEFORE.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/survey_before.txt
+ create mode 100644 runs/s1_bench_bmcam003_20260925/watcher.log
+ create mode 100755 runs/s1_bench_bmcam003_20260925/watcher.sh
+ create mode 100644 runs/s26_customer_emulation_20260924/RESULTS.md
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam003/rc_cycle_20260924T181855Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam003/rc_cycle_20260924T190834Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam003/rc_cycle_20260924T200834Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam003/rc_cycle_20260924T210834Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam004/rc_cycle_20260924T181858Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam004/rc_cycle_20260924T190834Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam004/rc_cycle_20260924T200835Z.log
+ create mode 100644 runs/s26_customer_emulation_20260924/bmcam004/rc_cycle_20260924T210836Z.log
+ create mode 100644 runs/s2_bench_20260926/PLAN.md
+ create mode 100644 runs/s2_bench_20260926/RESULTS.md
+ create mode 100644 runs/s2_bench_20260926/SOAK.md
+ create mode 100644 runs/s2_bench_20260926/bmcam003_deploy_s2.log
+ create mode 100644 runs/s2_bench_20260926/bmcam003_migrate_dryrun.log
+ create mode 100644 runs/s2_bench_20260926/bmcam003_migrate_write.log
+ create mode 100644 runs/s2_bench_20260926/bmcam003_print_config_before.txt
+ create mode 100644 runs/s2_bench_20260926/bmcam004_deploy_development.log
+ create mode 100644 runs/s2_bench_20260926/bmcam004_migrate.log
+ create mode 100644 runs/s2_bench_20260926/bmcam004_print_config_before.txt
+ create mode 100644 runs/s2_bench_20260926/bmcam004_print_config_development.txt
+ create mode 100755 runs/s2_bench_20260926/cmd_test.sh
+ create mode 100644 runs/s2_bench_20260926/cmd_test_report.txt
+ create mode 100755 runs/s2_bench_20260926/console.sh
+ create mode 100644 runs/s2_bench_20260926/console_commands.log
+ create mode 100644 runs/s2_bench_20260926/fault_test.log
+ create mode 100755 runs/s2_bench_20260926/fault_test.sh
+ create mode 100644 runs/s2_bench_20260926/import_time.py
+ create mode 100755 runs/s2_bench_20260926/live_side.sh
+ create mode 100644 runs/s2_bench_20260926/make_bench_dirs.py
+ create mode 100755 runs/s2_bench_20260926/migrate_bmcam004.sh
+ create mode 100644 runs/s2_bench_20260926/rearm_both.log
+ create mode 100755 runs/s2_bench_20260926/rearm_both.sh
+ create mode 100644 runs/s2_bench_20260926/rearm_restore.log
+ create mode 100644 runs/s2_bench_20260926/rollback_rehearsal.log
+ create mode 100644 runs/s2_bench_20260926/rssrun.py
+ create mode 100644 runs/s2_bench_20260926/soak_bmcam003.txt
+ create mode 100644 runs/s2_bench_20260926/soak_bmcam004.txt
+ create mode 100644 runs/s2_bench_20260926/soak_controller.sh
+ create mode 100644 runs/s2_live_pull_20260925/PULL.md
+ create mode 100644 runs/s2_live_pull_20260925/bmcam003/software_sha.txt
+ create mode 100644 runs/s2_live_pull_20260925/bmcam003/survey.txt
+ create mode 100644 runs/s2_live_pull_20260925/bmcam004/software_sha.txt
+ create mode 100644 runs/s2_live_pull_20260925/bmcam004/survey.txt
+ create mode 100644 runs/s2_live_pull_20260925/pull.log
+ create mode 100755 runs/s2_live_pull_20260925/pull.sh
+ create mode 100644 runs/s3_bench_20260923T2325Z/RESULTS.md
+ create mode 100644 runs/s3_bench_20260923T2325Z/SPOT-31593C_bridge_status_before.txt
+ create mode 100644 runs/s3_bench_20260923T2325Z/SPOT-33507C_bridge_status_before.txt
+ create mode 100644 runs/s3_bench_20260923T2325Z/bmcam004_yaml_patch.txt
+ create mode 100644 runs/s3_bench_20260923T2325Z/disarm_bmcam003.txt
+ create mode 100644 runs/s3_bench_20260923T2325Z/disarm_bmcam004.txt
+ create mode 100644 runs/s3_bench_20260923T2325Z/disarm_remote.sh
+ create mode 100755 runs/s3_bench_20260923T2325Z/lean_bench.sh
+ create mode 100644 runs/s3_bench_20260923T2325Z/lean_bench_resume.sh
+ create mode 100644 runs/s3_bench_20260923T2325Z/run_manifest.json
+ create mode 100644 runs/s3_bench_20260923T2325Z/t0_status
+ create mode 100644 runs/s3a_bench_20260926/RESULTS.md
+ create mode 100644 runs/s3a_bench_20260926/bench.log
+ create mode 100644 runs/s3a_bench_20260926/bmcam003_deploy_s3a.log
+ create mode 100644 runs/s3a_bench_20260926/bmcam003_survey_before.txt
+ create mode 100755 runs/s3a_bench_20260926/console.sh
+ create mode 100644 runs/s3a_bench_20260926/console_commands.log
+ create mode 100755 runs/s3a_bench_20260926/follow_bmcam004.sh
+ create mode 100644 runs/s3a_bench_20260926/live/cycle_legacy_stills.log
+ create mode 100644 runs/s3a_bench_20260926/live/cycle_legacy_video.log
+ create mode 100644 runs/s3a_bench_20260926/live/cycle_supervisor_stills.log
+ create mode 100644 runs/s3a_bench_20260926/live/cycle_supervisor_video.log
+ create mode 100755 runs/s3a_bench_20260926/live_side.sh
+ create mode 100644 runs/s3a_bench_20260926/make_bench_dirs.py
+ create mode 100644 runs/s3a_bench_20260926/observe_wake.out
+ create mode 100755 runs/s3a_bench_20260926/observe_wake.sh
+ create mode 100644 runs/s3a_bench_20260926/rearm.log
+ create mode 100755 runs/s3a_bench_20260926/rearm.sh
+ create mode 100644 runs/s3a_bench_20260926/rssrun.py
+ create mode 100755 runs/s3a_bench_20260926/run_bench.sh
+ create mode 100644 runs/s3a_bench_20260926/run_manifest.json
+ create mode 100644 runs/s3a_bench_20260926/spotter_console_counts.txt
+ create mode 100644 runs/s3a_bench_20260926/watcher.log
+ create mode 100755 runs/s3a_bench_20260926/watcher.sh
+ create mode 100644 runs/s3a_bench_20260926/watcher_first_run.log
+ create mode 100755 runs/s3a_bench_20260926/watcher_host.sh
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/2026-09-24T02-58-47Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/2026-09-24T03-25-07Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/2026-09-24T03-33-07Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/RESULTS.md
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/apply.log
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/backfill_captured_at_20260924T025550Z.csv
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/backfill_captured_at_20260924T025550Z.sql
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/backfill_captured_at_20260924T025600Z.csv
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/backfill_captured_at_20260924T025600Z.sql
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/verify/backfill_captured_at_20260924T025617Z.csv
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/backfill_captured_at/verify/backfill_captured_at_20260924T025617Z.sql
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/cycle1_20260924T025836Z.log
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/cycle2_20260924T032503Z.log
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/cycle3_20260924T033258Z.log
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/heal_command_post.json
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/healed_0dotlz_backend.h264
+ create mode 100644 runs/s5_ladder2_20260924T0255Z/run_manifest.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/RESULTS.md
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/0dp5yq.h264
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/0dp6nn.h264
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/0dpdlo.h264
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/0dpezo.h264
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/0dpmmm.h264
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/0dpo0m.h264
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/backend_sha256.txt
+ create mode 100644 runs/s5_ladder3_overnight_20260924/backend/healed_rows.txt
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T05-02-59Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T05-10-39Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T05-25-39Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T05-40-39Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T05-55-39Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T06-10-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T06-25-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T06-40-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T06-55-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T07-10-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T07-25-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T07-40-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T07-55-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T08-10-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T08-25-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T08-40-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T08-55-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T09-10-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T09-25-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T09-40-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T09-55-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T10-10-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T10-25-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T10-40-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T10-55-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T11-10-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T11-25-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T11-40-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T11-55-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T12-10-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T12-25-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T12-40-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T12-55-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T13-10-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T13-25-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T13-40-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T13-55-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T14-10-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T14-25-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T14-40-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T14-55-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T15-10-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T15-25-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T15-40-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T15-55-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T16-10-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/2026-09-24T16-25-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T050134Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T050403Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T051712Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T053221Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T054709Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T060213Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T061717Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T063210Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T064715Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T070219Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T071716Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T073210Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T074710Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T080211Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T081803Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T083213Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T084713Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T090210Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T091714Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T093215Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T094714Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T100214Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T101716Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T103212Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T104802Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T110203Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T111713Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T113250Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T114717Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T120215Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T121638Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T123213Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T124713Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T130214Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T131713Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T133215Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T134720Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T140243Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T141716Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T143221Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T144807Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T150221Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T151717Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T153214Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T154717Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T160216Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T161719Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam003/rc_cycle_20260924T163216Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T02-58-47Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T03-25-07Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T03-33-07Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T05-02-46Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T05-10-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T05-25-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T05-40-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T05-55-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T06-10-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T06-25-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T06-40-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T06-55-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T07-10-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T07-25-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T07-40-35Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T07-55-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T08-10-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T08-25-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T08-40-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T08-55-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T09-10-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T09-25-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T09-40-34Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T09-55-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T10-10-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T10-25-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T10-40-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T10-55-33Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T11-10-39Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T11-25-39Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T11-40-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T11-55-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T12-10-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T12-25-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T12-40-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T12-55-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T13-10-38Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T13-25-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T13-40-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T13-55-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T14-10-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T14-25-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T14-40-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T14-55-37Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T15-10-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T15-25-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T15-40-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T15-55-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T16-10-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T16-25-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/2026-09-24T16-40-36Z_video_5s.sent.json
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T000526Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T000748Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T001539Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T002337Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T050134Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T050348Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T051708Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T053211Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T054712Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T060212Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T061636Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T063206Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T064713Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T070214Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T071712Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T073211Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T074711Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T080202Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T081710Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T083240Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T084716Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T090209Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T091711Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T093208Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T094705Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T100205Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T101704Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T103206Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T104709Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T110210Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T111715Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T113216Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T114720Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T120220Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T121714Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T123217Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T124715Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T130215Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T131715Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T133215Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T134722Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T140224Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T141727Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T143226Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T144723Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T150223Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T151722Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T153221Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T154722Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T160222Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T161718Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/bmcam004/rc_cycle_20260924T163221Z.log
+ create mode 100644 runs/s5_ladder3_overnight_20260924/heal_driver_events.jsonl
+ create mode 100755 runs/sprint25_indoor15_20260922T1840Z/prep_console_as_sd.sh
+ create mode 100644 runs/sprint25_indoor15_20260922T1840Z/report_SPOT-31593C/cycles.md
+ create mode 100644 runs/sprint25_indoor15_20260922T1840Z/report_SPOT-31593C/loss_by_stage.md
+ create mode 100644 runs/sprint25_indoor15_20260922T1840Z/report_SPOT-31593C/timeline_SPOT-31593C.svg
+ create mode 100644 runs/sprint25_indoor15_20260922T1840Z/report_SPOT-33507C/cycles.md
+ create mode 100644 runs/sprint25_indoor15_20260922T1840Z/report_SPOT-33507C/loss_by_stage.md
+ create mode 100644 runs/sprint25_indoor15_20260922T1840Z/report_SPOT-33507C/timeline_SPOT-33507C.svg
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/analysis/sofar_dump.py
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/analysis/stall_analysis.py
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/analysis/stall_lengths.py
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/report_SPOT-31593C/cycles.md
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/report_SPOT-31593C/loss_by_stage.md
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/report_SPOT-31593C/timeline_SPOT-31593C.svg
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/report_SPOT-33507C/cycles.md
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/report_SPOT-33507C/loss_by_stage.md
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/report_SPOT-33507C/timeline_SPOT-33507C.svg
+ create mode 100644 runs/sprint25_outdoor_20260923T0240Z/run_manifest.json
+ create mode 100644 runs/sprint25_pacing13_20260923/report_SPOT-31593C/cycles.md
+ create mode 100644 runs/sprint25_pacing13_20260923/report_SPOT-31593C/loss_by_stage.md
+ create mode 100644 runs/sprint25_pacing13_20260923/report_SPOT-31593C/timeline_SPOT-31593C.svg
+ create mode 100644 runs/sprint25_pacing13_20260923/report_SPOT-33507C/cycles.md
+ create mode 100644 runs/sprint25_pacing13_20260923/report_SPOT-33507C/loss_by_stage.md
+ create mode 100644 runs/sprint25_pacing13_20260923/report_SPOT-33507C/timeline_SPOT-33507C.svg
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/report_SPOT-31593C/cycles.md
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/report_SPOT-31593C/loss_by_stage.md
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/report_SPOT-31593C/timeline_SPOT-31593C.svg
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/report_SPOT-33507C/cycles.md
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/report_SPOT-33507C/loss_by_stage.md
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/report_SPOT-33507C/timeline_SPOT-33507C.svg
+ create mode 100644 runs/sprint25_sd_20260922T1640Z/run_manifest.json
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/KICKOFF_S0_implementation.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/KICKOFF_S5_continuation.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/KICKOFF_outdoor_analysis.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/RESEND_DEVICE.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/RESULTS.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/REVIEW_20260922.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/s0_gate/README.md
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/s0_gate/baseline_A_20260923T0346Z.txt
+ create mode 100644 sprints/Sprint25_transmit_timing_resend/s0_gate/gate_query.sql
+ create mode 100644 sprints/Sprint26_bus_window_transmit/SPEC.md
+ create mode 100644 sprints/Sprint26_remote_command_loop/DESIGN_supervisor.md
+ create mode 100644 sprints/Sprint26_remote_command_loop/KICKOFF.md
+ create mode 100644 sprints/Sprint26_remote_command_loop/PLAN_S2.md
+ create mode 100644 sprints/Sprint26_remote_command_loop/PLAN_S3a.md
+ create mode 100644 sprints/Sprint26_remote_command_loop/REVIEW_20260925.md
+ create mode 100644 tests/golden/README.md
+ create mode 100644 tests/golden/run_scenario.py
+ create mode 100644 tests/golden/scenarios.py
+ create mode 100644 tests/golden/settings/BM_Devel_Pi__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+awb1_exp4/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+foc0_over_manual/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+foc3/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+hlt3/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+roi5/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+twn1_tmz2/settings.json
+ create mode 100644 tests/golden/settings/bmcam003+win2_txd1_cap1/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__bmcam000__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__bmcam001__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__bmcam002__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__bmcam003__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__bmcam003__live_20260925__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__bmcam004__live_20260925__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/settings/device_profiles__rc_field_template__camera_schedule.yaml/settings.json
+ create mode 100644 tests/golden/vectors/_env.json
+ create mode 100644 tests/golden/vectors/field_bmcam001_main/summary.json
+ create mode 100644 tests/golden/vectors/field_bmcam001_main/trace.txt
+ create mode 100644 tests/golden/vectors/field_bmcam002_main/summary.json
+ create mode 100644 tests/golden/vectors/field_bmcam002_main/trace.txt
+ create mode 100644 tests/golden/vectors/still_bench/summary.json
+ create mode 100644 tests/golden/vectors/still_bench/trace.txt
+ create mode 100644 tests/golden/vectors/still_capture_retry/summary.json
+ create mode 100644 tests/golden/vectors/still_capture_retry/trace.txt
+ create mode 100644 tests/golden/vectors/still_heal/summary.json
+ create mode 100644 tests/golden/vectors/still_heal/trace.txt
+ create mode 100644 tests/golden/vectors/still_incomplete/summary.json
+ create mode 100644 tests/golden/vectors/still_incomplete/trace.txt
+ create mode 100644 tests/golden/vectors/still_phase/summary.json
+ create mode 100644 tests/golden/vectors/still_phase/trace.txt
+ create mode 100644 tests/golden/vectors/still_stock/summary.json
+ create mode 100644 tests/golden/vectors/still_stock/trace.txt
+ create mode 100644 tests/golden/vectors/still_trigger/summary.json
+ create mode 100644 tests/golden/vectors/still_trigger/trace.txt
+ create mode 100644 tests/golden/vectors/still_window_skip/summary.json
+ create mode 100644 tests/golden/vectors/still_window_skip/trace.txt
+ create mode 100644 tests/golden/vectors/video_bench/summary.json
+ create mode 100644 tests/golden/vectors/video_bench/trace.txt
+ create mode 100644 tests/golden/vectors/video_live_bmcam003/summary.json
+ create mode 100644 tests/golden/vectors/video_live_bmcam003/trace.txt
+ create mode 100644 tests/golden/vectors/video_stock/summary.json
+ create mode 100644 tests/golden/vectors/video_stock/trace.txt
+ create mode 100644 tests/golden/vectors/video_trigger_pending/summary.json
+ create mode 100644 tests/golden/vectors/video_trigger_pending/trace.txt
+ create mode 100644 tests/golden/vectors/video_window_skip/summary.json
+ create mode 100644 tests/golden/vectors/video_window_skip/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/still_bench/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/still_bench/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/still_heal/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/still_heal/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/still_trigger/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/still_trigger/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/still_window_skip/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/still_window_skip/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/video_trigger_pending/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/video_trigger_pending/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/video_window_skip/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/video_window_skip/trace.txt
+ create mode 100644 tests/golden/world.py
+ create mode 100644 tests/test_bm_codec.py
+ create mode 100644 tests/test_boot_imports.py
+ create mode 100644 tests/test_config_durability.py
+ create mode 100644 tests/test_config_migrate.py
+ create mode 100644 tests/test_config_registry.py
+ create mode 100644 tests/test_config_v2.py
+ create mode 100644 tests/test_config_v2_parity.py
+ create mode 100644 tests/test_deploy_rc_runtime.py
+ create mode 100644 tests/test_golden_vectors.py
+ delete mode 100644 tests/test_rc_media_id.py
+ create mode 100644 tests/test_s3_video_tx_daemon.py
+ create mode 100644 tests/test_s3a_port_owner.py
+ create mode 100644 tests/test_s3a_runtime_switch.py
+ create mode 100644 tests/test_s3a_supervisor.py
+ create mode 100644 tests/test_s3a_time_read.py
+ create mode 100644 tests/test_s4_media_key.py
+ create mode 100644 tests/test_s5_heal.py
+ create mode 100644 tests/vectors/bm_media_h264_rev5/wire_keyed_complete.txt
+ create mode 100644 tools/bm_cmd_bench_listener.py
+ create mode 100644 tools/bm_cmd_buffer_test_driver.py
+ create mode 100644 tools/bm_heal_driver.py
+ create mode 100644 tools/config_migrate_v1_v2.py
+ create mode 100644 tools/config_parity.py
+ delete mode 100755 tools/deploy_runtime.sh
+[FIELD-UPDATE] repo: f73129ac6db7 -> 1636c8bf17bf (development)
+[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+[RC-DEPLOY] repo=/home/pi/repos/bm_cam_legacy
+[RC-DEPLOY] manifest=/home/pi/repos/bm_cam_legacy/tools/rc_runtime_manifest.txt
+[RC-DEPLOY] destination=/home/pi/BM_Devel_Pi (staging in /home/pi/BM_Devel_Pi.next)
+[RC-DEPLOY] mode=field-update profile=none cron=false
+[RC-DEPLOY] timestamp=20260927T010056Z hostname=bmcam004 python=/usr/bin/python3
+[RC-DEPLOY] preflight: PyYAML present
+[RC-DEPLOY] preflight: boot cycle not armed
+[RC-DEPLOY] staged 47 files in /home/pi/BM_Devel_Pi.next
+[RC-DEPLOY] syntax check (py_compile 42 files, staged)
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash e3449650
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] backing up runtime code/config to /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20260927T010056Z.tgz (images/buffers/logs/videos excluded)
+[RC-DEPLOY] restore command: tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20260927T010056Z.tgz -C /home/pi
+[RC-DEPLOY] copy rc_progressive_jpeg.py
+[RC-DEPLOY] copy rc_time_budget.py
+[RC-DEPLOY] copy rc_jpeg_encoder.py
+[RC-DEPLOY] copy rc_quality_selector.py
+[RC-DEPLOY] copy rc_uplink_messages.py
+[RC-DEPLOY] copy rc_transmit.py
+[RC-DEPLOY] copy rc_transmit_phase.py
+[RC-DEPLOY] copy rc_power_halt.py
+[RC-DEPLOY] copy rc_run_capture_cycle.sh
+[RC-DEPLOY] copy spotter_time_sync.py
+[RC-DEPLOY] copy bm_serial.py
+[RC-DEPLOY] copy bm_codec.py
+[RC-DEPLOY] copy bm_port.py
+[RC-DEPLOY] copy rc_capture.py
+[RC-DEPLOY] copy rc_telemetry.py
+[RC-DEPLOY] copy rc_port_owner.py
+[RC-DEPLOY] copy rc_supervisor.py
+[RC-DEPLOY] copy command_tables.py
+[RC-DEPLOY] copy command_messages.py
+[RC-DEPLOY] copy command_state.py
+[RC-DEPLOY] copy command_bindings.py
+[RC-DEPLOY] copy command_daemon.py
+[RC-DEPLOY] copy command_help.py
+[RC-DEPLOY] copy bm_frame_decoder.py
+[RC-DEPLOY] copy rc_command_hooks.py
+[RC-DEPLOY] copy rc_media_key.py
+[RC-DEPLOY] copy rc_heal.py
+[RC-DEPLOY] copy config_registry.py
+[RC-DEPLOY] copy config_v1_reader.py
+[RC-DEPLOY] copy config_dump.py
+[RC-DEPLOY] copy config_migrate.py
+[RC-DEPLOY] copy atomic_io.py
+[RC-DEPLOY] copy config_v2.py
+[RC-DEPLOY] copy config_journal.py
+[RC-DEPLOY] copy video_geometry.py
+[RC-DEPLOY] copy video_recorder.py
+[RC-DEPLOY] copy video_ring.py
+[RC-DEPLOY] copy video_manifest.py
+[RC-DEPLOY] copy videoui_server.py
+[RC-DEPLOY] copy video_settings.py
+[RC-DEPLOY] copy rc_video_clip.py
+[RC-DEPLOY] copy rc_video_tx.py
+[RC-DEPLOY] copy network_ap.sh
+[RC-DEPLOY] copy network_config.py
+[RC-DEPLOY] copy tuned_halt.sh
+[RC-DEPLOY] copy reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg
+[RC-DEPLOY] copy reference_images/reference_card_native_imx708.jpg
+[RC-DEPLOY] installed 47 files; staging dir removed
+[RC-DEPLOY] camera_schedule.yaml untouched (device-specific; use --profile to install one)
+[RC-DEPLOY] crontab untouched (use --install-cron to arm the boot cycle)
+[RC-DEPLOY] config v2 effective hash: e3449650
+[RC-DEPLOY] write software_sha.txt=1636c8bf17bf
+[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+[BOOT] main_entry uptime_s=67.20
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=e3449650 hv=1 registry=v2 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[RC-DEPLOY] UART check: /dev/serial0 -> ttyAMA0, no serial console (BM-transmit-capable)
+[RC-DEPLOY] deploy complete
+[RC-DEPLOY] next (new unit validation ladder — NOTE: with power_halt enabled, ANY cycle HALTS the box at cycle end):
+[RC-DEPLOY]   cd /home/pi/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh --check   # UART transmit-capable gate
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --compress-only <native.jpg>
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit
+[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+[FIELD-UPDATE] config v2 unit (/home/pi/BM_Devel_Pi/camera_config.yaml): camera_schedule.yaml is NOT patched
+[FIELD-UPDATE]   uplink.chunk_chars: unit=384 profile=384
+[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.3 profile=1.3
+[FIELD-UPDATE]   uplink.network_type: unit=2 profile=2
+[FIELD-UPDATE]   to adopt the profile, re-migrate it (backs up the v2 files first):
+[FIELD-UPDATE]     cp /home/pi/repos/bm_cam_legacy/device_profiles/bmcam004/live_20260925/camera_schedule.yaml /home/pi/BM_Devel_Pi/camera_schedule.yaml && python3 /home/pi/repos/bm_cam_legacy/tools/config_migrate_v1_v2.py --app /home/pi/BM_Devel_Pi --write --force
+[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+[FIELD-UPDATE] UART OK: serial0 -> ttyAMA0, no kernel console on the link
+[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+[BOOT] main_entry uptime_s=70.25
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=e3449650 hv=1 registry=v2 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[FIELD-UPDATE] UART open OK: /dev/ttyAMA0 @ 115200, network 0x02 cellular-only
+[FIELD-UPDATE] validation OK (real-transmit check is a manual step — see summary)
+[FIELD-UPDATE] === stage 7: re-arm ===
+[FIELD-UPDATE] crontab left DISARMED (--leave-disarmed); restore with: crontab /home/pi/crontab_before_field_update_20260927T010053Z.txt
+[FIELD-UPDATE] power_halt state (verify matches intent for this unit): config v2 (effective, incl. command overlay): enabled=True dry_run=False level=v2
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: f73129ac6db7 -> 1636c8bf17bf | values: chunk=384 delay=1.3
+[FIELD-UPDATE] rollback: crontab /home/pi/crontab_before_field_update_20260927T010053Z.txt; cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.before_field_update_20260927T010053Z /home/pi/BM_Devel_Pi/camera_schedule.yaml; runtime tar in /home/pi/backups (see deploy output)
+[FIELD-UPDATE] recommended live check (SPENDS QUOTA; with power_halt enabled the box HALTS after):
+[FIELD-UPDATE]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit --skip-time-window

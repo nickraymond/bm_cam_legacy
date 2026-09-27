@@ -1,0 +1,17 @@
+[f3] bmcam003 reachable 01:00:54
+-rw-rw-r-- 1 pi   pi      4113 2026-09-27T01:00:55 rc_cycle_20260927T000834Z.log
+-rw-rw-r-- 1 pi   pi      3339 2026-08-01T02:25:41 sprint12_bench_A2_hlt2.log
+-rw-rw-r-- 1 pi   pi      3339 2026-08-01T02:27:58 sprint12_bench_A3_hlt2.log
+-rw-rw-r-- 1 pi   pi      3761 2026-08-01T02:30:45 sprint12_bench_A4_hlt2.log
+-rw-rw-r-- 1 pi   pi      3339 2026-08-01T02:22:22 sprint12_bench_A_hlt2.log
+-rw-rw-r-- 1 pi   pi      8203 2026-08-01T02:40:09 sprint12_bench_C_twn2_transmit.log
+-rw-rw-r-- 1 pi   pi      5217 2026-08-01T02:46:23 sprint12_bench_D_trg3.log
+-rw-rw-r-- 1 pi   pi      1095 2026-09-27T00:08:08 supervisor_actions.jsonl
+---
+cron_logs/rc_cycle_20260926T222008Z.log
+---
+total 16
+drwxr-xr-x@  3 nickbuemond  staff    96 Sep 26 18:00 .
+drwxr-xr-x@ 11 nickbuemond  staff   352 Sep 26 18:00 ..
+-rw-r--r--@  1 nickbuemond  staff  6018 Sep 26 18:00 rc_cycle_20260926T222008Z.log
+[f3] done 01:01:00
