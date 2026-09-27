@@ -51,6 +51,7 @@ class BootScopes(Base):
 
     def test_second_action_reuses_owner_daemon_and_session(self):
         boot = self.boot()
+        boot.run = "stay_on"                  # one budget per action (per_boot: one per boot)
         d1, b1 = quiet(self.start, boot, {})
         owner = boot.owner
         self.clock.t = 500.0
@@ -63,6 +64,14 @@ class BootScopes(Base):
         self.assertAlmostEqual(b1.elapsed_s(), 500.0)
         self.assertEqual(boot.summary, {"n": 2})
         self.assertTrue(d1.fresh_time_reads)
+
+    def test_per_boot_keeps_one_budget_for_a_w10_extra_action(self):
+        boot = self.boot()
+        _d1, b1 = quiet(self.start, boot, {})
+        self.clock.t = 300.0
+        _d2, b2 = quiet(self.start, boot, {"n": 2})
+        self.assertIs(b1, b2)                 # G1: never re-anchored within a boot
+        self.assertAlmostEqual(b2.elapsed_s(), 300.0)
 
     def test_start_process_then_actions(self):
         boot = self.boot()

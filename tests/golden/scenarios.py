@@ -98,6 +98,13 @@ SCENARIOS = {
         "seed": ["pending_trg"],
         "notes": "an armed trg 2 bypasses the window once and clears",
     },
+    "still_trigger_in_tail": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "rules": [{"when": "tx_contains", "text": "<END",
+                   "payload": {"id": 504, "c": "trg", "v": 2}}],
+        "notes": "a trg heard in the listen tail: armed for the next boot (legacy); W10 "
+                 "(supervisor): the tail ends and it fires this boot on the same budget",
+    },
     "still_heal": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
         "seed": ["old_media", "pending_heal"],

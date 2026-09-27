@@ -1262,6 +1262,9 @@ def main(argv=None, **cycle_overrides):
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
                 w, h = video_tx_cfg["output_wh"]
+                sup.min_action_s = (float(video_tx_cfg["duration_s"])
+                                    + float(video_tx_cfg["lead_in_s"])
+                                    + rc_supervisor.W10_VIDEO_MARGIN_S)
                 if args.crashloop:
                     _crashloop_notice(sup, settings, lambda s: f"{w}x{h}", lambda s: None)
                 if run_cfg[0] == "stay_on":

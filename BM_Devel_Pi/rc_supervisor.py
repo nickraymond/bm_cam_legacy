@@ -55,6 +55,12 @@ from rc_time_budget import CycleBudget
 # the rule first bites in stay_on (S3b); tests/test_s3a_supervisor pins it.
 CLOCK_STEP_MIN_DRIFT_S = 2.0
 
+# W10 (PLAN_S3b.md H12): an extra per_boot action for a trg heard in the tail
+# needs at least this much budget beyond the tail margin (stills: capture +
+# encode + a small burst; the ladder sizes the image to what is left).
+W10_MIN_STILL_ACTION_S = 60.0
+W10_VIDEO_MARGIN_S = 60.0      # video: clip + lead-in + this
+
 ACTION_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "cron_logs", "supervisor_actions.jsonl")
 
@@ -83,6 +89,9 @@ class Boot:
         self.listen_tail = True       # H4: stay_on has no tail (the idle loop listens)
         self.quiet_skip = False       # H3: stay_on, a window skip after the first of a run
         self.on_process_start = None  # H7: crash-loop fallback's <WS a=crashloop>
+        # W10 (O3): the least budget an extra per_boot action needs beyond the
+        # tail margin; main() sets the video value (clip + lead-in + 60 s).
+        self.min_action_s = W10_MIN_STILL_ACTION_S
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -100,7 +109,11 @@ class Boot:
         self.summary = summary
         self.close_warn = close_warn
         s = self.settings
-        self.budget = CycleBudget(s["budget_seconds"], s["pacing_delay_seconds"], clock=clock)
+        if self.budget is None or self.run == "stay_on":
+            # per_boot: ONE budget per boot, never re-anchored, also for a W10
+            # extra action (G1, DESIGN §4 Budget); stay_on: one per action.
+            self.budget = CycleBudget(s["budget_seconds"], s["pacing_delay_seconds"],
+                                      clock=clock)
         if self.owner is None:
             self.start_process(clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
                                bm_close_fn=bm_close_fn, daemon_factory=daemon_factory,
@@ -126,6 +139,20 @@ class Boot:
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
+
+    def w10_trigger_fits(self):
+        """W10 (O3, Nick 2026-09-25): a trg is armed AND an extra action fits
+        this boot's budget: remaining - TAIL_SAFETY_S >= min_action_s. The
+        listen tail ends early on it; otherwise the tail runs on and the trg
+        stays armed for the next boot. per_boot only."""
+        if self.run != "per_boot" or self._pending_trigger() is None:
+            return False
+        if self.budget is None:
+            return False
+        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= self.min_action_s
+
+    def _pending_trigger(self):
+        return getattr(self.command_state, "pending_trigger", None)
 
     def gate_kwargs(self, daemon, settings):
         """The schedule gate's kwargs under the supervisor (W6): the legacy set,
@@ -279,12 +306,31 @@ def write_action_log(boot, error=None, n=None, kind=None):
 
 
 def run_per_boot(boot, action_fn):
-    """One action, then shutdown -> close -> halt. Returns the action's summary;
-    re-raises the action's exception AFTER the halt ran (main maps it to exit 1)."""
+    """One action, then shutdown -> close -> halt. Returns the last action's
+    summary; re-raises an action's exception AFTER the halt ran (main maps it
+    to exit 1).
+
+    W10 (O3): a trg heard in the listen tail that fits this boot's budget
+    (Boot.w10_trigger_fits; the tail ended early on it) fires as another
+    action on the SAME budget (G1), with its own tail; the budget bounds the
+    chain. A trg that does not fit stays armed for the next boot."""
     print(f"[SUP] per_boot: media={boot.media} transmit={boot.transmit}")
     error = None
     try:
-        return action_fn(boot)
+        summary = action_fn(boot)
+        n = 1
+        while boot.w10_trigger_fits():
+            write_action_log(boot)          # the finished action's line
+            n += 1
+            trg = boot._pending_trigger()
+            print(f"[SUP] W10: trg id={trg.get('id')} heard in the listen tail fires this "
+                  f"boot (action {n}; {boot.budget.remaining_s():.0f}s of budget left)")
+            summary = action_fn(boot)
+        if boot._pending_trigger() is not None:
+            left = boot.budget.remaining_s() if boot.budget else 0.0
+            print(f"[SUP] W10: trg stays armed for the next boot ({left:.0f}s of budget left; "
+                  f"an extra action needs {cmd_hooks.TAIL_SAFETY_S + boot.min_action_s:.0f}s)")
+        return summary
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
         raise

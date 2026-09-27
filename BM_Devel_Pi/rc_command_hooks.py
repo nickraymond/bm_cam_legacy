@@ -371,8 +371,12 @@ def post_transmit_listen(daemon, bm_commands_cfg, summary, budget,
     if actual_s < tail_s:
         print(f"[CMD] post-transmit tail TRIMMED {tail_s:.0f}s -> "
               f"{actual_s:.0f}s by the cycle budget")
+    # W10 (Sprint26 S3b, supervisor per_boot): a trg that fits this boot's
+    # budget ends the tail; run_per_boot then fires it (O3).
+    until = getattr(supervised, "w10_trigger_fits", None) if supervised is not None else None
+    extra = {"until": until} if until is not None else {}      # legacy call unchanged
     events = daemon.listen_window(actual_s, clock=clock, sleep_fn=sleep_fn,
-                                  label="post-transmit listen")
+                                  label="post-transmit listen", **extra)
     summary["command_events"].extend(e["action"] for e in events)
     summary["listen_tail_s"] = actual_s
     return actual_s

@@ -554,10 +554,13 @@ class CommandDaemon:
     # ------------------------------------------------------------------
 
     def listen_window(self, seconds, clock=time.monotonic, sleep_fn=time.sleep,
-                      label="listen"):
+                      label="listen", until=None):
         """Listen/apply/ack for `seconds`. Also flushes queued acks, which
         is what makes it the natural landing place for C3's deferred ack
-        burst. Returns the command events processed."""
+        burst. Returns the command events processed.
+
+        until (Sprint26 S3b W10, supervisor only): a predicate checked after
+        each pass; True ends the window early (a trg that fires this boot)."""
         print(f"[CMD] {label} window: {seconds:.0f}s")
         deadline = clock() + seconds
         events = []
@@ -565,6 +568,10 @@ class CommandDaemon:
             events.extend(self.process_pending())
             self.drain_acks(clock=clock)
             self.drain_console(sleep_fn=sleep_fn)
+            if until is not None and until():
+                print(f"[CMD] {label} window ended early after "
+                      f"{seconds - (deadline - clock()):.0f}s: a trg fires this boot")
+                break
             sleep_fn(0.2)
         print(f"[CMD] {label} window done: {len(events)} command(s) processed, "
               f"{self.pending_acks} ack(s) still queued")
