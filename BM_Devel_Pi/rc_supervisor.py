@@ -95,6 +95,15 @@ class Boot:
         # tail margin; main() sets the video value (clip + lead-in + 60 s).
         self.min_action_s = W10_MIN_STILL_ACTION_S
         self.w10_stuck = None         # a trg whose consume could not be persisted
+        # S3c (PLAN_S3c.md §5 C2): the output and its knobs live HERE, read once
+        # from the v2 values by main(). Never in `settings`: the overlay
+        # re-resolve rebuilds settings from the YAML base (boot drain, W10,
+        # every stay_on action), so a key put there would be lost on the first
+        # applied command and a save_local action would silently transmit.
+        self.output = "transmit"      # or "save_local"
+        self.save_quality = 85        # still.save.quality
+        self.storage_cfg = None       # video.storage.* (the one SD limit pair, §5 C3)
+        self.storage_reason = None    # "storage_full" while the SD is over its limit
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -259,7 +268,7 @@ def action_record(boot, error=None, n=None, kind=None):
         **extra,
         "utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runtime": "supervisor", "run": boot.run, "media": boot.media,
-        "output": "transmit" if boot.transmit else "none",
+        "output": boot.output if boot.transmit else "none",
         "trigger_id": (trig or {}).get("id") if isinstance(trig, dict) else None,
         "stage": s.get("stage"), "media_key": s.get("media_key") or boot.media_key,
         "sent": tr.get("sent"), "planned": tr.get("planned"),
@@ -608,6 +617,11 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                 guard.sched_save(now)
             summary = _run_action(boot, action_fn, settings_fn(), n, kind, quiet)
             skipped = summary.get("schedule_allowed") is False
+            # S3c (§5 C1): an action that sent nothing (a save_local action with
+            # no heals) is not an uplink: it moves neither the heartbeat nor the
+            # O5 idle-heal timer, or a unit saving every minute would never beat.
+            # Transmitting actions never set the key (their summaries unchanged).
+            uplinked = summary.get("uplinked", True)
             if kind == "scheduled":
                 next_due = now + interval_s
                 if next_due <= clock():
@@ -619,9 +633,9 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                 stuck_trg = trg
                 print(f"[SUP][ERR] trg id={trg.get('id')} is still armed after its action "
                       "(consume not persisted); not re-firing it in this process")
-            if not (skipped and quiet):
+            if uplinked and not (skipped and quiet):
                 last_uplink = clock()
-            if not skipped:
+            if uplinked and not skipped:
                 last_send = clock()      # O5 idle = no action or heal SENT (review S3b #5)
             guard.rotate_stdout_if_big()
             rss = guard.current_rss_kb()

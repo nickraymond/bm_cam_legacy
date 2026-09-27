@@ -1022,6 +1022,24 @@ def resolve_output(boot, runtime):
     return "save_local"
 
 
+def configure_output(sup, boot, output):
+    """S3c (PLAN_S3c.md §5 C2/C3): put the output and its knobs on the
+    supervisor Boot, from the v2 values (registry defaults for a v1-only unit
+    run with --runtime supervisor). The stills guard and the video ring share
+    ONE limit pair, video.storage.*."""
+    import config_registry as R
+    values = getattr(boot, "values", None) or {}
+
+    def value(path):
+        return values.get(path, R.BY_PATH[path].default)
+    sup.output = output
+    sup.save_quality = int(value("still.save.quality"))
+    sup.storage_cfg = {"max_used_pct": float(value("video.storage.max_used_pct")),
+                       "min_free_gb": float(value("video.storage.min_free_gb")),
+                       "ring_dry_run": bool(value("video.storage.ring_dry_run"))}
+    return sup
+
+
 def _stay_on_settings_fn(settings, reresolve_fn):
     """Fresh settings for each stay_on action: the YAML base + the command
     overlay as it is NOW (commands applied while idle govern the next action,
@@ -1033,11 +1051,16 @@ def _stay_on_settings_fn(settings, reresolve_fn):
     return fresh
 
 
-def _heartbeat_fn(image_res_key, image_quality, action="idle", reason=None):
+def _heartbeat_fn(image_res_key, image_quality, action="idle", reason=None, reason_fn=None):
     """One <WS a=idle> (PLAN_S3b.md H5): today's wake-status fields, local
     time from the (Spotter-set) system clock. up=/cfg= arrive with W8 (S4).
-    The crash-loop fallback sends the same line with a=crashloop (H7)."""
+    The crash-loop fallback sends the same line with a=crashloop (H7).
+    reason_fn (S3c §5 C6): the reason is read at SEND time (storage_full while
+    the SD is over its limit), not fixed when the heartbeat is built."""
     def send(settings):
+        nonlocal reason
+        if reason_fn is not None:
+            reason = reason_fn()
         from zoneinfo import ZoneInfo
         from rc_telemetry import send_wake_status
         local = datetime.now(ZoneInfo(settings["timezone"])).isoformat()
@@ -1285,6 +1308,7 @@ def main(argv=None, **cycle_overrides):
                     settings, media="video", bm_commands_cfg=bm_commands_cfg,
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+                configure_output(sup, boot, output)
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1296,7 +1320,8 @@ def main(argv=None, **cycle_overrides):
                         sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
                             s, video_tx_cfg, supervised=b, **video_kwargs),
                         settings, reresolve_fn, run_cfg,
-                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides,
+                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None,
+                                      reason_fn=lambda: sup.storage_reason), cycle_overrides,
                         rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
                 # b.settings: a W10 extra action runs on the re-resolved overlay.
                 summary = rc_supervisor.run_per_boot(
@@ -1364,6 +1389,7 @@ def main(argv=None, **cycle_overrides):
                 settings, media="still", bm_commands_cfg=bm_commands_cfg,
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+            configure_output(sup, boot, output)
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])
@@ -1374,7 +1400,8 @@ def main(argv=None, **cycle_overrides):
                     sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
                                                 skip_time_window=False, **stay_kwargs),
                     settings, reresolve_fn, run_cfg,
-                    _heartbeat_fn(still_rk, lambda s: s["q_max"]),
+                    _heartbeat_fn(still_rk, lambda s: s["q_max"],
+                                  reason_fn=lambda: sup.storage_reason),
                     cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(
