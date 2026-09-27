@@ -286,6 +286,16 @@ WINDOW_OFF = [(None, "enforce_time_window: true", "enforce_time_window: false"),
               (None, "enforce_spotter_time_window: true", "enforce_spotter_time_window: false")]
 
 STAY_ON_SCENARIOS.update({
+    "stay_on_save_local_video": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **SAVE_LOCAL_V2,
+                   **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
+        "rules": [{"when": "at_clock", "t": 700, "payload": {"id": 741, "c": "trg", "v": 2}},
+                  _sigterm(1300)],
+        "notes": "stay_on x save_local video every 600 s: record-quality clip + sidecar + "
+                 "manifest, no fit/send, heartbeats every 300 s through the actions, trg 2 saves",
+    },
     "stay_on_save_local_still": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
         "v2": dict(STAY_ON_V2, **SAVE_LOCAL_V2,
@@ -324,6 +334,24 @@ SAVE_LOCAL_SCENARIOS = {
                  "r=storage_full>, listen tail, halt",
     },
 }
+
+SAVE_LOCAL_SCENARIOS.update({
+    "save_local_video": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": SAVE_LOCAL_V2,
+        "seed": ["old_media", "pending_heal"],
+        "rules": [{"when": "on_sub", "payload": {"id": 551, "c": "ping"}}],
+        "notes": "per_boot video x save_local: time read, ring, a clip at record quality "
+                 "(duration + lead-in) kept with sidecar + manifest, no fit/send, the pending "
+                 "heal sent, acks, listen tail, halt",
+    },
+    "save_local_video_full": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": SAVE_LOCAL_V2, "disk": "full",
+        "notes": "the ring cannot make room: no recording, <WS a=skip_err r=storage_full>, "
+                 "listen tail, halt (a transmit unit raises here instead)",
+    },
+})
 
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS}
 VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},

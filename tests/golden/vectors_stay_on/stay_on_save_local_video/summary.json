@@ -1,0 +1,232 @@
+{
+ "cycle": {
+  "clip": {
+   "basename": "2026-09-24T15-20-00Z_video_1000x562_15fps",
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T15-20-00Z_video_1000x562_15fps.mp4",
+   "ok": true,
+   "stage": "done"
+  },
+  "command_events": [],
+  "error": null,
+  "fit": null,
+  "halt_result": {
+   "action": "none",
+   "reason": "stay_on: never halts"
+  },
+  "saved": {
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T15-20-00Z_video_1000x562_15fps.mp4",
+   "time_source": "spotter"
+  },
+  "schedule_allowed": true,
+  "stage": "saved",
+  "transmit": true,
+  "transmit_result": null,
+  "uplinked": false
+ },
+ "cycles": [
+  {
+   "clip": {
+    "basename": "2026-09-24T15-00-00Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-00-00Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": null,
+   "halt_result": null,
+   "saved": {
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-00-00Z_video_1000x562_15fps.mp4",
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  },
+  {
+   "clip": {
+    "basename": "2026-09-24T15-10-00Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": null,
+   "halt_result": null,
+   "saved": {
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4",
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  },
+  {
+   "clip": {
+    "basename": "2026-09-24T15-11-40Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-11-40Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": null,
+   "halt_result": null,
+   "saved": {
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-11-40Z_video_1000x562_15fps.mp4",
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "trigger": {
+    "id": 741,
+    "value": 2
+   },
+   "uplinked": false
+  },
+  {
+   "clip": {
+    "basename": "2026-09-24T15-20-00Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-20-00Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": null,
+   "halt_result": {
+    "action": "none",
+    "reason": "stay_on: never halts"
+   },
+   "saved": {
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-20-00Z_video_1000x562_15fps.mp4",
+    "time_source": "spotter"
+   },
+   "schedule_allowed": true,
+   "stage": "saved",
+   "transmit": true,
+   "transmit_result": null,
+   "uplinked": false
+  }
+ ],
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 1300.0,
+ "files": {
+  "camera_config.lkg.json": {
+   "bytes": 3153,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2394,
+   "sha256": "87e5103744862ab9"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7907,
+   "sha256": "8a8ad15fcd4f5753"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2223,
+   "sha256": "8dedba797bcb93e0"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 311,
+   "sha256": "147b6f13e35f4045"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  },
+  "videos/2026-09-24T15-00-00Z_video_1000x562_15fps.json": {
+   "bytes": 682,
+   "sha256": "6baff500d385481c"
+  },
+  "videos/2026-09-24T15-00-00Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "videos/2026-09-24T15-10-00Z_video_1000x562_15fps.json": {
+   "bytes": 682,
+   "sha256": "7b071c80822eee6f"
+  },
+  "videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "videos/2026-09-24T15-11-40Z_video_1000x562_15fps.json": {
+   "bytes": 682,
+   "sha256": "a189fbe6f5565fb3"
+  },
+  "videos/2026-09-24T15-11-40Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "videos/2026-09-24T15-20-00Z_video_1000x562_15fps.json": {
+   "bytes": 682,
+   "sha256": "483e89c64384925f"
+  },
+  "videos/2026-09-24T15-20-00Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "videos/manifest.json": {
+   "bytes": 1126,
+   "sha256": "add2dab70700ce21"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "stay_on x save_local video every 600 s: record-quality clip + sidecar + manifest, no fit/send, heartbeats every 300 s through the actions, trg 2 saves",
+ "scenario": "stay_on_save_local_video",
+ "sent_records": {},
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 0,
+  "guarded": {},
+  "high_water": {},
+  "overlay": {},
+  "result_cache": {},
+  "schema": "bm_command_state_v2",
+  "tables_version": 8,
+  "v8": {
+   "applied_ids": [
+    741
+   ],
+   "pending_heals": [],
+   "pending_trigger": null,
+   "settings": {
+    "awb": 0,
+    "cap": 0,
+    "exp": 0,
+    "foc": 0,
+    "hlt": 0,
+    "roi": 0,
+    "src": 0,
+    "tmz": 0,
+    "twn": 0,
+    "txd": 0,
+    "win": 0
+   },
+   "touched": []
+  }
+ },
+ "unfired_rules": []
+}

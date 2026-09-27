@@ -487,27 +487,6 @@ def _save_local_tail(daemon, summary, budget, *, bm_commands_cfg, clock, sleep_f
                                    clock=clock, sleep_fn=sleep_fn, supervised=supervised)
 
 
-def save_local_heals(daemon, settings, summary, budget, *, transmit, tx_open_fn, clock,
-                     sleep_fn):
-    """S3c §5 C14: a save_local action sends the heals that are pending (media
-    sent earlier; <= HEAL_CAP_PER_WAKE chunks, then <HL>), so they neither stall
-    nor stop ageing, on the action's own budget (G1). -> True when it put
-    anything on the uplink. Never raises (a heal must not cost the save)."""
-    if not transmit or daemon is None:
-        return False
-    state = getattr(daemon, "state", None)
-    if not (getattr(state, "pending_heals", None) or getattr(daemon, "heal_events", None)):
-        return False
-    import rc_supervisor
-    try:
-        planned = rc_supervisor.send_pending_heals(daemon, settings, summary, budget,
-                                                   tx_open_fn, clock, sleep_fn)
-    except Exception as exc:
-        print(f"[HEAL][WARN] save_local heal slot failed ({type(exc).__name__}: {exc})")
-        return True                      # something may have gone out: count it
-    return planned is not None
-
-
 def _save_local_still(settings, summary, daemon, budget, *, supervised, source, native_path,
                       image_stem, capture_info, output_dir, time_source, transmit,
                       bm_commands_cfg, bm_open_fn, clock, sleep_fn, sent):
@@ -554,8 +533,9 @@ def _save_local_still(settings, summary, daemon, budget, *, supervised, source, 
     summary["stage"] = "saved"
     print(f"[RC] saved (save_local): {final_path} ({encode['jpeg_bytes']} B at q{quality}, "
           f"time_source={metadata['time_source']}) + native {native_path}")
-    if save_local_heals(daemon, settings, summary, budget, transmit=transmit,
-                        tx_open_fn=bm_open_fn, clock=clock, sleep_fn=sleep_fn):
+    import rc_supervisor
+    if rc_supervisor.save_local_heals(daemon, settings, summary, budget, transmit=transmit,
+                                      tx_open_fn=bm_open_fn, clock=clock, sleep_fn=sleep_fn):
         sent = True
     summary["uplinked"] = sent
     _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
@@ -626,7 +606,7 @@ def still_action(
     bypass_verdict = supervised is not None and skip_time_window
     # Sprint26 S3c: a save_local action (supervisor only) saves instead of
     # sending; `sent` tracks whether it put anything on the uplink (§5 C1).
-    save_local = supervised is not None and supervised.save_local
+    save_local = supervised is not None and getattr(supervised, "save_local", False)
     time_source = None
     sent = False
     if transmit and settings["enforce_time_window"] and (not skip_time_window or bypass_verdict):

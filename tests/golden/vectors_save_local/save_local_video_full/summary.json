@@ -1,0 +1,59 @@
+{
+ "cycle": {
+  "clip": null,
+  "command_events": [],
+  "error": "storage_full",
+  "fit": null,
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "listen_tail_s": 150.0,
+  "schedule_allowed": true,
+  "stage": "storage_full",
+  "transmit": true,
+  "transmit_result": null,
+  "uplinked": true
+ },
+ "exit_code": 1,
+ "fake_clock_elapsed_s": 150.0,
+ "files": {
+  "camera_config.lkg.json": {
+   "bytes": 3152,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2393,
+   "sha256": "f70b3063029515b8"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7907,
+   "sha256": "8a8ad15fcd4f5753"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2223,
+   "sha256": "8dedba797bcb93e0"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "the ring cannot make room: no recording, <WS a=skip_err r=storage_full>, listen tail, halt (a transmit unit raises here instead)",
+ "scenario": "save_local_video_full",
+ "sent_records": {},
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": null,
+ "unfired_rules": []
+}

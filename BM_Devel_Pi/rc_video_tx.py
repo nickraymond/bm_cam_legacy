@@ -218,6 +218,72 @@ def _skip_status(settings, vtx, gate_info, wake_fn=None):
         print(f"[VTX][WARN] wake status send failed, continuing safely: {exc}")
 
 
+def _status_line(settings, vtx, wake_fn, action, reason):
+    """One <WS> for a save_local video action; never raises. -> True if sent."""
+    if wake_fn is None:
+        from rc_telemetry import send_wake_status as wake_fn
+    try:
+        w, h = vtx["output_wh"]
+        wake_fn(action=action, timezone_name=settings["timezone"], local_time=None,
+                window_start=settings["window_start"], window_end=settings["window_end"],
+                image_res_key=f"{w}x{h}", image_quality=None, reason=reason)
+        return True
+    except Exception as exc:
+        print(f"[VTX][WARN] wake status send failed, continuing safely: {exc}")
+        return False
+
+
+def _save_local_tail(daemon, summary, budget, *, bm_commands_cfg, clock, sleep_fn, supervised):
+    """Deferred acks out, then the listen tail (per_boot; stay_on's idle loop
+    listens instead)."""
+    if daemon is None:
+        return
+    cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                         label="save_local ack flush")
+    cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                   clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+
+
+def _save_local_clip(settings, vtx, summary, daemon, budget, *, clip, record_vcfg, ring,
+                     time_source, transmit, supervised, tx_open_fn, now_fn, clock, sleep_fn,
+                     bm_commands_cfg, sent):
+    """Sprint26 S3c video x save_local (DESIGN §4 Actions; PLAN_S3c.md J3): the
+    clip a transmit action would send, at RECORD quality (video.record.*), kept
+    with the recorder's own sidecar and manifest, so the gallery UI and tools
+    list it like a recorder clip. No fit, no send. Pending heals go out (C14),
+    then acks and the tail. Metadata failures never cost the saved clip."""
+    import rc_still_storage
+    import rc_supervisor
+    import video_manifest
+    video_dir = settings["video"]["dir"]
+    try:
+        disk = rc_still_storage.DISK_USAGE_FN(video_dir)     # the one SD reader (pinned in goldens)
+    except OSError:
+        disk = None
+    try:
+        record = video_manifest.build_clip_record(clip, settings, record_vcfg, ring,
+                                                  disk_usage=disk)
+        record.update({"output": "save_local", "time_source": time_source or "system"})
+        video_manifest.write_sidecar(video_dir, clip["basename"], record)
+        video_manifest.write_manifest(video_dir,
+                                      generated_utc=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"))
+    except Exception as exc:
+        print(f"[VTX][WARN] save_local clip metadata failed ({type(exc).__name__}: {exc}); "
+              "the clip is saved")
+    summary["saved"] = {"mp4": clip["mp4"], "bytes": clip.get("bytes"),
+                        "time_source": time_source or "system"}
+    summary["stage"] = "saved"
+    print(f"[VTX] saved (save_local): {clip['mp4']} ({clip.get('bytes')} B, record quality, "
+          f"time_source={time_source or 'system'})")
+    if rc_supervisor.save_local_heals(daemon, settings, summary, budget, transmit=transmit,
+                                      tx_open_fn=tx_open_fn, clock=clock, sleep_fn=sleep_fn):
+        sent = True
+    summary["uplinked"] = sent
+    _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                     clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+    return summary
+
+
 def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit,
                  skip_time_window, gate_fn, record_fn, fit_fn, tx_open_fn, ensure_room_fn,
                  sleep_fn, clock, now_fn, encoder_binary, ffmpeg_binary, bm_commands_cfg,
@@ -229,6 +295,11 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     also owns shutdown -> close -> halt; port_state["opened"] tells it whether this
     action may have opened the UART (the close predicate). Returns the summary."""
     vcfg = settings["video"]
+    # Sprint26 S3c: a save_local action (supervisor only) records and saves,
+    # never fits or sends; `sent` = it put something on the uplink (§5 C1).
+    save_local = supervised is not None and getattr(supervised, "save_local", False)
+    time_source = None
+    sent = False
     # 1. Spotter time first: no RTC, so until this read the clock can be
     #    years off — and the clip's filename is its capture time.
     gate_info, gate_mono = None, clock()
@@ -242,6 +313,17 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         gate_mono = clock()
         cmd_hooks.boot_mark("spotter_utc_read")
         print(f"[VTX] schedule gate: {gate_info.get('reason')}")
+        time_source = gate_info.get("source_time")
+        if save_local and gate_info.get("spotter_time_error"):
+            # S3c §5 C9: record anyway on the Pi clock; the window is enforced
+            # only on a Spotter time.
+            print(f"[VTX][WARN] save_local: Spotter time read failed "
+                  f"({gate_info['spotter_time_error']}); recording on the Pi clock")
+            allowed, time_source = True, "system"
+        elif save_local and not settings.get("enforce_time_window"):
+            # The window is off, so the gate read no time: the clip's name is
+            # its capture time and a Pi has no RTC.
+            time_source = supervised.save_local_time_read(daemon, settings)
         if settings.get("enforce_time_window") and not skip_time_window and not allowed:
             summary["schedule_allowed"] = False
             if supervised is not None:
@@ -264,6 +346,20 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     os.makedirs(video_dir, exist_ok=True)
     video_recorder.sweep_boot_debris(video_dir)
     ring = ensure_room_fn(video_dir, vcfg["storage"])
+    if supervised is not None:
+        supervised.storage_reason = "storage_full" if ring.get("paused") else None
+    if ring.get("paused") and save_local:
+        # A save_local action does not fail on a full SD: it says so (per_boot
+        # on the wire, stay_on through the heartbeat's r=) and listens.
+        summary["error"] = summary["stage"] = "storage_full"
+        print(f"[VTX][ERR] save_local: SD over its limit (used={ring.get('used_pct')}% "
+              f"free={ring.get('free_gb')}GiB) and the ring cannot make room; not recording")
+        if transmit and supervised.run == "per_boot":
+            sent = _status_line(settings, vtx, wake_fn, "skip_err", "storage_full")
+        summary["uplinked"] = sent
+        _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                         clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+        return summary
     if ring.get("paused"):
         raise RuntimeError(f"SD storage over its limit (used={ring.get('used_pct')}% "
                            f"free={ring.get('free_gb')}GiB); not recording. Free space or "
@@ -286,7 +382,15 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         # W5: trg 1 on a video unit = record the clip to SD, send nothing.
         print(f"[VTX] trigger capture-only: clip kept on SD ({clip['mp4']}), not sent")
         summary["stage"] = "done_capture_only"
+        if save_local:
+            summary["uplinked"] = sent
         return summary
+    if save_local:
+        return _save_local_clip(settings, vtx, summary, daemon, budget, clip=clip,
+                                record_vcfg=short, ring=ring, time_source=time_source,
+                                transmit=transmit, supervised=supervised,
+                                tx_open_fn=tx_open_fn, now_fn=now_fn, clock=clock,
+                                sleep_fn=sleep_fn, bm_commands_cfg=bm_commands_cfg, sent=sent)
 
     # 3. Budget: what the cap allows AND what the time budget can still pace.
     summary["stage"] = "fit"

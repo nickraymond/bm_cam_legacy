@@ -551,6 +551,26 @@ def send_pending_heals(daemon, settings, summary, budget, tx_open_fn, clock, sle
     return heals.planned_msgs
 
 
+def save_local_heals(daemon, settings, summary, budget, *, transmit, tx_open_fn, clock,
+                     sleep_fn):
+    """S3c §5 C14: a save_local action sends the heals that are pending (media
+    sent earlier; <= HEAL_CAP_PER_WAKE chunks, then <HL>), so they neither stall
+    nor stop ageing, on the action's own budget (G1). -> True when it put
+    anything on the uplink. Never raises (a heal must not cost the save)."""
+    if not transmit or daemon is None:
+        return False
+    state = getattr(daemon, "state", None)
+    if not (getattr(state, "pending_heals", None) or getattr(daemon, "heal_events", None)):
+        return False
+    try:
+        planned = send_pending_heals(daemon, settings, summary, budget,
+                                     tx_open_fn, clock, sleep_fn)
+    except Exception as exc:
+        print(f"[HEAL][WARN] save_local heal slot failed ({type(exc).__name__}: {exc})")
+        return True                      # something may have gone out: count it
+    return planned is not None
+
+
 def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
     """O5 (PLAN_S3b.md H11): send pending heals with no capture, on a fresh
     budget per pass (send_pending_heals). -> its summary. Never raises."""

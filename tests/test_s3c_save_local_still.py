@@ -161,7 +161,7 @@ class HealSlot(Base):
     def call(self, daemon, transmit=True, send=None):
         send = send or mock.Mock(return_value=3)
         with mock.patch.object(sup, "send_pending_heals", send):
-            got = quiet(rc.save_local_heals, daemon, STILL, {}, mock.Mock(), transmit=transmit,
+            got = quiet(sup.save_local_heals, daemon, STILL, {}, mock.Mock(), transmit=transmit,
                         tx_open_fn=None, clock=self.clock, sleep_fn=self.clock.sleep)
         return got, send
 
