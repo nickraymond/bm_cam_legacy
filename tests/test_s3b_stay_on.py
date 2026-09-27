@@ -90,6 +90,8 @@ class Loop(Base):
         self.settings_made = 0
         sup.STOP.update(requested=False, halting=False, signal=None)
         self.addCleanup(signal.signal, signal.SIGTERM, signal.getsignal(signal.SIGTERM))
+        import rc_capture
+        self.addCleanup(setattr, rc_capture, "stop_check", None)     # S3b.5 hook
         # S3b.4: the loop checks RSS after every action; off-device that reads
         # the test process's PEAK, which a full suite run pushes past the ceiling.
         patcher = mock.patch.object(sup.guard, "current_rss_kb", return_value=50_000)

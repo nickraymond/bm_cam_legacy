@@ -318,8 +318,10 @@ def _on_sigterm(signum, _frame):
 
 def install_stop_flag():
     import signal
+    import rc_capture
     STOP.update(requested=False, halting=False, signal=None)
     signal.signal(signal.SIGTERM, _on_sigterm)
+    rc_capture.stop_check = stop_requested      # H6: bounded wait in a capture retry
     print("[SUP] SIGTERM -> stop at the next safe point (no halt)")
 
 
