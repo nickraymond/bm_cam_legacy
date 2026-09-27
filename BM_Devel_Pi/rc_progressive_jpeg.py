@@ -1013,19 +1013,35 @@ def _stay_on_settings_fn(settings, reresolve_fn):
     return fresh
 
 
-def _heartbeat_fn(image_res_key, image_quality):
+def _heartbeat_fn(image_res_key, image_quality, action="idle", reason=None):
     """One <WS a=idle> (PLAN_S3b.md H5): today's wake-status fields, local
-    time from the (Spotter-set) system clock. up=/cfg= arrive with W8 (S4)."""
+    time from the (Spotter-set) system clock. up=/cfg= arrive with W8 (S4).
+    The crash-loop fallback sends the same line with a=crashloop (H7)."""
     def send(settings):
         from zoneinfo import ZoneInfo
         from rc_telemetry import send_wake_status
         local = datetime.now(ZoneInfo(settings["timezone"])).isoformat()
         return send_wake_status(
-            action="idle", timezone_name=settings["timezone"], local_time=local,
+            action=action, timezone_name=settings["timezone"], local_time=local,
             window_start=settings["window_start"], window_end=settings["window_end"],
             image_res_key=image_res_key(settings), image_quality=image_quality(settings),
-            reason=None)
+            reason=reason)
     return send
+
+
+def _crashloop_notice(sup, settings, image_res_key, image_quality):
+    """H7: the crash-loop fallback's one <WS a=crashloop>, sent as soon as the
+    port is up (before the action), so the backend sees why the unit went
+    quiet. Never raises."""
+    send = _heartbeat_fn(image_res_key, image_quality, action="crashloop", reason="restarts")
+
+    def notice():
+        try:
+            send(settings)
+            print("[RUN] crash-loop fallback: <WS a=crashloop> sent")
+        except Exception as exc:
+            print(f"[RUN][WARN] <WS a=crashloop> not sent ({type(exc).__name__}: {exc})")
+    sup.on_process_start = notice
 
 
 def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
@@ -1078,6 +1094,11 @@ def main(argv=None, **cycle_overrides):
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
                         help="Directory for final JPEG + sidecar")
+    parser.add_argument("--crashloop", action="store_true",
+                        help="Set by rc_run_capture_cycle.sh after 5 stay_on restarts in "
+                             "10 min (Sprint26 S3b H7): run per_boot with the halt forced "
+                             "to dry-run and send one <WS a=crashloop>, so a wall-powered "
+                             "unit stays reachable")
     parser.add_argument("--runtime", choices=RUNTIMES, default=None,
                         help="Override commands.runtime for this run: legacy (the S2 cycle "
                              "scripts) or supervisor (Sprint26 S3). Default: the config "
@@ -1123,6 +1144,10 @@ def main(argv=None, **cycle_overrides):
     if not args.print_config:      # inspection output stays as before (settings goldens)
         print(f"[RUNTIME] {runtime} (source={runtime_source})")
         run_cfg = resolve_run_mode(boot, runtime)
+        if args.crashloop:
+            print("[RUN][WARN] crash-loop fallback: per_boot, halt forced to dry-run, one "
+                  "<WS a=crashloop> (the wrapper saw 5 stay_on restarts in 10 min)")
+            run_cfg = ("per_boot", 0, 0)
         if run_cfg[0] == "stay_on":
             print(f"[RUN] stay_on interval_s={run_cfg[1]} heartbeat_s={run_cfg[2]}")
     bench_drop_chunks = None
@@ -1169,6 +1194,16 @@ def main(argv=None, **cycle_overrides):
                 fresh["video"] = current["video"]
             return fresh
         reresolve_fn = _reresolve
+
+    if args.crashloop:
+        # H7: the halt is forced to dry-run for this boot, including after a
+        # boot-drain re-resolve (an hlt command must not turn it back on).
+        settings["power_halt_dry_run"] = True
+        if reresolve_fn is not None:
+            _inner_reresolve = reresolve_fn
+
+            def reresolve_fn(current):
+                return dict(_inner_reresolve(current), power_halt_dry_run=True)
 
     # Sprint16 (D-S16-3): apply the network boot default (fire-and-forget;
     # a WiFi problem must never cost a capture cycle). No island = no-op,
@@ -1225,8 +1260,10 @@ def main(argv=None, **cycle_overrides):
                     settings, media="video", bm_commands_cfg=bm_commands_cfg,
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+                w, h = video_tx_cfg["output_wh"]
+                if args.crashloop:
+                    _crashloop_notice(sup, settings, lambda s: f"{w}x{h}", lambda s: None)
                 if run_cfg[0] == "stay_on":
-                    w, h = video_tx_cfg["output_wh"]
                     return _run_stay_on(
                         sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
                             s, video_tx_cfg, supervised=b, **video_kwargs),
@@ -1297,6 +1334,9 @@ def main(argv=None, **cycle_overrides):
                 settings, media="still", bm_commands_cfg=bm_commands_cfg,
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+            still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
+            if args.crashloop:
+                _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])
             if run_cfg[0] == "stay_on":
                 stay_kwargs = {k: v for k, v in cycle_kwargs.items()
                                if k not in ("capture_only", "skip_time_window")}
@@ -1304,8 +1344,7 @@ def main(argv=None, **cycle_overrides):
                     sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
                                                 skip_time_window=False, **stay_kwargs),
                     settings, reresolve_fn, run_cfg,
-                    _heartbeat_fn(lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}",
-                                  lambda s: s["q_max"]),
+                    _heartbeat_fn(still_rk, lambda s: s["q_max"]),
                     cycle_overrides)
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(

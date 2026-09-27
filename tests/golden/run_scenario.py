@@ -54,7 +54,8 @@ BASE_PROFILE = os.path.join(REPO, "device_profiles", "bmcam003", "camera_schedul
 # test (e.g. a module S1 deletes) is skipped; any other import error is fatal.
 APP_MODULES = [
     "bm_frame_decoder", "bm_serial", "spotter_time_sync", "process_image_v2",
-    "bm_codec", "bm_port", "rc_port_owner", "rc_supervisor", "rc_telemetry", "rc_capture",
+    "bm_codec", "bm_port", "rc_port_owner", "rc_stay_on_guard", "rc_supervisor",
+    "rc_telemetry", "rc_capture",
     "command_tables", "command_messages", "command_state", "command_bindings",
     "command_help", "command_daemon", "rc_command_hooks", "rc_heal", "rc_media_key",
     "rc_media_id", "rc_transmit", "rc_transmit_phase", "rc_uplink_messages",
@@ -146,6 +147,8 @@ def set_env(tmp, config_path):
         "BM_COMMAND_STATE_PATH": os.path.join(tmp, "state", "bm_command_state.json"),
         "BM_CAM_SOFTWARE_SHA": "golden0",
         "BMCAM_REFERENCE_ROOT": REPO,
+        # Sprint26 S3b: the stay_on marker stays inside the run (never /dev/shm).
+        "BMCAM_STAY_ON_MARKER": os.path.join(tmp, "stay_on.marker"),
         "TZ": "UTC",
     })
     time.tzset()

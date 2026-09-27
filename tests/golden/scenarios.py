@@ -249,4 +249,11 @@ STAY_ON_SCENARIOS = {
         "notes": "outside the window: the first scheduled skip sends <WS a=skip_win>, later "
                  "skips log only; heartbeats continue; a trg bypasses the window mid-run",
     },
+    "stay_on_crashloop_fallback": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
+        "argv": ["--crashloop"],
+        "notes": "the wrapper's crash-loop fallback on a stay_on unit: per_boot, one "
+                 "<WS a=crashloop> before the action, listen tail, halt forced to dry-run",
+    },
 }

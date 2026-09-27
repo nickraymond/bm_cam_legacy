@@ -44,6 +44,7 @@ import time
 from datetime import datetime, timezone
 
 import rc_command_hooks as cmd_hooks
+import rc_stay_on_guard as guard
 from rc_port_owner import PortOwner
 from rc_time_budget import CycleBudget
 
@@ -81,6 +82,7 @@ class Boot:
         self.run = "per_boot"
         self.listen_tail = True       # H4: stay_on has no tail (the idle loop listens)
         self.quiet_skip = False       # H3: stay_on, a window skip after the first of a run
+        self.on_process_start = None  # H7: crash-loop fallback's <WS a=crashloop>
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -121,6 +123,8 @@ class Boot:
                                     self.bm_commands_cfg, self.command_state)
             # W6: every Spotter time read over the shared port is a fresh one.
             self.owner.daemon.fresh_time_reads = True
+        if self.on_process_start is not None:
+            self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
 
     def gate_kwargs(self, daemon, settings):
@@ -230,6 +234,7 @@ def action_record(boot, error=None, n=None, kind=None):
         "elapsed_s": round(boot.budget.elapsed_s(), 1) if boot.budget else None,
         "error": error or s.get("error"),
         "rss_kb": _peak_rss_kb(),
+        "rss_now_kb": guard.current_rss_kb(),      # S3b H9: can fall; the peak cannot
     }
 
 
@@ -294,7 +299,8 @@ def run_per_boot(boot, action_fn):
 
 IDLE_TICK_S = 0.2            # §4: commands processed every 0.2 s while idle
 EXIT_ARGS = 2                # stay_on cannot run as invoked (no daemon: no --transmit)
-EXIT_CRASH = 70              # H7: stay_on failed; the wrapper restarts it with backoff
+EXIT_CRASH = 70              # H7: stay_on failed (watchdog, error); wrapper restarts, backoff
+EXIT_RSS = 71                # H9: RSS ceiling reached; clean exit, wrapper restarts in 5 s
 
 # H6: SIGTERM sets a flag only (stay_on). Raising inside subprocess.run would
 # kill a capture or the halt script mid-way; the loop stops at its next safe
@@ -329,6 +335,18 @@ def _idle_tick(daemon, clock, sleep_fn):
     daemon.drain_acks(clock=clock)
     daemon.drain_console(sleep_fn=sleep_fn)
     return events
+
+
+def _reader_health(daemon):
+    """H8: the watchdog, every idle tick. A daemon without the check (older
+    fakes) counts as healthy."""
+    check = getattr(daemon, "reader_health", None)
+    if check is None:
+        return True, ""
+    try:
+        return check()
+    except Exception as exc:
+        return False, f"health check failed ({type(exc).__name__}: {exc})"
 
 
 def _run_action(boot, action_fn, settings, n, kind, quiet_skip):
@@ -391,6 +409,8 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
     if settings.get("power_halt_enabled"):
         print("[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)")
     install_stop_flag()
+    guard.marker_set()
+    guard.prune_logs(os.path.dirname(boot.action_log))
     boot.summary = {"command_events": []}
     code = 0
     try:
@@ -411,6 +431,8 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
         if STOP["requested"]:
             print(f"[SUP] stop requested (signal {STOP['signal']}): shutdown -> close, no halt")
         boot.finish(halt=False)
+        guard.marker_clear()
+        print(f"[SUP] stay_on exit {code}")
     return code
 
 
@@ -424,6 +446,10 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
     stuck_trg = None             # a trg whose consume could not be persisted
     while not stop_requested():
         _idle_tick(daemon, clock, sleep_fn)
+        ok, why = _reader_health(daemon)
+        if not ok:
+            print(f"[SUP][ERR] watchdog: {why}; exit {EXIT_CRASH} (the wrapper restarts)")
+            return EXIT_CRASH
         now = clock()
         trg = state.pending_trigger if state is not None else None
         if trg is not None and trg == stuck_trg:
@@ -448,6 +474,12 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                       "(consume not persisted); not re-firing it in this process")
             if not (skipped and quiet):
                 last_uplink = clock()
+            guard.rotate_stdout_if_big()
+            rss = guard.current_rss_kb()
+            if guard.rss_over_ceiling(rss):
+                print(f"[SUP][ERR] RSS {rss} kB over the {guard.RSS_CEILING_KB} kB ceiling "
+                      f"after action {n}; clean exit {EXIT_RSS} (the wrapper restarts)")
+                return EXIT_RSS
             continue
         if heartbeat_s > 0 and now - last_uplink >= heartbeat_s:
             try:
@@ -456,6 +488,7 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
             except Exception as exc:
                 print(f"[SUP][WARN] heartbeat failed ({type(exc).__name__}: {exc})")
             last_uplink = clock()
+            guard.rotate_stdout_if_big()
             continue
         sleep_fn(IDLE_TICK_S)
     return 0

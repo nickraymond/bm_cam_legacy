@@ -90,6 +90,15 @@ class Loop(Base):
         self.settings_made = 0
         sup.STOP.update(requested=False, halting=False, signal=None)
         self.addCleanup(signal.signal, signal.SIGTERM, signal.getsignal(signal.SIGTERM))
+        # S3b.4: the loop checks RSS after every action; off-device that reads
+        # the test process's PEAK, which a full suite run pushes past the ceiling.
+        patcher = mock.patch.object(sup.guard, "current_rss_kb", return_value=50_000)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        marker = mock.patch.object(sup.guard, "MARKER_PATH",
+                                   os.path.join(self.tmp.name, "stay_on.marker"))
+        marker.start()
+        self.addCleanup(marker.stop)
 
     def stay_boot(self, transmit=True):
         return sup.Boot(dict(SETTINGS), media="still", bm_commands_cfg={"enabled": True},
