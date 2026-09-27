@@ -62,6 +62,7 @@ APP_MODULES = [
     "rc_time_budget", "rc_quality_selector", "rc_jpeg_encoder", "rc_power_halt",
     "network_config", "rc_progressive_jpeg", "rc_video_tx", "rc_video_clip",
     "video_recorder", "video_ring", "video_manifest", "video_geometry",
+    "rc_still_storage",
 ]
 # Modules whose wall clock must stay real (read_spotter_utc loops on time.time()).
 REAL_CLOCK_MODULES = {"spotter_time_sync"}
@@ -184,6 +185,13 @@ def patch_app(mods, tmp):
         # is the process PEAK, which three real Pillow ladders can push past the
         # stay_on ceiling (a nondeterministic exit 71). Pinned below the ceiling.
         guard.current_rss_kb = lambda: W.FIXED_RSS_KB
+    store = mods.get("rc_still_storage")
+    if store is not None:
+        # Sprint26 S3c: the stills storage guard reads the disk; this Mac's disk
+        # is not the unit's (it may be over 75 %). Pinned UNDER the limits, so
+        # the guard is a no-op here (summaries unchanged); its pruning is unit-
+        # tested (tests/test_s3c_still_storage.py).
+        store.DISK_USAGE_FN = lambda path: W.FIXED_DISK_USAGE
     originals = {getattr(m, "collect_storage_health") for m in modlist
                  if callable(getattr(m, "collect_storage_health", None))}
     for original in originals:

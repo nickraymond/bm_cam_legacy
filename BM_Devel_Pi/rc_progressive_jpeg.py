@@ -476,6 +476,35 @@ def stage_source_image(rel_or_abs_path, output_dir):
     return dest
 
 
+def _still_storage_guard(settings, summary, supervised, output_dir):
+    """Sprint26 S3c (PLAN_S3c.md §5 C3-C5): the stills storage guard, before
+    the capture of every supervisor stills action (both outputs; the legacy
+    runtime never runs it). Prunes old stills against video.storage.* and
+    sets supervised.storage_reason. -> True when the SD is still over a limit
+    after pruning (a save_local action then refuses the capture; a transmit
+    action only warns). Never raises: a guard failure must not cost the
+    capture. The summary gains "storage" only when the limits were exceeded,
+    so an under-limit action's summary is unchanged."""
+    if supervised is None or supervised.storage_cfg is None:
+        return False
+    import rc_still_storage
+    try:
+        mk = rc_media_key.load_media_key_config(settings["config_path"])
+        result = rc_still_storage.ensure_room(
+            output_dir, supervised.storage_cfg, sent_dir=mk["sent_dir"],
+            retain_days=mk["retain_days"])
+    except Exception as exc:
+        print(f"[STORE][WARN] stills storage guard skipped ({type(exc).__name__}: {exc})")
+        return False
+    if result["over"]:
+        summary["storage"] = result
+    supervised.storage_reason = "storage_full" if result["full"] else None
+    if result["full"] and supervised.output == "transmit":
+        print("[STORE][WARN] SD still over its limit; a transmitting unit captures anyway "
+              "(PLAN_S3c §5 C4)")
+    return result["full"]
+
+
 def still_action(
     settings, summary, daemon, budget,
     *,
@@ -555,6 +584,9 @@ def still_action(
                     clock=clock, sleep_fn=sleep_fn, supervised=supervised,
                 )
             return summary
+
+    # Sprint26 S3c: the stills storage guard (supervisor only; both outputs).
+    _still_storage_guard(settings, summary, supervised, output_dir)
 
     if transmit:
         try:
