@@ -13,6 +13,8 @@ The pieces of stay_on hardening that are not the loop itself
                           LOG_ROTATE_BYTES the stdout/stderr descriptors move to
                           <log>.N (os.dup2), and cron_logs keeps the newest
                           LOG_KEEP_FILES rc_cycle_*.log* files
+  sched_save/_load()      the last scheduled start (/dev/shm), so a restart keeps
+                          the slot instead of running an action at once
   marker_set/_clear()     /dev/shm/bmcam_stay_on while a stay_on process runs,
                           so the cron wrapper can tell an OOM kill of a stay_on
                           process (restart) from a per_boot death (never loops)
@@ -36,6 +38,10 @@ RSS_CEILING_KB = 180 * 1024          # H9 placeholder; bmcam003 20-action run de
 LOG_ROTATE_BYTES = 5 * 1024 * 1024   # H10
 LOG_KEEP_FILES = 200                 # H10: rc_cycle_*.log* files kept in cron_logs
 MARKER_PATH = os.environ.get("BMCAM_STAY_ON_MARKER", "/dev/shm/bmcam_stay_on")
+# The last scheduled action's start (the loop clock, time.monotonic = seconds
+# since boot on Linux), so a restarted process keeps the schedule (tmpfs:
+# cleared at reboot, when the first slot is due at boot again).
+SCHED_PATH = os.environ.get("BMCAM_STAY_ON_SCHED", "/dev/shm/bmcam_stay_on_sched")
 
 
 def current_rss_kb():
@@ -127,3 +133,20 @@ def marker_clear(path=None):
         os.remove(path or MARKER_PATH)
     except OSError:
         pass
+
+
+def sched_save(t, path=None):
+    try:
+        with open(path or SCHED_PATH, "w", encoding="ascii") as fh:
+            fh.write(f"{t:.3f}\n")
+    except OSError as exc:
+        print(f"[SUP][WARN] schedule state not written ({exc}); a restart runs a slot at once")
+
+
+def sched_load(path=None):
+    """The last scheduled start saved in this boot, or None."""
+    try:
+        with open(path or SCHED_PATH, "r", encoding="ascii") as fh:
+            return float(fh.read().strip())
+    except (OSError, ValueError):
+        return None

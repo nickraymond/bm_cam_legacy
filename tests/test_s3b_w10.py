@@ -106,6 +106,45 @@ class W10(Base):
         self.assertEqual(self.rec.calls, ["daemon_start", "close", "halt"])
 
 
+class W10Review(W10):  # review S3b #1, #3
+    def test_unconsumed_trg_fires_once_then_stops(self):
+        # consume never persists: the trg stays armed after every action
+        stuck = {"id": 950, "value": 2}
+        calls = []
+
+        def fn(boot):
+            boot.start({"command_events": []}, clock=self.clock, sleep_fn=self.clock.sleep,
+                       halt_fn=self.rec.halt, bm_close_fn=self.rec.close,
+                       daemon_factory=lambda s, c, st: CountingDaemon([]),
+                       log_fn=lambda *a: None, close_warn=print, end_line=None)
+            calls.append(1)
+            self.clock.t += 50
+            self.state.pending_trigger = stuck
+            return boot.summary
+        quiet(sup.run_per_boot, self.w10_boot(), fn)
+        self.assertEqual(len(calls), 2)                 # the first + ONE W10 attempt
+        self.assertEqual(self.rec.calls, ["close", "halt"])
+
+    def test_no_transmit_never_fires(self):
+        boot = self.w10_boot()
+        boot.transmit = False
+        fn, seen = self.action([10], arm_after=(0,))
+        quiet(sup.run_per_boot, boot, fn)
+        self.assertEqual(len(seen), 1)
+
+    def test_extra_action_gets_the_reresolved_overlay(self):
+        boot = self.w10_boot()
+        boot.reresolve_fn = lambda cur: dict(cur, overlay="fresh")
+        seen = []
+        fn, _ = self.action([100, 100], arm_after=(0,))
+
+        def spy(b):
+            seen.append(b.settings.get("overlay"))
+            return fn(b)
+        quiet(sup.run_per_boot, boot, spy)
+        self.assertEqual(seen, [None, "fresh"])
+
+
 class ListenUntil(DaemonTestCase):
     def test_until_ends_the_window(self):
         t = [0.0]

@@ -37,6 +37,7 @@ Example (what main() does):
   summary = rc_supervisor.run_per_boot(boot, lambda b: run_cycle(settings, ..., supervised=b))
 """
 
+import copy
 import json
 import os
 import resource
@@ -92,6 +93,7 @@ class Boot:
         # W10 (O3): the least budget an extra per_boot action needs beyond the
         # tail margin; main() sets the video value (clip + lead-in + 60 s).
         self.min_action_s = W10_MIN_STILL_ACTION_S
+        self.w10_stuck = None         # a trg whose consume could not be persisted
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -145,8 +147,10 @@ class Boot:
         this boot's budget: remaining - TAIL_SAFETY_S >= min_action_s. The
         listen tail ends early on it; otherwise the tail runs on and the trg
         stays armed for the next boot. per_boot only."""
-        if self.run != "per_boot" or self._pending_trigger() is None:
-            return False
+        if self.run != "per_boot" or not self.transmit or self._pending_trigger() is None:
+            return False                 # (no --transmit: the trg is never consumed)
+        if self._pending_trigger() is self.w10_stuck:
+            return False                 # its consume failed once: never a capture loop
         if self.budget is None:
             return False
         return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= self.min_action_s
@@ -325,7 +329,15 @@ def run_per_boot(boot, action_fn):
             trg = boot._pending_trigger()
             print(f"[SUP] W10: trg id={trg.get('id')} heard in the listen tail fires this "
                   f"boot (action {n}; {boot.budget.remaining_s():.0f}s of budget left)")
+            # Commands applied since the boot drain (tail) govern this action:
+            # the overlay is re-read onto the YAML base (same budget, G1).
+            if boot.reresolve_fn is not None:
+                boot.settings = boot._reresolve(boot.settings, boot.summary or {})
             summary = action_fn(boot)
+            if boot._pending_trigger() is trg:
+                boot.w10_stuck = trg
+                print(f"[SUP][ERR] W10: trg id={trg.get('id')} still armed after its action "
+                      "(consume not persisted); not firing it again this boot")
         if boot._pending_trigger() is not None:
             left = boot.budget.remaining_s() if boot.budget else 0.0
             print(f"[SUP] W10: trg stays armed for the next boot ({left:.0f}s of budget left; "
@@ -353,12 +365,13 @@ EXIT_RSS = 71                # H9: RSS ceiling reached; clean exit, wrapper rest
 # kill a capture or the halt script mid-way; the loop stops at its next safe
 # point instead. per_boot never installs this (tools rely on "SIGTERM = no
 # finally = no halt" there).
-STOP = {"requested": False, "halting": False, "signal": None}
+STOP = {"requested": False, "signal": None}
 
 
 def _on_sigterm(signum, _frame):
-    if STOP["halting"]:
-        return                   # ignored once halting has started
+    # "Ignored once halting has started" (§4) is vacuous here: a stay_on
+    # process never halts, and the crash-loop fallback (per_boot) never
+    # installs this handler.
     STOP["requested"] = True
     STOP["signal"] = signum
 
@@ -366,10 +379,19 @@ def _on_sigterm(signum, _frame):
 def install_stop_flag():
     import signal
     import rc_capture
-    STOP.update(requested=False, halting=False, signal=None)
-    signal.signal(signal.SIGTERM, _on_sigterm)
+    STOP.update(requested=False, signal=None)
+    previous = signal.signal(signal.SIGTERM, _on_sigterm)
     rc_capture.stop_check = stop_requested      # H6: bounded wait in a capture retry
     print("[SUP] SIGTERM -> stop at the next safe point (no halt)")
+    return previous
+
+
+def uninstall_stop_flag(previous):
+    import signal
+    import rc_capture
+    rc_capture.stop_check = None
+    if previous is not None:
+        signal.signal(signal.SIGTERM, previous)
 
 
 def stop_requested():
@@ -384,6 +406,22 @@ def _idle_tick(daemon, clock, sleep_fn):
     daemon.drain_acks(clock=clock)
     daemon.drain_console(sleep_fn=sleep_fn)
     return events
+
+
+def _guarded_settings_fn(settings_fn, fallback):
+    """settings_fn that never raises (review S3b #4): a failed overlay
+    re-resolve keeps the last good settings, loudly, as Boot._reresolve does.
+    A raise here would kill a stay_on unit (exit 1 at start: no restart)."""
+    last_good = {"s": fallback}
+
+    def fresh():
+        try:
+            last_good["s"] = settings_fn()
+        except Exception as exc:
+            print(f"[SUP][ERR] settings re-resolve failed ({type(exc).__name__}: {exc}); "
+                  "keeping the last good settings")
+        return copy.deepcopy(last_good["s"])
+    return fresh
 
 
 def _reader_health(daemon):
@@ -443,6 +481,7 @@ def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
     import rc_transmit_phase
     summary = {"command_events": [], "stage": "heal_pass"}
     boot.summary = summary
+    boot.end_line = None             # the last action's end line is not this pass's
     budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"],
                          clock=clock)
     boot.budget = budget
@@ -492,6 +531,7 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
     boot.run, boot.listen_tail = "stay_on", False
     if gate_fn is None:
         from spotter_time_sync import should_transmit_now_from_schedule as gate_fn
+    settings_fn = _guarded_settings_fn(settings_fn, boot.settings)
     settings = settings_fn()
     boot.settings = settings
     print(f"[SUP] stay_on: media={boot.media} interval_s={interval_s} "
@@ -499,7 +539,7 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
           f"heartbeat_s={heartbeat_s}{' (off)' if heartbeat_s == 0 else ''}")
     if settings.get("power_halt_enabled"):
         print("[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)")
-    install_stop_flag()
+    previous_handler = install_stop_flag()
     guard.marker_set()
     guard.prune_logs(os.path.dirname(boot.action_log))
     boot.summary = {"command_events": []}
@@ -523,6 +563,7 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
             print(f"[SUP] stop requested (signal {STOP['signal']}): shutdown -> close, no halt")
         boot.finish(halt=False)
         guard.marker_clear()
+        uninstall_stop_flag(previous_handler)
         print(f"[SUP] stay_on exit {code}")
     return code
 
@@ -531,7 +572,17 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
           clock, sleep_fn, heal_tx_open_fn=None):
     state = boot.command_state
     n = 0
-    next_due = clock() if interval_s > 0 else None
+    next_due = None
+    if interval_s > 0:
+        # H2: first scheduled action at boot. After a wrapper restart in the
+        # same boot (review S3b #2) the last slot's start is honoured, so a
+        # crash/RSS restart never runs an extra action at once.
+        last = guard.sched_load()
+        now = clock()
+        next_due = now if last is None or last > now else max(now, last + interval_s)
+        if last is not None and next_due > now:
+            print(f"[SUP] restart: next scheduled action in {next_due - now:.0f}s "
+                  "(the last slot started in this boot)")
     last_uplink = clock()
     last_send = clock()          # O5: the last action or heal pass (heartbeats do not count)
     skip_run = False             # H3: the last scheduled action was a window skip
@@ -551,6 +602,8 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
         if kind is not None:
             n += 1
             quiet = kind == "scheduled" and skip_run
+            if kind == "scheduled":
+                guard.sched_save(now)
             summary = _run_action(boot, action_fn, settings_fn(), n, kind, quiet)
             skipped = summary.get("schedule_allowed") is False
             if kind == "scheduled":
@@ -566,7 +619,8 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                       "(consume not persisted); not re-firing it in this process")
             if not (skipped and quiet):
                 last_uplink = clock()
-            last_send = clock()
+            if not skipped:
+                last_send = clock()      # O5 idle = no action or heal SENT (review S3b #5)
             guard.rotate_stdout_if_big()
             rss = guard.current_rss_kb()
             if guard.rss_over_ceiling(rss):

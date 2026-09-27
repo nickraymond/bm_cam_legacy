@@ -20,7 +20,6 @@ Run (repo root):
 
 import os
 import shutil
-import signal
 import subprocess
 import tempfile
 import time
@@ -129,6 +128,15 @@ class Wrapper(unittest.TestCase):
         self.assertEqual(len(self.read("calls")), 1)
         self.assertLess(time.monotonic() - t0, 10)
         self.assertIn("SIGTERM: passing it to the runtime", self.log())
+
+
+
+class WrapperReview(Wrapper):  # review S3b #6
+    def test_stale_marker_never_restarts_a_per_boot_death(self):
+        with open(self.marker, "w") as fh:
+            fh.write("1\n")                 # left by an earlier stay_on run this boot
+        self.assertEqual(self.wrap(["kill137", 0]), 137)
+        self.assertEqual(len(self.read("calls")), 1)
 
 
 if __name__ == "__main__":

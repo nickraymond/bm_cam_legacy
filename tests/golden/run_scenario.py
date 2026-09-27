@@ -149,6 +149,7 @@ def set_env(tmp, config_path):
         "BMCAM_REFERENCE_ROOT": REPO,
         # Sprint26 S3b: the stay_on marker stays inside the run (never /dev/shm).
         "BMCAM_STAY_ON_MARKER": os.path.join(tmp, "stay_on.marker"),
+        "BMCAM_STAY_ON_SCHED": os.path.join(tmp, "stay_on.sched"),
         "TZ": "UTC",
     })
     time.tzset()
@@ -441,6 +442,7 @@ def run_wire(name, outdir, app_src):
             state = json.load(fh)
     listing = file_listing(tmp)
     if stay_on:
+        listing.pop("stay_on.sched", None)    # fake-clock seconds; the loop's own state
         # Written by config_v2 at boot with the REAL wall time (it is imported
         # before the app modules are frozen): size is pinned, content is not.
         for rel in WALL_TIME_FILES:

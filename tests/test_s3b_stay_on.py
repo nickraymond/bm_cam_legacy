@@ -26,7 +26,6 @@ Run (repo root):
   python3 -m unittest tests.test_s3b_stay_on -v
 """
 
-import json
 import os
 import signal
 import sys
@@ -102,6 +101,10 @@ class Loop(Base):
                                    os.path.join(self.tmp.name, "stay_on.marker"))
         marker.start()
         self.addCleanup(marker.stop)
+        sched = mock.patch.object(sup.guard, "SCHED_PATH",
+                                  os.path.join(self.tmp.name, "stay_on.sched"))
+        sched.start()
+        self.addCleanup(sched.stop)
 
     def stay_boot(self, transmit=True):
         return sup.Boot(dict(SETTINGS), media="still", bm_commands_cfg={"enabled": True},
@@ -235,13 +238,6 @@ class StopAndFailures(Loop):
         self.assertEqual(len(self.actions), 1)
         self.assertEqual(self.rec.calls, ["close"])
         self.assertLess(self.clock.t, 200)             # stopped within a tick of the flag
-
-    def test_sigterm_ignored_once_halting(self):
-        with mock.patch("builtins.print"):
-            sup.install_stop_flag()
-        sup.STOP["halting"] = True
-        os.kill(os.getpid(), signal.SIGTERM)
-        self.assertFalse(sup.stop_requested())
 
     def test_per_boot_never_installs_the_handler(self):
         before = signal.getsignal(signal.SIGTERM)

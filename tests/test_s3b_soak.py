@@ -99,7 +99,9 @@ class Soak(unittest.TestCase):
         for p in (mock.patch.object(bm_port.serial, "Serial", SoakUart),
                   mock.patch.object(sup.guard, "current_rss_kb", return_value=50_000),
                   mock.patch.object(sup.guard, "MARKER_PATH",
-                                    os.path.join(self.tmp.name, "marker"))):
+                                    os.path.join(self.tmp.name, "marker")),
+                  mock.patch.object(sup.guard, "SCHED_PATH",
+                                    os.path.join(self.tmp.name, "sched"))):
             p.start()
             self.addCleanup(p.stop)
         bm_port._bm, bm_port._shared, bm_port._closed = None, False, False

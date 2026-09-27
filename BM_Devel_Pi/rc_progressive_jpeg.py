@@ -1274,9 +1274,10 @@ def main(argv=None, **cycle_overrides):
                         settings, reresolve_fn, run_cfg,
                         _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides,
                         rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
+                # b.settings: a W10 extra action runs on the re-resolved overlay.
                 summary = rc_supervisor.run_per_boot(
                     sup, lambda b: rc_video_tx.run_video_tx_cycle(
-                        settings, video_tx_cfg, supervised=b, **video_kwargs))
+                        b.settings, video_tx_cfg, supervised=b, **video_kwargs))
             else:
                 summary = rc_video_tx.run_video_tx_cycle(settings, video_tx_cfg, **video_kwargs)
             return 1 if summary.get("error") else 0
@@ -1353,7 +1354,7 @@ def main(argv=None, **cycle_overrides):
                     cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(
-                sup, lambda b: run_cycle(settings, supervised=b, **cycle_kwargs))
+                sup, lambda b: run_cycle(b.settings, supervised=b, **cycle_kwargs))
         else:
             run_cycle(settings, **cycle_kwargs)
     except Exception as exc:

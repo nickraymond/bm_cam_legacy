@@ -22,7 +22,9 @@
 # 5 restarts within 10 min -> one last run with --crashloop (per_boot, halt forced
 # to dry-run, one <WS a=crashloop>), then this script ends: the unit stays up and
 # reachable over ssh with no RC process until the next boot.
-# SIGTERM to this script is passed to the runtime and ends the loop. Stop step for
+# SIGTERM to this script is passed to the runtime and ends the loop (a per_boot
+# unit halting now logs "SIGTERM: passing it..." + exit_code=143 at shutdown,
+# where the script used to die silently). Stop step for
 # tools on a stay_on unit: pkill -TERM, wait until the process is gone (an
 # in-flight burst finishes first, up to ~5 min), only then -KILL.
 # Test hooks (tests/test_s3b_wrapper.py only): BMCAM_APP_DIR, BMCAM_PYTHON,
@@ -105,6 +107,8 @@ trap on_term TERM
 # handled (the trap) while the runtime runs; wait again after a trap until the
 # runtime itself has exited, so its exit code is the one reported.
 run_rc() {
+  rm -f "$MARKER"          # a stale marker must never make a per_boot death loop
+  RUN_START=$(uptime_s)
   "$PYTHON" -u rc_progressive_jpeg.py --transmit "$@" &
   CHILD=$!
   wait "$CHILD"
@@ -120,7 +124,10 @@ RESTARTS=""              # uptime of each restart (space separated)
 BACKOFF_S=10
 echo "[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)..."
 while :; do
+  [ "$STOPPING" -eq 1 ] && break
   run_rc
+  # A run that lasted longer than the crash window was healthy: backoff resets.
+  [ $(( $(uptime_s) - RUN_START )) -ge "$RESTART_WINDOW_S" ] && BACKOFF_S=10
   # If the halt is enabled and succeeded, the box is already shutting down and
   # these lines may not land. Their absence + a halt_initiated line above IS the
   # success signature for the rollup tool.
