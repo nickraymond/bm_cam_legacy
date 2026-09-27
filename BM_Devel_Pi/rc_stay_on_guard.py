@@ -34,7 +34,10 @@ import resource
 import stat
 import sys
 
-RSS_CEILING_KB = 180 * 1024          # H9 placeholder; bmcam003 20-action run decides
+RSS_CEILING_KB = 150 * 1024          # H9: bmcam003 21 stills actions (2026-09-27): current RSS
+                                     # plateau 79 MB after a step at action 7 (32 -> 78.6 MB),
+                                     # +0.4 MB over the next 14; encode peak 137 MB (transient).
+                                     # 150 MB = ~1.9x the plateau, well under the 415 MB Pi.
 LOG_ROTATE_BYTES = 5 * 1024 * 1024   # H10
 LOG_KEEP_FILES = 200                 # H10: rc_cycle_*.log* files kept in cron_logs
 MARKER_PATH = os.environ.get("BMCAM_STAY_ON_MARKER", "/dev/shm/bmcam_stay_on")
