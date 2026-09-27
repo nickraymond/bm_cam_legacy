@@ -84,6 +84,7 @@ class Boot:
         self.summary = None
         self.close_warn = print
         self.end_line = None          # set by the action adapter: its "cycle end" line
+        self.media_key = None         # this action's media key (stills; video: summary)
         self.gate_reads = 0           # W6: schedule-gate time reads this process
         # S3b: set by run_stay_on. per_boot keeps S3a's behaviour exactly.
         self.run = "per_boot"
@@ -110,6 +111,7 @@ class Boot:
         (start_process) and gets one budget per action (DESIGN §4 "Budget")."""
         self.summary = summary
         self.close_warn = close_warn
+        self.media_key = None          # set by the stills action once it has one
         s = self.settings
         if self.budget is None or self.run == "stay_on":
             # per_boot: ONE budget per boot, never re-anchored, also for a W10
@@ -259,7 +261,7 @@ def action_record(boot, error=None, n=None, kind=None):
         "runtime": "supervisor", "run": boot.run, "media": boot.media,
         "output": "transmit" if boot.transmit else "none",
         "trigger_id": (trig or {}).get("id") if isinstance(trig, dict) else None,
-        "stage": s.get("stage"), "media_key": s.get("media_key"),
+        "stage": s.get("stage"), "media_key": s.get("media_key") or boot.media_key,
         "sent": tr.get("sent"), "planned": tr.get("planned"),
         "complete": tr.get("complete_send"),
         "elapsed_s": round(boot.budget.elapsed_s(), 1) if boot.budget else None,

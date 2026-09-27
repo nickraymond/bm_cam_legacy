@@ -764,6 +764,10 @@ def still_action(
         stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
         payload=encode["jpeg_data"], payload_path=final_path,
         chunk_b64_chars=settings["pacing_chunk_b64_chars"])
+    if supervised is not None:
+        # The action log's media_key (the stills summary does not carry it;
+        # adding it there would change every stills golden).
+        supervised.media_key = media_key
     tx = bm_open_fn(settings["config_path"])
     cmd_hooks.boot_mark("transmit_start")
     if heals is not None and heal_msgs:

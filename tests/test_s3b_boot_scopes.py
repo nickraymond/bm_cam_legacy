@@ -98,6 +98,17 @@ class BootScopes(Base):
         self.assertEqual(seen, [True])      # G1: the budget exists before the daemon starts
 
 
+class ActionLogMediaKey(BootScopes):
+    def test_stills_key_from_the_boot(self):
+        import rc_supervisor
+        boot = self.boot()
+        quiet(self.start, boot, {})
+        boot.media_key = "0dumcd"                 # what still_action sets under the supervisor
+        self.assertEqual(rc_supervisor.action_record(boot)["media_key"], "0dumcd")
+        quiet(self.start, boot, {"media_key": "0vid00"})   # next action: reset, summary wins
+        self.assertEqual(rc_supervisor.action_record(boot)["media_key"], "0vid00")
+
+
 class FakeState:
     pending_heals = []
 
