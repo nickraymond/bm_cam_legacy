@@ -104,7 +104,9 @@ process, no HALT, a boot Spotter time read (the only clock step), a scheduled
 action at boot (interval_s > 0) or none (trigger-only), `<WS a=idle>` heartbeats
 heartbeat_s after the last uplink, commands applied and acked while idle, a trg
 action, only the first window skip of a run sending `<WS a=skip_win>`, and no
-listen tail after an action. `stay_on_crashloop_fallback` (S3b.4, H7) is the
+listen tail after an action. `stay_on_idle_heal` (S3b.6, O5) is an `rsd` heard
+while idle, sent 10 min after the last send as chunks + `<HL>` with no capture.
+`stay_on_crashloop_fallback` (S3b.4, H7) is the
 wrapper's `--crashloop` run: per_boot, one `<WS a=crashloop>` as soon as the port
 is up (before the time read, so its `lt` is the Pi clock), halt dry-run (no HALT).
 

@@ -45,6 +45,7 @@ from tests.test_s3a_supervisor import SETTINGS, Base, quiet  # noqa: E402
 class FakeState:
     def __init__(self):
         self.pending_trigger = None
+        self.pending_heals = []
         self.persist_ok = True
 
     def consume(self):
@@ -131,7 +132,7 @@ class Loop(Base):
         return fn
 
     def loop(self, action, *, interval_s=0, heartbeat_s=0, stop_at=5000.0, script=(),
-            daemon=True):
+             daemon=True, heal_tx_open_fn=None):
         orig_sleep = self.clock.sleep
 
         def sleep(s):
@@ -154,7 +155,8 @@ class Loop(Base):
                      clock=self.clock, sleep_fn=sleep, halt_fn=self.rec.halt,
                      bm_close_fn=self.rec.close,
                      daemon_factory=lambda s, c, st: d,
-                     gate_fn=lambda path, **kw: (True, {"utc_time": "t"}))
+                     gate_fn=lambda path, **kw: (True, {"utc_time": "t"}),
+                     heal_tx_open_fn=heal_tx_open_fn)
         return code, boot, d
 
     def trg_at(self, t, tid=1):

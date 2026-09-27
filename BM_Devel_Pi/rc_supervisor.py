@@ -298,6 +298,7 @@ def run_per_boot(boot, action_fn):
 # ---------------------------------------------------------------------------
 
 IDLE_TICK_S = 0.2            # §4: commands processed every 0.2 s while idle
+IDLE_HEAL_S = 600.0          # O5 (Nick 2026-09-25): pending heals go out after 10 min idle
 EXIT_ARGS = 2                # stay_on cannot run as invoked (no daemon: no --transmit)
 EXIT_CRASH = 70              # H7: stay_on failed (watchdog, error); wrapper restarts, backoff
 EXIT_RSS = 71                # H9: RSS ceiling reached; clean exit, wrapper restarts in 5 s
@@ -386,8 +387,48 @@ def _boot_time_read(boot, daemon, settings, gate_fn):
         print(f"[SUP][WARN] stay_on boot time read failed ({type(exc).__name__}: {exc})")
 
 
+def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
+    """O5 (PLAN_S3b.md H11): send pending heals with no capture. The heal part
+    of a transmitting action on its own: plan (<= HEAL_CAP_PER_WAKE chunks,
+    newest first), the lane wait when the unit uses the transmit phase, the
+    chunks (paced, pump-only), then one <HL> per key. A fresh budget per pass;
+    the pass counts as a wake for wakes_left. -> its summary. Never raises."""
+    import rc_heal
+    import rc_transmit_phase
+    summary = {"command_events": [], "stage": "heal_pass"}
+    boot.summary = summary
+    budget = CycleBudget(settings["budget_seconds"], settings["pacing_delay_seconds"],
+                         clock=clock)
+    boot.budget = budget
+    try:
+        heals = rc_heal.begin_wake(daemon, settings, summary,
+                                   pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
+        if heals is None:
+            return summary
+        delay = settings["pacing_delay_seconds"]
+        phase_cfg = settings.get("transmit_phase_cfg") or {}
+        if phase_cfg.get("enabled") and heals.planned_msgs:
+            burst_s = rc_transmit_phase.burst_seconds_for(heals.planned_msgs, delay)
+            grid = rc_transmit_phase.acquire_grid_clock(None, None, daemon=daemon, clock=clock)
+            plan = rc_transmit_phase.plan_from_clock(grid, burst_s, phase_cfg)
+            print(rc_transmit_phase.describe_plan(plan, burst_s))
+            if plan["wait_s"] > 0 and budget.has_time_for(plan["wait_s"] + burst_s):
+                sleep_fn(plan["wait_s"])
+        tx = tx_open_fn(settings["config_path"])
+        heals.send_before_start(tx, budget, reserve_msgs=0, delay_seconds=delay,
+                                sleep_fn=sleep_fn)
+        heals.send_status_after_end(tx, budget, wake_key=None, delay_seconds=delay,
+                                    sleep_fn=sleep_fn)
+        summary["stage"] = "done"
+    except Exception as exc:
+        summary["error"] = f"{type(exc).__name__}: {exc}"
+        print(f"[SUP][ERR] idle heal pass failed: {summary['error']}")
+    return summary
+
+
 def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartbeat_fn,
-                clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory, gate_fn=None):
+                clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory, gate_fn=None,
+                heal_tx_open_fn=None):
     """The stay_on loop (DESIGN §4). Returns the process exit code:
     0 stopped (SIGTERM), EXIT_ARGS cannot run, EXIT_CRASH failed (restart).
 
@@ -396,6 +437,8 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
             pending trg            -> action now (window bypassed, D-S12-4)
             interval_s > 0 and due -> scheduled action (window obeyed)
             heartbeat_s > 0 and heartbeat_s since the last uplink -> <WS a=idle>
+            pending heals and IDLE_HEAL_S since the last send -> heal pass (O5;
+            needs heal_tx_open_fn)
       stop: SIGTERM flag -> shutdown -> close; never a halt
 
     settings_fn() -> fresh settings per action; action_fn(boot, settings) ->
@@ -425,7 +468,7 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
         _idle_tick(daemon, clock, sleep_fn)         # drain what is already queued
         _boot_time_read(boot, daemon, settings, gate_fn)
         code = _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s,
-                     heartbeat_fn, clock, sleep_fn)
+                     heartbeat_fn, clock, sleep_fn, heal_tx_open_fn)
     except Exception as exc:
         print(f"[SUP][ERR] stay_on failed ({type(exc).__name__}: {exc}); exit {EXIT_CRASH}")
         code = EXIT_CRASH
@@ -439,11 +482,12 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
 
 
 def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbeat_fn,
-          clock, sleep_fn):
+          clock, sleep_fn, heal_tx_open_fn=None):
     state = boot.command_state
     n = 0
     next_due = clock() if interval_s > 0 else None
     last_uplink = clock()
+    last_send = clock()          # O5: the last action or heal pass (heartbeats do not count)
     skip_run = False             # H3: the last scheduled action was a window skip
     stuck_trg = None             # a trg whose consume could not be persisted
     while not stop_requested():
@@ -476,12 +520,25 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                       "(consume not persisted); not re-firing it in this process")
             if not (skipped and quiet):
                 last_uplink = clock()
+            last_send = clock()
             guard.rotate_stdout_if_big()
             rss = guard.current_rss_kb()
             if guard.rss_over_ceiling(rss):
                 print(f"[SUP][ERR] RSS {rss} kB over the {guard.RSS_CEILING_KB} kB ceiling "
                       f"after action {n}; clean exit {EXIT_RSS} (the wrapper restarts)")
                 return EXIT_RSS
+            continue
+        if (heal_tx_open_fn is not None and state is not None and state.pending_heals
+                and now - last_send >= IDLE_HEAL_S):
+            n += 1
+            print(f"[SUP] ===== action {n} (heal) after {now - last_send:.0f}s idle: "
+                  f"{len(state.pending_heals)} pending heal(s) (O5) =====")
+            settings = settings_fn()
+            boot.settings = settings
+            summary = heal_pass(boot, daemon, settings, heal_tx_open_fn, clock, sleep_fn)
+            write_action_log(boot, summary.get("error"), n=n, kind="heal")
+            last_uplink = last_send = clock()
+            guard.rotate_stdout_if_big()
             continue
         if heartbeat_s > 0 and now - last_uplink >= heartbeat_s:
             try:

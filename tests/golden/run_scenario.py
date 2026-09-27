@@ -177,6 +177,12 @@ def patch_app(mods, tmp):
                             ("CAPTURE_HELPER_RETRY_DELAY_SECONDS", 0)):
             if hasattr(m, attr):
                 setattr(m, attr, value)
+    guard = mods.get("rc_stay_on_guard")
+    if guard is not None:
+        # Sprint26 S3b: RSS is the host's, like the CPU temperature. Off-device it
+        # is the process PEAK, which three real Pillow ladders can push past the
+        # stay_on ceiling (a nondeterministic exit 71). Pinned below the ceiling.
+        guard.current_rss_kb = lambda: W.FIXED_RSS_KB
     originals = {getattr(m, "collect_storage_health") for m in modlist
                  if callable(getattr(m, "collect_storage_health", None))}
     for original in originals:

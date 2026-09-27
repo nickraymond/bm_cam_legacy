@@ -58,6 +58,10 @@ PI_NODE = 0xC0FFEEEEF0CACC1A    # BristlemouthSerial default node id
 # runtime under test really returns (so main's runtime still reports the
 # HEIC-era buffer_dir_bytes / zero_byte_heic_count) and replaces only the values;
 # a key missing here fails the run loudly (a new storage field needs a value).
+# Sprint26 S3b: the stay_on loop's current RSS (rc_stay_on_guard.current_rss_kb),
+# pinned below the ceiling so a scenario never exits on the host's memory.
+FIXED_RSS_KB = 50_000
+
 FIXED_STORAGE = {
     "sd_total_bytes": 31_000_000_000,
     "sd_used_bytes": 9_000_000_000,

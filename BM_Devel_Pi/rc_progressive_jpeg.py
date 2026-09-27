@@ -1045,7 +1045,7 @@ def _crashloop_notice(sup, settings, image_res_key, image_quality):
 
 
 def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
-                 cycle_overrides):
+                 cycle_overrides, heal_tx_open_fn):
     """Hand the process to the stay_on loop with the same injected clock /
     sleep / halt / close / daemon factory the actions use (golden harness)."""
     import rc_supervisor
@@ -1057,7 +1057,8 @@ def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
         sleep_fn=cycle_overrides.get("sleep_fn", time.sleep),
         halt_fn=cycle_overrides.get("halt_fn", perform_power_halt),
         bm_close_fn=cycle_overrides.get("bm_close_fn", bm_port.close),
-        daemon_factory=cycle_overrides.get("daemon_factory"))
+        daemon_factory=cycle_overrides.get("daemon_factory"),
+        heal_tx_open_fn=heal_tx_open_fn)
 
 
 def main(argv=None, **cycle_overrides):
@@ -1268,7 +1269,8 @@ def main(argv=None, **cycle_overrides):
                         sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
                             s, video_tx_cfg, supervised=b, **video_kwargs),
                         settings, reresolve_fn, run_cfg,
-                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides)
+                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides,
+                        rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
                 summary = rc_supervisor.run_per_boot(
                     sup, lambda b: rc_video_tx.run_video_tx_cycle(
                         settings, video_tx_cfg, supervised=b, **video_kwargs))
@@ -1345,7 +1347,7 @@ def main(argv=None, **cycle_overrides):
                                                 skip_time_window=False, **stay_kwargs),
                     settings, reresolve_fn, run_cfg,
                     _heartbeat_fn(still_rk, lambda s: s["q_max"]),
-                    cycle_overrides)
+                    cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(
                 sup, lambda b: run_cycle(settings, supervised=b, **cycle_kwargs))
