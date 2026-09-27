@@ -50,6 +50,18 @@ class SaveLocalTimers(Loop):
         self.assertGreaterEqual(len(self.actions), 16)
         self.assertEqual([round(b) for b in self.beats], [300, 600, 900])
 
+    def test_a_failing_save_local_action_is_not_an_uplink(self):
+        # Review S3c #1: an action that raises has no "uplinked" key; on a
+        # save_local unit it sent nothing, so the heartbeat must keep beating.
+        inner = self.action(duration=5.0, raise_at=None)
+
+        def failing(boot, settings):
+            boot.output = "save_local"
+            inner(boot, settings)
+            raise RuntimeError("camera busy")
+        self.loop(failing, interval_s=60, heartbeat_s=300, stop_at=1000)
+        self.assertEqual([round(b) for b in self.beats], [300, 600, 900])
+
     def test_s3b_behaviour_kept_for_actions_that_sent(self):
         for uplinked in (True, None):              # None: the key is absent (transmit)
             self.beats.clear()

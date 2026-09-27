@@ -308,3 +308,28 @@ if R1 = keep). Every commit keeps the full suite, legacy, per_boot and stay_on g
   media on the wire.
 - Restore checklist with read-back: controller = 1, crontab diffed against ARMED, config hash,
   heal driver active with its `state.json` diffed.
+
+## 6. Pre-bench independent review (2026-09-27, whole diff 974f931..f843bbe)
+
+1 blocker, 3 should-fix, 6 nits; suite green before and after.
+- **#1 BLOCKER, fixed:** a stay_on save_local action that RAISED had no `uplinked` key and
+  counted as an uplink (a failing unit never beat: probe 17 actions, 0 heartbeats). `_loop` now
+  defaults `uplinked` to `not boot.save_local`; unit test.
+- **#2 fixed:** a save_local unit with commands off had no Spotter time source (window off) and
+  no road back to transmit (S4 cfm): cross-key `save_local needs commands.enabled: true`. The
+  time read also honours `set_system_clock_from_spotter`.
+- **#3 deferred to S4 (stated):** the trg 2/3/4 console labels ("capture + send", "send stored
+  …") are on the LEGACY wire (help reply, `still_bench`), so renaming them would change legacy
+  vectors (G2). S4 regenerates the command reference; the labels change there.
+- **#4 fixed (ruled per C14 wording):** the heal slot runs per_boot only; stay_on leaves heals to
+  the O5 idle pass (a save_local action is not an uplink, so the idle timer runs).
+- **#5 fixed:** save_local_time_read keeps its own W6 counter (a window-off gate reads nothing).
+- **#6 fixed / intended:** a guard exception clears `storage_reason` (never stale). Transmit
+  stay_on heartbeats may carry `r=storage_full` too: intended (the SD is the unit's, whatever the
+  output).
+- **#7 fixed:** `sent` only after the `<WS>` call returns; a heal slot that planned 0 is not an
+  uplink.
+- **#8 fixed:** `stay_on_save_local_video` now runs interval 60 < heartbeat 300 (13 clips, beats
+  at 5 and 10 min), pinning C1 on the wire.
+- **#9/#10 noted, no change:** video per_boot storage_full exits 1 like any video error (stills
+  0; the wrapper only logs it); the golden disk seam is `rc_still_storage.DISK_USAGE_FN`.

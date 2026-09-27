@@ -535,7 +535,8 @@ def _save_local_still(settings, summary, daemon, budget, *, supervised, source, 
           f"time_source={metadata['time_source']}) + native {native_path}")
     import rc_supervisor
     if rc_supervisor.save_local_heals(daemon, settings, summary, budget, transmit=transmit,
-                                      tx_open_fn=bm_open_fn, clock=clock, sleep_fn=sleep_fn):
+                                      tx_open_fn=bm_open_fn, clock=clock, sleep_fn=sleep_fn,
+                                      run=supervised.run):
         sent = True
     summary["uplinked"] = sent
     _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
@@ -562,6 +563,7 @@ def _still_storage_guard(settings, summary, supervised, output_dir):
             retain_days=mk["retain_days"])
     except Exception as exc:
         print(f"[STORE][WARN] stills storage guard skipped ({type(exc).__name__}: {exc})")
+        supervised.storage_reason = None      # unknown: never a stale storage_full
         return False
     if result["over"]:
         summary["storage"] = result
@@ -696,7 +698,6 @@ def still_action(
         return summary
 
     if wake_line:
-        sent = True
         try:
             wake_fn(
                 action="cap",
@@ -708,6 +709,7 @@ def still_action(
                 image_quality=settings["q_max"],
                 reason=None,
             )
+            sent = True
         except Exception as exc:
             debug_print(f"Wake status send failed, continuing safely: {exc}")
 

@@ -131,7 +131,8 @@ class FakeDaemon:
 class TimeRead(Base):
     def setUp(self):
         super().setUp()
-        cfg = mock.Mock(time_source="spotter_utc", spotter_time_timeout_seconds=5)
+        cfg = mock.Mock(time_source="spotter_utc", spotter_time_timeout_seconds=5,
+                        set_system_clock_from_spotter=True)
         p = mock.patch("spotter_time_sync.load_camera_schedule", return_value=cfg)
         p.start()
         self.addCleanup(p.stop)
@@ -149,12 +150,21 @@ class TimeRead(Base):
 
     def test_first_read_steps_later_only_on_drift(self):
         boot = self.boot()
+        boot.gate_reads = 1          # a window-off gate "read" nothing (review S3c #5)
         now = dt.datetime.now(dt.timezone.utc)
         self.assertEqual(quiet(boot.save_local_time_read, FakeDaemon(utc=now), STILL), "spotter")
         quiet(boot.save_local_time_read, FakeDaemon(utc=now), STILL)          # no drift
         quiet(boot.save_local_time_read, FakeDaemon(utc=now + dt.timedelta(seconds=30)), STILL)
         self.assertEqual(len(self.steps), 2)
-        self.assertEqual(boot.gate_reads, 3)
+        self.assertEqual(boot.save_time_reads, 3)
+
+    def test_clock_stepping_off_in_config_is_honoured(self):
+        cfg = mock.Mock(time_source="spotter_utc", spotter_time_timeout_seconds=5,
+                        set_system_clock_from_spotter=False)
+        with mock.patch("spotter_time_sync.load_camera_schedule", return_value=cfg):
+            got = quiet(self.boot().save_local_time_read,
+                        FakeDaemon(utc=dt.datetime.now(dt.timezone.utc)), STILL)
+        self.assertEqual((got, self.steps), ("spotter", []))
 
 
 class HealSlot(Base):
@@ -164,6 +174,19 @@ class HealSlot(Base):
             got = quiet(sup.save_local_heals, daemon, STILL, {}, mock.Mock(), transmit=transmit,
                         tx_open_fn=None, clock=self.clock, sleep_fn=self.clock.sleep)
         return got, send
+
+    def test_per_boot_only_and_only_when_something_was_planned(self):
+        # Review S3c #4/#7: stay_on leaves heals to the O5 idle pass; a slot
+        # that planned nothing is not an uplink.
+        send = mock.Mock(return_value=3)
+        with mock.patch.object(sup, "send_pending_heals", send):
+            got = quiet(sup.save_local_heals, FakeDaemon(pending=[{"key": "k"}]), STILL, {},
+                        mock.Mock(), transmit=True, tx_open_fn=None, clock=self.clock,
+                        sleep_fn=self.clock.sleep, run="stay_on")
+        self.assertFalse(got)
+        send.assert_not_called()
+        self.assertFalse(self.call(FakeDaemon(pending=[{"key": "k"}]),
+                                   send=mock.Mock(return_value=0))[0])
 
     def test_runs_only_with_work_a_daemon_and_transmit(self):
         self.assertEqual(self.call(None)[0], False)

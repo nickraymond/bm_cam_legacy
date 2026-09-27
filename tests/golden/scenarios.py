@@ -303,11 +303,12 @@ STAY_ON_SCENARIOS.update({
         "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
         "append": VIDEO_ISLANDS + MEDIA_KEY,
         "v2": dict(STAY_ON_V2, **SAVE_LOCAL_V2,
-                   **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
-        "rules": [{"when": "at_clock", "t": 700, "payload": {"id": 741, "c": "trg", "v": 2}},
-                  _sigterm(1300)],
-        "notes": "stay_on x save_local video every 600 s: record-quality clip + sidecar + "
-                 "manifest, no fit/send, heartbeats every 300 s through the actions, trg 2 saves",
+                   **{"mode.interval_s": 60, "mode.heartbeat_s": 300}),
+        "rules": [{"when": "at_clock", "t": 330, "payload": {"id": 741, "c": "trg", "v": 2}},
+                  _sigterm(700)],
+        "notes": "stay_on x save_local video every 60 s (< heartbeat 300 s, the S3c C1 case): "
+                 "record-quality clip + sidecar + manifest, no fit/send, heartbeats every 300 s "
+                 "THROUGH the minute actions, trg 2 saves",
     },
     "stay_on_save_local_still": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,

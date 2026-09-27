@@ -91,6 +91,13 @@ class SaveLocalCrossKey(unittest.TestCase):
         boot = quiet(u.boot)
         self.assertEqual((boot.level, boot.values["mode.output"]), ("v2", "save_local"))
 
+    def test_save_local_without_commands_is_refused(self):
+        u = save_local_unit(self)
+        u.edit_v2("commands.enabled", False)
+        with self.assertRaises(C.ConfigError) as ctx:
+            C.load_config(u.v2, strict=True)
+        self.assertIn("save_local needs commands.enabled: true", str(ctx.exception))
+
     def test_save_local_with_legacy_is_refused_and_boot_transmits(self):
         u = save_local_unit(self, runtime="legacy")
         with self.assertRaises(C.ConfigError) as ctx:

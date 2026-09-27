@@ -283,7 +283,8 @@ def _save_local_clip(settings, vtx, summary, daemon, budget, *, clip, record_vcf
         if _status_line(settings, vtx, wake_fn, "saved", None):
             sent = True
     if rc_supervisor.save_local_heals(daemon, settings, summary, budget, transmit=transmit,
-                                      tx_open_fn=tx_open_fn, clock=clock, sleep_fn=sleep_fn):
+                                      tx_open_fn=tx_open_fn, clock=clock, sleep_fn=sleep_fn,
+                                      run=getattr(supervised, "run", "per_boot")):
         sent = True
     summary["uplinked"] = sent
     _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,

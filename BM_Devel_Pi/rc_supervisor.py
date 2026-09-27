@@ -106,6 +106,7 @@ class Boot:
         self.save_quality = 85        # still.save.quality
         self.storage_cfg = None       # video.storage.* (the one SD limit pair, §5 C3)
         self.storage_reason = None    # "storage_full" while the SD is over its limit
+        self.save_time_reads = 0      # save_local_time_read calls that read Spotter time
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -192,7 +193,7 @@ class Boot:
         drift). A failed read saves anyway on the Pi clock. -> the time source
         the saved files carry: "spotter", or "system" (read failed / no daemon),
         or the configured time_source when it is not spotter_utc."""
-        if daemon is None:
+        if daemon is None:        # config_v2: save_local needs commands.enabled (a daemon)
             return "system"
         from spotter_time_sync import load_camera_schedule, set_system_clock_utc
         try:
@@ -205,7 +206,11 @@ class Boot:
                   "saving on the Pi clock (time_source: system)")
             return "system"
         drift = (utc - datetime.now(timezone.utc)).total_seconds()
-        if self.gate_reads > 0 and abs(drift) < CLOCK_STEP_MIN_DRIFT_S:
+        # W6 rule on this function's own reads (a window-off unit's gate reads
+        # nothing, so the gate counter says nothing about the clock).
+        if not cfg.set_system_clock_from_spotter:
+            print(f"[SUP] save_local time read {utc.isoformat()} (clock stepping off in config)")
+        elif self.save_time_reads > 0 and abs(drift) < CLOCK_STEP_MIN_DRIFT_S:
             print(f"[SUP] save_local time read {utc.isoformat()}: drift {drift:+.1f}s, "
                   "clock not stepped")
         else:
@@ -214,7 +219,7 @@ class Boot:
                 print(f"[SUP] save_local time read {utc.isoformat()}: clock set")
             except Exception as exc:
                 print(f"[SUP][WARN] save_local clock step failed: {exc}")
-        self.gate_reads += 1
+        self.save_time_reads += 1
         return "spotter"
 
     def boot_drain(self, settings, summary, sleep_fn):
@@ -554,12 +559,17 @@ def send_pending_heals(daemon, settings, summary, budget, tx_open_fn, clock, sle
 
 
 def save_local_heals(daemon, settings, summary, budget, *, transmit, tx_open_fn, clock,
-                     sleep_fn):
+                     sleep_fn, run="per_boot"):
     """S3c §5 C14: a save_local action sends the heals that are pending (media
     sent earlier; <= HEAL_CAP_PER_WAKE chunks, then <HL>), so they neither stall
     nor stop ageing, on the action's own budget (G1). -> True when it put
     anything on the uplink. Never raises (a heal must not cost the save)."""
     if not transmit or daemon is None:
+        return False
+    if run != "per_boot":
+        # stay_on: the O5 idle pass sends them (a save_local action is not an
+        # uplink, so the idle timer runs); a heal wake per action would age
+        # wakes_left once a minute at interval 60 (review S3c #4).
         return False
     state = getattr(daemon, "state", None)
     if not (getattr(state, "pending_heals", None) or getattr(daemon, "heal_events", None)):
@@ -570,7 +580,7 @@ def save_local_heals(daemon, settings, summary, budget, *, transmit, tx_open_fn,
     except Exception as exc:
         print(f"[HEAL][WARN] save_local heal slot failed ({type(exc).__name__}: {exc})")
         return True                      # something may have gone out: count it
-    return planned is not None
+    return bool(planned)
 
 
 def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
@@ -691,7 +701,9 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
             # no heals) is not an uplink: it moves neither the heartbeat nor the
             # O5 idle-heal timer, or a unit saving every minute would never beat.
             # Transmitting actions never set the key (their summaries unchanged).
-            uplinked = summary.get("uplinked", True)
+            # A save_local action that raised has no key: it sent nothing
+            # (review S3c #1), so a failing unit keeps its heartbeat.
+            uplinked = summary.get("uplinked", not boot.save_local)
             if kind == "scheduled":
                 next_due = now + interval_s
                 if next_due <= clock():

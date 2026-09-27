@@ -121,8 +121,13 @@ def _cross_key_errors(values):
     # S3c (PLAN_S3c.md J1): the legacy runtime has no save_local; it would
     # transmit what the operator said to keep on SD. Refused (boot: v1 fallback,
     # which transmits, loudly: the only automatic revert until S4's cfm).
-    if values.get("mode.output") == "save_local" and values.get("commands.runtime") != "supervisor":
-        errs.append(("mode.output", "save_local needs commands.runtime: supervisor"))
+    if values.get("mode.output") == "save_local":
+        if values.get("commands.runtime") != "supervisor":
+            errs.append(("mode.output", "save_local needs commands.runtime: supervisor"))
+        # Review S3c #2: the daemon is the save_local unit's Spotter time source
+        # (window off) and its only way back to transmit (S4 cfm/revert).
+        if values.get("commands.enabled") is not True:
+            errs.append(("mode.output", "save_local needs commands.enabled: true"))
     for path in ("mode.interval_s", "mode.heartbeat_s"):
         v = values.get(path)
         if isinstance(v, int) and not isinstance(v, bool) and 0 < v < 60:
