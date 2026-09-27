@@ -526,6 +526,12 @@ def still_action(
         summary["schedule_allowed"] = allowed
         if not bypass_verdict:
             print(f"[RC] schedule gate: {info.get('reason')}")
+        if not allowed and supervised is not None and supervised.quiet_skip:
+            # Sprint26 S3b H3: in stay_on only the first skip of a run of
+            # scheduled skips sends <WS a=skip_win>; later ones log only.
+            print("[RC] window skip: <WS> not sent (stay_on: the first skip of this run "
+                  "already was)")
+            return summary
         if not allowed:
             try:
                 wake_fn(
@@ -546,7 +552,7 @@ def still_action(
                 # returns here with no tail.
                 cmd_hooks.post_transmit_listen(
                     daemon, bm_commands_cfg or {}, summary, budget,
-                    clock=clock, sleep_fn=sleep_fn,
+                    clock=clock, sleep_fn=sleep_fn, supervised=supervised,
                 )
             return summary
 
@@ -691,7 +697,7 @@ def still_action(
         if bench_commands and daemon is not None:
             cmd_hooks.post_transmit_listen(
                 daemon, bm_commands_cfg or {}, summary, budget,
-                clock=clock, sleep_fn=sleep_fn,
+                clock=clock, sleep_fn=sleep_fn, supervised=supervised,
             )
         return summary
 
@@ -840,7 +846,7 @@ def still_action(
     # drain our own transmit triggered actually arrives (finding 006).
     cmd_hooks.post_transmit_listen(
         daemon, bm_commands_cfg or {}, summary, budget,
-        clock=clock, sleep_fn=sleep_fn,
+        clock=clock, sleep_fn=sleep_fn, supervised=supervised,
     )
 
     return summary
@@ -979,6 +985,65 @@ def resolve_runtime(cli_value, boot):
     return "legacy", "default"
 
 
+def resolve_run_mode(boot, runtime):
+    """Sprint26 S3b (PLAN_S3b.md H1): per_boot or stay_on, and the stay_on
+    timers, from the active config v2 file. -> (run, interval_s, heartbeat_s).
+    stay_on needs the supervisor: the loader refuses a FILE that pairs it with
+    legacy, but `--runtime legacy` can still override the file, so that case
+    runs per_boot here, loudly."""
+    values = getattr(boot, "values", None) or {}
+    run = values.get("mode.run", "per_boot")
+    if run != "stay_on":
+        return "per_boot", 0, 0
+    if runtime != "supervisor":
+        print("[RUN][WARN] mode.run stay_on needs the supervisor runtime; "
+              f"runtime is {runtime}: running per_boot")
+        return "per_boot", 0, 0
+    return "stay_on", int(values.get("mode.interval_s", 0)), int(values.get("mode.heartbeat_s", 0))
+
+
+def _stay_on_settings_fn(settings, reresolve_fn):
+    """Fresh settings for each stay_on action: the YAML base + the command
+    overlay as it is NOW (commands applied while idle govern the next action,
+    §4 "Decision points"); a one-shot trg key never carries over."""
+    def fresh():
+        if reresolve_fn is not None:
+            return reresolve_fn(copy.deepcopy(settings))
+        return copy.deepcopy(settings)
+    return fresh
+
+
+def _heartbeat_fn(image_res_key, image_quality):
+    """One <WS a=idle> (PLAN_S3b.md H5): today's wake-status fields, local
+    time from the (Spotter-set) system clock. up=/cfg= arrive with W8 (S4)."""
+    def send(settings):
+        from zoneinfo import ZoneInfo
+        from rc_telemetry import send_wake_status
+        local = datetime.now(ZoneInfo(settings["timezone"])).isoformat()
+        return send_wake_status(
+            action="idle", timezone_name=settings["timezone"], local_time=local,
+            window_start=settings["window_start"], window_end=settings["window_end"],
+            image_res_key=image_res_key(settings), image_quality=image_quality(settings),
+            reason=None)
+    return send
+
+
+def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
+                 cycle_overrides):
+    """Hand the process to the stay_on loop with the same injected clock /
+    sleep / halt / close / daemon factory the actions use (golden harness)."""
+    import rc_supervisor
+    _run, interval_s, heartbeat_s = run_cfg
+    return rc_supervisor.run_stay_on(
+        sup, action_fn, settings_fn=_stay_on_settings_fn(settings, reresolve_fn),
+        interval_s=interval_s, heartbeat_s=heartbeat_s, heartbeat_fn=heartbeat_fn,
+        clock=cycle_overrides.get("clock", time.monotonic),
+        sleep_fn=cycle_overrides.get("sleep_fn", time.sleep),
+        halt_fn=cycle_overrides.get("halt_fn", perform_power_halt),
+        bm_close_fn=cycle_overrides.get("bm_close_fn", bm_port.close),
+        daemon_factory=cycle_overrides.get("daemon_factory"))
+
+
 def main(argv=None, **cycle_overrides):
     cmd_hooks.boot_mark("main_entry")   # Sprint25 S3 benchmark segment
     parser = argparse.ArgumentParser(
@@ -1054,8 +1119,12 @@ def main(argv=None, **cycle_overrides):
         print(config_dump.to_json_line(dump))
         return 2 if "error" in dump["resolved"] else 0
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
+    run_cfg = ("per_boot", 0, 0)
     if not args.print_config:      # inspection output stays as before (settings goldens)
         print(f"[RUNTIME] {runtime} (source={runtime_source})")
+        run_cfg = resolve_run_mode(boot, runtime)
+        if run_cfg[0] == "stay_on":
+            print(f"[RUN] stay_on interval_s={run_cfg[1]} heartbeat_s={run_cfg[2]}")
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:
@@ -1156,6 +1225,13 @@ def main(argv=None, **cycle_overrides):
                     settings, media="video", bm_commands_cfg=bm_commands_cfg,
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+                if run_cfg[0] == "stay_on":
+                    w, h = video_tx_cfg["output_wh"]
+                    return _run_stay_on(
+                        sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
+                            s, video_tx_cfg, supervised=b, **video_kwargs),
+                        settings, reresolve_fn, run_cfg,
+                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides)
                 summary = rc_supervisor.run_per_boot(
                     sup, lambda b: rc_video_tx.run_video_tx_cycle(
                         settings, video_tx_cfg, supervised=b, **video_kwargs))
@@ -1221,6 +1297,16 @@ def main(argv=None, **cycle_overrides):
                 settings, media="still", bm_commands_cfg=bm_commands_cfg,
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+            if run_cfg[0] == "stay_on":
+                stay_kwargs = {k: v for k, v in cycle_kwargs.items()
+                               if k not in ("capture_only", "skip_time_window")}
+                return _run_stay_on(
+                    sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
+                                                skip_time_window=False, **stay_kwargs),
+                    settings, reresolve_fn, run_cfg,
+                    _heartbeat_fn(lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}",
+                                  lambda s: s["q_max"]),
+                    cycle_overrides)
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(
                 sup, lambda b: run_cycle(settings, supervised=b, **cycle_kwargs))

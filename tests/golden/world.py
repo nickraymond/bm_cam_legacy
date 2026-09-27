@@ -402,6 +402,13 @@ class World:
             )
             if hit:
                 rule["fired"] = True
+                if rule.get("signal") == "TERM":
+                    # Sprint26 S3b: stop a stay_on process the way cron/tools do.
+                    # The handler runs on the main thread (this fire is on it).
+                    import signal as _signal
+                    self.trace.add("NOTE", "SIGTERM to the runtime")
+                    os.kill(os.getpid(), _signal.SIGTERM)
+                    continue
                 payload = rule["payload"]
                 raw = payload if isinstance(payload, str) else json.dumps(payload, separators=(",", ":"))
                 frame = self.decoder.build_raw_pub_frame(

@@ -202,3 +202,51 @@ STATE_FIXTURES = {
     "win2_txd1_cap1": [(1, "win", 2), (2, "txd", 1), (3, "cap", 1)],
     "twn1_tmz2": [(1, "twn", 1), (2, "tmz", 2)],
 }
+
+# --- Sprint26 S3b: stay_on (supervisor only; no legacy counterpart) ---------------------
+# Each runs through config v2 (the v1 profile is migrated, then the `v2` keys are
+# set), so `mode.run: stay_on` selects the loop; a SIGTERM rule ends the process
+# the way cron/tools stop it. Vectors: tests/golden/vectors_stay_on/<name>/.
+STAY_ON_V2 = {"mode.run": "stay_on", "commands.runtime": "supervisor"}
+
+
+def _sigterm(t):
+    return {"when": "at_clock", "t": t, "signal": "TERM", "payload": "SIGTERM"}
+
+
+STAY_ON_SCENARIOS = {
+    "stay_on_still": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 3600, "mode.heartbeat_s": 300}),
+        "rules": [
+            {"when": "at_clock", "t": 1000, "payload": {"id": 701, "c": "ping"}},
+            {"when": "at_clock", "t": 1500, "payload": {"id": 702, "c": "trg", "v": 2}},
+            _sigterm(4000),
+        ],
+        "notes": "boot time read, scheduled action at boot, heartbeats while idle, a ping "
+                 "acked while idle, a trg action, the next scheduled slot, SIGTERM: no halt",
+    },
+    "stay_on_video": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 0, "mode.heartbeat_s": 300}),
+        "rules": [
+            {"when": "at_clock", "t": 400, "payload": {"id": 711, "c": "trg", "v": 2}},
+            {"when": "at_clock", "t": 900, "payload": {"id": 712, "c": "txd", "v": 1}},
+            {"when": "at_clock", "t": 1500, "payload": {"id": 713, "c": "trg", "v": 2}},
+            _sigterm(2000),
+        ],
+        "notes": "trigger-only video: no action at boot, a heartbeat, trg -> clip, a txd "
+                 "applied while idle governs the next clip, trg -> clip, SIGTERM",
+    },
+    "stay_on_window_skip": {
+        "kind": "stills", "utc": OUT_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
+        "rules": [
+            {"when": "at_clock", "t": 1300, "payload": {"id": 721, "c": "trg", "v": 2}},
+            _sigterm(2500),
+        ],
+        "notes": "outside the window: the first scheduled skip sends <WS a=skip_win>, later "
+                 "skips log only; heartbeats continue; a trg bypasses the window mid-run",
+    },
+}

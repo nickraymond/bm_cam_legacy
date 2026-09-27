@@ -342,10 +342,33 @@ def read_json_files(tmp, suffix):
 # Modes
 # ---------------------------------------------------------------------------
 
+WALL_TIME_FILES = ("camera_config.lkg.json", os.path.join("state", "config_journal.jsonl"))
+
+
+def set_v2_keys(tmp, config_path, values):
+    """Sprint26 S3b: set dotted v2 keys in the migrated camera_config.yaml
+    (stay_on scenarios; mode.run is a v2-only key)."""
+    import yaml
+    path = os.path.join(os.path.dirname(config_path), "camera_config.yaml")
+    with open(path, "r", encoding="utf-8") as fh:
+        doc = yaml.safe_load(fh)
+    for dotted, value in values.items():
+        node = doc
+        *parents, leaf = dotted.split(".")
+        for part in parents:
+            node = node[part]
+        if leaf not in node:
+            fail(f"v2 key {dotted!r} not in the migrated file")
+        node[leaf] = value
+    with open(path, "w", encoding="utf-8") as fh:
+        yaml.safe_dump(doc, fh, sort_keys=False)
+
+
 def run_wire(name, outdir, app_src):
-    if name not in S.SCENARIOS:
+    stay_on = name in S.STAY_ON_SCENARIOS
+    if name not in S.SCENARIOS and not stay_on:
         fail(f"unknown scenario {name!r}")
-    sc = S.SCENARIOS[name]
+    sc = S.STAY_ON_SCENARIOS[name] if stay_on else S.SCENARIOS[name]
     tmp = make_tmp(app_src, name, sc.get("app_ref"))
     config_path = os.path.join(tmp, "camera_schedule.yaml")
     with open(config_path, "w", encoding="utf-8") as fh:
@@ -361,16 +384,19 @@ def run_wire(name, outdir, app_src):
     patch_app(mods, tmp)
     key = seed(sc, mods, tmp)
     substitute_key(W.WORLD.rules, key)
-    if VIA_V2:
+    if VIA_V2 or stay_on:
         to_v2(tmp, config_path)
+    if sc.get("v2"):
+        set_v2_keys(tmp, config_path, sc["v2"])
 
     rc, vtx = mods["rc_progressive_jpeg"], mods.get("rc_video_tx")
-    captured = {}
+    captured = {"cycles": []}
     clock = W.WORLD.clock
     orig_cycle = rc.run_cycle
 
     def cycle(*a, **k):
         captured["cycle"] = orig_cycle(*a, **k)
+        captured["cycles"].append(captured["cycle"])
         return captured["cycle"]
 
     rc.run_cycle = cycle
@@ -379,6 +405,7 @@ def run_wire(name, outdir, app_src):
 
         def video_cycle(*a, **k):
             captured["cycle"] = orig_vtx(*a, **k)
+            captured["cycles"].append(captured["cycle"])
             return captured["cycle"]
 
         vtx.run_video_tx_cycle = video_cycle
@@ -404,7 +431,13 @@ def run_wire(name, outdir, app_src):
         with open(state_path, "r", encoding="utf-8") as fh:
             state = json.load(fh)
     listing = file_listing(tmp)
-    if RUNTIME == "supervisor":
+    if stay_on:
+        # Written by config_v2 at boot with the REAL wall time (it is imported
+        # before the app modules are frozen): size is pinned, content is not.
+        for rel in WALL_TIME_FILES:
+            if rel in listing:
+                listing[rel]["sha256"] = "wall-time"
+    if RUNTIME == "supervisor" or stay_on:
         if listing.pop(SUPERVISOR_ACTION_LOG, None) is None:
             fail(f"--runtime supervisor left no {SUPERVISOR_ACTION_LOG}: the supervisor did not run")
     summary = {
@@ -412,7 +445,9 @@ def run_wire(name, outdir, app_src):
         "unfired_rules": [r["payload"] for r in W.WORLD.unfired()],
         "cycle": captured.get("cycle"), "state_file": state,
         **({"state_file_v2": _read_json(os.path.join(tmp, "state", "bm_command_state_v2.json"))}
-           if VIA_V2 else {}),
+           if VIA_V2 or stay_on else {}),
+        # Sprint26 S3b: every action of a stay_on process, in order.
+        **({"cycles": captured["cycles"]} if stay_on else {}),
         "sidecars": read_json_files(tmp, ".capture_metadata.json"),
         "sent_records": read_json_files(tmp, ".sent.json"),
         "files": listing,

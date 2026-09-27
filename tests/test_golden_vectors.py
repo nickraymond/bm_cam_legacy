@@ -46,6 +46,9 @@ SUPERVISOR_DIFFERS = {      # scenario -> the W-item(s) that make it differ
     "still_window_skip": "W3", "video_window_skip": "W3",
     "video_trigger_pending": "W5", "still_trigger": "W6",
 }
+# Sprint26 S3b: stay_on scenarios have no legacy counterpart (a long-lived loop
+# only the supervisor runs); their whole record is new wire, reviewed in full.
+VECTORS_STAY_ON = os.path.join(GOLDEN, "vectors_stay_on")
 SETTINGS = os.path.join(GOLDEN, "settings")
 RUNNER = os.path.join(GOLDEN, "run_scenario.py")
 RECORD = os.environ.get("GOLDEN_RECORD") == "1"
@@ -80,15 +83,18 @@ class GoldenVectors(unittest.TestCase):
         jobs = [("wire", name, os.path.join(cls.work, "wire", name), ()) for name in S.SCENARIOS]
         jobs += [("wire_supervisor", name, os.path.join(cls.work, "wire_supervisor", name),
                   ("--runtime", "supervisor")) for name in supervisor_scenarios()]
+        jobs += [("wire_stay_on", name, os.path.join(cls.work, "wire_stay_on", name), ())
+                 for name in S.STAY_ON_SCENARIOS]
         jobs += [("settings", target, os.path.join(cls.work, "settings", slug), ())
                  for slug, target in settings_targets().items()]
         for _mode, _target, outdir, _extra in jobs:
             os.makedirs(os.path.dirname(outdir), exist_ok=True)
         with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
             for (mode, target, outdir, _extra), code in pool.map(
-                    _run, [(m if m != "wire_supervisor" else "wire", t, o, e)
+                    _run, [(m if m not in ("wire_supervisor", "wire_stay_on") else "wire", t, o, e)
                            for m, t, o, e in jobs]):
-                key = "wire_supervisor" if "--runtime" in _extra else mode
+                key = ("wire_supervisor" if "--runtime" in _extra
+                       else "wire_stay_on" if target in S.STAY_ON_SCENARIOS else mode)
                 cls.results[(key, target)] = (outdir, code)
         env_path = os.path.join(VECTORS, "_env.json")
         some_env = next(os.path.join(o, "env.json") for o, _c in cls.results.values()
@@ -185,6 +191,24 @@ def _supervisor_wire_test(name):
     return test
 
 
+def _stay_on_wire_test(name):
+    def test(self):
+        self.compare("wire_stay_on", name, ("trace.txt", "summary.json"),
+                     os.path.join(VECTORS_STAY_ON, name))
+    test.__doc__ = f"stay_on (supervisor only): {S.STAY_ON_SCENARIOS[name].get('notes')}"
+    return test
+
+
+class StayOnCatalogue(unittest.TestCase):
+    def test_vectors_match_the_catalogue(self):
+        present = sorted(os.listdir(VECTORS_STAY_ON)) if os.path.isdir(VECTORS_STAY_ON) else []
+        self.assertEqual(present, sorted(S.STAY_ON_SCENARIOS),
+                         "vectors_stay_on/ must hold exactly scenarios.STAY_ON_SCENARIOS")
+
+    def test_names_do_not_collide(self):
+        self.assertEqual(set(S.STAY_ON_SCENARIOS) & set(S.SCENARIOS), set())
+
+
 class SupervisorOverrides(unittest.TestCase):
     def test_only_named_scenarios_differ_under_the_supervisor(self):
         present = sorted(os.listdir(VECTORS_SUPERVISOR)) if os.path.isdir(VECTORS_SUPERVISOR) else []
@@ -209,6 +233,8 @@ for _name in S.SCENARIOS:
     setattr(GoldenVectors, f"test_wire_{_name}", _wire_test(_name))
 for _name in supervisor_scenarios():
     setattr(GoldenVectors, f"test_wire_supervisor_{_name}", _supervisor_wire_test(_name))
+for _name in S.STAY_ON_SCENARIOS:
+    setattr(GoldenVectors, f"test_wire_stay_on_{_name}", _stay_on_wire_test(_name))
 for _slug, _target in settings_targets().items():
     _safe = _slug.replace("+", "_").replace(".", "_").replace("-", "_")
     setattr(GoldenVectors, f"test_settings_{_safe}", _settings_test(_slug, _target))

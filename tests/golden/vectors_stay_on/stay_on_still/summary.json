@@ -1,0 +1,825 @@
+{
+ "cycle": {
+  "budget_seconds": 720,
+  "command_events": [],
+  "final_path": "{TMP}/images/2026-09-24T16:00:00Z_image_compressed.jpg",
+  "halt_result": {
+   "action": "none",
+   "reason": "stay_on: never halts"
+  },
+  "heal": {
+   "hl": []
+  },
+  "native_path": "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.jpg",
+  "schedule_allowed": true,
+  "selection": {
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
+    }
+   ],
+   "attempts": 4,
+   "fits": true,
+   "quality": 60,
+   "reason": "fit"
+  },
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "incomplete_emitted": false,
+   "planned": 192,
+   "send_target": 192,
+   "sent": 192,
+   "started": true,
+   "uart_duration_sec": 250.9000000000351
+  }
+ },
+ "cycles": [
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
+   "halt_result": null,
+   "heal": {
+    "hl": []
+   },
+   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
+   "schedule_allowed": true,
+   "selection": {
+    "attempt_log": [
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 137623,
+      "message_count": 478,
+      "over_cap": true,
+      "quality": 90
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 88579,
+      "message_count": 308,
+      "over_cap": true,
+      "quality": 80
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 68061,
+      "message_count": 237,
+      "over_cap": true,
+      "quality": 70
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 55070,
+      "message_count": 192,
+      "over_cap": false,
+      "quality": 60
+     }
+    ],
+    "attempts": 4,
+    "fits": true,
+    "quality": 60,
+    "reason": "fit"
+   },
+   "transmit": true,
+   "transmit_result": {
+    "complete_send": true,
+    "incomplete_emitted": false,
+    "planned": 192,
+    "send_target": 192,
+    "sent": 192,
+    "started": true,
+    "uart_duration_sec": 250.89999999999122
+   }
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T15:25:00Z_image_compressed.jpg",
+   "halt_result": null,
+   "heal": {
+    "hl": []
+   },
+   "native_path": "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.jpg",
+   "schedule_allowed": true,
+   "selection": {
+    "attempt_log": [
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 137623,
+      "message_count": 478,
+      "over_cap": true,
+      "quality": 90
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 88579,
+      "message_count": 308,
+      "over_cap": true,
+      "quality": 80
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 68061,
+      "message_count": 237,
+      "over_cap": true,
+      "quality": 70
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 55070,
+      "message_count": 192,
+      "over_cap": false,
+      "quality": 60
+     }
+    ],
+    "attempts": 4,
+    "fits": true,
+    "quality": 60,
+    "reason": "fit"
+   },
+   "transmit": true,
+   "transmit_result": {
+    "complete_send": true,
+    "incomplete_emitted": false,
+    "planned": 192,
+    "send_target": 192,
+    "sent": 192,
+    "started": true,
+    "uart_duration_sec": 250.9000000000351
+   },
+   "trigger": {
+    "id": 702,
+    "value": 2
+   }
+  },
+  {
+   "budget_seconds": 720,
+   "command_events": [],
+   "final_path": "{TMP}/images/2026-09-24T16:00:00Z_image_compressed.jpg",
+   "halt_result": {
+    "action": "none",
+    "reason": "stay_on: never halts"
+   },
+   "heal": {
+    "hl": []
+   },
+   "native_path": "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.jpg",
+   "schedule_allowed": true,
+   "selection": {
+    "attempt_log": [
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 137623,
+      "message_count": 478,
+      "over_cap": true,
+      "quality": 90
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 88579,
+      "message_count": 308,
+      "over_cap": true,
+      "quality": 80
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 68061,
+      "message_count": 237,
+      "over_cap": true,
+      "quality": 70
+     },
+     {
+      "budget_fit": true,
+      "jpeg_bytes": 55070,
+      "message_count": 192,
+      "over_cap": false,
+      "quality": 60
+     }
+    ],
+    "attempts": 4,
+    "fits": true,
+    "quality": 60,
+    "reason": "fit"
+   },
+   "transmit": true,
+   "transmit_result": {
+    "complete_send": true,
+    "incomplete_emitted": false,
+    "planned": 192,
+    "send_target": 192,
+    "sent": 192,
+    "started": true,
+    "uart_duration_sec": 250.9000000000351
+   }
+  }
+ ],
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 4000.1,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "cb9f39f58091c66f"
+  },
+  "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
+   "bytes": 320,
+   "sha256": "28eaec914a45b052"
+  },
+  "app/sent/2026-09-24T15:25:00Z_image_compressed.sent.json": {
+   "bytes": 320,
+   "sha256": "855923b6ef745c94"
+  },
+  "app/sent/2026-09-24T16:00:00Z_image_compressed.sent.json": {
+   "bytes": 320,
+   "sha256": "d58efbcb996ff405"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3142,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2383,
+   "sha256": "67210c840d141bc1"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7711,
+   "sha256": "676b414910d2df13"
+  },
+  "images/2026-09-24T15:00:00Z_image_compressed.jpg": {
+   "bytes": 55070,
+   "sha256": "12db91e1030d4f9a"
+  },
+  "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 2474,
+   "sha256": "1ad82333027b9950"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:00:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:25:00Z_image_compressed.jpg": {
+   "bytes": 55070,
+   "sha256": "12db91e1030d4f9a"
+  },
+  "images/2026-09-24T15:25:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 2473,
+   "sha256": "98dc2f01634ee7aa"
+  },
+  "images/2026-09-24T15:25:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:25:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:25:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:25:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T16:00:00Z_image_compressed.jpg": {
+   "bytes": 55070,
+   "sha256": "12db91e1030d4f9a"
+  },
+  "images/2026-09-24T16:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 2473,
+   "sha256": "3db05d4e51545ce3"
+  },
+  "images/2026-09-24T16:00:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T16:00:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T16:00:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T16:00:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "logs/camera_log.csv": {
+   "bytes": 492,
+   "sha256": "a8848fa44eec7e34"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2249,
+   "sha256": "abed23a3ff7fff41"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 315,
+   "sha256": "4b0a7706d23d291b"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
+ "notes": "boot time read, scheduled action at boot, heartbeats while idle, a ping acked while idle, a trg action, the next scheduled slot, SIGTERM: no halt",
+ "scenario": "stay_on_still",
+ "sent_records": {
+  "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15:00:00Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dpr00",
+   "msgs": 192,
+   "payload": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
+   "sent_utc": "2026-09-24T15:00:00Z",
+   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
+  },
+  "app/sent/2026-09-24T15:25:00Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15:25:00Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dps5o",
+   "msgs": 192,
+   "payload": "{TMP}/images/2026-09-24T15:25:00Z_image_compressed.jpg",
+   "sent_utc": "2026-09-24T15:25:00Z",
+   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
+  },
+  "app/sent/2026-09-24T16:00:00Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T16:00:00Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dpts0",
+   "msgs": 192,
+   "payload": "{TMP}/images/2026-09-24T16:00:00Z_image_compressed.jpg",
+   "sent_utc": "2026-09-24T16:00:00Z",
+   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
+  }
+ },
+ "sidecars": {
+  "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
+    }
+   ],
+   "base64_chars": 73428,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "enc_attempts": 4,
+   "fits": true,
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 55070,
+   "jpeg_quality_used": 60,
+   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
+   "message_count": 192,
+   "metadata_json": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
+   "output_size": [
+    1000,
+    562
+   ],
+   "planned_buffers": 192,
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "selector_reason": "fit",
+   "sent_buffers": 192,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
+   "transmit_duration_sec": 250.89999999999122,
+   "transmit_success": true,
+   "utc_capture_timestamp": "2026-09-24T15:00:00Z"
+  },
+  "images/2026-09-24T15:25:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
+    }
+   ],
+   "base64_chars": 73428,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "enc_attempts": 4,
+   "fits": true,
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 55070,
+   "jpeg_quality_used": 60,
+   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
+   "message_count": 192,
+   "metadata_json": "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.jpg",
+   "output_size": [
+    1000,
+    562
+   ],
+   "planned_buffers": 192,
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "selector_reason": "fit",
+   "sent_buffers": 192,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:25:00Z_image_native_full.stdout.log",
+   "transmit_duration_sec": 250.9000000000351,
+   "transmit_success": true,
+   "utc_capture_timestamp": "2026-09-24T15:25:00Z"
+  },
+  "images/2026-09-24T16:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
+    }
+   ],
+   "base64_chars": 73428,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "enc_attempts": 4,
+   "fits": true,
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 55070,
+   "jpeg_quality_used": 60,
+   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
+   "message_count": 192,
+   "metadata_json": "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.jpg",
+   "output_size": [
+    1000,
+    562
+   ],
+   "planned_buffers": 192,
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "selector_reason": "fit",
+   "sent_buffers": 192,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T16:00:00Z_image_native_full.stdout.log",
+   "transmit_duration_sec": 250.9000000000351,
+   "transmit_success": true,
+   "utc_capture_timestamp": "2026-09-24T16:00:00Z"
+  }
+ },
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 0,
+  "guarded": {},
+  "high_water": {},
+  "overlay": {},
+  "result_cache": {},
+  "schema": "bm_command_state_v2",
+  "tables_version": 8,
+  "v8": {
+   "applied_ids": [
+    701,
+    702
+   ],
+   "pending_heals": [],
+   "pending_trigger": null,
+   "settings": {
+    "awb": 0,
+    "cap": 0,
+    "exp": 0,
+    "foc": 0,
+    "hlt": 0,
+    "roi": 0,
+    "src": 0,
+    "tmz": 0,
+    "twn": 0,
+    "txd": 0,
+    "win": 0
+   },
+   "touched": []
+  }
+ },
+ "unfired_rules": []
+}

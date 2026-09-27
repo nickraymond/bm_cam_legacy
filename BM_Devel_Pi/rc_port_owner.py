@@ -52,10 +52,12 @@ class PortOwner:
         cmd_hooks.boot_mark("cmd_subscribed")
         return self.daemon
 
-    def finish(self, summary, *, close_port, close_warn):
+    def finish(self, summary, *, close_port, close_warn, halt=True):
         """Final command pickup + paced ack flush + reader stop -> close the
         shared port (if close_port) -> halt. The halt runs on every path and
-        never raises; its result goes into summary["halt_result"]."""
+        never raises; its result goes into summary["halt_result"].
+        halt=False (Sprint26 S3b, a stay_on process stopping on SIGTERM or for
+        a restart): everything but the halt."""
         s = self.settings
         cmd_hooks.shutdown(self.daemon, summary, self._log_fn,
                            clock=self._clock, sleep_fn=self._sleep_fn)
@@ -64,6 +66,9 @@ class PortOwner:
                 self._bm_close_fn()
             except Exception as exc:
                 close_warn(exc)
+        if not halt:
+            summary["halt_result"] = {"action": "none", "reason": "stay_on: never halts"}
+            return summary["halt_result"]
         cmd_hooks.boot_mark("halt")
         summary["halt_result"] = self._halt_fn(
             enabled=s["power_halt_enabled"], dry_run=s["power_halt_dry_run"],

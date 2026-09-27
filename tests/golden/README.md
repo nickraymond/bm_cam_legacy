@@ -85,6 +85,31 @@ never change in S3a.
 .venv-dev/bin/python tests/golden/run_scenario.py wire still_bench /tmp/out --runtime supervisor
 ```
 
+## stay_on (Sprint26 S3b)
+
+`scenarios.STAY_ON_SCENARIOS` are supervisor-only: a long-lived loop has no
+legacy counterpart, so each is recorded once under `vectors_stay_on/<name>/`
+(`test_wire_stay_on_<name>`) and the whole record is new wire, reviewed in full.
+Each migrates its v1 profile to config v2 and then sets the scenario's `v2` keys
+(`mode.run: stay_on`, `commands.runtime: supervisor`, `mode.interval_s`,
+`mode.heartbeat_s`). Commands arrive on `at_clock` rules; a rule with
+`"signal": "TERM"` sends the runtime a real SIGTERM (trace `NOTE SIGTERM ...`),
+which is how every stay_on scenario ends. `summary.json` adds `cycles` (every
+action's summary, in order). `camera_config.lkg.json` and
+`state/config_journal.jsonl` embed the real boot wall time, so their listed
+sha256 is `wall-time` (the size is still pinned).
+
+What they pin (PLAN_S3b.md H2–H6): one port OPEN and one CLOSE for the whole
+process, no HALT, a boot Spotter time read (the only clock step), a scheduled
+action at boot (interval_s > 0) or none (trigger-only), `<WS a=idle>` heartbeats
+heartbeat_s after the last uplink, commands applied and acked while idle, a trg
+action, only the first window skip of a run sending `<WS a=skip_win>`, and no
+listen tail after an action.
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire stay_on_still /tmp/out
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:
