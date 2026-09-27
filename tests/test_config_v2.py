@@ -124,7 +124,7 @@ class TestStrict(unittest.TestCase):
                  ("time.timeout_s", "60", "time.timeout_s"),
                  ("mode.media", None, "mode.media"),
                  ("mode.run", "stay_on", "stay_on needs commands.runtime: supervisor"),
-                 ("mode.output", "save_local", "not runnable before S3"),
+                 ("mode.output", "save_local", "save_local needs commands.runtime: supervisor"),
                  ("mode.interval_s", 30, "must be 0 (off) or at least 60 s"),
                  ("schema", 1, "schema must be 2")]
         for path, value, needle in cases:

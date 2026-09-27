@@ -1006,6 +1006,22 @@ def resolve_run_mode(boot, runtime):
     return "stay_on", int(values.get("mode.interval_s", 0)), int(values.get("mode.heartbeat_s", 0))
 
 
+def resolve_output(boot, runtime):
+    """Sprint26 S3c (PLAN_S3c.md J1): transmit or save_local, from the active
+    config v2 file. save_local needs the supervisor: the loader refuses a FILE
+    that pairs it with legacy, but `--runtime legacy` can still override the
+    file, so that case transmits here, loudly (the legacy runtime has no
+    save_local; transmit is the only automatic revert until S4's cfm)."""
+    values = getattr(boot, "values", None) or {}
+    if values.get("mode.output", "transmit") != "save_local":
+        return "transmit"
+    if runtime != "supervisor":
+        print("[OUTPUT][WARN] mode.output save_local needs the supervisor runtime; "
+              f"runtime is {runtime}: TRANSMITTING this boot")
+        return "transmit"
+    return "save_local"
+
+
 def _stay_on_settings_fn(settings, reresolve_fn):
     """Fresh settings for each stay_on action: the YAML base + the command
     overlay as it is NOW (commands applied while idle govern the next action,
@@ -1146,6 +1162,7 @@ def main(argv=None, **cycle_overrides):
         return 2 if "error" in dump["resolved"] else 0
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
     run_cfg = ("per_boot", 0, 0)
+    output = "transmit"
     if not args.print_config:      # inspection output stays as before (settings goldens)
         print(f"[RUNTIME] {runtime} (source={runtime_source})")
         run_cfg = resolve_run_mode(boot, runtime)
@@ -1155,6 +1172,9 @@ def main(argv=None, **cycle_overrides):
             run_cfg = ("per_boot", 0, 0)
         if run_cfg[0] == "stay_on":
             print(f"[RUN] stay_on interval_s={run_cfg[1]} heartbeat_s={run_cfg[2]}")
+        output = resolve_output(boot, runtime)
+        if output != "transmit":
+            print(f"[OUTPUT] {output}")
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:

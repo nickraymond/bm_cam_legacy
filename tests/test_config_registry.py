@@ -167,7 +167,7 @@ class TestCoverage(unittest.TestCase):
     def test_every_registry_key_names_a_v1_source(self):
         for k in R.KEYS:
             if k.path in ("mode.run", "mode.output", "commands.runtime", "mode.interval_s",
-                          "mode.heartbeat_s"):
+                          "mode.heartbeat_s", "still.save.quality"):
                 continue          # new in v2: v1 had only per_boot + transmit + legacy
             self.assertTrue(k.v1_sources, k.path)
 

@@ -34,8 +34,8 @@ Config v2 loader (DESIGN_supervisor.md §5.1; PLAN_S2.md G1/G2).
 
 Assumptions: PyYAML present (a hard dependency, checked at deploy).
 Known limitations (S2): the hash is logged, not sent (S4); the guarded-key
-machinery is S4; only mode.output transmit is runnable (stay_on since S3b, with
-the supervisor runtime and commands on).
+machinery is S4; mode.run stay_on (S3b) and mode.output save_local (S3c) need
+the supervisor runtime (stay_on also needs commands on).
 """
 
 import hashlib
@@ -108,7 +108,7 @@ def _cross_key_errors(values):
     for path in ("mode.run", "mode.output"):
         key = R.BY_PATH[path]
         if key.runnable and values.get(path) not in key.runnable:
-            errs.append((path, f"{values.get(path)!r} is not runnable before S3 "
+            errs.append((path, f"{values.get(path)!r} is not runnable "
                                f"(runnable: {', '.join(key.runnable)})"))
     # S3b (PLAN_S3b H1): stay_on is the supervisor's loop; it needs the command
     # daemon (trg, heartbeat, idle ticks). A legacy unit told stay_on would
@@ -118,6 +118,11 @@ def _cross_key_errors(values):
             errs.append(("mode.run", "stay_on needs commands.runtime: supervisor"))
         if values.get("commands.enabled") is not True:
             errs.append(("mode.run", "stay_on needs commands.enabled: true"))
+    # S3c (PLAN_S3c.md J1): the legacy runtime has no save_local; it would
+    # transmit what the operator said to keep on SD. Refused (boot: v1 fallback,
+    # which transmits, loudly: the only automatic revert until S4's cfm).
+    if values.get("mode.output") == "save_local" and values.get("commands.runtime") != "supervisor":
+        errs.append(("mode.output", "save_local needs commands.runtime: supervisor"))
     for path in ("mode.interval_s", "mode.heartbeat_s"):
         v = values.get(path)
         if isinstance(v, int) and not isinstance(v, bool) and 0 < v < 60:
