@@ -142,8 +142,6 @@ class Verbs(unittest.TestCase):
             ({"power.halt.script_path": "/tmp/x"}, "lock", "power.halt.script_path"),
             ({"commands.runtime": "legacy"}, "lock", "commands.runtime"),
             ({"uplink.chunk_chars": 320}, "auth", "uplink.chunk_chars"),
-            ({"mode.output": "save_local"}, "lock", "mode.output"),
-            ({"power.halt.enabled": True}, "lock", "power.halt.enabled"),
             ({"camera.white_balance.mode": "manual"}, "xk", "camera.white_balance.mode"),
             ({"still.crop": [4000, 2000, 1000, 900]}, "xk", "still.crop"),
             ({"r": [1, 1, 10, 10], "still.crop": [1, 1, 10, 10]}, "key", "still.crop"),
@@ -175,10 +173,10 @@ class Verbs(unittest.TestCase):
                                                       "mode.output": "transmit"}})
         self.assertEqual(r.acks()[0]["ok"], 1)
 
-    def test_service_with_a_good_sig_waits_for_b5(self):
+    def test_service_with_a_good_sig_applies_guarded(self):
         r = Rig(self)
         r.send(signed({"id": 100_000_001, "c": "set", "kv": {"uplink.chunk_chars": 320}}))
-        self.assertEqual(r.acks()[0]["e"], "lock")
+        self.assertEqual(r.acks()[0]["ok"], 1)            # guarded_revert (test_s4_guards)
         r2 = Rig(self, service_key=None)
         r2.send(signed({"id": 100_000_001, "c": "set", "kv": {"uplink.chunk_chars": 320}}))
         self.assertEqual(r2.acks()[0]["e"], "auth")
@@ -246,7 +244,7 @@ class Verbs(unittest.TestCase):
     def test_later_stage_verbs(self):
         r = Rig(self)
         r.send({"id": 1_000_002, "c": "cfm", "ref": 5}, {"id": 1_000_003, "c": "hld", "v": 30})
-        self.assertEqual([a["e"] for a in r.acks()], ["cmd", "cmd"])
+        self.assertEqual([a["e"] for a in r.acks()], ["ref", "cmd"])
 
     def test_unackable_and_out_of_range(self):
         r = Rig(self)

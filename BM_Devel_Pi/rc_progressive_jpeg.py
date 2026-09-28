@@ -1340,7 +1340,7 @@ def main(argv=None, **cycle_overrides):
     # Sprint26 S4 b.1 (PLAN_S4.md G1/G3): the supervisor on a migrated unit runs
     # the EFFECTIVE config (YAML ⊕ command overlay, validated), rendered to the
     # tmpfs file the v1 loaders read; the legacy runtime keeps base + v8 bindings.
-    v9_eff, v9_base = None, None
+    v9_eff, v9_base, v9_state = None, None, None
     if (runtime == "supervisor" and boot is not None and not args.print_config
             and args.config_path != v1_config_path):
         import supervisor_config
@@ -1355,6 +1355,32 @@ def main(argv=None, **cycle_overrides):
             print(f"[CFG][ERR] effective config failed ({type(exc).__name__}: {exc}); "
                   "running the YAML base with the v8 overlay")
             v9_eff = None
+        v9_state = None
+        if v9_eff is not None and v9_eff.values.get("mode.media") != "video_logger":
+            # S4 b.5 (PLAN_S4.md G10, consensus R23): ONE V9State for the process,
+            # built BEFORE any port opens and even with commands off (the key that
+            # turned them off is itself guarded). The v8 section folds once (G2);
+            # a counted run (--transmit) increments the boot counter and
+            # evaluates guarded reverts; a revert re-renders the effective config.
+            try:
+                import command_guards
+                import command_state_v9
+                import config_migrate
+                v9_state = command_state_v9.V9State(
+                    supervisor_config.state_path_for(v9_base),
+                    trigger_validator=lambda kv, v: None if not kv else "one-shot kv: S4 b.6")
+                for path, old, new in v9_state.fold_v8(config_migrate.overlay_from_v8):
+                    print(f"[CMD] v8 fold: {path}: {old!r} -> {new!r}")
+                if args.transmit:
+                    reverted = command_guards.count_boot(v9_state)
+                    print(f"[GUARD] boot {v9_state.boot_counter}: "
+                          f"{len(v9_state.guarded)} guarded key(s) pending"
+                          + (f", reverted {reverted}" if reverted else ""))
+                    if reverted:
+                        boot.values = v9_base
+                        v9_eff = supervisor_config.apply(boot, args.config_path, env=env)
+            except Exception as exc:     # never brick: the counter/revert is logged, the boot runs
+                print(f"[GUARD][ERR] boot count / revert failed ({type(exc).__name__}: {exc})")
         if v9_eff is not None:
             boot.values = v9_eff.values      # mode/output read the effective config (G3)
     run_cfg = ("per_boot", 0, 0)
@@ -1395,20 +1421,14 @@ def main(argv=None, **cycle_overrides):
     bm_commands_cfg = load_bm_commands_config(args.config_path)
     command_state = None
     reresolve_fn = None
-    v9_on = v9_eff is not None and v9_eff.values.get("mode.media") != "video_logger"
+    v9_on = v9_eff is not None and v9_state is not None
     if bm_commands_cfg["enabled"]:
         if v9_on:
             # S4 b.2c (PLAN_S4.md G1, B1): on the v9 path ONE V9State owns the
-            # state file (heals, trigger, overlay, dedupe); the v8 CommandState is
-            # never built here. The v8 section is folded into the overlay once (G2).
-            import command_state_v9
+            # state file (heals, trigger, overlay, dedupe, guards); the v8
+            # CommandState is never built here.
             import command_v9
-            import config_migrate
-            command_state = command_state_v9.V9State(
-                bm_commands_cfg["state_path"],
-                trigger_validator=lambda kv, v: None if not kv else "one-shot kv: S4 b.6")
-            for path, old, new in command_state.fold_v8(config_migrate.overlay_from_v8):
-                print(f"[CMD] v8 fold: {path}: {old!r} -> {new!r}")
+            command_state = v9_state
         else:
             command_state = CommandState(path=bm_commands_cfg["state_path"])
         print(f"[CMD] bm_commands enabled: topic={bm_commands_cfg['topic']} "
@@ -1504,6 +1524,7 @@ def main(argv=None, **cycle_overrides):
                 configure_output(sup, boot, output)
                 if v9_eff is not None:
                     sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
+                sup.guard_state = v9_state
                 if v9_on and command_state is not None:
                     sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
                         d, command_state, v9_base, env=env,
@@ -1595,6 +1616,7 @@ def main(argv=None, **cycle_overrides):
             configure_output(sup, boot, output)
             if v9_eff is not None:
                 sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
+            sup.guard_state = v9_state
             if v9_on and command_state is not None:
                 sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
                     d, command_state, v9_base, env=env,

@@ -140,7 +140,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 659,
-   "sha256": "8ae39907bab0c551"
+   "sha256": "df456b97344d7072"
   },
   "state/config_journal.jsonl": {
    "bytes": 122,
@@ -310,7 +310,7 @@
  },
  "state_file": null,
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {
    "remote": 1000507
@@ -329,33 +329,33 @@
   "pending_trigger_v9": null,
   "result_cache": {
    "1000501": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action)"
    },
    "1000502": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "ping"
    },
    "1000503": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "help (reference follows)"
    },
    "1000505": {
-    "b": 0,
+    "b": 1,
     "e": "xk",
     "k": "camera.white_balance.mode",
     "ok": 0
    },
    "1000506": {
-    "b": 0,
+    "b": 1,
     "e": "cmd",
     "ok": 0
    },
    "1000507": {
-    "b": 0,
+    "b": 1,
     "g": [
      "mode",
      "r"
@@ -364,7 +364,7 @@
     "t": "get mode, r: 6 key(s)"
    },
    "7": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "ping"
    }

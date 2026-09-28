@@ -35,6 +35,7 @@ the full command reference from the same data).
 
 import time
 
+import command_guards as G
 import command_wire as W
 import config_registry as R
 import config_v2
@@ -291,7 +292,38 @@ class Dispatcher:
         return event
 
     def _verb_cfm(self, cmd):
-        return self._reject(cmd.id, cmd.range, "cmd", why="cfm lands in S4 b.5")
+        """§6.3: confirms a guarded set. The confirm can only arrive over the
+        new path, so it proves the path works."""
+        ref = cmd.fields["ref"]
+        pending = {p: r for p, r in self.state.guarded.items() if r.get("ref") == ref}
+        if not pending:
+            return self._reject(cmd.id, cmd.range, "ref", None,
+                                f"nothing is waiting for a cfm of id {ref}")
+        staged = [p for p, r in pending.items() if r.get("cls") == "stage"]
+        text = f"cfm {ref}: " + ", ".join(
+            f"{p} {'applied' if p in staged else 'confirmed'}" for p in sorted(pending))
+        event = self._applied(cmd, text, mutate=lambda st: G.confirm(st, ref))
+        self._change_summary(cmd, event)
+        return event
+
+    def flush_notes(self):
+        """G10f: every pending <CF reverted=..> goes cellular (a revert has no
+        remote id to choose a lane by), then the notes are cleared."""
+        notes = G.take_notes(self.state)
+        if not notes:
+            return 0
+        h = self.current_hash()
+        for n in notes:
+            self.daemon._acks.extend(W.build_cf(h, [], head=[
+                ("reverted", n.get("reverted")), ("lim", n.get("lim")), ("ref", n.get("ref"))]))
+            self.daemon._console.append(W.console_line(
+                self.daemon.v9.host, f"REVERTED {n.get('reverted')} (limit {n.get('lim')}, no "
+                                     f"cfm for id {n.get('ref')}) cfg={h}"))
+        try:
+            self.state.transaction(lambda st: st.extra.pop("notes", None))
+        except Exception as exc:
+            self._log(f"[CMD][WARN] revert notes not cleared (sent again next time): {exc}")
+        return len(notes)
 
     def _verb_hld(self, cmd):
         return self._reject(cmd.id, cmd.range, "cmd", why="hld lands in S4 b.6")
@@ -306,18 +338,20 @@ class Dispatcher:
             out.append((name, path))
         return out
 
-    def _guard_problem(self, cmd, key, value):
-        """-> (code, why) or None. b.2c: guarded and service keys wait for b.5."""
+    def _guard(self, cmd, key, value):
+        """-> guard class ("revert" | "stage" | None), or raises Rejected.
+        LOCKED: never by command. SERVICE: a service-range id AND a valid
+        signature with the unit's key (§6.3), then guarded_revert."""
         if key.guard == R.LOCKED:
-            return "lock", f"{key.path} is locked (deploy only)"
+            raise W.Rejected(cmd.id, "lock", key.path, f"{key.path} is locked (deploy only)")
+        signed = False
         if key.guard == R.SERVICE:
-            if "sig" not in cmd.fields or not W.verify_sig(cmd.raw, self.service_key):
-                return "auth", f"{key.path} needs a valid service signature"
-            return "lock", f"{key.path}: signed service changes land in S4 b.5"
-        if key.guard in (R.GUARDED_REVERT, R.GUARDED_STAGE):
-            if key.guard_when is None or value in key.guard_when:
-                return "lock", f"{key.path}={_fmt(value)} is guarded (cfm lands in S4 b.5)"
-        return None
+            signed = (cmd.range == "service" and "sig" in cmd.fields
+                      and W.verify_sig(cmd.raw, self.service_key))
+            if not signed:
+                raise W.Rejected(cmd.id, "auth", key.path,
+                                 f"{key.path} needs a signed service-range command")
+        return G.guard_class(key, value, service_signed=signed)
 
     def _check_cas(self, cmd):
         want = cmd.fields.get("b")
@@ -355,25 +389,36 @@ class Dispatcher:
                     else R.check_value(key, value)
                 if why:
                     raise W.Rejected(cmd.id, "val", path, why)
-                guard = self._guard_problem(cmd, key, value)
-                if guard:
-                    raise W.Rejected(cmd.id, guard[0], path, guard[1])
+                cls = self._guard(cmd, key, value)
                 if path in paths:
                     raise W.Rejected(cmd.id, "key", path, "set twice in one command")
-                changes.append((path, value))
+                changes.append((path, value, cls))
                 paths.append(path)
             new_overlay = dict(self.state.overlay)
-            new_overlay.update(changes)
+            new_overlay.update((p, v) for p, v, _c in changes)   # staged values validated too
             self._validate(cmd, new_overlay, paths)
         except W.Rejected as rej:
             return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
         before = self.effective()
-        text = ", ".join(f"{p}: {_fmt(before.get(p))} -> {_fmt(v)}" for p, v in changes
-                         if before.get(p) != v) or "no change (already in effect)"
-        when = "next boot" if any(R.BY_PATH[p].apply == R.NEXT_BOOT for p in paths) \
+        applied = [(p, v) for p, v, c in changes if c != "stage"]
+        staged = [(p, v) for p, v, c in changes if c == "stage"]
+        guarded = [(p, v, c) for p, v, c in changes if c is not None]
+        parts = [f"{p}: {_fmt(before.get(p))} -> {_fmt(v)}" for p, v in applied
+                 if before.get(p) != v]
+        parts += [f"{p}: STAGED {_fmt(v)} (awaiting cfm {cmd.id})" for p, v in staged]
+        parts += [f"{p} guarded: cfm {cmd.id} within "
+                  f"{'3 boots or 2 h' if G.limit_for(p) == 'boot3_2h' else '2 sends or 3 boots'}"
+                  for p, v, c in guarded if c == "revert"]
+        text = ", ".join(parts) or "no change (already in effect)"
+        when = "next boot" if any(R.BY_PATH[p].apply == R.NEXT_BOOT for p, _v in applied) \
             else "next action"
-        event = self._applied(cmd, f"{text} ({when})",
-                              mutate=lambda st: st.apply_overlay(changes, cmd.id))
+
+        def mutate(st):
+            for p, v, c in guarded:
+                st.guarded[p] = G.new_record(st, p, cmd.id, c, v)
+            return st.apply_overlay(applied, cmd.id)
+        event = self._applied(cmd, f"{text} ({when})", mutate=mutate,
+                              answer_extra={"s": 1} if staged else None)
         self._change_summary(cmd, event)
         return event
 
@@ -382,7 +427,7 @@ class Dispatcher:
         try:
             self._check_cas(cmd)
             if cmd.fields.get("all") == 1:
-                paths = sorted(self.state.overlay)
+                paths = sorted(set(self.state.overlay) | set(self.state.guarded))
             else:
                 paths = []
                 media = self.effective().get("mode.media")
@@ -392,7 +437,8 @@ class Dispatcher:
                     if path is None and not group:
                         raise W.Rejected(cmd.id, "key", name, f"{name!r} is not a setting")
                     for p in ([path] if path else group):
-                        if p in self.state.overlay and p not in paths:
+                        if (p in self.state.overlay or p in self.state.guarded) \
+                                and p not in paths:
                             paths.append(p)
             for p in paths:
                 key = R.BY_PATH.get(p)
@@ -405,7 +451,12 @@ class Dispatcher:
             return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
         text = ("reset " + ", ".join(paths) + " -> YAML") if paths else "reset: nothing to reset"
         changes = [(p, S.remove()) for p in paths]
-        event = self._applied(cmd, text, mutate=lambda st: st.apply_overlay(changes, cmd.id))
+
+        def mutate(st):
+            for p in paths:                     # back to the YAML: nothing left to guard
+                st.guarded.pop(p, None)
+            return st.apply_overlay(changes, cmd.id)
+        event = self._applied(cmd, text, mutate=mutate)
         self._change_summary(cmd, event)
         return event
 

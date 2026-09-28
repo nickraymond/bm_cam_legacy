@@ -99,7 +99,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 665,
-   "sha256": "d85edf74a5dcc196"
+   "sha256": "db0188ee5402a33c"
   },
   "state/config_journal.jsonl": {
    "bytes": 114,
@@ -257,7 +257,7 @@
   "touched": []
  },
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {},
   "migrated_from": {
@@ -273,7 +273,7 @@
   "pending_trigger_v9": null,
   "result_cache": {
    "541": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "uplink.msg_interval_s: 1.3 -> 1.5 (next action)"
    }

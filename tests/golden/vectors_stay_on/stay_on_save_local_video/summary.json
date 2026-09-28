@@ -355,7 +355,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 290,
-   "sha256": "1a7e95d936ac2bc4"
+   "sha256": "a5d6de1dd750bbef"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -479,7 +479,7 @@
  "sidecars": {},
  "state_file": null,
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {},
   "overlay": {},
@@ -487,7 +487,7 @@
   "pending_trigger_v9": null,
   "result_cache": {
    "741": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point)"
    }

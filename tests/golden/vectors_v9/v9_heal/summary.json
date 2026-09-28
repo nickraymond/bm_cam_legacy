@@ -147,7 +147,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 731,
-   "sha256": "9433835cdd8b4985"
+   "sha256": "6cf77ea91cd701f8"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -348,7 +348,7 @@
   "touched": []
  },
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {},
   "migrated_from": {
@@ -360,12 +360,12 @@
   "pending_trigger_v9": null,
   "result_cache": {
    "100002": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "rsd: 1 heal(s) queued (<HL> reports each)"
    },
    "100004": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "rsd: 1 heal(s) queued (<HL> reports each)"
    }

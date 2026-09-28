@@ -90,7 +90,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 556,
-   "sha256": "d9976e7015c7ceeb"
+   "sha256": "5eb837495f4f491f"
   },
   "state/config_journal.jsonl": {
    "bytes": 373,
@@ -125,7 +125,7 @@
  "sidecars": {},
  "state_file": null,
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {
    "remote": 1000512
@@ -143,12 +143,12 @@
   "pending_trigger_v9": null,
   "result_cache": {
    "1000511": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "ping"
    },
    "1000512": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "camera.white_balance.mode: auto -> daylight (next action)"
    }

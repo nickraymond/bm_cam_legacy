@@ -266,7 +266,7 @@ class V9State:
         atomic_io.write_text(self.path, json.dumps(self._payload(), separators=(",", ":")))
 
     def _snapshot(self):
-        return copy.deepcopy({k: getattr(self, k) for k in _OWNED})
+        return copy.deepcopy({k: getattr(self, k) for k in _OWNED + ("extra",)})
 
     def _restore(self, snap):
         for k, v in snap.items():

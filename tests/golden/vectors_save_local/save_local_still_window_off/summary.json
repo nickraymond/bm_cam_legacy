@@ -74,7 +74,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 203,
-   "sha256": "660c9257ad3679b5"
+   "sha256": "a48c6bbf3d54bcc5"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -185,7 +185,7 @@
  },
  "state_file": null,
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {},
   "overlay": {},

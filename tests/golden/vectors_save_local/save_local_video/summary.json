@@ -79,7 +79,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 568,
-   "sha256": "8b7fd6fbd271a7df"
+   "sha256": "1fb14ec830ca0a12"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -150,7 +150,7 @@
   "touched": []
  },
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {},
   "migrated_from": {
@@ -162,7 +162,7 @@
   "pending_trigger_v9": null,
   "result_cache": {
    "551": {
-    "b": 0,
+    "b": 1,
     "ok": 1,
     "t": "ping"
    }

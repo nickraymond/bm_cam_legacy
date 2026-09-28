@@ -111,6 +111,9 @@ class Boot:
         # (command_replies.V9Replies), handed to the daemon at process start.
         self.v9_replies = None
         self.v9_dispatch_factory = None   # b.2c: daemon -> command_v9.Dispatcher
+        self.guard_state = None           # b.5: the V9State whose guarded keys count actions
+        self._guard_mark = None           # clock() of the last guard note (uptime accrual)
+        self._guard_clock = None
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -147,6 +150,7 @@ class Boot:
         per process; raises on a UART failure (the owner is set first, so
         finish() still stops the reader and closes/halts)."""
         s = self.settings
+        self._guard_clock, self._guard_mark = clock, clock()
         self.owner = PortOwner(s, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
                                clock=clock, sleep_fn=sleep_fn, log_fn=log_fn)
         self.owner.begin()
@@ -160,6 +164,7 @@ class Boot:
                 self.owner.daemon.v9 = self.v9_replies
             if self.v9_dispatch_factory is not None:
                 self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
+                self.owner.daemon.v9_dispatch.flush_notes()     # G10f: <CF reverted=..>
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
@@ -176,6 +181,37 @@ class Boot:
         if self.budget is None:
             return False
         return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= self.min_action_s
+
+    def note_guards(self, summary=None):
+        """S4 b.5 (DESIGN §6.3): after an action (or an idle heartbeat), count
+        it toward the guarded keys: a transmitting action toward tx2, the time
+        since the last note toward save_local's 2 h. A revert is announced at
+        once (<CF reverted>) and, on stay_on, a reverted next-boot key restarts
+        the process (exit 72). Never raises."""
+        st = self.guard_state
+        if st is None or not st.guarded or self._guard_clock is None:
+            return []
+        try:
+            import command_guards
+            now = self._guard_clock()
+            up = now - (self._guard_mark if self._guard_mark is not None else now)
+            self._guard_mark = now
+            s = summary or {}
+            sent = (s.get("transmit_result") or {}).get("sent")
+            transmitted = bool(sent) and s.get("uplinked", not self.save_local) is not False
+            reverted = command_guards.count_action(st, transmitted, up)
+        except Exception as exc:
+            print(f"[GUARD][ERR] action count failed ({type(exc).__name__}: {exc})")
+            return []
+        dispatch = getattr(getattr(self.owner, "daemon", None), "v9_dispatch", None)
+        if reverted and dispatch is not None:
+            dispatch.flush_notes()
+            import config_registry as R
+            for path, _lim in reverted:
+                key = R.BY_PATH.get(path)
+                if self.run == "stay_on" and key is not None and key.apply == R.NEXT_BOOT:
+                    dispatch.restart_requested.append(path)
+        return reverted
 
     def _pending_trigger(self):
         return getattr(self.command_state, "pending_trigger", None)
@@ -385,6 +421,7 @@ def run_per_boot(boot, action_fn):
     error = None
     try:
         summary = action_fn(boot)
+        boot.note_guards(summary)
         n = 1
         while boot.w10_trigger_fits():
             write_action_log(boot)          # the finished action's line
@@ -397,6 +434,7 @@ def run_per_boot(boot, action_fn):
             if boot.reresolve_fn is not None:
                 boot.settings = boot._reresolve(boot.settings, boot.summary or {})
             summary = action_fn(boot)
+            boot.note_guards(summary)
             if boot._pending_trigger() is trg:
                 boot.w10_stuck = trg
                 print(f"[SUP][ERR] W10: trg id={trg.get('id')} still armed after its action "
@@ -519,6 +557,7 @@ def _run_action(boot, action_fn, settings, n, kind, quiet_skip):
         print(f"[SUP][ERR] action {n} failed: {error}")
         summary = boot.summary or {}
     write_action_log(boot, error, n=n, kind=kind)
+    boot.note_guards(summary)
     print(f"[SUP] ===== action {n} done: stage={summary.get('stage')} "
           f"skipped={summary.get('schedule_allowed') is False} =====")
     return summary
@@ -760,6 +799,7 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
             try:
                 heartbeat_fn(settings_fn())
                 print(f"[SUP] heartbeat <WS a=idle> after {now - last_uplink:.0f}s idle")
+                boot.note_guards(None)       # idle time counts toward save_local's 2 h
             except Exception as exc:
                 print(f"[SUP][WARN] heartbeat failed ({type(exc).__name__}: {exc})")
             last_uplink = clock()
