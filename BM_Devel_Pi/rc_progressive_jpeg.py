@@ -1305,6 +1305,7 @@ def main(argv=None, **cycle_overrides):
     # nothing changes. Never raises: a bad v2 file falls back (v1 file, then
     # last-known-good, then safe-minimal = nothing to do this boot).
     boot = None
+    v1_config_path = args.config_path
     if args.config_format != "v1":
         import config_v2
         if args.config_format == "v2" and not os.path.exists(os.path.join(
@@ -1336,6 +1337,24 @@ def main(argv=None, **cycle_overrides):
         print(config_dump.to_json_line(dump))
         return 2 if "error" in dump["resolved"] else 0
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
+    # Sprint26 S4 b.1 (PLAN_S4.md G1/G3): the supervisor on a migrated unit runs
+    # the EFFECTIVE config (YAML ⊕ command overlay, validated), rendered to the
+    # tmpfs file the v1 loaders read; the legacy runtime keeps base + v8 bindings.
+    v9_eff, v9_base = None, None
+    if (runtime == "supervisor" and boot is not None and not args.print_config
+            and args.config_path != v1_config_path):
+        import supervisor_config
+        v9_base = dict(boot.values or {})
+        try:
+            env = __import__("config_validate").probe_env(
+                [v9_base.get("schedule.timezone")])
+            v9_eff = supervisor_config.apply(boot, args.config_path, env=env)
+        except Exception as exc:        # never brick: base + v8 bindings, as in S3
+            print(f"[CFG][ERR] effective config failed ({type(exc).__name__}: {exc}); "
+                  "running the YAML base with the v8 overlay")
+            v9_eff = None
+        if v9_eff is not None:
+            boot.values = v9_eff.values      # mode/output read the effective config (G3)
     run_cfg = ("per_boot", 0, 0)
     output = "transmit"
     if not args.print_config:      # inspection output stays as before (settings goldens)
@@ -1382,7 +1401,8 @@ def main(argv=None, **cycle_overrides):
               f"state={command_state.path} (loaded from "
               f"{command_state.load_info['source']})")
         base_settings = copy.deepcopy(settings)
-        settings = _apply_command_overlay(settings, command_state)
+        if v9_eff is None:
+            settings = _apply_command_overlay(settings, command_state)
 
         def _reresolve(current):
             """W4: the overlay re-read onto the YAML base after the boot drain.
@@ -1394,6 +1414,11 @@ def main(argv=None, **cycle_overrides):
                 fresh["video"] = current["video"]
             return fresh
         reresolve_fn = _reresolve
+        if v9_eff is not None:
+            # b.1: the overlay reaches the settings through the render, re-built
+            # from the state file at every decision point (no v8 bindings).
+            reresolve_fn = supervisor_config.make_reresolve(
+                v9_base, args.config_path, resolve_rc_settings, env=env)
 
     if args.crashloop:
         # H7: the halt is forced to dry-run for this boot, including after a

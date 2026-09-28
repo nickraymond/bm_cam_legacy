@@ -153,6 +153,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
 | every stay_on / save_local scenario | migrated `camera_config.yaml` + LKG bytes (registry v4 names) | V1 (S4 a.1, vector bytes only, no wire): registry v5 adds 4 keys and renames `video.storage.*` → `storage.*` |
+| `stay_on_video`, `stay_on_save_local_still`, `save_local_still` | the tmpfs render holds the YAML base; a v8 `txd` reaches the runtime through the v8 bindings | V2 (S4 b.1, render bytes only, no wire): the supervisor on a migrated unit renders the EFFECTIVE config (base ⊕ overlay), so `image_transmit_delay_seconds` reads 1.5 after `txd 1`; trace.txt identical |
 
 V-items (PLAN_S4.md) change pinned file bytes in `summary.json` but no wire
 byte; like W-items, each is its own commit with the reviewed diff.
