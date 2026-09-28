@@ -128,7 +128,7 @@ class Verbs(unittest.TestCase):
         self.assertIn("still.message_cap: 195 -> 150", r.lines()[0])
         self.assertEqual({e["key"]: e["src"] for e in r.journal()},
                          {"still.crop": "remote", "still.message_cap": "remote",
-                          "camera.exposure.ev": "remote"})
+                          "camera.exposure.ev": "remote", "high_water.remote": "hw"})
 
     def test_m_follows_the_media(self):
         r = Rig(self, base_over={"mode.media": "video"})

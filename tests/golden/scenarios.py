@@ -326,6 +326,19 @@ STAY_ON_SCENARIOS.update({
                  "every 300 s THROUGH the actions (S3c C1), a command applied while idle "
                  "keeps it saving (C2), trg 2 saves (C8), trg 1 keeps the native only",
     },
+    "stay_on_video_set_d": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 0, "mode.heartbeat_s": 300}),
+        "rules": [
+            {"when": "at_clock", "t": 200, "payload": {"id": 1000751, "c": "set",
+                                                       "kv": {"d": 8}}},
+            {"when": "at_clock", "t": 400, "payload": {"id": 1000752, "c": "trg", "v": 2}},
+            _sigterm(900),
+        ],
+        "notes": "S4b review R2-4: a next-action key outside `settings` (the clip length) set "
+                 "while idle governs the next clip in the SAME process (VFIT duration 8)",
+    },
 })
 
 SAVE_LOCAL_SCENARIOS = {

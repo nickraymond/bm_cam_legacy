@@ -264,7 +264,9 @@ class WakeHeals:
                     print("[HEAL][WARN] no budget left for <HL>; skipped")
                     break
                 wait = lane() if lane is not None else 0.0
-                if wait > 0 and budget.has_time_for(wait + float(delay_seconds)):
+                import rc_command_hooks          # S4b review R2-1: never into the halt margin
+                room = budget.remaining_s() - rc_command_hooks.TAIL_SAFETY_S
+                if wait > 0 and room >= wait + float(delay_seconds):
                     print(f"[HEAL] <HL> waits {wait:.0f}s for the boundary guard")   # S4 b.8
                     sleep_fn(wait)
                 sleep_fn(float(delay_seconds))

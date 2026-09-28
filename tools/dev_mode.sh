@@ -126,6 +126,9 @@ case "$MODE" in
     ;;
   off)
     echo "[DEV-MODE] restoring field-normal state"
+    # S4b review R2-7: the halt override goes FIRST; re-arming a unit that
+    # still has hlt=3 would give field cycles that never halt.
+    record_hlt 0 || exit 1
     if [[ "$NO_CRON" == "1" ]]; then
         echo "[DEV-MODE] crontab untouched (BMCAM_DEV_MODE_NO_CRON)"
     elif [[ -f "$CRON_BACKUP" ]]; then
@@ -135,7 +138,6 @@ case "$MODE" in
         echo "[DEV-MODE][WARN] no $CRON_BACKUP — re-arm manually from your"
         echo "[DEV-MODE][WARN] unit's armed backup (crontab <file>)"
     fi
-    record_hlt 0 || exit 1
     show_status
     ;;
   status)

@@ -12,6 +12,11 @@ Guarded keys (DESIGN §6.3; PLAN_S4.md G10; consensus R10, R11, NEW-1).
                     - mode.output: after 3 boots or 2 h of uptime (a save_local
                       stay_on unit neither transmits nor reboots; a remote cfm
                       takes 15-45 min; G10b),
+                    - every key: after 2 h of uptime in effect as a backstop
+                      (S4b review #1: a trigger-only stay_on unit on wall power
+                      has no sends and no reboots, so a wrong topic or baud rate
+                      would otherwise never revert; uptime is monotonic, not
+                      wall clock, and accrues on idle ticks too),
                   whichever comes first. No wall clock: a broken comms key can
                   kill the time read. Counters start when the value is IN
                   EFFECT (the first boot after, for a next-boot key; G10a).
@@ -67,7 +72,10 @@ def new_record(state, path, cid, cls, value):
     else:
         had, before = path in state.overlay, state.overlay.get(path)
     key = R.BY_PATH[path]
-    return {"ref": cid, "cls": cls, "had": had, "before": before, "new": value,
+    before_id = prev.get("before_id") if prev is not None and prev.get("cls") == "revert" \
+        else state.overlay_ids.get(path)
+    return {"ref": cid, "cls": cls, "had": had, "before": before, "before_id": before_id,
+            "new": value,
             "lim": limit_for(path), "in_effect": key.apply == R.NEXT_ACTION and cls == "revert",
             "boots": 0, "actions": 0, "uptime_s": 0.0}
 
@@ -76,11 +84,13 @@ def _revert_one(state, path, rec, why):
     """Inside a transaction: restore the pre-guard overlay value, drop the
     record, leave the <CF reverted> note. -> (path, old, new) for the journal."""
     old = state.overlay.get(path)
+    state.overlay_ids.pop(path, None)
     if rec.get("had"):
         state.overlay[path] = rec["before"]
+        if rec.get("before_id") is not None:
+            state.overlay_ids[path] = rec["before_id"]
     else:
         state.overlay.pop(path, None)
-    state.overlay_ids.pop(path, None)
     del state.guarded[path]
     notes = state.extra.setdefault("notes", [])
     notes.append({"reverted": path, "lim": why, "ref": rec.get("ref")})
@@ -133,11 +143,10 @@ def count_action(state, transmitted, uptime_s=0.0):
             if rec.get("cls") != "revert" or not rec.get("in_effect"):
                 continue
             rec["uptime_s"] = rec.get("uptime_s", 0.0) + max(0.0, float(uptime_s))
-            if rec["lim"] == "boot3_2h":
-                if rec["uptime_s"] >= SAVE_LOCAL_UPTIME_S:
-                    done.append(_revert_one(st, path, rec, "2h"))
-                    reverted.append((path, "2h"))
-            elif transmitted:
+            if rec["uptime_s"] >= SAVE_LOCAL_UPTIME_S:
+                done.append(_revert_one(st, path, rec, "2h"))
+                reverted.append((path, "2h"))
+            elif rec["lim"] != "boot3_2h" and transmitted:
                 rec["actions"] = rec.get("actions", 0) + 1
                 if rec["actions"] >= ACTIONS_LIMIT:
                     done.append(_revert_one(st, path, rec, "tx2"))

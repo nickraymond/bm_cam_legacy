@@ -68,6 +68,11 @@ ACTION_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "cron_logs", "supervisor_actions.jsonl")
 
 
+class AltActionUnavailable(RuntimeError):
+    """The other media's action could not be prepared (its config does not
+    resolve); raised BEFORE the action starts (b.6b)."""
+
+
 class Boot:
     """One per_boot run: the budget, the port owner and the action's summary."""
 
@@ -125,6 +130,8 @@ class Boot:
         # pending trg's kv names that media; and its W10 minimum.
         self.alt_actions = {}
         self.alt_min_action_s = {}
+        self.video_duration_s = None      # the configured clip length (W10 sizing)
+        self.current_vtx = None           # S4b review R2-4: the clip config as of now
         # b.6c (DESIGN §4 keep-alive / hld): limits from the effective config
         # (commands.keepalive_s, keepalive_max_s, hold_max_min,
         # power.bus_always_on); hold and keep-alive live in memory only.
@@ -187,6 +194,7 @@ class Boot:
             if self.v9_dispatch_factory is not None:
                 # b.8: every small cellular send shares the lane guard (§6.1)
                 self.owner.daemon.lane_cfg = dict(s.get("transmit_phase_cfg") or {})
+                self.owner.daemon.lane_room_fn = self._lane_room
                 self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
                 self.owner.daemon.v9_dispatch.boot = self          # b.6c: hld + keep-alive
                 if self.guard_state is not None:                    # b.7: mid-burst inbox
@@ -209,6 +217,14 @@ class Boot:
         if self.v9_limits.get("power.bus_always_on") or self.budget is None:
             return None
         return self._now() + self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
+
+    def _lane_room(self):
+        """Seconds a lane wait may add before the per_boot halt margin, or None
+        (no limit: stay_on never halts; power.bus_always_on)."""
+        if self.run != "per_boot" or self.v9_limits.get("power.bus_always_on") \
+                or self.budget is None:
+            return None
+        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
 
     def note_command(self):
         """Keep-alive: every command received pushes the halt back (§4)."""
@@ -298,8 +314,17 @@ class Boot:
             print(f"[SUP] trg media override: one {media} action on a {own_media} unit")
             try:
                 return alt(boot, settings)
+            except AltActionUnavailable as exc:
+                # S4b review R2-2: the other media's config does not resolve. The
+                # trg is cancelled loudly (never re-picked every boot, which would
+                # leave the unit without a capture or a daemon); this action runs.
+                print(f"[SUP][ERR] media override to {media} unavailable ({exc}); "
+                      "the trg is cancelled and the normal action runs")
+                if self.command_state is not None:
+                    self.command_state.consume_trigger()
             finally:
                 self.media, self.min_action_s = own_media, own_min
+            return default_fn(boot) if settings is None else default_fn(boot, settings)
         return run_alt
 
     def w10_trigger_fits(self):
@@ -316,6 +341,11 @@ class Boot:
         media = self._trigger_media()
         need = self.alt_min_action_s.get(media, self.min_action_s) \
             if media and media != self.media else self.min_action_s
+        kv = (self._pending_trigger() or {}).get("kv") or {}
+        d = kv.get("video.send.duration_s")
+        if d is not None and (media or self.media) == "video":
+            # S4b review R2-8: a one-shot clip longer than the configured one
+            need += max(0.0, float(d) - float(self.video_duration_s or d))
         return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= need
 
     def note_guards(self, summary=None):
@@ -536,7 +566,7 @@ def action_record(boot, error=None, n=None, kind=None):
         **extra,
         "utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runtime": "supervisor", "run": boot.run, "media": boot.media,
-        "output": boot.output if boot.transmit else "none",
+        "output": (boot.one_shot_output or boot.output) if boot.transmit else "none",
         "trigger_id": (trig or {}).get("id") if isinstance(trig, dict) else None,
         "stage": s.get("stage"), "media_key": s.get("media_key") or boot.media_key,
         "sent": tr.get("sent"), "planned": tr.get("planned"),
@@ -610,6 +640,7 @@ def run_per_boot(boot, action_fn):
             daemon = boot.owner.daemon if boot.owner else None
             if boot.stay_awake(daemon, boot._sleep_fn or time.sleep) != "trigger":
                 break
+        boot.note_guards(None)          # S4b review R2-10: the hold/keep-alive time counts
         if boot._pending_trigger() is not None:
             left = boot.budget.remaining_s() if boot.budget else 0.0
             print(f"[SUP] W10: trg stays armed for the next boot ({left:.0f}s of budget left; "
@@ -651,6 +682,7 @@ def _w10_actions(boot, action_fn, n, summary):
 
 IDLE_TICK_S = 0.2            # §4: commands processed every 0.2 s while idle
 IDLE_HEAL_S = 600.0          # O5 (Nick 2026-09-25): pending heals go out after 10 min idle
+GUARD_NOTE_S = 60.0          # S4: idle uptime is added to guarded keys at most this often
 EXIT_ARGS = 2                # stay_on cannot run as invoked (no daemon: no --transmit)
 EXIT_CRASH = 70              # H7: stay_on failed (watchdog, error); wrapper restarts, backoff
 EXIT_RSS = 71                # H9: RSS ceiling reached; clean exit, wrapper restarts in 5 s
@@ -894,6 +926,7 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
     finally:
         if STOP["requested"]:
             print(f"[SUP] stop requested (signal {STOP['signal']}): shutdown -> close, no halt")
+        boot.note_guards(None)          # S4b review R2-10: uptime before an exit counts
         boot.finish(halt=False)
         guard.marker_clear()
         uninstall_stop_flag(previous_handler)
@@ -920,8 +953,14 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
     last_send = clock()          # O5: the last action or heal pass (heartbeats do not count)
     skip_run = False             # H3: the last scheduled action was a window skip
     stuck_trg = None             # a trg whose consume could not be persisted
+    last_guard_note = clock()
     while not stop_requested():
         _idle_tick(daemon, clock, sleep_fn)
+        if clock() - last_guard_note >= GUARD_NOTE_S:
+            # S4b review #1: idle time counts toward the guarded keys' 2 h
+            # backstop (persisted at most once a minute, not every tick).
+            boot.note_guards(None)
+            last_guard_note = clock()
         restart = getattr(getattr(daemon, "v9_dispatch", None), "restart_requested", None)
         if restart:
             # G10g: a next-boot key (mode, UART, topic, ...) takes effect through a

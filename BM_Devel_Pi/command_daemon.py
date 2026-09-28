@@ -177,10 +177,14 @@ def load_bm_commands_config(config_path):
 
 def _is_rsd(payload):
     """Cheap check for the rsd-only drain (the full strict decode runs in the
-    dispatcher)."""
+    dispatcher): an rsd with a HEAL-range id only. A remote-range rsd has a
+    high-water, and handling it ahead of older stashed commands would refuse
+    them e:"old" (S4b review #4); it waits for the decision point."""
     try:
         import json as _json
-        return _json.loads(bytes(payload).decode("ascii")).get("c") == "rsd"
+        data = _json.loads(bytes(payload).decode("ascii"))
+        cid = data.get("id")
+        return data.get("c") == "rsd" and isinstance(cid, int) and 100_000 <= cid <= 999_999
     except Exception:
         return False
 

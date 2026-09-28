@@ -1383,7 +1383,17 @@ def main(argv=None, **cycle_overrides):
                           + (f", reverted {reverted}" if reverted else ""))
                     if reverted:
                         boot.values = v9_base
-                        v9_eff = supervisor_config.apply(boot, args.config_path, env=env)
+                        try:
+                            v9_eff = supervisor_config.apply(boot, args.config_path, env=env)
+                        except Exception as exc:
+                            # S4b review R2-6: never run the reverted value again;
+                            # fall back to the YAML base render.
+                            print(f"[GUARD][ERR] re-render after the revert failed ({exc}); "
+                                  "running the YAML base")
+                            import atomic_io
+                            atomic_io.write_text(args.config_path,
+                                                 supervisor_config.render_values(v9_base))
+                            v9_eff = supervisor_config.resolve(v9_base, None, env=env)
             except Exception as exc:     # never brick: the counter/revert is logged, the boot runs
                 print(f"[GUARD][ERR] boot count / revert failed ({type(exc).__name__}: {exc})")
         if v9_eff is not None:
@@ -1519,25 +1529,56 @@ def main(argv=None, **cycle_overrides):
                       command_state=command_state, bench_commands=args.bench_commands)
 
         def alt_video(b, _settings=None):
-            path = supervisor_config.one_shot_render(v9_base, v9_state,
-                                                     {"mode.media": "video"}, env=env)
-            s = resolve_rc_settings(path)
-            s["video"] = _vr.load_video_config(path)
-            vtx = _vtx.load_video_tx_config(path)
+            try:
+                path = supervisor_config.one_shot_render(v9_base, v9_state,
+                                                         {"mode.media": "video"}, env=env)
+                s = resolve_rc_settings(path)
+                s["video"] = _vr.load_video_config(path)
+                vtx = _vtx.load_video_tx_config(path)
+            except Exception as exc:
+                raise rc_supervisor_mod().AltActionUnavailable(f"{type(exc).__name__}: {exc}")
             return _vtx.run_video_tx_cycle(dry(s), vtx, supervised=b,
                                            skip_time_window=args.skip_time_window,
                                            bench_drop_chunks=bench_drop_chunks, **common)
 
         def alt_still(b, _settings=None):
-            path = supervisor_config.one_shot_render(v9_base, v9_state,
-                                                     {"mode.media": "still"}, env=env)
-            return run_cycle(dry(resolve_rc_settings(path)), supervised=b, capture_only=False,
+            try:
+                path = supervisor_config.one_shot_render(v9_base, v9_state,
+                                                         {"mode.media": "still"}, env=env)
+                s = resolve_rc_settings(path)
+            except Exception as exc:
+                raise rc_supervisor_mod().AltActionUnavailable(f"{type(exc).__name__}: {exc}")
+            return run_cycle(dry(s), supervised=b, capture_only=False,
                              skip_time_window=False, output_dir=args.output_dir,
                              **common, **cycle_overrides)
         sup.alt_actions = {"video": alt_video, "still": alt_still}
         eff = v9_eff.values
         sup.v9_limits = {k: eff[k] for k in ("commands.keepalive_s", "commands.keepalive_max_s",
                                              "commands.hold_max_min", "power.bus_always_on")}
+        sup.video_duration_s = float(eff["video.send.duration_s"])
+        inner = sup.reresolve_fn
+
+        def reresolve(current):
+            """S4b review R2-4: next-action keys that live outside `settings`
+            (the clip config, the recording block, save quality, storage, the
+            keep-alive limits) are re-read at every decision point too."""
+            fresh = inner(current) if inner is not None else current
+            now = supervisor_config.resolve(v9_base, supervisor_config.state_dict(v9_state),
+                                            env=env).values
+            sup.v9_limits = {k: now[k] for k in sup.v9_limits}
+            sup._save_quality_base = int(now["still.save.quality"])
+            sup.storage_cfg = {"max_used_pct": float(now["storage.max_used_pct"]),
+                               "min_free_gb": float(now["storage.min_free_gb"]),
+                               "ring_dry_run": bool(now["storage.ring_dry_run"])}
+            sup.video_duration_s = float(now["video.send.duration_s"])
+            if sup.media == "video" and now.get("mode.media") == "video":
+                fresh["video"] = _vr.load_video_config(args.config_path)
+                sup.current_vtx = _vtx.load_video_tx_config(args.config_path)
+                sup.min_action_s = (float(sup.current_vtx["duration_s"])
+                                    + float(sup.current_vtx["lead_in_s"])
+                                    + rc_supervisor_mod().W10_VIDEO_MARGIN_S)
+            return fresh
+        sup.reresolve_fn = reresolve
         sup.alt_min_action_s = {
             "video": float(eff["video.send.duration_s"]) + float(eff["video.send.lead_in_s"])
             + rc_supervisor_mod().W10_VIDEO_MARGIN_S,
@@ -1593,7 +1634,7 @@ def main(argv=None, **cycle_overrides):
                     return _run_stay_on(
                         sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
                             s, video_tx_cfg, supervised=b, **video_kwargs),
-                        settings, reresolve_fn, run_cfg,
+                        settings, sup.reresolve_fn, run_cfg,
                         _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None,
                                       reason_fn=lambda: sup.storage_reason), cycle_overrides,
                         rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
@@ -1678,7 +1719,7 @@ def main(argv=None, **cycle_overrides):
                 return _run_stay_on(
                     sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
                                                 skip_time_window=False, **stay_kwargs),
-                    settings, reresolve_fn, run_cfg,
+                    settings, sup.reresolve_fn, run_cfg,
                     _heartbeat_fn(still_rk, lambda s: s["q_max"],
                                   reason_fn=lambda: sup.storage_reason),
                     cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))

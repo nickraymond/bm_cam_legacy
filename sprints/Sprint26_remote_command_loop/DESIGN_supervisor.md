@@ -374,7 +374,9 @@ received and made the change"); the cellular copy is compact:
   `commands.topic`, `mode.output` → `save_local`). The new value applies at once. If no `cfm`
   for that `set` id arrives within **2 transmitting actions or 3 boots, whichever comes first**
   (errata S4 G10b: for `mode.output: save_local`, 3 boots or 2 h of uptime since in effect;
-  counters start when the value is in effect; stay_on restarts for NEXT_BOOT keys with exit 72)
+  counters start when the value is in effect; stay_on restarts for NEXT_BOOT keys with exit 72;
+  every guarded_revert key also reverts after 2 h of uptime in effect, a backstop for a
+  trigger-only stay_on unit that neither sends nor reboots — S4b review)
   (no wall clock: a broken comms key can kill the time read), the unit reverts, journals which
   limit fired, and reports `<CF reverted=>` on its next uplink. The boot counter is incremented
   and persisted before the UART opens, and the revert is evaluated then; with commands turned

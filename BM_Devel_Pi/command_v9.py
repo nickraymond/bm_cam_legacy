@@ -119,17 +119,25 @@ class Dispatcher:
         """One transaction: the verb's change + the cached answer + the
         high-water. Journal after the persist. Raises on a write failure."""
         done = []
+        hw = []
 
         def m(st):
             if mutate is not None:
                 done.extend(mutate(st) or [])
             st.remember(cid, answer)
             if answer.get("ok") and rng in W.HIGH_WATER_RANGES:
+                old = st.high_water.get(rng)
                 st.advance_high_water(rng, cid)
+                if st.high_water.get(rng) != old:
+                    hw.append((old, st.high_water[rng]))
         self.state.transaction(m)
         for path, old, new in done:
             if isinstance(path, str) and "." in path:
                 self.state.journal(source or rng or "unknown", path, old, new, cid)
+        for old, new in hw:
+            # S4b review #5: the journal survives a lost state file; this line
+            # lets the high-water be re-seeded (replay stays blocked).
+            self.state.journal("hw", f"high_water.{rng}", old, new, cid)
         return done
 
     def _reject(self, cid, rng, code, key=None, why=""):
@@ -162,6 +170,13 @@ class Dispatcher:
         cached = self.state.cached(cid)
         if cached is not None:
             return self._duplicate(cid, cached)
+        if rng == "service" and not ("sig" in cmd.fields
+                                     and W.verify_sig(cmd.raw, self.service_key)):
+            # S4b review #3: an unsigned service-range id must never move the
+            # service high-water (that would close the range for good).
+            self.daemon.stats["rejected"] += 1
+            return self._reject(cid, rng, "auth", "sig",
+                                "service-range ids need a valid service signature")
         if rng in W.HIGH_WATER_RANGES and self.state.is_old(rng, cid):
             self.daemon.stats["rejected"] += 1
             return self._reject(cid, rng, "old", why="below this sender's newest id")
@@ -189,16 +204,20 @@ class Dispatcher:
         now = self.clock()
         first = self._answered_at.get(cid)
         last = self._dup_cell.get(cid)
-        if first is not None:
-            cellular = now - first >= DUP_CELLULAR_QUIET_S and \
-                (last is None or now - last >= DUP_CELLULAR_QUIET_S)
-        else:
+        if first is not None:       # answered in THIS process: once, after 10 min
+            cellular = now - first >= DUP_CELLULAR_QUIET_S and last is None
+        else:                       # answered in an earlier process: once
             cellular = last is None
         if cellular:
             self._dup_cell[cid] = now
         ok = bool(cached.get("ok"))
-        self._answer(cid, ok, cached.get("e"), key=cached.get("k"), text=cached.get("t", ""),
-                     staged=cached.get("s"), granted=cached.get("v"), duplicate=True,
+        text, granted = cached.get("t", ""), cached.get("v")
+        if cached.get("hld") and cached.get("b") != self.state.boot_counter:
+            # S4b review #9: a hold is never persisted; one granted in an earlier
+            # boot is not active now (the re-send must not claim it is).
+            text, granted = "hold from an earlier boot: NOT active (send a new hld)", 0
+        self._answer(cid, ok, cached.get("e"), key=cached.get("k"), text=text,
+                     staged=cached.get("s"), granted=granted, duplicate=True,
                      cellular=cellular)
         if cellular and ok and cached.get("g"):
             # §6.2: a duplicate get re-sends its <CF> (at most once per 10 min, G9).
@@ -303,6 +322,13 @@ class Dispatcher:
             return self._reject(cmd.id, cmd.range, "ref", None,
                                 f"nothing is waiting for a cfm of id {ref}")
         staged = [p for p, r in pending.items() if r.get("cls") == "stage"]
+        if staged:
+            new_overlay = dict(self.state.overlay)
+            new_overlay.update((p, pending[p]["new"]) for p in staged)
+            try:
+                self._validate(cmd, new_overlay, staged)        # review #6: as it is NOW
+            except W.Rejected as rej:
+                return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
         text = f"cfm {ref}: " + ", ".join(
             f"{p} {'applied' if p in staged else 'confirmed'}" for p in sorted(pending))
         event = self._applied(cmd, text, mutate=lambda st: G.confirm(st, ref))
@@ -343,7 +369,7 @@ class Dispatcher:
             text = f"hold awake {granted} min"
             if granted < v:
                 text += f" (asked {v}: clamped by hold_max_min / the bus-power budget)"
-        return self._applied(cmd, text, answer_extra={"v": granted})
+        return self._applied(cmd, text, answer_extra={"v": granted, "hld": 1})
 
     def _paths_for(self, cmd, names, media):
         """Resolve names (full path, short name, or for reset a group prefix)."""
@@ -395,7 +421,9 @@ class Dispatcher:
     def _verb_set(self, cmd):
         try:
             self._check_cas(cmd)
-            media = self.effective().get("mode.media")
+            kv = cmd.fields["kv"]
+            med = next((kv[n] for n in kv if R.resolve_short(n, None) == "mode.media"), None)
+            media = med or self.effective().get("mode.media")      # review #7
             changes, paths = [], []
             for name, path in self._paths_for(cmd, cmd.fields["kv"], media):
                 value = cmd.fields["kv"][name]
@@ -406,6 +434,10 @@ class Dispatcher:
                     else R.check_value(key, value)
                 if why:
                     raise W.Rejected(cmd.id, "val", path, why)
+                if path == "mode.media" and value == "video_logger":
+                    # S4b review R2-3: the recorder runs the v8 path until R1; a
+                    # remote switch there would leave v9 (and its guards) for good.
+                    raise W.Rejected(cmd.id, "lock", path, "video_logger is set by deploy only")
                 cls = self._guard(cmd, key, value)
                 if path in paths:
                     raise W.Rejected(cmd.id, "key", path, "set twice in one command")
@@ -431,6 +463,11 @@ class Dispatcher:
             else "next action"
 
         def mutate(st):
+            for p, v, c in changes:
+                if c is None:
+                    # S4b review #6: an unguarded value replaces a staged or
+                    # probationary one (a later cfm of the old id must not apply it).
+                    st.guarded.pop(p, None)
             for p, v, c in guarded:
                 st.guarded[p] = G.new_record(st, p, cmd.id, c, v)
             return st.apply_overlay(applied, cmd.id)
@@ -460,7 +497,8 @@ class Dispatcher:
             for p in paths:
                 key = R.BY_PATH.get(p)
                 if key is not None and key.guard == R.SERVICE and not (
-                        "sig" in cmd.fields and W.verify_sig(cmd.raw, self.service_key)):
+                        cmd.range == "service" and "sig" in cmd.fields
+                        and W.verify_sig(cmd.raw, self.service_key)):
                     raise W.Rejected(cmd.id, "auth", p, f"{p} needs a valid service signature")
             new_overlay = {k: v for k, v in self.state.overlay.items() if k not in paths}
             self._validate(cmd, new_overlay, paths)
@@ -480,7 +518,14 @@ class Dispatcher:
     def _change_summary(self, cmd, event):
         """R5 / DESIGN §6.2: a <CF> of the keys that changed, after the ack,
         for a cellular sender (the backend's hash -> snapshot record). Also
-        notes next-boot keys for the stay_on config restart (G10g)."""
+        notes next-boot keys for the stay_on config restart (G10g). Never
+        raises: the ok is already persisted and answered."""
+        try:
+            self._change_summary_inner(cmd, event)
+        except Exception as exc:
+            self._log(f"[CMD][WARN] id={cmd.id}: change summary not sent ({exc})")
+
+    def _change_summary_inner(self, cmd, event):
         changed = [path for path, _old, _new in event.get("changed", [])]
         for path in changed:
             key = R.BY_PATH.get(path)
@@ -546,6 +591,15 @@ class Dispatcher:
         return self._applied(cmd, text, mutate=lambda st: st.arm_trigger(cmd.id, v, kv))
 
     def _verb_rsd(self, cmd):
+        n0 = len(self.daemon.heal_events)
+        try:
+            return self._rsd(cmd)
+        except Exception:
+            # review #10: nothing was stored, so <HL> must not report it either
+            del self.daemon.heal_events[n0:]
+            raise
+
+    def _rsd(self, cmd):
         value, ok = self.daemon._screen_heals(cmd.id, cmd.rsd)
         if value.get("x"):
             text = "rsd: every pending heal cancelled"

@@ -255,3 +255,33 @@ escapes + no split `%XX` + 3-digit part counts, v1 reader defaults from the regi
 `Rejected` hashable with args, stable `pending_trigger` object (the supervisor compares by
 identity). #4 fixed too: one pure `plan_fold()` is used by V9State and by
 `config_v2.state_overlay`, so a reset of a folded key sticks and the logged hash matches.
+
+### S4b independent review (2026-09-28, two fresh-context reviewers on daac449..88bdd3f)
+
+Command layer: 1 BLOCKER, 5 MAJOR, 4 MINOR, NITs. Runtime integration: 0 BLOCKER, 4 MAJOR,
+3 MINOR, 3 NIT (one overlapping). All fixed in the S4b review commit, each with a regression
+test (tests/test_s4b_review_fixes.py) or a golden:
+- BLOCKER: a guarded comms key on a trigger-only stay_on unit never reverted (no sends, no
+  reboots) -> every guarded_revert key also reverts after 2 h of uptime in effect; the stay_on
+  loop accrues idle uptime once a minute. (DESIGN §6.3 errata: tx2 / boot3 / 2 h backstop.)
+- the final ack flush and the <HL> lines waited for the lane guard past the per_boot halt
+  margin -> extended only within budget - TAIL_SAFETY_S (or bus_always_on / stay_on).
+- an unsigned service-range id moved the service high-water (closing the range) -> any
+  service-range id needs a valid sig (sig allowed on every verb); a signed reset of a service key
+  needs a service-range id.
+- the rsd-only drain could refuse an older stashed remote command e:old -> heal-range rsd only.
+- a MISSING state file after remote activity reopened replay -> every ok remote answer journals
+  an `hw` line; a missing file with such lines is treated as lost (re-seeded, service closed).
+- a later unguarded set left a staged record a cfm could apply -> dropped; cfm re-validates.
+- a failed media-override render re-picked every boot (no capture, no daemon) -> the trg is
+  cancelled loudly and the normal action runs; `set mode.media video_logger` refused (it would
+  leave the v9 path).
+- next-action keys outside `settings` (clip config, recording block, save quality, storage,
+  keep-alive limits) were frozen at process start -> re-read at every decision point
+  (golden stay_on_video_set_d: a `set d 8` while idle shapes the next clip).
+Minors/NITs: `m` resolves with a `med` in the same set; a duplicate hld from an earlier boot
+answers v:0 "not active"; heal events rolled back when the rsd persist fails; the cellular d:1
+copy goes once per process; a failure after an ok never becomes a second (err) answer; a revert
+restores the value's command id; W10 sizes a longer one-shot clip; the action log shows a one-shot
+output; guard uptime counted after the hold and before an exit; revert re-render falls back to
+the YAML base; dev_mode.sh `off` writes hlt 0 before re-arming.

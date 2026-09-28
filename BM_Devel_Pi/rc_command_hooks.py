@@ -331,11 +331,19 @@ def flush_acks(daemon, summary, clock=_time.monotonic, sleep_fn=_time.sleep,
             lane = getattr(daemon, "lane_wait_s", None)
             wait = lane() if lane is not None else 0.0
             if wait > 0 and not lane_extended:
-                # S4 b.8: the acks wait out ONE boundary guard (bounded) rather
-                # than being left for the cloud re-send.
-                deadline += wait
                 lane_extended = True
-                print(f"[CMD] ack flush: boundary guard, waiting {wait:.0f}s")
+                room_fn = getattr(daemon, "lane_room_fn", None)
+                room = room_fn() if room_fn is not None else None
+                if room is None or room >= wait:
+                    # S4 b.8: the acks wait out ONE boundary guard rather than
+                    # being left for the cloud re-send, but NEVER past the
+                    # per_boot halt margin (S4b review #2: the Spotter cuts the
+                    # bus on its own schedule).
+                    deadline += wait
+                    print(f"[CMD] ack flush: boundary guard, waiting {wait:.0f}s")
+                else:
+                    print(f"[CMD] ack flush: boundary guard ({wait:.0f}s) does not fit the "
+                          f"{room:.0f}s before the halt margin; acks left for the re-send")
             sleep_fn(0.2)
             drain_now(daemon, summary, clock=clock)
         if daemon.pending_acks:

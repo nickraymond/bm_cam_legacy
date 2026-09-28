@@ -154,6 +154,14 @@ class V9State:
     # ------------------------------------------------------------------ load
     def _load(self, trigger_validator):
         if not os.path.exists(self.path):
+            # S4b review #5: a MISSING file after v9 remote activity (fsck after
+            # a hard cut) is a lost file too; a fresh unit's journal has no
+            # high-water-range ids, so it starts empty as before.
+            if self._journal_high_water():
+                self.load_info["error"] = "state file missing after remote activity"
+                self._log(f"[CMD][WARN] v9 state {self.path} missing but the journal shows "
+                          "remote commands: treated as lost")
+                self._seed_lost_high_water()
             return
         try:
             with open(self.path, "r", encoding="utf-8") as fh:
@@ -207,22 +215,32 @@ class V9State:
                 self.pending_trigger_v9 = {"id": trig["id"], "v": trig["v"],
                                            "kv": dict(trig.get("kv") or {})}
 
-    def _seed_lost_high_water(self):
-        """Review S4a #3: after a lost file, old remote commands still sit in
-        Sofar's never-expiring mailbox. Seed each high-water range from the
-        journal's highest id, and close the service range outright."""
+    def _journal_high_water(self):
+        """{range: highest id} of every high-water-range id in the journal
+        (settings changes, and the `hw` line each ok remote answer leaves)."""
         import command_wire
         try:
             import config_journal
             entries = config_journal.read(config_journal.path_beside(self.path))
         except Exception:
             entries = []
+        out = {}
         for e in entries:
             cid = e.get("id")
             if _is_int(cid):
                 rng = command_wire.id_range(cid)
-                if rng in command_wire.HIGH_WATER_RANGES and cid > self.high_water.get(rng, -1):
-                    self.high_water[rng] = cid
+                if rng in command_wire.HIGH_WATER_RANGES and cid > out.get(rng, -1):
+                    out[rng] = cid
+        return out
+
+    def _seed_lost_high_water(self):
+        """Review S4a #3: after a lost file, old remote commands still sit in
+        Sofar's never-expiring mailbox. Seed each high-water range from the
+        journal's highest id, and close the service range outright."""
+        import command_wire
+        for rng, cid in self._journal_high_water().items():
+            if cid > self.high_water.get(rng, -1):
+                self.high_water[rng] = cid
         top = next(r[2] for r in command_wire.RANGES if r[0] == "service")
         self.high_water["service"] = top
         self._log(f"[CMD][WARN] v9 state lost: high-water re-seeded from the journal "
