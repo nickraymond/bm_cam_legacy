@@ -394,6 +394,12 @@ def send_compact_text_message(message):
     return len(payload)
 
 
+# Sprint26 S4 W8b (DESIGN §6.2, PLAN_S3b H5): the supervisor on a migrated
+# unit sets this to a callable -> [(key, value)] (cfg=<hash8>, up=<s>), placed
+# right after `a` so a 280 B cut never loses them. None = byte-identical.
+WS_EXTRA_FN = None
+
+
 def send_wake_status(
     action,
     timezone_name=None,
@@ -422,9 +428,16 @@ def send_wake_status(
     except Exception as exc:
         debug_print(f"Failed to read CPU temp for wake status: {exc}")
 
+    extra = []
+    if WS_EXTRA_FN is not None:
+        try:
+            extra = list(WS_EXTRA_FN() or [])
+        except Exception as exc:        # a heartbeat must never fail on its extras
+            debug_print(f"WS extra fields skipped: {exc}")
     fields = [
         ("v", "1"),
         ("a", action),
+        *extra,
         ("tz", timezone_name),
         ("lt", _format_hhmm(local_time)),
         ("ws", _format_hhmm(window_start)),

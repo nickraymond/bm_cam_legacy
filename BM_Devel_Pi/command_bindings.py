@@ -260,29 +260,6 @@ def stranding_warnings(state):
             "not executed)"]
 
 
-def apply_trigger(settings, trigger):
-    """Map a consumed one-shot trigger onto settings + run flags
-    (D-S12-3/4/5). Pure: returns (new_settings, flags, log_lines).
-
-    flags: skip_time_window is ALWAYS True (D-S12-4 — the trigger boot
-    bypasses the window gate, once); capture_only True for trg 1.
-    A reference trigger sets source_image_path for THIS boot only — the
-    persisted `src` setting is untouched.
-    """
-    entry = TRG_TABLE[trigger["value"]]
-    s = dict(settings)
-    flags = {"skip_time_window": True,
-             "capture_only": entry["action"] == "capture"}
-    lines = [f"[CMD] one-shot trigger id={trigger['id']} "
-             f"trg={trigger['value']} ({entry['label']}): window gate "
-             "BYPASSED for this boot only"]
-    if entry["src"] is not None:
-        path = SRC_TABLE[entry["src"]]["path"]
-        s["source_image_path"] = path
-        lines.append(f"[CMD] trigger source: {path} (camera skipped this "
-                     "boot; persisted src setting untouched)")
-    if flags["capture_only"]:
-        lines.append("[CMD] trigger action: capture only — native to SD, "
-                     "no encode/transmit")
-    s["trigger"] = dict(trigger)
-    return s, flags, lines
+# Sprint26 S4 c.2: apply_trigger lives in command_trigger (the supervisor's v9
+# path uses it without loading these v8 bindings); re-exported here unchanged.
+from command_trigger import apply_trigger  # noqa: E402,F401

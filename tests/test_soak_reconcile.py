@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # filename: test_soak_reconcile.py
-# description: Sprint10 soak — tests for the backend reconciler grouping logic.
+# description: Sprint10 soak / Sprint26 S4 c.3 — tests for the backend reconciler (grouping, v9 acks, <CF>, <HL>).
 """
-Sprint10 — tests for tools/soak_reconcile.py.
+Tests for tools/soak_reconcile.py.
 
 Pins: dual chunk-format parsing (legacy `<I{i}>` and gid `<Igid.{i}>`),
 gid-exact attribution under interleaved/straggler arrival, declared
 totals (START length / END sent_buffers) driving missing-tail
-detection, and legacy arrival-order fallback staying intact.
+detection, and legacy arrival-order fallback staying intact. Sprint26
+S4 c.3: v9 slim-ack rows store h/e/k/s/d/v (no st); <CF> and <HL> lines
+are their own kinds (never "other", never an ack).
 
 Run (repo root):
   python3 -m unittest tests.test_soak_reconcile -v
@@ -19,7 +21,9 @@ import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
+sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
 
+import command_wire as W  # noqa: E402
 import soak_reconcile as sr  # noqa: E402
 
 
@@ -52,6 +56,39 @@ class TestClassify(unittest.TestCase):
         self.assertEqual(f["length"], 180)
         self.assertEqual(f["gid"], "0a1")
         self.assertEqual(f["fn"], "x.jpg")
+
+
+class TestV9Replies(unittest.TestCase):
+    HL = "<HL v=1 key=k1 a=sent n=3 r=ok id=100001 w=w9>\n"
+
+    def test_classify(self):
+        self.assertEqual(sr.classify(W.build_ack(1_000_001, True, h="a41c09e2"))[0], "ack")
+        self.assertEqual(sr.classify(W.build_cf("a41c09e2", [("d", 8)])[0])[0], "cf")
+        kind, val = sr.classify(self.HL)
+        self.assertEqual((kind, val["a"], val["id"]), ("hl", "sent", "100001"))
+
+    def test_rows_store_slim_ack_cf_and_hl(self):
+        rows = [row("T1", W.build_ack(1_000_001, False, h="a41c09e2", e="val",
+                                      k="still.crop")),
+                row("T2", W.build_ack(1_000_002, True, h="a41c09e2", d=1)),
+                row("T3", W.build_cf("a41c09e2", [("still.crop", [0, 0, 4608, 2592],
+                                                   ("cmd", 1_000_002))])[0]),
+                row("T4", W.build_cf("a41c09e2", [], head=[("err", "overlay"),
+                                                           ("k", "still.crop")])[0]),
+                row("T5", self.HL)]
+        out = sr.reconcile(rows)
+        self.assertEqual(out["counts"], {"ack": 2, "cf": 2, "hl": 1})
+        a0, a1 = out["acks"]
+        self.assertEqual((a0["ok"], a0["h"], a0["e"], a0["k"]),
+                         (0, "a41c09e2", "val", "still.crop"))
+        self.assertEqual((a1["ok"], a1["d"]), (1, 1))
+        self.assertNotIn("st", a0)
+        self.assertEqual(out["cf"][0]["items"],
+                         [["still.crop", "0,0,4608,2592", "c1000002"]])
+        self.assertEqual((out["cf"][1]["err"], out["cf"][1]["k"]), ("overlay", "still.crop"))
+        self.assertEqual(out["heals"][0]["key"], "k1")
+        self.assertEqual(out["heals"][0]["node"], "53171fa3d81a8e6f")
+        self.assertEqual(out["other"], [])
 
 
 class TestLegacyGrouping(unittest.TestCase):

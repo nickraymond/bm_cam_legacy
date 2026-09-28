@@ -292,3 +292,16 @@ second answer after any verb's ok; an unsigned service-range rejection is not ca
 id cannot block the real signed command); `get journal` skips `hw` lines; the v9 re-resolve loads
 the video config first (nothing half-updated on failure) and refreshes the W10 video minimum; a
 save-quality set drained at boot applies to this action.
+
+### S4c independent review (2026-09-28, fresh-context reviewer on 88bdd3f..8af6c60)
+
+0 BLOCKER, 0 MAJOR, 4 MINOR, 7 NIT — all fixed in the S4c review commit: the `val` error text
+(bad JSON / no id gets no ack at all); bm_service_sign points at `sofar_send_command --json`,
+never `--raw-message`; the GUI retires (never re-sends) a pre-v9 log entry; the v8 reference for
+legacy/field units is named (`git show 50e4586:docs/bmcam_command_reference.md`) with a
+`--raw-message` example, in the doc and the hotspot skill; `--kv` refuses a key given twice; the
+scheduler refuses at plan load what the GUI would drop; START `r=na` for a stored reference and
+`m=` always on a triggered still; W8b fields also on a migrated unit with commands off; every part
+of a multi-part `<CF>` is printed by the poller; the V9State marker is an attribute
+(`is_v9`); a staged ack's cfm hint is a `note`, not a mismatch. Open (DESIGN l.90 shows
+`up=.. cfg=..`; the unit sends `cfg=.. up=..` — order is irrelevant to the parser).

@@ -4,6 +4,14 @@ Local operator tool for sending remote commands to BM camera units via
 the Sofar cloud (SPEC "Operator GUI"; DESIGN D9/D10). Runs on the Mac,
 serves localhost only. NOT the customer website.
 
+> **Sprint26 S4 (commands v9):** the GUI now builds v9 commands (set / get /
+> reset / cfm / trg + kv / hld / ping / help / wap) from `config_registry`,
+> starts ids at 1 000 000 (the remote range), and verifies the slim ack
+> (`{"id","ok","h"[,"e","k","s","d","v"]}`; `ok:0` = rejected with `e`/`k`,
+> `s:1` = staged until `cfm`). The command reference is
+> `docs/bmcam_command_reference.md` (generated). Sections below that describe
+> the v8 preset tables and the `st` snapshot apply to legacy units only.
+
 ## Start
 
 ```bash

@@ -70,6 +70,24 @@ def _rc_field_pairs(quality, enc_attempts, complete, reason):
     return pairs
 
 
+# Sprint26 S4 W8b (DESIGN §6.2, §9): the supervisor on a migrated unit sets
+# this to a callable -> [(key, value)] of CORE START fields (cfg, and on a
+# triggered action tg/r/m/d). None (legacy, v1 supervisor) = the wire is
+# byte-identical. Core fields are never dropped.
+START_EXTRA_FN = None
+
+
+def _start_extra_parts():
+    if START_EXTRA_FN is None:
+        return []
+    try:
+        pairs = START_EXTRA_FN() or []
+    except Exception as exc:           # a START must never fail on its extras
+        print(f"[UPLINK][WARN] START extra fields skipped: {exc}")
+        return []
+    return [f"{k}={_clean_value(v, max_len=24)}" for k, v in pairs if v is not None]
+
+
 def _valid_key(key):
     """A rev 5 media key: exactly 6 lowercase base-36 chars (raise otherwise —
     a malformed key on the wire would be silently rejected by the backend)."""
@@ -111,6 +129,8 @@ def build_rc_start_message(
     ]
     if key is not None:
         base_parts.append(f"key={_valid_key(key)}")
+    extra_parts = _start_extra_parts()
+    base_parts += extra_parts
     rc_parts = [
         f"{key}={_clean_value(value, max_len=12)}"
         for key, value in _rc_field_pairs(quality, enc_attempts, complete, reason)
@@ -136,6 +156,10 @@ def build_rc_start_message(
             parts.append(f"{key}={_clean_value(value, max_len=max_len)}")
         return "<START IMG> " + ", ".join(parts) + "\n"
 
+    if len(extra_parts) > 1 and len(render([]).encode("ascii", errors="ignore")) > max_payload_bytes:
+        # W8b: never truncate a core field; keep cfg, shed tg/r/m/d (they are
+        # also in the console answer and the action log).
+        base_parts = base_parts[:len(base_parts) - len(extra_parts) + 1]
     selected = list(optional)
     msg = render(selected)
 
@@ -251,6 +275,8 @@ def build_rc_video_start_message(
     ]
     if key is not None:
         base_parts.append(f"key={_valid_key(key)}")
+    extra_parts = _start_extra_parts()
+    base_parts += extra_parts
     video_pairs = [
         ("fmt", RC_VIDEO_FORMAT), ("fps", fps_text), ("dur", f"{float(dur):.1f}"),
         ("res", res), ("crop", crop), rate_pair, ("cmp", 1 if complete else 0),
@@ -270,6 +296,8 @@ def build_rc_video_start_message(
             for k, v in selected]
         return "<START IMG> " + ", ".join(parts) + "\n"
 
+    if len(extra_parts) > 1 and len(render([]).encode("ascii")) > max_payload_bytes:
+        base_parts = base_parts[:len(base_parts) - len(extra_parts) + 1]   # W8b: keep cfg
     selected = list(optional)
     msg = render(selected)
     for key_to_drop in drop_order:

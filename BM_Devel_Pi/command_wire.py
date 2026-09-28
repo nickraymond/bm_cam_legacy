@@ -91,6 +91,24 @@ FIELDS = {
 # unsigned.
 for _fields in FIELDS.values():
     _fields.add("sig")
+# The v9 error codes (G8): the ack's `e`. One source for the unit, the tools
+# and the generated command reference (tools/gen_command_reference.py).
+ERROR_CODES = {
+    "id": "id outside every sender range (console answer only)",
+    "cmd": "unknown or not-yet-available verb (e.g. a retired v8 verb)",
+    "key": "not a setting, not settable this way, or set twice (k = the name)",
+    "val": "wrong type, out of range, bad charset, or JSON > 248 B (k = the key); not JSON "
+           "or no usable id gets NO ack (console line only)",
+    "xk": "the resulting config breaks a cross-key or environment rule (k = a key it names)",
+    "lock": "a locked key (file paths, commands.runtime, video_logger media): deploy only",
+    "auth": "a service key or a service-range id without a valid signature",
+    "old": "id at or below this sender range's newest id (send a newer id)",
+    "cas": "`b` (compare-and-set) does not match the current config hash",
+    "big": "a cellular get needs more than 3 <CF> parts (ask for fewer, or \"to\":\"con\")",
+    "ref": "cfm of an id that nothing is waiting for",
+    "rsd": "every heal of the rsd was refused (<HL> says why)",
+    "err": "the state file could not be written: nothing changed (send it again)",
+}
 TRG_VALUES = (0, 1, 2, 3, 4)   # 0 cancel · 1 capture+save · 2 capture+output per mode · 3/4 reference image
 HLD_MAX_WIRE_MIN = 1440        # the registry cap (commands.hold_max_min) is applied by the dispatcher
 

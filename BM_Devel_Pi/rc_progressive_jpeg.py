@@ -1552,6 +1552,11 @@ def main(argv=None, **cycle_overrides):
                              skip_time_window=False, output_dir=args.output_dir,
                              **common, **cycle_overrides)
         sup.alt_actions = {"video": alt_video, "still": alt_still}
+        errs = [("overlay", p, why) for p, _v, why in v9_eff.dropped]
+        errs += [("base", None, why) for why in v9_eff.base_errors]
+        if getattr(boot, "level", "v2") not in (None, "v2"):
+            errs.append(("level", None, f"running {boot.level}"))
+        sup.config_errors = errs
         eff = v9_eff.values
         sup.v9_limits = {k: eff[k] for k in ("commands.keepalive_s", "commands.keepalive_max_s",
                                              "commands.hold_max_min", "power.bus_always_on")}
