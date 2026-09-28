@@ -1,6 +1,6 @@
 # Sprint26 S6 — remote: implementation plan
 
-Written 2026-09-28. Status: **DRAFT — awaiting Nick's approval.** Independent review folded in (§7).
+Written 2026-09-28. Status: **APPROVED as proposed (Nick, 2026-09-28)** — H1–H6 ruled as written. Independent review folded in (§7).
 Spec: DESIGN_supervisor.md §6.1–6.5, §8.2 W9, §8.3 S6 row, §9, §10 O8/O11, §11; PLAN_S4.md
 G4, G8, G9, G13; KICKOFF.md R3–R5; runs/s5_console_20260928/RESULTS.md (F1, F5).
 
