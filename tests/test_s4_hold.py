@@ -127,6 +127,45 @@ class KeepAlive(unittest.TestCase):
         self.assertEqual(quiet(b.stay_awake, r.daemon, clock.sleep), "trigger")
         self.assertLess(clock.t, 600.0)
 
+    def test_a_trg_while_held_on_a_held_bus_fires_past_the_budget(self):
+        # S5 F7 (bench 2026-09-28): bmcam003 on a held bus, hld 120 granted 30 min
+        # after boot; a trg then stayed armed because the 480 s boot budget was spent.
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=480.0, limits={"power.bus_always_on": True})
+        clock.t = 1800.0
+        self.assertEqual(b.request_hold(60), 60)
+        r.daemon._inbound.put(json.dumps({"id": 1_000_001, "c": "trg", "v": 2}).encode())
+        self.assertEqual(quiet(b.stay_awake, r.daemon, clock.sleep), "trigger")
+
+    def test_a_spent_budget_on_a_scheduled_bus_keeps_the_trg_armed(self):
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=480.0)
+        clock.t = 1800.0
+        r.send({"id": 1_000_001, "c": "trg", "v": 2})
+        self.assertIsNotNone(b._pending_trigger())
+        self.assertFalse(b.w10_trigger_fits())
+
+    def test_a_w10_action_on_a_held_bus_gets_a_fresh_budget(self):
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=480.0, limits={"power.bus_always_on": True})
+        b.settings = {"budget_seconds": 480, "pacing_delay_seconds": 1.0}
+        b.owner = type("Owner", (), {"daemon": r.daemon})()
+        clock.t = 1800.0
+        old = b.budget
+        self.assertEqual(old.remaining_s(), 0.0)
+        b.reanchor_budget = True           # what _w10_actions sets on a held bus
+        _daemon, budget = b.start({}, clock=clock, sleep_fn=clock.sleep, halt_fn=None,
+                                  bm_close_fn=None, daemon_factory=None, log_fn=print,
+                                  close_warn=print, end_line=None)
+        self.assertIsNot(budget, old)
+        self.assertEqual(budget.remaining_s(), 480.0)
+        self.assertFalse(b.reanchor_budget)
+        b.reanchor_budget = False          # scheduled bus: the one boot budget stays
+        _daemon, again = b.start({}, clock=clock, sleep_fn=clock.sleep, halt_fn=None,
+                                 bm_close_fn=None, daemon_factory=None, log_fn=print,
+                                 close_warn=print, end_line=None)
+        self.assertIs(again, budget)
+
     def test_off_the_v9_path_or_stay_on_does_nothing(self):
         r = Rig(self)
         b, clock = make_boot(r, run="stay_on")
