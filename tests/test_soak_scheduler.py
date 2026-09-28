@@ -2,7 +2,9 @@
 # filename: test_soak_scheduler.py
 # description: Sprint10 soak — pin the scheduler's catch-up time logic.
 """Pins the late-fire bugfix: a recently-missed HH:MM fires now; an old
-one schedules for its next future occurrence.
+one schedules for its next future occurrence. Sprint26 S4 c.3: plan
+entries carry a v9 command object (`cmd`), checked at start; gui entries
+post it flat without an id, direct entries send it with one.
 
 Run: python3 -m unittest tests.test_soak_scheduler -v
 """
@@ -14,6 +16,9 @@ from datetime import datetime, timedelta, timezone
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
 
+sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
+
+import soak_command_scheduler as scs  # noqa: E402
 from soak_command_scheduler import next_occurrence  # noqa: E402
 
 NOW = datetime(2026, 7, 27, 23, 5, tzinfo=timezone.utc)
@@ -41,6 +46,39 @@ class TestNextOccurrence(unittest.TestCase):
         t = next_occurrence("00:08", NOW)
         self.assertGreater(t, NOW)
         self.assertEqual((t.hour, t.minute, t.day), (0, 8, 28))
+
+
+class TestV9Entries(unittest.TestCase):
+    GUI = {"at": "12:00", "route": "gui", "spotter_id": "SPOT-TEST",
+           "node_id": "53171fa3d81a8e6f", "cmd": {"c": "set", "kv": {"d": 8}},
+           "note": "set d"}
+    DIRECT = {"at": "12:00", "route": "direct", "spotter_id": "SPOT-TEST",
+              "cmd": {"id": 1_000_300, "c": "get", "k": ["mode"]}}
+
+    def test_good_entries(self):
+        self.assertIsNone(scs.check_entry(self.GUI))
+        self.assertIsNone(scs.check_entry(self.DIRECT))
+        self.assertIsNone(scs.check_entry(dict(self.DIRECT, raw="bm pub x 1 1")))
+        entry = {"at": "12:00", "spotter_id": "S", "id": 1_000_301,
+                 "cmd": {"c": "ping"}}
+        self.assertIsNone(scs.check_entry(entry))
+        self.assertEqual(scs.direct_command(entry), {"id": 1_000_301, "c": "ping"})
+
+    def test_bad_entries_refused(self):
+        bad = [dict(self.GUI, cmd=None),
+               {"at": "12:00", "route": "gui", "spotter_id": "S", "c": "roi", "v": 2},
+               dict(self.GUI, cmd={"id": 1_000_000, "c": "ping"}),        # gui + id
+               dict(self.GUI, cmd={"c": "set", "kv": {"nope.key": 1}}),
+               dict(self.DIRECT, cmd={"c": "ping"}),                        # no id
+               dict(self.DIRECT, cmd={"id": 7, "c": "ping"}),               # console id
+               dict(self.GUI, raw="x")]
+        for entry in bad:
+            self.assertIsNotNone(scs.check_entry(entry), entry)
+
+    def test_gui_body_is_flat_v9(self):
+        self.assertEqual(scs.gui_body(self.GUI),
+                         {"c": "set", "kv": {"d": 8}, "spotter_id": "SPOT-TEST",
+                          "node_id": "53171fa3d81a8e6f", "override_in_flight": False})
 
 
 if __name__ == "__main__":

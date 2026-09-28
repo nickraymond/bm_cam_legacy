@@ -115,7 +115,7 @@ class Rejections(unittest.TestCase):
         R({"id": 7, "c": "wap"}, "val", "v")
         R({"id": 7, "c": "rsd"}, "val")
         R({"id": 7, "c": "rsd", "h": [["abc", "1"]]}, "val")          # bad media key
-        R({"id": 7, "c": "rsd", "x": 1, "sig": "0" * 16}, "key", "sig")
+        R({"id": 7, "c": "rsd", "x": 1, "sig": "ABC"}, "auth", "sig")     # any verb may sign
 
     def test_unclean_key_names_are_not_echoed(self):
         exc = self.reject({"id": 7, "c": "ping", "we ird": 1}, "key")

@@ -78,13 +78,36 @@ FIELDS = {
     "ping":  {"to"},
     "help":  {"to"},
     "get":   {"k", "to"},
-    "set":   {"kv", "b", "sig"},
-    "reset": {"k", "all", "b", "sig"},
+    "set":   {"kv", "b"},
+    "reset": {"k", "all", "b"},
     "cfm":   {"ref"},
     "trg":   {"v", "kv"},
     "hld":   {"v"},
     "rsd":   {"h", "x"},
     "wap":   {"v"},
+}
+# Every verb may carry `sig`: a service-range id needs a valid signature
+# whatever the verb (S4b review #3), so it never moves the service high-water
+# unsigned.
+for _fields in FIELDS.values():
+    _fields.add("sig")
+# The v9 error codes (G8): the ack's `e`. One source for the unit, the tools
+# and the generated command reference (tools/gen_command_reference.py).
+ERROR_CODES = {
+    "id": "id outside every sender range (console answer only)",
+    "cmd": "unknown or not-yet-available verb (e.g. a retired v8 verb)",
+    "key": "not a setting, not settable this way, or set twice (k = the name)",
+    "val": "wrong type, out of range, bad charset, or JSON > 248 B (k = the key); not JSON "
+           "or no usable id gets NO ack (console line only)",
+    "xk": "the resulting config breaks a cross-key or environment rule (k = a key it names)",
+    "lock": "a locked key (file paths, commands.runtime, video_logger media): deploy only",
+    "auth": "a service key or a service-range id without a valid signature",
+    "old": "id at or below this sender range's newest id (send a newer id)",
+    "cas": "`b` (compare-and-set) does not match the current config hash",
+    "big": "a cellular get needs more than 3 <CF> parts (ask for fewer, or \"to\":\"con\")",
+    "ref": "cfm of an id that nothing is waiting for",
+    "rsd": "every heal of the rsd was refused (<HL> says why)",
+    "err": "the state file could not be written: nothing changed (send it again)",
 }
 TRG_VALUES = (0, 1, 2, 3, 4)   # 0 cancel · 1 capture+save · 2 capture+output per mode · 3/4 reference image
 HLD_MAX_WIRE_MIN = 1440        # the registry cap (commands.hold_max_min) is applied by the dispatcher
@@ -262,6 +285,8 @@ def decode(payload, parse_rsd=None):
     if extra:
         raise Rejected(cid, "key", extra[0], f"{verb} takes no {extra[0][:48]!r}")
 
+    if "sig" in fields and not (isinstance(fields["sig"], str) and RE_SIG.match(fields["sig"])):
+        raise Rejected(cid, "auth", "sig", "sig is 16 lowercase hex")
     cmd = Command(id=cid, verb=verb, range=rng, fields=fields, raw=data)
     if verb == "rsd":
         heal = parse_rsd(data) if parse_rsd else None
@@ -274,8 +299,6 @@ def decode(payload, parse_rsd=None):
         raise Rejected(cid, "val", "to", 'to is "con" (console only) or absent')
     if "b" in fields and not (isinstance(fields["b"], str) and RE_HASH8.match(fields["b"])):
         raise Rejected(cid, "val", "b", "b is an 8-hex config hash")
-    if "sig" in fields and not (isinstance(fields["sig"], str) and RE_SIG.match(fields["sig"])):
-        raise Rejected(cid, "auth", "sig", "sig is 16 lowercase hex")
     if "kv" in fields:
         kv = fields["kv"]
         if not isinstance(kv, dict) or not 1 <= len(kv) <= MAX_KV:

@@ -68,6 +68,11 @@ ACTION_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "cron_logs", "supervisor_actions.jsonl")
 
 
+class AltActionUnavailable(RuntimeError):
+    """The other media's action could not be prepared (its config does not
+    resolve); raised BEFORE the action starts (b.6b)."""
+
+
 class Boot:
     """One per_boot run: the budget, the port owner and the action's summary."""
 
@@ -107,6 +112,38 @@ class Boot:
         self.storage_cfg = None       # storage.* (the one SD limit pair, §5 C3)
         self.storage_reason = None    # "storage_full" while the SD is over its limit
         self.save_time_reads = 0      # save_local_time_read calls that read Spotter time
+        # S4 W8a (PLAN_S4.md G1): the v9 reply policy on a migrated unit
+        # (command_replies.V9Replies), handed to the daemon at process start.
+        self.v9_replies = None
+        self.v9_dispatch_factory = None   # b.2c: daemon -> command_v9.Dispatcher
+        self.guard_state = None           # b.5: the V9State whose guarded keys count actions
+        # b.6a (§9, G6): a trg kv applies to ONE action. one_shot_fn(kv) -> the
+        # action's settings from a per-action render copy (video: it also sets
+        # one_shot_vtx); the output and save quality are one-action overrides.
+        self.one_shot_fn = None
+        self.one_shot_vtx = None
+        self.one_shot_output = None
+        self.one_shot_kv = None
+        self._save_quality_base = None
+        # b.6b (§6.1 "media can be overridden one-shot"): the other media's action,
+        # {media: fn(boot, settings=None)}, chosen at a decision point when the
+        # pending trg's kv names that media; and its W10 minimum.
+        self.alt_actions = {}
+        self.alt_min_action_s = {}
+        self.video_duration_s = None      # the configured clip length (W10 sizing)
+        self.current_vtx = None           # S4b review R2-4: the clip config as of now
+        self._process_mark = None         # W8b: up= counts from the process start
+        self.config_errors = []           # K7: [(kind, key, why)] -> <CF err> at start
+        # b.6c (DESIGN §4 keep-alive / hld): limits from the effective config
+        # (commands.keepalive_s, keepalive_max_s, hold_max_min,
+        # power.bus_always_on); hold and keep-alive live in memory only.
+        self.v9_limits = {}
+        self.hold_until = None
+        self.last_command_at = None
+        self._normal_end = None
+        self._sleep_fn = None
+        self._guard_mark = None           # clock() of the last guard note (uptime accrual)
+        self._guard_clock = None
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -143,6 +180,8 @@ class Boot:
         per process; raises on a UART failure (the owner is set first, so
         finish() still stops the reader and closes/halts)."""
         s = self.settings
+        self._guard_clock, self._guard_mark = clock, clock()
+        self._sleep_fn = sleep_fn
         self.owner = PortOwner(s, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
                                clock=clock, sleep_fn=sleep_fn, log_fn=log_fn)
         self.owner.begin()
@@ -152,9 +191,184 @@ class Boot:
                                     self.bm_commands_cfg, self.command_state)
             # W6: every Spotter time read over the shared port is a fresh one.
             self.owner.daemon.fresh_time_reads = True
+            if self.v9_replies is not None:
+                self.owner.daemon.v9 = self.v9_replies
+            if self.v9_dispatch_factory is not None:
+                # b.8: every small cellular send shares the lane guard (§6.1)
+                self.owner.daemon.lane_cfg = dict(s.get("transmit_phase_cfg") or {})
+                self.owner.daemon.lane_room_fn = self._lane_room
+                self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
+                self.owner.daemon.v9_dispatch.boot = self          # b.6c: hld + keep-alive
+                if self.guard_state is not None:                    # b.7: mid-burst inbox
+                    import command_inbox
+                    self.owner.daemon.v9_inbox = command_inbox.Inbox(
+                        command_inbox.path_beside(self.guard_state.path))
+                self.owner.daemon.v9_dispatch.flush_notes()     # G10f: <CF reverted=..>
+                self._install_wire_extras()                         # W8b
+                self.owner.daemon.v9_dispatch.report_errors(self.config_errors)   # K7
+        if self.v9_replies is not None and self._process_mark is None:
+            # W8b on a migrated unit even with commands off (S4c review NIT 8):
+            # the heartbeat and START carry cfg= whether or not a daemon runs
+            self._install_wire_extras()
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
+
+    # ------------------------------------------------ b.6c: hld + keep-alive
+    def _now(self):
+        return self._guard_clock() if self._guard_clock is not None else time.monotonic()
+
+    def _awake_limit(self):
+        """The latest monotonic time this per_boot unit may stay up: the budget
+        minus the halt margin (the Spotter cuts the bus on its own schedule),
+        or None (no limit) when power.bus_always_on."""
+        if self.v9_limits.get("power.bus_always_on") or self.budget is None:
+            return None
+        return self._now() + self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
+
+    # ------------------------------------------------------------ W8b (S4c)
+    def _install_wire_extras(self):
+        """W8b: cfg=<hash8> + up=<s> on every <WS>; START cfg (core) and, on a
+        triggered action, tg/r/m/d (DESIGN §9: the resolved one-shot values).
+        v9 path only; cleared by finish()."""
+        import rc_telemetry
+        import rc_uplink_messages
+        self._process_mark = self._now()
+        rc_telemetry.WS_EXTRA_FN = self._ws_extra
+        rc_uplink_messages.START_EXTRA_FN = self._start_extra
+
+    def _config_hash(self):
+        replies = self.v9_replies
+        return replies._hash() if replies is not None else None
+
+    def _ws_extra(self):
+        return [("cfg", self._config_hash()),
+                ("up", int(self._now() - (self._process_mark or self._now())))]
+
+    def _start_extra(self):
+        pairs = [("cfg", self._config_hash())]
+        trig = (self.summary or {}).get("trigger")
+        if isinstance(trig, dict) and trig.get("id") is not None:
+            s = self.settings or {}
+            vtx = self.one_shot_vtx or self.current_vtx
+            pairs.append(("tg", trig["id"]))
+            if self.media == "still":
+                import rc_uplink_messages
+                crop = None if s.get("source_image_path") else s.get("crop_native_xywh")
+                pairs.append(("r", rc_uplink_messages.format_crop(crop)))   # na: a stored ref
+                pairs.append(("m", s.get("message_cap")))
+            elif self.media == "video" and vtx:
+                pairs += [("m", vtx.get("message_cap")), ("d", vtx.get("duration_s"))]
+        return pairs
+
+    def _lane_room(self):
+        """Seconds a lane wait may add before the per_boot halt margin, or None
+        (no limit: stay_on never halts; power.bus_always_on)."""
+        if self.run != "per_boot" or self.v9_limits.get("power.bus_always_on") \
+                or self.budget is None:
+            return None
+        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
+
+    def note_command(self):
+        """Keep-alive: every command received pushes the halt back (§4)."""
+        self.last_command_at = self._now()
+
+    def request_hold(self, minutes):
+        """hld v: hold awake `minutes` (0 releases). -> the minutes granted:
+        at most commands.hold_max_min, and on per_boot at most what the budget
+        allows (unless power.bus_always_on). Never persisted (§4)."""
+        if minutes <= 0:
+            self.hold_until = None
+            return 0
+        granted = min(int(minutes), int(self.v9_limits.get("commands.hold_max_min", 120)))
+        if self.run == "per_boot":
+            limit = self._awake_limit()
+            if limit is not None:
+                granted = max(0, min(granted, int((limit - self._now()) // 60)))
+        self.hold_until = self._now() + granted * 60.0 if granted > 0 else None
+        return granted
+
+    def awake_until(self):
+        """per_boot: the time the unit must stay up for hld / keep-alive, or
+        None. Keep-alive = the last command + keepalive_s, at most
+        keepalive_max_s past the normal end; both clamped to the budget."""
+        if self._normal_end is None:
+            self._normal_end = self._now()
+        ends = []
+        if self.hold_until is not None:
+            ends.append(self.hold_until)
+        ka = float(self.v9_limits.get("commands.keepalive_s", 0) or 0)
+        if ka > 0 and self.last_command_at is not None:
+            cap = self._normal_end + float(self.v9_limits.get("commands.keepalive_max_s", 0))
+            ends.append(min(self.last_command_at + ka, cap))
+        if not ends:
+            return None
+        until = max(ends)
+        limit = self._awake_limit()
+        return until if limit is None else min(until, limit)
+
+    def stay_awake(self, daemon, sleep_fn):
+        """b.6c: after the action and its tail, stay up while a hold or the
+        keep-alive asks (commands, acks and console keep flowing). Returns
+        "trigger" when a trg now fits this boot (W10), else "done". Commands
+        applied meanwhile govern the halt (the overlay is re-read)."""
+        if daemon is None or self.run != "per_boot" or not self.v9_limits:
+            return "done"
+        applied = 0
+        reason = "done"
+        announced = False
+        while True:
+            until = self.awake_until()
+            if until is None or self._now() >= until:
+                break
+            if not announced:
+                print(f"[SUP] staying awake {until - self._now():.0f}s "
+                      f"(hld={self.hold_until is not None}, keep-alive after a command)")
+                announced = True
+            applied += len(_idle_tick(daemon, self._now, sleep_fn))
+            if self.w10_trigger_fits():
+                reason = "trigger"
+                break
+            sleep_fn(IDLE_TICK_S)
+        if applied and self.reresolve_fn is not None:
+            self.settings = self._reresolve(self.settings, self.summary or {})
+        return reason
+
+    def _trigger_media(self):
+        trg = self._pending_trigger()
+        if not trg:
+            return None
+        return (trg.get("kv") or {}).get("mode.media")
+
+    def pick_action(self, default_fn):
+        """b.6b: the action to run at this decision point. A pending trg whose kv
+        names the OTHER media runs that media's action (from a per-action
+        render) with this boot's port, daemon and budget; the boot's media is
+        swapped for that one action. Otherwise `default_fn`."""
+        media = self._trigger_media()
+        alt = self.alt_actions.get(media) if media and media != self.media else None
+        if alt is None:
+            return default_fn
+
+        def run_alt(boot, settings=None):
+            own_media, own_min = self.media, self.min_action_s
+            self.media = media
+            self.min_action_s = self.alt_min_action_s.get(media, own_min)
+            print(f"[SUP] trg media override: one {media} action on a {own_media} unit")
+            try:
+                return alt(boot, settings)
+            except AltActionUnavailable as exc:
+                # S4b review R2-2: the other media's config does not resolve. The
+                # trg is cancelled loudly (never re-picked every boot, which would
+                # leave the unit without a capture or a daemon); this action runs.
+                print(f"[SUP][ERR] media override to {media} unavailable ({exc}); "
+                      "the trg is cancelled and the normal action runs")
+                if self.command_state is not None:
+                    self.command_state.consume_trigger()
+            finally:
+                self.media, self.min_action_s = own_media, own_min
+            return default_fn(boot) if settings is None else default_fn(boot, settings)
+        return run_alt
 
     def w10_trigger_fits(self):
         """W10 (O3, Nick 2026-09-25): a trg is armed AND an extra action fits
@@ -167,7 +381,46 @@ class Boot:
             return False                 # its consume failed once: never a capture loop
         if self.budget is None:
             return False
-        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= self.min_action_s
+        media = self._trigger_media()
+        need = self.alt_min_action_s.get(media, self.min_action_s) \
+            if media and media != self.media else self.min_action_s
+        kv = (self._pending_trigger() or {}).get("kv") or {}
+        d = kv.get("video.send.duration_s")
+        if d is not None and (media or self.media) == "video":
+            # S4b review R2-8: a one-shot clip longer than the configured one
+            need += max(0.0, float(d) - float(self.video_duration_s or d))
+        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= need
+
+    def note_guards(self, summary=None):
+        """S4 b.5 (DESIGN §6.3): after an action (or an idle heartbeat), count
+        it toward the guarded keys: a transmitting action toward tx2, the time
+        since the last note toward save_local's 2 h. A revert is announced at
+        once (<CF reverted>) and, on stay_on, a reverted next-boot key restarts
+        the process (exit 72). Never raises."""
+        st = self.guard_state
+        if st is None or not st.guarded or self._guard_clock is None:
+            return []
+        try:
+            import command_guards
+            now = self._guard_clock()
+            up = now - (self._guard_mark if self._guard_mark is not None else now)
+            self._guard_mark = now
+            s = summary or {}
+            sent = (s.get("transmit_result") or {}).get("sent")
+            transmitted = bool(sent) and s.get("uplinked", not self.save_local) is not False
+            reverted = command_guards.count_action(st, transmitted, up)
+        except Exception as exc:
+            print(f"[GUARD][ERR] action count failed ({type(exc).__name__}: {exc})")
+            return []
+        dispatch = getattr(getattr(self.owner, "daemon", None), "v9_dispatch", None)
+        if reverted and dispatch is not None:
+            dispatch.flush_notes()
+            import config_registry as R
+            for path, _lim in reverted:
+                key = R.BY_PATH.get(path)
+                if self.run == "stay_on" and key is not None and key.apply == R.NEXT_BOOT:
+                    dispatch.restart_requested.append(path)
+        return reverted
 
     def _pending_trigger(self):
         return getattr(self.command_state, "pending_trigger", None)
@@ -183,7 +436,7 @@ class Boot:
 
     @property
     def save_local(self):
-        return self.output == "save_local"
+        return (self.one_shot_output or self.output) == "save_local"
 
     def save_local_time_read(self, daemon, settings):
         """S3c (PLAN_S3c.md §5 C9): a save_local action always reads Spotter
@@ -234,6 +487,11 @@ class Boot:
         Then a pending trg is serviced (it may have just arrived; W5: video
         too). -> (settings, flags)."""
         flags = {"skip_time_window": False, "capture_only": False}
+        # b.6a: a one-shot override lives for one action only.
+        if self._save_quality_base is None:
+            self._save_quality_base = self.save_quality
+        self.save_quality = self._save_quality_base
+        self.one_shot_vtx = self.one_shot_output = self.one_shot_kv = None
         daemon = self.owner.daemon if self.owner else None
         if daemon is not None:
             sleep_fn(0.0)
@@ -242,12 +500,20 @@ class Boot:
             if events and self.reresolve_fn is not None:
                 print(f"[SUP] boot drain: {len(events)} command(s) applied this boot")
                 settings = self._reresolve(settings, summary)
-        if self.command_state is not None:
+                self.save_quality = self._save_quality_base   # a drained set applies now
+        other = self._trigger_media()
+        if other and other != self.media:
+            # b.6b: a trg for the OTHER media is not this action's; it stays armed
+            # and the next decision point runs that media's action (pick_action).
+            print(f"[SUP] pending trg names media {other}: not serviced by this "
+                  f"{self.media} action (next decision point)")
+        elif self.command_state is not None:
             # Stills (W4 ordering) and, since W5, video: a trg is serviced at
             # this decision point for both media.
             settings, flags = cmd_hooks.service_pending_trigger(
                 settings, self.command_state, transmit=self.transmit)
             if settings.get("trigger"):
+                settings = self._apply_one_shot(settings, daemon)
                 summary["trigger"] = settings["trigger"]
                 if self.media == "video" and settings.get("source_image_path"):
                     # trg 3/4 name a stills reference image; a video unit has
@@ -256,6 +522,38 @@ class Boot:
                           "reference; a video unit records and sends a clip instead")
         self.settings = settings
         return settings, flags
+
+    def _apply_one_shot(self, settings, daemon):
+        """b.6a: the trigger's kv, re-validated against the config as it is NOW
+        (it may have changed since the trg), applied to a per-action copy.
+        A kv that no longer validates is dropped loudly and the trigger runs
+        without it; the overlay and the state file never see it (§9)."""
+        trig = settings["trigger"]
+        kv = trig.get("kv") or {}
+        if not kv or self.one_shot_fn is None:
+            return settings
+        dispatch = getattr(daemon, "v9_dispatch", None)
+        try:
+            if dispatch is not None:
+                kv, _media = dispatch.one_shot(kv, trig.get("value"))
+            fresh = self.one_shot_fn(kv)
+        except Exception as exc:
+            print(f"[SUP][WARN] trg id={trig.get('id')} kv {kv} dropped at action time "
+                  f"({type(exc).__name__}: {exc}); the trigger runs without it")
+            return settings
+        for key in ("trigger", "source_image_path", "video"):
+            if key in settings and key not in fresh:
+                fresh[key] = settings[key]
+        fresh["trigger"] = trig
+        self.one_shot_kv = dict(kv)
+        if "mode.output" in kv:
+            self.one_shot_output = kv["mode.output"]
+        if "still.save.quality" in kv:
+            if self._save_quality_base is None:
+                self._save_quality_base = self.save_quality
+            self.save_quality = int(kv["still.save.quality"])
+        print(f"[SUP] trg id={trig.get('id')}: one action with {kv} (not persisted)")
+        return fresh
 
     def _reresolve(self, settings, summary):
         """The overlay re-read after the drain. Everything built from the
@@ -293,6 +591,11 @@ class Boot:
                                    halt_fn=perform_power_halt, clock=time.monotonic,
                                    sleep_fn=time.sleep)
         self.owner.finish(self.summary, close_port=True, close_warn=self.close_warn, halt=halt)
+        if self.v9_replies is not None:
+            import rc_telemetry
+            import rc_uplink_messages
+            rc_telemetry.WS_EXTRA_FN = None
+            rc_uplink_messages.START_EXTRA_FN = None
         if self.end_line is not None:
             try:
                 print(self.end_line())
@@ -312,7 +615,7 @@ def action_record(boot, error=None, n=None, kind=None):
         **extra,
         "utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runtime": "supervisor", "run": boot.run, "media": boot.media,
-        "output": boot.output if boot.transmit else "none",
+        "output": (boot.one_shot_output or boot.output) if boot.transmit else "none",
         "trigger_id": (trig or {}).get("id") if isinstance(trig, dict) else None,
         "stage": s.get("stage"), "media_key": s.get("media_key") or boot.media_key,
         "sent": tr.get("sent"), "planned": tr.get("planned"),
@@ -376,23 +679,17 @@ def run_per_boot(boot, action_fn):
     print(f"[SUP] per_boot: media={boot.media} transmit={boot.transmit}")
     error = None
     try:
-        summary = action_fn(boot)
+        summary = boot.pick_action(action_fn)(boot)
+        boot.note_guards(summary)
         n = 1
-        while boot.w10_trigger_fits():
-            write_action_log(boot)          # the finished action's line
-            n += 1
-            trg = boot._pending_trigger()
-            print(f"[SUP] W10: trg id={trg.get('id')} heard in the listen tail fires this "
-                  f"boot (action {n}; {boot.budget.remaining_s():.0f}s of budget left)")
-            # Commands applied since the boot drain (tail) govern this action:
-            # the overlay is re-read onto the YAML base (same budget, G1).
-            if boot.reresolve_fn is not None:
-                boot.settings = boot._reresolve(boot.settings, boot.summary or {})
-            summary = action_fn(boot)
-            if boot._pending_trigger() is trg:
-                boot.w10_stuck = trg
-                print(f"[SUP][ERR] W10: trg id={trg.get('id')} still armed after its action "
-                      "(consume not persisted); not firing it again this boot")
+        while True:
+            n, summary = _w10_actions(boot, action_fn, n, summary)
+            # b.6c: hld / keep-alive keep a per_boot unit up after its tail; a trg
+            # that arrives meanwhile and fits the budget is the next W10 action.
+            daemon = boot.owner.daemon if boot.owner else None
+            if boot.stay_awake(daemon, boot._sleep_fn or time.sleep) != "trigger":
+                break
+        boot.note_guards(None)          # S4b review R2-10: the hold/keep-alive time counts
         if boot._pending_trigger() is not None:
             left = boot.budget.remaining_s() if boot.budget else 0.0
             print(f"[SUP] W10: trg stays armed for the next boot ({left:.0f}s of budget left; "
@@ -406,15 +703,40 @@ def run_per_boot(boot, action_fn):
         boot.finish()
 
 
+def _w10_actions(boot, action_fn, n, summary):
+    """W10 (O3): every trg that fits this boot's budget runs as another action
+    on the SAME budget (G1). -> (action count, last summary)."""
+    while boot.w10_trigger_fits():
+        write_action_log(boot)          # the finished action's line
+        n += 1
+        trg = boot._pending_trigger()
+        print(f"[SUP] W10: trg id={trg.get('id')} heard in the listen tail fires this "
+              f"boot (action {n}; {boot.budget.remaining_s():.0f}s of budget left)")
+        # Commands applied since the boot drain (tail) govern this action:
+        # the overlay is re-read onto the YAML base (same budget, G1).
+        if boot.reresolve_fn is not None:
+            boot.settings = boot._reresolve(boot.settings, boot.summary or {})
+        summary = boot.pick_action(action_fn)(boot)
+        boot.note_guards(summary)
+        if boot._pending_trigger() is trg:
+            boot.w10_stuck = trg
+            print(f"[SUP][ERR] W10: trg id={trg.get('id')} still armed after its action "
+                  "(consume not persisted); not firing it again this boot")
+    return n, summary
+
+
 # ---------------------------------------------------------------------------
 # stay_on (Sprint26 S3b; DESIGN_supervisor.md §4, PLAN_S3b.md H2-H6)
 # ---------------------------------------------------------------------------
 
 IDLE_TICK_S = 0.2            # §4: commands processed every 0.2 s while idle
 IDLE_HEAL_S = 600.0          # O5 (Nick 2026-09-25): pending heals go out after 10 min idle
+GUARD_NOTE_S = 60.0          # S4: idle uptime is added to guarded keys at most this often
 EXIT_ARGS = 2                # stay_on cannot run as invoked (no daemon: no --transmit)
 EXIT_CRASH = 70              # H7: stay_on failed (watchdog, error); wrapper restarts, backoff
 EXIT_RSS = 71                # H9: RSS ceiling reached; clean exit, wrapper restarts in 5 s
+EXIT_CONFIG = 72             # S4 G10g: a next-boot setting changed; wrapper restarts in 5 s,
+                             # not counted toward the crash-loop cap
 
 # H6: SIGTERM sets a flag only (stay_on). Raising inside subprocess.run would
 # kill a capture or the halt script mid-way; the loop stops at its next safe
@@ -501,7 +823,7 @@ def _run_action(boot, action_fn, settings, n, kind, quiet_skip):
           f"{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} =====")
     error = None
     try:
-        summary = action_fn(boot, settings)
+        summary = boot.pick_action(action_fn)(boot, settings)
     except Exception as exc:
         # One failed action is not a failed process: logged, and the loop
         # goes on (the next trg or slot may well succeed).
@@ -509,6 +831,7 @@ def _run_action(boot, action_fn, settings, n, kind, quiet_skip):
         print(f"[SUP][ERR] action {n} failed: {error}")
         summary = boot.summary or {}
     write_action_log(boot, error, n=n, kind=kind)
+    boot.note_guards(summary)
     print(f"[SUP] ===== action {n} done: stage={summary.get('stage')} "
           f"skipped={summary.get('schedule_allowed') is False} =====")
     return summary
@@ -652,6 +975,7 @@ def run_stay_on(boot, action_fn, *, settings_fn, interval_s, heartbeat_s, heartb
     finally:
         if STOP["requested"]:
             print(f"[SUP] stop requested (signal {STOP['signal']}): shutdown -> close, no halt")
+        boot.note_guards(None)          # S4b review R2-10: uptime before an exit counts
         boot.finish(halt=False)
         guard.marker_clear()
         uninstall_stop_flag(previous_handler)
@@ -678,8 +1002,22 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
     last_send = clock()          # O5: the last action or heal pass (heartbeats do not count)
     skip_run = False             # H3: the last scheduled action was a window skip
     stuck_trg = None             # a trg whose consume could not be persisted
+    last_guard_note = clock()
     while not stop_requested():
         _idle_tick(daemon, clock, sleep_fn)
+        if clock() - last_guard_note >= GUARD_NOTE_S:
+            # S4b review #1: idle time counts toward the guarded keys' 2 h
+            # backstop (persisted at most once a minute, not every tick).
+            boot.note_guards(None)
+            last_guard_note = clock()
+        restart = getattr(getattr(daemon, "v9_dispatch", None), "restart_requested", None)
+        if restart:
+            # G10g: a next-boot key (mode, UART, topic, ...) takes effect through a
+            # clean process restart; everything that arrived this tick is persisted
+            # and its acks queued (flushed by finish), so several sets coalesce.
+            print(f"[SUP] config restart: {', '.join(restart)} changed (next boot); "
+                  f"exit {EXIT_CONFIG} (the wrapper restarts in 5 s)")
+            return EXIT_CONFIG
         ok, why = _reader_health(daemon)
         if not ok:
             print(f"[SUP][ERR] watchdog: {why}; exit {EXIT_CRASH} (the wrapper restarts)")
@@ -739,9 +1077,14 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
             guard.rotate_stdout_if_big()
             continue
         if heartbeat_s > 0 and now - last_uplink >= heartbeat_s:
+            lane = getattr(daemon, "lane_wait_s", None)
+            if lane is not None and lane() > 0:
+                sleep_fn(IDLE_TICK_S)        # b.8: heartbeat after the boundary guard
+                continue
             try:
                 heartbeat_fn(settings_fn())
                 print(f"[SUP] heartbeat <WS a=idle> after {now - last_uplink:.0f}s idle")
+                boot.note_guards(None)       # idle time counts toward save_local's 2 h
             except Exception as exc:
                 print(f"[SUP][WARN] heartbeat failed ({type(exc).__name__}: {exc})")
             last_uplink = clock()

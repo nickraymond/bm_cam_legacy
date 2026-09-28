@@ -341,7 +341,10 @@ class ReviewFixes(Base):
         self.assertTrue(lost.is_old("remote", 1_000_500))
         self.assertTrue(lost.is_old("service", 199_999_999))
         self.assertTrue(lost.is_old("service", 100_000_008))
-        self.assertFalse(st(os.path.join(self.dir, "fresh_v2.json")).is_old("service", 100_000_001))
+        other = tempfile.mkdtemp(prefix="v9fresh_")
+        self.addCleanup(shutil.rmtree, other, True)
+        self.assertFalse(st(os.path.join(other, "bm_command_state_v2.json"))
+                         .is_old("service", 100_000_001))              # a fresh unit
 
     def test_local_commit_clears_the_command_id(self):
         s = st(self.path)

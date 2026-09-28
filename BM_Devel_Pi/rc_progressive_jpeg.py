@@ -1256,6 +1256,11 @@ def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
         heal_tx_open_fn=heal_tx_open_fn)
 
 
+def rc_supervisor_mod():
+    import rc_supervisor
+    return rc_supervisor
+
+
 def main(argv=None, **cycle_overrides):
     cmd_hooks.boot_mark("main_entry")   # Sprint25 S3 benchmark segment
     parser = argparse.ArgumentParser(
@@ -1305,6 +1310,7 @@ def main(argv=None, **cycle_overrides):
     # nothing changes. Never raises: a bad v2 file falls back (v1 file, then
     # last-known-good, then safe-minimal = nothing to do this boot).
     boot = None
+    v1_config_path = args.config_path
     if args.config_format != "v1":
         import config_v2
         if args.config_format == "v2" and not os.path.exists(os.path.join(
@@ -1336,6 +1342,62 @@ def main(argv=None, **cycle_overrides):
         print(config_dump.to_json_line(dump))
         return 2 if "error" in dump["resolved"] else 0
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
+    # Sprint26 S4 b.1 (PLAN_S4.md G1/G3): the supervisor on a migrated unit runs
+    # the EFFECTIVE config (YAML ⊕ command overlay, validated), rendered to the
+    # tmpfs file the v1 loaders read; the legacy runtime keeps base + v8 bindings.
+    v9_eff, v9_base, v9_state = None, None, None
+    if (runtime == "supervisor" and boot is not None and not args.print_config
+            and args.config_path != v1_config_path):
+        import supervisor_config
+        v9_base = dict(boot.values or {})
+        v9_source = {k: v for k, v in (getattr(boot.config, "source", None) or {}).items()
+                     if v in ("yaml", "default")}
+        try:
+            env = __import__("config_validate").probe_env(
+                [v9_base.get("schedule.timezone")])
+            v9_eff = supervisor_config.apply(boot, args.config_path, env=env)
+        except Exception as exc:        # never brick: base + v8 bindings, as in S3
+            print(f"[CFG][ERR] effective config failed ({type(exc).__name__}: {exc}); "
+                  "running the YAML base with the v8 overlay")
+            v9_eff = None
+        v9_state = None
+        if v9_eff is not None and v9_eff.values.get("mode.media") != "video_logger":
+            # S4 b.5 (PLAN_S4.md G10, consensus R23): ONE V9State for the process,
+            # built BEFORE any port opens and even with commands off (the key that
+            # turned them off is itself guarded). The v8 section folds once (G2);
+            # a counted run (--transmit) increments the boot counter and
+            # evaluates guarded reverts; a revert re-renders the effective config.
+            try:
+                import command_guards
+                import command_state_v9
+                import config_migrate
+                v9_state = command_state_v9.V9State(
+                    supervisor_config.state_path_for(v9_base),
+                    trigger_validator=lambda kv, v: __import__("command_v9").check_persisted_kv(kv, v))
+                for path, old, new in v9_state.fold_v8(config_migrate.overlay_from_v8):
+                    print(f"[CMD] v8 fold: {path}: {old!r} -> {new!r}")
+                if args.transmit:
+                    reverted = command_guards.count_boot(v9_state)
+                    print(f"[GUARD] boot {v9_state.boot_counter}: "
+                          f"{len(v9_state.guarded)} guarded key(s) pending"
+                          + (f", reverted {reverted}" if reverted else ""))
+                    if reverted:
+                        boot.values = v9_base
+                        try:
+                            v9_eff = supervisor_config.apply(boot, args.config_path, env=env)
+                        except Exception as exc:
+                            # S4b review R2-6: never run the reverted value again;
+                            # fall back to the YAML base render.
+                            print(f"[GUARD][ERR] re-render after the revert failed ({exc}); "
+                                  "running the YAML base")
+                            import atomic_io
+                            atomic_io.write_text(args.config_path,
+                                                 supervisor_config.render_values(v9_base))
+                            v9_eff = supervisor_config.resolve(v9_base, None, env=env)
+            except Exception as exc:     # never brick: the counter/revert is logged, the boot runs
+                print(f"[GUARD][ERR] boot count / revert failed ({type(exc).__name__}: {exc})")
+        if v9_eff is not None:
+            boot.values = v9_eff.values      # mode/output read the effective config (G3)
     run_cfg = ("per_boot", 0, 0)
     output = "transmit"
     if not args.print_config:      # inspection output stays as before (settings goldens)
@@ -1374,15 +1436,24 @@ def main(argv=None, **cycle_overrides):
     bm_commands_cfg = load_bm_commands_config(args.config_path)
     command_state = None
     reresolve_fn = None
+    v9_on = v9_eff is not None and v9_state is not None
     if bm_commands_cfg["enabled"]:
-        command_state = CommandState(path=bm_commands_cfg["state_path"])
+        if v9_on:
+            # S4 b.2c (PLAN_S4.md G1, B1): on the v9 path ONE V9State owns the
+            # state file (heals, trigger, overlay, dedupe, guards); the v8
+            # CommandState is never built here.
+            import command_v9
+            command_state = v9_state
+        else:
+            command_state = CommandState(path=bm_commands_cfg["state_path"])
         print(f"[CMD] bm_commands enabled: topic={bm_commands_cfg['topic']} "
               f"tail={bm_commands_cfg['post_transmit_listen_s']}s "
               f"defer_acks={bm_commands_cfg['defer_acks_during_transmit']} "
               f"state={command_state.path} (loaded from "
               f"{command_state.load_info['source']})")
         base_settings = copy.deepcopy(settings)
-        settings = _apply_command_overlay(settings, command_state)
+        if v9_eff is None:
+            settings = _apply_command_overlay(settings, command_state)
 
         def _reresolve(current):
             """W4: the overlay re-read onto the YAML base after the boot drain.
@@ -1394,6 +1465,11 @@ def main(argv=None, **cycle_overrides):
                 fresh["video"] = current["video"]
             return fresh
         reresolve_fn = _reresolve
+        if v9_eff is not None:
+            # b.1: the overlay reaches the settings through the render, re-built
+            # from the state file at every decision point (no v8 bindings).
+            reresolve_fn = supervisor_config.make_reresolve(
+                v9_base, args.config_path, resolve_rc_settings, env=env)
 
     if args.crashloop:
         # H7: the halt is forced to dry-run for this boot, including after a
@@ -1422,6 +1498,105 @@ def main(argv=None, **cycle_overrides):
     # right after config load + command-overlay resolution. Cron line, lock,
     # and overlay doctrine unchanged; a video unit and a stills unit differ
     # by one YAML value. Lazy import keeps the stills path untouched.
+    def _wire_v9(sup):
+        """S4 (PLAN_S4.md G1): the v9 path on a supervisor Boot — replies,
+        guards, the dispatcher, the media-aware trg kv builder (b.6a) and the
+        other media's action for a one-shot media override (b.6b)."""
+        if v9_eff is None:
+            return
+        sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
+        sup.guard_state = v9_state
+        if not (v9_on and command_state is not None):
+            return
+        import rc_video_tx as _vtx
+        import video_recorder as _vr
+
+        def dry(fresh):
+            return dict(fresh, power_halt_dry_run=True) if args.crashloop else fresh
+
+        def one_shot(kv):
+            path = supervisor_config.one_shot_render(v9_base, v9_state, kv, env=env)
+            fresh = resolve_rc_settings(path)
+            if kv.get("mode.media", sup.media) == "video":
+                fresh["video"] = _vr.load_video_config(path)
+                sup.one_shot_vtx = _vtx.load_video_tx_config(path)
+            return dry(fresh)
+        sup.one_shot_fn = one_shot
+        sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
+            d, command_state, v9_base, env=env,
+            service_key=command_v9.load_service_key(), base_source=v9_source)
+        common = dict(transmit=args.transmit, bm_commands_cfg=bm_commands_cfg,
+                      command_state=command_state, bench_commands=args.bench_commands)
+
+        def alt_video(b, _settings=None):
+            try:
+                path = supervisor_config.one_shot_render(v9_base, v9_state,
+                                                         {"mode.media": "video"}, env=env)
+                s = resolve_rc_settings(path)
+                s["video"] = _vr.load_video_config(path)
+                vtx = _vtx.load_video_tx_config(path)
+            except Exception as exc:
+                raise rc_supervisor_mod().AltActionUnavailable(f"{type(exc).__name__}: {exc}")
+            return _vtx.run_video_tx_cycle(dry(s), vtx, supervised=b,
+                                           skip_time_window=args.skip_time_window,
+                                           bench_drop_chunks=bench_drop_chunks, **common)
+
+        def alt_still(b, _settings=None):
+            try:
+                path = supervisor_config.one_shot_render(v9_base, v9_state,
+                                                         {"mode.media": "still"}, env=env)
+                s = resolve_rc_settings(path)
+            except Exception as exc:
+                raise rc_supervisor_mod().AltActionUnavailable(f"{type(exc).__name__}: {exc}")
+            return run_cycle(dry(s), supervised=b, capture_only=False,
+                             skip_time_window=False, output_dir=args.output_dir,
+                             **common, **cycle_overrides)
+        sup.alt_actions = {"video": alt_video, "still": alt_still}
+        errs = [("overlay", p, why) for p, _v, why in v9_eff.dropped]
+        errs += [("base", None, why) for why in v9_eff.base_errors]
+        if getattr(boot, "level", "v2") not in (None, "v2"):
+            errs.append(("level", None, f"running {boot.level}"))
+        sup.config_errors = errs
+        eff = v9_eff.values
+        sup.v9_limits = {k: eff[k] for k in ("commands.keepalive_s", "commands.keepalive_max_s",
+                                             "commands.hold_max_min", "power.bus_always_on")}
+        sup.video_duration_s = float(eff["video.send.duration_s"])
+        inner = sup.reresolve_fn
+
+        def reresolve(current):
+            """S4b review R2-4: next-action keys that live outside `settings`
+            (the clip config, the recording block, save quality, storage, the
+            keep-alive limits) are re-read at every decision point too."""
+            fresh = inner(current) if inner is not None else current
+            now = supervisor_config.resolve(v9_base, supervisor_config.state_dict(v9_state),
+                                            env=env).values
+            margin = rc_supervisor_mod().W10_VIDEO_MARGIN_S
+            vtx = None
+            if sup.media == "video" and now.get("mode.media") == "video":
+                # loaded FIRST: a failure raises before anything is changed (the
+                # caller keeps the last good settings; nothing half-updated)
+                video_block = _vr.load_video_config(args.config_path)
+                vtx = _vtx.load_video_tx_config(args.config_path)
+                fresh["video"] = video_block
+            sup.v9_limits = {k: now[k] for k in sup.v9_limits}
+            sup._save_quality_base = int(now["still.save.quality"])
+            sup.storage_cfg = {"max_used_pct": float(now["storage.max_used_pct"]),
+                               "min_free_gb": float(now["storage.min_free_gb"]),
+                               "ring_dry_run": bool(now["storage.ring_dry_run"])}
+            sup.video_duration_s = float(now["video.send.duration_s"])
+            sup.alt_min_action_s["video"] = (float(now["video.send.duration_s"])
+                                             + float(now["video.send.lead_in_s"]) + margin)
+            if vtx is not None:
+                sup.current_vtx = vtx
+                sup.min_action_s = (float(vtx["duration_s"]) + float(vtx["lead_in_s"])
+                                    + margin)
+            return fresh
+        sup.reresolve_fn = reresolve
+        sup.alt_min_action_s = {
+            "video": float(eff["video.send.duration_s"]) + float(eff["video.send.lead_in_s"])
+            + rc_supervisor_mod().W10_VIDEO_MARGIN_S,
+            "still": rc_supervisor_mod().W10_MIN_STILL_ACTION_S}
+
     if settings["capture_mode"] == "video":
         import video_recorder
         try:
@@ -1461,6 +1636,7 @@ def main(argv=None, **cycle_overrides):
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
                 configure_output(sup, boot, output)
+                _wire_v9(sup)
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1471,7 +1647,7 @@ def main(argv=None, **cycle_overrides):
                     return _run_stay_on(
                         sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
                             s, video_tx_cfg, supervised=b, **video_kwargs),
-                        settings, reresolve_fn, run_cfg,
+                        settings, sup.reresolve_fn, run_cfg,
                         _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None,
                                       reason_fn=lambda: sup.storage_reason), cycle_overrides,
                         rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
@@ -1546,6 +1722,7 @@ def main(argv=None, **cycle_overrides):
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
             configure_output(sup, boot, output)
+            _wire_v9(sup)
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])
@@ -1555,7 +1732,7 @@ def main(argv=None, **cycle_overrides):
                 return _run_stay_on(
                     sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
                                                 skip_time_window=False, **stay_kwargs),
-                    settings, reresolve_fn, run_cfg,
+                    settings, sup.reresolve_fn, run_cfg,
                     _heartbeat_fn(still_rk, lambda s: s["q_max"],
                                   reason_fn=lambda: sup.storage_reason),
                     cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))
