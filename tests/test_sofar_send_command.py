@@ -190,6 +190,21 @@ class TestMainSendPath(unittest.TestCase):
         self.assertEqual(rc, 2)
         p.assert_not_called()
 
+    def test_token_env_selects_the_token(self):
+        # Sprint25 S2b: SPOT-33361C is on the AOML token; --token-env picks it.
+        os.environ["SOFAR_API_TOKEN_TEST_OTHER"] = "other-token"
+        self.addCleanup(os.environ.pop, "SOFAR_API_TOKEN_TEST_OTHER", None)
+        del os.environ[ssc.TOKEN_ENV]
+        rc, p = self._run(self.base + ["--token-env", "SOFAR_API_TOKEN_TEST_OTHER"])
+        self.assertEqual(rc, 0)
+        (_, token, _), _ = p.call_args
+        self.assertEqual(token, "other-token")
+
+    def test_token_env_missing_refused_before_network(self):
+        rc, p = self._run(self.base + ["--token-env", "SOFAR_API_TOKEN_NOT_SET_XYZ"])
+        self.assertEqual(rc, 2)
+        p.assert_not_called()
+
     def test_clear_queue_alone_is_valid(self):
         rc, p = self._run(["--spotter-id", "SPOT-TEST", "--clear-queue",
                            "--send-log", self.log])

@@ -31,7 +31,11 @@ Inputs
   --topic bmcam/cmd           BM topic (default matches bm_commands.topic)
   --dry-run                   print request, send nothing
   --force                     bypass the 60 s client-side rate-limit guard
-  env SOFAR_API_TOKEN_BM_REEF API token (never on CLI, never printed)
+  --token-env NAME            env var holding the API token (default
+                              SOFAR_API_TOKEN_BM_REEF). SPOT-33361C (bmcam001/
+                              002) is on SOFAR_API_TOKEN_AOML. The backend heal
+                              endpoint fills this in (Sprint25 S2b).
+  env <token-env>             API token (never on CLI, never printed)
 
 Outputs
   - stdout: the exact console line, byte count, HTTP status + response
@@ -218,6 +222,8 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true",
                     help="bypass the client-side 60 s rate-limit guard")
+    ap.add_argument("--token-env", default=TOKEN_ENV,
+                    help=f"env var NAME holding the Sofar API token (default {TOKEN_ENV})")
     ap.add_argument("--send-log", default=SEND_LOG, help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
 
@@ -249,7 +255,7 @@ def main(argv=None):
               "commands for this Spotter are erased first.")
     print(f"spotter : {args.spotter_id}")
     print(f"POST    : {API_BASE}/user-rest/devices/{args.spotter_id}/command "
-          f"(telemetry={TELEMETRY}, token=<{TOKEN_ENV}>)")
+          f"(telemetry={TELEMETRY}, token=<{args.token_env}>)")
 
     if args.dry_run:
         print("[dry-run] nothing sent.")
@@ -265,9 +271,9 @@ def main(argv=None):
               f"after a success. Wait ~{wait} s or use --force.")
         return 3
 
-    token = os.environ.get(TOKEN_ENV)
+    token = os.environ.get(args.token_env)
     if not token:
-        print(f"[ERROR] set {TOKEN_ENV} in the environment (never on the CLI).")
+        print(f"[ERROR] set {args.token_env} in the environment (never on the CLI).")
         return 2
 
     status, resp = post_command(args.spotter_id, token, body)
