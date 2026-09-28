@@ -69,8 +69,8 @@ class OneWriter(Base):
         s.commit([("mode.run", "stay_on")], cid=1_000_001, source="remote")
         s.transaction(lambda x: (x.record_heals(100_002, {"h": [["k3a9zq", [1, 2]]]}),
                                  x.arm_trigger(1_000_002, 2, {"d": 8})))
-        s.remember(1_000_001, {"ok": 1, "h": "a41c09e2"})
-        s.advance_high_water("remote", 1_000_002)
+        s.transaction(lambda x: (x.remember(1_000_001, {"ok": 1, "h": "a41c09e2"}),
+                                 x.advance_high_water("remote", 1_000_002)))
         s.count_boot()
         s.set_pending_heals([{"key": "k3a9zq", "n": [2], "id": 100_002, "wakes_left": 2}])
         self.assertEqual(s.consume_trigger(), {"id": 1_000_002, "value": 2, "kv": {"d": 8}})
@@ -163,8 +163,10 @@ class Durability(Base):
 class Dedupe(Base):
     def test_original_answer_and_eviction(self):
         s = st(self.path)
+        s._in_txn = True                                 # bulk fill in one "transaction"
         for cid in range(1, S.RESULT_CACHE_MAX + 2):
             s.remember(cid, {"ok": 1, "h": "0000000%d" % (cid % 10), "e": None})
+        s._in_txn = False
         self.assertIsNone(s.cached(1))                   # 257th evicted the oldest
         self.assertEqual(s.cached(2), {"ok": 1, "h": "00000002", "b": 0})
         self.assertEqual(len(s.result_cache), S.RESULT_CACHE_MAX)
@@ -173,14 +175,15 @@ class Dedupe(Base):
 
     def test_rejections_are_cached_too(self):
         s = st(self.path)
-        s.remember(5, {"ok": 0, "h": "a41c09e2", "e": "xk", "k": "mode.output"})
+        s.transaction(lambda x: x.remember(5, {"ok": 0, "h": "a41c09e2", "e": "xk",
+                                               "k": "mode.output"}))
         self.assertEqual(s.cached(5)["e"], "xk")
 
     def test_high_water_per_range(self):
         s = st(self.path)
         self.assertFalse(s.is_old("remote", 1_000_005))
-        s.advance_high_water("remote", 1_000_005)
-        s.advance_high_water("remote", 1_000_001)        # never moves back
+        s.transaction(lambda x: (x.advance_high_water("remote", 1_000_005),
+                                 x.advance_high_water("remote", 1_000_001)))   # never back
         self.assertTrue(s.is_old("remote", 1_000_005))
         self.assertTrue(s.is_old("remote", 1_000_004))
         self.assertFalse(s.is_old("remote", 1_000_006))
@@ -278,6 +281,7 @@ class Heals(Base):
         v1 = os.path.join(self.dir, "v1.json")
         oracle = quiet(CommandState, path=v1)
         s = st(self.path)
+        s._in_txn = True
         seq = [(100_001, {"h": [["aaaaaa", [1, 2]], ["bbbbbb", [3]]]}),
                (100_002, {"h": [["cccccc", [4]], ["aaaaaa", [9]]]}),
                (100_003, {"h": [[f"k{i:05d}", [i]] for i in range(8)]}),
@@ -292,3 +296,102 @@ class Heals(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReviewFixes(Base):
+    """Review S4a #1, #2, #3, #6, #9 and the stable trigger object."""
+
+    def test_refold_removes_a_key_the_fold_dropped(self):
+        u = Unit(self, state_records=[(1, "hlt", 3), (2, "exp", 4)])
+        path = u.values["commands.state_path"]
+        s = st(path)
+        s.fold_v8(config_migrate.overlay_from_v8)
+        self.assertIn("power.halt.dry_run", s.overlay)
+        s.commit([("camera.exposure.ev", -1.0)], cid=1_000_001)      # a v9 change survives
+        data = json.loads(open(path).read())
+        data["v8"]["settings"]["hlt"] = 0                              # legacy: dev mode off
+        with open(path, "w") as fh:
+            json.dump(data, fh)
+        s = st(path)
+        done = s.fold_v8(config_migrate.overlay_from_v8)
+        removed = {p for p, _o, n in done if n is None}
+        self.assertTrue({"power.halt.enabled", "power.halt.dry_run"} <= removed, done)
+        self.assertNotIn("power.halt.dry_run", s.overlay)
+        self.assertEqual(s.overlay.get("camera.exposure.ev"), -1.0)
+
+    def test_mutators_need_a_transaction(self):
+        s = st(self.path)
+        for call in (lambda: s.remember(1, {"ok": 1}),
+                     lambda: s.advance_high_water("remote", 1_000_001),
+                     lambda: s.arm_trigger(1, 2),
+                     lambda: s.record_heals(1, {"x": 1})):
+            with self.assertRaises(RuntimeError):
+                call()
+        s.transaction(lambda x: x.transaction(lambda y: y.arm_trigger(3, 2)))   # nested ok
+        self.assertEqual(st(self.path).pending_trigger["id"], 3)
+
+    def test_lost_file_reseeds_high_water_and_closes_service(self):
+        s = st(self.path)
+        s.commit([("mode.run", "stay_on")], cid=1_000_500, source="remote")
+        s.commit([("uplink.chunk_chars", 320)], cid=100_000_007, source="service")
+        with open(self.path, "w") as fh:
+            fh.write("{lost")
+        lost = st(self.path)
+        self.assertEqual(lost.high_water["remote"], 1_000_500)
+        self.assertTrue(lost.is_old("remote", 1_000_500))
+        self.assertTrue(lost.is_old("service", 199_999_999))
+        self.assertTrue(lost.is_old("service", 100_000_008))
+        self.assertFalse(st(os.path.join(self.dir, "fresh_v2.json")).is_old("service", 100_000_001))
+
+    def test_local_commit_clears_the_command_id(self):
+        s = st(self.path)
+        s.commit([("mode.run", "stay_on")], cid=1_000_001)
+        s.commit([("mode.run", "per_boot")], cid=None, source="local_gui")
+        self.assertNotIn("mode.run", st(self.path).overlay_ids)
+
+    def test_v8_trigger_dropped_loudly_when_v9_armed(self):
+        u = Unit(self, state_records=[(418, "trg", 2)])
+        path = u.values["commands.state_path"]
+        s = st(path)
+        s.transaction(lambda x: x.arm_trigger(1_000_009, 1))
+        LOG.clear()
+        done = s.fold_v8(config_migrate.overlay_from_v8)
+        self.assertIn(("pending_trigger", {"id": 418, "value": 2}, None), done)
+        self.assertTrue(any("dropped" in m for m in LOG))
+        self.assertEqual(s.pending_trigger["id"], 1_000_009)
+
+    def test_pending_trigger_is_a_stable_object(self):
+        s = st(self.path)
+        s.transaction(lambda x: x.arm_trigger(7, 2, {"d": 8}))
+        a = s.pending_trigger
+        self.assertIs(s.pending_trigger, a)
+        s.transaction(lambda x: x.arm_trigger(8, 2))
+        self.assertIsNot(s.pending_trigger, a)
+        self.assertEqual(s.pending_trigger["id"], 8)
+
+
+class ConfigV2SkipsFoldedV8(unittest.TestCase):
+    """Review S4a #4: after a fold, config_v2 ignores the v8 section, so a v9
+    reset of a folded key sticks and the logged hash is the v9 effective one."""
+
+    def test_reset_after_fold_sticks(self):
+        u = Unit(self, state_records=[(1, "roi", 5)])
+        path = u.values["commands.state_path"]
+        s = st(path)
+        s.fold_v8(config_migrate.overlay_from_v8)
+        plain = C.load_config(u.v2, strict=False)
+        s.commit([("still.crop", S.remove())], cid=1_000_001)
+        after = C.load_config(u.v2, state=C.read_state(path), strict=False)
+        self.assertEqual(after.hash, plain.hash)
+        self.assertNotIn("still.crop", after.overlay)
+
+    def test_edited_v8_is_read_again(self):
+        u = Unit(self, state_records=[(1, "roi", 5)])
+        path = u.values["commands.state_path"]
+        st(path).fold_v8(config_migrate.overlay_from_v8)
+        data = json.loads(open(path).read())
+        data["v8"]["settings"]["roi"] = 6
+        with open(path, "w") as fh:
+            json.dump(data, fh)
+        cfg = C.load_config(u.v2, state=C.read_state(path), strict=False)
+        self.assertEqual(cfg.overlay["still.crop"], [1984, 1116, 640, 360])

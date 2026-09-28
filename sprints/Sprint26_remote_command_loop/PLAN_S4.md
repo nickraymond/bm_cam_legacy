@@ -89,7 +89,9 @@ GUI and reference generated from it): `r`=`still.crop`, `m`=message cap of the m
 `o`=`mode.output` (S3c C8 one-shot; the KICKOFF output-width `o` was never built),
 `med`=`mode.media`. `mode.run` and `c` lose their letters. `r` on a video action → `e:"key"`.
 
-**G6 — `trg kv` allow-list:** `camera.*` (not paths), `still.{crop,output_width,message_cap,
+**G6 — `trg kv` allow-list:** `camera.*` controls (focus, white_balance, exposure,
+image_processing, controls_enabled; not `camera.backend` / `camera.native.*`, which change the
+sensor path — as built in a.1), `still.{crop,output_width,message_cap,
 save.quality}`, `video.send.{duration_s,message_cap,size,fps,x264_preset}`,
 `video.record.{fps,bitrate_mbps}`, `mode.media`, `mode.output`; `v:3/4` = one-shot
 reference-image source (internal action key). Validated as a whole-config overlay on a
@@ -132,7 +134,8 @@ higher id, a stuck service mark by a field update.
 **G11 — registry v5.** New keys `commands.keepalive_s` (300), `commands.keepalive_max_s`
 (1800), `commands.hold_max_min` (120), `power.bus_always_on` (false), and the S3c C3/J1 rename
 `video.storage.*` → `storage.*` in the same bump (old names accepted as aliases with a loud
-line; deploy/migrate rewrite them). Every v2 hash changes once (journal `deploy`). The inbox
+line; `tools/config_v2_upgrade.py` rewrites them with every value and the hash unchanged —
+re-migrating from v1 would drop v2-only edits; review S4a #5). Every v2 hash changes once (journal `deploy`). The inbox
 path is derived next to the state file (not a key; locked by construction).
 
 **G12 — `video.send.message_cap` floor 80** (the measured working value; 40 failed, nothing
@@ -225,3 +228,20 @@ with amendments (re-fold precedence, `<CF reverted>` always cellular, persisted 
 rsd-only drain at END→`<HL>`, per-path drop, zone probe scope, flock for dev_mode). Two new
 MAJORs from the round, both folded: exit 70/71-only wrapper → code 72 outside the cap (G10g);
 a high-water reset verb would reopen signed replay → dropped (G9).
+
+### S4a independent review (2026-09-27, fresh-context reviewer on ca79437..8142d32)
+
+0 BLOCKER, 1 MAJOR, 6 MINOR, NITs. Suite green at review (1347). Fixed in the S4a review commit:
+1. MAJOR re-fold kept a key the v8 fold stopped producing (`hlt 3` → `hlt 0` left dev mode on):
+   now removed unless a v9 command changed it; test.
+2. D15 depended on callers: the in-memory mutators refuse to run outside `transaction()`.
+3. A lost state file reset high-water (replay): re-seeded from the journal; service range closed
+   until a field update.
+5. G11 "deploy rewrites": no — `tools/config_v2_upgrade.py` (dry-run default, backup, hash
+   check, journal `deploy`).
+6. stale `overlay_ids` on a local/revert commit: cleared.
+7. an inbox holding only damaged lines was never deleted: deleted.
+NITs fixed: G6 text vs ONE_SHOT (text corrected), v8 trigger dropped loudly, `<CF>` UTF-8
+escapes + no split `%XX` + 3-digit part counts, v1 reader defaults from the registry,
+`Rejected` hashable with args, stable `pending_trigger` object (the supervisor compares by
+identity). Carried to b.1: #4 — `config_v2.state_overlay` must skip `v8` once folded.

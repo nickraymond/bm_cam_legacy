@@ -94,7 +94,7 @@ class Unackable(ValueError):
     """No usable id (bad JSON, not an object, bad id): console line only."""
 
 
-@dataclass
+@dataclass(eq=False)
 class Rejected(Exception):
     """Refused with a known id: ack {"id", "ok":0, "e": code[, "k": key]}."""
     id: int
@@ -103,6 +103,7 @@ class Rejected(Exception):
     why: str = ""
 
     def __post_init__(self):
+        super().__init__(self.id, self.code, self.key, self.why)
         # `k` rides the ack and the console: only a charset-clean name, else none.
         if not (isinstance(self.key, str) and RE_STR.match(self.key)):
             self.key = None
@@ -400,7 +401,10 @@ def cf_value(value):
         text = repr(value)
     else:
         text = str(value)
-    return "".join(c if _CF_SAFE.match(c) else "%{:02X}".format(ord(c) & 0xFF) for c in text)
+    # UTF-8 bytes, each unsafe byte as %XX (review S4a #10: no two characters
+    # share an escape).
+    return "".join(chr(b) if _CF_SAFE.match(chr(b)) else "%{:02X}".format(b)
+                   for b in text.encode("utf-8"))
 
 
 def cf_source(source):
@@ -428,12 +432,14 @@ def build_cf(h, items, head=(), max_bytes=MAX_CF_BYTES):
 
     head_txt = "".join(f" {cf_value(n)}={cf_value(v)}" for n, v in head)
     base = f"<CF v=1 h={cf_value(h)}"
-    room = max_bytes - len(base) - len(head_txt) - len(" n=99/99") - 1   # 1 = ">"
+    room = max_bytes - len(base) - len(head_txt) - len(" n=999/999") - 1   # 1 = ">"
     parts, cur = [], []
     for item in items:
         text = fmt(item)
         if len(text) + 1 > room:
-            text = text[:room - 2] + "~"
+            cut = room - 2
+            pct = text.rfind("%", max(0, cut - 2), cut)
+            text = text[:pct if pct != -1 else cut] + "~"      # never split a %XX
         if cur and sum(len(t) + 1 for t in cur) + len(text) + 1 > room:
             parts.append(cur)
             cur = []

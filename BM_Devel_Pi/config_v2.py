@@ -157,15 +157,22 @@ def parse_values(doc, strict, warnings=None):
 
 def state_overlay(state):
     """Overlay {path: value} a v2 state applies: the v8 section (G1) first,
-    then the v2 overlay (empty until S4)."""
+    unless the v9 state has folded it (S4 G2), then the v2 overlay."""
     if not isinstance(state, dict):
         return {}
+    import command_state_v9
     import config_migrate
-    ov = {}
-    if isinstance(state.get("v8"), dict):
-        ov.update(config_migrate.overlay_from_v8(state["v8"]))
-    if isinstance(state.get("overlay"), dict):
-        ov.update(state["overlay"])
+    # S4 G2 (review S4a #4): the SAME fold rules the v9 state applies
+    # (command_state_v9.plan_fold), computed without writing. A never-folded
+    # state gives S2's "v8 first, then the overlay" exactly; once folded, a v9
+    # `reset` of a folded key sticks and the hash matches the v9 path.
+    v8 = state.get("v8") if isinstance(state.get("v8"), dict) else {}
+    overlay = state.get("overlay") if isinstance(state.get("overlay"), dict) else {}
+    ids = state.get("overlay_ids") if isinstance(state.get("overlay_ids"), dict) else {}
+    last = state.get("v8_fold_values") if isinstance(state.get("v8_fold_values"), dict) else {}
+    folded = state.get("v8_folded") if isinstance(state.get("v8_folded"), str) else None
+    ov, _fold, _done = command_state_v9.plan_fold(overlay, ids, v8, folded, last,
+                                                  config_migrate.overlay_from_v8)
     return ov
 
 

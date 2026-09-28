@@ -296,10 +296,9 @@ def read_v1(config_path):
     v["mode.heartbeat_s"] = 300
     v["still.save.quality"] = 85          # S3c: save_local only; v1 units never save_local
     # S4 (registry v5): v9 keep-alive / hld keys; v1 units have no v9 commands.
-    v["power.bus_always_on"] = False
-    v["commands.keepalive_s"] = 300
-    v["commands.keepalive_max_s"] = 1800
-    v["commands.hold_max_min"] = 120
+    for path in ("power.bus_always_on", "commands.keepalive_s", "commands.keepalive_max_s",
+                 "commands.hold_max_min"):
+        v[path] = R.BY_PATH[path].default
 
     # ---- uplink: UART (two v1 readers), bm_serial (PyYAML), lane, media key
     uart = attempt("load_uart_config", bm_serial.load_uart_config, config_path)

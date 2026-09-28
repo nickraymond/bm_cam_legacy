@@ -74,10 +74,11 @@ class Inbox:
         except OSError as exc:
             self._log(f"[CMD][WARN] inbox {self.path} unreadable: {exc}")
             return []
-        out = []
+        out, damaged = [], 0
         lines = data.split(b"\n")
         tail = lines.pop()               # b"" when the file ends with a newline
         if tail:
+            damaged += 1
             self._log(f"[CMD][WARN] inbox: torn last line ({len(tail)} B) skipped")
         for raw in lines:
             if not raw:
@@ -89,9 +90,17 @@ class Inbox:
             except (ValueError, binascii.Error):
                 ok = False
             if not ok:
+                damaged += 1
                 self._log(f"[CMD][WARN] inbox: damaged line ({len(raw)} B) skipped")
                 continue
             out.append(payload)
+        if damaged and not out:
+            # Review S4a #7: nothing good left: delete it, or it lingers (and
+            # warns) forever because no drain ever calls remove().
+            try:
+                self._rewrite([])
+            except OSError as exc:
+                self._log(f"[CMD][WARN] inbox: damaged file not removed: {exc}")
         return out
 
     def _rewrite(self, payloads):

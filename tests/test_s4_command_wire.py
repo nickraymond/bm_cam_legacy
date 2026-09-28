@@ -291,6 +291,21 @@ class Replies(unittest.TestCase):
         for key, _ in items:
             self.assertIn(key + "=", joined)
 
+    def test_cf_non_ascii_escapes_are_distinct(self):
+        self.assertNotEqual(W.cf_value("\u0100"), W.cf_value("\u0000"))
+        self.assertEqual(W.cf_value("\u00e9"), "%C3%A9")
+
+    def test_cf_cut_never_splits_an_escape(self):
+        for n in range(200, 280):
+            out = W.build_cf("a41c09e2", [("k", "a" * n + " " * 40)])
+            body = out[0][:-2]                      # drop "~>"
+            self.assertNotRegex(body, r"%[0-9A-F]?$", n)
+
+    def test_rejected_is_a_normal_exception(self):
+        exc = W.Rejected(7, "val", "k", "why")
+        self.assertEqual(exc.args[:2], (7, "val"))
+        {exc}                                      # hashable
+
     def test_cf_giant_item_is_cut_not_split(self):
         out = W.build_cf("a41c09e2", [("k", "x" * 1000)])
         self.assertEqual(len(out), 1)

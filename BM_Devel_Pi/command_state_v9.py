@@ -18,7 +18,7 @@ File (schema bm_command_state_v2):
   overlay             {path: value}        remote/local changes over the YAML
   overlay_ids         {path: command id}   who set each overlay key (<CF> @c<id>)
   guarded             {path: record}       guarded_revert / guarded_stage (b.5)
-  result_cache        {"<id>": {ok,h[,e,k,s,v],b,cb}}  last 256 answers (dedupe v2)
+  result_cache        {"<id>": {ok,h[,e,k,s,v],b}}  last 256 answers (dedupe v2); b = boot
   high_water          {"remote": id, "service": id}
   pending_trigger_v9  {"id", "v", "kv"} or null (kv re-validated on load)
   v8_folded           hash of the v8 settings last folded into the overlay (G2)
@@ -27,9 +27,17 @@ File (schema bm_command_state_v2):
   (any other key)     kept verbatim
 
 Writes: atomic_io (unique tmp, fsync, rename, fsync dir). A change is applied
-in memory ONLY after its persist succeeded (D15): commit() snapshots, writes,
-and restores the snapshot if the write raises. Journal lines are appended
-after the persist (a journal failure is logged, never fatal).
+in memory ONLY after its persist succeeded (D15): every mutation runs inside
+transaction(), which snapshots, writes, and restores the snapshot if the write
+raises. The in-memory mutators (remember, advance_high_water, arm_trigger,
+record_heals) refuse to run outside a transaction (review S4a #2). Journal
+lines are appended after the persist (a journal failure is logged, never
+fatal).
+
+A LOST file (exists but unreadable / foreign schema) must not reopen replay
+(review S4a #3): the high-water marks are re-seeded from the config journal
+(highest id per range), and the service range is closed (mark at its top)
+until a field update, because a captured signed line must never re-apply.
 
 Example:
   s = V9State("/tmp/bm_command_state_v2.json")
@@ -82,6 +90,38 @@ def _valid_heal(item):
     return {"key": key, "n": sorted(set(ns)), "id": hid, "wakes_left": wakes}
 
 
+def plan_fold(overlay, overlay_ids, v8, v8_folded, v8_fold_values, overlay_from_v8):
+    """The G2 fold rules as one pure function (V9State.fold_v8 applies it;
+    config_v2.state_overlay uses it to compute the same overlay without
+    writing, so the two can never disagree).
+    -> (overlay after, this fold's values, [(path, old, new)] changes).
+
+    First fold (v8_folded None): v8 values fill keys the overlay lacks (the
+    overlay wins, = S2's "v8 then overlay"). Re-fold: only v8 keys whose value
+    CHANGED since the last fold win; a key the fold no longer produces (hlt 0,
+    twn 0, tmz 0 carry no override) goes back to the YAML unless a v9 command
+    set it since (it has an overlay id; review S4a #1). Unchanged v8: no-op."""
+    overlay = dict(overlay or {})
+    v8 = v8 or {}
+    if v8_folded is not None and v8_folded == v8_settings_hash(v8):
+        return overlay, dict(v8_fold_values or {}), []
+    fold = overlay_from_v8(v8) if v8 else {}
+    first = v8_folded is None
+    last = v8_fold_values or {}
+    done = []
+    for path, value in fold.items():
+        win = path not in overlay if first else (path not in last or last[path] != value)
+        if win and overlay.get(path, _REMOVE) != value:
+            done.append((path, overlay.get(path), value))
+            overlay[path] = value
+    if not first:
+        for path, old_value in last.items():
+            if path not in fold and path in overlay and overlay[path] == old_value \
+                    and path not in (overlay_ids or {}):
+                done.append((path, overlay.pop(path), None))
+    return overlay, fold, done
+
+
 def v8_settings_hash(v8):
     """Fingerprint of the v8 settings a fold reads (settings + touched)."""
     body = {"settings": (v8 or {}).get("settings"), "touched": (v8 or {}).get("touched")}
@@ -108,6 +148,7 @@ class V9State:
         self.extra = {}
         self.load_info = {"source": "defaults", "error": None, "dropped": []}
         self._keep_aside = False     # an unreadable file is copied aside before the first save
+        self._in_txn = False
         self._load(trigger_validator)
 
     # ------------------------------------------------------------------ load
@@ -126,6 +167,7 @@ class V9State:
             self._keep_aside = True
             self._log(f"[CMD][WARN] v9 state {self.path} unreadable ({exc}); starting empty "
                       f"(the file is kept as {self.path}.unreadable at the first save)")
+            self._seed_lost_high_water()
             return
         self.load_info["source"] = "file"
         self.extra = {k: v for k, v in data.items() if k not in _OWNED and k != "schema"}
@@ -164,6 +206,32 @@ class V9State:
             else:
                 self.pending_trigger_v9 = {"id": trig["id"], "v": trig["v"],
                                            "kv": dict(trig.get("kv") or {})}
+
+    def _seed_lost_high_water(self):
+        """Review S4a #3: after a lost file, old remote commands still sit in
+        Sofar's never-expiring mailbox. Seed each high-water range from the
+        journal's highest id, and close the service range outright."""
+        import command_wire
+        try:
+            import config_journal
+            entries = config_journal.read(config_journal.path_beside(self.path))
+        except Exception:
+            entries = []
+        for e in entries:
+            cid = e.get("id")
+            if _is_int(cid):
+                rng = command_wire.id_range(cid)
+                if rng in command_wire.HIGH_WATER_RANGES and cid > self.high_water.get(rng, -1):
+                    self.high_water[rng] = cid
+        top = next(r[2] for r in command_wire.RANGES if r[0] == "service")
+        self.high_water["service"] = top
+        self._log(f"[CMD][WARN] v9 state lost: high-water re-seeded from the journal "
+                  f"{self.high_water}; the service range is CLOSED until a field update")
+
+    def _require_txn(self, what):
+        if not self._in_txn:
+            raise RuntimeError(f"V9State.{what} changes memory: call it inside transaction() "
+                               "(D15)")
 
     @staticmethod
     def _trigger_problem(trig, validator):
@@ -207,13 +275,18 @@ class V9State:
     def transaction(self, mutate):
         """Run mutate(self) in memory, persist, and undo the in-memory change if
         the persist raises (D15: no ok ack, and nothing changed). Re-raises."""
+        if self._in_txn:                       # nested: the outer one persists
+            return mutate(self)
         snap = self._snapshot()
+        self._in_txn = True
         try:
             result = mutate(self)
             self.save()
         except Exception:
             self._restore(snap)
             raise
+        finally:
+            self._in_txn = False
         return result
 
     def journal(self, source, key, old, new, cid=None):
@@ -243,6 +316,8 @@ class V9State:
                 st.overlay[path] = value
                 if cid is not None:
                     st.overlay_ids[path] = cid
+                else:                          # local GUI / revert: not that id's value now
+                    st.overlay_ids.pop(path, None)
                 done.append((path, None if old is _REMOVE else old, value))
             return done
         done = self.transaction(mutate)
@@ -262,26 +337,25 @@ class V9State:
         v8_trig = v8.get("pending_trigger")
         if self.v8_folded == cur_hash and not v8_trig:
             return []
-        fold = overlay_from_v8(v8) if v8 else {}
-        first = self.v8_folded is None
 
         def mutate(st):
-            done = []
-            for path, value in fold.items():
-                if first:
-                    win = path not in st.overlay
-                else:
-                    win = path not in st.v8_fold_values or st.v8_fold_values[path] != value
-                if win and st.overlay.get(path, _REMOVE) != value:
-                    done.append((path, st.overlay.get(path), value))
-                    st.overlay[path] = value
-                    st.overlay_ids.pop(path, None)
+            new_overlay, fold, done = plan_fold(st.overlay, st.overlay_ids, v8, st.v8_folded,
+                                                st.v8_fold_values, overlay_from_v8)
+            st.overlay = new_overlay
+            for path, _old, _new in done:
+                st.overlay_ids.pop(path, None)
             st.v8_folded = cur_hash
             st.v8_fold_values = dict(fold)
             if isinstance(v8_trig, dict) and _is_int(v8_trig.get("id")) and \
-                    v8_trig.get("value") in (1, 2, 3, 4) and st.pending_trigger_v9 is None:
-                st.pending_trigger_v9 = {"id": v8_trig["id"], "v": v8_trig["value"], "kv": {}}
-                done.append(("pending_trigger", None, st.pending_trigger_v9))
+                    v8_trig.get("value") in (1, 2, 3, 4):
+                if st.pending_trigger_v9 is None:
+                    st.pending_trigger_v9 = {"id": v8_trig["id"], "v": v8_trig["value"],
+                                             "kv": {}}
+                    done.append(("pending_trigger", None, st.pending_trigger_v9))
+                else:
+                    self._log(f"[CMD][WARN] v8 pending trigger {v8_trig} dropped: a v9 "
+                              f"trigger {st.pending_trigger_v9} is already armed")
+                    done.append(("pending_trigger", v8_trig, None))
             if v8_trig is not None:
                 st.v8 = dict(st.v8, pending_trigger=None)
             return done
@@ -298,6 +372,7 @@ class V9State:
     def remember(self, cid, answer):
         """Store the original answer (in memory; persisted by the caller's
         next transaction/save). Oldest evicted past RESULT_CACHE_MAX."""
+        self._require_txn("remember")
         entry = {k: v for k, v in answer.items() if v is not None}
         entry["b"] = self.boot_counter
         self.result_cache.pop(str(cid), None)
@@ -312,6 +387,7 @@ class V9State:
         return hw is not None and cid <= hw
 
     def advance_high_water(self, rng, cid):
+        self._require_txn("advance_high_water")
         if cid > self.high_water.get(rng, -1):
             self.high_water[rng] = cid
 
@@ -324,12 +400,20 @@ class V9State:
     # ---------------------------------------------------------------- trigger
     @property
     def pending_trigger(self):
-        """The armed one-shot in the runtime's {"id", "value", "kv"} shape."""
+        """The armed one-shot in the runtime's {"id", "value", "kv"} shape. The
+        SAME object until the trigger changes: the supervisor compares it by
+        identity (rc_supervisor W10 w10_stuck, stay_on stuck_trg)."""
         t = self.pending_trigger_v9
-        return None if t is None else {"id": t["id"], "value": t["v"], "kv": dict(t["kv"])}
+        if t is None:
+            return None
+        if getattr(self, "_trig_src", None) is not t:
+            self._trig_src = t
+            self._trig_view = {"id": t["id"], "value": t["v"], "kv": dict(t["kv"])}
+        return self._trig_view
 
     def arm_trigger(self, cid, v, kv=None):
         """trg v (v:0 cancels). Persisted by the caller's transaction."""
+        self._require_txn("arm_trigger")
         self.pending_trigger_v9 = None if v == 0 else {"id": cid, "v": v, "kv": dict(kv or {})}
 
     def consume_trigger(self):
@@ -360,6 +444,7 @@ class V9State:
         """rsd (in memory; persisted by the caller's transaction): {"x":1}
         cancels all; {"h": [[key, ns], ...]} = the ACCEPTED heals, newest
         first, one per key, at most PENDING_HEALS_MAX (command_state rules)."""
+        self._require_txn("record_heals")
         value = value or {}
         if value.get("x"):
             self.v8 = dict(self.v8, pending_heals=[])

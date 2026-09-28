@@ -83,6 +83,12 @@ class Inbox(unittest.TestCase):
         self.assertEqual(self.ib.entries(), [b"one", b"two"])
         self.assertTrue(any("damaged" in m for m in self.log))
 
+    def test_damaged_only_file_is_deleted(self):
+        with open(self.ib.path, "wb") as fh:
+            fh.write(b"!!!bad 1\ntorn-no-newline")
+        self.assertEqual(self.ib.entries(), [])
+        self.assertFalse(os.path.exists(self.ib.path))
+
     def test_remove_and_delete_when_empty(self):
         for p in (b"a", b"b", b"c"):
             self.ib.append(p)
