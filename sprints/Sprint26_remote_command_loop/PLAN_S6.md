@@ -359,3 +359,31 @@ Facts corrected: v8 `st` is an object; the GUI also reads the CLI send log; the 
 sample is a unit log line. Not verifiable by the reviewer (no network): no open nvd PRs, the
 36/36 baseline, the live loop — all checked in this session (`gh pr list`, local run,
 conductor README).
+
+## 8. S6a build record (2026-09-28)
+
+Built as approved. Three draft PRs into nvd `staging`, none merged or deployed. No hardware,
+Sofar or staging was touched during the S5 loop.
+
+| PR | branch head | contents | suite |
+|---|---|---|---|
+| nickraymond/nereus-vision-dev#65 **A** | `feature/s6a-chunk-total` fc7da16 | §11 wire regression (parse + rows, main FROZEN / v9 REVIEWED, recorded at 03272be); `/M` parser; collision rows never healed | 40/40 |
+| nickraymond/nereus-vision-dev#66 **B** | `feature/s6a-uplink-v9-fields` fecce87 | `<WS>` config_hash / uptime_s / wake_reason; START config_hash, trigger_id, resolved_crop / message_cap / duration_s | 37/37 |
+| nickraymond/nereus-vision-dev#67 **C** | `feature/s6a-command-log` 7218fd2 | reply parsers (parity with sofar_poll_acks), migration 0016 (3 new tables), allocator (heal < 1e6, heal cap 256 B), reply ingest (per-message savepoint), §6.5 status + desired vs reported + admin endpoints | 43/43 |
+
+- **Tests.** The DB tests run on a local scratch Postgres (`TEST_DATABASE_URL`, Homebrew on
+  port 54329). They SKIP without it.
+- **Local integration.** A local merge of A+B+C (never pushed) merges clean. There, the main
+  wire is unchanged. The v9 parse gains 16 keys and the rows 86, only B's additive keys.
+- **Merge order A → B → C.** After A merges, B gets one commit that re-records the v9 JSON.
+  C's copies of `wire.py` / `s6a_db.py` are byte-identical to A's.
+- **Independent code review** (fresh context): no BLOCKER.
+  - A: 1 MAJOR + 1 MINOR, fixed.
+  - B: clean.
+  - C: 1 MAJOR + 6 MINOR + NITs, fixed except #6.
+- **Deviation (review A #1).** A total-mismatch group keeps its own M rather than an unknown
+  length. The collision row it produces is never healed (`key_collision`). Wire contract §14.6.
+- **Residual C #6.** A `cfm` sent by another tool is not linked to its `set` until H2 moves
+  the tools to the backend allocator (S6b).
+- **Demo.** Local, recorded in each PR body. The staging demo is S6b step 1, done with
+  cherry-picked copies of the commits.
