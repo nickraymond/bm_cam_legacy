@@ -334,7 +334,7 @@ def flush_acks(daemon, summary, clock=_time.monotonic, sleep_fn=_time.sleep,
                 lane_extended = True
                 room_fn = getattr(daemon, "lane_room_fn", None)
                 room = room_fn() if room_fn is not None else None
-                if room is None or room >= wait:
+                if room is None or room >= wait + float(budget_s):
                     # S4 b.8: the acks wait out ONE boundary guard rather than
                     # being left for the cloud re-send, but NEVER past the
                     # per_boot halt margin (S4b review #2: the Spotter cuts the

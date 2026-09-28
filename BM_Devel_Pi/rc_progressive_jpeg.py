@@ -1565,18 +1565,26 @@ def main(argv=None, **cycle_overrides):
             fresh = inner(current) if inner is not None else current
             now = supervisor_config.resolve(v9_base, supervisor_config.state_dict(v9_state),
                                             env=env).values
+            margin = rc_supervisor_mod().W10_VIDEO_MARGIN_S
+            vtx = None
+            if sup.media == "video" and now.get("mode.media") == "video":
+                # loaded FIRST: a failure raises before anything is changed (the
+                # caller keeps the last good settings; nothing half-updated)
+                video_block = _vr.load_video_config(args.config_path)
+                vtx = _vtx.load_video_tx_config(args.config_path)
+                fresh["video"] = video_block
             sup.v9_limits = {k: now[k] for k in sup.v9_limits}
             sup._save_quality_base = int(now["still.save.quality"])
             sup.storage_cfg = {"max_used_pct": float(now["storage.max_used_pct"]),
                                "min_free_gb": float(now["storage.min_free_gb"]),
                                "ring_dry_run": bool(now["storage.ring_dry_run"])}
             sup.video_duration_s = float(now["video.send.duration_s"])
-            if sup.media == "video" and now.get("mode.media") == "video":
-                fresh["video"] = _vr.load_video_config(args.config_path)
-                sup.current_vtx = _vtx.load_video_tx_config(args.config_path)
-                sup.min_action_s = (float(sup.current_vtx["duration_s"])
-                                    + float(sup.current_vtx["lead_in_s"])
-                                    + rc_supervisor_mod().W10_VIDEO_MARGIN_S)
+            sup.alt_min_action_s["video"] = (float(now["video.send.duration_s"])
+                                             + float(now["video.send.lead_in_s"]) + margin)
+            if vtx is not None:
+                sup.current_vtx = vtx
+                sup.min_action_s = (float(vtx["duration_s"]) + float(vtx["lead_in_s"])
+                                    + margin)
             return fresh
         sup.reresolve_fn = reresolve
         sup.alt_min_action_s = {

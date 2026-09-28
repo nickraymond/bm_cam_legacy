@@ -175,15 +175,24 @@ class Dispatcher:
             # S4b review #3: an unsigned service-range id must never move the
             # service high-water (that would close the range for good).
             self.daemon.stats["rejected"] += 1
-            return self._reject(cid, rng, "auth", "sig",
-                                "service-range ids need a valid service signature")
+            # Review N1: not cached, so a forged unsigned id cannot block the real
+            # signed command that will carry it (the high-water never moved).
+            self._answer(cid, False, "auth", key="sig",
+                         text="service-range ids need a valid service signature")
+            return {"action": "rejected", "id": cid, "e": "auth"}
         if rng in W.HIGH_WATER_RANGES and self.state.is_old(rng, cid):
             self.daemon.stats["rejected"] += 1
             return self._reject(cid, rng, "old", why="below this sender's newest id")
         handler = getattr(self, "_verb_" + cmd.verb, None)
+        self._answered_ok = None
         try:
             event = handler(cmd)
         except Exception as exc:          # a persist failure (D15) or a bug: no ok ack
+            if self._answered_ok == cid:
+                # the ok was persisted AND answered; a later step failed (review #11)
+                self._log(f"[CMD][WARN] id={cid} {cmd.verb}: after the answer: "
+                          f"{type(exc).__name__}: {exc}")
+                return {"action": "applied", "id": cid}
             self.daemon.stats["rejected"] += 1
             print(f"[CMD][ERROR] id={cid} {cmd.verb} failed: {type(exc).__name__}: {exc}")
             self._answer(cid, False, "err", text=f"{cmd.verb}: not saved ({exc})")
@@ -212,7 +221,7 @@ class Dispatcher:
             self._dup_cell[cid] = now
         ok = bool(cached.get("ok"))
         text, granted = cached.get("t", ""), cached.get("v")
-        if cached.get("hld") and cached.get("b") != self.state.boot_counter:
+        if cached.get("hld") and first is None:
             # S4b review #9: a hold is never persisted; one granted in an earlier
             # boot is not active now (the re-send must not claim it is).
             text, granted = "hold from an earlier boot: NOT active (send a new hld)", 0
@@ -237,6 +246,7 @@ class Dispatcher:
         done = self._persist(cmd.id, cmd.range, answer, mutate=mutate, source=source)
         self._answered_at.setdefault(cmd.id, self.clock())
         self._answer(cmd.id, True, text=text, staged=answer.get("s"), granted=answer.get("v"))
+        self._answered_ok = cmd.id
         print(f"[CMD] applied id={cmd.id} {cmd.verb}: {text}")
         return {"action": "applied", "id": cmd.id, "changed": done}
 
@@ -305,7 +315,8 @@ class Dispatcher:
 
     def _get_journal(self, cmd):
         import config_journal
-        entries = config_journal.read(config_journal.path_beside(self.state.path))[-JOURNAL_LINES:]
+        entries = [e for e in config_journal.read(config_journal.path_beside(self.state.path))
+                   if e.get("src") != "hw"][-JOURNAL_LINES:]      # review N2: settings only
         event = self._applied(cmd, f"get journal: last {len(entries)} change(s)")
         for e in entries:
             self.daemon._console.append(

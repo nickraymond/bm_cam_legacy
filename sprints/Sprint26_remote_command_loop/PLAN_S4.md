@@ -285,3 +285,10 @@ copy goes once per process; a failure after an ok never becomes a second (err) a
 restores the value's command id; W10 sizes a longer one-shot clip; the action log shows a one-shot
 output; guard uptime counted after the hold and before an exit; revert re-render falls back to
 the YAML base; dev_mode.sh `off` writes hlt 0 before re-arming.
+Verification round (both reviewers re-checked c0027e8): 17 of 21 fixed, 4 partial, 4 new
+minors — all closed in the follow-up commit: the mid-cycle flush extends only if wait + its own
+15 s fit before the halt margin; a duplicate hld is active only if answered in this process; no
+second answer after any verb's ok; an unsigned service-range rejection is not cached (a forged
+id cannot block the real signed command); `get journal` skips `hw` lines; the v9 re-resolve loads
+the video config first (nothing half-updated on failure) and refreshes the W10 video minimum; a
+save-quality set drained at boot applies to this action.

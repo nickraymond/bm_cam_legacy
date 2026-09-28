@@ -457,6 +457,7 @@ class Boot:
             if events and self.reresolve_fn is not None:
                 print(f"[SUP] boot drain: {len(events)} command(s) applied this boot")
                 settings = self._reresolve(settings, summary)
+                self.save_quality = self._save_quality_base   # a drained set applies now
         other = self._trigger_media()
         if other and other != self.media:
             # b.6b: a trg for the OTHER media is not this action's; it stays armed

@@ -217,6 +217,39 @@ class DupOncePerProcess(unittest.TestCase):
         self.assertEqual(len(r.acks()), 1)
 
 
+class Verification(unittest.TestCase):
+    """Reviewer 1 verification round (#9 partial, #11 partial, N1, N2)."""
+
+    def test_hold_duplicate_in_a_new_process_without_a_boot_count(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "hld", "v": 30})
+        r.acks()
+        r.new_process()                                      # no count_boot (no --transmit)
+        r.send({"id": 1_000_001, "c": "hld", "v": 30})
+        self.assertEqual(r.acks()[0]["v"], 0)
+
+    def test_no_second_answer_after_an_ok(self):
+        r = Rig(self)
+        with mock.patch.object(V, "render_help", side_effect=RuntimeError("boom")):
+            r.send({"id": 1_000_001, "c": "help"})
+        acks = r.acks()
+        self.assertEqual([a["ok"] for a in acks], [1])
+
+    def test_unsigned_service_rejection_is_not_cached(self):
+        r = Rig(self)
+        r.send({"id": 100_000_002, "c": "ping"})
+        self.assertEqual(r.acks()[0]["e"], "auth")
+        r.send(signed({"id": 100_000_002, "c": "set", "kv": {"uplink.chunk_chars": 320}}))
+        self.assertEqual(r.acks()[0]["ok"], 1)
+
+    def test_get_journal_skips_hw_lines(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 150}}, {"id": 1_000_002, "c": "ping"})
+        r.lines()
+        r.send({"id": 1_000_003, "c": "get", "k": ["journal"]})
+        self.assertFalse(any("high_water" in line for line in r.lines()))
+
+
 class R2Runtime(unittest.TestCase):
     """Runtime-integration review (R2-1, -2, -3, -8, -9)."""
 
