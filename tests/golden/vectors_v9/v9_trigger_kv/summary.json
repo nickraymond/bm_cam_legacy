@@ -1,0 +1,411 @@
+{
+ "cycle": {
+  "budget_seconds": 720,
+  "command_events": [
+   "applied",
+   "applied"
+  ],
+  "final_path": "{TMP}/images/2026-09-24T21:00:00Z_image_compressed.jpg",
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "heal": {
+   "hl": []
+  },
+  "listen_tail_s": 150.0,
+  "native_path": "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.jpg",
+  "schedule_allowed": true,
+  "selection": {
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 133539,
+     "message_count": 464,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 87836,
+     "message_count": 305,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68543,
+     "message_count": 238,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 56443,
+     "message_count": 196,
+     "over_cap": true,
+     "quality": 60
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 48603,
+     "message_count": 169,
+     "over_cap": true,
+     "quality": 50
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 41336,
+     "message_count": 144,
+     "over_cap": true,
+     "quality": 40
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 33808,
+     "message_count": 118,
+     "over_cap": true,
+     "quality": 30
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 29398,
+     "message_count": 103,
+     "over_cap": true,
+     "quality": 25
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 24569,
+     "message_count": 86,
+     "over_cap": false,
+     "quality": 20
+    }
+   ],
+   "attempts": 9,
+   "fits": true,
+   "quality": 20,
+   "reason": "fit"
+  },
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "incomplete_emitted": false,
+   "planned": 86,
+   "send_target": 86,
+   "sent": 86,
+   "started": true,
+   "uart_duration_sec": 113.09999999999604
+  },
+  "trigger": {
+   "id": 1000521,
+   "kv": {
+    "camera.exposure.ev": -1.0,
+    "still.crop": [
+     768,
+     432,
+     3072,
+     1728
+    ],
+    "still.message_cap": 100
+   },
+   "value": 2
+  }
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 265.1,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "c00dccd70d294f98"
+  },
+  "app/sent/2026-09-24T21:00:00Z_image_compressed.sent.json": {
+   "bytes": 319,
+   "sha256": "a29ab99b60587b4d"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3261,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2483,
+   "sha256": "4812de18c83ad9da"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7711,
+   "sha256": "676b414910d2df13"
+  },
+  "images/2026-09-24T21:00:00Z_image_compressed.jpg": {
+   "bytes": 24569,
+   "sha256": "437ce13eed3873ac"
+  },
+  "images/2026-09-24T21:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 2988,
+   "sha256": "349c80ee4cccaf6c"
+  },
+  "images/2026-09-24T21:00:00Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T21:00:00Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T21:00:00Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T21:00:00Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "logs/camera_log.csv": {
+   "bytes": 289,
+   "sha256": "4020cc73a531da6b"
+  },
+  "render/camera_schedule.one_shot.yaml": {
+   "bytes": 2264,
+   "sha256": "bfb03ecdbf80e222"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2249,
+   "sha256": "abed23a3ff7fff41"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 434,
+   "sha256": "0f9213e517d04b1b"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
+ "notes": "trg kv on stills (outside the window: the trg bypasses it): one action with the one-shot crop, cap 100 and -1 EV; the config hash and a later get show the overlay untouched (\u00a79)",
+ "scenario": "v9_trigger_kv",
+ "sent_records": {
+  "app/sent/2026-09-24T21:00:00Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T21:00:00Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dq7o0",
+   "msgs": 86,
+   "payload": "{TMP}/images/2026-09-24T21:00:00Z_image_compressed.jpg",
+   "sent_utc": "2026-09-24T21:00:00Z",
+   "sha256": "437ce13eed3873aca187a849e82047e307b693b5ce10635cf7b19341139cd5c7"
+  }
+ },
+ "sidecars": {
+  "images/2026-09-24T21:00:00Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 133539,
+     "message_count": 464,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 87836,
+     "message_count": 305,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68543,
+     "message_count": 238,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 56443,
+     "message_count": 196,
+     "over_cap": true,
+     "quality": 60
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 48603,
+     "message_count": 169,
+     "over_cap": true,
+     "quality": 50
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 41336,
+     "message_count": 144,
+     "over_cap": true,
+     "quality": 40
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 33808,
+     "message_count": 118,
+     "over_cap": true,
+     "quality": 30
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 29398,
+     "message_count": 103,
+     "over_cap": true,
+     "quality": 25
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 24569,
+     "message_count": 86,
+     "over_cap": false,
+     "quality": 20
+    }
+   ],
+   "base64_chars": 32760,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "--ev",
+    "-1"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "--ev",
+    "-1",
+    "-o",
+    "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    768,
+    432,
+    3072,
+    1728
+   ],
+   "enc_attempts": 9,
+   "fits": true,
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 24569,
+   "jpeg_quality_used": 20,
+   "jpeg_sha256": "437ce13eed3873aca187a849e82047e307b693b5ce10635cf7b19341139cd5c7",
+   "message_count": 86,
+   "metadata_json": "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.jpg",
+   "output_size": [
+    1000,
+    562
+   ],
+   "planned_buffers": 86,
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "selector_reason": "fit",
+   "sent_buffers": 86,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T21:00:00Z_image_native_full.stdout.log",
+   "transmit_duration_sec": 113.09999999999604,
+   "transmit_success": true,
+   "utc_capture_timestamp": "2026-09-24T21:00:00Z"
+  }
+ },
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 1,
+  "guarded": {},
+  "high_water": {
+   "remote": 1000522
+  },
+  "overlay": {},
+  "overlay_ids": {},
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "1000521": {
+    "b": 1,
+    "ok": 1,
+    "t": "trg 2 armed: capture + output per mode (next decision point); one action only: still.crop=768,432,3072,1728, still.messa"
+   },
+   "1000522": {
+    "b": 1,
+    "g": [
+     "r",
+     "m"
+    ],
+    "ok": 1,
+    "t": "get r, m: 2 key(s)"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
+ },
+ "unfired_rules": []
+}

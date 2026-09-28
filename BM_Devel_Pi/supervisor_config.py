@@ -173,6 +173,28 @@ def make_reresolve(base, render_path, resolve_settings, carry=("video",), env=No
     return reresolve
 
 
+def state_dict(v9state):
+    """A V9State as the dict config_v2.state_overlay reads."""
+    return {"schema": "bm_command_state_v2", "overlay": dict(v9state.overlay),
+            "overlay_ids": dict(v9state.overlay_ids), "v8": v9state.v8,
+            "v8_folded": v9state.v8_folded, "v8_fold_values": v9state.v8_fold_values}
+
+
+ONE_SHOT_RENDER = "camera_schedule.one_shot.yaml"
+
+
+def one_shot_render(base, v9state, kv, env=None):
+    """§9: a per-action COPY of the config with the trg kv applied, rendered
+    beside the boot render (tmpfs). Never the overlay, never the state file.
+    -> the render path."""
+    values = resolve(base, state_dict(v9state), env=env).values
+    values.update(kv)
+    path = os.path.join(config_v2.render_dir(), ONE_SHOT_RENDER)
+    import atomic_io
+    atomic_io.write_text(path, render_values(values))
+    return path
+
+
 def make_hash_fn(base, env=None):
     """-> hash_fn(): the effective config hash as the state file holds it NOW
     (the ack's `h` after the command was persisted)."""

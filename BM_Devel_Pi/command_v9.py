@@ -473,16 +473,60 @@ class Dispatcher:
             values = self.effective()
             self._queue_cf(cmd, [(p, values.get(p), self._source(p)) for p in changed])
 
+    def one_shot(self, names_values, v=2):
+        """Resolve + validate a trg kv against the CURRENT effective config
+        (§9, G6): names -> full paths with the ACTION's media (a `med` in the
+        kv decides it), each key in R.ONE_SHOT, registry types, then the
+        whole per-action copy. -> ({path: value}, media). Raises Rejected
+        (id 0: the caller re-labels). Used at `trg` time AND at action time."""
+        effective = self.effective()
+        med_name = next((n for n in names_values if R.resolve_short(n, None) == "mode.media"),
+                        None)
+        media = names_values[med_name] if med_name else effective.get("mode.media")
+        out = {}
+        for name, value in names_values.items():
+            path = R.resolve_short(name, media)
+            if path is None or path not in R.ONE_SHOT:
+                raise W.Rejected(0, "key", name, f"{name!r} cannot be set for one action")
+            if path == "still.crop" and media != "still":
+                raise W.Rejected(0, "key", name, "r (still.crop) on a video action: the "
+                                 "recording geometry is used")
+            why = R.check_value(R.BY_PATH[path], value)
+            if why:
+                raise W.Rejected(0, "val", path, why)
+            if path in out:
+                raise W.Rejected(0, "key", path, "set twice in one command")
+            out[path] = value
+        if out.get("mode.media", effective.get("mode.media")) != effective.get("mode.media"):
+            raise W.Rejected(0, "key", "mode.media", "a media override lands in S4 b.6b")
+        values = dict(effective)
+        values.update(out)
+        for viol in config_validate.validate(values, "effective", env=self.env):
+            hit = [p for p in viol.paths if p in out]
+            if hit:
+                raise W.Rejected(0, viol.code, hit[0], viol.message)
+        return out, media
+
     def _verb_trg(self, cmd):
         v = cmd.fields["v"]
+        kv = {}
         if cmd.fields.get("kv"):
-            return self._reject(cmd.id, cmd.range, "key", "kv",
-                                "one-shot trg kv lands in S4 b.6")
+            try:
+                kv, media = self.one_shot(cmd.fields["kv"], v)
+            except W.Rejected as rej:
+                return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
         labels = {0: "trg 0: pending trigger cancelled", 1: "trg 1 armed: capture, save only",
                   2: "trg 2 armed: capture + output per mode",
                   3: "trg 3 armed: stored reef reference", 4: "trg 4 armed: stored reference card"}
         text = labels[v] + ("" if v == 0 else " (next decision point)")
-        return self._applied(cmd, text, mutate=lambda st: st.arm_trigger(cmd.id, v))
+        if kv:
+            # G7: the resolved one-shot values (and a d != 5 flag) on the console;
+            # the ack stays slim; START carries tg/r/m/d (W8b).
+            shown = ", ".join(f"{p}={_fmt(val)}" for p, val in kv.items())
+            d = kv.get("video.send.duration_s")
+            flag = f" (d={_fmt(d)}! only 5 s is ladder-validated)" if d is not None and d != 5 else ""
+            text += f"; one action only: {shown}{flag}"
+        return self._applied(cmd, text, mutate=lambda st: st.arm_trigger(cmd.id, v, kv))
 
     def _verb_rsd(self, cmd):
         value, ok = self.daemon._screen_heals(cmd.id, cmd.rsd)
@@ -513,6 +557,19 @@ class Dispatcher:
             except Exception as exc:
                 print(f"[CMD][WARN] wap action failed: {exc}")
         return event
+
+
+def check_persisted_kv(kv, v):
+    """The load-time check of a persisted trg kv (V9State trigger_validator):
+    full paths only, each in R.ONE_SHOT, registry types. The whole-config check
+    runs again at action time (Boot._apply_one_shot). -> reason or None."""
+    for path, value in (kv or {}).items():
+        if path not in R.ONE_SHOT:
+            return f"{path!r} is not a one-shot key"
+        why = R.check_value(R.BY_PATH[path], value)
+        if why:
+            return f"{path}: {why}"
+    return None
 
 
 def _parse_rsd(data):

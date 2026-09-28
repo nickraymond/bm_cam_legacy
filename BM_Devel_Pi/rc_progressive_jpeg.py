@@ -1368,7 +1368,7 @@ def main(argv=None, **cycle_overrides):
                 import config_migrate
                 v9_state = command_state_v9.V9State(
                     supervisor_config.state_path_for(v9_base),
-                    trigger_validator=lambda kv, v: None if not kv else "one-shot kv: S4 b.6")
+                    trigger_validator=lambda kv, v: __import__("command_v9").check_persisted_kv(kv, v))
                 for path, old, new in v9_state.fold_v8(config_migrate.overlay_from_v8):
                     print(f"[CMD] v8 fold: {path}: {old!r} -> {new!r}")
                 if args.transmit:
@@ -1526,6 +1526,13 @@ def main(argv=None, **cycle_overrides):
                     sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
                 sup.guard_state = v9_state
                 if v9_on and command_state is not None:
+                    def _one_shot_video(kv, sup=sup):
+                        path = supervisor_config.one_shot_render(v9_base, v9_state, kv, env=env)
+                        fresh = resolve_rc_settings(path)
+                        fresh["video"] = video_recorder.load_video_config(path)
+                        sup.one_shot_vtx = rc_video_tx.load_video_tx_config(path)
+                        return dict(fresh, power_halt_dry_run=True) if args.crashloop else fresh
+                    sup.one_shot_fn = _one_shot_video
                     sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
                         d, command_state, v9_base, env=env,
                         service_key=command_v9.load_service_key(), base_source=v9_source)
@@ -1618,6 +1625,11 @@ def main(argv=None, **cycle_overrides):
                 sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
             sup.guard_state = v9_state
             if v9_on and command_state is not None:
+                def _one_shot_still(kv):
+                    path = supervisor_config.one_shot_render(v9_base, v9_state, kv, env=env)
+                    fresh = resolve_rc_settings(path)
+                    return dict(fresh, power_halt_dry_run=True) if args.crashloop else fresh
+                sup.one_shot_fn = _one_shot_still
                 sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
                     d, command_state, v9_base, env=env,
                     service_key=command_v9.load_service_key(), base_source=v9_source)

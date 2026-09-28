@@ -591,6 +591,9 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             settings, trigger_flags = supervised.boot_drain(settings, summary, sleep_fn)
             skip_time_window = skip_time_window or trigger_flags["skip_time_window"]
             capture_only = trigger_flags["capture_only"]
+            # S4 b.6a: a trg kv (d, m, size, fps, ...) rebuilt the clip config for
+            # this one action (a per-action render copy; never persisted).
+            vtx = getattr(supervised, "one_shot_vtx", None) or vtx
         else:
             owner.begin()
         # 0. S3: the command daemon, when the cycle may touch the bus. Inside the

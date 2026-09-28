@@ -429,6 +429,28 @@ V9_SCENARIOS = {
                    "payload": {"id": 1000504, "c": "trg", "v": 2}}],
         "notes": "W10 on v9: a remote trg in the listen tail fires this boot",
     },
+    "v9_trigger_kv": {
+        "kind": "stills", "utc": OUT_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000521, "c": "trg", "v": 2,
+                                           "kv": {"r": [768, 432, 3072, 1728], "m": 100,
+                                                  "e": -1.0}}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000522, "c": "get",
+                                                                "k": ["r", "m"]}},
+        ],
+        "notes": "trg kv on stills (outside the window: the trg bypasses it): one action with "
+                 "the one-shot crop, cap 100 and -1 EV; the config hash and a later get show "
+                 "the overlay untouched (§9)",
+    },
+    "v9_video_trigger_kv": {
+        "kind": "video", "utc": OUT_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
+        "rules": [{"when": "on_sub", "payload": {"id": 1000531, "c": "trg", "v": 2,
+                                                 "kv": {"d": 8, "m": 90}}}],
+        "notes": "trg kv on video: one 8 s clip fitted to 90 messages; d != 5 flagged on the "
+                 "console; nothing persisted",
+    },
 }
 
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}

@@ -220,8 +220,8 @@ class Verbs(unittest.TestCase):
                          {"id": 1_000_001, "value": 2, "kv": {}})
         r.send({"id": 1_000_002, "c": "trg", "v": 0})
         self.assertIsNone(S.V9State(r.state_path).pending_trigger)
-        r.send({"id": 1_000_003, "c": "trg", "v": 2, "kv": {"d": 8}})
-        self.assertEqual(r.acks()[-1]["e"], "key")
+        r.send({"id": 1_000_003, "c": "trg", "v": 2, "kv": {"m": 100}})
+        self.assertEqual(r.acks()[-1]["ok"], 1)                 # trg kv: test_s4_trg_kv
 
     def test_rsd(self):
         r = Rig(self)

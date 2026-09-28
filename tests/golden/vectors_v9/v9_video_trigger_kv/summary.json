@@ -1,0 +1,156 @@
+{
+ "cycle": {
+  "clip": {
+   "basename": "2026-09-24T21-00-00Z_video_1000x562_15fps",
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T21-00-00Z_video_1000x562_15fps.mp4",
+   "ok": true,
+   "stage": "done"
+  },
+  "command_events": [
+   "applied"
+  ],
+  "error": null,
+  "fit": {
+   "budget_msgs": 90,
+   "bytes": 36019,
+   "duration_s": 8.0,
+   "encode_s": 0.0,
+   "frames": 80,
+   "frames_trimmed": 0,
+   "keyframe_chunks": 8,
+   "keyframe_end": 2236,
+   "msgs": 126,
+   "pass2_tries": 1,
+   "prescale_s": 0.0,
+   "target_kbps": 36.0,
+   "used_pct": 139.0
+  },
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "heal": {
+   "hl": []
+  },
+  "listen_tail_s": 150.0,
+  "media_key": "0dq7o0",
+  "schedule_allowed": true,
+  "stage": "done",
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "planned": 126,
+   "refused_reason": null,
+   "repeat_sent": true,
+   "repeated": 8,
+   "sent": 126,
+   "started": true,
+   "uart_duration_sec": 175.49999999999386
+  },
+  "trigger": {
+   "id": 1000531,
+   "kv": {
+    "video.send.duration_s": 8,
+    "video.send.message_cap": 90
+   },
+   "value": 2
+  }
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 325.5,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "c00dccd70d294f98"
+  },
+  "app/sent/2026-09-24T21-00-00Z_video_8s.sent": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "app/sent/2026-09-24T21-00-00Z_video_8s.sent.json": {
+   "bytes": 308,
+   "sha256": "3e34dc71e959b680"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3247,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2469,
+   "sha256": "2911345b04a0167c"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7907,
+   "sha256": "8a8ad15fcd4f5753"
+  },
+  "render/camera_schedule.one_shot.yaml": {
+   "bytes": 2220,
+   "sha256": "5072f1443214e282"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2223,
+   "sha256": "8dedba797bcb93e0"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 370,
+   "sha256": "b203d9c6df6e610e"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  },
+  "videos/2026-09-24T21-00-00Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "trg kv on video: one 8 s clip fitted to 90 messages; d != 5 flagged on the console; nothing persisted",
+ "scenario": "v9_video_trigger_kv",
+ "sent_records": {
+  "app/sent/2026-09-24T21-00-00Z_video_8s.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T21-00-00Z_video_8s.h264",
+   "fmt": "h264",
+   "key": "0dq7o0",
+   "msgs": 126,
+   "payload": "{TMP}/app/sent/2026-09-24T21-00-00Z_video_8s.sent",
+   "sent_utc": "2026-09-24T21:00:00Z",
+   "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
+  }
+ },
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 1,
+  "guarded": {},
+  "high_water": {
+   "remote": 1000531
+  },
+  "overlay": {},
+  "overlay_ids": {},
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "1000531": {
+    "b": 1,
+    "ok": 1,
+    "t": "trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=8, video.send.messa"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
+ },
+ "unfired_rules": []
+}

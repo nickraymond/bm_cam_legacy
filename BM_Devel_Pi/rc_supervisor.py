@@ -112,6 +112,14 @@ class Boot:
         self.v9_replies = None
         self.v9_dispatch_factory = None   # b.2c: daemon -> command_v9.Dispatcher
         self.guard_state = None           # b.5: the V9State whose guarded keys count actions
+        # b.6a (§9, G6): a trg kv applies to ONE action. one_shot_fn(kv) -> the
+        # action's settings from a per-action render copy (video: it also sets
+        # one_shot_vtx); the output and save quality are one-action overrides.
+        self.one_shot_fn = None
+        self.one_shot_vtx = None
+        self.one_shot_output = None
+        self.one_shot_kv = None
+        self._save_quality_base = None
         self._guard_mark = None           # clock() of the last guard note (uptime accrual)
         self._guard_clock = None
 
@@ -227,7 +235,7 @@ class Boot:
 
     @property
     def save_local(self):
-        return self.output == "save_local"
+        return (self.one_shot_output or self.output) == "save_local"
 
     def save_local_time_read(self, daemon, settings):
         """S3c (PLAN_S3c.md §5 C9): a save_local action always reads Spotter
@@ -278,6 +286,11 @@ class Boot:
         Then a pending trg is serviced (it may have just arrived; W5: video
         too). -> (settings, flags)."""
         flags = {"skip_time_window": False, "capture_only": False}
+        # b.6a: a one-shot override lives for one action only.
+        if self._save_quality_base is None:
+            self._save_quality_base = self.save_quality
+        self.save_quality = self._save_quality_base
+        self.one_shot_vtx = self.one_shot_output = self.one_shot_kv = None
         daemon = self.owner.daemon if self.owner else None
         if daemon is not None:
             sleep_fn(0.0)
@@ -292,6 +305,7 @@ class Boot:
             settings, flags = cmd_hooks.service_pending_trigger(
                 settings, self.command_state, transmit=self.transmit)
             if settings.get("trigger"):
+                settings = self._apply_one_shot(settings, daemon)
                 summary["trigger"] = settings["trigger"]
                 if self.media == "video" and settings.get("source_image_path"):
                     # trg 3/4 name a stills reference image; a video unit has
@@ -300,6 +314,38 @@ class Boot:
                           "reference; a video unit records and sends a clip instead")
         self.settings = settings
         return settings, flags
+
+    def _apply_one_shot(self, settings, daemon):
+        """b.6a: the trigger's kv, re-validated against the config as it is NOW
+        (it may have changed since the trg), applied to a per-action copy.
+        A kv that no longer validates is dropped loudly and the trigger runs
+        without it; the overlay and the state file never see it (§9)."""
+        trig = settings["trigger"]
+        kv = trig.get("kv") or {}
+        if not kv or self.one_shot_fn is None:
+            return settings
+        dispatch = getattr(daemon, "v9_dispatch", None)
+        try:
+            if dispatch is not None:
+                kv, _media = dispatch.one_shot(kv, trig.get("value"))
+            fresh = self.one_shot_fn(kv)
+        except Exception as exc:
+            print(f"[SUP][WARN] trg id={trig.get('id')} kv {kv} dropped at action time "
+                  f"({type(exc).__name__}: {exc}); the trigger runs without it")
+            return settings
+        for key in ("trigger", "source_image_path", "video"):
+            if key in settings and key not in fresh:
+                fresh[key] = settings[key]
+        fresh["trigger"] = trig
+        self.one_shot_kv = dict(kv)
+        if "mode.output" in kv:
+            self.one_shot_output = kv["mode.output"]
+        if "still.save.quality" in kv:
+            if self._save_quality_base is None:
+                self._save_quality_base = self.save_quality
+            self.save_quality = int(kv["still.save.quality"])
+        print(f"[SUP] trg id={trig.get('id')}: one action with {kv} (not persisted)")
+        return fresh
 
     def _reresolve(self, settings, summary):
         """The overlay re-read after the drain. Everything built from the
