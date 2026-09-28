@@ -93,46 +93,11 @@ def active_keys(media):
 
 def _cross_key_errors(values):
     """The v1 validate_schedule rules that span keys (pjpg + video modes).
-    -> [(path, message)]; the path decides whether it matters for a boot."""
-    errs = []
-    crop, w, h = values.get("still.crop"), values.get("camera.native.width"), \
-        values.get("camera.native.height")
-    if isinstance(crop, list) and len(crop) == 4 and isinstance(w, int) and isinstance(h, int):
-        x, y, cw, ch = crop
-        if x + cw > w or y + ch > h:
-            errs.append(("still.crop", f"{crop} does not fit the native frame {w}x{h}"))
-        ow = values.get("still.output_width")
-        if isinstance(ow, int) and ow > cw:
-            errs.append(("still.output_width", f"{ow} is wider than still.crop w {cw} "
-                         "(no upscale)"))
-    for path in ("mode.run", "mode.output"):
-        key = R.BY_PATH[path]
-        if key.runnable and values.get(path) not in key.runnable:
-            errs.append((path, f"{values.get(path)!r} is not runnable "
-                               f"(runnable: {', '.join(key.runnable)})"))
-    # S3b (PLAN_S3b H1): stay_on is the supervisor's loop; it needs the command
-    # daemon (trg, heartbeat, idle ticks). A legacy unit told stay_on would
-    # silently run per_boot, so the file is refused instead (boot: v1 fallback).
-    if values.get("mode.run") == "stay_on":
-        if values.get("commands.runtime") != "supervisor":
-            errs.append(("mode.run", "stay_on needs commands.runtime: supervisor"))
-        if values.get("commands.enabled") is not True:
-            errs.append(("mode.run", "stay_on needs commands.enabled: true"))
-    # S3c (PLAN_S3c.md J1): the legacy runtime has no save_local; it would
-    # transmit what the operator said to keep on SD. Refused (boot: v1 fallback,
-    # which transmits, loudly: the only automatic revert until S4's cfm).
-    if values.get("mode.output") == "save_local":
-        if values.get("commands.runtime") != "supervisor":
-            errs.append(("mode.output", "save_local needs commands.runtime: supervisor"))
-        # Review S3c #2: the daemon is the save_local unit's Spotter time source
-        # (window off) and its only way back to transmit (S4 cfm/revert).
-        if values.get("commands.enabled") is not True:
-            errs.append(("mode.output", "save_local needs commands.enabled: true"))
-    for path in ("mode.interval_s", "mode.heartbeat_s"):
-        v = values.get(path)
-        if isinstance(v, int) and not isinstance(v, bool) and 0 < v < 60:
-            errs.append((path, f"{v} must be 0 (off) or at least 60 s"))
-    return errs
+    -> [(path, message)]; the path decides whether it matters for a boot.
+    S4: the rules live in config_validate (one validator for set, boot and
+    deploy); this keeps the S2/S3 output byte for byte."""
+    import config_validate
+    return config_validate.base_rules(values)
 
 
 def _apply_aliases(flat, warnings):
@@ -179,6 +144,12 @@ def parse_values(doc, strict, warnings=None):
         if key.required and values.get(key.path) is None:
             errors.append((key.path, "is required"))
     errors += _cross_key_errors(values)
+    if strict:
+        # S4 rules (manual WB gains, video crop, video cap floor) judge a file
+        # at deploy / migrate; a plain boot load keeps the S3 rules (never
+        # brick, PLAN_S4 G3/R12).
+        import config_validate
+        errors += [(v.paths[0], v.message) for v in config_validate.s4_rules(values)]
     if strict and errors:
         raise ConfigError(format_errors(errors))
     return values, source, errors
