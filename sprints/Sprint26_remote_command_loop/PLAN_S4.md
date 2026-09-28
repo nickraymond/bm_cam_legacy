@@ -206,6 +206,15 @@ or answered in writing (PLAN_S3c §6 format).
 Unit tests for every verb and rejection path + the tools smoke test; goldens green every
 commit, legacy byte-identical throughout. No bench in S4; S5 is the console ladder.
 
+### S4b additions ruled 2026-09-28 (Nick)
+
+- **b.8 lane guard (in S4):** DESIGN §6.1's "every cellular send shares the lane guard" was
+  not true before S4 (only the media burst was phase-planned). On the v9 path with
+  `uplink.lane.enabled`, acks and `<CF>` (drain_acks), stay_on heartbeats and the `<HL>` lines
+  now wait out the post-boundary guard (30 s) or a boundary within 2 s; the final ack flush may
+  wait one guard. Phase = the last fresh Spotter UTC read, extrapolated; no read = no wait (D1).
+- b.6 split: b.6a trg kv (same media), b.6b one-shot media override, b.6c hld + keep-alive (W12).
+
 ## 3. Not in S4
 
 W9 (S4w, G4). R1 recorder under the supervisor. F1 residual (manifest O(clips)). The camera

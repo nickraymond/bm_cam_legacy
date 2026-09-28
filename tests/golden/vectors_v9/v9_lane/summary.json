@@ -1,0 +1,362 @@
+{
+ "cycle": {
+  "budget_seconds": 720,
+  "command_events": [
+   "applied",
+   "applied"
+  ],
+  "final_path": "{TMP}/images/2026-09-24T15:03:40Z_image_compressed.jpg",
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "heal": {
+   "hl": []
+  },
+  "listen_tail_s": 150.0,
+  "native_path": "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.jpg",
+  "schedule_allowed": true,
+  "selection": {
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": true,
+     "quality": 60
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 46938,
+     "message_count": 163,
+     "over_cap": true,
+     "quality": 50
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 39669,
+     "message_count": 138,
+     "over_cap": false,
+     "quality": 40
+    }
+   ],
+   "attempts": 6,
+   "fits": true,
+   "quality": 40,
+   "reason": "fit"
+  },
+  "transmit": true,
+  "transmit_phase": {
+   "burst_s": 182.70000000000002,
+   "clock_source": "spotter",
+   "crosses_boundary": false,
+   "end_phase_s": 212.70000000000002,
+   "fits_lane": true,
+   "phase_s": 220.0,
+   "reason": "wait_next_lane",
+   "start_phase_s": 30.0,
+   "wait_s": 110.0
+  },
+  "transmit_result": {
+   "complete_send": true,
+   "incomplete_emitted": false,
+   "planned": 138,
+   "send_target": 138,
+   "sent": 138,
+   "started": true,
+   "uart_duration_sec": 180.69999999999368
+  }
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 590.7,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "8599acdeb703fd8f"
+  },
+  "app/sent/2026-09-24T15:03:40Z_image_compressed.sent.json": {
+   "bytes": 320,
+   "sha256": "e098f9c0965ae619"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3260,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2482,
+   "sha256": "adcb2b3c88f64fca"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7710,
+   "sha256": "a2f1479f631d3bed"
+  },
+  "images/2026-09-24T15:03:40Z_image_compressed.jpg": {
+   "bytes": 39669,
+   "sha256": "3802490f80779b9f"
+  },
+  "images/2026-09-24T15:03:40Z_image_compressed.jpg.capture_metadata.json": {
+   "bytes": 2670,
+   "sha256": "cbc3b94eeec64230"
+  },
+  "images/2026-09-24T15:03:40Z_image_native_full.jpg": {
+   "bytes": 4178802,
+   "sha256": "eb364d9cdb375bd0"
+  },
+  "images/2026-09-24T15:03:40Z_image_native_full.metadata.json": {
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
+  },
+  "images/2026-09-24T15:03:40Z_image_native_full.stderr.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "images/2026-09-24T15:03:40Z_image_native_full.stdout.log": {
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
+  },
+  "logs/camera_log.csv": {
+   "bytes": 290,
+   "sha256": "821d4ebaa67ed9be"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2248,
+   "sha256": "76126b25144da831"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 379,
+   "sha256": "0069b990be08d845"
+  },
+  "state/config_journal.jsonl": {
+   "bytes": 113,
+   "sha256": "wall-time"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "PIL",
+  "yaml"
+ ],
+ "notes": "lane on (b.8): the burst waits for its lane as before; the acks and the <CF> summary never go out inside a boundary guard",
+ "scenario": "v9_lane",
+ "sent_records": {
+  "app/sent/2026-09-24T15:03:40Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15:03:40Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dpr64",
+   "msgs": 138,
+   "payload": "{TMP}/images/2026-09-24T15:03:40Z_image_compressed.jpg",
+   "sent_utc": "2026-09-24T15:05:30Z",
+   "sha256": "3802490f80779b9f32de58844d5fc5c216c51ba0dbaf4e18e19327b0e1287383"
+  }
+ },
+ "sidecars": {
+  "images/2026-09-24T15:03:40Z_image_compressed.jpg.capture_metadata.json": {
+   "AfState": 0,
+   "AnalogueGain": 1.5,
+   "ColourGains": [
+    1.8,
+    1.6
+   ],
+   "ColourTemperature": 5200,
+   "DigitalGain": 1.0,
+   "ExposureTime": 12000,
+   "FocusFoM": 900,
+   "LensPosition": 1.82,
+   "Lux": 350.0,
+   "ScalerCrop": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "SensorTemperature": 41.0,
+   "attempt_log": [
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
+     "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": true,
+     "quality": 60
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 46938,
+     "message_count": 163,
+     "over_cap": true,
+     "quality": 50
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 39669,
+     "message_count": 138,
+     "over_cap": false,
+     "quality": 40
+    }
+   ],
+   "base64_chars": 52892,
+   "camera_control_args": [
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto"
+   ],
+   "camera_control_args_used": true,
+   "camera_controls_fallback_used": false,
+   "capture_command": [
+    "/usr/bin/rpicam-still",
+    "-n",
+    "--timeout",
+    "2000",
+    "--width",
+    "4608",
+    "--height",
+    "2592",
+    "--quality",
+    "95",
+    "--metadata",
+    "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.metadata.json",
+    "--autofocus-mode",
+    "manual",
+    "--lens-position",
+    "1.82",
+    "--autofocus-range",
+    "normal",
+    "--autofocus-speed",
+    "normal",
+    "--awb",
+    "auto",
+    "-o",
+    "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.jpg"
+   ],
+   "capture_mode": "progressive_jpeg",
+   "cron_logs_dir_bytes": 4567890,
+   "crop_native_xywh": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "enc_attempts": 6,
+   "fits": true,
+   "hostname": "bmcam-golden",
+   "images_dir_bytes": 123456789,
+   "img_format": "pjpg",
+   "jpeg_bytes": 39669,
+   "jpeg_quality_used": 40,
+   "jpeg_sha256": "3802490f80779b9f32de58844d5fc5c216c51ba0dbaf4e18e19327b0e1287383",
+   "message_count": 138,
+   "metadata_json": "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.metadata.json",
+   "metadata_schema": "bmcam_runtime_sidecar_v1",
+   "metadata_source": "rc_progressive_jpeg",
+   "native_path": "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.jpg",
+   "output_size": [
+    1000,
+    562
+   ],
+   "planned_buffers": 138,
+   "sd_free_bytes": 22000000000,
+   "sd_total_bytes": 31000000000,
+   "sd_used_bytes": 9000000000,
+   "sd_used_pct": 29.03,
+   "selector_reason": "fit",
+   "sent_buffers": 138,
+   "software_sha": "golden0",
+   "stderr_log": "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:03:40Z_image_native_full.stdout.log",
+   "transmit_duration_sec": 180.69999999999368,
+   "transmit_success": true,
+   "utc_capture_timestamp": "2026-09-24T15:03:40Z"
+  }
+ },
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 1,
+  "guarded": {},
+  "high_water": {
+   "remote": 1000562
+  },
+  "overlay": {
+   "still.message_cap": 150
+  },
+  "overlay_ids": {
+   "still.message_cap": 1000561
+  },
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "1000561": {
+    "b": 1,
+    "ok": 1,
+    "t": "still.message_cap: 195 -> 150 (next action)"
+   },
+   "1000562": {
+    "b": 1,
+    "ok": 1,
+    "t": "ping"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
+ },
+ "unfired_rules": []
+}

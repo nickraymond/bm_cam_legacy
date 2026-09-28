@@ -258,10 +258,15 @@ class WakeHeals:
                 self.summary.setdefault("command_events", []).extend(
                     e["action"] for e in drain())
             lines = self.status_lines(wake_key)
+            lane = getattr(self.daemon, "lane_wait_s", None)
             for key, line in zip(list(self.outcomes), lines):
                 if not budget.messages_fit(1):
                     print("[HEAL][WARN] no budget left for <HL>; skipped")
                     break
+                wait = lane() if lane is not None else 0.0
+                if wait > 0 and budget.has_time_for(wait + float(delay_seconds)):
+                    print(f"[HEAL] <HL> waits {wait:.0f}s for the boundary guard")   # S4 b.8
+                    sleep_fn(wait)
                 sleep_fn(float(delay_seconds))
                 tx(line.encode("ascii"))
                 sent.append(line.strip())

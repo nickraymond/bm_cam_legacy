@@ -467,6 +467,16 @@ V9_SCENARIOS = {
         "notes": "a video unit, trg kv med=still (m = the still cap then): the clip runs, the "
                  "trg stays armed through it, then W10 runs ONE still action",
     },
+    "v9_lane": {
+        "kind": "stills", "utc": PHASE_UTC, "edits": BASE_EDITS + PHASE_ON, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000561, "c": "set", "kv": {"m": 150}}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000562, "c": "ping"}},
+        ],
+        "notes": "lane on (b.8): the burst waits for its lane as before; the acks and the "
+                 "<CF> summary never go out inside a boundary guard",
+    },
 }
 
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}

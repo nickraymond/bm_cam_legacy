@@ -205,6 +205,11 @@ class CommandDaemon:
     v9 = None
     v9_dispatch = None     # command_v9.Dispatcher: the v9 verbs (supervisor, migrated unit)
     v9_inbox = None        # command_inbox.Inbox: mid-burst payloads (S4 b.7, DESIGN §6.2)
+    # S4 b.8 (DESIGN §6.1: every cellular send shares the lane guard): the
+    # transmit_phase config on the v9 path; None = no guard (legacy, unchanged).
+    lane_cfg = None
+    LANE_PRE_MARGIN_S = 2.0   # a single small message: clear of the boundary itself
+    _last_utc_mono = None
 
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
@@ -366,6 +371,7 @@ class CommandDaemon:
                 print(f"[CMD] spotter UTC decoded: {utc_dt.isoformat()}")
                 if fresh:
                     self._last_utc = utc_dt
+                    self._last_utc_mono = time.monotonic()
                 return utc_dt
             sleep_fn(0.1)
         raise TimeoutError(
@@ -559,6 +565,28 @@ class CommandDaemon:
             self._acks.append(ack)
         self._console.extend(lines)
 
+    def lane_wait_s(self):
+        """S4 b.8: seconds until a small cellular message may go (0 = now):
+        inside the post-boundary guard of the 5-min grid, or within
+        LANE_PRE_MARGIN_S before a boundary. The phase is extrapolated from
+        the last fresh Spotter UTC read. No lane config, lane disabled or no
+        trusted read yet -> 0 (the unscheduled behaviour, D1)."""
+        cfg = self.lane_cfg
+        if not cfg or not cfg.get("enabled") or self._last_utc is None \
+                or self._last_utc_mono is None:
+            return 0.0
+        grid = float(cfg.get("grid_seconds", 300.0))
+        post = float(cfg.get("post_boundary_guard_s", 30.0))
+        if grid <= 0:
+            return 0.0
+        epoch = self._last_utc.timestamp() + (time.monotonic() - self._last_utc_mono)
+        phase = epoch % grid
+        if phase < post:
+            return post - phase
+        if phase > grid - self.LANE_PRE_MARGIN_S:
+            return grid - phase + post
+        return 0.0
+
     @property
     def pending_acks(self):
         return len(self._acks)
@@ -608,6 +636,8 @@ class CommandDaemon:
             if (self._last_ack_ts is not None
                     and now - self._last_ack_ts < self.ack_interval_s):
                 break  # pacing floor; next drain call picks it up
+            if self.lane_wait_s() > 0:
+                break  # S4 b.8: inside the boundary guard; a later drain sends it
             ack = self._acks.pop(0)
             try:
                 self.bm.spotter_tx(ack)

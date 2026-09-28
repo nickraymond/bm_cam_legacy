@@ -326,7 +326,16 @@ def flush_acks(daemon, summary, clock=_time.monotonic, sleep_fn=_time.sleep,
     try:
         deadline = clock() + float(budget_s)
         drain_now(daemon, summary, clock=clock)
+        lane_extended = False
         while daemon.pending_acks and clock() < deadline:
+            lane = getattr(daemon, "lane_wait_s", None)
+            wait = lane() if lane is not None else 0.0
+            if wait > 0 and not lane_extended:
+                # S4 b.8: the acks wait out ONE boundary guard (bounded) rather
+                # than being left for the cloud re-send.
+                deadline += wait
+                lane_extended = True
+                print(f"[CMD] ack flush: boundary guard, waiting {wait:.0f}s")
             sleep_fn(0.2)
             drain_now(daemon, summary, clock=clock)
         if daemon.pending_acks:

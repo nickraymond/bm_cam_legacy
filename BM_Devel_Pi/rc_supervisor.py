@@ -185,6 +185,8 @@ class Boot:
             if self.v9_replies is not None:
                 self.owner.daemon.v9 = self.v9_replies
             if self.v9_dispatch_factory is not None:
+                # b.8: every small cellular send shares the lane guard (§6.1)
+                self.owner.daemon.lane_cfg = dict(s.get("transmit_phase_cfg") or {})
                 self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
                 self.owner.daemon.v9_dispatch.boot = self          # b.6c: hld + keep-alive
                 if self.guard_state is not None:                    # b.7: mid-burst inbox
@@ -987,6 +989,10 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
             guard.rotate_stdout_if_big()
             continue
         if heartbeat_s > 0 and now - last_uplink >= heartbeat_s:
+            lane = getattr(daemon, "lane_wait_s", None)
+            if lane is not None and lane() > 0:
+                sleep_fn(IDLE_TICK_S)        # b.8: heartbeat after the boundary guard
+                continue
             try:
                 heartbeat_fn(settings_fn())
                 print(f"[SUP] heartbeat <WS a=idle> after {now - last_uplink:.0f}s idle")
