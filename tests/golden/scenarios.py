@@ -367,6 +367,58 @@ SAVE_LOCAL_SCENARIOS.update({
     },
 })
 
-SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS}
+# --- Sprint26 S4: commands v9 (supervisor on a migrated unit; PLAN_S4.md G1) -------------
+# v9 speaks only on the supervisor path of a config-v2 unit, so these per_boot scenarios
+# run through config v2 like the save_local set. Their commands use the §6.2 id ranges:
+# remote ids (1e6..) get a cellular ack, console ids (1..99 999) and heal ids (1e5..) a
+# console line only (G13). Recorded on the v8 verbs first (b.2a), so the W8a commits
+# show exactly what v9 changes. Vectors: tests/golden/vectors_v9/<name>/.
+V9_V2 = {"commands.runtime": "supervisor"}
+
+V9_SCENARIOS = {
+    "v9_still": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000501, "c": "roi", "v": 2}},
+            {"when": "on_sub", "payload": {"id": 7, "c": "ping"}},
+            {"when": "after_tx", "n": 30, "payload": {"id": 1000502, "c": "ping"}},
+            {"when": "after_tx", "n": 31, "payload": {"id": 1000502, "c": "ping"}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000503, "c": "help"}},
+        ],
+        "notes": "per_boot stills on v9: a setting drained at boot (remote id), a console-range "
+                 "ping, a mid-burst remote ping and its duplicate, help in the tail",
+    },
+    "v9_video": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000511, "c": "ping"}},
+            {"when": "after_tx", "n": 20, "payload": {"id": 1000512, "c": "awb", "v": 1}},
+        ],
+        "notes": "per_boot video on v9: a ping at boot, a setting mid-burst (next action)",
+    },
+    "v9_heal": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2, "seed": ["old_media", "pending_heal"],
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 100002, "c": "rsd", "h": [["{KEY}", "2"]]}},
+            {"when": "after_tx", "n": 12, "payload": {"id": 100004, "c": "rsd",
+                                                      "h": [["{KEY}", "1"]]}},
+        ],
+        "notes": "heals on v9: a live rsd at boot replaces the pending one; a second rsd "
+                 "mid-burst (the inbox must not lose its <HL>, review B8)",
+    },
+    "v9_trigger_in_tail": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [{"when": "tx_contains", "text": "<END",
+                   "payload": {"id": 1000504, "c": "trg", "v": 2}}],
+        "notes": "W10 on v9: a remote trg in the listen tail fires this boot",
+    },
+}
+
+SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}
 VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},
-               **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS}}
+               **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS},
+               **{n: "vectors_v9" for n in V9_SCENARIOS}}

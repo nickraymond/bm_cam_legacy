@@ -136,6 +136,20 @@ a full SD refuses the capture with `<WS a=skip_err r=storage_full>`.
 .venv-dev/bin/python tests/golden/run_scenario.py wire save_local_still /tmp/out
 ```
 
+## commands v9 (Sprint26 S4)
+
+v9 speaks only on the supervisor path of a migrated (config v2) unit (PLAN_S4.md
+G1), so `scenarios.V9_SCENARIOS` are supervisor-only per_boot scenarios under
+`vectors_v9/<name>/` (`test_wire_v9_<name>`). Their commands use the §6.2 id
+ranges (remote 1e6.., console 1..99 999, heal 1e5..), so the reply lanes are
+pinned. They were recorded on the v8 verbs first (S4 b.2a) and change only in
+the W8a commits, so each diff shows exactly what v9 changes. The per_boot v1
+scenarios above stay v8 under both runtimes (legacy parity net).
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire v9_still /tmp/out
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:
