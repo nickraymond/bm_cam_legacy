@@ -191,10 +191,13 @@ W printf [bmcam-golden] REJECTED id=1000505 manual white balance needs camera.wh
 W printf [bmcam-golden] REJECTED id=1000506 unknown command 'roi' e=cmd cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000503 help (reference follows) cfg=8bf9d517
 W printf v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)
-W printf ping   {"id":N,"c":"ping"}
+W printf ping   {"id":N,"c":"ping"}   help {"id":N,"c":"help"}
+W printf get    {"id":N,"c":"get","k":["<key, short or group>",...]}  "journal" = last changes
 W printf set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none
 W printf reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}
+W printf cfm    {"id":N,"c":"cfm","ref":<set id>}  confirms a guarded set
 W printf trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, 2 capture + output per mode, 3/4 reference
+W printf hld    {"id":N,"c":"hld","v":<min>}  stay awake (0 releases)
 W printf rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
 W printf short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the media
 W printf ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
