@@ -298,29 +298,34 @@ class V9State:
             self._log(f"[CMD][WARN] config journal not written: {exc}")
 
     # --------------------------------------------------------------- overlay
+    def apply_overlay(self, changes, cid=None):
+        """Apply [(path, value or remove())] to the overlay IN MEMORY, inside
+        the caller's transaction(). -> [(path, old, new)] that changed (the
+        caller journals them after the persist)."""
+        self._require_txn("apply_overlay")
+        done = []
+        for path, value in changes:
+            old = self.overlay.get(path, _REMOVE)
+            if value is _REMOVE:
+                if path in self.overlay:
+                    del self.overlay[path]
+                    self.overlay_ids.pop(path, None)
+                    done.append((path, old, None))
+                continue
+            if old is not _REMOVE and old == value and type(old) is type(value):
+                continue
+            self.overlay[path] = value
+            if cid is not None:
+                self.overlay_ids[path] = cid
+            else:                              # local GUI / revert: not that id's value now
+                self.overlay_ids.pop(path, None)
+            done.append((path, None if old is _REMOVE else old, value))
+        return done
+
     def commit(self, changes, cid=None, source="console"):
         """Apply [(path, value or remove())] to the overlay atomically, then
         journal one line per key that changed. -> [(path, old, new)]."""
-        def mutate(st):
-            done = []
-            for path, value in changes:
-                old = st.overlay.get(path, _REMOVE)
-                if value is _REMOVE:
-                    if path in st.overlay:
-                        del st.overlay[path]
-                        st.overlay_ids.pop(path, None)
-                        done.append((path, old, None))
-                    continue
-                if old is not _REMOVE and old == value and type(old) is type(value):
-                    continue
-                st.overlay[path] = value
-                if cid is not None:
-                    st.overlay_ids[path] = cid
-                else:                          # local GUI / revert: not that id's value now
-                    st.overlay_ids.pop(path, None)
-                done.append((path, None if old is _REMOVE else old, value))
-            return done
-        done = self.transaction(mutate)
+        done = self.transaction(lambda st: st.apply_overlay(changes, cid))
         for path, old, new in done:
             self.journal(source, path, old, new, cid)
         return done

@@ -110,6 +110,7 @@ class Boot:
         # S4 W8a (PLAN_S4.md G1): the v9 reply policy on a migrated unit
         # (command_replies.V9Replies), handed to the daemon at process start.
         self.v9_replies = None
+        self.v9_dispatch_factory = None   # b.2c: daemon -> command_v9.Dispatcher
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -157,6 +158,8 @@ class Boot:
             self.owner.daemon.fresh_time_reads = True
             if self.v9_replies is not None:
                 self.owner.daemon.v9 = self.v9_replies
+            if self.v9_dispatch_factory is not None:
+                self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon

@@ -245,7 +245,8 @@ STAY_ON_SCENARIOS = {
         "v2": dict(STAY_ON_V2, **{"mode.interval_s": 0, "mode.heartbeat_s": 300}),
         "rules": [
             {"when": "at_clock", "t": 400, "payload": {"id": 711, "c": "trg", "v": 2}},
-            {"when": "at_clock", "t": 900, "payload": {"id": 712, "c": "txd", "v": 1}},
+            {"when": "at_clock", "t": 900, "payload": {"id": 712, "c": "set",
+                                                       "kv": {"uplink.msg_interval_s": 1.5}}},
             {"when": "at_clock", "t": 1500, "payload": {"id": 713, "c": "trg", "v": 2}},
             _sigterm(2000),
         ],
@@ -315,7 +316,8 @@ STAY_ON_SCENARIOS.update({
         "v2": dict(STAY_ON_V2, **SAVE_LOCAL_V2,
                    **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
         "rules": [
-            {"when": "at_clock", "t": 700, "payload": {"id": 731, "c": "txd", "v": 1}},
+            {"when": "at_clock", "t": 700, "payload": {"id": 731, "c": "set",
+                                                       "kv": {"uplink.msg_interval_s": 1.5}}},
             {"when": "at_clock", "t": 900, "payload": {"id": 732, "c": "trg", "v": 2}},
             {"when": "at_clock", "t": 1000, "payload": {"id": 733, "c": "trg", "v": 1}},
             _sigterm(1900),
@@ -330,7 +332,8 @@ SAVE_LOCAL_SCENARIOS = {
     "save_local_still": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
         "v2": SAVE_LOCAL_V2, "seed": ["old_media", "pending_heal"],
-        "rules": [{"when": "on_sub", "payload": {"id": 541, "c": "txd", "v": 1}}],
+        "rules": [{"when": "on_sub", "payload": {"id": 541, "c": "set",
+                                                 "kv": {"uplink.msg_interval_s": 1.5}}}],
         "notes": "per_boot still x save_local: a command drained at boot (it still saves, C2), "
                  "<WS a=cap>, capture, one q85 encode saved with its sidecar, the pending heal "
                  "sent (C14), no START/END, acks, listen tail, halt",
@@ -380,21 +383,28 @@ V9_SCENARIOS = {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
         "v2": V9_V2,
         "rules": [
-            {"when": "on_sub", "payload": {"id": 1000501, "c": "roi", "v": 2}},
+            {"when": "on_sub", "payload": {"id": 1000501, "c": "set",
+                                           "kv": {"r": [768, 432, 3072, 1728]}}},
             {"when": "on_sub", "payload": {"id": 7, "c": "ping"}},
             {"when": "after_tx", "n": 30, "payload": {"id": 1000502, "c": "ping"}},
             {"when": "after_tx", "n": 31, "payload": {"id": 1000502, "c": "ping"}},
+            {"when": "after_tx", "n": 40, "payload": {"id": 1000505, "c": "set", "kv": {
+                "camera.white_balance.mode": "manual"}}},
+            {"when": "after_tx", "n": 41, "payload": {"id": 1000506, "c": "roi", "v": 1}},
             {"when": "tx_contains", "text": "<END", "payload": {"id": 1000503, "c": "help"}},
         ],
-        "notes": "per_boot stills on v9: a setting drained at boot (remote id), a console-range "
-                 "ping, a mid-burst remote ping and its duplicate, help in the tail",
+        "notes": "per_boot stills on v9: set r (still.crop) drained at boot, a console-range "
+                 "ping, a mid-burst ping and its duplicate (d:1, console only), a cross-key "
+                 "rejection (manual WB without gains, e:xk), a retired v8 verb (e:cmd), help",
     },
     "v9_video": {
         "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
         "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
         "rules": [
             {"when": "on_sub", "payload": {"id": 1000511, "c": "ping"}},
-            {"when": "after_tx", "n": 20, "payload": {"id": 1000512, "c": "awb", "v": 1}},
+            {"when": "after_tx", "n": 20, "payload": {"id": 1000512, "c": "set", "kv": {
+                "b": "daylight", "camera.white_balance.enabled": True,
+                "camera.controls_enabled": True}}},
         ],
         "notes": "per_boot video on v9: a ping at boot, a setting mid-burst (next action)",
     },

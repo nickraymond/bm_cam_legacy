@@ -62,7 +62,7 @@ APP_MODULES = [
     "rc_time_budget", "rc_quality_selector", "rc_jpeg_encoder", "rc_power_halt",
     "network_config", "rc_progressive_jpeg", "rc_video_tx", "rc_video_clip",
     "video_recorder", "video_ring", "video_manifest", "video_geometry",
-    "rc_still_storage",
+    "rc_still_storage", "command_v9",
 ]
 # Modules whose wall clock must stay real (read_spotter_utc loops on time.time()).
 REAL_CLOCK_MODULES = {"spotter_time_sync"}

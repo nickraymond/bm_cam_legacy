@@ -6,6 +6,8 @@
    "applied",
    "applied",
    "duplicate",
+   "rejected",
+   "rejected",
    "applied"
   ],
   "final_path": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
@@ -81,7 +83,7 @@
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 374.0,
+ "fake_clock_elapsed_s": 375.0,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
@@ -136,11 +138,11 @@
    "sha256": "7b81dbae41d6e861"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 338,
-   "sha256": "63fbfd328f8cc137"
+   "bytes": 589,
+   "sha256": "f3af56bdc9ce3e30"
   },
   "state/config_journal.jsonl": {
-   "bytes": 96,
+   "bytes": 122,
    "sha256": "wall-time"
   },
   "tuned_halt.sh": {
@@ -152,7 +154,7 @@
   "PIL",
   "yaml"
  ],
- "notes": "per_boot stills on v9: a setting drained at boot (remote id), a console-range ping, a mid-burst remote ping and its duplicate, help in the tail",
+ "notes": "per_boot stills on v9: set r (still.crop) drained at boot, a console-range ping, a mid-burst ping and its duplicate (d:1, console only), a cross-key rejection (manual WB without gains, e:xk), a retired v8 verb (e:cmd), help",
  "scenario": "v9_still",
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
@@ -309,37 +311,58 @@
  "state_file_v2": {
   "boot_counter": 0,
   "guarded": {},
-  "high_water": {},
-  "overlay": {},
-  "result_cache": {},
-  "schema": "bm_command_state_v2",
-  "tables_version": 8,
-  "v8": {
-   "applied_ids": [
-    1000501,
-    7,
-    1000502,
-    1000503
-   ],
-   "pending_heals": [],
-   "pending_trigger": null,
-   "settings": {
-    "awb": 0,
-    "cap": 0,
-    "exp": 0,
-    "foc": 0,
-    "hlt": 0,
-    "roi": 2,
-    "src": 0,
-    "tmz": 0,
-    "twn": 0,
-    "txd": 0,
-    "win": 0
-   },
-   "touched": [
-    "roi"
+  "high_water": {
+   "remote": 1000503
+  },
+  "overlay": {
+   "still.crop": [
+    768,
+    432,
+    3072,
+    1728
    ]
-  }
+  },
+  "overlay_ids": {
+   "still.crop": 1000501
+  },
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "1000501": {
+    "b": 0,
+    "ok": 1,
+    "t": "still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action)"
+   },
+   "1000502": {
+    "b": 0,
+    "ok": 1,
+    "t": "ping"
+   },
+   "1000503": {
+    "b": 0,
+    "ok": 1,
+    "t": "help (reference follows)"
+   },
+   "1000505": {
+    "b": 0,
+    "e": "xk",
+    "k": "camera.white_balance.mode",
+    "ok": 0
+   },
+   "1000506": {
+    "b": 0,
+    "e": "cmd",
+    "ok": 0
+   },
+   "7": {
+    "b": 0,
+    "ok": 1,
+    "t": "ping"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
  },
  "unfired_rules": []
 }

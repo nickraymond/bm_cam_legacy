@@ -89,11 +89,11 @@
    "sha256": "8dedba797bcb93e0"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 328,
-   "sha256": "863888175d388570"
+   "bytes": 556,
+   "sha256": "d9976e7015c7ceeb"
   },
   "state/config_journal.jsonl": {
-   "bytes": 96,
+   "bytes": 373,
    "sha256": "wall-time"
   },
   "tuned_halt.sh": {
@@ -127,35 +127,36 @@
  "state_file_v2": {
   "boot_counter": 0,
   "guarded": {},
-  "high_water": {},
-  "overlay": {},
-  "result_cache": {},
-  "schema": "bm_command_state_v2",
-  "tables_version": 8,
-  "v8": {
-   "applied_ids": [
-    1000511,
-    1000512
-   ],
-   "pending_heals": [],
-   "pending_trigger": null,
-   "settings": {
-    "awb": 1,
-    "cap": 0,
-    "exp": 0,
-    "foc": 0,
-    "hlt": 0,
-    "roi": 0,
-    "src": 0,
-    "tmz": 0,
-    "twn": 0,
-    "txd": 0,
-    "win": 0
+  "high_water": {
+   "remote": 1000512
+  },
+  "overlay": {
+   "camera.controls_enabled": true,
+   "camera.white_balance.enabled": true,
+   "camera.white_balance.mode": "daylight"
+  },
+  "overlay_ids": {
+   "camera.controls_enabled": 1000512,
+   "camera.white_balance.enabled": 1000512,
+   "camera.white_balance.mode": 1000512
+  },
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "1000511": {
+    "b": 0,
+    "ok": 1,
+    "t": "ping"
    },
-   "touched": [
-    "awb"
-   ]
-  }
+   "1000512": {
+    "b": 0,
+    "ok": 1,
+    "t": "camera.white_balance.mode: auto -> daylight (next action)"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
  },
  "unfired_rules": []
 }

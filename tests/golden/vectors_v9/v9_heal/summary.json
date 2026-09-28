@@ -146,8 +146,8 @@
    "sha256": "4d164957abb53518"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 516,
-   "sha256": "8cc9d4b665326c3f"
+   "bytes": 731,
+   "sha256": "9433835cdd8b4985"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -356,14 +356,25 @@
    "sha256": "4d164957abb53518868115f34d25de6fed9f2d1a0fa4cca506fd43e860091b40"
   },
   "overlay": {},
-  "result_cache": {},
+  "overlay_ids": {},
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "100002": {
+    "b": 0,
+    "ok": 1,
+    "t": "rsd: 1 heal(s) queued (<HL> reports each)"
+   },
+   "100004": {
+    "b": 0,
+    "ok": 1,
+    "t": "rsd: 1 heal(s) queued (<HL> reports each)"
+   }
+  },
   "schema": "bm_command_state_v2",
   "tables_version": 8,
   "v8": {
    "applied_ids": [
-    100001,
-    100002,
-    100004
+    100001
    ],
    "pending_heals": [
     {
@@ -390,7 +401,9 @@
     "win": 0
    },
    "touched": []
-  }
+  },
+  "v8_fold_values": {},
+  "v8_folded": "5a175a67"
  },
  "unfired_rules": []
 }

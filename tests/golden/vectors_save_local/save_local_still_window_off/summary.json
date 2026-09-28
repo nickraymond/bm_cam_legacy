@@ -72,6 +72,10 @@
    "bytes": 2251,
    "sha256": "d6ffe7b3469fd47d"
   },
+  "state/bm_command_state_v2.json": {
+   "bytes": 203,
+   "sha256": "660c9257ad3679b5"
+  },
   "tuned_halt.sh": {
    "bytes": 17,
    "sha256": "306c6ca740756034"
@@ -180,6 +184,18 @@
   }
  },
  "state_file": null,
- "state_file_v2": null,
+ "state_file_v2": {
+  "boot_counter": 0,
+  "guarded": {},
+  "high_water": {},
+  "overlay": {},
+  "overlay_ids": {},
+  "pending_trigger_v9": null,
+  "result_cache": {},
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
+ },
  "unfired_rules": []
 }

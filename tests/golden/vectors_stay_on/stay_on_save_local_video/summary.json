@@ -187,6 +187,7 @@
    "transmit_result": null,
    "trigger": {
     "id": 741,
+    "kv": {},
     "value": 2
    },
    "uplinked": false
@@ -353,8 +354,8 @@
    "sha256": "8dedba797bcb93e0"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 311,
-   "sha256": "147b6f13e35f4045"
+   "bytes": 290,
+   "sha256": "1a7e95d936ac2bc4"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -482,30 +483,19 @@
   "guarded": {},
   "high_water": {},
   "overlay": {},
-  "result_cache": {},
+  "overlay_ids": {},
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "741": {
+    "b": 0,
+    "ok": 1,
+    "t": "trg 2 armed: capture + output per mode (next decision point)"
+   }
+  },
   "schema": "bm_command_state_v2",
-  "tables_version": 8,
-  "v8": {
-   "applied_ids": [
-    741
-   ],
-   "pending_heals": [],
-   "pending_trigger": null,
-   "settings": {
-    "awb": 0,
-    "cap": 0,
-    "exp": 0,
-    "foc": 0,
-    "hlt": 0,
-    "roi": 0,
-    "src": 0,
-    "tmz": 0,
-    "twn": 0,
-    "txd": 0,
-    "win": 0
-   },
-   "touched": []
-  }
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
  },
  "unfired_rules": []
 }

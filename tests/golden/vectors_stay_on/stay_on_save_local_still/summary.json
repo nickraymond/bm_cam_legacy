@@ -79,6 +79,7 @@
    "transmit_result": null,
    "trigger": {
     "id": 732,
+    "kv": {},
     "value": 2
    },
    "uplinked": false
@@ -95,6 +96,7 @@
    "transmit_result": null,
    "trigger": {
     "id": 733,
+    "kv": {},
     "value": 1
    },
    "uplinked": false
@@ -297,11 +299,11 @@
    "sha256": "3f21bef1223a4106"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 324,
-   "sha256": "f270274bb5abf518"
+   "bytes": 500,
+   "sha256": "ece7a6e1c983e9b3"
   },
   "state/config_journal.jsonl": {
-   "bytes": 92,
+   "bytes": 114,
    "sha256": "wall-time"
   },
   "tuned_halt.sh": {
@@ -788,35 +790,34 @@
   "boot_counter": 0,
   "guarded": {},
   "high_water": {},
-  "overlay": {},
-  "result_cache": {},
-  "schema": "bm_command_state_v2",
-  "tables_version": 8,
-  "v8": {
-   "applied_ids": [
-    731,
-    732,
-    733
-   ],
-   "pending_heals": [],
-   "pending_trigger": null,
-   "settings": {
-    "awb": 0,
-    "cap": 0,
-    "exp": 0,
-    "foc": 0,
-    "hlt": 0,
-    "roi": 0,
-    "src": 0,
-    "tmz": 0,
-    "twn": 0,
-    "txd": 1,
-    "win": 0
+  "overlay": {
+   "uplink.msg_interval_s": 1.5
+  },
+  "overlay_ids": {
+   "uplink.msg_interval_s": 731
+  },
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "731": {
+    "b": 0,
+    "ok": 1,
+    "t": "uplink.msg_interval_s: 1.3 -> 1.5 (next action)"
    },
-   "touched": [
-    "txd"
-   ]
-  }
+   "732": {
+    "b": 0,
+    "ok": 1,
+    "t": "trg 2 armed: capture + output per mode (next decision point)"
+   },
+   "733": {
+    "b": 0,
+    "ok": 1,
+    "t": "trg 1 armed: capture, save only (next decision point)"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
  },
  "unfired_rules": []
 }

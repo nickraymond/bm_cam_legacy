@@ -1,6 +1,6 @@
 OPEN port=/dev/ttyAMA0 baud=115200 timeout=0.1
 W sub bmcam/cmd
-RX cmd {"id":1000501,"c":"roi","v":2}
+RX cmd {"id":1000501,"c":"set","kv":{"r":[768,432,3072,1728]}}
 RX cmd {"id":7,"c":"ping"}
 W sub spotter/utc-time
 RX utc 2026-09-24T15:00:00+00:00
@@ -48,7 +48,9 @@ W tx.02 <I0dpr00.34>CVz1j8lku8QRIs1b6/01llmoUkVY+NkY6h/jLycmj/1iKxe2iJqo1Dd716X1
 W tx.02 <I0dpr00.35>NJ4oWai+Y5ssvjgZYmMkrFmseSN/6SMbFFY+ncXBWS5NI+tqWyxyGrKzeaGh+29kP2biiU2915SsSPuJ2QaiOyBqacuZdnxJK6E8QdJzPlNbY5c6jUyyzUatzlzrJ/th/wB6R4/Fa4WPL/1p6SA5Ce6hLN0ahfkUhplMrKEy8VsSHH1P2JDdlkT9jgVnLI+Hj4IihCA2dtxqJJsWLI8ipFljeLE8KWJZXgc4z8M4YiiSUSm/6qzCGqTJMitT87EQX4yVSu39MWYlYYyrcVh7K2XhLjSVmv4uMRQ5YvHLXS6UHRrofkF+TXBY5Dlh8EI2SlZHMmNn1fKypcyiz40Pws8euD+QlXyVeOm07/jooarCOyhI8X7yJWa9Lf6wR0eR\x0a
 W tx.02 <I0dpr00.36>C7+scZsssaEJll45w0UPYqaxX8STHhY6JSvH0f4q5FaSyyHTkWNmqsfs5suyJUjRIcJDuJFSkl4qKY1I0yIwGy8amjyVRfCxq/m+nApp51DlaglT5Ir8YxUcSXB9ZWOht4vGot4QhFDRRLKFMX8MYWaUSkXuUGyqE6dwkdJyxYv0LLxRDhz5khOlZY2Pk5ZTzyaZs+CbPgZ8c0cl2dr+aJQkVjU9UXqxRTPJwcrx8HKSl+KG+EuXu4wsdklmOLLNR2aRopYo5iaxysftjG8SkXu8fbkSfAuXLZ0spGmyEUl20sWORZZCdP8AFj0nBqUT5LH5ReUjM83klplTIx+QknB/yxdNYo8ssJ0QWqNCRSP+RL/2KrXJH9Riw8re3lZs\x0a
 W tx.02 <I0dpr00.37>ZZqL/jStkpeyH4yZ9o7lLnKisIZprFljebNRrIsnss1OJ1K9KWnyKficPRXCjw+PZ4pY+u3jwTaf39KzyO/JDuHB0PL42PFY0FUPvKze2/4k9Lcm88YXpfaHIh4mxxjTihKiyIvxiy8vD2x6aHHK7IDkJ0LyE1W6KOiTaj7YfkvPKo5i9LsR0P8AfxwslElwWPF4eaEhRxL/AEq7fex9Hj7n+3+PiSZMfYz6gPEtrFsj+ox4h2f4Ee5D/Tb/APH/AOPk/X2/8frzf92zx/8AUsef/u8f/Wjy/rHs+nvh/wBcxdPvc+9z2//EAB8RAAICAgMBAQEAAAAAAAAAAAERIFAAQBAwYHAhgP/aAAgBAwEBPwH62/IuS9QrRaH5TLwS\x0a
+RX cmd {"id":1000505,"c":"set","kv":{"camera.white_balance.mode":"manual"}}
 W tx.02 <I0dpr00.38>u3BzfA9stBYq8xA4VsODN46YcrsEFigagY8cHj63jksWK/JwQesuV1DvHW5PTN+BJXb0B8MOsP4YFypiasBjmfGrSODywGE9g5Gsdl0xpBrmJ0v/xAAgEQACAgMBAQADAQAAAAAAAAABEQAwECBAUGASITFB/9oACAECAQE/AfBXC/oXucOl7nyxovBfSYOtxx1GA9z4HHwDY6mDgcfO+14EdqMVrjyNnHl4e7j7XSajaTSdnUKiesxRRZWqiiwT5C+MOHBwPuV5wNScP1jgbqKh0vnceDoKnHoIfHMUWTFFxOflH0uh0LhWoGw5Xl1EVOwZMAiwsrRXiHL1cfCvEfgHwV3H4BajvVZvHsP4J9A739k6zgwes7n6Bi3HzrwP\x0a
+RX cmd {"id":1000506,"c":"roi","v":1}
 W tx.02 <I0dpr00.39>EM/ygWvtNpyc/vAsPknY5I2dg3fadjSKB/dBx//EAC8QAAAFAwMDBAIBBAMAAAAAAAABESExECAwQEFQAlFhEiIyYHGBkaGxweEDcID/2gAIAQEABj8C5B9FAb7q1jkvBN9Sa1iub7NFILG4ayf+hY+ytqXxf3zfn/w3PEyJzqf0ZhActROtQJxziRIkQHQT9JXiewke4xA9hU70n7m4a5C5JL4072LHAd9fFJDGI5d9FGJtJCj4kGbl1owcMO5atxAi+PqiYG5Rh7j/AIEmJEFZFH5TsQhR8QpRZN/n6A4jDtV69xGfuIIQWReoJZAgRi2uYrjOj5uwkeMUHZAYOIECNE16pd3ECQyCM/YMYf2kO43DPXxo3tSjkIpFYwtm\x0a
 W tx.02 <I0dpr00.40>I+qe1IWyMu3BLWAwesVYlO1w1s4XHnhy9poFDY3tjJI7iBGomsVkRicfsHRbl2C74J0j0fC3yPcTp+wYyD8Cp4mHuukLf4ILtsWXtoHxGexfQJ0v5E8q+WApMH00CLWE4VNiED/YbOmf+9y8JF8aJ88qP8Dtf4KdEWhQiDnSXsnQPAJOaI1cQOwi1KeOFgrm+lOdq0nPFkY2xJWfpzhtChD0kGBhv5E4XEXN9H8Ua/cQPaHDZGweTo9GrsGcRljA/FrhikHegXTriK96bCMLhwRmOxU8UjKhDbiVMSJEh6Pc5Z1xxaRWOGKqniepUctC017BeJarwPadrhgtO2VaMYe9zsPqC9WgikD2iQoUQIzJe4UuIajaZKvfGJqNgmkX\x0a
 W tx.02 <I0dpr00.41>NicMXLqFw+cS4v8AFUD4F6aPRxFPaYcPR6S4ekDsNw9XxPSMLY4OnYSRh83YSHxphXM4bqMjo4WV/oCJQ4Qhu4QowyQfqDFb5p+KwN2C0WybEu82s1kZF6rGo+VT4U0GwmjhgofM9q7VhTEoNqQGu869rGyMX7r21jkV5BmtgOeZbUEDyEpNXvLgnMOJr4xOG1hnZsFnAXTm7/8AH1D0/wAao8E3Ra2Rqve1HLgWXAbZk2PMXfSvR8HfSsHKr2v1D5D5hjIRe5ZXxvyy3tkYTSbIrOhj6m2lajhtaxCfoLtqP96N/rB8m2JwxNzTDz9BU6OGNBJmGKkPyy1bPP0pQ0a1g869dORiCHqZAZrY4UMPcEKk6tgZ61d6JRCkIq9X\x0a
@@ -181,151 +183,25 @@ W tx.02 <I0dpr00.167>X7lF8nf/AL/EDUrV1g9RSKPU4/7iisM5rKf4+4hgGirMC/5i2EjslGfXUs3
 W tx.02 <I0dpr00.168>blDCWWrBuaXBidQmVFi5gKVZNeo8XnOfuEy1mAsrIY9RWueJ9RI0OK1OcF58Rtme5z9TaEpiA6hwfEMp9T+JAWwYxjbZ6fxN/wA+BG81/iiFWs2mmMYhuEbDmYBgI3XzMrs0K9b/AAJpCOQNCvUSCrQMs0e8v58c/mQnMNQ1MydV/qZG8UPXghNoRdBQ0zgeo7HuE1/+EAoKXIfEBXBom89kZUtcL8UAURpdNfEdng5mhOU/8PiNcrZy5gAQKYGZ3cvuYOo7YTjwQyNwhQVqcwhqECM2w1DxzP/Z\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_duration_sec: 221.0, sent_buffers: 169, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000503,"c":"help"}
-W printf [bmcam-golden] OK id=1000501 roi=2 (next action) cfg=8bf9d517
+W printf [bmcam-golden] OK id=1000501 still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action) cfg=8bf9d517
 W printf [bmcam-golden] OK id=7 ping cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000502 ping cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000502 ping (duplicate: original answer) cfg=8bf9d517
+W printf [bmcam-golden] REJECTED id=1000505 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=8bf9d517
+W printf [bmcam-golden] REJECTED id=1000506 unknown command 'roi' e=cmd cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000503 help (reference follows) cfg=8bf9d517
-W printf +====================================================================+
-W printf |              bmcam CAMERA - REMOTE COMMAND REFERENCE               |
-W printf |                            (tables v8)                             |
-W printf +====================================================================+
-W printf HOW TO SEND A COMMAND
-W printf ---------------------
-W printf Type at this console:
-W printf     bm pub bmcam/cmd {"id":123,"c":"<cmd>","v":<index>} 1 1
-W printf   * "id"  : any number you haven't used before - just count up
-W printf   * "v"   : an INDEX from the tables below, never a raw value
-W printf   * v=0   : always means "factory default (config file governs)"
-W printf GOOD TO KNOW
-W printf ------------
-W printf   * Settings take effect on the camera's NEXT wake cycle.
-W printf   * The camera only listens while awake. No ack? Send it again -
-W printf     duplicates are free and never double-applied.
-W printf   * Success looks like:  {"id":123,"ok":1,"st":{...}}
-W printf QUICK ACTIONS - copy, paste, bump the id
-W printf ----------------------------------------
-W printf   Capture + send an image now:
-W printf       bm pub bmcam/cmd {"id":101,"c":"trg","v":2} 1 1
-W printf   Send a test image (camera bypassed - checks the link):
-W printf       bm pub bmcam/cmd {"id":102,"c":"trg","v":3} 1 1
-W printf   Open the transmit window all day:
-W printf       bm pub bmcam/cmd {"id":103,"c":"twn","v":2} 1 1
-W printf   Phone download mode - 60 min open WiFi hotspot:
-W printf       bm pub bmcam/cmd {"id":104,"c":"wap","v":1} 1 1
-W printf   Is the camera alive?
-W printf       bm pub bmcam/cmd {"id":105,"c":"ping"} 1 1
-W printf   Show current settings:
-W printf       bm pub bmcam/cmd {"id":106,"c":"cfg"} 1 1
-W printf   Show this reference:
-W printf       bm pub bmcam/cmd {"id":107,"c":"help"} 1 1
-W printf +====================================================================+
-W printf |                              COMMANDS                              |
-W printf +====================================================================+
-W printf roi - REGION OF INTEREST (image crop, centered zoom)
-W printf     v=0   1600x900 - default
-W printf     v=1   4608x2592 - full frame (widest)
-W printf     v=2   3072x1728 - wide
-W printf     v=3   2304x1296 - mid
-W printf     v=4   1000x562 - max detail
-W printf     v=5   800x450 - reef test A
-W printf     v=6   640x360 - reef test B (tightest)
-W printf foc - FOCUS
-W printf     v=0   autofocus
-W printf     v=1   manual infinity
-W printf     v=2   manual 2 m
-W printf     v=3   manual 1 m
-W printf     v=4   manual 0.5 m
-W printf     v=5   manual 0.25 m
-W printf awb - WHITE BALANCE
-W printf     v=0   auto
-W printf     v=1   daylight
-W printf     v=2   cloudy
-W printf exp - EXPOSURE BIAS (brighter/darker)
-W printf     v=0   auto
-W printf     v=1   darker -2 EV
-W printf     v=2   darker -1 EV
-W printf     v=3   darker -0.5 EV
-W printf     v=4   brighter +0.5 EV
-W printf     v=5   brighter +1 EV
-W printf     v=6   brighter +2 EV
-W printf win - CYCLE TIME BUDGET (minutes per wake)
-W printf     v=0   12 min - default
-W printf     v=1   5 min
-W printf     v=2   8 min
-W printf     v=3   16 min
-W printf txd - TRANSMIT PACING (seconds between messages)
-W printf     v=0   1.0 s - default
-W printf     v=1   1.5 s
-W printf     v=2   2.0 s
-W printf     v=3   3.0 s
-W printf     v=4   4.0 s
-W printf     v=5   5.0 s - zero-loss safe
-W printf cap - MESSAGE LIMIT (max messages per image)
-W printf     v=0   195 - default
-W printf     v=1   100
-W printf     v=2   150
-W printf     v=3   250
-W printf     v=4   300
-W printf src - IMAGE SOURCE (persistent; for one-shot tests use trg 3/4)
-W printf     v=0   live camera - default
-W printf     v=1   reef primary
-W printf     v=2   reef alt 01
-W printf     v=3   reef alt 02
-W printf     v=4   reef alt 03
-W printf     v=5   reef alt 04
-W printf     v=6   reef alt 05
-W printf     v=7   reef alt 06
-W printf     v=8   reef alt 07
-W printf     v=9   reference card
-W printf hlt - POWER HALT (sleep between cycles)
-W printf     v=0   use config file setting (factory: halt ON)
-W printf     v=1   halt ON - power savings (production)
-W printf     v=2   halt DRY-RUN - logs only, stays awake
-W printf     v=3   halt OFF - developer mode (always awake)
-W printf     ! CAUTION: v=1 on wall power = dark until physically power cycled
-W printf twn - TRANSMIT WINDOW (in the camera's timezone)
-W printf     v=0   use config file setting
-W printf     v=1   10:00 - 15:00
-W printf     v=2   ALL DAY (24 h)
-W printf     v=3   08:00 - 12:00
-W printf     v=4   11:00 - 14:00
-W printf tmz - TIMEZONE (for the transmit window)
-W printf     v=0   use config file setting
-W printf     v=1   USA West Coast (Los Angeles)
-W printf     v=2   USA East Coast (New York)
-W printf     v=3   UTC (no timezone)
-W printf trg - TRIGGER, one-shot (fires on next wake, then auto-clears)
-W printf     v=0   cancel a pending trigger
-W printf     v=1   capture to SD card only (no transmit)
-W printf     v=2   capture + send
-W printf     v=3   send stored reef reference (camera bypassed)
-W printf     v=4   send stored reference card (camera bypassed)
-W printf     ! Triggers IGNORE the transmit window - you always get your image.
-W printf     ! The ack means ARMED. Proof of firing is the image arriving.
-W printf wap - WIFI MODE (hotspot for phone downloads, or client WiFi)
-W printf     v=0   boot default (as configured: AP or Nereus HQ)
-W printf     v=1   open hotspot (SSID = camera name), 60 min then default
-W printf     v=2   Nereus HQ WiFi, 60 min then default
-W printf     ! While the hotspot is ON the camera is OFF the internet (no remote
-W printf     ! commands). 1/2 ALWAYS revert to the boot default after 60 minutes.
-W printf     ! Hotspot is OPEN (no password): join the WiFi named for the camera,
-W printf     ! then open http://192.168.50.1:8080
-W printf rsd - RESEND missing chunks of a recent clip/image (heal)
-W printf     v=0   "h":[["<key>","17,40-42"]] <=8 heals/40 chunks; "x":1 cancel
-W printf     ! Get the exact line from the backend heal-commands endpoint.
-W printf     ! Sent on the next wakes, before the capture; 3 wakes max.
-W printf ping - LIVENESS CHECK (no "v" needed - replies with full settings)
-W printf cfg  - SHOW CURRENT SETTINGS and where each came from
-W printf help - SHOW THIS REFERENCE
-W printf +====================================================================+
-W printf Config file on the camera: camera_schedule.yaml (via SSH).
-W printf A command overrides the file for that one setting; sending v=0
-W printf hands control back to the file. All-zeros = full factory reset.
-W printf +====================================================================+
+W printf v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)
+W printf ping   {"id":N,"c":"ping"}
+W printf set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none
+W printf reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}
+W printf trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, 2 capture + output per mode, 3/4 reference
+W printf rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
+W printf short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the media
+W printf ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
 W tx.02 {"id":1000501,"ok":1,"h":"8bf9d517"}
 W tx.02 {"id":1000502,"ok":1,"h":"8bf9d517"}
-W tx.02 {"id":1000502,"ok":1,"h":"8bf9d517","d":1}
+W tx.02 {"id":1000505,"ok":0,"h":"8bf9d517","e":"xk","k":"camera.white_balance.mode"}
+W tx.02 {"id":1000506,"ok":0,"h":"8bf9d517","e":"cmd"}
 W tx.02 {"id":1000503,"ok":1,"h":"8bf9d517"}
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

@@ -193,6 +193,7 @@ class CommandDaemon:
     # Sprint26 S4 W8a: the v9 reply policy (class default, so a daemon built
     # without __init__ in older tests keeps the v8 ack).
     v9 = None
+    v9_dispatch = None     # command_v9.Dispatcher: the v9 verbs (supervisor, migrated unit)
 
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
@@ -377,6 +378,10 @@ class CommandDaemon:
                 payload = self._inbound.get_nowait()
             except queue.Empty:
                 break
+            if self.v9_dispatch is not None:
+                event = dict(self.v9_dispatch.handle(payload), payload=payload)
+                events.append(event)
+                continue
             result = parse_command(payload)
             event = {"payload": payload, "result": result}
             if not result["ok"] and result["id"] is None:

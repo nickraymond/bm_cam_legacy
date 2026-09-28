@@ -1393,8 +1393,22 @@ def main(argv=None, **cycle_overrides):
     bm_commands_cfg = load_bm_commands_config(args.config_path)
     command_state = None
     reresolve_fn = None
+    v9_on = v9_eff is not None and v9_eff.values.get("mode.media") != "video_logger"
     if bm_commands_cfg["enabled"]:
-        command_state = CommandState(path=bm_commands_cfg["state_path"])
+        if v9_on:
+            # S4 b.2c (PLAN_S4.md G1, B1): on the v9 path ONE V9State owns the
+            # state file (heals, trigger, overlay, dedupe); the v8 CommandState is
+            # never built here. The v8 section is folded into the overlay once (G2).
+            import command_state_v9
+            import command_v9
+            import config_migrate
+            command_state = command_state_v9.V9State(
+                bm_commands_cfg["state_path"],
+                trigger_validator=lambda kv, v: None if not kv else "one-shot kv: S4 b.6")
+            for path, old, new in command_state.fold_v8(config_migrate.overlay_from_v8):
+                print(f"[CMD] v8 fold: {path}: {old!r} -> {new!r}")
+        else:
+            command_state = CommandState(path=bm_commands_cfg["state_path"])
         print(f"[CMD] bm_commands enabled: topic={bm_commands_cfg['topic']} "
               f"tail={bm_commands_cfg['post_transmit_listen_s']}s "
               f"defer_acks={bm_commands_cfg['defer_acks_during_transmit']} "
@@ -1488,6 +1502,10 @@ def main(argv=None, **cycle_overrides):
                 configure_output(sup, boot, output)
                 if v9_eff is not None:
                     sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
+                if v9_on and command_state is not None:
+                    sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
+                        d, command_state, v9_base, env=env,
+                        service_key=command_v9.load_service_key())
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1575,6 +1593,10 @@ def main(argv=None, **cycle_overrides):
             configure_output(sup, boot, output)
             if v9_eff is not None:
                 sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
+            if v9_on and command_state is not None:
+                sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
+                    d, command_state, v9_base, env=env,
+                    service_key=command_v9.load_service_key())
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])

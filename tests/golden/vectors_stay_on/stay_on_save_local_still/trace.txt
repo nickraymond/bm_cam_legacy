@@ -11,8 +11,8 @@ W sub spotter/utc-time
 RX utc 2026-09-24T15:10:00+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:10:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:10:00Z_image_native_full.jpg
 W tx.02 <WS v=1 a=idle tz=America/New_York lt=1110 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-RX cmd {"id":731,"c":"txd","v":1}
-W printf [bmcam-golden] OK id=731 txd=1 (next action) cfg=cb3a3f06
+RX cmd {"id":731,"c":"set","kv":{"uplink.msg_interval_s":1.5}}
+W printf [bmcam-golden] OK id=731 uplink.msg_interval_s: 1.3 -> 1.5 (next action) cfg=cb3a3f06
 RX cmd {"id":732,"c":"trg","v":2}
 W printf [bmcam-golden] OK id=732 trg 2 armed: capture + output per mode (next decision point) cfg=cb3a3f06
 W sub spotter/utc-time

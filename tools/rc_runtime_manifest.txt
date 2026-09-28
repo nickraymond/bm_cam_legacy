@@ -69,6 +69,7 @@ BM_Devel_Pi/command_state_v9.py    # v9 state: ONE owner of bm_command_state_v2.
 BM_Devel_Pi/command_inbox.py       # v9 durable mid-burst inbox (raw append; drained at decision points)
 BM_Devel_Pi/supervisor_config.py   # v9 path: effective config (YAML + overlay), render, re-resolve
 BM_Devel_Pi/command_replies.py     # v9 replies: slim ack, lane by id range, console line
+BM_Devel_Pi/command_v9.py          # v9 dispatcher: dedupe v2, high-water, set/reset/trg/rsd/wap/ping/help
 
 # Sprint15 video mode (config-gated by capture_mode: video; the stills
 # path never imports these, but a video unit fails its boot WITHOUT them

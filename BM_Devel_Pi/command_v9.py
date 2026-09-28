@@ -1,0 +1,389 @@
+#!/usr/bin/env python3
+# filename: command_v9.py
+# description: Sprint26 S4 W8a — the commands v9 dispatcher: strict decode, dedupe v2, high-water, CAS, set/reset/trg/rsd/wap/ping/help on the V9State.
+"""
+Commands v9 on the supervisor path of a migrated unit (DESIGN §6.1–6.2;
+PLAN_S4.md G1, G5, G6, G8, G9, G13; b.2c).
+
+One payload in -> one answer out (ack + console line through V9Replies), on the
+MAIN thread at a decision point or listen pass (never the burst path: b.7).
+
+Order per command (review A13 / consensus R16):
+  strict decode -> id range -> result cache (a duplicate returns the ORIGINAL
+  answer + d:1) -> high-water (`old`) -> verb -> validate the WHOLE resulting
+  config -> persist (V9State.transaction: nothing changes if the write fails,
+  D15) -> journal -> answer.
+A rejected id never advances the high-water. Every answer (also a rejection)
+is cached, so a re-send gets the same answer.
+
+Duplicate cellular copy (G9): the console always answers; the cellular `d:1`
+copy goes at most once per id per process, and never within 10 min of the
+original answer in the same process (the mote replays each command ~60 s
+later; the console forwards a `bm pub` 4-5x).
+
+Verbs here (b.2c): ping, help, set, reset, trg (v only), rsd, wap. `get`
+(b.3), `cfm` + guarded/service keys (b.5), `trg kv` and `hld` (b.6) answer
+e:"cmd" / e:"lock" / e:"key" until their commit lands.
+
+Inputs:  the daemon (acks, console, heal screening, wap), the V9State, the
+         YAML base values, env facts, a monotonic clock.
+Outputs: handle(payload) -> event dict {"action", "id", ...} for the summary.
+
+Known limitations: the help text is the compact registry list (c.4 generates
+the full command reference from the same data).
+"""
+
+import time
+
+import command_wire as W
+import config_registry as R
+import config_v2
+import config_validate
+import supervisor_config
+
+DUP_CELLULAR_QUIET_S = 600.0      # G9: no cellular d:1 copy within 10 min of the answer
+WAP_VALUES = (0, 1, 2)            # command_tables.WAP_TABLE (wap is unchanged, §6.1)
+
+
+def _fmt(value):
+    if value is None:
+        return "none"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, list):
+        return ",".join(_fmt(v) for v in value)
+    return str(value)
+
+
+def render_help():
+    """The compact v9 help: verbs, short names, settable groups (console only)."""
+    lines = ["v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)",
+             'ping   {"id":N,"c":"ping"}',
+             'set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none',
+             'reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}',
+             'trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, '
+             '2 capture + output per mode, 3/4 reference',
+             'rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)',
+             "short: " + " ".join(f"{s}={p}" for s, p in sorted(R.SHORT_NAMES.items()))
+             + " m=message cap of the media",
+             "ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | "
+             "1e8- signed service | 2e9- conductor"]
+    return lines
+
+
+class Dispatcher:
+    def __init__(self, daemon, state, base, env=None, clock=time.monotonic,
+                 service_key=None, log=print):
+        self.daemon = daemon
+        self.state = state
+        self.base = base
+        self.env = env
+        self.clock = clock
+        self.service_key = service_key
+        self._log = log
+        self._answered_at = {}     # id -> clock() when first answered in THIS process
+        self._dup_cell = {}        # id -> clock() of the last cellular d:1 copy
+
+    # ------------------------------------------------------------ helpers
+    def _state_dict(self, overlay=None):
+        s = self.state
+        return {"schema": "bm_command_state_v2", "overlay": dict(s.overlay if overlay is None
+                                                                 else overlay),
+                "overlay_ids": dict(s.overlay_ids), "v8": s.v8, "v8_folded": s.v8_folded,
+                "v8_fold_values": s.v8_fold_values}
+
+    def effective(self, overlay=None):
+        values = dict(self.base)
+        values.update(config_v2.state_overlay(self._state_dict(overlay)))
+        return values
+
+    def current_hash(self):
+        return supervisor_config.resolve(self.base, self._state_dict(), env=self.env).hash
+
+    def _answer(self, cid, ok, error=None, key=None, text="", staged=False, granted=None,
+                duplicate=False, cellular=True):
+        replies = self.daemon.v9
+        ack, lines = replies.reply(cid, ok, error, {}, duplicate=duplicate, key=key,
+                                   text=text, staged=staged, granted=granted)
+        if ack is not None and cellular:
+            self.daemon._acks.append(ack)
+        self.daemon._console.extend(lines)
+
+    def _persist(self, cid, rng, answer, mutate=None, source=None):
+        """One transaction: the verb's change + the cached answer + the
+        high-water. Journal after the persist. Raises on a write failure."""
+        done = []
+
+        def m(st):
+            if mutate is not None:
+                done.extend(mutate(st) or [])
+            st.remember(cid, answer)
+            if answer.get("ok") and rng in W.HIGH_WATER_RANGES:
+                st.advance_high_water(rng, cid)
+        self.state.transaction(m)
+        for path, old, new in done:
+            if isinstance(path, str) and "." in path:
+                self.state.journal(source or rng or "unknown", path, old, new, cid)
+        return done
+
+    def _reject(self, cid, rng, code, key=None, why=""):
+        answer = {"ok": 0, "e": code, "k": key}
+        try:
+            self._persist(cid, rng, answer)
+        except Exception as exc:
+            self._log(f"[CMD][WARN] rejection of id={cid} not cached: {exc}")
+        self._answered_at.setdefault(cid, self.clock())
+        self._answer(cid, False, code, key=key, text=why)
+        return {"action": "rejected", "id": cid, "e": code}
+
+    # -------------------------------------------------------------- entry
+    def handle(self, payload):
+        try:
+            cmd = W.decode(payload, parse_rsd=_parse_rsd)
+        except W.Unackable as exc:
+            self.daemon.stats["unackable"] += 1
+            self.daemon._console.append(W.console_line(
+                self.daemon.v9.host, f"DROPPED (no ack): {exc}"))
+            print(f"[CMD] dropped unackable payload: {exc} bytes={bytes(payload)[:40]!r}")
+            return {"action": "dropped"}
+        except W.Rejected as rej:
+            self.daemon.stats["rejected"] += 1
+            return self._rejected_before_verb(rej)
+
+        cid, rng = cmd.id, cmd.range
+        cached = self.state.cached(cid)
+        if cached is not None:
+            return self._duplicate(cid, cached)
+        if rng in W.HIGH_WATER_RANGES and self.state.is_old(rng, cid):
+            self.daemon.stats["rejected"] += 1
+            return self._reject(cid, rng, "old", why="below this sender's newest id")
+        handler = getattr(self, "_verb_" + cmd.verb, None)
+        try:
+            event = handler(cmd)
+        except Exception as exc:          # a persist failure (D15) or a bug: no ok ack
+            self.daemon.stats["rejected"] += 1
+            print(f"[CMD][ERROR] id={cid} {cmd.verb} failed: {type(exc).__name__}: {exc}")
+            self._answer(cid, False, "err", text=f"{cmd.verb}: not saved ({exc})")
+            return {"action": "persist_failed", "id": cid}
+        if event.get("action") == "applied":
+            self.daemon.stats["applied"] += 1
+        return event
+
+    def _rejected_before_verb(self, rej):
+        rng = W.id_range(rej.id)
+        cached = self.state.cached(rej.id)
+        if cached is not None:
+            return self._duplicate(rej.id, cached)
+        return self._reject(rej.id, rng, rej.code, key=rej.key, why=rej.why)
+
+    def _duplicate(self, cid, cached):
+        self.daemon.stats["duplicates"] += 1
+        now = self.clock()
+        first = self._answered_at.get(cid)
+        last = self._dup_cell.get(cid)
+        if first is not None:
+            cellular = now - first >= DUP_CELLULAR_QUIET_S and \
+                (last is None or now - last >= DUP_CELLULAR_QUIET_S)
+        else:
+            cellular = last is None
+        if cellular:
+            self._dup_cell[cid] = now
+        ok = bool(cached.get("ok"))
+        self._answer(cid, ok, cached.get("e"), key=cached.get("k"), text=cached.get("t", ""),
+                     staged=cached.get("s"), granted=cached.get("v"), duplicate=True,
+                     cellular=cellular)
+        print(f"[CMD] duplicate id={cid}: original answer "
+              f"({'cellular + ' if cellular else ''}console)")
+        return {"action": "duplicate", "id": cid}
+
+    def _applied(self, cmd, text, mutate=None, source=None, answer_extra=None):
+        answer = {"ok": 1, "t": text[:120]}
+        answer.update(answer_extra or {})
+        done = self._persist(cmd.id, cmd.range, answer, mutate=mutate, source=source)
+        self._answered_at.setdefault(cmd.id, self.clock())
+        self._answer(cmd.id, True, text=text, staged=answer.get("s"), granted=answer.get("v"))
+        print(f"[CMD] applied id={cmd.id} {cmd.verb}: {text}")
+        return {"action": "applied", "id": cmd.id, "changed": done}
+
+    # -------------------------------------------------------------- verbs
+    def _verb_ping(self, cmd):
+        return self._applied(cmd, "ping")
+
+    def _verb_help(self, cmd):
+        event = self._applied(cmd, "help (reference follows)")
+        self.daemon._console.extend(render_help())
+        return event
+
+    def _verb_get(self, cmd):
+        return self._reject(cmd.id, cmd.range, "cmd", why="get lands in S4 b.3")
+
+    def _verb_cfm(self, cmd):
+        return self._reject(cmd.id, cmd.range, "cmd", why="cfm lands in S4 b.5")
+
+    def _verb_hld(self, cmd):
+        return self._reject(cmd.id, cmd.range, "cmd", why="hld lands in S4 b.6")
+
+    def _paths_for(self, cmd, names, media):
+        """Resolve names (full path, short name, or for reset a group prefix)."""
+        out = []
+        for name in names:
+            path = R.resolve_short(name, media)
+            if path is None:
+                raise W.Rejected(cmd.id, "key", name, f"{name!r} is not a setting")
+            out.append((name, path))
+        return out
+
+    def _guard_problem(self, cmd, key, value):
+        """-> (code, why) or None. b.2c: guarded and service keys wait for b.5."""
+        if key.guard == R.LOCKED:
+            return "lock", f"{key.path} is locked (deploy only)"
+        if key.guard == R.SERVICE:
+            if "sig" not in cmd.fields or not W.verify_sig(cmd.raw, self.service_key):
+                return "auth", f"{key.path} needs a valid service signature"
+            return "lock", f"{key.path}: signed service changes land in S4 b.5"
+        if key.guard in (R.GUARDED_REVERT, R.GUARDED_STAGE):
+            if key.guard_when is None or value in key.guard_when:
+                return "lock", f"{key.path}={_fmt(value)} is guarded (cfm lands in S4 b.5)"
+        return None
+
+    def _check_cas(self, cmd):
+        want = cmd.fields.get("b")
+        if want is not None:
+            have = self.current_hash()
+            if have != want:
+                raise W.Rejected(cmd.id, "cas", None, f"config is {have}, not {want}")
+
+    def _validate(self, cmd, new_overlay, paths):
+        """Whole-config validation of the would-be effective config: any rule
+        that names one of `paths` rejects the command."""
+        values = self.effective(new_overlay)
+        env = self.env
+        zones = [values.get(p) for p in paths if R.BY_PATH.get(p) and R.BY_PATH[p].type == R.TZ]
+        if env is not None and zones:
+            # A zone being SET is probed now (env holds the configured one only).
+            env = dict(env, timezones_ok=set(env.get("timezones_ok") or ())
+                       | config_validate.probe_env(zones)["timezones_ok"])
+        for v in config_validate.validate(values, "effective", env=env):
+            hit = [p for p in v.paths if p in paths]
+            if hit:
+                raise W.Rejected(cmd.id, v.code, hit[0], v.message)
+
+    def _verb_set(self, cmd):
+        try:
+            self._check_cas(cmd)
+            media = self.effective().get("mode.media")
+            changes, paths = [], []
+            for name, path in self._paths_for(cmd, cmd.fields["kv"], media):
+                value = cmd.fields["kv"][name]
+                key = R.BY_PATH[path]
+                # A zone is judged through env when the supervisor probed one
+                # (G14); without env, the registry's own zoneinfo check.
+                why = None if (key.type == R.TZ and self.env is not None) \
+                    else R.check_value(key, value)
+                if why:
+                    raise W.Rejected(cmd.id, "val", path, why)
+                guard = self._guard_problem(cmd, key, value)
+                if guard:
+                    raise W.Rejected(cmd.id, guard[0], path, guard[1])
+                if path in paths:
+                    raise W.Rejected(cmd.id, "key", path, "set twice in one command")
+                changes.append((path, value))
+                paths.append(path)
+            new_overlay = dict(self.state.overlay)
+            new_overlay.update(changes)
+            self._validate(cmd, new_overlay, paths)
+        except W.Rejected as rej:
+            return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
+        before = self.effective()
+        text = ", ".join(f"{p}: {_fmt(before.get(p))} -> {_fmt(v)}" for p, v in changes
+                         if before.get(p) != v) or "no change (already in effect)"
+        when = "next boot" if any(R.BY_PATH[p].apply == R.NEXT_BOOT for p in paths) \
+            else "next action"
+        return self._applied(cmd, f"{text} ({when})",
+                             mutate=lambda st: st.apply_overlay(changes, cmd.id))
+
+    def _verb_reset(self, cmd):
+        import command_state_v9 as S
+        try:
+            self._check_cas(cmd)
+            if cmd.fields.get("all") == 1:
+                paths = sorted(self.state.overlay)
+            else:
+                paths = []
+                media = self.effective().get("mode.media")
+                for name in cmd.fields["k"]:
+                    path = R.resolve_short(name, media)
+                    group = [k.path for k in R.keys_in(name)]
+                    if path is None and not group:
+                        raise W.Rejected(cmd.id, "key", name, f"{name!r} is not a setting")
+                    for p in ([path] if path else group):
+                        if p in self.state.overlay and p not in paths:
+                            paths.append(p)
+            for p in paths:
+                key = R.BY_PATH.get(p)
+                if key is not None and key.guard == R.SERVICE and not (
+                        "sig" in cmd.fields and W.verify_sig(cmd.raw, self.service_key)):
+                    raise W.Rejected(cmd.id, "auth", p, f"{p} needs a valid service signature")
+            new_overlay = {k: v for k, v in self.state.overlay.items() if k not in paths}
+            self._validate(cmd, new_overlay, paths)
+        except W.Rejected as rej:
+            return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
+        text = ("reset " + ", ".join(paths) + " -> YAML") if paths else "reset: nothing to reset"
+        changes = [(p, S.remove()) for p in paths]
+        return self._applied(cmd, text, mutate=lambda st: st.apply_overlay(changes, cmd.id))
+
+    def _verb_trg(self, cmd):
+        v = cmd.fields["v"]
+        if cmd.fields.get("kv"):
+            return self._reject(cmd.id, cmd.range, "key", "kv",
+                                "one-shot trg kv lands in S4 b.6")
+        labels = {0: "trg 0: pending trigger cancelled", 1: "trg 1 armed: capture, save only",
+                  2: "trg 2 armed: capture + output per mode",
+                  3: "trg 3 armed: stored reef reference", 4: "trg 4 armed: stored reference card"}
+        text = labels[v] + ("" if v == 0 else " (next decision point)")
+        return self._applied(cmd, text, mutate=lambda st: st.arm_trigger(cmd.id, v))
+
+    def _verb_rsd(self, cmd):
+        value, ok = self.daemon._screen_heals(cmd.id, cmd.rsd)
+        if value.get("x"):
+            text = "rsd: every pending heal cancelled"
+        else:
+            text = f"rsd: {len(value.get('h', []))} heal(s) queued (<HL> reports each)"
+        if not ok:
+            answer = {"ok": 0, "e": "rsd", "t": "rsd: every heal refused (<HL> reports each)"}
+            self._persist(cmd.id, cmd.range, answer,
+                          mutate=lambda st: st.record_heals(cmd.id, value))
+            self._answered_at.setdefault(cmd.id, self.clock())
+            self._answer(cmd.id, False, "rsd", text=answer["t"])
+            return {"action": "rejected", "id": cmd.id, "e": "rsd"}
+        return self._applied(cmd, text, mutate=lambda st: st.record_heals(cmd.id, value))
+
+    def _verb_wap(self, cmd):
+        v = cmd.fields["v"]
+        if v not in WAP_VALUES:
+            return self._reject(cmd.id, cmd.range, "val", "v", "wap v is 0, 1 or 2")
+        event = self._applied(cmd, f"wap {v}: network change dispatched")
+        fn = self.daemon.wap_action_fn
+        if fn is None:
+            print("[CMD][WARN] wap acked but no action wired; network unchanged")
+        else:
+            try:
+                fn(v)
+            except Exception as exc:
+                print(f"[CMD][WARN] wap action failed: {exc}")
+        return event
+
+
+def _parse_rsd(data):
+    from command_messages import parse_rsd
+    return parse_rsd(data)
+
+
+def load_service_key(path=W.SERVICE_KEY_PATH):
+    """The unit's service key (§6.3), or None (then every service change is
+    refused e:"auth"). Read once per process."""
+    try:
+        with open(path, "r", encoding="ascii") as fh:
+            return W.parse_service_key(fh.read())
+    except (OSError, UnicodeDecodeError):
+        return None
