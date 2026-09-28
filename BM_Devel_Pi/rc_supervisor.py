@@ -125,6 +125,14 @@ class Boot:
         # pending trg's kv names that media; and its W10 minimum.
         self.alt_actions = {}
         self.alt_min_action_s = {}
+        # b.6c (DESIGN §4 keep-alive / hld): limits from the effective config
+        # (commands.keepalive_s, keepalive_max_s, hold_max_min,
+        # power.bus_always_on); hold and keep-alive live in memory only.
+        self.v9_limits = {}
+        self.hold_until = None
+        self.last_command_at = None
+        self._normal_end = None
+        self._sleep_fn = None
         self._guard_mark = None           # clock() of the last guard note (uptime accrual)
         self._guard_clock = None
 
@@ -164,6 +172,7 @@ class Boot:
         finish() still stops the reader and closes/halts)."""
         s = self.settings
         self._guard_clock, self._guard_mark = clock, clock()
+        self._sleep_fn = sleep_fn
         self.owner = PortOwner(s, bm_close_fn=bm_close_fn, halt_fn=halt_fn,
                                clock=clock, sleep_fn=sleep_fn, log_fn=log_fn)
         self.owner.begin()
@@ -177,10 +186,88 @@ class Boot:
                 self.owner.daemon.v9 = self.v9_replies
             if self.v9_dispatch_factory is not None:
                 self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
+                self.owner.daemon.v9_dispatch.boot = self          # b.6c: hld + keep-alive
                 self.owner.daemon.v9_dispatch.flush_notes()     # G10f: <CF reverted=..>
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
+
+    # ------------------------------------------------ b.6c: hld + keep-alive
+    def _now(self):
+        return self._guard_clock() if self._guard_clock is not None else time.monotonic()
+
+    def _awake_limit(self):
+        """The latest monotonic time this per_boot unit may stay up: the budget
+        minus the halt margin (the Spotter cuts the bus on its own schedule),
+        or None (no limit) when power.bus_always_on."""
+        if self.v9_limits.get("power.bus_always_on") or self.budget is None:
+            return None
+        return self._now() + self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
+
+    def note_command(self):
+        """Keep-alive: every command received pushes the halt back (§4)."""
+        self.last_command_at = self._now()
+
+    def request_hold(self, minutes):
+        """hld v: hold awake `minutes` (0 releases). -> the minutes granted:
+        at most commands.hold_max_min, and on per_boot at most what the budget
+        allows (unless power.bus_always_on). Never persisted (§4)."""
+        if minutes <= 0:
+            self.hold_until = None
+            return 0
+        granted = min(int(minutes), int(self.v9_limits.get("commands.hold_max_min", 120)))
+        if self.run == "per_boot":
+            limit = self._awake_limit()
+            if limit is not None:
+                granted = max(0, min(granted, int((limit - self._now()) // 60)))
+        self.hold_until = self._now() + granted * 60.0 if granted > 0 else None
+        return granted
+
+    def awake_until(self):
+        """per_boot: the time the unit must stay up for hld / keep-alive, or
+        None. Keep-alive = the last command + keepalive_s, at most
+        keepalive_max_s past the normal end; both clamped to the budget."""
+        if self._normal_end is None:
+            self._normal_end = self._now()
+        ends = []
+        if self.hold_until is not None:
+            ends.append(self.hold_until)
+        ka = float(self.v9_limits.get("commands.keepalive_s", 0) or 0)
+        if ka > 0 and self.last_command_at is not None:
+            cap = self._normal_end + float(self.v9_limits.get("commands.keepalive_max_s", 0))
+            ends.append(min(self.last_command_at + ka, cap))
+        if not ends:
+            return None
+        until = max(ends)
+        limit = self._awake_limit()
+        return until if limit is None else min(until, limit)
+
+    def stay_awake(self, daemon, sleep_fn):
+        """b.6c: after the action and its tail, stay up while a hold or the
+        keep-alive asks (commands, acks and console keep flowing). Returns
+        "trigger" when a trg now fits this boot (W10), else "done". Commands
+        applied meanwhile govern the halt (the overlay is re-read)."""
+        if daemon is None or self.run != "per_boot" or not self.v9_limits:
+            return "done"
+        applied = 0
+        reason = "done"
+        announced = False
+        while True:
+            until = self.awake_until()
+            if until is None or self._now() >= until:
+                break
+            if not announced:
+                print(f"[SUP] staying awake {until - self._now():.0f}s "
+                      f"(hld={self.hold_until is not None}, keep-alive after a command)")
+                announced = True
+            applied += len(_idle_tick(daemon, self._now, sleep_fn))
+            if self.w10_trigger_fits():
+                reason = "trigger"
+                break
+            sleep_fn(IDLE_TICK_S)
+        if applied and self.reresolve_fn is not None:
+            self.settings = self._reresolve(self.settings, self.summary or {})
+        return reason
 
     def _trigger_media(self):
         trg = self._pending_trigger()
@@ -510,22 +597,13 @@ def run_per_boot(boot, action_fn):
         summary = boot.pick_action(action_fn)(boot)
         boot.note_guards(summary)
         n = 1
-        while boot.w10_trigger_fits():
-            write_action_log(boot)          # the finished action's line
-            n += 1
-            trg = boot._pending_trigger()
-            print(f"[SUP] W10: trg id={trg.get('id')} heard in the listen tail fires this "
-                  f"boot (action {n}; {boot.budget.remaining_s():.0f}s of budget left)")
-            # Commands applied since the boot drain (tail) govern this action:
-            # the overlay is re-read onto the YAML base (same budget, G1).
-            if boot.reresolve_fn is not None:
-                boot.settings = boot._reresolve(boot.settings, boot.summary or {})
-            summary = boot.pick_action(action_fn)(boot)
-            boot.note_guards(summary)
-            if boot._pending_trigger() is trg:
-                boot.w10_stuck = trg
-                print(f"[SUP][ERR] W10: trg id={trg.get('id')} still armed after its action "
-                      "(consume not persisted); not firing it again this boot")
+        while True:
+            n, summary = _w10_actions(boot, action_fn, n, summary)
+            # b.6c: hld / keep-alive keep a per_boot unit up after its tail; a trg
+            # that arrives meanwhile and fits the budget is the next W10 action.
+            daemon = boot.owner.daemon if boot.owner else None
+            if boot.stay_awake(daemon, boot._sleep_fn or time.sleep) != "trigger":
+                break
         if boot._pending_trigger() is not None:
             left = boot.budget.remaining_s() if boot.budget else 0.0
             print(f"[SUP] W10: trg stays armed for the next boot ({left:.0f}s of budget left; "
@@ -537,6 +615,28 @@ def run_per_boot(boot, action_fn):
     finally:
         write_action_log(boot, error)
         boot.finish()
+
+
+def _w10_actions(boot, action_fn, n, summary):
+    """W10 (O3): every trg that fits this boot's budget runs as another action
+    on the SAME budget (G1). -> (action count, last summary)."""
+    while boot.w10_trigger_fits():
+        write_action_log(boot)          # the finished action's line
+        n += 1
+        trg = boot._pending_trigger()
+        print(f"[SUP] W10: trg id={trg.get('id')} heard in the listen tail fires this "
+              f"boot (action {n}; {boot.budget.remaining_s():.0f}s of budget left)")
+        # Commands applied since the boot drain (tail) govern this action:
+        # the overlay is re-read onto the YAML base (same budget, G1).
+        if boot.reresolve_fn is not None:
+            boot.settings = boot._reresolve(boot.settings, boot.summary or {})
+        summary = boot.pick_action(action_fn)(boot)
+        boot.note_guards(summary)
+        if boot._pending_trigger() is trg:
+            boot.w10_stuck = trg
+            print(f"[SUP][ERR] W10: trg id={trg.get('id')} still armed after its action "
+                  "(consume not persisted); not firing it again this boot")
+    return n, summary
 
 
 # ---------------------------------------------------------------------------

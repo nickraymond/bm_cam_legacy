@@ -86,6 +86,7 @@ class Dispatcher:
         self.service_key = service_key
         self._log = log
         self.restart_requested = []   # next-boot keys changed (stay_on exits 72, G10g)
+        self.boot = None              # rc_supervisor.Boot (b.6c): note_command, request_hold
         self._answered_at = {}     # id -> clock() when first answered in THIS process
         self._dup_cell = {}        # id -> clock() of the last cellular d:1 copy
 
@@ -143,6 +144,8 @@ class Dispatcher:
 
     # -------------------------------------------------------------- entry
     def handle(self, payload):
+        if self.boot is not None:
+            self.boot.note_command()      # keep-alive: any command received (§4)
         try:
             cmd = W.decode(payload, parse_rsd=_parse_rsd)
         except W.Unackable as exc:
@@ -326,7 +329,21 @@ class Dispatcher:
         return len(notes)
 
     def _verb_hld(self, cmd):
-        return self._reject(cmd.id, cmd.range, "cmd", why="hld lands in S4 b.6")
+        """§4: hold the unit awake v minutes (0 releases); not persisted; the
+        ack's `v` is the minutes actually granted (hold_max_min, and on
+        per_boot the budget unless power.bus_always_on)."""
+        v = cmd.fields["v"]
+        if self.boot is not None:
+            granted = self.boot.request_hold(v)
+        else:
+            granted = min(v, int(self.effective().get("commands.hold_max_min", 120)))
+        if v == 0:
+            text = "hold released"
+        else:
+            text = f"hold awake {granted} min"
+            if granted < v:
+                text += f" (asked {v}: clamped by hold_max_min / the bus-power budget)"
+        return self._applied(cmd, text, answer_extra={"v": granted})
 
     def _paths_for(self, cmd, names, media):
         """Resolve names (full path, short name, or for reset a group prefix)."""

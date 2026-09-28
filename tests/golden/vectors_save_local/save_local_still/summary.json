@@ -39,7 +39,7 @@
   "uplinked": true
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 154.5,
+ "fake_clock_elapsed_s": 300.1,
  "files": {
   "app/sent/2026-09-23T15:00:00Z_image_compressed.sent.json": {
    "bytes": 316,

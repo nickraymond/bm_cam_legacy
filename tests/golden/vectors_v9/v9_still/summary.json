@@ -84,7 +84,7 @@
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 378.0,
+ "fake_clock_elapsed_s": 521.0,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,

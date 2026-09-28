@@ -82,6 +82,10 @@ class Rig:
         self.daemon._acks.clear()
         return out
 
+    def bm_console(self):
+        """Console lines already SENT to the (fake) Spotter console."""
+        return list(self.daemon.bm.console)
+
     def lines(self):
         out = list(self.daemon._console)
         self.daemon._console.clear()
@@ -244,7 +248,8 @@ class Verbs(unittest.TestCase):
     def test_later_stage_verbs(self):
         r = Rig(self)
         r.send({"id": 1_000_002, "c": "cfm", "ref": 5}, {"id": 1_000_003, "c": "hld", "v": 30})
-        self.assertEqual([a["e"] for a in r.acks()], ["ref", "cmd"])
+        acks = r.acks()
+        self.assertEqual((acks[0]["e"], acks[1]["ok"], acks[1]["v"]), ("ref", 1, 30))
 
     def test_unackable_and_out_of_range(self):
         r = Rig(self)

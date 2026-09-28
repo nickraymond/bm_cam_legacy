@@ -1536,6 +1536,8 @@ def main(argv=None, **cycle_overrides):
                              **common, **cycle_overrides)
         sup.alt_actions = {"video": alt_video, "still": alt_still}
         eff = v9_eff.values
+        sup.v9_limits = {k: eff[k] for k in ("commands.keepalive_s", "commands.keepalive_max_s",
+                                             "commands.hold_max_min", "power.bus_always_on")}
         sup.alt_min_action_s = {
             "video": float(eff["video.send.duration_s"]) + float(eff["video.send.lead_in_s"])
             + rc_supervisor_mod().W10_VIDEO_MARGIN_S,

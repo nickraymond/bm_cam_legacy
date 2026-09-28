@@ -172,6 +172,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | every v2 scenario | the v8 verbs dispatch through CommandState (roi, awb, txd, ...; 32-id dedupe, duplicate re-acked cellular) | W8a part 2 (S4 b.2c): v9 dispatch on V9State (the v8 section folded into the overlay once); inputs switched to `set` (r, b, uplink.msg_interval_s); a duplicate answers on the console only (G9); v9_still adds an `xk` and a retired-verb `cmd` rejection; state-file bytes change (V9State layout) |
 | `v9_still`, `v9_video` | no `get`; no config summary on the uplink | W8a part 3 (S4 b.3): a remote `get` answers on the console (value + source) and as `<CF v=1 h=..>` through the ack pacer; a cellular `set`/`reset` is followed by a `<CF>` of the keys it changed |
 | every v2 scenario | the state file's `boot_counter` stays 0 | V3 (S4 b.5, state bytes only, no wire): every counted (`--transmit`) run increments it before any port opens; cached answers record `b: 1` |
+| `save_local_still`, `save_local_video`, `v9_still`, `v9_trigger_kv` | a per_boot unit halts right after its listen tail | W12 (S4 b.6c, keep-alive, DESIGN §4): after the tail a per_boot unit stays up until its last command + `commands.keepalive_s` (300 s), at most `keepalive_max_s` past the normal end, clamped to the budget; wire identical, fake elapsed longer |
 
 V-items (PLAN_S4.md) change pinned file bytes in `summary.json` but no wire
 byte; like W-items, each is its own commit with the reviewed diff.
