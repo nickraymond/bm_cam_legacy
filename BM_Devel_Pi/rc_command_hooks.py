@@ -15,14 +15,11 @@ D5/D11/D12/D13 for the decisions these hooks implement.
 """
 
 from bm_serial import load_uart_config
-from command_bindings import (
-    apply_trigger,
-    describe_overrides,
-    overlay_camera_controls,
-    overlay_rc_settings,
-    stranding_warnings,
-)
 from command_daemon import CommandDaemon
+from command_trigger import apply_trigger
+# Sprint26 S4 c.2: the v8 settings bindings (command_bindings) are imported
+# lazily, by the legacy / v8 overlay code only; the supervisor's v9 path never
+# loads them (tests/test_s4_v8_out.py).
 import rc_heal
 
 
@@ -51,6 +48,7 @@ def make_query_render_fn(settings, state, topic):
         # Lazy import: rc_progressive_jpeg imports this module, so the
         # circular import must resolve at call time, not module load.
         import rc_progressive_jpeg as rc
+        from command_bindings import overlay_camera_controls, overlay_rc_settings
         base = rc.resolve_rc_settings(settings["config_path"])
         fresh, _overrides = overlay_rc_settings(base, state)
         controls = overlay_camera_controls(
@@ -128,9 +126,12 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
     port, baudrate = load_uart_config(settings["config_path"])
     bm = bm_port.open_shared(port, baudrate, timeout=0.1)
     print(f"[CMD] shared UART open: {port}@{baudrate} (single port owner)")
+    # S4 c.2: on the v9 path (a V9State) the dispatcher answers help/get; the v8
+    # help/cfg renderer (command_help + the v8 bindings) is not built.
+    v9 = type(state).__name__ == "V9State"
     return CommandDaemon(
         bm, state, topic=bm_commands_cfg["topic"],
-        query_render_fn=make_query_render_fn(
+        query_render_fn=None if v9 else make_query_render_fn(
             settings, state, bm_commands_cfg["topic"]),
         wap_action_fn=make_wap_action_fn(),
         # Sprint25 S5: rsd heals are checked against the sent records.
@@ -142,6 +143,8 @@ def apply_command_overlay(settings, state, load_controls_fn):
     """Re-resolve the command overlay (D13): roi/win onto settings,
     foc/awb/exp onto the camera_controls override. Returns new settings.
     load_controls_fn(config_path) supplies the YAML island dict."""
+    from command_bindings import (describe_overrides, overlay_camera_controls,
+                                  overlay_rc_settings, stranding_warnings)
     settings, overrides = overlay_rc_settings(settings, state)
     for line in describe_overrides(overrides):
         print(line)

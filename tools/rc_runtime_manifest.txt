@@ -71,6 +71,7 @@ BM_Devel_Pi/supervisor_config.py   # v9 path: effective config (YAML + overlay),
 BM_Devel_Pi/command_replies.py     # v9 replies: slim ack, lane by id range, console line
 BM_Devel_Pi/command_v9.py          # v9 dispatcher: dedupe v2, high-water, set/reset/trg/rsd/wap/ping/help
 BM_Devel_Pi/command_guards.py      # v9 guarded keys: revert by boots/sends/uptime, stage, cfm
+BM_Devel_Pi/command_trigger.py     # the one-shot trg's effect on a cycle (v8 + v9)
 
 # Sprint15 video mode (config-gated by capture_mode: video; the stills
 # path never imports these, but a video unit fails its boot WITHOUT them
