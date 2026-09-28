@@ -1,6 +1,6 @@
 # Sprint26 S4 — new verbs (commands v9): implementation plan
 
-Written 2026-09-27. Status: **DRAFT for Nick's ruling** (§0). No code before approval.
+Written 2026-09-27. Status: **APPROVED as proposed (Nick, 2026-09-27)** — G1–G17 ruled as written; S4w (W9) waits for the nvd parser.
 Reviewed by two reviewers + one consensus round (§5); every finding is folded in below.
 Branch `feature/sprint26-s4-verbs` from `origin/development` 43d4d03 (S3c PR #81 + follow-ups
 PR #82 merged). Baseline on this Mac (.venv-dev, PyYAML 6.0.2, Pillow 12.3.0): **1270 passed**
