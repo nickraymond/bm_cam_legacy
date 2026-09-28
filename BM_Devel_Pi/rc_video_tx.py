@@ -265,8 +265,13 @@ def _save_local_clip(settings, vtx, summary, daemon, budget, *, clip, record_vcf
                                                   disk_usage=disk)
         record.update({"output": "save_local", "time_source": time_source or "system"})
         video_manifest.write_sidecar(video_dir, clip["basename"], record)
-        video_manifest.write_manifest(video_dir,
-                                      generated_utc=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        # S3c follow-up F1: incremental (one clip a minute would otherwise
+        # re-read every sidecar on the card each action).
+        deleted = ring.get("deleted") if isinstance(ring, dict) else None
+        video_manifest.add_to_manifest(
+            video_dir, clip["basename"], record,
+            removed_stems=deleted if isinstance(deleted, list) else (),
+            generated_utc=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"))
     except Exception as exc:
         print(f"[VTX][WARN] save_local clip metadata failed ({type(exc).__name__}: {exc}); "
               "the clip is saved")
