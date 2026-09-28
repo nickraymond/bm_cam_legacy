@@ -129,5 +129,51 @@ class ActionTime(unittest.TestCase):
         self.assertIsNone(b.one_shot_output)
 
 
+class MediaOverride(unittest.TestCase):
+    """b.6b: pick_action + boot_drain leave a trg for the other media armed."""
+
+    def boot(self, r, media="still"):
+        b = sup.Boot({"x": 1}, media=media, bm_commands_cfg={}, command_state=r.state,
+                     transmit=True, bench_commands=False)
+        b.output = "transmit"
+        return b
+
+    def test_med_accepted_and_logger_refused(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "trg", "v": 2, "kv": {"med": "video", "m": 90}},
+               {"id": 1_000_002, "c": "trg", "v": 2, "kv": {"med": "video_logger"}})
+        acks = r.acks()
+        self.assertEqual((acks[0]["ok"], acks[1].get("e")), (1, "val"))
+        self.assertEqual(S.V9State(r.state_path).pending_trigger["kv"],
+                         {"mode.media": "video", "video.send.message_cap": 90})
+
+    def test_pick_action_runs_the_other_media_once(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "trg", "v": 2, "kv": {"med": "video"}})
+        b = self.boot(r)
+        b.min_action_s = 60.0
+        seen = []
+        b.alt_actions = {"video": lambda boot, s=None: seen.append((boot.media,
+                                                                    boot.min_action_s)) or {}}
+        b.alt_min_action_s = {"video": 67.0}
+        default = lambda boot, s=None: seen.append("default")        # noqa: E731
+        quiet(b.pick_action(default), b)
+        self.assertEqual(seen, [("video", 67.0)])
+        self.assertEqual((b.media, b.min_action_s), ("still", 60.0))  # restored
+        quiet(r.state.consume_trigger)
+        quiet(b.pick_action(default), b)
+        self.assertEqual(seen[-1], "default")
+
+    def test_boot_drain_leaves_an_other_media_trg_armed(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "trg", "v": 2, "kv": {"med": "video"}})
+        b = self.boot(r)
+        b.owner = None
+        settings, flags = quiet(b.boot_drain, {"x": 1}, {"command_events": []}, lambda s: None)
+        self.assertNotIn("trigger", settings)
+        self.assertFalse(flags["skip_time_window"])
+        self.assertEqual(S.V9State(r.state_path).pending_trigger["id"], 1_000_001)
+
+
 if __name__ == "__main__":
     unittest.main()

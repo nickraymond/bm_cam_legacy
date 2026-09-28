@@ -1256,6 +1256,11 @@ def _run_stay_on(sup, action_fn, settings, reresolve_fn, run_cfg, heartbeat_fn,
         heal_tx_open_fn=heal_tx_open_fn)
 
 
+def rc_supervisor_mod():
+    import rc_supervisor
+    return rc_supervisor
+
+
 def main(argv=None, **cycle_overrides):
     cmd_hooks.boot_mark("main_entry")   # Sprint25 S3 benchmark segment
     parser = argparse.ArgumentParser(
@@ -1483,6 +1488,59 @@ def main(argv=None, **cycle_overrides):
     # right after config load + command-overlay resolution. Cron line, lock,
     # and overlay doctrine unchanged; a video unit and a stills unit differ
     # by one YAML value. Lazy import keeps the stills path untouched.
+    def _wire_v9(sup):
+        """S4 (PLAN_S4.md G1): the v9 path on a supervisor Boot — replies,
+        guards, the dispatcher, the media-aware trg kv builder (b.6a) and the
+        other media's action for a one-shot media override (b.6b)."""
+        if v9_eff is None:
+            return
+        sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
+        sup.guard_state = v9_state
+        if not (v9_on and command_state is not None):
+            return
+        import rc_video_tx as _vtx
+        import video_recorder as _vr
+
+        def dry(fresh):
+            return dict(fresh, power_halt_dry_run=True) if args.crashloop else fresh
+
+        def one_shot(kv):
+            path = supervisor_config.one_shot_render(v9_base, v9_state, kv, env=env)
+            fresh = resolve_rc_settings(path)
+            if kv.get("mode.media", sup.media) == "video":
+                fresh["video"] = _vr.load_video_config(path)
+                sup.one_shot_vtx = _vtx.load_video_tx_config(path)
+            return dry(fresh)
+        sup.one_shot_fn = one_shot
+        sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
+            d, command_state, v9_base, env=env,
+            service_key=command_v9.load_service_key(), base_source=v9_source)
+        common = dict(transmit=args.transmit, bm_commands_cfg=bm_commands_cfg,
+                      command_state=command_state, bench_commands=args.bench_commands)
+
+        def alt_video(b, _settings=None):
+            path = supervisor_config.one_shot_render(v9_base, v9_state,
+                                                     {"mode.media": "video"}, env=env)
+            s = resolve_rc_settings(path)
+            s["video"] = _vr.load_video_config(path)
+            vtx = _vtx.load_video_tx_config(path)
+            return _vtx.run_video_tx_cycle(dry(s), vtx, supervised=b,
+                                           skip_time_window=args.skip_time_window,
+                                           bench_drop_chunks=bench_drop_chunks, **common)
+
+        def alt_still(b, _settings=None):
+            path = supervisor_config.one_shot_render(v9_base, v9_state,
+                                                     {"mode.media": "still"}, env=env)
+            return run_cycle(dry(resolve_rc_settings(path)), supervised=b, capture_only=False,
+                             skip_time_window=False, output_dir=args.output_dir,
+                             **common, **cycle_overrides)
+        sup.alt_actions = {"video": alt_video, "still": alt_still}
+        eff = v9_eff.values
+        sup.alt_min_action_s = {
+            "video": float(eff["video.send.duration_s"]) + float(eff["video.send.lead_in_s"])
+            + rc_supervisor_mod().W10_VIDEO_MARGIN_S,
+            "still": rc_supervisor_mod().W10_MIN_STILL_ACTION_S}
+
     if settings["capture_mode"] == "video":
         import video_recorder
         try:
@@ -1522,20 +1580,7 @@ def main(argv=None, **cycle_overrides):
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
                 configure_output(sup, boot, output)
-                if v9_eff is not None:
-                    sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
-                sup.guard_state = v9_state
-                if v9_on and command_state is not None:
-                    def _one_shot_video(kv, sup=sup):
-                        path = supervisor_config.one_shot_render(v9_base, v9_state, kv, env=env)
-                        fresh = resolve_rc_settings(path)
-                        fresh["video"] = video_recorder.load_video_config(path)
-                        sup.one_shot_vtx = rc_video_tx.load_video_tx_config(path)
-                        return dict(fresh, power_halt_dry_run=True) if args.crashloop else fresh
-                    sup.one_shot_fn = _one_shot_video
-                    sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
-                        d, command_state, v9_base, env=env,
-                        service_key=command_v9.load_service_key(), base_source=v9_source)
+                _wire_v9(sup)
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1621,18 +1666,7 @@ def main(argv=None, **cycle_overrides):
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
             configure_output(sup, boot, output)
-            if v9_eff is not None:
-                sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
-            sup.guard_state = v9_state
-            if v9_on and command_state is not None:
-                def _one_shot_still(kv):
-                    path = supervisor_config.one_shot_render(v9_base, v9_state, kv, env=env)
-                    fresh = resolve_rc_settings(path)
-                    return dict(fresh, power_halt_dry_run=True) if args.crashloop else fresh
-                sup.one_shot_fn = _one_shot_still
-                sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
-                    d, command_state, v9_base, env=env,
-                    service_key=command_v9.load_service_key(), base_source=v9_source)
+            _wire_v9(sup)
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])

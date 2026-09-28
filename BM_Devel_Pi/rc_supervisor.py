@@ -120,6 +120,11 @@ class Boot:
         self.one_shot_output = None
         self.one_shot_kv = None
         self._save_quality_base = None
+        # b.6b (§6.1 "media can be overridden one-shot"): the other media's action,
+        # {media: fn(boot, settings=None)}, chosen at a decision point when the
+        # pending trg's kv names that media; and its W10 minimum.
+        self.alt_actions = {}
+        self.alt_min_action_s = {}
         self._guard_mark = None           # clock() of the last guard note (uptime accrual)
         self._guard_clock = None
 
@@ -177,6 +182,33 @@ class Boot:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
 
+    def _trigger_media(self):
+        trg = self._pending_trigger()
+        if not trg:
+            return None
+        return (trg.get("kv") or {}).get("mode.media")
+
+    def pick_action(self, default_fn):
+        """b.6b: the action to run at this decision point. A pending trg whose kv
+        names the OTHER media runs that media's action (from a per-action
+        render) with this boot's port, daemon and budget; the boot's media is
+        swapped for that one action. Otherwise `default_fn`."""
+        media = self._trigger_media()
+        alt = self.alt_actions.get(media) if media and media != self.media else None
+        if alt is None:
+            return default_fn
+
+        def run_alt(boot, settings=None):
+            own_media, own_min = self.media, self.min_action_s
+            self.media = media
+            self.min_action_s = self.alt_min_action_s.get(media, own_min)
+            print(f"[SUP] trg media override: one {media} action on a {own_media} unit")
+            try:
+                return alt(boot, settings)
+            finally:
+                self.media, self.min_action_s = own_media, own_min
+        return run_alt
+
     def w10_trigger_fits(self):
         """W10 (O3, Nick 2026-09-25): a trg is armed AND an extra action fits
         this boot's budget: remaining - TAIL_SAFETY_S >= min_action_s. The
@@ -188,7 +220,10 @@ class Boot:
             return False                 # its consume failed once: never a capture loop
         if self.budget is None:
             return False
-        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= self.min_action_s
+        media = self._trigger_media()
+        need = self.alt_min_action_s.get(media, self.min_action_s) \
+            if media and media != self.media else self.min_action_s
+        return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= need
 
     def note_guards(self, summary=None):
         """S4 b.5 (DESIGN §6.3): after an action (or an idle heartbeat), count
@@ -299,7 +334,13 @@ class Boot:
             if events and self.reresolve_fn is not None:
                 print(f"[SUP] boot drain: {len(events)} command(s) applied this boot")
                 settings = self._reresolve(settings, summary)
-        if self.command_state is not None:
+        other = self._trigger_media()
+        if other and other != self.media:
+            # b.6b: a trg for the OTHER media is not this action's; it stays armed
+            # and the next decision point runs that media's action (pick_action).
+            print(f"[SUP] pending trg names media {other}: not serviced by this "
+                  f"{self.media} action (next decision point)")
+        elif self.command_state is not None:
             # Stills (W4 ordering) and, since W5, video: a trg is serviced at
             # this decision point for both media.
             settings, flags = cmd_hooks.service_pending_trigger(
@@ -466,7 +507,7 @@ def run_per_boot(boot, action_fn):
     print(f"[SUP] per_boot: media={boot.media} transmit={boot.transmit}")
     error = None
     try:
-        summary = action_fn(boot)
+        summary = boot.pick_action(action_fn)(boot)
         boot.note_guards(summary)
         n = 1
         while boot.w10_trigger_fits():
@@ -479,7 +520,7 @@ def run_per_boot(boot, action_fn):
             # the overlay is re-read onto the YAML base (same budget, G1).
             if boot.reresolve_fn is not None:
                 boot.settings = boot._reresolve(boot.settings, boot.summary or {})
-            summary = action_fn(boot)
+            summary = boot.pick_action(action_fn)(boot)
             boot.note_guards(summary)
             if boot._pending_trigger() is trg:
                 boot.w10_stuck = trg
@@ -595,7 +636,7 @@ def _run_action(boot, action_fn, settings, n, kind, quiet_skip):
           f"{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} =====")
     error = None
     try:
-        summary = action_fn(boot, settings)
+        summary = boot.pick_action(action_fn)(boot, settings)
     except Exception as exc:
         # One failed action is not a failed process: logged, and the loop
         # goes on (the next trg or slot may well succeed).

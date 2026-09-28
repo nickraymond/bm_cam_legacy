@@ -497,8 +497,8 @@ class Dispatcher:
             if path in out:
                 raise W.Rejected(0, "key", path, "set twice in one command")
             out[path] = value
-        if out.get("mode.media", effective.get("mode.media")) != effective.get("mode.media"):
-            raise W.Rejected(0, "key", "mode.media", "a media override lands in S4 b.6b")
+        if out.get("mode.media") == "video_logger":
+            raise W.Rejected(0, "val", "mode.media", "a one-shot action is a still or a clip")
         values = dict(effective)
         values.update(out)
         for viol in config_validate.validate(values, "effective", env=self.env):

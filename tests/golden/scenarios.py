@@ -451,6 +451,22 @@ V9_SCENARIOS = {
         "notes": "trg kv on video: one 8 s clip fitted to 90 messages; d != 5 flagged on the "
                  "console; nothing persisted",
     },
+    "v9_media_override_video": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [{"when": "on_sub", "payload": {"id": 1000541, "c": "trg", "v": 2,
+                                                 "kv": {"med": "video", "d": 5}}}],
+        "notes": "a still unit, trg kv med=video: the boot's still action leaves the trg armed "
+                 "(it names the other media); W10 then runs ONE video action on the same budget",
+    },
+    "v9_media_override_still": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
+        "rules": [{"when": "on_sub", "payload": {"id": 1000551, "c": "trg", "v": 2,
+                                                 "kv": {"med": "still", "m": 60}}}],
+        "notes": "a video unit, trg kv med=still (m = the still cap then): the clip runs, the "
+                 "trg stays armed through it, then W10 runs ONE still action",
+    },
 }
 
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}
