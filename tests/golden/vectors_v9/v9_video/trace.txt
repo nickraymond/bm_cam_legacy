@@ -143,7 +143,9 @@ W tx.02 <I0dpr00.5>G09XUJK/yjAbVU2Z6OohDMTiqwbUdueGi3AP+eXE9emMJ3f9e1onUMj6gG80r
 W tx.02 <I0dpr00.6>RE3amboGinXjXfOZ4aaKqWrMSr5I721n2aYjP7BJ7fJiqv/X8nJpasQq9xOP5sC/MdDPxh2tFu5Mwoc7x5q4b9AyXtXkaUPBbncAA8HWBkRpvfPVgm0mXnVofGigh3ZnhJdeoik5nTP3Lez+S6jAhQNHob9qCDIRssL9bmH7i0V7oJ9Ul/ptwWunDDD3Od4IfUNd/tYCqaeRQuUwhfhOZAuqHQ7ZEefSp1TK4muXdya9veGPkCed/OC3RqV58euXEvzB1QBSoc4W0w+B6kBEUGB7Fr9SxR5B1O0H0uR8a83HRg4AHwWMVCnbcQpC3Rb1Z+BEAxnpL4yOxRAztiocUz+dgaUBBnjrZR64nlugj9hSKG+lhlDu4Kbu0zVg72IA\x0a
 W tx.02 <I0dpr00.7>M9CNjtCGpGH4C2Z4riAbgJMgTBKv0SE1UzS91v5Rs5FmoruvBQZGgen4eQC+Gy3u+TThjC/CtoLtUcIo71+bdcBWCvA2FtsxMESHe9551Suzv5vKjN5XFJ8gAMeK1QpGJXh7HHKNt9xIPh4ecrrgYP0WyaKZ6vyrKxzRzxMzd+Ox4eWIU8p2sd8kxFSAPlBYGNgfUHebgv08SUIyVurt04hNrGhRwvUPisBKARVK4uVhaegEKhmOLTG/P+Iy65aU0CyOXa4Pw//KkC0U/55tB7HPMazcfH1s24pBwQAAAAFBmggtif/bz/Fc3cQZXGFs/0tsjCCs3nhlc+iNIummDXLjQP4NgEd2Y9Al/lKLRUzgPjcUJiG8+KuUXJdDEoWG\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15-00-00Z_video_5s.h264, fmt: h264, uart_duration_sec: 175.5, sent_buffers: 126, cpu_temp_c: 45.0\x0a
-W tx.02 {"id":1000511,"ok":1,"st":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
-W tx.02 {"id":1000512,"ok":1,"st":{"roi":0,"foc":0,"awb":1,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+W printf [bmcam-golden] OK id=1000511 ping cfg=ffec8662
+W printf [bmcam-golden] OK id=1000512 awb=1 (next action) cfg=0c8f419a
+W tx.02 {"id":1000511,"ok":1,"h":"ffec8662"}
+W tx.02 {"id":1000512,"ok":1,"h":"0c8f419a"}
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

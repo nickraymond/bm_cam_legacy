@@ -168,6 +168,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
 | every stay_on / save_local scenario | migrated `camera_config.yaml` + LKG bytes (registry v4 names) | V1 (S4 a.1, vector bytes only, no wire): registry v5 adds 4 keys and renames `video.storage.*` → `storage.*` |
 | `stay_on_video`, `stay_on_save_local_still`, `save_local_still` | the tmpfs render holds the YAML base; a v8 `txd` reaches the runtime through the v8 bindings | V2 (S4 b.1, render bytes only, no wire): the supervisor on a migrated unit renders the EFFECTIVE config (base ⊕ overlay), so `image_transmit_delay_seconds` reads 1.5 after `txd 1`; trace.txt identical |
+| every v2 scenario with a command (`vectors_v9`, stay_on, save_local) | v8 ack `{"id","ok","st":{11 indices}}`, every ack cellular, no console answer | W8a part 1 (S4 b.2b, supervisor on a migrated unit only): slim ack `{"id","ok","h"[,"d"]}` cellular only for remote/service ids (G13), one `[host] OK id=.. cfg=..` console line per answer; ~1 s less ack pacing |
 
 V-items (PLAN_S4.md) change pinned file bytes in `summary.json` but no wire
 byte; like W-items, each is its own commit with the reviewed diff.

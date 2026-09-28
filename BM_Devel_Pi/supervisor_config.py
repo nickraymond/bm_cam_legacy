@@ -173,6 +173,21 @@ def make_reresolve(base, render_path, resolve_settings, carry=("video",), env=No
     return reresolve
 
 
+def make_hash_fn(base, env=None):
+    """-> hash_fn(): the effective config hash as the state file holds it NOW
+    (the ack's `h` after the command was persisted)."""
+    def hash_fn():
+        return resolve(base, config_v2.read_state(state_path_for(base)), env=env).hash
+    return hash_fn
+
+
+def v9_replies(base, env=None):
+    """The reply policy for the daemon on this unit (W8a)."""
+    import command_replies
+    from rc_telemetry import get_hostname
+    return command_replies.V9Replies(get_hostname(), make_hash_fn(base, env=env))
+
+
 def summary_json(eff):
     """One compact line for logs/tests."""
     return json.dumps({"hash": eff.hash, "overlay": sorted(eff.overlay),

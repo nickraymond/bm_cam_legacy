@@ -107,6 +107,9 @@ class Boot:
         self.storage_cfg = None       # storage.* (the one SD limit pair, §5 C3)
         self.storage_reason = None    # "storage_full" while the SD is over its limit
         self.save_time_reads = 0      # save_local_time_read calls that read Spotter time
+        # S4 W8a (PLAN_S4.md G1): the v9 reply policy on a migrated unit
+        # (command_replies.V9Replies), handed to the daemon at process start.
+        self.v9_replies = None
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -152,6 +155,8 @@ class Boot:
                                     self.bm_commands_cfg, self.command_state)
             # W6: every Spotter time read over the shared port is a fresh one.
             self.owner.daemon.fresh_time_reads = True
+            if self.v9_replies is not None:
+                self.owner.daemon.v9 = self.v9_replies
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon

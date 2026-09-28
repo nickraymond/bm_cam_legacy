@@ -200,7 +200,8 @@ W tx.02 <I0dpr00.190>3M4gk5qfWvj1Oqh4+HXM/wC18ErErOYKo/uU3Rtjh9T3Pv4zH3Hmszx8BZ8
 W tx.02 <I0dpr00.191>/wBi/wAzlnE5J/aaQanM4+OIxy9M0+pm+kITSENkTynM1Ibhm30T9lN3wf15h9039JyhuGvhtAK0Z8+J/9k=\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_duration_sec: 250.9, sent_buffers: 192, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000504,"c":"trg","v":2}
-W tx.02 {"id":1000504,"ok":1,"st":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+W printf [bmcam-golden] OK id=1000504 trg 2 armed: capture + output per mode (next decision point) cfg=e433c9b5
+W tx.02 {"id":1000504,"ok":1,"h":"e433c9b5"}
 W sub spotter/utc-time
 RX utc 2026-09-24T15:04:10.900000+00:00
 W tx.02 <WS v=1 a=cap tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a

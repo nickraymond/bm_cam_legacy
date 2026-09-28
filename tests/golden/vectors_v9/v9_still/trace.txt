@@ -181,6 +181,11 @@ W tx.02 <I0dpr00.167>X7lF8nf/AL/EDUrV1g9RSKPU4/7iisM5rKf4+4hgGirMC/5i2EjslGfXUs3
 W tx.02 <I0dpr00.168>blDCWWrBuaXBidQmVFi5gKVZNeo8XnOfuEy1mAsrIY9RWueJ9RI0OK1OcF58Rtme5z9TaEpiA6hwfEMp9T+JAWwYxjbZ6fxN/wA+BG81/iiFWs2mmMYhuEbDmYBgI3XzMrs0K9b/AAJpCOQNCvUSCrQMs0e8v58c/mQnMNQ1MydV/qZG8UPXghNoRdBQ0zgeo7HuE1/+EAoKXIfEBXBom89kZUtcL8UAURpdNfEdng5mhOU/8PiNcrZy5gAQKYGZ3cvuYOo7YTjwQyNwhQVqcwhqECM2w1DxzP/Z\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_duration_sec: 221.0, sent_buffers: 169, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000503,"c":"help"}
+W printf [bmcam-golden] OK id=1000501 roi=2 (next action) cfg=8bf9d517
+W printf [bmcam-golden] OK id=7 ping cfg=8bf9d517
+W printf [bmcam-golden] OK id=1000502 ping cfg=8bf9d517
+W printf [bmcam-golden] OK id=1000502 ping (duplicate: original answer) cfg=8bf9d517
+W printf [bmcam-golden] OK id=1000503 help (reference follows) cfg=8bf9d517
 W printf +====================================================================+
 W printf |              bmcam CAMERA - REMOTE COMMAND REFERENCE               |
 W printf |                            (tables v8)                             |
@@ -318,10 +323,9 @@ W printf Config file on the camera: camera_schedule.yaml (via SSH).
 W printf A command overrides the file for that one setting; sending v=0
 W printf hands control back to the file. All-zeros = full factory reset.
 W printf +====================================================================+
-W tx.02 {"id":1000501,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
-W tx.02 {"id":7,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
-W tx.02 {"id":1000502,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
-W tx.02 {"id":1000502,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
-W tx.02 {"id":1000503,"ok":1,"st":{"roi":2,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+W tx.02 {"id":1000501,"ok":1,"h":"8bf9d517"}
+W tx.02 {"id":1000502,"ok":1,"h":"8bf9d517"}
+W tx.02 {"id":1000502,"ok":1,"h":"8bf9d517","d":1}
+W tx.02 {"id":1000503,"ok":1,"h":"8bf9d517"}
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

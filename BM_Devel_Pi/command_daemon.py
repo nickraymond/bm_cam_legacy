@@ -190,6 +190,10 @@ class CommandDaemon:
     # bench measures the real limit (a full help is ~143 lines).
     CONSOLE_LINE_DELAY_S = 0.05
 
+    # Sprint26 S4 W8a: the v9 reply policy (class default, so a daemon built
+    # without __init__ in older tests keeps the v8 ack).
+    v9 = None
+
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
                  console_line_delay_s=CONSOLE_LINE_DELAY_S,
@@ -225,6 +229,9 @@ class CommandDaemon:
         # publish that arrives after it counts, and never returns a time older
         # than the last one returned. False = the legacy read, unchanged.
         self.fresh_time_reads = False
+        # Sprint26 S4 W8a (PLAN_S4.md G1, G7, G13): set by the supervisor on a
+        # migrated unit (V9Replies). None = the v8 ack with `st`, all cellular.
+        self.v9 = None
         self._last_utc = None
         self._last_ack_ts = None           # pacing clock value of last send
         self._raw_lock = threading.Lock()
@@ -380,12 +387,12 @@ class CommandDaemon:
             elif not result["ok"]:
                 self.stats["rejected"] += 1
                 event["action"] = "rejected"
-                self._queue_ack(result["id"], False, result["error"])
+                self._queue_ack(result["id"], False, result["error"], result=result)
                 print(f"[CMD] rejected id={result['id']} err={result['error']}")
             elif self.state.is_duplicate(result["id"]):
                 self.stats["duplicates"] += 1
                 event["action"] = "duplicate"
-                self._queue_ack(result["id"], True)
+                self._queue_ack(result["id"], True, result=result, duplicate=True)
                 print(f"[CMD] duplicate id={result['id']} acked, not re-applied")
             else:
                 ok, error = True, None
@@ -398,13 +405,13 @@ class CommandDaemon:
                     # Persist failed: no ok ack (D15). Loud; extremely rare.
                     self.stats["rejected"] += 1
                     event["action"] = "persist_failed"
-                    self._queue_ack(result["id"], False, "err")
+                    self._queue_ack(result["id"], False, "err", result=result)
                     print(f"[CMD][ERROR] state persist failed for "
                           f"id={result['id']}: {exc}")
                 else:
                     self.stats["applied" if ok else "rejected"] += 1
                     event["action"] = "applied" if ok else "rejected"
-                    self._queue_ack(result["id"], ok, error)
+                    self._queue_ack(result["id"], ok, error, result=result)
                     print(f"[CMD] {'applied' if ok else 'recorded (all heals refused)'} id={result['id']} "
                           f"{result['cmd']}={result['value']} "
                           f"st={self.state.settings}")
@@ -478,8 +485,14 @@ class CommandDaemon:
         self._console.extend(lines)
         print(f"[CMD] query '{cmd}': {len(lines)} console line(s) queued")
 
-    def _queue_ack(self, command_id, ok, error=None):
-        self._acks.append(build_ack(command_id, ok, self.state.settings, error=error))
+    def _queue_ack(self, command_id, ok, error=None, result=None, duplicate=False):
+        if self.v9 is None:
+            self._acks.append(build_ack(command_id, ok, self.state.settings, error=error))
+            return
+        ack, lines = self.v9.reply(command_id, ok, error, result or {}, duplicate)
+        if ack is not None:
+            self._acks.append(ack)
+        self._console.extend(lines)
 
     @property
     def pending_acks(self):

@@ -1486,6 +1486,8 @@ def main(argv=None, **cycle_overrides):
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
                 configure_output(sup, boot, output)
+                if v9_eff is not None:
+                    sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1571,6 +1573,8 @@ def main(argv=None, **cycle_overrides):
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
             configure_output(sup, boot, output)
+            if v9_eff is not None:
+                sup.v9_replies = supervisor_config.v9_replies(v9_base, env=env)
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])
