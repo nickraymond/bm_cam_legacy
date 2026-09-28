@@ -323,10 +323,16 @@ class Boot:
         applied = 0
         reason = "done"
         announced = False
+        last_note = self._now()
         while True:
             until = self.awake_until()
             if until is None or self._now() >= until:
                 break
+            if self._now() - last_note >= GUARD_NOTE_S:
+                # S5 F8: a hold can last 120 min; guarded keys count it as it
+                # passes (as the stay_on loop does), not in one lump at its end.
+                self.note_guards(None)
+                last_note = self._now()
             if not announced:
                 print(f"[SUP] staying awake {until - self._now():.0f}s "
                       f"(hld={self.hold_until is not None}, keep-alive after a command)")
@@ -409,7 +415,14 @@ class Boot:
         once (<CF reverted>) and, on stay_on, a reverted next-boot key restarts
         the process (exit 72). Never raises."""
         st = self.guard_state
-        if st is None or not st.guarded or self._guard_clock is None:
+        if st is None or self._guard_clock is None:
+            return []
+        if not st.guarded:
+            # S5 F8 (bench 2026-09-28): nothing is guarded, so no uptime is owed.
+            # The mark still moves; a key guarded later counts from here, not
+            # from the last note (a stay_on unit up for hours would otherwise hand
+            # a fresh guarded set its whole idle time and revert it at once).
+            self._guard_mark = self._guard_clock()
             return []
         try:
             import command_guards
