@@ -102,8 +102,8 @@ class ConfigureOutput(unittest.TestCase):
         boot = sup.Boot(dict(SETTINGS), media="still", bm_commands_cfg={}, command_state=None,
                         transmit=True, bench_commands=False)
         rc.configure_output(boot, self.Values({
-            "still.save.quality": 70, "video.storage.max_used_pct": 50.0,
-            "video.storage.min_free_gb": 1.5, "video.storage.ring_dry_run": True}), "save_local")
+            "still.save.quality": 70, "storage.max_used_pct": 50.0,
+            "storage.min_free_gb": 1.5, "storage.ring_dry_run": True}), "save_local")
         self.assertEqual((boot.output, boot.save_quality), ("save_local", 70))
         self.assertEqual(boot.storage_cfg, {"max_used_pct": 50.0, "min_free_gb": 1.5,
                                             "ring_dry_run": True})

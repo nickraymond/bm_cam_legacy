@@ -267,9 +267,9 @@ def read_v1(config_path):
             v["video.logger.clip_minutes"] = _num(vid["clip_minutes"])
             v["video.logger.session_minutes"] = _num(vid["session_minutes"], integer=True)
             st, ui = vid["storage"], vid["ui"]
-            v["video.storage.max_used_pct"] = _num(st["max_used_pct"])
-            v["video.storage.min_free_gb"] = _num(st["min_free_gb"])
-            v["video.storage.ring_dry_run"] = bool(st["ring_dry_run"])
+            v["storage.max_used_pct"] = _num(st["max_used_pct"])
+            v["storage.min_free_gb"] = _num(st["min_free_gb"])
+            v["storage.ring_dry_run"] = bool(st["ring_dry_run"])
             v["video.ui.enabled"] = bool(ui["enabled"])
             v["video.ui.port"] = _num(ui["port"], integer=True)
         except (KeyError, ValueError, TypeError) as exc:
@@ -295,6 +295,11 @@ def read_v1(config_path):
     v["mode.interval_s"] = 0              # S3b: stay_on keys; v1 units are per_boot
     v["mode.heartbeat_s"] = 300
     v["still.save.quality"] = 85          # S3c: save_local only; v1 units never save_local
+    # S4 (registry v5): v9 keep-alive / hld keys; v1 units have no v9 commands.
+    v["power.bus_always_on"] = False
+    v["commands.keepalive_s"] = 300
+    v["commands.keepalive_max_s"] = 1800
+    v["commands.hold_max_min"] = 120
 
     # ---- uplink: UART (two v1 readers), bm_serial (PyYAML), lane, media key
     uart = attempt("load_uart_config", bm_serial.load_uart_config, config_path)

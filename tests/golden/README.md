@@ -152,6 +152,10 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | `still_trigger_in_tail` | a trg heard in the listen tail stays armed for the next boot | W10 (S3b, supervisor only): the tail ends and it fires this boot on the same budget |
 | all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
+| every stay_on / save_local scenario | migrated `camera_config.yaml` + LKG bytes (registry v4 names) | V1 (S4 a.1, vector bytes only, no wire): registry v5 adds 4 keys and renames `video.storage.*` → `storage.*` |
+
+V-items (PLAN_S4.md) change pinned file bytes in `summary.json` but no wire
+byte; like W-items, each is its own commit with the reviewed diff.
 
 ## Known limitations
 

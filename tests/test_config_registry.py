@@ -98,17 +98,31 @@ class TestRegistryIntegrity(unittest.TestCase):
         self.assertEqual(R.BY_PATH["uplink.chunk_chars"].guard, R.SERVICE)
         self.assertEqual(R.BY_PATH["power.halt.enabled"].guard, R.GUARDED_STAGE)
         for p in ("uplink.uart.port", "uplink.uart.baudrate", "commands.enabled",
-                  "commands.topic", "mode.output", "commands.runtime"):
+                  "commands.topic", "mode.output"):
             self.assertEqual(R.BY_PATH[p].guard, R.GUARDED_REVERT, p)
+        # S4 PLAN_S4 G10c/G10e: runtime is deploy-only; bus_always_on true is staged.
+        self.assertEqual(R.BY_PATH["commands.runtime"].guard, R.LOCKED)
+        self.assertEqual(R.BY_PATH["power.bus_always_on"].guard, R.GUARDED_STAGE)
+        self.assertEqual(R.BY_PATH["power.bus_always_on"].guard_when, (True,))
 
     def test_short_names_unique_and_kickoff_letters(self):
         shorts = [k.short for k in R.KEYS if k.short]
         self.assertEqual(len(shorts), len(set(shorts)))
         for s in shorts:
             self.assertTrue(1 <= len(s) <= 3, s)
-        # O7: KICKOFF §5 letters r m d f b e keep their meaning.
+        # O7: KICKOFF §5 letters r m d f b e keep their meaning, value-typed
+        # (N8); PLAN_S4 G5. `m` depends on the media in play.
         by_short = {k.short: k.path for k in R.KEYS if k.short}
-        self.assertEqual(by_short["m"], "mode.media")
+        self.assertEqual(by_short, R.SHORT_NAMES)
+        self.assertNotIn("m", by_short)
+        self.assertEqual(by_short["r"], "still.crop")
+        self.assertEqual(by_short["o"], "mode.output")
+        self.assertEqual(by_short["med"], "mode.media")
+        self.assertEqual(R.resolve_short("m", "still"), "still.message_cap")
+        self.assertEqual(R.resolve_short("m", "video"), "video.send.message_cap")
+        self.assertIsNone(R.resolve_short("m", "video_logger"))
+        self.assertIsNone(R.resolve_short("c", "still"))
+        self.assertEqual(R.resolve_short("still.crop", "video"), "still.crop")
         self.assertEqual(by_short["d"], "video.send.duration_s")
         self.assertEqual(by_short["f"], "camera.focus.mode")
         self.assertEqual(by_short["b"], "camera.white_balance.mode")
@@ -167,7 +181,9 @@ class TestCoverage(unittest.TestCase):
     def test_every_registry_key_names_a_v1_source(self):
         for k in R.KEYS:
             if k.path in ("mode.run", "mode.output", "commands.runtime", "mode.interval_s",
-                          "mode.heartbeat_s", "still.save.quality"):
+                          "mode.heartbeat_s", "still.save.quality", "power.bus_always_on",
+                          "commands.keepalive_s", "commands.keepalive_max_s",
+                          "commands.hold_max_min"):
                 continue          # new in v2: v1 had only per_boot + transmit + legacy
             self.assertTrue(k.v1_sources, k.path)
 

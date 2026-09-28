@@ -135,14 +135,34 @@ def _cross_key_errors(values):
     return errs
 
 
-def parse_values(doc, strict):
-    """Nested v2 doc -> ({path: value} with defaults, source, [(path, msg)])."""
+def _apply_aliases(flat, warnings):
+    """Old v2 names (registry ALIASES, S4 G11) -> today's; one warning each.
+    Both spellings present = an error (which one governs would be a guess)."""
+    out, errors = {}, []
+    for path, value in flat.items():
+        new = R.ALIASES.get(path)
+        if new is None:
+            out[path] = value
+            continue
+        if new in flat:
+            errors.append((new, f"set both as {path!r} (old name) and {new!r}"))
+            continue
+        if warnings is not None:
+            warnings.append(f"{path} is the old name of {new}; re-migrate to rewrite it")
+        out[new] = value
+    return out, errors
+
+
+def parse_values(doc, strict, warnings=None):
+    """Nested v2 doc -> ({path: value} with defaults, source, [(path, msg)]).
+    `warnings` (a list) collects non-fatal notes such as old key names."""
     errors = []
     doc = dict(doc)
     schema = doc.pop("schema", None)
     if schema != R.SCHEMA_VERSION:
         errors.append((None, f"schema must be {R.SCHEMA_VERSION}, got {schema!r}"))
-    flat = R.flatten(doc)
+    flat, alias_errors = _apply_aliases(R.flatten(doc), warnings)
+    errors += alias_errors
     values, source = R.defaults(), {p: "default" for p in R.BY_PATH}
     for path, value in flat.items():
         key = R.BY_PATH.get(path)
@@ -218,7 +238,7 @@ def load_config(path, state=None, strict=True):
             raise ConfigError(f"{path}: {type(exc).__name__}: {exc}")
         cfg.errors.append((None, f"{path}: {type(exc).__name__}: {exc}"))
         return cfg
-    cfg.base, cfg.source, cfg.errors = parse_values(doc, strict)
+    cfg.base, cfg.source, cfg.errors = parse_values(doc, strict, cfg.warnings)
     try:
         cfg.overlay = state_overlay(state)
     except Exception as exc:              # a bad state never discards the YAML
@@ -368,9 +388,9 @@ def render_v1_text(values):
     if v["video.record.sensor_mode"] is not None:
         L.append(f"  sensor_mode: {_q(v['video.record.sensor_mode'])}")
     L += ["  storage:",
-          f"    max_used_pct: {_n(v['video.storage.max_used_pct'])}",
-          f"    min_free_gb: {_n(v['video.storage.min_free_gb'])}",
-          f"    ring_dry_run: {_n(v['video.storage.ring_dry_run'])}",
+          f"    max_used_pct: {_n(v['storage.max_used_pct'])}",
+          f"    min_free_gb: {_n(v['storage.min_free_gb'])}",
+          f"    ring_dry_run: {_n(v['storage.ring_dry_run'])}",
           "  encoder:",
           f"    profile: {_q(v['video.record.encoder.profile'])}",
           f"    level: {_q(v['video.record.encoder.level'])}",

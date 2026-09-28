@@ -547,7 +547,7 @@ def _save_local_still(settings, summary, daemon, budget, *, supervised, source, 
 def _still_storage_guard(settings, summary, supervised, output_dir):
     """Sprint26 S3c (PLAN_S3c.md §5 C3-C5): the stills storage guard, before
     the capture of every supervisor stills action (both outputs; the legacy
-    runtime never runs it). Prunes old stills against video.storage.* and
+    runtime never runs it). Prunes old stills against storage.* and
     sets supervised.storage_reason. -> True when the SD is still over a limit
     after pruning (a save_local action then refuses the capture; a transmit
     action only warns). Never raises: a guard failure must not cost the
@@ -1178,7 +1178,7 @@ def configure_output(sup, boot, output):
     """S3c (PLAN_S3c.md §5 C2/C3): put the output and its knobs on the
     supervisor Boot, from the v2 values (registry defaults for a v1-only unit
     run with --runtime supervisor). The stills guard and the video ring share
-    ONE limit pair, video.storage.*."""
+    ONE limit pair, storage.* (registry v5; video.storage.* before S4)."""
     import config_registry as R
     values = getattr(boot, "values", None) or {}
 
@@ -1186,9 +1186,9 @@ def configure_output(sup, boot, output):
         return values.get(path, R.BY_PATH[path].default)
     sup.output = output
     sup.save_quality = int(value("still.save.quality"))
-    sup.storage_cfg = {"max_used_pct": float(value("video.storage.max_used_pct")),
-                       "min_free_gb": float(value("video.storage.min_free_gb")),
-                       "ring_dry_run": bool(value("video.storage.ring_dry_run"))}
+    sup.storage_cfg = {"max_used_pct": float(value("storage.max_used_pct")),
+                       "min_free_gb": float(value("storage.min_free_gb")),
+                       "ring_dry_run": bool(value("storage.ring_dry_run"))}
     return sup
 
 
