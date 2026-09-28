@@ -276,6 +276,12 @@ def make_pending_pump_fn(daemon, summary):
     """
     if daemon is None:
         return None
+    if getattr(daemon, "v9_inbox", None) is not None and \
+            getattr(daemon, "v9_dispatch", None) is not None:
+        # S4 b.7 (v9 path): the burst pump only stashes raw payloads in the
+        # durable inbox; they are parsed, validated, persisted and acked at the
+        # next decision point (DESIGN §6.2; D15). Legacy / v8: unchanged below.
+        return daemon.stash_pending
 
     def pending_pump_fn():
         events = daemon.process_pending()
@@ -320,7 +326,24 @@ def flush_acks(daemon, summary, clock=_time.monotonic, sleep_fn=_time.sleep,
     try:
         deadline = clock() + float(budget_s)
         drain_now(daemon, summary, clock=clock)
+        lane_extended = False
         while daemon.pending_acks and clock() < deadline:
+            lane = getattr(daemon, "lane_wait_s", None)
+            wait = lane() if lane is not None else 0.0
+            if wait > 0 and not lane_extended:
+                lane_extended = True
+                room_fn = getattr(daemon, "lane_room_fn", None)
+                room = room_fn() if room_fn is not None else None
+                if room is None or room >= wait + float(budget_s):
+                    # S4 b.8: the acks wait out ONE boundary guard rather than
+                    # being left for the cloud re-send, but NEVER past the
+                    # per_boot halt margin (S4b review #2: the Spotter cuts the
+                    # bus on its own schedule).
+                    deadline += wait
+                    print(f"[CMD] ack flush: boundary guard, waiting {wait:.0f}s")
+                else:
+                    print(f"[CMD] ack flush: boundary guard ({wait:.0f}s) does not fit the "
+                          f"{room:.0f}s before the halt margin; acks left for the re-send")
             sleep_fn(0.2)
             drain_now(daemon, summary, clock=clock)
         if daemon.pending_acks:

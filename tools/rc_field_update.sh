@@ -216,8 +216,8 @@ else
   HALT_STATE="$(sed -n '/^power_halt:/,/^[a-z_]/p' "$YAML" | grep -E 'enabled|dry_run' | xargs)"
 fi
 log "power_halt state (verify matches intent for this unit): $HALT_STATE"
-# Sprint26 S3c (PLAN_S3c.md §5 R3): a save_local unit sends NO media until S4's
-# cfm/guarded_revert exists; say so loudly (bench/development only, no RC).
+# Sprint26 S3c (PLAN_S3c.md §5 R3): a save_local unit sends NO media; say so loudly
+# (bench/development only). S4's guarded_revert covers a COMMAND-set save_local only.
 if [[ -f "$DST/camera_config.yaml" ]]; then
   OUTPUT_STATE="$(cd "$DST" && /usr/bin/python3 -c "
 import config_v2
@@ -227,8 +227,9 @@ print('%s %s %s' % (v.get('mode.output', 'transmit'), v.get('mode.run', 'per_boo
   if [[ "$OUTPUT_STATE" == save_local* ]]; then
     log "################################################################################"
     log "# mode.output: save_local ($OUTPUT_STATE): this unit SAVES media to SD and sends"
-    log "# NONE over the uplink (status lines, acks and heartbeats only). No automatic"
-    log "# revert exists before S4 (cfm/guarded_revert): NEVER on a field/customer unit."
+    log "# NONE over the uplink (status lines, acks and heartbeats only). Set in the YAML"
+    log "# (by deploy) it has NO automatic revert; only a remote v9 set of save_local"
+    log "# reverts without cfm (S4, 3 boots / 2 h). NEVER on a field/customer unit."
     log "################################################################################"
   fi
 fi

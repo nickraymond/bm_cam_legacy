@@ -175,6 +175,20 @@ def load_bm_commands_config(config_path):
     return cfg
 
 
+def _is_rsd(payload):
+    """Cheap check for the rsd-only drain (the full strict decode runs in the
+    dispatcher): an rsd with a HEAL-range id only. A remote-range rsd has a
+    high-water, and handling it ahead of older stashed commands would refuse
+    them e:"old" (S4b review #4); it waits for the decision point."""
+    try:
+        import json as _json
+        data = _json.loads(bytes(payload).decode("ascii"))
+        cid = data.get("id")
+        return data.get("c") == "rsd" and isinstance(cid, int) and 100_000 <= cid <= 999_999
+    except Exception:
+        return False
+
+
 class CommandDaemon:
     """Reader thread + main-thread apply/ack. See module docstring."""
 
@@ -189,6 +203,17 @@ class CommandDaemon:
     # this is only UART/console-buffer courtesy. PROVISIONAL until the
     # bench measures the real limit (a full help is ~143 lines).
     CONSOLE_LINE_DELAY_S = 0.05
+
+    # Sprint26 S4 W8a: the v9 reply policy (class default, so a daemon built
+    # without __init__ in older tests keeps the v8 ack).
+    v9 = None
+    v9_dispatch = None     # command_v9.Dispatcher: the v9 verbs (supervisor, migrated unit)
+    v9_inbox = None        # command_inbox.Inbox: mid-burst payloads (S4 b.7, DESIGN §6.2)
+    # S4 b.8 (DESIGN §6.1: every cellular send shares the lane guard): the
+    # transmit_phase config on the v9 path; None = no guard (legacy, unchanged).
+    lane_cfg = None
+    LANE_PRE_MARGIN_S = 2.0   # a single small message: clear of the boundary itself
+    _last_utc_mono = None
 
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
@@ -225,6 +250,9 @@ class CommandDaemon:
         # publish that arrives after it counts, and never returns a time older
         # than the last one returned. False = the legacy read, unchanged.
         self.fresh_time_reads = False
+        # Sprint26 S4 W8a (PLAN_S4.md G1, G7, G13): set by the supervisor on a
+        # migrated unit (V9Replies). None = the v8 ack with `st`, all cellular.
+        self.v9 = None
         self._last_utc = None
         self._last_ack_ts = None           # pacing clock value of last send
         self._raw_lock = threading.Lock()
@@ -347,6 +375,7 @@ class CommandDaemon:
                 print(f"[CMD] spotter UTC decoded: {utc_dt.isoformat()}")
                 if fresh:
                     self._last_utc = utc_dt
+                    self._last_utc_mono = time.monotonic()
                 return utc_dt
             sleep_fn(0.1)
         raise TimeoutError(
@@ -365,11 +394,17 @@ class CommandDaemon:
         (no ok ack -> cloud re-send + dedupe make it safe, D15).
         """
         events = []
+        if self.v9_dispatch is not None and self.v9_inbox is not None:
+            events.extend(self._drain_inbox())   # b.7: what arrived mid-burst, first
         while True:
             try:
                 payload = self._inbound.get_nowait()
             except queue.Empty:
                 break
+            if self.v9_dispatch is not None:
+                event = dict(self.v9_dispatch.handle(payload), payload=payload)
+                events.append(event)
+                continue
             result = parse_command(payload)
             event = {"payload": payload, "result": result}
             if not result["ok"] and result["id"] is None:
@@ -380,12 +415,12 @@ class CommandDaemon:
             elif not result["ok"]:
                 self.stats["rejected"] += 1
                 event["action"] = "rejected"
-                self._queue_ack(result["id"], False, result["error"])
+                self._queue_ack(result["id"], False, result["error"], result=result)
                 print(f"[CMD] rejected id={result['id']} err={result['error']}")
             elif self.state.is_duplicate(result["id"]):
                 self.stats["duplicates"] += 1
                 event["action"] = "duplicate"
-                self._queue_ack(result["id"], True)
+                self._queue_ack(result["id"], True, result=result, duplicate=True)
                 print(f"[CMD] duplicate id={result['id']} acked, not re-applied")
             else:
                 ok, error = True, None
@@ -398,13 +433,13 @@ class CommandDaemon:
                     # Persist failed: no ok ack (D15). Loud; extremely rare.
                     self.stats["rejected"] += 1
                     event["action"] = "persist_failed"
-                    self._queue_ack(result["id"], False, "err")
+                    self._queue_ack(result["id"], False, "err", result=result)
                     print(f"[CMD][ERROR] state persist failed for "
                           f"id={result['id']}: {exc}")
                 else:
                     self.stats["applied" if ok else "rejected"] += 1
                     event["action"] = "applied" if ok else "rejected"
-                    self._queue_ack(result["id"], ok, error)
+                    self._queue_ack(result["id"], ok, error, result=result)
                     print(f"[CMD] {'applied' if ok else 'recorded (all heals refused)'} id={result['id']} "
                           f"{result['cmd']}={result['value']} "
                           f"st={self.state.settings}")
@@ -432,6 +467,53 @@ class CommandDaemon:
                                       f"{exc}")
             events.append(event)
         return events
+
+    # ------------------------------------------------------------------
+    # S4 b.7: the durable inbox (v9 path only)
+    # ------------------------------------------------------------------
+
+    def stash_pending(self):
+        """The burst-path pump (DESIGN §6.2 "Mid-burst commands"): move what the
+        reader decoded into the durable inbox, raw. No parse, no state, no
+        subprocess (D15 holds). -> payloads stashed."""
+        n = 0
+        while True:
+            try:
+                payload = self._inbound.get_nowait()
+            except queue.Empty:
+                return n
+            try:
+                self.v9_inbox.append(payload)
+            except Exception as exc:        # the SD failed: answer it at the next pass
+                print(f"[CMD][WARN] inbox append failed ({exc}); handled at the next "
+                      "decision point from memory")
+                self._inbound.put(payload)
+                return n
+            n += 1
+
+    def _drain_inbox(self, rsd_only=False):
+        """Handle the inbox (oldest first), removing each entry once its answer
+        was persisted. rsd_only: only heal requests (the <HL> points, review B8);
+        everything else waits for the next decision point."""
+        events = []
+        for payload in self.v9_inbox.entries():
+            if rsd_only and not _is_rsd(payload):
+                continue
+            events.append(dict(self.v9_dispatch.handle(payload), payload=payload))
+            try:
+                self.v9_inbox.remove(payload)
+            except Exception as exc:        # handled + cached: a replay is a duplicate
+                print(f"[CMD][WARN] inbox entry not removed ({exc}); its re-read is a "
+                      "duplicate")
+        return events
+
+    def drain_rsd(self):
+        """Before heal planning and before the <HL> lines: the heal requests
+        that arrived (also mid-burst), so they ride THIS wake (review B8)."""
+        if self.v9_dispatch is None or self.v9_inbox is None:
+            return []
+        self.stash_pending()
+        return self._drain_inbox(rsd_only=True)
 
     def _screen_heals(self, command_id, value):
         """rsd: keep only the heals whose sent record checks out.
@@ -478,8 +560,36 @@ class CommandDaemon:
         self._console.extend(lines)
         print(f"[CMD] query '{cmd}': {len(lines)} console line(s) queued")
 
-    def _queue_ack(self, command_id, ok, error=None):
-        self._acks.append(build_ack(command_id, ok, self.state.settings, error=error))
+    def _queue_ack(self, command_id, ok, error=None, result=None, duplicate=False):
+        if self.v9 is None:
+            self._acks.append(build_ack(command_id, ok, self.state.settings, error=error))
+            return
+        ack, lines = self.v9.reply(command_id, ok, error, result or {}, duplicate)
+        if ack is not None:
+            self._acks.append(ack)
+        self._console.extend(lines)
+
+    def lane_wait_s(self):
+        """S4 b.8: seconds until a small cellular message may go (0 = now):
+        inside the post-boundary guard of the 5-min grid, or within
+        LANE_PRE_MARGIN_S before a boundary. The phase is extrapolated from
+        the last fresh Spotter UTC read. No lane config, lane disabled or no
+        trusted read yet -> 0 (the unscheduled behaviour, D1)."""
+        cfg = self.lane_cfg
+        if not cfg or not cfg.get("enabled") or self._last_utc is None \
+                or self._last_utc_mono is None:
+            return 0.0
+        grid = float(cfg.get("grid_seconds", 300.0))
+        post = float(cfg.get("post_boundary_guard_s", 30.0))
+        if grid <= 0:
+            return 0.0
+        epoch = self._last_utc.timestamp() + (time.monotonic() - self._last_utc_mono)
+        phase = epoch % grid
+        if phase < post:
+            return post - phase
+        if phase > grid - self.LANE_PRE_MARGIN_S:
+            return grid - phase + post
+        return 0.0
 
     @property
     def pending_acks(self):
@@ -530,6 +640,8 @@ class CommandDaemon:
             if (self._last_ack_ts is not None
                     and now - self._last_ack_ts < self.ack_interval_s):
                 break  # pacing floor; next drain call picks it up
+            if self.lane_wait_s() > 0:
+                break  # S4 b.8: inside the boundary guard; a later drain sends it
             ack = self._acks.pop(0)
             try:
                 self.bm.spotter_tx(ack)

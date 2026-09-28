@@ -33,8 +33,8 @@
    "sha256": "abed23a3ff7fff41"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 314,
-   "sha256": "727dcacde7becc81"
+   "bytes": 292,
+   "sha256": "48e6d5026c8ae313"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -61,34 +61,25 @@
  "sidecars": {},
  "state_file": null,
  "state_file_v2": {
-  "boot_counter": 0,
+  "boot_counter": 1,
   "guarded": {},
   "high_water": {},
   "overlay": {},
-  "result_cache": {},
+  "overlay_ids": {},
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "100003": {
+    "b": 1,
+    "ok": 1,
+    "t": "rsd: 1 heal(s) queued (<HL> reports each)"
+   }
+  },
   "schema": "bm_command_state_v2",
-  "tables_version": 8,
   "v8": {
-   "applied_ids": [
-    100003
-   ],
-   "pending_heals": [],
-   "pending_trigger": null,
-   "settings": {
-    "awb": 0,
-    "cap": 0,
-    "exp": 0,
-    "foc": 0,
-    "hlt": 0,
-    "roi": 0,
-    "src": 0,
-    "tmz": 0,
-    "twn": 0,
-    "txd": 0,
-    "win": 0
-   },
-   "touched": []
-  }
+   "pending_heals": []
+  },
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
  },
  "unfired_rules": []
 }

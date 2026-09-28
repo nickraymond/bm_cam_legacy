@@ -17,6 +17,8 @@
 # The runtime decides the mode from its config; this script only reads exit codes:
 #   70  stay_on failed (watchdog, error)  -> restart after backoff 10,20,40,80,160 s (cap 300)
 #   71  stay_on RSS ceiling (clean exit)  -> restart after 5 s
+#   72  stay_on config restart (Sprint26 S4 G10g: a command changed a next-boot
+#       setting) -> restart after 5 s, NOT counted toward the crash-loop cap
 #   >128 (not 143) while the stay_on marker exists (e.g. an OOM kill) -> as 70
 #   anything else (per_boot 0/1/2, SIGTERM 143, stay_on stop 0) -> done, never loops
 # 5 restarts within 10 min -> one last run with --crashloop (per_boot, halt forced
@@ -133,6 +135,7 @@ while :; do
   # success signature for the rollup tool.
   echo "[RC-CRON] rc_progressive_jpeg.py exit_code=$EXIT_CODE"
   WAIT_S=""
+  CONFIG_RESTART=0
   if [ "$STOPPING" -eq 1 ]; then
     WAIT_S=""
   elif [ "$EXIT_CODE" -eq 70 ]; then
@@ -140,6 +143,9 @@ while :; do
     BACKOFF_S=$(( BACKOFF_S * 2 > BACKOFF_MAX_S ? BACKOFF_MAX_S : BACKOFF_S * 2 ))
   elif [ "$EXIT_CODE" -eq 71 ]; then
     WAIT_S=5
+  elif [ "$EXIT_CODE" -eq 72 ]; then
+    WAIT_S=5
+    CONFIG_RESTART=1
   elif [ "$EXIT_CODE" -gt 128 ] && [ "$EXIT_CODE" -ne 143 ] && [ -f "$MARKER" ]; then
     echo "[RC-CRON] stay_on runtime died by signal $(( EXIT_CODE - 128 )) (marker $MARKER)"
     WAIT_S=$BACKOFF_S
@@ -147,6 +153,18 @@ while :; do
   fi
   rm -f "$MARKER"
   [ -z "$WAIT_S" ] && break
+
+  if [ "$CONFIG_RESTART" -eq 1 ]; then
+    echo "[RC-CRON] stay_on config restart (a next-boot setting changed) in ${WAIT_S}s; " \
+         "not counted toward the crash-loop cap"
+    "$SLEEP" "$WAIT_S" &
+    SLEEPER=$!
+    wait "$SLEEPER"
+    kill "$SLEEPER" 2>/dev/null
+    [ "$STOPPING" -eq 1 ] && break
+    echo "[RC-CRON] restart_utc=$(date -u --iso-8601=seconds 2>/dev/null || date)"
+    continue
+  fi
 
   NOW=$(uptime_s)
   KEPT=""

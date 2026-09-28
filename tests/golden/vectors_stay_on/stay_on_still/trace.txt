@@ -204,11 +204,11 @@ W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_dura
 W tx.02 <WS v=1 a=idle tz=America/New_York lt=1109 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 W tx.02 <WS v=1 a=idle tz=America/New_York lt=1114 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 RX cmd {"id":701,"c":"ping"}
-W tx.02 {"id":701,"ok":1,"st":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+W printf [bmcam-golden] OK id=701 ping cfg=67803e30
 W tx.02 <WS v=1 a=idle tz=America/New_York lt=1119 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 W tx.02 <WS v=1 a=idle tz=America/New_York lt=1124 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 RX cmd {"id":702,"c":"trg","v":2}
-W tx.02 {"id":702,"ok":1,"st":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+W printf [bmcam-golden] OK id=702 trg 2 armed: capture + output per mode (next decision point) cfg=67803e30
 W sub spotter/utc-time
 RX utc 2026-09-24T15:25:00.100000+00:00
 W tx.02 <WS v=1 a=cap tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a

@@ -252,11 +252,23 @@ class WakeHeals:
         followed by a sleep). Never raises. Returns the lines sent."""
         sent, keys_sent = [], []
         try:
+            drain = getattr(self.daemon, "drain_rsd", None)
+            if drain is not None and getattr(self.daemon, "v9_inbox", None) is not None:
+                # S4 b.7 (review B8): an rsd stashed mid-burst rides THIS <HL>.
+                self.summary.setdefault("command_events", []).extend(
+                    e["action"] for e in drain())
             lines = self.status_lines(wake_key)
+            lane = getattr(self.daemon, "lane_wait_s", None)
             for key, line in zip(list(self.outcomes), lines):
                 if not budget.messages_fit(1):
                     print("[HEAL][WARN] no budget left for <HL>; skipped")
                     break
+                wait = lane() if lane is not None else 0.0
+                import rc_command_hooks          # S4b review R2-1: never into the halt margin
+                room = budget.remaining_s() - rc_command_hooks.TAIL_SAFETY_S
+                if wait > 0 and room >= wait + float(delay_seconds):
+                    print(f"[HEAL] <HL> waits {wait:.0f}s for the boundary guard")   # S4 b.8
+                    sleep_fn(wait)
                 sleep_fn(float(delay_seconds))
                 tx(line.encode("ascii"))
                 sent.append(line.strip())
@@ -276,6 +288,9 @@ def begin_wake(daemon, settings, summary, pump_fn=None, cap=HEAL_CAP_PER_WAKE):
     if daemon is None:
         return None
     try:
+        drain = getattr(daemon, "drain_rsd", None)
+        if drain is not None and getattr(daemon, "v9_inbox", None) is not None:
+            summary.setdefault("command_events", []).extend(e["action"] for e in drain())  # S4 b.7
         if pump_fn is not None:
             pump_fn()
         return WakeHeals(daemon, _sent_dir(settings), summary, cap=cap, pump_fn=pump_fn)

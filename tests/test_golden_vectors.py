@@ -214,10 +214,15 @@ class SupervisorOnlyCatalogue(unittest.TestCase):
     def test_save_local_vectors_match_the_catalogue(self):
         self.check_dir("vectors_save_local", S.SAVE_LOCAL_SCENARIOS)
 
+    def test_v9_vectors_match_the_catalogue(self):
+        self.check_dir("vectors_v9", S.V9_SCENARIOS)
+
     def test_names_do_not_collide(self):
         self.assertEqual(set(S.STAY_ON_SCENARIOS) & set(S.SCENARIOS), set())
         self.assertEqual(set(S.SAVE_LOCAL_SCENARIOS) & set(S.SCENARIOS), set())
         self.assertEqual(set(S.SAVE_LOCAL_SCENARIOS) & set(S.STAY_ON_SCENARIOS), set())
+        self.assertEqual(set(S.V9_SCENARIOS) & (set(S.SCENARIOS) | set(S.STAY_ON_SCENARIOS)
+                                                | set(S.SAVE_LOCAL_SCENARIOS)), set())
         self.assertEqual(set(S.VECTOR_DIRS), set(S.SUPERVISOR_ONLY))
 
 
@@ -246,7 +251,8 @@ for _name in S.SCENARIOS:
 for _name in supervisor_scenarios():
     setattr(GoldenVectors, f"test_wire_supervisor_{_name}", _supervisor_wire_test(_name))
 for _name in S.SUPERVISOR_ONLY:
-    _prefix = "stay_on" if _name in S.STAY_ON_SCENARIOS else "save_local"
+    _prefix = ("stay_on" if _name in S.STAY_ON_SCENARIOS
+               else "v9" if _name in S.V9_SCENARIOS else "save_local")
     setattr(GoldenVectors, f"test_wire_{_prefix}_{_name}", _supervisor_only_wire_test(_name))
 for _slug, _target in settings_targets().items():
     _safe = _slug.replace("+", "_").replace(".", "_").replace("-", "_")

@@ -245,7 +245,8 @@ STAY_ON_SCENARIOS = {
         "v2": dict(STAY_ON_V2, **{"mode.interval_s": 0, "mode.heartbeat_s": 300}),
         "rules": [
             {"when": "at_clock", "t": 400, "payload": {"id": 711, "c": "trg", "v": 2}},
-            {"when": "at_clock", "t": 900, "payload": {"id": 712, "c": "txd", "v": 1}},
+            {"when": "at_clock", "t": 900, "payload": {"id": 712, "c": "set",
+                                                       "kv": {"uplink.msg_interval_s": 1.5}}},
             {"when": "at_clock", "t": 1500, "payload": {"id": 713, "c": "trg", "v": 2}},
             _sigterm(2000),
         ],
@@ -315,7 +316,8 @@ STAY_ON_SCENARIOS.update({
         "v2": dict(STAY_ON_V2, **SAVE_LOCAL_V2,
                    **{"mode.interval_s": 600, "mode.heartbeat_s": 300}),
         "rules": [
-            {"when": "at_clock", "t": 700, "payload": {"id": 731, "c": "txd", "v": 1}},
+            {"when": "at_clock", "t": 700, "payload": {"id": 731, "c": "set",
+                                                       "kv": {"uplink.msg_interval_s": 1.5}}},
             {"when": "at_clock", "t": 900, "payload": {"id": 732, "c": "trg", "v": 2}},
             {"when": "at_clock", "t": 1000, "payload": {"id": 733, "c": "trg", "v": 1}},
             _sigterm(1900),
@@ -324,13 +326,27 @@ STAY_ON_SCENARIOS.update({
                  "every 300 s THROUGH the actions (S3c C1), a command applied while idle "
                  "keeps it saving (C2), trg 2 saves (C8), trg 1 keeps the native only",
     },
+    "stay_on_video_set_d": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": dict(STAY_ON_V2, **{"mode.interval_s": 0, "mode.heartbeat_s": 300}),
+        "rules": [
+            {"when": "at_clock", "t": 200, "payload": {"id": 1000751, "c": "set",
+                                                       "kv": {"d": 8}}},
+            {"when": "at_clock", "t": 400, "payload": {"id": 1000752, "c": "trg", "v": 2}},
+            _sigterm(900),
+        ],
+        "notes": "S4b review R2-4: a next-action key outside `settings` (the clip length) set "
+                 "while idle governs the next clip in the SAME process (VFIT duration 8)",
+    },
 })
 
 SAVE_LOCAL_SCENARIOS = {
     "save_local_still": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
         "v2": SAVE_LOCAL_V2, "seed": ["old_media", "pending_heal"],
-        "rules": [{"when": "on_sub", "payload": {"id": 541, "c": "txd", "v": 1}}],
+        "rules": [{"when": "on_sub", "payload": {"id": 541, "c": "set",
+                                                 "kv": {"uplink.msg_interval_s": 1.5}}}],
         "notes": "per_boot still x save_local: a command drained at boot (it still saves, C2), "
                  "<WS a=cap>, capture, one q85 encode saved with its sidecar, the pending heal "
                  "sent (C14), no START/END, acks, listen tail, halt",
@@ -367,6 +383,116 @@ SAVE_LOCAL_SCENARIOS.update({
     },
 })
 
-SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS}
+# --- Sprint26 S4: commands v9 (supervisor on a migrated unit; PLAN_S4.md G1) -------------
+# v9 speaks only on the supervisor path of a config-v2 unit, so these per_boot scenarios
+# run through config v2 like the save_local set. Their commands use the §6.2 id ranges:
+# remote ids (1e6..) get a cellular ack, console ids (1..99 999) and heal ids (1e5..) a
+# console line only (G13). Recorded on the v8 verbs first (b.2a), so the W8a commits
+# show exactly what v9 changes. Vectors: tests/golden/vectors_v9/<name>/.
+V9_V2 = {"commands.runtime": "supervisor"}
+
+V9_SCENARIOS = {
+    "v9_still": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000501, "c": "set",
+                                           "kv": {"r": [768, 432, 3072, 1728]}}},
+            {"when": "on_sub", "payload": {"id": 7, "c": "ping"}},
+            {"when": "after_tx", "n": 30, "payload": {"id": 1000502, "c": "ping"}},
+            {"when": "after_tx", "n": 31, "payload": {"id": 1000502, "c": "ping"}},
+            {"when": "after_tx", "n": 40, "payload": {"id": 1000505, "c": "set", "kv": {
+                "camera.white_balance.mode": "manual"}}},
+            {"when": "after_tx", "n": 41, "payload": {"id": 1000506, "c": "roi", "v": 1}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000503, "c": "help"}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000507, "c": "get",
+                                                                "k": ["mode", "r"]}},
+        ],
+        "notes": "per_boot stills on v9: set r (still.crop) drained at boot (+ its <CF> change "
+                 "summary), a remote get in the tail (<CF>), a console-range "
+                 "ping, a mid-burst ping and its duplicate (d:1, console only), a cross-key "
+                 "rejection (manual WB without gains, e:xk), a retired v8 verb (e:cmd), help",
+    },
+    "v9_video": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000511, "c": "ping"}},
+            {"when": "after_tx", "n": 20, "payload": {"id": 1000512, "c": "set", "kv": {
+                "b": "daylight", "camera.white_balance.enabled": True,
+                "camera.controls_enabled": True}}},
+        ],
+        "notes": "per_boot video on v9: a ping at boot, a setting mid-burst (next action)",
+    },
+    "v9_heal": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2, "seed": ["old_media", "pending_heal"],
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 100002, "c": "rsd", "h": [["{KEY}", "2"]]}},
+            {"when": "after_tx", "n": 12, "payload": {"id": 100004, "c": "rsd",
+                                                      "h": [["{KEY}", "1"]]}},
+        ],
+        "notes": "heals on v9: a live rsd at boot replaces the pending one; a second rsd "
+                 "mid-burst (the inbox must not lose its <HL>, review B8)",
+    },
+    "v9_trigger_in_tail": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [{"when": "tx_contains", "text": "<END",
+                   "payload": {"id": 1000504, "c": "trg", "v": 2}}],
+        "notes": "W10 on v9: a remote trg in the listen tail fires this boot",
+    },
+    "v9_trigger_kv": {
+        "kind": "stills", "utc": OUT_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000521, "c": "trg", "v": 2,
+                                           "kv": {"r": [768, 432, 3072, 1728], "m": 100,
+                                                  "e": -1.0}}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000522, "c": "get",
+                                                                "k": ["r", "m"]}},
+        ],
+        "notes": "trg kv on stills (outside the window: the trg bypasses it): one action with "
+                 "the one-shot crop, cap 100 and -1 EV; the config hash and a later get show "
+                 "the overlay untouched (§9)",
+    },
+    "v9_video_trigger_kv": {
+        "kind": "video", "utc": OUT_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
+        "rules": [{"when": "on_sub", "payload": {"id": 1000531, "c": "trg", "v": 2,
+                                                 "kv": {"d": 8, "m": 90}}}],
+        "notes": "trg kv on video: one 8 s clip fitted to 90 messages; d != 5 flagged on the "
+                 "console; nothing persisted",
+    },
+    "v9_media_override_video": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [{"when": "on_sub", "payload": {"id": 1000541, "c": "trg", "v": 2,
+                                                 "kv": {"med": "video", "d": 5}}}],
+        "notes": "a still unit, trg kv med=video: the boot's still action leaves the trg armed "
+                 "(it names the other media); W10 then runs ONE video action on the same budget",
+    },
+    "v9_media_override_still": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY, "v2": V9_V2,
+        "rules": [{"when": "on_sub", "payload": {"id": 1000551, "c": "trg", "v": 2,
+                                                 "kv": {"med": "still", "m": 60}}}],
+        "notes": "a video unit, trg kv med=still (m = the still cap then): the clip runs, the "
+                 "trg stays armed through it, then W10 runs ONE still action",
+    },
+    "v9_lane": {
+        "kind": "stills", "utc": PHASE_UTC, "edits": BASE_EDITS + PHASE_ON, "append": MEDIA_KEY,
+        "v2": V9_V2,
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 1000561, "c": "set", "kv": {"m": 150}}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000562, "c": "ping"}},
+        ],
+        "notes": "lane on (b.8): the burst waits for its lane as before; the acks and the "
+                 "<CF> summary never go out inside a boundary guard",
+    },
+}
+
+SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}
 VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},
-               **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS}}
+               **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS},
+               **{n: "vectors_v9" for n in V9_SCENARIOS}}

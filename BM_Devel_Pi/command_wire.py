@@ -78,14 +78,19 @@ FIELDS = {
     "ping":  {"to"},
     "help":  {"to"},
     "get":   {"k", "to"},
-    "set":   {"kv", "b", "sig"},
-    "reset": {"k", "all", "b", "sig"},
+    "set":   {"kv", "b"},
+    "reset": {"k", "all", "b"},
     "cfm":   {"ref"},
     "trg":   {"v", "kv"},
     "hld":   {"v"},
     "rsd":   {"h", "x"},
     "wap":   {"v"},
 }
+# Every verb may carry `sig`: a service-range id needs a valid signature
+# whatever the verb (S4b review #3), so it never moves the service high-water
+# unsigned.
+for _fields in FIELDS.values():
+    _fields.add("sig")
 TRG_VALUES = (0, 1, 2, 3, 4)   # 0 cancel · 1 capture+save · 2 capture+output per mode · 3/4 reference image
 HLD_MAX_WIRE_MIN = 1440        # the registry cap (commands.hold_max_min) is applied by the dispatcher
 
@@ -262,6 +267,8 @@ def decode(payload, parse_rsd=None):
     if extra:
         raise Rejected(cid, "key", extra[0], f"{verb} takes no {extra[0][:48]!r}")
 
+    if "sig" in fields and not (isinstance(fields["sig"], str) and RE_SIG.match(fields["sig"])):
+        raise Rejected(cid, "auth", "sig", "sig is 16 lowercase hex")
     cmd = Command(id=cid, verb=verb, range=rng, fields=fields, raw=data)
     if verb == "rsd":
         heal = parse_rsd(data) if parse_rsd else None
@@ -274,8 +281,6 @@ def decode(payload, parse_rsd=None):
         raise Rejected(cid, "val", "to", 'to is "con" (console only) or absent')
     if "b" in fields and not (isinstance(fields["b"], str) and RE_HASH8.match(fields["b"])):
         raise Rejected(cid, "val", "b", "b is an 8-hex config hash")
-    if "sig" in fields and not (isinstance(fields["sig"], str) and RE_SIG.match(fields["sig"])):
-        raise Rejected(cid, "auth", "sig", "sig is 16 lowercase hex")
     if "kv" in fields:
         kv = fields["kv"]
         if not isinstance(kv, dict) or not 1 <= len(kv) <= MAX_KV:

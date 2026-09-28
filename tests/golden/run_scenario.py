@@ -62,7 +62,7 @@ APP_MODULES = [
     "rc_time_budget", "rc_quality_selector", "rc_jpeg_encoder", "rc_power_halt",
     "network_config", "rc_progressive_jpeg", "rc_video_tx", "rc_video_clip",
     "video_recorder", "video_ring", "video_manifest", "video_geometry",
-    "rc_still_storage",
+    "rc_still_storage", "command_v9",
 ]
 # Modules whose wall clock must stay real (read_spotter_utc loops on time.time()).
 REAL_CLOCK_MODULES = {"spotter_time_sync"}
@@ -192,6 +192,21 @@ def patch_app(mods, tmp):
         # the guard is a no-op here (summaries unchanged); its pruning is unit-
         # tested (tests/test_s3c_still_storage.py).
         store.DISK_USAGE_FN = lambda path: W.FIXED_DISK_USAGE
+    try:
+        cfg2 = importlib.import_module("config_v2")      # absent in older runtimes (main)
+    except ModuleNotFoundError:
+        cfg2 = None
+    if cfg2 is not None and hasattr(cfg2, "config_hash"):
+        # Sprint26 S4 W8a: the config hash covers every key, including paths
+        # under this run's random temp dir; hash them as "{TMP}/..." so the
+        # `h`/`cfg=` in acks and console lines is the same on every run (like
+        # the {TMP} in the trace's HALT line). Harness only.
+        real_hash = cfg2.config_hash
+
+        def pinned_hash(values, real_hash=real_hash):
+            return real_hash({k: (v.replace(tmp, "{TMP}") if isinstance(v, str) else v)
+                              for k, v in values.items()})
+        cfg2.config_hash = pinned_hash
     originals = {getattr(m, "collect_storage_health") for m in modlist
                  if callable(getattr(m, "collect_storage_health", None))}
     for original in originals:

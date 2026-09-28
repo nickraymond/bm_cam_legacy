@@ -136,6 +136,20 @@ a full SD refuses the capture with `<WS a=skip_err r=storage_full>`.
 .venv-dev/bin/python tests/golden/run_scenario.py wire save_local_still /tmp/out
 ```
 
+## commands v9 (Sprint26 S4)
+
+v9 speaks only on the supervisor path of a migrated (config v2) unit (PLAN_S4.md
+G1), so `scenarios.V9_SCENARIOS` are supervisor-only per_boot scenarios under
+`vectors_v9/<name>/` (`test_wire_v9_<name>`). Their commands use the §6.2 id
+ranges (remote 1e6.., console 1..99 999, heal 1e5..), so the reply lanes are
+pinned. They were recorded on the v8 verbs first (S4 b.2a) and change only in
+the W8a commits, so each diff shows exactly what v9 changes. The per_boot v1
+scenarios above stay v8 under both runtimes (legacy parity net).
+
+```bash
+.venv-dev/bin/python tests/golden/run_scenario.py wire v9_still /tmp/out
+```
+
 ## Behaviours the vectors pin that later stages change on purpose
 
 Recorded here so the matching golden diffs are expected, not surprising:
@@ -153,6 +167,14 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | all stills | ~~START carries `bf`/`zh` (HEIC-era storage fields)~~ done in S1.9: dropped; `lg` now fits in 3 scenarios | W1 (S1) |
 | `bmcam003+foc0_over_manual` | `foc 0` replaces the whole focus block (lens position dropped) | the S2 migration must keep this |
 | every stay_on / save_local scenario | migrated `camera_config.yaml` + LKG bytes (registry v4 names) | V1 (S4 a.1, vector bytes only, no wire): registry v5 adds 4 keys and renames `video.storage.*` → `storage.*` |
+| `stay_on_video`, `stay_on_save_local_still`, `save_local_still` | the tmpfs render holds the YAML base; a v8 `txd` reaches the runtime through the v8 bindings | V2 (S4 b.1, render bytes only, no wire): the supervisor on a migrated unit renders the EFFECTIVE config (base ⊕ overlay), so `image_transmit_delay_seconds` reads 1.5 after `txd 1`; trace.txt identical |
+| every v2 scenario with a command (`vectors_v9`, stay_on, save_local) | v8 ack `{"id","ok","st":{11 indices}}`, every ack cellular, no console answer | W8a part 1 (S4 b.2b, supervisor on a migrated unit only): slim ack `{"id","ok","h"[,"d"]}` cellular only for remote/service ids (G13), one `[host] OK id=.. cfg=..` console line per answer; ~1 s less ack pacing |
+| every v2 scenario | the v8 verbs dispatch through CommandState (roi, awb, txd, ...; 32-id dedupe, duplicate re-acked cellular) | W8a part 2 (S4 b.2c): v9 dispatch on V9State (the v8 section folded into the overlay once); inputs switched to `set` (r, b, uplink.msg_interval_s); a duplicate answers on the console only (G9); v9_still adds an `xk` and a retired-verb `cmd` rejection; state-file bytes change (V9State layout) |
+| `v9_still`, `v9_video` | no `get`; no config summary on the uplink | W8a part 3 (S4 b.3): a remote `get` answers on the console (value + source) and as `<CF v=1 h=..>` through the ack pacer; a cellular `set`/`reset` is followed by a `<CF>` of the keys it changed |
+| every v2 scenario | the state file's `boot_counter` stays 0 | V3 (S4 b.5, state bytes only, no wire): every counted (`--transmit`) run increments it before any port opens; cached answers record `b: 1` |
+| `save_local_still`, `save_local_video`, `v9_still`, `v9_trigger_kv` | a per_boot unit halts right after its listen tail | W12 (S4 b.6c, keep-alive, DESIGN §4): after the tail a per_boot unit stays up until its last command + `commands.keepalive_s` (300 s), at most `keepalive_max_s` past the normal end, clamped to the budget; wire identical, fake elapsed longer |
+| `v9_still`, `v9_video`, `v9_heal` | mid-burst commands are parsed, persisted and answered in the pacing slot | S4 b.7 (durable inbox, DESIGN §6.2): the pump only stashes raw payloads; they are handled at the next decision point (an rsd before `<HL>`, so the `<HL>` is unchanged); a byte-identical re-send is held once (v9_still's duplicate ping); keep-alive counts from the later answer |
+| every v9 scenario with a remote command | the journal holds settings changes only | S4b review #5 (journal bytes only, no wire): each ok remote/service answer that moves a high-water leaves an `hw` journal line, so a lost state file re-seeds it |
 
 V-items (PLAN_S4.md) change pinned file bytes in `summary.json` but no wire
 byte; like W-items, each is its own commit with the reviewed diff.

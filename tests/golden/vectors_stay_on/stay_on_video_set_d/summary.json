@@ -1,0 +1,206 @@
+{
+ "cycle": {
+  "clip": {
+   "basename": "2026-09-24T15-06-40Z_video_1000x562_15fps",
+   "bytes": 36019,
+   "mp4": "{TMP}/videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4",
+   "ok": true,
+   "stage": "done"
+  },
+  "command_events": [],
+  "error": null,
+  "fit": {
+   "budget_msgs": 126,
+   "bytes": 36019,
+   "duration_s": 8.0,
+   "encode_s": 0.0,
+   "frames": 80,
+   "frames_trimmed": 0,
+   "keyframe_chunks": 8,
+   "keyframe_end": 2236,
+   "msgs": 126,
+   "pass2_tries": 1,
+   "prescale_s": 0.0,
+   "target_kbps": 36.0,
+   "used_pct": 99.3
+  },
+  "halt_result": {
+   "action": "none",
+   "reason": "stay_on: never halts"
+  },
+  "heal": {
+   "hl": []
+  },
+  "media_key": "0dprb4",
+  "schedule_allowed": true,
+  "stage": "done",
+  "transmit": true,
+  "transmit_result": {
+   "complete_send": true,
+   "planned": 126,
+   "refused_reason": null,
+   "repeat_sent": true,
+   "repeated": 8,
+   "sent": 126,
+   "started": true,
+   "uart_duration_sec": 175.49999999999386
+  },
+  "trigger": {
+   "id": 1000752,
+   "kv": {},
+   "value": 2
+  }
+ },
+ "cycles": [
+  {
+   "clip": {
+    "basename": "2026-09-24T15-06-40Z_video_1000x562_15fps",
+    "bytes": 36019,
+    "mp4": "{TMP}/videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4",
+    "ok": true,
+    "stage": "done"
+   },
+   "command_events": [],
+   "error": null,
+   "fit": {
+    "budget_msgs": 126,
+    "bytes": 36019,
+    "duration_s": 8.0,
+    "encode_s": 0.0,
+    "frames": 80,
+    "frames_trimmed": 0,
+    "keyframe_chunks": 8,
+    "keyframe_end": 2236,
+    "msgs": 126,
+    "pass2_tries": 1,
+    "prescale_s": 0.0,
+    "target_kbps": 36.0,
+    "used_pct": 99.3
+   },
+   "halt_result": {
+    "action": "none",
+    "reason": "stay_on: never halts"
+   },
+   "heal": {
+    "hl": []
+   },
+   "media_key": "0dprb4",
+   "schedule_allowed": true,
+   "stage": "done",
+   "transmit": true,
+   "transmit_result": {
+    "complete_send": true,
+    "planned": 126,
+    "refused_reason": null,
+    "repeat_sent": true,
+    "repeated": 8,
+    "sent": 126,
+    "started": true,
+    "uart_duration_sec": 175.49999999999386
+   },
+   "trigger": {
+    "id": 1000752,
+    "kv": {},
+    "value": 2
+   }
+  }
+ ],
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 900.1,
+ "files": {
+  "app/bm_media_key_last.txt": {
+   "bytes": 6,
+   "sha256": "dd207132356977f6"
+  },
+  "app/sent/2026-09-24T15-06-40Z_video_8s.sent": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  },
+  "app/sent/2026-09-24T15-06-40Z_video_8s.sent.json": {
+   "bytes": 308,
+   "sha256": "b2e4129fe2b90b8a"
+  },
+  "camera_config.lkg.json": {
+   "bytes": 3246,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2468,
+   "sha256": "c7e7148b935deadf"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7907,
+   "sha256": "8a8ad15fcd4f5753"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2221,
+   "sha256": "49021bd1e99f3f49"
+  },
+  "state/bm_command_state_v2.json": {
+   "bytes": 443,
+   "sha256": "99e867fc45d0f1c5"
+  },
+  "state/config_journal.jsonl": {
+   "bytes": 344,
+   "sha256": "wall-time"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  },
+  "videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4": {
+   "bytes": 36019,
+   "sha256": "5fd3ce5507f69931"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "S4b review R2-4: a next-action key outside `settings` (the clip length) set while idle governs the next clip in the SAME process (VFIT duration 8)",
+ "scenario": "stay_on_video_set_d",
+ "sent_records": {
+  "app/sent/2026-09-24T15-06-40Z_video_8s.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-24T15-06-40Z_video_8s.h264",
+   "fmt": "h264",
+   "key": "0dprb4",
+   "msgs": 126,
+   "payload": "{TMP}/app/sent/2026-09-24T15-06-40Z_video_8s.sent",
+   "sent_utc": "2026-09-24T15:06:40Z",
+   "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
+  }
+ },
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": {
+  "boot_counter": 1,
+  "guarded": {},
+  "high_water": {
+   "remote": 1000752
+  },
+  "overlay": {
+   "video.send.duration_s": 8
+  },
+  "overlay_ids": {
+   "video.send.duration_s": 1000751
+  },
+  "pending_trigger_v9": null,
+  "result_cache": {
+   "1000751": {
+    "b": 1,
+    "ok": 1,
+    "t": "video.send.duration_s: 5.0 -> 8 (next action)"
+   },
+   "1000752": {
+    "b": 1,
+    "ok": 1,
+    "t": "trg 2 armed: capture + output per mode (next decision point)"
+   }
+  },
+  "schema": "bm_command_state_v2",
+  "v8": {},
+  "v8_fold_values": {},
+  "v8_folded": "a4a94855"
+ },
+ "unfired_rules": []
+}
