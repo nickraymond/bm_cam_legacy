@@ -314,6 +314,20 @@ def decode(payload, parse_rsd=None):
 # service signatures (§6.3, O6)
 # ---------------------------------------------------------------------------
 
+SERVICE_KEY_PATH = "/home/pi/.config/nereus/service.key"   # locked path (§6.3); mode 600
+
+
+def parse_service_key(text):
+    """Key file text (64 hex = 32 bytes, as deploy_rc_runtime.sh
+    --create-service-key writes it) -> bytes, or None if malformed."""
+    if isinstance(text, bytes):
+        text = text.decode("ascii", "replace")
+    text = (text or "").strip()
+    if not re.match(r"[0-9a-fA-F]{64}\Z", text):
+        return None
+    return bytes.fromhex(text)
+
+
 def canonical_for_sig(data):
     """Canonical JSON of the command without `sig` (the HMAC input)."""
     body = {k: v for k, v in data.items() if k != "sig"}
