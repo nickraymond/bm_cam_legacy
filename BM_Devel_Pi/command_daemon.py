@@ -175,6 +175,16 @@ def load_bm_commands_config(config_path):
     return cfg
 
 
+def _is_rsd(payload):
+    """Cheap check for the rsd-only drain (the full strict decode runs in the
+    dispatcher)."""
+    try:
+        import json as _json
+        return _json.loads(bytes(payload).decode("ascii")).get("c") == "rsd"
+    except Exception:
+        return False
+
+
 class CommandDaemon:
     """Reader thread + main-thread apply/ack. See module docstring."""
 
@@ -194,6 +204,7 @@ class CommandDaemon:
     # without __init__ in older tests keeps the v8 ack).
     v9 = None
     v9_dispatch = None     # command_v9.Dispatcher: the v9 verbs (supervisor, migrated unit)
+    v9_inbox = None        # command_inbox.Inbox: mid-burst payloads (S4 b.7, DESIGN §6.2)
 
     def __init__(self, bm, state, topic=DEFAULT_BM_COMMANDS_CONFIG["topic"],
                  ack_interval_s=ACK_INTERVAL_S, query_render_fn=None,
@@ -373,6 +384,8 @@ class CommandDaemon:
         (no ok ack -> cloud re-send + dedupe make it safe, D15).
         """
         events = []
+        if self.v9_dispatch is not None and self.v9_inbox is not None:
+            events.extend(self._drain_inbox())   # b.7: what arrived mid-burst, first
         while True:
             try:
                 payload = self._inbound.get_nowait()
@@ -444,6 +457,53 @@ class CommandDaemon:
                                       f"{exc}")
             events.append(event)
         return events
+
+    # ------------------------------------------------------------------
+    # S4 b.7: the durable inbox (v9 path only)
+    # ------------------------------------------------------------------
+
+    def stash_pending(self):
+        """The burst-path pump (DESIGN §6.2 "Mid-burst commands"): move what the
+        reader decoded into the durable inbox, raw. No parse, no state, no
+        subprocess (D15 holds). -> payloads stashed."""
+        n = 0
+        while True:
+            try:
+                payload = self._inbound.get_nowait()
+            except queue.Empty:
+                return n
+            try:
+                self.v9_inbox.append(payload)
+            except Exception as exc:        # the SD failed: answer it at the next pass
+                print(f"[CMD][WARN] inbox append failed ({exc}); handled at the next "
+                      "decision point from memory")
+                self._inbound.put(payload)
+                return n
+            n += 1
+
+    def _drain_inbox(self, rsd_only=False):
+        """Handle the inbox (oldest first), removing each entry once its answer
+        was persisted. rsd_only: only heal requests (the <HL> points, review B8);
+        everything else waits for the next decision point."""
+        events = []
+        for payload in self.v9_inbox.entries():
+            if rsd_only and not _is_rsd(payload):
+                continue
+            events.append(dict(self.v9_dispatch.handle(payload), payload=payload))
+            try:
+                self.v9_inbox.remove(payload)
+            except Exception as exc:        # handled + cached: a replay is a duplicate
+                print(f"[CMD][WARN] inbox entry not removed ({exc}); its re-read is a "
+                      "duplicate")
+        return events
+
+    def drain_rsd(self):
+        """Before heal planning and before the <HL> lines: the heal requests
+        that arrived (also mid-burst), so they ride THIS wake (review B8)."""
+        if self.v9_dispatch is None or self.v9_inbox is None:
+            return []
+        self.stash_pending()
+        return self._drain_inbox(rsd_only=True)
 
     def _screen_heals(self, command_id, value):
         """rsd: keep only the heals whose sent record checks out.

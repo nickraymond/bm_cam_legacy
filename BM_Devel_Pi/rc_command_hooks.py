@@ -276,6 +276,12 @@ def make_pending_pump_fn(daemon, summary):
     """
     if daemon is None:
         return None
+    if getattr(daemon, "v9_inbox", None) is not None and \
+            getattr(daemon, "v9_dispatch", None) is not None:
+        # S4 b.7 (v9 path): the burst pump only stashes raw payloads in the
+        # durable inbox; they are parsed, validated, persisted and acked at the
+        # next decision point (DESIGN §6.2; D15). Legacy / v8: unchanged below.
+        return daemon.stash_pending
 
     def pending_pump_fn():
         events = daemon.process_pending()

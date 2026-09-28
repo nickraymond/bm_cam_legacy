@@ -187,7 +187,6 @@ RX cmd {"id":1000507,"c":"get","k":["mode","r"]}
 W printf [bmcam-golden] OK id=1000501 still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action) cfg=8bf9d517
 W printf [bmcam-golden] OK id=7 ping cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000502 ping cfg=8bf9d517
-W printf [bmcam-golden] OK id=1000502 ping (duplicate: original answer) cfg=8bf9d517
 W printf [bmcam-golden] REJECTED id=1000505 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=8bf9d517
 W printf [bmcam-golden] REJECTED id=1000506 unknown command 'roi' e=cmd cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000503 help (reference follows) cfg=8bf9d517

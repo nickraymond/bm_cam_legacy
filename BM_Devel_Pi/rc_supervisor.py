@@ -187,6 +187,10 @@ class Boot:
             if self.v9_dispatch_factory is not None:
                 self.owner.daemon.v9_dispatch = self.v9_dispatch_factory(self.owner.daemon)
                 self.owner.daemon.v9_dispatch.boot = self          # b.6c: hld + keep-alive
+                if self.guard_state is not None:                    # b.7: mid-burst inbox
+                    import command_inbox
+                    self.owner.daemon.v9_inbox = command_inbox.Inbox(
+                        command_inbox.path_beside(self.guard_state.path))
                 self.owner.daemon.v9_dispatch.flush_notes()     # G10f: <CF reverted=..>
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
