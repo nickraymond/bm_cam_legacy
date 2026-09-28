@@ -93,56 +93,41 @@ def active_keys(media):
 
 def _cross_key_errors(values):
     """The v1 validate_schedule rules that span keys (pjpg + video modes).
-    -> [(path, message)]; the path decides whether it matters for a boot."""
-    errs = []
-    crop, w, h = values.get("still.crop"), values.get("camera.native.width"), \
-        values.get("camera.native.height")
-    if isinstance(crop, list) and len(crop) == 4 and isinstance(w, int) and isinstance(h, int):
-        x, y, cw, ch = crop
-        if x + cw > w or y + ch > h:
-            errs.append(("still.crop", f"{crop} does not fit the native frame {w}x{h}"))
-        ow = values.get("still.output_width")
-        if isinstance(ow, int) and ow > cw:
-            errs.append(("still.output_width", f"{ow} is wider than still.crop w {cw} "
-                         "(no upscale)"))
-    for path in ("mode.run", "mode.output"):
-        key = R.BY_PATH[path]
-        if key.runnable and values.get(path) not in key.runnable:
-            errs.append((path, f"{values.get(path)!r} is not runnable "
-                               f"(runnable: {', '.join(key.runnable)})"))
-    # S3b (PLAN_S3b H1): stay_on is the supervisor's loop; it needs the command
-    # daemon (trg, heartbeat, idle ticks). A legacy unit told stay_on would
-    # silently run per_boot, so the file is refused instead (boot: v1 fallback).
-    if values.get("mode.run") == "stay_on":
-        if values.get("commands.runtime") != "supervisor":
-            errs.append(("mode.run", "stay_on needs commands.runtime: supervisor"))
-        if values.get("commands.enabled") is not True:
-            errs.append(("mode.run", "stay_on needs commands.enabled: true"))
-    # S3c (PLAN_S3c.md J1): the legacy runtime has no save_local; it would
-    # transmit what the operator said to keep on SD. Refused (boot: v1 fallback,
-    # which transmits, loudly: the only automatic revert until S4's cfm).
-    if values.get("mode.output") == "save_local":
-        if values.get("commands.runtime") != "supervisor":
-            errs.append(("mode.output", "save_local needs commands.runtime: supervisor"))
-        # Review S3c #2: the daemon is the save_local unit's Spotter time source
-        # (window off) and its only way back to transmit (S4 cfm/revert).
-        if values.get("commands.enabled") is not True:
-            errs.append(("mode.output", "save_local needs commands.enabled: true"))
-    for path in ("mode.interval_s", "mode.heartbeat_s"):
-        v = values.get(path)
-        if isinstance(v, int) and not isinstance(v, bool) and 0 < v < 60:
-            errs.append((path, f"{v} must be 0 (off) or at least 60 s"))
-    return errs
+    -> [(path, message)]; the path decides whether it matters for a boot.
+    S4: the rules live in config_validate (one validator for set, boot and
+    deploy); this keeps the S2/S3 output byte for byte."""
+    import config_validate
+    return config_validate.base_rules(values)
 
 
-def parse_values(doc, strict):
-    """Nested v2 doc -> ({path: value} with defaults, source, [(path, msg)])."""
+def _apply_aliases(flat, warnings):
+    """Old v2 names (registry ALIASES, S4 G11) -> today's; one warning each.
+    Both spellings present = an error (which one governs would be a guess)."""
+    out, errors = {}, []
+    for path, value in flat.items():
+        new = R.ALIASES.get(path)
+        if new is None:
+            out[path] = value
+            continue
+        if new in flat:
+            errors.append((new, f"set both as {path!r} (old name) and {new!r}"))
+            continue
+        if warnings is not None:
+            warnings.append(f"{path} is the old name of {new}; re-migrate to rewrite it")
+        out[new] = value
+    return out, errors
+
+
+def parse_values(doc, strict, warnings=None):
+    """Nested v2 doc -> ({path: value} with defaults, source, [(path, msg)]).
+    `warnings` (a list) collects non-fatal notes such as old key names."""
     errors = []
     doc = dict(doc)
     schema = doc.pop("schema", None)
     if schema != R.SCHEMA_VERSION:
         errors.append((None, f"schema must be {R.SCHEMA_VERSION}, got {schema!r}"))
-    flat = R.flatten(doc)
+    flat, alias_errors = _apply_aliases(R.flatten(doc), warnings)
+    errors += alias_errors
     values, source = R.defaults(), {p: "default" for p in R.BY_PATH}
     for path, value in flat.items():
         key = R.BY_PATH.get(path)
@@ -159,6 +144,12 @@ def parse_values(doc, strict):
         if key.required and values.get(key.path) is None:
             errors.append((key.path, "is required"))
     errors += _cross_key_errors(values)
+    if strict:
+        # S4 rules (manual WB gains, video crop, video cap floor) judge a file
+        # at deploy / migrate; a plain boot load keeps the S3 rules (never
+        # brick, PLAN_S4 G3/R12).
+        import config_validate
+        errors += [(v.paths[0], v.message) for v in config_validate.s4_rules(values)]
     if strict and errors:
         raise ConfigError(format_errors(errors))
     return values, source, errors
@@ -166,15 +157,22 @@ def parse_values(doc, strict):
 
 def state_overlay(state):
     """Overlay {path: value} a v2 state applies: the v8 section (G1) first,
-    then the v2 overlay (empty until S4)."""
+    unless the v9 state has folded it (S4 G2), then the v2 overlay."""
     if not isinstance(state, dict):
         return {}
+    import command_state_v9
     import config_migrate
-    ov = {}
-    if isinstance(state.get("v8"), dict):
-        ov.update(config_migrate.overlay_from_v8(state["v8"]))
-    if isinstance(state.get("overlay"), dict):
-        ov.update(state["overlay"])
+    # S4 G2 (review S4a #4): the SAME fold rules the v9 state applies
+    # (command_state_v9.plan_fold), computed without writing. A never-folded
+    # state gives S2's "v8 first, then the overlay" exactly; once folded, a v9
+    # `reset` of a folded key sticks and the hash matches the v9 path.
+    v8 = state.get("v8") if isinstance(state.get("v8"), dict) else {}
+    overlay = state.get("overlay") if isinstance(state.get("overlay"), dict) else {}
+    ids = state.get("overlay_ids") if isinstance(state.get("overlay_ids"), dict) else {}
+    last = state.get("v8_fold_values") if isinstance(state.get("v8_fold_values"), dict) else {}
+    folded = state.get("v8_folded") if isinstance(state.get("v8_folded"), str) else None
+    ov, _fold, _done = command_state_v9.plan_fold(overlay, ids, v8, folded, last,
+                                                  config_migrate.overlay_from_v8)
     return ov
 
 
@@ -218,7 +216,7 @@ def load_config(path, state=None, strict=True):
             raise ConfigError(f"{path}: {type(exc).__name__}: {exc}")
         cfg.errors.append((None, f"{path}: {type(exc).__name__}: {exc}"))
         return cfg
-    cfg.base, cfg.source, cfg.errors = parse_values(doc, strict)
+    cfg.base, cfg.source, cfg.errors = parse_values(doc, strict, cfg.warnings)
     try:
         cfg.overlay = state_overlay(state)
     except Exception as exc:              # a bad state never discards the YAML
@@ -368,9 +366,9 @@ def render_v1_text(values):
     if v["video.record.sensor_mode"] is not None:
         L.append(f"  sensor_mode: {_q(v['video.record.sensor_mode'])}")
     L += ["  storage:",
-          f"    max_used_pct: {_n(v['video.storage.max_used_pct'])}",
-          f"    min_free_gb: {_n(v['video.storage.min_free_gb'])}",
-          f"    ring_dry_run: {_n(v['video.storage.ring_dry_run'])}",
+          f"    max_used_pct: {_n(v['storage.max_used_pct'])}",
+          f"    min_free_gb: {_n(v['storage.min_free_gb'])}",
+          f"    ring_dry_run: {_n(v['storage.ring_dry_run'])}",
           "  encoder:",
           f"    profile: {_q(v['video.record.encoder.profile'])}",
           f"    level: {_q(v['video.record.encoder.level'])}",

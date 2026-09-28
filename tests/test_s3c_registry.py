@@ -9,12 +9,12 @@ Pins:
     supervisor (a strict load refuses otherwise; a boot falls back to the v1
     file, which transmits, with a loud [CFG][ERR]);
   - still.save.quality exists (INT 1..95, default 85); the stills storage guard
-    has NO keys of its own (it shares video.storage.*, §5 C3);
+    has NO keys of its own (it shares storage.*, §5 C3; renamed from video.storage.* in S4);
   - a migrated file spells still.save.quality; a v2 file written before it
     (S3b) still loads at level v2 with the default;
   - resolve_output: save_local only under the supervisor; `--runtime legacy`
     on a save_local file transmits, loudly;
-  - REGISTRY_VERSION is 4.
+  - REGISTRY_VERSION is at least 4.
 
 Run (repo root):
   python3 -m unittest tests.test_s3c_registry -v
@@ -46,13 +46,13 @@ def save_local_unit(case, runtime="supervisor"):
 
 class Keys(unittest.TestCase):
     def test_version_and_keys(self):
-        self.assertEqual(R.REGISTRY_VERSION, 4)
+        self.assertGreaterEqual(R.REGISTRY_VERSION, 4)
         key = R.BY_PATH["still.save.quality"]
         self.assertEqual((key.default, key.range), (85, (1, 95)))
         self.assertIsNone(R.BY_PATH["mode.output"].runnable)
         self.assertEqual(R.BY_PATH["mode.output"].guard, R.GUARDED_REVERT)
         self.assertFalse([k.path for k in R.KEYS if k.path.startswith("still.storage")],
-                         "the stills guard shares video.storage.* (PLAN_S3c §5 C3)")
+                         "the stills guard shares storage.* (PLAN_S3c §5 C3; renamed S4)")
 
     def test_migrated_file_spells_the_key(self):
         u = Unit(self)

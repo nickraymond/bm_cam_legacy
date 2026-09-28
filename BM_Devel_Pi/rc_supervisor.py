@@ -104,7 +104,7 @@ class Boot:
         # applied command and a save_local action would silently transmit.
         self.output = "transmit"      # or "save_local"
         self.save_quality = 85        # still.save.quality
-        self.storage_cfg = None       # video.storage.* (the one SD limit pair, §5 C3)
+        self.storage_cfg = None       # storage.* (the one SD limit pair, §5 C3)
         self.storage_reason = None    # "storage_full" while the SD is over its limit
         self.save_time_reads = 0      # save_local_time_read calls that read Spotter time
 

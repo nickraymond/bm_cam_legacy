@@ -376,7 +376,7 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     if ring.get("paused"):
         raise RuntimeError(f"SD storage over its limit (used={ring.get('used_pct')}% "
                            f"free={ring.get('free_gb')}GiB); not recording. Free space or "
-                           f"raise video.storage.max_used_pct")
+                           f"raise storage.max_used_pct (v1: video.storage.max_used_pct)")
     if encoder_binary is None:
         encoder_binary, _ = video_recorder._select_video_command(settings["capture_backend"])
     if ffmpeg_binary is None:

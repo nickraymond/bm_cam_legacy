@@ -36,9 +36,11 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 4          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 5          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
-                              # 4: still.save.quality, save_local runnable, S3c)
+                              # 4: still.save.quality, save_local runnable, S3c;
+                              # 5: keep-alive/hold keys, power.bus_always_on,
+                              #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -111,20 +113,20 @@ KEYS = (
     # ---- mode ---------------------------------------------------------------
     Key("mode.media", ENUM, None, "What one action captures: a still, a sent video clip, "
         "or the continuous SD recorder (interim).",
-        enum=(_MEDIA_STILL, _MEDIA_VIDEO, _MEDIA_LOGGER), required=True, short="m",
+        enum=(_MEDIA_STILL, _MEDIA_VIDEO, _MEDIA_LOGGER), required=True, short="med",
         apply=NEXT_BOOT, v1_sources=("capture_mode", "video_tx.enabled"), wire_visible=True),
     Key("mode.run", ENUM, "per_boot", "per_boot: one action per power-on then halt; "
         "stay_on: keep running (needs commands.enabled and the supervisor runtime).",
-        enum=("per_boot", "stay_on"), short="r", apply=NEXT_BOOT),
+        enum=("per_boot", "stay_on"), apply=NEXT_BOOT),
     Key("mode.interval_s", INT, 0, "stay_on: seconds between scheduled actions (start to "
         "start); 0 = trigger-only. Scheduled repeats obey the window, trg bypasses it. "
         "0 or 60..86400.", range=(0, 86400), apply=NEXT_BOOT),
     Key("mode.heartbeat_s", INT, 300, "stay_on: an idle <WS a=idle> this long after the "
         "last uplink; 0 = off. 0 or 60..86400.", range=(0, 86400), apply=NEXT_BOOT),
     Key("mode.output", ENUM, "transmit", "transmit over the BM uplink, or save_local to SD "
-        "(needs the supervisor runtime; SD bounded by video.storage.*).",
+        "(needs the supervisor runtime; SD bounded by storage.*).",
         enum=("transmit", "save_local"), guard=GUARDED_REVERT, guard_when=("save_local",),
-        apply=NEXT_BOOT),
+        apply=NEXT_BOOT, short="o"),
 
     # ---- schedule -----------------------------------------------------------
     Key("schedule.timezone", TZ, "America/Los_Angeles", "Time zone of the transmit window.",
@@ -165,6 +167,12 @@ KEYS = (
         v1_sources=("power_halt.mode",)),
     Key("power.halt.script_path", PATH, "/home/pi/BM_Devel_Pi/tuned_halt.sh", "Halt script.",
         guard=LOCKED, v1_sources=("power_halt.script_path",)),
+    # S4 (DESIGN §4, PLAN_S4 G10e): true lifts the keep-alive / hld clamp to the
+    # per_boot budget. Wrong on a scheduled bus = the Spotter hard-cuts the Pi
+    # mid-hold (SD risk), so setting it true is staged until cfm.
+    Key("power.bus_always_on", BOOL, False, "The Spotter keeps BM bus power on (wall power "
+        "or a held bus): keep-alive and hld may outlast the per_boot budget.",
+        guard=GUARDED_STAGE, guard_when=(True,)),
 
     # ---- camera (shared by still and video) ---------------------------------
     Key("camera.backend", ENUM, "rpicam", "Capture backend.",
@@ -232,7 +240,7 @@ KEYS = (
 
     # ---- still --------------------------------------------------------------
     Key("still.crop", CROP, [1504, 846, 1600, 900], "Still crop [x, y, w, h], native px.",
-        short="c", v1_sources=("progressive_jpeg.crop.x", "progressive_jpeg.crop.y",
+        short="r", v1_sources=("progressive_jpeg.crop.x", "progressive_jpeg.crop.y",
                                "progressive_jpeg.crop.w", "progressive_jpeg.crop.h"),
         wire_visible=True, validate_when=_MEDIA_STILL,
         presets=(("1600x900 default", [1504, 846, 1600, 900]),
@@ -313,15 +321,18 @@ KEYS = (
         range=(0.05, 60.0), v1_sources=("video.clip_minutes",)),
     Key("video.logger.session_minutes", INT, 0, "Recorder session (min); 0 = until power loss.",
         range=(0, 1440), v1_sources=("video.session_minutes",)),
-    Key("video.storage.max_used_pct", FLOAT, 75.0, "Ring cap: most SD used (%).",
-        range=(10.0, 95.0), v1_sources=("video.storage.max_used_pct",)),
-    Key("video.storage.min_free_gb", FLOAT, 10.0, "Ring floor: least SD free (GB).",
-        range=(0.0, 1000.0), v1_sources=("video.storage.min_free_gb",)),
-    Key("video.storage.ring_dry_run", BOOL, False, "Log ring deletions only.",
-        v1_sources=("video.storage.ring_dry_run",)),
     Key("video.ui.enabled", BOOL, True, "Recorder web UI.", v1_sources=("video.ui.enabled",)),
     Key("video.ui.port", INT, 8080, "Recorder web UI port.", range=(1, 65535),
         v1_sources=("video.ui.port",)),
+
+    # ---- storage: the ONE SD limit pair (video ring + stills guard, S3c C3/J1;
+    # renamed from video.storage.* in S4, old names accepted via ALIASES) -----
+    Key("storage.max_used_pct", FLOAT, 75.0, "SD cap: most SD used (%), video ring and "
+        "stills guard.", range=(10.0, 95.0), v1_sources=("video.storage.max_used_pct",)),
+    Key("storage.min_free_gb", FLOAT, 10.0, "SD floor: least SD free (GB).",
+        range=(0.0, 1000.0), v1_sources=("video.storage.min_free_gb",)),
+    Key("storage.ring_dry_run", BOOL, False, "Log storage deletions only.",
+        v1_sources=("video.storage.ring_dry_run",)),
 
     # ---- uplink -------------------------------------------------------------
     Key("uplink.uart.port", PATH, "/dev/ttyAMA0", "BM UART device.", guard=GUARDED_REVERT,
@@ -358,12 +369,21 @@ KEYS = (
         guard=GUARDED_REVERT, apply=NEXT_BOOT, v1_sources=("bm_commands.enabled",)),
     Key("commands.runtime", ENUM, "legacy", "Which runtime runs the boot: legacy (the S2 "
         "cycle scripts) or supervisor (Sprint26 S3). Legacy stays selectable until S5.",
-        enum=("legacy", "supervisor"), guard=GUARDED_REVERT, guard_when=("supervisor",),
-        apply=NEXT_BOOT),
+        enum=("legacy", "supervisor"), guard=LOCKED, apply=NEXT_BOOT),
+    # ^ LOCKED for commands (PLAN_S4 G10c): a remote switch to legacy would
+    #   strand v9 (legacy has no v9 and no revert). Deploy only until S5.
     Key("commands.topic", STR, "bmcam/cmd", "Command topic.", guard=GUARDED_REVERT,
         apply=NEXT_BOOT, v1_sources=("bm_commands.topic",)),
     Key("commands.listen_tail_s", FLOAT, 150.0, "Listen after the action (s).",
         range=(0.0, 3600.0), v1_sources=("bm_commands.post_transmit_listen_s",)),
+    # S4 keep-alive and hld (DESIGN §4): per_boot only; both are clamped to the
+    # per_boot budget unless power.bus_always_on.
+    Key("commands.keepalive_s", INT, 300, "per_boot: each command received pushes the "
+        "halt back this long (s); 0 = off.", range=(0, 1800)),
+    Key("commands.keepalive_max_s", INT, 1800, "per_boot: most keep-alive per boot (s).",
+        range=(0, 7200)),
+    Key("commands.hold_max_min", INT, 120, "Longest hld granted (min); a hold is never "
+        "persisted.", range=(0, 240)),
     Key("commands.state_path", PATH, "/home/pi/BM_Devel_Pi/bm_command_state_v2.json",
         "Command state file (v2).", guard=LOCKED, apply=NEXT_BOOT,
         v1_sources=("bm_commands.state_path",)),
@@ -379,6 +399,46 @@ KEYS = (
 )
 
 BY_PATH = {k.path: k for k in KEYS}
+
+# Old v2 key names still accepted by the loader (one loud warning each) and
+# rewritten by the migrator (PLAN_S4 G11). old path -> new path.
+ALIASES = {
+    "video.storage.max_used_pct": "storage.max_used_pct",
+    "video.storage.min_free_gb": "storage.min_free_gb",
+    "video.storage.ring_dry_run": "storage.ring_dry_run",
+}
+
+# Short names for byte-tight commands (O7 letters, value-typed per N8;
+# PLAN_S4 G5). Single-key letters are the Key.short fields above; `m` means
+# the message cap of the media in play, so it is resolved by resolve_short().
+MEDIA_SHORT = {"m": {_MEDIA_STILL: "still.message_cap", _MEDIA_VIDEO: "video.send.message_cap"}}
+SHORT_NAMES = {k.short: k.path for k in KEYS if k.short}
+
+
+def resolve_short(name, media):
+    """A short name or a full path -> the full registry path, or None.
+    `media` decides `m` (the effective mode.media for set, the action's media
+    for a trg kv); `m` has no meaning for the video_logger."""
+    if name in BY_PATH:
+        return name
+    if name in SHORT_NAMES:
+        return SHORT_NAMES[name]
+    if name in MEDIA_SHORT:
+        return MEDIA_SHORT[name].get(media)
+    return None
+
+
+# Keys a `trg kv` may override for ONE action (§9, PLAN_S4 G6). Everything
+# else is refused e:"key". Never persisted outside pending_trigger.
+ONE_SHOT = tuple(k.path for k in KEYS if (
+    k.path.split(".")[1] in ("focus", "white_balance", "exposure", "image_processing")
+    and k.path.startswith("camera.")) or k.path in (
+    "camera.controls_enabled",
+    "still.crop", "still.output_width", "still.message_cap", "still.save.quality",
+    "video.send.duration_s", "video.send.message_cap", "video.send.size",
+    "video.send.fps", "video.send.x264_preset",
+    "video.record.fps", "video.record.bitrate_mbps",
+    "mode.media", "mode.output"))
 
 # Registry defaults that deliberately differ from v1 absent-key behaviour.
 DEFAULT_EXCEPTIONS = {

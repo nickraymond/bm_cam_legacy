@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # filename: rc_still_storage.py
-# description: Sprint26 S3c — the stills storage guard: keeps the SD under video.storage.* by pruning old stills.
+# description: Sprint26 S3c — the stills storage guard: keeps the SD under storage.* by pruning old stills.
 """
 The stills storage guard (DESIGN_supervisor.md §4 Actions "storage guard";
 PLAN_S3c.md J4 as amended by §5 C3–C5).
@@ -12,7 +12,7 @@ JPEG and its sidecar in images/. Before S3c nothing ever deleted them.
 What it does (run by every supervisor stills action, before the capture):
   - reads the filesystem usage ONCE and applies each deletion arithmetically
     (as video_ring.ensure_room does: deterministic, immune to statvfs lag);
-  - uses the SAME limit pair as the video ring (video.storage.max_used_pct,
+  - uses the SAME limit pair as the video ring (storage.max_used_pct,
     .min_free_gb, .ring_dry_run): one SD, one budget, so the two guards cannot
     fight over it;
   - prunes, oldest stem first, tier by tier, until both limits hold:

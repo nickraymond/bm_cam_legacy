@@ -61,6 +61,12 @@ BM_Devel_Pi/config_migrate.py      # v1 -> v2 migration logic (tools/config_migr
 BM_Devel_Pi/atomic_io.py           # crash-safe replace: unique tmp, fsync, rename, fsync dir
 BM_Devel_Pi/config_v2.py           # v2 loader, boot fallback chain, v1 render for the legacy runtime
 BM_Devel_Pi/config_journal.py      # config_journal.jsonl: 2 x 250 lines, fsync, torn-line tolerant
+BM_Devel_Pi/config_validate.py     # S4 whole-config validator (pure): set, boot overlay, deploy strict
+
+# Sprint26 S4 commands v9 (supervisor path of a migrated unit, PLAN_S4 G1)
+BM_Devel_Pi/command_wire.py        # v9 strict parse, id ranges, HMAC sig, slim ack, <CF>
+BM_Devel_Pi/command_state_v9.py    # v9 state: ONE owner of bm_command_state_v2.json (overlay, dedupe, guards)
+BM_Devel_Pi/command_inbox.py       # v9 durable mid-burst inbox (raw append; drained at decision points)
 
 # Sprint15 video mode (config-gated by capture_mode: video; the stills
 # path never imports these, but a video unit fails its boot WITHOUT them

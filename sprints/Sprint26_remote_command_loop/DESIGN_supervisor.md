@@ -373,6 +373,8 @@ received and made the change"); the cellular copy is compact:
 - **`guarded_revert`**: comms-path keys (`uplink.uart.*`, `commands.enabled`,
   `commands.topic`, `mode.output` → `save_local`). The new value applies at once. If no `cfm`
   for that `set` id arrives within **2 transmitting actions or 3 boots, whichever comes first**
+  (errata S4 G10b: for `mode.output: save_local`, 3 boots or 2 h of uptime since in effect;
+  counters start when the value is in effect; stay_on restarts for NEXT_BOOT keys with exit 72)
   (no wall clock: a broken comms key can kill the time read), the unit reverts, journals which
   limit fired, and reports `<CF reverted=>` on its next uplink. The boot counter is incremented
   and persisted before the UART opens, and the revert is evaluated then; with commands turned
@@ -446,7 +448,7 @@ next to its command's status:
 | Late | past the expected time | offer re-send with the SAME id (the unit returns the original result); if a newer command has gone out since, re-issue with a new id (a stale id is refused `e:"old"`) |
 | Saved | the camera received, validated and saved it; applies at the next capture/boot | ack `ok:1` + new hash |
 | In effect | a later heartbeat or START carries that hash | `<WS>` / START `cfg=` |
-| Rejected | the camera refused it; the reason is shown | ack `ok:0` + `<CF>` reason |
+| Rejected | the camera refused it; the reason is shown | ack `ok:0` + `e`/`k` (errata S4 G8: no `<CF>` for a rejection) |
 | Staged / Reverted | a guarded key awaits `cfm`, or was reverted for lack of one | ack `s:1` / `<CF> reverted=` |
 | Superseded | a newer command changed the same key before this one was answered | backend log |
 | Changed elsewhere | the hash moved without a command from us (boat GUI, field update) | hash + `<CF>` |
@@ -533,7 +535,7 @@ Every other commit must leave the goldens byte-identical, including the port-ope
 | W5 | video services `trg` | S3 |
 | W6 | fresh time read per action (buffer cleared, clock stepped only on drift) | S3 |
 | W7 | `exposure.mode` (`rem`) and the `*.enabled` switches reshaped | S2 or later, never inside a parity commit |
-| W9 | keyed chunk prefix carries the total, `<I{key}.{i}/{M}>`, so a lost START no longer makes a media unhealable (O11, accepted) | S4, next to W8; only after the additive nvd parser is live on staging |
+| W9 | keyed chunk prefix carries the total, `<I{key}.{i}/{M}>`, so a lost START no longer makes a media unhealable (O11, accepted) | S4w (errata S4 G4: after the additive nvd parser is live on staging; not in the S4 PRs) |
 | W8 | slim ack; `<CF>`; `<WS>` `up=`/`cfg=`/`a=idle`; START `cfg` (core field) + `tg/r/m/d` (worst-case START ≤ 285 B, tested) | S4 |
 | W10 | per_boot: a `trg` heard in the listen tail fires this boot if it fits the budget (O3): the tail ends on it, the extra action runs on the same budget; else it stays armed | S3b |
 
@@ -546,7 +548,7 @@ Every other commit must leave the goldens byte-identical, including the port-ope
 | **S3a one runtime, per_boot parity** | pure extraction of the cycle bodies into actions (same call order) → PortOwner (shutdown/close/halt move to the owner) → supervisor behind `commands.runtime: legacy\|supervisor`, goldens parameterised over both runtimes → W2–W6, one commit each | goldens identical across runtimes (except W2–W6); one bench cycle each for still and video |
 | **S3b stay_on** | loop, interval, heartbeat, watchdog + restart wrapper, crash-loop fallback, SIGTERM flag, RSS ceiling, log rotation; a 50-action fake-time soak asserting the same uart object and stable thread and descriptor counts | 4 triggered cycles, no reboot; 20-action RSS measurement on bmcam003 |
 | **S3c save_local** | still + video self-logger actions, stills storage guard | stay_on × save_local 1 h, SD bounded |
-| **S4 new verbs** | (1) pure v9 wire module + hostile-input tests · (2) pure whole-config validator (test asserts no subprocess; includes a floor for `video.send.message_cap` so the x264 fit can still encode: cap 40 failed pass 2 on bmcam003, 80 worked; S3b bench F1, Nick 2026-09-27) · (3) dedupe v2 + replay tests · (4) daemon read-only verbs `ping help get` · (5) `set` `reset` · (6) `cfm` + guard classes + boot counter · (7) `trg kv`, `hld`, keep-alive + clamp; `rsd`/`wap` regression tests · (8) durable inbox · (9) W8 · (10) tools: GUI (floor 1e6, `verify_ack` without `st`), `sofar_send_command`, `sofar_poll_acks`, `soak_reconcile`, `dev_mode.sh`, hotspot skill · (11) delete the v8 tables; regenerate the command reference | unit tests for every verb and rejection path + a tools smoke test |
+| **S4 new verbs** | (1) pure v9 wire module + hostile-input tests · (2) pure whole-config validator (test asserts no subprocess; includes a floor for `video.send.message_cap` so the x264 fit can still encode: cap 40 failed pass 2 on bmcam003, 80 worked; S3b bench F1, Nick 2026-09-27) · (3) dedupe v2 + replay tests · (4) daemon read-only verbs `ping help get` · (5) `set` `reset` · (6) `cfm` + guard classes + boot counter · (7) `trg kv`, `hld`, keep-alive + clamp; `rsd`/`wap` regression tests · (8) durable inbox · (9) W8 · (10) tools: GUI (floor 1e6, `verify_ack` without `st`), `sofar_send_command`, `sofar_poll_acks`, `soak_reconcile`, `dev_mode.sh`, hotspot skill · (11) delete the v8 tables; regenerate the command reference (errata S4 G1: v8 leaves the supervisor path in S4; the v8 files go with the legacy runtime after S5; W9 → S4w) | unit tests for every verb and rejection path + a tools smoke test |
 | **S5 console proof** | scripted ladder on bmcam003 then bmcam004 (back up, stop the heal driver, monitor log; evidence per step: console log, state sha256 before/after, hash, END): ping/help/get (help adds nothing to the cellular queue) → duplicates return the original result → rejections (NaN, space, oversize, cross-key, unknown key) leave hash and state unchanged → set/reset back to the original hash → manual WB gains in END `cg` → `trg kv` on both media (hash unchanged, START `tg/r/m/d`) → 2×2×2 modes → `hld` on an always-on bus, then the clamp on a scheduled bus → guarded stage and revert across a bus power cycle → `rsd`, `wap` → a 270 B console line → 24 h conductor loop | both rigs pass; 24 h with 0 lost clips; then the legacy runtime is deleted |
 | **S6 remote** | Sofar lane from nereus000 (send log, latency report); prove nested `kv` JSON over Sofar; backend: `<CF>` parser with dotted keys, ack parser, `a=idle`, START `cfg`/`tg`, one shared id allocator with the ≥ 1e6 guard, one Sofar sender for the 1 req/min cooldown, command log + hash→snapshot, desired vs reported; heal auto-send; 24 h remote loop | KICKOFF R3–R5 gates |
 | **S7 UI (last)** | camera-hosted settings page + boot hotspot window; web UI command status (§6.5); `CommandState` two-writer safety verified before the GUI thread lands | laptop on the camera's AP with no internet: read, change, reset; AP off after 5 min with no login; a remote command walks Sent → Saved → In effect |
