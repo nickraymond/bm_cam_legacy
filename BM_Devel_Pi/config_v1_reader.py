@@ -294,6 +294,7 @@ def read_v1(config_path):
     v["commands.runtime"] = "legacy"      # S3a: v1 units only ever ran the legacy runtime
     v["mode.interval_s"] = 0              # S3b: stay_on keys; v1 units are per_boot
     v["mode.heartbeat_s"] = 300
+    v["still.save.quality"] = 85          # S3c: save_local only; v1 units never save_local
 
     # ---- uplink: UART (two v1 readers), bm_serial (PyYAML), lane, media key
     uart = attempt("load_uart_config", bm_serial.load_uart_config, config_path)

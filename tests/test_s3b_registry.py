@@ -12,7 +12,7 @@ Pins:
     back to the v1 file, i.e. per_boot legacy, with a loud [CFG][ERR]);
   - a migrated file spells the new keys; a v2 file written before them (S3a)
     still loads at level v2 with the defaults;
-  - REGISTRY_VERSION is 3.
+  - REGISTRY_VERSION is at least 3.
 
 Run (repo root):
   python3 -m unittest tests.test_s3b_registry -v
@@ -45,7 +45,7 @@ def stay_on_unit(case, **edits):
 
 class RegistryKeys(unittest.TestCase):
     def test_version_and_defaults(self):
-        self.assertEqual(R.REGISTRY_VERSION, 3)
+        self.assertGreaterEqual(R.REGISTRY_VERSION, 3)
         self.assertEqual(R.BY_PATH["mode.interval_s"].default, 0)
         self.assertEqual(R.BY_PATH["mode.heartbeat_s"].default, 300)
         self.assertIsNone(R.BY_PATH["mode.run"].runnable)

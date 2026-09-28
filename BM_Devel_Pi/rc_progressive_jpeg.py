@@ -54,6 +54,7 @@ Assumptions / known limitations:
 
 import argparse
 import copy
+import json
 import os
 import shutil
 import sys
@@ -96,7 +97,7 @@ from rc_telemetry import (
     log_message,
     send_wake_status,
 )
-from rc_jpeg_encoder import output_size_for_crop, prepare_source
+from rc_jpeg_encoder import encode_progressive, output_size_for_crop, prepare_source
 from rc_power_halt import perform_power_halt
 from rc_port_owner import PortOwner
 # Ladder computation lives in the pure M3 module; re-exported here so entry
@@ -476,6 +477,103 @@ def stage_source_image(rel_or_abs_path, output_dir):
     return dest
 
 
+def _save_local_tail(daemon, summary, budget, *, bm_commands_cfg, clock, sleep_fn, supervised):
+    """The end of a save_local action: deferred acks out, then the listen tail
+    (per_boot only; in stay_on post_transmit_listen does nothing, the idle loop
+    listens)."""
+    cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
+                         label="save_local ack flush")
+    cmd_hooks.post_transmit_listen(daemon, bm_commands_cfg or {}, summary, budget,
+                                   clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+
+
+def _save_local_still(settings, summary, daemon, budget, *, supervised, source, native_path,
+                      image_stem, capture_info, output_dir, time_source, transmit,
+                      bm_commands_cfg, bm_open_fn, clock, sleep_fn, sent):
+    """Sprint26 S3c still x save_local (DESIGN §4 Actions; PLAN_S3c.md J2 as
+    amended): ONE encode of the prepared crop at still.save.quality (the ladder
+    only exists to fit the uplink), saved atomically next to the native with its
+    sidecar ("output": "save_local"). No START/chunks/END, no camera_log.csv
+    row, no sent record. Pending heals go out (C14), then acks and the tail."""
+    quality = int(supervised.save_quality)
+    encode = encode_progressive(source, quality, settings["pacing_chunk_b64_chars"])
+    final_name = f"{image_stem}_compressed.jpg"
+    final_path = os.path.join(output_dir, final_name)
+    import atomic_io
+    from rc_capture import _json_safe_metadata
+    atomic_io.write_bytes(final_path, encode["jpeg_data"])
+    summary["final_path"] = final_path
+    metadata = {
+        "software_sha": get_software_sha(),
+        "hostname": get_hostname(),
+        "metadata_schema": "bmcam_runtime_sidecar_v1",
+        "metadata_source": "rc_progressive_jpeg",
+        "utc_capture_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "capture_mode": "progressive_jpeg",
+        "img_format": "pjpg",
+        "output": "save_local",
+        "time_source": time_source or "system",
+        "jpeg_quality_used": quality,
+        "jpeg_bytes": encode["jpeg_bytes"],
+        "jpeg_sha256": encode["jpeg_sha256"],
+        "crop_native_xywh": list(settings["crop_native_xywh"]),
+        "output_size": list(settings["output_size"]),
+        "native_path": native_path,
+        **{k: v for k, v in capture_info.items() if k != "requested_camera_controls"},
+        **_load_libcamera_metadata_json(capture_info.get("metadata_json")),
+        **collect_storage_health(),
+    }
+    # The sidecar's own format (rc_capture.save_capture_metadata), written
+    # atomically: for save_local this pair IS the product (§5 C13).
+    atomic_io.write_text(final_path + ".capture_metadata.json",
+                         json.dumps(_json_safe_metadata(metadata), sort_keys=True))
+    summary["saved"] = {"quality": quality, "jpeg_bytes": encode["jpeg_bytes"],
+                        "jpeg_sha256": encode["jpeg_sha256"],
+                        "time_source": metadata["time_source"]}
+    summary["stage"] = "saved"
+    print(f"[RC] saved (save_local): {final_path} ({encode['jpeg_bytes']} B at q{quality}, "
+          f"time_source={metadata['time_source']}) + native {native_path}")
+    import rc_supervisor
+    if rc_supervisor.save_local_heals(daemon, settings, summary, budget, transmit=transmit,
+                                      tx_open_fn=bm_open_fn, clock=clock, sleep_fn=sleep_fn,
+                                      run=supervised.run):
+        sent = True
+    summary["uplinked"] = sent
+    _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                     clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+    return summary
+
+
+def _still_storage_guard(settings, summary, supervised, output_dir):
+    """Sprint26 S3c (PLAN_S3c.md §5 C3-C5): the stills storage guard, before
+    the capture of every supervisor stills action (both outputs; the legacy
+    runtime never runs it). Prunes old stills against video.storage.* and
+    sets supervised.storage_reason. -> True when the SD is still over a limit
+    after pruning (a save_local action then refuses the capture; a transmit
+    action only warns). Never raises: a guard failure must not cost the
+    capture. The summary gains "storage" only when the limits were exceeded,
+    so an under-limit action's summary is unchanged."""
+    if supervised is None or supervised.storage_cfg is None:
+        return False
+    import rc_still_storage
+    try:
+        mk = rc_media_key.load_media_key_config(settings["config_path"])
+        result = rc_still_storage.ensure_room(
+            output_dir, supervised.storage_cfg, sent_dir=mk["sent_dir"],
+            retain_days=mk["retain_days"])
+    except Exception as exc:
+        print(f"[STORE][WARN] stills storage guard skipped ({type(exc).__name__}: {exc})")
+        supervised.storage_reason = None      # unknown: never a stale storage_full
+        return False
+    if result["over"]:
+        summary["storage"] = result
+    supervised.storage_reason = "storage_full" if result["full"] else None
+    if result["full"] and supervised.output == "transmit":
+        print("[STORE][WARN] SD still over its limit; a transmitting unit captures anyway "
+              "(PLAN_S3c §5 C4)")
+    return result["full"]
+
+
 def still_action(
     settings, summary, daemon, budget,
     *,
@@ -508,6 +606,11 @@ def still_action(
     # bypassed (trg, --skip-time-window); only the verdict is ignored then,
     # as the video cycle always did. Legacy skips the read on a bypass.
     bypass_verdict = supervised is not None and skip_time_window
+    # Sprint26 S3c: a save_local action (supervisor only) saves instead of
+    # sending; `sent` tracks whether it put anything on the uplink (§5 C1).
+    save_local = supervised is not None and getattr(supervised, "save_local", False)
+    time_source = None
+    sent = False
     if transmit and settings["enforce_time_window"] and (not skip_time_window or bypass_verdict):
         gate_kwargs = (supervised.gate_kwargs(daemon, settings) if supervised is not None
                        else cmd_hooks.gate_kwargs_for(daemon, settings))
@@ -520,6 +623,13 @@ def still_action(
         # transmit decision happens minutes after this read.
         gate_info, gate_mono = info, clock()
         cmd_hooks.boot_mark("spotter_utc_read")
+        time_source = info.get("source_time")
+        if save_local and info.get("spotter_time_error"):
+            # S3c §5 C9: a wrong timestamp is recoverable, a lost picture is not.
+            # The window is enforced only on a Spotter time.
+            print(f"[RC][WARN] save_local: Spotter time read failed "
+                  f"({info['spotter_time_error']}); saving on the Pi clock, window not enforced")
+            allowed, time_source = True, "system"
         if bypass_verdict:
             print(f"[RC] schedule gate: {info.get('reason')} (window bypassed; time read only)")
             allowed = True
@@ -556,7 +666,38 @@ def still_action(
                 )
             return summary
 
-    if transmit:
+    if save_local and transmit and not settings["enforce_time_window"]:
+        # S3c §5 C9: the window is off, so the gate read nothing; filenames are
+        # capture time and a Pi has no RTC.
+        time_source = supervised.save_local_time_read(daemon, settings)
+
+    # Sprint26 S3c: the stills storage guard (supervisor only; both outputs).
+    full = _still_storage_guard(settings, summary, supervised, output_dir)
+    # stay_on save_local: no per-action <WS> (the heartbeat is the liveness,
+    # PLAN_S3c §5 C6); per_boot keeps today's a=cap as its one status line.
+    wake_line = transmit and not (save_local and supervised.run == "stay_on")
+    if save_local and full:
+        # A save_local action refuses the capture on a full SD (a transmit
+        # action only warns, _still_storage_guard). per_boot says so on the
+        # wire; stay_on through the heartbeat's r=storage_full.
+        summary["error"] = summary["stage"] = "storage_full"
+        print("[RC][ERR] save_local: SD over its limit after pruning; capture refused")
+        if wake_line:
+            try:
+                wake_fn(action="skip_err", timezone_name=settings["timezone"], local_time=None,
+                        window_start=settings["window_start"],
+                        window_end=settings["window_end"],
+                        image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
+                        image_quality=settings["q_max"], reason="storage_full")
+                sent = True
+            except Exception as exc:
+                debug_print(f"Wake status send failed, continuing safely: {exc}")
+        summary["uplinked"] = sent
+        _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                         clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+        return summary
+
+    if wake_line:
         try:
             wake_fn(
                 action="cap",
@@ -568,6 +709,7 @@ def still_action(
                 image_quality=settings["q_max"],
                 reason=None,
             )
+            sent = True
         except Exception as exc:
             debug_print(f"Wake status send failed, continuing safely: {exc}")
 
@@ -614,7 +756,17 @@ def still_action(
 
     if capture_only:
         print("[RC] --capture-only: stopping before encode/transmit.")
+        if save_local:
+            summary["uplinked"] = sent
         return summary
+
+    if save_local:
+        return _save_local_still(
+            settings, summary, daemon, budget, supervised=supervised, source=source,
+            native_path=native_path, image_stem=image_stem, capture_info=capture_info,
+            output_dir=output_dir, time_source=time_source, transmit=transmit,
+            bm_commands_cfg=bm_commands_cfg, bm_open_fn=bm_open_fn, clock=clock,
+            sleep_fn=sleep_fn, sent=sent)
 
     # M3 adaptive selection.
     selection = select_quality(
@@ -1006,6 +1158,40 @@ def resolve_run_mode(boot, runtime):
     return "stay_on", int(values.get("mode.interval_s", 0)), int(values.get("mode.heartbeat_s", 0))
 
 
+def resolve_output(boot, runtime):
+    """Sprint26 S3c (PLAN_S3c.md J1): transmit or save_local, from the active
+    config v2 file. save_local needs the supervisor: the loader refuses a FILE
+    that pairs it with legacy, but `--runtime legacy` can still override the
+    file, so that case transmits here, loudly (the legacy runtime has no
+    save_local; transmit is the only automatic revert until S4's cfm)."""
+    values = getattr(boot, "values", None) or {}
+    if values.get("mode.output", "transmit") != "save_local":
+        return "transmit"
+    if runtime != "supervisor":
+        print("[OUTPUT][WARN] mode.output save_local needs the supervisor runtime; "
+              f"runtime is {runtime}: TRANSMITTING this boot")
+        return "transmit"
+    return "save_local"
+
+
+def configure_output(sup, boot, output):
+    """S3c (PLAN_S3c.md §5 C2/C3): put the output and its knobs on the
+    supervisor Boot, from the v2 values (registry defaults for a v1-only unit
+    run with --runtime supervisor). The stills guard and the video ring share
+    ONE limit pair, video.storage.*."""
+    import config_registry as R
+    values = getattr(boot, "values", None) or {}
+
+    def value(path):
+        return values.get(path, R.BY_PATH[path].default)
+    sup.output = output
+    sup.save_quality = int(value("still.save.quality"))
+    sup.storage_cfg = {"max_used_pct": float(value("video.storage.max_used_pct")),
+                       "min_free_gb": float(value("video.storage.min_free_gb")),
+                       "ring_dry_run": bool(value("video.storage.ring_dry_run"))}
+    return sup
+
+
 def _stay_on_settings_fn(settings, reresolve_fn):
     """Fresh settings for each stay_on action: the YAML base + the command
     overlay as it is NOW (commands applied while idle govern the next action,
@@ -1017,11 +1203,16 @@ def _stay_on_settings_fn(settings, reresolve_fn):
     return fresh
 
 
-def _heartbeat_fn(image_res_key, image_quality, action="idle", reason=None):
+def _heartbeat_fn(image_res_key, image_quality, action="idle", reason=None, reason_fn=None):
     """One <WS a=idle> (PLAN_S3b.md H5): today's wake-status fields, local
     time from the (Spotter-set) system clock. up=/cfg= arrive with W8 (S4).
-    The crash-loop fallback sends the same line with a=crashloop (H7)."""
+    The crash-loop fallback sends the same line with a=crashloop (H7).
+    reason_fn (S3c §5 C6): the reason is read at SEND time (storage_full while
+    the SD is over its limit), not fixed when the heartbeat is built."""
     def send(settings):
+        nonlocal reason
+        if reason_fn is not None:
+            reason = reason_fn()
         from zoneinfo import ZoneInfo
         from rc_telemetry import send_wake_status
         local = datetime.now(ZoneInfo(settings["timezone"])).isoformat()
@@ -1146,6 +1337,7 @@ def main(argv=None, **cycle_overrides):
         return 2 if "error" in dump["resolved"] else 0
     runtime, runtime_source = resolve_runtime(args.runtime, boot)
     run_cfg = ("per_boot", 0, 0)
+    output = "transmit"
     if not args.print_config:      # inspection output stays as before (settings goldens)
         print(f"[RUNTIME] {runtime} (source={runtime_source})")
         run_cfg = resolve_run_mode(boot, runtime)
@@ -1155,6 +1347,9 @@ def main(argv=None, **cycle_overrides):
             run_cfg = ("per_boot", 0, 0)
         if run_cfg[0] == "stay_on":
             print(f"[RUN] stay_on interval_s={run_cfg[1]} heartbeat_s={run_cfg[2]}")
+        output = resolve_output(boot, runtime)
+        if output != "transmit":
+            print(f"[OUTPUT] {output}")
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:
@@ -1265,6 +1460,7 @@ def main(argv=None, **cycle_overrides):
                     settings, media="video", bm_commands_cfg=bm_commands_cfg,
                     command_state=command_state, transmit=args.transmit,
                     bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+                configure_output(sup, boot, output)
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1276,7 +1472,8 @@ def main(argv=None, **cycle_overrides):
                         sup, lambda b, s: rc_video_tx.run_video_tx_cycle(
                             s, video_tx_cfg, supervised=b, **video_kwargs),
                         settings, reresolve_fn, run_cfg,
-                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None), cycle_overrides,
+                        _heartbeat_fn(lambda s: f"{w}x{h}", lambda s: None,
+                                      reason_fn=lambda: sup.storage_reason), cycle_overrides,
                         rc_video_tx._default_tx_open)    # O5 heals: cellular-only, as clips
                 # b.settings: a W10 extra action runs on the re-resolved overlay.
                 summary = rc_supervisor.run_per_boot(
@@ -1289,7 +1486,8 @@ def main(argv=None, **cycle_overrides):
         if args.print_config:
             return 0
         if runtime == "supervisor":
-            print("[RUNTIME] the recorder path runs the legacy code until S3c (PLAN_S3a.md G4)")
+            print("[RUNTIME] the recorder path (video_logger) runs the legacy code; it moves "
+                  "under the supervisor in its own follow-up (PLAN_S3c.md §5 R1)")
         try:
             return video_recorder.run_video_mode(
                 settings,
@@ -1315,9 +1513,12 @@ def main(argv=None, **cycle_overrides):
     # --transmit boot services it; the flags force the one-shot window
     # bypass and (trg 1) the capture-only path.
     trigger_flags = {"skip_time_window": False, "capture_only": False}
-    if runtime == "supervisor" and args.capture_only:
-        print("[RUNTIME] --capture-only runs the legacy code until S3c (PLAN_S3a.md G4)")
-        runtime = "legacy"
+    if runtime == "supervisor" and args.capture_only and run_cfg[0] == "stay_on":
+        # Sprint26 S3c (PLAN_S3c.md J9, §5 C11): --capture-only is a bench
+        # one-shot; under the supervisor it runs per_boot (a stay_on loop would
+        # drop the flag and capture forever).
+        print("[RUN] --capture-only runs per_boot (one capture, then the halt as configured)")
+        run_cfg = ("per_boot", 0, 0)
     # W4: under the supervisor the trg is serviced after the boot drain
     # (rc_supervisor.Boot.boot_drain), so a trg queued at boot fires this boot.
     if command_state is not None and runtime != "supervisor":
@@ -1344,6 +1545,7 @@ def main(argv=None, **cycle_overrides):
                 settings, media="still", bm_commands_cfg=bm_commands_cfg,
                 command_state=command_state, transmit=args.transmit,
                 bench_commands=args.bench_commands, reresolve_fn=reresolve_fn)
+            configure_output(sup, boot, output)
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])
@@ -1354,7 +1556,8 @@ def main(argv=None, **cycle_overrides):
                     sup, lambda b, s: run_cycle(s, supervised=b, capture_only=False,
                                                 skip_time_window=False, **stay_kwargs),
                     settings, reresolve_fn, run_cfg,
-                    _heartbeat_fn(still_rk, lambda s: s["q_max"]),
+                    _heartbeat_fn(still_rk, lambda s: s["q_max"],
+                                  reason_fn=lambda: sup.storage_reason),
                     cycle_overrides, cycle_overrides.get("bm_open_fn", _default_bm_open))
             # run_cycle is looked up at call time (the golden harness wraps it).
             rc_supervisor.run_per_boot(

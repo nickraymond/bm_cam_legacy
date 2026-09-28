@@ -216,6 +216,22 @@ else
   HALT_STATE="$(sed -n '/^power_halt:/,/^[a-z_]/p' "$YAML" | grep -E 'enabled|dry_run' | xargs)"
 fi
 log "power_halt state (verify matches intent for this unit): $HALT_STATE"
+# Sprint26 S3c (PLAN_S3c.md §5 R3): a save_local unit sends NO media until S4's
+# cfm/guarded_revert exists; say so loudly (bench/development only, no RC).
+if [[ -f "$DST/camera_config.yaml" ]]; then
+  OUTPUT_STATE="$(cd "$DST" && /usr/bin/python3 -c "
+import config_v2
+b = config_v2.load_for_boot('$YAML', '$DST/camera_config.yaml', '$DST/camera_config.lkg.json')
+v = b.values or {}
+print('%s %s %s' % (v.get('mode.output', 'transmit'), v.get('mode.run', 'per_boot'), v.get('mode.media')))" 2>/dev/null || echo unknown)"
+  if [[ "$OUTPUT_STATE" == save_local* ]]; then
+    log "################################################################################"
+    log "# mode.output: save_local ($OUTPUT_STATE): this unit SAVES media to SD and sends"
+    log "# NONE over the uplink (status lines, acks and heartbeats only). No automatic"
+    log "# revert exists before S4 (cfm/guarded_revert): NEVER on a field/customer unit."
+    log "################################################################################"
+  fi
+fi
 
 log "=== SUMMARY: PASS ==="
 log "sha: $OLD_SHA -> $NEW_SHA | values: chunk=$(get_val "$YAML" image_buffer_size) delay=$(get_val "$YAML" image_transmit_delay_seconds)"

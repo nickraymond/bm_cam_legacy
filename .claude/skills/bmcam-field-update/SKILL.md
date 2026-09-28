@@ -40,6 +40,11 @@ a known field state.
      the remote shell's own command line and kills the rest of your script
      (bmcam003, 2026-09-25: cron got disarmed, the survey after it never ran)
      — SIGTERM kills Python without running `finally`, so no halt fires
+     — **save_local units (`mode.output: save_local`, Sprint26 S3c):** they
+       send NO media (only `<WS>` status lines, acks, heartbeats and pending
+       heals), so "delivery at Sofar" is not the check: verify the new files in
+       `images/` / `videos/` (sidecar `"output": "save_local"`) instead. The
+       field update prints a banner for them. Bench/development only until S4.
      — **stay_on units (`mode.run: stay_on`, Sprint26 S3b):** the runtime
        catches SIGTERM and stops at its next safe point (acks flushed, port
        closed, never a halt); an in-flight burst finishes first (up to ~5 min),

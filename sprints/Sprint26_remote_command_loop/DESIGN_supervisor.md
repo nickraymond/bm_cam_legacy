@@ -600,6 +600,10 @@ and restoring it is part of the rollback command written into each stage's `runs
 - Field units run `main`. All of this is bench-only on `development` until a release decision.
 - Before touching a unit: check processes and crontab, back up, record in `runs/<tag>/`.
 - The legacy runtime stays selectable until S5 passes on both rigs.
+- **`mode.output: save_local` is in no release candidate until S4's `cfm` /
+  guarded_revert lands** (Nick, 2026-09-27, PLAN_S3c.md §5 R3). Until then a
+  save_local unit is set only by a deploy over ssh and has no automatic revert;
+  `rc_field_update.sh` prints a banner for one.
 - A `set` that fails validation changes nothing; a state-file write failure means no ok ack (D15).
 - Every stage records boot-to-transmit time and peak RSS, so the cleanup's gains are measured,
   not assumed.

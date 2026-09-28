@@ -22,9 +22,8 @@ Rules that bind this file (§5.1, REVIEW K8/X3, S2 plan):
     `camera.exposure.mode` keep their v1 meaning until their own wire commit.
   - No key segment ends in len/length/chunks/buffer/buffers/filename (the
     S2a naming rule; those words named the wrong thing in v1).
-  - Only transmit is runnable until S3c (`mode.output` lists the future value
-    so the file format does not change later). `mode.run: stay_on` is runnable
-    since S3b, with the supervisor runtime and commands on (config_v2 cross-key).
+  - `mode.output: save_local` is runnable since S3c and `mode.run: stay_on`
+    since S3b, both with the supervisor runtime only (config_v2 cross-keys).
 
 Known limitations: validation here is per key. Cross-key rules (crop inside
 the native frame, manual WB needs gains, ...) live in the loader (S2d) and the
@@ -37,8 +36,9 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 3          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
-                              # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b)
+REGISTRY_VERSION = 4          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+                              # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
+                              # 4: still.save.quality, save_local runnable, S3c)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -121,9 +121,10 @@ KEYS = (
         "0 or 60..86400.", range=(0, 86400), apply=NEXT_BOOT),
     Key("mode.heartbeat_s", INT, 300, "stay_on: an idle <WS a=idle> this long after the "
         "last uplink; 0 = off. 0 or 60..86400.", range=(0, 86400), apply=NEXT_BOOT),
-    Key("mode.output", ENUM, "transmit", "transmit over the BM uplink, or save_local to SD (S3).",
+    Key("mode.output", ENUM, "transmit", "transmit over the BM uplink, or save_local to SD "
+        "(needs the supervisor runtime; SD bounded by video.storage.*).",
         enum=("transmit", "save_local"), guard=GUARDED_REVERT, guard_when=("save_local",),
-        apply=NEXT_BOOT, runnable=("transmit",)),
+        apply=NEXT_BOOT),
 
     # ---- schedule -----------------------------------------------------------
     Key("schedule.timezone", TZ, "America/Los_Angeles", "Time zone of the transmit window.",
@@ -247,6 +248,9 @@ KEYS = (
         v1_sources=("progressive_jpeg.quality.ladder", "progressive_jpeg.quality.q_max",
                     "progressive_jpeg.quality.q_min", "progressive_jpeg.quality.step"),
         validate_when=_MEDIA_STILL),
+    Key("still.save.quality", INT, 85, "save_local: JPEG quality of the saved crop (the "
+        "native is kept too). 1..95.", range=(1, 95), validate_when=_MEDIA_STILL,
+        presets=(("85 default", 85), ("75", 75), ("95", 95))),
     Key("still.message_cap", INT, 195, "Most messages one still may use.", range=(1, 2000),
         v1_sources=("progressive_jpeg.message_cap",), validate_when=_MEDIA_STILL,
         presets=(("195 default", 195), ("100", 100), ("150", 150), ("250", 250), ("300", 300))),

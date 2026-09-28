@@ -1,0 +1,74 @@
+inactive
+2026-09-27T21:01:47Z gate deploy feature/sprint26-s3c-save-local
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] config v2 effective hash: 62e0a1cb
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: 3e0128478433 -> cabb79f109bd | values: chunk=384 delay=1.3
+# DISABLED s3cbench 20260927T203323Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+cabb79f109bd
+moved images=927 videos=1765
+/home/pi/BM_Devel_Pi/images:
+
+/home/pi/BM_Devel_Pi/videos:
+/dev/mmcblk0p2 123174105088 92223057920 25909698560  79% /
+[set] mode.run = 'stay_on'
+[set] mode.output = 'save_local'
+[set] mode.interval_s = 60
+[set] mode.heartbeat_s = 300
+[set] video.storage.max_used_pct = 74.91
+[set] video.storage.min_free_gb = 1.0
+[set] level v2 hash 317b430d
+[set] runtime supervisor run ('stay_on', 60, 300) output save_local media video storage 74.91 1.0 halt True dry_run False
+2026-09-27T21:03:30Z gate start sampler + wrapper
+2054 bash -c pgrep -f '[s]ampler.sh' >/dev/null || (cd /home/pi/s3cbench && nohup setsid bash sampler.sh </dev/null >/dev/null 2>&1 &)     nohup setsi
+2079 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+2026-09-27T21:07:25Z gate sampler started by hand 21:06:24Z (start guard self-matched its ssh line; gate.sh now uses pgrep -x)
+2026-09-27T21:34:02Z gate stop (SIGTERM)
+stopped
+[SUP] stop requested (signal 15): shutdown -> close, no halt
+[SUP] stay_on exit 0
+[set] mode.media = 'still'
+[set] video.storage.max_used_pct = 74.935
+[set] level v2 hash ce967219
+[set] runtime supervisor run ('stay_on', 60, 300) output save_local media still storage 74.935 1.0 halt True dry_run False
+2026-09-27T21:34:20Z gate start sampler + wrapper
+2267 bash sampler.sh
+5991 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+2026-09-27T22:05:05Z gate stop (SIGTERM)
+stopped
+[SUP] stop requested (signal 15): shutdown -> close, no halt
+[SUP] stay_on exit 0
+[set] mode.run = 'per_boot'
+[set] mode.media = 'video'
+[set] power.halt.dry_run = True
+[set] video.storage.max_used_pct = 74.95
+[set] level v2 hash f56acbb3
+[set] runtime supervisor run ('per_boot', 0, 0) output save_local media video storage 74.95 1.0 halt True dry_run True
+2026-09-27T22:05:25Z gate one per_boot run (cron line)
+wrapper exit 0
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260927T220526Z.log
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[CFG] last-known-good saved /home/pi/BM_Devel_Pi/camera_config.lkg.json
+[RUNTIME] supervisor (source=config (v2))
+[OUTPUT] save_local
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[RC] power_halt: enabled=True dry_run=True mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[SUP] per_boot: media=video transmit=True
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-27T22-05-35Z_video_1920x1080_15fps.mp4 (4793252 B, record quality, time_source=spotter)
+[DEBUG] Sent compact telemetry message (110 bytes): <WS v=1 a=saved tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=480x270 ct=37.6 sha=cabb79f109bd hn=bmcam003>
+[SUP] action: media=video stage=saved sent=None/None elapsed=171.9s
+[BOOT] halt uptime_s=4006.82
+[RC][halt] DRY RUN — would execute: sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh
+[RC][halt] DRY RUN — script present; real run would drop SSH within ~15 s (that is success)
+[VTX] cycle end: stage=saved elapsed=172.0s of 480s; halt=dry_run
+{"complete": null, "elapsed_s": 171.9, "error": null, "media": "video", "media_key": null, "output": "save_local", "planned": null, "rss_kb": 25512, "rss_now_kb": 19472, "run": "per_boot", "runtime": "supervisor", "sent": null, "stage": "saved", "trigger_id": null, "utc": "2026-09-27T22:08:19Z"}
+[restore] level v2 hash 62e0a1cb runtime supervisor run ('per_boot', 0, 0) output transmit
+images: 0 diff lines
+videos: 0 diff lines
+bench_media images=96 videos=34
+state unchanged
+active

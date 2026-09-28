@@ -1,0 +1,49 @@
+[watcher] start 20260927T203323Z
+[watcher] reachable at 21:00:55Z after 328 polls
+[watcher] SIGTERM sent to cycle
+1294 bash -c set -u B=/home/pi/s3cbench/backup; A=/home/pi/BM_Devel_Pi; mkdir -p $B crontab -l > $B/crontab_ARMED.txt 2>/dev/null crontab -l | sed 's|^@reboot \(.*rc_run_capture_cycle\.sh\)$|# DISABLED s3cbench 20260927T203323Z: @reboot \1|' | crontab - pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py' && echo '[watcher] SIGTERM sent to cycle' || echo '[watcher] no cycle process to stop' sleep 2 pgrep -af '[r]c_progressive|[r]c_run_capture|[r]picam|[f]fmpeg' || echo '[watcher] no camera procs' echo '--- crontab now'; crontab -l tar czf $B/BM_Devel_Pi_before_s3cbench.tgz -C /home/pi --exclude=BM_Devel_Pi/images --exclude=BM_Devel_Pi/videos --exclude=BM_Devel_Pi/cron_logs --exclude=BM_Devel_Pi/sent BM_Devel_Pi 2>/dev/null for f in camera_schedule.yaml camera_schedule.v1.yaml camera_config.yaml camera_config.lkg.json bm_command_state.json bm_command_state_v2.json bm_media_key_last.txt software_sha.txt; do [ -f $A/$f ] && cp -p $A/$f $B/; done ls -la $B echo '--- survey'; hostname; uptime; date -u echo '--- deployed sha'; cat $A/software_sha.txt; tail -2 $A/deploy_history.log 2>/dev/null echo '--- repo'; git -C /home/pi/repos/bm_cam_legacy log --oneline -1; git -C /home/pi/repos/bm_cam_legacy branch --show-current echo '--- config'; cd $A && python3 rc_progressive_jp[e]g.py --print-config 2>&1 | grep -E '^\[CFG\]|capture_mode|media' | head -6 echo '--- mem'; free -m | head -2 echo '--- SD (S3c gate baseline)'; df -B1 / | tail -1; du -sb $A/images $A/videos 2>/dev/null echo "natives=$(ls $A/images/*_native_full.jpg 2>/dev/null | wc -l) compressed=$(ls $A/images/*_compressed.jpg 2>/dev/null | wc -l) mp4=$(ls $A/videos/*.mp4 2>/dev/null | wc -l)" echo '--- newest clips (record quality sizes)'; ls -l --time-style=+%FT%T $A/videos/*.mp4 2>/dev/null | tail -4 echo '--- sent records'; ls $A/sent 2>/dev/null | wc -l 
+--- crontab now
+# DISABLED s3cbench 20260927T203323Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+total 6672
+drwxrwxr-x 2 pi pi    4096 Sep 27 21:01 .
+drwxrwxr-x 3 pi pi    4096 Sep 27 21:00 ..
+-rw-rw-r-- 1 pi pi     279 Sep 25 23:01 bm_command_state.json
+-rw-r--r-- 1 pi pi     676 Sep 27 20:01 bm_command_state_v2.json
+-rw-rw-r-- 1 pi pi 6780762 Sep 27 21:01 BM_Devel_Pi_before_s3cbench.tgz
+-rw-rw-r-- 1 pi pi       6 Sep 27 20:01 bm_media_key_last.txt
+-rw-r--r-- 1 pi pi    3169 Sep 27 06:23 camera_config.lkg.json
+-rw-r--r-- 1 pi pi    6140 Sep 26 22:17 camera_config.yaml
+-rw-rw-r-- 1 pi pi    7867 Sep 26 00:16 camera_schedule.yaml
+-rw-rw-r-- 1 pi pi      98 Sep 27 21:00 crontab_ARMED.txt
+-rw-rw-r-- 1 pi pi      13 Sep 27 06:21 software_sha.txt
+--- survey
+bmcam003
+ 21:01:00 up 0 min,  1 user,  load average: 1.78, 0.48, 0.16
+Sun 27 Sep 21:01:00 UTC 2026
+--- deployed sha
+3e0128478433
+20260927T051913Z 71e3642af0ff mode=update profile=none cron=false cfg=72a12186
+20260927T062059Z 3e0128478433 mode=update profile=none cron=false cfg=72a12186
+--- repo
+3e01284 H9: stay_on RSS ceiling 150 MB, from the bmcam003 20-action run
+feature/sprint26-s3b-stay-on
+--- config
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=72a12186 hv=1 registry=v3 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[RC] capture_mode=video (Sprint15 video path selected)
+--- mem
+               total        used        free      shared  buff/cache   available
+Mem:             415         172         107          11         199         242
+--- SD (S3c gate baseline)
+/dev/mmcblk0p2 123174105088 92208300032 25924456448  79% /
+556452600	/home/pi/BM_Devel_Pi/images
+86723534317	/home/pi/BM_Devel_Pi/videos
+natives=196 compressed=195 mp4=689
+--- newest clips (record quality sizes)
+-rw-rw-r-- 1 pi pi   4783519 2026-09-27T18:00:49 /home/pi/BM_Devel_Pi/videos/2026-09-27T18-00-37Z_video_1920x1080_15fps.mp4
+-rw-rw-r-- 1 pi pi   4202821 2026-09-27T19:00:49 /home/pi/BM_Devel_Pi/videos/2026-09-27T19-00-37Z_video_1920x1080_15fps.mp4
+-rw-rw-r-- 1 pi pi   4796017 2026-09-27T20:00:48 /home/pi/BM_Devel_Pi/videos/2026-09-27T20-00-36Z_video_1920x1080_15fps.mp4
+-rw-rw-r-- 1 pi pi   4607057 2026-09-27T21:00:47 /home/pi/BM_Devel_Pi/videos/2026-09-27T21-00-35Z_video_1920x1080_15fps.mp4
+--- sent records
+335
+[watcher] done 21:01:02Z

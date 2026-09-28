@@ -1,0 +1,71 @@
+{
+ "cycle": {
+  "budget_seconds": 720,
+  "command_events": [],
+  "error": "storage_full",
+  "final_path": null,
+  "halt_result": {
+   "action": "halt_initiated",
+   "command": [
+    "sudo",
+    "-n",
+    "/bin/bash",
+    "{TMP}/tuned_halt.sh"
+   ],
+   "detail": "halt command returned 0; system shutdown in progress",
+   "script_exists": true
+  },
+  "listen_tail_s": 150.0,
+  "native_path": null,
+  "schedule_allowed": true,
+  "selection": null,
+  "stage": "storage_full",
+  "storage": {
+   "dry_run": false,
+   "free_gb": 0.28,
+   "freed_bytes": 0,
+   "full": true,
+   "over": true,
+   "pruned": {},
+   "used_pct": 99.03,
+   "would_free_bytes": 0
+  },
+  "transmit": true,
+  "transmit_result": null,
+  "uplinked": true
+ },
+ "exit_code": 0,
+ "fake_clock_elapsed_s": 150.0,
+ "files": {
+  "camera_config.lkg.json": {
+   "bytes": 3166,
+   "sha256": "wall-time"
+  },
+  "camera_config.yaml": {
+   "bytes": 2407,
+   "sha256": "4a76b0046acdb3bb"
+  },
+  "camera_schedule.yaml": {
+   "bytes": 7711,
+   "sha256": "676b414910d2df13"
+  },
+  "render/camera_schedule.yaml": {
+   "bytes": 2249,
+   "sha256": "abed23a3ff7fff41"
+  },
+  "tuned_halt.sh": {
+   "bytes": 17,
+   "sha256": "306c6ca740756034"
+  }
+ },
+ "heavy_modules_loaded": [
+  "yaml"
+ ],
+ "notes": "SD over its limit with nothing to prune: no capture, <WS a=skip_err r=storage_full>, listen tail, halt",
+ "scenario": "save_local_still_full",
+ "sent_records": {},
+ "sidecars": {},
+ "state_file": null,
+ "state_file_v2": null,
+ "unfired_rules": []
+}

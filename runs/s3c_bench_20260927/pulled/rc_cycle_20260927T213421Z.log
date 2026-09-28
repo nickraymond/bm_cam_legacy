@@ -1,0 +1,622 @@
+============================================================
+[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+[RC-CRON] start_utc=2026-09-27T21:34:21+00:00
+[RC-CRON] uptime_s=1967.68
+[RC-CRON] user=pi
+[RC-CRON] hostname=bmcam003
+[RC-CRON] app_dir=/home/pi/BM_Devel_Pi
+[RC-CRON] log_file=/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260927T213421Z.log
+[RC-CRON] disk: /dev/mmcblk0p2  115G   86G   25G  79% /
+[RC-CRON] images_dir: 76K
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[BOOT] main_entry uptime_s=1968.88
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=ce967219 hv=1 registry=v4 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] last-known-good saved /home/pi/BM_Devel_Pi/camera_config.lkg.json
+[RUNTIME] supervisor (source=config (v2))
+[RUN] stay_on interval_s=60 heartbeat_s=300
+[OUTPUT] save_local
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+[NET] boot default already applied this boot; leaving the network alone (runtime restart)
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] stay_on: media=still interval_s=60 (scheduled + trg) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[BOOT] cmd_subscribed uptime_s=1969.58
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:34:25.406000+00:00
+Sun 27 Sep 21:34:25 UTC 2026
+[SUP] stay_on boot time read: 2026-09-27T21:34:25.406000+00:00 (clock: ok)
+[SUP] restart: next scheduled action in 13s (the last slot started in this boot)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 1 (scheduled) utc=2026-09-27T21:34:38Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:34:45.402000+00:00
+[BOOT] spotter_utc_read uptime_s=1992.06
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:34:45.402000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:34:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:34:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:34:45Z_image_native_full.jpg, bytes=1739411, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:34:45Z_image_native_full.jpg (1739411 B, elapsed=9.9s)
+[RC] source prepared: 1000x562 (elapsed=11.0s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:34:45Z_image_compressed.jpg (58556 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:34:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=11.2s
+[SUP] ===== action 1 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 2 (scheduled) utc=2026-09-27T21:35:38Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:35:45.390000+00:00
+[BOOT] spotter_utc_read uptime_s=2052.07
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:35:45.390000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:35:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:35:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:35:45Z_image_native_full.jpg, bytes=1740542, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:35:45Z_image_native_full.jpg (1740542 B, elapsed=9.7s)
+[RC] source prepared: 1000x562 (elapsed=10.5s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:35:45Z_image_compressed.jpg (58610 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:35:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=10.6s
+[SUP] ===== action 2 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 3 (scheduled) utc=2026-09-27T21:36:38Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:36:45.378000+00:00
+[BOOT] spotter_utc_read uptime_s=2112.06
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:36:45.378000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:36:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:36:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:36:45Z_image_native_full.jpg, bytes=1750719, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:36:45Z_image_native_full.jpg (1750719 B, elapsed=9.5s)
+[RC] source prepared: 1000x562 (elapsed=10.3s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:36:45Z_image_compressed.jpg (58854 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:36:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=10.5s
+[SUP] ===== action 3 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 4 (scheduled) utc=2026-09-27T21:37:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:37:45.371000+00:00
+[BOOT] spotter_utc_read uptime_s=2172.04
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:37:45.371000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:37:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:37:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:37:45Z_image_native_full.jpg, bytes=1757169, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:37:45Z_image_native_full.jpg (1757169 B, elapsed=9.3s)
+[RC] source prepared: 1000x562 (elapsed=10.1s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:37:45Z_image_compressed.jpg (58596 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:37:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=10.3s
+[SUP] ===== action 4 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 5 (scheduled) utc=2026-09-27T21:38:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:38:45.359000+00:00
+[BOOT] spotter_utc_read uptime_s=2232.03
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:38:45.359000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:38:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:38:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:38:45Z_image_native_full.jpg, bytes=1757984, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:38:45Z_image_native_full.jpg (1757984 B, elapsed=9.1s)
+[RC] source prepared: 1000x562 (elapsed=9.9s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:38:45Z_image_compressed.jpg (58402 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:38:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=10.0s
+[SUP] ===== action 5 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (117 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1439 ws=0000 we=0000 rk=1000x562 q=90 ct=32.7 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 6 (scheduled) utc=2026-09-27T21:39:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:39:45.347000+00:00
+[BOOT] spotter_utc_read uptime_s=2292.01
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:39:45.347000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:39:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:39:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:39:45Z_image_native_full.jpg, bytes=1760288, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:39:45Z_image_native_full.jpg (1760288 B, elapsed=9.0s)
+[RC] source prepared: 1000x562 (elapsed=9.8s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:39:45Z_image_compressed.jpg (58658 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:39:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.9s
+[SUP] ===== action 6 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 7 (scheduled) utc=2026-09-27T21:40:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:40:45.339000+00:00
+[BOOT] spotter_utc_read uptime_s=2351.99
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:40:45.339000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:40:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:40:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:40:45Z_image_native_full.jpg, bytes=1761864, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:40:45Z_image_native_full.jpg (1761864 B, elapsed=9.0s)
+[RC] source prepared: 1000x562 (elapsed=9.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:40:45Z_image_compressed.jpg (58745 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:40:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.9s
+[SUP] ===== action 7 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 8 (scheduled) utc=2026-09-27T21:41:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:41:45.328000+00:00
+[BOOT] spotter_utc_read uptime_s=2411.99
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:41:45.328000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:41:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:41:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:41:45Z_image_native_full.jpg, bytes=1759489, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:41:45Z_image_native_full.jpg (1759489 B, elapsed=9.0s)
+[RC] source prepared: 1000x562 (elapsed=9.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:41:45Z_image_compressed.jpg (58707 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:41:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.9s
+[SUP] ===== action 8 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 9 (scheduled) utc=2026-09-27T21:42:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:42:45.320000+00:00
+[BOOT] spotter_utc_read uptime_s=2472.02
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:42:45.320000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:42:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:42:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:42:45Z_image_native_full.jpg, bytes=1755607, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:42:45Z_image_native_full.jpg (1755607 B, elapsed=9.0s)
+[RC] source prepared: 1000x562 (elapsed=9.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:42:45Z_image_compressed.jpg (58390 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:42:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.9s
+[SUP] ===== action 9 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 10 (scheduled) utc=2026-09-27T21:43:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:43:45.308000+00:00
+[BOOT] spotter_utc_read uptime_s=2531.96
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:43:45.308000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:43:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:43:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:43:45Z_image_native_full.jpg, bytes=1753410, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:43:45Z_image_native_full.jpg (1753410 B, elapsed=8.9s)
+[RC] source prepared: 1000x562 (elapsed=9.6s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:43:45Z_image_compressed.jpg (58655 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:43:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.8s
+[SUP] ===== action 10 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (117 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1444 ws=0000 we=0000 rk=1000x562 q=90 ct=33.2 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 11 (scheduled) utc=2026-09-27T21:44:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:44:45.296000+00:00
+[BOOT] spotter_utc_read uptime_s=2591.97
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:44:45.296000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:44:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:44:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:44:45Z_image_native_full.jpg, bytes=1753708, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:44:45Z_image_native_full.jpg (1753708 B, elapsed=8.9s)
+[RC] source prepared: 1000x562 (elapsed=9.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:44:45Z_image_compressed.jpg (58601 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:44:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.8s
+[SUP] ===== action 11 done: stage=saved skipped=False =====
+[CMD] applied id=26401 trg=2 st={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0}
+[CMD] duplicate id=26401 acked, not re-applied
+[CMD] ack sent: {"id":26401,"ok":1,"st":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 12 (trg) utc=2026-09-27T21:45:18Z =====
+[CMD] one-shot trigger id=26401 trg=2 (capture + send): window gate BYPASSED for this boot only
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:45:25.289000+00:00
+[BOOT] spotter_utc_read uptime_s=2631.98
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:45:25.289000-07:00 (window bypassed; time read only)
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:25Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:25Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:45:25Z_image_native_full.jpg, bytes=1750814, duration_sec=3.68, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:25Z_image_native_full.jpg (1750814 B, elapsed=10.4s)
+[RC] source prepared: 1000x562 (elapsed=11.2s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:25Z_image_compressed.jpg (58749 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:25Z_image_native_full.jpg
+[CMD] ack sent: {"id":26401,"ok":1,"st":{"roi":0,"foc":0,"awb":0,"exp":0,"win":0,"txd":0,"cap":0,"src":0,"hlt":0,"twn":0,"tmz":0}}
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=11.3s
+[SUP] ===== action 12 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 13 (scheduled) utc=2026-09-27T21:45:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:45:45.285000+00:00
+[BOOT] spotter_utc_read uptime_s=2652.01
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:45:45.285000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:45:45Z_image_native_full.jpg, bytes=1750971, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:45Z_image_native_full.jpg (1750971 B, elapsed=8.9s)
+[RC] source prepared: 1000x562 (elapsed=9.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:45Z_image_compressed.jpg (58659 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:45:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.9s
+[SUP] ===== action 13 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 14 (scheduled) utc=2026-09-27T21:46:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:46:45.277000+00:00
+[BOOT] spotter_utc_read uptime_s=2711.91
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:46:45.277000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:46:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:46:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:46:44Z_image_native_full.jpg, bytes=1754217, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:46:44Z_image_native_full.jpg (1754217 B, elapsed=8.6s)
+[RC] source prepared: 1000x562 (elapsed=9.3s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:46:44Z_image_compressed.jpg (58882 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:46:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.5s
+[SUP] ===== action 14 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 15 (scheduled) utc=2026-09-27T21:47:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:47:45.265000+00:00
+[BOOT] spotter_utc_read uptime_s=2771.96
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:47:45.265000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:47:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:47:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:47:45Z_image_native_full.jpg, bytes=1754569, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:47:45Z_image_native_full.jpg (1754569 B, elapsed=8.5s)
+[RC] source prepared: 1000x562 (elapsed=9.3s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:47:45Z_image_compressed.jpg (58726 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:47:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.5s
+[SUP] ===== action 15 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 16 (scheduled) utc=2026-09-27T21:48:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:48:45.253000+00:00
+[BOOT] spotter_utc_read uptime_s=2831.97
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:48:45.253000-07:00
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:48:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:48:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:48:45Z_image_native_full.jpg, bytes=1751173, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:48:45Z_image_native_full.jpg (1751173 B, elapsed=8.5s)
+[RC] source prepared: 1000x562 (elapsed=9.3s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:48:45Z_image_compressed.jpg (58807 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:48:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.5s
+[SUP] ===== action 16 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (117 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1449 ws=0000 we=0000 rk=1000x562 q=90 ct=32.7 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 17 (scheduled) utc=2026-09-27T21:49:39Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:49:45.242000+00:00
+[BOOT] spotter_utc_read uptime_s=2891.87
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:49:45.242000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:49:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:49:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:49:45Z_image_native_full.jpg, bytes=1749578, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:49:45Z_image_native_full.jpg (1749578 B, elapsed=8.7s)
+[RC] source prepared: 1000x562 (elapsed=9.4s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:49:45Z_image_compressed.jpg (58824 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:49:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.6s
+[SUP] ===== action 17 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 18 (scheduled) utc=2026-09-27T21:50:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:50:45.230000+00:00
+[BOOT] spotter_utc_read uptime_s=2951.87
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:50:45.230000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:50:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:50:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:50:45Z_image_native_full.jpg, bytes=1747702, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:50:45Z_image_native_full.jpg (1747702 B, elapsed=8.4s)
+[RC] source prepared: 1000x562 (elapsed=9.2s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:50:45Z_image_compressed.jpg (58790 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:50:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.3s
+[SUP] ===== action 18 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 19 (scheduled) utc=2026-09-27T21:51:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:51:45.222000+00:00
+[BOOT] spotter_utc_read uptime_s=3011.85
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:51:45.222000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:51:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:51:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:51:45Z_image_native_full.jpg, bytes=1748508, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:51:45Z_image_native_full.jpg (1748508 B, elapsed=8.3s)
+[RC] source prepared: 1000x562 (elapsed=9.0s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:51:45Z_image_compressed.jpg (58707 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:51:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.2s
+[SUP] ===== action 19 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 20 (scheduled) utc=2026-09-27T21:52:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:52:45.210000+00:00
+[BOOT] spotter_utc_read uptime_s=3071.88
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:52:45.210000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:52:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:52:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:52:45Z_image_native_full.jpg, bytes=1751542, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:52:45Z_image_native_full.jpg (1751542 B, elapsed=8.2s)
+[RC] source prepared: 1000x562 (elapsed=8.9s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:52:45Z_image_compressed.jpg (58744 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:52:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.1s
+[SUP] ===== action 20 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 21 (scheduled) utc=2026-09-27T21:53:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:53:45.199000+00:00
+[BOOT] spotter_utc_read uptime_s=3131.82
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:53:45.199000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:53:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:53:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:53:44Z_image_native_full.jpg, bytes=1755905, duration_sec=3.48, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:53:44Z_image_native_full.jpg (1755905 B, elapsed=8.2s)
+[RC] source prepared: 1000x562 (elapsed=8.9s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:53:44Z_image_compressed.jpg (58953 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:53:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.1s
+[SUP] ===== action 21 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (117 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1454 ws=0000 we=0000 rk=1000x562 q=90 ct=33.8 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 22 (scheduled) utc=2026-09-27T21:54:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:54:45.187000+00:00
+[BOOT] spotter_utc_read uptime_s=3191.81
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:54:45.187000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:54:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:54:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:54:44Z_image_native_full.jpg, bytes=1750970, duration_sec=3.38, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:54:44Z_image_native_full.jpg (1750970 B, elapsed=8.0s)
+[RC] source prepared: 1000x562 (elapsed=8.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:54:44Z_image_compressed.jpg (58893 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:54:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.9s
+[SUP] ===== action 22 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 23 (scheduled) utc=2026-09-27T21:55:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:55:45.179000+00:00
+[BOOT] spotter_utc_read uptime_s=3251.86
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:55:45.179000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:55:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:55:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:55:45Z_image_native_full.jpg, bytes=1749244, duration_sec=3.43, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:55:45Z_image_native_full.jpg (1749244 B, elapsed=8.0s)
+[RC] source prepared: 1000x562 (elapsed=8.8s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:55:45Z_image_compressed.jpg (58801 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:55:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=9.0s
+[SUP] ===== action 23 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 24 (scheduled) utc=2026-09-27T21:56:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:56:45.167000+00:00
+[BOOT] spotter_utc_read uptime_s=3311.85
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:56:45.167000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:56:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:56:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:56:45Z_image_native_full.jpg, bytes=1750485, duration_sec=3.43, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:56:45Z_image_native_full.jpg (1750485 B, elapsed=7.9s)
+[RC] source prepared: 1000x562 (elapsed=8.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:56:45Z_image_compressed.jpg (58784 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:56:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.8s
+[SUP] ===== action 24 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 25 (scheduled) utc=2026-09-27T21:57:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:57:45.156000+00:00
+[BOOT] spotter_utc_read uptime_s=3371.83
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:57:45.156000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:57:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:57:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:57:44Z_image_native_full.jpg, bytes=1747719, duration_sec=3.48, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:57:44Z_image_native_full.jpg (1747719 B, elapsed=7.8s)
+[RC] source prepared: 1000x562 (elapsed=8.5s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:57:44Z_image_compressed.jpg (59026 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:57:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.7s
+[SUP] ===== action 25 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 26 (scheduled) utc=2026-09-27T21:58:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:58:45.144000+00:00
+[BOOT] spotter_utc_read uptime_s=3431.87
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:58:45.144000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:58:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:58:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:58:45Z_image_native_full.jpg, bytes=1747006, duration_sec=3.43, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:58:45Z_image_native_full.jpg (1747006 B, elapsed=7.7s)
+[RC] source prepared: 1000x562 (elapsed=8.5s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:58:45Z_image_compressed.jpg (58980 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:58:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.6s
+[SUP] ===== action 26 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (117 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1459 ws=0000 we=0000 rk=1000x562 q=90 ct=33.2 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 27 (scheduled) utc=2026-09-27T21:59:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T21:59:45.136000+00:00
+[BOOT] spotter_utc_read uptime_s=3491.85
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T14:59:45.136000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T21:59:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T21:59:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T21:59:45Z_image_native_full.jpg, bytes=1743894, duration_sec=3.48, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T21:59:45Z_image_native_full.jpg (1743894 B, elapsed=7.7s)
+[RC] source prepared: 1000x562 (elapsed=8.4s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T21:59:45Z_image_compressed.jpg (59019 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T21:59:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.6s
+[SUP] ===== action 27 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 28 (scheduled) utc=2026-09-27T22:00:40Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T22:00:45.125000+00:00
+[BOOT] spotter_utc_read uptime_s=3551.79
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T15:00:45.125000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T22:00:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T22:00:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T22:00:44Z_image_native_full.jpg, bytes=1736735, duration_sec=3.48, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T22:00:44Z_image_native_full.jpg (1736735 B, elapsed=7.5s)
+[RC] source prepared: 1000x562 (elapsed=8.2s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T22:00:44Z_image_compressed.jpg (58955 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T22:00:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.4s
+[SUP] ===== action 28 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 29 (scheduled) utc=2026-09-27T22:01:41Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T22:01:45.113000+00:00
+[BOOT] spotter_utc_read uptime_s=3611.82
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T15:01:45.113000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T22:01:45Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T22:01:45Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T22:01:45Z_image_native_full.jpg, bytes=1737449, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T22:01:45Z_image_native_full.jpg (1737449 B, elapsed=7.3s)
+[RC] source prepared: 1000x562 (elapsed=8.0s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T22:01:45Z_image_compressed.jpg (59081 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T22:01:45Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.2s
+[SUP] ===== action 29 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 30 (scheduled) utc=2026-09-27T22:02:41Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T22:02:45.101000+00:00
+[BOOT] spotter_utc_read uptime_s=3671.83
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T15:02:45.101000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T22:02:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T22:02:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T22:02:44Z_image_native_full.jpg, bytes=1731353, duration_sec=3.43, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T22:02:44Z_image_native_full.jpg (1731353 B, elapsed=7.2s)
+[RC] source prepared: 1000x562 (elapsed=8.0s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T22:02:44Z_image_compressed.jpg (59027 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T22:02:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=8.1s
+[SUP] ===== action 30 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 31 (scheduled) utc=2026-09-27T22:03:41Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T22:03:45.089000+00:00
+[BOOT] spotter_utc_read uptime_s=3731.82
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T15:03:45.089000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T22:03:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T22:03:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T22:03:44Z_image_native_full.jpg, bytes=1732057, duration_sec=3.33, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T22:03:44Z_image_native_full.jpg (1732057 B, elapsed=7.0s)
+[RC] source prepared: 1000x562 (elapsed=7.8s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T22:03:44Z_image_compressed.jpg (59191 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T22:03:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=7.9s
+[SUP] ===== action 31 done: stage=saved skipped=False =====
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[DEBUG] Sent compact telemetry message (117 bytes): <WS v=1 a=idle tz=America/Los_Angeles lt=1504 ws=0000 we=0000 rk=1000x562 q=90 ct=33.2 sha=cabb79f109bd hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[SUP] ===== action 32 (scheduled) utc=2026-09-27T22:04:41Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-09-27T22:04:45.082000+00:00
+[BOOT] spotter_utc_read uptime_s=3791.80
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-09-27T15:04:45.082000-07:00
+[STORE] over limit: used=74.9% (cap 74.935%) free=24.06GiB (floor 1GiB) — pruning old stills
+[STORE] pruned {'save_local': 1}, freed 1.8 MB; used 74.9% -> 74.9%
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-09-27T22:04:44Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-09-27T22:04:44Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-09-27T22:04:44Z_image_native_full.jpg, bytes=1732091, duration_sec=3.43, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-09-27T22:04:44Z_image_native_full.jpg (1732091 B, elapsed=6.9s)
+[RC] source prepared: 1000x562 (elapsed=7.7s)
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-27T22:04:44Z_image_compressed.jpg (59355 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-27T22:04:44Z_image_native_full.jpg
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=still stage=saved sent=None/None elapsed=7.8s
+[SUP] ===== action 32 done: stage=saved skipped=False =====
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[SUP] stop requested (signal 15): shutdown -> close, no halt
+[CMD] stopped: applied=1 dup=1 rejected=0 unackable=0 acks=2 frames=2 sig_hits=2 crc_scan_fail=0 bad_start=0 read_err=0
+[RC] cycle end: elapsed=24.9s of 480s; halt=none
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-09-27T22:05:06+00:00
+============================================================

@@ -28,8 +28,10 @@ rc_video_tx.video_action), still reached through run_cycle /
 run_video_tx_cycle with `supervised=` so their injected dependencies (clock,
 sleep, halt, the golden harness's fakes) bind to this boot on first use.
 
-Scope (G4): still x transmit and video x transmit (video_tx.enabled). The
-recorder, --capture-only and heic paths run the legacy code (S3c).
+Scope: still and video (video_tx.enabled) x transmit (S3a) and x save_local
+(S3c: Boot.output, set by main from mode.output), --capture-only (S3c). The
+recorder (mode.media video_logger) still runs the legacy code: it moves in its
+own follow-up (PLAN_S3c.md §5 R1). heic has nothing left to run.
 
 Example (what main() does):
   boot = rc_supervisor.Boot(settings, media="still", bm_commands_cfg=cfg,
@@ -95,6 +97,16 @@ class Boot:
         # tail margin; main() sets the video value (clip + lead-in + 60 s).
         self.min_action_s = W10_MIN_STILL_ACTION_S
         self.w10_stuck = None         # a trg whose consume could not be persisted
+        # S3c (PLAN_S3c.md §5 C2): the output and its knobs live HERE, read once
+        # from the v2 values by main(). Never in `settings`: the overlay
+        # re-resolve rebuilds settings from the YAML base (boot drain, W10,
+        # every stay_on action), so a key put there would be lost on the first
+        # applied command and a save_local action would silently transmit.
+        self.output = "transmit"      # or "save_local"
+        self.save_quality = 85        # still.save.quality
+        self.storage_cfg = None       # video.storage.* (the one SD limit pair, §5 C3)
+        self.storage_reason = None    # "storage_full" while the SD is over its limit
+        self.save_time_reads = 0      # save_local_time_read calls that read Spotter time
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -168,6 +180,47 @@ class Boot:
             kwargs["min_clock_step_s"] = CLOCK_STEP_MIN_DRIFT_S
         self.gate_reads += 1
         return kwargs
+
+    @property
+    def save_local(self):
+        return self.output == "save_local"
+
+    def save_local_time_read(self, daemon, settings):
+        """S3c (PLAN_S3c.md §5 C9): a save_local action always reads Spotter
+        time, even when the window is disabled (the gate then reads nothing):
+        filenames are capture time and a Pi has no RTC. Same clock rule as the
+        gate (W6: the process's first read steps the clock, later reads only on
+        drift). A failed read saves anyway on the Pi clock. -> the time source
+        the saved files carry: "spotter", or "system" (read failed / no daemon),
+        or the configured time_source when it is not spotter_utc."""
+        if daemon is None:        # config_v2: save_local needs commands.enabled (a daemon)
+            return "system"
+        from spotter_time_sync import load_camera_schedule, set_system_clock_utc
+        try:
+            cfg = load_camera_schedule(settings["config_path"])
+            if cfg.time_source != "spotter_utc":
+                return cfg.time_source
+            utc = daemon.wait_for_spotter_utc(cfg.spotter_time_timeout_seconds)
+        except Exception as exc:
+            print(f"[SUP][WARN] save_local time read failed ({type(exc).__name__}: {exc}); "
+                  "saving on the Pi clock (time_source: system)")
+            return "system"
+        drift = (utc - datetime.now(timezone.utc)).total_seconds()
+        # W6 rule on this function's own reads (a window-off unit's gate reads
+        # nothing, so the gate counter says nothing about the clock).
+        if not cfg.set_system_clock_from_spotter:
+            print(f"[SUP] save_local time read {utc.isoformat()} (clock stepping off in config)")
+        elif self.save_time_reads > 0 and abs(drift) < CLOCK_STEP_MIN_DRIFT_S:
+            print(f"[SUP] save_local time read {utc.isoformat()}: drift {drift:+.1f}s, "
+                  "clock not stepped")
+        else:
+            try:
+                set_system_clock_utc(utc)
+                print(f"[SUP] save_local time read {utc.isoformat()}: clock set")
+            except Exception as exc:
+                print(f"[SUP][WARN] save_local clock step failed: {exc}")
+        self.save_time_reads += 1
+        return "spotter"
 
     def boot_drain(self, settings, summary, sleep_fn):
         """W4 (DESIGN §4 "drain queued commands"): apply the commands that are
@@ -259,7 +312,7 @@ def action_record(boot, error=None, n=None, kind=None):
         **extra,
         "utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runtime": "supervisor", "run": boot.run, "media": boot.media,
-        "output": "transmit" if boot.transmit else "none",
+        "output": boot.output if boot.transmit else "none",
         "trigger_id": (trig or {}).get("id") if isinstance(trig, dict) else None,
         "stage": s.get("stage"), "media_key": s.get("media_key") or boot.media_key,
         "sent": tr.get("sent"), "planned": tr.get("planned"),
@@ -473,14 +526,66 @@ def _boot_time_read(boot, daemon, settings, gate_fn):
         print(f"[SUP][WARN] stay_on boot time read failed ({type(exc).__name__}: {exc})")
 
 
-def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
-    """O5 (PLAN_S3b.md H11): send pending heals with no capture. The heal part
-    of a transmitting action on its own: plan (<= HEAL_CAP_PER_WAKE chunks,
+def send_pending_heals(daemon, settings, summary, budget, tx_open_fn, clock, sleep_fn):
+    """The heal part of a transmitting action on its own (O5 idle pass; S3c
+    save_local actions, PLAN_S3c.md §5 C14): plan (<= HEAL_CAP_PER_WAKE chunks,
     newest first), the lane wait when the unit uses the transmit phase, the
-    chunks (paced, pump-only), then one <HL> per key. A fresh budget per pass;
-    the pass counts as a wake for wakes_left. -> its summary. Never raises."""
+    chunks (paced, pump-only), then one <HL> per key. Runs on the CALLER's
+    budget and summary (a per_boot save_local action keeps its one budget, G1).
+    The pass counts as a wake for wakes_left. -> messages planned (chunks +
+    <HL>), or None when there is no heal wake (no daemon). Raises on a send
+    failure."""
     import rc_heal
     import rc_transmit_phase
+    heals = rc_heal.begin_wake(daemon, settings, summary,
+                               pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
+    if heals is None:
+        return None
+    delay = settings["pacing_delay_seconds"]
+    phase_cfg = settings.get("transmit_phase_cfg") or {}
+    if phase_cfg.get("enabled") and heals.planned_msgs:
+        burst_s = rc_transmit_phase.burst_seconds_for(heals.planned_msgs, delay)
+        grid = rc_transmit_phase.acquire_grid_clock(None, None, daemon=daemon, clock=clock)
+        plan = rc_transmit_phase.plan_from_clock(grid, burst_s, phase_cfg)
+        print(rc_transmit_phase.describe_plan(plan, burst_s))
+        if plan["wait_s"] > 0 and budget.has_time_for(plan["wait_s"] + burst_s):
+            sleep_fn(plan["wait_s"])
+    tx = tx_open_fn(settings["config_path"])
+    heals.send_before_start(tx, budget, reserve_msgs=0, delay_seconds=delay,
+                            sleep_fn=sleep_fn)
+    heals.send_status_after_end(tx, budget, wake_key=None, delay_seconds=delay,
+                                sleep_fn=sleep_fn)
+    return heals.planned_msgs
+
+
+def save_local_heals(daemon, settings, summary, budget, *, transmit, tx_open_fn, clock,
+                     sleep_fn, run="per_boot"):
+    """S3c §5 C14: a save_local action sends the heals that are pending (media
+    sent earlier; <= HEAL_CAP_PER_WAKE chunks, then <HL>), so they neither stall
+    nor stop ageing, on the action's own budget (G1). -> True when it put
+    anything on the uplink. Never raises (a heal must not cost the save)."""
+    if not transmit or daemon is None:
+        return False
+    if run != "per_boot":
+        # stay_on: the O5 idle pass sends them (a save_local action is not an
+        # uplink, so the idle timer runs); a heal wake per action would age
+        # wakes_left once a minute at interval 60 (review S3c #4).
+        return False
+    state = getattr(daemon, "state", None)
+    if not (getattr(state, "pending_heals", None) or getattr(daemon, "heal_events", None)):
+        return False
+    try:
+        planned = send_pending_heals(daemon, settings, summary, budget,
+                                     tx_open_fn, clock, sleep_fn)
+    except Exception as exc:
+        print(f"[HEAL][WARN] save_local heal slot failed ({type(exc).__name__}: {exc})")
+        return True                      # something may have gone out: count it
+    return bool(planned)
+
+
+def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
+    """O5 (PLAN_S3b.md H11): send pending heals with no capture, on a fresh
+    budget per pass (send_pending_heals). -> its summary. Never raises."""
     summary = {"command_events": [], "stage": "heal_pass"}
     boot.summary = summary
     boot.end_line = None             # the last action's end line is not this pass's
@@ -488,25 +593,9 @@ def heal_pass(boot, daemon, settings, tx_open_fn, clock, sleep_fn):
                          clock=clock)
     boot.budget = budget
     try:
-        heals = rc_heal.begin_wake(daemon, settings, summary,
-                                   pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
-        if heals is None:
-            return summary
-        delay = settings["pacing_delay_seconds"]
-        phase_cfg = settings.get("transmit_phase_cfg") or {}
-        if phase_cfg.get("enabled") and heals.planned_msgs:
-            burst_s = rc_transmit_phase.burst_seconds_for(heals.planned_msgs, delay)
-            grid = rc_transmit_phase.acquire_grid_clock(None, None, daemon=daemon, clock=clock)
-            plan = rc_transmit_phase.plan_from_clock(grid, burst_s, phase_cfg)
-            print(rc_transmit_phase.describe_plan(plan, burst_s))
-            if plan["wait_s"] > 0 and budget.has_time_for(plan["wait_s"] + burst_s):
-                sleep_fn(plan["wait_s"])
-        tx = tx_open_fn(settings["config_path"])
-        heals.send_before_start(tx, budget, reserve_msgs=0, delay_seconds=delay,
-                                sleep_fn=sleep_fn)
-        heals.send_status_after_end(tx, budget, wake_key=None, delay_seconds=delay,
-                                    sleep_fn=sleep_fn)
-        summary["stage"] = "done"
+        if send_pending_heals(daemon, settings, summary, budget, tx_open_fn, clock,
+                              sleep_fn) is not None:
+            summary["stage"] = "done"
     except Exception as exc:
         summary["error"] = f"{type(exc).__name__}: {exc}"
         print(f"[SUP][ERR] idle heal pass failed: {summary['error']}")
@@ -608,6 +697,13 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                 guard.sched_save(now)
             summary = _run_action(boot, action_fn, settings_fn(), n, kind, quiet)
             skipped = summary.get("schedule_allowed") is False
+            # S3c (§5 C1): an action that sent nothing (a save_local action with
+            # no heals) is not an uplink: it moves neither the heartbeat nor the
+            # O5 idle-heal timer, or a unit saving every minute would never beat.
+            # Transmitting actions never set the key (their summaries unchanged).
+            # A save_local action that raised has no key: it sent nothing
+            # (review S3c #1), so a failing unit keeps its heartbeat.
+            uplinked = summary.get("uplinked", not boot.save_local)
             if kind == "scheduled":
                 next_due = now + interval_s
                 if next_due <= clock():
@@ -619,9 +715,9 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                 stuck_trg = trg
                 print(f"[SUP][ERR] trg id={trg.get('id')} is still armed after its action "
                       "(consume not persisted); not re-firing it in this process")
-            if not (skipped and quiet):
+            if uplinked and not (skipped and quiet):
                 last_uplink = clock()
-            if not skipped:
+            if uplinked and not skipped:
                 last_send = clock()      # O5 idle = no action or heal SENT (review S3b #5)
             guard.rotate_stdout_if_big()
             rss = guard.current_rss_kb()

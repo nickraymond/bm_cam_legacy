@@ -1,0 +1,300 @@
+[FIELD-UPDATE] === stage 0: preflight ===
+[FIELD-UPDATE] repo=/home/pi/repos/bm_cam_legacy ref=development profile=bmcam004/live_20260925 dry_run=false
+[FIELD-UPDATE] preflight OK (24654MB free, no cycle running)
+[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+[FIELD-UPDATE] crontab backed up -> /home/pi/crontab_before_field_update_20260927T160048Z.txt; RC @reboot line disabled
+[FIELD-UPDATE] === stage 2: repo sync ===
+From https://github.com/nickraymond/bm_cam_legacy
+ * [new branch]      feature/sprint26-s3b-stay-on -> origin/feature/sprint26-s3b-stay-on
+Already on 'development'
+From https://github.com/nickraymond/bm_cam_legacy
+ * branch            development -> FETCH_HEAD
+Updating 1636c8b..9491f1f
+Fast-forward
+ .claude/skills/bmcam-field-update/SKILL.md         |    6 +
+ BM_Devel_Pi/command_daemon.py                      |   28 +-
+ BM_Devel_Pi/config_registry.py                     |   17 +-
+ BM_Devel_Pi/config_v1_reader.py                    |    2 +
+ BM_Devel_Pi/config_v2.py                           |   15 +-
+ BM_Devel_Pi/rc_capture.py                          |   29 +-
+ BM_Devel_Pi/rc_command_hooks.py                    |   14 +-
+ BM_Devel_Pi/rc_heal.py                             |   24 +-
+ BM_Devel_Pi/rc_port_owner.py                       |    9 +-
+ BM_Devel_Pi/rc_progressive_jpeg.py                 |  145 ++-
+ BM_Devel_Pi/rc_run_capture_cycle.sh                |  110 +-
+ BM_Devel_Pi/rc_stay_on_guard.py                    |  160 +++
+ BM_Devel_Pi/rc_supervisor.py                       |  464 +++++++-
+ BM_Devel_Pi/rc_video_tx.py                         |   16 +-
+ runs/s3b_bench_20260927/PLAN.md                    |   97 ++
+ runs/s3b_bench_20260927/RESULTS.md                 |   70 ++
+ runs/s3b_bench_20260927/bmcam003_deploy_final.log  |  183 +++
+ runs/s3b_bench_20260927/bmcam003_deploy_s3b.log    |  173 +++
+ runs/s3b_bench_20260927/bmcam003_f3.out            |   17 +
+ .../bmcam003_f3/rc_cycle_20260926T222008Z.log      |   83 ++
+ runs/s3b_bench_20260927/bmcam003_watcher.log       |   38 +
+ runs/s3b_bench_20260927/bmcam004_deploy_s3a.log    | 1221 ++++++++++++++++++++
+ runs/s3b_bench_20260927/bmcam004_follow.log        |   14 +
+ runs/s3b_bench_20260927/bmcam004_watcher.log       |   38 +
+ runs/s3b_bench_20260927/console.sh                 |    9 +
+ runs/s3b_bench_20260927/console_commands.log       |  299 +++++
+ runs/s3b_bench_20260927/follow_bmcam004.sh         |   36 +
+ runs/s3b_bench_20260927/heal_check.txt             |   30 +
+ runs/s3b_bench_20260927/heal_check_bmcam003.txt    |    1 +
+ runs/s3b_bench_20260927/heal_check_driver.txt      |   27 +
+ runs/s3b_bench_20260927/move_bmcam004.out          |   54 +
+ runs/s3b_bench_20260927/move_bmcam004.sh           |   12 +
+ runs/s3b_bench_20260927/read_bmcam003_f3.sh        |   14 +
+ runs/s3b_bench_20260927/rearm.log                  |    6 +
+ runs/s3b_bench_20260927/rearm_s3b.sh               |   12 +
+ runs/s3b_bench_20260927/rss_actions.jsonl          |   21 +
+ runs/s3b_bench_20260927/run_manifest.json          |   11 +
+ runs/s3b_bench_20260927/set_stay_on.py             |   43 +
+ runs/s3b_bench_20260927/status.sh                  |    8 +
+ runs/s3b_bench_20260927/watcher_host.sh            |   32 +
+ runs/s3b_bench_20260927/watcher_s3b.sh             |   32 +
+ .../DESIGN_supervisor.md                           |    3 +-
+ sprints/Sprint26_remote_command_loop/PLAN_S3b.md   |  249 ++++
+ tests/golden/README.md                             |   30 +
+ tests/golden/run_scenario.py                       |   60 +-
+ tests/golden/scenarios.py                          |   74 ++
+ .../vectors/still_trigger_in_tail/summary.json     |  301 +++++
+ .../golden/vectors/still_trigger_in_tail/trace.txt |  205 ++++
+ .../stay_on_crashloop_fallback/summary.json        |  353 ++++++
+ .../stay_on_crashloop_fallback/trace.txt           |  203 ++++
+ .../vectors_stay_on/stay_on_idle_heal/summary.json |   94 ++
+ .../vectors_stay_on/stay_on_idle_heal/trace.txt    |   15 +
+ .../vectors_stay_on/stay_on_still/summary.json     |  825 +++++++++++++
+ .../golden/vectors_stay_on/stay_on_still/trace.txt |  615 ++++++++++
+ .../vectors_stay_on/stay_on_video/summary.json     |  278 +++++
+ .../golden/vectors_stay_on/stay_on_video/trace.txt |  297 +++++
+ .../stay_on_window_skip/summary.json               |  383 ++++++
+ .../vectors_stay_on/stay_on_window_skip/trace.txt  |  225 ++++
+ .../still_trigger_in_tail/summary.json             |  468 ++++++++
+ .../still_trigger_in_tail/trace.txt                |  403 +++++++
+ tests/golden/world.py                              |   11 +
+ tests/test_config_registry.py                      |    3 +-
+ tests/test_config_v2.py                            |    4 +-
+ tests/test_golden_vectors.py                       |   31 +-
+ tests/test_s3b_boot_scopes.py                      |  167 +++
+ tests/test_s3b_capture_stop.py                     |  104 ++
+ tests/test_s3b_hardening.py                        |  141 +++
+ tests/test_s3b_idle_heal.py                        |   76 ++
+ tests/test_s3b_registry.py                         |  113 ++
+ tests/test_s3b_review_fixes.py                     |   68 ++
+ tests/test_s3b_soak.py                             |  223 ++++
+ tests/test_s3b_stay_on.py                          |  304 +++++
+ tests/test_s3b_w10.py                              |  163 +++
+ tests/test_s3b_wrapper.py                          |  143 +++
+ tools/rc_runtime_manifest.txt                      |    1 +
+ 75 files changed, 10190 insertions(+), 63 deletions(-)
+ create mode 100644 BM_Devel_Pi/rc_stay_on_guard.py
+ create mode 100644 runs/s3b_bench_20260927/PLAN.md
+ create mode 100644 runs/s3b_bench_20260927/RESULTS.md
+ create mode 100644 runs/s3b_bench_20260927/bmcam003_deploy_final.log
+ create mode 100644 runs/s3b_bench_20260927/bmcam003_deploy_s3b.log
+ create mode 100644 runs/s3b_bench_20260927/bmcam003_f3.out
+ create mode 100644 runs/s3b_bench_20260927/bmcam003_f3/rc_cycle_20260926T222008Z.log
+ create mode 100644 runs/s3b_bench_20260927/bmcam003_watcher.log
+ create mode 100644 runs/s3b_bench_20260927/bmcam004_deploy_s3a.log
+ create mode 100644 runs/s3b_bench_20260927/bmcam004_follow.log
+ create mode 100644 runs/s3b_bench_20260927/bmcam004_watcher.log
+ create mode 100755 runs/s3b_bench_20260927/console.sh
+ create mode 100644 runs/s3b_bench_20260927/console_commands.log
+ create mode 100755 runs/s3b_bench_20260927/follow_bmcam004.sh
+ create mode 100644 runs/s3b_bench_20260927/heal_check.txt
+ create mode 100644 runs/s3b_bench_20260927/heal_check_bmcam003.txt
+ create mode 100644 runs/s3b_bench_20260927/heal_check_driver.txt
+ create mode 100644 runs/s3b_bench_20260927/move_bmcam004.out
+ create mode 100755 runs/s3b_bench_20260927/move_bmcam004.sh
+ create mode 100755 runs/s3b_bench_20260927/read_bmcam003_f3.sh
+ create mode 100644 runs/s3b_bench_20260927/rearm.log
+ create mode 100755 runs/s3b_bench_20260927/rearm_s3b.sh
+ create mode 100644 runs/s3b_bench_20260927/rss_actions.jsonl
+ create mode 100644 runs/s3b_bench_20260927/run_manifest.json
+ create mode 100644 runs/s3b_bench_20260927/set_stay_on.py
+ create mode 100755 runs/s3b_bench_20260927/status.sh
+ create mode 100755 runs/s3b_bench_20260927/watcher_host.sh
+ create mode 100755 runs/s3b_bench_20260927/watcher_s3b.sh
+ create mode 100644 sprints/Sprint26_remote_command_loop/PLAN_S3b.md
+ create mode 100644 tests/golden/vectors/still_trigger_in_tail/summary.json
+ create mode 100644 tests/golden/vectors/still_trigger_in_tail/trace.txt
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_crashloop_fallback/summary.json
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_crashloop_fallback/trace.txt
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_idle_heal/summary.json
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_idle_heal/trace.txt
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_still/summary.json
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_still/trace.txt
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_video/summary.json
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_video/trace.txt
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_window_skip/summary.json
+ create mode 100644 tests/golden/vectors_stay_on/stay_on_window_skip/trace.txt
+ create mode 100644 tests/golden/vectors_supervisor/still_trigger_in_tail/summary.json
+ create mode 100644 tests/golden/vectors_supervisor/still_trigger_in_tail/trace.txt
+ create mode 100644 tests/test_s3b_boot_scopes.py
+ create mode 100644 tests/test_s3b_capture_stop.py
+ create mode 100644 tests/test_s3b_hardening.py
+ create mode 100644 tests/test_s3b_idle_heal.py
+ create mode 100644 tests/test_s3b_registry.py
+ create mode 100644 tests/test_s3b_review_fixes.py
+ create mode 100644 tests/test_s3b_soak.py
+ create mode 100644 tests/test_s3b_stay_on.py
+ create mode 100644 tests/test_s3b_w10.py
+ create mode 100644 tests/test_s3b_wrapper.py
+[FIELD-UPDATE] repo: 1636c8bf17bf -> 9491f1f54217 (development)
+[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+[RC-DEPLOY] repo=/home/pi/repos/bm_cam_legacy
+[RC-DEPLOY] manifest=/home/pi/repos/bm_cam_legacy/tools/rc_runtime_manifest.txt
+[RC-DEPLOY] destination=/home/pi/BM_Devel_Pi (staging in /home/pi/BM_Devel_Pi.next)
+[RC-DEPLOY] mode=field-update profile=none cron=false
+[RC-DEPLOY] timestamp=20260927T160051Z hostname=bmcam004 python=/usr/bin/python3
+[RC-DEPLOY] preflight: PyYAML present
+[RC-DEPLOY] preflight: boot cycle not armed
+[RC-DEPLOY] staged 48 files in /home/pi/BM_Devel_Pi.next
+[RC-DEPLOY] syntax check (py_compile 43 files, staged)
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash 72a12186
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] backing up runtime code/config to /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20260927T160051Z.tgz (images/buffers/logs/videos excluded)
+[RC-DEPLOY] restore command: tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20260927T160051Z.tgz -C /home/pi
+[RC-DEPLOY] copy rc_progressive_jpeg.py
+[RC-DEPLOY] copy rc_time_budget.py
+[RC-DEPLOY] copy rc_jpeg_encoder.py
+[RC-DEPLOY] copy rc_quality_selector.py
+[RC-DEPLOY] copy rc_uplink_messages.py
+[RC-DEPLOY] copy rc_transmit.py
+[RC-DEPLOY] copy rc_transmit_phase.py
+[RC-DEPLOY] copy rc_power_halt.py
+[RC-DEPLOY] copy rc_run_capture_cycle.sh
+[RC-DEPLOY] copy spotter_time_sync.py
+[RC-DEPLOY] copy bm_serial.py
+[RC-DEPLOY] copy bm_codec.py
+[RC-DEPLOY] copy bm_port.py
+[RC-DEPLOY] copy rc_capture.py
+[RC-DEPLOY] copy rc_telemetry.py
+[RC-DEPLOY] copy rc_port_owner.py
+[RC-DEPLOY] copy rc_supervisor.py
+[RC-DEPLOY] copy rc_stay_on_guard.py
+[RC-DEPLOY] copy command_tables.py
+[RC-DEPLOY] copy command_messages.py
+[RC-DEPLOY] copy command_state.py
+[RC-DEPLOY] copy command_bindings.py
+[RC-DEPLOY] copy command_daemon.py
+[RC-DEPLOY] copy command_help.py
+[RC-DEPLOY] copy bm_frame_decoder.py
+[RC-DEPLOY] copy rc_command_hooks.py
+[RC-DEPLOY] copy rc_media_key.py
+[RC-DEPLOY] copy rc_heal.py
+[RC-DEPLOY] copy config_registry.py
+[RC-DEPLOY] copy config_v1_reader.py
+[RC-DEPLOY] copy config_dump.py
+[RC-DEPLOY] copy config_migrate.py
+[RC-DEPLOY] copy atomic_io.py
+[RC-DEPLOY] copy config_v2.py
+[RC-DEPLOY] copy config_journal.py
+[RC-DEPLOY] copy video_geometry.py
+[RC-DEPLOY] copy video_recorder.py
+[RC-DEPLOY] copy video_ring.py
+[RC-DEPLOY] copy video_manifest.py
+[RC-DEPLOY] copy videoui_server.py
+[RC-DEPLOY] copy video_settings.py
+[RC-DEPLOY] copy rc_video_clip.py
+[RC-DEPLOY] copy rc_video_tx.py
+[RC-DEPLOY] copy network_ap.sh
+[RC-DEPLOY] copy network_config.py
+[RC-DEPLOY] copy tuned_halt.sh
+[RC-DEPLOY] copy reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg
+[RC-DEPLOY] copy reference_images/reference_card_native_imx708.jpg
+[RC-DEPLOY] installed 48 files; staging dir removed
+[RC-DEPLOY] camera_schedule.yaml untouched (device-specific; use --profile to install one)
+[RC-DEPLOY] crontab untouched (use --install-cron to arm the boot cycle)
+[RC-DEPLOY] config v2 effective hash: 72a12186
+[RC-DEPLOY] write software_sha.txt=9491f1f54217
+[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+[BOOT] main_entry uptime_s=62.05
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=72a12186 hv=1 registry=v3 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[RC-DEPLOY] UART check: /dev/serial0 -> ttyAMA0, no serial console (BM-transmit-capable)
+[RC-DEPLOY] deploy complete
+[RC-DEPLOY] next (new unit validation ladder — NOTE: with power_halt enabled, ANY cycle HALTS the box at cycle end):
+[RC-DEPLOY]   cd /home/pi/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh --check   # UART transmit-capable gate
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --compress-only <native.jpg>
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit
+[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+[FIELD-UPDATE] config v2 unit (/home/pi/BM_Devel_Pi/camera_config.yaml): camera_schedule.yaml is NOT patched
+[FIELD-UPDATE]   uplink.chunk_chars: unit=384 profile=384
+[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.3 profile=1.3
+[FIELD-UPDATE]   uplink.network_type: unit=2 profile=2
+[FIELD-UPDATE]   to adopt the profile, re-migrate it (backs up the v2 files first):
+[FIELD-UPDATE]     cp /home/pi/repos/bm_cam_legacy/device_profiles/bmcam004/live_20260925/camera_schedule.yaml /home/pi/BM_Devel_Pi/camera_schedule.yaml && python3 /home/pi/repos/bm_cam_legacy/tools/config_migrate_v1_v2.py --app /home/pi/BM_Devel_Pi --write --force
+[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+[FIELD-UPDATE] UART OK: serial0 -> ttyAMA0, no kernel console on the link
+[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+[BOOT] main_entry uptime_s=65.13
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=72a12186 hv=1 registry=v3 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[FIELD-UPDATE] UART open OK: /dev/ttyAMA0 @ 115200, network 0x02 cellular-only
+[FIELD-UPDATE] validation OK (real-transmit check is a manual step — see summary)
+[FIELD-UPDATE] === stage 7: re-arm ===
+[FIELD-UPDATE] crontab left DISARMED (--leave-disarmed); restore with: crontab /home/pi/crontab_before_field_update_20260927T160048Z.txt
+[FIELD-UPDATE] power_halt state (verify matches intent for this unit): config v2 (effective, incl. command overlay): enabled=True dry_run=False level=v2
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: 1636c8bf17bf -> 9491f1f54217 | values: chunk=384 delay=1.3
+[FIELD-UPDATE] rollback: crontab /home/pi/crontab_before_field_update_20260927T160048Z.txt; cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.before_field_update_20260927T160048Z /home/pi/BM_Devel_Pi/camera_schedule.yaml; runtime tar in /home/pi/backups (see deploy output)
+[FIELD-UPDATE] recommended live check (SPENDS QUOTA; with power_halt enabled the box HALTS after):
+[FIELD-UPDATE]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit --skip-time-window

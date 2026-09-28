@@ -73,6 +73,14 @@ FIXED_STORAGE = {
     "zero_byte_heic_count": 0,          # retired in development (DESIGN W1); main still sends it
 }
 
+# Sprint26 S3c: what the stills storage guard (rc_still_storage) sees: the same
+# SD as FIXED_STORAGE, under every limit (29 % used, 20.5 GiB free).
+FIXED_DISK_USAGE = shutil._ntuple_diskusage(FIXED_STORAGE["sd_total_bytes"],
+                                            FIXED_STORAGE["sd_used_bytes"],
+                                            FIXED_STORAGE["sd_free_bytes"])
+# ... and the SD over every limit (99 % used, 0.3 GB free): the "disk": "full" scenarios.
+FULL_DISK_USAGE = shutil._ntuple_diskusage(31_000_000_000, 30_700_000_000, 300_000_000)
+
 # What a real rpicam-still --metadata file carries (the fields the END message reads).
 FIXED_LIBCAMERA_METADATA = {
     "ExposureTime": 12000, "AnalogueGain": 1.5, "DigitalGain": 1.0,

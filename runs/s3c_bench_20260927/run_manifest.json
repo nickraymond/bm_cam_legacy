@@ -1,0 +1,180 @@
+{
+ "run_tag": "s3c_bench_20260927",
+ "unit": "bmcam003",
+ "spotter": "SPOT-33507C",
+ "bridge": "c3c564b91856226c",
+ "code": {
+  "branch": "feature/sprint26-s3c-save-local",
+  "sha": "cabb79f"
+ },
+ "control": {
+  "unit": "bmcam004",
+  "sha": "9491f1f",
+  "state": "S3b supervisor per_boot armed"
+ },
+ "config_hashes": {
+  "before": "72a12186 (registry v3)",
+  "after_deploy": "62e0a1cb (registry v4)",
+  "video_half": "317b430d",
+  "still_half": "ce967219",
+  "per_boot_wake": "f56acbb3",
+  "restored": "62e0a1cb"
+ },
+ "phases": {
+  "video_half": [
+   "2026-09-27T21:03:35Z",
+   "2026-09-27T21:34:02Z",
+   {
+    "cap_pct": 74.91,
+    "interval_s": 60
+   }
+  ],
+  "still_half": [
+   "2026-09-27T21:34:38Z",
+   "2026-09-27T22:05:05Z",
+   {
+    "cap_pct": 74.935,
+    "interval_s": 60
+   }
+  ],
+  "per_boot_wake": [
+   "2026-09-27T22:05:26Z",
+   "2026-09-27T22:08:19Z",
+   {
+    "halt": "dry_run"
+   }
+  ]
+ },
+ "result": "PASS (video criterion amended to cap + 2 clips, RESULTS.md \u00a75)",
+ "commands": "gate.log, console_commands.log, PLAN.md",
+ "files": {
+  "PLAN.md": {
+   "bytes": 2832,
+   "sha256_16": "e2ccc3978ea21310"
+  },
+  "RESULTS.md": {
+   "bytes": 7285,
+   "sha256_16": "bad9b04a838d4f4c"
+  },
+  "bmcam003_deploy_s3c.log": {
+   "bytes": 11797,
+   "sha256_16": "6197289a65f8851f"
+  },
+  "bmcam003_watcher.log": {
+   "bytes": 4405,
+   "sha256_16": "75d03e2841bfc121"
+  },
+  "bmcam004_deploy_s3b.log": {
+   "bytes": 19693,
+   "sha256_16": "1f1df01366166d9c"
+  },
+  "bmcam004_follow.log": {
+   "bytes": 941,
+   "sha256_16": "af6444381477f196"
+  },
+  "bmcam004_watcher.log": {
+   "bytes": 3195,
+   "sha256_16": "ca7e5b8246122020"
+  },
+  "console.sh": {
+   "bytes": 866,
+   "sha256_16": "f8e013b1cb9d0df2"
+  },
+  "console_commands.log": {
+   "bytes": 18546,
+   "sha256_16": "44a6758cb385e5fb"
+  },
+  "follow_bmcam004.sh": {
+   "bytes": 2277,
+   "sha256_16": "125d348fcd5b9383"
+  },
+  "gate.log": {
+   "bytes": 4261,
+   "sha256_16": "705f2b060cfa3cf1"
+  },
+  "gate.sh": {
+   "bytes": 6996,
+   "sha256_16": "3cc4229fe4e4eaf3"
+  },
+  "move_bmcam004.out": {
+   "bytes": 4136,
+   "sha256_16": "5475575615b9650a"
+  },
+  "move_bmcam004.sh": {
+   "bytes": 641,
+   "sha256_16": "0ade6854e11a30a7"
+  },
+  "plot_sampler.py": {
+   "bytes": 3532,
+   "sha256_16": "4b5cfe7528cfdec7"
+  },
+  "rearm.log": {
+   "bytes": 302,
+   "sha256_16": "c66f0864c1703e9c"
+  },
+  "rearm_s3c.sh": {
+   "bytes": 1108,
+   "sha256_16": "23a0d5214a2b69c5"
+  },
+  "sampler.sh": {
+   "bytes": 935,
+   "sha256_16": "86e1f895167bcfa6"
+  },
+  "sd_usage.png": {
+   "bytes": 21545,
+   "sha256_16": "5f91b02b6fb9061c"
+  },
+  "set_s3c.py": {
+   "bytes": 1866,
+   "sha256_16": "6adf7b22c241e0ae"
+  },
+  "watcher_s3b.sh": {
+   "bytes": 2274,
+   "sha256_16": "8ed6c2752f586da9"
+  },
+  "watcher_s3c.sh": {
+   "bytes": 2727,
+   "sha256_16": "2f4695bbe5e64f0b"
+  },
+  "pulled/images.after.txt": {
+   "bytes": 82924,
+   "sha256_16": "b617d89f446a4338"
+  },
+  "pulled/images.before.txt": {
+   "bytes": 82924,
+   "sha256_16": "00883018c3522ccf"
+  },
+  "pulled/rc_cycle_20260927T200834Z.log": {
+   "bytes": 4322,
+   "sha256_16": "b61bb8918ebe5e93"
+  },
+  "pulled/rc_cycle_20260927T210331Z.log": {
+   "bytes": 47126,
+   "sha256_16": "c4f9112f283002f2"
+  },
+  "pulled/rc_cycle_20260927T213421Z.log": {
+   "bytes": 74005,
+   "sha256_16": "cbe0b0886c1fc945"
+  },
+  "pulled/rc_cycle_20260927T220526Z.log": {
+   "bytes": 5105,
+   "sha256_16": "597dad92e4fc0466"
+  },
+  "pulled/sampler.csv": {
+   "bytes": 22245,
+   "sha256_16": "d1d0a49b24ab0d84"
+  },
+  "pulled/supervisor_actions.jsonl": {
+   "bytes": 38088,
+   "sha256_16": "808a3a0b82b76c98"
+  },
+  "pulled/videos.after.txt": {
+   "bytes": 161676,
+   "sha256_16": "90decd9bd76d39c6"
+  },
+  "pulled/videos.before.txt": {
+   "bytes": 161676,
+   "sha256_16": "808af2923339f25d"
+  }
+ }
+}
