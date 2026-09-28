@@ -244,4 +244,5 @@ a high-water reset verb would reopen signed replay → dropped (G9).
 NITs fixed: G6 text vs ONE_SHOT (text corrected), v8 trigger dropped loudly, `<CF>` UTF-8
 escapes + no split `%XX` + 3-digit part counts, v1 reader defaults from the registry,
 `Rejected` hashable with args, stable `pending_trigger` object (the supervisor compares by
-identity). Carried to b.1: #4 — `config_v2.state_overlay` must skip `v8` once folded.
+identity). #4 fixed too: one pure `plan_fold()` is used by V9State and by
+`config_v2.state_overlay`, so a reset of a folded key sticks and the logged hash matches.
