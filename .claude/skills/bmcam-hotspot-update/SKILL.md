@@ -16,33 +16,57 @@ unit.** The camera/Spotter path is cellular and works without WiFi; Tailscale
 needs WiFi. Check the Sofar dashboard first — if images still arrive, the Pi
 is healthy.
 
-## Phase 0 — since Sprint12: can a REMOTE COMMAND fix it instead?
+## Phase 0 — can a REMOTE COMMAND fix it instead?
 
-Halt mode and the transmit window are **no longer SSH-only** (they were the
-two settings that forced the 2026-07-31 site visit). If the unit is running
-Sprint12+ code with `bm_commands.enabled: true` (fleet default since
-2026-07-31), try the cloud mailbox BEFORE anyone drives out:
+Halt mode and the transmit window are **not SSH-only** (they were the two
+settings that forced the 2026-07-31 site visit). Try the cloud mailbox
+BEFORE anyone drives out. Since Sprint26 S4 the camera speaks **commands
+v9** — only on a unit running the supervisor runtime with a migrated (v2)
+command state; a legacy/unmigrated unit still speaks v8 (`hlt`/`twn`/`cfg`,
+see the reference for its version). The v8 verbs (`roi foc awb exp win txd
+cap src hlt twn tmz cfg`) are retired in v9; each is now a `set` key:
 
-- wrong/disabled halt → `hlt 1|2|3`, restore YAML with `hlt 0`
-- window misconfigured / unit never transmits → `twn 2` (wide, the remote
-  un-brick), restore with `twn 0`
-- on-demand image or camera-vs-link diagnosis → `trg 2` (capture+send) /
-  `trg 3` (reef reference, camera skipped)
+- wrong/disabled halt → `{"id":1000101,"c":"set","kv":{"power.halt.enabled":false}}`.
+  Turning halt ON (`true`) is **staged until confirmed**: the ack says
+  `"s":1`, and nothing changes until `{"id":1000102,"c":"cfm","ref":1000101}`.
+- window misconfigured / unit never transmits →
+  `{"id":1000103,"c":"set","kv":{"schedule.window.enabled":false}}` (the remote
+  un-brick), or set the window itself: `schedule.window.start` /
+  `schedule.window.end` (`"HH:MM"`, local to `schedule.timezone`;
+  start == end = all day). Undo with `{"id":N,"c":"reset","k":["schedule.window"]}`
+  (back to the YAML values).
+- on-demand image or camera-vs-link diagnosis → `{"id":N,"c":"trg","v":2}`
+  (capture + output per mode) / `"v":3` or `4` (reference image, one-shot).
+- what is the unit running? → `{"id":N,"c":"get","k":["power.halt","schedule.window"]}`
+  (answer: `<CF v=1 h=<hash> key=value[@c<id>] ...>` uplink + console line).
 
-Send: `python3 tools/sofar_send_command.py --spotter-id SPOT-XXXXX --id N
---cmd twn --value 2` (or the bm_command_gui retry engine). Re-send until
-acked; latency is hours (~hourly [MS] mailbox drain). Full reference:
+Send with the CLI (validates with the unit's own decoder, refuses > 248 B):
+
+    python3 tools/sofar_send_command.py --spotter-id SPOT-XXXXX --id 1000101 \
+        --set power.halt.enabled=false --dry-run      # drop --dry-run to send
+    python3 tools/sofar_send_command.py --spotter-id SPOT-XXXXX --id 1000104 \
+        --get schedule.window
+
+or the bm_command_gui retry engine. Ids: remote range **1 000 000 –
+99 999 999**, always higher than any id sent before (the unit refuses an
+older id `e:"old"`; a re-sent SAME id gets its original answer + `"d":1`).
+Re-send the same id until acked; latency is hours (~hourly [MS] mailbox
+drain). Watch acks with `tools/sofar_poll_acks.py` (`h e k s d v`: config
+hash, error code + key, staged, duplicate, hold minutes). Full reference:
 `docs/bmcam_command_reference.md`. A hotspot session is still required for:
-units on pre-Sprint12 code, software updates, and anything in the
-provisioning-only list (`REMOTE_CONFIG_AUDIT.md`).
+units on pre-Sprint12 code, software updates, locked keys (file paths,
+`commands.runtime`: `e:"lock"`), and anything in the provisioning-only list
+(`REMOTE_CONFIG_AUDIT.md`).
 
-Since Sprint13 (tables v5): anyone at the Spotter USB console — including
-the customer — can send `help` (full generated command reference with
-copy-paste examples) and `cfg` (resolved settings with per-row source).
-Zero quota, prints on the console. If someone is on-site at a console,
-have them run `help` before walking them through anything from memory:
+Anyone at the Spotter USB console — including the customer — can send
+`help` (the v9 verbs, short names and id ranges, printed on the console)
+and `get` (values + source). Zero quota, prints on the console. Console
+ids 1–99 999 answer on the console only. If someone is on-site at a
+console, have them run `help` before walking them through anything from
+memory:
 
     bm pub bmcam/cmd {"id":106,"c":"help"} 1 1
+    bm pub bmcam/cmd {"id":107,"c":"get","k":["mode"]} 1 1
 
 ## Phase 1 — iPhone hotspot (the person on-site)
 
@@ -123,10 +147,11 @@ from bmcam001:
   With real halt, ANY cycle (even a bench --transmit test) halts the
   box: re-arm cron BEFORE the validation transmit, and treat SSH death
   ~2 min after the transmit finishes as SUCCESS.
-- Remote commands can NOT change the daily transmit window — the v2 command
-  table (`roi foc awb exp win txd cap src ping`) has no window command;
-  `win` is the per-cycle run-time budget. Window changes need SSH (or a
-  future command-table addition).
+- Remote commands CAN change the daily transmit window since commands v9
+  (`set` `schedule.window.enabled` / `.start` / `.end`, `schedule.timezone`)
+  on a supervisor + migrated unit. On a legacy v8 unit only `twn`
+  (Sprint12) exists, and the old v2 table's `win` was the per-cycle
+  run-time budget (now `still.budget_min`), not the window.
 
 ## Permissions: what the agent can and cannot run
 

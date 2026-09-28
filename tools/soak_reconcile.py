@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # filename: soak_reconcile.py
-# description: Sprint10 soak — reconcile backend data against sends/cycles.
+# description: Sprint10 soak / Sprint26 S4 c.3 — reconcile backend data against sends/cycles (v9 acks, <CF>, <HL>).
 """
-Sprint10 24 h soak — backend reconciliation sweep (SOAK_PLAN_24H.md).
+Soak backend reconciliation sweep (Sprint10 SOAK_PLAN_24H.md; commands v9
+since Sprint26 S4 c.3).
 
 Pulls api/sensor-data for a Spotter and classifies every row:
-  ack      command acks {"id":N,"ok":..}          -> id, ok, st, node
+  ack      v9 slim acks {"id":N,"ok":..,"h":..}   -> id, ok, h, e, k, s, d, v, node
+  cf       config lines <CF v=1 h=.. ...>         -> h, n, err/reverted head, items
+  hl       heal status  <HL v=1 key=.. a=.. ...>  -> key, a, n, r, id, w
   chunk    image chunks  <I{i}>base64             -> index i
   start    <START,...> / START envelopes          -> filename/meta
   end      <END,...> / END envelopes
@@ -13,12 +16,20 @@ Pulls api/sensor-data for a Spotter and classifies every row:
   other    anything else (listed, never silently dropped)
 
 Emits a JSON summary (stdout or --out) with the report's headline
-numbers for one unit: acks seen (by id), image chunk coverage per
-START..END group (complete / missing indexes), and row counts.
+numbers for one unit: acks seen (by id), <CF> and <HL> lines, image
+chunk coverage per START..END group (complete / missing indexes), and
+row counts.
+
+Inputs:  --spotter-id, --hours (lookback), --out (JSON path; stdout if
+         absent); env SOFAR_API_TOKEN_BM_REEF.
+Outputs: the JSON summary; one [reconcile] line when --out is given.
 
 Usage:
   python3 tools/soak_reconcile.py --spotter-id SPOT-33507C --hours 6 \
       --out runs/sprint10_soak_20260727/reconcile_33507C_<ts>.json
+
+Known limitations: multi-part <CF> lines are listed per part (not
+reassembled); a v8 ack's `st` is not stored (v9 has none).
 """
 
 import argparse
@@ -32,7 +43,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
 
 from sofar_poll_acks import (_ssl_context, decode_value, extract_ack,  # noqa: E402
-                             normalize_node_id)
+                             extract_cf, normalize_node_id, tag_fields)
 from urllib.parse import urlencode  # noqa: E402
 from urllib.request import urlopen  # noqa: E402
 
@@ -51,6 +62,14 @@ def classify(text):
         return "chunk", (m.group(1), int(m.group(2)))  # (gid|None, index)
     if s.startswith("<WS") or s.startswith("WS,"):
         return "ws", s[:40]
+    if s.startswith("<CF "):
+        cf = extract_cf(s)
+        if cf is not None:
+            return "cf", cf
+    if s.startswith("<HL "):
+        hl = tag_fields(s, "HL")
+        if hl is not None:
+            return "hl", hl
     if "START" in s[:12]:
         return "start", s[:80]
     if "END" in s[:12]:
@@ -87,19 +106,31 @@ def reconcile(rows):
     """Group chunks into images. gid-tagged chunks (`<Igid.i>`) attribute
     exactly to their gid's group regardless of arrival order; legacy
     chunks fall back to arrival-order attribution between STARTs."""
-    out = {"rows": len(rows), "counts": {}, "acks": [], "images": [],
-           "other": [], "undecodable": 0}
+    out = {"rows": len(rows), "counts": {}, "acks": [], "cf": [], "heals": [],
+           "images": [], "other": [], "undecodable": 0}
     current = None            # legacy arrival-order group
     by_gid = {}               # gid -> group dict
     for r in sorted(rows, key=lambda r: r.get("timestamp", "")):
         kind, val = classify(decode_value(r.get("value")))
         out["counts"][kind] = out["counts"].get(kind, 0) + 1
         ts = r.get("timestamp", "?")
+        node = normalize_node_id(r.get("bristlemouth_node_id"))
         if kind == "ack":
+            # v9 slim ack (command_wire.build_ack): no `st` snapshot.
             out["acks"].append({
                 "ts": ts, "id": val["id"], "ok": val.get("ok"),
-                "e": val.get("e"), "st": val.get("st"),
-                "node": normalize_node_id(r.get("bristlemouth_node_id"))})
+                "h": val.get("h"), "e": val.get("e"), "k": val.get("k"),
+                "s": val.get("s"), "d": val.get("d"), "v": val.get("v"),
+                "node": node})
+        elif kind == "cf":
+            out["cf"].append({
+                "ts": ts, "h": val["h"],
+                "n": list(val["n"]) if val["n"] else None,
+                "err": val["err"], "k": val["k"], "reverted": val["reverted"],
+                "lim": val["lim"], "ref": val["ref"],
+                "items": [list(item) for item in val["items"]], "node": node})
+        elif kind == "hl":
+            out["heals"].append(dict(val, ts=ts, node=node))
         elif kind == "start":
             f = _start_fields(val)
             group = {"start_ts": ts, "start": val, "chunks": set(),
@@ -183,7 +214,8 @@ def main(argv=None):
             f.write(text)
         comp = sum(1 for i in out["images"] if i["complete"])
         print(f"[reconcile] {args.spotter_id}: rows={out['rows']} "
-              f"acks={len(out['acks'])} images={comp}/{len(out['images'])} "
+              f"acks={len(out['acks'])} cf={len(out['cf'])} "
+              f"hl={len(out['heals'])} images={comp}/{len(out['images'])} "
               f"complete -> {args.out}")
     else:
         print(text)

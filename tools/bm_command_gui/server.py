@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # filename: server.py
-# description: Sprint10 §7 — local operator GUI server (Mac, stdlib only).
+# description: Sprint10 §7 / Sprint26 S4 c.3 — local operator GUI server (Mac, stdlib only; commands v9).
 """
-Sprint10 operator GUI — the human sending surface for BM camera commands
-(SPEC "Operator GUI", DESIGN D9/D10). Local Mac tool, NOT the customer
-website. Zero dependencies beyond the repo (stdlib http.server).
+Operator GUI — the human sending surface for BM camera commands
+(Sprint10 SPEC "Operator GUI", DESIGN D9/D10; commands v9 since Sprint26
+S4 c.3, DESIGN_supervisor.md §6.1-6.2, §6.4). Local Mac tool, NOT the
+customer website. Zero dependencies beyond the repo (stdlib http.server).
 
     export SOFAR_API_TOKEN_BM_REEF=...     # never on the CLI
     python3 tools/bm_command_gui/server.py [--port 8770]
@@ -13,16 +14,24 @@ website. Zero dependencies beyond the repo (stdlib http.server).
 What it does
   - Target selection from targets.json (registered SPOT-ID + expected
     BM node id) — GUI item 1.
-  - Preset dropdowns GENERATED from command_tables.py — the GUI cannot
-    offer a value the daemon can't apply — GUI item 2 / D9.
+  - Controls GENERATED from BM_Devel_Pi/config_registry.py (groups, keys,
+    types, presets, short names, guard badges, the trg one-shot list) —
+    the GUI offers the registry, not a hand list — GUI item 2 / D9.
+  - Every command is built as v9 JSON ({"id","c",...}: set / get / reset /
+    cfm / trg(+kv) / hld / ping / help / wap) with an id from the REMOTE
+    range (floor 1 000 000; cellular ack + high-water), validated by the
+    unit's own strict decoder (command_wire.decode) and the registry
+    (sofar_send_command.validate_command), and refused over 248 B JSON /
+    270 B console line — before any network call.
   - Sends via the Sofar Command API (same code path as
     tools/sofar_send_command.py) and shows the cloud-accept result +
     in-flight state per command id; refuses to stack sends while one is
     pending for the target (override checkbox) and enforces Sofar's
     1/min/Spotter rate limit client-side — GUI item 3 / D10.
-  - Polls api/sensor-data for acks (auto every poll_s, observed backend
-    lag 13-30 min), verifies them, displays acked/mismatch loudly —
-    GUI item 4.
+  - Polls api/sensor-data for v9 slim acks (auto every poll_s, observed
+    backend lag 13-30 min), verifies them (lifecycle.verify_ack: ok -> acked
+    with the config hash h; ok:0 -> rejected with e/k; d:1 duplicate still
+    acked; wrong node -> mismatch), displays them loudly — GUI item 4.
 
 Delivery-robustness features (2026-07-31, after the mailbox-wedge
 diagnosis — runs/remote_cmd_diagnosis_20260731/REPORT.md):
@@ -34,8 +43,9 @@ diagnosis — runs/remote_cmd_diagnosis_20260731/REPORT.md):
     command is consumed unheard — measured live: ids 1016/1017 delivered
     to a 0.15 V bus.
   - Retry-until-ack: no ack after retry_after_s (default 40 min ≈ one
-    duty cycle + margin) -> re-send the SAME id (daemon dedupe makes
-    this idempotent), up to max_attempts, then retry_exhausted loudly.
+    duty cycle + margin) -> re-send the SAME id (the unit's result cache
+    answers a repeat with its original answer + d:1, so this is
+    idempotent), up to max_attempts, then retry_exhausted loudly.
     One command in flight per spotter, always — stacking pending
     commands in the Sofar FIFO is the wedge risk state.
   - Un-wedge button: clear_command_queue + fresh ping probe in one call
@@ -47,6 +57,11 @@ restart); sends also append to the shared runs/sofar_command_sends.jsonl
 so the CLI and GUI share one rate-limit view.
 
 Bind: 127.0.0.1 only. One operator at a time is the design point.
+
+Known limitations: the whole-config rules (cross-key, environment) run on
+the unit only; a set the GUI accepts can still come back ok:0 e:"xk".
+Service keys are not offered (they need a signed command:
+tools/bm_service_sign.py + sofar_send_command --json).
 """
 
 import argparse
@@ -63,12 +78,28 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
 sys.path.insert(0, HERE)
 
-import command_tables as ct            # noqa: E402
+import command_wire as W              # noqa: E402
+import config_registry as R            # noqa: E402
 import lifecycle as lc                 # noqa: E402
 import sofar_poll_acks as spa          # noqa: E402
 import sofar_send_command as ssc       # noqa: E402
 
 DEFAULT_PORT = 8770
+# The v9 verbs the GUI builds (rsd = backend heals; not an operator verb).
+GUI_VERBS = ("set", "get", "reset", "cfm", "trg", "hld", "ping", "help", "wap")
+# Request fields a command may carry (besides id and c), per command_wire.FIELDS.
+COMMAND_FIELDS = ("kv", "k", "all", "ref", "v", "to", "b")
+TRG_LABELS = {0: "cancel the pending action", 1: "capture + save only",
+              2: "capture + output per mode", 3: "reference image (source 3)",
+              4: "reference image (source 4)"}
+WAP_LABELS = {0: "back to the boot network default", 1: "open AP now (self-reverting)",
+              2: "join Nereus HQ WiFi now"}
+GUARD_BADGES = {
+    R.GUARDED_STAGE: "staged until cfm",
+    R.GUARDED_REVERT: "reverts without cfm",
+    R.LOCKED: "locked (deploy only)",
+    R.SERVICE: "service (signed only)",
+}
 GUI_LOG = os.path.join(REPO_ROOT, "runs", "gui_commands.jsonl")
 
 
@@ -111,19 +142,45 @@ class GuiState:
     # -- config for the page ---------------------------------------------
 
     def config(self):
-        commands = {}
-        for cmd in ct.COMMANDS:
-            if cmd == "ping":
-                commands[cmd] = [{"v": 0, "label": "ping (liveness test)"}]
-                continue
-            commands[cmd] = [
-                {"v": v, "label": f"{v}: {ct.entry_for(cmd, v)['label']}"}
-                for v in sorted(ct.table_for(cmd))
-            ]
+        """Everything the page builds its controls from — generated from
+        config_registry (keys, types, presets, short names, guard badges)."""
+        groups = []
+        for top in R.groups():
+            keys = []
+            for k in R.keys_in(top):
+                keys.append({
+                    "path": k.path, "type": k.type, "default": k.default,
+                    "help": k.help, "enum": list(k.enum),
+                    "range": list(k.range) if k.range else None,
+                    "nullable": k.nullable, "short": k.short,
+                    "guard": k.guard,
+                    "guard_when": (list(k.guard_when)
+                                   if k.guard_when is not None else None),
+                    "badge": GUARD_BADGES.get(k.guard),
+                    "apply": k.apply,
+                    "settable": k.guard not in (R.LOCKED, R.SERVICE),
+                    "one_shot": k.path in R.ONE_SHOT,
+                    "presets": [{"label": label, "value": value}
+                                for label, value in k.presets],
+                })
+            groups.append({"name": top, "keys": keys,
+                           "subgroups": sorted({k.group for k in R.keys_in(top)})})
         return {
             "targets": self.targets,
-            "commands": commands,
-            "tables_version": ct.TABLES_VERSION,
+            "registry_version": R.REGISTRY_VERSION,
+            "verbs": list(GUI_VERBS),
+            "groups": groups,
+            "short_names": dict(R.SHORT_NAMES),
+            "media_short": {name: dict(m) for name, m in R.MEDIA_SHORT.items()},
+            "trg_values": [{"v": v, "label": f"{v}: {TRG_LABELS[v]}"}
+                           for v in W.TRG_VALUES],
+            "wap_values": [{"v": v, "label": f"{v}: {WAP_LABELS[v]}"}
+                           for v in sorted(WAP_LABELS)],
+            "hld_max_min": R.BY_PATH["commands.hold_max_min"].range[1],
+            "max_json_bytes": W.MAX_JSON_BYTES,
+            "max_line_bytes": W.MAX_CONSOLE_LINE_BYTES,
+            "id_floor": lc.REMOTE_ID_FLOOR,
+            "error_codes": dict(getattr(W, "ERROR_CODES", {})),
             "poll_s": self.poll_s,
             "rate_limit_s": ssc.RATE_LIMIT_S,
             "retry_after_s": self.retry_after_s,
@@ -131,19 +188,30 @@ class GuiState:
             "wake_poll_s": self.wake_poll_s,
         }
 
+    @staticmethod
+    def command_fields(req):
+        """The v9 fields of a /api/send request (everything but id and c)."""
+        return {k: req[k] for k in COMMAND_FIELDS if k in req}
+
     # -- sending ----------------------------------------------------------
 
-    def send(self, spotter_id, node_id, c, v, override_in_flight=False,
-             mode="wake"):
+    def send(self, spotter_id, node_id, c, fields=None,
+             override_in_flight=False, mode="wake"):
         """Validate, build, rate-limit, POST (or arm for the next wake),
-        record. Returns a dict for the page; never raises for
-        operator-level errors. mode: "now" | "wake" (default — fires
-        when a fresh uplink row shows the unit awake)."""
+        record. c: a v9 verb (GUI_VERBS); fields: its fields besides id and
+        c, e.g. {"kv": {"d": 8}} / {"k": ["mode"]} / {"v": 2}. The id is
+        minted here (remote range). Returns a dict for the page; never
+        raises for operator-level errors. mode: "now" | "wake" (default —
+        fires when a fresh uplink row shows the unit awake)."""
         token = os.environ.get(ssc.TOKEN_ENV)
         if not token:
             return {"error": f"server started without {ssc.TOKEN_ENV} set"}
         if mode not in ("now", "wake"):
             return {"error": f"unknown send mode {mode!r}"}
+        if c not in GUI_VERBS:
+            return {"error": f"invalid command: {c!r} is not one of "
+                             f"{', '.join(GUI_VERBS)}"}
+        fields = dict(fields or {})
         with self.lock:
             pending = self.store.pending(spotter_id)
             if pending and not override_in_flight:
@@ -152,16 +220,15 @@ class GuiState:
             try:
                 cmd_id = self.store.next_command_id(
                     extra_used=self._send_log_ids())
-                payload = ssc.build_command_json(
-                    cmd_id, c, None if c == "ping" else int(v))
+                # command_wire.decode + registry + 248 B (validate_command)
+                payload = ssc.build_command_json(cmd_id, c, fields)
                 message = ssc.build_console_line(payload)
-                ssc.validate_message(message)
+                ssc.validate_message(message)                 # 270 B line
             except (ValueError, TypeError) as e:
                 return {"error": f"invalid command: {e}"}
             if mode == "wake":
                 self.store.record_scheduled(cmd_id, spotter_id, node_id, c,
-                                            None if c == "ping" else int(v),
-                                            message)
+                                            fields, message)
                 # Baseline: rows at/before arm time don't count as a wake.
                 self.wake_rows.setdefault(spotter_id, None)
                 return {"cmd_id": cmd_id, "state": lc.SCHEDULED}
@@ -170,12 +237,13 @@ class GuiState:
             if last is not None and now - last < ssc.RATE_LIMIT_S:
                 return {"error": "rate_limited",
                         "retry_in_s": int(ssc.RATE_LIMIT_S - (now - last)) + 1}
-        out = self._post_and_record(spotter_id, node_id, c, v, cmd_id,
+        out = self._post_and_record(spotter_id, node_id, c, fields, cmd_id,
                                     message, token, attempt=1)
+        out["message"] = message
         return out
 
-    def _post_and_record(self, spotter_id, node_id, c, v, cmd_id, message,
-                         token, attempt, clear_queue=False):
+    def _post_and_record(self, spotter_id, node_id, c, fields, cmd_id,
+                         message, token, attempt, clear_queue=False):
         """POST one command (network I/O outside the lock) and record it
         in both logs. Shared by direct sends, wake fires and retries."""
         body = {"telemetry": ssc.TELEMETRY, "message": message}
@@ -200,9 +268,7 @@ class GuiState:
                 # harmless (daemon dedupe) and stays in the send log.
                 return {"cmd_id": cmd_id, "state": cur["state"],
                         "http_status": status, "response": resp}
-            self.store.record_sent(cmd_id, spotter_id, node_id, c,
-                                   None if c == "ping" else
-                                   (int(v) if v is not None else None),
+            self.store.record_sent(cmd_id, spotter_id, node_id, c, fields,
                                    message, status, resp, attempt=attempt,
                                    cleared_queue=clear_queue)
             return {"cmd_id": cmd_id, "state": self.store.get(cmd_id)["state"],
@@ -223,9 +289,9 @@ class GuiState:
                         "retry_in_s": int(ssc.RATE_LIMIT_S - (now - last)) + 1}
             cmd_id = self.store.next_command_id(
                 extra_used=self._send_log_ids())
-            payload = ssc.build_command_json(cmd_id, "ping", None)
+            payload = ssc.build_command_json(cmd_id, "ping")   # v9 ping probe
             message = ssc.build_console_line(payload)
-        return self._post_and_record(spotter_id, node_id, "ping", None,
+        return self._post_and_record(spotter_id, node_id, "ping", {},
                                      cmd_id, message, token, attempt=1,
                                      clear_queue=True)
 
@@ -326,7 +392,7 @@ class GuiState:
                 continue  # rate-limited; next tick retries the fire
             cmd = due[0]  # one per tick per spotter (Sofar: 1 send/min)
             self._post_and_record(spotter, cmd.get("node_id"), cmd.get("c"),
-                                  cmd.get("v"), cmd["cmd_id"],
+                                  cmd.get("fields"), cmd["cmd_id"],
                                   cmd["message"], token, attempt=1)
         with self.lock:
             self.last_wake_check = {
@@ -335,8 +401,9 @@ class GuiState:
             }
 
     def check_retries(self):
-        """Re-send unacked commands (same id — daemon dedupe makes this
-        idempotent) after retry_after_s; give up loudly at max_attempts."""
+        """Re-send unacked commands (same id — the unit's result cache makes
+        this idempotent: a repeat gets the original answer + d:1) after
+        retry_after_s; give up loudly at max_attempts."""
         token = os.environ.get(ssc.TOKEN_ENV)
         if not token:
             return
@@ -359,8 +426,9 @@ class GuiState:
             if last is not None and time.time() - last < ssc.RATE_LIMIT_S:
                 continue  # rate-limited; next tick
             self._post_and_record(cmd["spotter_id"], cmd.get("node_id"),
-                                  cmd.get("c"), cmd.get("v"), cmd["cmd_id"],
-                                  cmd["message"], token, attempt=attempts + 1)
+                                  cmd.get("c"), cmd.get("fields"),
+                                  cmd["cmd_id"], cmd["message"], token,
+                                  attempt=attempts + 1)
 
     def worker_loop(self):
         last_wake_poll = 0.0
@@ -437,8 +505,11 @@ def make_handler(state):
                 for key in ("spotter_id", "node_id", "c"):
                     if key not in req:
                         return self._json({"error": f"missing {key}"}, 400)
+                if "id" in req:
+                    return self._json({"error": "the GUI allocates the id; "
+                                                "send the command without one"}, 400)
                 out = state.send(req["spotter_id"], req["node_id"],
-                                 req["c"], req.get("v"),
+                                 req["c"], state.command_fields(req),
                                  bool(req.get("override_in_flight")),
                                  req.get("mode", "wake"))
                 self._json(out, 200 if "error" not in out else 409)
@@ -498,7 +569,8 @@ def main(argv=None):
     server = ThreadingHTTPServer(("127.0.0.1", args.port),
                                  make_handler(state))
     print(f"[gui] serving http://127.0.0.1:{args.port}  "
-          f"(targets: {len(state.targets)}, tables v{ct.TABLES_VERSION}, "
+          f"(targets: {len(state.targets)}, commands v9, registry "
+          f"v{R.REGISTRY_VERSION}, ids from {lc.REMOTE_ID_FLOOR}, "
           f"ack poll {args.poll_s}s, wake poll {args.wake_poll_s}s, "
           f"retry after {args.retry_after_min:g} min × "
           f"{args.max_attempts} attempts)")
