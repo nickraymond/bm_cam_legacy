@@ -423,6 +423,8 @@ IDLE_HEAL_S = 600.0          # O5 (Nick 2026-09-25): pending heals go out after 
 EXIT_ARGS = 2                # stay_on cannot run as invoked (no daemon: no --transmit)
 EXIT_CRASH = 70              # H7: stay_on failed (watchdog, error); wrapper restarts, backoff
 EXIT_RSS = 71                # H9: RSS ceiling reached; clean exit, wrapper restarts in 5 s
+EXIT_CONFIG = 72             # S4 G10g: a next-boot setting changed; wrapper restarts in 5 s,
+                             # not counted toward the crash-loop cap
 
 # H6: SIGTERM sets a flag only (stay_on). Raising inside subprocess.run would
 # kill a capture or the halt script mid-way; the loop stops at its next safe
@@ -688,6 +690,14 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
     stuck_trg = None             # a trg whose consume could not be persisted
     while not stop_requested():
         _idle_tick(daemon, clock, sleep_fn)
+        restart = getattr(getattr(daemon, "v9_dispatch", None), "restart_requested", None)
+        if restart:
+            # G10g: a next-boot key (mode, UART, topic, ...) takes effect through a
+            # clean process restart; everything that arrived this tick is persisted
+            # and its acks queued (flushed by finish), so several sets coalesce.
+            print(f"[SUP] config restart: {', '.join(restart)} changed (next boot); "
+                  f"exit {EXIT_CONFIG} (the wrapper restarts in 5 s)")
+            return EXIT_CONFIG
         ok, why = _reader_health(daemon)
         if not ok:
             print(f"[SUP][ERR] watchdog: {why}; exit {EXIT_CRASH} (the wrapper restarts)")

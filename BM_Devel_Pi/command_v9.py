@@ -84,6 +84,7 @@ class Dispatcher:
         self.clock = clock
         self.service_key = service_key
         self._log = log
+        self.restart_requested = []   # next-boot keys changed (stay_on exits 72, G10g)
         self._answered_at = {}     # id -> clock() when first answered in THIS process
         self._dup_cell = {}        # id -> clock() of the last cellular d:1 copy
 
@@ -410,8 +411,13 @@ class Dispatcher:
 
     def _change_summary(self, cmd, event):
         """R5 / DESIGN §6.2: a <CF> of the keys that changed, after the ack,
-        for a cellular sender (the backend's hash -> snapshot record)."""
+        for a cellular sender (the backend's hash -> snapshot record). Also
+        notes next-boot keys for the stay_on config restart (G10g)."""
         changed = [path for path, _old, _new in event.get("changed", [])]
+        for path in changed:
+            key = R.BY_PATH.get(path)
+            if key is not None and key.apply == R.NEXT_BOOT and path not in self.restart_requested:
+                self.restart_requested.append(path)
         if changed:
             values = self.effective()
             self._queue_cf(cmd, [(p, values.get(p), self._source(p)) for p in changed])
