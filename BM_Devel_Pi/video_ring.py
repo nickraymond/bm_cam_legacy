@@ -90,6 +90,13 @@ def ensure_room(video_dir, storage_cfg, *, disk_usage_fn=shutil.disk_usage,
 
     Disk usage is read ONCE and the effect of each deletion is applied
     arithmetically — deterministic for tests, and immune to statvfs lag.
+
+    The bound this gives (S3c bench F3, runs/s3c_bench_20260927 §5): the check
+    runs BEFORE a clip is recorded, and record_one_clip briefly holds the
+    `.h264.part` while it muxes the `.mp4.tmp` (the .part goes only after the
+    rename). So the SD peaks at the cap + about TWO clips while a clip is in
+    flight (measured +7.2 MB for 4.8 MB clips) and settles at cap + one clip.
+    Size max_used_pct with that headroom.
     Returns a dict the status message and logs feed from:
       used_pct/free_gb   : state BEFORE pruning
       deleted            : list of stems actually deleted

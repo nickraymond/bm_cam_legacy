@@ -14,7 +14,9 @@ Per completed clip:
        "dur":300,"tmp":52.1,"du":21.4,"dt":104.0,"rd":0}
     tmp = CPU temp C; du/dt = disk used/total GiB; rd = ring deletions.
   - `manifest.json` REGENERATED from the directory (the manifest IS the
-    UI state, D-S15-9): newest-first clip list for the gallery.
+    UI state, D-S15-9): newest-first clip list for the gallery. The recorder
+    rebuilds it per clip (write_manifest); a save_local action updates it
+    incrementally (add_to_manifest, S3c follow-up F1).
 
 StatusQueue: send failure never blocks recording — lines queue and retry
 at the next clip boundary, drop-oldest beyond a small cap (D-S15-6).
@@ -149,51 +151,91 @@ def write_sidecar(video_dir, base, record):
     return _atomic_write_json(os.path.join(video_dir, base + ".json"), record)
 
 
-def write_manifest(video_dir, generated_utc=None):
-    """Regenerate manifest.json from the directory contents (newest
-    first). The manifest is DERIVED state — a missing or stale sidecar
-    degrades that entry, never the manifest."""
-    import video_ring
-
-    clips = []
-    for triple in reversed(video_ring.completed_clip_triples(video_dir)):
-        stem = triple["stem"]
-        mp4_path = os.path.join(video_dir, stem + ".mp4")
-        entry = {
-            "name": stem + ".mp4",
-            "bytes": os.path.getsize(mp4_path) if os.path.exists(mp4_path) else 0,
-            "utc": utc_from_basename(stem),
-            "thumb": None,
-            "dur": None,
-            "res": None,
-            "fps": None,
-            # Sprint18: the gallery card shows achieved-vs-set bitrate and
-            # whether the recorded size is real detail. bytes/dur gives
-            # achieved; br/preset/scale must come from the sidecar. Three
-            # small fields here keep the LIST cheap — everything else stays
-            # in the per-clip detail route.
-            "br": None,
-            "preset": None,
-            "scale": None,
-        }
-        thumb = os.path.join(video_dir, stem + "_thumb.jpg")
-        if os.path.exists(thumb):
-            entry["thumb"] = stem + "_thumb.jpg"
+def _manifest_entry(video_dir, stem, record=None):
+    """One manifest clip entry. `record` is the clip's sidecar dict when the
+    caller has it in hand (add_to_manifest); otherwise the sidecar is read from
+    disk (write_manifest). Both paths give the same entry."""
+    mp4_path = os.path.join(video_dir, stem + ".mp4")
+    entry = {
+        "name": stem + ".mp4",
+        "bytes": os.path.getsize(mp4_path) if os.path.exists(mp4_path) else 0,
+        "utc": utc_from_basename(stem),
+        "thumb": None,
+        "dur": None,
+        "res": None,
+        "fps": None,
+        # Sprint18: the gallery card shows achieved-vs-set bitrate and
+        # whether the recorded size is real detail. bytes/dur gives
+        # achieved; br/preset/scale must come from the sidecar. Three
+        # small fields here keep the LIST cheap — everything else stays
+        # in the per-clip detail route.
+        "br": None,
+        "preset": None,
+        "scale": None,
+    }
+    thumb = os.path.join(video_dir, stem + "_thumb.jpg")
+    if os.path.exists(thumb):
+        entry["thumb"] = stem + "_thumb.jpg"
+    if record is None:
         sidecar = os.path.join(video_dir, stem + ".json")
         if os.path.exists(sidecar):
             try:
                 with open(sidecar, "r", encoding="utf-8") as f:
-                    rec = json.load(f)
-                for key in ("dur", "res", "fps", "br", "preset", "scale"):
-                    entry[key] = rec.get(key)
+                    record = json.load(f)
             except Exception:
-                pass
-        clips.append(entry)
-    manifest = {"schema": "bmcam_video_manifest_v1",
+                record = None
+    if isinstance(record, dict):
+        for key in ("dur", "res", "fps", "br", "preset", "scale"):
+            entry[key] = record.get(key)
+    return entry
+
+
+def _write_clips(video_dir, clips, generated_utc):
+    manifest = {"schema": MANIFEST_SCHEMA,
                 "generated_utc": generated_utc,
                 "count": len(clips),
                 "clips": clips}
     return _atomic_write_json(os.path.join(video_dir, "manifest.json"), manifest)
+
+
+MANIFEST_SCHEMA = "bmcam_video_manifest_v1"
+
+
+def write_manifest(video_dir, generated_utc=None):
+    """Regenerate manifest.json from the directory contents (newest
+    first). The manifest is DERIVED state — a missing or stale sidecar
+    degrades that entry, never the manifest. Cost: one sidecar read per
+    clip (0.88 s for 689 clips on a Pi Zero 2W, S3c RESULTS F1)."""
+    import video_ring
+
+    clips = [_manifest_entry(video_dir, triple["stem"])
+             for triple in reversed(video_ring.completed_clip_triples(video_dir))]
+    return _write_clips(video_dir, clips, generated_utc)
+
+
+def add_to_manifest(video_dir, stem, record, removed_stems=(), generated_utc=None):
+    """Incremental manifest update for ONE new clip (S3c follow-up F1): load
+    the existing manifest.json, drop the clips the ring just deleted
+    (`removed_stems`) and any earlier entry for `stem`, add the new clip from
+    its sidecar `record` (no sidecar re-reads), keep newest first. The result
+    equals what write_manifest would build. A missing or unreadable manifest
+    (first clip, torn write, other schema) falls back to the full rebuild.
+    Why: a save_local video unit writes one clip a minute; rebuilding reads
+    every sidecar each time (~25 s per action at a full 123 GB card)."""
+    path = os.path.join(video_dir, "manifest.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        clips = manifest["clips"]
+        if manifest.get("schema") != MANIFEST_SCHEMA or not isinstance(clips, list):
+            raise ValueError("unexpected manifest")
+    except Exception:
+        return write_manifest(video_dir, generated_utc=generated_utc)
+    gone = {f"{s}.mp4" for s in removed_stems} | {stem + ".mp4"}
+    clips = [c for c in clips if isinstance(c, dict) and c.get("name") not in gone]
+    clips.append(_manifest_entry(video_dir, stem, record=record))
+    clips.sort(key=lambda c: str(c.get("name")), reverse=True)
+    return _write_clips(video_dir, clips, generated_utc)
 
 
 class StatusQueue:

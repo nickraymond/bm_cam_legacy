@@ -116,3 +116,15 @@ RSS now 15–34 MB, peak 137 MB (the stills encode, as in S3b). No reboot during
 - **Rollback:** redeploy development 9491f1f. The restored `camera_config.yaml` is the pre-bench
   file byte for byte (copied from the backup), so it has no registry-v4 key and loads on S3b code.
   Its hash reads 62e0a1cb under v4 only because the loader fills the new default.
+
+## 9. Follow-ups closed after the gate (branch feature/s3c-followups)
+
+- **F1:** a save_local video action now updates `manifest.json` incrementally
+  (`video_manifest.add_to_manifest`): it loads the manifest, drops the ring's deletions and adds
+  the new clip from its sidecar record, re-reading no other sidecar. The result equals a full
+  rebuild (unit-tested through adds and deletions). On the Mac at 20k clips it takes 0.37 s
+  against 2.61 s. **Residual:** the JSON load and rewrite is still O(clips), about 4.6 MB per
+  write at 20k clips. Future hardening: page or cap the manifest. The recorder keeps the full
+  rebuild (it moves with R1).
+- **F3:** the ring's bound (cap + ~2 clips in flight) is documented in
+  `video_ring.ensure_room`.
