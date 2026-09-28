@@ -30,7 +30,7 @@ import command_state_v9 as S  # noqa: E402
 import rc_supervisor as sup  # noqa: E402
 from rc_time_budget import CycleBudget  # noqa: E402
 from tests.test_config_v2 import quiet  # noqa: E402
-from tests.test_s4_dispatch import Rig  # noqa: E402
+from tests.test_s4_dispatch import Rig, signed  # noqa: E402
 
 LIMITS = {"commands.keepalive_s": 300, "commands.keepalive_max_s": 1800,
           "commands.hold_max_min": 120, "power.bus_always_on": False}
@@ -126,6 +126,76 @@ class KeepAlive(unittest.TestCase):
         r.daemon._inbound.put(json.dumps({"id": 1_000_001, "c": "trg", "v": 2}).encode())
         self.assertEqual(quiet(b.stay_awake, r.daemon, clock.sleep), "trigger")
         self.assertLess(clock.t, 600.0)
+
+    def test_a_trg_while_held_on_a_held_bus_fires_past_the_budget(self):
+        # S5 F7 (bench 2026-09-28): bmcam003 on a held bus, hld 120 granted 30 min
+        # after boot; a trg then stayed armed because the 480 s boot budget was spent.
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=480.0, limits={"power.bus_always_on": True})
+        clock.t = 1800.0
+        self.assertEqual(b.request_hold(60), 60)
+        r.daemon._inbound.put(json.dumps({"id": 1_000_001, "c": "trg", "v": 2}).encode())
+        self.assertEqual(quiet(b.stay_awake, r.daemon, clock.sleep), "trigger")
+
+    def test_a_spent_budget_on_a_scheduled_bus_keeps_the_trg_armed(self):
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=480.0)
+        clock.t = 1800.0
+        r.send({"id": 1_000_001, "c": "trg", "v": 2})
+        self.assertIsNotNone(b._pending_trigger())
+        self.assertFalse(b.w10_trigger_fits())
+
+    def test_a_w10_action_on_a_held_bus_gets_a_fresh_budget(self):
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=480.0, limits={"power.bus_always_on": True})
+        b.settings = {"budget_seconds": 480, "pacing_delay_seconds": 1.0}
+        b.owner = type("Owner", (), {"daemon": r.daemon})()
+        clock.t = 1800.0
+        old = b.budget
+        self.assertEqual(old.remaining_s(), 0.0)
+        b.reanchor_budget = True           # what _w10_actions sets on a held bus
+        _daemon, budget = b.start({}, clock=clock, sleep_fn=clock.sleep, halt_fn=None,
+                                  bm_close_fn=None, daemon_factory=None, log_fn=print,
+                                  close_warn=print, end_line=None)
+        self.assertIsNot(budget, old)
+        self.assertEqual(budget.remaining_s(), 480.0)
+        self.assertFalse(b.reanchor_budget)
+        b.reanchor_budget = False          # scheduled bus: the one boot budget stays
+        _daemon, again = b.start({}, clock=clock, sleep_fn=clock.sleep, halt_fn=None,
+                                 bm_close_fn=None, daemon_factory=None, log_fn=print,
+                                 close_warn=print, end_line=None)
+        self.assertIs(again, budget)
+
+    def test_a_new_guarded_key_does_not_inherit_unguarded_idle_time(self):
+        # S5 F8 (bench 2026-09-28): a signed uplink.chunk_chars set on a stay_on
+        # process that had nothing guarded for 6 min showed uptime_s 377 at once.
+        r = Rig(self)
+        b, clock = make_boot(r, run="stay_on")
+        b.guard_state = r.state
+        b._guard_mark = 0.0
+        for t in range(60, 7260, 60):          # 2 h of idle notes, nothing guarded
+            clock.t = float(t)
+            self.assertEqual(b.note_guards(None), [])
+        r.send(signed({"id": 100_000_001, "c": "set", "kv": {"uplink.chunk_chars": 360}}))
+        clock.t += 30.0
+        self.assertEqual(quiet(b.note_guards, None), [])      # was a "2h" revert
+        rec = S.V9State(r.state_path).guarded["uplink.chunk_chars"]
+        self.assertLessEqual(rec["uptime_s"], 90.0)
+
+    def test_a_hold_counts_guarded_uptime_as_it_passes(self):
+        r = Rig(self)
+        b, clock = make_boot(r, budget_s=3600.0, limits={"power.bus_always_on": True})
+        b.guard_state = r.state
+        b._guard_mark = 0.0
+        r.send({"id": 1_000_001, "c": "set", "kv": {"commands.topic": "bmcam/cmd2"}})
+        quiet(b.note_guards, None)
+        seen = []
+        real = b.note_guards
+        b.note_guards = lambda summary=None: seen.append(clock.t) or real(summary)
+        b.request_hold(10)
+        quiet(b.stay_awake, r.daemon, clock.sleep)
+        self.assertGreaterEqual(len(seen), 9)            # about once a minute for 10 min
+        self.assertTrue(all(b2 - a2 >= 59.9 for a2, b2 in zip(seen, seen[1:])))
 
     def test_off_the_v9_path_or_stay_on_does_nothing(self):
         r = Rig(self)

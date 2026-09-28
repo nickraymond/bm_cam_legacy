@@ -61,11 +61,14 @@ def _fmt(value):
 def render_help():
     """The compact v9 help: verbs, short names, settable groups (console only)."""
     lines = ["v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)",
-             'ping   {"id":N,"c":"ping"}',
+             'ping   {"id":N,"c":"ping"}   help {"id":N,"c":"help"}',
+             'get    {"id":N,"c":"get","k":["<key, short or group>",...]}  "journal" = last changes',
              'set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none',
              'reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}',
+             'cfm    {"id":N,"c":"cfm","ref":<set id>}  confirms a guarded set',
              'trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, '
              '2 capture + output per mode, 3/4 reference',
+             'hld    {"id":N,"c":"hld","v":<min>}  stay awake (0 releases)',
              'rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)',
              "short: " + " ".join(f"{s}={p}" for s, p in sorted(R.SHORT_NAMES.items()))
              + " m=message cap of the media",

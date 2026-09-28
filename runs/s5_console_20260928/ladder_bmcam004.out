@@ -1,0 +1,413 @@
+##### 18:49:55 PHASE A: wake, close the window at the boot drain, stage bus_always_on
+CELL 2026-09-28T18:49:57Z len=397 <I0dxg3a.3>+w0U/OTHy0hCR5GAWGOMtiB30o8Rvukgv9oMj85je2tg61j7dAXBxO7YBb08EQdsymNzpbJ6PwwhTO65cDLIlspuV+IAztIUzkIeHt0t3Wel7ArY/KEZOzzyQ4zpEMQ1k/7MvOordHulPjpPfPeki2G32zjm6E26N2KTDPffS7VT+CdttRlSs1YGy
+CELL 2026-09-28T18:49:58Z len=397 <I0dxg3a.4>xdb/12jyxLgPqvAukv65sxUMh4tUHGaSMzN/jk/rwgtGXVjW6RXO7brh7Z3zRsRLE3F2fV/mlHUNFZRyvVEmFPrFDjxs6G4IvhJJpxJTQGkQbLbV8asA0FemhIl24GmC8pw9Zefpix9ydxxdoF5AEkPMOH9YOwfkm9Vx2iRFRjAUmbdL+CNHAtl3f
+CELL 2026-09-28T18:50:00Z len=397 <I0dxg3a.5>64GFG9QAxyaHsEu7b4ugL8CemCeYnjV+mCedMM2lVda/E/05hR5A8xCJFM4fsxUW2VckOC0Nt3rqI5lfMHZzCno0iqhe3cG3cpaMKRNpce01kN8VbPj4oHazEsPFxdWcrzTTf6Obi8+7JyifOb94i3P4Qk/6g04O6/are9mHWSqMUogrwJZ5f/YeY
+CELL 2026-09-28T18:50:01Z len=397 <I0dxg3a.6>zMzUIjFQ3kGLfGa8rjj0BdtWXL6ckxcXydPkZgYDSSJgyuual64KFnUXLd+3pxZLb+RWOa6O7treuIliVq7RRkJritQBPXh0nmVv1mGPEhdkA+swU+dtrQm7Dj5Ma7iHPvYrIFk2VrX2kSc2FuU03VkMMIlQ4spvGWPs4HO4mYza93PSKNODC/+pK
+CELL 2026-09-28T18:50:02Z len=397 <I0dxg3a.7>P933hJa3/egDEhu9Rcya6UVk9tvBh2kiTbKA4zbfnFzMYSgBUGFAtdQaixI3V3qugEz5PkHoFbDIQETez/C0h03Dqr5NXHBp2kuIRY1/gHCEGIGyWtr+2hlUEI8o8NzZIRcv41wB2kiy3BXoxjYhRhYoaqa0z02i+NP+MJdVGek46NaLIWzuLt3BZ
+SUMMARY cell=5 con=1
+CELL 2026-09-28T18:50:10Z len=398 <I0dxg3a.13>0d6PpNDULi55J3wuYyIPNQQ+7nTblslFAXKut74Hx50i1si/IK1A5Yua2hFJulOXb9V06snEIxFwzz/0YBDhCCeNNjxg/E5CSnn6ZfctnjoLNJzolC0GAsNUDcyT2SDWgL1pKXhqV1gcffboFIm9DfF+sX8MB4VwpGogr5M3OhZ72dHSLuVdOldR
+CELL 2026-09-28T18:50:12Z len=398 <I0dxg3a.14>O78qzBIp2E807g4VraTx+KiF/Bw6XLMYgeUvhZw6VWLIh7ZSNIozwC2M3ALRWqbGgcG4c/7zA0/O4CAzQUw9W6YKF6VOsuYY7Qt52Olcp2YjX4uen07+W+qQA9K1Qz/NysuWvCPM6M7KHAIA+//j45KiffnZXe+t7YTNwwR1/nebL50ZVkkVkdwn
+CELL 2026-09-28T18:50:13Z len=398 <I0dxg3a.15>8IM6vUpyNmDNmn14tlgEdLsjtGud+QZuuLXo2goemyfos06ezV1YG85RWhPSIQmkeSoJcMdY8DmwuvYF5Y4cuA2kxmJ0mOy6I1VvY+e4jStZsy1bH8dm+wEAmO/kz39uPZtaJyXuI9x6IdptIncGT1yElGqswIRlCXh62SeuqPelMKL3ESuTdMMj
+CELL 2026-09-28T18:50:14Z len=398 <I0dxg3a.16>fPjKcFIZdx88VZI468RoJXv+XASMqBp9JDNDP9WxjAi+ZZW0kwP8nhwKOAP0jbBbCHbq1q27h2Wz62PXevDQfvikVaxP9qdnAZpQhckUd4RORKzwRpCSOL3MlXt3dv/i5iko7OcQXIlJ8Mu7Fz9JumpdLReoe3eIUpb8m77ZgVp9j2NY0lgOWZkO
+SUMMARY cell=4 con=1
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T184444Z.log
+[CMD] post-transmit tail TRIMMED 150s -> 133s by the cycle budget
+CON  2026-09-28T18:50:40Z 1790621441.914 e6fe83ea6b4a2b7f, [bmcam004] OK id=61020 hold awake 2 min (asked 30: clamped by hold_max_min / the bus-power budget) cfg=49eccde5
+SUMMARY cell=0 con=2
+sha256 c5429645ee4b9b00 bm_command_state_v2.json 0L
+overlay {"schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 3
+CON  2026-09-28T18:50:47Z 1790621448.953 e6fe83ea6b4a2b7f, [bmcam004] OK id=61021 power.bus_always_on: STAGED true (awaiting cfm 61021) (next action) cfg=49eccde5
+SUMMARY cell=0 con=2
+sha256 87c71812b0bb02e1 bm_command_state_v2.json 0L
+overlay {"schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {"power.bus_always_on": {"actions": 0, "before": null, "before_id": null, "boots": 0, "cls": "stage", "had": false, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 61021, "uptime_s": 0.0}}
+boot 2 hw {} trg null cache 4
+CON  2026-09-28T18:50:54Z 1790621455.980 e6fe83ea6b4a2b7f, [bmcam004] OK id=61022 cfm 61021: power.bus_always_on applied cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:51:01Z 1790621462.210 e6fe83ea6b4a2b7f, [bmcam004] OK id=61001 ping cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:51:07Z 1790621468.648 e6fe83ea6b4a2b7f, [bmcam004] OK id=61002 help (reference follows) cfg=55e424b4
+CON  2026-09-28T18:51:07Z 1790621468.750 e6fe83ea6b4a2b7f, ping   {"id":N,"c":"ping"}   help {"id":N,"c":"help"}
+CON  2026-09-28T18:51:07Z 1790621468.800 e6fe83ea6b4a2b7f, get    {"id":N,"c":"get","k":["<key, short or group>",...]}  "journal" = last changes
+CON  2026-09-28T18:51:07Z 1790621468.851 e6fe83ea6b4a2b7f, set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none
+CON  2026-09-28T18:51:07Z 1790621468.898 e6fe83ea6b4a2b7f, reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}
+CON  2026-09-28T18:51:07Z 1790621468.949 e6fe83ea6b4a2b7f, cfm    {"id":N,"c":"cfm","ref":<set id>}  confirms a guarded set
+CON  2026-09-28T18:51:07Z 1790621469.000 e6fe83ea6b4a2b7f, trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, 2 capture + output per mode, 3/4 reference
+CON  2026-09-28T18:51:07Z 1790621469.050 e6fe83ea6b4a2b7f, hld    {"id":N,"c":"hld","v":<min>}  stay awake (0 releases)
+CON  2026-09-28T18:51:07Z 1790621469.101 e6fe83ea6b4a2b7f, rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
+CON  2026-09-28T18:51:08Z 1790621469.160 e6fe83ea6b4a2b7f, short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the med
+CON  2026-09-28T18:51:08Z 1790621469.210 e6fe83ea6b4a2b7f, ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
+SUMMARY cell=0 con=13
+CON  2026-09-28T18:51:16Z 1790621478.046 e6fe83ea6b4a2b7f, [bmcam004] OK id=61003 get mode, r: 6 key(s) cfg=55e424b4
+CON  2026-09-28T18:51:16Z 1790621478.097 e6fe83ea6b4a2b7f,   mode.media = video (yaml)
+CON  2026-09-28T18:51:16Z 1790621478.148 e6fe83ea6b4a2b7f,   mode.run = per_boot (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.195 e6fe83ea6b4a2b7f,   mode.interval_s = 0 (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.246 e6fe83ea6b4a2b7f,   mode.heartbeat_s = 300 (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.296 e6fe83ea6b4a2b7f,   mode.output = transmit (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.347 e6fe83ea6b4a2b7f,   still.crop = 1504,846,1600,900 (yaml)
+SUMMARY cell=0 con=8
+CON  2026-09-28T18:51:23Z 1790621485.183 e6fe83ea6b4a2b7f, [bmcam004] OK id=61005 get journal: last 5 change(s) cfg=55e424b4
+CON  2026-09-28T18:51:24Z 1790621485.234 e6fe83ea6b4a2b7f,   2026-09-28T18:35:41Z deploy id=None *: none -> 7d30fea5e6b8
+CON  2026-09-28T18:51:24Z 1790621485.296 e6fe83ea6b4a2b7f,   2026-09-28T18:36:04Z deploy id=None camera_config.yaml: none -> registry v5 spelling
+CON  2026-09-28T18:51:24Z 1790621485.343 e6fe83ea6b4a2b7f,   2026-09-28T18:50:32Z console id=61010 schedule.window.start: none -> 03:00
+CON  2026-09-28T18:51:24Z 1790621485.394 e6fe83ea6b4a2b7f,   2026-09-28T18:50:32Z console id=61010 schedule.window.end: none -> 04:00
+CON  2026-09-28T18:51:24Z 1790621485.445 e6fe83ea6b4a2b7f,   2026-09-28T18:50:54Z console id=61022 power.bus_always_on: none -> true
+SUMMARY cell=0 con=7
+sha256 9a16b9d22a72137f bm_command_state_v2.json 0L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+CON  2026-09-28T18:51:33Z 1790621494.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=61003 get mode, r: 6 key(s) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:51:39Z 1790621500.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=61010 schedule.window.start: 00:00 -> 03:00, schedule.window.end: 00:00 -> 04:00 (next action) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+sha256 9a16b9d22a72137f bm_command_state_v2.json 0L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+##### 18:51:46 PHASE L3 rejections
+sha256 9a16b9d22a72137f bm_command_state_v2.json 0L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+CON  2026-09-28T18:51:48Z 1790621509.703 e6fe83ea6b4a2b7f, [bmcam004] DROPPED (no ack): not strict JSON: NaN is not allowed
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:51:55Z 1790621516.152 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61043 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:01Z 1790621522.378 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61044 'nope.key' is not a setting e=key k=nope.key cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:07Z 1790621528.609 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61045 commands.runtime is locked (deploy only) e=lock k=commands.runtime cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:13Z 1790621534.855 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61046 uplink.chunk_chars needs a signed service-range command e=auth k=uplink.chunk_chars cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:19Z 1790621541.085 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61047 unknown command 'roi' e=cmd cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:26Z 1790621547.324 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61048 must be in -8.0..8.0 e=val k=camera.exposure.ev cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:32Z 1790621553.773 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61049 40 is below 80: the x264 fit cannot encode a clip that small (S3b bench F1) e=xk k=video.send.message_cap cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:38Z 1790621560.003 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61059 must be true or false e=val k=power.halt.dry_run cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:52:45Z 1790621566.210 e6fe83ea6b4a2b7f, [bmcam004] DROPPED (no ack): not strict JSON: duplicate key 'e'
+SUMMARY cell=0 con=2
+SUMMARY cell=0 con=1
+sha256 f7356f9cd1e3c75c bm_command_state_v2.json 0L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 17
+##### 18:52:53 PHASE L11 console line length
+SUMMARY cell=0 con=1
+SUMMARY cell=0 con=1
+##### 18:53:05 PHASE L4 set/reset/CAS
+SUMMARY cell=0 con=1
+SUMMARY cell=0 con=1
+SUMMARY cell=0 con=1
+SUMMARY cell=0 con=1
+##### 18:53:36 PHASE B: next boot with bus_always_on in effect; hld 120
+ssh: connect to host bmcam004 port 22: Operation timed out
+dark 18:54:55
+2026-09-28T18:55:06Z 2026-09-28T18:55:07.968Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T18:55:06Z 2026-09-28T18:55:08.031Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+CON  2026-09-28T18:55:57Z 1790621758.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=61090 hold awake 120 min cfg=55e424b4
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:56:24Z 1790621786.031 e6fe83ea6b4a2b7f, [bmcam004] OK id=61090 hold awake 120 min (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+##### 18:56:30 PHASE L5/L6 WB + trg kv both media
+CON  2026-09-28T18:56:31Z 1790621792.511 e6fe83ea6b4a2b7f, [bmcam004] OK id=61080 camera.white_balance.mode: none -> manual, camera.white_balance.gains: none -> 1.62,1.91, camera.white_balance.enabled: false -> true (next act
+SUMMARY cell=0 con=2
+CON  2026-09-28T18:56:37Z 1790621798.941 e6fe83ea6b4a2b7f, [bmcam004] OK id=61081 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=30 cfg=d9e81104
+CELL 2026-09-28T18:56:39Z len=134 <WS v=1 a=cap cfg=d9e81104 up=63 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=32.2 sha=7d30fea5e6b8 hn=bmcam004>
+SUMMARY cell=1 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T185313Z.log
+[SUP] action: media=video stage=time_gate sent=None/None elapsed=62.4s
+[SUP] W10: trg id=61081 heard in the listen tail fires this boot (action 2; 418s of budget left)
+[SUP] trg media override: one still action on a video unit
+[SUP] trg id=61081: one action with {'mode.media': 'still', 'still.message_cap': 30} (not persisted)
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[DEBUG] Sent compact telemetry message (133 bytes): <WS v=1 a=cap cfg=d9e81104 up=63 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=32.2 sha=7d30fea5e6b8 hn=bmcam004>
+[RC] attempt q90: 78035 B, 271 msgs, over_cap=True, budget_fit=True
+[RC] attempt q80: 53093 B, 185 msgs, over_cap=True, budget_fit=True
+[RC] attempt q70: 42670 B, 149 msgs, over_cap=True, budget_fit=True
+[RC] attempt q60: 36468 B, 127 msgs, over_cap=True, budget_fit=True
+[RC] attempt q50: 32296 B, 113 msgs, over_cap=True, budget_fit=True
+[RC] attempt q40: 28468 B, 99 msgs, over_cap=True, budget_fit=True
+[RC] attempt q30: 24195 B, 85 msgs, over_cap=True, budget_fit=True
+[RC] attempt q25: 21701 B, 76 msgs, over_cap=True, budget_fit=True
+[RC] attempt q20: 18898 B, 66 msgs, over_cap=True, budget_fit=True
+[RC] attempt q15: 16030 B, 56 msgs, over_cap=True, budget_fit=True
+[RC] attempt q13: 14806 B, 52 msgs, over_cap=True, budget_fit=True
+[RC] attempt q11: 13439 B, 47 msgs, over_cap=True, budget_fit=True
+[RC] attempt q9: 11983 B, 42 msgs, over_cap=True, budget_fit=True
+[SUP] staying awake 6943s (hld=True, keep-alive after a command)
+CON  2026-09-28T19:00:22Z 1790622024.000 e6fe83ea6b4a2b7f, [bmcam004] OK id=61092 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3, video.send.message_cap=80 (d=3! only 5 
+SUMMARY cell=0 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T185313Z.log
+[SUP] action: media=video stage=None sent=42/42 elapsed=224.9s
+[SUP] W10: trg id=61092 heard in the listen tail fires this boot (action 3; 255s of budget left)
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[SUP] trg id=61092: one action with {'video.send.duration_s': 3, 'video.send.message_cap': 80} (not persisted)
+[VTX] message budget: cap=80 affordable_now=322 (after reserving 32) -> 80 chunk msgs (23040 B)
+[VTX] payload: 23016 B = 80 msgs (99.9% of budget) 2 pass-2 tries, prescale 4.4s encode 3.6s
+[SUP] staying awake 6611s (hld=True, keep-alive after a command)
+##### 19:05:52 PHASE L7 per_boot save_local one-shots (F7: fire while held)
+CON  2026-09-28T19:05:55Z 1790622356.351 e6fe83ea6b4a2b7f, [bmcam004] OK id=61100 trg 2 armed: capture + output per mode (next decision point); one action only: mode.output=save_local, video.send.duration_s=3 (d=3! only 5 s i
+SUMMARY cell=0 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T185313Z.log
+[SUP] action: media=video stage=done sent=80/80 elapsed=332.2s
+[SUP] W10: trg id=61100 heard in the listen tail fires this boot (action 4; 148s of budget left)
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[SUP] trg id=61100: one action with {'mode.output': 'save_local', 'video.send.duration_s': 3} (not persisted)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-28T19-05-59Z_video_1920x1080_15fps.mp4 (1827739 B, record quality, time_source=spotter)
+[DEBUG] Sent compact telemetry message (130 bytes): <WS v=1 a=saved cfg=d9e81104 up=635 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=480x270 ct=38.1 sha=7d30fea5e6b8 hn=bmcam004>
+[SUP] staying awake 6437s (hld=True, keep-alive after a command)
+CON  2026-09-28T19:08:45Z 1790622526.289 e6fe83ea6b4a2b7f, [bmcam004] OK id=61101 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, mode.output=save_local cfg=d9e81104
+CELL 2026-09-28T19:08:49Z len=135 <WS v=1 a=cap cfg=d9e81104 up=793 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=33.8 sha=7d30fea5e6b8 hn=bmcam004>
+SUMMARY cell=1 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T185313Z.log
+[SUP] action: media=video stage=saved sent=None/None elapsed=169.9s
+[SUP] W10: trg id=61101 heard in the listen tail fires this boot (action 5; 310s of budget left)
+[SUP] trg media override: one still action on a video unit
+[SUP] trg id=61101: one action with {'mode.media': 'still', 'mode.output': 'save_local'} (not persisted)
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[DEBUG] Sent compact telemetry message (134 bytes): <WS v=1 a=cap cfg=d9e81104 up=793 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=33.8 sha=7d30fea5e6b8 hn=bmcam004>
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-28T19:08:49Z_image_compressed.jpg (62169 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-28T19:08:49Z_image_native_full.jpg
+[SUP] staying awake 6274s (hld=True, keep-alive after a command)
+##### 19:11:26 PHASE L12 signed service
+CELL 2026-09-28T19:11:28Z len=39 {"id":100000030,"ok":1,"h":"c57e62ea"}
+CON  2026-09-28T19:11:28Z Message: 1790622690.050 e6fe83ea6b4a2b7f, [bmcam004] OK id=100000030 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000030 within 2 sends or 3 boots (next action) cfg=c57e62ea
+CELL 2026-09-28T19:11:29Z len=54 <CF v=1 h=c57e62ea uplink.chunk_chars=360@c100000030>
+SUMMARY cell=2 con=2
+CON  2026-09-28T19:11:38Z 1790622699.277 e6fe83ea6b4a2b7f, [bmcam004] OK id=100000030 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000030 within 2 sends or 3 boots (next action) (duplicate: original answ
+SUMMARY cell=0 con=2
+CELL 2026-09-28T19:11:45Z len=60 {"id":100000031,"ok":0,"h":"c57e62ea","e":"auth","k":"sig"}
+CON  2026-09-28T19:11:45Z Message: 1790622706.695 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=100000031 service-range ids need a valid service signature e=auth k=sig cfg=c57e62ea
+SUMMARY cell=1 con=2
+CELL 2026-09-28T19:11:52Z len=49 {"id":100000025,"ok":0,"h":"c57e62ea","e":"old"}
+CON  2026-09-28T19:11:52Z Message: 1790622713.933 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=100000025 below this sender's newest id e=old cfg=c57e62ea
+SUMMARY cell=1 con=2
+CELL 2026-09-28T19:12:00Z len=39 {"id":100000032,"ok":1,"h":"d9e81104"}
+CON  2026-09-28T19:12:00Z Message: 1790622721.203 e6fe83ea6b4a2b7f, [bmcam004] OK id=100000032 reset uplink.chunk_chars -> YAML cfg=d9e81104
+CELL 2026-09-28T19:12:01Z len=43 <CF v=1 h=d9e81104 uplink.chunk_chars=384>
+SUMMARY cell=2 con=2
+sha256 502668b47bfff1d4 bm_command_state_v2.json 0L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "power.bus_always_on": true, "schedule.window.end": "04:0
+guarded {}
+boot 3 hw {"service": 100000032} trg null cache 26
+##### 19:12:10 PHASE L10 wap
+CON  2026-09-28T19:12:11Z 1790622733.039 e6fe83ea6b4a2b7f, [bmcam004] OK id=61150 wap 2: network change dispatched cfg=d9e81104
+SUMMARY cell=0 con=2
+CON  2026-09-28T19:12:21Z 1790622742.269 e6fe83ea6b4a2b7f, [bmcam004] OK id=61150 wap 2: network change dispatched (duplicate: original answer) cfg=d9e81104
+SUMMARY cell=0 con=2
+CON  2026-09-28T19:12:27Z 1790622748.507 e6fe83ea6b4a2b7f, [bmcam004] OK id=61151 wap 1: network change dispatched cfg=d9e81104
+SUMMARY cell=0 con=2
+L10 ssh down in AP mode (expected)
+L10 SSID seen: 0
+CON  2026-09-28T19:13:24Z 1790622805.476 e6fe83ea6b4a2b7f, [bmcam004] OK id=61152 wap 0: network change dispatched cfg=d9e81104
+SUMMARY cell=0 con=2
+L10 ssh back 19:13:32
+##### 19:13:32 PHASE L7 stay_on x4 + L9 revert across bus cycles
+CON  2026-09-28T19:13:33Z 1790622814.523 e6fe83ea6b4a2b7f, [bmcam004] OK id=61102 mode.run: per_boot -> stay_on (next boot) cfg=dbac92bb
+SUMMARY cell=0 con=2
+halt-issued
+dark 19:13:56
+2026-09-28T19:14:07Z 2026-09-28T19:14:08.941Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T19:14:07Z 2026-09-28T19:14:09.003Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T191405Z.log
+[RUN] stay_on interval_s=0 heartbeat_s=300
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] stay_on: media=video interval_s=0 (trigger-only) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[SUP] stay_on boot time read: 2026-09-28T19:14:40.171000+00:00 (clock: ok)
+CON  2026-09-28T19:14:50Z 1790622891.480 e6fe83ea6b4a2b7f, [bmcam004] OK id=61110 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3, video.send.message_cap=80 (d=3! only 5 
+SUMMARY cell=0 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T191405Z.log
+[SUP] ===== action 1 (trg) utc=2026-09-28T19:14:51Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[SUP] trg id=61110: one action with {'video.send.duration_s': 3, 'video.send.message_cap': 80} (not persisted)
+[VTX] message budget: cap=80 affordable_now=320 (after reserving 32) -> 80 chunk msgs (23040 B)
+[VTX] payload: 22467 B = 79 msgs (97.5% of budget) 3 pass-2 tries, prescale 3.1s encode 5.6s
+[HEAL] sent 38 heal chunk(s) before START: 0dxgmg:[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+[SUP] action: media=video stage=done sent=79/79 elapsed=226.9s
+[SUP] ===== action 1 done: stage=done skipped=False =====
+CON  2026-09-28T19:18:41Z 1790623122.550 e6fe83ea6b4a2b7f, [bmcam004] OK id=61111 mode.output: transmit -> save_local, mode.output guarded: cfm 61111 within 3 boots or 2 h (next boot) cfg=8b322ee0
+SUMMARY cell=0 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T191405Z.log
+[CMD] applied id=61111 set: mode.output: transmit -> save_local, mode.output guarded: cfm 61111 within 3 boots or 2 h (next boot)
+[SUP] config restart: mode.output changed (next boot); exit 72 (the wrapper restarts in 5 s)
+[SUP] stay_on exit 72
+[RC-CRON] rc_progressive_jpeg.py exit_code=72
+[RC-CRON] stay_on config restart (a next-boot setting changed) in 5s;  not counted toward the crash-loop cap
+[RC-CRON] restart_utc=2026-09-28T19:18:46+00:00
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=8b322ee0 hv=1 registry=v5 overlay=9 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] supervisor runs the effective config: base ⊕ 9 overlay key(s) hash=8b322ee0 (render /dev/shm/bmcam/camera_schedule.yaml)
+[GUARD] boot 5: 1 guarded key(s) pending
+[RUN] stay_on interval_s=0 heartbeat_s=300
+[OUTPUT] save_local
+[NET] boot default already applied this boot; leaving the network alone (runtime restart)
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] stay_on: media=video interval_s=0 (trigger-only) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[SUP] stay_on boot time read: 2026-09-28T19:18:50.148000+00:00 (clock: ok)
+CON  2026-09-28T19:18:55Z 1790623136.687 e6fe83ea6b4a2b7f, [bmcam004] OK id=61112 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3 (d=3! only 5 s is ladder-validated) cfg=
+CON  2026-09-28T19:18:55Z 1790623136.738 e6fe83ea6b4a2b7f, [bmcam004] OK id=61112 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3 (d=3! only 5 s is (duplicate: original a
+SUMMARY cell=0 con=3
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T191405Z.log
+[SUP] ===== action 1 (trg) utc=2026-09-28T19:18:55Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[SUP] trg id=61112: one action with {'video.send.duration_s': 3} (not persisted)
+[VTX] saved (save_local): /home/pi/BM_Devel_Pi/videos/2026-09-28T19-18-59Z_video_1920x1080_15fps.mp4 (1840358 B, record quality, time_source=spotter)
+[SUP] action: media=video stage=saved sent=None/None elapsed=14.4s
+[SUP] ===== action 1 done: stage=saved skipped=False =====
+CON  2026-09-28T19:19:18Z 1790623159.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=61113 mode.media: video -> still (next boot) cfg=e55d1e04
+CON  2026-09-28T19:19:18Z 1790623159.742 e6fe83ea6b4a2b7f, [bmcam004] OK id=61113 mode.media: video -> still (next boot) (duplicate: original answer) cfg=e55d1e04
+SUMMARY cell=0 con=3
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T191405Z.log
+[SUP] config restart: mode.media changed (next boot); exit 72 (the wrapper restarts in 5 s)
+[VTX] cycle end: stage=saved elapsed=23.0s of 480s; halt=none
+[SUP] stay_on exit 72
+[RC-CRON] rc_progressive_jpeg.py exit_code=72
+[RC-CRON] stay_on config restart (a next-boot setting changed) in 5s;  not counted toward the crash-loop cap
+[RC-CRON] restart_utc=2026-09-28T19:19:23+00:00
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=e55d1e04 hv=1 registry=v5 overlay=10 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] supervisor runs the effective config: base ⊕ 10 overlay key(s) hash=e55d1e04 (render /dev/shm/bmcam/camera_schedule.yaml)
+[GUARD] boot 6: 1 guarded key(s) pending
+[RUN] stay_on interval_s=0 heartbeat_s=300
+[OUTPUT] save_local
+[NET] boot default already applied this boot; leaving the network alone (runtime restart)
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] stay_on: media=still interval_s=0 (trigger-only) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[SUP] stay_on boot time read: 2026-09-28T19:19:30.140000+00:00 (clock: ok)
+CON  2026-09-28T19:19:33Z 1790623174.242 e6fe83ea6b4a2b7f, [bmcam004] OK id=61114 trg 2 armed: capture + output per mode (next decision point) cfg=e55d1e04
+CON  2026-09-28T19:19:33Z 1790623174.292 e6fe83ea6b4a2b7f, [bmcam004] OK id=61114 trg 2 armed: capture + output per mode (next decision point) (duplicate: original answer) cfg=e55d1e04
+CON  2026-09-28T19:19:33Z 1790623174.351 e6fe83ea6b4a2b7f, [bmcam004] OK id=61114 trg 2 armed: capture + output per mode (next decision point) (duplicate: original answer) cfg=e55d1e04
+SUMMARY cell=0 con=4
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T191405Z.log
+[SUP] ===== action 1 (trg) utc=2026-09-28T19:19:33Z =====
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[RC] saved (save_local): /home/pi/BM_Devel_Pi/images/2026-09-28T19:19:38Z_image_compressed.jpg (61580 B at q85, time_source=spotter) + native /home/pi/BM_Devel_Pi/images/2026-09-28T19:19:38Z_image_native_full.jpg
+[SUP] action: media=still stage=saved sent=None/None elapsed=10.8s
+[SUP] ===== action 1 done: stage=saved skipped=False =====
+sha256 351f7efb115cdffd bm_command_state_v2.json 0L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.output": "save_local", "mode
+guarded {"mode.output": {"actions": 0, "before": null, "before_id": null, "boots": 2, "cls": "revert", "had": false, "in_effect": true, "lim": "boot3_2h", "new": "save_local", "ref": 61111, "uptime_s": 48.63239208599998}
+boot 6 hw {"service": 100000032} trg null cache 36
+halt-issued
+dark 19:20:06
+2026-09-28T19:20:18Z 2026-09-28T19:20:19.382Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T19:20:18Z 2026-09-28T19:20:19.445Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T192017Z.log
+[RUN] stay_on interval_s=0 heartbeat_s=300
+[OUTPUT] save_local
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] stay_on: media=still interval_s=0 (trigger-only) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[SUP] stay_on boot time read: 2026-09-28T19:20:50.125000+00:00 (clock: ok)
+halt-issued
+dark 19:21:17
+2026-09-28T19:21:29Z 2026-09-28T19:21:30.351Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T19:21:29Z 2026-09-28T19:21:30.414Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T192126Z.log
+[RUN] stay_on interval_s=0 heartbeat_s=300
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] stay_on: media=still interval_s=0 (trigger-only) heartbeat_s=300
+[SUP][WARN] stay_on: power.halt is IGNORED (a stay_on process never halts)
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[CMD] ack sent: <CF v=1 h=0209090f reverted=mode.output lim=boot3 ref=61111>
+[SUP] stay_on boot time read: 2026-09-28T19:22:00.113000+00:00 (clock: ok)
+[GUARD] boot 8: 0 guarded key(s) pending, reverted [('mode.output', 'boot3')]
+[CFG] supervisor runs the effective config: base ⊕ 9 overlay key(s) hash=0209090f (render /dev/shm/bmcam/camera_schedule.yaml)
+[CMD] ack sent: <CF v=1 h=0209090f reverted=mode.output lim=boot3 ref=61111>
+sha256 f0eab533752b98ef bm_command_state_v2.json 0L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_
+guarded {}
+boot 8 hw {"service": 100000032} trg null cache 36
+CON  2026-09-28T19:22:13Z 1790623334.242 e6fe83ea6b4a2b7f, [bmcam004] OK id=61120 trg 2 armed: capture + output per mode (next decision point); one action only: still.message_cap=30 cfg=0209090f
+SUMMARY cell=0 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T192126Z.log
+[SUP] ===== action 1 (trg) utc=2026-09-28T19:22:13Z =====
+[SUP] trg id=61120: one action with {'still.message_cap': 30} (not persisted)
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[DEBUG] Sent compact telemetry message (133 bytes): <WS v=1 a=cap cfg=0209090f up=21 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=37.0 sha=7d30fea5e6b8 hn=bmcam004>
+[RC] attempt q90: 78195 B, 272 msgs, over_cap=True, budget_fit=True
+[RC] attempt q80: 53282 B, 186 msgs, over_cap=True, budget_fit=True
+[RC] attempt q70: 42800 B, 149 msgs, over_cap=True, budget_fit=True
+[RC] attempt q60: 36635 B, 128 msgs, over_cap=True, budget_fit=True
+[RC] attempt q50: 32539 B, 113 msgs, over_cap=True, budget_fit=True
+[RC] attempt q40: 28571 B, 100 msgs, over_cap=True, budget_fit=True
+[RC] attempt q30: 24236 B, 85 msgs, over_cap=True, budget_fit=True
+[RC] attempt q25: 21812 B, 76 msgs, over_cap=True, budget_fit=True
+[RC] attempt q20: 19078 B, 67 msgs, over_cap=True, budget_fit=True
+[RC] attempt q15: 16086 B, 56 msgs, over_cap=True, budget_fit=True
+[RC] attempt q13: 14864 B, 52 msgs, over_cap=True, budget_fit=True
+[RC] attempt q11: 13461 B, 47 msgs, over_cap=True, budget_fit=True
+[RC] attempt q9: 12026 B, 42 msgs, over_cap=True, budget_fit=True
+[SUP] action: media=still stage=None sent=42/42 elapsed=70.6s
+[SUP] ===== action 1 done: stage=None skipped=False =====
+##### 19:23:26 PHASE L9 stage across a bus cycle
+CON  2026-09-28T19:23:29Z 1790623410.347 e6fe83ea6b4a2b7f, [bmcam004] OK id=61130 power.halt.enabled: true -> false (next action) cfg=342ddb79
+SUMMARY cell=0 con=2
+CON  2026-09-28T19:23:35Z 1790623416.585 e6fe83ea6b4a2b7f, [bmcam004] OK id=61131 power.halt.enabled: STAGED true (awaiting cfm 61131) (next action) cfg=342ddb79
+SUMMARY cell=0 con=2
+sha256 0050b656fc26fcf5 bm_command_state_v2.json 0L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_
+guarded {"power.halt.enabled": {"actions": 0, "before": false, "before_id": 61130, "boots": 0, "cls": "stage", "had": true, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 61131, "uptime_s": 0.0}}
+boot 8 hw {"service": 100000032} trg null cache 39
+halt-issued
+dark 19:23:54
+2026-09-28T19:24:06Z 2026-09-28T19:24:07.394Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T19:24:06Z 2026-09-28T19:24:07.457Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T192410Z.log
+[RUN] stay_on interval_s=0 heartbeat_s=300
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] stay_on: media=still interval_s=0 (trigger-only) heartbeat_s=300
+[SUP] SIGTERM -> stop at the next safe point (no halt)
+[SUP] stay_on boot time read: 2026-09-28T19:24:40.085000+00:00 (clock: ok)
+sha256 4a9af8d2394f8103 bm_command_state_v2.json 0L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_
+guarded {"power.halt.enabled": {"actions": 0, "before": false, "before_id": 61130, "boots": 0, "cls": "stage", "had": true, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 61131, "uptime_s": 0.0}}
+boot 9 hw {"service": 100000032} trg null cache 40
+CON  2026-09-28T19:24:59Z 1790623500.371 e6fe83ea6b4a2b7f, [bmcam004] OK id=61132 cfm 61131: power.halt.enabled applied cfg=0209090f
+SUMMARY cell=0 con=2
+sha256 f6fb76854dc78114 bm_command_state_v2.json 0L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_
+guarded {}
+boot 9 hw {"service": 100000032} trg null cache 41
+##### 19:25:05 PHASE restore: reset all -> per_boot baseline wake
+CON  2026-09-28T19:25:06Z 1790623507.875 e6fe83ea6b4a2b7f, [bmcam004] OK id=61210 reset camera.controls_enabled, camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, mode.media, mode.run, power
+SUMMARY cell=0 con=2
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T192410Z.log
+[SUP] config restart: mode.media, mode.run changed (next boot); exit 72 (the wrapper restarts in 5 s)
+[SUP] stay_on exit 72
+[RC-CRON] rc_progressive_jpeg.py exit_code=72
+[RC-CRON] stay_on config restart (a next-boot setting changed) in 5s;  not counted toward the crash-loop cap
+[RC-CRON] restart_utc=2026-09-28T19:25:11+00:00
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=580ce986 hv=1 registry=v5 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] supervisor runs the effective config: base ⊕ 0 overlay key(s) hash=580ce986 (render /dev/shm/bmcam/camera_schedule.yaml)
+[GUARD] boot 10: 0 guarded key(s) pending
+[NET] boot default already applied this boot; leaving the network alone (runtime restart)
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[SUP] per_boot: media=video transmit=True
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+sha256 05a13c7a1b92388d bm_command_state_v2.json 0L
+overlay {}
+guarded {}
+boot 10 hw {"service": 100000032} trg null cache 42
+dark 19:33:07
+##### 19:33:07 PHASE ladder done; next: restore_schedule.sh bmcam004 0e582dd12c1e1480 SPOT-31593C

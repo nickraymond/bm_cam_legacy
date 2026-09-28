@@ -1,0 +1,8 @@
+##### 18:37:56 PHASE A: wake, close the window at the boot drain, stage bus_always_on
+dark 18:44:35
+2026-09-28T18:44:38Z 2026-09-28T18:44:39.742Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T18:44:38Z 2026-09-28T18:44:39.804Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+SUMMARY cell=0 con=1
+SUMMARY cell=0 con=1
+[waitlog] TIMEOUT (listen window|gate:)
+WAIT FAILED: id=61010 / listen window|gate:

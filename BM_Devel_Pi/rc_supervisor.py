@@ -102,6 +102,9 @@ class Boot:
         # tail margin; main() sets the video value (clip + lead-in + 60 s).
         self.min_action_s = W10_MIN_STILL_ACTION_S
         self.w10_stuck = None         # a trg whose consume could not be persisted
+        # S5 F7: a W10 action on a held bus (power.bus_always_on) gets a fresh
+        # budget; set by _w10_actions, consumed by start().
+        self.reanchor_budget = False
         # S3c (PLAN_S3c.md §5 C2): the output and its knobs live HERE, read once
         # from the v2 values by main(). Never in `settings`: the overlay
         # re-resolve rebuilds settings from the YAML base (boot drain, W10,
@@ -162,11 +165,14 @@ class Boot:
         self.close_warn = close_warn
         self.media_key = None          # set by the stills action once it has one
         s = self.settings
-        if self.budget is None or self.run == "stay_on":
+        if self.budget is None or self.run == "stay_on" or self.reanchor_budget:
             # per_boot: ONE budget per boot, never re-anchored, also for a W10
             # extra action (G1, DESIGN §4 Budget); stay_on: one per action.
+            # S5 F7: on a held bus (power.bus_always_on) nothing cuts the power at
+            # the budget's end, so a W10 action there gets its own budget.
             self.budget = CycleBudget(s["budget_seconds"], s["pacing_delay_seconds"],
                                       clock=clock)
+            self.reanchor_budget = False
         if self.owner is None:
             self.start_process(clock=clock, sleep_fn=sleep_fn, halt_fn=halt_fn,
                                bm_close_fn=bm_close_fn, daemon_factory=daemon_factory,
@@ -317,10 +323,16 @@ class Boot:
         applied = 0
         reason = "done"
         announced = False
+        last_note = self._now()
         while True:
             until = self.awake_until()
             if until is None or self._now() >= until:
                 break
+            if self._now() - last_note >= GUARD_NOTE_S:
+                # S5 F8: a hold can last 120 min; guarded keys count it as it
+                # passes (as the stay_on loop does), not in one lump at its end.
+                self.note_guards(None)
+                last_note = self._now()
             if not announced:
                 print(f"[SUP] staying awake {until - self._now():.0f}s "
                       f"(hld={self.hold_until is not None}, keep-alive after a command)")
@@ -379,6 +391,11 @@ class Boot:
             return False                 # (no --transmit: the trg is never consumed)
         if self._pending_trigger() is self.w10_stuck:
             return False                 # its consume failed once: never a capture loop
+        if self.v9_limits.get("power.bus_always_on"):
+            # S5 F7 (bench 2026-09-28): the boot budget guards against the scheduled
+            # bus cut (G1). A held bus has none, so a trg heard during a hld fires
+            # now (on a fresh budget, _w10_actions) instead of waiting for a boot.
+            return True
         if self.budget is None:
             return False
         media = self._trigger_media()
@@ -398,7 +415,14 @@ class Boot:
         once (<CF reverted>) and, on stay_on, a reverted next-boot key restarts
         the process (exit 72). Never raises."""
         st = self.guard_state
-        if st is None or not st.guarded or self._guard_clock is None:
+        if st is None or self._guard_clock is None:
+            return []
+        if not st.guarded:
+            # S5 F8 (bench 2026-09-28): nothing is guarded, so no uptime is owed.
+            # The mark still moves; a key guarded later counts from here, not
+            # from the last note (a stay_on unit up for hours would otherwise hand
+            # a fresh guarded set its whole idle time and revert it at once).
+            self._guard_mark = self._guard_clock()
             return []
         try:
             import command_guards
@@ -716,6 +740,8 @@ def _w10_actions(boot, action_fn, n, summary):
         # the overlay is re-read onto the YAML base (same budget, G1).
         if boot.reresolve_fn is not None:
             boot.settings = boot._reresolve(boot.settings, boot.summary or {})
+        if boot.v9_limits.get("power.bus_always_on"):
+            boot.reanchor_budget = True     # S5 F7: held bus, a fresh budget
         summary = boot.pick_action(action_fn)(boot)
         boot.note_guards(summary)
         if boot._pending_trigger() is trg:
