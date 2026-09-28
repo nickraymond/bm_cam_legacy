@@ -346,6 +346,22 @@ class Dispatcher:
         self._change_summary(cmd, event)
         return event
 
+    def report_errors(self, errors):
+        """K7 / DESIGN §5.1: the boot's config problems as <CF v=1 h=.. err=<kind>
+        k=<key>> lines, cellular whatever the id (nobody asked; the backend must
+        see why the unit runs what it runs). errors: [(kind, key, why)] with
+        kind "overlay" (a remote value not run), "base" (the YAML fails an S4
+        rule), "level" (a config fallback: lkg / v1_migrated)."""
+        if not errors:
+            return 0
+        h = self.current_hash()
+        for kind, key, why in errors:
+            head = [("err", kind)] + ([("k", key)] if key else [])
+            self.daemon._acks.extend(W.build_cf(h, [], head=head))
+            self.daemon._console.append(W.console_line(
+                self.daemon.v9.host, f"CONFIG {kind.upper()}: {key or ''} {why}".strip()))
+        return len(errors)
+
     def flush_notes(self):
         """G10f: every pending <CF reverted=..> goes cellular (a revert has no
         remote id to choose a lane by), then the notes are cleared."""

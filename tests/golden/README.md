@@ -175,6 +175,7 @@ Recorded here so the matching golden diffs are expected, not surprising:
 | `save_local_still`, `save_local_video`, `v9_still`, `v9_trigger_kv` | a per_boot unit halts right after its listen tail | W12 (S4 b.6c, keep-alive, DESIGN §4): after the tail a per_boot unit stays up until its last command + `commands.keepalive_s` (300 s), at most `keepalive_max_s` past the normal end, clamped to the budget; wire identical, fake elapsed longer |
 | `v9_still`, `v9_video`, `v9_heal` | mid-burst commands are parsed, persisted and answered in the pacing slot | S4 b.7 (durable inbox, DESIGN §6.2): the pump only stashes raw payloads; they are handled at the next decision point (an rsd before `<HL>`, so the `<HL>` is unchanged); a byte-identical re-send is held once (v9_still's duplicate ping); keep-alive counts from the later answer |
 | every v9 scenario with a remote command | the journal holds settings changes only | S4b review #5 (journal bytes only, no wire): each ok remote/service answer that moves a high-water leaves an `hw` journal line, so a lost state file re-seeds it |
+| every v2 scenario | `<WS v=1 a=.. tz=..>`; START without a config hash | W8b (S4 c.1, supervisor on a migrated unit): `<WS>` gains `cfg=<hash8> up=<s>` right after `a`; START gains core `cfg=` and, on a triggered action, `tg=<id>` + the resolved `r=` (still crop) / `m=` (cap) / `d=` (clip s); worst case <= 285 B (tested) |
 
 V-items (PLAN_S4.md) change pinned file bytes in `summary.json` but no wire
 byte; like W-items, each is its own commit with the reviewed diff.

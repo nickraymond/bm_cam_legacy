@@ -132,6 +132,8 @@ class Boot:
         self.alt_min_action_s = {}
         self.video_duration_s = None      # the configured clip length (W10 sizing)
         self.current_vtx = None           # S4b review R2-4: the clip config as of now
+        self._process_mark = None         # W8b: up= counts from the process start
+        self.config_errors = []           # K7: [(kind, key, why)] -> <CF err> at start
         # b.6c (DESIGN §4 keep-alive / hld): limits from the effective config
         # (commands.keepalive_s, keepalive_max_s, hold_max_min,
         # power.bus_always_on); hold and keep-alive live in memory only.
@@ -202,6 +204,8 @@ class Boot:
                     self.owner.daemon.v9_inbox = command_inbox.Inbox(
                         command_inbox.path_beside(self.guard_state.path))
                 self.owner.daemon.v9_dispatch.flush_notes()     # G10f: <CF reverted=..>
+                self._install_wire_extras()                         # W8b
+                self.owner.daemon.v9_dispatch.report_errors(self.config_errors)   # K7
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
@@ -217,6 +221,40 @@ class Boot:
         if self.v9_limits.get("power.bus_always_on") or self.budget is None:
             return None
         return self._now() + self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
+
+    # ------------------------------------------------------------ W8b (S4c)
+    def _install_wire_extras(self):
+        """W8b: cfg=<hash8> + up=<s> on every <WS>; START cfg (core) and, on a
+        triggered action, tg/r/m/d (DESIGN §9: the resolved one-shot values).
+        v9 path only; cleared by finish()."""
+        import rc_telemetry
+        import rc_uplink_messages
+        self._process_mark = self._now()
+        rc_telemetry.WS_EXTRA_FN = self._ws_extra
+        rc_uplink_messages.START_EXTRA_FN = self._start_extra
+
+    def _config_hash(self):
+        replies = self.v9_replies
+        return replies._hash() if replies is not None else None
+
+    def _ws_extra(self):
+        return [("cfg", self._config_hash()),
+                ("up", int(self._now() - (self._process_mark or self._now())))]
+
+    def _start_extra(self):
+        pairs = [("cfg", self._config_hash())]
+        trig = (self.summary or {}).get("trigger")
+        if isinstance(trig, dict) and trig.get("id") is not None:
+            s = self.settings or {}
+            vtx = self.one_shot_vtx or self.current_vtx
+            pairs.append(("tg", trig["id"]))
+            if self.media == "still" and s.get("crop_native_xywh"):
+                import rc_uplink_messages
+                pairs.append(("r", rc_uplink_messages.format_crop(s["crop_native_xywh"])))
+                pairs.append(("m", s.get("message_cap")))
+            elif self.media == "video" and vtx:
+                pairs += [("m", vtx.get("message_cap")), ("d", vtx.get("duration_s"))]
+        return pairs
 
     def _lane_room(self):
         """Seconds a lane wait may add before the per_boot halt margin, or None
@@ -548,6 +586,11 @@ class Boot:
                                    halt_fn=perform_power_halt, clock=time.monotonic,
                                    sleep_fn=time.sleep)
         self.owner.finish(self.summary, close_port=True, close_warn=self.close_warn, halt=halt)
+        if self.v9_dispatch_factory is not None:
+            import rc_telemetry
+            import rc_uplink_messages
+            rc_telemetry.WS_EXTRA_FN = None
+            rc_uplink_messages.START_EXTRA_FN = None
         if self.end_line is not None:
             try:
                 print(self.end_line())
