@@ -100,7 +100,7 @@ class TestTransitions(LifecycleTestCase):
         cmd = self.store.get(CID)
         self.assertEqual(cmd["state"], lc.ACKED)
         self.assertTrue(cmd["staged"])
-        self.assertIn("cfm", cmd["mismatch_detail"])
+        self.assertIn("cfm", cmd["note"])
 
     def test_hold_grant_recorded(self):
         self._send(c="hld", fields={"v": 30})

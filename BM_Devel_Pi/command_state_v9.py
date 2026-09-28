@@ -129,6 +129,7 @@ def v8_settings_hash(v8):
 
 
 class V9State:
+    is_v9 = True          # the v9 path's state (rc_command_hooks, S4c review NIT 10)
     def __init__(self, path, trigger_validator=None, log=print):
         """trigger_validator(kv, v) -> None or a reason: re-validates a persisted
         one-shot kv against today's registry (G6). log: one-line sink."""

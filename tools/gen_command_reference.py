@@ -170,7 +170,12 @@ def render():
                      f"{_cell(key.default)} | {_domain(key)} | {key.apply} | {_guard(key)} | "
                      f"{_cell(key.help)} | {_cell(presets) if presets else ''} |")
         L.append("")
-    L += ["## Retired v8 verbs (legacy runtime only, until S5)", "", "| v8 | v9 |", "|---|---|"]
+    L += ["## Retired v8 verbs (legacy runtime only, until S5)", "",
+          "A legacy or unmigrated unit (e.g. the field units on `main`) still speaks v8. Its full "
+          "reference: `git show 50e4586:docs/bmcam_command_reference.md`. A v8 line goes out "
+          "unchecked with `tools/sofar_send_command.py --raw-message 'bm pub bmcam/cmd "
+          "{\"id\":201,\"c\":\"twn\",\"v\":2} 1 1'` (window all day).", "",
+          "| v8 | v9 |", "|---|---|"]
     L += [f"| `{old}` | {new} |" for old, new in RETIRED]
     return "\n".join(L) + "\n"
 

@@ -390,7 +390,13 @@ def command_from_args(args):
     if args.trg is not None:
         fields = {"v": args.trg}
         if args.kv:
-            fields["kv"] = dict(parse_kv_arg(item) for item in args.kv)
+            kv = {}
+            for item in args.kv:
+                key, value = parse_kv_arg(item)
+                if key in kv:
+                    raise ValueError(f"{key} given twice in --kv")   # S4c review NIT 5
+                kv[key] = value
+            fields["kv"] = kv
         return "trg", fields
     if args.hld is not None:
         return "hld", {"v": args.hld}

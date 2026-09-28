@@ -91,6 +91,14 @@ def check_entry(entry):
     if route == "gui":
         if "id" in cmd or "id" in entry:
             return "gui entries carry no id (the GUI allocates one)"
+        # S4c review NIT 6: what the GUI would silently drop or refuse later
+        gui_verbs = ("set", "get", "reset", "cfm", "trg", "hld", "ping", "help", "wap")
+        gui_fields = {"c", "kv", "k", "all", "ref", "v", "to", "b"}
+        if cmd["c"] not in gui_verbs:
+            return f"verb {cmd['c']!r} cannot go through the GUI (route: direct)"
+        extra = sorted(set(cmd) - gui_fields)
+        if extra:
+            return f"the GUI does not carry {', '.join(extra)} (route: direct)"
         # the GUI validates with a real id; check the shape with a placeholder
         probe = dict(cmd, id=ssc.W.RANGES[2][1])   # the first remote-range id
     else:

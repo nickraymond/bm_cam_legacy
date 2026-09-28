@@ -97,7 +97,8 @@ ERROR_CODES = {
     "id": "id outside every sender range (console answer only)",
     "cmd": "unknown or not-yet-available verb (e.g. a retired v8 verb)",
     "key": "not a setting, not settable this way, or set twice (k = the name)",
-    "val": "wrong type, out of range, or not strict JSON (k = the key)",
+    "val": "wrong type, out of range, bad charset, or JSON > 248 B (k = the key); not JSON "
+           "or no usable id gets NO ack (console line only)",
     "xk": "the resulting config breaks a cross-key or environment rule (k = a key it names)",
     "lock": "a locked key (file paths, commands.runtime, video_logger media): deploy only",
     "auth": "a service key or a service-range id without a valid signature",

@@ -206,6 +206,10 @@ class Boot:
                 self.owner.daemon.v9_dispatch.flush_notes()     # G10f: <CF reverted=..>
                 self._install_wire_extras()                         # W8b
                 self.owner.daemon.v9_dispatch.report_errors(self.config_errors)   # K7
+        if self.v9_replies is not None and self._process_mark is None:
+            # W8b on a migrated unit even with commands off (S4c review NIT 8):
+            # the heartbeat and START carry cfg= whether or not a daemon runs
+            self._install_wire_extras()
         if self.on_process_start is not None:
             self.on_process_start()      # never raises (rc_progressive_jpeg._crashloop_notice)
         return self.owner.daemon
@@ -248,9 +252,10 @@ class Boot:
             s = self.settings or {}
             vtx = self.one_shot_vtx or self.current_vtx
             pairs.append(("tg", trig["id"]))
-            if self.media == "still" and s.get("crop_native_xywh"):
+            if self.media == "still":
                 import rc_uplink_messages
-                pairs.append(("r", rc_uplink_messages.format_crop(s["crop_native_xywh"])))
+                crop = None if s.get("source_image_path") else s.get("crop_native_xywh")
+                pairs.append(("r", rc_uplink_messages.format_crop(crop)))   # na: a stored ref
                 pairs.append(("m", s.get("message_cap")))
             elif self.media == "video" and vtx:
                 pairs += [("m", vtx.get("message_cap")), ("d", vtx.get("duration_s"))]
@@ -586,7 +591,7 @@ class Boot:
                                    halt_fn=perform_power_halt, clock=time.monotonic,
                                    sleep_fn=time.sleep)
         self.owner.finish(self.summary, close_port=True, close_warn=self.close_warn, halt=halt)
-        if self.v9_dispatch_factory is not None:
+        if self.v9_replies is not None:
             import rc_telemetry
             import rc_uplink_messages
             rc_telemetry.WS_EXTRA_FN = None

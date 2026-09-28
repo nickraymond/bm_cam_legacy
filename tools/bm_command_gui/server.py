@@ -363,6 +363,18 @@ class GuiState:
             return None
         return iso[:19] + "Z"
 
+    def _resendable(self, cmd):
+        """S4c review #3: only a v9 command this GUI built (remote-range id,
+        known verb, stored fields) is (re)sent; a pre-v9 event left in the log
+        is retired loudly instead of burning Sofar sends on e:cmd answers."""
+        ok = (cmd.get("cmd_id", 0) >= lc.REMOTE_ID_FLOOR and cmd.get("c") in GUI_VERBS
+              and cmd.get("fields") is not None)
+        if not ok:
+            print(f"[GUI][WARN] command {cmd.get('cmd_id')} is not a v9 GUI command "
+                  "(pre-S4 log entry): retired, not re-sent")
+            self.store.record_retry_exhausted(cmd["cmd_id"], cmd.get("attempt", 0))
+        return ok
+
     def check_wakes(self):
         """Fire wake-scheduled commands whose target has a sensor-data row
         NEWER than the arm time (unit awake and transmitting — the
@@ -391,6 +403,9 @@ class GuiState:
             if last is not None and time.time() - last < ssc.RATE_LIMIT_S:
                 continue  # rate-limited; next tick retries the fire
             cmd = due[0]  # one per tick per spotter (Sofar: 1 send/min)
+            with self.lock:
+                if not self._resendable(cmd):
+                    continue
             self._post_and_record(spotter, cmd.get("node_id"), cmd.get("c"),
                                   cmd.get("fields"), cmd["cmd_id"],
                                   cmd["message"], token, attempt=1)
@@ -420,6 +435,8 @@ class GuiState:
                     continue  # acked/failed while we looked
                 if attempts >= self.max_attempts:
                     self.store.record_retry_exhausted(cmd["cmd_id"], attempts)
+                    continue
+                if not self._resendable(cur):
                     continue
                 last = ssc.load_last_success_ts(self.send_log,
                                                 cmd["spotter_id"])

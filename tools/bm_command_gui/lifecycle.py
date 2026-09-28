@@ -118,7 +118,7 @@ class CommandLifecycle:
                   "message", "http_status", "response", "ack", "ack_node_id",
                   "mismatch_detail", "attempt", "cleared_queue",
                   "scheduled_utc", "h", "e", "k", "staged", "duplicate",
-                  "granted_min"):
+                  "granted_min", "note"):
             if k in ev:
                 cmd[k] = ev[k]
         if "ts" in ev:
@@ -239,7 +239,9 @@ class CommandLifecycle:
         if node_id:
             ev["ack_node_id"] = node_id
         if detail:
-            ev["mismatch_detail"] = detail
+            # S4c review NIT 11: an acked command's hint (e.g. "staged: send
+            # cfm") is a note, not an error
+            ev["note" if state == ACKED else "mismatch_detail"] = detail
         self._append(ev)
 
 

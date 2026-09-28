@@ -22,8 +22,11 @@ Halt mode and the transmit window are **not SSH-only** (they were the two
 settings that forced the 2026-07-31 site visit). Try the cloud mailbox
 BEFORE anyone drives out. Since Sprint26 S4 the camera speaks **commands
 v9** — only on a unit running the supervisor runtime with a migrated (v2)
-command state; a legacy/unmigrated unit still speaks v8 (`hlt`/`twn`/`cfg`,
-see the reference for its version). The v8 verbs (`roi foc awb exp win txd
+command state; a legacy/unmigrated unit (e.g. field bmcam001/002 on `main`)
+still speaks v8: the v8 reference is `git show 50e4586:docs/bmcam_command_reference.md`,
+and a v8 line goes out unchecked with `sofar_send_command --raw-message`, e.g.
+`--raw-message 'bm pub bmcam/cmd {"id":201,"c":"twn","v":2} 1 1'` (window all
+day). Check the id against the unit's v8 dedupe (32 ids) before sending. The v8 verbs (`roi foc awb exp win txd
 cap src hlt twn tmz cfg`) are retired in v9; each is now a `set` key:
 
 - wrong/disabled halt → `{"id":1000101,"c":"set","kv":{"power.halt.enabled":false}}`.

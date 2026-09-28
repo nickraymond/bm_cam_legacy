@@ -56,7 +56,7 @@ Keep-alive: every command received keeps a per_boot unit up `commands.keepalive_
 | `id` | id outside every sender range (console answer only) |
 | `cmd` | unknown or not-yet-available verb (e.g. a retired v8 verb) |
 | `key` | not a setting, not settable this way, or set twice (k = the name) |
-| `val` | wrong type, out of range, or not strict JSON (k = the key) |
+| `val` | wrong type, out of range, bad charset, or JSON > 248 B (k = the key); not JSON or no usable id gets NO ack (console line only) |
 | `xk` | the resulting config breaks a cross-key or environment rule (k = a key it names) |
 | `lock` | a locked key (file paths, commands.runtime, video_logger media): deploy only |
 | `auth` | a service key or a service-range id without a valid signature |
@@ -269,6 +269,8 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `network.ap_timeout_min` | int | 60 | 5 – 1440 | next_action |  | AP turns itself off after (min). |  |
 
 ## Retired v8 verbs (legacy runtime only, until S5)
+
+A legacy or unmigrated unit (e.g. the field units on `main`) still speaks v8. Its full reference: `git show 50e4586:docs/bmcam_command_reference.md`. A v8 line goes out unchecked with `tools/sofar_send_command.py --raw-message 'bm pub bmcam/cmd {"id":201,"c":"twn","v":2} 1 1'` (window all day).
 
 | v8 | v9 |
 |---|---|

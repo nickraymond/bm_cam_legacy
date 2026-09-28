@@ -128,7 +128,7 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
     print(f"[CMD] shared UART open: {port}@{baudrate} (single port owner)")
     # S4 c.2: on the v9 path (a V9State) the dispatcher answers help/get; the v8
     # help/cfg renderer (command_help + the v8 bindings) is not built.
-    v9 = type(state).__name__ == "V9State"
+    v9 = getattr(state, "is_v9", False) is True
     return CommandDaemon(
         bm, state, topic=bm_commands_cfg["topic"],
         query_render_fn=None if v9 else make_query_render_fn(

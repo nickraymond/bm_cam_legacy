@@ -20,7 +20,7 @@ Inputs:
 Options:
   --key-dir DIR   where <host>.key lives
   --topic T       bm pub topic (default bmcam/cmd)
-  --json-only     print only the signed JSON (for sofar_send_command --raw-message)
+  --json-only     print only the signed JSON (for sofar_send_command --json)
 Output: one line on stdout, e.g.
   bm pub bmcam/cmd {"id":100000001,...,"sig":"3f9a0c1d2e4b5a6f"} 1 1
 Exit: 0 printed; 2 bad input (not strict JSON, bad shape, over 248 B signed,
@@ -31,7 +31,8 @@ Example:
 
 Known limitations: the key never goes in the repo, a YAML or a command; this
 tool only reads it. It does not send anything (paste the line on the console,
-or pass --json-only output to sofar_send_command).
+or pass --json-only output to sofar_send_command --json; never --raw-message,
+which would enqueue the bare JSON as a console line the Spotter cannot run).
 """
 
 import argparse

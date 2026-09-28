@@ -316,8 +316,8 @@ def main(argv=None):
             if kind == "ack" and obj["id"] in want and obj["id"] not in seen:
                 seen[obj["id"]] = obj
                 print(f"[ACK] {fmt(ts, obj, node_id)}")
-            elif kind == "cf" and (ts, obj["h"]) not in seen_cf:
-                seen_cf.add((ts, obj["h"]))
+            elif kind == "cf" and (ts, obj["h"], obj.get("n")) not in seen_cf:
+                seen_cf.add((ts, obj["h"], obj.get("n")))     # every part of a multi-part <CF>
                 print(f"[CF]  {fmt_cf(ts, obj, node_id)}")
         missing = want - set(seen)
         if not missing:
