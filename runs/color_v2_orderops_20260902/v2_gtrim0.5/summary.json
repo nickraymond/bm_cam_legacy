@@ -1,0 +1,181 @@
+{
+  "run_tag": "hybrid_physics_20260902",
+  "depth_model": "depth-anything/Depth-Anything-V2-Small-hf",
+  "args": {
+    "images": [
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+      "/Users/nickbuemond/Downloads/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg"
+    ],
+    "output_dir": "runs/color_v2_orderops_20260902/v2_gtrim0.5",
+    "template_dir": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/tools/reference_card_color_correction/reference_card_template_v2",
+    "tag_family": "DICT_APRILTAG_36h11",
+    "scales": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      8
+    ],
+    "corner_map": "tl:0,tr:1,bl:2,br:3",
+    "card_expand_x": 1.25,
+    "card_expand_y": 2.0,
+    "patch_inset": 0.3,
+    "z_card": 1.5,
+    "near_ratio": 0.45,
+    "camera_height_m": 0.25,
+    "water_depth_m": 4.57,
+    "far_quantile": 0.98,
+    "max_boost": 32.0,
+    "z_cap": 2.0,
+    "illumination": "lsac",
+    "depth_npy": "runs/depth_fusion_20260901/fused_disp_2frames.npy",
+    "depth_scale": 2.0,
+    "no_depth_refine": false,
+    "hfov_deg": 52.0,
+    "lsac_sigma_frac": 0.12,
+    "lsac_lift": 0.45,
+    "lsac_mode": "chroma",
+    "lsac_filter": "guided_luma",
+    "red_stretch_cap": 1.1,
+    "red_wb_cap": 1.1,
+    "no_card_color": false,
+    "fixed_beta_b": 1.0,
+    "stretch_black": 0.0,
+    "bs_guard": 0.8,
+    "sharpen": 0.4,
+    "stretch_mode": "perchannel",
+    "red_boost_cap": null,
+    "blue_wb_cap": 1.15,
+    "stretch_white": 0.98,
+    "green_trim": 0.5,
+    "warm_blend": true,
+    "finish_style": "v2",
+    "no_finish": false,
+    "polish": false,
+    "polish_method": "root_poly2"
+  },
+  "generated_utc": "2026-09-02T17:07:13+00:00",
+  "images": [
+    {
+      "image": "SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z.jpg",
+      "output": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/color_v2_orderops_20260902/v2_gtrim0.5/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_hybrid.png",
+      "nopolish": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/color_v2_orderops_20260902/v2_gtrim0.5/SPOT-33361C_BMCAM_001_2026-09-01T17-00-25Z_hybrid_nopolish.png",
+      "depth_anchor": {
+        "disp_at_card": 0.7025,
+        "z_near": 0.675,
+        "z_at_card": 1.5,
+        "z_max": 3.448,
+        "ground_plane": {
+          "pitch_deg": -6.14,
+          "f_px_assumed": 1025.2,
+          "hfov_deg_assumed": 52.0,
+          "ground_rows_capped": 11710,
+          "z_ground_bottom_row": 1.574
+        }
+      },
+      "B_inf_linear": [
+        0.0,
+        0.19807,
+        0.10462
+      ],
+      "beta_B_per_z": [
+        1.9972,
+        1.5226,
+        1.169
+      ],
+      "beta_D_per_z": [
+        2.1033,
+        0.5109,
+        0.8376
+      ],
+      "far_pixel_count": 11888,
+      "max_boost": 32.0,
+      "z_cap": 2.0,
+      "finish": {
+        "finish_style": "v2",
+        "stretch_p1_p99": [
+          0.0301,
+          0.6834
+        ],
+        "warm_blend": true,
+        "wb_gains_full": [
+          1.04,
+          0.946,
+          1.422
+        ],
+        "wb_gains": [
+          1.066,
+          0.969,
+          1.114
+        ],
+        "wb_gamut_compressed_pct": 0.721,
+        "green_trim": 0.5,
+        "tv_weight": 0.005,
+        "unsharp_amount": 0.4,
+        "sharpen_gamut_compressed_pct": 0.627
+      },
+      "polish": null
+    },
+    {
+      "image": "SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z.jpg",
+      "output": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/color_v2_orderops_20260902/v2_gtrim0.5/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_hybrid.png",
+      "nopolish": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint10-phase-e-queue-char-91ff36/runs/color_v2_orderops_20260902/v2_gtrim0.5/SPOT-33361C_BMCAM_001_2026-09-01T18-00-24Z_hybrid_nopolish.png",
+      "depth_anchor": {
+        "disp_at_card": 0.7025,
+        "z_near": 0.675,
+        "z_at_card": 1.5,
+        "z_max": 3.448,
+        "ground_plane": {
+          "pitch_deg": -6.14,
+          "f_px_assumed": 1025.2,
+          "hfov_deg_assumed": 52.0,
+          "ground_rows_capped": 11547,
+          "z_ground_bottom_row": 1.574
+        }
+      },
+      "B_inf_linear": [
+        0.0003,
+        0.19462,
+        0.10462
+      ],
+      "beta_B_per_z": [
+        1.9972,
+        0.8627,
+        0.6753
+      ],
+      "beta_D_per_z": [
+        2.5775,
+        0.834,
+        1.0068
+      ],
+      "far_pixel_count": 11888,
+      "max_boost": 32.0,
+      "z_cap": 2.0,
+      "finish": {
+        "finish_style": "v2",
+        "stretch_p1_p99": [
+          0.0339,
+          0.807
+        ],
+        "warm_blend": true,
+        "wb_gains_full": [
+          1.041,
+          0.946,
+          1.411
+        ],
+        "wb_gains": [
+          1.066,
+          0.969,
+          1.114
+        ],
+        "wb_gamut_compressed_pct": 2.61,
+        "green_trim": 0.5,
+        "tv_weight": 0.005,
+        "unsharp_amount": 0.4,
+        "sharpen_gamut_compressed_pct": 1.685
+      },
+      "polish": null
+    }
+  ]
+}
