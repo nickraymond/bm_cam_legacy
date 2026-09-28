@@ -183,6 +183,7 @@ W tx.02 <I0dpr00.167>X7lF8nf/AL/EDUrV1g9RSKPU4/7iisM5rKf4+4hgGirMC/5i2EjslGfXUs3
 W tx.02 <I0dpr00.168>blDCWWrBuaXBidQmVFi5gKVZNeo8XnOfuEy1mAsrIY9RWueJ9RI0OK1OcF58Rtme5z9TaEpiA6hwfEMp9T+JAWwYxjbZ6fxN/wA+BG81/iiFWs2mmMYhuEbDmYBgI3XzMrs0K9b/AAJpCOQNCvUSCrQMs0e8v58c/mQnMNQ1MydV/qZG8UPXghNoRdBQ0zgeo7HuE1/+EAoKXIfEBXBom89kZUtcL8UAURpdNfEdng5mhOU/8PiNcrZy5gAQKYGZ3cvuYOo7YTjwQyNwhQVqcwhqECM2w1DxzP/Z\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_duration_sec: 221.0, sent_buffers: 169, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000503,"c":"help"}
+RX cmd {"id":1000507,"c":"get","k":["mode","r"]}
 W printf [bmcam-golden] OK id=1000501 still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action) cfg=8bf9d517
 W printf [bmcam-golden] OK id=7 ping cfg=8bf9d517
 W printf [bmcam-golden] OK id=1000502 ping cfg=8bf9d517
@@ -198,10 +199,20 @@ W printf trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, 2 capture 
 W printf rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
 W printf short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the media
 W printf ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
+W printf [bmcam-golden] OK id=1000507 get mode, r: 6 key(s) cfg=8bf9d517
+W printf   mode.media = still (yaml)
+W printf   mode.run = per_boot (yaml)
+W printf   mode.interval_s = 0 (yaml)
+W printf   mode.heartbeat_s = 300 (yaml)
+W printf   mode.output = transmit (yaml)
+W printf   still.crop = 768,432,3072,1728 (cmd 1000501)
 W tx.02 {"id":1000501,"ok":1,"h":"8bf9d517"}
+W tx.02 <CF v=1 h=8bf9d517 still.crop=768,432,3072,1728@c1000501>
 W tx.02 {"id":1000502,"ok":1,"h":"8bf9d517"}
 W tx.02 {"id":1000505,"ok":0,"h":"8bf9d517","e":"xk","k":"camera.white_balance.mode"}
 W tx.02 {"id":1000506,"ok":0,"h":"8bf9d517","e":"cmd"}
 W tx.02 {"id":1000503,"ok":1,"h":"8bf9d517"}
+W tx.02 {"id":1000507,"ok":1,"h":"8bf9d517"}
+W tx.02 <CF v=1 h=8bf9d517 mode.media=still mode.run=per_boot mode.interval_s=0 mode.heartbeat_s=300 mode.output=transmit still.crop=768,432,3072,1728@c1000501>
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

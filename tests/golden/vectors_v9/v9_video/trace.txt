@@ -147,5 +147,6 @@ W printf [bmcam-golden] OK id=1000511 ping cfg=ffec8662
 W printf [bmcam-golden] OK id=1000512 camera.white_balance.mode: auto -> daylight (next action) cfg=0c8f419a
 W tx.02 {"id":1000511,"ok":1,"h":"ffec8662"}
 W tx.02 {"id":1000512,"ok":1,"h":"0c8f419a"}
+W tx.02 <CF v=1 h=0c8f419a camera.white_balance.mode=daylight@c1000512 camera.white_balance.enabled=1@c1000512 camera.controls_enabled=1@c1000512>
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

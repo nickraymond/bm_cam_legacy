@@ -8,6 +8,7 @@
    "duplicate",
    "rejected",
    "rejected",
+   "applied",
    "applied"
   ],
   "final_path": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
@@ -83,7 +84,7 @@
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 375.0,
+ "fake_clock_elapsed_s": 378.0,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
@@ -138,8 +139,8 @@
    "sha256": "7b81dbae41d6e861"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 589,
-   "sha256": "f3af56bdc9ce3e30"
+   "bytes": 659,
+   "sha256": "8ae39907bab0c551"
   },
   "state/config_journal.jsonl": {
    "bytes": 122,
@@ -154,7 +155,7 @@
   "PIL",
   "yaml"
  ],
- "notes": "per_boot stills on v9: set r (still.crop) drained at boot, a console-range ping, a mid-burst ping and its duplicate (d:1, console only), a cross-key rejection (manual WB without gains, e:xk), a retired v8 verb (e:cmd), help",
+ "notes": "per_boot stills on v9: set r (still.crop) drained at boot (+ its <CF> change summary), a remote get in the tail (<CF>), a console-range ping, a mid-burst ping and its duplicate (d:1, console only), a cross-key rejection (manual WB without gains, e:xk), a retired v8 verb (e:cmd), help",
  "scenario": "v9_still",
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
@@ -312,7 +313,7 @@
   "boot_counter": 0,
   "guarded": {},
   "high_water": {
-   "remote": 1000503
+   "remote": 1000507
   },
   "overlay": {
    "still.crop": [
@@ -352,6 +353,15 @@
     "b": 0,
     "e": "cmd",
     "ok": 0
+   },
+   "1000507": {
+    "b": 0,
+    "g": [
+     "mode",
+     "r"
+    ],
+    "ok": 1,
+    "t": "get mode, r: 6 key(s)"
    },
    "7": {
     "b": 0,

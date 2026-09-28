@@ -1345,6 +1345,8 @@ def main(argv=None, **cycle_overrides):
             and args.config_path != v1_config_path):
         import supervisor_config
         v9_base = dict(boot.values or {})
+        v9_source = {k: v for k, v in (getattr(boot.config, "source", None) or {}).items()
+                     if v in ("yaml", "default")}
         try:
             env = __import__("config_validate").probe_env(
                 [v9_base.get("schedule.timezone")])
@@ -1505,7 +1507,7 @@ def main(argv=None, **cycle_overrides):
                 if v9_on and command_state is not None:
                     sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
                         d, command_state, v9_base, env=env,
-                        service_key=command_v9.load_service_key())
+                        service_key=command_v9.load_service_key(), base_source=v9_source)
                 w, h = video_tx_cfg["output_wh"]
                 sup.min_action_s = (float(video_tx_cfg["duration_s"])
                                     + float(video_tx_cfg["lead_in_s"])
@@ -1596,7 +1598,7 @@ def main(argv=None, **cycle_overrides):
             if v9_on and command_state is not None:
                 sup.v9_dispatch_factory = lambda d: command_v9.Dispatcher(
                     d, command_state, v9_base, env=env,
-                    service_key=command_v9.load_service_key())
+                    service_key=command_v9.load_service_key(), base_source=v9_source)
             still_rk = lambda s: f"{s['output_size'][0]}x{s['output_size'][1]}"  # noqa: E731
             if args.crashloop:
                 _crashloop_notice(sup, settings, still_rk, lambda s: s["q_max"])

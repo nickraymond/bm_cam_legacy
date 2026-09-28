@@ -42,6 +42,8 @@ import config_validate
 import supervisor_config
 
 DUP_CELLULAR_QUIET_S = 600.0      # G9: no cellular d:1 copy within 10 min of the answer
+GET_MAX_CF_PARTS = 3              # §6.1: a cellular get is capped at 3 <CF> parts (e:"big")
+JOURNAL_LINES = 5                 # `get journal`: the last N lines, console only
 WAP_VALUES = (0, 1, 2)            # command_tables.WAP_TABLE (wap is unchanged, §6.1)
 
 
@@ -73,10 +75,11 @@ def render_help():
 
 class Dispatcher:
     def __init__(self, daemon, state, base, env=None, clock=time.monotonic,
-                 service_key=None, log=print):
+                 service_key=None, log=print, base_source=None):
         self.daemon = daemon
         self.state = state
         self.base = base
+        self.base_source = base_source or {}   # {path: "yaml"|"default"} from the loader
         self.env = env
         self.clock = clock
         self.service_key = service_key
@@ -192,6 +195,14 @@ class Dispatcher:
         self._answer(cid, ok, cached.get("e"), key=cached.get("k"), text=cached.get("t", ""),
                      staged=cached.get("s"), granted=cached.get("v"), duplicate=True,
                      cellular=cellular)
+        if cellular and ok and cached.get("g"):
+            # §6.2: a duplicate get re-sends its <CF> (at most once per 10 min, G9).
+            try:
+                names = cached["g"]
+                fake = W.Command(id=cid, verb="get", range=W.id_range(cid))
+                self._queue_cf(fake, self._get_items(fake, names))
+            except W.Rejected:
+                pass
         print(f"[CMD] duplicate id={cid}: original answer "
               f"({'cellular + ' if cellular else ''}console)")
         return {"action": "duplicate", "id": cid}
@@ -214,8 +225,69 @@ class Dispatcher:
         self.daemon._console.extend(render_help())
         return event
 
+    # ------------------------------------------------------------ get / <CF>
+    def _source(self, path):
+        if path in self.state.overlay:
+            cid = self.state.overlay_ids.get(path)
+            return ("cmd", cid) if cid is not None else "v8"
+        return self.base_source.get(path, "yaml")
+
+    def _get_items(self, cmd, names):
+        media = self.effective().get("mode.media")
+        values = self.effective()
+        paths = []
+        for name in names:
+            path = R.resolve_short(name, media)
+            group = [k.path for k in R.keys_in(name)] if path is None else [path]
+            if not group:
+                raise W.Rejected(cmd.id, "key", name, f"{name!r} is not a setting or group")
+            paths += [p for p in group if p not in paths]
+        return [(p, values.get(p), self._source(p)) for p in paths]
+
+    def _queue_cf(self, cmd, items, head=()):
+        """<CF> parts for a cellular sender, through the ack pacer (one
+        pacer for every small uplink message)."""
+        if W.id_range(cmd.id) not in W.CELLULAR_RANGES:
+            return 0
+        parts = W.build_cf(self.current_hash(), items, head=head)
+        self.daemon._acks.extend(parts)
+        return len(parts)
+
     def _verb_get(self, cmd):
-        return self._reject(cmd.id, cmd.range, "cmd", why="get lands in S4 b.3")
+        names = cmd.fields["k"]
+        if names == ["journal"]:
+            return self._get_journal(cmd)
+        try:
+            items = self._get_items(cmd, names)
+        except W.Rejected as rej:
+            return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
+        console_only = cmd.fields.get("to") == "con"
+        cellular = W.id_range(cmd.id) in W.CELLULAR_RANGES and not console_only
+        if cellular and len(W.build_cf("00000000", items)) > GET_MAX_CF_PARTS:
+            return self._reject(cmd.id, cmd.range, "big", None,
+                                f"{len(items)} keys need more than {GET_MAX_CF_PARTS} <CF> "
+                                'parts; ask for fewer, or add "to":"con"')
+        event = self._applied(cmd, f"get {', '.join(names)}: {len(items)} key(s)",
+                              answer_extra={"g": list(names)})
+        self._console_items(items)
+        if cellular:
+            self._queue_cf(cmd, items)
+        return event
+
+    def _console_items(self, items):
+        for path, value, source in items:
+            src = source if isinstance(source, str) else f"cmd {source[1]}"
+            self.daemon._console.append(f"  {path} = {_fmt(value)} ({src})")
+
+    def _get_journal(self, cmd):
+        import config_journal
+        entries = config_journal.read(config_journal.path_beside(self.state.path))[-JOURNAL_LINES:]
+        event = self._applied(cmd, f"get journal: last {len(entries)} change(s)")
+        for e in entries:
+            self.daemon._console.append(
+                f"  {e.get('t')} {e.get('src')} id={e.get('id')} {e.get('key')}: "
+                f"{_fmt(e.get('old'))} -> {_fmt(e.get('new'))}")
+        return event
 
     def _verb_cfm(self, cmd):
         return self._reject(cmd.id, cmd.range, "cmd", why="cfm lands in S4 b.5")
@@ -299,8 +371,10 @@ class Dispatcher:
                          if before.get(p) != v) or "no change (already in effect)"
         when = "next boot" if any(R.BY_PATH[p].apply == R.NEXT_BOOT for p in paths) \
             else "next action"
-        return self._applied(cmd, f"{text} ({when})",
-                             mutate=lambda st: st.apply_overlay(changes, cmd.id))
+        event = self._applied(cmd, f"{text} ({when})",
+                              mutate=lambda st: st.apply_overlay(changes, cmd.id))
+        self._change_summary(cmd, event)
+        return event
 
     def _verb_reset(self, cmd):
         import command_state_v9 as S
@@ -330,7 +404,17 @@ class Dispatcher:
             return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
         text = ("reset " + ", ".join(paths) + " -> YAML") if paths else "reset: nothing to reset"
         changes = [(p, S.remove()) for p in paths]
-        return self._applied(cmd, text, mutate=lambda st: st.apply_overlay(changes, cmd.id))
+        event = self._applied(cmd, text, mutate=lambda st: st.apply_overlay(changes, cmd.id))
+        self._change_summary(cmd, event)
+        return event
+
+    def _change_summary(self, cmd, event):
+        """R5 / DESIGN §6.2: a <CF> of the keys that changed, after the ack,
+        for a cellular sender (the backend's hash -> snapshot record)."""
+        changed = [path for path, _old, _new in event.get("changed", [])]
+        if changed:
+            values = self.effective()
+            self._queue_cf(cmd, [(p, values.get(p), self._source(p)) for p in changed])
 
     def _verb_trg(self, cmd):
         v = cmd.fields["v"]

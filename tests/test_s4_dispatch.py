@@ -77,7 +77,8 @@ class Rig:
         return events
 
     def acks(self):
-        out = [json.loads(a) for a in self.daemon._acks]
+        """The JSON acks queued since the last call (<CF> lines are dropped)."""
+        out = [json.loads(a) for a in self.daemon._acks if a.startswith("{")]
         self.daemon._acks.clear()
         return out
 
@@ -244,10 +245,8 @@ class Verbs(unittest.TestCase):
 
     def test_later_stage_verbs(self):
         r = Rig(self)
-        r.send({"id": 1_000_001, "c": "get", "k": ["mode"]}, {"id": 1_000_002, "c": "cfm",
-                                                               "ref": 5},
-               {"id": 1_000_003, "c": "hld", "v": 30})
-        self.assertEqual([a["e"] for a in r.acks()], ["cmd", "cmd", "cmd"])
+        r.send({"id": 1_000_002, "c": "cfm", "ref": 5}, {"id": 1_000_003, "c": "hld", "v": 30})
+        self.assertEqual([a["e"] for a in r.acks()], ["cmd", "cmd"])
 
     def test_unackable_and_out_of_range(self):
         r = Rig(self)
@@ -256,6 +255,73 @@ class Verbs(unittest.TestCase):
         lines = r.lines()
         self.assertIn("DROPPED", lines[0])
         self.assertIn("e=id", lines[1])
+
+
+class Get(unittest.TestCase):
+    def test_get_group_short_and_cf(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 150}})
+        r.acks()
+        r.lines()
+        r.send({"id": 1_000_002, "c": "get", "k": ["mode", "m"]})
+        out = r.daemon._acks
+        self.assertEqual(json.loads(out[0]), {"id": 1_000_002, "ok": 1, "h": r.hash()})
+        cf = " ".join(out[1:])
+        self.assertTrue(cf.startswith(f"<CF v=1 h={r.hash()}"))
+        self.assertIn("mode.media=still", cf)
+        self.assertIn("still.message_cap=150@c1000001", cf)
+        lines = r.lines()
+        self.assertIn("  still.message_cap = 150 (cmd 1000001)", lines)
+        self.assertIn("  mode.media = still (yaml)", lines)
+
+    def test_console_range_and_to_con_send_no_cf(self):
+        r = Rig(self)
+        r.send({"id": 7, "c": "get", "k": ["mode"]},
+               {"id": 1_000_001, "c": "get", "k": ["mode"], "to": "con"})
+        acks = r.daemon._acks
+        self.assertEqual(len(acks), 1)                    # only the remote ack, no <CF>
+        self.assertTrue(acks[0].startswith("{"))
+
+    def test_big_and_unknown(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "get", "k": ["camera", "still", "video", "uplink"]},
+               {"id": 1_000_002, "c": "get", "k": ["nope"]},
+               {"id": 1_000_003, "c": "get", "k": ["camera", "still", "video", "uplink"],
+                "to": "con"})
+        self.assertEqual([a.get("e") for a in r.acks()], ["big", "key", None])
+
+    def test_journal_is_console_only(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 150}})
+        r.acks()
+        r.lines()
+        r.send({"id": 1_000_002, "c": "get", "k": ["journal"]})
+        self.assertEqual(len(r.daemon._acks), 1)
+        self.assertTrue(any("still.message_cap: none -> 150" in line   # journal: overlay old
+                            for line in r.lines()))
+
+    def test_change_summary_after_set_and_reset(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 150}})
+        acks = list(r.daemon._acks)
+        self.assertEqual(len(acks), 2)
+        self.assertTrue(acks[1].startswith("<CF v=1 h=") and "still.message_cap=150@c1000001" in acks[1])
+        r.daemon._acks.clear()
+        r.send({"id": 1_000_002, "c": "reset", "all": 1})
+        self.assertIn("still.message_cap=195", r.daemon._acks[1])
+        r.daemon._acks.clear()
+        r.send({"id": 8, "c": "set", "kv": {"m": 100}})          # console: no cellular at all
+        self.assertEqual(r.daemon._acks, [])
+
+    def test_duplicate_get_resends_cf_once(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "get", "k": ["mode.run"]})
+        r.daemon._acks.clear()
+        r.clock.t += V.DUP_CELLULAR_QUIET_S
+        r.send({"id": 1_000_001, "c": "get", "k": ["mode.run"]})
+        self.assertEqual(len(r.daemon._acks), 2)
+        self.assertIn('"d":1', r.daemon._acks[0])
+        self.assertTrue(r.daemon._acks[1].startswith("<CF"))
 
 
 class Dedupe(unittest.TestCase):

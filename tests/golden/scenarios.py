@@ -392,8 +392,11 @@ V9_SCENARIOS = {
                 "camera.white_balance.mode": "manual"}}},
             {"when": "after_tx", "n": 41, "payload": {"id": 1000506, "c": "roi", "v": 1}},
             {"when": "tx_contains", "text": "<END", "payload": {"id": 1000503, "c": "help"}},
+            {"when": "tx_contains", "text": "<END", "payload": {"id": 1000507, "c": "get",
+                                                                "k": ["mode", "r"]}},
         ],
-        "notes": "per_boot stills on v9: set r (still.crop) drained at boot, a console-range "
+        "notes": "per_boot stills on v9: set r (still.crop) drained at boot (+ its <CF> change "
+                 "summary), a remote get in the tail (<CF>), a console-range "
                  "ping, a mid-burst ping and its duplicate (d:1, console only), a cross-key "
                  "rejection (manual WB without gains, e:xk), a retired v8 verb (e:cmd), help",
     },
