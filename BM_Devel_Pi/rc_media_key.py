@@ -16,10 +16,17 @@ Key
 Wire (built by rc_uplink_messages / rc_transmit, not here)
   START: `key=<key>` right after `length`, a core key never dropped by the budget.
   chunk: `<I{key}.{n}>` (398 B at 384 base64 chars). END: unchanged.
+  W9 (rev 5a, Sprint26 S4w, DESIGN_supervisor.md §10 O11): the chunk carries its
+  media's planned total, `<I{key}.{n}/{M}>` with M = the START `length` (402 B at
+  384 chars, i and M <= 999), so a media whose START was lost can still be healed.
+  Only when CHUNK_TOTAL is set (the supervisor on a migrated config v2 unit, next to
+  W8b); the caller reads it ONCE per send and passes it to both the sent record and
+  the transmit function. Legacy, v1-supervisor and unkeyed wire: unchanged.
 
 Sent record (what a heal re-sends, S5)
   sent/<stem>.sent.json      key, fmt, filename, chunk_b64_chars, msgs, sha256, sent_utc,
-                             payload (path of the exact bytes that were chunked)
+                             payload (path of the exact bytes that were chunked),
+                             chunk_total: true (W9 only; absent = chunks had no /M)
   sent/<stem>.sent           video only: the fitted payload (it lives in tmpfs otherwise)
   Images keep NO copy: the compressed JPEG on disk IS the wire bytes; the sidecar
   points at it. Written atomically (tmp + fsync + rename) BEFORE START.
@@ -153,11 +160,21 @@ def allocate_key(utc_dt, source, state_path=DEFAULT_STATE_PATH):
 
 # --- config -------------------------------------------------------------------------------
 
-def chunk_prefix(i, key=None):
-    """Wire prefix for chunk i: legacy `<I7>`, or keyed `<I{key}.{i}>` (rev 5)."""
+# W9 (Sprint26 S4w): set by the supervisor on a migrated unit (rc_supervisor
+# _install_wire_extras, cleared by finish(), the same lifetime as W8b's
+# START_EXTRA_FN). False = every chunk keeps the rev 5 prefix, byte-identical.
+CHUNK_TOTAL = False
+
+
+def chunk_prefix(i, key=None, total=None):
+    """Wire prefix for chunk i: legacy `<I7>`, keyed `<I{key}.{i}>` (rev 5), or keyed
+    with the media's planned total `<I{key}.{i}/{total}>` (W9, rev 5a). `total` is
+    ignored without a key: the backend rejects an unkeyed `<I{i}/{M}>`."""
     if key is None:
         return f"<I{i}>"
-    return f"<I{key}.{i}>"
+    if total is None:
+        return f"<I{key}.{i}>"
+    return f"<I{key}.{i}/{int(total)}>"
 
 
 def warn_retired_media_gid(config_path):
@@ -243,9 +260,11 @@ def key_for_this_wake(cfg, gate_info=None, daemon=None, state_path=DEFAULT_STATE
 # --- sent record --------------------------------------------------------------------------
 
 def write_sent_record(sent_dir, stem, *, key, fmt, filename, chunk_b64_chars, msgs, sha256,
-                      payload_bytes=None, payload_path=None, now=None):
+                      payload_bytes=None, payload_path=None, now=None, chunk_total=False):
     """Persist what is about to be chunked, BEFORE START. Video passes payload_bytes (kept
     as <stem>.sent); images pass payload_path (the JPEG on disk IS the wire bytes).
+    chunk_total (W9): the chunks go out as `<I{key}.{n}/{msgs}>`; recorded so a heal
+    re-sends them byte-identical. Absent from the sidecar when False (pre-W9 bytes).
     Returns the sidecar path."""
     os.makedirs(sent_dir, exist_ok=True)
     if payload_bytes is not None:
@@ -257,6 +276,8 @@ def write_sent_record(sent_dir, stem, *, key, fmt, filename, chunk_b64_chars, ms
         "payload": payload_path,
         "sent_utc": (now or datetime.now(timezone.utc)).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
+    if chunk_total:
+        record["chunk_total"] = True
     sidecar = os.path.join(sent_dir, f"{stem}.sent.json")
     _atomic_write(sidecar, json.dumps(record, indent=1) + "\n")
     return sidecar
@@ -306,11 +327,13 @@ def find_sent_record(sent_dir, key):
 
 
 def prepare_keyed_send(settings, *, gate_info, daemon, stem, fmt, filename, payload,
-                       chunk_b64_chars, payload_path=None, sent_dir=None, state_path=None):
+                       chunk_b64_chars, payload_path=None, sent_dir=None, state_path=None,
+                       chunk_total=False):
     """Once per wake, right before START (both cycles): prune old sent records,
     allocate this wake's key from the Spotter UTC (None -> legacy wire), persist what
-    is about to be chunked. Never raises: a failure here costs the key (legacy wire),
-    never the capture or the send."""
+    is about to be chunked. chunk_total (W9): the caller's once-per-send decision,
+    the same value it passes to the transmit function. Never raises: a failure here
+    costs the key (legacy wire), never the capture or the send."""
     cfg = settings.get("media_key_cfg") or {}
     if not cfg.get("enabled"):
         return None
@@ -326,8 +349,10 @@ def prepare_keyed_send(settings, *, gate_info, daemon, stem, fmt, filename, payl
             sent_dir, stem, key=key, fmt=fmt, filename=filename,
             chunk_b64_chars=chunk_b64_chars, msgs=msgs,
             sha256=hashlib.sha256(payload).hexdigest(),
-            payload_bytes=None if payload_path else payload, payload_path=payload_path)
-        print(f"[KEY] sent record: {sidecar} ({msgs} msgs)")
+            payload_bytes=None if payload_path else payload, payload_path=payload_path,
+            chunk_total=chunk_total)
+        print(f"[KEY] sent record: {sidecar} ({msgs} msgs"
+              + (f", chunks <I{key}.n/{msgs}>" if chunk_total else "") + ")")
         return key
     except Exception as exc:
         print(f"[KEY][WARN] keyed send setup failed ({exc}) -> legacy <I{{n}}> wire")

@@ -83,6 +83,7 @@ def transmit_progressive_image(
     ack_drain_fn=None,
     pending_pump_fn=None,
     media_key=None,
+    chunk_total=False,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
 
@@ -101,6 +102,9 @@ def transmit_progressive_image(
     media_key: Sprint25 S4 rev 5 key (rc_media_key). START gets `key=`, chunks
     go out as `<I{key}.{i}>` (398 B at 384 chars). None = legacy wire,
     byte-identical. (The Sprint10 3-char media_gid was retired in Sprint26 S1.)
+    chunk_total (Sprint26 S4w, W9): keyed chunks carry the PLANNED total,
+    `<I{key}.{i}/{planned}>` (= START `length`; a bounded a=inc send too). Ignored
+    without a key. False = the rev 5 wire, byte-identical.
     Returns {planned, send_target, sent, started, complete_send,
              incomplete_emitted, uart_duration_sec}.
     """
@@ -109,6 +113,7 @@ def transmit_progressive_image(
     chunks = split_base64_chunks(jpeg_data, chunk_b64_chars)
     planned = len(chunks)
     wire_reason = reason_code(selector_reason) if not fits else None
+    total = planned if (chunk_total and chunk_tag is not None) else None   # W9
 
     if current_timestamp is None:
         current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -167,7 +172,7 @@ def transmit_progressive_image(
         # Per-chunk guard: this chunk + the closing END must still fit.
         if not budget.messages_fit(2):
             break
-        tx(f"{chunk_prefix(i, chunk_tag)}{chunks[i]}\n".encode("ascii"))
+        tx(f"{chunk_prefix(i, chunk_tag, total)}{chunks[i]}\n".encode("ascii"))
         sent += 1
         sleep_fn(delay_seconds)
         # Sprint11 C3: persist inbound commands mid-burst, wire untouched.
@@ -246,6 +251,7 @@ def transmit_video_clip(
     pending_pump_fn=None,
     media_key=None,
     bench_drop_chunks=None,
+    chunk_total=False,
 ):
     """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
     (contract sections 1 + 5).
@@ -260,9 +266,17 @@ def transmit_video_clip(
     including the keyframe repeat, goes out as `<I{key}.{i}>`. END unchanged.
     None = the rev 3 wire, byte-identical.
 
+    chunk_total (Sprint26 S4w, W9): keyed chunks carry the planned total,
+    `<I{key}.{i}/{planned}>` (= START `length`); the keyframe repeat carries its
+    original `i/planned` and is never counted. Ignored without a key. False = the
+    rev 5 wire, byte-identical.
+
     bench_drop_chunks (Sprint25 S5, BENCH ONLY, `--bench-drop-chunks`): chunk
     indices NOT put on the wire — the slot is still paced and counted as sent,
-    so the backend sees a real partial to heal. None/empty = no effect.
+    so the backend sees a real partial to heal. The token "start" (Sprint26 S4w)
+    drops the START the same way (slot paced), as a Spotter queue-full rejection
+    would: the W9 proof that `/M` alone makes the media healable. None/empty = no
+    effect.
 
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
@@ -291,14 +305,16 @@ def transmit_video_clip(
     delay_seconds = float(delay_seconds)
     chunks = split_base64_chunks(payload, chunk_b64_chars)
     planned = len(chunks)
+    total = planned if (chunk_total and media_key is not None) else None   # W9
     uart_start = clock()
     drop = frozenset(bench_drop_chunks or ())
-    if drop:
-        print(f"[VTX][BENCH] NOT sending chunk(s) {sorted(drop)} (slots still paced)")
+    drop_start = "start" in drop
+    if drop - {"start"}:
+        print(f"[VTX][BENCH] NOT sending chunk(s) {sorted(drop - {'start'})} (slots still paced)")
 
     def send_chunk(i):
         if i not in drop:
-            tx(f"{chunk_prefix(i, media_key)}{chunks[i]}\n".encode("ascii"))
+            tx(f"{chunk_prefix(i, media_key, total)}{chunks[i]}\n".encode("ascii"))
 
     keyframe_chunks = max(1, min(int(keyframe_chunks), planned)) if planned else 0
     result = {"planned": planned, "sent": 0, "started": False, "complete_send": False,
@@ -318,10 +334,17 @@ def transmit_video_clip(
     if current_timestamp is None:
         current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    tx(build_rc_video_start_message(
+    start_line = build_rc_video_start_message(
         file_name, current_timestamp, planned, fps=fps, dur=dur, res=res, crop=crop,
         br=br, crf=crf, complete=True, start_metadata=start_metadata, key=media_key,
-    ).encode("ascii"))
+    ).encode("ascii")
+    if drop_start:
+        # BENCH ONLY: the START slot is paced but nothing goes on the wire.
+        print(f"[VTX][BENCH] NOT sending START (slot still paced): the backend sees a "
+              f"START-lost media, key={media_key}, {planned} chunks")
+        result["start_dropped"] = True
+    else:
+        tx(start_line)
     result["started"] = True
     _pump(pending_pump_fn)
     sleep_fn(delay_seconds)

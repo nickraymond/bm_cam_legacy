@@ -236,12 +236,15 @@ class Boot:
     def _install_wire_extras(self):
         """W8b: cfg=<hash8> + up=<s> on every <WS>; START cfg (core) and, on a
         triggered action, tg/r/m/d (DESIGN §9: the resolved one-shot values).
-        v9 path only; cleared by finish()."""
+        v9 path only; cleared by finish(). W9 (S4w): keyed chunks carry their
+        media's total `<I{key}.{i}/{M}>`, same gate and lifetime."""
+        import rc_media_key
         import rc_telemetry
         import rc_uplink_messages
         self._process_mark = self._now()
         rc_telemetry.WS_EXTRA_FN = self._ws_extra
         rc_uplink_messages.START_EXTRA_FN = self._start_extra
+        rc_media_key.CHUNK_TOTAL = True
 
     def _config_hash(self):
         replies = self.v9_replies
@@ -616,10 +619,12 @@ class Boot:
                                    sleep_fn=time.sleep)
         self.owner.finish(self.summary, close_port=True, close_warn=self.close_warn, halt=halt)
         if self.v9_replies is not None:
+            import rc_media_key
             import rc_telemetry
             import rc_uplink_messages
             rc_telemetry.WS_EXTRA_FN = None
             rc_uplink_messages.START_EXTRA_FN = None
+            rc_media_key.CHUNK_TOTAL = False
         if self.end_line is not None:
             try:
                 print(self.end_line())
