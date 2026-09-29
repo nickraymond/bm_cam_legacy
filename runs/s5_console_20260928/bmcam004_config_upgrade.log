@@ -1,0 +1,4 @@
+[UPGRADE] dry-run: would rewrite (same values, same hash); pass --write
+[UPGRADE] rewritten (hash 580ce986 unchanged); old file kept as /home/pi/BM_Devel_Pi/camera_config.yaml.before_upgrade_20260928T183604Z
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=580ce986 hv=1 registry=v5 overlay=0 key(s)
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh

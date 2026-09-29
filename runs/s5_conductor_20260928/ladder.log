@@ -1,0 +1,8 @@
+===== 2026-09-28T20:26:42Z C.set-stay_on-bmcam003 SPOT-33507C  bm pub bmcam/cmd {"id":52001,"c":"set","kv":{"mode.run":"stay_on"}} 1 1  (72 B line)
+CON  2026-09-28T20:26:45Z bm pub bmcam/cmd {"id":52001,"c":"set","kv":{"mode.run":"stay_on"}} 1 1
+CON  2026-09-28T20:26:45Z Message: 1790627206.996 53171fa3d81a8e6f, [bmcam003] OK id=52001 mode.run: per_boot -> stay_on (next boot) cfg=f7c9194f
+SUMMARY cell=0 con=2
+===== 2026-09-28T20:27:43Z C.set-stay_on-bmcam004 SPOT-31593C  bm pub bmcam/cmd {"id":62001,"c":"set","kv":{"mode.run":"stay_on"}} 1 1  (72 B line)
+CON  2026-09-28T20:27:45Z bm pub bmcam/cmd {"id":62001,"c":"set","kv":{"mode.run":"stay_on"}} 1 1
+CON  2026-09-28T20:27:45Z 1790627267.093 e6fe83ea6b4a2b7f, [bmcam004] OK id=62001 mode.run: per_boot -> stay_on (next boot) cfg=f7c9194f
+SUMMARY cell=0 con=2

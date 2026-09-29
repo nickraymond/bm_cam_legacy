@@ -1,0 +1,990 @@
+----- 2026-09-28T16:42:08Z STATE pre-ladder-probe bmcam003
+sha256 d19bbb295fb763c4 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 564596be7e30ab41 config_journal.jsonl 11L
+overlay {}
+guarded {}
+boot 1 hw {}
+----- 2026-09-28T16:43:39Z STATE L1.before bmcam003
+sha256 d19bbb295fb763c4 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 564596be7e30ab41 config_journal.jsonl 11L
+overlay {}
+guarded {}
+boot 1 hw {} trg null cache 1
+===== 2026-09-28T16:43:41Z L1.ping-midburst SPOT-33507C  bm pub bmcam/cmd {"id":51001,"c":"ping"} 1 1  (45 B line)
+SPOT 2026-09-28T16:43:43Z 2026-09-28T16:43:44.824Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+SPOT 2026-09-28T16:43:43Z 2026-09-28T16:43:44.824Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+SPOT 2026-09-28T16:43:44Z 2026-09-28T16:43:46.144Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+SPOT 2026-09-28T16:43:44Z 2026-09-28T16:43:46.144Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+SPOT 2026-09-28T16:43:46Z .2026-09-28T16:43:47.476Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+SPOT 2026-09-28T16:43:46Z 2026-09-28T16:43:47.476Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+SPOT 2026-09-28T16:43:47Z .2026-09-28T16:43:48.792Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+SPOT 2026-09-28T16:43:47Z 2026-09-28T16:43:48.796Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+SPOT 2026-09-28T16:43:48Z .2026-09-28T16:43:50.113Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+SPOT 2026-09-28T16:43:48Z 2026-09-28T16:43:50.113Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+SUMMARY cell=0 con=0
+===== 2026-09-28T16:45:58Z L1.help SPOT-33507C  bm pub bmcam/cmd {"id":51002,"c":"help"} 1 1  (45 B line)
+CON  2026-09-28T16:46:00Z bm pub bmcam/cmd {"id":51002,"c":"help"} 1 1
+CON  2026-09-28T16:46:00Z 1790613961.855 53171fa3d81a8e6f, [bmcam003] OK id=51002 help (reference follows) cfg=580ce986
+CON  2026-09-28T16:46:00Z 1790613961.906 53171fa3d81a8e6f, v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)
+CON  2026-09-28T16:46:01Z 1790613962.316 53171fa3d81a8e6f, [bmcam003] OK id=51002 help (reference follows) (duplicate: original answer) cfg=580ce986
+SUMMARY cell=0 con=4
+===== 2026-09-28T16:46:10Z L1.get-mode SPOT-33507C  bm pub bmcam/cmd {"id":51003,"c":"get","k":["mode","r"]} 1 1  (61 B line)
+CON  2026-09-28T16:46:11Z bm pub bmcam/cmd {"id":51003,"c":"get","k":["mode","r"]} 1 1
+CON  2026-09-28T16:46:11Z 1790613973.363 53171fa3d81a8e6f, [bmcam003] OK id=51003 get mode, r: 6 key(s) cfg=580ce986
+CON  2026-09-28T16:46:12Z 1790613973.722 53171fa3d81a8e6f, [bmcam003] OK id=51003 get mode, r: 6 key(s) (duplicate: original answer) cfg=580ce986
+SUMMARY cell=0 con=3
+----- 2026-09-28T16:49:03Z STATE L4.before-window bmcam003
+ssh: connect to host bmcam003 port 22: Operation timed out
+===== 2026-09-28T16:50:07Z L4.set-window-closed SPOT-33507C  bm pub bmcam/cmd {"id":51010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CON  2026-09-28T16:50:10Z bm pub bmcam/cmd {"id":51010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T16:55:27Z L8.hld-clamped SPOT-33507C  bm pub bmcam/cmd {"id":51020,"c":"hld","v":30} 1 1  (51 B line)
+CON  2026-09-28T16:55:29Z bm pub bmcam/cmd {"id":51020,"c":"hld","v":30} 1 1
+CON  2026-09-28T16:55:29Z 1790614530.808 53171fa3d81a8e6f, [bmcam003] OK id=51020 hold awake 1 min (asked 30: clamped by hold_max_min / the bus-power budget) cfg=49eccde5
+SUMMARY cell=0 con=2
+----- 2026-09-28T16:55:33Z STATE L9.before-stage bmcam003
+sha256 9000275b6e52a273 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 ae2d7a906e131f12 config_journal.jsonl 13L
+overlay {"schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 6
+===== 2026-09-28T16:55:35Z L9.stage-bus-always-on SPOT-33507C  bm pub bmcam/cmd {"id":51021,"c":"set","kv":{"power.bus_always_on":true}} 1 1  (78 B line)
+CON  2026-09-28T16:55:37Z bm pub bmcam/cmd {"id":51021,"c":"set","kv":{"power.bus_always_on":true}} 1 1
+CON  2026-09-28T16:55:37Z 1790614538.437 53171fa3d81a8e6f, [bmcam003] OK id=51021 power.bus_always_on: STAGED true (awaiting cfm 51021) (next action) cfg=49eccde5
+SUMMARY cell=0 con=2
+----- 2026-09-28T16:55:41Z STATE L9.after-stage bmcam003
+sha256 3d2fe5e1784c30dd bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 ae2d7a906e131f12 config_journal.jsonl 13L
+overlay {"schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {"power.bus_always_on": {"actions": 0, "before": null, "before_id": null, "boots": 0, "cls": "stage", "had": false, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 51021, "uptime_s": 0.0}}
+boot 2 hw {} trg null cache 7
+===== 2026-09-28T16:56:16Z L9.cfm-bus-always-on SPOT-33507C  bm pub bmcam/cmd {"id":51022,"c":"cfm","ref":51021} 1 1  (56 B line)
+CON  2026-09-28T16:56:18Z bm pub bmcam/cmd {"id":51022,"c":"cfm","ref":51021} 1 1
+CON  2026-09-28T16:56:18Z 1790614579.925 53171fa3d81a8e6f, [bmcam003] OK id=51022 cfm 51021: power.bus_always_on applied cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T16:56:22Z L8.hld-60-held-bus SPOT-33507C  bm pub bmcam/cmd {"id":51023,"c":"hld","v":60} 1 1  (51 B line)
+CON  2026-09-28T16:56:23Z bm pub bmcam/cmd {"id":51023,"c":"hld","v":60} 1 1
+CON  2026-09-28T16:56:23Z 1790614585.167 53171fa3d81a8e6f, [bmcam003] OK id=51023 hold awake 1 min (asked 60: clamped by hold_max_min / the bus-power budget) cfg=55e424b4
+SUMMARY cell=0 con=2
+----- 2026-09-28T16:56:27Z STATE L9.after-cfm bmcam003
+sha256 c7a6326cdfdd6db6 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 846b52e76f1b90dd config_journal.jsonl 14L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+===== 2026-09-28T16:59:04Z L8.hld-120-held-bus SPOT-33507C  bm pub bmcam/cmd {"id":51024,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T16:59:07Z bm pub bmcam/cmd {"id":51024,"c":"hld","v":120} 1 1
+CON  2026-09-28T16:59:07Z 1790614748.679 53171fa3d81a8e6f, [bmcam003] OK id=51024 hold awake 120 min cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:00:12Z L1.ping-tail SPOT-33507C  bm pub bmcam/cmd {"id":51004,"c":"ping"} 1 1  (45 B line)
+CON  2026-09-28T17:00:14Z bm pub bmcam/cmd {"id":51004,"c":"ping"} 1 1
+CON  2026-09-28T17:00:14Z 1790614816.003 53171fa3d81a8e6f, [bmcam003] OK id=51004 ping cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:00:18Z L1.get-journal SPOT-33507C  bm pub bmcam/cmd {"id":51005,"c":"get","k":["journal"]} 1 1  (60 B line)
+CON  2026-09-28T17:00:19Z bm pub bmcam/cmd {"id":51005,"c":"get","k":["journal"]} 1 1
+CON  2026-09-28T17:00:19Z 1790614821.246 53171fa3d81a8e6f, [bmcam003] OK id=51005 get journal: last 5 change(s) cfg=55e424b4
+CON  2026-09-28T17:00:19Z 1790614821.296 53171fa3d81a8e6f,   2026-09-28T16:38:47Z deploy id=None *: none -> 0f6778492c87
+CON  2026-09-28T17:00:19Z 1790614821.347 53171fa3d81a8e6f,   2026-09-28T16:39:20Z deploy id=None camera_config.yaml: none -> registry v5 spelling
+CON  2026-09-28T17:00:20Z 1790614821.406 53171fa3d81a8e6f,   2026-09-28T16:55:01Z console id=51010 schedule.window.start: none -> 03:00
+CON  2026-09-28T17:00:20Z 1790614821.457 53171fa3d81a8e6f,   2026-09-28T16:55:01Z console id=51010 schedule.window.end: none -> 04:00
+CON  2026-09-28T17:00:20Z 1790614821.503 53171fa3d81a8e6f,   2026-09-28T16:56:18Z console id=51022 power.bus_always_on: none -> true
+SUMMARY cell=0 con=7
+===== 2026-09-28T17:00:26Z L1.get-group-power SPOT-33507C  bm pub bmcam/cmd {"id":51006,"c":"get","k":["power"]} 1 1  (58 B line)
+CON  2026-09-28T17:00:26Z bm pub bmcam/cmd {"id":51006,"c":"get","k":["power"]} 1 1
+CON  2026-09-28T17:00:26Z 1790614828.343 53171fa3d81a8e6f, [bmcam003] OK id=51006 get power: 5 key(s) cfg=55e424b4
+CON  2026-09-28T17:00:26Z 1790614828.382 53171fa3d81a8e6f,   power.halt.enabled = true (yaml)
+CON  2026-09-28T17:00:27Z 1790614828.441 53171fa3d81a8e6f,   power.halt.dry_run = false (yaml)
+CON  2026-09-28T17:00:27Z 1790614828.492 53171fa3d81a8e6f,   power.halt.mode = halt (yaml)
+CON  2026-09-28T17:00:27Z 1790614828.542 53171fa3d81a8e6f,   power.halt.script_path = /home/pi/BM_Devel_Pi/tuned_halt.sh (yaml)
+CON  2026-09-28T17:00:27Z 1790614828.593 53171fa3d81a8e6f,   power.bus_always_on = true (cmd 51021)
+SUMMARY cell=0 con=7
+----- 2026-09-28T17:00:33Z STATE L2.before bmcam003
+sha256 49ec634dda4eafb0 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 846b52e76f1b90dd config_journal.jsonl 14L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 13
+===== 2026-09-28T17:00:35Z L2.dup-get-51003 SPOT-33507C  bm pub bmcam/cmd {"id":51003,"c":"get","k":["mode","r"]} 1 1  (61 B line)
+CON  2026-09-28T17:00:36Z bm pub bmcam/cmd {"id":51003,"c":"get","k":["mode","r"]} 1 1
+CON  2026-09-28T17:00:36Z 1790614837.613 53171fa3d81a8e6f, [bmcam003] OK id=51003 get mode, r: 6 key(s) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:00:41Z L2.dup-set-51010 SPOT-33507C  bm pub bmcam/cmd {"id":51010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CON  2026-09-28T17:00:42Z bm pub bmcam/cmd {"id":51010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+CON  2026-09-28T17:00:42Z 1790614844.039 53171fa3d81a8e6f, [bmcam003] OK id=51010 schedule.window.start: 00:00 -> 03:00, schedule.window.end: 00:00 -> 04:00 (next action) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:00:47Z STATE L2.after bmcam003
+sha256 49ec634dda4eafb0 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 846b52e76f1b90dd config_journal.jsonl 14L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 13
+----- 2026-09-28T17:01:01Z STATE L3.before bmcam003
+sha256 49ec634dda4eafb0 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 846b52e76f1b90dd config_journal.jsonl 14L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 13
+===== 2026-09-28T17:01:32Z L3.nan SPOT-33507C  bm pub bmcam/cmd {"id":51040,"c":"set","kv":{"e":NaN}} 1 1  (59 B line)
+CON  2026-09-28T17:01:35Z bm pub bmcam/cmd {"id":51040,"c":"set","kv":{"e":NaN}} 1 1
+CON  2026-09-28T17:01:35Z 1790614896.519 53171fa3d81a8e6f, [bmcam003] DROPPED (no ack): not strict JSON: NaN is not allowed
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:01:39Z L3.space SPOT-33507C  bm pub bmcam/cmd {"id":51041,"c":"set","kv":{"schedule.timezone":"America/New York"}} 1 1  (90 B line)
+CON  2026-09-28T17:01:40Z bm pub bmcam/cmd {"id":51041,"c":"set","kv":{"schedule.timezone":"America/New York"}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T17:01:44Z L3.oversize-249B SPOT-33507C  bm pub bmcam/cmd {"id":51042,"c":"set","kv":{"camera.image_processing.denoise":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","camera.exposure.mode":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","video.record.framing":"cccccccccccccccccccccccccccccccccccccccccccccccc"}} 1 1  (271 B line)
+CON  2026-09-28T17:01:45Z bm pub bmcam/cmd {"id":51042,"c":"set","kv":{"camera.image_processing.denoise":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","camera.exposure.mode":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","video.r
+SUMMARY cell=0 con=1
+===== 2026-09-28T17:01:49Z L3.crosskey-wb-manual-no-gains SPOT-33507C  bm pub bmcam/cmd {"id":51043,"c":"set","kv":{"b":"manual"}} 1 1  (64 B line)
+CON  2026-09-28T17:01:50Z bm pub bmcam/cmd {"id":51043,"c":"set","kv":{"b":"manual"}} 1 1
+CON  2026-09-28T17:01:51Z 1790614912.378 53171fa3d81a8e6f, [bmcam003] REJECTED id=51043 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:01:55Z L3.unknown-key SPOT-33507C  bm pub bmcam/cmd {"id":51044,"c":"set","kv":{"nope.key":1}} 1 1  (64 B line)
+CON  2026-09-28T17:01:56Z bm pub bmcam/cmd {"id":51044,"c":"set","kv":{"nope.key":1}} 1 1
+CON  2026-09-28T17:01:56Z 1790614917.816 53171fa3d81a8e6f, [bmcam003] REJECTED id=51044 'nope.key' is not a setting e=key k=nope.key cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:02:00Z L3.locked-runtime SPOT-33507C  bm pub bmcam/cmd {"id":51045,"c":"set","kv":{"commands.runtime":"legacy"}} 1 1  (79 B line)
+CON  2026-09-28T17:02:01Z bm pub bmcam/cmd {"id":51045,"c":"set","kv":{"commands.runtime":"legacy"}} 1 1
+CON  2026-09-28T17:02:01Z 1790614923.058 53171fa3d81a8e6f, [bmcam003] REJECTED id=51045 commands.runtime is locked (deploy only) e=lock k=commands.runtime cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:02:05Z L3.service-unsigned SPOT-33507C  bm pub bmcam/cmd {"id":51046,"c":"set","kv":{"uplink.chunk_chars":320}} 1 1  (76 B line)
+CON  2026-09-28T17:02:06Z bm pub bmcam/cmd {"id":51046,"c":"set","kv":{"uplink.chunk_chars":320}} 1 1
+CON  2026-09-28T17:02:06Z 1790614928.296 53171fa3d81a8e6f, [bmcam003] REJECTED id=51046 uplink.chunk_chars needs a signed service-range command e=auth k=uplink.chunk_chars cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:02:10Z L3.retired-v8-verb SPOT-33507C  bm pub bmcam/cmd {"id":51047,"c":"roi","v":2} 1 1  (50 B line)
+CON  2026-09-28T17:02:11Z bm pub bmcam/cmd {"id":51047,"c":"roi","v":2} 1 1
+CON  2026-09-28T17:02:12Z 1790614933.523 53171fa3d81a8e6f, [bmcam003] REJECTED id=51047 unknown command 'roi' e=cmd cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:02:16Z L3.out-of-range SPOT-33507C  bm pub bmcam/cmd {"id":51048,"c":"set","kv":{"e":9.5}} 1 1  (59 B line)
+CON  2026-09-28T17:02:17Z bm pub bmcam/cmd {"id":51048,"c":"set","kv":{"e":9.5}} 1 1
+CON  2026-09-28T17:02:17Z 1790614938.765 53171fa3d81a8e6f, [bmcam003] REJECTED id=51048 must be in -8.0..8.0 e=val k=camera.exposure.ev cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:02:21Z L3.video-cap-floor SPOT-33507C  bm pub bmcam/cmd {"id":51049,"c":"set","kv":{"video.send.message_cap":40}} 1 1  (79 B line)
+CON  2026-09-28T17:02:22Z bm pub bmcam/cmd {"id":51049,"c":"set","kv":{"video.send.message_cap":40}} 1 1
+CON  2026-09-28T17:02:22Z 1790614943.812 53171fa3d81a8e6f, [bmcam003] REJECTED id=51049 40 is below 80: the x264 fit cannot encode a clip that small (S3b bench F1) e=xk k=video.send.message_cap cfg=55e424b4
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:02:26Z STATE L3.after bmcam003
+sha256 75a9613a046ee058 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 846b52e76f1b90dd config_journal.jsonl 14L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 20
+===== 2026-09-28T17:04:00Z L11.console-len-200 SPOT-33507C  bm pub bmcam/cmd {"id":51050,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (200 B line)
+CON  2026-09-28T17:04:02Z bm pub bmcam/cmd {"id":51050,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1
+CON  2026-09-28T17:04:02Z 1790615044.203 53171fa3d81a8e6f, [bmcam003] REJECTED id=51050 'zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy' is not a setting e=key k=zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:04:07Z L11.console-len-240 SPOT-33507C  bm pub bmcam/cmd {"id":51051,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyy":1.00000000000}} 1 1  (240 B line)
+CON  2026-09-28T17:04:08Z bm pub bmcam/cmd {"id":51051,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+CON  2026-09-28T17:04:08Z 1790615049.843 53171fa3d81a8e6f, [bmcam003] REJECTED id=51051 'zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy' is not a setting e=key k=zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:04:13Z L11.console-len-250 SPOT-33507C  bm pub bmcam/cmd {"id":51052,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (250 B line)
+CON  2026-09-28T17:04:14Z bm pub bmcam/cmd {"id":51052,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+CON  2026-09-28T17:04:14Z 1790615055.683 53171fa3d81a8e6f, [bmcam003] REJECTED id=51052 'zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy' is not a setting e=key k=zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:04:19Z L11.console-len-256 SPOT-33507C  bm pub bmcam/cmd {"id":51053,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (256 B line)
+CON  2026-09-28T17:04:20Z bm pub bmcam/cmd {"id":51053,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+CON  2026-09-28T17:04:20Z 1790615061.722 53171fa3d81a8e6f, [bmcam003] REJECTED id=51053 'zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy' is not a setting e=key k=zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:04:25Z L11.console-len-257 SPOT-33507C  bm pub bmcam/cmd {"id":51054,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (257 B line)
+CON  2026-09-28T17:04:25Z bm pub bmcam/cmd {"id":51054,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+SUMMARY cell=0 con=1
+===== 2026-09-28T17:04:31Z L11.console-len-264 SPOT-33507C  bm pub bmcam/cmd {"id":51055,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (264 B line)
+CON  2026-09-28T17:04:32Z bm pub bmcam/cmd {"id":51055,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+SUMMARY cell=0 con=1
+===== 2026-09-28T17:04:37Z L11.console-len-270 SPOT-33507C  bm pub bmcam/cmd {"id":51056,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (270 B line)
+CON  2026-09-28T17:04:38Z bm pub bmcam/cmd {"id":51056,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+SUMMARY cell=0 con=1
+===== 2026-09-28T17:05:05Z L3.space-escaped SPOT-33507C  bm pub bmcam/cmd {"id":51057,"c":"set","kv":{"schedule.timezone":"America/New York"}} 1 1  (90 B line)
+CON  2026-09-28T17:05:07Z bm pub bmcam/cmd {"id":51057,"c":"set","kv":{"schedule.timezone":"America/New York"}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T17:05:12Z L3.nonascii-escaped SPOT-33507C  bm pub bmcam/cmd {"id":51058,"c":"set","kv":{"camera.exposure.mode":"café"}} 1 1  (82 B line)
+CON  2026-09-28T17:05:12Z bm pub bmcam/cmd {"id":51058,"c":"set","kv":{"camera.exposure.mode":"caf"}} 1 1
+CON  2026-09-28T17:05:13Z 1790615114.421 53171fa3d81a8e6f, [bmcam003] OK id=51058 camera.exposure.mode: none -> caf (next action) cfg=9872e279
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:05:17Z L3.bool-as-int SPOT-33507C  bm pub bmcam/cmd {"id":51059,"c":"set","kv":{"power.halt.dry_run":1}} 1 1  (74 B line)
+CON  2026-09-28T17:05:18Z bm pub bmcam/cmd {"id":51059,"c":"set","kv":{"power.halt.dry_run":1}} 1 1
+CON  2026-09-28T17:05:18Z 1790615119.871 53171fa3d81a8e6f, [bmcam003] REJECTED id=51059 must be true or false e=val k=power.halt.dry_run cfg=9872e279
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:05:22Z L3.dup-json-key SPOT-33507C  bm pub bmcam/cmd {"id":51060,"c":"set","kv":{"e":1.0,"e":-1.0}} 1 1  (68 B line)
+CON  2026-09-28T17:05:23Z bm pub bmcam/cmd {"id":51060,"c":"set","kv":{"e":1.0,"e":-1.0}} 1 1
+CON  2026-09-28T17:05:23Z 1790615125.078 53171fa3d81a8e6f, [bmcam003] DROPPED (no ack): not strict JSON: duplicate key 'e'
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:05:27Z STATE L3.after2 bmcam003
+sha256 e72abd906babdee0 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 ed401665207cf467 config_journal.jsonl 15L
+overlay {"camera.exposure.mode": "caf", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 26
+===== 2026-09-28T17:06:24Z L3.space-escaped2 SPOT-33507C  bm pub bmcam/cmd {"id":51061,"c":"set","kv":{"schedule.timezone":"America/New\u0020York"}} 1 1  (95 B line)
+CON  2026-09-28T17:06:26Z bm pub bmcam/cmd {"id":51061,"c":"set","kv":{"schedule.timezone":"America/New\u0020York"}} 1 1
+CON  2026-09-28T17:06:26Z 1790615188.003 53171fa3d81a8e6f, [bmcam003] REJECTED id=51061 strings are [A-Za-z0-9_:./+-]{1,48} e=val k=schedule.timezone cfg=9872e279
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:06:30Z L3.nonascii-escaped2 SPOT-33507C  bm pub bmcam/cmd {"id":51062,"c":"set","kv":{"camera.exposure.mode":"caf\u00e9"}} 1 1  (86 B line)
+CON  2026-09-28T17:06:31Z bm pub bmcam/cmd {"id":51062,"c":"set","kv":{"camera.exposure.mode":"caf\u00e9"}} 1 1
+CON  2026-09-28T17:06:31Z 1790615193.242 53171fa3d81a8e6f, [bmcam003] REJECTED id=51062 strings are [A-Za-z0-9_:./+-]{1,48} e=val k=camera.exposure.mode cfg=9872e279
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:06:57Z L4.reset-exposure-mode SPOT-33507C  bm pub bmcam/cmd {"id":51069,"c":"reset","k":["camera.exposure.mode"]} 1 1  (75 B line)
+CON  2026-09-28T17:06:59Z bm pub bmcam/cmd {"id":51069,"c":"reset","k":["camera.exposure.mode"]} 1 1
+CON  2026-09-28T17:06:59Z 1790615221.316 53171fa3d81a8e6f, [bmcam003] OK id=51069 reset camera.exposure.mode -> YAML cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:07:04Z L4.set-e SPOT-33507C  bm pub bmcam/cmd {"id":51070,"c":"set","kv":{"e":-1.0}} 1 1  (60 B line)
+CON  2026-09-28T17:07:05Z bm pub bmcam/cmd {"id":51070,"c":"set","kv":{"e":-1.0}} 1 1
+CON  2026-09-28T17:07:05Z 1790615226.566 53171fa3d81a8e6f, [bmcam003] OK id=51070 camera.exposure.ev: none -> -1.0 (next action) cfg=bfaf6f4a
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:07:09Z L4.reset-e SPOT-33507C  bm pub bmcam/cmd {"id":51071,"c":"reset","k":["e"]} 1 1  (56 B line)
+CON  2026-09-28T17:07:10Z bm pub bmcam/cmd {"id":51071,"c":"reset","k":["e"]} 1 1
+CON  2026-09-28T17:07:10Z 1790615231.816 53171fa3d81a8e6f, [bmcam003] OK id=51071 reset camera.exposure.ev -> YAML cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:07:14Z L2.dup-set-after-reset SPOT-33507C  bm pub bmcam/cmd {"id":51070,"c":"set","kv":{"e":-1.0}} 1 1  (60 B line)
+CON  2026-09-28T17:07:15Z bm pub bmcam/cmd {"id":51070,"c":"set","kv":{"e":-1.0}} 1 1
+CON  2026-09-28T17:07:15Z 1790615237.035 53171fa3d81a8e6f, [bmcam003] OK id=51070 camera.exposure.ev: none -> -1.0 (next action) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:07:19Z L4.cas-mismatch SPOT-33507C  bm pub bmcam/cmd {"id":51072,"c":"set","kv":{"e":0.5},"b":"deadbeef"} 1 1  (74 B line)
+CON  2026-09-28T17:07:20Z bm pub bmcam/cmd {"id":51072,"c":"set","kv":{"e":0.5},"b":"deadbeef"} 1 1
+CON  2026-09-28T17:07:21Z 1790615242.472 53171fa3d81a8e6f, [bmcam003] REJECTED id=51072 config is 55e424b4, not deadbeef e=cas cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:07:25Z L4.cas-match SPOT-33507C  bm pub bmcam/cmd {"id":51073,"c":"set","kv":{"e":0.5},"b":"55e424b4"} 1 1  (74 B line)
+CON  2026-09-28T17:07:26Z bm pub bmcam/cmd {"id":51073,"c":"set","kv":{"e":0.5},"b":"55e424b4"} 1 1
+CON  2026-09-28T17:07:26Z 1790615247.722 53171fa3d81a8e6f, [bmcam003] OK id=51073 camera.exposure.ev: none -> 0.5 (next action) cfg=6e538f0c
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:07:30Z L4.reset-e2 SPOT-33507C  bm pub bmcam/cmd {"id":51074,"c":"reset","k":["e"]} 1 1  (56 B line)
+CON  2026-09-28T17:07:31Z bm pub bmcam/cmd {"id":51074,"c":"reset","k":["e"]} 1 1
+CON  2026-09-28T17:07:31Z 1790615252.960 53171fa3d81a8e6f, [bmcam003] OK id=51074 reset camera.exposure.ev -> YAML cfg=55e424b4
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:07:35Z STATE L4.after bmcam003
+sha256 a57790f1514ccfe4 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 a622993df613c505 config_journal.jsonl 20L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 34
+===== 2026-09-28T17:08:04Z L5.set-wb-manual SPOT-33507C  bm pub bmcam/cmd {"id":51080,"c":"set","kv":{"b":"manual","camera.white_balance.gains":[1.62,1.91],"camera.white_balance.enabled":true,"camera.controls_enabled":true}} 1 1  (172 B line)
+CON  2026-09-28T17:08:07Z bm pub bmcam/cmd {"id":51080,"c":"set","kv":{"b":"manual","camera.white_balance.gains":[1.62,1.91],"camera.white_balance.enabled":true,"camera.controls_enabled":true}} 1 1
+CON  2026-09-28T17:08:07Z 1790615288.886 53171fa3d81a8e6f, [bmcam003] OK id=51080 camera.white_balance.mode: none -> manual, camera.white_balance.gains: none -> 1.62,1.91, camera.white_balance.enabled: false -> true (next act
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:08:12Z STATE L6.before-trg-still bmcam003
+sha256 5a4ada2f4669978d bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 db9a06a9fa40bc9d config_journal.jsonl 24L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg null cache 35
+===== 2026-09-28T17:08:14Z L6.trg-still-med-override SPOT-33507C  bm pub bmcam/cmd {"id":51081,"c":"trg","v":2,"kv":{"med":"still","m":30}} 1 1  (78 B line)
+CON  2026-09-28T17:08:15Z bm pub bmcam/cmd {"id":51081,"c":"trg","v":2,"kv":{"med":"still","m":30}} 1 1
+CON  2026-09-28T17:08:15Z 1790615297.324 53171fa3d81a8e6f, [bmcam003] OK id=51081 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=30 cfg=d9e81104
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:21:22Z STATE F7.pre-deploy bmcam003
+sha256 1ca3683a7816b997 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 db9a06a9fa40bc9d config_journal.jsonl 24L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {} trg {"id": 51081, "v": 2, "kv": {"mode.media": "still", "still.message_cap": 30}} cache 36
+===== 2026-09-28T17:29:07Z L8.hld-120-F7 SPOT-33507C  bm pub bmcam/cmd {"id":51091,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T17:29:09Z bm pub bmcam/cmd {"id":51091,"c":"hld","v":120} 1 1
+CON  2026-09-28T17:29:09Z 1790616551.148 53171fa3d81a8e6f, [bmcam003] OK id=51091 hold awake 120 min cfg=d9e81104
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:29:39Z L8.hld-120-F7-repeat SPOT-33507C  bm pub bmcam/cmd {"id":51091,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T17:29:42Z bm pub bmcam/cmd {"id":51091,"c":"hld","v":120} 1 1
+CON  2026-09-28T17:29:42Z 1790616583.800 53171fa3d81a8e6f, [bmcam003] OK id=51091 hold awake 120 min (duplicate: original answer) cfg=d9e81104
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:30:04Z STATE L6.before-trg-video bmcam003
+sha256 4397f28d584ff002 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 48acdeb9b016bbd1 config_journal.jsonl 25L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 5 hw {} trg null cache 37
+===== 2026-09-28T17:30:05Z L6.trg-video-kv SPOT-33507C  bm pub bmcam/cmd {"id":51092,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1  (70 B line)
+CON  2026-09-28T17:30:08Z bm pub bmcam/cmd {"id":51092,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1
+CON  2026-09-28T17:30:08Z 1790616609.640 53171fa3d81a8e6f, [bmcam003] OK id=51092 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3, video.send.message_cap=80 (d=3! only 5 
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:36:19Z L7.P-video-save_local-oneshot SPOT-33507C  bm pub bmcam/cmd {"id":51100,"c":"trg","v":2,"kv":{"o":"save_local","d":3}} 1 1  (80 B line)
+CON  2026-09-28T17:36:21Z bm pub bmcam/cmd {"id":51100,"c":"trg","v":2,"kv":{"o":"save_local","d":3}} 1 1
+CON  2026-09-28T17:36:21Z 1790616983.328 53171fa3d81a8e6f, [bmcam003] OK id=51100 trg 2 armed: capture + output per mode (next decision point); one action only: mode.output=save_local, video.send.duration_s=3 (d=3! only 5 s i
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:39:28Z L7.P-still-save_local-oneshot-F7 SPOT-33507C  bm pub bmcam/cmd {"id":51101,"c":"trg","v":2,"kv":{"med":"still","o":"save_local"}} 1 1  (88 B line)
+CON  2026-09-28T17:39:31Z bm pub bmcam/cmd {"id":51101,"c":"trg","v":2,"kv":{"med":"still","o":"save_local"}} 1 1
+CON  2026-09-28T17:39:31Z 1790617172.765 53171fa3d81a8e6f, [bmcam003] OK id=51101 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, mode.output=save_local cfg=d9e81104
+CELL 2026-09-28T17:39:31Z len=135 <WS v=1 a=cap cfg=d9e81104 up=643 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=35.4 sha=93501f2151d5 hn=bmcam003>
+
+SUMMARY cell=1 con=2
+===== 2026-09-28T17:42:34Z L7.set-stay_on SPOT-33507C  bm pub bmcam/cmd {"id":51102,"c":"set","kv":{"mode.run":"stay_on"}} 1 1  (72 B line)
+CON  2026-09-28T17:42:36Z bm pub bmcam/cmd {"id":51102,"c":"set","kv":{"mode.run":"stay_on"}} 1 1
+CON  2026-09-28T17:42:36Z 1790617357.933 53171fa3d81a8e6f, [bmcam003] OK id=51102 mode.run: per_boot -> stay_on (next boot) cfg=dbac92bb
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:42:41Z L8.hld-release SPOT-33507C  bm pub bmcam/cmd {"id":51103,"c":"hld","v":0} 1 1  (50 B line)
+CON  2026-09-28T17:42:42Z bm pub bmcam/cmd {"id":51103,"c":"hld","v":0} 1 1
+CON  2026-09-28T17:42:42Z 1790617364.171 53171fa3d81a8e6f, [bmcam003] OK id=51103 hold released cfg=dbac92bb
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:49:30Z L7.S-video-transmit SPOT-33507C  bm pub bmcam/cmd {"id":51110,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1  (70 B line)
+CON  2026-09-28T17:49:32Z bm pub bmcam/cmd {"id":51110,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1
+CON  2026-09-28T17:49:33Z 1790617774.378 53171fa3d81a8e6f, [bmcam003] OK id=51110 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3, video.send.message_cap=80 (d=3! only 5 
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:52:38Z L7.S-set-save_local SPOT-33507C  bm pub bmcam/cmd {"id":51111,"c":"set","kv":{"o":"save_local"}} 1 1  (68 B line)
+CON  2026-09-28T17:52:40Z bm pub bmcam/cmd {"id":51111,"c":"set","kv":{"o":"save_local"}} 1 1
+CON  2026-09-28T17:52:41Z 1790617962.343 53171fa3d81a8e6f, [bmcam003] OK id=51111 mode.output: transmit -> save_local, mode.output guarded: cfm 51111 within 3 boots or 2 h (next boot) cfg=8b322ee0
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:52:54Z STATE L7.after-set-save_local bmcam003
+sha256 a3ef712d88be5575 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 83ab99d4e901cca5 config_journal.jsonl 27L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.output": "save_local", "mode.run": "stay_on", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start":
+guarded {"mode.output": {"actions": 0, "before": null, "before_id": null, "boots": 1, "cls": "revert", "had": false, "in_effect": true, "lim": "boot3_2h", "new": "save_local", "ref": 51111, "uptime_s": 0.0}}
+boot 7 hw {} trg null cache 44
+===== 2026-09-28T17:53:08Z L7.S-video-save_local SPOT-33507C  bm pub bmcam/cmd {"id":51112,"c":"trg","v":2,"kv":{"d":3}} 1 1  (63 B line)
+CON  2026-09-28T17:53:10Z bm pub bmcam/cmd {"id":51112,"c":"trg","v":2,"kv":{"d":3}} 1 1
+CON  2026-09-28T17:53:10Z 1790617991.777 53171fa3d81a8e6f, [bmcam003] OK id=51112 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3 (d=3! only 5 s is ladder-validated) cfg=
+CON  2026-09-28T17:53:10Z 1790617991.828 53171fa3d81a8e6f, [bmcam003] OK id=51112 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3 (d=3! only 5 s is (duplicate: original a
+SUMMARY cell=0 con=3
+===== 2026-09-28T17:53:32Z L7.S-set-med-still SPOT-33507C  bm pub bmcam/cmd {"id":51113,"c":"set","kv":{"med":"still"}} 1 1  (65 B line)
+CON  2026-09-28T17:53:34Z bm pub bmcam/cmd {"id":51113,"c":"set","kv":{"med":"still"}} 1 1
+CON  2026-09-28T17:53:34Z 1790618016.472 53171fa3d81a8e6f, [bmcam003] OK id=51113 mode.media: video -> still (next boot) cfg=e55d1e04
+CON  2026-09-28T17:53:35Z 1790618016.531 53171fa3d81a8e6f, [bmcam003] OK id=51113 mode.media: video -> still (next boot) (duplicate: original answer) cfg=e55d1e04
+SUMMARY cell=0 con=3
+===== 2026-09-28T17:53:53Z L7.S-still-save_local SPOT-33507C  bm pub bmcam/cmd {"id":51114,"c":"trg","v":2} 1 1  (50 B line)
+CON  2026-09-28T17:53:55Z bm pub bmcam/cmd {"id":51114,"c":"trg","v":2} 1 1
+CON  2026-09-28T17:53:55Z 1790618037.371 53171fa3d81a8e6f, [bmcam003] OK id=51114 trg 2 armed: capture + output per mode (next decision point) cfg=e55d1e04
+CON  2026-09-28T17:53:56Z 1790618037.421 53171fa3d81a8e6f, [bmcam003] OK id=51114 trg 2 armed: capture + output per mode (next decision point) (duplicate: original answer) cfg=e55d1e04
+CON  2026-09-28T17:53:56Z 1790618037.480 53171fa3d81a8e6f, [bmcam003] OK id=51114 trg 2 armed: capture + output per mode (next decision point) (duplicate: original answer) cfg=e55d1e04
+SUMMARY cell=0 con=4
+----- 2026-09-28T17:54:09Z STATE L9.revert-boot2 bmcam003
+sha256 9255a7423aaf106f bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 f0a106625a3a5d9a config_journal.jsonl 28L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.output": "save_local", "mode.run": "stay_on", "power.bus_always_on": true, "schedule.window.end": "04:00", "
+guarded {"mode.output": {"actions": 0, "before": null, "before_id": null, "boots": 2, "cls": "revert", "had": false, "in_effect": true, "lim": "boot3_2h", "new": "save_local", "ref": 51111, "uptime_s": 71.82021722800005}}
+boot 8 hw {} trg null cache 47
+----- 2026-09-28T17:56:06Z STATE L9.revert-boot3 bmcam003
+sha256 2590e7549c8753d4 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 f0a106625a3a5d9a config_journal.jsonl 28L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.output": "save_local", "mode.run": "stay_on", "power.bus_always_on": true, "schedule.window.end": "04:00", "
+guarded {"mode.output": {"actions": 0, "before": null, "before_id": null, "boots": 3, "cls": "revert", "had": false, "in_effect": true, "lim": "boot3_2h", "new": "save_local", "ref": 51111, "uptime_s": 97.679453851}}
+boot 9 hw {} trg null cache 47
+----- 2026-09-28T17:57:41Z STATE L9.after-revert bmcam003
+sha256 2135e7526ebc5d1b bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 5bc05036f82d18e6 config_journal.jsonl 29L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:0
+guarded {}
+boot 10 hw {} trg null cache 47
+===== 2026-09-28T17:57:50Z L7.S-still-transmit SPOT-33507C  bm pub bmcam/cmd {"id":51120,"c":"trg","v":2,"kv":{"m":30}} 1 1  (64 B line)
+CON  2026-09-28T17:57:52Z bm pub bmcam/cmd {"id":51120,"c":"trg","v":2,"kv":{"m":30}} 1 1
+CON  2026-09-28T17:57:52Z 1790618274.476 53171fa3d81a8e6f, [bmcam003] OK id=51120 trg 2 armed: capture + output per mode (next decision point); one action only: still.message_cap=30 cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:59:22Z L9.halt-false SPOT-33507C  bm pub bmcam/cmd {"id":51130,"c":"set","kv":{"power.halt.enabled":false}} 1 1  (78 B line)
+CON  2026-09-28T17:59:24Z bm pub bmcam/cmd {"id":51130,"c":"set","kv":{"power.halt.enabled":false}} 1 1
+CON  2026-09-28T17:59:24Z 1790618365.722 53171fa3d81a8e6f, [bmcam003] OK id=51130 power.halt.enabled: true -> false (next action) cfg=342ddb79
+SUMMARY cell=0 con=2
+===== 2026-09-28T17:59:29Z L9.halt-true-staged SPOT-33507C  bm pub bmcam/cmd {"id":51131,"c":"set","kv":{"power.halt.enabled":true}} 1 1  (77 B line)
+CON  2026-09-28T17:59:30Z bm pub bmcam/cmd {"id":51131,"c":"set","kv":{"power.halt.enabled":true}} 1 1
+CON  2026-09-28T17:59:30Z 1790618371.960 53171fa3d81a8e6f, [bmcam003] OK id=51131 power.halt.enabled: STAGED true (awaiting cfm 51131) (next action) cfg=342ddb79
+SUMMARY cell=0 con=2
+----- 2026-09-28T17:59:35Z STATE L9.stage-before-cycle bmcam003
+sha256 21819621224b70f0 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 9f1908d5c46ae651 config_journal.jsonl 30L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": false, "schedule.window.end": "04:00", "
+guarded {"power.halt.enabled": {"actions": 0, "before": false, "before_id": 51130, "boots": 0, "cls": "stage", "had": true, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 51131, "uptime_s": 0.0}}
+boot 10 hw {} trg null cache 50
+----- 2026-09-28T18:01:22Z STATE L9.stage-after-cycle bmcam003
+sha256 a3a26a740b7a7541 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 9f1908d5c46ae651 config_journal.jsonl 30L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": false, "schedule.window.end": "04:00", "
+guarded {"power.halt.enabled": {"actions": 0, "before": false, "before_id": 51130, "boots": 0, "cls": "stage", "had": true, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 51131, "uptime_s": 0.0}}
+boot 11 hw {} trg null cache 50
+===== 2026-09-28T18:01:23Z L9.cfm-halt-after-cycle SPOT-33507C  bm pub bmcam/cmd {"id":51132,"c":"cfm","ref":51131} 1 1  (56 B line)
+CON  2026-09-28T18:01:25Z bm pub bmcam/cmd {"id":51132,"c":"cfm","ref":51131} 1 1
+CON  2026-09-28T18:01:26Z 1790618487.609 53171fa3d81a8e6f, [bmcam003] OK id=51132 cfm 51131: power.halt.enabled applied cfg=0209090f
+CON  2026-09-28T18:01:28Z 1790618490.218 53171fa3d81a8e6f, [bmcam003] OK id=51132 cfm 51131: power.halt.enabled applied (duplicate: original answer) cfg=0209090f
+SUMMARY cell=0 con=3
+----- 2026-09-28T18:01:31Z STATE L9.stage-confirmed bmcam003
+sha256 ef550b32e2ab8ec7 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 924d1db2f8101f9c config_journal.jsonl 31L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": true, "schedule.window.end": "04:00", "s
+guarded {}
+boot 11 hw {} trg null cache 51
+===== 2026-09-28T18:02:33Z L10.rsd SPOT-33507C  bm pub bmcam/cmd {"id":100056,"c":"rsd","h":[["0dxar5","38-45,124-131"]]} 1 1  (78 B line)
+CON  2026-09-28T18:02:35Z bm pub bmcam/cmd {"id":100056,"c":"rsd","h":[["0dxar5","38-45,124-131"]]} 1 1
+CON  2026-09-28T18:02:35Z 1790618557.308 53171fa3d81a8e6f, [bmcam003] OK id=100056 rsd: 1 heal(s) queued (<HL> reports each) cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:02:40Z L10.rsd-carrier-trg SPOT-33507C  bm pub bmcam/cmd {"id":51140,"c":"trg","v":2,"kv":{"m":30}} 1 1  (64 B line)
+CON  2026-09-28T18:02:42Z bm pub bmcam/cmd {"id":51140,"c":"trg","v":2,"kv":{"m":30}} 1 1
+CON  2026-09-28T18:02:42Z 1790618563.566 53171fa3d81a8e6f, [bmcam003] OK id=51140 trg 2 armed: capture + output per mode (next decision point); one action only: still.message_cap=30 cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:04:15Z L10.rsd-duplicate SPOT-33507C  bm pub bmcam/cmd {"id":100056,"c":"rsd","h":[["0dxar5","38-45,124-131"]]} 1 1  (78 B line)
+CON  2026-09-28T18:04:17Z bm pub bmcam/cmd {"id":100056,"c":"rsd","h":[["0dxar5","38-45,124-131"]]} 1 1
+CON  2026-09-28T18:04:17Z Message: Message: Message: Message: Message: 1790618659.089 53171fa3d81a8e6f, [bmcam003] OK id=100056 rsd: 1 heal(s) queued (<HL> reports each) (duplicate: original answer) cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:04:32Z L10.wap-2 SPOT-33507C  bm pub bmcam/cmd {"id":51150,"c":"wap","v":2} 1 1  (50 B line)
+CON  2026-09-28T18:04:33Z bm pub bmcam/cmd {"id":51150,"c":"wap","v":2} 1 1
+CON  2026-09-28T18:04:33Z 1790618674.746 53171fa3d81a8e6f, [bmcam003] OK id=51150 wap 2: network change dispatched cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:04:41Z L10.wap-2-dup SPOT-33507C  bm pub bmcam/cmd {"id":51150,"c":"wap","v":2} 1 1  (50 B line)
+CON  2026-09-28T18:04:42Z bm pub bmcam/cmd {"id":51150,"c":"wap","v":2} 1 1
+CON  2026-09-28T18:04:42Z 1790618683.976 53171fa3d81a8e6f, [bmcam003] OK id=51150 wap 2: network change dispatched (duplicate: original answer) cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:05:06Z L10.wap-1-AP SPOT-33507C  bm pub bmcam/cmd {"id":51151,"c":"wap","v":1} 1 1  (50 B line)
+CON  2026-09-28T18:05:09Z bm pub bmcam/cmd {"id":51151,"c":"wap","v":1} 1 1
+CON  2026-09-28T18:05:09Z 1790618711.050 53171fa3d81a8e6f, [bmcam003] OK id=51151 wap 1: network change dispatched cfg=0209090f
+SUMMARY cell=0 con=2
+              Signal / Noise: -92 dBm / -93 dBm
+            bmcam003:
+              PHY Mode: 802.11
+              Channel: 11 (2GHz, 20MHz)
+              Network Type: Infrastructure
+===== 2026-09-28T18:06:11Z L10.wap-0-restore SPOT-33507C  bm pub bmcam/cmd {"id":51152,"c":"wap","v":0} 1 1  (50 B line)
+CON  2026-09-28T18:06:13Z bm pub bmcam/cmd {"id":51152,"c":"wap","v":0} 1 1
+CON  2026-09-28T18:06:17Z 1790618779.363 53171fa3d81a8e6f, [bmcam003] OK id=51152 wap 0: network change dispatched cfg=0209090f
+SUMMARY cell=0 con=2
+[NET] 2026-09-28T18:05:11Z ssh (tcp/22) blocked on wlan0 while AP is up
+[NET] 2026-09-28T18:05:11Z ACT LED: fast blink (AP mode indicator)
+[NET] 2026-09-28T18:05:11Z AP UP (open): ssid=bmcam003 ip=192.168.50.1 gallery=http://192.168.50.1:8080
+[NET] 2026-09-28T18:06:17Z client WiFi UP: profile=nereus-hq
+===== 2026-09-28T18:06:35Z L12.get-uplink SPOT-33507C  bm pub bmcam/cmd {"id":51160,"c":"get","k":["uplink.chunk_chars","uplink.network_type"]} 1 1  (93 B line)
+CON  2026-09-28T18:06:37Z bm pub bmcam/cmd {"id":51160,"c":"get","k":["uplink.chunk_chars","uplink.network_type"]} 1 1
+CON  2026-09-28T18:06:37Z 1790618799.312 53171fa3d81a8e6f, [bmcam003] OK id=51160 get uplink.chunk_chars, uplink.network_type: 2 key(s) cfg=0209090f
+CON  2026-09-28T18:06:37Z 1790618799.363 53171fa3d81a8e6f,   uplink.chunk_chars = 384 (yaml)
+CON  2026-09-28T18:06:38Z 1790618799.414 53171fa3d81a8e6f,   uplink.network_type = 2 (yaml)
+SUMMARY cell=0 con=4
+===== 2026-09-28T18:06:56Z L12.signed-set SPOT-33507C  bm pub bmcam/cmd {"id":100000010,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"69f7491e1cc29b51"} 1 1  (105 B line)
+CON  2026-09-28T18:06:58Z bm pub bmcam/cmd {"id":100000010,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"69f7491e1cc29b51"} 1 1
+CELL 2026-09-28T18:06:58Z len=39 {"id":100000010,"ok":1,"h":"f689538b"}
+CON  2026-09-28T18:06:58Z Message: 1790618819.910 53171fa3d81a8e6f, [bmcam003] OK id=100000010 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000010 within 2 sends or 3 boots (next action) cfg=f689538b
+CELL 2026-09-28T18:06:59Z len=54 <CF v=1 h=f689538b uplink.chunk_chars=360@c100000010>
+SUMMARY cell=2 con=2
+===== 2026-09-28T18:07:06Z L12.signed-replay SPOT-33507C  bm pub bmcam/cmd {"id":100000010,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"69f7491e1cc29b51"} 1 1  (105 B line)
+CON  2026-09-28T18:07:07Z bm pub bmcam/cmd {"id":100000010,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"69f7491e1cc29b51"} 1 1
+CON  2026-09-28T18:07:07Z Message: 1790618829.332 53171fa3d81a8e6f, [bmcam003] OK id=100000010 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000010 within 2 sends or 3 boots (next action) (duplicate: orig
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:07:16Z L12.bad-sig SPOT-33507C  bm pub bmcam/cmd {"id":100000011,"c":"set","kv":{"uplink.chunk_chars":320},"sig":"0d7cc09d970e416d"} 1 1  (105 B line)
+CON  2026-09-28T18:07:17Z bm pub bmcam/cmd {"id":100000011,"c":"set","kv":{"uplink.chunk_chars":320},"sig":"0d7cc09d970e416d"} 1 1
+CELL 2026-09-28T18:07:17Z len=60 {"id":100000011,"ok":0,"h":"f689538b","e":"auth","k":"sig"}
+CON  2026-09-28T18:07:17Z Message: 1790618838.578 53171fa3d81a8e6f, [bmcam003] REJECTED id=100000011 service-range ids need a valid service signature e=auth k=sig cfg=f689538b
+SUMMARY cell=1 con=2
+===== 2026-09-28T18:07:23Z L12.older-service-id SPOT-33507C  bm pub bmcam/cmd {"id":100000005,"c":"ping","sig":"b837110b638ed5b5"} 1 1  (74 B line)
+CON  2026-09-28T18:07:24Z bm pub bmcam/cmd {"id":100000005,"c":"ping","sig":"b837110b638ed5b5"} 1 1
+CELL 2026-09-28T18:07:24Z len=49 {"id":100000005,"ok":0,"h":"f689538b","e":"old"}
+CON  2026-09-28T18:07:24Z Message: 1790618845.816 53171fa3d81a8e6f, [bmcam003] REJECTED id=100000005 below this sender's newest id e=old cfg=f689538b
+SUMMARY cell=1 con=2
+----- 2026-09-28T18:07:30Z STATE L12.after-set bmcam003
+sha256 8d0d55267fe11b47 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 6ede195fe29cd8d5 config_journal.jsonl 33L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": true, "schedule.window.end": "04:00", "s
+guarded {"uplink.chunk_chars": {"actions": 0, "before": null, "before_id": null, "boots": 0, "cls": "revert", "had": false, "in_effect": true, "lim": "tx2_boot3", "new": 360, "ref": 100000010, "uptime_s": 377.772594199}}
+boot 11 hw {"service": 100000010} trg null cache 59
+===== 2026-09-28T18:07:31Z L12.signed-reset SPOT-33507C  bm pub bmcam/cmd {"id":100000012,"c":"reset","k":["uplink.chunk_chars"],"sig":"be0a82267fa4797c"} 1 1  (102 B line)
+CON  2026-09-28T18:07:32Z bm pub bmcam/cmd {"id":100000012,"c":"reset","k":["uplink.chunk_chars"],"sig":"be0a82267fa4797c"} 1 1
+CELL 2026-09-28T18:07:32Z len=39 {"id":100000012,"ok":1,"h":"0209090f"}
+CON  2026-09-28T18:07:32Z Message: 1790618854.273 53171fa3d81a8e6f, [bmcam003] OK id=100000012 reset uplink.chunk_chars -> YAML cfg=0209090f
+CELL 2026-09-28T18:07:33Z len=43 <CF v=1 h=0209090f uplink.chunk_chars=384>
+SUMMARY cell=2 con=2
+----- 2026-09-28T18:07:40Z STATE L12.after-reset bmcam003
+sha256 ecb08b392a5b843f bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 0ec65d0e9afee402 config_journal.jsonl 35L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": true, "schedule.window.end": "04:00", "s
+guarded {}
+boot 11 hw {"service": 100000012} trg null cache 60
+===== 2026-09-28T18:17:34Z F2.help-after-fix SPOT-33507C  bm pub bmcam/cmd {"id":51201,"c":"help"} 1 1  (45 B line)
+CON  2026-09-28T18:17:37Z bm pub bmcam/cmd {"id":51201,"c":"help"} 1 1
+CON  2026-09-28T18:17:37Z 1790619458.785 53171fa3d81a8e6f, [bmcam003] OK id=51201 help (reference follows) cfg=0209090f
+CON  2026-09-28T18:17:37Z 1790619458.835 53171fa3d81a8e6f, v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)
+CON  2026-09-28T18:17:37Z 1790619458.886 53171fa3d81a8e6f, ping   {"id":N,"c":"ping"}   help {"id":N,"c":"help"}
+CON  2026-09-28T18:17:37Z 1790619458.945 53171fa3d81a8e6f, get    {"id":N,"c":"get","k":["<key, short or group>",...]}  "journal" = last changes
+CON  2026-09-28T18:17:37Z 1790619458.996 53171fa3d81a8e6f, set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none
+CON  2026-09-28T18:17:37Z 1790619459.046 53171fa3d81a8e6f, reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}
+CON  2026-09-28T18:17:37Z 1790619459.093 53171fa3d81a8e6f, cfm    {"id":N,"c":"cfm","ref":<set id>}  confirms a guarded set
+CON  2026-09-28T18:17:37Z 1790619459.148 53171fa3d81a8e6f, trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, 2 capture + output per mode, 3/4 reference
+CON  2026-09-28T18:17:37Z 1790619459.195 53171fa3d81a8e6f, hld    {"id":N,"c":"hld","v":<min>}  stay awake (0 releases)
+CON  2026-09-28T18:17:37Z 1790619459.246 53171fa3d81a8e6f, rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
+CON  2026-09-28T18:17:37Z 1790619459.308 53171fa3d81a8e6f, short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the med
+CON  2026-09-28T18:17:37Z 1790619459.355 53171fa3d81a8e6f, ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
+CON  2026-09-28T18:17:38Z 1790619459.406 53171fa3d81a8e6f, [bmcam003] OK id=51201 help (reference follows) (duplicate: original answer) cfg=0209090f
+SUMMARY cell=0 con=14
+===== 2026-09-28T18:17:45Z F8.signed-set SPOT-33507C  bm pub bmcam/cmd {"id":100000020,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"4616452a247a74ae"} 1 1  (105 B line)
+CON  2026-09-28T18:17:46Z bm pub bmcam/cmd {"id":100000020,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"4616452a247a74ae"} 1 1
+CELL 2026-09-28T18:17:46Z len=39 {"id":100000020,"ok":1,"h":"f689538b"}
+CON  2026-09-28T18:17:46Z Message: 1790619468.292 53171fa3d81a8e6f, [bmcam003] OK id=100000020 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000020 within 2 sends or 3 boots (next action) cfg=f689538b
+CON  2026-09-28T18:17:46Z 1790619468.343 53171fa3d81a8e6f, [bmcam003] OK id=100000020 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000020 within 2 sends or 3 boots (next action) (duplicate: original answ
+CELL 2026-09-28T18:17:47Z len=54 <CF v=1 h=f689538b uplink.chunk_chars=360@c100000020>
+SUMMARY cell=2 con=3
+----- 2026-09-28T18:18:36Z STATE F8.after-first-note bmcam003
+sha256 348465261564cfdd bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 d18b8d976b801513 config_journal.jsonl 38L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": true, "schedule.window.end": "04:00", "s
+guarded {"uplink.chunk_chars": {"actions": 0, "before": null, "before_id": null, "boots": 0, "cls": "revert", "had": false, "in_effect": true, "lim": "tx2_boot3", "new": 360, "ref": 100000020, "uptime_s": 62.97753241999999}}
+boot 12 hw {"service": 100000020} trg null cache 62
+===== 2026-09-28T18:18:37Z F8.signed-reset SPOT-33507C  bm pub bmcam/cmd {"id":100000021,"c":"reset","k":["uplink.chunk_chars"],"sig":"2cde88bb4d0ffa0e"} 1 1  (102 B line)
+CON  2026-09-28T18:18:39Z bm pub bmcam/cmd {"id":100000021,"c":"reset","k":["uplink.chunk_chars"],"sig":"2cde88bb4d0ffa0e"} 1 1
+CELL 2026-09-28T18:18:40Z len=39 {"id":100000021,"ok":1,"h":"0209090f"}
+CON  2026-09-28T18:18:40Z Message: 1790619521.484 53171fa3d81a8e6f, [bmcam003] OK id=100000021 reset uplink.chunk_chars -> YAML cfg=0209090f
+CON  2026-09-28T18:18:40Z 1790619521.523 53171fa3d81a8e6f, [bmcam003] OK id=100000021 reset uplink.chunk_chars -> YAML (duplicate: original answer) cfg=0209090f
+CELL 2026-09-28T18:18:41Z len=43 <CF v=1 h=0209090f uplink.chunk_chars=384>
+SUMMARY cell=2 con=3
+----- 2026-09-28T18:19:04Z STATE R.before-reset-all bmcam003
+sha256 e22d2628ffbc4490 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 4d276be123e2b728 config_journal.jsonl 40L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": true, "schedule.window.end": "04:00", "s
+guarded {}
+boot 12 hw {"service": 100000021} trg null cache 63
+===== 2026-09-28T18:19:05Z R.reset-all SPOT-33507C  bm pub bmcam/cmd {"id":51210,"c":"reset","all":1} 1 1  (54 B line)
+CON  2026-09-28T18:19:08Z bm pub bmcam/cmd {"id":51210,"c":"reset","all":1} 1 1
+CON  2026-09-28T18:19:08Z 1790619549.863 53171fa3d81a8e6f, [bmcam003] OK id=51210 reset camera.controls_enabled, camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, mode.media, mode.run, power
+CON  2026-09-28T18:19:08Z 1790619549.910 53171fa3d81a8e6f, [bmcam003] OK id=51210 reset camera.controls_enabled, camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, mode (duplicate: original a
+SUMMARY cell=0 con=3
+----- 2026-09-28T18:19:17Z STATE R.after-reset-all bmcam003
+sha256 d5838aa94cc01a44 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 c45e22fcdb121f60 config_journal.jsonl 50L
+overlay {}
+guarded {}
+boot 13 hw {"service": 100000021} trg null cache 64
+===== 2026-09-28T18:45:08Z L4.set-window-closed SPOT-31593C  bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CON  2026-09-28T18:45:11Z bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:45:22Z L4.set-window-closed-repeat SPOT-31593C  bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CON  2026-09-28T18:45:23Z bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:49:55Z L4.set-window-closed SPOT-31593C  bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CELL 2026-09-28T18:49:57Z len=397 <I0dxg3a.3>+w0U/OTHy0hCR5GAWGOMtiB30o8Rvukgv9oMj85je2tg61j7dAXBxO7YBb08EQdsymNzpbJ6PwwhTO65cDLIlspuV+IAztIUzkIeHt0t3Wel7ArY/KEZOzzyQ4zpEMQ1k/7MvOordHulPjpPfPeki2G32zjm6E26N2KTDPffS7VT+CdttRlSs1YGyM9NuczZfJjWlArTKTtMSSp2WcdDXwfx0u2Ugj16LkPeDG15kdrhXkYQ3IZGfwxLuy2XA/XBxIarihJi8vCXswYrJQQnHlA8TQMHkjJHVtRJ5DcxsMBBj3kbmL4+iVeChQDH5K9alczZ9dvX4Wg7k1FLQyKYwOR45GzphXDqj08AoXxM3BSxO3gu/T1HTETRPyqDtjM2
+
+CON  2026-09-28T18:49:57Z bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+CELL 2026-09-28T18:49:58Z len=397 <I0dxg3a.4>xdb/12jyxLgPqvAukv65sxUMh4tUHGaSMzN/jk/rwgtGXVjW6RXO7brh7Z3zRsRLE3F2fV/mlHUNFZRyvVEmFPrFDjxs6G4IvhJJpxJTQGkQbLbV8asA0FemhIl24GmC8pw9Zefpix9ydxxdoF5AEkPMOH9YOwfkm9Vx2iRFRjAUmbdL+CNHAtl3foPP1ZHv9YfPNC4AKfrcX+h7KzDllhFRN5Q+fVykB+v7z1TkRWhPymwjQxC/PT2MNfQtApYm5oD5q75msX28b4xYI9CtZC4K9irEwzWf5hmIVaLmBWHN0xcv8UPSmw82U9ilVCBUQBFgvt0YTEmri+u2xmTANqIbbjNdfELpGPz+mF7lhY/YTOqYaCfdHI6+399N3sNP
+
+CELL 2026-09-28T18:50:00Z len=397 <I0dxg3a.5>64GFG9QAxyaHsEu7b4ugL8CemCeYnjV+mCedMM2lVda/E/05hR5A8xCJFM4fsxUW2VckOC0Nt3rqI5lfMHZzCno0iqhe3cG3cpaMKRNpce01kN8VbPj4oHazEsPFxdWcrzTTf6Obi8+7JyifOb94i3P4Qk/6g04O6/are9mHWSqMUogrwJZ5f/YeYFPDGA8DiQImQmKqEuOPIFPSFi+dz2ZifWGzLE0apEaQuOcSuJgeVST/iwfiT6XNwXfNA3qoCGZLbNr/PbPjZ339gccKSmK8Pd+sl3QUvw1/+Sfv9FK/cEFx1pHbW467tVG89xSv6j6/Q/Ea+px1ZaxCtuHwAyW7unjlfHTXuFwD7pvNk5vr0q/ascBQWZnnbbcri6XJ
+
+CELL 2026-09-28T18:50:01Z len=397 <I0dxg3a.6>zMzUIjFQ3kGLfGa8rjj0BdtWXL6ckxcXydPkZgYDSSJgyuual64KFnUXLd+3pxZLb+RWOa6O7treuIliVq7RRkJritQBPXh0nmVv1mGPEhdkA+swU+dtrQm7Dj5Ma7iHPvYrIFk2VrX2kSc2FuU03VkMMIlQ4spvGWPs4HO4mYza93PSKNODC/+pK+pXRvP71gs0oecc0jqM7GBcb63Yhr2KYj6Xkz3cbOFo+Ng0HS0YqkUHGV2a6CxVU2dnzakOudRShk3wDXoUVn7b5uOh3Ei6woQz/1yZjoOX83qPNVnPPYHFAnaqqybd2HuOrjAZ1Fa1iuQC2RNqHLJw9hqw6hhcXSK3AcvOTsQO3d8yXUTEGtWe6v9IM9aVtNdnNkWO
+
+CELL 2026-09-28T18:50:02Z len=397 <I0dxg3a.7>P933hJa3/egDEhu9Rcya6UVk9tvBh2kiTbKA4zbfnFzMYSgBUGFAtdQaixI3V3qugEz5PkHoFbDIQETez/C0h03Dqr5NXHBp2kuIRY1/gHCEGIGyWtr+2hlUEI8o8NzZIRcv41wB2kiy3BXoxjYhRhYoaqa0z02i+NP+MJdVGek46NaLIWzuLt3BZ9hLbHKbTYnaVcyhG8sKeOIrI7IW5OEwRMHIvPXuoeoKulGQCGjVnZ4Fdz7cESuTIsZ3+9as0KL9DxwbYMUzVl2WyKh6SBVp9LBLyPNGjafHzqC8nfVONi+HN8klXzBJgp2WNzaIJfVc8Goj82flM0L2sWa4n+Kyjnitxzy+dT0fRdFdTag+mU6LYE5xaTIsD1j85o++
+
+SUMMARY cell=5 con=1
+===== 2026-09-28T18:50:09Z L4.set-window-closed-repeat SPOT-31593C  bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CON  2026-09-28T18:50:10Z bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+CELL 2026-09-28T18:50:10Z len=398 <I0dxg3a.13>0d6PpNDULi55J3wuYyIPNQQ+7nTblslFAXKut74Hx50i1si/IK1A5Yua2hFJulOXb9V06snEIxFwzz/0YBDhCCeNNjxg/E5CSnn6ZfctnjoLNJzolC0GAsNUDcyT2SDWgL1pKXhqV1gcffboFIm9DfF+sX8MB4VwpGogr5M3OhZ72dHSLuVdOldRdBOxIKdMvcdnCswY4mWutbTckegWUsXrfDzZxrfkxo8o0XJu1PpYmbWGrtGTVfJoE5y0FSxXPGJvsmc8mzN94dy34PLdwAcoEJPi/RjNbbryb1paqYEvZ66Omi0y8nsiSsseHHQtZ0LmbuMOn53QE0Amz8erq8/WYRaZHoC71DqA2orbo2rPIA1c8ne4HCD+hi8L/sdi
+
+CELL 2026-09-28T18:50:12Z len=398 <I0dxg3a.14>O78qzBIp2E807g4VraTx+KiF/Bw6XLMYgeUvhZw6VWLIh7ZSNIozwC2M3ALRWqbGgcG4c/7zA0/O4CAzQUw9W6YKF6VOsuYY7Qt52Olcp2YjX4uen07+W+qQA9K1Qz/NysuWvCPM6M7KHAIA+//j45KiffnZXe+t7YTNwwR1/nebL50ZVkkVkdwnouu+p4QVMz4b/gWM7kbBYv1OcACpkSdTvOEiHVFhqyfHGFWkJleE+MNQ/YgDT7+omF8sEh0TRxBuu3HCpC4N0ENupraoc3DgSg243BdY8QQs4X1UHPWd4ES/j7sNkGNP60gmBOw/lWJCk808m3vWUxhijXPWcRS2mT/oM9DuU2XjHKbQug2sTbMc28c10L+P1MKtVftN
+
+CELL 2026-09-28T18:50:13Z len=398 <I0dxg3a.15>8IM6vUpyNmDNmn14tlgEdLsjtGud+QZuuLXo2goemyfos06ezV1YG85RWhPSIQmkeSoJcMdY8DmwuvYF5Y4cuA2kxmJ0mOy6I1VvY+e4jStZsy1bH8dm+wEAmO/kz39uPZtaJyXuI9x6IdptIncGT1yElGqswIRlCXh62SeuqPelMKL3ESuTdMMjGz0/n7AxUVnZaGC9CNaaISqNdhkXz3Q4IwugKfKKdXz0hBC4sMXip5DTfaYxEDN/Jc9+tyV26ITUJ7JQHM5xApWhwbX+Nh1zIf7bL9REjlHhD1ODtIibgMgHdE5ZfLCQiSeP7I6biGcWeNxLfe+UPZtQfVaPVkC1rsw/vK2t4Clnb1FAJD1zdrVVHxgVkVr24PbrR7io
+
+CELL 2026-09-28T18:50:14Z len=398 <I0dxg3a.16>fPjKcFIZdx88VZI468RoJXv+XASMqBp9JDNDP9WxjAi+ZZW0kwP8nhwKOAP0jbBbCHbq1q27h2Wz62PXevDQfvikVaxP9qdnAZpQhckUd4RORKzwRpCSOL3MlXt3dv/i5iko7OcQXIlJ8Mu7Fz9JumpdLReoe3eIUpb8m77ZgVp9j2NY0lgOWZkOnIgwLlXx44B0WGejp9Jr1FNuh7pAVsMJfvHlV6H41n6EqVGwfLHAOMenzMNRfZyw47+B+RBgnFZr3mayQfgfDRbpOEdjbjc5nDh96FRjFDidhg6KxgSe+9f9pSN+PwSi6yme8hhalbUeUqowm4TWXhUrtkrNS1fhxs0uHazHezlDXYM0SsJpPXrzll7CDCyK7N6RrRFX
+
+SUMMARY cell=4 con=1
+===== 2026-09-28T18:50:38Z L8.hld-clamped SPOT-31593C  bm pub bmcam/cmd {"id":61020,"c":"hld","v":30} 1 1  (51 B line)
+CON  2026-09-28T18:50:40Z bm pub bmcam/cmd {"id":61020,"c":"hld","v":30} 1 1
+CON  2026-09-28T18:50:40Z 1790621441.914 e6fe83ea6b4a2b7f, [bmcam004] OK id=61020 hold awake 2 min (asked 30: clamped by hold_max_min / the bus-power budget) cfg=49eccde5
+SUMMARY cell=0 con=2
+----- 2026-09-28T18:50:45Z STATE L9.before-stage bmcam004
+sha256 c5429645ee4b9b00 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 ef037b2e56c67e83 config_journal.jsonl 8L
+overlay {"schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 3
+===== 2026-09-28T18:50:46Z L9.stage-bus-always-on SPOT-31593C  bm pub bmcam/cmd {"id":61021,"c":"set","kv":{"power.bus_always_on":true}} 1 1  (78 B line)
+CON  2026-09-28T18:50:47Z bm pub bmcam/cmd {"id":61021,"c":"set","kv":{"power.bus_always_on":true}} 1 1
+CON  2026-09-28T18:50:47Z 1790621448.953 e6fe83ea6b4a2b7f, [bmcam004] OK id=61021 power.bus_always_on: STAGED true (awaiting cfm 61021) (next action) cfg=49eccde5
+SUMMARY cell=0 con=2
+----- 2026-09-28T18:50:52Z STATE L9.after-stage bmcam004
+sha256 87c71812b0bb02e1 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 ef037b2e56c67e83 config_journal.jsonl 8L
+overlay {"schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {"power.bus_always_on": {"actions": 0, "before": null, "before_id": null, "boots": 0, "cls": "stage", "had": false, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 61021, "uptime_s": 0.0}}
+boot 2 hw {} trg null cache 4
+===== 2026-09-28T18:50:53Z L9.cfm-bus-always-on SPOT-31593C  bm pub bmcam/cmd {"id":61022,"c":"cfm","ref":61021} 1 1  (56 B line)
+CON  2026-09-28T18:50:54Z bm pub bmcam/cmd {"id":61022,"c":"cfm","ref":61021} 1 1
+CON  2026-09-28T18:50:54Z 1790621455.980 e6fe83ea6b4a2b7f, [bmcam004] OK id=61022 cfm 61021: power.bus_always_on applied cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:51:00Z L1.ping SPOT-31593C  bm pub bmcam/cmd {"id":61001,"c":"ping"} 1 1  (45 B line)
+CON  2026-09-28T18:51:01Z bm pub bmcam/cmd {"id":61001,"c":"ping"} 1 1
+CON  2026-09-28T18:51:01Z 1790621462.210 e6fe83ea6b4a2b7f, [bmcam004] OK id=61001 ping cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:51:06Z L1.help SPOT-31593C  bm pub bmcam/cmd {"id":61002,"c":"help"} 1 1  (45 B line)
+CON  2026-09-28T18:51:07Z bm pub bmcam/cmd {"id":61002,"c":"help"} 1 1
+CON  2026-09-28T18:51:07Z 1790621468.648 e6fe83ea6b4a2b7f, [bmcam004] OK id=61002 help (reference follows) cfg=55e424b4
+CON  2026-09-28T18:51:07Z 1790621468.699 e6fe83ea6b4a2b7f, v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)
+CON  2026-09-28T18:51:07Z 1790621468.750 e6fe83ea6b4a2b7f, ping   {"id":N,"c":"ping"}   help {"id":N,"c":"help"}
+CON  2026-09-28T18:51:07Z 1790621468.800 e6fe83ea6b4a2b7f, get    {"id":N,"c":"get","k":["<key, short or group>",...]}  "journal" = last changes
+CON  2026-09-28T18:51:07Z 1790621468.851 e6fe83ea6b4a2b7f, set    {"id":N,"c":"set","kv":{"<key or short>":value,...}}  all-or-none
+CON  2026-09-28T18:51:07Z 1790621468.898 e6fe83ea6b4a2b7f, reset  {"id":N,"c":"reset","k":["<key or group>"]}  or  {"all":1}
+CON  2026-09-28T18:51:07Z 1790621468.949 e6fe83ea6b4a2b7f, cfm    {"id":N,"c":"cfm","ref":<set id>}  confirms a guarded set
+CON  2026-09-28T18:51:07Z 1790621469.000 e6fe83ea6b4a2b7f, trg    {"id":N,"c":"trg","v":0-4}  0 cancel, 1 capture+save, 2 capture + output per mode, 3/4 reference
+CON  2026-09-28T18:51:07Z 1790621469.050 e6fe83ea6b4a2b7f, hld    {"id":N,"c":"hld","v":<min>}  stay awake (0 releases)
+CON  2026-09-28T18:51:07Z 1790621469.101 e6fe83ea6b4a2b7f, rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
+CON  2026-09-28T18:51:08Z 1790621469.160 e6fe83ea6b4a2b7f, short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the med
+CON  2026-09-28T18:51:08Z 1790621469.210 e6fe83ea6b4a2b7f, ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
+SUMMARY cell=0 con=13
+===== 2026-09-28T18:51:15Z L1.get-mode SPOT-31593C  bm pub bmcam/cmd {"id":61003,"c":"get","k":["mode","r"]} 1 1  (61 B line)
+CON  2026-09-28T18:51:16Z bm pub bmcam/cmd {"id":61003,"c":"get","k":["mode","r"]} 1 1
+CON  2026-09-28T18:51:16Z 1790621478.046 e6fe83ea6b4a2b7f, [bmcam004] OK id=61003 get mode, r: 6 key(s) cfg=55e424b4
+CON  2026-09-28T18:51:16Z 1790621478.097 e6fe83ea6b4a2b7f,   mode.media = video (yaml)
+CON  2026-09-28T18:51:16Z 1790621478.148 e6fe83ea6b4a2b7f,   mode.run = per_boot (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.195 e6fe83ea6b4a2b7f,   mode.interval_s = 0 (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.246 e6fe83ea6b4a2b7f,   mode.heartbeat_s = 300 (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.296 e6fe83ea6b4a2b7f,   mode.output = transmit (yaml)
+CON  2026-09-28T18:51:17Z 1790621478.347 e6fe83ea6b4a2b7f,   still.crop = 1504,846,1600,900 (yaml)
+SUMMARY cell=0 con=8
+===== 2026-09-28T18:51:22Z L1.get-journal SPOT-31593C  bm pub bmcam/cmd {"id":61005,"c":"get","k":["journal"]} 1 1  (60 B line)
+CON  2026-09-28T18:51:23Z bm pub bmcam/cmd {"id":61005,"c":"get","k":["journal"]} 1 1
+CON  2026-09-28T18:51:23Z 1790621485.183 e6fe83ea6b4a2b7f, [bmcam004] OK id=61005 get journal: last 5 change(s) cfg=55e424b4
+CON  2026-09-28T18:51:24Z 1790621485.234 e6fe83ea6b4a2b7f,   2026-09-28T18:35:41Z deploy id=None *: none -> 7d30fea5e6b8
+CON  2026-09-28T18:51:24Z 1790621485.296 e6fe83ea6b4a2b7f,   2026-09-28T18:36:04Z deploy id=None camera_config.yaml: none -> registry v5 spelling
+CON  2026-09-28T18:51:24Z 1790621485.343 e6fe83ea6b4a2b7f,   2026-09-28T18:50:32Z console id=61010 schedule.window.start: none -> 03:00
+CON  2026-09-28T18:51:24Z 1790621485.394 e6fe83ea6b4a2b7f,   2026-09-28T18:50:32Z console id=61010 schedule.window.end: none -> 04:00
+CON  2026-09-28T18:51:24Z 1790621485.445 e6fe83ea6b4a2b7f,   2026-09-28T18:50:54Z console id=61022 power.bus_always_on: none -> true
+SUMMARY cell=0 con=7
+----- 2026-09-28T18:51:30Z STATE L2.before bmcam004
+sha256 9a16b9d22a72137f bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 f5a70fa8d2156cbc config_journal.jsonl 9L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+===== 2026-09-28T18:51:32Z L2.dup-get SPOT-31593C  bm pub bmcam/cmd {"id":61003,"c":"get","k":["mode","r"]} 1 1  (61 B line)
+CON  2026-09-28T18:51:33Z bm pub bmcam/cmd {"id":61003,"c":"get","k":["mode","r"]} 1 1
+CON  2026-09-28T18:51:33Z 1790621494.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=61003 get mode, r: 6 key(s) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:51:38Z L2.dup-set SPOT-31593C  bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1  (113 B line)
+CON  2026-09-28T18:51:39Z bm pub bmcam/cmd {"id":61010,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1
+CON  2026-09-28T18:51:39Z 1790621500.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=61010 schedule.window.start: 00:00 -> 03:00, schedule.window.end: 00:00 -> 04:00 (next action) (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+----- 2026-09-28T18:51:44Z STATE L2.after bmcam004
+sha256 9a16b9d22a72137f bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 f5a70fa8d2156cbc config_journal.jsonl 9L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+----- 2026-09-28T18:51:46Z STATE L3.before bmcam004
+sha256 9a16b9d22a72137f bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 f5a70fa8d2156cbc config_journal.jsonl 9L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 9
+===== 2026-09-28T18:51:47Z L3.nan SPOT-31593C  bm pub bmcam/cmd {"id":61040,"c":"set","kv":{"e":NaN}} 1 1  (59 B line)
+CON  2026-09-28T18:51:48Z bm pub bmcam/cmd {"id":61040,"c":"set","kv":{"e":NaN}} 1 1
+CON  2026-09-28T18:51:48Z 1790621509.703 e6fe83ea6b4a2b7f, [bmcam004] DROPPED (no ack): not strict JSON: NaN is not allowed
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:51:53Z L3.crosskey SPOT-31593C  bm pub bmcam/cmd {"id":61043,"c":"set","kv":{"b":"manual"}} 1 1  (64 B line)
+CON  2026-09-28T18:51:54Z bm pub bmcam/cmd {"id":61043,"c":"set","kv":{"b":"manual"}} 1 1
+CON  2026-09-28T18:51:55Z 1790621516.152 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61043 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:00Z L3.unknown-key SPOT-31593C  bm pub bmcam/cmd {"id":61044,"c":"set","kv":{"nope.key":1}} 1 1  (64 B line)
+CON  2026-09-28T18:52:01Z bm pub bmcam/cmd {"id":61044,"c":"set","kv":{"nope.key":1}} 1 1
+CON  2026-09-28T18:52:01Z 1790621522.378 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61044 'nope.key' is not a setting e=key k=nope.key cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:06Z L3.locked SPOT-31593C  bm pub bmcam/cmd {"id":61045,"c":"set","kv":{"commands.runtime":"legacy"}} 1 1  (79 B line)
+CON  2026-09-28T18:52:07Z bm pub bmcam/cmd {"id":61045,"c":"set","kv":{"commands.runtime":"legacy"}} 1 1
+CON  2026-09-28T18:52:07Z 1790621528.609 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61045 commands.runtime is locked (deploy only) e=lock k=commands.runtime cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:12Z L3.service-unsigned SPOT-31593C  bm pub bmcam/cmd {"id":61046,"c":"set","kv":{"uplink.chunk_chars":320}} 1 1  (76 B line)
+CON  2026-09-28T18:52:13Z bm pub bmcam/cmd {"id":61046,"c":"set","kv":{"uplink.chunk_chars":320}} 1 1
+CON  2026-09-28T18:52:13Z 1790621534.855 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61046 uplink.chunk_chars needs a signed service-range command e=auth k=uplink.chunk_chars cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:18Z L3.v8-verb SPOT-31593C  bm pub bmcam/cmd {"id":61047,"c":"roi","v":2} 1 1  (50 B line)
+CON  2026-09-28T18:52:19Z bm pub bmcam/cmd {"id":61047,"c":"roi","v":2} 1 1
+CON  2026-09-28T18:52:19Z 1790621541.085 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61047 unknown command 'roi' e=cmd cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:25Z L3.range SPOT-31593C  bm pub bmcam/cmd {"id":61048,"c":"set","kv":{"e":9.5}} 1 1  (59 B line)
+CON  2026-09-28T18:52:25Z bm pub bmcam/cmd {"id":61048,"c":"set","kv":{"e":9.5}} 1 1
+CON  2026-09-28T18:52:26Z 1790621547.324 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61048 must be in -8.0..8.0 e=val k=camera.exposure.ev cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:31Z L3.cap-floor SPOT-31593C  bm pub bmcam/cmd {"id":61049,"c":"set","kv":{"video.send.message_cap":40}} 1 1  (79 B line)
+CON  2026-09-28T18:52:32Z bm pub bmcam/cmd {"id":61049,"c":"set","kv":{"video.send.message_cap":40}} 1 1
+CON  2026-09-28T18:52:32Z 1790621553.773 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61049 40 is below 80: the x264 fit cannot encode a clip that small (S3b bench F1) e=xk k=video.send.message_cap cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:37Z L3.bool-as-int SPOT-31593C  bm pub bmcam/cmd {"id":61059,"c":"set","kv":{"power.halt.dry_run":1}} 1 1  (74 B line)
+CON  2026-09-28T18:52:38Z bm pub bmcam/cmd {"id":61059,"c":"set","kv":{"power.halt.dry_run":1}} 1 1
+CON  2026-09-28T18:52:38Z 1790621560.003 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61059 must be true or false e=val k=power.halt.dry_run cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:43Z L3.dup-json-key SPOT-31593C  bm pub bmcam/cmd {"id":61060,"c":"set","kv":{"e":1.0,"e":-1.0}} 1 1  (68 B line)
+CON  2026-09-28T18:52:44Z bm pub bmcam/cmd {"id":61060,"c":"set","kv":{"e":1.0,"e":-1.0}} 1 1
+CON  2026-09-28T18:52:45Z 1790621566.210 e6fe83ea6b4a2b7f, [bmcam004] DROPPED (no ack): not strict JSON: duplicate key 'e'
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:52:50Z L3.space-escaped SPOT-31593C  bm pub bmcam/cmd "id":61061 1 1  (32 B line)
+CON  2026-09-28T18:52:51Z bm pub bmcam/cmd "id":61061 1 1
+SUMMARY cell=0 con=1
+----- 2026-09-28T18:52:51Z STATE L3.after bmcam004
+sha256 f7356f9cd1e3c75c bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 f5a70fa8d2156cbc config_journal.jsonl 9L
+overlay {"power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 2 hw {} trg null cache 17
+===== 2026-09-28T18:52:53Z L11.len-256 SPOT-31593C  bm pub bmcam/cmd {"id":61053,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (256 B line)
+CON  2026-09-28T18:52:54Z bm pub bmcam/cmd {"id":61053,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:52:59Z L11.len-257 SPOT-31593C  bm pub bmcam/cmd {"id":61054,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (257 B line)
+CON  2026-09-28T18:53:00Z bm pub bmcam/cmd {"id":61054,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:53:05Z L4.set-e SPOT-31593C  bm pub bmcam/cmd {"id":61070,"c":"set","kv":{"e":-1.0}} 1 1  (60 B line)
+CON  2026-09-28T18:53:06Z bm pub bmcam/cmd {"id":61070,"c":"set","kv":{"e":-1.0}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:53:12Z L4.reset-e SPOT-31593C  bm pub bmcam/cmd {"id":61071,"c":"reset","k":["e"]} 1 1  (56 B line)
+CON  2026-09-28T18:53:13Z bm pub bmcam/cmd {"id":61071,"c":"reset","k":["e"]} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:53:18Z L2.dup-set-after-reset SPOT-31593C  bm pub bmcam/cmd {"id":61070,"c":"set","kv":{"e":-1.0}} 1 1  (60 B line)
+CON  2026-09-28T18:53:19Z bm pub bmcam/cmd {"id":61070,"c":"set","kv":{"e":-1.0}} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-28T18:53:24Z L4.cas-mismatch SPOT-31593C  bm pub bmcam/cmd {"id":61072,"c":"set","kv":{"e":0.5},"b":"deadbeef"} 1 1  (74 B line)
+CON  2026-09-28T18:53:25Z bm pub bmcam/cmd {"id":61072,"c":"set","kv":{"e":0.5},"b":"deadbeef"} 1 1
+SUMMARY cell=0 con=1
+----- 2026-09-28T18:53:30Z STATE L4.after bmcam004
+ssh: connect to host bmcam004 port 22: Operation timed out
+===== 2026-09-28T18:55:54Z L8.hld-120 SPOT-31593C  bm pub bmcam/cmd {"id":61090,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T18:55:57Z bm pub bmcam/cmd {"id":61090,"c":"hld","v":120} 1 1
+CON  2026-09-28T18:55:57Z 1790621758.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=61090 hold awake 120 min cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:56:22Z L8.hld-120-repeat SPOT-31593C  bm pub bmcam/cmd {"id":61090,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T18:56:24Z bm pub bmcam/cmd {"id":61090,"c":"hld","v":120} 1 1
+CON  2026-09-28T18:56:24Z 1790621786.031 e6fe83ea6b4a2b7f, [bmcam004] OK id=61090 hold awake 120 min (duplicate: original answer) cfg=55e424b4
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:56:30Z L5.set-wb-manual SPOT-31593C  bm pub bmcam/cmd {"id":61080,"c":"set","kv":{"b":"manual","camera.white_balance.gains":[1.62,1.91],"camera.white_balance.enabled":true,"camera.controls_enabled":true}} 1 1  (172 B line)
+CON  2026-09-28T18:56:31Z bm pub bmcam/cmd {"id":61080,"c":"set","kv":{"b":"manual","camera.white_balance.gains":[1.62,1.91],"camera.white_balance.enabled":true,"camera.controls_enabled":true}} 1 1
+CON  2026-09-28T18:56:31Z 1790621792.511 e6fe83ea6b4a2b7f, [bmcam004] OK id=61080 camera.white_balance.mode: none -> manual, camera.white_balance.gains: none -> 1.62,1.91, camera.white_balance.enabled: false -> true (next act
+SUMMARY cell=0 con=2
+===== 2026-09-28T18:56:36Z L6.trg-still-med SPOT-31593C  bm pub bmcam/cmd {"id":61081,"c":"trg","v":2,"kv":{"med":"still","m":30}} 1 1  (78 B line)
+CON  2026-09-28T18:56:37Z bm pub bmcam/cmd {"id":61081,"c":"trg","v":2,"kv":{"med":"still","m":30}} 1 1
+CON  2026-09-28T18:56:37Z 1790621798.941 e6fe83ea6b4a2b7f, [bmcam004] OK id=61081 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=30 cfg=d9e81104
+CELL 2026-09-28T18:56:39Z len=134 <WS v=1 a=cap cfg=d9e81104 up=63 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=32.2 sha=7d30fea5e6b8 hn=bmcam004>
+
+SUMMARY cell=1 con=2
+===== 2026-09-28T19:00:20Z L6.trg-video-kv SPOT-31593C  bm pub bmcam/cmd {"id":61092,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1  (70 B line)
+CON  2026-09-28T19:00:22Z bm pub bmcam/cmd {"id":61092,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1
+CON  2026-09-28T19:00:22Z 1790622024.000 e6fe83ea6b4a2b7f, [bmcam004] OK id=61092 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3, video.send.message_cap=80 (d=3! only 5 
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:00:45Z L8.hld-scheduled-bus SPOT-33507C  bm pub bmcam/cmd {"id":51220,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T19:00:47Z bm pub bmcam/cmd {"id":51220,"c":"hld","v":120} 1 1
+CON  2026-09-28T19:00:49Z bm pub bmcam/cmd {"id":100057,"c":"rsd","h":[["0dxewa","148-155"]]} 1 1
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:01:34Z L8.hld-scheduled-bus-repeat SPOT-33507C  bm pub bmcam/cmd {"id":51220,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T19:01:36Z bm pub bmcam/cmd {"id":51220,"c":"hld","v":120} 1 1
+CELL 2026-09-28T19:01:36Z len=398 <I0dxgsw.21>gUt6PODuvVYG5XsDM5aKHEixrJevVnjbLJiTCqSp2rxTq6cDj0ESJzEIhXPHyqXKsike5CdF+6XZCPL/gA58VXow4+8F1XBmvi5vmYwoeotA7IEInc01/aQnNdwz9WT+MoKu9tcsZJixDYF91uD0DUYqMH8ZSrHDtnrM1ugk1Q9zi30wMBz7WwdMJWxWuo2gO9mAhD9jWbi7XjFBQylJC2hlS5zJT/+JQGjICX27MDVAKUUES6eNYGgsu1oSRZxGvP+gCd/rpJm6K2Dra7t3MtFpzw11dgHmqNmZ3Ho4vRqFcgmC0dWNFgcP3b6mMRGuN2nEBhT25qBfeXqZD1No/6FSDMw3ABDdTbgr8iM8P2zAwBmHHNu19Bzm6Desw+0W
+
+CELL 2026-09-28T19:01:38Z len=398 <I0dxgsw.22>cDAt7OGvBi2ltZY6NByEsy0z5vW2tX9WXbE8Ltw1l3l1T3fK4raSl9+41R47iTJgGjgE6Jm4EnaqOM1x1jMhFmMCO4bhiKCCZiVYNt3+m9vMAx7Mi34rIju05NWvFzyWluIPxwfRjX5sGs0DpxQiM029ATPXDf946Q8L3jItg4oXuRj9Zt6gYlcevmIx7YM9G4bdFhKs0/WEoxn4CdOnln5MrHbnEsUSk1l7fmu9v0lMmeVMz0gUtaSNsItzm7Mxxcbt1wiWmtH2613tchxDJ4PesIAJnl0FrNfvJ4mt1NhX6s4ZTIzO41UUrgS0oX0GT7ZWRyIJ/r4Ri62dy7n6GYlvV0nsSMynQi+neWHZXnKF1x8f4RK8h3NxscEehFEb
+
+CELL 2026-09-28T19:01:39Z len=398 <I0dxgsw.23>7/4AzoNnd3L/yEf8wbGDr40Ev2ybvuY4HjAWmAbsfjKs+XmKSSEgoDuf9Dt+ujs3IYQfpjOwfxQID/DLTRaJ9K4q2BHx6TthDfRWmuDbPbPlakj+dHHqg98mUJhXL2/4omCaKcRPwyB+Jp+uJ23Lcje1I+Aa0460Io/WPEvZInjE4oJphNdOz33+sDXo5FZ0qO8nZHS7ZTlC6SyTPXaFZVyJHJJsPTpb1l4OkV6UG+aMSvSIpI9qycGk5eobm7yNfyVyzrZF+qhiVlphIv6+jePpmotLjrMNqDogAT4mLGkY5ysG5i/gH/pRJAPMoWhtTDOvud5qDUELbbQCwriG8bu8WIywGHr+avaZiSqc0VrZeYEp6I5UsFS9aQhJKVJv
+
+CELL 2026-09-28T19:01:41Z len=398 <I0dxgsw.24>bFrnQPJmqpRfGJpD0U5E/UTG5pOFD4FRl+GKNNVnEhJhs3sdpAcK6zyBetPr2T0wBwEPATpgsDTwoxCaC3fhk/NXKGVuLB42BQsxtmTCYcaQ3weO+qqFJX3MLjJVAqQLkY9U/uZlkZ4zo217HqTNt3LXxzEz/LC+9d1JSXuf3HKQ1ZR0+4uMK2MefQz/wYjXONsU8zIm7FCwQvnHyVcXnW2SWw1hXHPox8QArbfIGUXj+WDQHzXx+aBeXA1mhZ0nearFNvtdzU9wBZYFQr5kuMd0cvaRp2owdGmhYc5m3GzhjrTNliYDhdXqIX9UjAiY1YD8/yXTZN+tVIU6BzQCLt0mP7bNrocmyjxI+C91bT+lqPq6b1VYVcuiVw9uNpMw
+
+CELL 2026-09-28T19:01:42Z len=398 <I0dxgsw.25>r8dhHdUsImlIosiNnuzNnODiG+JVWl9omHzBRWV/c2ENK4zkFCV7aNdnKN3FeAfUQiZQewbuVDnlqv6P6GFmOQMQgkC/JKy5dC9WczigrTG6NnHkcd7xUub3zhH6/0WJhKZkNs/0l+i2MQeMmSmCEcBwxmK4XA4/Ai5MI9DoyfecGjaGy6wZ2IBV2rf4RfU8tmg7HlTGLHuNwIcOeo/Y/IT/+aSr+2/sX6zKVPcznHGmmingn+c5QwdPFsayg3TcKxgtWfwtVwD+1+dNYYJil332Q6xobAil4usITE0ZLxbKdWl6mYRJOT9jndooiuJn+R4XR0+PqJBmvdDn03k4l8i8/L5W2wo7Haw2I7P0AlAOyiGc0CAcOXiLM/sMh5/K
+
+SUMMARY cell=5 con=1
+===== 2026-09-28T19:05:52Z L7.P-video-SL SPOT-31593C  bm pub bmcam/cmd {"id":61100,"c":"trg","v":2,"kv":{"o":"save_local","d":3}} 1 1  (80 B line)
+CON  2026-09-28T19:05:54Z bm pub bmcam/cmd {"id":61100,"c":"trg","v":2,"kv":{"o":"save_local","d":3}} 1 1
+CON  2026-09-28T19:05:55Z 1790622356.351 e6fe83ea6b4a2b7f, [bmcam004] OK id=61100 trg 2 armed: capture + output per mode (next decision point); one action only: mode.output=save_local, video.send.duration_s=3 (d=3! only 5 s i
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:08:42Z L7.P-still-SL SPOT-31593C  bm pub bmcam/cmd {"id":61101,"c":"trg","v":2,"kv":{"med":"still","o":"save_local"}} 1 1  (88 B line)
+CON  2026-09-28T19:08:45Z bm pub bmcam/cmd {"id":61101,"c":"trg","v":2,"kv":{"med":"still","o":"save_local"}} 1 1
+CON  2026-09-28T19:08:45Z 1790622526.289 e6fe83ea6b4a2b7f, [bmcam004] OK id=61101 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, mode.output=save_local cfg=d9e81104
+CELL 2026-09-28T19:08:49Z len=135 <WS v=1 a=cap cfg=d9e81104 up=793 tz=America/Los_Angeles lt=na ws=0300 we=0400 rk=1000x562 q=90 ct=33.8 sha=7d30fea5e6b8 hn=bmcam004>
+
+SUMMARY cell=1 con=2
+===== 2026-09-28T19:11:26Z L12.signed-set SPOT-31593C  bm pub bmcam/cmd {"id":100000030,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"8c0d47a462b45150"} 1 1  (105 B line)
+CON  2026-09-28T19:11:28Z bm pub bmcam/cmd {"id":100000030,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"8c0d47a462b45150"} 1 1
+CELL 2026-09-28T19:11:28Z len=39 {"id":100000030,"ok":1,"h":"c57e62ea"}
+CON  2026-09-28T19:11:28Z Message: 1790622690.050 e6fe83ea6b4a2b7f, [bmcam004] OK id=100000030 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000030 within 2 sends or 3 boots (next action) cfg=c57e62ea
+CELL 2026-09-28T19:11:29Z len=54 <CF v=1 h=c57e62ea uplink.chunk_chars=360@c100000030>
+SUMMARY cell=2 con=2
+===== 2026-09-28T19:11:37Z L12.replay SPOT-31593C  bm pub bmcam/cmd {"id":100000030,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"8c0d47a462b45150"} 1 1  (105 B line)
+CON  2026-09-28T19:11:37Z bm pub bmcam/cmd {"id":100000030,"c":"set","kv":{"uplink.chunk_chars":360},"sig":"8c0d47a462b45150"} 1 1
+CON  2026-09-28T19:11:38Z 1790622699.277 e6fe83ea6b4a2b7f, [bmcam004] OK id=100000030 uplink.chunk_chars: 384 -> 360, uplink.chunk_chars guarded: cfm 100000030 within 2 sends or 3 boots (next action) (duplicate: original answ
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:11:44Z L12.bad-sig SPOT-31593C  bm pub bmcam/cmd {"id":100000031,"c":"set","kv":{"uplink.chunk_chars":320},"sig":"0d1377e0f92958c9"} 1 1  (105 B line)
+CON  2026-09-28T19:11:45Z bm pub bmcam/cmd {"id":100000031,"c":"set","kv":{"uplink.chunk_chars":320},"sig":"0d1377e0f92958c9"} 1 1
+CELL 2026-09-28T19:11:45Z len=60 {"id":100000031,"ok":0,"h":"c57e62ea","e":"auth","k":"sig"}
+CON  2026-09-28T19:11:45Z Message: 1790622706.695 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=100000031 service-range ids need a valid service signature e=auth k=sig cfg=c57e62ea
+SUMMARY cell=1 con=2
+===== 2026-09-28T19:11:51Z L12.older-id SPOT-31593C  bm pub bmcam/cmd {"id":100000025,"c":"ping","sig":"f01f7034ab79d6a2"} 1 1  (74 B line)
+CON  2026-09-28T19:11:52Z bm pub bmcam/cmd {"id":100000025,"c":"ping","sig":"f01f7034ab79d6a2"} 1 1
+CELL 2026-09-28T19:11:52Z len=49 {"id":100000025,"ok":0,"h":"c57e62ea","e":"old"}
+CON  2026-09-28T19:11:52Z Message: 1790622713.933 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=100000025 below this sender's newest id e=old cfg=c57e62ea
+SUMMARY cell=1 con=2
+===== 2026-09-28T19:11:58Z L12.signed-reset SPOT-31593C  bm pub bmcam/cmd {"id":100000032,"c":"reset","k":["uplink.chunk_chars"],"sig":"2fb510b2c2c5b357"} 1 1  (102 B line)
+CON  2026-09-28T19:11:59Z bm pub bmcam/cmd {"id":100000032,"c":"reset","k":["uplink.chunk_chars"],"sig":"2fb510b2c2c5b357"} 1 1
+CELL 2026-09-28T19:12:00Z len=39 {"id":100000032,"ok":1,"h":"d9e81104"}
+CON  2026-09-28T19:12:00Z Message: 1790622721.203 e6fe83ea6b4a2b7f, [bmcam004] OK id=100000032 reset uplink.chunk_chars -> YAML cfg=d9e81104
+CELL 2026-09-28T19:12:01Z len=43 <CF v=1 h=d9e81104 uplink.chunk_chars=384>
+SUMMARY cell=2 con=2
+----- 2026-09-28T19:12:08Z STATE L12.after bmcam004
+sha256 502668b47bfff1d4 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 4c6dcf4fcfd78645 config_journal.jsonl 17L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:00"}
+guarded {}
+boot 3 hw {"service": 100000032} trg null cache 26
+===== 2026-09-28T19:12:10Z L10.wap-2 SPOT-31593C  bm pub bmcam/cmd {"id":61150,"c":"wap","v":2} 1 1  (50 B line)
+CON  2026-09-28T19:12:11Z bm pub bmcam/cmd {"id":61150,"c":"wap","v":2} 1 1
+CON  2026-09-28T19:12:11Z 1790622733.039 e6fe83ea6b4a2b7f, [bmcam004] OK id=61150 wap 2: network change dispatched cfg=d9e81104
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:12:19Z L10.wap-2-dup SPOT-31593C  bm pub bmcam/cmd {"id":61150,"c":"wap","v":2} 1 1  (50 B line)
+CON  2026-09-28T19:12:20Z bm pub bmcam/cmd {"id":61150,"c":"wap","v":2} 1 1
+CON  2026-09-28T19:12:21Z 1790622742.269 e6fe83ea6b4a2b7f, [bmcam004] OK id=61150 wap 2: network change dispatched (duplicate: original answer) cfg=d9e81104
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:12:26Z L10.wap-1 SPOT-31593C  bm pub bmcam/cmd {"id":61151,"c":"wap","v":1} 1 1  (50 B line)
+CON  2026-09-28T19:12:27Z bm pub bmcam/cmd {"id":61151,"c":"wap","v":1} 1 1
+CON  2026-09-28T19:12:27Z 1790622748.507 e6fe83ea6b4a2b7f, [bmcam004] OK id=61151 wap 1: network change dispatched cfg=d9e81104
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:13:21Z L10.wap-0 SPOT-31593C  bm pub bmcam/cmd {"id":61152,"c":"wap","v":0} 1 1  (50 B line)
+CON  2026-09-28T19:13:24Z bm pub bmcam/cmd {"id":61152,"c":"wap","v":0} 1 1
+CON  2026-09-28T19:13:24Z 1790622805.476 e6fe83ea6b4a2b7f, [bmcam004] OK id=61152 wap 0: network change dispatched cfg=d9e81104
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:13:32Z L7.set-stay_on SPOT-31593C  bm pub bmcam/cmd {"id":61102,"c":"set","kv":{"mode.run":"stay_on"}} 1 1  (72 B line)
+CON  2026-09-28T19:13:33Z bm pub bmcam/cmd {"id":61102,"c":"set","kv":{"mode.run":"stay_on"}} 1 1
+CON  2026-09-28T19:13:33Z 1790622814.523 e6fe83ea6b4a2b7f, [bmcam004] OK id=61102 mode.run: per_boot -> stay_on (next boot) cfg=dbac92bb
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:14:47Z L7.S-video-T SPOT-31593C  bm pub bmcam/cmd {"id":61110,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1  (70 B line)
+CON  2026-09-28T19:14:50Z bm pub bmcam/cmd {"id":61110,"c":"trg","v":2,"kv":{"d":3,"m":80}} 1 1
+CON  2026-09-28T19:14:50Z 1790622891.480 e6fe83ea6b4a2b7f, [bmcam004] OK id=61110 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3, video.send.message_cap=80 (d=3! only 5 
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:18:38Z L7.S-set-save_local SPOT-31593C  bm pub bmcam/cmd {"id":61111,"c":"set","kv":{"o":"save_local"}} 1 1  (68 B line)
+CON  2026-09-28T19:18:41Z bm pub bmcam/cmd {"id":61111,"c":"set","kv":{"o":"save_local"}} 1 1
+CON  2026-09-28T19:18:41Z 1790623122.550 e6fe83ea6b4a2b7f, [bmcam004] OK id=61111 mode.output: transmit -> save_local, mode.output guarded: cfm 61111 within 3 boots or 2 h (next boot) cfg=8b322ee0
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:18:54Z L7.S-video-SL SPOT-31593C  bm pub bmcam/cmd {"id":61112,"c":"trg","v":2,"kv":{"d":3}} 1 1  (63 B line)
+CON  2026-09-28T19:18:55Z bm pub bmcam/cmd {"id":61112,"c":"trg","v":2,"kv":{"d":3}} 1 1
+CON  2026-09-28T19:18:55Z 1790623136.687 e6fe83ea6b4a2b7f, [bmcam004] OK id=61112 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3 (d=3! only 5 s is ladder-validated) cfg=
+CON  2026-09-28T19:18:55Z 1790623136.738 e6fe83ea6b4a2b7f, [bmcam004] OK id=61112 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=3 (d=3! only 5 s is (duplicate: original a
+SUMMARY cell=0 con=3
+===== 2026-09-28T19:19:15Z L7.S-set-med-still SPOT-31593C  bm pub bmcam/cmd {"id":61113,"c":"set","kv":{"med":"still"}} 1 1  (65 B line)
+CON  2026-09-28T19:19:18Z bm pub bmcam/cmd {"id":61113,"c":"set","kv":{"med":"still"}} 1 1
+CON  2026-09-28T19:19:18Z 1790623159.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=61113 mode.media: video -> still (next boot) cfg=e55d1e04
+CON  2026-09-28T19:19:18Z 1790623159.742 e6fe83ea6b4a2b7f, [bmcam004] OK id=61113 mode.media: video -> still (next boot) (duplicate: original answer) cfg=e55d1e04
+SUMMARY cell=0 con=3
+===== 2026-09-28T19:19:31Z L7.S-still-SL SPOT-31593C  bm pub bmcam/cmd {"id":61114,"c":"trg","v":2} 1 1  (50 B line)
+CON  2026-09-28T19:19:32Z bm pub bmcam/cmd {"id":61114,"c":"trg","v":2} 1 1
+CON  2026-09-28T19:19:33Z 1790623174.242 e6fe83ea6b4a2b7f, [bmcam004] OK id=61114 trg 2 armed: capture + output per mode (next decision point) cfg=e55d1e04
+CON  2026-09-28T19:19:33Z 1790623174.292 e6fe83ea6b4a2b7f, [bmcam004] OK id=61114 trg 2 armed: capture + output per mode (next decision point) (duplicate: original answer) cfg=e55d1e04
+CON  2026-09-28T19:19:33Z 1790623174.351 e6fe83ea6b4a2b7f, [bmcam004] OK id=61114 trg 2 armed: capture + output per mode (next decision point) (duplicate: original answer) cfg=e55d1e04
+SUMMARY cell=0 con=4
+----- 2026-09-28T19:19:46Z STATE L9.revert-before-cycles bmcam004
+sha256 351f7efb115cdffd bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 cf33b242b1807eb8 config_journal.jsonl 20L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.output": "save_local", "mode.run": "stay_on", "power.bus_always_on": true, "schedule.window.end": "04:00", "
+guarded {"mode.output": {"actions": 0, "before": null, "before_id": null, "boots": 2, "cls": "revert", "had": false, "in_effect": true, "lim": "boot3_2h", "new": "save_local", "ref": 61111, "uptime_s": 48.63239208599998}}
+boot 6 hw {"service": 100000032} trg null cache 36
+----- 2026-09-28T19:22:09Z STATE L9.revert-after bmcam004
+sha256 f0eab533752b98ef bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 fa1da4287277c58e config_journal.jsonl 21L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "schedule.window.end": "04:00", "schedule.window.start": "03:0
+guarded {}
+boot 8 hw {"service": 100000032} trg null cache 36
+===== 2026-09-28T19:22:10Z L7.S-still-T SPOT-31593C  bm pub bmcam/cmd {"id":61120,"c":"trg","v":2,"kv":{"m":30}} 1 1  (64 B line)
+CON  2026-09-28T19:22:13Z bm pub bmcam/cmd {"id":61120,"c":"trg","v":2,"kv":{"m":30}} 1 1
+CON  2026-09-28T19:22:13Z 1790623334.242 e6fe83ea6b4a2b7f, [bmcam004] OK id=61120 trg 2 armed: capture + output per mode (next decision point); one action only: still.message_cap=30 cfg=0209090f
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:23:26Z L9.halt-false SPOT-31593C  bm pub bmcam/cmd {"id":61130,"c":"set","kv":{"power.halt.enabled":false}} 1 1  (78 B line)
+CON  2026-09-28T19:23:28Z bm pub bmcam/cmd {"id":61130,"c":"set","kv":{"power.halt.enabled":false}} 1 1
+CON  2026-09-28T19:23:29Z 1790623410.347 e6fe83ea6b4a2b7f, [bmcam004] OK id=61130 power.halt.enabled: true -> false (next action) cfg=342ddb79
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:23:34Z L9.halt-true-staged SPOT-31593C  bm pub bmcam/cmd {"id":61131,"c":"set","kv":{"power.halt.enabled":true}} 1 1  (77 B line)
+CON  2026-09-28T19:23:35Z bm pub bmcam/cmd {"id":61131,"c":"set","kv":{"power.halt.enabled":true}} 1 1
+CON  2026-09-28T19:23:35Z 1790623416.585 e6fe83ea6b4a2b7f, [bmcam004] OK id=61131 power.halt.enabled: STAGED true (awaiting cfm 61131) (next action) cfg=342ddb79
+SUMMARY cell=0 con=2
+----- 2026-09-28T19:23:40Z STATE L9.staged bmcam004
+sha256 0050b656fc26fcf5 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 12e9b9f7f0c47875 config_journal.jsonl 22L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": false, "schedule.window.end": "04:00", "
+guarded {"power.halt.enabled": {"actions": 0, "before": false, "before_id": 61130, "boots": 0, "cls": "stage", "had": true, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 61131, "uptime_s": 0.0}}
+boot 8 hw {"service": 100000032} trg null cache 39
+----- 2026-09-28T19:24:55Z STATE L9.staged-after-cycle bmcam004
+sha256 4a9af8d2394f8103 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 12e9b9f7f0c47875 config_journal.jsonl 22L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": false, "schedule.window.end": "04:00", "
+guarded {"power.halt.enabled": {"actions": 0, "before": false, "before_id": 61130, "boots": 0, "cls": "stage", "had": true, "in_effect": false, "lim": "tx2_boot3", "new": true, "ref": 61131, "uptime_s": 0.0}}
+boot 9 hw {"service": 100000032} trg null cache 40
+===== 2026-09-28T19:24:56Z L9.cfm SPOT-31593C  bm pub bmcam/cmd {"id":61132,"c":"cfm","ref":61131} 1 1  (56 B line)
+CON  2026-09-28T19:24:59Z bm pub bmcam/cmd {"id":61132,"c":"cfm","ref":61131} 1 1
+CON  2026-09-28T19:24:59Z 1790623500.371 e6fe83ea6b4a2b7f, [bmcam004] OK id=61132 cfm 61131: power.halt.enabled applied cfg=0209090f
+SUMMARY cell=0 con=2
+----- 2026-09-28T19:25:04Z STATE L9.confirmed bmcam004
+sha256 f6fb76854dc78114 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 58810a70278a7e3a config_journal.jsonl 23L
+overlay {"camera.controls_enabled": true, "camera.white_balance.enabled": true, "camera.white_balance.gains": [1.62, 1.91], "camera.white_balance.mode": "manual", "mode.media": "still", "mode.run": "stay_on", "power.bus_always_on": true, "power.halt.enabled": true, "schedule.window.end": "04:00", "s
+guarded {}
+boot 9 hw {"service": 100000032} trg null cache 41
+===== 2026-09-28T19:25:05Z R.reset-all SPOT-31593C  bm pub bmcam/cmd {"id":61210,"c":"reset","all":1} 1 1  (54 B line)
+CON  2026-09-28T19:25:06Z bm pub bmcam/cmd {"id":61210,"c":"reset","all":1} 1 1
+CON  2026-09-28T19:25:06Z 1790623507.875 e6fe83ea6b4a2b7f, [bmcam004] OK id=61210 reset camera.controls_enabled, camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, mode.media, mode.run, power
+SUMMARY cell=0 con=2
+----- 2026-09-28T19:25:15Z STATE R.after-reset-all bmcam004
+sha256 05a13c7a1b92388d bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 a57e7c8f21dd3065 config_journal.jsonl 33L
+overlay {}
+guarded {}
+boot 10 hw {"service": 100000032} trg null cache 42
+===== 2026-09-28T19:39:21Z L4.set-e SPOT-31593C  bm pub bmcam/cmd {"id":61170,"c":"set","kv":{"e":-1.0}} 1 1  (60 B line)
+CON  2026-09-28T19:39:24Z bm pub bmcam/cmd {"id":61170,"c":"set","kv":{"e":-1.0}} 1 1
+CON  2026-09-28T19:39:24Z 1790624365.625 e6fe83ea6b4a2b7f, [bmcam004] OK id=61170 camera.exposure.ev: none -> -1.0 (next action) cfg=e7026562
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:39:28Z L4.reset-e SPOT-31593C  bm pub bmcam/cmd {"id":61171,"c":"reset","k":["e"]} 1 1  (56 B line)
+CON  2026-09-28T19:39:29Z bm pub bmcam/cmd {"id":61171,"c":"reset","k":["e"]} 1 1
+CON  2026-09-28T19:39:29Z 1790624370.875 e6fe83ea6b4a2b7f, [bmcam004] OK id=61171 reset camera.exposure.ev -> YAML cfg=580ce986
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:39:33Z L2.dup-set-after-reset SPOT-31593C  bm pub bmcam/cmd {"id":61170,"c":"set","kv":{"e":-1.0}} 1 1  (60 B line)
+CON  2026-09-28T19:39:34Z bm pub bmcam/cmd {"id":61170,"c":"set","kv":{"e":-1.0}} 1 1
+CON  2026-09-28T19:39:34Z 1790624376.097 e6fe83ea6b4a2b7f, [bmcam004] OK id=61170 camera.exposure.ev: none -> -1.0 (next action) (duplicate: original answer) cfg=580ce986
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:39:38Z L4.cas-mismatch SPOT-31593C  bm pub bmcam/cmd {"id":61172,"c":"set","kv":{"e":0.5},"b":"deadbeef"} 1 1  (74 B line)
+CON  2026-09-28T19:39:39Z bm pub bmcam/cmd {"id":61172,"c":"set","kv":{"e":0.5},"b":"deadbeef"} 1 1
+CON  2026-09-28T19:39:40Z 1790624381.332 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61172 config is 580ce986, not deadbeef e=cas cfg=580ce986
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:39:44Z L4.cas-match SPOT-31593C  bm pub bmcam/cmd {"id":61173,"c":"set","kv":{"e":0.5},"b":"580ce986"} 1 1  (74 B line)
+CON  2026-09-28T19:39:45Z bm pub bmcam/cmd {"id":61173,"c":"set","kv":{"e":0.5},"b":"580ce986"} 1 1
+CON  2026-09-28T19:39:45Z 1790624386.585 e6fe83ea6b4a2b7f, [bmcam004] OK id=61173 camera.exposure.ev: none -> 0.5 (next action) cfg=d93c20f7
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:39:49Z L4.reset-e2 SPOT-31593C  bm pub bmcam/cmd {"id":61174,"c":"reset","k":["e"]} 1 1  (56 B line)
+CON  2026-09-28T19:39:50Z bm pub bmcam/cmd {"id":61174,"c":"reset","k":["e"]} 1 1
+CON  2026-09-28T19:39:50Z 1790624391.832 e6fe83ea6b4a2b7f, [bmcam004] OK id=61174 reset camera.exposure.ev -> YAML cfg=580ce986
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:39:54Z L3.space-escaped SPOT-31593C  bm pub bmcam/cmd {"id":61175,"c":"set","kv":{"schedule.timezone":"America/New\u0020York"}} 1 1  (95 B line)
+CON  2026-09-28T19:39:55Z bm pub bmcam/cmd {"id":61175,"c":"set","kv":{"schedule.timezone":"America/New\u0020York"}} 1 1
+CON  2026-09-28T19:39:55Z 1790624397.074 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61175 strings are [A-Za-z0-9_:./+-]{1,48} e=val k=schedule.timezone cfg=580ce986
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:40:00Z L11.len-256 SPOT-31593C  bm pub bmcam/cmd {"id":61176,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (256 B line)
+CON  2026-09-28T19:40:01Z bm pub bmcam/cmd {"id":61176,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+CON  2026-09-28T19:40:01Z 1790624402.722 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=61176 'zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy' is not a setting e=key k=zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy cfg=580ce986
+SUMMARY cell=0 con=2
+===== 2026-09-28T19:40:05Z L11.len-257 SPOT-31593C  bm pub bmcam/cmd {"id":61177,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zqyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1.00000000000}} 1 1  (257 B line)
+CON  2026-09-28T19:40:06Z bm pub bmcam/cmd {"id":61177,"c":"set","kv":{"zzayyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy":1,"zzcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+SUMMARY cell=0 con=1
+----- 2026-09-28T19:40:11Z STATE L4.final bmcam004
+sha256 863e1c72df1fdd05 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 e313a6987804352f config_journal.jsonl 37L
+overlay {}
+guarded {}
+boot 11 hw {"service": 100000032} trg null cache 49
+===== 2026-09-28T20:00:49Z L8.hld-120-after-F7 SPOT-33507C  bm pub bmcam/cmd {"id":51090,"c":"hld","v":120} 1 1  (52 B line)
+CON  2026-09-28T20:00:52Z bm pub bmcam/cmd {"id":51090,"c":"hld","v":120} 1 1
+SUMMARY cell=0 con=1
+----- 2026-09-28T20:27:03Z STATE R.final bmcam003
+sha256 a8b31cd284440ee4 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 ff24052ba808c9b3 config_journal.jsonl 51L
+overlay {"mode.run": "stay_on"}
+guarded {}
+boot 16 hw {"service": 100000021} trg null cache 68
