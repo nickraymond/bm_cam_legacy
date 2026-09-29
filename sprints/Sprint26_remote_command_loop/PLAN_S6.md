@@ -390,7 +390,7 @@ Sofar or staging was touched during the S5 loop.
 
 ## 9. PLAN_S6b_backend — steps 6 (code) and 7
 
-Written 2026-09-29. Status: **APPROVED as proposed (Nick, 2026-09-29), S1–S5 as recommended.** D built (§9.10); L next.
+Written 2026-09-29. Status: **APPROVED as proposed (Nick, 2026-09-29), S1–S5 as recommended.** D and L built (§9.10, §9.12); H6 next.
 Scope: backend code only, nvd `origin/staging` a2721d3 (S6a #65/#66/#67 + heal fix #68 merged;
 migration head `20260928_0016`; suite baseline **48/48** on this Mac with a scratch Postgres).
 Built while the bench test runs, so:
@@ -798,3 +798,26 @@ Suite 54/54 (baseline 48/48). Nothing was sent to Sofar, staging or hardware.
   - In step 3 the sends and console logs are on nereus000.
   - The backend half is `/systems/{id}/heal-events` (+ #69's send fields).
   - S6b reviews it and adds any backend field it needs. Nick's call.
+
+### 9.12 L build record (2026-09-29)
+
+nickraymond/nereus-vision-dev#70 (draft, into `staging`, NOT merged), branch
+`feature/s6b-logs-commands` (from staging a2721d3, independent of D). Suite 49/49; a local
+D+L merge (never pushed) is clean at 55/55.
+
+- **Contents:**
+  - `GET /systems/{id}/command-events`: kind=command with §6.5 status and the ack; kind=config
+    for `<CF>` reports;
+  - logs.html `command` / `config` rows, filters and detail panels, and the heal_request send
+    note;
+  - a "Trigger + config" BM section (cfg tg r m d);
+  - a probe START-only pass for r / m / d.
+- **Independent code review:** no BLOCKER; 1 MAJOR, 6 MINOR, 4 NIT, all fixed except #2.
+  - The MAJOR: the whole history was loaded per page view. Now it is bounded by the window.
+  - Also fixed: a moved device's commands stay with their Spotter, and a row is placed at its
+    in-window event.
+- **Deferred #2 (after both merge):** pass D's send-log rows to `_cmd` / `_row_dict` in
+  `command_events.device_commands_in_window` (about three lines). Until then, on the merged
+  code, a never-queued command reads `allocated` rather than `send_failed` / `send_unknown`.
+- **Local demo:** uvicorn + scratch Postgres, non-BM system (no Sofar call possible). No
+  console errors; the page JS parses under JavaScriptCore.
