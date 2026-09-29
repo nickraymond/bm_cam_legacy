@@ -390,7 +390,7 @@ Sofar or staging was touched during the S5 loop.
 
 ## 9. PLAN_S6b_backend — steps 6 (code) and 7
 
-Written 2026-09-29. Status: **DRAFT r2 (independent review folded in, §9.9), awaiting Nick.**
+Written 2026-09-29. Status: **APPROVED as proposed (Nick, 2026-09-29), S1–S5 as recommended.** D built (§9.10); L next.
 Scope: backend code only, nvd `origin/staging` a2721d3 (S6a #65/#66/#67 + heal fix #68 merged;
 migration head `20260928_0016`; suite baseline **48/48** on this Mac with a scratch Postgres).
 Built while the bench test runs, so:
@@ -706,7 +706,8 @@ The backend side is D(2), §9.2b. The tool changes are not in this session. Thei
    - `BM_HEAL_AUTOSEND_MAX_PER_DAY=96`;
    - `BM_HEAL_AUTOSEND_REASK_S` from step 1.
    
-   The web service needs nothing for heals. `BM_COMMAND_SEND*` stays off until §5 step 4.
+   Set `BM_HEAL_AUTOSEND_REASK_S` on the **web service too**: its 409 `autosend_active` window
+   reads it (code review #2). `BM_COMMAND_SEND*` stays off until §5 step 4.
 5. **Before the flip:**
    - the conductor heal step is off and bm-heal-driver is stopped (else the walk logs
      `other_sender_active` for `REASK_S` after their last heal);
@@ -754,3 +755,33 @@ BLOCKER** ("fix 1–7 before building"). All folded in:
 | 14 | S5/S4 options | S5 now D + L; S4 alternative restated |
 | 15 | send-log date range; unverifiable facts | §9.0 corrected / labelled |
 | 16 NIT | heal-events fetched in non-BM mode; summary key; R4 needs L | §9.4, header, §9.7 |
+
+### 9.10 D build record (2026-09-29)
+
+nickraymond/nereus-vision-dev#69 (draft, into `staging`, NOT merged), branch
+`feature/s6b-sofar-sender`, 5 commits on a2721d3:
+- D.1 send log (0017) + client + guard;
+- D.2 remote-command send;
+- D.3 heal auto-send + heal-events fields (plan commit 4, folded into D.3);
+- review fixes;
+- tests/README.
+
+Suite 54/54 (baseline 48/48). Nothing was sent to Sofar, staging or hardware.
+
+- **Independent code review** (fresh context): 1 MAJOR, 7 MINOR, 3 NIT, all fixed.
+  - The MAJOR: a web POST and the walk overlapping could both issue a heal (the §9.3
+    "re-check under the Spotter lock" did not cover the web side).
+  - Now both take the **device-row lock** before their check. The lock order is Spotter
+    advisory lock → device row.
+  - Threaded tests cover both directions; a mutant without the lock fails them.
+- **Deviations from §9:**
+  - Only `no_record | no_payload | range | payload_changed` refusals are terminal
+    (`validate_err` and `no_validator` in `command_daemon.py` are not).
+  - `auth_failed`, a Sofar `rate_limited` or no token stops that Spotter for the tick
+    (`spotter_stopped`).
+  - New command statuses `sending` and `send_unknown` (a crash after the POST).
+  - `newer_sent` also counts higher ids the unit answered or reported.
+- **Finding:** the cron worker configures no Python logging. So the `[heal]` logger lines
+  (received_age_s) never reach the Render cron log. The walk prints `received_age_s` per key
+  in its own `[heal_autosend]` stderr line instead. Enabling INFO logging worker-wide is a
+  separate decision.
