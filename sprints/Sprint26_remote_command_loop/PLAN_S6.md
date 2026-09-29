@@ -785,3 +785,16 @@ Suite 54/54 (baseline 48/48). Nothing was sent to Sofar, staging or hardware.
   (received_age_s) never reach the Render cron log. The walk prints `received_age_s` per key
   in its own `[heal_autosend]` stderr line instead. Enabling INFO logging worker-wide is a
   separate decision.
+
+### 9.11 Backlog and facts after D (2026-09-29, relayed from Nick by the S4w session)
+
+- **H6 is assigned to S6b.** A START-lost video healed from `/M` gets its fps from the unit's
+  latest config snapshot (`video.send.fps`), labelled on the row, so the mp4 transcodes.
+  - Planned as its own small nvd PR after L (not built yet).
+  - W9 (bm #92) is merged to development (3c1801d), not deployed.
+- **Render (checked by Nick):** `BM_KEYED_GROUPING=on`, so A1 is verified. `BM_HEAL_AUTOSEND`
+  is unset; keep it unset until §9.7 is done.
+- **`tools/remote_latency_report.py` (§5 step 3):** S6b recommends the bench side builds it.
+  - In step 3 the sends and console logs are on nereus000.
+  - The backend half is `/systems/{id}/heal-events` (+ #69's send fields).
+  - S6b reviews it and adds any backend field it needs. Nick's call.
