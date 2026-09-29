@@ -127,8 +127,8 @@
    "sha256": "c00dccd70d294f98"
   },
   "app/sent/2026-09-24T21:00:00Z_image_compressed.sent.json": {
-   "bytes": 319,
-   "sha256": "a29ab99b60587b4d"
+   "bytes": 341,
+   "sha256": "fa921e2af71bc95f"
   },
   "camera_config.lkg.json": {
    "bytes": 3261,
@@ -200,6 +200,7 @@
  "sent_records": {
   "app/sent/2026-09-24T21:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T21:00:00Z_image_compressed.jpg",
    "fmt": "pjpg",
    "key": "0dq7o0",

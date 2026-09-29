@@ -47,7 +47,9 @@ from sofar_poll_acks import (_ssl_context, decode_value, extract_ack,  # noqa: E
 from urllib.parse import urlencode  # noqa: E402
 from urllib.request import urlopen  # noqa: E402
 
-CHUNK_RE = re.compile(r"^<I(?:([0-9a-z]{1,6})\.)?(\d+)>")
+# Keyed chunks may carry their media's total, `<I{key}.{i}/{M}>` (Sprint26 W9), only
+# after a key, as the backend parser: an unkeyed `<I{i}/{M}>` is not a chunk.
+CHUNK_RE = re.compile(r"^<I(?:([0-9a-z]{1,6})\.(\d+)(?:/\d+)?|(\d+))>")
 START_FIELDS_RE = re.compile(
     r"length: (?P<length>\d+)|gid: (?P<gid>[0-9a-z]{1,6})|"
     r"filename: (?P<fn>[^,]+)")
@@ -59,7 +61,7 @@ def classify(text):
     s = text.strip()
     m = CHUNK_RE.match(s)
     if m:
-        return "chunk", (m.group(1), int(m.group(2)))  # (gid|None, index)
+        return "chunk", (m.group(1), int(m.group(2) or m.group(3)))  # (gid|None, index)
     if s.startswith("<WS") or s.startswith("WS,"):
         return "ws", s[:40]
     if s.startswith("<CF "):

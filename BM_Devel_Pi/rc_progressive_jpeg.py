@@ -911,11 +911,13 @@ def still_action(
         summary["transmit_phase"]["burst_s"] = burst_s
         summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
 
+    # W9 (S4w): decided ONCE per send, so the sent record and the wire agree.
+    chunk_total = rc_media_key.CHUNK_TOTAL
     media_key = rc_media_key.prepare_keyed_send(
         settings, gate_info=gate_info, daemon=daemon,
         stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
         payload=encode["jpeg_data"], payload_path=final_path,
-        chunk_b64_chars=settings["pacing_chunk_b64_chars"])
+        chunk_b64_chars=settings["pacing_chunk_b64_chars"], chunk_total=chunk_total)
     if supervised is not None:
         # The action log's media_key (the stills summary does not carry it;
         # adding it there would change every stills golden).
@@ -957,6 +959,7 @@ def still_action(
                 "defer_acks_during_transmit"))),
         pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
         media_key=media_key,
+        chunk_total=chunk_total,
     )
     summary["transmit_result"] = result
     print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "

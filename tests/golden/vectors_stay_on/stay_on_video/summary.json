@@ -166,16 +166,16 @@
    "sha256": "5fd3ce5507f69931"
   },
   "app/sent/2026-09-24T15-06-40Z_video_5s.sent.json": {
-   "bytes": 308,
-   "sha256": "d19becbfe9f8159e"
+   "bytes": 330,
+   "sha256": "e15d53d4980ad6bb"
   },
   "app/sent/2026-09-24T15-25-00Z_video_5s.sent": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "app/sent/2026-09-24T15-25-00Z_video_5s.sent.json": {
-   "bytes": 308,
-   "sha256": "25243ccfaffbd079"
+   "bytes": 330,
+   "sha256": "41ea654b9dc1fa18"
   },
   "camera_config.lkg.json": {
    "bytes": 3246,
@@ -222,6 +222,7 @@
  "sent_records": {
   "app/sent/2026-09-24T15-06-40Z_video_5s.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T15-06-40Z_video_5s.h264",
    "fmt": "h264",
    "key": "0dprb4",
@@ -232,6 +233,7 @@
   },
   "app/sent/2026-09-24T15-25-00Z_video_5s.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T15-25-00Z_video_5s.h264",
    "fmt": "h264",
    "key": "0dps5o",

@@ -10,6 +10,7 @@ wakes, BEFORE the new START, this module re-sends those chunks from the sent
 record rc_media_key wrote when the media first went out:
 
   <I{key}.{n}>{base64 chunk n}\\n       byte-identical to the original chunk
+  <I{key}.{n}/{M}>{base64 chunk n}\\n   (W9: when the record says chunk_total, M = msgs)
 
 and, AFTER END, one status line per key per wake:
 
@@ -84,7 +85,8 @@ def make_heal_validate_fn(sent_dir):
 
 def heal_lines(record, ns):
     """[(n, wire bytes)] for chunks ns of a sent record, byte-identical to the original
-    send (the record's own chunk_b64_chars). Raises HealRefused."""
+    send (the record's own chunk_b64_chars; W9: `/M` iff the record says chunk_total,
+    M = the payload's chunk count = the original START length). Raises HealRefused."""
     path = record.get("payload")
     try:
         with open(path, "rb") as fh:
@@ -99,7 +101,8 @@ def heal_lines(record, ns):
     if any(n >= total for n in ns):
         raise HealRefused("range")
     key = record["key"]
-    return [(n, f"{rc_media_key.chunk_prefix(n, key)}{b64[n * width:(n + 1) * width]}\n".encode("ascii"))
+    m = total if record.get("chunk_total") else None
+    return [(n, f"{rc_media_key.chunk_prefix(n, key, m)}{b64[n * width:(n + 1) * width]}\n".encode("ascii"))
             for n in ns]
 
 

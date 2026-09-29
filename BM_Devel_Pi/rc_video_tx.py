@@ -487,13 +487,17 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     port_state["opened"] = True
     # S4: this wake's media key (Spotter UTC only) + the sent record a heal
     # re-sends from, written BEFORE START. None -> the rev 3 wire.
+    # W9 (S4w): decided ONCE per send, so the sent record and the wire agree.
+    chunk_total = rc_media_key.CHUNK_TOTAL
     media_key = rc_media_key.prepare_keyed_send(
         settings, gate_info=gate_info, daemon=daemon,
         stem=os.path.splitext(file_name)[0], fmt="h264", filename=file_name,
-        payload=payload, chunk_b64_chars=chunk_chars)
+        payload=payload, chunk_b64_chars=chunk_chars, chunk_total=chunk_total)
     if media_key is not None:
         send_args["media_key"] = media_key
         summary["media_key"] = media_key
+        if chunk_total:
+            send_args["chunk_total"] = True
     tx = tx_open_fn(settings["config_path"])
     cmd_hooks.boot_mark("transmit_start")
     # S5: heals first, never eating the clip's own room.

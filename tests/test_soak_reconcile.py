@@ -50,6 +50,11 @@ class TestClassify(unittest.TestCase):
     def test_gid_chunk(self):
         self.assertEqual(sr.classify("<Iab2.17>abcd"), ("chunk", ("ab2", 17)))
 
+    def test_w9_total_chunk(self):
+        # Sprint26 W9: a keyed chunk may carry its media total; unkeyed `/M` is not a chunk.
+        self.assertEqual(sr.classify("<I0dhnso.17/126>abcd"), ("chunk", ("0dhnso", 17)))
+        self.assertEqual(sr.classify("<I17/126>abcd")[0], "other")
+
     def test_start_fields(self):
         f = sr._start_fields("<START IMG> filename: x.jpg, timestamp: T, "
                              "length: 180, gid: 0a1, fmt=pjpg")

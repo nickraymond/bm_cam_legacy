@@ -537,7 +537,7 @@ Every other commit must leave the goldens byte-identical, including the port-ope
 | W5 | video services `trg` | S3 |
 | W6 | fresh time read per action (buffer cleared, clock stepped only on drift) | S3 |
 | W7 | `exposure.mode` (`rem`) and the `*.enabled` switches reshaped | S2 or later, never inside a parity commit |
-| W9 | keyed chunk prefix carries the total, `<I{key}.{i}/{M}>`, so a lost START no longer makes a media unhealable (O11, accepted) | S4w (errata S4 G4: after the additive nvd parser is live on staging; not in the S4 PRs) |
+| W9 | keyed chunk prefix carries the total, `<I{key}.{i}/{M}>`, so a lost START no longer makes a media unhealable (O11, accepted) | S4w (errata S4 G4: after the additive nvd parser is live on staging; not in the S4 PRs). **Built (S4w, PLAN_S4w.md):** supervisor on a migrated unit only (W8b's gate); M = START length; heals carry `/M` iff the sent record says `chunk_total` |
 | W8 | slim ack; `<CF>`; `<WS>` `up=`/`cfg=`/`a=idle`; START `cfg` (core field) + `tg/r/m/d` (worst-case START ≤ 285 B, tested) | S4 |
 | W10 | per_boot: a `trg` heard in the listen tail fires this boot if it fits the budget (O3): the tail ends on it, the extra action runs on the same budget; else it stays armed | S3b |
 

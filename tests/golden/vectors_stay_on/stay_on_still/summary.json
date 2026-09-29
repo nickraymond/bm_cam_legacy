@@ -248,16 +248,16 @@
    "sha256": "cb9f39f58091c66f"
   },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
-   "bytes": 320,
-   "sha256": "28eaec914a45b052"
+   "bytes": 342,
+   "sha256": "495ae8493af789b1"
   },
   "app/sent/2026-09-24T15:25:00Z_image_compressed.sent.json": {
-   "bytes": 320,
-   "sha256": "855923b6ef745c94"
+   "bytes": 342,
+   "sha256": "46b3c4cd9d61a73e"
   },
   "app/sent/2026-09-24T16:00:00Z_image_compressed.sent.json": {
-   "bytes": 320,
-   "sha256": "d58efbcb996ff405"
+   "bytes": 342,
+   "sha256": "02a47e3ba5c1f32d"
   },
   "camera_config.lkg.json": {
    "bytes": 3263,
@@ -369,6 +369,7 @@
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T15:00:00Z_image_compressed.jpg",
    "fmt": "pjpg",
    "key": "0dpr00",
@@ -379,6 +380,7 @@
   },
   "app/sent/2026-09-24T15:25:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T15:25:00Z_image_compressed.jpg",
    "fmt": "pjpg",
    "key": "0dps5o",
@@ -389,6 +391,7 @@
   },
   "app/sent/2026-09-24T16:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T16:00:00Z_image_compressed.jpg",
    "fmt": "pjpg",
    "key": "0dpts0",

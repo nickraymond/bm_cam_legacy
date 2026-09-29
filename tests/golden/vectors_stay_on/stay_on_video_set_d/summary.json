@@ -117,8 +117,8 @@
    "sha256": "5fd3ce5507f69931"
   },
   "app/sent/2026-09-24T15-06-40Z_video_8s.sent.json": {
-   "bytes": 308,
-   "sha256": "b2e4129fe2b90b8a"
+   "bytes": 330,
+   "sha256": "710dbcdaf9deae5b"
   },
   "camera_config.lkg.json": {
    "bytes": 3246,
@@ -161,6 +161,7 @@
  "sent_records": {
   "app/sent/2026-09-24T15-06-40Z_video_8s.sent.json": {
    "chunk_b64_chars": 384,
+   "chunk_total": true,
    "filename": "2026-09-24T15-06-40Z_video_8s.h264",
    "fmt": "h264",
    "key": "0dprb4",
