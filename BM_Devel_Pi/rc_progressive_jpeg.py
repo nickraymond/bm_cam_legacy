@@ -1290,10 +1290,13 @@ def main(argv=None, **cycle_overrides):
                         help="BENCH ONLY: run the command daemon (subscribe + "
                              "acks DO touch the BM bus) without image transmit. "
                              "Requires bm_commands.enabled in YAML.")
-    parser.add_argument("--bench-drop-chunks", default=None, metavar="N[,N...]",
+    parser.add_argument("--bench-drop-chunks", default=None, metavar="[start,]N[,N...]",
                         help="BENCH ONLY (video_tx): do not put these clip chunk "
                              "indices on the wire (slots still paced) so the "
-                             "backend holds a partial to heal (Sprint25 S5)")
+                             "backend holds a partial to heal (Sprint25 S5); "
+                             "'start' drops the START too (Sprint26 S4w W9 proof). "
+                             "Applies to every clip of the process: run it per_boot "
+                             "by hand, never under cron")
     parser.add_argument("--skip-time-window", action="store_true",
                         help="Bench override: skip the Spotter-time transmit gate")
     parser.add_argument("--output-dir", default=IMAGE_DIRECTORY,
@@ -1418,9 +1421,12 @@ def main(argv=None, **cycle_overrides):
     bench_drop_chunks = None
     if args.bench_drop_chunks:
         try:
-            bench_drop_chunks = sorted({int(x) for x in args.bench_drop_chunks.split(",")})
+            tokens = [x.strip() for x in args.bench_drop_chunks.split(",")]
+            bench_drop_chunks = sorted({int(x) for x in tokens if x != "start"})
             if any(n < 0 for n in bench_drop_chunks):
                 raise ValueError("negative index")
+            if "start" in tokens:
+                bench_drop_chunks = ["start"] + bench_drop_chunks
         except ValueError as exc:
             print(f"[RC][ERROR] --bench-drop-chunks {args.bench_drop_chunks!r}: {exc}",
                   file=sys.stderr)
@@ -1682,6 +1688,10 @@ def main(argv=None, **cycle_overrides):
     if args.print_config:
         print_resolved_settings(settings)
         return 0
+
+    if bench_drop_chunks:
+        print(f"[RC][WARN] --bench-drop-chunks {args.bench_drop_chunks!r} is video_tx only: "
+              "IGNORED by this stills unit")
 
     if settings["capture_mode"] != "progressive_jpeg":
         print(f"[RC] capture_mode={settings['capture_mode']} — RC inactive: the heic path was "

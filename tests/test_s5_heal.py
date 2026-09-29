@@ -460,6 +460,17 @@ class TestBenchDrop(unittest.TestCase):
                          "only chunk 63 differs (END carries the uart time)")
         self.assertFalse([m for m in wire if m.startswith(f"<I{OLD_KEY}.63>".encode())])
         self.assertEqual(len(wire), len(base_wire) - 1)
+        self.assertNotIn("start_dropped", r, "result keys unchanged without the start token")
+
+    def test_drop_start_keeps_pacing(self):
+        # Sprint26 S4w: the W9 bench proof forces a START-lost media.
+        base, base_wire, base_t = self.send(None)
+        r, wire, t = self.send(["start", 5])
+        self.assertEqual(t, base_t, "pacing unchanged: the START slot is still paced")
+        self.assertTrue(r["start_dropped"] and r["started"])
+        self.assertFalse([m for m in wire if m.startswith(b"<START")])
+        self.assertEqual(wire[:-1], [m for m in base_wire[1:-1]
+                                     if not m.startswith(f"<I{OLD_KEY}.5>".encode())])
 
 
 class TestManifest(unittest.TestCase):

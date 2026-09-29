@@ -273,7 +273,10 @@ def transmit_video_clip(
 
     bench_drop_chunks (Sprint25 S5, BENCH ONLY, `--bench-drop-chunks`): chunk
     indices NOT put on the wire — the slot is still paced and counted as sent,
-    so the backend sees a real partial to heal. None/empty = no effect.
+    so the backend sees a real partial to heal. The token "start" (Sprint26 S4w)
+    drops the START the same way (slot paced), as a Spotter queue-full rejection
+    would: the W9 proof that `/M` alone makes the media healable. None/empty = no
+    effect.
 
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
@@ -305,8 +308,9 @@ def transmit_video_clip(
     total = planned if (chunk_total and media_key is not None) else None   # W9
     uart_start = clock()
     drop = frozenset(bench_drop_chunks or ())
-    if drop:
-        print(f"[VTX][BENCH] NOT sending chunk(s) {sorted(drop)} (slots still paced)")
+    drop_start = "start" in drop
+    if drop - {"start"}:
+        print(f"[VTX][BENCH] NOT sending chunk(s) {sorted(drop - {'start'})} (slots still paced)")
 
     def send_chunk(i):
         if i not in drop:
@@ -330,10 +334,17 @@ def transmit_video_clip(
     if current_timestamp is None:
         current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    tx(build_rc_video_start_message(
+    start_line = build_rc_video_start_message(
         file_name, current_timestamp, planned, fps=fps, dur=dur, res=res, crop=crop,
         br=br, crf=crf, complete=True, start_metadata=start_metadata, key=media_key,
-    ).encode("ascii"))
+    ).encode("ascii")
+    if drop_start:
+        # BENCH ONLY: the START slot is paced but nothing goes on the wire.
+        print(f"[VTX][BENCH] NOT sending START (slot still paced): the backend sees a "
+              f"START-lost media, key={media_key}, {planned} chunks")
+        result["start_dropped"] = True
+    else:
+        tx(start_line)
     result["started"] = True
     _pump(pending_pump_fn)
     sleep_fn(delay_seconds)
