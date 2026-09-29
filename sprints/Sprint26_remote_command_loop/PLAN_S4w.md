@@ -112,6 +112,20 @@ staging is hands-off).
 Precondition (read-only check by the bench owner): staging has `BM_KEYED_GROUPING=on`; with
 grouping off the backend ignores `/M` (parser :646-650, contract §14.6).
 
+S6b integration (checked with the S6b backend session, 2026-09-29; PLAN_S6 §9, bm #91,
+nvd `feature/s6b-sofar-sender`): no collision. S6b does not touch the `/M` parser, grouping,
+`heal_candidates` or chunk-born ingest; its auto-send walk calls `heal_candidates()` as is, so
+a START-lost W9 media becomes a normal candidate. H6 is out of S6b scope. Rules for the proof:
+- run it while `BM_HEAL_AUTOSEND=0` (the default; it stays off until PLAN_S6 §9.7);
+- take the `rsd` id from `POST /admin/ingest/devices/{d}/heal-commands` (as the conductor
+  does), never a hand-typed id: the backend must see the heal (auto-send's
+  `other_sender_active` / 409 `autosend_active` rules depend on it);
+- a `<HL a=refused>` key is never auto-asked again by the walk: a refused `/M` heal needs a
+  person;
+- `BM_KEYED_GROUPING=on` on Render is ASSUMED (PLAN_S6 §2 A1), not verified by either session.
+- `tools/remote_latency_report.py` (bench session, §5 step 3): if it matches chunks, its regex
+  needs `(?:/\d+)?` after the key.
+
 Proof (bench owner, bmcam003 first, then bmcam004): one triggered clip with
 `--bench-drop-chunks start,5,17` → backend row is chunk-born with `expected_chunks = M`
 (not `length_unknown`), missing = {5, 17} → heal `rsd` → the unit re-sends `<I{key}.5/{M}>`
