@@ -390,7 +390,7 @@ Sofar or staging was touched during the S5 loop.
 
 ## 9. PLAN_S6b_backend — steps 6 (code) and 7
 
-Written 2026-09-29. Status: **APPROVED as proposed (Nick, 2026-09-29), S1–S5 as recommended.** D and L built (§9.10, §9.12); H6 next.
+Written 2026-09-29. Status: **APPROVED as proposed (Nick, 2026-09-29), S1–S5 as recommended.** D, L and H6 built (§9.10, §9.12, §9.13); all three open as drafts, none merged.
 Scope: backend code only, nvd `origin/staging` a2721d3 (S6a #65/#66/#67 + heal fix #68 merged;
 migration head `20260928_0016`; suite baseline **48/48** on this Mac with a scratch Postgres).
 Built while the bench test runs, so:
@@ -821,3 +821,27 @@ D+L merge (never pushed) is clean at 55/55.
   code, a never-queued command reads `allocated` rather than `send_failed` / `send_unknown`.
 - **Local demo:** uvicorn + scratch Postgres, non-BM system (no Sofar call possible). No
   console errors; the page JS parses under JavaScriptCore.
+
+### 9.13 H6 build record (2026-09-29)
+
+nickraymond/nereus-vision-dev#71 (draft, into `staging`, NOT merged), branch
+`feature/s6b-h6-video-fps` (from staging a2721d3; no migration). Nick's rulings, 2026-09-29:
+- which config: the one in force at capture (the latest sighting at or before the media-key
+  time, else the latest);
+- no `video.send.fps` known → no fps (never guessed);
+- the label is capture telemetry `video_fps_source: config:<hash>`.
+
+Suite 49/49; the §11 main/v9 wire rows are byte-identical. A local D+L+H6 merge (never
+pushed) passes 56/56.
+
+- **Independent code review:** 1 MAJOR, 2 MINOR, all fixed.
+  - The MAJOR: a START arriving while the clip was still partial left the snapshot label next
+    to the START fps.
+  - A mutant without the fix fails the new test.
+- **Known limits:**
+  - `video.send.fps` is a `trg` one-shot key, so an fps-overridden clip plays at the snapshot
+    rate (labelled).
+  - A sighting from the clip's own wake counts as after capture (per the ruling).
+  - A chunk-born group missing chunk 0 in its first window is stored as a still
+    (pre-existing).
+  - Old START-lost clips are not backfilled.
