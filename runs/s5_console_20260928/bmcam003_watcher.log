@@ -1,0 +1,33 @@
+[watcher] start 20260928T163546Z
+[watcher] reachable at 16:36:57Z after 13 polls
+[watcher] SIGTERM sent to cycle
+1309 bash -c set -u B=/home/pi/s5bench/backup; A=/home/pi/BM_Devel_Pi; mkdir -p $B crontab -l > $B/crontab_ARMED.txt 2>/dev/null crontab -l | sed 's|^@reboot \(.*rc_run_capture_cycle\.sh\)$|# DISABLED s5bench 20260928T163546Z: @reboot \1|' | crontab - pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jp[e]g.py' && echo '[watcher] SIGTERM sent to cycle' || echo '[watcher] no cycle process' sleep 2 pgrep -af '[r]c_progressive|[r]c_run_capture|[r]picam|[f]fmpeg' || echo '[watcher] no camera procs' echo '--- crontab now'; crontab -l | grep -n reboot for f in bm_command_state.json camera_schedule.yaml camera_schedule.v1.yaml camera_config.yaml camera_config.lkg.json bm_command_state_v2.json config_journal.jsonl software_sha.txt; do [ -f $A/$f ] && cp -p $A/$f $B/; done ls -la $B echo '--- survey'; hostname; uptime; date -u echo '--- deployed sha'; cat $A/software_sha.txt echo '--- repo'; git -C /home/pi/repos/bm_cam_legacy log --oneline -1; git -C /home/pi/repos/bm_cam_legacy status --short | head echo '--- config'; cd $A && python3 rc_progressive_jp[e]g.py --print-config 2>&1 | grep -E '^\[CFG\]' | head -6 echo '--- SD'; df -h / | tail -1; echo '--- service key'; ls -la /home/pi/.config/nereus/service.key 2>&1 
+--- crontab now
+1:# DISABLED s5bench 20260928T163546Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+total 48
+drwxrwxr-x 2 pi pi 4096 Sep 28 16:37 .
+drwxrwxr-x 3 pi pi 4096 Sep 28 16:36 ..
+-rw-rw-r-- 1 pi pi  279 Sep 25 23:01 bm_command_state.json
+-rw-r--r-- 1 pi pi  675 Sep 28 16:01 bm_command_state_v2.json
+-rw-r--r-- 1 pi pi 3193 Sep 27 22:10 camera_config.lkg.json
+-rw-r--r-- 1 pi pi 6140 Sep 26 22:17 camera_config.yaml
+-rw-rw-r-- 1 pi pi 7867 Sep 26 00:16 camera_schedule.yaml
+-rw-r--r-- 1 pi pi 1040 Sep 27 21:02 config_journal.jsonl
+-rw-rw-r-- 1 pi pi   98 Sep 28 16:36 crontab_ARMED.txt
+-rw-rw-r-- 1 pi pi   13 Sep 27 21:02 software_sha.txt
+--- survey
+bmcam003
+ 16:37:00 up 0 min,  1 user,  load average: 2.02, 0.53, 0.18
+Mon 28 Sep 16:37:00 UTC 2026
+--- deployed sha
+cabb79f109bd
+--- repo
+cabb79f S3c review fixes: failing save_local action is not an uplink; commands required; heal slot per_boot
+--- config
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=62e0a1cb hv=1 registry=v4 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+--- SD
+/dev/mmcblk0p2  115G   87G   24G  79% /
+--- service key
+-rw------- 1 pi pi 65 Sep 26 00:17 /home/pi/.config/nereus/service.key
+[watcher] done 16:37:02Z

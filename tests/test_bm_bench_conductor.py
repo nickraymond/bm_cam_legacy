@@ -133,6 +133,43 @@ class Cycle(unittest.TestCase):
             s = C.summarize(cond.ledger)["BMCAM_003"]
             self.assertEqual((s["lost"], s["complete"]), (0, 1))
 
+    def test_every_cycle_publishes_a_fresh_heal_while_a_gap_stays_open(self):
+        # S5 F10 (24 h run 2026-09-28/29): one command held for up to 3 cycles healed
+        # ~1 clip per 90 min on bmcam003. Now: status of the last one, then a new one.
+        clock = FakeClock()
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
+            cond, backend, console = self.make(tmp, clock)
+            backend.heal_candidates = [{"media_id": 7, "media_key": "0dxaaa", "ranges": "1-2"}]
+            ids = iter([100300, 100301])
+            real = backend.call
+
+            def call(method, path, body=None):
+                if path.endswith("/heal-commands"):
+                    cid = next(ids)
+                    return 200, {"command_id": cid, "heals": [["0dxaaa", "1-2"]], "chunks": 2,
+                                 "media_ids": [7], "console_line":
+                                 f'bm pub bmcam/cmd {{"id":{cid},"c":"rsd","h":[["0dxaaa","1-2"]]}} 1 1'}
+                if "/missing" in path:
+                    return 200, {"ranges": "1-2"}                 # still missing, not arriving
+                return real(method, path, body)
+            backend.call = call
+            cond.heal_step("SPOT-X")
+            cond.heal_step("SPOT-X")
+            rsd = [p for p in console.published if '"c":"rsd"' in p]
+            self.assertEqual(len(rsd), 2)
+            self.assertIn('"id":100300', rsd[0])
+            self.assertIn('"id":100301', rsd[1])
+            with open(os.path.join(tmp, "events.jsonl")) as fh:
+                self.assertIn('"heal_status"', fh.read())
+
+    def test_no_heal_command_when_nothing_is_healable(self):
+        clock = FakeClock()
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
+            cond, backend, console = self.make(tmp, clock)
+            cond.heal_step("SPOT-X")
+            self.assertEqual(console.published, [])
+            self.assertIsNone(cond.heals["BMCAM_003"])
+
     def test_no_row_within_the_wait_is_lost(self):
         clock = FakeClock()
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):

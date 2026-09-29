@@ -9,13 +9,15 @@ Runs next to spotter_serial_monitor.py (same Pi, same log root), one thread per
 rig (Spotter -> backend device). The units run stay_on, trigger-only
 (mode.interval_s 0), transmit, on a HELD bus. Each cycle:
 
-  1. heal step (the heal driver's rules, bm_heal_driver.py): an outstanding heal
-     command whose media are all complete -> `healed`; published on HEAL_CYCLES
-     cycles without finishing -> `expired`; every unfinished media answering
-     409 still_arriving -> `waiting` (at most MAX_WAITS). No outstanding command ->
-     GET heal-candidates, POST heal-commands (the backend allocates the id). The
-     rsd is published BEFORE the trigger, so its chunks ride this cycle's action
-     ("sent N heal chunk(s) before START").
+  1. heal step, EVERY cycle (S5 F10, 2026-09-29): the last heal command's media
+     are checked (`healed` when all complete, else `heal_status`), then GET
+     heal-candidates and POST heal-commands (the backend allocates the id and packs
+     the CURRENT gaps; media still receiving chunks are not candidates). The unit keeps one
+     pending heal per key and a newer rsd replaces it (command_state_v9
+     record_heals), so a fresh command each cycle never duplicates work. The rsd
+     is published BEFORE the trigger, so its chunks ride this cycle's action
+     ("sent N heal chunk(s) before START"). The first 24 h run held one command
+     for up to 3 cycles: ~1 heal per 90 min, slower than bmcam003's losses.
   2. trigger: `bm pub bmcam/cmd {"id":<conductor id>,"c":"trg","v":2} 1 1` through
      the monitor's cmd.txt; the unit's console answer "OK id=<id>" confirms it
      (re-published with the SAME id up to PUBLISH_TRIES times; the unit dedupes).
@@ -77,10 +79,7 @@ CMD_TXT_WAIT_S = 20.0           # the monitor consumes cmd.txt within ~1 s
 MATCH_SLACK_S = 60.0            # captured_at is the Spotter clock; the trigger is ours
 MAX_ROW_WAIT_S = 45 * 60
 POLL_S = 60.0
-HEAL_CYCLES = 3
-MAX_WAITS = 2
 DONE_REASONS = ("complete", "nothing_missing")
-STILL_ARRIVING = "still_arriving"
 
 
 def utc_now():
@@ -300,19 +299,13 @@ class Conductor:
         cmd = self.heals.get(device)
         if cmd:
             status = self.media_status(cmd["media_ids"])
-            if all(r in DONE_REASONS for r in status.values()):
-                self.event(spotter, "healed", id=cmd["command_id"], media=status)
-                cmd = None
-            elif cmd["cycles"] >= HEAL_CYCLES:
-                self.event(spotter, "heal_expired", id=cmd["command_id"], media=status)
-                cmd = None
-            elif (all(r in DONE_REASONS or r == STILL_ARRIVING for r in status.values())
-                  and cmd.get("waits", 0) < MAX_WAITS):
-                cmd["waits"] = cmd.get("waits", 0) + 1
-                self.event(spotter, "heal_waiting", id=cmd["command_id"], media=status)
-                return
-        if cmd is None:
-            cmd = self.new_heal(spotter, device)
+            done = all(r in DONE_REASONS for r in status.values())
+            self.event(spotter, "healed" if done else "heal_status", id=cmd["command_id"],
+                       media=status, cycles=cmd["cycles"])
+        # S5 F10: a fresh command every cycle for the CURRENT gaps. The backend leaves
+        # out media still receiving chunks (still_arriving), so bytes in flight are not
+        # asked for twice; the unit keeps the newest heal per key.
+        cmd = self.new_heal(spotter, device)
         self.heals[device] = cmd
         if cmd is None:
             return

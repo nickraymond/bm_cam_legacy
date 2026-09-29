@@ -1,0 +1,28 @@
+2026-09-28T20:20:16Z conductor setup: hold both buses (Pis halted, armed)
+2026-09-28T20:21:02Z 2026-09-28T20:21:03.746Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T20:21:08Z 2026-09-28T20:21:10.363Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-09-28T20:21:12Z 2026-09-28T20:21:14.394Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T20:21:18Z 2026-09-28T20:21:19.472Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T20:21:24Z 2026-09-28T20:21:26.125Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-09-28T20:21:28Z 2026-09-28T20:21:29.523Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+inactive
+2026-09-28T20:29:56Z heal driver STOPPED for the conductor run (state.json.conductor)
+2026-09-28T20:30:05Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T20:30:08Z 2026-09-28T20:30:09.750Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T20:30:08Z 2026-09-28T20:30:09.757Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T20:30:08Z 2026-09-28T20:30:09.816Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 20:31:01 SUB 45.05 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T202943Z.log
+2026-09-28T20:31:05Z wake bmcam004 via bridge commit 0e582dd12c1e1480
+2026-09-28T20:31:09Z 2026-09-28T20:31:10.562Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T20:31:09Z 2026-09-28T20:31:10.570Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T20:31:09Z 2026-09-28T20:31:10.628Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 20:31:48 SUB 31.11 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T202959Z.log
+2026-09-28T20:32:57Z conductor STARTED: transient unit bm-bench-conductor, 24 h, min-interval 30, drain 120
+2026-09-28T22:35:18Z S6a session asked to merge nvd #65/#66/#67 (staging auto-deploy, 0016 DDL) during the loop; S5 session answered GO with a quiet window trigger+16..+28 min, one PR per window, pending Nick's confirmation
+2026-09-28T22:51:59Z nvd PR A #65 merged (be1f8a6): /M parser, key_collision rows not healed  [S6a session]
+2026-09-28T23:21:44Z nvd PR B #66 merged (6cbacb0): WS/START v9 fields; live 23:26:05Z  [S6a session]
+2026-09-28T23:52:22Z nvd PR C #67 merged (c5ad84a): command log, migration 0016, heal line cap 256 B; live 23:54:34Z  [S6a session]
+2026-09-28T23:55Z check: 22:40-23:55 no no_row / backend_error / cycle_error / no_ack; rows and heals kept flowing through all three deploys. Staging backup tag staging-backup-20260928-223531 (03272be).
+2026-09-28T23:55:45Z S6a confirmed: heal ids are per device, max(device)+1, never lower, FOR UPDATE + UNIQUE(device_id, command_id); every rsd in this run came from POST heal-commands for its own device (no reuse risk)
+2026-09-29T04:20Z S6a report (read-only staging): 55202 (0dxs4l, BMCAM_003) skipped every cycle, "missing 55 > max_chunks 40" -> never healable by heal-candidates as called (device ceiling 60) -> will count LOST. bmcam003 backlog growing: 6 of 10 media partial since 23:05Z (55219 24, 55270 15, 55278 8, 55237 7, 55253 6, 55245 2) + 55202; heals 100061 (00:06, 8 chunks, no <HL> seen), 100062 (01:37, 30), 100063 (03:10, 40). bmcam004: 1 outstanding (55260, 2 chunks). Not caused by the nvd merges. Nick: leave the test as is.
+2026-09-29T15:36:10Z conductor STOPPED early by Nick (gate failed; heal fixes next). summary_stopped.json + events + state pulled.

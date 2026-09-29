@@ -1,0 +1,50 @@
+{
+ "BMCAM_003": {
+  "triggers": 38,
+  "acked": 38,
+  "rows": 38,
+  "no_row": 0,
+  "complete": 24,
+  "complete_first_try": 5,
+  "healed": 19,
+  "lost": 14,
+  "lost_trigger_ids": [
+   2000636687,
+   2000640367,
+   2000644043,
+   2000653249,
+   2000658750,
+   2000662417,
+   2000666075,
+   2000667909,
+   2000673408,
+   2000680725,
+   2000682560,
+   2000684395,
+   2000691733,
+   2000695405
+  ],
+  "trigger_to_row_s_p50": 795.8,
+  "trigger_to_row_s_p95": 979.5,
+  "trigger_to_complete_s_p50": 6241.5,
+  "trigger_to_complete_s_p95": 19179.1
+ },
+ "BMCAM_004": {
+  "triggers": 38,
+  "acked": 38,
+  "rows": 38,
+  "no_row": 0,
+  "complete": 36,
+  "complete_first_try": 24,
+  "healed": 12,
+  "lost": 2,
+  "lost_trigger_ids": [
+   2000682671,
+   2000695523
+  ],
+  "trigger_to_row_s_p50": 796.6,
+  "trigger_to_row_s_p95": 977.2,
+  "trigger_to_complete_s_p50": 917.1,
+  "trigger_to_complete_s_p95": 8206.9
+ }
+}

@@ -1,0 +1,20 @@
+8e9cba959c6e18927412e6dea3b23fa4fd5b54f712d8e7160ec2b0945a608dde  camera_config.yaml
+ad63d90e14b1b4bb012cd6d4af87c9d653eea3027dfbbda618f08f366fbd20f6  bm_command_state_v2.json
+=== DRY-RUN
+[UPGRADE] /home/pi/BM_Devel_Pi/camera_config.yaml: registry v5, hash 580ce986
+[UPGRADE] video.storage.max_used_pct is the old name of storage.max_used_pct; re-migrate to rewrite it
+[UPGRADE] video.storage.min_free_gb is the old name of storage.min_free_gb; re-migrate to rewrite it
+[UPGRADE] video.storage.ring_dry_run is the old name of storage.ring_dry_run; re-migrate to rewrite it
+[UPGRADE] dry-run: would rewrite (same values, same hash); pass --write
+rc=0
+=== WRITE
+[UPGRADE] /home/pi/BM_Devel_Pi/camera_config.yaml: registry v5, hash 580ce986
+[UPGRADE] video.storage.max_used_pct is the old name of storage.max_used_pct; re-migrate to rewrite it
+[UPGRADE] video.storage.min_free_gb is the old name of storage.min_free_gb; re-migrate to rewrite it
+[UPGRADE] video.storage.ring_dry_run is the old name of storage.ring_dry_run; re-migrate to rewrite it
+[UPGRADE] rewritten (hash 580ce986 unchanged); old file kept as /home/pi/BM_Devel_Pi/camera_config.yaml.before_upgrade_20260928T163920Z
+rc=0
+-rw-r--r-- 1 pi pi 6990 Sep 28 16:39 camera_config.yaml
+-rw-r--r-- 1 pi pi 6140 Sep 26 22:17 camera_config.yaml.before_upgrade_20260928T163920Z
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=580ce986 hv=1 registry=v5 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)

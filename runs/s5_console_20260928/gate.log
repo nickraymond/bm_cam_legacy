@@ -1,0 +1,126 @@
+2026-09-28T16:38:03Z deploy development (expect 0f67784)
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+0f6778492c87
+2026-09-28T16:39:48Z re-armed + reboot for the armed production wake (held bus)
+c860749ec5136bf5
+inactive
+active
+2026-09-28T16:43:29Z heal driver STOPPED (state.json -> state.json.s5bench)
+2026-09-28T16:49:13Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T16:49:17Z 2026-09-28T16:49:18.460Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T16:49:17Z 2026-09-28T16:49:18.468Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T16:49:17Z 2026-09-28T16:49:18.523Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 16:50:07 SUB 42.37 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T164827Z.log
+2026-09-28T16:57:53Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T16:57:57Z 2026-09-28T16:57:58.808Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T16:57:57Z 2026-09-28T16:57:58.816Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T16:57:57Z 2026-09-28T16:57:58.871Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 16:58:49 SUB 43.25 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T165751Z.log
+2026-09-28T17:00:12Z wake3: skip_win WS cfg=55e424b4 up=6; hld 120 granted (bus_always_on cfm'd 51022)
+2026-09-28T17:21:21Z SIGTERM held run, deploy feature/sprint26-s5-console-proof 93501f2 (F7)
+stopped
+# DISABLED s5bench F7deploy: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-09-28T17:22:22Z re-armed + reboot on F7 (93501f2); expect trg 51081 still override at boot drain
+2026-09-28T17:28:15Z wake via commit; hld by console timing
+2026-09-28T17:48:12Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T17:48:16Z 2026-09-28T17:48:17.542Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T17:48:16Z 2026-09-28T17:48:17.550Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T17:48:16Z 2026-09-28T17:48:17.605Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 17:49:09 SUB 45.24 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T174809Z.log
+2026-09-28T17:54:32Z L9 revert: SIGTERM stay_on, clean halt, bus cycle -> guard boot 3
+2026-09-28T17:55:02Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T17:55:05Z 2026-09-28T17:55:07.082Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T17:55:05Z 2026-09-28T17:55:07.089Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T17:55:05Z 2026-09-28T17:55:07.144Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 17:55:58 SUB 44.60 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T175500Z.log
+2026-09-28T17:56:19Z L9 revert: second clean halt + bus cycle -> guard boot 4
+2026-09-28T17:56:48Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T17:56:52Z 2026-09-28T17:56:54.011Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T17:56:52Z 2026-09-28T17:56:54.019Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T17:56:52Z 2026-09-28T17:56:54.078Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 17:57:40 SUB 39.30 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T175646Z.log
+2026-09-28T17:59:54Z L9 stage: clean halt + bus cycle with power.halt.enabled staged
+2026-09-28T18:00:24Z wake bmcam003 via bridge commit c3c564b91856226c
+2026-09-28T18:00:27Z 2026-09-28T18:00:29.382Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T18:00:27Z 2026-09-28T18:00:29.390Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T18:00:28Z 2026-09-28T18:00:29.449Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 18:01:21 SUB 45.19 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T180022Z.log
+2026-09-28T18:16:51Z SIGTERM stay_on, deploy 7d30fea (F2+F8), leave disarmed
+2026-09-28T18:30:35Z restore schedule on SPOT-33507C (c3c564b91856226c)
+2026-09-28T18:30:38Z Succesfully sent config set msg
+2026-09-28T18:30:38Z 2026-09-28T18:30:39.632Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-09-28T18:30:44Z 2026-09-28T18:30:46.195Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T18:30:44Z 2026-09-28T18:30:46.203Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T18:30:44Z 2026-09-28T18:30:46.257Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+[restore] crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+[restore] no cycle running
+7d30fea5e6b8
+[restore] halt issued 18:27:39
+[restore] bmcam003 dark 18:31:55
+[bridgePowerControllerEnabled] 2026-09-28T18:31:57Z 2026-09-28T18:31:58.992Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+[sampleIntervalMs] 2026-09-28T18:32:01Z 2026-09-28T18:32:03.210Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+[sampleDurationMs] 2026-09-28T18:32:05Z 2026-09-28T18:32:07.027Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+state unchanged
+{'BMCAM_004': {'command_id': 100046, 'console_line': 'bm pub bmcam/cmd {"id":100046,"c":"rsd","h":[["0dx5ow","61-68,180-183"]]} 1 1', 'media_ids': [55074], 'wakes': 1, 'created_utc': '2026-09-28T16:00:00Z'}, 'BMCAM_003': {'command_id': 100055, 'console_line': 'bm pub bmcam/cmd {"id":100055,"c":"rsd","h":[["0dx8gy","146-153"]]} 1 1', 'media_ids': [55083], 'wakes': 1, 'created_utc': '2026-09-28T16:36:03Z'}}
+active
+2026-09-28T18:32:28Z heal driver STARTED
+2026-09-28T18:33:35Z bmcam004: hold SPOT-31593C bus ON (0e582dd12c1e1480)
+2026-09-28T18:33:37Z 2026-09-28T18:33:38.929Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-09-28T18:33:44Z 2026-09-28T18:33:45.164Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.753Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.761Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.816Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.824Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.828Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.832Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.835Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.839Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.843Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.847Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.851Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.855Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.859Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.867Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.871Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.875Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.878Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.882Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T18:33:51Z 2026-09-28T18:33:52.886Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-09-28T18:33:56Z 2026-09-28T18:33:57.617Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-09-28T18:35:04Z bmcam004 deploy feature/sprint26-s5-console-proof 7d30fea
+2026-09-28T18:36:06Z bmcam004 upgraded, re-armed, reboot for production wake (held bus)
+##### 18:37:56 PHASE A: wake, close the window at the boot drain, stage bus_always_on
+##### 18:49:55 PHASE A: wake, close the window at the boot drain, stage bus_always_on
+##### 18:51:46 PHASE L3 rejections
+##### 18:52:53 PHASE L11 console line length
+##### 18:53:05 PHASE L4 set/reset/CAS
+##### 18:53:36 PHASE B: next boot with bus_always_on in effect; hld 120
+##### 18:56:30 PHASE L5/L6 WB + trg kv both media
+##### 19:05:52 PHASE L7 per_boot save_local one-shots (F7: fire while held)
+##### 19:11:26 PHASE L12 signed service
+##### 19:12:10 PHASE L10 wap
+##### 19:13:32 PHASE L7 stay_on x4 + L9 revert across bus cycles
+##### 19:23:26 PHASE L9 stage across a bus cycle
+##### 19:25:05 PHASE restore: reset all -> per_boot baseline wake
+##### 19:33:07 PHASE ladder done; next: restore_schedule.sh bmcam004 0e582dd12c1e1480 SPOT-31593C
+2026-09-28T19:33:30Z wake bmcam004 via bridge commit 0e582dd12c1e1480
+2026-09-28T19:33:34Z 2026-09-28T19:33:35.742Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T19:33:34Z 2026-09-28T19:33:35.750Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T19:33:34Z 2026-09-28T19:33:35.804Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+[wake] 19:34:18 SUB 35.46 /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20260928T193319Z.log
+2026-09-28T19:42:14Z restore schedule on SPOT-31593C (0e582dd12c1e1480)
+2026-09-28T19:42:17Z Succesfully sent config set msg
+2026-09-28T19:42:17Z 2026-09-28T19:42:18.281Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-09-28T19:42:23Z 2026-09-28T19:42:24.867Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-09-28T19:42:23Z 2026-09-28T19:42:24.875Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-09-28T19:42:23Z 2026-09-28T19:42:24.929Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+[restore] crontab: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+624 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+7d30fea5e6b8
+[restore] halt issued 19:43:05
+[restore] bmcam004 dark 19:43:28
+[bridgePowerControllerEnabled] 2026-09-28T19:43:31Z 2026-09-28T19:43:32.410Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+[sampleIntervalMs] 2026-09-28T19:43:35Z 2026-09-28T19:43:36.625Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+[sampleDurationMs] 2026-09-28T19:43:39Z 2026-09-28T19:43:40.441Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-09-28T20:08:24Z stray hld 51090 (stale background job from 17:22) hit the 20:00 scheduled wake: clamped to 2 min, unit halted normally before the 20:10 cut
