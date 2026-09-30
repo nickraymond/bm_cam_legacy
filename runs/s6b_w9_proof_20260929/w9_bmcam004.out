@@ -1,0 +1,38 @@
+2026-09-30T02:29:32Z [bmcam004] start: disarm, back up, stop stay_on
+# DISABLED w9proof: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-09-30T02:29:34Z [bmcam004] development 3c1801d7a69c already deployed: skip
+2026-09-30T02:29:34Z [bmcam004] reset mode.run (stay_on process started directly; exit 72 expected)
+started
+CON  2026-09-30T02:29:45Z 1790735387.828 e6fe83ea6b4a2b7f, [bmcam004] OK id=63001 reset mode.run -> YAML cfg=580ce986
+CON  2026-09-30T02:29:45Z 1790735387.878 e6fe83ea6b4a2b7f, [bmcam004] OK id=63001 reset mode.run -> YAML (duplicate: original answer) cfg=580ce986
+exited
+overlay {}
+2026-09-30T02:29:58Z [bmcam004] proof clip: --bench-drop-chunks start,5,17
+started
+[KEY] media key 0dzwa7 from Spotter UTC 2026-09-30T02:30:07.492000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-30T02-30-05Z_video_5s.sent.json (183 msgs, chunks <I0dzwa7.n/183>)
+[VTX][BENCH] NOT sending chunk(s) [5, 17] (slots still paced)
+[VTX][BENCH] NOT sending START (slot still paced): the backend sees a START-lost media, key=0dzwa7, 183 chunks
+2026-09-30T02:30:37Z [bmcam004] key=0dzwa7 unit_sha=3600a0e372507c9e31917042a0aa153bebf432fe3ecdecfca1567b9a44ef7289
+2026-09-30T02:35:12Z [bmcam004] proof run halted
+2026-09-30T02:35:12Z [bmcam004] wait for the backend row and a settled missing set
+2026-09-30T03:01:15Z [bmcam004] row media_id=55608
+expected 183 received 181 missing 5,17 None
+2026-09-30T03:10:41Z [bmcam004] heal pass 1: {"id":100070,"c":"rsd","h":[["0dzwa7","5,17"]]}
+2026-09-30T03:10:43Z 2026-09-30T03:10:46.480Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+started
+[HEAL] sent 2 heal chunk(s) before START: 0dzwa7:[5, 17]
+2026-09-30T03:18:23Z [bmcam004] heal wake 1 halted
+2026-09-30T03:18:28Z [bmcam004] heal pass 2: {"id":100071,"c":"rsd","h":[["0dzwa7","5,17"]]}
+2026-09-30T03:18:30Z 2026-09-30T03:18:33.507Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+started
+[HEAL] sent 2 heal chunk(s) before START: 0dzwa7:[5, 17]
+2026-09-30T03:27:23Z [bmcam004] heal wake 2 halted
+2026-09-30T03:27:28Z [bmcam004] heal pass 3: {"id":100072,"c":"rsd","h":[["0dzwa7","5,17"]]}
+2026-09-30T03:27:30Z 2026-09-30T03:27:33.382Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+started
+[HEAL] sent 2 heal chunk(s) before START: 0dzwa7:[5, 17]
+2026-09-30T03:29:38Z [bmcam004] heal wake 3 halted
+2026-09-30T03:29:43Z [bmcam004] final row: 181 183 False BMCAM_004/bm_sofar/partial/2026/09/30/SPOT-31593C_BMCAM_004_20260930T023005Z_feb9d5b73161896f.partial.h264
+2026-09-30T03:29:45Z [bmcam004] backend_sha=e5c43b7252d6b8f6fe9d3cbb6c4b6e885c60480510a7c18d05196027b05bef71 unit_sha=3600a0e372507c9e31917042a0aa153bebf432fe3ecdecfca1567b9a44ef7289
+2026-09-30T03:29:45Z [bmcam004] W9 NOT YET (sha differs)

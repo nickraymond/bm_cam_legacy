@@ -1,0 +1,54 @@
+2026-09-29T17:58:09Z W9 proof bmcam003 start (Nick GO relayed by the S4w session). 1 h heal-fix run reported first.
+stopped
+# DISABLED w9proof: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+bm_command_state_v2.json
+camera_config.yaml
+config_journal.jsonl
+crontab_ARMED.txt
+software_sha.txt
+2026-09-29T18:02:49Z run 1: wrapper --bench-drop-chunks start,5,17 (per_boot, real halt, disarmed)
+2026-09-29T18:03:46Z run 1a aborted: the wrapper does not forward args ("$@" inside run_rc()); SIGTERM, no halt. run 1b: python directly under flock
+2026-09-29T18:41:47Z 55503 (0dz8um) settled: 176/185, missing 5,17,79-85 (5,17 bench; 79-85 real queue-full). rsd allocated via POST (media_ids [55503])
+2026-09-29T19:42:02Z heal pass 1 (100077): 55503 181/185 (5,17,83-85 healed; 79-82 lost again, queue full). Pass 2 allocated: {"id":100078,"c":"rsd","h":[["0dz8um","79-82"]]}
+2026-09-29T19:43Z heal pass 2 (100078, 79-82) sent before run 3's START
+2026-09-29T20:15:42Z bmcam003 W9 PASS: 55503 (0dz8um) 185/185 complete; stored h264 53219 B sha256 afd117a8151fd8661c0dad74af1defee85b65f4066cac234a2d3cff3fa638391 == unit sent record; START never sent; length from /M; heals 5,17,79-85 over 2 passes (pass 1 lost 79-82 to Spotter queue-full)
+2026-09-29T20:18:32Z [bmcam004] start: disarm, back up, stop stay_on
+# DISABLED w9proof: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-09-29T20:18:34Z [bmcam004] deploy development
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: 7d30fea5e6b8 -> 3c1801d7a69c | values: chunk=384 delay=1.3
+2026-09-29T20:19:14Z [bmcam004] reset mode.run (stay_on process started directly; exit 72 expected)
+2026-09-30T02:23:38Z [bmcam004] proof restart: script hung at 20:19 (waited for a line bmcam004 never printed); bmcam004 power-cut 02:08Z (mote re-added x3 on SPOT-31593C: 00:25, 01:37, 02:08)
+2026-09-30T02:23:39Z [bmcam004] start: disarm, back up, stop stay_on
+# DISABLED w9proof: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-09-30T02:23:41Z [bmcam004] development 3c1801d7a69c already deployed: skip
+2026-09-30T02:23:41Z [bmcam004] reset mode.run (stay_on process started directly; exit 72 expected)
+2026-09-30T02:29:32Z [bmcam004] start: disarm, back up, stop stay_on
+# DISABLED w9proof: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-09-30T02:29:34Z [bmcam004] development 3c1801d7a69c already deployed: skip
+2026-09-30T02:29:34Z [bmcam004] reset mode.run (stay_on process started directly; exit 72 expected)
+exited
+overlay {}
+2026-09-30T02:29:58Z [bmcam004] proof clip: --bench-drop-chunks start,5,17
+[KEY] media key 0dzwa7 from Spotter UTC 2026-09-30T02:30:07.492000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-09-30T02-30-05Z_video_5s.sent.json (183 msgs, chunks <I0dzwa7.n/183>)
+[VTX][BENCH] NOT sending chunk(s) [5, 17] (slots still paced)
+[VTX][BENCH] NOT sending START (slot still paced): the backend sees a START-lost media, key=0dzwa7, 183 chunks
+2026-09-30T02:30:37Z [bmcam004] key=0dzwa7 unit_sha=3600a0e372507c9e31917042a0aa153bebf432fe3ecdecfca1567b9a44ef7289
+2026-09-30T02:35:12Z [bmcam004] proof run halted
+2026-09-30T02:35:12Z [bmcam004] wait for the backend row and a settled missing set
+2026-09-30T03:01:15Z [bmcam004] row media_id=55608
+expected 183 received 181 missing 5,17 None
+2026-09-30T03:10:41Z [bmcam004] heal pass 1: {"id":100070,"c":"rsd","h":[["0dzwa7","5,17"]]}
+[HEAL] sent 2 heal chunk(s) before START: 0dzwa7:[5, 17]
+2026-09-30T03:18:23Z [bmcam004] heal wake 1 halted
+2026-09-30T03:18:28Z [bmcam004] heal pass 2: {"id":100071,"c":"rsd","h":[["0dzwa7","5,17"]]}
+[HEAL] sent 2 heal chunk(s) before START: 0dzwa7:[5, 17]
+2026-09-30T03:27:23Z [bmcam004] heal wake 2 halted
+2026-09-30T03:27:28Z [bmcam004] heal pass 3: {"id":100072,"c":"rsd","h":[["0dzwa7","5,17"]]}
+[HEAL] sent 2 heal chunk(s) before START: 0dzwa7:[5, 17]
+2026-09-30T03:29:38Z [bmcam004] heal wake 3 halted
+2026-09-30T03:29:43Z [bmcam004] final row: 181 183 False BMCAM_004/bm_sofar/partial/2026/09/30/SPOT-31593C_BMCAM_004_20260930T023005Z_feb9d5b73161896f.partial.h264
+2026-09-30T03:29:45Z [bmcam004] backend_sha=e5c43b7252d6b8f6fe9d3cbb6c4b6e885c60480510a7c18d05196027b05bef71 unit_sha=3600a0e372507c9e31917042a0aa153bebf432fe3ecdecfca1567b9a44ef7289
+2026-09-30T03:29:45Z [bmcam004] W9 NOT YET (sha differs)
+2026-09-30T03:35:58Z [bmcam004] W9 PASS: 55608 (0dzwa7) 183/183; stored h264 52599 B sha256 3600a0e3...7289 == unit sent record
