@@ -65,10 +65,10 @@ class Wrapper(unittest.TestCase):
                         BMCAM_SLEEP=os.path.join(self.dir, "sleep"),
                         BMCAM_STAY_ON_MARKER=self.marker)
 
-    def wrap(self, steps):
+    def wrap(self, steps, args=()):
         with open(os.path.join(self.dir, "steps"), "w", encoding="utf-8") as fh:
             fh.write("\n".join(str(s) for s in steps) + "\n")
-        proc = subprocess.run(["bash", WRAPPER], env=self.env, timeout=60)
+        proc = subprocess.run(["bash", WRAPPER, *args], env=self.env, timeout=60)
         return proc.returncode
 
     def read(self, name):
@@ -112,6 +112,19 @@ class Wrapper(unittest.TestCase):
         os.remove(os.path.join(self.dir, "count"))
         self.assertEqual(self.wrap(["kill137", 0]), 137)   # per_boot death: done
         self.assertEqual(len(self.read("calls")), 1)
+
+    def test_script_args_reach_every_runtime_start(self):
+        # Sprint26 close-out: "$@" inside run_rc() was the function's (empty) args, so
+        # `rc_run_capture_cycle.sh --bench-drop-chunks start,5,17` ran without them
+        # (S6b W9 proof run 1a, 2026-09-29). Cron passes none: see the per_boot test.
+        self.assertEqual(self.wrap([70, 0], ["--bench-drop-chunks", "start,5,17"]), 0)
+        self.assertEqual(self.read("calls"),
+                         ["-u rc_progressive_jpeg.py --transmit --bench-drop-chunks start,5,17"] * 2)
+
+    def test_script_args_come_before_crashloop(self):
+        self.wrap([70] * 6 + [0, 0], ["--bench-drop-chunks", "5"])
+        self.assertEqual(self.read("calls")[-1],
+                         "-u rc_progressive_jpeg.py --transmit --bench-drop-chunks 5 --crashloop")
 
     def test_crash_loop_falls_back_once(self):
         code = self.wrap([70] * 6 + [0, 0])
