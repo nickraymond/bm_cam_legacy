@@ -845,3 +845,97 @@ pushed) passes 56/56.
   - A chunk-born group missing chunk 0 in its first window is stored as a still
     (pre-existing).
   - Old START-lost clips are not backfilled.
+
+### 9.14 S6b HIL test plan (approved by Nick 2026-09-29; sent to the S5 bench owner)
+
+**Roles.**
+- **The bench owner** has hands on the rigs: nereus000, the consoles, Sofar sends from
+  nereus000, the conductor and bm-heal-driver.
+- **The backend** sends only through its own code once the flags are set.
+- **S6b (this session)** calls each step, watches staging read-only through the APIs, checks
+  the pass criteria, and says go or stop.
+- **Nick** merges and sets the Render env.
+
+Rigs: BMCAM_003 on SPOT-33507C, BMCAM_004 on SPOT-31593C, both on development 3c1801d (W9).
+
+**H0 — merges (Nick), in bench quiet windows. Nothing is enabled.**
+1. Merge #69 (migration 0017). Check:
+   - `alembic_version = 20260929_0017`;
+   - no long-held lock in `pg_stat_activity`;
+   - the next cron summary has `heal_autosend: {"enabled": false}`;
+   - 0 non-200 polls;
+   - CAM_0003 gallery/logs unchanged.
+2. Merge #70 and #71, in any order. Check that logs.html for SPOT-33507C / BMCAM_003 loads,
+   with command / config / heal_request rows, and that CAM_0003 is unchanged.
+3. S6b opens the D+L follow-up PR (send-log rows on command-events). Nick merges it.
+
+Env at the end of H0: nothing set. `BM_HEAL_AUTOSEND` and `BM_COMMAND_SEND` are unset.
+
+**H1 — read-only checks after the merges (S6b).**
+- logs.html shows the conductor's heals as "sent outside the backend (console / tool)", plus
+  the `<HL>` answers, and any bench-GUI remote ids as observed commands.
+- H6 applies only to clips ingested after #71 is live. Check any START-lost clip on either rig:
+  - a `video.send.fps` known under the config in force → `media.fps` + telemetry
+    `video_fps_source=config:<hash>` + an mp4;
+  - else no fps (expected).
+  - To make the rate known, the unit must have reported it in a `<CF>`: one cellular-lane
+    `get video.send.fps` (a remote-range id, no `"to":"con"`) through the bench owner's
+    Sofar lane.
+
+**H2 — Sofar lane calibration (bench owner; PLAN_S6 §5 step 3, shortened).**
+- At least 3 heals via Sofar from nereus000: `POST …/heal-commands`, then its `send_with`
+  line.
+- Record for each: t_post, t_console (the rsd line on the console), t_hl (the `<HL>` row's
+  time at the backend).
+- Continue to 10 over about 10 h if time allows.
+- **Output:** `REASK_S` = 5400 (the default), unless the largest observed t_hl − t_post is
+  above it. Then use that value rounded up to the next 15 min.
+- The console / Sofar heal step stops at the end of H2.
+
+**H3 — before auto-send (bench owner).**
+- Conductor heal step OFF (or the conductor stopped; console triggers may continue). While
+  its heal step still runs, the conductor gets 409 `autosend_active`.
+- bm-heal-driver stopped.
+- No Mac CLI / GUI Sofar sends to SPOT-33507C / SPOT-31593C. The backend's 65 s guard cannot
+  see them.
+- The walk holds off (`other_sender_active`) until the last API heal of the device is older
+  than REASK_S. Stopping the heal step ≥ REASK_S before H4 avoids the wait.
+
+**H4 — auto-send ON (Nick sets the Render env).**
+- **Cron service:**
+  - `BM_HEAL_AUTOSEND=1`;
+  - `BM_HEAL_AUTOSEND_DEVICES=BMCAM_003,BMCAM_004`;
+  - `BM_HEAL_AUTOSEND_MAX_PER_DAY=96`;
+  - `BM_HEAL_AUTOSEND_REASK_S=<from H2>`.
+- **Web service:** `BM_HEAL_AUTOSEND_REASK_S=<same>`.
+- `BM_COMMAND_SEND` stays unset.
+- The token is the gateways' `token_env_var` (SOFAR_API_TOKEN_BM_REEF), already on the cron
+  service for polling. The first send proves it for command POSTs: 202 = good,
+  `send_auth_failed` = stop.
+- The bench owner triggers clips on the console as usual. Losses come naturally (S5 F1), or
+  from the bench-only `--bench-drop-chunks` flag.
+- **Pass (R4 gate), per rig:**
+  1. a real loss is healed end-to-end by the backend alone:
+     - a `[heal_autosend] … decision=sent http=202` cron line;
+     - the rsd on the console;
+     - `<HL a=sent r=ok>`;
+     - the media row complete;
+  2. every key sent has `received_age_s ≥ 600` in its `[heal_autosend]` line;
+  3. no `other_sender_active` and no 409 `autosend_active` after H3;
+  4. no key is asked twice within REASK_S unless released by `<HL a=sent r=ok>` or
+     `a=dropped` (sofar_command_sends + heal_commands);
+  5. no Sofar 400 "Too many requests" on the backend's sends;
+  6. logs.html shows each heal "sent via sofar 202" with its camera answer.
+- **Stop / rollback:** remove `BM_HEAL_AUTOSEND` on cron; it takes effect the next tick. The
+  conductor may heal again REASK_S after the last auto-send.
+
+**H5 — backend command send (optional, after H4 passes; one Spotter).**
+- **Web:** `BM_COMMAND_SEND=1`, `BM_COMMAND_SEND_DEVICES=BMCAM_003`.
+- `POST /admin/devices/BMCAM_003/commands {"c":"ping"}` → `POST …/{id}/send` → 202.
+- **Pass:** the ack arrives and the status is `answered` on logs.html.
+- Then one `set` of a harmless key (e.g. `video.send.duration_s` at its current value) →
+  `saved` → `in_effect`.
+- Unset `BM_COMMAND_SEND` after.
+- Avoid sending to the same Spotter within 65 s of any other Sofar send.
+
+**Then:** the §5 step 8 24 h loop (R5) with the conductor (heal step off) and auto-send.
