@@ -350,8 +350,11 @@ class Dispatcher:
                 self._validate(cmd, new_overlay, staged)        # review #6: as it is NOW
             except W.Rejected as rej:
                 return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
+        # S5 F3: a staged value is applied now but governs from the next
+        # decision point (next action) or the next boot, like `set` says.
         text = f"cfm {ref}: " + ", ".join(
-            f"{p} {'applied' if p in staged else 'confirmed'}" for p in sorted(pending))
+            (f"{p} applied ({'next boot' if R.BY_PATH[p].apply == R.NEXT_BOOT else 'next action'})"
+             if p in staged else f"{p} confirmed") for p in sorted(pending))
         event = self._applied(cmd, text, mutate=lambda st: G.confirm(st, ref))
         self._change_summary(cmd, event)
         return event
