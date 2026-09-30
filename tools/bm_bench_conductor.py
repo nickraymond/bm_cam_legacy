@@ -231,7 +231,7 @@ class Console:
 
 class Conductor:
     def __init__(self, run_dir, backend, consoles, rigs, *, hours, min_interval_s, drain_s,
-                 clock=time.time, sleep=time.sleep):
+                 clock=time.time, sleep=time.sleep, heal=True):
         self.run_dir = run_dir
         self.backend = backend
         self.consoles = consoles            # {spotter: Console}
@@ -239,6 +239,7 @@ class Conductor:
         self.hours = hours
         self.min_interval_s = min_interval_s
         self.drain_s = drain_s
+        self.heal = heal                    # False (--no-heal): another heal sender is live
         self.clock = clock
         self.sleep = sleep
         self.lock = threading.Lock()
@@ -361,7 +362,8 @@ class Conductor:
     # --- one rig -------------------------------------------------------------------
     def cycle(self, spotter):
         device = self.rigs[spotter][0]
-        self.heal_step(spotter)
+        if self.heal:
+            self.heal_step(spotter)
         t0 = self.clock()
         tid = conductor_id(t0)
         rec = {"trigger_id": tid, "trigger_utc": utc_now(), "trigger_unix": t0}
@@ -402,7 +404,8 @@ class Conductor:
         while self.clock() < drain_end_unix and any(
                 not r.get("complete_utc") and r.get("media_id") for r in self.ledger[device]):
             try:
-                self.heal_step(spotter)
+                if self.heal:
+                    self.heal_step(spotter)
                 self.refresh(spotter, self.rows(device))
             except Exception as exc:
                 self.event(spotter, "cycle_error", error=f"{type(exc).__name__}: {exc}")
@@ -441,6 +444,9 @@ def main():
     ap.add_argument("--hours", type=float, default=24.0)
     ap.add_argument("--min-interval", type=float, default=30.0, help="minutes between triggers")
     ap.add_argument("--drain-min", type=float, default=120.0)
+    ap.add_argument("--no-heal", action="store_true",
+                    help="triggers only: another heal sender is live (Sofar lane, backend "
+                         "auto-send, PLAN_S6 §9.14); never two heal senders at once")
     ap.add_argument("--env-file", default=os.path.expanduser("~/.config/nereus/heal_driver.env"))
     ap.add_argument("--api", default=DEFAULT_API)
     ap.add_argument("--report", metavar="RUN_DIR")
@@ -462,9 +468,11 @@ def main():
         threading.Thread(target=c.follow, args=(stop,), name=f"follow-{s}", daemon=True).start()
     conductor = Conductor(run_dir, Backend(args.api, read_token(args.env_file)), consoles, rigs,
                           hours=args.hours, min_interval_s=args.min_interval * 60,
+                          heal=not args.no_heal,
                           drain_s=args.drain_min * 60)
     for s in rigs:
         conductor.event(s, "conductor_start", run_dir=run_dir, hours=args.hours,
+                        heal=not args.no_heal,
                         min_interval_min=args.min_interval, api=args.api)
     time.sleep(2)                        # let the followers reach the end of the logs
     summary = conductor.run()
