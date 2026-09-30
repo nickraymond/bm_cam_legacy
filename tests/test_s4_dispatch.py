@@ -300,8 +300,24 @@ class Get(unittest.TestCase):
         r.lines()
         r.send({"id": 1_000_002, "c": "get", "k": ["journal"]})
         self.assertEqual(len(r.daemon._acks), 1)
-        self.assertTrue(any("still.message_cap: none -> 150" in line   # journal: overlay old
-                            for line in r.lines()))
+        base = r.base["still.message_cap"]
+        lines = r.lines()
+        # S5 F4: the journal shows the effective old value (the YAML's), not the
+        # overlay's own "none"; a reset logs the value it falls back to
+        self.assertFalse(any("still.message_cap: none -> 150" in line for line in lines))
+        self.assertTrue(any(f"still.message_cap: {base} -> 150" in line for line in lines),
+                        lines)
+        r.send({"id": 1_000_003, "c": "reset", "k": ["m"]})
+        r.lines()
+        r.send({"id": 1_000_004, "c": "get", "k": ["journal"]})
+        self.assertTrue(any(f"still.message_cap: 150 -> {base}" in line for line in r.lines()))
+
+    def test_journal_of_a_key_already_in_the_overlay(self):
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 150}},
+               {"id": 1_000_002, "c": "set", "kv": {"m": 160}})
+        self.assertEqual([(e["old"], e["new"]) for e in r.journal()
+                          if e["key"] == "still.message_cap"][-1], (150, 160))
 
     def test_change_summary_after_set_and_reset(self):
         r = Rig(self)

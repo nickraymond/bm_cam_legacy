@@ -120,9 +120,13 @@ class Dispatcher:
 
     def _persist(self, cid, rng, answer, mutate=None, source=None):
         """One transaction: the verb's change + the cached answer + the
-        high-water. Journal after the persist. Raises on a write failure."""
+        high-water. Journal after the persist. Raises on a write failure.
+        The journal's old/new are the EFFECTIVE values (YAML + overlay), the
+        ones the console answer shows (S5 F4: it logged the overlay's own
+        value, `none -> 03:00` for a key the YAML had at 00:00)."""
         done = []
         hw = []
+        before = self.effective() if mutate is not None else None
 
         def m(st):
             if mutate is not None:
@@ -134,8 +138,11 @@ class Dispatcher:
                 if st.high_water.get(rng) != old:
                     hw.append((old, st.high_water[rng]))
         self.state.transaction(m)
+        after = self.effective() if done else None
         for path, old, new in done:
             if isinstance(path, str) and "." in path:
+                if path in before:
+                    old, new = before.get(path), after.get(path)
                 self.state.journal(source or rng or "unknown", path, old, new, cid)
         for old, new in hw:
             # S4b review #5: the journal survives a lost state file; this line
