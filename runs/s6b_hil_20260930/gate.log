@@ -1,0 +1,18 @@
+2026-10-01T05:13:01Z [bmcam004] wake 1 (bus cycle)
+2026-10-01T05:13:01Z [bmcam003] wake 1 (bus cycle)
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-01T05:14:07Z [bmcam004] waiting for the per_boot wake to halt
+2026-10-01T05:14:14Z [bmcam003] waiting for the per_boot wake to halt
+2026-10-01T05:21:52Z [bmcam004] wake 2 (bus cycle) -> cron -> stay_on
+2026-10-01T05:22:09Z [bmcam003] wake 2 (bus cycle) -> cron -> stay_on
+[RUNTIME] supervisor (source=config (v2))
+[SUP] stay_on: media=video interval_s=0 (trigger-only) heartbeat_s=300
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+3c1801d7a69c
+2026-10-01T05:22:42Z [bmcam004] H3 armed: stay_on, trigger-only, held bus
+[RUNTIME] supervisor (source=config (v2))
+[SUP] stay_on: media=video interval_s=0 (trigger-only) heartbeat_s=300
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+3c1801d7a69c
+2026-10-01T05:23:06Z [bmcam003] H3 armed: stay_on, trigger-only, held bus
