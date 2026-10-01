@@ -1,0 +1,18 @@
+test_apply_renders_and_reresolve_follows_the_state (tests.test_s4_supervisor_config.ApplyAndReresolve.test_apply_renders_and_reresolve_follows_the_state) ... ok
+test_not_migrated_is_untouched (tests.test_s4_supervisor_config.ApplyAndReresolve.test_not_migrated_is_untouched) ... ok
+test_migrated (tests.test_s4_supervisor_config.Gate.test_migrated) ... ok
+test_apply_recreates_the_render_dir (tests.test_s4_supervisor_config.RenderDirVanishes.test_apply_recreates_the_render_dir) ... ok
+test_reresolve_recreates_the_render_dir (tests.test_s4_supervisor_config.RenderDirVanishes.test_reresolve_recreates_the_render_dir) ... ok
+test_stay_on_settings_fn_picks_up_the_set (tests.test_s4_supervisor_config.RenderDirVanishes.test_stay_on_settings_fn_picks_up_the_set) ... ok
+test_bad_overlay_value_dropped (tests.test_s4_supervisor_config.Resolve.test_bad_overlay_value_dropped) ... ok
+test_base_failure_is_logged_not_dropped (tests.test_s4_supervisor_config.Resolve.test_base_failure_is_logged_not_dropped) ... ok
+test_dev_mode_dry_run_survives_an_unrelated_bad_key (tests.test_s4_supervisor_config.Resolve.test_dev_mode_dry_run_survives_an_unrelated_bad_key) ... ok
+test_drop_only_the_overlay_key (tests.test_s4_supervisor_config.Resolve.test_drop_only_the_overlay_key) ... ok
+test_overlay_applies (tests.test_s4_supervisor_config.Resolve.test_overlay_applies) ... ok
+test_protected_unless_primary (tests.test_s4_supervisor_config.Resolve.test_protected_unless_primary) ... ok
+test_roi5_runs_with_a_derived_width (tests.test_s4_supervisor_config.Resolve.test_roi5_runs_with_a_derived_width) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.524s
+
+OK

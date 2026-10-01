@@ -132,6 +132,27 @@ def render_values(values):
     return config_v2.render_v1_text(out)
 
 
+def write_render(render_path, text, announce=print):
+    """Rewrite the tmpfs render, recreating its directory if it vanished.
+
+    The render dir (/dev/shm/bmcam) is made once at boot by config_v2.render_dir(),
+    but tmpfs content owned by pi does not live as long as the process:
+    systemd-logind's RemoveIPC (default yes on Debian / Pi OS) deletes all of
+    pi's /dev/shm entries when pi's LAST login session ends (an ssh logout).
+    The cron-started supervisor is not a login session, so it does not hold
+    them. Without this, every later re-resolve failed in mkstemp
+    (FileNotFoundError naming the .camera_schedule.yaml.*.tmp file) and the
+    unit ran its boot settings forever (2026-10-01, bmcam003/004 stay_on).
+    """
+    import atomic_io
+    d = os.path.dirname(os.path.abspath(render_path))
+    if not os.path.isdir(d):
+        os.makedirs(d, exist_ok=True)
+        announce(f"[CFG][WARN] render dir {d} was gone (tmpfs cleared: logind RemoveIPC?); "
+                 "recreated")
+    atomic_io.write_text(render_path, text)
+
+
 def apply(boot, render_path, env=None, announce=print):
     """Boot: resolve the effective config and rewrite the render the v1
     loaders read. -> Effective, or None when this is not the v9 path (no v2
@@ -143,8 +164,7 @@ def apply(boot, render_path, env=None, announce=print):
     eff = resolve(base, state, env=env)
     for line in eff.lines:
         announce(line)
-    import atomic_io
-    atomic_io.write_text(render_path, render_values(eff.values))
+    write_render(render_path, render_values(eff.values), announce)
     announce(f"[CFG] supervisor runs the effective config: base ⊕ {len(eff.overlay)} "
              f"overlay key(s) hash={eff.hash} (render {render_path})")
     return eff
@@ -163,8 +183,7 @@ def make_reresolve(base, render_path, resolve_settings, carry=("video",), env=No
         eff = resolve(base, state, env=env)
         for line in eff.lines:
             announce(line)
-        import atomic_io
-        atomic_io.write_text(render_path, render_values(eff.values))
+        write_render(render_path, render_values(eff.values), announce)
         fresh = resolve_settings(render_path)
         for key in carry:
             if key in current:
