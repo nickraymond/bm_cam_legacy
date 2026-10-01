@@ -169,6 +169,68 @@ class TestBootSweep(RecorderDirMixin, unittest.TestCase):
             self.assertEqual(vr.sweep_boot_debris(self.dir), 0)
 
 
+CONTROLS = {"enabled": True, "exposure": {"enabled": True, "ev": -1.0},
+            "image_processing": {"enabled": True, "denoise": "cdn_fast"}}
+
+
+def make_controls_run_fn(calls, fail_with_controls=True, fail_without=False):
+    """Encoder fails when the argv carries camera-control flags (and/or without)."""
+    base = make_run_fn()
+
+    def run_fn(argv, timeout_s):
+        calls.append(list(argv))
+        out = argv[argv.index("-o") + 1] if "-o" in argv else argv[-1]
+        if out.endswith(".h264.part"):
+            has_controls = "--ev" in argv
+            if (has_controls and fail_with_controls) or (not has_controls and fail_without):
+                return 1, 0.4
+        return base(argv, timeout_s)
+    return run_fn
+
+
+class TestControlsRetry(RecorderDirMixin, unittest.TestCase):
+    """Sprint27 (Nick 2026-10-01): a camera-control value rpicam-vid refuses must
+    never lose the clip: one retry WITHOUT camera controls."""
+
+    def test_refused_controls_retry_once_without_them(self):
+        calls = []
+        result, log = self._record(make_controls_run_fn(calls), controls=CONTROLS)
+        encodes = [c for c in calls if c[0] == "/fake/libcamera-vid"]
+        self.assertEqual(len(encodes), 2)
+        self.assertIn("--ev", encodes[0])
+        self.assertNotIn("--ev", encodes[1])
+        self.assertNotIn("--denoise", encodes[1])
+        self.assertTrue(result["ok"], log)
+        self.assertTrue(result["requested_controls"]["controls_dropped"])
+        self.assertEqual(result["requested_controls"]["controls_dropped_rc"], 1)
+        self.assertIn("retrying", log)
+
+    def test_no_controls_no_retry(self):
+        calls = []
+        result, _log = self._record(make_controls_run_fn(calls, fail_without=True))
+        encodes = [c for c in calls if c[0] == "/fake/libcamera-vid"]
+        self.assertEqual(len(encodes), 1)
+        self.assertFalse(result["ok"])
+
+    def test_retry_also_fails_drops_clip_cleanly(self):
+        calls = []
+        result, _log = self._record(make_controls_run_fn(calls, fail_without=True), controls=CONTROLS)
+        encodes = [c for c in calls if c[0] == "/fake/libcamera-vid"]
+        self.assertEqual(len(encodes), 2)
+        self.assertFalse(result["ok"])
+        self.assertEqual(self._names(), [])          # no debris
+
+    def test_controls_accepted_single_encode(self):
+        calls = []
+        result, _log = self._record(make_controls_run_fn(calls, fail_with_controls=False),
+                                    controls=CONTROLS)
+        encodes = [c for c in calls if c[0] == "/fake/libcamera-vid"]
+        self.assertEqual(len(encodes), 1)
+        self.assertIn("--ev", encodes[0])
+        self.assertTrue(result["ok"])
+        self.assertNotIn("controls_dropped", result["requested_controls"])
+
+
 class TestClipPipeline(RecorderDirMixin, unittest.TestCase):
     def test_happy_path_atomic_finals_only(self):
         result, log = self._record(make_run_fn())

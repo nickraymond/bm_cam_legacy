@@ -1451,8 +1451,7 @@
    "help": "Manual [red, blue] gains.",
    "limits": {
     "max_each": 8.0,
-    "proposal": true,
-    "why": "the registry has no upper bound and the gains go straight into rpicam argv (stills and video)"
+    "why": "no registry upper bound; the gains go straight into rpicam argv (Nick 2026-10-01)"
    },
    "media": null,
    "nullable": true,
@@ -2067,9 +2066,9 @@
    "guard_when": null,
    "help": "Most messages one still may use.",
    "limits": {
-    "max": 300,
-    "warn_above": 195,
-    "why": "largest registry preset is 300; production 195"
+    "max": 500,
+    "warn_above": 300,
+    "why": "cellular cost (Nick 2026-10-01)"
    },
    "media": "still",
    "nullable": false,
@@ -2122,9 +2121,8 @@
    "help": "Cycle budget for a still action (min).",
    "limits": {
     "max": 30,
-    "proposal": true,
     "warn_above": 18,
-    "why": "largest registry preset is 16; production 18"
+    "why": "battery: minutes awake (Nick 2026-10-01)"
    },
    "media": "still",
    "nullable": false,
@@ -2629,10 +2627,9 @@
    "guard_when": null,
    "help": "Most messages one clip may use.",
    "limits": {
-    "max": 200,
-    "proposal": true,
-    "warn_above": 126,
-    "why": "no registry preset; production 126 (bench 190)"
+    "max": 500,
+    "warn_above": 300,
+    "why": "cellular cost (Nick 2026-10-01)"
    },
    "media": "video",
    "nullable": false,
@@ -2752,9 +2749,8 @@
    "help": "Cycle budget for a video action (min).",
    "limits": {
     "max": 30,
-    "proposal": true,
     "warn_above": 18,
-    "why": "production 18 (bench 8)"
+    "why": "battery: minutes awake (Nick 2026-10-01)"
    },
    "media": "video",
    "nullable": false,
@@ -3766,7 +3762,7 @@
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "246207d9b50e9ef75e9cc6bc622a0869ae335f842a8b7d5b71a43f3392e37959",
+ "sha256": "daea846235aa5a210e0ffd9baf9e53592230c4d241f0330699260ac127e38ef3",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",

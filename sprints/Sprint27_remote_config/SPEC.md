@@ -118,15 +118,14 @@ blocked_values, requires` (enable switches that gate it), `limits` (backend clam
 Blocked **values** of control keys: `mode.media=video_logger`, `mode.output=save_local` (cfm
 flow = Next sprint), `""` for the encoder enums (cannot cross the wire: use `reset`).
 
-**Backend clamps** (REVIEW_r1 round 2 C; Nick decides, Q7):
+**Backend clamps** (decided by Nick 2026-10-01, Q7):
 
 | key | refuse above | warn above | note |
 |---|---|---|---|
-| `still.message_cap` | 300 | 195 | largest registry preset 300 |
-| `video.send.message_cap` | 200 (**proposal**) | 126 | no registry preset |
-| `still.budget_min`, `video.send.budget_min` | 30 (**proposal**) | 18 | largest still preset 16 |
+| `still.message_cap`, `video.send.message_cap` | 500 | 300 | Nick Q7 (2026-10-01) |
+| `still.budget_min`, `video.send.budget_min` | 30 | 18 | Nick Q7 |
 | `still.quality_ladder` | 4 rungs | — | wire lists ≤ 4 |
-| `camera.white_balance.gains` | 8.0 each (**proposal**) | — | no registry upper bound; into rpicam argv |
+| `camera.white_balance.gains` | 8.0 each | — | Nick Q7; no registry upper bound; into rpicam argv |
 
 Warnings: `mode.interval_s` / `heartbeat_s` below 600 s; `video.send.duration_s` ≠ 5 (only 5 s
 ladder-validated).
@@ -404,3 +403,14 @@ Work (after the probe P0 in `LADDER.md`):
 Desk total ≈ 7.5 h after the probe; bench: P0 probe ≈ 1 h (Test Engineer), IP ladder ≈ 1.5 h.
 Recommendation: include the video fallback — it is the only change that makes "never lose clips"
 hold for values rpicam accepts at parse time but fails at run time.
+
+### 9.2 Remaining rulings (2026-10-01, second relay)
+
+| item | ruling | status |
+|---|---|---|
+| video retry without camera controls | YES | DONE (bm): `video_recorder.record_one_clip` retries an encode that failed WITH camera-control flags once without them; `requested_controls.controls_dropped`; tests `TestControlsRetry`. Cost: one more clip duration on that action. Ladder IP6 |
+| Q3 `mode.output=save_local` | next sprint | unchanged (blocked value) |
+| Q6 capture-now button | next sprint | — |
+| Q7 limits | message caps warn > 300 / refuse > 500 (still + video); budgets warn > 18 / refuse > 30 min; WB gains ≤ 8.0 | DONE: catalog + backend (nvd bd54bac) |
+| rollout | per-Spotter settings on `external_gateways` (self_heal / remote_commands / link / heal cap) replace the `*_DEVICES` env lists incl. `BM_REMOTE_CONFIG_DEVICES`; built by the S6b backend session; the Fri staging demo still uses the env | eligibility interface agreed with that session (below) |
+| P0 probe | Test Engineer after G1; stand-alone | `LADDER.md` PART 1 |

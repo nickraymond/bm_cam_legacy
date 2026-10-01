@@ -5,6 +5,49 @@ Daytime, ONE unit (bmcam003 suggested), one change at a time. Record everything 
 `runs/s27_ladder_<YYYYMMDD>/` (console log, commands sent, answers, images/clips, `RESULTS.md`).
 Feeds R1 G3 (hard mode). SPEC r2 §4–§5.
 
+## PART 1 — P0 rpicam limits probe (STAND-ALONE: run first, any time after G1)
+
+Independent of everything below: it needs NO Sprint27 code on the unit, sends NO command, and
+changes nothing on the unit. Read-only on one unit (bmcam003 or bmcam004: same camera module),
+~1 h. The Sprint27 session encodes the image-processing ranges from these files (Nick Q2: real
+limits from rpicam on the unit, never from memory), so P0 blocks the image-processing build.
+
+Before: camera idle — stop the runtime and back up / disable cron per the deploy skill
+(CLAUDE.md §15); note `grep -E "CmaTotal|CmaFree" /proc/meminfo`. After: restore cron, restart
+the runtime, confirm the next `<WS>` arrives. Save every output to
+`runs/s27_ladder_<date>/p0_rpicam_limits/`.
+
+```bash
+rpicam-still --version; rpicam-vid --version
+```
+
+```bash
+for app in rpicam-still rpicam-vid; do $app --help 2>&1 | grep -A3 -E -- '--(sharpness|contrast|saturation|brightness|denoise|hdr)'; done
+```
+
+```bash
+python3 -c "from picamera2 import Picamera2; c=Picamera2(); print({k: v for k, v in c.camera_controls.items() if k in ('Sharpness','Contrast','Saturation','Brightness','NoiseReductionMode','HdrMode')}); c.close()"
+```
+
+Run-time probes (each a 2 s clip to /tmp, record exit code + last 5 lines; delete the clips):
+
+| probe | command (add `-t 2000 -n -o /tmp/p.h264 --mode 2304:1296:10:P --width 1280 --height 720`) |
+|---|---|
+| duplicate denoise | `rpicam-vid … --denoise cdn_off --denoise cdn_fast` |
+| duplicate sharpness | `rpicam-vid … --sharpness 1.0 --sharpness 2.0` |
+| each float at min / max / beyond | `rpicam-vid … --contrast <v>` (same for sharpness, saturation, brightness) |
+| each denoise value | `rpicam-vid … --denoise <v>` |
+| hdr × mode | `rpicam-vid … --hdr <v>` with `--mode 2304:1296:10:P` and `--mode 4608:2592:10:P` (output 1000x562) |
+| stills | `rpicam-still -n -o /tmp/p.jpg --hdr <v>` / `--denoise <v>` |
+
+Pass: every output file saved under `runs/s27_ladder_<date>/p0_rpicam_limits/`, cron restored, the
+unit back to its normal cycle. Then one line to the EM; the Sprint27 session picks the folder up.
+
+
+---
+
+# PART 2 — remote-config ladder (needs the Sprint27 camera code on the unit)
+
 ## Gate before step 1 (do not start otherwise)
 
 - [ ] G1 closed and the bench handed over (RELEASE_PLAN).
@@ -53,37 +96,6 @@ YAML value. Any SSH needed = FAIL.
 | L13 | a change sent while a clip is recording | ack after the clip ends; value applies at the NEXT action |
 | L14 | one change end to end over the Sofar lane via the backend (`/changes` + existing `/send`; needs `BM_COMMAND_SEND` on Render, Nick only) | device view `ui_status`: sent → saved → in_effect |
 
-## P0 — rpicam limits probe (Nick Q2, BEFORE the image-processing steps; read-only on the unit)
-
-Camera idle first (no capture running: stop the runtime per the deploy skill, back up cron). Save
-every output to `runs/s27_ladder_<date>/p0_rpicam_limits/`. The Sprint27 session encodes the ranges
-from these files, never from memory.
-
-```bash
-rpicam-still --version; rpicam-vid --version
-```
-
-```bash
-for app in rpicam-still rpicam-vid; do $app --help 2>&1 | grep -A3 -E -- '--(sharpness|contrast|saturation|brightness|denoise|hdr)'; done
-```
-
-```bash
-python3 -c "from picamera2 import Picamera2; c=Picamera2(); print({k: v for k, v in c.camera_controls.items() if k in ('Sharpness','Contrast','Saturation','Brightness','NoiseReductionMode','HdrMode')}); c.close()"
-```
-
-Run-time probes (each a 2 s clip to /tmp, record exit code + last 5 lines; delete the clips):
-
-| probe | command (add `-t 2000 -n -o /tmp/p.h264 --mode 2304:1296:10:P --width 1280 --height 720`) |
-|---|---|
-| duplicate denoise | `rpicam-vid … --denoise cdn_off --denoise cdn_fast` |
-| duplicate sharpness | `rpicam-vid … --sharpness 1.0 --sharpness 2.0` |
-| each float at min / max / beyond | `rpicam-vid … --contrast <v>` (same for sharpness, saturation, brightness) |
-| each denoise value | `rpicam-vid … --denoise <v>` |
-| hdr × mode | `rpicam-vid … --hdr <v>` with `--mode 2304:1296:10:P` and `--mode 4608:2592:10:P` (output 1000x562) |
-| stills | `rpicam-still -n -o /tmp/p.jpg --hdr <v>` / `--denoise <v>` |
-
-Pass: every file saved; restore cron. Hand the folder to the Sprint27 session.
-
 ## Image-processing steps (after P0 and the Sprint27 IP change are on the unit)
 
 | # | change (`kv`; with `camera.controls_enabled` and `camera.image_processing.enabled` true) | check |
@@ -92,6 +104,7 @@ Pass: every file saved; restore cron. Hand the folder to the Sprint27 session.
 | IP2 | `brightness` min / max | as IP1 |
 | IP3 | each `denoise` enum value | still + clip produced |
 | IP4 | `hdr` each allowed value, on a still unit and on a video unit | still + clip produced; refused combinations get `e:xk` |
+| IP6 (video retry, Nick 2026-10-01) | on a video unit, a camera-control combination P0 showed `rpicam-vid` refuses at run time (e.g. duplicate `--denoise`, if it fails), set through the console lane | the clip is STILL produced; log `[VID][WARN] … retrying … without camera controls`; the clip manifest `requested_controls.controls_dropped: true` |
 | IP5 (negative) | a value just outside each measured range (console range id) | `e:xk`, nothing stored, next clip produced |
 
 ## Negative steps (the unit must refuse, and stay reachable)
