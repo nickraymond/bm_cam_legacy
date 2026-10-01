@@ -74,3 +74,35 @@ recreating a missing directory would hide a real fault.
   failure (`195 != 150`: the guarded settings fn keeps the stale value, so
   the `set` never runs).
 - `test_after_fix.txt`: 13/13 OK.
+
+## Host fix runbook (RemoveIPC=no) — prepared, NOT run
+
+Per the R1 plan (bm #99) this runs on bmcam003/004 only AFTER G1 (the R5 24 h run)
+ends, with the bench owner's OK. Run it per unit, and only from a session Nick has
+cleared to touch the units. A drop-in is used, so `logind.conf` itself is not edited
+(it is still backed up).
+
+```bash
+# 1. confirm the root cause (read-only); record the output on bm #97
+ls -la /dev/shm
+grep -n RemoveIPC /etc/systemd/logind.conf /etc/systemd/logind.conf.d/*.conf 2>/dev/null
+loginctl show-user pi -p Linger
+# 2. back up + apply
+TS=$(date -u +%Y%m%dT%H%M%SZ)
+sudo cp -p /etc/systemd/logind.conf /etc/systemd/logind.conf.bak_$TS
+sudo mkdir -p /etc/systemd/logind.conf.d
+printf '[Login]\nRemoveIPC=no\n' | sudo tee /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf
+systemd-analyze cat-config systemd/logind.conf | grep -n RemoveIPC
+```
+
+The setting takes effect at the next boot. This runbook does not restart
+systemd-logind. To verify after the reboot: open and close an ssh session, wait
+~15 s, then check from a new session that `/dev/shm/bmcam` still exists.
+
+Restore:
+
+```bash
+sudo rm /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf
+```
+
+Then reboot. `logind.conf.bak_<TS>` is the untouched original, for reference.
