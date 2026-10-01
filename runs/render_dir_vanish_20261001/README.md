@@ -75,34 +75,103 @@ recreating a missing directory would hide a real fault.
   the `set` never runs).
 - `test_after_fix.txt`: 13/13 OK.
 
-## Host fix runbook (RemoveIPC=no) — prepared, NOT run
+## Host fix runbook: `RemoveIPC=no` on bmcam003 / bmcam004
 
-Per the R1 plan (bm #99) this runs on bmcam003/004 only AFTER G1 (the R5 24 h run)
-ends, with the bench owner's OK. Run it per unit, and only from a session Nick has
-cleared to touch the units. A drop-in is used, so `logind.conf` itself is not edited
-(it is still backed up).
+Status: **prepared on the desk, not run.** Owner: the Test Engineer session, after it
+takes over the bench. Approved by Nick 2026-10-01 (R1 plan, bm #99). Run it per
+unit (`H=bmcam003`, then `H=bmcam004`). Record the step 1 and step 4 output on
+bm #97.
 
-```bash
-# 1. confirm the root cause (read-only); record the output on bm #97
-ls -la /dev/shm
-grep -n RemoveIPC /etc/systemd/logind.conf /etc/systemd/logind.conf.d/*.conf 2>/dev/null
-loginctl show-user pi -p Linger
-# 2. back up + apply
-TS=$(date -u +%Y%m%dT%H%M%SZ)
-sudo cp -p /etc/systemd/logind.conf /etc/systemd/logind.conf.bak_$TS
-sudo mkdir -p /etc/systemd/logind.conf.d
-printf '[Login]\nRemoveIPC=no\n' | sudo tee /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf
-systemd-analyze cat-config systemd/logind.conf | grep -n RemoveIPC
-```
+### 0. Preconditions (all must hold)
 
-The setting takes effect at the next boot. This runbook does not restart
-systemd-logind. To verify after the reboot: open and close an ssh session, wait
-~15 s, then check from a new session that `/dev/shm/bmcam` still exists.
+- G1 (the R5 24 h run) has ended, and you own the bench (the S6b HIL session
+  handed it over).
+- The unit is up on the tailnet (`ssh pi@$H true`).
+- You are not mid-capture. The edit itself touches no camera, cron or bus
+  state. The change only takes effect at the **next boot**, so pick a moment
+  when a Pi reboot (or the unit's normal halt/wake) is acceptable.
+- Use bracket patterns with pgrep (`'[r]c_progressive_jpeg'`), or it matches
+  your own shell.
 
-Restore:
+### 1. Confirm the root cause (read-only)
+
+Run this on a unit whose supervisor has been up since before at least one ssh
+logout:
 
 ```bash
-sudo rm /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf
+ssh pi@$H 'hostname; date -u; pgrep -af "[r]c_progressive_jpeg|[r]c_run_capture_cycle"; \
+  ls -la /dev/shm; ls -la /dev/shm/bmcam 2>&1; \
+  grep -n RemoveIPC /etc/systemd/logind.conf /etc/systemd/logind.conf.d/*.conf 2>/dev/null; \
+  loginctl show-user pi -p Linger; \
+  grep -c "settings re-resolve failed" $(ls -t /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_*.log | head -1)'
 ```
 
-Then reboot. `logind.conf.bak_<TS>` is the untouched original, for reference.
+The cause is **confirmed** when a supervisor is running, `/dev/shm/bmcam` is
+missing (also `bmcam_stay_on`), RemoveIPC is unset or `#RemoveIPC=yes`
+(default yes), `Linger=no`, and the error count is > 0. If `/dev/shm/bmcam`
+is present and the count is 0, the hypothesis is not confirmed: still apply
+the fix (it is harmless), but say so on #97.
+
+Reproduce directly (optional; it wipes the render, which code without #97
+does not recover until a restart). Close every ssh session to the unit, wait
+≥ 15 s (logind's user stop delay is 10 s by default), ssh back in and run
+`ls -la /dev/shm`.
+
+### 2. Back up
+
+```bash
+ssh pi@$H 'TS=$(date -u +%Y%m%dT%H%M%SZ); \
+  sudo cp -p /etc/systemd/logind.conf /etc/systemd/logind.conf.bak_$TS && \
+  ls -l /etc/systemd/logind.conf* ; ls -l /etc/systemd/logind.conf.d 2>&1'
+```
+
+### 3. Apply
+
+The fix is a drop-in, so `logind.conf` itself stays unedited:
+
+```bash
+ssh pi@$H 'sudo mkdir -p /etc/systemd/logind.conf.d && \
+  printf "[Login]\nRemoveIPC=no\n" | sudo tee /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf && \
+  systemd-analyze cat-config systemd/logind.conf | grep -n RemoveIPC'
+```
+
+Expect the last line to show `RemoveIPC=no` from the drop-in. Do not restart
+systemd-logind on a running unit. The setting is read at the next boot.
+
+### 4. Verify (after the next boot)
+
+1. Check the render exists while the supervisor runs:
+   ```bash
+   ssh pi@$H 'pgrep -af "[r]c_progressive_jpeg"; ls -la /dev/shm/bmcam'
+   ```
+2. Make sure your session is pi's only one: `ssh pi@$H loginctl list-sessions`.
+   Then close **every** ssh session to the unit and wait ≥ 15 s.
+3. Open a **new** session and check:
+   ```bash
+   ssh pi@$H 'ls -la /dev/shm; ls -la /dev/shm/bmcam; \
+     grep -c "settings re-resolve failed" $(ls -t /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_*.log | head -1)'
+   ```
+
+**PASS:** `/dev/shm/bmcam/camera_schedule.yaml` and `/dev/shm/bmcam_stay_on`
+(stay_on) still exist after the logout, and the error count is 0. Repeat step
+4 once more for confidence. **FAIL:** the directory is gone again. Then
+restore, and report on #97 with the step 1 and step 4 output.
+
+### 5. Restore (undo)
+
+```bash
+ssh pi@$H 'sudo rm -f /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf && \
+  systemd-analyze cat-config systemd/logind.conf | grep -n RemoveIPC'
+```
+
+Then reboot (or wait for the next boot). `logind.conf` was never edited.
+`logind.conf.bak_<TS>` is the original, if a byte-compare is wanted:
+`sudo cmp /etc/systemd/logind.conf /etc/systemd/logind.conf.bak_<TS>`.
+
+### Notes
+
+- With #97 deployed, the supervisor recreates the render on its own (one
+  `[CFG][WARN] render dir … recreated` line per wipe). The host fix also
+  protects `/dev/shm/bmcam_stay_on` and `bmcam_stay_on_sched`, which #97 does not.
+- New units: provisioning should carry the same drop-in (follow-up for
+  deploy/provision; not done here).
