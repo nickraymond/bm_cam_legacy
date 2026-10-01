@@ -554,6 +554,13 @@ def build_poster_command(ffmpeg_binary, mp4_tmp_path, thumb_tmp_path):
     ]
 
 
+def _has_camera_controls(argv, settings, vcfg, part, encoder_binary):
+    """True when the failed encoder argv carried camera-control flags (so a retry
+    without them is a different command, not the same failure twice)."""
+    plain, _req = build_encoder_command(settings, vcfg, part, binary=encoder_binary, controls=None)
+    return list(argv) != list(plain)
+
+
 def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
                     ffmpeg_binary, controls=None, run_fn=_default_run,
                     now_fn=lambda: datetime.now(timezone.utc)):
@@ -562,8 +569,9 @@ def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
     record .h264.part -> mux .mp4.tmp -> poster _thumb.jpg.tmp -> fsync
     -> atomic rename to finals -> delete the .part. Any failure cleans
     its debris and returns ok=False — the caller starts the next clip
-    (per-clip processes self-heal at the boundary; nothing retries
-    in-place).
+    (per-clip processes self-heal at the boundary). One exception (Sprint27):
+    an encode that fails WITH camera-control flags is retried once without
+    them (requested_controls.controls_dropped = True).
 
     Returns a dict: ok, stage, basename, mp4/thumb paths, bytes,
     encode_s, boundary_s, requested camera-control metadata.
@@ -593,6 +601,24 @@ def record_one_clip(settings, vcfg, video_dir, *, encoder_binary,
     rc_enc, encode_s = run_fn(argv, clip_s + ENCODER_TIMEOUT_MARGIN_S)
     result["encode_s"] = encode_s
     part_bytes = os.path.getsize(part) if os.path.exists(part) else 0
+    if (rc_enc != 0 or part_bytes <= 0) and _has_camera_controls(argv, settings, vcfg, part,
+                                                                 encoder_binary):
+        # Sprint27 (Nick 2026-10-01): a camera-control value rpicam-vid refuses at run time
+        # (remote config) must never lose clips. Like the stills capture's retry WITHOUT
+        # camera controls (rc_capture), record this clip ONCE more with the geometry and
+        # encoder knobs only. The clip's metadata says the controls were dropped.
+        print(f"[VID][WARN] encode failed with camera controls (rc={rc_enc}, "
+              f"part_bytes={part_bytes}); retrying {base} ONCE without camera controls")
+        _remove_quiet(part)
+        argv, retry_requested = build_encoder_command(
+            settings, vcfg, part, binary=encoder_binary, controls=None)
+        result["requested_controls"] = dict(retry_requested, controls_dropped=True,
+                                            controls_dropped_rc=rc_enc,
+                                            requested_before_drop=requested)
+        rc_enc, retry_s = run_fn(argv, clip_s + ENCODER_TIMEOUT_MARGIN_S)
+        encode_s += retry_s
+        result["encode_s"] = encode_s
+        part_bytes = os.path.getsize(part) if os.path.exists(part) else 0
     if rc_enc != 0 or part_bytes <= 0:
         print(f"[VID][ERROR] encode failed for {base} "
               f"(rc={rc_enc}, part_bytes={part_bytes}); clip dropped")

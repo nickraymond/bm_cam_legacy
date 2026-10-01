@@ -35,6 +35,12 @@ Rules added in S4 (strict + effective):
     measured, so the floor lives here, not in the registry range)
   - env: mode.media video needs ffmpeg; schedule.timezone must resolve
 
+Rules added in Sprint27 (strict + effective; SPEC §3.4, REVIEW_r1 row 1):
+  - mode.media video / video_logger: the recording geometry resolves
+    (video_geometry.resolve_geometry, the loader's own check)
+  - mode.media video: video.send.size even, >= 16x16, not larger than the
+    recording output
+
 Example:
   python3 -c "import config_validate as V, config_registry as R; \\
       d = R.defaults(); d['mode.media'] = 'still'; print(V.validate(d, 'effective'))"
@@ -194,8 +200,90 @@ def base_rules(values):
     return [(v.paths[0], v.message) for v in rules]
 
 
+# ---------------------------------------------------------------------------
+# Sprint27 rules: a video config the v1 loaders would refuse never gets stored
+# ---------------------------------------------------------------------------
+
+# Keys whose values the video loaders read for the recording geometry
+# (config_v2.render_v1_text: framing->preset, crop->crop_native_xywh, output,
+# sensor_mode, fps). mode.media is named too: the rules only apply to a video
+# unit, so switching INTO video with bad values must be refused as well.
+VIDEO_GEOMETRY_KEYS = ("video.record.framing", "video.record.crop", "video.record.output",
+                       "video.record.sensor_mode", "video.record.fps")
+VIDEO_SEND_SIZE_MIN_PX = 16     # rc_video_tx.validate_video_tx_config: even WxH, both >= 16
+
+
+def _video_geometry(values):
+    """-> (geometry dict, None) or (None, reason). Pure: video_geometry is
+    arithmetic only. Its one print (an odd output rounded to even, with a
+    [VID][WARN] line) is avoided by evening the output here first, exactly as
+    parse_output would, so a validate() on every ack hash stays silent
+    (REVIEW_r1 A10) without swapping sys.stdout under other threads."""
+    import video_geometry
+    vcfg = {"fps": values.get("video.record.fps", 15)}
+    for path, name in (("video.record.framing", "preset"), ("video.record.crop", "crop_native_xywh"),
+                       ("video.record.output", "output"), ("video.record.sensor_mode", "sensor_mode")):
+        if values.get(path) is not None:
+            vcfg[name] = values[path]
+    if "output" in vcfg:
+        try:
+            a, b = str(vcfg["output"]).strip().lower().replace(" ", "").split("x", 1)
+            w, h = int(a), int(b)
+            if 0 < w <= video_geometry.MAX_ENCODE_W and 0 < h <= video_geometry.MAX_ENCODE_H:
+                vcfg["output"] = f"{w - w % 2}x{h - h % 2}"
+        except ValueError:
+            pass                 # resolve_geometry refuses it with its own message
+    try:
+        return video_geometry.resolve_geometry(vcfg), None
+    except Exception as exc:     # GeometryError, and TypeError for crop xor output (REVIEW_r1 A2)
+        return None, f"{type(exc).__name__}: {exc}"
+
+
+def _rule_video_geometry(values):
+    """Sprint27 (REVIEW_r1 A1/A2): on a video unit the recording geometry must
+    resolve, exactly as video_recorder.load_video_config resolves it at the
+    start of every run. Without this a bad remote set is acked ok and the next
+    start exits 2 before the command daemon runs (rc_progressive_jpeg.py
+    video config load) — unreachable until SSH. As an effective-scope rule the
+    boot also DROPS such an overlay (supervisor_config.resolve, G3)."""
+    if values.get("mode.media") not in ("video", "video_logger"):
+        return []
+    _geo, why = _video_geometry(values)
+    if why:
+        return [Violation("xk", VIDEO_GEOMETRY_KEYS + ("mode.media",),
+                          f"video recording geometry does not resolve: {why}")]
+    return []
+
+
+def _rule_video_send_size(values):
+    """Sprint27 (REVIEW_r1 A3): the sent clip size must be what
+    rc_video_tx.load_video_tx_config accepts (even W and H, both >= 16; else
+    the start exits 2) and no larger than the recording it is cut from
+    (rc_video_clip refuses to upscale: the clip is lost every action)."""
+    if values.get("mode.media") != "video":
+        return []
+    size = values.get("video.send.size")
+    paths = ("video.send.size", "mode.media")
+    try:
+        w, h = (int(v) for v in str(size).lower().split("x"))
+    except ValueError:
+        return [Violation("xk", paths, f"video.send.size {size!r} is not WxH")]
+    if w < VIDEO_SEND_SIZE_MIN_PX or h < VIDEO_SEND_SIZE_MIN_PX or w % 2 or h % 2:
+        return [Violation("xk", paths, f"video.send.size {size} must be even and at least "
+                                       f"{VIDEO_SEND_SIZE_MIN_PX}x{VIDEO_SEND_SIZE_MIN_PX}")]
+    geo, _why = _video_geometry(values)
+    if geo is not None:
+        ow, oh = geo["output_wh"]
+        if w > ow or h > oh:
+            return [Violation("xk", ("video.send.size",) + VIDEO_GEOMETRY_KEYS + ("mode.media",),
+                              f"video.send.size {size} is larger than the recording {ow}x{oh} "
+                              "(the clip fit refuses to upscale)")]
+    return []
+
+
 def s4_rules(values):
-    return _rule_manual_wb(values) + _rule_video_crop(values) + _rule_video_cap_floor(values)
+    return (_rule_manual_wb(values) + _rule_video_crop(values) + _rule_video_cap_floor(values)
+            + _rule_video_geometry(values) + _rule_video_send_size(values))
 
 
 def validate(values, scope="effective", env=None):

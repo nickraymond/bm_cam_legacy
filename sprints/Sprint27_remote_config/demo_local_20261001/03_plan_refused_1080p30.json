@@ -1,0 +1,27 @@
+{
+ "request": "POST /devices/BMCAM_T/remote-config/plan",
+ "request_body": {
+  "set": {
+   "video.record.fps": 30
+  }
+ },
+ "status": 200,
+ "response": {
+  "device_id": "BMCAM_T",
+  "ok": false,
+  "verb": "set",
+  "kv": null,
+  "refusals": [
+   {
+    "reason": "cross_key",
+    "key": "video.record.fps",
+    "why": "video recording geometry does not resolve: 30 fps at 1920x1080 is blocked (1080p30 encoder abort)"
+   }
+  ],
+  "warnings": [],
+  "key_bytes": {},
+  "json_bytes": null,
+  "max_json_bytes": 234,
+  "writable": true
+ }
+}
