@@ -46,7 +46,8 @@ After ship, G5 keeps running through the weekend as a soak (not a release gate).
 | Sprint26 R5 close-out | both | "Run S6b HIL: backend auto-sends heal commands" | G1 RESULTS.md, `REASK_S` recommendation |
 | Sprint27 remote config | both | "Spec remote camera config from the backend" | bm #98 (video set safety rule + catalog), nvd `/remote-config/*` PR, bench ladder |
 | /dev/shm render wipe | bm | "Fix supervisor settings re-resolve tmp-file error" | bm #97 merged + deployed; host fix `RemoveIPC=no` on bmcam003/004 (approved by Nick 2026-10-01) |
-| Config UI | nvd | new session | G2 |
+| Config UI | nvd | "Build remote-config UI for Release R1 (G2)" | G2; local demo ready 2026-10-01 |
+| Per-Spotter rollout settings | nvd | "Build S6b backend code: Sofar sender, auto-send, logs" | self_heal / remote_commands / link / heal cap on `external_gateways`, admin API; replaces the `*_DEVICES` env lists; merged before freeze |
 | Test Engineer | `nereus_HIL_tooling` (new repo) | new session | G3, G4, G5; sole bench owner after G1. For R1 it runs the existing tools (conductor, ladder scripts) and moves them into the new repo as it goes — the repo build never blocks a gate |
 
 Retired: "Finish S5 details, then take the rig for 24 h gate" (superseded by G1 + G4/G5).
@@ -63,11 +64,32 @@ Retired: "Finish S5 details, then take the rig for 24 h gate" (superseded by G1 
   (open nvd PRs only after any staging demo push — see the #59 trap).
 - **Decisions** go to Nick with options, numbers and a recommendation.
 
-## 5. Open risks
+## 5. Decision log (Nick, 2026-10-01)
+
+| topic | ruling |
+|---|---|
+| Test Engineer | yes; own repo `nereus_HIL_tooling` + session (Nick sets up); sole bench owner after G1; runs the #97 host fix |
+| G5 | 24 h solar unattended (not 48 h) |
+| `BM_HEAL_AUTOSEND` | stays live after G1; cap → 24/day at freeze |
+| `REASK_S` | decided from G1 results (indoor = worst case) |
+| Sprint27 Q1 auth | two roles: viewer (no admin token), admin (admin token, may send commands); role check in one place — user accounts coming soon |
+| Sprint27 Q2 tiers | **scope add:** all 7 `camera.image_processing.*` keys editable with rpicam-validated ranges/enums; `exposure.mode`, `still.save.quality` stay read-only |
+| video retry | yes: a clip that fails with custom camera controls is retried once with defaults (makes "a bad value never loses clips" true) |
+| Sprint27 Q3 | `mode.output=save_local` from the UI: next sprint |
+| Sprint27 Q4 | ship the camera video safety rule in R1 |
+| Sprint27 Q6 | "capture now with settings" button: next sprint |
+| Sprint27 Q7 | message caps (still + video) warn > 300, refuse > 500; budgets warn 18 / refuse 30 min; WB gains refuse > 8.0 |
+| staging demo | temporary push of s27 + UI after G1, Nick tests, reset, then PRs |
+| rollout model | **per-Spotter** settings (not per-device Render env); global env = kill switches only; iridium defaults OFF. Fri demo uses the env once |
+
+Note: a 500-message cap at the validated 1.3 s/msg is 650 s, longer than the 10-min production
+bus window; caps above ~450 only complete on a longer window.
+
+## 6. Open risks
 
 | risk | effect | mitigation |
 |---|---|---|
-| UI built from zero in 2–3 days | G2 slips → ship slips | starts Fri 10/2 on the local demo API; scope = the 47 control-tier keys, no styling work |
+| Scope added 2026-10-01 (image keys + video retry ~10 h, per-Spotter settings) | uses the Wed slack day | estimates requested from the owning sessions; EM flags any slip at once |
 | Spotter queue overflow (S5 F1) | re-asks cost 90 min each | D1 allows 3 h; outdoors should have better signal |
 | bmcam004 bus drops (3× on 2026-09-30, cause unknown) | G4/G5 failure | Test Engineer watches the bus during G3/G4 |
 | G5 has no console | a wedged unit can only be recovered by cellular command | G3 proves remote recovery first |
