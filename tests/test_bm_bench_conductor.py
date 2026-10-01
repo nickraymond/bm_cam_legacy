@@ -182,6 +182,23 @@ class Cycle(unittest.TestCase):
             self.assertEqual(console.published, [])
             self.assertIsNone(cond.heals["BMCAM_003"])
 
+    def test_no_heal_triggers_only(self):
+        # S6b §9.14 H2-H4: another heal sender is live (Sofar lane / backend auto-send);
+        # the conductor must never publish an rsd.
+        clock = FakeClock()
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
+            backend = FakeBackend(clock)
+            backend.heal_candidates = [{"media_id": 7, "media_key": "0dxaaa", "ranges": "1-2"}]
+            console = FakeConsole()
+            cond = C.Conductor(tmp, backend, {"SPOT-X": console},
+                               {"SPOT-X": ("BMCAM_003", "bmcam003")}, hours=1,
+                               min_interval_s=3600, drain_s=0, clock=clock, sleep=clock.sleep,
+                               heal=False)
+            cond.cycle("SPOT-X")
+            self.assertEqual([p for p in console.published if '"c":"rsd"' in p], [])
+            self.assertTrue(any('"c":"trg"' in p for p in console.published))
+            self.assertFalse(any("heal" in path for _m, path in backend.calls))
+
     def test_no_row_within_the_wait_is_lost(self):
         clock = FakeClock()
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):

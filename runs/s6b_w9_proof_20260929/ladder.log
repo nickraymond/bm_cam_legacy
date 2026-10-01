@@ -1,0 +1,28 @@
+===== 2026-09-29T18:02:18Z W9.reset-mode-run SPOT-33507C  bm pub bmcam/cmd {"id":53001,"c":"reset","k":["mode.run"]} 1 1  (63 B line)
+CON  2026-09-29T18:02:22Z bm pub bmcam/cmd {"id":53001,"c":"reset","k":["mode.run"]} 1 1
+CON  2026-09-29T18:02:22Z 1790704945.277 53171fa3d81a8e6f, [bmcam003] OK id=53001 reset mode.run -> YAML cfg=580ce986
+CON  2026-09-29T18:02:22Z 1790704945.328 53171fa3d81a8e6f, [bmcam003] OK id=53001 reset mode.run -> YAML (duplicate: original answer) cfg=580ce986
+SUMMARY cell=0 con=3
+===== 2026-09-29T18:42:56Z W9.rsd SPOT-33507C  bm pub bmcam/cmd {"id":100077,"c":"rsd","h":[["0dz8um","5,17,79-85"]]} 1 1  (75 B line)
+CON  2026-09-29T18:42:58Z bm pub bmcam/cmd {"id":100077,"c":"rsd","h":[["0dz8um","5,17,79-85"]]} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-29T18:43:03Z W9.rsd-repeat SPOT-33507C  bm pub bmcam/cmd {"id":100077,"c":"rsd","h":[["0dz8um","5,17,79-85"]]} 1 1  (75 B line)
+CON  2026-09-29T18:43:04Z bm pub bmcam/cmd {"id":100077,"c":"rsd","h":[["0dz8um","5,17,79-85"]]} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-29T19:43:13Z W9.rsd2 SPOT-33507C  bm pub bmcam/cmd {"id":100078,"c":"rsd","h":[["0dz8um","79-82"]]} 1 1  (70 B line)
+CON  2026-09-29T19:43:16Z bm pub bmcam/cmd {"id":100078,"c":"rsd","h":[["0dz8um","79-82"]]} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-30T02:29:37Z W9.bmcam004.reset-mode-run SPOT-31593C  bm pub bmcam/cmd {"id":63001,"c":"reset","k":["mode.run"]} 1 1  (63 B line)
+CON  2026-09-30T02:29:39Z bm pub bmcam/cmd {"id":63001,"c":"reset","k":["mode.run"]} 1 1
+CON  2026-09-30T02:29:45Z 1790735387.828 e6fe83ea6b4a2b7f, [bmcam004] OK id=63001 reset mode.run -> YAML cfg=580ce986
+CON  2026-09-30T02:29:45Z 1790735387.878 e6fe83ea6b4a2b7f, [bmcam004] OK id=63001 reset mode.run -> YAML (duplicate: original answer) cfg=580ce986
+SUMMARY cell=0 con=3
+===== 2026-09-30T03:12:03Z W9.bmcam004.rsd1 SPOT-31593C  bm pub bmcam/cmd {"id":100070,"c":"rsd","h":[["0dzwa7","5,17"]]} 1 1  (69 B line)
+CON  2026-09-30T03:12:05Z bm pub bmcam/cmd {"id":100070,"c":"rsd","h":[["0dzwa7","5,17"]]} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-30T03:19:27Z W9.bmcam004.rsd2 SPOT-31593C  bm pub bmcam/cmd {"id":100071,"c":"rsd","h":[["0dzwa7","5,17"]]} 1 1  (69 B line)
+CON  2026-09-30T03:19:29Z bm pub bmcam/cmd {"id":100071,"c":"rsd","h":[["0dzwa7","5,17"]]} 1 1
+SUMMARY cell=0 con=1
+===== 2026-09-30T03:28:20Z W9.bmcam004.rsd3 SPOT-31593C  bm pub bmcam/cmd {"id":100072,"c":"rsd","h":[["0dzwa7","5,17"]]} 1 1  (69 B line)
+CON  2026-09-30T03:28:22Z bm pub bmcam/cmd {"id":100072,"c":"rsd","h":[["0dzwa7","5,17"]]} 1 1
+SUMMARY cell=0 con=1
