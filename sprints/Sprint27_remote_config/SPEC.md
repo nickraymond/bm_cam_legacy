@@ -414,3 +414,20 @@ hold for values rpicam accepts at parse time but fails at run time.
 | Q7 limits | message caps warn > 300 / refuse > 500 (still + video); budgets warn > 18 / refuse > 30 min; WB gains ≤ 8.0 | DONE: catalog + backend (nvd bd54bac) |
 | rollout | per-Spotter settings on `external_gateways` (self_heal / remote_commands / link / heal cap) replace the `*_DEVICES` env lists incl. `BM_REMOTE_CONFIG_DEVICES`; built by the S6b backend session; the Fri staging demo still uses the env | eligibility interface agreed with that session (below) |
 | P0 probe | Test Engineer after G1; stand-alone | `LADDER.md` PART 1 |
+
+### 9.3 Per-Spotter rollout: agreed with the S6b backend session (2026-10-01; its plan pending Nick's OK)
+
+- The S6b backend session owns `backend/app/services/rollout.py`:
+  `allows(db, device_id, capability: "remote_commands" | "self_heal") -> (bool, reason | None)`.
+  - It reads the device's current gateway.
+  - It answers False on no gateway, a disabled or paused gateway, the flag off, or link=iridium
+    (the sender is cellular-only).
+  - It reads no env.
+- Order:
+  1. This nvd PR merges first, after G1, still gated by env. The Friday demo runs on the env.
+  2. Their PR rebases onto it and replaces the two env-list checks here (`_writable` →
+     `BM_REMOTE_CONFIG_DEVICES`, `send_enabled` → `BM_COMMAND_SEND_DEVICES`) with
+     `allows(db, device_id, "remote_commands")`. The diff will be in their PR body for this
+     session to review.
+- **This session does not edit those lines.**
+- `BM_REMOTE_CONFIG` stays as the global kill switch, as Nick and the EM asked.
