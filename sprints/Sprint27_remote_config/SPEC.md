@@ -361,3 +361,46 @@ Not tested: anything on hardware; the real Sofar lane (S6b H5 still pending); th
 Deploy notes: no migration; new env flags default OFF (`BM_REMOTE_CONFIG`,
 `BM_REMOTE_CONFIG_DEVICES`); the vendored catalog ships in the repo. With the flags off, merging
 changes nothing for existing routes (GETs only read; POST /changes answers 403).
+
+---
+
+## 9. Nick's rulings (2026-10-01, relayed by the EM session) and the image-control scope change
+
+| Q | ruling | status |
+|---|---|---|
+| Q1 | approved; keep two roles (viewer = no admin token, admin = admin token, may send) with the check in ONE place for future user roles | DONE: nvd `backend/app/remote_roles.py` (cfabf1a) |
+| Q4 | ship the camera video safety rule in R1 | in bm #98 |
+| Q5 | nvd PR after G1 | waiting for the EM's word |
+| Q2 | **scope change:** all 7 `camera.image_processing.*` keys → control, with validated ranges / enums taken from rpicam ON THE UNIT; refused outside them on the camera AND the backend; a bad value must never lose clips. `camera.exposure.mode`, `still.save.quality` stay read-only | planned below; blocked on a bench probe |
+| Q3, Q6, Q7 | to follow | — |
+
+### 9.1 Image-processing controls: plan (R1)
+
+Today (`rc_capture.py:484-527`): with `camera.controls_enabled` + `camera.image_processing.enabled`,
+`sharpness/contrast/saturation/brightness` go to `--sharpness/--contrast/--saturation/--brightness`
+as floats (unranged in the registry), `denoise` to `--denoise <text>`, `hdr` true → `--hdr auto`,
+text → `--hdr <text>`. Stills retry WITHOUT camera controls on a failure (`rc_capture.py:681-690`);
+**video has no such fallback** (`video_recorder.py`), so a value rpicam-vid rejects loses every clip.
+
+Hazards to settle on the bench before any range is written down (no values from memory):
+
+1. **Ranges / enums** of each control as THIS unit's rpicam-apps + libcamera accept them.
+2. **Duplicate flags on video:** `video.record.encoder.denoise/sharpness` (`video_recorder.py:426-429`)
+   and `camera.image_processing.denoise/sharpness` both emit `--denoise` / `--sharpness` on the
+   same `rpicam-vid` command. Whether a repeated option is an error is unverified.
+3. **HDR on the IMX708** may change the available sensor modes; the video geometry pins an explicit
+   `--mode` (`video_geometry.mode_argument`). Whether `--hdr` + each `--mode` starts is unverified.
+
+Work (after the probe P0 in `LADDER.md`):
+
+| step | repo | est. |
+|---|---|---|
+| encode the measured ranges / enums in `config_registry` (`range=` on the 4 floats, `enum=` on denoise / hdr; REGISTRY_VERSION 6), regenerate reference + catalog | bm | 1.5 h |
+| camera cross-key rules for hazards 2 and 3 as the probe dictates (e.g. refuse both denoise flags on a video unit; refuse hdr with a mode it cannot run) + parity tests | bm | 1.5 h |
+| **video fallback:** retry `rpicam-vid` once WITHOUT camera-control args when it exits non-zero at start (the stills behaviour), logged `[VID][WARN]`; tests with a fake runner | bm | 3 h |
+| catalog tiers: the 7 keys → control; re-vendor; backend tests | bm + nvd | 1 h |
+| ladder steps (IP1–IP5) + handoff docs | bm | 0.5 h (done) |
+
+Desk total ≈ 7.5 h after the probe; bench: P0 probe ≈ 1 h (Test Engineer), IP ladder ≈ 1.5 h.
+Recommendation: include the video fallback — it is the only change that makes "never lose clips"
+hold for values rpicam accepts at parse time but fails at run time.

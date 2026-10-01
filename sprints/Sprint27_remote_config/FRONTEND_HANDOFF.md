@@ -3,6 +3,17 @@
 For the nvd UI session. Source of truth: `SPEC.md` r2 §2. Code: nvd `feature/s27-remote-config`
 (`backend/app/remote_config.py`). Real responses: `demo_local_20261001/*.json`.
 
+**Catalog change coming (Nick Q2, 2026-10-01):** the 7 `camera.image_processing.*` keys move
+from `engineering` to `control`, with `range` on sharpness / contrast / saturation / brightness
+and `enum` on denoise / hdr, once the limits are measured on a unit. **Build every form from the
+catalog's `tier`, `type`, `range` and `enum`, and never hard-code a key list**, so the UI picks up
+the change by re-reading the catalog (check `sha256` / `registry_version`). `camera.exposure.mode`
+and `still.save.quality` stay read-only.
+
+**Roles (Nick Q1):** viewer (view token) reads; admin (admin token) plans, records and sends. The
+check lives in nvd `backend/app/remote_roles.py`. In the UI, hide the write controls without the
+admin token.
+
 **Contract freeze (R1):** the paths, request fields and the response fields listed below are stable
 through R1. Additions only; anything else is announced to the EM first.
 
