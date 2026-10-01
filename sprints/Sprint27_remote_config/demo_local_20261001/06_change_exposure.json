@@ -1,0 +1,38 @@
+{
+ "request": "POST /devices/BMCAM_T/remote-config/changes",
+ "request_body": {
+  "set": {
+   "camera.controls_enabled": true,
+   "camera.exposure.enabled": true,
+   "camera.exposure.ev": -1.0
+  }
+ },
+ "status": 200,
+ "response": {
+  "device_id": "BMCAM_T",
+  "command_id": 1000001,
+  "lane": "sofar",
+  "ok": true,
+  "verb": "set",
+  "kv": {
+   "camera.controls_enabled": true,
+   "camera.exposure.enabled": true,
+   "camera.exposure.ev": -1.0
+  },
+  "refusals": [],
+  "warnings": [],
+  "key_bytes": {
+   "camera.controls_enabled": 30,
+   "camera.exposure.enabled": 30,
+   "camera.exposure.ev": 25
+  },
+  "json_bytes": 119,
+  "max_json_bytes": 234,
+  "command": "{\"id\":1000001,\"c\":\"set\",\"kv\":{\"camera.controls_enabled\":true,\"camera.exposure.enabled\":true,\"camera.exposure.ev\":-1.0}}",
+  "console_line": "bm pub bmcam/cmd {\"id\":1000001,\"c\":\"set\",\"kv\":{\"camera.controls_enabled\":true,\"camera.exposure.enabled\":true,\"camera.exposure.ev\":-1.0}} 1 1",
+  "console_bytes": 141,
+  "base_hash": "580ce986",
+  "send": "POST /admin/devices/BMCAM_T/commands/1000001/send",
+  "superseded_pending": []
+ }
+}

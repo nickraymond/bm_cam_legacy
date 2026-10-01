@@ -115,6 +115,9 @@ LIMITS = {
                          "why": "largest registry preset is 16; production 18"},
     "video.send.budget_min": {"max": 30, "warn_above": 18, "proposal": True,
                               "why": "production 18 (bench 8)"},
+    "camera.white_balance.gains": {"max_each": 8.0, "proposal": True,
+                                   "why": "the registry has no upper bound and the gains go straight "
+                                          "into rpicam argv (stills and video)"},
     "mode.interval_s": {"warn_below": 600, "why": "below 10 min a stay_on unit is near-continuous "
                                                   "on cellular"},
     "mode.heartbeat_s": {"warn_below": 600, "why": "below 10 min a stay_on unit is near-continuous "

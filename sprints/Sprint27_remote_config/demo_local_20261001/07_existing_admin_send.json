@@ -1,0 +1,36 @@
+{
+ "request": "POST /admin/devices/BMCAM_T/commands/1000001/send",
+ "request_body": null,
+ "status": 200,
+ "response": {
+  "command_id": 1000001,
+  "id_range": "remote",
+  "verb": "set",
+  "sender": "admin",
+  "lane": "sofar",
+  "command": "{\"id\":1000001,\"c\":\"set\",\"kv\":{\"camera.controls_enabled\":true,\"camera.exposure.enabled\":true,\"camera.exposure.ev\":-1.0}}",
+  "kv": {
+   "camera.exposure.ev": -1.0,
+   "camera.controls_enabled": true,
+   "camera.exposure.enabled": true
+  },
+  "base_hash": "580ce986",
+  "created_at": "2026-10-01T07:09:41.191085+00:00",
+  "sent_at": "2026-10-01T07:09:41.243294+00:00",
+  "sent_status": 202,
+  "sends": [
+   {
+    "spotter_id": "SPOT-33507C",
+    "requested_by": "admin",
+    "created_at": "2026-10-01T07:09:41.201155+00:00",
+    "completed_at": "2026-10-01T07:09:41.242802+00:00",
+    "http_status": 202,
+    "outcome": "sent",
+    "message_bytes": 141,
+    "response": "{\"status\":\"queued\"}"
+   }
+  ],
+  "ack": null,
+  "outcome": "sent"
+ }
+}

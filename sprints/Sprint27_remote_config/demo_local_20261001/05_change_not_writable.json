@@ -1,0 +1,28 @@
+{
+ "request": "POST /devices/BMCAM_T/remote-config/changes",
+ "request_body": {
+  "set": {
+   "commands.listen_tail_s": 0.0
+  }
+ },
+ "status": 422,
+ "response": {
+  "detail": {
+   "reason": "not_writable",
+   "ok": false,
+   "verb": "set",
+   "kv": null,
+   "refusals": [
+    {
+     "reason": "not_writable",
+     "key": "commands.listen_tail_s",
+     "why": "the command channel itself: a wrong value can cut remote access"
+    }
+   ],
+   "warnings": [],
+   "key_bytes": {},
+   "json_bytes": null,
+   "max_json_bytes": 234
+  }
+ }
+}

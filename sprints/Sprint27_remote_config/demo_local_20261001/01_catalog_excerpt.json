@@ -1,0 +1,318 @@
+{
+ "request": "GET /remote-config/catalog",
+ "request_body": null,
+ "status": 200,
+ "response": {
+  "format": 1,
+  "generated_by": "tools/gen_config_catalog.py",
+  "registry_version": 5,
+  "rules": {
+   "interval_min_s": 60,
+   "stay_on_requires_reported_true": "power.bus_always_on",
+   "video_cap_floor": 80,
+   "video_geometry_keys": [
+    "video.record.framing",
+    "video.record.crop",
+    "video.record.output",
+    "video.record.sensor_mode",
+    "video.record.fps"
+   ],
+   "video_send_size_min_px": 16
+  },
+  "schema_version": 2,
+  "sha256": "aa6849cabcc1e934048c084d3812783774fc6b5fb033098845d8296fbefb9de1",
+  "video_geometry": {
+   "default_sensor_mode_order": [
+    "2304x1296",
+    "4608x2592"
+   ],
+   "fps30_block_above_pixels": 921600,
+   "max_encode_wh": [
+    1920,
+    1080
+   ],
+   "migration_preset": "stills_roi_1000p",
+   "native_wh": [
+    4608,
+    2592
+   ],
+   "presets": {
+    "stills_roi_1000p": {
+     "crop": [
+      1504,
+      846,
+      1600,
+      900
+     ],
+     "max_fps": 14,
+     "mode": "4608x2592",
+     "output": [
+      1000,
+      562
+     ]
+    },
+    "stills_roi_1600p": {
+     "crop": [
+      1504,
+      846,
+      1600,
+      900
+     ],
+     "max_fps": 14,
+     "mode": "4608x2592",
+     "output": [
+      1600,
+      900
+     ]
+    },
+    "wide_1080p": {
+     "crop": [
+      0,
+      0,
+      4608,
+      2592
+     ],
+     "max_fps": 15,
+     "mode": "2304x1296",
+     "output": [
+      1920,
+      1080
+     ]
+    },
+    "wide_1080p_lean": {
+     "crop": [
+      0,
+      0,
+      4608,
+      2592
+     ],
+     "max_fps": 15,
+     "mode": "2304x1296",
+     "output": [
+      1920,
+      1080
+     ]
+    },
+    "wide_720p": {
+     "crop": [
+      0,
+      0,
+      4608,
+      2592
+     ],
+     "max_fps": 30,
+     "mode": "2304x1296",
+     "output": [
+      1280,
+      720
+     ]
+    },
+    "wide_720p_lean": {
+     "crop": [
+      0,
+      0,
+      4608,
+      2592
+     ],
+     "max_fps": 30,
+     "mode": "2304x1296",
+     "output": [
+      1280,
+      720
+     ]
+    }
+   },
+   "sensor_modes": {
+    "1536x864": {
+     "fov_xywh": [
+      768,
+      432,
+      3072,
+      1728
+     ],
+     "max_fps": 120.1,
+     "mode_wh": [
+      1536,
+      864
+     ]
+    },
+    "2304x1296": {
+     "fov_xywh": [
+      0,
+      0,
+      4608,
+      2592
+     ],
+     "max_fps": 56.0,
+     "mode_wh": [
+      2304,
+      1296
+     ]
+    },
+    "4608x2592": {
+     "fov_xywh": [
+      0,
+      0,
+      4608,
+      2592
+     ],
+     "max_fps": 14.3,
+     "mode_wh": [
+      4608,
+      2592
+     ]
+    }
+   },
+   "upscale_slack_px": 2
+  },
+  "wire": {
+   "error_codes": {
+    "auth": "a service key or a service-range id without a valid signature",
+    "big": "a cellular get needs more than 3 <CF> parts (ask for fewer, or \"to\":\"con\")",
+    "cas": "`b` (compare-and-set) does not match the current config hash",
+    "cmd": "unknown or not-yet-available verb (e.g. a retired v8 verb)",
+    "err": "the state file could not be written: nothing changed (send it again)",
+    "id": "id outside every sender range (console answer only)",
+    "key": "not a setting, not settable this way, or set twice (k = the name)",
+    "lock": "a locked key (file paths, commands.runtime, video_logger media): deploy only",
+    "old": "id at or below this sender range's newest id (send a newer id)",
+    "ref": "cfm of an id that nothing is waiting for",
+    "rsd": "every heal of the rsd was refused (<HL> says why)",
+    "val": "wrong type, out of range, bad charset, or JSON > 248 B (k = the key); not JSON or no usable id gets NO ack (console line only)",
+    "xk": "the resulting config breaks a cross-key or environment rule (k = a key it names)"
+   },
+   "max_kv": 16,
+   "max_list": 4,
+   "remote_id_range": [
+    1000000,
+    99999999
+   ],
+   "string_regex": "[A-Za-z0-9_:./+-]{1,48}",
+   "unit_max_console_line_bytes": 270,
+   "unit_max_json_bytes": 248
+  },
+  "keys": [
+   {
+    "apply": "next_action",
+    "blocked_values": [],
+    "choices": null,
+    "default": null,
+    "enum": [],
+    "group": "camera.exposure",
+    "guard": "none",
+    "guard_when": null,
+    "help": "Exposure bias (EV).",
+    "limits": null,
+    "media": null,
+    "nullable": true,
+    "one_shot": true,
+    "path": "camera.exposure.ev",
+    "presets": [
+     [
+      "auto",
+      null
+     ],
+     [
+      "-2 EV",
+      -2.0
+     ],
+     [
+      "-1 EV",
+      -1.0
+     ],
+     [
+      "-0.5 EV",
+      -0.5
+     ],
+     [
+      "+0.5 EV",
+      0.5
+     ],
+     [
+      "+1 EV",
+      1.0
+     ],
+     [
+      "+2 EV",
+      2.0
+     ]
+    ],
+    "range": [
+     -8.0,
+     8.0
+    ],
+    "requires": [
+     "camera.controls_enabled",
+     "camera.exposure.enabled"
+    ],
+    "section": "camera",
+    "short": "e",
+    "tier": "control",
+    "tier_reason": null,
+    "type": "float",
+    "unit": "EV",
+    "wire_visible": false
+   },
+   {
+    "apply": "next_action",
+    "blocked_values": [],
+    "choices": [
+     "stills_roi_1000p",
+     "stills_roi_1600p",
+     "wide_1080p",
+     "wide_1080p_lean",
+     "wide_720p",
+     "wide_720p_lean"
+    ],
+    "default": null,
+    "enum": [],
+    "group": "video.record",
+    "guard": "none",
+    "guard_when": null,
+    "help": "Named geometry preset (video_geometry.PRESETS); null + no crop/output = stills_roi_1000p.",
+    "limits": null,
+    "media": null,
+    "nullable": true,
+    "one_shot": false,
+    "path": "video.record.framing",
+    "presets": [],
+    "range": null,
+    "requires": [],
+    "section": "video",
+    "short": null,
+    "tier": "control",
+    "tier_reason": null,
+    "type": "str",
+    "unit": null,
+    "wire_visible": false
+   },
+   {
+    "apply": "next_boot",
+    "blocked_values": [],
+    "choices": null,
+    "default": false,
+    "enum": [],
+    "group": "commands",
+    "guard": "guarded_revert",
+    "guard_when": null,
+    "help": "Listen for commands on the BM bus.",
+    "limits": null,
+    "media": null,
+    "nullable": false,
+    "one_shot": false,
+    "path": "commands.enabled",
+    "presets": [],
+    "range": null,
+    "requires": [],
+    "section": "commands",
+    "short": null,
+    "tier": "blocked",
+    "tier_reason": "guarded_revert: needs the cfm flow (Next sprint)",
+    "type": "bool",
+    "unit": null,
+    "wire_visible": false
+   }
+  ],
+  "note": "excerpt: 3 of 102 keys"
+ }
+}

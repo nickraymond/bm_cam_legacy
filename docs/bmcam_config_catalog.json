@@ -1449,7 +1449,11 @@
    "guard": "none",
    "guard_when": null,
    "help": "Manual [red, blue] gains.",
-   "limits": null,
+   "limits": {
+    "max_each": 8.0,
+    "proposal": true,
+    "why": "the registry has no upper bound and the gains go straight into rpicam argv (stills and video)"
+   },
    "media": null,
    "nullable": true,
    "one_shot": true,
@@ -3762,7 +3766,7 @@
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "aa6849cabcc1e934048c084d3812783774fc6b5fb033098845d8296fbefb9de1",
+ "sha256": "246207d9b50e9ef75e9cc6bc622a0869ae335f842a8b7d5b71a43f3392e37959",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",

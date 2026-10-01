@@ -1,0 +1,54 @@
+{
+ "request": "POST /devices/BMCAM_T/remote-config/plan",
+ "request_body": {
+  "set": {
+   "camera.controls_enabled": true,
+   "camera.exposure.enabled": true,
+   "camera.exposure.ev": -1.0,
+   "camera.exposure.shutter_us": 20000,
+   "camera.exposure.analogue_gain": 2.0,
+   "camera.white_balance.enabled": true,
+   "camera.white_balance.mode": "daylight"
+  }
+ },
+ "status": 200,
+ "response": {
+  "device_id": "BMCAM_T",
+  "ok": false,
+  "verb": "set",
+  "kv": {
+   "camera.controls_enabled": true,
+   "camera.exposure.enabled": true,
+   "camera.exposure.ev": -1.0,
+   "camera.exposure.shutter_us": 20000,
+   "camera.exposure.analogue_gain": 2.0,
+   "camera.white_balance.enabled": true,
+   "camera.white_balance.mode": "daylight"
+  },
+  "refusals": [
+   {
+    "reason": "too_big",
+    "key": null,
+    "why": "266 B > 234 B for one command: split it into two changes (key_bytes has each key's cost)"
+   }
+  ],
+  "warnings": [
+   {
+    "key": "camera.white_balance.mode",
+    "why": "manual white balance not checked here: camera.white_balance.gains not reported yet (the unit checks it)"
+   }
+  ],
+  "key_bytes": {
+   "camera.controls_enabled": 30,
+   "camera.exposure.enabled": 30,
+   "camera.exposure.ev": 25,
+   "camera.exposure.shutter_us": 34,
+   "camera.exposure.analogue_gain": 35,
+   "camera.white_balance.enabled": 35,
+   "camera.white_balance.mode": 38
+  },
+  "json_bytes": 266,
+  "max_json_bytes": 234,
+  "writable": true
+ }
+}

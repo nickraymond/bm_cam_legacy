@@ -56,3 +56,17 @@ All three: **AGREE**, with these amendments (adopted in r2):
 | C | Message caps and budgets stay controls, but the backend clamps them: `still.message_cap` ≤ 300 (largest registry preset), `video.send.message_cap` ≤ 200 (**proposal**, no registry preset), `*.budget_min` ≤ 30 (**proposal**; largest preset 16); warn above the current production values (195 / 126 / 18). Higher = a deploy change. Nick decides (Q7). |
 
 Consensus reached 2026-10-01; SPEC r2 implements rows 1–20 + these amendments.
+
+## Code review of the implementation (r3, one independent reviewer, 2026-10-01)
+
+No blocking bug; all tests reproduced green. Findings and what was done:
+
+| # | finding | action |
+|---|---|---|
+| 1 | Boot G3 drop removes EVERY overlay key a violation names: a stored `mode.media=video` + bad `send.size` + a valid `record.fps` are all dropped (unit stays on stills, reachable, `<CF err>`) | **Kept, documented** (SPEC r2 §3.4): fail-safe; narrowing it means changing `supervisor_config` G3 (boot path) — Next sprint if wanted. `mode.media` must stay named for the `set` refusal. |
+| 2 | Race: two concurrent `/changes` both pass `pending_unsent` (checked before the device-row lock) | **Fixed**: re-check under the lock after `allocate_remote_id`; test simulates the stale read |
+| 3 | Non-ASCII digit (`"²x2"`) → 500 (`int()` after `isdigit()`) | **Fixed**: wire charset checked first; `check_value` errors → `bad_value` |
+| 4 | Odd `video.send.size` already stored + `mode.media=video` not refused by the backend | **Fixed** (`cross_key`) |
+| 5 | Backend refused a `video.send.*` change on a unit whose stored geometry is already broken (the unit would accept it) | **Fixed**: geometry refusal only when the change touches geometry keys or `mode.media`; else a warning |
+| 6 | `redirect_stdout` in the camera rule swaps `sys.stdout` process-wide (daemon thread prints could be lost) | **Fixed**: the output is evened first (as `parse_output` would, within the encoder ceiling), no redirect; parity sweep unchanged |
+| 7 | `camera.white_balance.gains` writable with no upper bound (into rpicam argv) | **Fixed as a proposal**: backend clamp ≤ 8.0 each (Q7, Nick decides) |

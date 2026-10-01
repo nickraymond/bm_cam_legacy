@@ -1,0 +1,129 @@
+{
+ "request": "GET /devices/BMCAM_T/remote-config",
+ "request_body": null,
+ "status": 200,
+ "response": {
+  "device_id": "BMCAM_T",
+  "catalog_sha256": "aa6849cabcc1e934048c084d3812783774fc6b5fb033098845d8296fbefb9de1",
+  "registry_version": 5,
+  "eligible": true,
+  "writable": true,
+  "why_not": [],
+  "send_enabled": true,
+  "gateway": "SPOT-33507C",
+  "reported": {
+   "hash": "580ce986",
+   "seen_at": "2026-10-01T06:09:41.134309+00:00",
+   "via": "ws"
+  },
+  "changed_elsewhere": [],
+  "keys": [
+   {
+    "path": "camera.exposure.enabled",
+    "tier": "control",
+    "reported": false,
+    "reported_text": "0",
+    "source": null,
+    "desired": true,
+    "reset": false,
+    "state": "differs",
+    "command_id": 1000001,
+    "in_flight": 1000001
+   },
+   {
+    "path": "camera.exposure.mode",
+    "tier": "engineering",
+    "reported": null,
+    "reported_text": null,
+    "source": null,
+    "desired": null,
+    "reset": null,
+    "state": null,
+    "command_id": null,
+    "in_flight": null
+   },
+   {
+    "path": "camera.exposure.ev",
+    "tier": "control",
+    "reported": null,
+    "reported_text": "null",
+    "source": null,
+    "desired": -1.0,
+    "reset": false,
+    "state": "differs",
+    "command_id": 1000001,
+    "in_flight": 1000001
+   },
+   {
+    "path": "camera.exposure.shutter_us",
+    "tier": "control",
+    "reported": null,
+    "reported_text": null,
+    "source": null,
+    "desired": null,
+    "reset": null,
+    "state": null,
+    "command_id": null,
+    "in_flight": null
+   },
+   {
+    "path": "camera.exposure.analogue_gain",
+    "tier": "control",
+    "reported": null,
+    "reported_text": null,
+    "source": null,
+    "desired": null,
+    "reset": null,
+    "state": null,
+    "command_id": null,
+    "in_flight": null
+   }
+  ],
+  "pending_unsent": [],
+  "in_flight_keys": {
+   "camera.exposure.ev": 1000001,
+   "camera.controls_enabled": 1000001,
+   "camera.exposure.enabled": 1000001
+  },
+  "commands": [
+   {
+    "command_id": 1000001,
+    "verb": "set",
+    "sender": "admin",
+    "lane": "sofar",
+    "kv": {
+     "camera.exposure.ev": -1.0,
+     "camera.controls_enabled": true,
+     "camera.exposure.enabled": true
+    },
+    "command": "{\"id\":1000001,\"c\":\"set\",\"kv\":{\"camera.controls_enabled\":true,\"camera.exposure.enabled\":true,\"camera.exposure.ev\":-1.0}}",
+    "created_at": "2026-10-01T07:09:41.191085+00:00",
+    "sent_at": "2026-10-01T07:09:41.243294+00:00",
+    "status": "waiting",
+    "dead": false,
+    "ui_status": "sent"
+   },
+   {
+    "command_id": 1000000,
+    "verb": "ping",
+    "sender": "admin",
+    "lane": "sofar",
+    "kv": null,
+    "command": "{\"id\":1000000,\"c\":\"ping\"}",
+    "created_at": "2026-09-28T07:04:41.134309+00:00",
+    "sent_at": "2026-09-28T07:04:41.134309+00:00",
+    "status": "answered",
+    "dead": false,
+    "ui_status": "other",
+    "h": "580ce986",
+    "ack": {
+     "ok": true,
+     "h": "580ce986",
+     "e": null,
+     "k": null,
+     "at": "2026-09-28T07:09:41.134309+00:00"
+    }
+   }
+  ]
+ }
+}

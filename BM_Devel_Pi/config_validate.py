@@ -215,20 +215,26 @@ VIDEO_SEND_SIZE_MIN_PX = 16     # rc_video_tx.validate_video_tx_config: even WxH
 
 def _video_geometry(values):
     """-> (geometry dict, None) or (None, reason). Pure: video_geometry is
-    arithmetic only; its one stdout warning (odd output rounded) is swallowed so
-    a validate() on every ack hash does not spam the log (REVIEW_r1 A10)."""
-    import contextlib
-    import io
-
+    arithmetic only. Its one print (an odd output rounded to even, with a
+    [VID][WARN] line) is avoided by evening the output here first, exactly as
+    parse_output would, so a validate() on every ack hash stays silent
+    (REVIEW_r1 A10) without swapping sys.stdout under other threads."""
     import video_geometry
     vcfg = {"fps": values.get("video.record.fps", 15)}
     for path, name in (("video.record.framing", "preset"), ("video.record.crop", "crop_native_xywh"),
                        ("video.record.output", "output"), ("video.record.sensor_mode", "sensor_mode")):
         if values.get(path) is not None:
             vcfg[name] = values[path]
+    if "output" in vcfg:
+        try:
+            a, b = str(vcfg["output"]).strip().lower().replace(" ", "").split("x", 1)
+            w, h = int(a), int(b)
+            if 0 < w <= video_geometry.MAX_ENCODE_W and 0 < h <= video_geometry.MAX_ENCODE_H:
+                vcfg["output"] = f"{w - w % 2}x{h - h % 2}"
+        except ValueError:
+            pass                 # resolve_geometry refuses it with its own message
     try:
-        with contextlib.redirect_stdout(io.StringIO()):
-            return video_geometry.resolve_geometry(vcfg), None
+        return video_geometry.resolve_geometry(vcfg), None
     except Exception as exc:     # GeometryError, and TypeError for crop xor output (REVIEW_r1 A2)
         return None, f"{type(exc).__name__}: {exc}"
 
