@@ -31,8 +31,16 @@
 # in-flight burst finishes first, up to ~5 min), only then -KILL.
 # Test hooks (tests/test_s3b_wrapper.py only): BMCAM_APP_DIR, BMCAM_PYTHON,
 # BMCAM_SLEEP, BMCAM_STAY_ON_MARKER.
+#
+# Arguments (Sprint26 close-out, 2026-09-30): anything given to THIS script is
+# passed on to every runtime start, after --transmit (bench use, e.g.
+#   rc_run_capture_cycle.sh --bench-drop-chunks start,5,17).
+# Cron passes none, so the cron command line is unchanged. Before this fix the
+# args were silently dropped: "$@" inside run_rc() is the function's own args.
 
 set -u
+
+SCRIPT_ARGS=("$@")
 
 APP_DIR="${BMCAM_APP_DIR:-/home/pi/BM_Devel_Pi}"
 LOG_DIR="$APP_DIR/cron_logs"
@@ -111,7 +119,9 @@ trap on_term TERM
 run_rc() {
   rm -f "$MARKER"          # a stale marker must never make a per_boot death loop
   RUN_START=$(uptime_s)
-  "$PYTHON" -u rc_progressive_jpeg.py --transmit "$@" &
+  # ${a[@]+...}: an empty array under `set -u` (bash < 4.4 calls it unbound).
+  # "$@" here is run_rc's own args (--crashloop).
+  "$PYTHON" -u rc_progressive_jpeg.py --transmit ${SCRIPT_ARGS[@]+"${SCRIPT_ARGS[@]}"} "$@" &
   CHILD=$!
   wait "$CHILD"
   EXIT_CODE=$?

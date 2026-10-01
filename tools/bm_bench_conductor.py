@@ -28,6 +28,18 @@ rig (Spotter -> backend device). The units run stay_on, trigger-only
      11-30 min late; MAX_ROW_WAIT_S bounds the wait, then `no_row`).
   4. the next trigger no sooner than --min-interval after this one (cellular budget).
 
+  5. --indoor-flush (BENCH ONLY, default off; Nick 2026-09-30, S5 F1): once per cycle,
+     in the idle window between bursts, `note sync` on that Spotter's console when the
+     Notecard looks backed up (see flush_decision). Indoors the weak cellular link is
+     suspected to drain the Notecard slowly so MS_Q_CELLULAR_ONLY fills and drops chunks.
+     A sync itself holds the queue full for up to ~40 s ("Attempting to Sync"), so it is
+     never sent mid-burst or close to the next trigger. Not a production feature.
+
+Console accounting (always on): every console line is classified (Notecard pct,
+`Queue MS_Q_CELLULAR_ONLY is full.`, `Attempting to Sync.`, `Sync request sent
+successfully`); each cycle's counts go in the ledger and a `console_cycle` event, so
+the queue-full rate per Spotter and the flush effect come out of summary.json.
+
 Every claimed media is re-read each cycle until complete. After --hours the
 conductor stops triggering, keeps healing for --drain-min, then writes
 summary.json and exits 0 (1 if any clip is lost). Lost = a trigger with no row,
@@ -43,13 +55,15 @@ Inputs
   --run-dir      where events.jsonl / state.json / summary.json go
                  (default <log-root>/conductor/<UTC start>)
   --hours / --min-interval / --drain-min / --api / --env-file
+  --indoor-flush [--flush-pct 10 --flush-after-min 8 --flush-lead-min 5]
   --report DIR   print the summary of a run directory and exit (no network)
 Outputs (run dir): events.jsonl (one line per event), state.json (ledger),
-  summary.json (per rig: triggers, rows, complete, healed, lost, latencies).
+  summary.json (per rig: triggers, rows, complete, healed, lost, latencies,
+  queue-full per cycle, flushes and the first-try rate after a flush vs without).
 
 Example (nereus000):
   python3 bm_bench_conductor.py --rig SPOT-33507C=BMCAM_003=bmcam003 \\
-      --rig SPOT-31593C=BMCAM_004=bmcam004 --hours 24 --min-interval 30
+      --rig SPOT-31593C=BMCAM_004=bmcam004 --hours 24 --min-interval 30 [--indoor-flush]
 systemd (Restart=no: a run is one 24 h experiment; resume is not supported):
   ExecStart=/usr/bin/python3 -u /home/pi/bm_bench_conductor.py --rig ... --hours 24
 
@@ -80,6 +94,60 @@ MATCH_SLACK_S = 60.0            # captured_at is the Spotter clock; the trigger 
 MAX_ROW_WAIT_S = 45 * 60
 POLL_S = 60.0
 DONE_REASONS = ("complete", "nothing_missing")
+
+# --- indoor flush (bench only) ------------------------------------------------------
+# Spotter console lines (runs/s5_console_20260928/pulled/*.txt, s2_bench console_commands.log):
+#   "[MS] [DEBUG] Notecard is 6.000000 pct full."   printed per MS submission (not when idle)
+#   "[MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full." one per rejected message (the paired
+#       "Error adding message to queue." / "[BM_TX] Unable to submit ..." lines are NOT counted)
+#   "[MS] [DEBUG] Attempting to Sync."               the Spotter's own sync; ~40 s of queue-full
+#   "Sync request sent successfully to notecard"     the answer to our `note sync`
+# Measured 2026-09-28: SPOT-33507C synced by itself mid-burst at 4-6 % (16:42, 16:43),
+# SPOT-31593C at 20 % (18:56); one 185-chunk burst adds ~11 %; a forced sync drains to 2-3 %.
+FLUSH_LINE = "note sync"
+FLUSH_ACK = "Sync request sent successfully"
+FLUSH_ACK_WAIT_S = 15.0
+FLUSH_QUIET_S = 60.0            # no MS line for this long = the Spotter is not mid-burst
+
+
+def classify_console_line(text):
+    """One console line -> ("pct", float) | ("queue_full",) | ("sync_attempt",) |
+    ("sync_requested",) | None. Pure; the timestamp prefixes are ignored."""
+    if "Notecard is " in text and " pct full" in text:
+        try:
+            return ("pct", float(text.split("Notecard is ", 1)[1].split(" pct full", 1)[0]))
+        except ValueError:
+            return None
+    if "Queue MS_Q_CELLULAR_ONLY is full" in text:
+        return ("queue_full",)
+    if "Attempting to Sync" in text:
+        return ("sync_attempt",)
+    if FLUSH_ACK in text:
+        return ("sync_requested",)
+    return None
+
+
+def flush_decision(*, since_trigger_s, to_next_trigger_s, pct, queue_full_cycle, ms_age_s,
+                   already, pct_threshold, after_s, lead_s, quiet_s=FLUSH_QUIET_S):
+    """(flush?, reason). Pure. One flush per cycle, between bursts only:
+    - not before `after_s` past this cycle's trigger (the burst, heal chunks first, is ~4-5 min),
+    - not within `lead_s` of the next trigger (a sync holds the queue full for up to ~40 s),
+    - not while the console still shows MS submissions (last MS line < quiet_s ago),
+    - and only when the Notecard looks backed up: the last pct >= pct_threshold, or this
+      cycle already had `is full` rejections."""
+    if already:
+        return False, "already_flushed_this_cycle"
+    if since_trigger_s < after_s:
+        return False, "burst_window"
+    if to_next_trigger_s < lead_s:
+        return False, "too_close_to_next_trigger"
+    if ms_age_s is not None and ms_age_s < quiet_s:
+        return False, "console_busy"
+    if queue_full_cycle > 0:
+        return True, "queue_full"
+    if pct is not None and pct >= pct_threshold:
+        return True, "pct"
+    return False, "not_needed"
 
 
 def utc_now():
@@ -143,8 +211,29 @@ def summarize(ledger):
             "trigger_to_row_s_p50": pct(to_row, 0.5), "trigger_to_row_s_p95": pct(to_row, 0.95),
             "trigger_to_complete_s_p50": pct(to_done, 0.5),
             "trigger_to_complete_s_p95": pct(to_done, 0.95),
+            **console_summary(recs),
         }
     return out
+
+
+def console_summary(recs):
+    """Queue-full per cycle and the flush comparison: cycles whose burst followed a flush
+    vs the rest (first-try complete, queue-full during the cycle). Pure."""
+    counted = [r for r in recs if r.get("console")]
+
+    def group(rs):
+        qf = [r["console"]["queue_full"] for r in rs]
+        done = [r for r in rs if r.get("complete_utc") and not r.get("healed_by")]
+        return {"cycles": len(rs), "complete_first_try": len(done),
+                "queue_full_total": sum(qf),
+                "queue_full_mean": round(sum(qf) / len(qf), 1) if qf else None}
+    return {
+        "queue_full_total": sum(r["console"]["queue_full"] for r in counted),
+        "spotter_sync_attempts": sum(r["console"]["sync_attempts"] for r in counted),
+        "flushes": sum(1 for r in recs if r.get("flush")),
+        "after_flush": group([r for r in counted if r.get("flushed_before")]),
+        "no_flush_before": group([r for r in counted if not r.get("flushed_before")]),
+    }
 
 
 def read_token(env_file):
@@ -186,6 +275,39 @@ class Console:
         self.dir = os.path.join(log_root, spotter)
         self.lines = collections.deque(maxlen=5000)   # (monotonic, text)
         self.lock = threading.Lock()
+        # cumulative counts (a burst is ~8000 console lines, more than `lines` keeps)
+        self.counts = {"queue_full": 0, "sync_attempt": 0, "sync_requested": 0}
+        self.pcts = collections.deque(maxlen=4000)    # (monotonic, Notecard pct)
+        self.ms_mono = None                           # last MS pct / queue-full line
+
+    def account(self, mono, text):
+        """Classify one line into the counters (called by follow, and by tests)."""
+        kind = classify_console_line(text)
+        if kind is None:
+            return
+        with self.lock:
+            if kind[0] == "pct":
+                self.pcts.append((mono, kind[1]))
+                self.ms_mono = mono
+            else:
+                self.counts[kind[0]] += 1
+                if kind[0] == "queue_full":
+                    self.ms_mono = mono
+
+    def snapshot(self):
+        """Counts now, the last pct and the ages (s) of the last pct / MS line."""
+        now = time.monotonic()
+        with self.lock:
+            last = self.pcts[-1] if self.pcts else None
+            return {**self.counts, "mono": now,
+                    "pct": last[1] if last else None,
+                    "pct_age_s": round(now - last[0], 1) if last else None,
+                    "ms_age_s": round(now - self.ms_mono, 1) if self.ms_mono else None}
+
+    def pcts_since(self, mono):
+        """Notecard pct values seen at/after `mono`, oldest first."""
+        with self.lock:
+            return [v for t, v in self.pcts if t >= mono]
 
     def follow(self, stop):
         day, fh = None, None
@@ -207,8 +329,10 @@ class Console:
             if not line:
                 time.sleep(0.3)
                 continue
+            mono, text = time.monotonic(), line.rstrip("\n")
             with self.lock:
-                self.lines.append((time.monotonic(), line.rstrip("\n")))
+                self.lines.append((mono, text))
+            self.account(mono, text)
 
     def seen_since(self, mono, needle):
         with self.lock:
@@ -231,7 +355,7 @@ class Console:
 
 class Conductor:
     def __init__(self, run_dir, backend, consoles, rigs, *, hours, min_interval_s, drain_s,
-                 clock=time.time, sleep=time.sleep, heal=True):
+                 flush=None, clock=time.time, sleep=time.sleep, heal=True):
         self.run_dir = run_dir
         self.backend = backend
         self.consoles = consoles            # {spotter: Console}
@@ -246,6 +370,9 @@ class Conductor:
         self.ledger = {dev: [] for dev, _ in rigs.values()}
         self.heals = {}                     # device -> outstanding heal command
         self.claimed = {dev: set() for dev, _ in rigs.values()}
+        # --indoor-flush: None = off (default), else {"pct", "after_s", "lead_s"}
+        self.flush = flush
+        self.last_flush = {dev: None for dev, _ in rigs.values()}   # flush before the next trg
         os.makedirs(run_dir, exist_ok=True)
 
     # --- records ---------------------------------------------------------------
@@ -359,6 +486,71 @@ class Conductor:
                            media_id=rec["media_id"], chunks=rec["expected"],
                            after_s=rec["complete_s"], healed_by=rec.get("healed_by"))
 
+    # --- indoor flush (bench only) + console accounting --------------------------------
+    def maybe_flush(self, spotter, rec, t0, snap0):
+        """--indoor-flush: at most one `note sync` per cycle, between bursts (flush_decision)."""
+        device = self.rigs[spotter][0]
+        if self.flush is None or rec.get("flush"):
+            return
+        console = self.consoles[spotter]
+        snap = console.snapshot()
+        queue_full = snap["queue_full"] - snap0["queue_full"]
+        now = self.clock()
+        go, reason = flush_decision(
+            since_trigger_s=now - t0, to_next_trigger_s=t0 + self.min_interval_s - now,
+            pct=snap["pct"], queue_full_cycle=queue_full, ms_age_s=snap["ms_age_s"],
+            already=False, pct_threshold=self.flush["pct"], after_s=self.flush["after_s"],
+            lead_s=self.flush["lead_s"])
+        if not go:
+            return
+        mark = time.monotonic()
+        console.publish(FLUSH_LINE)
+        deadline = time.monotonic() + FLUSH_ACK_WAIT_S
+        requested = False
+        while time.monotonic() < deadline:
+            if console.seen_since(mark, FLUSH_ACK):
+                requested = True
+                break
+            self.sleep(0.5)
+        flush = {"reason": reason, "pct_before": snap["pct"], "pct_age_s": snap["pct_age_s"],
+                 "queue_full_cycle": queue_full, "requested": requested,
+                 "after_trigger_s": round(now - t0, 1),
+                 "to_next_trigger_s": round(t0 + self.min_interval_s - now, 1)}
+        rec["flush"] = flush
+        self.last_flush[device] = {**flush, "mono": mark, "unix": now,
+                                   "counts": {k: snap[k] for k in ("queue_full", "sync_attempt")}}
+        self.event(spotter, "flush", trigger_id=rec["trigger_id"], **flush)
+
+    def flush_effect(self, spotter, rec):
+        """At the trigger after a flush: what the console showed between the flush and now."""
+        device = self.rigs[spotter][0]
+        last = self.last_flush.get(device)
+        if last is None:
+            return
+        self.last_flush[device] = None
+        snap = self.consoles[spotter].snapshot()
+        pcts = self.consoles[spotter].pcts_since(last["mono"])
+        effect = {"flush_reason": last["reason"], "pct_before": last["pct_before"],
+                  "pct_first_after": pcts[0] if pcts else None,
+                  "pct_last_before_trigger": pcts[-1] if pcts else None,
+                  "sync_attempts_between": snap["sync_attempt"] - last["counts"]["sync_attempt"],
+                  "queue_full_between": snap["queue_full"] - last["counts"]["queue_full"],
+                  "flush_to_trigger_s": round(self.clock() - last["unix"], 1)}
+        rec["flushed_before"] = effect
+        self.event(spotter, "flush_effect", trigger_id=rec["trigger_id"], **effect)
+
+    def console_cycle(self, spotter, rec, snap0):
+        """End of a cycle: queue-full / sync counts and the Notecard pct since the trigger."""
+        console = self.consoles[spotter]
+        snap = console.snapshot()
+        pcts = console.pcts_since(snap0["mono"])
+        stats = {"queue_full": snap["queue_full"] - snap0["queue_full"],
+                 "sync_attempts": snap["sync_attempt"] - snap0["sync_attempt"],
+                 "pct_at_trigger": snap0["pct"], "pct_first": pcts[0] if pcts else None,
+                 "pct_max": max(pcts) if pcts else None, "pct_last": pcts[-1] if pcts else None}
+        rec["console"] = stats
+        self.event(spotter, "console_cycle", trigger_id=rec["trigger_id"], **stats)
+
     # --- one rig -------------------------------------------------------------------
     def cycle(self, spotter):
         device = self.rigs[spotter][0]
@@ -368,6 +560,8 @@ class Conductor:
         tid = conductor_id(t0)
         rec = {"trigger_id": tid, "trigger_utc": utc_now(), "trigger_unix": t0}
         self.ledger[device].append(rec)
+        self.flush_effect(spotter, rec)
+        snap0 = self.consoles[spotter].snapshot()
         rec["acked"] = self.send(spotter, tid, json.dumps(
             {"id": tid, "c": "trg", "v": 2}, separators=(",", ":")), "trg")
         while self.clock() - t0 < MAX_ROW_WAIT_S:
@@ -383,13 +577,17 @@ class Conductor:
                            expected=row.get("expected_chunks"), after_s=rec["row_s"])
                 self.refresh(spotter, rows)
                 break
+            self.maybe_flush(spotter, rec, t0, snap0)
             self.sleep(POLL_S)
         else:
             self.event(spotter, "no_row", trigger_id=tid)
         self.save()
         while self.clock() - t0 < self.min_interval_s:
             self.refresh(spotter, self.rows(device))
+            self.maybe_flush(spotter, rec, t0, snap0)
             self.sleep(POLL_S)
+        self.console_cycle(spotter, rec, snap0)
+        self.save()
 
     def run_rig(self, spotter, end_unix, drain_end_unix):
         device = self.rigs[spotter][0]
@@ -450,6 +648,14 @@ def main():
     ap.add_argument("--env-file", default=os.path.expanduser("~/.config/nereus/heal_driver.env"))
     ap.add_argument("--api", default=DEFAULT_API)
     ap.add_argument("--report", metavar="RUN_DIR")
+    ap.add_argument("--indoor-flush", action="store_true",
+                    help="BENCH ONLY: `note sync` between bursts when the Notecard looks backed up")
+    ap.add_argument("--flush-pct", type=float, default=10.0,
+                    help="flush when the last 'Notecard is N pct full' is >= this (default 10)")
+    ap.add_argument("--flush-after-min", type=float, default=8.0,
+                    help="no flush sooner than this after the cycle's trigger (burst; default 8)")
+    ap.add_argument("--flush-lead-min", type=float, default=5.0,
+                    help="no flush within this of the next trigger (default 5)")
     args = ap.parse_args()
     if args.report:
         report(args.report)
@@ -462,6 +668,10 @@ def main():
         rigs[spotter] = (device, host)
     run_dir = args.run_dir or os.path.join(args.log_root, "conductor",
                                            time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
+    flush = None
+    if args.indoor_flush:
+        flush = {"pct": args.flush_pct, "after_s": args.flush_after_min * 60,
+                 "lead_s": args.flush_lead_min * 60}
     consoles = {s: Console(args.log_root, s) for s in rigs}
     stop = threading.Event()
     for s, c in consoles.items():
@@ -469,11 +679,11 @@ def main():
     conductor = Conductor(run_dir, Backend(args.api, read_token(args.env_file)), consoles, rigs,
                           hours=args.hours, min_interval_s=args.min_interval * 60,
                           heal=not args.no_heal,
-                          drain_s=args.drain_min * 60)
+                          drain_s=args.drain_min * 60, flush=flush)
     for s in rigs:
         conductor.event(s, "conductor_start", run_dir=run_dir, hours=args.hours,
                         heal=not args.no_heal,
-                        min_interval_min=args.min_interval, api=args.api)
+                        min_interval_min=args.min_interval, api=args.api, indoor_flush=flush)
     time.sleep(2)                        # let the followers reach the end of the logs
     summary = conductor.run()
     stop.set()

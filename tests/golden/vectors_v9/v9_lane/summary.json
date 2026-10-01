@@ -155,7 +155,7 @@
    "sha256": "0069b990be08d845"
   },
   "state/config_journal.jsonl": {
-   "bytes": 342,
+   "bytes": 341,
    "sha256": "wall-time"
   },
   "tuned_halt.sh": {

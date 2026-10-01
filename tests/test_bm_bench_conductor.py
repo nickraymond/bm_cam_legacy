@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # filename: test_bm_bench_conductor.py
-# description: Sprint26 S5 — bench conductor: id range, row matching, summary, one full cycle against fakes (heal first, trg acked, row claimed, completion tracked).
+# description: Sprint26 S5 — bench conductor: id range, row matching, summary, one full cycle against fakes (heal first, trg acked, row claimed, completion tracked); console accounting and the --indoor-flush rule against recorded Spotter console lines.
 """
 Run (repo root):
   python3 -m unittest tests.test_bm_bench_conductor -v
@@ -69,17 +69,29 @@ class FakeClock:
 
 
 class FakeConsole:
-    """Every published command is answered at once (the unit's "OK id=<id> ...")."""
+    """Every published command is answered at once (the unit's "OK id=<id> ...", the
+    Spotter's "Sync request sent successfully"). `snap` is what snapshot() reports."""
 
     def __init__(self):
         self.published = []
+        self.snap = {"queue_full": 0, "sync_attempt": 0, "sync_requested": 0, "mono": 0.0,
+                     "pct": None, "pct_age_s": None, "ms_age_s": None}
+        self.pcts = []
 
     def publish(self, line):
         self.published.append(line)
 
     def seen_since(self, _mono, needle):
+        if needle == C.FLUSH_ACK:
+            return C.FLUSH_LINE in self.published
         cid = needle.split("=")[1].strip()
         return any(f'"id":{cid},' in p for p in self.published)
+
+    def snapshot(self):
+        return dict(self.snap)
+
+    def pcts_since(self, _mono):
+        return list(self.pcts)
 
 
 class FakeBackend:
@@ -207,6 +219,156 @@ class Cycle(unittest.TestCase):
                                        "trg"))
             self.assertEqual(len(console.published), C.PUBLISH_TRIES)
             self.assertEqual(len(set(console.published)), 1)
+
+
+RUNS = os.path.join(REPO_ROOT, "runs")
+WAKE1 = os.path.join(RUNS, "s5_console_20260928", "pulled", "console_wake1_1640.txt")
+LADDER4 = os.path.join(RUNS, "s5_console_20260928", "pulled", "console_bmcam004_ladder.txt")
+S2_CMDS = os.path.join(RUNS, "s2_bench_20260926", "console_commands.log")
+
+
+def recorded(path):
+    with open(path, "r", encoding="utf-8", errors="replace") as fh:
+        return [line.rstrip("\n") for line in fh]
+
+
+class ConsoleLines(unittest.TestCase):
+    """Real SPOT-33507C / SPOT-31593C console lines (S5 bench, 2026-09-28)."""
+
+    def test_classify_recorded_lines(self):
+        k = C.classify_console_line
+        self.assertEqual(k("2026-09-28T16:42:00Z 2026-09-28T16:42:01.835Z [MS] [DEBUG] "
+                           "Notecard is 6.000000 pct full."), ("pct", 6.0))
+        self.assertEqual(k("2026-09-28T16:42:03Z 2026-09-28T16:42:04.652Z [MS] [ERROR] "
+                           "Queue MS_Q_CELLULAR_ONLY is full."), ("queue_full",))
+        # a leading "." (the monitor's partial-line marker) does not matter
+        self.assertEqual(k("2026-09-28T16:42:03Z .2026-09-28T16:42:04.785Z [MS] [DEBUG] "
+                           "Attempting to Sync."), ("sync_attempt",))
+        # the two companion lines of one rejection are not counted again
+        self.assertIsNone(k("2026-09-28T16:42:03Z 2026-09-28T16:42:04.652Z [MS] [INFO] "
+                            "Error adding message to queue."))
+        self.assertIsNone(k("[BM_TX] [ERROR] Unable to submit message to cell-only queue"))
+        self.assertIsNone(k("2026-09-28T16:42:03Z bm pub bmcam/cmd {} 1 1"))
+
+    def test_the_monitor_answer_to_note_sync_is_recognised(self):
+        lines = [x for x in recorded(S2_CMDS) if C.classify_console_line(x) == ("sync_requested",)]
+        self.assertEqual(len(lines), 2)            # SPOT-33507C + SPOT-31593C, 2026-09-26 00:35
+
+    def test_replaying_a_wake_counts_like_grep(self):
+        # RESULTS F1: 90 queue-full rejections in bmcam003's 16:40 production wake,
+        # two Spotter syncs (16:42:04 at 6 %, 16:43:14 at 4 %)
+        con = C.Console("/nonexistent", "SPOT-33507C")
+        for i, line in enumerate(recorded(WAKE1)):
+            con.account(float(i), line)
+        snap = con.snapshot()
+        self.assertEqual((snap["queue_full"], snap["sync_attempt"]), (90, 2))
+        self.assertEqual(con.pcts_since(0.0)[0], 2.0)
+        self.assertLess(max(con.pcts_since(0.0)), 10.0)   # it rejected at a near-empty Notecard
+
+    def test_bmcam004_ladder_sync_at_20_pct_then_drained(self):
+        con = C.Console("/nonexistent", "SPOT-31593C")
+        for i, line in enumerate(recorded(LADDER4)):
+            con.account(float(i), line)
+        pcts = con.pcts_since(0.0)
+        self.assertEqual(pcts[0], 20.0)            # 18:55, before its own sync at 18:56:02
+        self.assertEqual(min(pcts), 3.0)           # drained, then a burst adds ~11 %
+        self.assertEqual(con.snapshot()["sync_attempt"], 1)
+
+
+class FlushRule(unittest.TestCase):
+    ARGS = dict(pct_threshold=10.0, after_s=480.0, lead_s=300.0)
+
+    def decide(self, **kw):
+        base = dict(since_trigger_s=600.0, to_next_trigger_s=1200.0, pct=14.0,
+                    queue_full_cycle=0, ms_age_s=300.0, already=False)
+        base.update(kw)
+        return C.flush_decision(**base, **self.ARGS)
+
+    def test_backed_up_notecard_between_bursts_flushes(self):
+        self.assertEqual(self.decide(), (True, "pct"))
+        self.assertEqual(self.decide(pct=4.0, queue_full_cycle=12), (True, "queue_full"))
+        self.assertEqual(self.decide(ms_age_s=None), (True, "pct"))   # no MS line seen yet
+
+    def test_never_mid_burst_or_near_the_next_trigger(self):
+        self.assertEqual(self.decide(since_trigger_s=200.0), (False, "burst_window"))
+        self.assertEqual(self.decide(to_next_trigger_s=120.0), (False, "too_close_to_next_trigger"))
+        self.assertEqual(self.decide(ms_age_s=5.0), (False, "console_busy"))
+        self.assertEqual(self.decide(already=True), (False, "already_flushed_this_cycle"))
+
+    def test_not_needed_when_low_and_clean(self):
+        self.assertEqual(self.decide(pct=4.0), (False, "not_needed"))
+        self.assertEqual(self.decide(pct=None), (False, "not_needed"))
+
+
+class IndoorFlushCycle(unittest.TestCase):
+    def make(self, tmp, clock, flush):
+        backend = FakeBackend(clock)
+        console = FakeConsole()
+        cond = C.Conductor(tmp, backend, {"SPOT-X": console}, {"SPOT-X": ("BMCAM_003", "bmcam003")},
+                           hours=1, min_interval_s=1800, drain_s=0, flush=flush,
+                           clock=clock, sleep=clock.sleep)
+        return cond, backend, console
+
+    def test_default_off_never_sends_note_sync(self):
+        clock = FakeClock()
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
+            cond, _backend, console = self.make(tmp, clock, None)
+            console.snap.update(pct=30.0, ms_age_s=999.0, queue_full=0)
+            cond.cycle("SPOT-X")
+            self.assertNotIn(C.FLUSH_LINE, console.published)
+            rec = cond.ledger["BMCAM_003"][0]
+            self.assertNotIn("flush", rec)
+            self.assertIn("console", rec)          # accounting is always on
+
+    def test_one_flush_per_cycle_in_the_idle_window_and_its_effect_logged(self):
+        clock = FakeClock()
+        flush = {"pct": 10.0, "after_s": 480.0, "lead_s": 300.0}
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
+            cond, _backend, console = self.make(tmp, clock, flush)
+            console.snap.update(pct=14.0, ms_age_s=999.0)
+            console.pcts = [3.0, 14.0]
+            cond.cycle("SPOT-X")
+            self.assertEqual(console.published.count(C.FLUSH_LINE), 1)
+            rec = cond.ledger["BMCAM_003"][0]
+            f = rec["flush"]
+            self.assertTrue(f["requested"])
+            self.assertEqual((f["reason"], f["pct_before"]), ("pct", 14.0))
+            self.assertGreaterEqual(f["after_trigger_s"], 480.0)
+            self.assertGreaterEqual(f["to_next_trigger_s"], 300.0)
+            # the next trigger records what happened between the flush and it
+            console.pcts = [3.0]
+            cond.cycle("SPOT-X")
+            nxt = cond.ledger["BMCAM_003"][1]
+            self.assertEqual(nxt["flushed_before"]["pct_first_after"], 3.0)
+            s = C.summarize(cond.ledger)["BMCAM_003"]
+            self.assertEqual(s["flushes"], 2)
+            self.assertEqual(s["after_flush"]["cycles"], 1)
+            with open(os.path.join(tmp, "events.jsonl")) as fh:
+                text = fh.read()
+            for kind in ('"flush"', '"flush_effect"', '"console_cycle"'):
+                self.assertIn(kind, text)
+
+    def test_no_flush_while_the_console_is_busy(self):
+        clock = FakeClock()
+        flush = {"pct": 10.0, "after_s": 480.0, "lead_s": 300.0}
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
+            cond, _backend, console = self.make(tmp, clock, flush)
+            console.snap.update(pct=40.0, ms_age_s=1.0)      # MS lines still arriving
+            cond.cycle("SPOT-X")
+            self.assertNotIn(C.FLUSH_LINE, console.published)
+
+    def test_an_unanswered_note_sync_is_logged_not_retried(self):
+        clock = FakeClock()
+        flush = {"pct": 10.0, "after_s": 480.0, "lead_s": 300.0}
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"), \
+                mock.patch.object(C, "FLUSH_ACK_WAIT_S", 0.05):
+            cond, _backend, console = self.make(tmp, clock, flush)
+            console.snap.update(pct=14.0, ms_age_s=999.0)
+            real = console.seen_since
+            console.seen_since = lambda m, n: False if n == C.FLUSH_ACK else real(m, n)
+            cond.cycle("SPOT-X")
+            self.assertEqual(console.published.count(C.FLUSH_LINE), 1)
+            self.assertFalse(cond.ledger["BMCAM_003"][0]["flush"]["requested"])
 
 
 if __name__ == "__main__":

@@ -148,8 +148,12 @@ class Confirm(unittest.TestCase):
         self.assertNotIn("power.halt.enabled", st.overlay)
         self.assertEqual(sorted(st.guarded), ["power.bus_always_on", "power.halt.enabled"])
         self.assertEqual(boots(r, 5), [])                         # staged never reverts
+        r.lines()
         r.send({"id": 1_000_002, "c": "cfm", "ref": 1_000_001})
         self.assertEqual(r.acks()[0]["ok"], 1)
+        # S5 F3: say when it governs (a hld in the same tail was still clamped)
+        self.assertIn("power.bus_always_on applied (next action), "
+                      "power.halt.enabled applied (next action)", r.lines()[0])
         st = reload(r)
         self.assertIs(st.overlay["power.halt.enabled"], True)
         self.assertIs(st.overlay["power.bus_always_on"], True)

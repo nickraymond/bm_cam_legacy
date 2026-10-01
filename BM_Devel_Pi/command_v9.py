@@ -120,9 +120,13 @@ class Dispatcher:
 
     def _persist(self, cid, rng, answer, mutate=None, source=None):
         """One transaction: the verb's change + the cached answer + the
-        high-water. Journal after the persist. Raises on a write failure."""
+        high-water. Journal after the persist. Raises on a write failure.
+        The journal's old/new are the EFFECTIVE values (YAML + overlay), the
+        ones the console answer shows (S5 F4: it logged the overlay's own
+        value, `none -> 03:00` for a key the YAML had at 00:00)."""
         done = []
         hw = []
+        before = self.effective() if mutate is not None else None
 
         def m(st):
             if mutate is not None:
@@ -134,8 +138,11 @@ class Dispatcher:
                 if st.high_water.get(rng) != old:
                     hw.append((old, st.high_water[rng]))
         self.state.transaction(m)
+        after = self.effective() if done else None
         for path, old, new in done:
             if isinstance(path, str) and "." in path:
+                if path in before:
+                    old, new = before.get(path), after.get(path)
                 self.state.journal(source or rng or "unknown", path, old, new, cid)
         for old, new in hw:
             # S4b review #5: the journal survives a lost state file; this line
@@ -343,8 +350,11 @@ class Dispatcher:
                 self._validate(cmd, new_overlay, staged)        # review #6: as it is NOW
             except W.Rejected as rej:
                 return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
+        # S5 F3: a staged value is applied now but governs from the next
+        # decision point (next action) or the next boot, like `set` says.
         text = f"cfm {ref}: " + ", ".join(
-            f"{p} {'applied' if p in staged else 'confirmed'}" for p in sorted(pending))
+            (f"{p} applied ({'next boot' if R.BY_PATH[p].apply == R.NEXT_BOOT else 'next action'})"
+             if p in staged else f"{p} confirmed") for p in sorted(pending))
         event = self._applied(cmd, text, mutate=lambda st: G.confirm(st, ref))
         self._change_summary(cmd, event)
         return event
