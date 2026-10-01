@@ -387,3 +387,555 @@ Sofar or staging was touched during the S5 loop.
   the tools to the backend allocator (S6b).
 - **Demo.** Local, recorded in each PR body. The staging demo is S6b step 1, done with
   cherry-picked copies of the commits.
+
+## 9. PLAN_S6b_backend — steps 6 (code) and 7
+
+Written 2026-09-29. Status: **APPROVED as proposed (Nick, 2026-09-29), S1–S5 as recommended.** D, L and H6 built (§9.10, §9.12, §9.13); all three open as drafts, none merged.
+Scope: backend code only, nvd `origin/staging` a2721d3 (S6a #65/#66/#67 + heal fix #68 merged;
+migration head `20260928_0016`; suite baseline **48/48** on this Mac with a scratch Postgres).
+Built while the bench test runs, so:
+
+- **No sending, no hardware.** No ssh to or command for bmcam003/004/nereus000, no Spotter
+  `cmd.txt`, no Sofar request of any kind. Tests and the demo use a fake HTTP layer.
+- **No merge into staging.** PRs open; Nick merges when the bench says so.
+- **Everything new is OFF by default:** `BM_HEAL_AUTOSEND` and `BM_COMMAND_SEND` default `0`,
+  with empty device lists. A merge changes no behaviour. It runs one DDL migration (a new table
+  only), the tick summary gains a `heal_autosend: {"enabled": false}` key, and logs.html gains
+  read-only rows.
+
+### 9.0 Facts this rests on (checked in this session)
+
+- **Sofar command API** (`docs/sofar_command_api_reference.md`, `tools/sofar_send_command.py`):
+  - `POST https://api.sofarocean.com/user-rest/devices/<spotter>/command?token=…` with body
+    `{"telemetry":"cellular","message":"<console line>"}`; `202` = queued in the mailbox, the only
+    delivery signal.
+  - The cellular mailbox never expires and runs commands in order on the next cellular transmit.
+  - 1 successful request/min/Spotter; after a success, ALL requests are rejected until the
+    cooldown ends. The documented line limit is 270 B incl. the final newline.
+  - `runs/sofar_command_sends.jsonl` (56 records, 2026-07-27 → 2026-09-25): `?token=` auth
+    works (51 × 202 on SPOT-33507C / SPOT-31593C). A cooldown rejection is **HTTP 400**
+    `{"status":"bad request","message":"Too many requests, next send allowed at <date>"}` (3 ×).
+    2 network errors (TLS). The tool labels every network error "nothing enqueued"
+    (`sofar_send_command.py:357`); a timeout after Sofar enqueued is NOT excluded, so the
+    backend treats it as `unknown`.
+- **Tokens.** `external_gateways.token_env_var` names the env var per Spotter, resolved by
+  `gateway_poll.resolve_gateway_token`. Per memory (not checked in the repo): SPOT-33361C
+  (bmcam001/002, field) is on `SOFAR_API_TOKEN_AOML`; the bench Spotters are on
+  `SOFAR_API_TOKEN_BM_REEF`.
+- **`sofar_client._make_session` retries GET only.** A command POST must not use it: a retried
+  POST after an enqueue is a second command.
+- **Heals today.** `POST /admin/ingest/devices/{d}/heal-commands` allocates, packs and records.
+  The conductor (heal_step every cycle since F10) and bm-heal-driver take their ids there and
+  publish over the **console**; nothing sends via Sofar. `heal_commands.last_hl_action` is per
+  command, not per key.
+  - The per-key answers are `<HL>` telemetry rows. To read them, use the heal-events predicate
+    (`message_type = heal_status` OR raw `LIKE '<HL %'`, because of the B20 rows, `main.py:2112`).
+- **`<HL>` semantics** (`BM_Devel_Pi/rc_heal.py`):
+  - `a=sent r=ok`: every asked chunk was sent.
+  - `a=sent r=partial`: some were sent; the heal stays pending.
+  - `a=dropped r=expired`: the unit gave up.
+  - `a=refused` with `no_record | no_payload | range`: terminal for that key. A sha mismatch at
+    send time is also terminal.
+  - One `<HL>` per key per wake. The priority is `sent > dropped > refused > requested`, so a
+    partial send in the same wake as the expiry reads as `sent r=partial`.
+- **Command log (S6a C).**
+  - `device_commands.sent_at` / `sent_status` are set only by `POST …/sent`.
+  - `command_status` goes to waiting/late on any `sent_at` and ignores `sent_status`
+    (`command_status.py:170`).
+  - `POST …/commands` hard-codes `lane="sofar"` (`admin_commands.py:131`).
+  - `<CF>` heads live in the cf sighting's `sources` as `_err _k _reverted _lim _ref _n`.
+- **Two Render services** (cron `*/5` and web) with their own env, per the S6a deploy practice
+  (not in the repo).
+- **logs.html** merges `/systems/{id}/heal-events` (kinds `heal_request`, `heal_status`), also in
+  non-BM mode. Commands, acks and `<CF>` are not shown. The probe's `KV_RE` needs keys of 2+
+  characters.
+- **`app/settings.py` runs `load_dotenv(backend/.env)`.** That file (main checkout) holds a
+  production-like `DATABASE_URL` and a Sofar token. The worktree has no `.env`.
+
+### 9.1 What gets built (two nvd PRs into `staging`)
+
+| PR | branch | contents | migration | new behaviour on merge |
+|---|---|---|---|---|
+| **D** | `feature/s6b-sofar-sender` | commits: (1) send log + Sofar client + guard; (2) remote-command `…/send` + `lane` + `…/sent` logging; (3) heal auto-send walk + no-double-issue; (4) heal-events sent fields | `20260929_0017` (new table only) | none (flags off) |
+| **L** | `feature/s6b-logs-commands` (from `staging`, independent) | `/systems/{id}/command-events`; logs.html commands / acks / `<CF>` + §6.5 status (incl. `send_failed`); START `r m d` in the probe | none | read-only UI rows |
+
+D's commits depend on each other, so D is one PR with one commit per concern, each green (the
+S6a C style, ruling S5). L is independent. R4's "logs.html shows it" means L merges before the
+R4 gate.
+
+### 9.2 D(1) — the send log, the Sofar client, the one guard
+
+- **Migration `20260929_0017`** creates the new table `sofar_command_sends`. Nothing is ALTERed
+  (ruling S1). The migration is DDL only:
+  - `SET LOCAL lock_timeout = '5s'`, `CREATE TABLE IF NOT EXISTS` matching the ORM, no backfill;
+  - offline test + scratch-Postgres upgrade/downgrade/upgrade.
+  
+  The table has one row per send attempt:
+  - who and what: `spotter_id`, `device_id`, `kind` (`heal` | `command`), `command_id` BIGINT,
+    `requested_by` (`autosend` | `admin` | `tool`), `token_env_var` (the name only), `message`,
+    `message_bytes`;
+  - timing: `created_at`, `completed_at`;
+  - result: `http_status` (NULL until done, and NULL when unknown), `outcome`, `response`
+    (≤ 2000 chars, token-scrubbed).
+  
+  Indexes: `(spotter_id, completed_at)` and `(device_id, kind, command_id)`. This is the
+  backend's copy of the tool's `sofar_command_sends.jsonl`.
+  - Heal "requested_by / sent via / sent at / status" are derived by joining on
+    (device_id, command_id). A heal with no send row was requested by the API (console /
+    operator).
+  - So no ALTER on `heal_commands`: no lock on the table `<HL>` ingest updates, and no
+    deploy-order risk for the cron ORM.
+- **`app/services/sofar_commands.py`** (new, small):
+  - `validate_message(line)`: printable ASCII, no tab, ≤ 270 B incl. newline (Sofar's rule). The
+    tighter 256 B caps stay upstream in `heal_commands` / `command_outbound` (H3) until §5 step 5.
+  - `post_command(spotter_id, token, message, *, transport)` makes **one** POST:
+    - telemetry is hard-locked to `cellular`, and `clear_command_queue` is never set;
+    - timeouts (5 s connect, 20 s read), **no retry adapter**;
+    - the token is scrubbed from every exception text and response before anything is logged
+      or stored (a `requests` error string carries the full URL).
+    - `transport` comes from a FastAPI dependency (web) or a parameter (cron). Tests override
+      it, and production code has no env switch to a fake.
+  - **Three-phase send** (the POST never runs inside an open transaction):
+    1. **txn 1** (commit):
+       - `pg_advisory_xact_lock(hashtext('sofar-send:' || spotter))`;
+       - the **guard**: the Spotter is busy when it has a send row within the last 65 s with
+         outcome `sent`, `pending` or `unknown`, anchored on `completed_at` (`created_at` while
+         pending), since Sofar's cooldown starts when it accepts;
+       - the caller's re-checks (§9.3);
+       - allocate the id and insert the command / heal row;
+       - insert a send row `outcome=pending`.
+       
+       If the Spotter is busy: `rate_limited_local`, no row, no request, one log line.
+    2. **POST**, with no transaction open. The heal / command row is already committed, so its
+       id is never reused even if what follows fails.
+    3. **txn 2**: update the send row: `completed_at`, `http_status`, `outcome`.
+    
+    A crash between 2 and 3 leaves `pending`. A `pending` older than 10 min reads as `unknown`.
+  - Outcomes:
+    - `sent`: 202;
+    - `rate_limited`: 400 whose message starts "Too many requests", i.e. a sender we cannot see;
+    - `rejected`: other 4xx;
+    - `auth_failed`: 401/403;
+    - `unknown`: network error, timeout or 5xx. The command may be in the mailbox.
+  - **Retries:** never automatic. For heals, see §9.3. For remote commands, the operator calls
+    `…/send` again with the same id (§9.2b).
+- **Gateway checks for every send:**
+  - the gateway must be `poll_enabled` and not `paused` (`current_gateway` can return a disabled
+    row);
+  - the device must be on its send allowlist;
+  - a command is sent only to the Spotter it was recorded for.
+
+### 9.2b D(2) — remote commands (H2, backend side)
+
+- `POST /admin/devices/{d}/commands/{id}/send` sends the recorded `command_json` line. It
+  refuses with **409** when:
+
+  | reason | condition |
+  |---|---|
+  | `sending_disabled` | `BM_COMMAND_SEND != 1` |
+  | `device_not_allowed` | `d` is not in `BM_COMMAND_SEND_DEVICES` (empty default) |
+  | `gateway_changed` | the current gateway ≠ `row.external_system_id` |
+  | `console_lane` | the row's lane is `console` |
+  | `already_answered` | the row has an ack |
+  | `newer_sent` | a higher remote id of the device already has `sent_at`: re-sending N earns `e:"old"`, so re-issue with a new id (DESIGN §6.5 "Late") |
+  | `rate_limited` | the local guard is busy (with `retry_after_s`) |
+
+  It uses only `sender=admin` rows. It sets `sent_at` / `sent_status` **only on 202**, or on
+  `unknown` with `sent_status` NULL and a note. Failures live only in the send log, so a failed
+  send never reads as "waiting".
+- `command_status` gains **`send_failed`**: no `sent_at` and the latest send row for the id
+  failed. It is used by `GET …/commands` and by L.
+- `POST …/commands` accepts `lane` (`sofar` default | `console`).
+- `POST …/sent`:
+  - `http_status` may be null for the console lane;
+  - a Sofar-lane 202 marked this way also writes a send row (`requested_by=tool`,
+    `completed_at` = the given `sent_at`), so tool sends become visible to the guard.
+
+### 9.3 D(3) — heal auto-send in the cron tick (R4)
+
+- **Where:** `sofar_poll_worker.main`, **after** the processing phase, whose deadline is
+  anchored at the tick start.
+  - `run_heal_autosend(...)` has its own `SessionLocal` and a walk deadline (the tick budget
+    left, at least 60 s), and commits per device.
+  - It needs `--commit`; preview mode reports `would_send`.
+  - It never raises and never fails the tick. The result goes in `summary["heal_autosend"]`.
+- **Env (cron service only; the web side needs none, see "no double-issue"):**
+
+  | var | default | meaning |
+  |---|---|---|
+  | `BM_HEAL_AUTOSEND` | `0` | `1` = the walk runs; anything else returns `{"enabled": false}` before any query |
+  | `BM_HEAL_AUTOSEND_DEVICES` | empty | **required** comma list (e.g. `BMCAM_003,BMCAM_004`); empty = nothing is sent. Keeps field units out |
+  | `BM_HEAL_AUTOSEND_MAX_PER_DAY` | `24` | send attempts (`sent` / `unknown` / `rejected` / `rate_limited` rows, not local guard hits) per device per rolling 24 h; bench 96. Spacing = 86400 / max (96 → 15 min) |
+  | `BM_HEAL_AUTOSEND_REASK_S` | `5400` | how long a key stays in flight (= `COMMAND_EXPECTED_S`; an assumption until §5 step 3 gives p95 of send → `<HL>` at the backend) |
+
+- **Per device, in order.** The first rule that stops wins. Each decision logs one
+  `[heal_autosend]` line: device, decision, command id, keys, chunks, outcome, attempts in 24 h.
+  1. No current gateway, or it is disabled or paused → `no_gateway`.
+  2. **Other sender active:** an API-requested heal command (no send row) created within
+     `REASK_S` → `other_sender_active` (loud).
+  3. Attempts in 24 h ≥ max → `daily_cap`; the last attempt is younger than the spacing →
+     `spacing`.
+  4. `heal_candidates(db, d)` runs, with the S6a/#68 rules unchanged:
+     - F9 truncation, `key_collision` never, still-arriving < 600 s never;
+     - the `[heal]` lines log `received_age_s`.
+  5. **Key filter** (per media key, from its latest heal command of any sender):
+     - **in flight**: the command is younger than `REASK_S`, it was API-requested or its send
+       was `sent` / `unknown` / `pending`, and no release came back for (that id, that key);
+     - **release**: `<HL a=sent r=ok>` or `<HL a=dropped>`. `a=sent r=partial` does not release
+       (the heal is still pending, and it can hide a drop);
+     - **excluded**: any `<HL a=refused>` for the key. It is terminal, logged once per tick, and
+       never auto-asked again (a person can still heal it by hand once autosend is off).
+     
+     Nothing left → `nothing_new`.
+  6. Three-phase send (§9.2). txn 1 re-checks rules 2, 3 and 5 under the advisory lock, so a
+     conductor POST or an overlapping tick in between cannot double-issue. Then it allocates
+     (heal < 1e6, 256 B cap), packs and records.
+  7. Outcome:
+     - `sent` / `unknown`: the keys are in flight;
+     - `rejected` / `rate_limited`: not in flight, re-asked at the next due slot (the heal row
+       stays, its id is spent);
+     - `auth_failed`: stops that Spotter for the tick.
+- **No double-issue against a conductor** (KICKOFF §6). It is data-driven, so it holds even if
+  only the cron env is set:
+  - **web:** `POST …/heal-commands` answers **409 `autosend_active`** when the device has an
+    autosend send row within `REASK_S`. The conductor's heal step then logs `backend_error`
+    every cycle: visible, never silent.
+  - **cron:** rule 2 (re-checked in txn 1).
+  - Whichever sender is active holds the other off for `REASK_S`. Every heal sender takes its id
+    from the backend, so two cannot be live.
+- **"heal_requested, sent_via=sofar".** The `heal_request` rows of `/systems/{id}/heal-events`
+  gain `requested_by`, `sent_via`, `sent_at`, `send_outcome` and `sent_status` (from the send
+  log; null for API heals). The kind is not renamed: that would split the logs.html filter.
+- **Why not F10's "fresh command every cycle".** F10 fixed a conductor that held ONE command
+  for 3 cycles and starved new losses. The key filter is per key, so new losses go out at the
+  next slot. Over Sofar, a re-ask can reach the unit after it already re-sent the chunks
+  (exposure lag 11–30 min), which is a redundant heal (the R5 gate is 0).
+
+### 9.4 L — logs.html (step 7)
+
+- `GET /systems/{system_id}/command-events?device_id&start&end&limit&sort` (admin, the
+  heal-events window rules):
+  - kind `command`: `device_commands` rows whose created, sent or ack time falls in the window.
+    Each carries:
+    - its §6.5 status (incl. `send_failed`) from `command_status` over the device's whole log;
+    - lane, sender, JSON, sends (from the send log), the ack (`ack_raw` + fields + time) and
+      `expected_by`.
+  - kind `config`: cf sightings in the window: hash, ref, head (`_err _k _reverted _lim _n`),
+    and the snapshot kv of that hash.
+- **logs.html:**
+  - new type filters `command` and `config`, each fetched with its own try/catch like
+    heal-events. They are fetched in every mode, as heal-events already is (stated on purpose;
+    CAM_0003 gets empty lists, regression-checked);
+  - badges by status:
+    - green: saved, in_effect, answered, triggered;
+    - amber: allocated, waiting, staged, awaiting_cfm;
+    - red: late, rejected, reverted, send_failed;
+    - grey: superseded, observed;
+  - the detail panel shows the JSON / console line, sends, ack, hint and expected-by;
+  - `heal_request` rows show "sent via sofar 202 HH:MM", "send unknown", "send failed <status>"
+    or "console / operator".
+- **What "every command" can cover:**
+  - Shown: remote/service ids (backend-sent, tool-marked or observed).
+  - Heals: shown via `heal_commands` + `<HL>`.
+  - Conductor (2e9) and console ids: never reach the backend (console-only replies). They stay
+    in the conductor's `events.jsonl`, and R5's RESULTS says so.
+- **Probe:** a START-only pass that surfaces exactly `r`, `m`, `d`.
+
+### 9.5 H2 — tools move to the backend allocator (bm_cam_legacy, a later tools PR)
+
+The backend side is D(2), §9.2b. The tool changes are not in this session. Their shape:
+
+- **`sofar_send_command.py --device BMCAM_00x --backend <url>`**:
+  1. `POST …/commands` (allocate + record);
+  2. `POST …/send` (the backend sends through the one guard and send log; the token stays on
+     the server).
+  
+  The standalone `--id` mode stays, with a warning.
+- **GUI** (`lifecycle.py:154`):
+  - allocates via `POST …/commands` for both lanes instead of `max+1`;
+  - the console lane then calls `POST …/sent` (`lane=console`, `http_status=null`);
+  - the Sofar lane calls `…/send`.
+- **Conductor:** its 2e9 ids are unchanged. It gets a `--no-heal` switch; the 409 above stops it
+  meanwhile.
+- **Until the tools switch,** the S6a rule stands (every piece of evidence + `min_id`).
+
+### 9.6 Tests (no real Sofar; scratch Postgres per `backend/tests/README.md` §3)
+
+- **Pure checks:**
+  - `validate_message`, token scrubbing (no token in any row, log or exception text);
+  - outcome classification: 202, the recorded 400 "Too many requests" body, other 400, 401,
+    500, timeout, TLS error;
+  - flag and allowlist parsing.
+- **DB:**
+  - migration 0017, offline test and round trip;
+  - the guard: across kinds, `pending` / `unknown` count as busy, anchored on `completed_at`;
+  - a crash between the POST and txn 2 (the id is not reused; `pending` → `unknown` after
+    10 min);
+  - the walk:
+    - flag off → zero queries and zero writes;
+    - empty allowlist, disabled gateway;
+    - daily cap and spacing;
+    - in flight / `r=ok` / `r=partial` / `dropped` / `refused` release rules;
+    - B20-shaped `<HL>` rows;
+    - `other_sender_active` and the in-lock re-check;
+    - F9 truncation, `key_collision`, the heal id guard at 999 999;
+  - `…/send`: every 409, including `newer_sent` and `device_not_allowed`;
+  - `send_failed` status; `…/sent` send-log row; 409 `autosend_active`; the heal-events and
+    command-events fields.
+- **Whole suite:** every existing assert script passes (baseline 48/48), and any failure is
+  compared against `origin/staging`. The §11 main-wire fixture is unchanged.
+- **Demo:** FastAPI `TestClient` against the scratch Postgres, with the transport dependency
+  overridden by the fake. The real responses go in each PR body.
+  - The demo never runs uvicorn with a send flag set.
+  - It refuses a DB URL that is not local `*test*` (the S6a guard) and never reads
+    `backend/.env`.
+  - The first real send is §5 step 6 on the bench.
+
+### 9.7 Before anyone sets `BM_HEAL_AUTOSEND=1` (bench owner)
+
+1. **§5 step 3**: 10 heals via Sofar over ~10 h. This gives delivery % and p50/p95 per hop.
+   p95(POST → `<HL>` at the backend) sets `BM_HEAL_AUTOSEND_REASK_S` and `COMMAND_EXPECTED_S`.
+2. **§5 step 5**: the Sofar lane's line limit (256 / 257 / 270 B). This keeps or raises the
+   256 B heal cap and the 234 B command JSON cap.
+3. **The token on the cron service.** The env var named by each bench gateway's
+   `token_env_var` must be set on the **Render cron service** and accepted for command POSTs.
+   All 202s so far came from Nick's shell.
+4. **Cron env:**
+   - `BM_HEAL_AUTOSEND=1`;
+   - `BM_HEAL_AUTOSEND_DEVICES=BMCAM_003,BMCAM_004`;
+   - `BM_HEAL_AUTOSEND_MAX_PER_DAY=96`;
+   - `BM_HEAL_AUTOSEND_REASK_S` from step 1.
+   
+   Set `BM_HEAL_AUTOSEND_REASK_S` on the **web service too**: its 409 `autosend_active` window
+   reads it (code review #2). `BM_COMMAND_SEND*` stays off until §5 step 4.
+5. **Before the flip:**
+   - the conductor heal step is off and bm-heal-driver is stopped (else the walk logs
+     `other_sender_active` for `REASK_S` after their last heal);
+   - step 3's interim "conductor heals via Sofar" is off;
+   - no Mac CLI sends to those Spotters.
+6. **Gate R4:**
+   - a real loss is healed end-to-end by the backend alone;
+   - `[heal]` shows `received_age_s ≥ 600`;
+   - no `other_sender_active` after the flip;
+   - 0 re-asked keys inside `REASK_S`;
+   - L is merged (logs.html shows it).
+
+### 9.8 Rulings needed
+
+| # | question | recommended | alternatives |
+|---|---|---|---|
+| **S1** | where sends are recorded | send-log table only; heal sent fields joined (no ALTER on `heal_commands`) | + 4 `heal_commands` columns: simpler reads, but ACCESS EXCLUSIVE on a table `<HL>` ingest updates and cron/web deploy-order risk |
+| **S2** | re-ask rule | per key: in flight until `<HL a=sent r=ok>` / `dropped` or `REASK_S`; `refused` excluded | F10 fresh-every-slot: faster, but redundant re-sends over Sofar lag |
+| **S3** | which devices | required allowlists (`BM_HEAL_AUTOSEND_DEVICES`, `BM_COMMAND_SEND_DEVICES`) | every device with a gateway: would reach SPOT-33361C field units |
+| **S4** | who sends remote commands | the backend `…/send` (off + allowlisted), plus tool sends marked via `…/sent` into the send log | allocate-only (H2 minimum): tools send and mark; no backend command sender until later |
+| **S5** | PR shape | D (one PR, a commit per concern) + L independent | D1/D2 separate (D2 carries D1's commits anyway), or everything in one PR |
+
+Not in scope: H6 (fps from the snapshot), the tool changes (§9.5), any send, any merge.
+
+### 9.9 Review record (r1 → r2)
+
+Independent reviewer (fresh context, read-only, 2026-09-29): **7 MAJOR, 8 MINOR, 1 NIT, no
+BLOCKER** ("fix 1–7 before building"). All folded in:
+
+| # | finding | where fixed |
+|---|---|---|
+| 1 MAJOR | POST inside an open txn: a rolled-back 202 reuses the id (unit dedupes → heal lost); device lock held 30 s | §9.2 three-phase send, per-device commit |
+| 2 MAJOR | `unknown` treated as not in flight | §9.3 rule 5/7: in flight |
+| 3 MAJOR | `<HL>` misread (partial, sent>dropped, terminal refused, per-command column, B20 rows) | §9.0 semantics, §9.3 rule 5 |
+| 4 MAJOR | `…/send` could reach SPOT-33361C | §9.2 allowlist, gateway match, lane, disabled gateway |
+| 5 MAJOR | failed send reads "waiting" | `sent_at` only on 202/unknown; `send_failed` |
+| 6 MAJOR | re-send after a newer id earns `e:old` | 409 `newer_sent` |
+| 7 MAJOR | local demo could hit real Sofar via `backend/.env` | §9.6 TestClient + dependency override |
+| 8 | TOCTOU between checks and lock | re-check in txn 1 |
+| 9 | token in `requests` error text | scrubbed + test |
+| 10 | guard anchor; cap counting | `completed_at`; local hits not counted |
+| 11 | web 409 needs web env | data-driven 409 |
+| 12 | walk eats the processing deadline | after processing, own deadline, (5, 20) s |
+| 13 | S1 missing send-log-only option; ALTER risk | S1 recommendation changed |
+| 14 | S5/S4 options | S5 now D + L; S4 alternative restated |
+| 15 | send-log date range; unverifiable facts | §9.0 corrected / labelled |
+| 16 NIT | heal-events fetched in non-BM mode; summary key; R4 needs L | §9.4, header, §9.7 |
+
+### 9.10 D build record (2026-09-29)
+
+nickraymond/nereus-vision-dev#69 (draft, into `staging`, NOT merged), branch
+`feature/s6b-sofar-sender`, 5 commits on a2721d3:
+- D.1 send log (0017) + client + guard;
+- D.2 remote-command send;
+- D.3 heal auto-send + heal-events fields (plan commit 4, folded into D.3);
+- review fixes;
+- tests/README.
+
+Suite 54/54 (baseline 48/48). Nothing was sent to Sofar, staging or hardware.
+
+- **Independent code review** (fresh context): 1 MAJOR, 7 MINOR, 3 NIT, all fixed.
+  - The MAJOR: a web POST and the walk overlapping could both issue a heal (the §9.3
+    "re-check under the Spotter lock" did not cover the web side).
+  - Now both take the **device-row lock** before their check. The lock order is Spotter
+    advisory lock → device row.
+  - Threaded tests cover both directions; a mutant without the lock fails them.
+- **Deviations from §9:**
+  - Only `no_record | no_payload | range | payload_changed` refusals are terminal
+    (`validate_err` and `no_validator` in `command_daemon.py` are not).
+  - `auth_failed`, a Sofar `rate_limited` or no token stops that Spotter for the tick
+    (`spotter_stopped`).
+  - New command statuses `sending` and `send_unknown` (a crash after the POST).
+  - `newer_sent` also counts higher ids the unit answered or reported.
+- **Finding:** the cron worker configures no Python logging. So the `[heal]` logger lines
+  (received_age_s) never reach the Render cron log. The walk prints `received_age_s` per key
+  in its own `[heal_autosend]` stderr line instead. Enabling INFO logging worker-wide is a
+  separate decision.
+
+### 9.11 Backlog and facts after D (2026-09-29, relayed from Nick by the S4w session)
+
+- **H6 is assigned to S6b.** A START-lost video healed from `/M` gets its fps from the unit's
+  latest config snapshot (`video.send.fps`), labelled on the row, so the mp4 transcodes.
+  - Planned as its own small nvd PR after L (not built yet).
+  - W9 (bm #92) is merged to development (3c1801d), not deployed.
+- **Render (checked by Nick):** `BM_KEYED_GROUPING=on`, so A1 is verified. `BM_HEAL_AUTOSEND`
+  is unset; keep it unset until §9.7 is done.
+- **`tools/remote_latency_report.py` (§5 step 3):** S6b recommends the bench side builds it.
+  - In step 3 the sends and console logs are on nereus000.
+  - The backend half is `/systems/{id}/heal-events` (+ #69's send fields).
+  - S6b reviews it and adds any backend field it needs. Nick's call.
+
+### 9.12 L build record (2026-09-29)
+
+nickraymond/nereus-vision-dev#70 (draft, into `staging`, NOT merged), branch
+`feature/s6b-logs-commands` (from staging a2721d3, independent of D). Suite 49/49; a local
+D+L merge (never pushed) is clean at 55/55.
+
+- **Contents:**
+  - `GET /systems/{id}/command-events`: kind=command with §6.5 status and the ack; kind=config
+    for `<CF>` reports;
+  - logs.html `command` / `config` rows, filters and detail panels, and the heal_request send
+    note;
+  - a "Trigger + config" BM section (cfg tg r m d);
+  - a probe START-only pass for r / m / d.
+- **Independent code review:** no BLOCKER; 1 MAJOR, 6 MINOR, 4 NIT, all fixed except #2.
+  - The MAJOR: the whole history was loaded per page view. Now it is bounded by the window.
+  - Also fixed: a moved device's commands stay with their Spotter, and a row is placed at its
+    in-window event.
+- **Deferred #2 (after both merge):** pass D's send-log rows to `_cmd` / `_row_dict` in
+  `command_events.device_commands_in_window` (about three lines). Until then, on the merged
+  code, a never-queued command reads `allocated` rather than `send_failed` / `send_unknown`.
+- **Local demo:** uvicorn + scratch Postgres, non-BM system (no Sofar call possible). No
+  console errors; the page JS parses under JavaScriptCore.
+
+### 9.13 H6 build record (2026-09-29)
+
+nickraymond/nereus-vision-dev#71 (draft, into `staging`, NOT merged), branch
+`feature/s6b-h6-video-fps` (from staging a2721d3; no migration). Nick's rulings, 2026-09-29:
+- which config: the one in force at capture (the latest sighting at or before the media-key
+  time, else the latest);
+- no `video.send.fps` known → no fps (never guessed);
+- the label is capture telemetry `video_fps_source: config:<hash>`.
+
+Suite 49/49; the §11 main/v9 wire rows are byte-identical. A local D+L+H6 merge (never
+pushed) passes 56/56.
+
+- **Independent code review:** 1 MAJOR, 2 MINOR, all fixed.
+  - The MAJOR: a START arriving while the clip was still partial left the snapshot label next
+    to the START fps.
+  - A mutant without the fix fails the new test.
+- **Known limits:**
+  - `video.send.fps` is a `trg` one-shot key, so an fps-overridden clip plays at the snapshot
+    rate (labelled).
+  - A sighting from the clip's own wake counts as after capture (per the ruling).
+  - A chunk-born group missing chunk 0 in its first window is stored as a still
+    (pre-existing).
+  - Old START-lost clips are not backfilled.
+
+### 9.14 S6b HIL test plan (approved by Nick 2026-09-29; sent to the S5 bench owner)
+
+**Roles.**
+- **The bench owner** has hands on the rigs: nereus000, the consoles, Sofar sends from
+  nereus000, the conductor and bm-heal-driver.
+- **The backend** sends only through its own code once the flags are set.
+- **S6b (this session)** calls each step, watches staging read-only through the APIs, checks
+  the pass criteria, and says go or stop.
+- **Nick** merges and sets the Render env.
+
+Rigs: BMCAM_003 on SPOT-33507C, BMCAM_004 on SPOT-31593C, both on development 3c1801d (W9).
+
+**H0 — merges (Nick), in bench quiet windows. Nothing is enabled.**
+1. Merge #69 (migration 0017). Check:
+   - `alembic_version = 20260929_0017`;
+   - no long-held lock in `pg_stat_activity`;
+   - the next cron summary has `heal_autosend: {"enabled": false}`;
+   - 0 non-200 polls;
+   - CAM_0003 gallery/logs unchanged.
+2. Merge #70 and #71, in any order. Check that logs.html for SPOT-33507C / BMCAM_003 loads,
+   with command / config / heal_request rows, and that CAM_0003 is unchanged.
+3. S6b opens the D+L follow-up PR (send-log rows on command-events). Nick merges it.
+
+Env at the end of H0: nothing set. `BM_HEAL_AUTOSEND` and `BM_COMMAND_SEND` are unset.
+
+**H1 — read-only checks after the merges (S6b).**
+- logs.html shows the conductor's heals as "sent outside the backend (console / tool)", plus
+  the `<HL>` answers, and any bench-GUI remote ids as observed commands.
+- H6 applies only to clips ingested after #71 is live. Check any START-lost clip on either rig:
+  - a `video.send.fps` known under the config in force → `media.fps` + telemetry
+    `video_fps_source=config:<hash>` + an mp4;
+  - else no fps (expected).
+  - To make the rate known, the unit must have reported it in a `<CF>`: one cellular-lane
+    `get video.send.fps` (a remote-range id, no `"to":"con"`) through the bench owner's
+    Sofar lane.
+
+**H2 — Sofar lane calibration (bench owner; PLAN_S6 §5 step 3, shortened).**
+- At least 3 heals via Sofar from nereus000: `POST …/heal-commands`, then its `send_with`
+  line.
+- Record for each: t_post, t_console (the rsd line on the console), t_hl (the `<HL>` row's
+  time at the backend).
+- Continue to 10 over about 10 h if time allows.
+- **Output:** `REASK_S` = 5400 (the default), unless the largest observed t_hl − t_post is
+  above it. Then use that value rounded up to the next 15 min.
+- The console / Sofar heal step stops at the end of H2.
+
+**H3 — before auto-send (bench owner).**
+- Conductor heal step OFF (or the conductor stopped; console triggers may continue). While
+  its heal step still runs, the conductor gets 409 `autosend_active`.
+- bm-heal-driver stopped.
+- No Mac CLI / GUI Sofar sends to SPOT-33507C / SPOT-31593C. The backend's 65 s guard cannot
+  see them.
+- The walk holds off (`other_sender_active`) until the last API heal of the device is older
+  than REASK_S. Stopping the heal step ≥ REASK_S before H4 avoids the wait.
+
+**H4 — auto-send ON (Nick sets the Render env).**
+- **Cron service:**
+  - `BM_HEAL_AUTOSEND=1`;
+  - `BM_HEAL_AUTOSEND_DEVICES=BMCAM_003,BMCAM_004`;
+  - `BM_HEAL_AUTOSEND_MAX_PER_DAY=96`;
+  - `BM_HEAL_AUTOSEND_REASK_S=<from H2>`.
+- **Web service:** `BM_HEAL_AUTOSEND_REASK_S=<same>`.
+- `BM_COMMAND_SEND` stays unset.
+- The token is the gateways' `token_env_var` (SOFAR_API_TOKEN_BM_REEF), already on the cron
+  service for polling. The first send proves it for command POSTs: 202 = good,
+  `send_auth_failed` = stop.
+- The bench owner triggers clips on the console as usual. Losses come naturally (S5 F1), or
+  from the bench-only `--bench-drop-chunks` flag.
+- **Pass (R4 gate), per rig:**
+  1. a real loss is healed end-to-end by the backend alone:
+     - a `[heal_autosend] … decision=sent http=202` cron line;
+     - the rsd on the console;
+     - `<HL a=sent r=ok>`;
+     - the media row complete;
+  2. every key sent has `received_age_s ≥ 600` in its `[heal_autosend]` line;
+  3. no `other_sender_active` and no 409 `autosend_active` after H3;
+  4. no key is asked twice within REASK_S unless released by `<HL a=sent r=ok>` or
+     `a=dropped` (sofar_command_sends + heal_commands);
+  5. no Sofar 400 "Too many requests" on the backend's sends;
+  6. logs.html shows each heal "sent via sofar 202" with its camera answer.
+- **Stop / rollback:** remove `BM_HEAL_AUTOSEND` on cron; it takes effect the next tick. The
+  conductor may heal again REASK_S after the last auto-send.
+
+**H5 — backend command send (optional, after H4 passes; one Spotter).**
+- **Web:** `BM_COMMAND_SEND=1`, `BM_COMMAND_SEND_DEVICES=BMCAM_003`.
+- `POST /admin/devices/BMCAM_003/commands {"c":"ping"}` → `POST …/{id}/send` → 202.
+- **Pass:** the ack arrives and the status is `answered` on logs.html.
+- Then one `set` of a harmless key (e.g. `video.send.duration_s` at its current value) →
+  `saved` → `in_effect`.
+- Unset `BM_COMMAND_SEND` after.
+- Avoid sending to the same Spotter within 65 s of any other Sofar send.
+
+**Then:** the §5 step 8 24 h loop (R5) with the conductor (heal step off) and auto-send.
