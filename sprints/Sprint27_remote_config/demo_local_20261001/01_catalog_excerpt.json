@@ -20,7 +20,7 @@
    "video_send_size_min_px": 16
   },
   "schema_version": 2,
-  "sha256": "aa6849cabcc1e934048c084d3812783774fc6b5fb033098845d8296fbefb9de1",
+  "sha256": "246207d9b50e9ef75e9cc6bc622a0869ae335f842a8b7d5b71a43f3392e37959",
   "video_geometry": {
    "default_sensor_mode_order": [
     "2304x1296",
