@@ -1,0 +1,63 @@
+...EEF.......
+======================================================================
+ERROR: test_apply_recreates_the_render_dir (tests.test_s4_supervisor_config.RenderDirVanishes.test_apply_recreates_the_render_dir)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_s4_supervisor_config.py", line 198, in test_apply_recreates_the_render_dir
+    self.assertIsNotNone(SC.apply(self.boot, self.render, announce=self.lines.append))
+                         ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "BM_Devel_Pi/supervisor_config.py", line 147, in apply
+    atomic_io.write_text(render_path, render_values(eff.values))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "BM_Devel_Pi/atomic_io.py", line 86, in write_text
+    write_bytes(path, text.encode("utf-8"), mode)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "BM_Devel_Pi/atomic_io.py", line 61, in write_bytes
+    fd, tmp = tempfile.mkstemp(prefix=f".{os.path.basename(path)}.", suffix=".tmp",
+              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               dir=dirpath)
+                               ^^^^^^^^^^^^
+  File "<py>/lib/python3.13/tempfile.py", line 357, in mkstemp
+    return _mkstemp_inner(dir, prefix, suffix, flags, output_type)
+  File "<py>/lib/python3.13/tempfile.py", line 256, in _mkstemp_inner
+    fd = _os.open(file, flags, 0o600)
+FileNotFoundError: [Errno 2] No such file or directory: '<TMP>/cfgv2_w4k47ofe/shm/bmcam/.camera_schedule.yaml.mj50n07b.tmp'
+
+======================================================================
+ERROR: test_reresolve_recreates_the_render_dir (tests.test_s4_supervisor_config.RenderDirVanishes.test_reresolve_recreates_the_render_dir)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_s4_supervisor_config.py", line 183, in test_reresolve_recreates_the_render_dir
+    fresh = quiet(reresolve, {})
+  File "tests/test_config_v2.py", line 59, in quiet
+    return fn(*a, **k)
+  File "BM_Devel_Pi/supervisor_config.py", line 167, in reresolve
+    atomic_io.write_text(render_path, render_values(eff.values))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "BM_Devel_Pi/atomic_io.py", line 86, in write_text
+    write_bytes(path, text.encode("utf-8"), mode)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "BM_Devel_Pi/atomic_io.py", line 61, in write_bytes
+    fd, tmp = tempfile.mkstemp(prefix=f".{os.path.basename(path)}.", suffix=".tmp",
+              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               dir=dirpath)
+                               ^^^^^^^^^^^^
+  File "<py>/lib/python3.13/tempfile.py", line 357, in mkstemp
+    return _mkstemp_inner(dir, prefix, suffix, flags, output_type)
+  File "<py>/lib/python3.13/tempfile.py", line 256, in _mkstemp_inner
+    fd = _os.open(file, flags, 0o600)
+FileNotFoundError: [Errno 2] No such file or directory: '<TMP>/cfgv2_8tsgxh_g/shm/bmcam/.camera_schedule.yaml.r0dqqnzw.tmp'
+
+======================================================================
+FAIL: test_stay_on_settings_fn_picks_up_the_set (tests.test_s4_supervisor_config.RenderDirVanishes.test_stay_on_settings_fn_picks_up_the_set)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_s4_supervisor_config.py", line 195, in test_stay_on_settings_fn_picks_up_the_set
+    self.assertEqual(quiet(settings_fn)["message_cap"], 150)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 195 != 150
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.518s
+
+FAILED (failures=1, errors=2)

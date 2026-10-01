@@ -12,7 +12,11 @@ Pins:
     dry-run, REVIEW B); a base failure is logged, never dropped or fatal;
   - roi 5 folded from v8 runs with a derived 800 px width (no refusal, no
     upscale in the render);
-  - apply() rewrites the render; make_reresolve() picks up a state-file change.
+  - apply() rewrites the render; make_reresolve() picks up a state-file change;
+  - the re-resolve survives the tmpfs render DIRECTORY vanishing mid-run
+    (systemd-logind RemoveIPC wipes pi's /dev/shm when pi's last login
+    session ends; bmcam003/004 2026-10-01: every re-resolve failed with
+    FileNotFoundError on the mkstemp tmp name, so a remote `set` never ran).
 
 Run (repo root):
   python3 -m unittest tests.test_s4_supervisor_config -v
@@ -20,6 +24,7 @@ Run (repo root):
 
 import json
 import os
+import shutil
 import sys
 import unittest
 
@@ -152,6 +157,46 @@ class ApplyAndReresolve(unittest.TestCase):
         render = os.path.join(u.dir, "render.yaml")
         self.assertIsNone(SC.apply(boot, render, announce=lambda *_: None))
         self.assertFalse(os.path.exists(render))
+
+
+class RenderDirVanishes(unittest.TestCase):
+    """2026-10-01 bmcam003/004 (stay_on, development 3c1801d): after the
+    arming ssh sessions closed, every decision point logged
+      [SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such
+      file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.<rand>.tmp')
+    = atomic_io's mkstemp in a directory that no longer exists."""
+
+    def setUp(self):
+        self.u = commands_on_unit(self)
+        self.boot = quiet(self.u.boot)
+        self.shm = os.path.join(self.u.dir, "shm", "bmcam")
+        os.makedirs(self.shm)
+        self.render = os.path.join(self.shm, "camera_schedule.yaml")
+        self.lines = []
+        SC.apply(self.boot, self.render, announce=self.lines.append)
+        shutil.rmtree(self.shm)              # what logind RemoveIPC does to pi's /dev/shm
+        write_state(self.u, overlay={"still.message_cap": 150})   # a remote `set`
+
+    def test_reresolve_recreates_the_render_dir(self):
+        reresolve = SC.make_reresolve(self.boot.values, self.render, rc.resolve_rc_settings,
+                                      announce=self.lines.append)
+        fresh = quiet(reresolve, {})
+        self.assertEqual(fresh["message_cap"], 150)          # the `set` takes effect
+        self.assertTrue(os.path.isfile(self.render))         # bm_serial etc. read it again
+        self.assertTrue(any("render dir" in l and "recreated" in l for l in self.lines),
+                        self.lines)
+
+    def test_stay_on_settings_fn_picks_up_the_set(self):
+        import rc_supervisor as S
+        reresolve = SC.make_reresolve(self.boot.values, self.render, rc.resolve_rc_settings,
+                                      announce=self.lines.append)
+        last_good = {"message_cap": self.u.values["still.message_cap"]}
+        settings_fn = S._guarded_settings_fn(lambda: reresolve({}), last_good)
+        self.assertEqual(quiet(settings_fn)["message_cap"], 150)
+
+    def test_apply_recreates_the_render_dir(self):
+        self.assertIsNotNone(SC.apply(self.boot, self.render, announce=self.lines.append))
+        self.assertTrue(os.path.isfile(self.render))
 
 
 if __name__ == "__main__":
