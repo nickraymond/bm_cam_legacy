@@ -1,0 +1,365 @@
+2026-10-01T00:35:03Z 2026-10-01T00:35:03.730Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T00:42:30Z 2026-10-01T00:42:31.132Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T01:35:00Z 2026-10-01T01:35:00.824Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T01:42:30Z 2026-10-01T01:42:30.480Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T02:35:00Z 2026-10-01T02:35:00.882Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T02:42:29Z 2026-10-01T02:42:29.937Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T03:36:00Z 2026-10-01T03:36:00.582Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T04:40:00Z 2026-10-01T04:40:00.910Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T05:14:09Z bm pub bmcam/cmd {"id":52101,"c":"set","kv":{"mode.run":"stay_on"}} 1 1
+2026-10-01T05:30:36Z bm pub bmcam/cmd {"id":2000832635,"c":"trg","v":2} 1 1
+2026-10-01T05:40:00Z 2026-10-01T05:40:01.054Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T05:40:39Z 2026-10-01T05:40:39.824Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T05:45:39Z 2026-10-01T05:45:39.964Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T05:50:39Z 2026-10-01T05:50:40.121Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T05:55:42Z 2026-10-01T05:55:43.058Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:00:39Z 2026-10-01T06:00:40.226Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:01:21Z bm pub bmcam/cmd {"id":2000834480,"c":"trg","v":2} 1 1
+2026-10-01T06:02:02Z .2026-10-01T06:02:02.710Z [SYS] [INFO] Remote message received(120)! "bm pub bmcam/cmd {"id":100079,"c":"rsd","h":[["0e1zb5","30-37,40-47,96-103"],["0e1yjd","26-30,58-65,69"]]} 1 1
+2026-10-01T06:06:21Z Message: Message: Message: Message: Message: Message: 1790834781.355 53171fa3d81a8e6f, [bmcam003] OK id=100079 rsd: 2 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T06:11:27Z 2026-10-01T06:11:27.347Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:22:17Z 2026-10-01T06:22:17.707Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:27:20Z 2026-10-01T06:27:20.582Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:31:52Z bm pub bmcam/cmd {"id":2000836312,"c":"trg","v":2} 1 1
+2026-10-01T06:41:59Z 2026-10-01T06:42:00.210Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:42:31Z 2026-10-01T06:42:32.007Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:42:54Z 2026-10-01T06:42:55.210Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100080,"c":"rsd","h":[["0e20qj","147-154"]]} 1 1
+2026-10-01T06:42:55Z 1790836975.621 53171fa3d81a8e6f, [bmcam003] OK id=100080 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T06:52:13Z 2026-10-01T06:52:14.164Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T06:57:13Z 2026-10-01T06:57:14.273Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:02:14Z 2026-10-01T07:02:14.464Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:02:23Z bm pub bmcam/cmd {"id":2000838143,"c":"trg","v":2} 1 1
+2026-10-01T07:03:22Z .2026-10-01T07:03:22.750Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100081,"c":"rsd","h":[["0e225c","64-71"]]} 1 1
+2026-10-01T07:07:30Z Message: Message: Message: Message: Message: Message: 1790838450.625 53171fa3d81a8e6f, [bmcam003] OK id=100081 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T07:12:32Z 2026-10-01T07:12:32.453Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:22:44Z 2026-10-01T07:22:44.613Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:27:44Z 2026-10-01T07:27:44.746Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:32:47Z 2026-10-01T07:32:47.699Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:32:54Z bm pub bmcam/cmd {"id":2000839973,"c":"trg","v":2} 1 1
+2026-10-01T07:42:59Z 2026-10-01T07:43:00.339Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:47:00Z 2026-10-01T07:47:00.535Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:48:00Z 2026-10-01T07:48:00.582Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:52:59Z 2026-10-01T07:53:00.546Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:58:03Z 2026-10-01T07:58:03.468Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T07:59:25Z 2026-10-01T07:59:26.273Z [SYS] [INFO] Remote message received(95)! "bm pub bmcam/cmd {"id":100082,"c":"rsd","h":[["0e24z0","51-58,108-115,118-125"]]} 1 1
+2026-10-01T07:59:26Z 1790841566.636 53171fa3d81a8e6f, [bmcam003] OK id=100082 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T08:03:26Z bm pub bmcam/cmd {"id":2000841806,"c":"trg","v":2} 1 1
+2026-10-01T08:13:22Z 2026-10-01T08:13:22.523Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:18:21Z 2026-10-01T08:18:22.355Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:23:22Z 2026-10-01T08:23:22.601Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:28:22Z 2026-10-01T08:28:22.585Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:29:46Z 2026-10-01T08:29:47.425Z [SYS] [INFO] Remote message received(87)! "bm pub bmcam/cmd {"id":100083,"c":"rsd","h":[["0e26dt","74-81,136-143"]]} 1 1
+2026-10-01T08:29:47Z 1790843387.722 53171fa3d81a8e6f, [bmcam003] OK id=100083 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T08:33:56Z bm pub bmcam/cmd {"id":2000843636,"c":"trg","v":2} 1 1
+2026-10-01T08:42:25Z 2026-10-01T08:42:25.945Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:43:52Z 2026-10-01T08:43:53.386Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:48:53Z 2026-10-01T08:48:53.550Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:50:54Z 2026-10-01T08:50:55.218Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:53:55Z 2026-10-01T08:53:56.375Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T08:58:53Z 2026-10-01T08:58:53.550Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:03:53Z 2026-10-01T09:03:53.644Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:04:27Z bm pub bmcam/cmd {"id":2000845466,"c":"trg","v":2} 1 1
+2026-10-01T09:05:22Z 2026-10-01T09:05:22.972Z [SYS] [INFO] Remote message received(103)! "bm pub bmcam/cmd {"id":100084,"c":"rsd","h":[["0e27sn","30,34,44"],["0e26dt","141-143"]]} 1 1
+2026-10-01T09:09:25Z Message: Message: Message: 1790845766.535 53171fa3d81a8e6f, [bmcam003] OK id=100084 rsd: 2 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T09:14:32Z 2026-10-01T09:14:32.757Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:24:40Z 2026-10-01T09:24:40.652Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:29:40Z 2026-10-01T09:29:40.730Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:34:40Z 2026-10-01T09:34:40.812Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:34:59Z bm pub bmcam/cmd {"id":2000847298,"c":"trg","v":2} 1 1
+2026-10-01T09:36:03Z .2026-10-01T09:36:03.726Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100085,"c":"rsd","h":[["0e297h","171-178"]]} 1 1
+2026-10-01T09:40:02Z .1790847603.542 53171fa3d81a8e6f, [bmcam003] OK id=100085 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T09:45:09Z 2026-10-01T09:45:09.988Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:55:00Z 2026-10-01T09:55:01.226Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T09:55:52Z 2026-10-01T09:55:53.457Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:00:17Z 2026-10-01T10:00:17.722Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:05:17Z 2026-10-01T10:05:17.781Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:05:32Z bm pub bmcam/cmd {"id":2000849132,"c":"trg","v":2} 1 1
+2026-10-01T10:06:47Z .2026-10-01T10:06:48.121Z [SYS] [INFO] Remote message received(86)! "bm pub bmcam/cmd {"id":100086,"c":"rsd","h":[["0e2amk","30-31,37,161"]]} 1 1
+2026-10-01T10:10:28Z Message: Message: Message: Message: Message: 1790849429.265 53171fa3d81a8e6f, [bmcam003] OK id=100086 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T10:15:30Z 2026-10-01T10:15:31.347Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:25:37Z 2026-10-01T10:25:38.175Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:27:06Z 2026-10-01T10:27:06.800Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100087,"c":"rsd","h":[["0e297h","173-174"]]} 1 1
+2026-10-01T10:27:06Z 1790850427.136 53171fa3d81a8e6f, [bmcam003] OK id=100087 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T10:35:44Z 2026-10-01T10:35:45.000Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:36:04Z bm pub bmcam/cmd {"id":2000850964,"c":"trg","v":2} 1 1
+2026-10-01T10:46:07Z 2026-10-01T10:46:08.652Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:51:08Z 2026-10-01T10:51:08.722Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:52:36Z 2026-10-01T10:52:36.835Z [SYS] [INFO] Remote message received(87)! "bm pub bmcam/cmd {"id":100088,"c":"rsd","h":[["0e2c1e","30-36,149-156"]]} 1 1
+2026-10-01T10:52:36Z 1790851957.078 53171fa3d81a8e6f, [bmcam003] OK id=100088 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T10:55:00Z 2026-10-01T10:55:01.195Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T10:57:58Z 2026-10-01T10:57:58.832Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:02:58Z 2026-10-01T11:02:58.968Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:04:28Z 2026-10-01T11:04:29.042Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100089,"c":"rsd","h":[["0e2dg8","163-167"]]} 1 1
+2026-10-01T11:04:28Z 1790852669.277 53171fa3d81a8e6f, [bmcam003] OK id=100089 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T11:06:37Z bm pub bmcam/cmd {"id":2000852796,"c":"trg","v":2} 1 1
+2026-10-01T11:16:38Z 2026-10-01T11:16:38.714Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:21:37Z 2026-10-01T11:21:38.652Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:26:35Z 2026-10-01T11:26:35.960Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:31:35Z 2026-10-01T11:31:36.031Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:33:05Z 2026-10-01T11:33:06.718Z [SYS] [INFO] Remote message received(105)! "bm pub bmcam/cmd {"id":100090,"c":"rsd","h":[["0e2ev2","36-43,92-99,141-142,147,164-171"]]} 1 1
+2026-10-01T11:33:06Z 1790854387.000 53171fa3d81a8e6f, [bmcam003] OK id=100090 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T11:37:09Z bm pub bmcam/cmd {"id":2000854628,"c":"trg","v":2} 1 1
+2026-10-01T11:47:16Z 2026-10-01T11:47:16.765Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:52:16Z 2026-10-01T11:52:16.917Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:55:00Z 2026-10-01T11:55:01.253Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T11:57:16Z 2026-10-01T11:57:16.843Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:02:16Z 2026-10-01T12:02:16.941Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:07:16Z 2026-10-01T12:07:17.027Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:07:43Z bm pub bmcam/cmd {"id":2000856463,"c":"trg","v":2} 1 1
+2026-10-01T12:08:43Z .2026-10-01T12:08:44.507Z [SYS] [INFO] Remote message received(89)! "bm pub bmcam/cmd {"id":100091,"c":"rsd","h":[["0e2ga5","109-113,160-167"]]} 1 1
+2026-10-01T12:12:46Z Message: Message: Message: Message: 1790856767.421 53171fa3d81a8e6f, [bmcam003] OK id=100091 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T12:17:48Z 2026-10-01T12:17:49.398Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:28:07Z 2026-10-01T12:28:07.968Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:33:07Z 2026-10-01T12:33:08.089Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:34:30Z 2026-10-01T12:34:31.347Z [SYS] [INFO] Remote message received(85)! "bm pub bmcam/cmd {"id":100092,"c":"rsd","h":[["0e2hoz","157-164,169"]]} 1 1
+2026-10-01T12:34:30Z 1790858071.675 53171fa3d81a8e6f, [bmcam003] OK id=100092 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T12:38:15Z bm pub bmcam/cmd {"id":2000858295,"c":"trg","v":2} 1 1
+2026-10-01T12:48:17Z 2026-10-01T12:48:18.750Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:53:18Z 2026-10-01T12:53:18.914Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:56:05Z 2026-10-01T12:56:06.578Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T12:58:18Z 2026-10-01T12:58:18.921Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:03:18Z 2026-10-01T13:03:18.890Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:08:18Z 2026-10-01T13:08:18.949Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:08:48Z bm pub bmcam/cmd {"id":2000860128,"c":"trg","v":2} 1 1
+2026-10-01T13:09:40Z 2026-10-01T13:09:41.535Z [SYS] [INFO] Remote message received(87)! "bm pub bmcam/cmd {"id":100093,"c":"rsd","h":[["0e2j3t","62-69,159-166"]]} 1 1
+2026-10-01T13:13:52Z Message: 1790860432.734 53171fa3d81a8e6f, [bmcam003] OK id=100093 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T13:18:53Z 2026-10-01T13:18:54.550Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:29:16Z 2026-10-01T13:29:17.226Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:34:16Z 2026-10-01T13:34:17.332Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:39:16Z 2026-10-01T13:39:17.550Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:39:21Z bm pub bmcam/cmd {"id":2000861961,"c":"trg","v":2} 1 1
+2026-10-01T13:42:21Z 2026-10-01T13:42:22.484Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:49:22Z 2026-10-01T13:49:23.089Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:54:22Z 2026-10-01T13:54:23.214Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T13:59:22Z 2026-10-01T13:59:23.300Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:01:59Z 2026-10-01T14:02:00.734Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:03:26Z 2026-10-01T14:03:26.949Z [SYS] [INFO] Remote message received(87)! "bm pub bmcam/cmd {"id":100094,"c":"rsd","h":[["0e2lxq","39-46,119-150"]]} 1 1
+2026-10-01T14:03:26Z 1790863407.355 53171fa3d81a8e6f, [bmcam003] OK id=100094 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T14:09:21Z 2026-10-01T14:09:22.117Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:09:57Z bm pub bmcam/cmd {"id":2000863797,"c":"trg","v":2} 1 1
+2026-10-01T14:20:10Z 2026-10-01T14:20:10.914Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:25:10Z 2026-10-01T14:25:11.039Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:26:40Z 2026-10-01T14:26:41.308Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100095,"c":"rsd","h":[["0e2lxq","151-152"]]} 1 1
+2026-10-01T14:26:40Z 1790864801.648 53171fa3d81a8e6f, [bmcam003] OK id=100095 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T14:31:48Z 2026-10-01T14:31:49.121Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:36:45Z 2026-10-01T14:36:46.308Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:40:33Z bm pub bmcam/cmd {"id":2000865633,"c":"trg","v":2} 1 1
+2026-10-01T14:50:40Z 2026-10-01T14:50:41.847Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T14:51:48Z 2026-10-01T14:51:49.269Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":100096,"c":"rsd","h":[["0e2ncu","32-39,121"]]} 1 1
+2026-10-01T14:51:48Z 1790866309.539 53171fa3d81a8e6f, [bmcam003] OK id=100096 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T15:00:54Z 2026-10-01T15:00:55.113Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:05:54Z 2026-10-01T15:05:55.226Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:06:59Z 2026-10-01T15:07:00.015Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:10:55Z 2026-10-01T15:10:56.203Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:11:10Z bm pub bmcam/cmd {"id":2000867470,"c":"trg","v":2} 1 1
+2026-10-01T15:21:19Z 2026-10-01T15:21:20.460Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:26:22Z 2026-10-01T15:26:23.402Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:31:19Z 2026-10-01T15:31:20.660Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:36:19Z 2026-10-01T15:36:20.757Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:37:46Z 2026-10-01T15:37:46.968Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":100097,"c":"rsd","h":[["0e2q6r","38-45,178"]]} 1 1
+2026-10-01T15:37:46Z 1790869067.156 53171fa3d81a8e6f, [bmcam003] OK id=100097 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T15:41:48Z bm pub bmcam/cmd {"id":2000869308,"c":"trg","v":2} 1 1
+2026-10-01T15:51:56Z 2026-10-01T15:51:57.683Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T15:56:59Z 2026-10-01T15:57:00.308Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:01:59Z 2026-10-01T16:02:00.433Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:06:56Z 2026-10-01T16:06:57.691Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:11:56Z 2026-10-01T16:11:57.781Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:12:26Z bm pub bmcam/cmd {"id":2000871146,"c":"trg","v":2} 1 1
+2026-10-01T16:13:04Z 2026-10-01T16:13:05.519Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:22:36Z 2026-10-01T16:22:37.726Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:23:48Z 2026-10-01T16:23:49.128Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":100098,"c":"rsd","h":[["0e2ncu","36-39,121"]]} 1 1
+2026-10-01T16:23:48Z 1790871829.535 53171fa3d81a8e6f, [bmcam003] OK id=100098 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T16:32:44Z 2026-10-01T16:32:45.832Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:37:45Z 2026-10-01T16:37:45.957Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:42:45Z 2026-10-01T16:42:46.179Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T16:43:04Z bm pub bmcam/cmd {"id":2000872983,"c":"trg","v":2} 1 1
+2026-10-01T16:44:08Z .2026-10-01T16:44:09.519Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100099,"c":"rsd","h":[["0e2t0z","30-38"]]} 1 1
+2026-10-01T16:48:15Z Message: Message: Message: Message: Message: 1790873296.640 53171fa3d81a8e6f, [bmcam003] OK id=100099 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T16:53:17Z 2026-10-01T16:53:18.453Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:03:31Z 2026-10-01T17:03:32.000Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:08:31Z 2026-10-01T17:08:32.144Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:13:31Z 2026-10-01T17:13:32.136Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:13:40Z bm pub bmcam/cmd {"id":2000874820,"c":"trg","v":2} 1 1
+2026-10-01T17:16:58Z 2026-10-01T17:16:59.578Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:23:45Z 2026-10-01T17:23:46.855Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:28:46Z 2026-10-01T17:28:46.988Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:33:46Z 2026-10-01T17:33:47.144Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:38:46Z 2026-10-01T17:38:47.234Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:40:12Z 2026-10-01T17:40:13.664Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100100,"c":"rsd","h":[["0e2vuw","134-166"]]} 1 1
+2026-10-01T17:40:13Z 1790876414.003 53171fa3d81a8e6f, [bmcam003] OK id=100100 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T17:44:16Z bm pub bmcam/cmd {"id":2000876656,"c":"trg","v":2} 1 1
+2026-10-01T17:54:27Z 2026-10-01T17:54:28.679Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T17:59:24Z 2026-10-01T17:59:25.734Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:04:25Z 2026-10-01T18:04:25.945Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:09:27Z 2026-10-01T18:09:28.703Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:10:56Z 2026-10-01T18:10:57.359Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100101,"c":"rsd","h":[["0e2vuw","136-138"]]} 1 1
+2026-10-01T18:10:56Z 1790878257.699 53171fa3d81a8e6f, [bmcam003] OK id=100101 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T18:14:54Z bm pub bmcam/cmd {"id":2000878493,"c":"trg","v":2} 1 1
+2026-10-01T18:20:59Z 2026-10-01T18:21:00.925Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:25:09Z 2026-10-01T18:25:10.343Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:30:09Z 2026-10-01T18:30:10.437Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:35:12Z 2026-10-01T18:35:13.464Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:40:09Z 2026-10-01T18:40:10.757Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:41:43Z 2026-10-01T18:41:44.605Z [SYS] [INFO] Remote message received(87)! "bm pub bmcam/cmd {"id":100102,"c":"rsd","h":[["0e2yp3","33-40,171-178"]]} 1 1
+2026-10-01T18:41:43Z 1790880104.824 53171fa3d81a8e6f, [bmcam003] OK id=100102 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T18:42:18Z 2026-10-01T18:42:19.300Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T18:45:31Z bm pub bmcam/cmd {"id":2000880331,"c":"trg","v":2} 1 1
+2026-10-01T18:55:35Z 2026-10-01T18:55:35.992Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:00:37Z 2026-10-01T19:00:38.855Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:05:35Z 2026-10-01T19:05:36.070Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:10:37Z 2026-10-01T19:10:38.984Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:15:35Z 2026-10-01T19:15:36.265Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:16:08Z bm pub bmcam/cmd {"id":2000882168,"c":"trg","v":2} 1 1
+2026-10-01T19:25:00Z 2026-10-01T19:25:01.816Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:26:13Z 2026-10-01T19:26:14.117Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:31:13Z 2026-10-01T19:31:14.210Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:36:13Z 2026-10-01T19:36:14.367Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:41:13Z 2026-10-01T19:41:14.582Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:42:17Z 2026-10-01T19:42:18.769Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:46:13Z 2026-10-01T19:46:14.429Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T19:46:47Z bm pub bmcam/cmd {"id":2000884006,"c":"trg","v":2} 1 1
+2026-10-01T19:47:44Z .2026-10-01T19:47:46.050Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100103,"c":"rsd","h":[["0e31j1","140-147"]]} 1 1
+2026-10-01T19:51:57Z Message: Message: Message: Message: Message: Message: Message: 1790884318.656 53171fa3d81a8e6f, [bmcam003] OK id=100103 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T19:57:02Z 2026-10-01T19:57:03.300Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:07:11Z 2026-10-01T20:07:12.722Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:12:11Z 2026-10-01T20:12:12.851Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:17:11Z 2026-10-01T20:17:12.832Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:17:28Z bm pub bmcam/cmd {"id":2000885847,"c":"trg","v":2} 1 1
+2026-10-01T20:18:34Z .2026-10-01T20:18:35.359Z [SYS] [INFO] Remote message received(82)! "bm pub bmcam/cmd {"id":100104,"c":"rsd","h":[["0e32y4","69,72-79"]]} 1 1
+2026-10-01T20:22:30Z Message: Message: 1790886151.917 53171fa3d81a8e6f, [bmcam003] OK id=100104 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T20:26:59Z 2026-10-01T20:27:00.972Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:27:40Z 2026-10-01T20:27:42.027Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:37:46Z 2026-10-01T20:37:47.183Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:42:48Z 2026-10-01T20:42:50.136Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:47:46Z 2026-10-01T20:47:47.410Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T20:48:03Z bm pub bmcam/cmd {"id":2000887682,"c":"trg","v":2} 1 1
+2026-10-01T20:49:12Z .2026-10-01T20:49:13.730Z [SYS] [INFO] Remote message received(95)! "bm pub bmcam/cmd {"id":100105,"c":"rsd","h":[["0e34d8","30-31,134-141,170-177"]]} 1 1
+2026-10-01T20:53:05Z Message: Message: Message: Message: Message: 1790887986.429 53171fa3d81a8e6f, [bmcam003] OK id=100105 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T20:58:07Z 2026-10-01T20:58:08.242Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:08:32Z 2026-10-01T21:08:33.601Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:13:35Z 2026-10-01T21:13:36.546Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:18:32Z 2026-10-01T21:18:33.929Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:18:38Z bm pub bmcam/cmd {"id":2000889517,"c":"trg","v":2} 1 1
+2026-10-01T21:19:59Z 2026-10-01T21:20:00.273Z [SYS] [INFO] Remote message received(91)! "bm pub bmcam/cmd {"id":100106,"c":"rsd","h":[["0e35sc","2-9,30-31,112-119"]]} 1 1
+2026-10-01T21:23:44Z .1790889825.335 53171fa3d81a8e6f, [bmcam003] OK id=100106 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T21:28:45Z 2026-10-01T21:28:47.164Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:31:59Z 2026-10-01T21:32:00.285Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:39:11Z 2026-10-01T21:39:12.511Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:44:11Z 2026-10-01T21:44:12.636Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T21:45:40Z 2026-10-01T21:45:41.769Z [SYS] [INFO] Remote message received(93)! "bm pub bmcam/cmd {"id":100107,"c":"rsd","h":[["0e3775","26-45,50-57,142-149"]]} 1 1
+2026-10-01T21:45:40Z 1790891142.054 53171fa3d81a8e6f, [bmcam003] OK id=100107 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T21:49:14Z bm pub bmcam/cmd {"id":2000891353,"c":"trg","v":2} 1 1
+2026-10-01T21:59:23Z 2026-10-01T21:59:24.281Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:04:23Z 2026-10-01T22:04:24.417Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:09:23Z 2026-10-01T22:09:24.500Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:14:26Z 2026-10-01T22:14:27.429Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:19:26Z 2026-10-01T22:19:27.531Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:19:49Z bm pub bmcam/cmd {"id":2000893188,"c":"trg","v":2} 1 1
+2026-10-01T22:20:55Z .2026-10-01T22:20:56.652Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100108,"c":"rsd","h":[["0e38m9","66-73"]]} 1 1
+2026-10-01T22:24:53Z Message: Message: Message: Message: 1790893494.839 53171fa3d81a8e6f, [bmcam003] OK id=100108 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T22:29:55Z 2026-10-01T22:29:56.648Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:36:59Z 2026-10-01T22:37:00.550Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:40:07Z 2026-10-01T22:40:08.875Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:45:07Z 2026-10-01T22:45:08.960Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:50:07Z 2026-10-01T22:50:09.156Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T22:50:23Z bm pub bmcam/cmd {"id":2000895023,"c":"trg","v":2} 1 1
+2026-10-01T22:51:30Z .2026-10-01T22:51:31.957Z [SYS] [INFO] Remote message received(85)! "bm pub bmcam/cmd {"id":100109,"c":"rsd","h":[["0e3a13","30-33,73-80"]]} 1 1
+2026-10-01T22:55:31Z Message: Message: Message: 1790895332.984 53171fa3d81a8e6f, [bmcam003] OK id=100109 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T23:00:33Z 2026-10-01T23:00:34.812Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:10:50Z 2026-10-01T23:10:52.246Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:15:51Z 2026-10-01T23:15:52.527Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:17:17Z 2026-10-01T23:17:18.382Z [SYS] [INFO] Remote message received(92)! "bm pub bmcam/cmd {"id":100110,"c":"rsd","h":[["0e3bg6","9-16,73-80,124-131"]]} 1 1
+2026-10-01T23:17:17Z 1790896638.570 53171fa3d81a8e6f, [bmcam003] OK id=100110 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T23:20:59Z bm pub bmcam/cmd {"id":2000896858,"c":"trg","v":2} 1 1
+2026-10-01T23:31:05Z 2026-10-01T23:31:06.644Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:36:05Z 2026-10-01T23:36:06.519Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:37:33Z 2026-10-01T23:37:34.738Z [SYS] [INFO] Remote message received(85)! "bm pub bmcam/cmd {"id":100111,"c":"rsd","h":[["0e3a13","32-33,73-78"]]} 1 1
+2026-10-01T23:37:33Z 1790897855.078 53171fa3d81a8e6f, [bmcam003] OK id=100111 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-01T23:41:58Z 2026-10-01T23:41:59.746Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:42:50Z 2026-10-01T23:42:51.734Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:47:46Z 2026-10-01T23:47:47.710Z [MS] [DEBUG] Attempting to Sync.
+2026-10-01T23:51:34Z bm pub bmcam/cmd {"id":2000898693,"c":"trg","v":2} 1 1
+2026-10-02T00:01:40Z 2026-10-02T00:01:41.875Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:06:40Z 2026-10-02T00:06:42.058Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:11:40Z 2026-10-02T00:11:42.144Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:16:41Z 2026-10-02T00:16:42.246Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:21:41Z 2026-10-02T00:21:42.382Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:22:06Z bm pub bmcam/cmd {"id":2000900526,"c":"trg","v":2} 1 1
+2026-10-02T00:32:16Z 2026-10-02T00:32:17.550Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:37:13Z 2026-10-02T00:37:14.617Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:42:13Z 2026-10-02T00:42:14.812Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:46:00Z 2026-10-02T00:46:01.449Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:47:29Z 2026-10-02T00:47:30.343Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100112,"c":"rsd","h":[["0e3foy","63-70"]]} 1 1
+2026-10-02T00:47:29Z 1790902050.734 53171fa3d81a8e6f, [bmcam003] OK id=100112 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T00:47:37Z 2026-10-02T00:47:38.707Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T00:52:40Z bm pub bmcam/cmd {"id":2000902360,"c":"trg","v":2} 1 1
+2026-10-02T01:02:51Z 2026-10-02T01:02:53.035Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:07:51Z 2026-10-02T01:07:53.121Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:12:51Z 2026-10-02T01:12:53.269Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:17:52Z 2026-10-02T01:17:53.363Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:19:21Z 2026-10-02T01:19:23.183Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100113,"c":"rsd","h":[["0e3h41","35-42"]]} 1 1
+2026-10-02T01:19:22Z 1790903963.484 53171fa3d81a8e6f, [bmcam003] OK id=100113 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T01:23:15Z bm pub bmcam/cmd {"id":2000904195,"c":"trg","v":2} 1 1
+2026-10-02T01:33:24Z 2026-10-02T01:33:25.593Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:38:24Z 2026-10-02T01:38:25.644Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:42:13Z 2026-10-02T01:42:14.847Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:43:24Z 2026-10-02T01:43:25.867Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:48:24Z 2026-10-02T01:48:25.773Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:50:59Z 2026-10-02T01:51:01.207Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T01:52:30Z 2026-10-02T01:52:31.765Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100114,"c":"rsd","h":[["0e3iiv","164-171"]]} 1 1
+2026-10-02T01:52:30Z 1790905951.996 53171fa3d81a8e6f, [bmcam003] OK id=100114 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T01:53:52Z bm pub bmcam/cmd {"id":2000906032,"c":"trg","v":2} 1 1
+2026-10-02T02:03:59Z 2026-10-02T02:04:00.515Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:08:59Z 2026-10-02T02:09:00.562Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:13:59Z 2026-10-02T02:14:00.648Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:18:59Z 2026-10-02T02:19:00.777Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:20:22Z 2026-10-02T02:20:23.578Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100115,"c":"rsd","h":[["0e3jxz","33-37"]]} 1 1
+2026-10-02T02:20:22Z 1790907623.871 53171fa3d81a8e6f, [bmcam003] OK id=100115 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T02:24:25Z bm pub bmcam/cmd {"id":2000907864,"c":"trg","v":2} 1 1
+2026-10-02T02:34:24Z 2026-10-02T02:34:25.605Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:39:24Z 2026-10-02T02:39:25.746Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:42:12Z 2026-10-02T02:42:14.082Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:44:24Z 2026-10-02T02:44:25.804Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:49:24Z 2026-10-02T02:49:25.914Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T02:50:54Z 2026-10-02T02:50:56.417Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100116,"c":"rsd","h":[["0e3lcs","66-73"]]} 1 1
+2026-10-02T02:50:55Z 1790909456.652 53171fa3d81a8e6f, [bmcam003] OK id=100116 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T02:55:04Z bm pub bmcam/cmd {"id":2000909704,"c":"trg","v":2} 1 1
+2026-10-02T02:56:00Z 2026-10-02T02:56:01.558Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:05:07Z 2026-10-02T03:05:08.980Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:10:07Z 2026-10-02T03:10:08.820Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:15:07Z 2026-10-02T03:15:09.042Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:20:07Z 2026-10-02T03:20:09.023Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:21:32Z 2026-10-02T03:21:33.699Z [SYS] [INFO] Remote message received(87)! "bm pub bmcam/cmd {"id":100117,"c":"rsd","h":[["0e3mrw","26-59,131-136"]]} 1 1
+2026-10-02T03:21:32Z 1790911294.027 53171fa3d81a8e6f, [bmcam003] OK id=100117 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T03:25:45Z bm pub bmcam/cmd {"id":2000911544,"c":"trg","v":2} 1 1
+2026-10-02T03:35:47Z 2026-10-02T03:35:48.644Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:40:47Z 2026-10-02T03:40:48.402Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:45:49Z 2026-10-02T03:45:51.328Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:50:47Z 2026-10-02T03:50:48.593Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:55:49Z 2026-10-02T03:55:51.515Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T03:56:21Z bm pub bmcam/cmd {"id":2000913381,"c":"trg","v":2} 1 1
+2026-10-02T03:57:16Z 2026-10-02T03:57:18.273Z [SYS] [INFO] Remote message received(102)! "bm pub bmcam/cmd {"id":100118,"c":"rsd","h":[["0e3o70","120-127"],["0e3mrw","137-138"]]} 1 1
+2026-10-02T04:01:24Z .1790913686.363 53171fa3d81a8e6f, [bmcam003] OK id=100118 rsd: 2 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T04:01:58Z 2026-10-02T04:01:59.917Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:06:28Z 2026-10-02T04:06:29.523Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:16:47Z 2026-10-02T04:16:48.613Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:21:44Z 2026-10-02T04:21:45.812Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:23:14Z 2026-10-02T04:23:16.285Z [SYS] [INFO] Remote message received(80)! "bm pub bmcam/cmd {"id":100119,"c":"rsd","h":[["0e3pm3","95-102"]]} 1 1
+2026-10-02T04:23:15Z 1790914996.585 53171fa3d81a8e6f, [bmcam003] OK id=100119 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T04:26:58Z bm pub bmcam/cmd {"id":2000915217,"c":"trg","v":2} 1 1
+2026-10-02T04:37:07Z 2026-10-02T04:37:08.773Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:42:07Z 2026-10-02T04:42:08.722Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:42:52Z 2026-10-02T04:42:53.796Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:47:07Z 2026-10-02T04:47:08.816Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:52:07Z 2026-10-02T04:52:08.902Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:57:07Z 2026-10-02T04:57:08.984Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T04:57:32Z bm pub bmcam/cmd {"id":2000917051,"c":"trg","v":2} 1 1
+2026-10-02T04:58:38Z .2026-10-02T04:58:39.742Z [SYS] [INFO] Remote message received(107)! "bm pub bmcam/cmd {"id":100120,"c":"rsd","h":[["0e3r17","44-51,118-122,131-138,141-148,158"]]} 1 1
+2026-10-02T05:02:36Z Message: 1790917358.203 53171fa3d81a8e6f, [bmcam003] OK id=100120 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T05:06:02Z 2026-10-02T05:06:03.628Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T05:07:38Z 2026-10-02T05:07:40.160Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T05:18:19Z 2026-10-02T05:18:21.207Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T05:23:22Z 2026-10-02T05:23:24.148Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T05:24:48Z 2026-10-02T05:24:49.855Z [SYS] [INFO] Remote message received(92)! "bm pub bmcam/cmd {"id":100121,"c":"rsd","h":[["0e3sg1","5-12,30-31,120-127"]]} 1 1
+2026-10-02T05:24:48Z 1790918690.132 53171fa3d81a8e6f, [bmcam003] OK id=100121 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T05:28:05Z bm pub bmcam/cmd {"id":2000918885,"c":"trg","v":2} 1 1

@@ -1,0 +1,140 @@
+{
+ "BMCAM_003": {
+  "heals_issued": 43,
+  "sent_202": 43,
+  "not_sent": 0,
+  "rx_at_spotter": 43,
+  "received_by_camera": 43,
+  "camera_resent": 40,
+  "media_complete": 42,
+  "chunks_asked": 609,
+  "send_to_spotter": {
+   "n": 43,
+   "min_s": 44.5,
+   "max_s": 745.2,
+   "mean_s": 227.2,
+   "stdev_s": 157.5,
+   "median_s": 213.5,
+   "mode_min": 4
+  },
+  "send_to_camera_ok": {
+   "n": 43,
+   "min_s": 52.9,
+   "max_s": 744.9,
+   "mean_s": 315.8,
+   "stdev_s": 165.8,
+   "median_s": 293.9,
+   "mode_min": 5
+  },
+  "send_to_hl_sent": {
+   "n": 40,
+   "min_s": 67.6,
+   "max_s": 1183.4,
+   "mean_s": 600.1,
+   "stdev_s": 401.1,
+   "median_s": 539.0,
+   "mode_min": 18
+  },
+  "send_to_complete": {
+   "n": 42,
+   "min_s": 299.9,
+   "max_s": 6601.6,
+   "mean_s": 1666.2,
+   "stdev_s": 1108.8,
+   "median_s": 1478.7,
+   "mode_min": 25
+  }
+ },
+ "BMCAM_004": {
+  "heals_issued": 17,
+  "sent_202": 17,
+  "not_sent": 0,
+  "rx_at_spotter": 17,
+  "received_by_camera": 17,
+  "camera_resent": 15,
+  "media_complete": 17,
+  "chunks_asked": 244,
+  "send_to_spotter": {
+   "n": 17,
+   "min_s": 49.2,
+   "max_s": 960.4,
+   "mean_s": 229.0,
+   "stdev_s": 210.1,
+   "median_s": 167.4,
+   "mode_min": 3
+  },
+  "send_to_camera_ok": {
+   "n": 17,
+   "min_s": 51.8,
+   "max_s": 959.4,
+   "mean_s": 298.9,
+   "stdev_s": 210.4,
+   "median_s": 283.9,
+   "mode_min": 2
+  },
+  "send_to_hl_sent": {
+   "n": 15,
+   "min_s": 74.8,
+   "max_s": 1106.9,
+   "mean_s": 491.8,
+   "stdev_s": 394.9,
+   "median_s": 339.9,
+   "mode_min": 6
+  },
+  "send_to_complete": {
+   "n": 17,
+   "min_s": 585.6,
+   "max_s": 7182.2,
+   "mean_s": 1928.2,
+   "stdev_s": 1939.0,
+   "median_s": 1210.4,
+   "mode_min": 20
+  }
+ },
+ "ALL": {
+  "heals_issued": 60,
+  "sent_202": 60,
+  "not_sent": 0,
+  "rx_at_spotter": 60,
+  "received_by_camera": 60,
+  "camera_resent": 55,
+  "media_complete": 59,
+  "chunks_asked": 853,
+  "send_to_spotter": {
+   "n": 60,
+   "min_s": 44.5,
+   "max_s": 960.4,
+   "mean_s": 227.7,
+   "stdev_s": 172.1,
+   "median_s": 192.1,
+   "mode_min": 4
+  },
+  "send_to_camera_ok": {
+   "n": 60,
+   "min_s": 51.8,
+   "max_s": 959.4,
+   "mean_s": 311.0,
+   "stdev_s": 177.8,
+   "median_s": 293.4,
+   "mode_min": 5
+  },
+  "send_to_hl_sent": {
+   "n": 55,
+   "min_s": 67.6,
+   "max_s": 1183.4,
+   "mean_s": 570.6,
+   "stdev_s": 398.7,
+   "median_s": 365.5,
+   "mode_min": 4
+  },
+  "send_to_complete": {
+   "n": 59,
+   "min_s": 299.9,
+   "max_s": 7182.2,
+   "mean_s": 1741.7,
+   "stdev_s": 1385.9,
+   "median_s": 1433.4,
+   "mode_min": 25
+  }
+ }
+}

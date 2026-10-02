@@ -80,6 +80,10 @@ Retired: "Finish S5 details, then take the rig for 24 h gate" (superseded by G1 
 | Sprint27 Q6 | "capture now with settings" button: next sprint |
 | Sprint27 Q7 | message caps (still + video) warn > 300, refuse > 500; budgets warn 18 / refuse 30 min; WB gains refuse > 8.0 |
 | staging demo | temporary push of s27 + UI after G1, Nick tests, reset, then PRs |
+| G1 result (bm #102) | backend auto-heal PASS both rigs (60/60 heals, 0 redundant); 4 bmcam004 clips lost Spotter-side (SPOT-31593C mem_fault_reboot FW v2.16.8 + 3 h no GPS) |
+| D1 counting | D1 judged on clips that reached Sofar; Spotter-side whole-clip losses reported separately as an external defect; Nick files a Sofar ticket. Next sprint: heartbeat lists recent clip keys so the backend can detect + re-request whole lost clips |
+| G1 cut | ended 22:30 PDT 10/1 with no drain (Nick); clips in flight = "stopped early" |
+| `REASK_S` | keep 5400 s (only 3/60 heals needed a re-ask) |
 | rollout model | **per-Spotter** settings (not per-device Render env); global env = kill switches only; iridium defaults OFF. Fri demo uses the env once |
 
 Note: a 500-message cap at the validated 1.3 s/msg is 650 s, longer than the 10-min production
@@ -91,6 +95,6 @@ bus window; caps above ~450 only complete on a longer window.
 |---|---|---|
 | Scope added 2026-10-01 (image keys + video retry ~10 h, per-Spotter settings) | uses the Wed slack day | estimates requested from the owning sessions; EM flags any slip at once |
 | Spotter queue overflow (S5 F1) | re-asks cost 90 min each | D1 allows 3 h; outdoors should have better signal |
-| bmcam004 bus drops (3× on 2026-09-30, cause unknown) | G4/G5 failure | Test Engineer watches the bus during G3/G4 |
+| SPOT-31593C (bmcam004) firmware: mem_fault_reboot + no-GPS silent drops; likely also the 9/30 bus drops | whole clips lost in G4/G5 (counted separately from D1) | Sofar ticket; Test Engineer logs Spotter reset reason + GPS state in every gate |
 | G5 has no console | a wedged unit can only be recovered by cellular command | G3 proves remote recovery first |
 | bmcam001 0 complete images since 2026-09-01 (TODO-SPOT-001) | post-R1 field upgrade | out of R1 scope; Nick owns |

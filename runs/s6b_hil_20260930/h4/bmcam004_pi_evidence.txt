@@ -1,0 +1,476 @@
+rc_cycle_20261001T052157Z.log:[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+rc_cycle_20261001T052157Z.log:[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+rc_cycle_20261001T052157Z.log:[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+rc_cycle_20261001T052157Z.log:[CMD] reader thread started
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T05:22:32.078000+00:00
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000832635 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000832635 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T05:30:41.992000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000834481 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000834481 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T06:01:31.703000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000836314 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000836314 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T06:32:01.375000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000838146 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000838146 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T07:02:31.042000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100073 key=0e225d n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100073 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e225d a=requested n=8 r=ok id=100073 w=0e23k7>
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 5 (heal) after 600s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e225d:[53, 54, 55, 56, 57, 58, 59, 60]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e225d a=sent n=8 r=ok id=100073>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000839976 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000839976 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T07:33:00.714000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100074 key=0e24z0 n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100074 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 7 (heal) after 1328s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e24z0:[168, 169, 170, 171, 172, 173, 174, 175]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e24z0 a=sent n=8 r=ok id=100074>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000841808 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000841808 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T08:03:30.390000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000843640 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000843640 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T08:34:10.109000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100075 key=0e27sy n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100075 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 10 (heal) after 1343s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e27sy:[161, 162, 163, 164, 165, 166, 167, 168]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e27sy a=sent n=8 r=ok id=100075>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000845471 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000845471 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T09:04:39.785000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000847301 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000847301 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T09:35:09.488000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100076 key=0e297r n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100076 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 13 (heal) after 673s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e297r:[54, 55, 56, 57, 58, 59, 60, 61]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e297r a=sent n=8 r=ok id=100076>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000849133 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000849133 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T10:05:39.207000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100077 key=0e2c1f n=16: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100077 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 15 (heal) after 1272s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 16 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 16 heal chunk(s) before START: 0e2c1f:[49, 50, 51, 52, 53, 54, 55, 56, 95, 96, 97, 98, 99, 100, 101, 102]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2c1f a=sent n=16 r=ok id=100077>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000850967 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000850967 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T10:36:08.906000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100078 key=0e2dg8 n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100078 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 17 (heal) after 1275s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e2dg8:[39, 40, 41, 42, 43, 44, 45, 46]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2dg8 a=sent n=8 r=ok id=100078>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000852800 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000852800 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T11:06:48.589000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100079 key=0e2evc n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100079 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 19 (heal) after 1269s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e2evc:[49, 50, 51, 52, 53, 54, 55, 56]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2evc a=sent n=8 r=ok id=100079>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000854633 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000854633 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T11:37:18.273000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000856465 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000856465 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T12:07:47.945000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100080 key=0e2hoz n=16: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100080 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 22 (heal) after 1274s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 16 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 16 heal chunk(s) before START: 0e2hoz:[55, 56, 57, 58, 59, 60, 61, 62, 111, 112, 113, 114, 115, 116, 117, 118]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2hoz a=sent n=16 r=ok id=100080>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000858298 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000858298 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T12:38:27.652000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000860131 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000860131 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T13:08:57.347000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100081 key=0e2j43 n=8: accepted
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100081 key=0e2evc n=6: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100081 rsd: rsd: 2 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2j43 a=requested n=8 r=ok id=100081 w=0e2kix>
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2evc a=requested n=6 r=ok id=100081 w=0e2kix>
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 25 (heal) after 600s idle: 2 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 2 pending heal(s), 14 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 14 heal chunk(s) before START: 0e2j43:[132, 133, 134, 135, 136, 137, 138, 139], 0e2evc:[51, 52, 53, 54, 55, 56]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2j43 a=sent n=8 r=ok id=100081>
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2evc a=sent n=6 r=ok id=100081>
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100082 key=0e2kix n=40: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100082 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 26 (heal) after 674s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 40 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 40 heal chunk(s) before START: 0e2kix:[30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 102, 103, 104, 105, 106, 107, 108, 109]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2kix a=sent n=40 r=ok id=100082>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000861963 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000861963 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T13:39:27.042000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100083 key=0e2lxr n=34: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100083 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 28 (heal) after 1285s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 34 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 34 heal chunk(s) before START: 0e2lxr:[60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2lxr a=sent n=34 r=ok id=100083>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000863799 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000863799 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T14:10:06.734000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000865637 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000865637 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T14:40:46.429000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000867476 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000867476 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T15:11:26.128000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000869312 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000869312 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T15:41:55.886000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100084 key=0e2rlv n=3: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100084 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 33 (heal) after 1277s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 3 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 3 heal chunk(s) before START: 0e2rlv:[128, 129, 130]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e2rlv a=sent n=3 r=ok id=100084>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000871149 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000871149 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T16:12:35.597000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000872986 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000872986 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T16:43:15.300000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000874824 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000874824 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T17:13:55.019000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000876661 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000876661 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T17:44:24.687000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000878496 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000878496 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T18:15:04.367000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000880335 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000880335 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T18:45:44.046000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000882171 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000882171 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T19:16:23.796000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000884008 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000884008 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T19:46:53.503000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000885849 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000885849 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T20:17:33.214000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000887686 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000887686 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T20:48:12.898000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000889521 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000889521 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T21:18:52.589000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000891357 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000891357 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T21:49:22.265000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000893192 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000893192 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T22:20:01.964000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000895027 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000895027 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T22:50:31.667000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100085 key=0e3a1d n=30: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100085 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e3a1d a=requested n=30 r=ok id=100085 w=0e3bg7>
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 48 (heal) after 600s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 30 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 30 heal chunk(s) before START: 0e3a1d:[76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 104, 105, 106]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e3a1d a=sent n=30 r=ok id=100085>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000896861 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000896861 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T23:21:11.347000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100086 key=0e3cvb n=16: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100086 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 50 (heal) after 1271s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 16 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 16 heal chunk(s) before START: 0e3cvb:[54, 55, 56, 57, 58, 59, 60, 61, 146, 147, 148, 149, 150, 151, 152, 153]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e3cvb a=sent n=16 r=ok id=100086>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000898695 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000898695 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-01T23:51:41.070000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000900531 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000900531 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-02T00:22:20.738000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100087 key=0e3a1d n=3: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100087 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e3a1d a=requested n=3 r=ok id=100087 w=0e3fp8>
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 53 (heal) after 600s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 3 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 3 heal chunk(s) before START: 0e3a1d:[104, 105, 106]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e3a1d a=sent n=3 r=ok id=100087>
+rc_cycle_20261001T052157Z.log:[CMD] rsd id=100088 key=0e3fp8 n=16: accepted
+rc_cycle_20261001T052157Z.log:[CMD] applied id=100088 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[SUP] ===== action 54 (heal) after 676s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 1 pending heal(s), 16 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[HEAL] sent 16 heal chunk(s) before START: 0e3fp8:[40, 41, 42, 43, 44, 45, 46, 47, 86, 87, 88, 89, 90, 91, 92, 93]
+rc_cycle_20261001T052157Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261001T052157Z.log:[HEAL] status: <HL v=1 key=0e3fp8 a=sent n=16 r=ok id=100088>
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000902364 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000902364 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-02T00:52:50.421000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261001T052157Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261001T052157Z.log:[CMD] applied id=2000904197 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261001T052157Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261001T052157Z.log:[CMD] one-shot trigger id=2000904197 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261001T052157Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261001T052157Z.log:[CMD] spotter UTC decoded: 2026-10-02T01:23:30.113000+00:00
+rc_cycle_20261001T052157Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+rc_cycle_20261002T012723Z.log:[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+rc_cycle_20261002T012723Z.log:[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+rc_cycle_20261002T012723Z.log:[CMD] reader thread started
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T01:28:00.714000+00:00
+rc_cycle_20261002T012723Z.log:[CMD] applied id=2000906951 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[CMD] one-shot trigger id=2000906951 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T02:09:20.269000+00:00
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261002T012723Z.log:[CMD] applied id=2000909705 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[CMD] one-shot trigger id=2000909705 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T02:55:09.789000+00:00
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261002T012723Z.log:[CMD] applied id=2000912460 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[CMD] one-shot trigger id=2000912460 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T03:41:09.382000+00:00
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261002T012723Z.log:[CMD] applied id=2000915210 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[CMD] one-shot trigger id=2000915210 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T04:26:58.917000+00:00
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261002T012723Z.log:[CMD] applied id=2000917045 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[CMD] one-shot trigger id=2000917045 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T04:57:28.601000+00:00
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[CMD] rsd id=100089 key=0e3r0y n=8: accepted
+rc_cycle_20261002T012723Z.log:[CMD] applied id=100089 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[HEAL] status: <HL v=1 key=0e3r0y a=requested n=8 r=ok id=100089 w=0e3sfs>
+rc_cycle_20261002T012723Z.log:[CMD] no listen tail: stay_on (the idle loop listens)
+rc_cycle_20261002T012723Z.log:[SUP] ===== action 6 (heal) after 600s idle: 1 pending heal(s) (O5) =====
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+rc_cycle_20261002T012723Z.log:[HEAL] sent 8 heal chunk(s) before START: 0e3r0y:[39, 40, 41, 42, 43, 44, 45, 46]
+rc_cycle_20261002T012723Z.log:[HEAL] pending after this wake: none
+rc_cycle_20261002T012723Z.log:[HEAL] status: <HL v=1 key=0e3r0y a=sent n=8 r=ok id=100089>
+rc_cycle_20261002T012723Z.log:[CMD] applied id=2000918876 trg: trg 2 armed: capture + output per mode (next decision point)
+rc_cycle_20261002T012723Z.log:[CMD] console: 1 line(s) sent, 0 queued
+rc_cycle_20261002T012723Z.log:[CMD] one-shot trigger id=2000918876 trg=2 (capture + send): window gate BYPASSED for this boot only
+rc_cycle_20261002T012723Z.log:[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+rc_cycle_20261002T012723Z.log:[CMD] spotter UTC decoded: 2026-10-02T05:27:58.292000+00:00
+rc_cycle_20261002T012723Z.log:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
