@@ -47,7 +47,7 @@ def _to_s3c_names(doc):
 
 class NewKeys(unittest.TestCase):
     def test_version_and_new_keys(self):
-        self.assertEqual(R.REGISTRY_VERSION, 5)
+        self.assertGreaterEqual(R.REGISTRY_VERSION, 5)      # 6 = Sprint27 image-processing limits
         want = {"commands.keepalive_s": (300, (0, 1800)),
                 "commands.keepalive_max_s": (1800, (0, 7200)),
                 "commands.hold_max_min": (120, (0, 240))}

@@ -1715,8 +1715,8 @@
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "bool",
    "unit": null,
    "wire_visible": false
@@ -1730,7 +1730,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Sharpness.",
+   "help": "Sharpness 0..16 (1 = normal).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1738,17 +1738,20 @@
    "one_shot": true,
    "path": "camera.image_processing.sharpness",
    "presets": [],
-   "range": null,
+   "range": [
+    0.0,
+    16.0
+   ],
    "requires": [
     "camera.controls_enabled",
     "camera.image_processing.enabled"
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "float",
-   "unit": null,
+   "unit": "x (1 = normal)",
    "wire_visible": false
   },
   {
@@ -1760,7 +1763,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Contrast.",
+   "help": "Contrast 0..32 (1 = normal).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1768,17 +1771,20 @@
    "one_shot": true,
    "path": "camera.image_processing.contrast",
    "presets": [],
-   "range": null,
+   "range": [
+    0.0,
+    32.0
+   ],
    "requires": [
     "camera.controls_enabled",
     "camera.image_processing.enabled"
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "float",
-   "unit": null,
+   "unit": "x (1 = normal)",
    "wire_visible": false
   },
   {
@@ -1790,7 +1796,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Saturation.",
+   "help": "Saturation 0..32 (1 = normal, 0 = greyscale).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1798,17 +1804,20 @@
    "one_shot": true,
    "path": "camera.image_processing.saturation",
    "presets": [],
-   "range": null,
+   "range": [
+    0.0,
+    32.0
+   ],
    "requires": [
     "camera.controls_enabled",
     "camera.image_processing.enabled"
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "float",
-   "unit": null,
+   "unit": "x (1 = normal)",
    "wire_visible": false
   },
   {
@@ -1820,7 +1829,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Brightness.",
+   "help": "Brightness -1..1 (0 = normal).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1828,17 +1837,20 @@
    "one_shot": true,
    "path": "camera.image_processing.brightness",
    "presets": [],
-   "range": null,
+   "range": [
+    -1.0,
+    1.0
+   ],
    "requires": [
     "camera.controls_enabled",
     "camera.image_processing.enabled"
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "float",
-   "unit": null,
+   "unit": "offset (0 = normal)",
    "wire_visible": false
   },
   {
@@ -1846,11 +1858,17 @@
    "blocked_values": [],
    "choices": null,
    "default": null,
-   "enum": [],
+   "enum": [
+    "auto",
+    "off",
+    "cdn_off",
+    "cdn_fast",
+    "cdn_hq"
+   ],
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Denoise mode (passed through).",
+   "help": "Denoise mode (rpicam --denoise).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1865,8 +1883,8 @@
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "str",
    "unit": null,
    "wire_visible": false
@@ -1876,11 +1894,18 @@
    "blocked_values": [],
    "choices": null,
    "default": null,
-   "enum": [],
+   "enum": [
+    true,
+    false,
+    "off",
+    "auto",
+    "sensor",
+    "single-exp"
+   ],
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "HDR (passed through).",
+   "help": "HDR: off / auto / sensor (Camera Module 3 sensor HDR) / single-exp; true = auto.",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1895,8 +1920,8 @@
    ],
    "section": "camera",
    "short": null,
-   "tier": "engineering",
-   "tier_reason": "free strings / unranged floats go straight into rpicam argv and video has no fallback: a bad value loses every clip",
+   "tier": "control",
+   "tier_reason": null,
    "type": "bool_or_str",
    "unit": null,
    "wire_visible": false
@@ -3745,7 +3770,7 @@
    "wire_visible": false
   }
  ],
- "registry_version": 5,
+ "registry_version": 6,
  "rules": {
   "interval_min_s": 60,
   "stay_on_requires_reported_true": "power.bus_always_on",
@@ -3773,13 +3798,13 @@
   "camera.focus.mode": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["manual",true],["continuous",true]],
   "camera.focus.range": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["normal",true],["macro",true],["full",true]],
   "camera.focus.speed": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["normal",true],["fast",true]],
-  "camera.image_processing.brightness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,true],[2.5,true],[-8.5,true],[8.0,true],[100000,true],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "camera.image_processing.contrast": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,true],[2.5,true],[-8.5,true],[8.0,true],[100000,true],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "camera.image_processing.denoise": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",true],["auto",true],["12:00",true],["25:00",true],["480x270",true],["481x271",true],["0x10",true],["UTC",true],["Not/AZone",true],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",true],["2026-01-01T00:00:00+00:00",true]],
+  "camera.image_processing.brightness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,true],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[-1.0,true],[1.0,true],[-1.5,false],[1.5,false]],
+  "camera.image_processing.contrast": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[32.0,true],[-0.5,false],[32.5,false]],
+  "camera.image_processing.denoise": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["off",true],["cdn_off",true],["cdn_fast",true],["cdn_hq",true]],
   "camera.image_processing.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "camera.image_processing.hdr": [[null,true],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",true],["x",true],["auto",true],["12:00",true],["25:00",true],["480x270",true],["481x271",true],["0x10",true],["UTC",true],["Not/AZone",true],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",true],["2026-01-01T00:00:00+00:00",true]],
-  "camera.image_processing.saturation": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,true],[2.5,true],[-8.5,true],[8.0,true],[100000,true],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "camera.image_processing.sharpness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,true],[2.5,true],[-8.5,true],[8.0,true],[100000,true],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
+  "camera.image_processing.hdr": [[null,true],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["off",true],["sensor",true],["single-exp",true]],
+  "camera.image_processing.saturation": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[32.0,true],[-0.5,false],[32.5,false]],
+  "camera.image_processing.sharpness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[16.0,true],[-0.5,false],[16.5,false]],
   "camera.native.height": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[2592,true],[16,true],[6944,true],[15,false],[6945,false]],
   "camera.native.jpeg_quality": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[95,true],[100,true],[101,false]],
   "camera.native.width": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[4608,true],[16,true],[9152,true],[15,false],[9153,false]],
@@ -3864,7 +3889,7 @@
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "810e2069aa2e079c052e85cc28f286a1efe3e4127c4324071acb80dd23061b82",
+ "sha256": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",

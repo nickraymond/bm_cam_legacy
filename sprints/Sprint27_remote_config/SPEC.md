@@ -431,3 +431,32 @@ hold for values rpicam accepts at parse time but fails at run time.
      session to review.
 - **This session does not edit those lines.**
 - `BM_REMOTE_CONFIG` stays as the global kill switch, as Nick and the EM asked.
+
+### 9.4 Image-processing controls: built from the P0 probe (2026-10-02)
+
+Source: Test Engineer P0 on bmcam004, 05:47Z, 77 probes (`runs/s27_ladder_20261001/p0_rpicam_limits/`
+on `feature/r1-hil-test-engineer` 27ffd9b). Unit software: rpicam-apps v1.12.0, libcamera v0.7.1,
+IMX708.
+
+| key | range / names (registry v6) | measured from |
+|---|---|---|
+| sharpness | 0..16 | Picamera2 `Sharpness` [0, 16, 1] |
+| contrast | 0..32 | `Contrast` [0, 32, 1] |
+| saturation | 0..32 | `Saturation` [0, 32, 1] |
+| brightness | -1..1 | `Brightness` [-1, 1, 0] |
+| denoise | auto off cdn_off cdn_fast cdn_hq | rpicam `--help`; every value ran; `bogus` exit 255 |
+| hdr | off auto sensor single-exp, + true / false | rpicam `--help`; every value ran (still + video at 2304x1296 and 4608x2592); `bogus` exit 255 |
+
+What the probe found:
+
+- **rpicam does not refuse out-of-range floats** (it exits 0, presumably clamping). The registry
+  range on the unit and the backend are the only check.
+- **A repeated option exits 255.** New camera rule `_rule_video_duplicate_flags`: on a video unit
+  with image processing on, `camera.image_processing.denoise` / `sharpness` may not be set
+  together with `video.record.encoder.denoise` / `sharpness`. The parity test builds the real
+  `rpicam-vid` argv through the render and loaders over 64 combinations. The video retry without
+  camera controls remains the backstop.
+- **`hdr=single-exp`** is PiSP (Pi 5) multiframe HDR according to rpicam's help. It ran on the
+  Pi Zero 2 W, but its effect there is unverified (ladder IP4).
+
+Writable now: 54 control keys. Read-only: `camera.exposure.mode`, `still.save.quality`.
