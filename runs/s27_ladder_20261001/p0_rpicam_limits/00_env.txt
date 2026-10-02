@@ -1,0 +1,20 @@
+2026-10-02T05:47:51Z
+bmcam004
+Linux bmcam004 6.18.34+rpt-rpi-v8 #1 SMP PREEMPT Debian 1:6.18.34-1+rpt1 (2026-06-09) aarch64 GNU/Linux
+rpicam-apps build: v1.12.0 12-05-2026 (11:49:26)
+rpicam-apps capabilites: egl:0 qt:0 drm:1 libav:0
+libcamera build: v0.7.1+rpt20260609
+rpicam-apps build: v1.12.0 12-05-2026 (11:49:26)
+rpicam-apps capabilites: egl:0 qt:0 drm:1 libav:0
+libcamera build: v0.7.1+rpt20260609
+MemTotal:         425172 kB
+MemAvailable:     233684 kB
+CmaTotal:         262144 kB
+CmaFree:           74560 kB
+Available cameras
+-----------------
+0 : imx708_wide [4608x2592 10-bit RGGB] (/base/soc/i2c0mux/i2c@1/imx708@1a)
+    Modes: 'SRGGB10_CSI2P' : 1536x864 [120.13 fps - (768, 432)/3072x1728 crop]
+                             2304x1296 [56.03 fps - (0, 0)/4608x2592 crop]
+                             4608x2592 [14.35 fps - (0, 0)/4608x2592 crop]
+

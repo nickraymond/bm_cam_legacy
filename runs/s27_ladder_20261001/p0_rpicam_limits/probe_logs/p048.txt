@@ -1,0 +1,1 @@
+ERROR: *** Invalid HDR option provided: bogus ***

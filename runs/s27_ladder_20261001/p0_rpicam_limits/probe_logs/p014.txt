@@ -1,0 +1,15 @@
+[4:20:55.907580788] [5132]  INFO Camera camera_manager.cpp:340 libcamera v0.7.1+rpt20260609
+[4:20:55.953393206] [5135]  WARN CameraSensorProperties camera_sensor_properties.cpp:548 No static properties available for 'imx708_wide'
+[4:20:55.953469561] [5135]  WARN CameraSensorProperties camera_sensor_properties.cpp:550 Please consider updating the camera sensor properties database
+[4:20:55.953639927] [5135]  INFO RPI pipeline_base.cpp:1133 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+[4:20:56.032186945] [5135]  INFO IPAProxy ipa_proxy.cpp:184 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+[4:20:56.046362950] [5135]  WARN CameraSensor camera_sensor_legacy.cpp:502 'imx708_wide': No sensor delays found in static properties. Assuming unverified defaults.
+[4:20:56.047564106] [5135]  INFO Camera camera_manager.cpp:223 Adding camera '/base/soc/i2c0mux/i2c@1/imx708@1a' for pipeline handler rpi/vc4
+[4:20:56.047622127] [5135]  INFO RPI vc4.cpp:445 Registered camera /base/soc/i2c0mux/i2c@1/imx708@1a to Unicam device /dev/media0 and ISP device /dev/media1
+Mode selection for 2304:1296:10:P
+    SRGGB10_CSI2P,1536x864/0 - Score: 2400
+    SRGGB10_CSI2P,2304x1296/0 - Score: 0
+    SRGGB10_CSI2P,4608x2592/0 - Score: 900
+[4:20:56.052310188] [5132]  INFO Camera camera.cpp:1216 configuring streams: (0) 1280x720-YUV420/Rec709 (1) 2304x1296-SBGGR10_CSI2P/RAW
+[4:20:56.052946339] [5135]  INFO RPI vc4.cpp:620 Sensor: /base/soc/i2c0mux/i2c@1/imx708@1a - Selected sensor format: 2304x1296-SBGGR10_1X10/RAW - Selected unicam format: 2304x1296-pBAA/RAW
+Halting: reached timeout of 2000 milliseconds.
