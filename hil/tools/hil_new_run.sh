@@ -3,13 +3,14 @@
 #
 # Inputs:   $1 run name (e.g. g3_hardmode), $2 gate/test id (e.g. G3), $3.. units (hosts)
 #           env HIL_RUNS (default runs), HIL_OPERATOR (session name, default "Test Engineer")
-# Outputs:  runs/<name>_<YYYYMMDD PDT>/ with RESULTS.md (from the template), run_manifest.json,
+# Outputs:  hil/.current_run (the run the other wrappers log to); runs/<name>_<YYYYMMDD PDT>/ with RESULTS.md (from the template), run_manifest.json,
 #           commands.log, gate.log, snapshots/ console/ api/ pulled/ analysis/. Prints the path.
 #           Refuses to overwrite an existing RESULTS.md / run_manifest.json.
 # Example:  hil/tools/hil_new_run.sh g3_hardmode G3 bmcam003 bmcam004
 # Limits:   the date is the PDT date (the gates are scheduled in PDT). Run from the repo root.
 set -eu
 NAME="${1:?run name}"; GATE="${2:?gate id}"; shift 2
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
 HERE="$(cd "$(dirname "$0")" && pwd)"; HIL="$(dirname "$HERE")"
 D="${HIL_RUNS:-runs}/${NAME}_$(TZ=America/Los_Angeles date +%Y%m%d)"
 mkdir -p "$D"/{snapshots,console,api,pulled,analysis}
@@ -45,4 +46,5 @@ json.dump(m, open(os.path.join(d, "run_manifest.json"), "w"), indent=2)
 PY
 fi
 echo "$(date -u +%FT%TZ) run created for $GATE units: $*" >> "$D/gate.log"
+echo "$D" > "$HIL_DIR/.current_run"   # later wrappers log here (hil_use_run.sh switches)
 echo "$D"

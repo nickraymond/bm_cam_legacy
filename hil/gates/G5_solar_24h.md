@@ -31,8 +31,8 @@ D1, D3, D4 hold for 24 h; commands only via cellular.
       unplugging the USB console changes the Spotter's power path before relying on it overnight).
 - [ ] Cellular spend for 24 h × 2 units + 4 trg + 2 ping + heals ≤ the plan; else Nick decides first.
 - [ ] Backend send path live for both Spotters (per-Spotter `remote_commands` setting on; `BM_COMMAND_SEND`).
-- [ ] Never send to SPOT-33361C (field). TODO before G5: a `hil/tools` cellular sender with a hard
-      allow-list of the two rig Spotters (does not exist yet).
+- [ ] Never send to SPOT-33361C (field): every send goes through `hil/tools/hil_sofar_change.sh`
+      (rig allow-list guard; `hil/tools/test_hil_guards.sh` must print 0 failures before G5).
 
 ## Steps
 

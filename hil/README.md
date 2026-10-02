@@ -113,17 +113,32 @@ Secrets never go in it (tokens stay on nereus000 in `~/.config/nereus/*.env`).
 - **Cellular spend** beyond the gate's budget, any hardware Nick must touch, and any Render
   change go to Nick (via the EM) before they happen.
 
-## 7. Configuration (no hard-coded hosts or tokens)
+## 7. Configuration and the rig guard (no hard-coded hosts or tokens)
 
-Tools read their targets from arguments, or from env vars that `hil/hil.env` sets
-(`source hil/hil.env`). See `hil.env.example`. Tokens are never read on the Mac: tools
-that need the staging admin token run ON the monitor host and read its env file there.
+Every wrapper sources `hil/tools/hil_common.sh`, which loads `hil/hil.env` (gitignored copy of
+`hil.env.example`) and the current run folder (`hil/.current_run`, written by `hil_new_run.sh` /
+`hil_use_run.sh`). Calls are therefore plain `hil/tools/hil_x.sh ...`, never `VAR=... hil/tools/...`
+(Nick's standing allow rules match commands from their start).
+
+**Rig guard:** the only Spotters / devices / hosts a tool may reach are those in `HIL_RIG_A` /
+`HIL_RIG_B`. Anything else (field Spotter SPOT-33361C, bmcam001/002) exits 5 before any ssh or API
+call. `hil/tools/test_hil_guards.sh` proves it offline (fake ssh/scp/curl; must print 0 failures).
+Never add a field unit to `HIL_RIG_*`.
+
+Tokens are never read on the Mac: tools that need the staging admin token run their `curl` ON the
+monitor host and read its env file there.
 
 ## 8. Tools
 
 | tool | does |
 |---|---|
-| `tools/hil_new_run.sh` | create `runs/<name>_<date>/` with the layout above + a started `run_manifest.json` |
+| `tools/hil_common.sh` | sourced by every wrapper: hil.env, current run, rig allow-list guard |
+| `tools/test_hil_guards.sh` | offline proof that every wrapper refuses non-rig Spotters/devices/hosts (exit 5, no network) |
+| `tools/hil_new_run.sh` | create `runs/<name>_<date>/` with the layout above + a started `run_manifest.json`; makes it the current run |
+| `tools/hil_use_run.sh` | switch the current run folder |
+| `tools/hil_step.sh` | one ladder step: command → trigger → wait for the action → pull its evidence |
+| `tools/hil_change.sh` | one change through the backend on the console lane (record → publish → mark sent) |
+| `tools/hil_sofar_change.sh` | one change through the backend on the cellular lane (record → send); the G5 sender |
 | `tools/hil_unit_snapshot.sh` | read-only unit snapshot: runtime sha, config hash, crontab, processes, /dev/shm, logind, CMA, disk, last cycle log errors |
 | `tools/hil_console.sh` | send ONE Spotter console line via the monitor's `cmd.txt`, print what followed |
 | `tools/hil_cmd.sh` | publish ONE bmcam command (`bm pub bmcam/cmd …`) and decode the answer + cellular payloads |

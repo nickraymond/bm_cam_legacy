@@ -17,6 +17,9 @@
 #           the Sofar lane. The body must not contain single quotes.
 set -u
 STEP="${1:?STEP}"; DEV="${2:?device}"; SPOT="${3:?SPOT}"; BODY="${4:?body}"
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
+hil_require_device "$DEV"; hil_require_spot "$SPOT"
+[ "$(hil_spot_of_device "$DEV")" = "$SPOT" ] || { echo "[hil-guard] REFUSED: $DEV is not wired to $SPOT" >&2; exit 5; }
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RUN="${HIL_RUN_DIR:?}"; mkdir -p "$RUN/api"
 MON="${HIL_MONITOR:?}"; ENVF="${HIL_MONITOR_ENV_FILE:-/home/pi/.config/nereus/heal_driver.env}"; API="${HIL_API:?}"

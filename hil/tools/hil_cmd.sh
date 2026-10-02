@@ -13,7 +13,9 @@
 #           (the JSON <= ~234 B); the answer must arrive within the wait (re-read the
 #           monitor log with a longer wait if the unit is mid-burst: answers queue in its inbox).
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
 STEP="${1:?STEP}"; JSON="${2:?JSON}"; W="${3:-8}"; SPOT="${4:-${HIL_SPOT:?SPOT-ID or HIL_SPOT}}"
+hil_require_spot "$SPOT"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RUN="${HIL_RUN_DIR:-.}"; mkdir -p "$RUN"
 LINE="bm pub bmcam/cmd $JSON 1 1"

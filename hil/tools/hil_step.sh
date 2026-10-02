@@ -18,6 +18,8 @@
 #           Pulls only small files (< 1000 kB; note GNU find -size -1M only matches EMPTY files).
 set -u
 STEP="${1:?STEP}"; H="${2:?host}"; SPOT="${3:?SPOT}"; CMD="${4:?cmd or -}"; TRG="${5:?trg or -}"; WMAX="${6:-420}"
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
+hil_require_spot "$SPOT"; hil_require_host "$H"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RUN="${HIL_RUN_DIR:?HIL_RUN_DIR}"; OUT="$RUN/pulled/$STEP"; mkdir -p "$OUT"
 APP=/home/pi/BM_Devel_Pi

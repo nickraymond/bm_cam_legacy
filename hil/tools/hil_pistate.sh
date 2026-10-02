@@ -9,7 +9,9 @@
 # Example:  hil/tools/hil_pistate.sh N1.before bmcam003
 # Limits:   read-only; note the result_cache changes the state file sha on every command by design.
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
 TAG="${1:?TAG}"; H="${2:-${HIL_HOST:?host or HIL_HOST}}"
+hil_require_host "$H"
 U="${HIL_UNIT_USER:-pi}"; APP="${HIL_UNIT_APP:-/home/pi/BM_Devel_Pi}"
 RUN="${HIL_RUN_DIR:-.}"; mkdir -p "$RUN"
 {

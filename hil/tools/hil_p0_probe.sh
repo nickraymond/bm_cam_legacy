@@ -24,7 +24,9 @@
 #           Default enum lists are ASSUMPTIONS taken from rpicam-apps docs; the --help text in
 #           01_help_*.txt is the authority — re-run with P0_DENOISE/P0_HDR if it differs.
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
 H="${1:?host}"; OUT="${2:?local output dir}"; U="${HIL_UNIT_USER:-pi}"
+hil_require_host "$H"
 mkdir -p "$OUT"
 DENOISE="${P0_DENOISE:-auto off cdn_off cdn_fast cdn_hq bogus}"
 HDR="${P0_HDR:-off auto sensor single-exp bogus}"

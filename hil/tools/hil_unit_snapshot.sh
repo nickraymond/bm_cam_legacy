@@ -18,6 +18,8 @@
 #           of this snapshot can itself wipe /dev/shm on a unit without the RemoveIPC fix. Exit 1 if the unit is unreachable.
 set -u
 H="${1:?host}"; TAG="${2:?tag}"
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
+hil_require_host "$H"
 U="${HIL_UNIT_USER:-pi}"; APP="${HIL_UNIT_APP:-/home/pi/BM_Devel_Pi}"; REPO="${HIL_UNIT_REPO:-/home/pi/repos/bm_cam_legacy}"
 RUN="${HIL_RUN_DIR:-.}"; mkdir -p "$RUN/snapshots"
 OUTF="$RUN/snapshots/${H}_${TAG}_$(date -u +%Y%m%dT%H%M%SZ).txt"

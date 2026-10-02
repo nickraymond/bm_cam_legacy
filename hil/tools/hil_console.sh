@@ -16,6 +16,8 @@
 #           (monitor down?) and exits 3; exits 4 when ssh to the monitor fails.
 set -u
 SPOT="${1:?SPOT-ID}"; CMD="${2:?console line}"; W="${3:-6}"
+. "$(cd "$(dirname "$0")" && pwd)/hil_common.sh"   # hil.env, HIL_RUN_DIR, rig guard
+hil_require_spot "$SPOT"
 MON="${HIL_MONITOR:?set HIL_MONITOR (source hil/hil.env)}"
 ROOT="${HIL_MONITOR_LOG_ROOT:-/home/pi/spotter_logs}"
 RUN="${HIL_RUN_DIR:-.}"; mkdir -p "$RUN"
