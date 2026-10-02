@@ -1,0 +1,51 @@
+== bmcam003 2026-10-02T05:33:25Z up 87064.89s
+-- /dev/shm
+total 0
+drwxrwxrwt  2 root root   40 Oct  2 05:31 .
+drwxr-xr-x 16 root root 4040 Oct  1 05:21 ..
+ls: cannot access '/dev/shm/bmcam': No such file or directory
+KEY shm_render missing
+KEY shm_stay_on missing
+KEY sha 3c1801d7a69c
+KEY repo development 3c1801d Merge pull request #92 from nickraymond/feature/sprint26-s4w-chunk-total
+KEY cfg_hash hash=f7c9194f
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f7c9194f hv=1 registry=v5 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.JVOuoP/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 099e30e63f29f412 bm_command_state_v2.json 0L
+file 130f51884b49e0df config_journal.jsonl 54L
+state overlay {"mode.run": "stay_on"}
+state guarded {}
+state boot 24 hw {"service": 100000021}
+-- crontab
+# DISABLED hil 20261002T053251Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes 
+logind.d ls: cannot access '/etc/systemd/logind.conf.d': No such file or directory
+KEY linger Linger=no
+-- sessions
+471 1000 pi - 20223 manager - no -
+475 1000 pi - 20406 user    - no -
+KEY fix97 no
+KEY rule98 no
+MemAvailable:     238600 kB
+CmaTotal:         262144 kB
+CmaFree:           74244 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261001T052205Z.log
+KEY err_count 284
+KEY reresolve_fail 284
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml._i8rwpqk.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.v4vk9xue.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.vhis4_to.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.aq2zrk7g.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.4io_2hhf.tmp'); keeping the last good settings
+-- tail
+[VTX] cycle end: stage=done elapsed=310.2s of 480s; halt=none
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-02T05:33:16+00:00
+============================================================

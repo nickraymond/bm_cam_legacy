@@ -147,7 +147,10 @@ Then snapshot `rolled_back` and confirm `software_sha` == the before snapshot.
 ## Gotchas
 
 - `ssh '… nohup … &'` needs `< /dev/null`; `cd …; nohup …` (not `&&`) or ssh never returns.
-- pgrep/pkill: bracket patterns, and call the script by a glob (`rc_progressive_jp[e]g.py`).
+- pgrep/pkill: bracket patterns, and call the script by a glob (`rc_progressive_jp[e]g.py`). Keep the
+  stop loop in its OWN ssh call: in the same command as step 2's `sed`, `[r]c_run_capture_cycle`
+  matches the sed text and the wait loop idles its full 6 min on itself (bmcam004, 2026-10-02).
+- `hil_unit_snapshot.sh` before 56796fc faked `shm_render present` (`--print-config` recreated the dir).
 - A Pi reboot clears `/tmp`: re-stage `rc_field_update.sh` if you retry after a reboot.
 - bmcam004 lost bus power 3× on 2026-09-30 (cause unknown): if it goes dark mid-step, check the
   Spotter console (`hil_console.sh SPOT-31593C 'bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled'`)

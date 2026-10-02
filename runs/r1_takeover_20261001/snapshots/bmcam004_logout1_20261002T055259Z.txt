@@ -1,0 +1,55 @@
+== bmcam004 2026-10-02T05:53:01Z up 76.21s
+-- /dev/shm
+total 4
+drwxrwxrwt  3 root root   80 Oct  2 05:51 .
+drwxr-xr-x 16 root root 4040 Oct  2 05:51 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 05:51 bmcam
+-rw-rw-r--  1 pi   pi      4 Oct  2 05:51 bmcam_stay_on
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 05:51 .
+drwxrwxrwt 3 root root   80 Oct  2 05:51 ..
+-rw-r--r-- 1 pi   pi   2300 Oct  2 05:51 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on present
+KEY sha 7d47ff956c4b
+KEY repo development 7d47ff9 Merge pull request #99 from nickraymond/docs/release-r1-plan
+KEY cfg_hash hash=f7c9194f
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f7c9194f hv=1 registry=v5 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.DmvFac/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file fcc2827a1f547c63 bm_command_state_v2.json 0L
+file 298e7bb4e871ee50 config_journal.jsonl 42L
+state overlay {"mode.run": "stay_on"}
+state guarded {}
+state boot 27 hw {"service": 100000032}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+592 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+594 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+595 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+623 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+6 1000 pi - 1083 user    - no -
+7 1000 pi - 1088 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     227188 kB
+CmaTotal:         262144 kB
+CmaFree:           74108 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T055149Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T05:52:08.035000+00:00
+Fri  2 Oct 05:52:08 UTC 2026
+[SUP] stay_on boot time read: 2026-10-02T05:52:08.035000+00:00 (clock: ok)
+[NET] 2026-10-02T05:52:10Z client WiFi UP: profile=nereus-hq
