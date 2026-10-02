@@ -5,8 +5,8 @@ with 2 rows PARTIAL.** Every bad value was refused before send: backend 796/796 
 on both devices, and the unit refused everything the backend could not decide. Every sent value was
 acked by the unit, and 0 SSH writes were needed: bmcam003 was restored to baseline by cellular
 (Sofar-lane) commands alone. Both units end at **f7c9194f**.
-PARTIAL: G3.7 (2 acks lost at the Spotter's full cellular queue, so their commands stay `sent` in the
-UI: F-G3-10) and G3.10 (logs.html left to Nick's review). Decisions for Nick: F-G3-4, F-G3-5, F-G3-8.
+PARTIAL: G3.7 (4 Sofar-lane commands still `sent` at 09:30Z: acks dropped at the full Spotter queue or not yet ingested, so the
+UI shows them stuck: F-G3-10) and G3.10 (logs.html left to Nick's review). Decisions for Nick: F-G3-4, F-G3-5, F-G3-8.
 
 Spec: `hil/gates/G3_api_hard_mode.md`. Timeline + per-step notes: `gate.log`. Every command and answer:
 `steps.log`, `commands.log`. Evidence per step: `pulled/<step>/` (action log, still metadata, thumbnails).
