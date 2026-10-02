@@ -24,6 +24,20 @@ a gate or a scope line, tell the EM session (one line) — do not edit the plan 
 **Commands are issued two ways:** the UI (Nick confirms it works) and the API/script "hard
 mode" (Test Engineer drives limits and edge cases).
 
+## 2a. Timeline pulled in (Nick, Fri 2026-10-02 PM)
+
+G1, G2, G3 passed early and every R1 PR is merged. The outdoor box is ready **Sat 10/3 AM**.
+
+| when (PDT) | step |
+|---|---|
+| Fri 10/2 | #106 checks M1–M6 on both units; **code freeze Fri EOD**; production config set (per-boot wake, Spotter bus 10 min/hour, heal cap 24/day per Spotter) |
+| Sat 10/3 08:00 → 20:00 | **G4** outdoor 12 h, nereus000 on the consoles, production mode |
+| Sun 10/4 08:00 → Mon 10/5 08:00 | **G5** outdoor 24 h on solar, no nereus000, no human (daylight start for the solar budget) |
+| Mon 10/5 | exit review → **ship decision** (4 days early); Tue–Fri = slack for any fix + re-run |
+| after exit | next sprint: RAW → JPEG-XL (own sprint, Nick 2026-10-01) |
+
+The table below is the original plan, kept for reference.
+
 ## 2. Gates (each gate = a RESULTS.md with PASS/FAIL per criterion)
 
 | gate | when (PDT) | what | pass | owner |
