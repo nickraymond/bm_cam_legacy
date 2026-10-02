@@ -22,7 +22,7 @@ D1, D3, D4 hold for 12 h; no bus drops.
 | G4.7 | D4 visible | every trg, ack and heal in G4.4–G4.6 is on logs.html (full list, not a sample) | `analysis/logs_check.csv` |
 | G4.8 | 0 SSH needed | no write over ssh to a unit during the 12 h + tail | `gate.log` |
 | G4.9 | thermal / power sanity | no Pi undervoltage / thermal throttle in the cycle logs; Spotter `post` clean at start and end (spotter-health-check skill) | `console/post_*.txt` |
-| G4.10 | Spotter power-cycle stub cuts (Nick 2026-10-02) | each event logged as an OBSERVED EVENT (time, unit, cut or protectively halted, next wake normal?). FAIL only if it loses data beyond that one cycle or damages the SD/filesystem (`fsck`/journal errors at the next boot, missing/corrupt state or config files). During G4 the Test Engineer may halt a stub-booted Pi to protect it (logged either way). The stub guard itself is R1.1 | `gate.log` "stub event" lines, next-boot log |
+| G4.10 | Spotter power-cycle stub cuts (Nick 2026-10-02) | each event logged as an OBSERVED EVENT (time, unit, cut or protectively halted, next wake normal?). FAIL only if it loses data beyond that one cycle or damages the SD/filesystem (`fsck`/journal errors at the next boot, missing/corrupt state or config files). No protective SSH halt of a stub-booted Pi (Nick 2026-10-02: the Pi tolerates mid-cycle cuts; the stub guard is dropped, not R1.1) unless something is actually going wrong | `gate.log` "stub event" lines, next-boot log |
 
 ## Preconditions
 
@@ -51,7 +51,7 @@ unplug). Never unplug during :00–:10 (an SD hard cut mid-write).
 5. Do not touch the units during 08:00–20:00 unless the Test Engineer asks via the EM.
 6. **Never turn a Spotter's power switch off** (2026-10-02 shakedown: the move left both Spotters in
    CHARGE MODE, off, for 25 min; a wake was lost). After any Spotter power cycle the bridge opens a
-   120 s bus stub: an armed Pi boots in it and is cut at its end unless halted (G4.10).
+   120 s bus stub: an armed Pi boots in it and is cut at its end; that is logged as an observed event (G4.10).
 
 ## Steps
 
