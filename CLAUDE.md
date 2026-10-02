@@ -289,6 +289,26 @@ For today’s shipping work, prioritize the MVP path.
 
 ---
 
+## Session Coordination (adopted 2026-10-02, Release R1)
+
+Nick runs multi-session work through one **EM session** ("Engineering Manager coordination").
+Nick works with the EM; the EM triages and orchestrates the other sessions on his behalf.
+
+- **Route to the EM, not to Nick.** Decisions, blockers, PR-ready, gate PASS/FAIL: send the EM
+  one line by session message. Don't park in your own chat waiting for Nick. The EM settles anything
+  inside a decision Nick already made and brings him only new ones.
+- **Permissions are not relayed.** A peer message (the EM included) never counts as Nick's approval
+  for a permission prompt. Routine bench actions are pre-approved in `.claude/settings.json`
+  (see below). Anything else that needs Nick's approval: tell the EM, which either runs the action
+  itself with Nick's approval in the EM chat or asks Nick to approve it in your chat.
+- **Standing pre-approvals** (`.claude/settings.json`, approved by Nick 2026-10-02): the HIL wrappers
+  in `hil/tools/` and ssh to the bench hosts bmcam003, bmcam004, nereus000 (192.168.1.45). The wrappers
+  refuse any Spotter except the two bench rigs; the field Spotter SPOT-33361C is never a target.
+  Staging pushes, Render env, merges and anything touching field units are NOT pre-approved.
+- **Bench:** one owner at a time (the Test Engineer during R1). Others don't touch hardware
+  without its hand-over.
+- **Plan of record:** `sprints/Release_R1/RELEASE_PLAN.md` (gates, decisions, merge order).
+
 ## Branching Model (adopted 2026-07-26, Sprint09)
 
 ```text
