@@ -36,12 +36,13 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 6          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 7          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
                               #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11;
-                              # 6: camera.image_processing.* measured ranges / enums, Sprint27)
+                              # 6: camera.image_processing.* measured ranges / enums, Sprint27;
+                              # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -210,7 +211,8 @@ KEYS = (
               "incandescent", "custom", "manual"),
         v1_sources=(_V1_WB + ".mode",), wire_visible=True,
         presets=(("auto", "auto"), ("daylight", "daylight"), ("cloudy", "cloudy"))),
-    Key("camera.white_balance.gains", GAINS, None, "Manual [red, blue] gains.", nullable=True,
+    Key("camera.white_balance.gains", GAINS, None, "Manual [red, blue] gains (each 0..8).",
+        nullable=True, range=(0.0, 8.0),
         v1_sources=(_V1_WB + ".red_gain", _V1_WB + ".blue_gain")),
     Key("camera.exposure.enabled", BOOL, False, "Pass exposure controls.",
         v1_sources=(_V1_EXP + ".enabled",)),
@@ -231,16 +233,22 @@ KEYS = (
     # [min, max, default]). rpicam does NOT refuse out-of-range floats (it clamps silently), so
     # this registry range is the only check; a bogus denoise / hdr name exits 255 (clip lost).
     Key("camera.image_processing.sharpness", FLOAT, None, "Sharpness 0..16 (1 = normal).",
-        nullable=True, range=(0.0, 16.0), v1_sources=(_V1_IP + ".sharpness",)),
-    Key("camera.image_processing.contrast", FLOAT, None, "Contrast 0..32 (1 = normal).",
-        nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".contrast",)),
-    Key("camera.image_processing.saturation", FLOAT, None, "Saturation 0..32 (1 = normal, "
-        "0 = greyscale).", nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".saturation",)),
-    Key("camera.image_processing.brightness", FLOAT, None, "Brightness -1..1 (0 = normal).",
-        nullable=True, range=(-1.0, 1.0), v1_sources=(_V1_IP + ".brightness",)),
+        nullable=True, range=(0.0, 16.0),
+        v1_sources=(_V1_IP + ".sharpness", "video.encoder.sharpness")),
+    # Sprint27 F-G3-5 (Nick 2026-10-02): contrast / saturation / brightness NARROWED to the range
+    # that keeps a usable image, measured in daylight on bmcam003 (TE probe 2026-10-02,
+    # runs/s27_ip_range_probe_20261002/stats.csv): the libcamera range (contrast / saturation 0..32,
+    # brightness -1..1) blanked frames (G3: contrast 32 / saturation >= 6 / brightness -0.75 black,
+    # brightness +0.75 white, contrast 0 flat grey).
+    Key("camera.image_processing.contrast", FLOAT, None, "Contrast 0.5..2 (1 = normal).",
+        nullable=True, range=(0.5, 2.0), v1_sources=(_V1_IP + ".contrast",)),
+    Key("camera.image_processing.saturation", FLOAT, None, "Saturation 0..2 (1 = normal, "
+        "0 = greyscale).", nullable=True, range=(0.0, 2.0), v1_sources=(_V1_IP + ".saturation",)),
+    Key("camera.image_processing.brightness", FLOAT, None, "Brightness -0.25..0.25 (0 = normal).",
+        nullable=True, range=(-0.25, 0.25), v1_sources=(_V1_IP + ".brightness",)),
     Key("camera.image_processing.denoise", STR, None, "Denoise mode (rpicam --denoise).",
         nullable=True, enum=("auto", "off", "cdn_off", "cdn_fast", "cdn_hq"),
-        v1_sources=(_V1_IP + ".denoise",)),
+        v1_sources=(_V1_IP + ".denoise", "video.encoder.denoise")),
     # true = --hdr auto, false / "off" = no flag (rc_capture). "single-exp" is PiSP (Pi 5)
     # multiframe HDR per rpicam's help; it ran on bmcam004 (Pi Zero 2 W) but its effect there
     # is unverified.
@@ -270,10 +278,10 @@ KEYS = (
     Key("still.save.quality", INT, 85, "save_local: JPEG quality of the saved crop (the "
         "native is kept too). 1..95.", range=(1, 95), validate_when=_MEDIA_STILL,
         presets=(("85 default", 85), ("75", 75), ("95", 95))),
-    Key("still.message_cap", INT, 195, "Most messages one still may use.", range=(1, 2000),
+    Key("still.message_cap", INT, 195, "Most messages one still may use.", range=(1, 500),
         v1_sources=("progressive_jpeg.message_cap",), validate_when=_MEDIA_STILL,
         presets=(("195 default", 195), ("100", 100), ("150", 150), ("250", 250), ("300", 300))),
-    Key("still.budget_min", INT, 18, "Cycle budget for a still action (min).", range=(1, 240),
+    Key("still.budget_min", INT, 18, "Cycle budget for a still action (min).", range=(1, 30),
         v1_sources=("progressive_jpeg.max_run_time_min",), validate_when=_MEDIA_STILL,
         presets=(("12 min", 12), ("5 min", 5), ("8 min", 8), ("16 min", 16))),
 
@@ -299,11 +307,9 @@ KEYS = (
         enum=("", "4", "4.1", "4.2"), v1_sources=("video.encoder.level",)),
     Key("video.record.encoder.intra", INT, 0, "GOP length (0 = default).", range=(0, 3000),
         v1_sources=("video.encoder.intra",)),
-    Key("video.record.encoder.denoise", ENUM, "", "Denoise ('' = default).",
-        enum=("", "auto", "off", "cdn_off", "cdn_fast", "cdn_hq"),
-        v1_sources=("video.encoder.denoise",)),
-    Key("video.record.encoder.sharpness", FLOAT, None, "Sharpness 0..16 (null = default).",
-        nullable=True, range=(0.0, 16.0), v1_sources=("video.encoder.sharpness",)),
+    # video.record.encoder.denoise / .sharpness RETIRED in registry v7 (Sprint27 F-G3-4, Nick
+    # 2026-10-02, "one owner per camera option"): camera.image_processing.* own --denoise /
+    # --sharpness for stills AND video. Old values are moved on load: see RETIRED below.
 
     # ---- video: the one clip sent per action (v1 video_tx) -------------------
     Key("video.send.duration_s", FLOAT, 5.0, "Clip length sent (s).", range=(1.0, 30.0),
@@ -313,7 +319,7 @@ KEYS = (
         range=(0.0, 10.0), v1_sources=("video_tx.lead_in_s",), validate_when=_MEDIA_VIDEO),
     Key("video.send.fps", INT, 10, "Sent frame rate.", range=(1, 30),
         v1_sources=("video_tx.fps",), wire_visible=True, validate_when=_MEDIA_VIDEO),
-    Key("video.send.message_cap", INT, 126, "Most messages one clip may use.", range=(8, 1000),
+    Key("video.send.message_cap", INT, 126, "Most messages one clip may use.", range=(8, 500),
         v1_sources=("video_tx.message_cap",), validate_when=_MEDIA_VIDEO),
     Key("video.send.keyframe_repeat_max", INT, 30, "Keyframe repeats after the clip.",
         range=(1, 200), v1_sources=("video_tx.keyframe_repeat_max",),
@@ -324,7 +330,7 @@ KEYS = (
         enum=("ultrafast", "superfast", "veryfast", "faster", "fast", "medium"),
         v1_sources=("video_tx.preset",), validate_when=_MEDIA_VIDEO),
     Key("video.send.budget_min", INT, 18, "Cycle budget for a video action (min).",
-        range=(1, 240), v1_sources=("progressive_jpeg.max_run_time_min",),
+        range=(1, 30), v1_sources=("progressive_jpeg.max_run_time_min",),
         validate_when=_MEDIA_VIDEO),
 
     # ---- video: continuous recorder (N5), storage, recorder UI --------------
@@ -419,6 +425,38 @@ ALIASES = {
     "video.storage.ring_dry_run": "storage.ring_dry_run",
 }
 
+# Retired keys (registry v7, Sprint27 F-G3-4, Nick 2026-10-02: "one owner per camera option").
+# old path -> the key that now owns the same rpicam option. On load (a v2 file, the LKG, a v1
+# file) an old value MOVES to the new key only if that key is unset; it is dropped otherwise,
+# and an empty value is dropped. Every case leaves one note (retire()). Unlike ALIASES the new
+# key is not the same setting: camera.image_processing.* apply only while
+# camera.controls_enabled and camera.image_processing.enabled are true (rc_capture), whereas the
+# encoder knobs always reached rpicam-vid.
+RETIRED = {
+    "video.record.encoder.denoise": "camera.image_processing.denoise",
+    "video.record.encoder.sharpness": "camera.image_processing.sharpness",
+}
+
+
+def retire(flat, notes):
+    """{path: value} with RETIRED paths moved / dropped; one line per retired path in `notes`."""
+    out = dict(flat)
+    for old, new in RETIRED.items():
+        if old not in out:
+            continue
+        value = out.pop(old)
+        if value is None or value == "":
+            notes.append(f"{old} is retired (registry v7): its empty value is dropped")
+        elif out.get(new) is not None:
+            notes.append(f"{old}={value!r} is retired (registry v7): dropped, {new}={out[new]!r} "
+                         "already governs")
+        else:
+            out[new] = value
+            notes.append(f"{old}={value!r} is retired (registry v7): moved to {new} (applied only "
+                         "while camera.controls_enabled and camera.image_processing.enabled are true)")
+    return out
+
+
 # Short names for byte-tight commands (O7 letters, value-typed per N8;
 # PLAN_S4 G5). Single-key letters are the Key.short fields above; `m` means
 # the message cap of the media in play, so it is resolved by resolve_short().
@@ -450,6 +488,11 @@ ONE_SHOT = tuple(k.path for k in KEYS if (
     "video.send.fps", "video.send.x264_preset",
     "video.record.fps", "video.record.bitrate_mbps",
     "mode.media", "mode.output"))
+
+# Sprint27 F-G3-8 (Nick 2026-10-02): the registry RANGE is THE limit, everywhere: the unit
+# (set / boot / deploy), the backend and the UI read it from here (catalog). still / video
+# message_cap 1..500 / 8..500, budgets 1..30 min, WB gains each 0..8. Warning thresholds (not
+# limits) live in tools/gen_config_catalog.py LIMITS.
 
 # Registry defaults that deliberately differ from v1 absent-key behaviour.
 DEFAULT_EXCEPTIONS = {
@@ -648,6 +691,8 @@ def check_value(key, value):
         if (not isinstance(value, list) or len(value) != 2
                 or not all(_is_num(v) and math.isfinite(v) and v > 0 for v in value)):
             return "must be [red, blue], both > 0"
+        if key.range and not all(key.range[0] < v <= key.range[1] for v in value):
+            return f"must be [red, blue], each in {key.range[0]}..{key.range[1]} (> {key.range[0]})"
     elif t == BOOL_OR_STR:
         if not isinstance(value, (bool, str)):
             return "must be true/false or a string"

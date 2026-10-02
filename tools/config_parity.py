@@ -48,6 +48,9 @@ def controls_effect(controls, app=None):
     return {"args": args, "requested": requested}
 
 
+RETIRED_ADVISORY = re.compile(r"\[VID\]\[WARN\] video\.encoder\.(denoise|sharpness) is retired")
+
+
 def normalise(doc, app=None, keep_overlay=True):
     """Drop only what differs BY DESIGN between a v1 run and a v2 (render) run:
       - paths: the render vs the v1 file; the v2 state file vs the v1 one
@@ -55,6 +58,8 @@ def normalise(doc, app=None, keep_overlay=True):
         states every block)
       - camera-controls dicts, compared by effect (controls_effect)
       - [CFG] / [BOOT] log lines; the json probe's env/wap/loader_output paths
+      - the "[VID][WARN] video.encoder.* is retired" advisory (Sprint27 F-G3-4): a v1 file
+        still carrying the retired key prints it; the v2 render never carries the key
       - keep_overlay=False (deploy): the command overlay. On a unit the v1 run
         reads the FROZEN v1 state and the v2 run the live v2 state, so they
         differ after the first command by design; the base config is what the
@@ -63,7 +68,8 @@ def normalise(doc, app=None, keep_overlay=True):
     doc = dict(doc)
     if "print_config" in doc:
         doc["print_config"] = [line for line in doc["print_config"]
-                               if not line.startswith(("[CFG]", "[BOOT]"))]
+                               if not line.startswith(("[CFG]", "[BOOT]"))
+                               and not RETIRED_ADVISORY.match(line)]
     text = json.dumps(doc, sort_keys=True)
     text = re.sub(r'[^"\s=]*/camera_schedule\.yaml', "{CFG}", text)   # v1 file or the render
     text = text.replace("bm_command_state_v2.json", "bm_command_state.json")

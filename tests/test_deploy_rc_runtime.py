@@ -210,9 +210,21 @@ class TestDeploy(unittest.TestCase):
         old_v1 = print_config(u.dst)
         old_runtime = os.path.join(u.root, "a71b6c7")
         shutil.copytree(u.dst, old_runtime)                   # kept for the rollback
-        r = u.deploy()                                        # S2 over a71b6c7, v1 unit
+        # Sprint27 F-G3-4 changes print-config ON PURPOSE: video.encoder.sharpness (1.0 in this
+        # unit's v1 file) is retired, so the encoder-knobs line no longer lists denoise /
+        # sharpness and the v1 loader prints the retired advisory. The deploy refuses that
+        # diff unless accepted; accept it and pin that NOTHING ELSE differs.
+        r = u.deploy()
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("print-config differs", r.stdout + r.stderr)
+        r = u.deploy("--accept-print-config-diff")             # S2 over a71b6c7, v1 unit
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertIn("print-config parity OK", r.stdout)
+        self.assertIn("ACCEPTED by --accept-print-config-diff", r.stdout)
+        changed = [ln.strip()[1:] for ln in r.stdout.splitlines()
+                   if ln.strip()[:1] in "+-" and not ln.strip().startswith(("---", "+++"))]
+        self.assertTrue(changed, r.stdout)
+        for ln in changed:
+            self.assertTrue("[VID] encoder knobs:" in ln or "video.encoder.sharpness is retired" in ln, ln)
         u.migrate()
         r = u.deploy()                                        # S2 again, now a v2 unit
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
@@ -227,7 +239,9 @@ class TestDeploy(unittest.TestCase):
                 fh.write(text)
         sys.path.insert(0, os.path.join(REPO, "tools"))
         import config_parity
-        self.assertEqual(config_parity.text_lines(paths[0]), config_parity.text_lines(paths[1]))
+        knobs = lambda lines: [ln for ln in lines if not ln.startswith("[VID] encoder knobs:")]  # noqa: E731
+        self.assertEqual(knobs(config_parity.text_lines(paths[0])), knobs(config_parity.text_lines(paths[1])))
+        self.assertIn("[VID] encoder knobs: all rpicam-vid defaults", s2_v2)     # F-G3-4: retired knobs
         # Rollback = the old runtime back in place: it reads the untouched v1 files.
         self.assertEqual(print_config(old_runtime), old_v1)
 

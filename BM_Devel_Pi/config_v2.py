@@ -102,8 +102,13 @@ def _cross_key_errors(values):
 
 def _apply_aliases(flat, warnings):
     """Old v2 names (registry ALIASES, S4 G11) -> today's; one warning each.
-    Both spellings present = an error (which one governs would be a guess)."""
+    Both spellings present = an error (which one governs would be a guess).
+    Retired keys (registry RETIRED, v7) are moved or dropped first (R.retire)."""
     out, errors = {}, []
+    notes = []
+    flat = R.retire(flat, notes)          # registry v7 retired keys (F-G3-4): move or drop, one note each
+    if warnings is not None:
+        warnings.extend(notes)
     for path, value in flat.items():
         new = R.ALIASES.get(path)
         if new is None:
@@ -372,10 +377,7 @@ def render_v1_text(values):
           "  encoder:",
           f"    profile: {_q(v['video.record.encoder.profile'])}",
           f"    level: {_q(v['video.record.encoder.level'])}",
-          f"    intra: {_n(v['video.record.encoder.intra'])}",
-          f"    denoise: {_q(v['video.record.encoder.denoise'])}"]
-    if v["video.record.encoder.sharpness"] is not None:
-        L.append(f"    sharpness: {_n(v['video.record.encoder.sharpness'])}")
+          f"    intra: {_n(v['video.record.encoder.intra'])}"]
     L += ["  ui:",
           f"    enabled: {_n(v['video.ui.enabled'])}",
           f"    port: {_n(v['video.ui.port'])}",

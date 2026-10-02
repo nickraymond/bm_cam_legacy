@@ -36,6 +36,7 @@ response). Never point a local run at staging.
 | `POST /devices/{id}/remote-config/plan` | admin | on every edit: show `refusals` (block Send) and `warnings` (show, allow) |
 | `POST /devices/{id}/remote-config/changes` | admin | record the change → returns `command_id` |
 | `POST /admin/devices/{id}/commands/{command_id}/send` | admin | send it (existing S6b endpoint) |
+| `POST /devices/{id}/remote-config/refresh` | admin | record the catalog's `refresh_gets` (8 `get` commands at registry v7, every key); send them in id order; their `<CF>` answers fill `reported` for every setting and let the backend confirm a command whose ack was lost (F-G3-10) |
 
 Request body for plan / changes: `{"set": {path: value}}` **or** `{"reset": [path, ...]}`
 (not both), optional `"supersede": true`, `"lane": "sofar"` (default), `"min_id"`.
@@ -69,6 +70,12 @@ status, ui_status, late?, dead, sent_at, ack{ok,h,e,k,at}, e, e_text, hint}]`.
 `ui_status` lifecycle (show per command): `queued → sending → sent (late) → saved → in_effect`;
 side exits `send_failed`, `rejected` (+ `e_text`), `reverted`, `superseded`, `expired` (can never
 be sent), `needs_cfm`, `other`. `reported == null` = the unit never reported that key (not "off").
+
+**Reported values are partial until the unit is asked.** `<CF>` answers name only the keys a
+command changed (or a `get` asked for). A unit configured on the console reports almost nothing,
+and the backend's cross-key checks then fall back to warnings. The device view's
+`reported_known` / `refresh_hint` say so; offer a "Refresh from camera" button →
+`/refresh` → send each returned command → poll.
 
 ## Refusal reasons (422 `detail.reason`, every refusal in `detail.refusals[]`)
 

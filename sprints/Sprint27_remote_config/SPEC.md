@@ -460,3 +460,92 @@ What the probe found:
   Pi Zero 2 W, but its effect there is unverified (ladder IP4).
 
 Writable now: 54 control keys. Read-only: `camera.exposure.mode`, `still.save.quality`.
+
+### 9.5 F-G3-4: one owner per camera option (Nick 2026-10-02, R1)
+
+- **Retired:** `video.record.encoder.denoise` / `.sharpness` (registry v7). `camera.image_processing.*`
+  owns `--denoise` / `--sharpness` for stills AND video. The v2 render, `video_recorder` (knob
+  args, defaults, print), the v1 reader, the bench GUI fields and the two Sprint17 tools no longer
+  read or write them. The duplicate-option rule (§9.4) is deleted: nothing can emit the option twice.
+- **Load-time migration (`config_registry.RETIRED` / `retire()`, used by the v2 loader, the LKG
+  and the v1 reader):**
+  - a value moves to the image_processing key only if that key is unset;
+  - an empty value, or one whose target is already set, is dropped;
+  - every case leaves one `[CFG][WARN]` note.
+  - A plain deletion would have bricked boots: an unknown key is fatal for the v2 file and the LKG.
+- **Behaviour change (sent to the EM):** a moved value applies only while `camera.controls_enabled`
+  and `camera.image_processing.enabled` are true; the encoder knob always applied. On 003/004
+  nothing changes (sharpness 1.0 = neutral, denoise '' = unset).
+- **Hash change:** every config hash changes (the hash covers every registry key). Run `/refresh`
+  after the deploy. The goldens were re-recorded: the 23 traces differ ONLY by `cfg=` / `h=`
+  (checked with the hashes masked); the settings goldens lose the two encoder fields.
+- **Deploy:** needs `--accept-print-config-diff` (the encoder-knobs line changes). The rehearsal
+  test pins that nothing else differs.
+- **Ladder:** M1–M6 (`LADDER.md`), including the `config_v2_upgrade.py --write` file clean-up.
+
+### 9.6 F-G3-8: one source of truth for limits (Nick 2026-10-02, R1)
+
+- **The registry RANGE is the limit, everywhere:** the unit (`set`, boot, deploy), the backend
+  and the UI all read it from the catalog.
+  - **Narrowed in `config_registry`:** `still.message_cap` 1..500, `video.send.message_cap` 8..500,
+    `still.budget_min` / `video.send.budget_min` 1..30, `camera.white_balance.gains` each 0..8
+    (checked per element).
+  - Every value in the repo's configs and profiles is inside these ranges (caps 190/195,
+    budgets 8/12).
+- **Warning thresholds only** stay in `tools/gen_config_catalog.py` LIMITS: caps warn above 300,
+  budgets above 18, interval/heartbeat below 600 s, clip duration ≠ 5 s. A test pins every
+  `warn_above` below its key's range max, and that the catalog adds no hard max of its own.
+- **Backend:** the `max` / `max_each` clamp paths are removed. Out of range → `bad_value` from the
+  ported `check_value`.
+
+**Future (next sprint, NOT R1):** replace `*.message_cap` as the user's knob with a per-Spotter
+**transmit window** (minutes, or unlimited for field testing). The message budget would then be
+derived as window ÷ pacing (`uplink.msg_interval_s`). Note only; nothing built.
+
+### 9.7 F-G3-5: narrow image-processing ranges (Nick 2026-10-02, R1). DONE
+
+G3 (`runs/g3_hardmode_20261001`, TE) found that values inside the libcamera range blank the image:
+
+| value | result |
+|---|---|
+| contrast 0 | flat grey |
+| contrast 32, saturation 32, brightness −1 | black |
+| brightness +1 | white |
+
+Usable bounds were NOT measured (only the extremes, plus contrast 0.5 / 2.0 at night). The TE runs
+a daylight probe on bmcam003 (contrast 0.25..8, saturation 0.25..16, brightness ±0.1..±0.75 →
+`runs/s27_ip_range_probe_<date>/`). The measured usable min/max then become the registry ranges
+(one source, as in §9.6). **No bounds are written until those numbers exist.**
+
+### 9.8 F-G3-10: lost acks resolved from the heartbeat (Nick 2026-10-02, R1)
+
+No re-ask and no extra radio traffic per command. For an admin `set` that was sent and never
+answered:
+
+1. **Expected hash.** The backend computes the EXPECTED post-change config hash with the unit's own
+   function (`config_v2.canonical` + sha256), ported in nvd `config_catalog.config_hash`. It is
+   pinned by the catalog's `hash.selftest` vectors, which come from the unit's `config_hash`. The
+   input is the FULL base config (the base hash's `<CF>` snapshot, every key) plus the set's kv.
+   When earlier unanswered sets from the same base went out first, the chained hash is a second
+   candidate.
+2. **Confirmation.** A later `<WS>` / START carrying either hash gives:
+   - `ui_status: in_effect`, `confirmed_by: heartbeat`, `ack: not received`;
+   - the key's reported value and state follow, and the key leaves `in_flight`;
+   - Config History shows that period as source `command` (heartbeat).
+3. **Needs a full base config.** `/refresh` now records the catalog's `refresh_gets`: every key in
+   8 `get` commands at registry v7, each answered in ≤ 2 `<CF>` parts (unit cap 3), sized with the
+   unit's own `build_cf`. That is a one-off cost of about 9 minutes of the shared 65 s/Spotter lane.
+   Without a full base config the command stays "sent · ack not received".
+4. **Not predicted:** a `reset`, because its YAML value is not known to the backend.
+
+**F-G3-5 result (2026-10-02).** The TE's daylight probe on bmcam003 (`runs/s27_ip_range_probe_20261002/`,
+bm PR #107; rpicam-still, one key per still, mean luma / sd / mean saturation) set the registry ranges:
+
+| key | new range | probe evidence |
+|---|---|---|
+| contrast | 0.5..2.0 | luma sd 34.6..84.6; 0.25 washed out (sd 22.8); ≥ 3 crushes shadows (at night 2.0 was near-black) |
+| saturation | 0..2.0 | 2 → mean sat 132; 3 → 240 (strong cast); ≥ 6 → black (luma 1.3) |
+| brightness | −0.25..0.25 | luma 55.8..172.3; ±0.5 → 19.6 / 222.8; ±0.75 → 9.6 / 249.3 |
+
+Sharpness is unchanged (0..16). The same range drives the unit, the backend and the UI (§9.6).
+No repo config sets these keys.
