@@ -1,0 +1,1 @@
+{"command_id":1000015,"id_range":"remote","verb":"set","sender":"admin","lane":"console","command":"{\"id\":1000015,\"c\":\"set\",\"kv\":{\"camera.image_processing.hdr\":\"off\"}}","kv":{"camera.image_processing.hdr":"off"},"base_hash":"2b7f1d7f","created_at":"2026-10-02T07:10:50.193990+00:00","sent_at":"2026-10-02T07:11:00.465349+00:00","sent_status":null,"sends":[],"ack":null}

@@ -1,0 +1,182 @@
+{
+ "AeConstraintMode": [
+  0,
+  3,
+  0
+ ],
+ "AeEnable": [
+  false,
+  true,
+  true
+ ],
+ "AeExposureMode": [
+  0,
+  3,
+  0
+ ],
+ "AeFlickerMode": [
+  0,
+  1,
+  0
+ ],
+ "AeFlickerPeriod": [
+  100,
+  1000000,
+  null
+ ],
+ "AeMeteringMode": [
+  0,
+  3,
+  0
+ ],
+ "AfMetering": [
+  0,
+  1,
+  0
+ ],
+ "AfMode": [
+  0,
+  2,
+  0
+ ],
+ "AfPause": [
+  0,
+  2,
+  0
+ ],
+ "AfRange": [
+  0,
+  2,
+  0
+ ],
+ "AfSpeed": [
+  0,
+  1,
+  0
+ ],
+ "AfTrigger": [
+  0,
+  1,
+  0
+ ],
+ "AfWindows": [
+  "(0, 0, 0, 0)",
+  "(65535, 65535, 65535, 65535)",
+  "[(0, 0, 0, 0)]"
+ ],
+ "AnalogueGain": [
+  1.0,
+  16.0,
+  1.0
+ ],
+ "AnalogueGainMode": [
+  0,
+  1,
+  0
+ ],
+ "AwbEnable": [
+  false,
+  true,
+  null
+ ],
+ "AwbMode": [
+  0,
+  7,
+  0
+ ],
+ "Brightness": [
+  -1.0,
+  1.0,
+  0.0
+ ],
+ "CnnEnableInputTensor": [
+  false,
+  true,
+  false
+ ],
+ "ColourCorrectionMatrix": [
+  0.0,
+  8.0,
+  null
+ ],
+ "ColourGains": [
+  0.0,
+  32.0,
+  null
+ ],
+ "ColourTemperature": [
+  100,
+  100000,
+  null
+ ],
+ "Contrast": [
+  0.0,
+  32.0,
+  1.0
+ ],
+ "ExposureTime": [
+  1,
+  66666,
+  20000
+ ],
+ "ExposureTimeMode": [
+  0,
+  1,
+  0
+ ],
+ "ExposureValue": [
+  -8.0,
+  8.0,
+  0.0
+ ],
+ "FrameDurationLimits": [
+  33333,
+  250000000,
+  "(33333, 33333)"
+ ],
+ "HdrMode": [
+  0,
+  4,
+  0
+ ],
+ "LensPosition": [
+  0.0,
+  32.0,
+  1.0
+ ],
+ "NoiseReductionMode": [
+  0,
+  4,
+  0
+ ],
+ "Saturation": [
+  0.0,
+  32.0,
+  1.0
+ ],
+ "ScalerCrop": [
+  "(0, 0, 0, 0)",
+  "(65535, 65535, 65535, 65535)",
+  "(0, 0, 0, 0)"
+ ],
+ "Sharpness": [
+  0.0,
+  16.0,
+  1.0
+ ],
+ "StatsOutputEnable": [
+  false,
+  true,
+  false
+ ],
+ "SyncFrames": [
+  100,
+  100000,
+  1000
+ ],
+ "SyncMode": [
+  0,
+  2,
+  0
+ ]
+}

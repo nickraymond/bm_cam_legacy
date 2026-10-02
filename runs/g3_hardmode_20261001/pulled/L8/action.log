@@ -1,0 +1,27 @@
+[SUP] ===== action 9 (trg) utc=2026-10-02T06:38:10Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] one-shot trigger id=64023 trg=2 (capture + send): window gate BYPASSED for this boot only
+[SUP] trg id=64023: one action with {'video.send.message_cap': 80} (not persisted)
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T06:38:17.613000+00:00
+[BOOT] spotter_utc_read uptime_s=1749.43
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-01T23:38:17.613000-07:00
+[VID] boot sweep: no crash debris
+[RING] over limit: used=75.0% (cap 75%) free=24.0GiB (floor 10GiB) — pruning oldest clips
+[RING] deleted 2026-08-23T18-02-05Z_video_1920x1080_15fps (121593201 B, 3 files)
+[VID] clip start: 2026-10-02T06-38-18Z_video_1280x720_15fps (7s nominal, 1280x720@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.556x)
+[VID] clip done: 2026-10-02T06-38-18Z_video_1280x720_15fps.mp4 (1593782 B, encode=8.1s boundary=5.7s)
+[VTX] message budget: cap=80 affordable_now=320 (after reserving 32) -> 80 chunk msgs (23040 B)
+[VTX] encode try 1: 35.4 kbps -> 19332 B = 84% of 80 msgs
+[VTX] encode try 2: 40.7 kbps -> 23370 B = 101% of 80 msgs
+[VTX] encode try 3: 39.2 kbps -> 22435 B = 97% of 80 msgs
+[VTX] payload: 22435 B = 78 msgs (97.4% of budget) 3 pass-2 tries, prescale 2.5s encode 6.2s
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0e3x3t from Spotter UTC 2026-10-02T06:38:17.613000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-02T06-38-18Z_video_5s.sent.json (78 msgs, chunks <I0e3x3t.n/78>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=1772.50
+[VTX] transmit done: sent=78/78 complete=True keyframe_repeat=30/30 uart=143.7s file=2026-10-02T06-38-18Z_video_5s.h264
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=done sent=78/78 elapsed=174.4s
+[SUP] ===== action 9 done: stage=done skipped=False =====

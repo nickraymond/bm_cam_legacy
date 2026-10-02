@@ -1,0 +1,51 @@
+== bmcam003 2026-10-02T06:10:42Z up 2158.87s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root   60 Oct  2 06:10 .
+drwxr-xr-x 16 root root 4040 Oct  2 05:34 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 06:10 bmcam
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 06:10 .
+drwxrwxrwt 3 root root   60 Oct  2 06:10 ..
+-rw-r--r-- 1 pi   pi   2300 Oct  2 06:10 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 91a08f624011
+KEY repo development 91a08f6 Merge pull request #104 from nickraymond/docs/release-r1-g1-decisions
+KEY cfg_hash hash=f7c9194f
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f7c9194f hv=1 registry=v6 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.vPNUXb/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 07d1c97af4d374d7 bm_command_state_v2.json 0L
+file b24beb296b9d6180 config_journal.jsonl 56L
+state overlay {"mode.run": "stay_on"}
+state guarded {}
+state boot 25 hw {"service": 100000021}
+-- crontab
+# DISABLED hil 20261002T061000Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+19 1000 pi - 1908 manager - no -
+24 1000 pi - 2872 user    - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     227900 kB
+CmaTotal:         262144 kB
+CmaFree:           62500 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T053447Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[CMD] stopped: applied=0 dup=0 rejected=0 unackable=0 acks=0 frames=0 sig_hits=0 crc_scan_fail=0 bad_start=0 read_err=0
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-02T06:10:03+00:00
+============================================================

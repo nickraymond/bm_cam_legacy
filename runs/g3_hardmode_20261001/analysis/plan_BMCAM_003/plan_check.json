@@ -1,0 +1,44 @@
+{
+ "device": "BMCAM_003",
+ "api": "https://nereus-vision-staging.onrender.com",
+ "cases_file": "cases.json",
+ "n_cases": 875,
+ "started_utc": "2026-10-02T07:51:45Z",
+ "catalog_sha256_cases": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
+ "catalog_sha256_served": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
+ "sanity": {
+  "status": 200,
+  "body": {
+   "device_id": "BMCAM_003",
+   "ok": true,
+   "verb": "set",
+   "kv": {
+    "camera.exposure.ev": 0.0
+   },
+   "refusals": [],
+   "warnings": [
+    {
+     "key": "camera.exposure.ev",
+     "why": "camera.controls_enabled is not reported: the value is saved but may not be applied"
+    },
+    {
+     "key": "camera.exposure.ev",
+     "why": "camera.exposure.enabled is not reported: the value is saved but may not be applied"
+    }
+   ],
+   "key_bytes": {
+    "camera.exposure.ev": 24
+   },
+   "json_bytes": 57,
+   "max_json_bytes": 234,
+   "writable": true
+  }
+ },
+ "finished_utc": "2026-10-02T07:57:42Z",
+ "counts": {
+  "PASS": 796,
+  "FAIL": 0,
+  "INFO": 79
+ },
+ "fails": []
+}

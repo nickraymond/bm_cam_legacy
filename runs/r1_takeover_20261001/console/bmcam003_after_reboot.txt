@@ -1,0 +1,11 @@
+2026-10-02T03:56:21Z 1790913383.152 53171fa3d81a8e6f, [bmcam003] OK id=2000913381 trg 2 armed: capture + output per mode (next decision point) cfg=f7c9194f
+2026-10-02T04:01:24Z .1790913686.363 53171fa3d81a8e6f, [bmcam003] OK id=100118 rsd: 2 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T04:23:15Z 1790914996.585 53171fa3d81a8e6f, [bmcam003] OK id=100119 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T04:26:58Z 1790915219.718 53171fa3d81a8e6f, [bmcam003] OK id=2000915217 trg 2 armed: capture + output per mode (next decision point) cfg=f7c9194f
+2026-10-02T04:57:32Z 1790917053.917 53171fa3d81a8e6f, [bmcam003] OK id=2000917051 trg 2 armed: capture + output per mode (next decision point) cfg=f7c9194f
+2026-10-02T05:02:36Z Message: 1790917358.203 53171fa3d81a8e6f, [bmcam003] OK id=100120 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T05:24:48Z 1790918690.132 53171fa3d81a8e6f, [bmcam003] OK id=100121 rsd: 1 heal(s) queued (<HL> reports each) cfg=f7c9194f
+2026-10-02T05:28:06Z 1790918887.585 53171fa3d81a8e6f, [bmcam003] OK id=2000918885 trg 2 armed: capture + output per mode (next decision point) cfg=f7c9194f
+CELL 2026-10-02T05:40:05Z len=132 <WS v=1 a=idle cfg=f7c9194f up=301 tz=America/Los_Angeles lt=2240 ws=0000 we=0000 rk=480x270 ct=35.9 sha=7d47ff956c4b hn=bmcam003>
+
+SUMMARY cell=1 con=0

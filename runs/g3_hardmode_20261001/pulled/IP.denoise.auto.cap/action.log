@@ -1,0 +1,43 @@
+[SUP] ===== action 17 (trg) utc=2026-10-02T07:06:38Z =====
+[SUP] trg media override: one still action on a video unit
+[CMD] duplicate id=64081: original answer (console)
+[CMD] duplicate id=64081: original answer (console)
+[CMD] duplicate id=64081: original answer (console)
+[CMD] duplicate id=64081: original answer (console)
+[SUP] boot drain: 4 command(s) applied this boot
+[CMD] one-shot trigger id=64081 trg=2 (capture + send): window gate BYPASSED for this boot only
+[SUP] trg id=64081: one action with {'mode.media': 'still', 'still.message_cap': 40} (not persisted)
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T07:06:47.429000+00:00
+[BOOT] spotter_utc_read uptime_s=3459.16
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-02T00:06:47.429000-07:00 (window bypassed; time read only)
+[DEBUG] Sent compact telemetry message (133 bytes): <WS v=1 a=cap cfg=5f68cef1 up=935 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=800x450 q=20 ct=38.6 sha=91a08f624011 hn=bmcam004>
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode manual --lens-position 0.5 --awb custom --awbgains 1.8,1.6 --shutter 10000 --gain 2 --ev -1 --contrast 32 --saturation 32 --brightness 1 --denoise auto; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'manual', 'requested_lens_position': 0.5, 'requested_white_balance_enabled': True, 'requested_white_balance_mode': 'manual', 'requested_red_gain': 1.8, 'requested_blue_gain': 1.6, 'requested_colour_gains': [1.8, 1.6], 'requested_exposure_enabled': True, 'requested_shutter_us': 10000, 'requested_analogue_gain': 2.0, 'requested_ev': -1.0, 'requested_image_processing_enabled': True, 'requested_contrast': 32.0, 'requested_saturation': 32.0, 'requested_brightness': 1.0, 'requested_denoise': 'auto'}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-10-02T07:06:47Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 0.5 --awb custom --awbgains 1.8,1.6 --shutter 10000 --gain 2 --ev -1 --contrast 32 --saturation 32 --brightness 1 --denoise auto -o /home/pi/BM_Devel_Pi/images/2026-10-02T07:06:47Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:06:47Z_image_native_full.jpg, bytes=189389, duration_sec=3.28, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-10-02T07:06:47Z_image_native_full.jpg (189389 B, elapsed=12.7s)
+[RC] source prepared: 800x450 (elapsed=13.1s)
+[RC] attempt q20: 2701 B, 10 msgs, over_cap=False, budget_fit=True
+[RC] selection: quality=20 attempts=1 fits=True reason=fit
+[RC] final JPEG: /home/pi/BM_Devel_Pi/images/2026-10-02T07:06:47Z_image_compressed.jpg (2701 B, 10 msgs, sha256=d5499676e67fda15...)
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0e3yfb from Spotter UTC 2026-10-02T07:06:47.429000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-02T07:06:47Z_image_compressed.sent.json (10 msgs, chunks <I0e3yfb.n/10>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=3463.10
+[RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s
+[DEBUG] Raw image size: 189389 bytes
+[DEBUG] Image quality: 20
+[DEBUG] Compressed image size: 2701 bytes
+[DEBUG] Buffers: 10
+[DEBUG] Execution Time: 0.46 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 37.60°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[CMD] console: 4 line(s) sent, 0 queued
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=None sent=10/10 elapsed=28.0s
+[SUP] ===== action 17 done: stage=None skipped=False =====

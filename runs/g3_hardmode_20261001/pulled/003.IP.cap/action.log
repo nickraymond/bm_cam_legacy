@@ -1,0 +1,43 @@
+[SUP] ===== action 5 (trg) utc=2026-10-02T07:55:20Z =====
+[SUP] trg media override: one still action on a video unit
+[CMD] one-shot trigger id=54020 trg=2 (capture + send): window gate BYPASSED for this boot only
+[SUP] trg id=54020: one action with {'mode.media': 'still', 'still.message_cap': 40} (not persisted)
+[RC] cycle start: budget=480s pacing=1.3s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T07:55:25.453000+00:00
+[BOOT] spotter_utc_read uptime_s=6265.82
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-02T00:55:25.453000-07:00 (window bypassed; time read only)
+[DEBUG] Sent compact telemetry message (134 bytes): <WS v=1 a=cap cfg=4e97d2ae up=6245 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=800x450 q=90 ct=35.9 sha=91a08f624011 hn=bmcam003>
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode manual --lens-position 0.5 --awb custom --awbgains 1.8,1.6 --shutter 10000 --gain 2 --ev -1 --denoise cdn_fast --hdr sensor; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'manual', 'requested_lens_position': 0.5, 'requested_white_balance_enabled': True, 'requested_white_balance_mode': 'manual', 'requested_red_gain': 1.8, 'requested_blue_gain': 1.6, 'requested_colour_gains': [1.8, 1.6], 'requested_exposure_enabled': True, 'requested_shutter_us': 10000, 'requested_analogue_gain': 2.0, 'requested_ev': -1.0, 'requested_image_processing_enabled': True, 'requested_denoise': 'cdn_fast', 'requested_hdr': 'sensor'}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-10-02T07:55:23Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 0.5 --awb custom --awbgains 1.8,1.6 --shutter 10000 --gain 2 --ev -1 --denoise cdn_fast --hdr sensor -o /home/pi/BM_Devel_Pi/images/2026-10-02T07:55:23Z_image_native_full.jpg
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:55:23Z_image_native_full.jpg, bytes=2861407, duration_sec=3.68, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-10-02T07:55:23Z_image_native_full.jpg (2861407 B, elapsed=7.0s)
+[RC] source prepared: 800x450 (elapsed=7.6s)
+[RC] attempt q90: 53140 B, 185 msgs, over_cap=True, budget_fit=True
+[RC] attempt q80: 33983 B, 118 msgs, over_cap=True, budget_fit=True
+[RC] attempt q70: 25138 B, 88 msgs, over_cap=True, budget_fit=True
+[RC] attempt q60: 19861 B, 69 msgs, over_cap=True, budget_fit=True
+[RC] attempt q50: 16331 B, 57 msgs, over_cap=True, budget_fit=True
+[RC] attempt q40: 13307 B, 47 msgs, over_cap=True, budget_fit=True
+[RC] attempt q30: 10255 B, 36 msgs, over_cap=False, budget_fit=True
+[RC] selection: quality=30 attempts=7 fits=True reason=fit
+[RC] final JPEG: /home/pi/BM_Devel_Pi/images/2026-10-02T07:55:23Z_image_compressed.jpg (10255 B, 36 msgs, sha256=2cc8deb90c5afc0a...)
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0e40od from Spotter UTC 2026-10-02T07:55:25.453000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-02T07:55:23Z_image_compressed.sent.json (36 msgs, chunks <I0e40od.n/36>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=6270.83
+[RC] transmit done: sent=36/36 complete=True incomplete_emitted=False uart=48.8s
+[DEBUG] Raw image size: 2861407 bytes
+[DEBUG] Image quality: 30
+[DEBUG] Compressed image size: 10255 bytes
+[DEBUG] Buffers: 36
+[DEBUG] Execution Time: 0.95 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 36.50°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=None sent=36/36 elapsed=57.1s
+[SUP] ===== action 5 done: stage=None skipped=False =====

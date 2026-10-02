@@ -1,0 +1,3 @@
+CELL 2026-10-02T05:57:08Z len=132 <WS v=1 a=idle cfg=f7c9194f up=302 tz=America/Los_Angeles lt=2257 ws=0000 we=0000 rk=480x270 ct=37.6 sha=7d47ff956c4b hn=bmcam004>
+
+SUMMARY cell=1 con=0

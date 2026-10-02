@@ -1,0 +1,32 @@
+ REJECTED id=1000002 camera.image_processing.sharpness and video.record.encoder.sharpness would both pass --sharpness to rpicam-vid, which r
+CID 1000002
+STEP IP.sharpness.0.0.cap ack=none action=stage=None files=2
+[RC] transmit done: sent=14/14 complete=True incomplete_emit
+ REJECTED id=1000003 camera.image_processing.sharpness and video.record.encoder.sharpness would both pass --sharpness to rpicam-vid, which r
+CID 1000003
+STEP IP.sharpness.16.0.cap ack=none action=stage=None files=
+[RC] transmit done: sent=14/14 complete=True incomplete_emit
+ OK id=1000004 camera.image_processing.contrast: none -> 0.0 (next action) cfg=af653d23
+CID 1000004
+STEP IP.contrast.0.0.cap ack=none action=stage=None files=20
+--contrast 0 [RC] transmit done: sent=10/10 complete=True incomplete_emit
+ OK id=1000005 camera.image_processing.contrast: 0.0 -> 32.0 (next action) cfg=6410bddf
+CID 1000005
+STEP IP.contrast.32.0.cap ack=none action=stage=None files=2
+--contrast 32 [RC] transmit done: sent=10/10 complete=True incomplete_emit
+ OK id=1000006 camera.image_processing.saturation: none -> 0.0 (next action) cfg=c0641210
+CID 1000006
+STEP IP.saturation.0.0.cap ack=none action=stage=None files=
+--contrast 32 --saturation 0 [RC] transmit done: sent=10/10 complete=True incomplete_emit
+ OK id=1000007 camera.image_processing.saturation: 0.0 -> 32.0 (next action) cfg=cb7da258
+CID 1000007
+STEP IP.saturation.32.0.cap ack=none action=stage=None files
+--contrast 32 --saturation 32 [RC] transmit done: sent=10/10 complete=True incomplete_emit
+ OK id=1000008 camera.image_processing.brightness: none -> -1.0 (next action) cfg=a8ac4de6
+CID 1000008
+STEP IP.brightness.-1.0.cap ack=none action=stage=None files
+--contrast 32 --saturation 32 --brightness -1 [RC] transmit done: sent=10/10 complete=True incomplete_emit
+ OK id=1000009 camera.image_processing.brightness: -1.0 -> 1.0 (next action) cfg=fb314a09
+CID 1000009
+STEP IP.brightness.1.0.cap ack=none action=stage=None files=
+--contrast 32 --saturation 32 --brightness 1 [RC] transmit done: sent=10/10 complete=True incomplete_emit

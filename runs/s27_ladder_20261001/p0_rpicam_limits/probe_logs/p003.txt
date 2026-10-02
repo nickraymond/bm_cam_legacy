@@ -1,0 +1,1 @@
+ERROR: *** option '--sharpness' cannot be specified more than once ***

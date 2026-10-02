@@ -1,0 +1,99 @@
+2026-10-02T05:31:36Z run created for TAKEOVER units: bmcam003 bmcam004
+7d47ff956c4b959e524e20282cac4a1bc2605096
+2026-10-02T05:31:36Z handoff received from S6b (05:30Z); rigs stay_on, bus held, cron armed, 3c1801d
+spotter-monitor active
+bm-heal-driver inactive
+bm-bench-conductor inactive
+== bmcam003 05:32:20
+468 1000 pi - 20159 user    - no -
+469 1000 pi - 20164 manager - no -
+total 0
+drwxrwxrwt  2 root root   40 Oct  2 05:31 .
+drwxr-xr-x 16 root root 4040 Oct  1 05:21 ..
+ls: cannot access '/dev/shm/bmcam': No such file or directory
+== bmcam004 05:32:22
+58 1000 pi - 3344 user    - no -
+59 1000 pi - 3349 manager - no -
+total 0
+drwxrwxrwt  2 root root   40 Oct  2 05:32 .
+drwxr-xr-x 16 root root 4040 Oct  2 01:27 ..
+ls: cannot access '/dev/shm/bmcam': No such file or directory
+2026-10-02T05:32:51Z [bmcam003] backup+disarm TS=20261002T053251Z; restore: crontab /home/pi/hil_backup/20261002T053251Z/crontab_ARMED.txt && sudo reboot
+-- crontab now
+1:# DISABLED hil 20261002T053251Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+-- backup
+total 64
+drwxrwxr-x 2 pi   pi    4096 Oct  2 05:32 .
+drwxrwxr-x 3 pi   pi    4096 Oct  2 05:32 ..
+-rw-r--r-- 1 pi   pi   19884 Oct  2 05:28 bm_command_state_v2.json
+-rw-r--r-- 1 pi   pi    6990 Sep 28 16:39 camera_config.yaml
+-rw-rw-r-- 1 pi   pi    7867 Sep 26 00:16 camera_schedule.yaml
+-rw-r--r-- 1 pi   pi    6334 Oct  1 05:19 config_journal.jsonl
+-rw-rw-r-- 1 pi   pi      98 Oct  2 05:32 crontab_ARMED.txt
+-rw-r--r-- 1 root root  1785 Apr 13 19:38 logind.conf
+-rw-rw-r-- 1 pi   pi      13 Sep 29 17:58 software_sha.txt
+099e30e63f29f412
+c8a9c0c989ab6e7e
+c5376fa8d06ea5bf
+130f51884b49e0df
+6e7a4080576b661e
+a0f5aec31f2d0168
+9d4eb232cb206b56
+05:32:58
+TERM-sent
+05:33:18
+STOPPED
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-02T05:33:16+00:00
+============================================================
+2026-10-02T05:34:24Z [bmcam003] host fix RemoveIPC=no drop-in; undo: sudo rm -f /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf && reboot
+[Login]
+RemoveIPC=no
+51:#RemoveIPC=yes
+59:RemoveIPC=no
+LOGIND_CONF_UNCHANGED
+1:@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+CRON_MATCHES_BACKUP
+05:34:30
+2026-10-02T05:34:30Z [bmcam003] re-armed + reboot
+2026-10-02T05:36:23+00:00 bmcam003 systemd[1]: Stopped user@1000.service - User Manager for UID 1000.
+2026-10-02T05:36:23+00:00 bmcam003 systemd[1]: user-runtime-dir@1000.service: Deactivated successfully.
+2026-10-02T05:36:23+00:00 bmcam003 systemd[1]: Removed slice user-1000.slice - User Slice of UID 1000.
+2026-10-02T05:36:33+00:00 bmcam003 systemd[1]: Finished user-runtime-dir@1000.service - User Runtime Directory /run/user/1000.
+2026-10-02T05:36:48+00:00 bmcam003 systemd[1]: Stopped user@1000.service - User Manager for UID 1000.
+2026-10-02T05:36:48+00:00 bmcam003 systemd[1]: user-runtime-dir@1000.service: Deactivated successfully.
+2026-10-02T05:36:48+00:00 bmcam003 systemd[1]: Removed slice user-1000.slice - User Slice of UID 1000.
+2026-10-02T05:36:58+00:00 bmcam003 systemd[1]: Finished user-runtime-dir@1000.service - User Runtime Directory /run/user/1000.
+total 4
+drwxrwxrwt  3 root root   80 Oct  2 05:34 .
+drwxr-xr-x 16 root root 4040 Oct  2 05:34 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 05:34 bmcam
+-rw-rw-r--  1 pi   pi      4 Oct  2 05:34 bmcam_stay_on
+2026-10-02T05:40:34Z [bmcam003] T1-T6 PASS; [bmcam004] backup+disarm TS=20261002T054034Z; restore: crontab /home/pi/hil_backup/20261002T054034Z/crontab_ARMED.txt && sudo reboot
+-- crontab now
+1:# DISABLED hil 20261002T054034Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+bm_command_state_v2.json
+camera_config.yaml
+camera_schedule.yaml
+config_journal.jsonl
+crontab_ARMED.txt
+logind.conf
+software_sha.txt
+05:40:36
+TERM-sent
+05:46:41
+3440 bash -c set -u; B=/home/pi/hil_backup/20261002T054034Z; A=/home/pi/BM_Devel_Pi; mkdir -p $B crontab -l > $B/crontab_ARMED.txt for f in camera_config.yaml camera_schedule.yaml bm_command_state_v2.json config_journal.jsonl software_sha.txt; do [ -f $A/$f ] && cp -p $A/$f $B/; done sudo cp -p /etc/systemd/logind.conf $B/logind.conf crontab -l | sed 's|^@reboot \(.*rc_run_capture_cycle\.sh\)$|# DISABLED hil 20261002T054034Z: @reboot \1|' | crontab - echo '-- crontab now'; crontab -l | grep -n reboot; ls $B date -u +%T; pkill -TERM -f '[r]c_progressive_jp[e]g.py' && echo TERM-sent; for i in $(seq 1 72); do pgrep -f '[r]c_progressive_jp[e]g|[r]c_run_capture_cycle' >/dev/null || break; sleep 5; done; date -u +%T; pgrep -af '[r]c_progressive_jp[e]g|[r]c_run_capture_cycle|[r]picam|[f]fmpeg' || echo STOPPED; tail -3 $(ls -t $A/cron_logs/rc_cycle_*.log | head -1)
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-02T05:40:36+00:00
+============================================================
+2026-10-02T05:47:43Z [bmcam004] host fix RemoveIPC=no drop-in
+51:#RemoveIPC=yes
+59:RemoveIPC=no
+LOGIND_CONF_UNCHANGED
+CmaTotal:         262144 kB
+CmaFree:           74016 kB
+2026-10-02T05:47:50Z [bmcam004] P0 start -> runs/s27_ladder_20261001/p0_rpicam_limits
+2026-10-02T05:51:30Z [bmcam004] P0 done (77 probes); re-arm + reboot
+6765 bash -c ls /tmp/p0_* 2>/dev/null | head -2; pgrep -af '[r]picam' || echo no-rpicam; crontab /home/pi/hil_backup/20261002T054034Z/crontab_ARMED.txt && cmp <(crontab -l) /home/pi/hil_backup/20261002T054034Z/crontab_ARMED.txt && echo CRON_MATCHES_BACKUP && sudo systemctl reboot
+CRON_MATCHES_BACKUP

@@ -1,0 +1,27 @@
+[SUP] ===== action 36 (trg) utc=2026-10-02T07:28:29Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] duplicate id=64140: original answer (console)
+[CMD] duplicate id=64140: original answer (console)
+[SUP] boot drain: 2 command(s) applied this boot
+[CMD] one-shot trigger id=64140 trg=2 (capture + send): window gate BYPASSED for this boot only
+[SUP] trg id=64140: one action with {'video.send.message_cap': 80} (not persisted)
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T07:28:37.195000+00:00
+[BOOT] spotter_utc_read uptime_s=4768.85
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-02T00:28:37.195000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-10-02T07-28-37Z_video_1920x1080_15fps (10s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-10-02T07-28-37Z_video_1920x1080_15fps.mp4 (7106260 B, encode=10.8s boundary=4.6s)
+[VTX] message budget: cap=80 affordable_now=319 (after reserving 32) -> 80 chunk msgs (23040 B)
+[VTX] encode try 1: 22.1 kbps -> 21434 B = 93% of 80 msgs
+[VTX] payload: 21434 B = 75 msgs (93.0% of budget) 1 pass-2 tries, prescale 6.7s encode 5.8s
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0e3zfp from Spotter UTC 2026-10-02T07:28:37.195000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-02T07-28-37Z_video_8s.sent.json (75 msgs, chunks <I0e3zfp.n/75>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=4797.22
+[VTX] transmit done: sent=75/75 complete=True keyframe_repeat=28/28 uart=137.1s file=2026-10-02T07-28-37Z_video_8s.h264
+[CMD] console: 2 line(s) sent, 0 queued
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=done sent=75/75 elapsed=173.5s
+[SUP] ===== action 36 done: stage=done skipped=False =====

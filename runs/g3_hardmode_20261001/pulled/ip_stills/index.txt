@@ -1,0 +1,27 @@
+IP.brightness -1.0..cap 2026-10-02T06:56:47Z
+IP.brightness 1.0..cap 2026-10-02T06:57:27Z
+IP.brightness.-1.0.cap 2026-10-02T07:03:47Z
+IP.brightness.1.0.cap 2026-10-02T07:04:37Z
+IP.contrast 0.0..cap 2026-10-02T06:54:07Z
+IP.contrast 32.0..cap 2026-10-02T06:54:47Z
+IP.contrast.0.0.cap 2026-10-02T07:00:17Z
+IP.contrast.32.0.cap 2026-10-02T07:01:07Z
+IP.denoise.auto.cap 2026-10-02T07:06:47Z
+IP.denoise.cdn_fast.cap 2026-10-02T07:09:27Z
+IP.denoise.cdn_hq.cap 2026-10-02T07:10:17Z
+IP.denoise.cdn_off.cap 2026-10-02T07:08:27Z
+IP.denoise.off.cap 2026-10-02T07:07:37Z
+IP.hdr.auto.cap 2026-10-02T07:11:57Z
+IP.hdr.false.cap 2026-10-02T07:14:37Z
+IP.hdr.off.cap 2026-10-02T07:11:07Z
+IP.hdr.sensor.cap 2026-10-02T07:12:57Z
+IP.hdr.single-exp.cap 2026-10-02T07:13:47Z
+IP.hdr.true.cap 2026-10-02T07:15:27Z
+IP.saturation 0.0..cap 2026-10-02T06:55:27Z
+IP.saturation 32.0..cap 2026-10-02T06:56:07Z
+IP.saturation.0.0.cap 2026-10-02T07:02:07Z
+IP.saturation.32.0.cap 2026-10-02T07:02:57Z
+IP.sharpness 0.0..cap 2026-10-02T06:52:47Z
+IP.sharpness 16.0..cap 2026-10-02T06:53:27Z
+IP.sharpness.0.0.cap 2026-10-02T06:58:37Z
+IP.sharpness.16.0.cap 2026-10-02T06:59:27Z

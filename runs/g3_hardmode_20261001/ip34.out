@@ -1,0 +1,22 @@
+ OK id=1000010 camera.image_processing.denoise: none -> auto (next action) cfg=5f68cef1
+--denoise auto [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:06:47Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000011 camera.image_processing.denoise: auto -> off (next action) cfg=f8bcd030
+--denoise off [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:07:37Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000012 camera.image_processing.denoise: off -> cdn_off (next action) cfg=6af1cee2
+--denoise cdn_off [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:08:27Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000013 camera.image_processing.denoise: cdn_off -> cdn_fast (next action) cfg=a6e6fa35
+--denoise cdn_fast [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:09:27Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000014 camera.image_processing.denoise: cdn_fast -> cdn_hq (next action) cfg=e93bf4b7
+--denoise cdn_hq [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:10:17Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000015 camera.image_processing.hdr: none -> off (next action) cfg=8517acf6
+--denoise cdn_hq [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:11:07Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000016 camera.image_processing.hdr: off -> auto (next action) cfg=08b7b24e
+--denoise cdn_hq --hdr auto [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:11:57Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000017 camera.image_processing.hdr: auto -> sensor (next action) cfg=b749641f
+--denoise cdn_hq --hdr sensor [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:12:57Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000018 camera.image_processing.hdr: sensor -> single-exp (next action) cfg=7fd328b4
+--denoise cdn_hq --hdr single-exp [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:13:47Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000019 camera.image_processing.hdr: single-exp -> false (next action) cfg=0ca9597d
+--denoise cdn_hq [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:14:37Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 
+ OK id=1000020 camera.image_processing.hdr: false -> true (next action) cfg=05bd727d
+--denoise cdn_hq --hdr auto [DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-02T07:15:27Z_ [RC] transmit done: sent=10/10 complete=True incomplete_emitted=False uart=14.5s 

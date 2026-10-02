@@ -1,0 +1,55 @@
+== bmcam003 2026-10-02T06:06:24Z up 1900.71s
+-- /dev/shm
+total 4
+drwxrwxrwt  3 root root   80 Oct  2 05:34 .
+drwxr-xr-x 16 root root 4040 Oct  2 05:34 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 06:05 bmcam
+-rw-rw-r--  1 pi   pi      4 Oct  2 05:34 bmcam_stay_on
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 06:05 .
+drwxrwxrwt 3 root root   80 Oct  2 05:34 ..
+-rw-r--r-- 1 pi   pi   2300 Oct  2 06:05 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on present
+KEY sha 7d47ff956c4b
+KEY repo development 7d47ff9 Merge pull request #99 from nickraymond/docs/release-r1-plan
+KEY cfg_hash hash=f7c9194f
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f7c9194f hv=1 registry=v5 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.wF63e6/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 07d1c97af4d374d7 bm_command_state_v2.json 0L
+file 6908226c59ab30fa config_journal.jsonl 55L
+state overlay {"mode.run": "stay_on"}
+state guarded {}
+state boot 25 hw {"service": 100000021}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+588 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+591 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+592 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+625 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+14 1000 pi - 1720 user    - no -
+15 1000 pi - 1725 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     221232 kB
+CmaTotal:         262144 kB
+CmaFree:           79652 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T053447Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[SUP] heartbeat <WS a=idle> after 300s idle
+[DEBUG] Sent compact telemetry message (132 bytes): <WS v=1 a=idle cfg=f7c9194f up=1502 tz=America/Los_Angeles lt=2300 ws=0000 we=0000 rk=480x270 ct=34.9 sha=7d47ff956c4b hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[DEBUG] Sent compact telemetry message (132 bytes): <WS v=1 a=idle cfg=f7c9194f up=1802 tz=America/Los_Angeles lt=2305 ws=0000 we=0000 rk=480x270 ct=35.4 sha=7d47ff956c4b hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle

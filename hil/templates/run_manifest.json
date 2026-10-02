@@ -1,0 +1,21 @@
+{
+  "schema": "hil_run_manifest/1",
+  "gate": "G3",
+  "run_dir": "runs/g3_hardmode_20261003",
+  "start_utc": "2026-10-03T15:00:00+00:00",
+  "start_pdt": "2026-10-03T08:00:00-07:00",
+  "end_utc": null,
+  "end_pdt": null,
+  "operator": "Test Engineer",
+  "repo": {"branch": "feature/r1-hil-test-engineer", "sha": "<git sha>", "dirty": false},
+  "units": [
+    {"host": "bmcam003",
+     "before": {"runtime_sha": "<software_sha.txt>", "cfg_hash": "<hash=…>", "cron_armed": true},
+     "after":  {"runtime_sha": null, "cfg_hash": null, "cron_armed": null}}
+  ],
+  "env": {"HIL_MONITOR": "pi@192.168.1.45"},
+  "tools_sha256_16": {"hil/tools/hil_cmd.sh": "<sha256[:16]>"},
+  "media": [{"path": "/home/pi/BM_Devel_Pi/videos/…mp4", "sha256": "<…>", "bytes": 0, "kept_in_git": false}],
+  "verdict": null,
+  "notes": []
+}

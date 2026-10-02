@@ -1,0 +1,108 @@
+[p0] 2026-10-02T05:47:50Z host=bmcam004 out=runs/s27_ladder_20261001/p0_rpicam_limits
+[p0][pi] picamera2 rc=0 1615 B
+[p0][pi] p001 rc=0 bytes=1961872 2.7s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720
+[p0][pi] p002 rc=255 bytes=0 0.2s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise cdn_off --denoise cdn_fast
+[p0][pi] p003 rc=255 bytes=0 0.2s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 1.0 --sharpness 2.0
+[p0][pi] p004 rc=0 bytes=2003147 2.7s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness -1.61
+[p0][pi] p005 rc=0 bytes=1995865 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 0
+[p0][pi] p006 rc=0 bytes=2042096 2.7s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 1
+[p0][pi] p007 rc=0 bytes=2129063 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 8
+[p0][pi] p008 rc=0 bytes=2106098 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 16
+[p0][pi] p009 rc=0 bytes=2111034 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 17.61
+[p0][pi] p010 rc=0 bytes=37480 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --contrast -3.21
+[p0][pi] p011 rc=0 bytes=38185 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --contrast 0
+[p0][pi] p012 rc=0 bytes=2044480 2.7s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --contrast 1
+[p0][pi] p013 rc=0 bytes=2120516 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --contrast 16
+[p0][pi] p014 rc=0 bytes=2116613 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --contrast 32
+[p0][pi] p015 rc=0 bytes=2120258 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --contrast 35.21
+[p0][pi] p016 rc=0 bytes=1951017 2.7s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --saturation -3.21
+[p0][pi] p017 rc=0 bytes=1947694 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --saturation 0
+[p0][pi] p018 rc=0 bytes=2020678 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --saturation 1
+[p0][pi] p019 rc=0 bytes=23718 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --saturation 16
+[p0][pi] p020 rc=0 bytes=23317 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --saturation 32
+[p0][pi] p021 rc=0 bytes=23609 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --saturation 35.21
+[p0][pi] p022 rc=0 bytes=95599 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --brightness -1.21
+[p0][pi] p023 rc=0 bytes=95482 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --brightness -1
+[p0][pi] p024 rc=0 bytes=2046994 2.7s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --brightness 0
+[p0][pi] p025 rc=0 bytes=2110 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --brightness 1
+[p0][pi] p026 rc=0 bytes=2110 2.8s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --brightness 1.21
+[p0][pi] p027 rc=0 bytes=2034035 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise auto
+[p0][pi] p028 rc=0 bytes=2127070 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise off
+[p0][pi] p029 rc=0 bytes=2101811 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise cdn_off
+[p0][pi] p030 rc=0 bytes=2056638 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise cdn_fast
+[p0][pi] p031 rc=0 bytes=1744113 2.6s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise cdn_hq
+[p0][pi] p032 rc=255 bytes=0 0.3s rpicam-vid --mode 2304:1296:10:P --width 1280 --height 720 --denoise bogus
+[p0][pi] p033 rc=0 bytes=539458 2.6s rpicam-vid --mode 2304:1296:10:P --width 1000 --height 562 --hdr off
+[p0][pi] p034 rc=0 bytes=162571 3.2s rpicam-vid --mode 4608:2592:10:P --width 1000 --height 562 --hdr off
+[p0][pi] p035 rc=0 bytes=1516382 2.9s rpicam-vid --mode 2304:1296:10:P --width 1000 --height 562 --hdr auto
+[p0][pi] p036 rc=0 bytes=1512066 2.7s rpicam-vid --mode 4608:2592:10:P --width 1000 --height 562 --hdr auto
+[p0][pi] p037 rc=0 bytes=1513546 2.7s rpicam-vid --mode 2304:1296:10:P --width 1000 --height 562 --hdr sensor
+[p0][pi] p038 rc=0 bytes=1511690 2.7s rpicam-vid --mode 4608:2592:10:P --width 1000 --height 562 --hdr sensor
+[p0][pi] p039 rc=0 bytes=523230 2.7s rpicam-vid --mode 2304:1296:10:P --width 1000 --height 562 --hdr single-exp
+[p0][pi] p040 rc=0 bytes=159444 2.9s rpicam-vid --mode 4608:2592:10:P --width 1000 --height 562 --hdr single-exp
+[p0][pi] p041 rc=255 bytes=0 0.2s rpicam-vid --mode 2304:1296:10:P --width 1000 --height 562 --hdr bogus
+[p0][pi] p042 rc=255 bytes=0 0.2s rpicam-vid --mode 4608:2592:10:P --width 1000 --height 562 --hdr bogus
+[p0][pi] p043 rc=0 bytes=1494100 2.4s rpicam-still 
+[p0][pi] p044 rc=0 bytes=1490099 2.3s rpicam-still --hdr off
+[p0][pi] p045 rc=0 bytes=616298 2.0s rpicam-still --hdr auto
+[p0][pi] p046 rc=0 bytes=612255 2.1s rpicam-still --hdr sensor
+[p0][pi] p047 rc=0 bytes=1498110 2.4s rpicam-still --hdr single-exp
+[p0][pi] p048 rc=255 bytes=0 0.2s rpicam-still --hdr bogus
+[p0][pi] p049 rc=0 bytes=1496429 2.4s rpicam-still --denoise auto
+[p0][pi] p050 rc=0 bytes=2414222 2.1s rpicam-still --denoise off
+[p0][pi] p051 rc=0 bytes=1640271 2.1s rpicam-still --denoise cdn_off
+[p0][pi] p052 rc=0 bytes=1476870 2.1s rpicam-still --denoise cdn_fast
+[p0][pi] p053 rc=0 bytes=1340426 2.3s rpicam-still --denoise cdn_hq
+[p0][pi] p054 rc=255 bytes=0 0.3s rpicam-still --denoise bogus
+[p0][pi] p055 rc=0 bytes=1445865 2.4s rpicam-still --sharpness -1.61
+[p0][pi] p056 rc=0 bytes=1455118 2.3s rpicam-still --sharpness 0
+[p0][pi] p057 rc=0 bytes=1498895 2.3s rpicam-still --sharpness 1
+[p0][pi] p058 rc=0 bytes=1856340 2.3s rpicam-still --sharpness 8
+[p0][pi] p059 rc=0 bytes=2239193 2.3s rpicam-still --sharpness 16
+[p0][pi] p060 rc=0 bytes=2209139 2.4s rpicam-still --sharpness 17.61
+[p0][pi] p061 rc=0 bytes=245795 2.2s rpicam-still --contrast -3.21
+[p0][pi] p062 rc=0 bytes=245838 2.2s rpicam-still --contrast 0
+[p0][pi] p063 rc=0 bytes=1498802 2.3s rpicam-still --contrast 1
+[p0][pi] p064 rc=0 bytes=1635704 2.3s rpicam-still --contrast 16
+[p0][pi] p065 rc=0 bytes=1623844 2.4s rpicam-still --contrast 32
+[p0][pi] p066 rc=0 bytes=1646941 2.3s rpicam-still --contrast 35.21
+[p0][pi] p067 rc=0 bytes=1383549 2.3s rpicam-still --saturation -3.21
+[p0][pi] p068 rc=0 bytes=1379099 2.3s rpicam-still --saturation 0
+[p0][pi] p069 rc=0 bytes=1502439 2.3s rpicam-still --saturation 1
+[p0][pi] p070 rc=0 bytes=196239 2.2s rpicam-still --saturation 16
+[p0][pi] p071 rc=0 bytes=196592 2.2s rpicam-still --saturation 32
+[p0][pi] p072 rc=0 bytes=196297 2.3s rpicam-still --saturation 35.21
+[p0][pi] p073 rc=0 bytes=272784 2.2s rpicam-still --brightness -1.21
+[p0][pi] p074 rc=0 bytes=272986 2.2s rpicam-still --brightness -1
+[p0][pi] p075 rc=0 bytes=1503203 2.3s rpicam-still --brightness 0
+[p0][pi] p076 rc=0 bytes=189389 2.2s rpicam-still --brightness 1
+[p0][pi] p077 rc=0 bytes=189389 2.3s rpicam-still --brightness 1.21
+[p0][pi] probes=77 done 2026-10-02T05:50:58Z
+[p0][pi] CmaFree:           88976 kB
+[p0] remote rc=0; fetching /tmp/p0_20261002T054751Z
+# P0 rpicam limits — summary
+
+Source: `probes.csv` (77 probes), logs in `probe_logs/`. Exit 0 with output bytes > 0 = ran;
+it does NOT prove the value was applied (libcamera may clamp): cross-check `02_picamera2_controls.json`
+and `still_meta/*.json`.
+
+| app | control | ran (exit 0, bytes > 0) | failed (exit / last line) |
+|---|---|---|---|
+| rpicam-still | baseline | — | — |
+| rpicam-still | brightness | -1.21 -1 0 1 1.21 | — |
+| rpicam-still | contrast | -3.21 0 1 16 32 35.21 | — |
+| rpicam-still | denoise | auto off cdn_off cdn_fast cdn_hq | bogus (rc 255: ERROR: *** Invalid denoise mode bogus ***) |
+| rpicam-still | hdr | off auto sensor single-exp | bogus (rc 255: ERROR: *** Invalid HDR option provided: bogus ***) |
+| rpicam-still | saturation | -3.21 0 1 16 32 35.21 | — |
+| rpicam-still | sharpness | -1.61 0 1 8 16 17.61 | — |
+| rpicam-vid | baseline | --mode 2304:1296:10:P --width 1280 --height 720 | — |
+| rpicam-vid | brightness | -1.21 -1 0 1 1.21 | — |
+| rpicam-vid | contrast | -3.21 0 1 16 32 35.21 | — |
+| rpicam-vid | denoise | auto off cdn_off cdn_fast cdn_hq | bogus (rc 255: ERROR: *** Invalid denoise mode bogus ***) |
+| rpicam-vid | duplicate --denoise | — | --mode 2304:1296:10:P --width 1280 --height 720 --denoise cdn_off --denoise cdn_fast (rc 255: ERROR: *** option '--denoise' cannot be specified more than ) |
+| rpicam-vid | duplicate --sharpness | — | --mode 2304:1296:10:P --width 1280 --height 720 --sharpness 1.0 --sharpness 2.0 (rc 255: ERROR: *** option '--sharpness' cannot be specified more tha) |
+| rpicam-vid | hdr @2304:1296:10:P | off auto sensor single-exp | bogus (rc 255: ERROR: *** Invalid HDR option provided: bogus ***) |
+| rpicam-vid | hdr @4608:2592:10:P | off auto sensor single-exp | bogus (rc 255: ERROR: *** Invalid HDR option provided: bogus ***) |
+| rpicam-vid | saturation | -3.21 0 1 16 32 35.21 | — |
+| rpicam-vid | sharpness | -1.61 0 1 8 16 17.61 | — |
+[p0] 77 probes recorded in runs/s27_ladder_20261001/p0_rpicam_limits/probes.csv; summary runs/s27_ladder_20261001/p0_rpicam_limits/SUMMARY.md

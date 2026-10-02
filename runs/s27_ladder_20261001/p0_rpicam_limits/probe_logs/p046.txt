@@ -1,0 +1,25 @@
+[4:22:16.472079081] [5901]  INFO Camera camera_manager.cpp:340 libcamera v0.7.1+rpt20260609
+[4:22:16.535469574] [5904]  WARN CameraSensorProperties camera_sensor_properties.cpp:548 No static properties available for 'imx708_wide'
+[4:22:16.535547283] [5904]  WARN CameraSensorProperties camera_sensor_properties.cpp:550 Please consider updating the camera sensor properties database
+[4:22:16.535714733] [5904]  INFO RPI pipeline_base.cpp:1133 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+[4:22:16.612575331] [5904]  INFO IPAProxy ipa_proxy.cpp:184 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+[4:22:16.626771744] [5904]  WARN CameraSensor camera_sensor_legacy.cpp:502 'imx708_wide': No sensor delays found in static properties. Assuming unverified defaults.
+[4:22:16.627970764] [5904]  INFO Camera camera_manager.cpp:223 Adding camera '/base/soc/i2c0mux/i2c@1/imx708@1a' for pipeline handler rpi/vc4
+[4:22:16.628101494] [5904]  INFO RPI vc4.cpp:445 Registered camera /base/soc/i2c0mux/i2c@1/imx708@1a to Unicam device /dev/media0 and ISP device /dev/media1
+[4:22:16.631037767] [5901]  INFO Camera camera_manager.cpp:340 libcamera v0.7.1+rpt20260609
+[4:22:16.674282479] [5907]  WARN CameraSensorProperties camera_sensor_properties.cpp:548 No static properties available for 'imx708_wide'
+[4:22:16.674358729] [5907]  WARN CameraSensorProperties camera_sensor_properties.cpp:550 Please consider updating the camera sensor properties database
+[4:22:16.674512897] [5907]  INFO RPI pipeline_base.cpp:1133 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+[4:22:16.689696297] [5907]  INFO IPAProxy ipa_proxy.cpp:184 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+[4:22:16.702315458] [5907]  WARN CameraSensor camera_sensor_legacy.cpp:502 'imx708_wide': No sensor delays found in static properties. Assuming unverified defaults.
+[4:22:16.703511456] [5907]  INFO Camera camera_manager.cpp:223 Adding camera '/base/soc/i2c0mux/i2c@1/imx708@1a' for pipeline handler rpi/vc4
+[4:22:16.703566040] [5907]  INFO RPI vc4.cpp:445 Registered camera /base/soc/i2c0mux/i2c@1/imx708@1a to Unicam device /dev/media0 and ISP device /dev/media1
+Mode selection for 2304:1296:12:P
+    SRGGB10_CSI2P,2304x1296/0 - Score: 1000
+[4:22:16.707011640] [5901]  INFO Camera camera.cpp:1216 configuring streams: (0) 2304x1296-YUV420/sYCC (1) 2304x1296-SBGGR10_CSI2P/RAW
+[4:22:16.707636176] [5907]  INFO RPI vc4.cpp:620 Sensor: /base/soc/i2c0mux/i2c@1/imx708@1a - Selected sensor format: 2304x1296-SBGGR10_1X10/RAW - Selected unicam format: 2304x1296-pBAA/RAW
+Mode selection for 2304:1296:12:P
+    SRGGB10_CSI2P,2304x1296/0 - Score: 1000
+[4:22:17.809941427] [5901]  INFO Camera camera.cpp:1216 configuring streams: (0) 2304x1296-YUV420/sYCC (1) 2304x1296-SBGGR10_CSI2P/RAW
+[4:22:17.811271281] [5907]  INFO RPI vc4.cpp:620 Sensor: /base/soc/i2c0mux/i2c@1/imx708@1a - Selected sensor format: 2304x1296-SBGGR10_1X10/RAW - Selected unicam format: 2304x1296-pBAA/RAW
+Still capture image received

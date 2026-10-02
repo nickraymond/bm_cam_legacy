@@ -1,0 +1,57 @@
+== bmcam003 2026-10-02T05:31:45Z up 86964.36s
+KEY sha 3c1801d7a69c
+KEY repo development 3c1801d Merge pull request #92 from nickraymond/feature/sprint26-s4w-chunk-total
+KEY cfg_hash hash=f7c9194f
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f7c9194f hv=1 registry=v5 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 099e30e63f29f412 bm_command_state_v2.json 0L
+file 130f51884b49e0df config_journal.jsonl 54L
+state overlay {"mode.run": "stay_on"}
+state guarded {}
+state boot 24 hw {"service": 100000021}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+588 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+590 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+591 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+624 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root   60 Oct  2 05:31 .
+drwxr-xr-x 16 root root 4040 Oct  1 05:21 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 05:31 bmcam
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 05:31 .
+drwxrwxrwt 3 root root   60 Oct  2 05:31 ..
+-rw-r--r-- 1 pi   pi   2300 Oct  2 05:31 camera_schedule.yaml
+KEY shm_render present
+KEY removeipc #RemoveIPC=yes 
+logind.d ls: cannot access '/etc/systemd/logind.conf.d': No such file or directory
+KEY linger Linger=no
+-- sessions
+466 1000 pi - 20033 user    - no -
+467 1000 pi - 20038 manager - no -
+KEY fix97 no
+KEY rule98 no
+MemAvailable:     240196 kB
+CmaTotal:         262144 kB
+CmaFree:           75444 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261001T052205Z.log
+KEY err_count 284
+KEY reresolve_fail 284
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml._i8rwpqk.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.v4vk9xue.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.vhis4_to.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.aq2zrk7g.tmp'); keeping the last good settings
+[SUP][ERR] settings re-resolve failed (FileNotFoundError: [Errno 2] No such file or directory: '/dev/shm/bmcam/.camera_schedule.yaml.4io_2hhf.tmp'); keeping the last good settings
+-- tail
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0e3tv5 from Spotter UTC 2026-10-02T05:28:17.039000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-02T05-28-15Z_video_5s.sent.json (182 msgs, chunks <I0e3tv5.n/182>)
+[DEBUG] Runtime BM transfer settings: network=0x01 legacy sat/cell fallback; image_buffer_size=300; image_transmit_delay_seconds=5.0
+[BOOT] transmit_start uptime_s=86774.23

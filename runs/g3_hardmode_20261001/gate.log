@@ -1,0 +1,58 @@
+2026-10-02T06:06:22Z run created for G3 units: bmcam003 bmcam004
+2026-10-02T06:08Z G3 prep (read-only). Both units 7d47ff956c4b, hash f7c9194f, overlay {mode.run: stay_on}, 0 errors (snapshots/*_g3_baseline_*).
+2026-10-02T06:08Z staging /remote-config/* = 404 (no s27 push yet) -> Part A (plan sweep) and L14 BLOCKED until the push.
+2026-10-02T06:08Z ID PLAN: console-range ids only (bmcam004 64001+, bmcam003 54001+; last used 004=63001, 003 checked before use).
+  Why: the backend auto-heal allocates REMOTE ids (1000xx) concurrently; a hand-picked remote id could collide with a
+  future heal id and that heal would be answered "duplicate" (lost). Deviation from LADDER "remote range" noted.
+2026-10-02T06:08Z WAITING: Nick's console cmd.txt OK (asked via EM + chat). No console sends until then.
+2026-10-02T06:08:03Z [bmcam004] deploy 91a08f6: backup+disarm TS=20261002T060803Z; restore: crontab /home/pi/hil_backup/20261002T060803Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T060803Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+TERM-sent
+06:08:10
+STOPPED
+rc=0
+11
+CRON_MATCHES_BACKUP
+2026-10-02T06:10:00Z [bmcam004] on 91a08f6 OK; [bmcam003] deploy 91a08f6 TS=20261002T061000Z; restore: crontab /home/pi/hil_backup/20261002T061000Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T061000Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+TERM-sent
+06:10:07
+STOPPED
+rc=0
+CRON_MATCHES_BACKUP
+2026-10-02T06:11:48Z both units on 91a08f6 (registry v6), hash f7c9194f, stay_on, armed. Ladder BLOCKED on Nick's console OK; backend half BLOCKED on staging push.
+2026-10-02T06:21:58Z Nick in Test Engineer chat: 'console cmd.txt OK for G3 on both Spotters'. Ladder starts on bmcam004/SPOT-31593C.
+2026-10-02T06:22:20Z F-G3-1: LADDER baseline get lists 5 k names; unit limit 1..4 (e=val k=k). Split into 2 gets.
+2026-10-02T06:24:17Z F-G3-2: one-shot save_local still on bmcam004 REFUSED: SD 75% == video ring cap -> [RC][ERR] save_local: SD over its limit after pruning; stage=storage_full (log label says media=video for a still override). Switching visual checks to transmit stills m=30. Cellular msg budget for G3 stills: <= 1200 msgs total, counted in gate.log.
+2026-10-02T06:25:38Z staging live (UI session: a5de198, 23:25 PDT). Part A plan sweep started on nereus000 (plan-only).
+2026-10-02T06:27:43Z F-G3-3: still.message_cap is not a hard ceiling: when the q-floor exceeds the cap (no_fit_cap) the unit sends the floor anyway, bounded by the time budget only (L2 m=30 -> 32 msgs sent, rc_transmit send_target=min(planned, budget)). Using m=40 from here. CELL MSG COUNT: 32 (L2)
+2026-10-02T06:33:23Z CELL MSG COUNT: L3 ~40, L4 40, L4b 38 -> total 150
+2026-10-02T06:37:54Z CELL MSG COUNT stills total 235 (L2-L7). Video steps use trg m=80.
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T060912Z.log
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T055149Z.log
+46:[SUP] stay_on: media=video interval_s=0 (trigger-only) heartbeat_s=300
+50:[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+52:[BOOT] cmd_subscribed uptime_s=20.55
+99:[RC][ERR] save_local: SD over its limit after pruning; capture refused
+609:[SUP] config restart: mode.media changed (next boot); exit 72 (the wrapper restarts in 5 s)
+614:[SUP] stay_on exit 72
+615:[RC-CRON] rc_progressive_jpeg.py exit_code=72
+616:[RC-CRON] stay_on config restart (a next-boot setting changed) in 5s;  not counted toward the crash-loop cap
+617:[RC-CRON] restart_utc=2026-10-02T06:50:03+00:00
+627:[NET] boot default already applied this boot; leaving the network alone (runtime restart)
+67:[RC-CRON] rc_progressive_jpeg.py exit_code=0
+2026-10-02T06:51:27Z both devices eligible+writable at staging; Part A re-run
+2026-10-02T06:58:19Z IP1/2 attempt 1 void: zsh did not word-split the loop var; backend refused the malformed bodies (no unit change); 8 stills x14 msgs taken at unchanged settings = IP baselines. CELL stills total ~470.
+2026-10-02T07:06:22Z Part A: 791 PASS / 6 FAIL / 78 INFO per device. FAIL disposition: 4 = model ignored catalog blocked_values (save_local, empty enums) -> refused correctly; 2 = video.record.output odd/tiny accepted by backend by spec (geometry unknown) -> unit refused (e=xk). 0 backend defects. F-G3-4: image_processing.sharpness refused by UNIT (duplicate --sharpness with video.record.encoder.sharpness=1.0 in YAML); backend only warned (inputs not reported) -> sharpness can never apply on these units' YAML.
+2026-10-02T07:18:39Z F-G3-5: image_processing.contrast extremes destroy the image: 0.0 -> flat grey (mean 128, sd 0), 32.0 -> black (mean 3, sd 0), stills AND clip (IP.clip1 thumb all black). Valid per libcamera range, useless in practice. Everything after contrast 32 was black, so saturation/brightness/denoise/hdr effects are re-run with contrast reset.
+2026-10-02T07:27:04Z IP2 redo (contrast reset): sat0 greyscale (satmean 0), sat32 black, bright-1 black, bright+1 white (253), contrast0.5 lifted, contrast2.0 near-black at night. Effects real; extremes unusable.
+2026-10-02T07:28:24Z IP5 PASS (6 out-of-range/bogus -> e=val, config+journal sha unchanged). IP6: duplicate --denoise refused at set time (#103 rule) -> retry path not reachable by command -> G3.6 N/A.
+2026-10-02T07:31:51Z L12/L14 Sofar lane: reset hdr, then reset denoise >=65 s later (BMCAM_004)
+2026-10-02T07:32:39Z checked: unit id ranges console 1-99999 | heals 1e5-999999 | remote 1e6+ (command_v9.py:75); remote hw 1000033 does not affect backend heal ids.
+2026-10-02T07:42:07Z E1 PASS (a: shutter 1us->858us, gain 64 -> AG16xDG4 silently clamped by libcamera; b: lens 32, ev 8; c: cap 500/budget 30 acked+reset; d: 0.1 Mbps 1 s clip 75/75). E3 PASS (252 B line reached unit; E3a flipped schedule.window.enabled true->false (YAML is true) -> reset 64163). E6 PASS (dup: original answer, config+journal sha unchanged). E8 PASS (nothing to reset). Mote now delivers each console cmd ~5x (was 3x); dedupe absorbs.
+2026-10-02T07:47:11Z EM: bmcam003 also available until 07:00 PDT; must end at f7c9194f. Starting 003 subset (console ids 54001+).
+2026-10-02T08:00:17Z L12/L14 PASS: 1000034 recv 07:55:06Z (sent 07:31:53, 23 min), 1000035 recv 07:55:41Z, acked in id order; bmcam004 final hash f7c9194f == baseline (G3.9 004 PASS). Part A rerun (fixed model): 796 PASS / 0 FAIL / 79 INFO on both devices. Next: restore bmcam003 ONLY via the Sofar lane (remote-recovery proof).
+2026-10-02T08:06:02Z E2: out-of-frame still/video crops (backend accepts: native not reported) REFUSED by unit (does not fit native frame). ev 8.01 / gain 64.1 e=val. F-G3-8: still.message_cap 501 ACCEPTED by the unit (Q7 refuse>500 is backend-only; unit range 1..2000) -> reset 64186. Only console/direct senders can exceed the cost cap.
+2026-10-02T08:26:16Z bmcam003 Sofar restore: 1000002/3/5 OK; 1000004 REJECTED e=xk (reset wb.gains while wb.mode still manual; whole reset atomic). F-G3-9. Re-sending 1000004's keys now that wb.mode is reset.
+SPOT-31593C queue_full since 06:20Z: 126  first: 2026-10-02T06:30:52Z  last: 2026-10-02T08:57:58Z
+SPOT-33507C queue_full since 06:20Z: 54  first: 2026-10-02T07:48:34Z  last: 2026-10-02T09:30:00Z

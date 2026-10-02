@@ -1,0 +1,24 @@
+[SUP] ===== action 39 (trg) utc=2026-10-02T07:37:39Z =====
+[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+[CMD] one-shot trigger id=64157 trg=2 (capture + send): window gate BYPASSED for this boot only
+[SUP] trg id=64157: one action with {'video.send.message_cap': 80} (not persisted)
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T07:37:47.128000+00:00
+[BOOT] spotter_utc_read uptime_s=5318.70
+[VTX] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-02T00:37:47.128000-07:00
+[VID] boot sweep: no crash debris
+[VID] clip start: 2026-10-02T07-37-47Z_video_1920x1080_15fps (3s nominal, 1920x1080@15fps 0.1Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[VID] clip done: 2026-10-02T07-37-47Z_video_1920x1080_15fps.mp4 (141739 B, encode=5.0s boundary=6.7s)
+[VTX] message budget: cap=80 affordable_now=322 (after reserving 32) -> 80 chunk msgs (23040 B)
+[VTX] encode try 1: 176.9 kbps -> 23611 B = 102% of 80 msgs
+[VTX] encode try 2: 166.6 kbps -> 21462 B = 93% of 80 msgs
+[VTX] payload: 21462 B = 75 msgs (93.2% of budget) 2 pass-2 tries, prescale 2.7s encode 3.4s
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[KEY] media key 0e3zuz from Spotter UTC 2026-10-02T07:37:47.128000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-02T07-37-47Z_video_1s.sent.json (75 msgs, chunks <I0e3zuz.n/75>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=5336.93
+[VTX] transmit done: sent=75/75 complete=True keyframe_repeat=30/30 uart=139.8s file=2026-10-02T07-37-47Z_video_1s.h264
+[CMD] no listen tail: stay_on (the idle loop listens)
+[SUP] action: media=video stage=done sent=75/75 elapsed=165.5s
+[SUP] ===== action 39 done: stage=done skipped=False =====
