@@ -3,7 +3,7 @@
  "api": "https://nereus-vision-staging.onrender.com",
  "cases_file": "cases.json",
  "n_cases": 875,
- "started_utc": "2026-10-02T06:58:09Z",
+ "started_utc": "2026-10-02T07:51:45Z",
  "catalog_sha256_cases": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
  "catalog_sha256_served": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
  "sanity": {
@@ -34,98 +34,11 @@
    "writable": true
   }
  },
- "finished_utc": "2026-10-02T07:04:14Z",
+ "finished_utc": "2026-10-02T07:57:42Z",
  "counts": {
-  "PASS": 791,
-  "FAIL": 6,
-  "INFO": 78
+  "PASS": 796,
+  "FAIL": 0,
+  "INFO": 79
  },
- "fails": [
-  {
-   "id": "c0054",
-   "key": "mode.output",
-   "body": {
-    "set": {
-     "mode.output": "save_local"
-    }
-   },
-   "expect": "accept",
-   "got": "refuse",
-   "reasons": [
-    "blocked_value"
-   ],
-   "http": 200
-  },
-  {
-   "id": "c0546",
-   "key": "video.record.output",
-   "body": {
-    "set": {
-     "video.record.output": "481x271"
-    }
-   },
-   "expect": "refuse",
-   "got": "accept",
-   "reasons": [],
-   "http": 200
-  },
-  {
-   "id": "c0554",
-   "key": "video.record.output",
-   "body": {
-    "set": {
-     "video.record.output": "14x16"
-    }
-   },
-   "expect": "refuse",
-   "got": "accept",
-   "reasons": [],
-   "http": 200
-  },
-  {
-   "id": "c0603",
-   "key": "video.record.encoder.profile",
-   "body": {
-    "set": {
-     "video.record.encoder.profile": ""
-    }
-   },
-   "expect": "accept",
-   "got": "refuse",
-   "reasons": [
-    "blocked_value"
-   ],
-   "http": 200
-  },
-  {
-   "id": "c0617",
-   "key": "video.record.encoder.level",
-   "body": {
-    "set": {
-     "video.record.encoder.level": ""
-    }
-   },
-   "expect": "accept",
-   "got": "refuse",
-   "reasons": [
-    "blocked_value"
-   ],
-   "http": 200
-  },
-  {
-   "id": "c0644",
-   "key": "video.record.encoder.denoise",
-   "body": {
-    "set": {
-     "video.record.encoder.denoise": ""
-    }
-   },
-   "expect": "accept",
-   "got": "refuse",
-   "reasons": [
-    "blocked_value"
-   ],
-   "http": 200
-  }
- ]
+ "fails": []
 }

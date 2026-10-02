@@ -2,7 +2,7 @@
  "catalog": "docs/bmcam_config_catalog.json",
  "catalog_sha256": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
  "registry_version": 6,
- "generated_utc": "2026-10-02T06:09:05+00:00",
+ "generated_utc": "2026-10-02T07:45:24+00:00",
  "cases": [
   {
    "id": "c0001",
@@ -41,10 +41,10 @@
      "mode.media": "video_logger"
     }
    },
-   "expect": "depends",
-   "expect_reason": "",
+   "expect": "refuse",
+   "expect_reason": "blocked_value",
    "source": "selftest",
-   "why": "video needs video.send.message_cap >= 80 (reported)"
+   "why": "catalog blocked_values: the continuous recorder is set by deploy only"
   },
   {
    "id": "c0004",
@@ -755,10 +755,10 @@
      "mode.output": "save_local"
     }
    },
-   "expect": "accept",
-   "expect_reason": "",
+   "expect": "refuse",
+   "expect_reason": "blocked_value",
    "source": "selftest",
-   "why": "valid per check_value, inside limits"
+   "why": "catalog blocked_values: guarded: needs the cfm flow (Next sprint)"
   },
   {
    "id": "c0055",
@@ -7861,10 +7861,10 @@
      "video.record.output": "481x271"
     }
    },
-   "expect": "refuse",
-   "expect_reason": "cross_key",
+   "expect": "depends",
+   "expect_reason": "",
    "source": "selftest",
-   "why": "SPEC \u00a73.3 wxh even and >= 16 px"
+   "why": "video geometry; framing-less crop xor output refused"
   },
   {
    "id": "c0547",
@@ -7973,10 +7973,10 @@
      "video.record.output": "14x16"
     }
    },
-   "expect": "refuse",
-   "expect_reason": "cross_key",
+   "expect": "depends",
+   "expect_reason": "",
    "source": "boundary",
-   "why": "SPEC \u00a73.3 wxh even and >= 16 px"
+   "why": "value not in the selftest vectors: unit check_value unknown here"
   },
   {
    "id": "c0555",
@@ -8659,10 +8659,10 @@
      "video.record.encoder.profile": ""
     }
    },
-   "expect": "accept",
-   "expect_reason": "",
+   "expect": "refuse",
+   "expect_reason": "blocked_value",
    "source": "selftest",
-   "why": "valid per check_value, inside limits"
+   "why": "catalog blocked_values: cannot be sent (wire strings are 1..48 chars): use reset"
   },
   {
    "id": "c0604",
@@ -8855,10 +8855,10 @@
      "video.record.encoder.level": ""
     }
    },
-   "expect": "accept",
-   "expect_reason": "",
+   "expect": "refuse",
+   "expect_reason": "blocked_value",
    "source": "selftest",
-   "why": "valid per check_value, inside limits"
+   "why": "catalog blocked_values: cannot be sent (wire strings are 1..48 chars): use reset"
   },
   {
    "id": "c0618",
@@ -9233,10 +9233,10 @@
      "video.record.encoder.denoise": ""
     }
    },
-   "expect": "accept",
-   "expect_reason": "",
+   "expect": "refuse",
+   "expect_reason": "blocked_value",
    "source": "selftest",
-   "why": "valid per check_value, inside limits"
+   "why": "catalog blocked_values: cannot be sent (wire strings are 1..48 chars): use reset"
   },
   {
    "id": "c0645",

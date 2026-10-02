@@ -1,7 +1,7 @@
 id,kind,key,body_json,expect,expect_reason,source,why
 c0001,set,mode.media,"{""set"": {""mode.media"": ""still""}}",depends,,selftest,video needs video.send.message_cap >= 80 (reported)
 c0002,set,mode.media,"{""set"": {""mode.media"": ""video""}}",depends,,selftest,video needs video.send.message_cap >= 80 (reported)
-c0003,set,mode.media,"{""set"": {""mode.media"": ""video_logger""}}",depends,,selftest,video needs video.send.message_cap >= 80 (reported)
+c0003,set,mode.media,"{""set"": {""mode.media"": ""video_logger""}}",refuse,blocked_value,selftest,catalog blocked_values: the continuous recorder is set by deploy only
 c0004,set,mode.media,"{""set"": {""mode.media"": """"}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0005,set,mode.media,"{""set"": {""mode.media"": ""x""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0006,set,mode.media,"{""set"": {""mode.media"": ""auto""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
@@ -52,7 +52,7 @@ c0050,set,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": ""0""}}",refuse,bad
 c0051,set,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": true}}",refuse,bad_value,boundary,catalog selftest: check_value invalid
 c0052,reset,mode.heartbeat_s,"{""reset"": [""mode.heartbeat_s""]}",accept,,reset,reset of a control key
 c0053,set,mode.output,"{""set"": {""mode.output"": ""transmit""}}",accept,,selftest,"valid per check_value, inside limits"
-c0054,set,mode.output,"{""set"": {""mode.output"": ""save_local""}}",accept,,selftest,"valid per check_value, inside limits"
+c0054,set,mode.output,"{""set"": {""mode.output"": ""save_local""}}",refuse,blocked_value,selftest,catalog blocked_values: guarded: needs the cfm flow (Next sprint)
 c0055,set,mode.output,"{""set"": {""mode.output"": """"}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0056,set,mode.output,"{""set"": {""mode.output"": ""x""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0057,set,mode.output,"{""set"": {""mode.output"": ""auto""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
@@ -544,7 +544,7 @@ c0542,set,video.record.crop,"{""set"": {""video.record.crop"": [0, 0, 0, 10]}}",
 c0543,reset,video.record.crop,"{""reset"": [""video.record.crop""]}",accept,,reset,reset of a control key
 c0544,set,video.record.output,"{""set"": {""video.record.output"": null}}",depends,,selftest,video geometry; framing-less crop xor output refused
 c0545,set,video.record.output,"{""set"": {""video.record.output"": ""480x270""}}",depends,,selftest,video geometry; framing-less crop xor output refused
-c0546,set,video.record.output,"{""set"": {""video.record.output"": ""481x271""}}",refuse,cross_key,selftest,SPEC §3.3 wxh even and >= 16 px
+c0546,set,video.record.output,"{""set"": {""video.record.output"": ""481x271""}}",depends,,selftest,video geometry; framing-less crop xor output refused
 c0547,set,video.record.output,"{""set"": {""video.record.output"": """"}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0548,set,video.record.output,"{""set"": {""video.record.output"": ""x""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0549,set,video.record.output,"{""set"": {""video.record.output"": ""auto""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
@@ -552,7 +552,7 @@ c0550,set,video.record.output,"{""set"": {""video.record.output"": ""12:00""}}",
 c0551,set,video.record.output,"{""set"": {""video.record.output"": ""25:00""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0552,set,video.record.output,"{""set"": {""video.record.output"": ""0x10""}}",refuse,bad_value,selftest,catalog selftest: check_value invalid
 c0553,set,video.record.output,"{""set"": {""video.record.output"": ""16x16""}}",depends,,boundary,value not in the selftest vectors: unit check_value unknown here
-c0554,set,video.record.output,"{""set"": {""video.record.output"": ""14x16""}}",refuse,cross_key,boundary,SPEC §3.3 wxh even and >= 16 px
+c0554,set,video.record.output,"{""set"": {""video.record.output"": ""14x16""}}",depends,,boundary,value not in the selftest vectors: unit check_value unknown here
 c0555,set,video.record.output,"{""set"": {""video.record.output"": ""482x272""}}",depends,,boundary,value not in the selftest vectors: unit check_value unknown here
 c0556,set,video.record.output,"{""set"": {""video.record.output"": ""640x360""}}",depends,,boundary,value not in the selftest vectors: unit check_value unknown here
 c0557,set,video.record.output,"{""set"": {""video.record.output"": ""1280x720""}}",depends,,boundary,value not in the selftest vectors: unit check_value unknown here
@@ -601,7 +601,7 @@ c0599,set,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": t
 c0600,reset,video.record.bitrate_mbps,"{""reset"": [""video.record.bitrate_mbps""]}",accept,,reset,reset of a control key
 c0601,set,video.record.dir,"{""set"": {""video.record.dir"": ""/home/pi/BM_Devel_Pi/videos""}}",refuse,not_writable,tier,tier=blocked
 c0602,reset,video.record.dir,"{""reset"": [""video.record.dir""]}",refuse,not_writable,reset,tier=blocked
-c0603,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": """"}}",accept,,selftest,"valid per check_value, inside limits"
+c0603,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": """"}}",refuse,blocked_value,selftest,catalog blocked_values: cannot be sent (wire strings are 1..48 chars): use reset
 c0604,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""baseline""}}",accept,,selftest,"valid per check_value, inside limits"
 c0605,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""main""}}",accept,,selftest,"valid per check_value, inside limits"
 c0606,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""high""}}",accept,,selftest,"valid per check_value, inside limits"
@@ -615,7 +615,7 @@ c0613,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profil
 c0614,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""AUTO""}}",refuse,bad_value,boundary,type/range model invalid
 c0615,set,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": 1}}",refuse,bad_value,boundary,catalog selftest: check_value invalid
 c0616,reset,video.record.encoder.profile,"{""reset"": [""video.record.encoder.profile""]}",accept,,reset,reset of a control key
-c0617,set,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": """"}}",accept,,selftest,"valid per check_value, inside limits"
+c0617,set,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": """"}}",refuse,blocked_value,selftest,catalog blocked_values: cannot be sent (wire strings are 1..48 chars): use reset
 c0618,set,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4""}}",accept,,selftest,"valid per check_value, inside limits"
 c0619,set,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4.1""}}",accept,,selftest,"valid per check_value, inside limits"
 c0620,set,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4.2""}}",accept,,selftest,"valid per check_value, inside limits"
@@ -642,7 +642,7 @@ c0640,set,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"":
 c0641,set,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": ""0""}}",refuse,bad_value,boundary,type/range model invalid
 c0642,set,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": true}}",refuse,bad_value,boundary,catalog selftest: check_value invalid
 c0643,reset,video.record.encoder.intra,"{""reset"": [""video.record.encoder.intra""]}",accept,,reset,reset of a control key
-c0644,set,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": """"}}",accept,,selftest,"valid per check_value, inside limits"
+c0644,set,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": """"}}",refuse,blocked_value,selftest,catalog blocked_values: cannot be sent (wire strings are 1..48 chars): use reset
 c0645,set,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""auto""}}",accept,,selftest,"valid per check_value, inside limits"
 c0646,set,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""off""}}",accept,,selftest,"valid per check_value, inside limits"
 c0647,set,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""cdn_off""}}",accept,,selftest,"valid per check_value, inside limits"

@@ -1,7 +1,7 @@
 id,key,body,expect,expect_reason,http,got,reasons,warnings,json_bytes,verdict,reason_match
 c0001,mode.media,"{""set"": {""mode.media"": ""still""}}",depends,,200,accept,,video.send.message_cap:video message-cap floor not checked here: video.send.message,53,INFO,
 c0002,mode.media,"{""set"": {""mode.media"": ""video""}}",depends,,200,accept,,"video.send.message_cap:video message-cap floor not checked here: video.send.message|mode.media:video geometry not checked here: video.record.framing, video",53,INFO,
-c0003,mode.media,"{""set"": {""mode.media"": ""video_logger""}}",depends,,200,refuse,blocked_value,,,INFO,
+c0003,mode.media,"{""set"": {""mode.media"": ""video_logger""}}",refuse,blocked_value,200,refuse,blocked_value,,,PASS,yes
 c0004,mode.media,"{""set"": {""mode.media"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0005,mode.media,"{""set"": {""mode.media"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0006,mode.media,"{""set"": {""mode.media"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
@@ -52,7 +52,7 @@ c0050,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": ""0""}}",refuse,bad_val
 c0051,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0052,mode.heartbeat_s,"{""reset"": [""mode.heartbeat_s""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,52,PASS,
 c0053,mode.output,"{""set"": {""mode.output"": ""transmit""}}",accept,,200,accept,,,57,PASS,
-c0054,mode.output,"{""set"": {""mode.output"": ""save_local""}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0054,mode.output,"{""set"": {""mode.output"": ""save_local""}}",refuse,blocked_value,200,refuse,blocked_value,,,PASS,yes
 c0055,mode.output,"{""set"": {""mode.output"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0056,mode.output,"{""set"": {""mode.output"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0057,mode.output,"{""set"": {""mode.output"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
@@ -544,7 +544,7 @@ c0542,video.record.crop,"{""set"": {""video.record.crop"": [0, 0, 0, 10]}}",depe
 c0543,video.record.crop,"{""reset"": [""video.record.crop""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,53,PASS,
 c0544,video.record.output,"{""set"": {""video.record.output"": null}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,59,INFO,
 c0545,video.record.output,"{""set"": {""video.record.output"": ""480x270""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
-c0546,video.record.output,"{""set"": {""video.record.output"": ""481x271""}}",refuse,cross_key,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,FAIL,
+c0546,video.record.output,"{""set"": {""video.record.output"": ""481x271""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
 c0547,video.record.output,"{""set"": {""video.record.output"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0548,video.record.output,"{""set"": {""video.record.output"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0549,video.record.output,"{""set"": {""video.record.output"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
@@ -552,7 +552,7 @@ c0550,video.record.output,"{""set"": {""video.record.output"": ""12:00""}}",refu
 c0551,video.record.output,"{""set"": {""video.record.output"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0552,video.record.output,"{""set"": {""video.record.output"": ""0x10""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0553,video.record.output,"{""set"": {""video.record.output"": ""16x16""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,62,INFO,
-c0554,video.record.output,"{""set"": {""video.record.output"": ""14x16""}}",refuse,cross_key,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,62,FAIL,
+c0554,video.record.output,"{""set"": {""video.record.output"": ""14x16""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,62,INFO,
 c0555,video.record.output,"{""set"": {""video.record.output"": ""482x272""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
 c0556,video.record.output,"{""set"": {""video.record.output"": ""640x360""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
 c0557,video.record.output,"{""set"": {""video.record.output"": ""1280x720""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,65,INFO,
@@ -601,7 +601,7 @@ c0599,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": true}
 c0600,video.record.bitrate_mbps,"{""reset"": [""video.record.bitrate_mbps""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,61,PASS,
 c0601,video.record.dir,"{""set"": {""video.record.dir"": ""/home/pi/BM_Devel_Pi/videos""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
 c0602,video.record.dir,"{""reset"": [""video.record.dir""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
-c0603,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": """"}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0603,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": """"}}",refuse,blocked_value,200,refuse,blocked_value,,,PASS,yes
 c0604,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""baseline""}}",accept,,200,accept,,,74,PASS,
 c0605,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""main""}}",accept,,200,accept,,,70,PASS,
 c0606,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""high""}}",accept,,200,accept,,,70,PASS,
@@ -615,7 +615,7 @@ c0613,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"":
 c0614,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0615,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0616,video.record.encoder.profile,"{""reset"": [""video.record.encoder.profile""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,64,PASS,
-c0617,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": """"}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0617,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": """"}}",refuse,blocked_value,200,refuse,blocked_value,,,PASS,yes
 c0618,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4""}}",accept,,200,accept,,,65,PASS,
 c0619,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4.1""}}",accept,,200,accept,,,67,PASS,
 c0620,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4.2""}}",accept,,200,accept,,,67,PASS,
@@ -642,7 +642,7 @@ c0640,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 0.5
 c0641,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": ""0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0642,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
 c0643,video.record.encoder.intra,"{""reset"": [""video.record.encoder.intra""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
-c0644,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": """"}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0644,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": """"}}",refuse,blocked_value,200,refuse,blocked_value,,,PASS,yes
 c0645,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""auto""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",70,PASS,
 c0646,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""off""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",69,PASS,
 c0647,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""cdn_off""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",73,PASS,

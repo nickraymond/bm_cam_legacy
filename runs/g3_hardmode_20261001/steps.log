@@ -1738,3 +1738,530 @@ overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, 
 guarded {}
 boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
 STEP IP.clip2 ack=none action=stage=done files=action.log 
+----- 2026-10-02T07:32:56Z STATE E1a.before bmcam004
+sha256 74c57d3ac4334174 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 9f731ba2b642b39c config_journal.jsonl 129L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.ima
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+===== 2026-10-02T07:32:58Z E1a.cmd SPOT-31593C  bm pub bmcam/cmd {"id":64150,"c":"set","kv":{"camera.exposure.ev":-8.0,"camera.exposure.analogue_gain":64.0,"camera.exposure.shutter_us":1}} 1 1  (145 B line)
+CON  2026-10-02T07:33:00Z bm pub bmcam/cmd {"id":64150,"c":"set","kv":{"camera.exposure.ev":-8.0,"camera.exposure.analogue_gain":64.0,"camera.exposure.shutter_us":1}} 1 1
+CON  2026-10-02T07:33:00Z 1790926380.765 e6fe83ea6b4a2b7f, [bmcam004] OK id=64150 camera.exposure.ev: -1.0 -> -8.0, camera.exposure.analogue_gain: 2.0 -> 64.0, camera.exposure.shutter_us: 10000 -> 1 (next action) cfg=582b7bc9
+CON  2026-10-02T07:33:00Z 1790926380.816 e6fe83ea6b4a2b7f, [bmcam004] OK id=64150 camera.exposure.ev: -1.0 -> -8.0, camera.exposure.analogue_gain: 2.0 -> 64.0, camera.exposure.shutter_us: 10000 -> 1 (ne (duplicate: original a
+CON  2026-10-02T07:33:00Z 1790926380.867 e6fe83ea6b4a2b7f, [bmcam004] OK id=64150 camera.exposure.ev: -1.0 -> -8.0, camera.exposure.analogue_gain: 2.0 -> 64.0, camera.exposure.shutter_us: 10000 -> 1 (ne (duplicate: original a
+CON  2026-10-02T07:33:01Z 1790926380.925 e6fe83ea6b4a2b7f, [bmcam004] OK id=64150 camera.exposure.ev: -1.0 -> -8.0, camera.exposure.analogue_gain: 2.0 -> 64.0, camera.exposure.shutter_us: 10000 -> 1 (ne (duplicate: original a
+CON  2026-10-02T07:33:01Z 1790926380.976 e6fe83ea6b4a2b7f, [bmcam004] OK id=64150 camera.exposure.ev: -1.0 -> -8.0, camera.exposure.analogue_gain: 2.0 -> 64.0, camera.exposure.shutter_us: 10000 -> 1 (ne (duplicate: original a
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:33:10Z E1a.trg SPOT-31593C  bm pub bmcam/cmd {"id":64151,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1  (78 B line)
+CON  2026-10-02T07:33:11Z bm pub bmcam/cmd {"id":64151,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CON  2026-10-02T07:33:11Z 1790926391.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=64151 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 cfg=582b7bc9
+CON  2026-10-02T07:33:11Z 1790926391.699 e6fe83ea6b4a2b7f, [bmcam004] OK id=64151 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:33:12Z 1790926392.535 e6fe83ea6b4a2b7f, [bmcam004] OK id=64151 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CELL 2026-10-02T07:33:17Z len=135 <WS v=1 a=cap cfg=582b7bc9 up=2525 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=800x450 q=20 ct=37.6 sha=91a08f624011 hn=bmcam004>
+
+SUMMARY cell=1 con=4
+----- 2026-10-02T07:34:47Z STATE E1a.after bmcam004
+sha256 ed107a121d50b667 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 7362724cd326dc97 config_journal.jsonl 132L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": -8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+STEP E1a ack=OK action=stage=None files=2026-10-02T07:33:17Z_image_compressed.jpg.capture_metadata.json 2026-10-02T07:33:17Z_image_native_full.metadata.json action.log 
+----- 2026-10-02T07:34:57Z STATE E1b.before bmcam004
+sha256 ed107a121d50b667 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 7362724cd326dc97 config_journal.jsonl 132L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": -8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+===== 2026-10-02T07:34:58Z E1b.cmd SPOT-31593C  bm pub bmcam/cmd {"id":64152,"c":"set","kv":{"camera.exposure.ev":8.0,"camera.focus.lens_position":32.0}} 1 1  (110 B line)
+CON  2026-10-02T07:34:59Z bm pub bmcam/cmd {"id":64152,"c":"set","kv":{"camera.exposure.ev":8.0,"camera.focus.lens_position":32.0}} 1 1
+CON  2026-10-02T07:35:00Z 1790926499.953 e6fe83ea6b4a2b7f, [bmcam004] OK id=64152 camera.exposure.ev: -8.0 -> 8.0, camera.focus.lens_position: 0.5 -> 32.0 (next action) cfg=da50c0b3
+CON  2026-10-02T07:35:00Z 1790926500.011 e6fe83ea6b4a2b7f, [bmcam004] OK id=64152 camera.exposure.ev: -8.0 -> 8.0, camera.focus.lens_position: 0.5 -> 32.0 (next action) (duplicate: original answer) cfg=da50c0b3
+CON  2026-10-02T07:35:00Z 1790926500.062 e6fe83ea6b4a2b7f, [bmcam004] OK id=64152 camera.exposure.ev: -8.0 -> 8.0, camera.focus.lens_position: 0.5 -> 32.0 (next action) (duplicate: original answer) cfg=da50c0b3
+CON  2026-10-02T07:35:00Z 1790926500.113 e6fe83ea6b4a2b7f, [bmcam004] OK id=64152 camera.exposure.ev: -8.0 -> 8.0, camera.focus.lens_position: 0.5 -> 32.0 (next action) (duplicate: original answer) cfg=da50c0b3
+CON  2026-10-02T07:35:00Z 1790926500.164 e6fe83ea6b4a2b7f, [bmcam004] OK id=64152 camera.exposure.ev: -8.0 -> 8.0, camera.focus.lens_position: 0.5 -> 32.0 (next action) (duplicate: original answer) cfg=da50c0b3
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:35:08Z E1b.trg SPOT-31593C  bm pub bmcam/cmd {"id":64153,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1  (78 B line)
+CON  2026-10-02T07:35:09Z bm pub bmcam/cmd {"id":64153,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CON  2026-10-02T07:35:09Z 1790926509.839 e6fe83ea6b4a2b7f, [bmcam004] OK id=64153 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 cfg=da50c0b3
+CON  2026-10-02T07:35:09Z 1790926509.902 e6fe83ea6b4a2b7f, [bmcam004] OK id=64153 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:35:10Z 1790926509.953 e6fe83ea6b4a2b7f, [bmcam004] OK id=64153 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:35:10Z 1790926510.000 e6fe83ea6b4a2b7f, [bmcam004] OK id=64153 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:35:10Z 1790926510.050 e6fe83ea6b4a2b7f, [bmcam004] OK id=64153 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+SUMMARY cell=0 con=6
+----- 2026-10-02T07:36:58Z STATE E1b.after bmcam004
+sha256 343f680c12925db0 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 6341f93c98173e30 config_journal.jsonl 134L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": 8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 32.0, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+STEP E1b ack=OK action=stage=None files=2026-10-02T07:35:17Z_image_compressed.jpg.capture_metadata.json 2026-10-02T07:35:17Z_image_native_full.metadata.json action.log 
+===== 2026-10-02T07:37:07Z E1c SPOT-31593C  bm pub bmcam/cmd {"id":64154,"c":"set","kv":{"still.message_cap":500,"still.budget_min":30}} 1 1  (97 B line)
+CON  2026-10-02T07:37:08Z bm pub bmcam/cmd {"id":64154,"c":"set","kv":{"still.message_cap":500,"still.budget_min":30}} 1 1
+CON  2026-10-02T07:37:09Z 1790926629.078 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) cfg=9a739b71
+CON  2026-10-02T07:37:09Z 1790926629.128 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=9a739b71
+CON  2026-10-02T07:37:09Z 1790926629.179 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=9a739b71
+CON  2026-10-02T07:37:09Z 1790926629.230 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=9a739b71
+CON  2026-10-02T07:37:09Z 1790926629.289 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=9a739b71
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:37:17Z E1c.reset SPOT-31593C  bm pub bmcam/cmd {"id":64155,"c":"reset","k":["still.message_cap","still.budget_min"]} 1 1  (91 B line)
+CON  2026-10-02T07:37:18Z bm pub bmcam/cmd {"id":64155,"c":"reset","k":["still.message_cap","still.budget_min"]} 1 1
+CON  2026-10-02T07:37:18Z 1790926638.207 e6fe83ea6b4a2b7f, [bmcam004] OK id=64155 reset still.message_cap, still.budget_min -> YAML cfg=da50c0b3
+CON  2026-10-02T07:37:18Z 1790926638.257 e6fe83ea6b4a2b7f, [bmcam004] OK id=64155 reset still.message_cap, still.budget_min -> YAML (duplicate: original answer) cfg=da50c0b3
+CON  2026-10-02T07:37:18Z 1790926638.308 e6fe83ea6b4a2b7f, [bmcam004] OK id=64155 reset still.message_cap, still.budget_min -> YAML (duplicate: original answer) cfg=da50c0b3
+CON  2026-10-02T07:37:18Z 1790926638.359 e6fe83ea6b4a2b7f, [bmcam004] OK id=64155 reset still.message_cap, still.budget_min -> YAML (duplicate: original answer) cfg=da50c0b3
+CON  2026-10-02T07:37:18Z 1790926638.406 e6fe83ea6b4a2b7f, [bmcam004] OK id=64155 reset still.message_cap, still.budget_min -> YAML (duplicate: original answer) cfg=da50c0b3
+SUMMARY cell=0 con=6
+----- 2026-10-02T07:37:26Z STATE E1d.before bmcam004
+sha256 41e0ca3baba4c0b6 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 209b43cc5461214a config_journal.jsonl 138L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": 8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 32.0, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+===== 2026-10-02T07:37:28Z E1d.cmd SPOT-31593C  bm pub bmcam/cmd {"id":64156,"c":"set","kv":{"video.record.bitrate_mbps":0.1,"video.send.duration_s":1.0}} 1 1  (111 B line)
+CON  2026-10-02T07:37:29Z bm pub bmcam/cmd {"id":64156,"c":"set","kv":{"video.record.bitrate_mbps":0.1,"video.send.duration_s":1.0}} 1 1
+CON  2026-10-02T07:37:29Z 1790926649.304 e6fe83ea6b4a2b7f, [bmcam004] OK id=64156 video.record.bitrate_mbps: 6.0 -> 0.1, video.send.duration_s: 8.0 -> 1.0 (next action) cfg=dfb1d8f5
+CON  2026-10-02T07:37:29Z 1790926649.367 e6fe83ea6b4a2b7f, [bmcam004] OK id=64156 video.record.bitrate_mbps: 6.0 -> 0.1, video.send.duration_s: 8.0 -> 1.0 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:37:29Z 1790926649.414 e6fe83ea6b4a2b7f, [bmcam004] OK id=64156 video.record.bitrate_mbps: 6.0 -> 0.1, video.send.duration_s: 8.0 -> 1.0 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:37:29Z 1790926649.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=64156 video.record.bitrate_mbps: 6.0 -> 0.1, video.send.duration_s: 8.0 -> 1.0 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:37:29Z 1790926649.515 e6fe83ea6b4a2b7f, [bmcam004] OK id=64156 video.record.bitrate_mbps: 6.0 -> 0.1, video.send.duration_s: 8.0 -> 1.0 (next action) (duplicate: original answer) cfg=dfb1d8f5
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:37:38Z E1d.trg SPOT-31593C  bm pub bmcam/cmd {"id":64157,"c":"trg","v":2,"kv":{"m":80}} 1 1  (64 B line)
+CON  2026-10-02T07:37:39Z bm pub bmcam/cmd {"id":64157,"c":"trg","v":2,"kv":{"m":80}} 1 1
+CON  2026-10-02T07:37:39Z 1790926659.394 e6fe83ea6b4a2b7f, [bmcam004] OK id=64157 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 cfg=dfb1d8f5
+CON  2026-10-02T07:37:39Z 1790926659.457 e6fe83ea6b4a2b7f, [bmcam004] OK id=64157 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=dfb1d
+CON  2026-10-02T07:37:39Z 1790926659.503 e6fe83ea6b4a2b7f, [bmcam004] OK id=64157 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=dfb1d
+CON  2026-10-02T07:37:39Z 1790926659.554 e6fe83ea6b4a2b7f, [bmcam004] OK id=64157 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=dfb1d
+CON  2026-10-02T07:37:39Z 1790926659.605 e6fe83ea6b4a2b7f, [bmcam004] OK id=64157 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=dfb1d
+SUMMARY cell=0 con=6
+----- 2026-10-02T07:40:36Z STATE E1d.after bmcam004
+sha256 5b4c70810511acd6 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 d608ea81ec9e7345 config_journal.jsonl 140L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": 8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 32.0, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+STEP E1d ack=OK action=stage=done files=action.log 
+----- 2026-10-02T07:41:03Z STATE E6.before bmcam004
+sha256 5b4c70810511acd6 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 d608ea81ec9e7345 config_journal.jsonl 140L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": 8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 32.0, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+===== 2026-10-02T07:41:05Z E6.dup SPOT-31593C  bm pub bmcam/cmd {"id":64154,"c":"set","kv":{"still.message_cap":500,"still.budget_min":30}} 1 1  (97 B line)
+CON  2026-10-02T07:41:07Z bm pub bmcam/cmd {"id":64154,"c":"set","kv":{"still.message_cap":500,"still.budget_min":30}} 1 1
+CON  2026-10-02T07:41:07Z 1790926867.746 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:07Z 1790926867.808 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:07Z 1790926867.855 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:07Z 1790926867.906 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:08Z 1790926867.957 e6fe83ea6b4a2b7f, [bmcam004] OK id=64154 still.message_cap: 195 -> 500, still.budget_min: 8 -> 30 (next action) (duplicate: original answer) cfg=dfb1d8f5
+SUMMARY cell=0 con=6
+----- 2026-10-02T07:41:16Z STATE E6.after bmcam004
+sha256 5b4c70810511acd6 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 d608ea81ec9e7345 config_journal.jsonl 140L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 64.0, "camera.exposure.enabled": true, "camera.exposure.ev": 8.0, "camera.exposure.shutter_us": 1, "camera.focus.lens_position": 32.0, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_hq", "camera.image_
+guarded {}
+boot 30 hw {"remote": 1000033, "service": 100000032} trg null cache 256
+===== 2026-10-02T07:41:17Z E8.never-set SPOT-31593C  bm pub bmcam/cmd {"id":64160,"c":"reset","k":["schedule.timezone"]} 1 1  (72 B line)
+CON  2026-10-02T07:41:18Z bm pub bmcam/cmd {"id":64160,"c":"reset","k":["schedule.timezone"]} 1 1
+CON  2026-10-02T07:41:19Z 1790926879.035 e6fe83ea6b4a2b7f, [bmcam004] OK id=64160 reset: nothing to reset cfg=dfb1d8f5
+CON  2026-10-02T07:41:19Z 1790926879.085 e6fe83ea6b4a2b7f, [bmcam004] OK id=64160 reset: nothing to reset (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:19Z 1790926879.132 e6fe83ea6b4a2b7f, [bmcam004] OK id=64160 reset: nothing to reset (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:19Z 1790926879.183 e6fe83ea6b4a2b7f, [bmcam004] OK id=64160 reset: nothing to reset (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:19Z 1790926879.234 e6fe83ea6b4a2b7f, [bmcam004] OK id=64160 reset: nothing to reset (duplicate: original answer) cfg=dfb1d8f5
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:41:27Z E3a SPOT-31593C  bm pub bmcam/cmd {"id":64161,"c":"set","kv":{"schedule.timezone":"America/Los_Angeles","schedule.window.enabled":false,"schedule.window.start":"00:00","schedule.window.end":"00:00","video.send.fps":10,"still.budget_min":8}} 1 1  (228 B line)
+CON  2026-10-02T07:41:28Z bm pub bmcam/cmd {"id":64161,"c":"set","kv":{"schedule.timezone":"America/Los_Angeles","schedule.window.enabled":false,"schedule.window.start":"00:00","schedule.window.end":"00:00","video.send.fps":1
+CON  2026-10-02T07:41:28Z 1790926888.382 e6fe83ea6b4a2b7f, [bmcam004] OK id=64161 schedule.window.enabled: true -> false (next action) cfg=6d4c05eb
+CON  2026-10-02T07:41:28Z 1790926888.441 e6fe83ea6b4a2b7f, [bmcam004] OK id=64161 schedule.window.enabled: true -> false (next action) (duplicate: original answer) cfg=6d4c05eb
+CON  2026-10-02T07:41:28Z 1790926888.492 e6fe83ea6b4a2b7f, [bmcam004] OK id=64161 schedule.window.enabled: true -> false (next action) (duplicate: original answer) cfg=6d4c05eb
+CON  2026-10-02T07:41:28Z 1790926888.542 e6fe83ea6b4a2b7f, [bmcam004] OK id=64161 schedule.window.enabled: true -> false (next action) (duplicate: original answer) cfg=6d4c05eb
+CON  2026-10-02T07:41:28Z 1790926888.593 e6fe83ea6b4a2b7f, [bmcam004] OK id=64161 schedule.window.enabled: true -> false (next action) (duplicate: original answer) cfg=6d4c05eb
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:41:36Z E3b SPOT-31593C  bm pub bmcam/cmd {"id":64162,"c":"set","kv":{"schedule.timezone":"America/Los_Angeles","schedule.window.enabled":false,"schedule.window.start":"00:00","schedule.window.end":"00:00","video.send.fps":10,"still.budget_min":8,"still.message_cap":195}} 1 1  (252 B line)
+CON  2026-10-02T07:41:37Z bm pub bmcam/cmd {"id":64162,"c":"set","kv":{"schedule.timezone":"America/Los_Angeles","schedule.window.enabled":false,"schedule.window.start":"00:00","schedule.window.end":"00:00","video.send.fps":1
+CON  2026-10-02T07:41:37Z 1790926897.500 e6fe83ea6b4a2b7f, [bmcam004] OK id=64162 no change (already in effect) (next action) cfg=6d4c05eb
+CON  2026-10-02T07:41:37Z 1790926897.550 e6fe83ea6b4a2b7f, [bmcam004] OK id=64162 no change (already in effect) (next action) (duplicate: original answer) cfg=6d4c05eb
+CON  2026-10-02T07:41:37Z 1790926897.613 e6fe83ea6b4a2b7f, [bmcam004] OK id=64162 no change (already in effect) (next action) (duplicate: original answer) cfg=6d4c05eb
+CON  2026-10-02T07:41:37Z 1790926897.660 e6fe83ea6b4a2b7f, [bmcam004] OK id=64162 no change (already in effect) (next action) (duplicate: original answer) cfg=6d4c05eb
+CON  2026-10-02T07:41:38Z 1790926897.871 e6fe83ea6b4a2b7f, [bmcam004] OK id=64162 no change (already in effect) (next action) (duplicate: original answer) cfg=6d4c05eb
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:41:58Z E3.reset SPOT-31593C  bm pub bmcam/cmd {"id":64163,"c":"reset","k":["schedule.window.enabled"]} 1 1  (78 B line)
+CON  2026-10-02T07:41:59Z bm pub bmcam/cmd {"id":64163,"c":"reset","k":["schedule.window.enabled"]} 1 1
+CON  2026-10-02T07:41:59Z 1790926919.398 e6fe83ea6b4a2b7f, [bmcam004] OK id=64163 reset schedule.window.enabled -> YAML cfg=dfb1d8f5
+CON  2026-10-02T07:41:59Z 1790926919.457 e6fe83ea6b4a2b7f, [bmcam004] OK id=64163 reset schedule.window.enabled -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:59Z 1790926919.507 e6fe83ea6b4a2b7f, [bmcam004] OK id=64163 reset schedule.window.enabled -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:59Z 1790926919.558 e6fe83ea6b4a2b7f, [bmcam004] OK id=64163 reset schedule.window.enabled -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:41:59Z 1790926919.609 e6fe83ea6b4a2b7f, [bmcam004] OK id=64163 reset schedule.window.enabled -> YAML (duplicate: original answer) cfg=dfb1d8f5
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:42:17Z E4.hb600 SPOT-31593C  bm pub bmcam/cmd {"id":64165,"c":"set","kv":{"mode.heartbeat_s":600}} 1 1  (74 B line)
+CON  2026-10-02T07:42:19Z bm pub bmcam/cmd {"id":64165,"c":"set","kv":{"mode.heartbeat_s":600}} 1 1
+CON  2026-10-02T07:42:20Z 1790926940.144 e6fe83ea6b4a2b7f, [bmcam004] OK id=64165 mode.heartbeat_s: 300 -> 600 (next boot) cfg=d1ac6f70
+CON  2026-10-02T07:42:20Z 1790926940.195 e6fe83ea6b4a2b7f, [bmcam004] OK id=64165 mode.heartbeat_s: 300 -> 600 (next boot) (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:42:20Z 1790926940.246 e6fe83ea6b4a2b7f, [bmcam004] OK id=64165 mode.heartbeat_s: 300 -> 600 (next boot) (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:42:20Z 1790926940.292 e6fe83ea6b4a2b7f, [bmcam004] OK id=64165 mode.heartbeat_s: 300 -> 600 (next boot) (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:42:20Z 1790926940.343 e6fe83ea6b4a2b7f, [bmcam004] OK id=64165 mode.heartbeat_s: 300 -> 600 (next boot) (duplicate: original answer) cfg=d1ac6f70
+SUMMARY cell=0 con=6
+===== 2026-10-02T07:42:22Z E10.ping-in-restart SPOT-31593C  bm pub bmcam/cmd {"id":64166,"c":"ping"} 1 1  (45 B line)
+CON  2026-10-02T07:42:23Z bm pub bmcam/cmd {"id":64166,"c":"ping"} 1 1
+SUMMARY cell=0 con=1
+===== 2026-10-02T07:43:16Z E10.ping-resend SPOT-31593C  bm pub bmcam/cmd {"id":64166,"c":"ping"} 1 1  (45 B line)
+CON  2026-10-02T07:43:19Z bm pub bmcam/cmd {"id":64166,"c":"ping"} 1 1
+CON  2026-10-02T07:43:19Z 1790926999.113 e6fe83ea6b4a2b7f, [bmcam004] OK id=64166 ping cfg=d1ac6f70
+CON  2026-10-02T07:43:19Z 1790926999.171 e6fe83ea6b4a2b7f, [bmcam004] OK id=64166 ping (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:43:19Z 1790926999.222 e6fe83ea6b4a2b7f, [bmcam004] OK id=64166 ping (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:43:19Z 1790926999.273 e6fe83ea6b4a2b7f, [bmcam004] OK id=64166 ping (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:43:19Z 1790926999.324 e6fe83ea6b4a2b7f, [bmcam004] OK id=64166 ping (duplicate: original answer) cfg=d1ac6f70
+CON  2026-10-02T07:43:19Z 1790926999.371 e6fe83ea6b4a2b7f, [bmcam004] OK id=64166 ping (duplicate: original answer) cfg=d1ac6f70
+SUMMARY cell=0 con=7
+===== 2026-10-02T07:43:27Z E4.hb300 SPOT-31593C  bm pub bmcam/cmd {"id":64167,"c":"reset","k":["mode.heartbeat_s"]} 1 1  (71 B line)
+CON  2026-10-02T07:43:28Z bm pub bmcam/cmd {"id":64167,"c":"reset","k":["mode.heartbeat_s"]} 1 1
+CON  2026-10-02T07:43:28Z 1790927008.460 e6fe83ea6b4a2b7f, [bmcam004] OK id=64167 reset mode.heartbeat_s -> YAML cfg=dfb1d8f5
+CON  2026-10-02T07:43:28Z 1790927008.523 e6fe83ea6b4a2b7f, [bmcam004] OK id=64167 reset mode.heartbeat_s -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:43:28Z 1790927008.570 e6fe83ea6b4a2b7f, [bmcam004] OK id=64167 reset mode.heartbeat_s -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:43:28Z 1790927008.621 e6fe83ea6b4a2b7f, [bmcam004] OK id=64167 reset mode.heartbeat_s -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:43:28Z 1790927008.671 e6fe83ea6b4a2b7f, [bmcam004] OK id=64167 reset mode.heartbeat_s -> YAML (duplicate: original answer) cfg=dfb1d8f5
+CON  2026-10-02T07:43:28Z 1790927008.722 e6fe83ea6b4a2b7f, [bmcam004] OK id=64167 reset mode.heartbeat_s -> YAML (duplicate: original answer) cfg=dfb1d8f5
+SUMMARY cell=0 con=7
+===== 2026-10-02T07:44:09Z R.64170 SPOT-31593C  bm pub bmcam/cmd {"id":64170,"c":"reset","k":["camera.controls_enabled","camera.exposure.analogue_gain","camera.exposure.enabled","camera.exposure.ev"]} 1 1  (157 B line)
+CON  2026-10-02T07:44:11Z bm pub bmcam/cmd {"id":64170,"c":"reset","k":["camera.controls_enabled","camera.exposure.analogue_gain","camera.exposure.enabled","camera.exposure.ev"]} 1 1
+CON  2026-10-02T07:44:11Z 1790927051.734 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML cfg=39a00b66
+CON  2026-10-02T07:44:11Z 1790927051.785 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML (duplicate: original answer) 
+CON  2026-10-02T07:44:11Z 1790927051.835 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML (duplicate: original answer) 
+CON  2026-10-02T07:44:11Z 1790927051.894 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML (duplicate: original answer) 
+CON  2026-10-02T07:44:11Z 1790927051.945 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML (duplicate: original answer) 
+CON  2026-10-02T07:44:12Z 1790927051.996 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML (duplicate: original answer) 
+CON  2026-10-02T07:44:12Z 1790927052.046 e6fe83ea6b4a2b7f, [bmcam004] OK id=64170 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAML (duplicate: original answer) 
+SUMMARY cell=0 con=8
+===== 2026-10-02T07:44:19Z R.64171 SPOT-31593C  bm pub bmcam/cmd {"id":64171,"c":"reset","k":["camera.exposure.shutter_us","camera.focus.lens_position","camera.focus.mode","camera.image_processing.enabled"]} 1 1  (164 B line)
+CON  2026-10-02T07:44:20Z bm pub bmcam/cmd {"id":64171,"c":"reset","k":["camera.exposure.shutter_us","camera.focus.lens_position","camera.focus.mode","camera.image_processing.enabled"]} 1 1
+CON  2026-10-02T07:44:20Z 1790927060.984 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML cfg=f74cd3b9
+CON  2026-10-02T07:44:21Z 1790927061.031 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML (duplicate: original a
+CON  2026-10-02T07:44:21Z 1790927061.082 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML (duplicate: original a
+CON  2026-10-02T07:44:21Z 1790927061.132 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML (duplicate: original a
+CON  2026-10-02T07:44:21Z 1790927061.183 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML (duplicate: original a
+CON  2026-10-02T07:44:21Z 1790927061.234 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML (duplicate: original a
+CON  2026-10-02T07:44:21Z 1790927061.292 e6fe83ea6b4a2b7f, [bmcam004] OK id=64171 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.enabled -> YAML (duplicate: original a
+SUMMARY cell=0 con=8
+===== 2026-10-02T07:44:29Z R.64172 SPOT-31593C  bm pub bmcam/cmd {"id":64172,"c":"reset","k":["camera.white_balance.enabled","camera.white_balance.gains","camera.white_balance.mode","schedule.timezone"]} 1 1  (160 B line)
+CON  2026-10-02T07:44:29Z bm pub bmcam/cmd {"id":64172,"c":"reset","k":["camera.white_balance.enabled","camera.white_balance.gains","camera.white_balance.mode","schedule.timezone"]} 1 1
+CON  2026-10-02T07:44:30Z 1790927070.222 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML cfg=45d43c52
+CON  2026-10-02T07:44:30Z 1790927070.281 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML (duplicate: original answe
+CON  2026-10-02T07:44:30Z 1790927070.332 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML (duplicate: original answe
+CON  2026-10-02T07:44:30Z 1790927070.382 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML (duplicate: original answe
+CON  2026-10-02T07:44:30Z 1790927070.433 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML (duplicate: original answe
+CON  2026-10-02T07:44:30Z 1790927070.480 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML (duplicate: original answe
+CON  2026-10-02T07:44:30Z 1790927070.531 e6fe83ea6b4a2b7f, [bmcam004] OK id=64172 reset camera.white_balance.enabled, camera.white_balance.gains, camera.white_balance.mode, schedule.timezone -> YAML (duplicate: original answe
+SUMMARY cell=0 con=8
+===== 2026-10-02T07:44:38Z R.64173 SPOT-31593C  bm pub bmcam/cmd {"id":64173,"c":"reset","k":["schedule.window.end","schedule.window.start","still.budget_min","still.crop"]} 1 1  (130 B line)
+CON  2026-10-02T07:44:39Z bm pub bmcam/cmd {"id":64173,"c":"reset","k":["schedule.window.end","schedule.window.start","still.budget_min","still.crop"]} 1 1
+CON  2026-10-02T07:44:39Z 1790927079.460 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML cfg=eee738c7
+CON  2026-10-02T07:44:39Z 1790927079.511 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML (duplicate: original answer) cfg=eee738c7
+CON  2026-10-02T07:44:39Z 1790927079.570 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML (duplicate: original answer) cfg=eee738c7
+CON  2026-10-02T07:44:39Z 1790927079.621 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML (duplicate: original answer) cfg=eee738c7
+CON  2026-10-02T07:44:39Z 1790927079.671 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML (duplicate: original answer) cfg=eee738c7
+CON  2026-10-02T07:44:39Z 1790927079.718 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML (duplicate: original answer) cfg=eee738c7
+CON  2026-10-02T07:44:39Z 1790927079.769 e6fe83ea6b4a2b7f, [bmcam004] OK id=64173 reset schedule.window.end, schedule.window.start, still.budget_min, still.crop -> YAML (duplicate: original answer) cfg=eee738c7
+SUMMARY cell=0 con=8
+===== 2026-10-02T07:44:47Z R.64174 SPOT-31593C  bm pub bmcam/cmd {"id":64174,"c":"reset","k":["still.message_cap","still.quality_ladder","video.record.bitrate_mbps","video.send.duration_s"]} 1 1  (147 B line)
+CON  2026-10-02T07:44:48Z bm pub bmcam/cmd {"id":64174,"c":"reset","k":["still.message_cap","still.quality_ladder","video.record.bitrate_mbps","video.send.duration_s"]} 1 1
+CON  2026-10-02T07:44:48Z 1790927088.707 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML cfg=12c8947f
+CON  2026-10-02T07:44:48Z 1790927088.757 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML (duplicate: original answer) cfg=12c894
+CON  2026-10-02T07:44:48Z 1790927088.808 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML (duplicate: original answer) cfg=12c894
+CON  2026-10-02T07:44:48Z 1790927088.867 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML (duplicate: original answer) cfg=12c894
+CON  2026-10-02T07:44:48Z 1790927088.917 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML (duplicate: original answer) cfg=12c894
+CON  2026-10-02T07:44:49Z 1790927088.968 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML (duplicate: original answer) cfg=12c894
+CON  2026-10-02T07:44:49Z 1790927089.019 e6fe83ea6b4a2b7f, [bmcam004] OK id=64174 reset still.message_cap, still.quality_ladder, video.record.bitrate_mbps, video.send.duration_s -> YAML (duplicate: original answer) cfg=12c894
+SUMMARY cell=0 con=8
+===== 2026-10-02T07:44:56Z R.64175 SPOT-31593C  bm pub bmcam/cmd {"id":64175,"c":"reset","k":["video.send.fps","video.send.size","mode.media"]} 1 1  (100 B line)
+CON  2026-10-02T07:44:57Z bm pub bmcam/cmd {"id":64175,"c":"reset","k":["video.send.fps","video.send.size","mode.media"]} 1 1
+CON  2026-10-02T07:44:57Z 1790927097.726 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML cfg=c2c105bb
+CON  2026-10-02T07:44:57Z 1790927097.777 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML (duplicate: original answer) cfg=c2c105bb
+CON  2026-10-02T07:44:57Z 1790927097.824 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML (duplicate: original answer) cfg=c2c105bb
+CON  2026-10-02T07:44:57Z 1790927097.875 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML (duplicate: original answer) cfg=c2c105bb
+CON  2026-10-02T07:44:57Z 1790927097.894 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML (duplicate: original answer) cfg=c2c105bb
+CON  2026-10-02T07:44:57Z 1790927097.945 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML (duplicate: original answer) cfg=c2c105bb
+CON  2026-10-02T07:44:58Z 1790927097.996 e6fe83ea6b4a2b7f, [bmcam004] OK id=64175 reset video.send.fps, video.send.size, mode.media -> YAML (duplicate: original answer) cfg=c2c105bb
+SUMMARY cell=0 con=8
+===== 2026-10-02T07:47:11Z B0.003 SPOT-33507C  bm pub bmcam/cmd {"id":54001,"c":"get","k":["mode.media","mode.run","video.record.framing","video.record.encoder.sharpness"],"to":"con"} 1 1  (141 B line)
+CON  2026-10-02T07:47:12Z bm pub bmcam/cmd {"id":54001,"c":"get","k":["mode.media","mode.run","video.record.framing","video.record.encoder.sharpness"],"to":"con"} 1 1
+CON  2026-10-02T07:47:12Z 1790927234.234 53171fa3d81a8e6f, [bmcam003] OK id=54001 get mode.media, mode.run, video.record.framing, video.record.encoder.sharpness: 4 key(s) cfg=f7c9194f
+CON  2026-10-02T07:47:12Z 1790927234.273 53171fa3d81a8e6f,   mode.media = video (yaml)
+CON  2026-10-02T07:47:12Z 1790927234.324 53171fa3d81a8e6f,   mode.run = stay_on (cmd 52101)
+CON  2026-10-02T07:47:12Z 1790927234.371 53171fa3d81a8e6f,   video.record.framing = wide_1080p_lean (yaml)
+CON  2026-10-02T07:47:12Z 1790927234.421 53171fa3d81a8e6f,   video.record.encoder.sharpness = 1.0 (yaml)
+CON  2026-10-02T07:47:12Z 1790927234.492 53171fa3d81a8e6f, [bmcam003] OK id=54001 get mode.media, mode.run, video.record.framing, video.record.encoder.sharpness: 4 key(s) (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T07:47:12Z 1790927234.542 53171fa3d81a8e6f, [bmcam003] OK id=54001 get mode.media, mode.run, video.record.framing, video.record.encoder.sharpness: 4 key(s) (duplicate: original answer) cfg=f7c9194f
+SUMMARY cell=0 con=8
+----- 2026-10-02T07:47:20Z STATE 003.L2-5.before bmcam003
+sha256 151b4a207d59f155 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 e24bc3cfe0f74fdd config_journal.jsonl 57L
+overlay {"mode.run": "stay_on"}
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 225
+===== 2026-10-02T07:47:22Z 003.L2-5.cmd SPOT-33507C  bm pub bmcam/cmd {"id":54002,"c":"set","kv":{"camera.controls_enabled":true,"camera.exposure.enabled":true,"camera.exposure.ev":-1.0,"camera.exposure.shutter_us":10000,"camera.exposure.analogue_gain":2.0}} 1 1  (210 B line)
+CON  2026-10-02T07:47:23Z bm pub bmcam/cmd {"id":54002,"c":"set","kv":{"camera.controls_enabled":true,"camera.exposure.enabled":true,"camera.exposure.ev":-1.0,"camera.exposure.shutter_us":10000,"camera.exposure.analogue_gain"
+CON  2026-10-02T07:47:24Z 1790927245.640 53171fa3d81a8e6f, [bmcam003] OK id=54002 camera.exposure.enabled: false -> true, camera.exposure.ev: none -> -1.0, camera.exposure.shutter_us: none -> 10000, camera.exposure.analogue_g
+CON  2026-10-02T07:47:24Z 1790927245.691 53171fa3d81a8e6f, [bmcam003] OK id=54002 camera.exposure.enabled: false -> true, camera.exposure.ev: none -> -1.0, camera.exposure.shutter_us: none -> 10000, cam (duplicate: original a
+CON  2026-10-02T07:47:24Z 1790927245.742 53171fa3d81a8e6f, [bmcam003] OK id=54002 camera.exposure.enabled: false -> true, camera.exposure.ev: none -> -1.0, camera.exposure.shutter_us: none -> 10000, cam (duplicate: original a
+SUMMARY cell=0 con=4
+----- 2026-10-02T07:47:31Z STATE 003.L2-5.after bmcam003
+sha256 24c5735124eeaa78 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 4a8e91b3d7f0475c config_journal.jsonl 62L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "mode.run": "stay_on"}
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 226
+STEP 003.L2-5 ack=OK action=none files=
+----- 2026-10-02T07:47:32Z STATE 003.L4b-5.before bmcam003
+sha256 24c5735124eeaa78 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 4a8e91b3d7f0475c config_journal.jsonl 62L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "mode.run": "stay_on"}
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 226
+===== 2026-10-02T07:47:33Z 003.L4b-5.cmd SPOT-33507C  bm pub bmcam/cmd {"id":54003,"c":"set","kv":{"camera.white_balance.enabled":true,"camera.white_balance.mode":"manual","camera.white_balance.gains":[1.8,1.6],"camera.focus.mode":"manual","camera.focus.lens_position":0.5}} 1 1  (225 B line)
+CON  2026-10-02T07:47:34Z bm pub bmcam/cmd {"id":54003,"c":"set","kv":{"camera.white_balance.enabled":true,"camera.white_balance.mode":"manual","camera.white_balance.gains":[1.8,1.6],"camera.focus.mode":"manual","camera.focus
+CON  2026-10-02T07:47:35Z 1790927256.640 53171fa3d81a8e6f, [bmcam003] OK id=54003 camera.white_balance.enabled: false -> true, camera.white_balance.mode: none -> manual, camera.white_balance.gains: none -> 1.8,1.6, camera.foc
+CON  2026-10-02T07:47:35Z 1790927256.691 53171fa3d81a8e6f, [bmcam003] OK id=54003 camera.white_balance.enabled: false -> true, camera.white_balance.mode: none -> manual, camera.white_balance.gains: none (duplicate: original a
+CON  2026-10-02T07:47:35Z 1790927256.738 53171fa3d81a8e6f, [bmcam003] OK id=54003 camera.white_balance.enabled: false -> true, camera.white_balance.mode: none -> manual, camera.white_balance.gains: none (duplicate: original a
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:47:43Z 003.L4b-5.trg SPOT-33507C  bm pub bmcam/cmd {"id":54004,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1  (78 B line)
+CON  2026-10-02T07:47:44Z bm pub bmcam/cmd {"id":54004,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CON  2026-10-02T07:47:44Z 1790927266.597 53171fa3d81a8e6f, [bmcam003] OK id=54004 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 cfg=2e83a43a
+CON  2026-10-02T07:47:44Z 1790927266.656 53171fa3d81a8e6f, [bmcam003] OK id=54004 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:47:45Z 1790927266.707 53171fa3d81a8e6f, [bmcam003] OK id=54004 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+SUMMARY cell=0 con=4
+----- 2026-10-02T07:49:08Z STATE 003.L4b-5.after bmcam003
+sha256 7db0e65d0f219f35 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 4ea212967f6807ba config_journal.jsonl 67L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.white_balance.enabled": true, "camera.white_bala
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 228
+STEP 003.L4b-5 ack=OK action=stage=None files=2026-10-02T07:47:53Z_image_compressed.jpg.capture_metadata.json 2026-10-02T07:47:53Z_image_native_full.metadata.json action.log 
+----- 2026-10-02T07:49:20Z STATE 003.L6.before bmcam003
+sha256 7db0e65d0f219f35 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 4ea212967f6807ba config_journal.jsonl 67L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.white_balance.enabled": true, "camera.white_bala
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 228
+===== 2026-10-02T07:49:22Z 003.L6.cmd SPOT-33507C  bm pub bmcam/cmd {"id":54005,"c":"set","kv":{"still.crop":[1904,1071,800,450]}} 1 1  (84 B line)
+CON  2026-10-02T07:49:23Z bm pub bmcam/cmd {"id":54005,"c":"set","kv":{"still.crop":[1904,1071,800,450]}} 1 1
+CON  2026-10-02T07:49:23Z 1790927365.300 53171fa3d81a8e6f, [bmcam003] OK id=54005 still.crop: 1504,846,1600,900 -> 1904,1071,800,450 (next action) cfg=b6c0e763
+CON  2026-10-02T07:49:23Z 1790927365.351 53171fa3d81a8e6f, [bmcam003] OK id=54005 still.crop: 1504,846,1600,900 -> 1904,1071,800,450 (next action) (duplicate: original answer) cfg=b6c0e763
+CON  2026-10-02T07:49:23Z 1790927365.398 53171fa3d81a8e6f, [bmcam003] OK id=54005 still.crop: 1504,846,1600,900 -> 1904,1071,800,450 (next action) (duplicate: original answer) cfg=b6c0e763
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:49:32Z 003.L6.trg SPOT-33507C  bm pub bmcam/cmd {"id":54006,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1  (78 B line)
+CON  2026-10-02T07:49:33Z bm pub bmcam/cmd {"id":54006,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CON  2026-10-02T07:49:33Z 1790927375.070 53171fa3d81a8e6f, [bmcam003] OK id=54006 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 cfg=b6c0e763
+CON  2026-10-02T07:49:33Z 1790927375.117 53171fa3d81a8e6f, [bmcam003] OK id=54006 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:49:33Z 1790927375.167 53171fa3d81a8e6f, [bmcam003] OK id=54006 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CELL 2026-10-02T07:49:33Z len=135 <WS v=1 a=cap cfg=b6c0e763 up=5895 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=800x450 q=90 ct=36.5 sha=91a08f624011 hn=bmcam003>
+
+CELL 2026-10-02T07:49:38Z len=283 <START IMG> filename: 2026-10-02T07:49:33Z_image_compressed.jpg, timestamp: 2026-10-02T07:49:38Z, length: 39, key=0e40en, cfg=b6c0e763, tg=54006, r=800x450+1904+1071, m=40, fmt=pjpg, q=70, att=3, cmp=1, rk=800x450, ws=0000, we=0000, sha=91a08f624011, hn=bmcam003, sf=24724, sp=74.9
+
+SUMMARY cell=2 con=4
+----- 2026-10-02T07:50:43Z STATE 003.L6.after bmcam003
+sha256 855da3570f82a57a bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 b0131ccf642756c0 config_journal.jsonl 68L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.white_balance.enabled": true, "camera.white_bala
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 230
+STEP 003.L6 ack=OK action=stage=None files=2026-10-02T07:49:33Z_image_compressed.jpg.capture_metadata.json action.log 
+----- 2026-10-02T07:50:44Z STATE 003.L8.before bmcam003
+sha256 855da3570f82a57a bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 b0131ccf642756c0 config_journal.jsonl 68L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.white_balance.enabled": true, "camera.white_bala
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 230
+===== 2026-10-02T07:50:45Z 003.L8.cmd SPOT-33507C  bm pub bmcam/cmd {"id":54007,"c":"set","kv":{"video.record.framing":"wide_720p"}} 1 1  (86 B line)
+CON  2026-10-02T07:50:46Z bm pub bmcam/cmd {"id":54007,"c":"set","kv":{"video.record.framing":"wide_720p"}} 1 1
+CON  2026-10-02T07:50:46Z 1790927448.304 53171fa3d81a8e6f, [bmcam003] OK id=54007 video.record.framing: wide_1080p_lean -> wide_720p (next action) cfg=403a251f
+CON  2026-10-02T07:50:46Z 1790927448.355 53171fa3d81a8e6f, [bmcam003] OK id=54007 video.record.framing: wide_1080p_lean -> wide_720p (next action) (duplicate: original answer) cfg=403a251f
+CON  2026-10-02T07:50:46Z 1790927448.562 53171fa3d81a8e6f, [bmcam003] OK id=54007 video.record.framing: wide_1080p_lean -> wide_720p (next action) (duplicate: original answer) cfg=403a251f
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:50:55Z 003.L8.trg SPOT-33507C  bm pub bmcam/cmd {"id":54008,"c":"trg","v":2,"kv":{"m":80}} 1 1  (64 B line)
+CON  2026-10-02T07:50:56Z bm pub bmcam/cmd {"id":54008,"c":"trg","v":2,"kv":{"m":80}} 1 1
+CON  2026-10-02T07:50:56Z 1790927457.824 53171fa3d81a8e6f, [bmcam003] OK id=54008 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 cfg=403a251f
+CON  2026-10-02T07:50:56Z 1790927457.882 53171fa3d81a8e6f, [bmcam003] OK id=54008 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=403a2
+CON  2026-10-02T07:50:56Z 1790927457.933 53171fa3d81a8e6f, [bmcam003] OK id=54008 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=403a2
+SUMMARY cell=0 con=4
+----- 2026-10-02T07:54:03Z STATE 003.L8.after bmcam003
+sha256 ad59c3671dd978e7 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 cf96a820f4afc890 config_journal.jsonl 69L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.white_balance.enabled": true, "camera.white_bala
+guarded {}
+boot 26 hw {"remote": 1000000, "service": 100000021} trg null cache 232
+STEP 003.L8 ack=OK action=stage=done files=action.log 
+===== 2026-10-02T07:54:04Z 003.reset.framing SPOT-33507C  bm pub bmcam/cmd {"id":54009,"c":"reset","k":["video.record.framing"]} 1 1  (75 B line)
+CON  2026-10-02T07:54:05Z bm pub bmcam/cmd {"id":54009,"c":"reset","k":["video.record.framing"]} 1 1
+CON  2026-10-02T07:54:05Z 1790927647.308 53171fa3d81a8e6f, [bmcam003] OK id=54009 reset video.record.framing -> YAML cfg=b6c0e763
+CON  2026-10-02T07:54:05Z 1790927647.371 53171fa3d81a8e6f, [bmcam003] OK id=54009 reset video.record.framing -> YAML (duplicate: original answer) cfg=b6c0e763
+CON  2026-10-02T07:54:05Z 1790927647.421 53171fa3d81a8e6f, [bmcam003] OK id=54009 reset video.record.framing -> YAML (duplicate: original answer) cfg=b6c0e763
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:54:13Z 003.N1 SPOT-33507C  bm pub bmcam/cmd {"id":54010,"c":"set","kv":{"video.record.fps":30}} 1 1  (73 B line)
+CON  2026-10-02T07:54:14Z bm pub bmcam/cmd {"id":54010,"c":"set","kv":{"video.record.fps":30}} 1 1
+CON  2026-10-02T07:54:15Z 1790927656.742 53171fa3d81a8e6f, [bmcam003] REJECTED id=54010 video recording geometry does not resolve: GeometryError: video.fps 30 at 1920x1080 is blocked: 1080p30 aborted on encoder teardown (rc=1
+CON  2026-10-02T07:54:15Z 1790927656.777 53171fa3d81a8e6f, [bmcam003] REJECTED id=54010 (duplicate: original answer) e=xk k=video.record.fps cfg=b6c0e763
+CON  2026-10-02T07:54:15Z 1790927656.828 53171fa3d81a8e6f, [bmcam003] REJECTED id=54010 (duplicate: original answer) e=xk k=video.record.fps cfg=b6c0e763
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:54:23Z 003.N2 SPOT-33507C  bm pub bmcam/cmd {"id":54011,"c":"set","kv":{"video.record.sensor_mode":"1536x864"}} 1 1  (89 B line)
+CON  2026-10-02T07:54:24Z bm pub bmcam/cmd {"id":54011,"c":"set","kv":{"video.record.sensor_mode":"1536x864"}} 1 1
+CON  2026-10-02T07:54:24Z 1790927665.929 53171fa3d81a8e6f, [bmcam003] REJECTED id=54011 video recording geometry does not resolve: GeometryError: crop (0, 0, 4608, 2592) (native px) falls outside sensor mode 1536x864's field 
+CON  2026-10-02T07:54:24Z 1790927665.968 53171fa3d81a8e6f, [bmcam003] REJECTED id=54011 (duplicate: original answer) e=xk k=video.record.sensor_mode cfg=b6c0e763
+CON  2026-10-02T07:54:24Z 1790927666.019 53171fa3d81a8e6f, [bmcam003] REJECTED id=54011 (duplicate: original answer) e=xk k=video.record.sensor_mode cfg=b6c0e763
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:54:32Z 003.N3 SPOT-33507C  bm pub bmcam/cmd {"id":54012,"c":"set","kv":{"video.send.size":"481x271"}} 1 1  (79 B line)
+CON  2026-10-02T07:54:33Z bm pub bmcam/cmd {"id":54012,"c":"set","kv":{"video.send.size":"481x271"}} 1 1
+CON  2026-10-02T07:54:33Z 1790927675.097 53171fa3d81a8e6f, [bmcam003] REJECTED id=54012 video.send.size 481x271 must be even and at least 16x16 e=xk k=video.send.size cfg=b6c0e763
+CON  2026-10-02T07:54:33Z 1790927675.148 53171fa3d81a8e6f, [bmcam003] REJECTED id=54012 (duplicate: original answer) e=xk k=video.send.size cfg=b6c0e763
+CON  2026-10-02T07:54:33Z 1790927675.195 53171fa3d81a8e6f, [bmcam003] REJECTED id=54012 (duplicate: original answer) e=xk k=video.send.size cfg=b6c0e763
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:54:41Z 003.N4 SPOT-33507C  bm pub bmcam/cmd {"id":54013,"c":"set","kv":{"video.record.framing":"stills_roi_1000p","video.send.size":"1280x720"}} 1 1  (122 B line)
+CON  2026-10-02T07:54:42Z bm pub bmcam/cmd {"id":54013,"c":"set","kv":{"video.record.framing":"stills_roi_1000p","video.send.size":"1280x720"}} 1 1
+CON  2026-10-02T07:54:42Z 1790927684.296 53171fa3d81a8e6f, [bmcam003] REJECTED id=54013 video.send.size 1280x720 is larger than the recording 1000x562 (the clip fit refuses to upscale) e=xk k=video.send.size cfg=b6c0e763
+CON  2026-10-02T07:54:42Z 1790927684.335 53171fa3d81a8e6f, [bmcam003] REJECTED id=54013 (duplicate: original answer) e=xk k=video.send.size cfg=b6c0e763
+CON  2026-10-02T07:54:42Z 1790927684.382 53171fa3d81a8e6f, [bmcam003] REJECTED id=54013 (duplicate: original answer) e=xk k=video.send.size cfg=b6c0e763
+SUMMARY cell=0 con=4
+===== 2026-10-02T07:55:06Z 003.IP SPOT-33507C  bm pub bmcam/cmd {"id":1000001,"c":"set","kv":{"camera.image_processing.enabled":true,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":"sensor"}} 1 1  (176 B line)
+CON  2026-10-02T07:55:07Z bm pub bmcam/cmd {"id":1000001,"c":"set","kv":{"camera.image_processing.enabled":true,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":"sensor"}} 1 1
+CELL 2026-10-02T07:55:07Z len=37 {"id":1000001,"ok":1,"h":"4e97d2ae"}
+CON  2026-10-02T07:55:07Z Message: 1790927709.339 53171fa3d81a8e6f, [bmcam003] OK id=1000001 camera.image_processing.enabled: false -> true, camera.image_processing.denoise: none -> cdn_fast, camera.image_processing.hdr: none
+CON  2026-10-02T07:55:07Z 1790927709.390 53171fa3d81a8e6f, [bmcam003] OK id=1000001 camera.image_processing.enabled: false -> true, camera.image_processing.denoise: none -> cdn_fast, camera.image_processi (duplicate: original
+CON  2026-10-02T07:55:07Z 1790927709.441 53171fa3d81a8e6f, [bmcam003] OK id=1000001 camera.image_processing.enabled: false -> true, camera.image_processing.denoise: none -> cdn_fast, camera.image_processi (duplicate: original
+CELL 2026-10-02T07:55:08Z len=157 <CF v=1 h=4e97d2ae camera.image_processing.enabled=1@c1000001 camera.image_processing.denoise=cdn_fast@c1000001 camera.image_processing.hdr=sensor@c1000001>
+SUMMARY cell=2 con=4
+----- 2026-10-02T07:55:16Z STATE 003.IP.cap.before bmcam003
+sha256 5e298a760bb88730 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 999618ae2dff68ab config_journal.jsonl 74L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_fast", "camera.i
+guarded {}
+boot 26 hw {"remote": 1000001, "service": 100000021} trg null cache 238
+===== 2026-10-02T07:55:19Z 003.IP.cap.trg SPOT-33507C  bm pub bmcam/cmd {"id":54020,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1  (78 B line)
+CON  2026-10-02T07:55:20Z bm pub bmcam/cmd {"id":54020,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CON  2026-10-02T07:55:20Z 1790927722.117 53171fa3d81a8e6f, [bmcam003] OK id=54020 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 cfg=4e97d2ae
+CON  2026-10-02T07:55:20Z 1790927722.167 53171fa3d81a8e6f, [bmcam003] OK id=54020 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CON  2026-10-02T07:55:20Z 1790927722.218 53171fa3d81a8e6f, [bmcam003] OK id=54020 trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=40 (duplicate: original answ
+CELL 2026-10-02T07:55:23Z len=135 <WS v=1 a=cap cfg=4e97d2ae up=6245 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=800x450 q=90 ct=35.9 sha=91a08f624011 hn=bmcam003>
+
+SUMMARY cell=1 con=4
+----- 2026-10-02T07:56:32Z STATE 003.IP.cap.after bmcam003
+sha256 e9d85c8de40a0af7 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 999618ae2dff68ab config_journal.jsonl 74L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_fast", "camera.i
+guarded {}
+boot 26 hw {"remote": 1000001, "service": 100000021} trg null cache 239
+STEP 003.IP.cap ack=none action=stage=None files=2026-10-02T07:55:23Z_image_compressed.jpg.capture_metadata.json 2026-10-02T07:55:23Z_image_native_full.metadata.json action.log 
+----- 2026-10-02T07:56:33Z STATE 003.IP.clip.before bmcam003
+sha256 e9d85c8de40a0af7 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 999618ae2dff68ab config_journal.jsonl 74L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_fast", "camera.i
+guarded {}
+boot 26 hw {"remote": 1000001, "service": 100000021} trg null cache 239
+===== 2026-10-02T07:56:35Z 003.IP.clip.trg SPOT-33507C  bm pub bmcam/cmd {"id":54021,"c":"trg","v":2,"kv":{"m":80}} 1 1  (64 B line)
+CON  2026-10-02T07:56:36Z bm pub bmcam/cmd {"id":54021,"c":"trg","v":2,"kv":{"m":80}} 1 1
+CON  2026-10-02T07:56:36Z 1790927798.015 53171fa3d81a8e6f, [bmcam003] OK id=54021 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 cfg=4e97d2ae
+CON  2026-10-02T07:56:36Z 1790927798.074 53171fa3d81a8e6f, [bmcam003] OK id=54021 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=4e97d
+CON  2026-10-02T07:56:36Z 1790927798.125 53171fa3d81a8e6f, [bmcam003] OK id=54021 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 (duplicate: original answer) cfg=4e97d
+SUMMARY cell=0 con=4
+----- 2026-10-02T07:59:45Z STATE 003.IP.clip.after bmcam003
+sha256 ecb96b1900f40fa1 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 999618ae2dff68ab config_journal.jsonl 74L
+overlay {"camera.controls_enabled": true, "camera.exposure.analogue_gain": 2.0, "camera.exposure.enabled": true, "camera.exposure.ev": -1.0, "camera.exposure.shutter_us": 10000, "camera.focus.lens_position": 0.5, "camera.focus.mode": "manual", "camera.image_processing.denoise": "cdn_fast", "camera.i
+guarded {}
+boot 26 hw {"remote": 1000001, "service": 100000021} trg null cache 240
+STEP 003.IP.clip ack=none action=stage=done files=action.log 
+===== 2026-10-02T08:04:43Z E2.crop-out SPOT-31593C  bm pub bmcam/cmd {"id":64180,"c":"set","kv":{"still.crop":[4000,0,800,450]}} 1 1  (81 B line)
+CON  2026-10-02T08:04:46Z bm pub bmcam/cmd {"id":64180,"c":"set","kv":{"still.crop":[4000,0,800,450]}} 1 1
+CON  2026-10-02T08:04:46Z 1790928286.503 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 [4000, 0, 800, 450] does not fit the native frame 4608x2592 e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.554 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.601 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.652 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.703 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.753 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.804 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:46Z 1790928286.871 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64180 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+SUMMARY cell=0 con=9
+===== 2026-10-02T08:04:54Z E2.crop-out2 SPOT-31593C  bm pub bmcam/cmd {"id":64181,"c":"set","kv":{"still.crop":[0,0,4609,2592]}} 1 1  (80 B line)
+CON  2026-10-02T08:04:55Z bm pub bmcam/cmd {"id":64181,"c":"set","kv":{"still.crop":[0,0,4609,2592]}} 1 1
+CON  2026-10-02T08:04:55Z 1790928295.582 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 [0, 0, 4609, 2592] does not fit the native frame 4608x2592 e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.632 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.683 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.734 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.785 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.832 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.882 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+CON  2026-10-02T08:04:55Z 1790928295.933 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64181 (duplicate: original answer) e=xk k=still.crop cfg=f7c9194f
+SUMMARY cell=0 con=9
+===== 2026-10-02T08:05:03Z E2.vcrop-out SPOT-31593C  bm pub bmcam/cmd {"id":64182,"c":"set","kv":{"video.record.crop":[4000,0,800,450],"video.record.output":"800x450"}} 1 1  (120 B line)
+CON  2026-10-02T08:05:04Z bm pub bmcam/cmd {"id":64182,"c":"set","kv":{"video.record.crop":[4000,0,800,450],"video.record.output":"800x450"}} 1 1
+CON  2026-10-02T08:05:04Z 1790928305.062 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 [4000, 0, 800, 450] does not fit the native frame 4608x2592 e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.109 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.160 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.210 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.269 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.320 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.371 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+CON  2026-10-02T08:05:05Z 1790928305.582 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64182 (duplicate: original answer) e=xk k=video.record.crop cfg=f7c9194f
+SUMMARY cell=0 con=9
+===== 2026-10-02T08:05:13Z E2.ev-out SPOT-31593C  bm pub bmcam/cmd {"id":64183,"c":"set","kv":{"camera.exposure.ev":8.01}} 1 1  (77 B line)
+CON  2026-10-02T08:05:14Z bm pub bmcam/cmd {"id":64183,"c":"set","kv":{"camera.exposure.ev":8.01}} 1 1
+CON  2026-10-02T08:05:14Z 1790928314.289 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 must be in -8.0..8.0 e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.339 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.390 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.437 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.488 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.539 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.750 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+CON  2026-10-02T08:05:14Z 1790928314.800 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64183 (duplicate: original answer) e=val k=camera.exposure.ev cfg=f7c9194f
+SUMMARY cell=0 con=9
+===== 2026-10-02T08:05:22Z E2.gain-out SPOT-31593C  bm pub bmcam/cmd {"id":64184,"c":"set","kv":{"camera.exposure.analogue_gain":64.1}} 1 1  (88 B line)
+CON  2026-10-02T08:05:23Z bm pub bmcam/cmd {"id":64184,"c":"set","kv":{"camera.exposure.analogue_gain":64.1}} 1 1
+CON  2026-10-02T08:05:23Z 1790928323.714 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 must be in 0.0..64.0 e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:23Z 1790928323.765 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:23Z 1790928323.816 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:23Z 1790928323.867 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:23Z 1790928323.925 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:24Z 1790928323.976 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:24Z 1790928324.027 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+CON  2026-10-02T08:05:24Z 1790928324.078 e6fe83ea6b4a2b7f, [bmcam004] REJECTED id=64184 (duplicate: original answer) e=val k=camera.exposure.analogue_gain cfg=f7c9194f
+SUMMARY cell=0 con=9
+===== 2026-10-02T08:05:31Z E2.cap-out SPOT-31593C  bm pub bmcam/cmd {"id":64185,"c":"set","kv":{"still.message_cap":501}} 1 1  (75 B line)
+CON  2026-10-02T08:05:32Z bm pub bmcam/cmd {"id":64185,"c":"set","kv":{"still.message_cap":501}} 1 1
+CON  2026-10-02T08:05:32Z 1790928332.785 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) cfg=4e9e4995
+CON  2026-10-02T08:05:32Z 1790928332.835 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+CON  2026-10-02T08:05:32Z 1790928332.882 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+CON  2026-10-02T08:05:32Z 1790928332.933 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+CON  2026-10-02T08:05:32Z 1790928332.984 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+CON  2026-10-02T08:05:33Z 1790928333.035 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+CON  2026-10-02T08:05:33Z 1790928333.253 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+CON  2026-10-02T08:05:33Z 1790928333.304 e6fe83ea6b4a2b7f, [bmcam004] OK id=64185 still.message_cap: 195 -> 501 (next action) (duplicate: original answer) cfg=4e9e4995
+SUMMARY cell=0 con=9
+===== 2026-10-02T08:05:52Z E2.cap-reset SPOT-31593C  bm pub bmcam/cmd {"id":64186,"c":"reset","k":["still.message_cap"]} 1 1  (72 B line)
+CON  2026-10-02T08:05:53Z bm pub bmcam/cmd {"id":64186,"c":"reset","k":["still.message_cap"]} 1 1
+CON  2026-10-02T08:05:54Z 1790928354.210 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.261 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.312 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.363 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.421 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.472 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.519 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+CON  2026-10-02T08:05:54Z 1790928354.570 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
+SUMMARY cell=0 con=9

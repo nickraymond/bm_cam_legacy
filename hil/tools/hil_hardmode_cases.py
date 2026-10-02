@@ -29,7 +29,8 @@ Sources of the expectation (in order; the first refusal wins)
   1. tier != control                          -> refuse not_writable
   2. catalog selftest vector says invalid     -> refuse bad_value  (the unit's own check_value)
   3. limits.max / max_each / max_items        -> refuse over_limit
-  4. backend-only single-key rules (SPEC §3.3): wxh even and >= 16 px; interval/heartbeat
+  1b. catalog blocked_values (e.g. mode.output save_local, "" enums) -> refuse blocked_value
+  4. backend-only single-key rules (SPEC §3.3): video.send.size even and >= 16 px; interval/heartbeat
      1..59 s                                  -> refuse cross_key/bad_value
   5. keys in a cross-key rule (video geometry, video.send.size vs record output, mode.run,
      mode.media, white_balance.mode manual, crops vs native frame) -> depends
@@ -141,6 +142,9 @@ def expect_for(k, value, selftest_valid):
     path, tier, lim = k["path"], k["tier"], k.get("limits") or {}
     if tier != "control":
         return "refuse", "not_writable", f"tier={tier}"
+    for b in k.get("blocked_values") or []:
+        if b.get("value") == value and type(b.get("value")) is type(value):
+            return "refuse", "blocked_value", f"catalog blocked_values: {str(b.get('why'))[:60]}"
     if selftest_valid is None:
         selftest_valid = basic_check(k, value)
         src = "type/range model"
@@ -155,7 +159,7 @@ def expect_for(k, value, selftest_valid):
             return "refuse", "over_limit", f"limits.max_each {lim['max_each']}"
         if "max_items" in lim and len(value) > lim["max_items"]:
             return "refuse", "over_limit", f"limits.max_items {lim['max_items']}"
-    if k["type"] == "wxh" and wxh_backend_ok(value) is False:
+    if path == "video.send.size" and wxh_backend_ok(value) is False:
         return "refuse", "cross_key", "SPEC §3.3 wxh even and >= 16 px"
     if path in INTERVAL_KEYS and isinstance(value, int) and not isinstance(value, bool) and 0 < value < 60:
         return "refuse", "cross_key", "SPEC §3.3 interval/heartbeat 0 or >= 60"
