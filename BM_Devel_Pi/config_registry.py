@@ -211,7 +211,8 @@ KEYS = (
               "incandescent", "custom", "manual"),
         v1_sources=(_V1_WB + ".mode",), wire_visible=True,
         presets=(("auto", "auto"), ("daylight", "daylight"), ("cloudy", "cloudy"))),
-    Key("camera.white_balance.gains", GAINS, None, "Manual [red, blue] gains.", nullable=True,
+    Key("camera.white_balance.gains", GAINS, None, "Manual [red, blue] gains (each 0..8).",
+        nullable=True, range=(0.0, 8.0),
         v1_sources=(_V1_WB + ".red_gain", _V1_WB + ".blue_gain")),
     Key("camera.exposure.enabled", BOOL, False, "Pass exposure controls.",
         v1_sources=(_V1_EXP + ".enabled",)),
@@ -272,10 +273,10 @@ KEYS = (
     Key("still.save.quality", INT, 85, "save_local: JPEG quality of the saved crop (the "
         "native is kept too). 1..95.", range=(1, 95), validate_when=_MEDIA_STILL,
         presets=(("85 default", 85), ("75", 75), ("95", 95))),
-    Key("still.message_cap", INT, 195, "Most messages one still may use.", range=(1, 2000),
+    Key("still.message_cap", INT, 195, "Most messages one still may use.", range=(1, 500),
         v1_sources=("progressive_jpeg.message_cap",), validate_when=_MEDIA_STILL,
         presets=(("195 default", 195), ("100", 100), ("150", 150), ("250", 250), ("300", 300))),
-    Key("still.budget_min", INT, 18, "Cycle budget for a still action (min).", range=(1, 240),
+    Key("still.budget_min", INT, 18, "Cycle budget for a still action (min).", range=(1, 30),
         v1_sources=("progressive_jpeg.max_run_time_min",), validate_when=_MEDIA_STILL,
         presets=(("12 min", 12), ("5 min", 5), ("8 min", 8), ("16 min", 16))),
 
@@ -313,7 +314,7 @@ KEYS = (
         range=(0.0, 10.0), v1_sources=("video_tx.lead_in_s",), validate_when=_MEDIA_VIDEO),
     Key("video.send.fps", INT, 10, "Sent frame rate.", range=(1, 30),
         v1_sources=("video_tx.fps",), wire_visible=True, validate_when=_MEDIA_VIDEO),
-    Key("video.send.message_cap", INT, 126, "Most messages one clip may use.", range=(8, 1000),
+    Key("video.send.message_cap", INT, 126, "Most messages one clip may use.", range=(8, 500),
         v1_sources=("video_tx.message_cap",), validate_when=_MEDIA_VIDEO),
     Key("video.send.keyframe_repeat_max", INT, 30, "Keyframe repeats after the clip.",
         range=(1, 200), v1_sources=("video_tx.keyframe_repeat_max",),
@@ -324,7 +325,7 @@ KEYS = (
         enum=("ultrafast", "superfast", "veryfast", "faster", "fast", "medium"),
         v1_sources=("video_tx.preset",), validate_when=_MEDIA_VIDEO),
     Key("video.send.budget_min", INT, 18, "Cycle budget for a video action (min).",
-        range=(1, 240), v1_sources=("progressive_jpeg.max_run_time_min",),
+        range=(1, 30), v1_sources=("progressive_jpeg.max_run_time_min",),
         validate_when=_MEDIA_VIDEO),
 
     # ---- video: continuous recorder (N5), storage, recorder UI --------------
@@ -482,6 +483,11 @@ ONE_SHOT = tuple(k.path for k in KEYS if (
     "video.send.fps", "video.send.x264_preset",
     "video.record.fps", "video.record.bitrate_mbps",
     "mode.media", "mode.output"))
+
+# Sprint27 F-G3-8 (Nick 2026-10-02): the registry RANGE is THE limit, everywhere: the unit
+# (set / boot / deploy), the backend and the UI read it from here (catalog). still / video
+# message_cap 1..500 / 8..500, budgets 1..30 min, WB gains each 0..8. Warning thresholds (not
+# limits) live in tools/gen_config_catalog.py LIMITS.
 
 # Registry defaults that deliberately differ from v1 absent-key behaviour.
 DEFAULT_EXCEPTIONS = {
@@ -680,6 +686,8 @@ def check_value(key, value):
         if (not isinstance(value, list) or len(value) != 2
                 or not all(_is_num(v) and math.isfinite(v) and v > 0 for v in value)):
             return "must be [red, blue], both > 0"
+        if key.range and not all(key.range[0] < v <= key.range[1] for v in value):
+            return f"must be [red, blue], each in {key.range[0]}..{key.range[1]} (> {key.range[0]})"
     elif t == BOOL_OR_STR:
         if not isinstance(value, (bool, str)):
             return "must be true/false or a string"

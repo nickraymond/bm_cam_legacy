@@ -110,9 +110,18 @@ YAML value. Any SSH needed = FAIL.
 
 ## F-G3-4 — retired encoder knobs (Nick 2026-10-02; after the F-G3-4 bm PR is on the unit)
 
-Deploy note: `deploy_rc_runtime.sh` refuses this change unless `--accept-print-config-diff` is
-given. That is intended: the `[VID] encoder knobs:` line loses denoise / sharpness. Every unit's
-config hash changes (the registry lost 2 keys): run `/refresh` after the deploy (L1b).
+Notes accepted by Nick (2026-10-02):
+1. **Hash change.** Every unit's config hash changes (the registry lost 2 keys). Run `/refresh`
+   after the deploy (L1b), or the backend checks see only partial values.
+2. **Gating.** A moved value takes effect only while `camera.controls_enabled` AND
+   `camera.image_processing.enabled` are true. The old encoder knob always applied. 003/004 see no
+   change: sharpness 1.0 is neutral, denoise '' is unset.
+
+Deploy: `deploy_rc_runtime.sh` refuses this change unless `--accept-print-config-diff` is given.
+That is intended: the `[VID] encoder knobs:` line loses denoise / sharpness.
+
+F-G3-8 (same PR): message caps are now 1..500 / 8..500, budgets 1..30 and WB gains ≤ 8 on the unit
+itself. M4b: a console `set` of `still.message_cap: 600` → `e:val`.
 
 | # | step | pass |
 |---|---|---|

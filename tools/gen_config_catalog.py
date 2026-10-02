@@ -121,18 +121,15 @@ BLOCKED_VALUES = {
     "mode.output": (("save_local", "guarded: needs the cfm flow (Next sprint)"),),
 }
 
-# Backend-only clamps tighter than the registry: cellular cost and battery.
-# `max` is refused above, `warn_above` warns. Decided by Nick 2026-10-01 (SPEC Q7):
-# message caps warn > 300 / refuse > 500 (still AND video); budgets warn > 18 /
-# refuse > 30 min; WB gains refuse > 8.0 each.
+# WARNING thresholds only (Sprint27 F-G3-8, Nick 2026-10-02): the hard limit is the registry
+# RANGE, the one source the unit, the backend and the UI all read (config_registry: message
+# caps ..500, budgets ..30 min, WB gains ..8). Nothing here may refuse a value; a test pins
+# every warn_above below its key's range max.
 LIMITS = {
-    "still.message_cap": {"max": 500, "warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
-    "video.send.message_cap": {"max": 500, "warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
-    "still.budget_min": {"max": 30, "warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
-    "video.send.budget_min": {"max": 30, "warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
-    "camera.white_balance.gains": {"max_each": 8.0,
-                                   "why": "no registry upper bound; the gains go straight into "
-                                          "rpicam argv (Nick 2026-10-01)"},
+    "still.message_cap": {"warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
+    "video.send.message_cap": {"warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
+    "still.budget_min": {"warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
+    "video.send.budget_min": {"warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
     "mode.interval_s": {"warn_below": 600, "why": "below 10 min a stay_on unit is near-continuous "
                                                   "on cellular"},
     "mode.heartbeat_s": {"warn_below": 600, "why": "below 10 min a stay_on unit is near-continuous "

@@ -96,6 +96,25 @@ class Catalog(unittest.TestCase):
         for d in basic:
             self.assertEqual(d["tier"], "control", d["path"])
 
+    def test_registry_range_is_the_only_hard_limit(self):
+        """F-G3-8 (Nick 2026-10-02): one source of truth. The catalog never adds its own max;
+        every warning threshold sits inside the key's registry range."""
+        cat = json.loads(_load())
+        for doc in cat["keys"]:
+            lim = doc["limits"] or {}
+            self.assertFalse({"max", "max_each"} & set(lim), doc["path"])
+            if "warn_above" in lim:
+                self.assertLess(lim["warn_above"], doc["range"][1], doc["path"])
+        by = {d["path"]: d for d in cat["keys"]}
+        self.assertEqual(by["still.message_cap"]["range"], [1, 500])
+        self.assertEqual(by["video.send.message_cap"]["range"], [8, 500])
+        self.assertEqual(by["still.budget_min"]["range"], [1, 30])
+        self.assertEqual(by["video.send.budget_min"]["range"], [1, 30])
+        self.assertEqual(by["camera.white_balance.gains"]["range"], [0.0, 8.0])
+        gains = R.BY_PATH["camera.white_balance.gains"]
+        self.assertIsNone(R.check_value(gains, [8.0, 1.5]))
+        self.assertIsNotNone(R.check_value(gains, [8.5, 1.5]))
+
     def test_geometry_vectors_match_the_unit_rule(self):
         import config_validate as V
         cat = json.loads(_load())

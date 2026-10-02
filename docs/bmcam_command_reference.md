@@ -168,7 +168,7 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `camera.focus.speed` | enum | null | normal / fast | next_action |  | Autofocus speed. |  |
 | `camera.white_balance.enabled` | bool | false | bool | next_action |  | Pass white-balance controls. |  |
 | `camera.white_balance.mode` (b) | enum | null | auto / daylight / cloudy / indoor / fluorescent / tungsten / incandescent / custom / manual | next_action |  | AWB mode (manual = use gains). | auto: auto; daylight: daylight; cloudy: cloudy |
-| `camera.white_balance.gains` | gains | null | gains | next_action |  | Manual [red, blue] gains. |  |
+| `camera.white_balance.gains` | gains | null | 0.0 – 8.0 | next_action |  | Manual [red, blue] gains (each 0..8). |  |
 | `camera.exposure.enabled` | bool | false | bool | next_action |  | Pass exposure controls. |  |
 | `camera.exposure.mode` | str | null | str | next_action |  | Reported as END rem only; builds no flag (W7). |  |
 | `camera.exposure.ev` (e) | float | null | -8.0 – 8.0 | next_action |  | Exposure bias (EV). | auto: null; -2 EV: -2.0; -1 EV: -1.0; -0.5 EV: -0.5; +0.5 EV: 0.5; +1 EV: 1.0; +2 EV: 2.0 |
@@ -190,8 +190,8 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `still.output_width` | int | 1000 | 16 – 4608 | next_action |  | Sent still width (px); height follows the crop. |  |
 | `still.quality_ladder` | ladder | [15, 13, 11, 9] | ladder | next_action |  | JPEG qualities tried, best first. |  |
 | `still.save.quality` | int | 85 | 1 – 95 | next_action |  | save_local: JPEG quality of the saved crop (the native is kept too). 1..95. | 85 default: 85; 75: 75; 95: 95 |
-| `still.message_cap` | int | 195 | 1 – 2000 | next_action |  | Most messages one still may use. | 195 default: 195; 100: 100; 150: 150; 250: 250; 300: 300 |
-| `still.budget_min` | int | 18 | 1 – 240 | next_action |  | Cycle budget for a still action (min). | 12 min: 12; 5 min: 5; 8 min: 8; 16 min: 16 |
+| `still.message_cap` | int | 195 | 1 – 500 | next_action |  | Most messages one still may use. | 195 default: 195; 100: 100; 150: 150; 250: 250; 300: 300 |
+| `still.budget_min` | int | 18 | 1 – 30 | next_action |  | Cycle budget for a still action (min). | 12 min: 12; 5 min: 5; 8 min: 8; 16 min: 16 |
 
 ### video
 
@@ -210,11 +210,11 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `video.send.duration_s` (d) | float | 5.0 | 1.0 – 30.0 | next_action |  | Clip length sent (s). |  |
 | `video.send.lead_in_s` | float | 2.0 | 0.0 – 10.0 | next_action |  | Recorded and discarded before the clip (s). |  |
 | `video.send.fps` | int | 10 | 1 – 30 | next_action |  | Sent frame rate. |  |
-| `video.send.message_cap` | int | 126 | 8 – 1000 | next_action |  | Most messages one clip may use. |  |
+| `video.send.message_cap` | int | 126 | 8 – 500 | next_action |  | Most messages one clip may use. |  |
 | `video.send.keyframe_repeat_max` | int | 30 | 1 – 200 | next_action |  | Keyframe repeats after the clip. |  |
 | `video.send.size` | wxh | 480x270 | wxh | next_action |  | Sent clip size. |  |
 | `video.send.x264_preset` | enum | medium | ultrafast / superfast / veryfast / faster / fast / medium | next_action |  | x264 speed preset for the fit. |  |
-| `video.send.budget_min` | int | 18 | 1 – 240 | next_action |  | Cycle budget for a video action (min). |  |
+| `video.send.budget_min` | int | 18 | 1 – 30 | next_action |  | Cycle budget for a video action (min). |  |
 | `video.logger.clip_minutes` | float | 5.0 | 0.05 – 60.0 | next_action |  | Recorder clip length (min). |  |
 | `video.logger.session_minutes` | int | 0 | 0 – 1440 | next_action |  | Recorder session (min); 0 = until power loss. |  |
 | `video.ui.enabled` | bool | true | bool | next_action |  | Recorder web UI. |  |

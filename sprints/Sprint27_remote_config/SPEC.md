@@ -482,3 +482,37 @@ Writable now: 54 control keys. Read-only: `camera.exposure.mode`, `still.save.qu
 - **Deploy:** needs `--accept-print-config-diff` (the encoder-knobs line changes). The rehearsal
   test pins that nothing else differs.
 - **Ladder:** M1–M6 (`LADDER.md`), including the `config_v2_upgrade.py --write` file clean-up.
+
+### 9.6 F-G3-8: one source of truth for limits (Nick 2026-10-02, R1)
+
+- **The registry RANGE is the limit, everywhere:** the unit (`set`, boot, deploy), the backend
+  and the UI all read it from the catalog.
+  - **Narrowed in `config_registry`:** `still.message_cap` 1..500, `video.send.message_cap` 8..500,
+    `still.budget_min` / `video.send.budget_min` 1..30, `camera.white_balance.gains` each 0..8
+    (checked per element).
+  - Every value in the repo's configs and profiles is inside these ranges (caps 190/195,
+    budgets 8/12).
+- **Warning thresholds only** stay in `tools/gen_config_catalog.py` LIMITS: caps warn above 300,
+  budgets above 18, interval/heartbeat below 600 s, clip duration ≠ 5 s. A test pins every
+  `warn_above` below its key's range max, and that the catalog adds no hard max of its own.
+- **Backend:** the `max` / `max_each` clamp paths are removed. Out of range → `bad_value` from the
+  ported `check_value`.
+
+**Future (next sprint, NOT R1):** replace `*.message_cap` as the user's knob with a per-Spotter
+**transmit window** (minutes, or unlimited for field testing). The message budget would then be
+derived as window ÷ pacing (`uplink.msg_interval_s`). Note only; nothing built.
+
+### 9.7 F-G3-5: narrow image-processing ranges (Nick 2026-10-02, R1). PENDING bench data
+
+G3 (`runs/g3_hardmode_20261001`, TE) found that values inside the libcamera range blank the image:
+
+| value | result |
+|---|---|
+| contrast 0 | flat grey |
+| contrast 32, saturation 32, brightness −1 | black |
+| brightness +1 | white |
+
+Usable bounds were NOT measured (only the extremes, plus contrast 0.5 / 2.0 at night). The TE runs
+a daylight probe on bmcam003 (contrast 0.25..8, saturation 0.25..16, brightness ±0.1..±0.75 →
+`runs/s27_ip_range_probe_<date>/`). The measured usable min/max then become the registry ranges
+(one source, as in §9.6). **No bounds are written until those numbers exist.**
