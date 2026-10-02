@@ -36,7 +36,7 @@ response). Never point a local run at staging.
 | `POST /devices/{id}/remote-config/plan` | admin | on every edit: show `refusals` (block Send) and `warnings` (show, allow) |
 | `POST /devices/{id}/remote-config/changes` | admin | record the change → returns `command_id` |
 | `POST /admin/devices/{id}/commands/{command_id}/send` | admin | send it (existing S6b endpoint) |
-| `POST /devices/{id}/remote-config/refresh` | admin | record 4 `get` commands; send them in id order; their `<CF>` answers fill `reported` for every setting (added 2026-10-02) |
+| `POST /devices/{id}/remote-config/refresh` | admin | record the catalog's `refresh_gets` (8 `get` commands at registry v7, every key); send them in id order; their `<CF>` answers fill `reported` for every setting and let the backend confirm a command whose ack was lost (F-G3-10) |
 
 Request body for plan / changes: `{"set": {path: value}}` **or** `{"reset": [path, ...]}`
 (not both), optional `"supersede": true`, `"lane": "sofar"` (default), `"min_id"`.

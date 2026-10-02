@@ -81,7 +81,7 @@ YAML value. Any SSH needed = FAIL.
 | # | change (`kv`) | check (c) |
 |---|---|---|
 | L1 | `ping` | ack; device view `eligible: true` |
-| L1b | `POST /devices/{id}/remote-config/refresh`, then send its 4 `get`s in id order | each acked `ok:1` (no `e:big`); device view `reported_known` = the number of non-blocked catalog keys (54 at registry v7); `refresh_hint` null |
+| L1b | `POST /devices/{id}/remote-config/refresh`, then send its `get`s in id order (8 at registry v7: every key, for the F-G3-10 heartbeat confirmation) | each acked `ok:1` (no `e:big`); device view `reported_known` = the number of non-blocked catalog keys (54 at registry v7); `refresh_hint` null |
 | L2 | `camera.controls_enabled: true, camera.exposure.enabled: true, camera.exposure.ev: -1.0` | still visibly darker than baseline; capture sidecar `requested_ev` −1 (field names: `rc_capture.py:387-474`) |
 | L3 | `camera.exposure.shutter_us: 10000, camera.exposure.analogue_gain: 2.0` (switches from L2 still on) | metadata ExposureTime ≈ 10000, AnalogueGain ≈ 2 |
 | L4 | `camera.white_balance.enabled: true, camera.white_balance.mode: daylight` | colour change; metadata AWB mode |

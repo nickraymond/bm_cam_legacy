@@ -115,6 +115,29 @@ class Catalog(unittest.TestCase):
         self.assertIsNone(R.check_value(gains, [8.0, 1.5]))
         self.assertIsNotNone(R.check_value(gains, [8.5, 1.5]))
 
+    def test_refresh_gets_cover_every_key_within_two_parts(self):
+        """F-G3-10: the backend's full refresh asks for EVERY key (it needs the whole config to
+        compute the expected post-change hash); each get answers in <= 2 <CF> parts (unit cap 3)."""
+        import command_wire as W
+        cat = json.loads(_load())
+        v = G._sizing_values()
+        covered = set()
+        for names in cat["refresh_gets"]:
+            self.assertLessEqual(len(names), W.MAX_LIST)
+            keys = [p for n in names for p in ([n] if n in R.BY_PATH else [k.path for k in R.keys_in(n)])]
+            covered |= set(keys)
+            self.assertLessEqual(len(W.build_cf("0123abcd", [(k, v[k], "c1000000") for k in keys])), 2, names)
+        self.assertEqual(covered, {k.path for k in R.KEYS})
+
+    def test_hash_vectors_are_the_units_hash(self):
+        import config_v2
+        cat = json.loads(_load())
+        self.assertEqual(cat["hash"]["version"], config_v2.HASH_VERSION)
+        self.assertGreaterEqual(len(cat["hash"]["selftest"]), 4)
+        for values, want in cat["hash"]["selftest"]:
+            self.assertEqual(sorted(values), sorted(k.path for k in R.KEYS))
+            self.assertEqual(config_v2.config_hash(values), want)
+
     def test_geometry_vectors_match_the_unit_rule(self):
         import config_validate as V
         cat = json.loads(_load())

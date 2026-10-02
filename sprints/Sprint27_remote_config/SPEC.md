@@ -516,3 +516,24 @@ Usable bounds were NOT measured (only the extremes, plus contrast 0.5 / 2.0 at n
 a daylight probe on bmcam003 (contrast 0.25..8, saturation 0.25..16, brightness ±0.1..±0.75 →
 `runs/s27_ip_range_probe_<date>/`). The measured usable min/max then become the registry ranges
 (one source, as in §9.6). **No bounds are written until those numbers exist.**
+
+### 9.8 F-G3-10: lost acks resolved from the heartbeat (Nick 2026-10-02, R1)
+
+No re-ask and no extra radio traffic per command. For an admin `set` that was sent and never
+answered:
+
+1. **Expected hash.** The backend computes the EXPECTED post-change config hash with the unit's own
+   function (`config_v2.canonical` + sha256), ported in nvd `config_catalog.config_hash`. It is
+   pinned by the catalog's `hash.selftest` vectors, which come from the unit's `config_hash`. The
+   input is the FULL base config (the base hash's `<CF>` snapshot, every key) plus the set's kv.
+   When earlier unanswered sets from the same base went out first, the chained hash is a second
+   candidate.
+2. **Confirmation.** A later `<WS>` / START carrying either hash gives:
+   - `ui_status: in_effect`, `confirmed_by: heartbeat`, `ack: not received`;
+   - the key's reported value and state follow, and the key leaves `in_flight`;
+   - Config History shows that period as source `command` (heartbeat).
+3. **Needs a full base config.** `/refresh` now records the catalog's `refresh_gets`: every key in
+   8 `get` commands at registry v7, each answered in ≤ 2 `<CF>` parts (unit cap 3), sized with the
+   unit's own `build_cf`. That is a one-off cost of about 9 minutes of the shared 65 s/Spotter lane.
+   Without a full base config the command stays "sent · ack not received".
+4. **Not predicted:** a `reset`, because its YAML value is not known to the backend.
