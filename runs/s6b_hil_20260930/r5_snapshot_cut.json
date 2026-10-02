@@ -1,0 +1,848 @@
+{
+ "cut_utc": "2026-10-02T05:30:03+00:00",
+ "rigs": {
+  "BMCAM_003": {
+   "triggers": 47,
+   "counts": {
+    "complete": 46,
+    "partial": 1
+   },
+   "clips": [
+    {
+     "trigger_id": 2000832635,
+     "trigger_utc": "2026-10-01T05:30:35Z",
+     "acked": true,
+     "media_id": 55936,
+     "expected": 176,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000834480,
+     "trigger_utc": "2026-10-01T06:01:20Z",
+     "acked": true,
+     "media_id": 55944,
+     "expected": 172,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000836312,
+     "trigger_utc": "2026-10-01T06:31:52Z",
+     "acked": true,
+     "media_id": 55952,
+     "expected": 180,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000838143,
+     "trigger_utc": "2026-10-01T07:02:23Z",
+     "acked": true,
+     "media_id": 55960,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000839973,
+     "trigger_utc": "2026-10-01T07:32:53Z",
+     "acked": true,
+     "media_id": 55968,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000841806,
+     "trigger_utc": "2026-10-01T08:03:26Z",
+     "acked": true,
+     "media_id": 55976,
+     "expected": 175,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000843636,
+     "trigger_utc": "2026-10-01T08:33:56Z",
+     "acked": true,
+     "media_id": 55984,
+     "expected": 176,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000845466,
+     "trigger_utc": "2026-10-01T09:04:26Z",
+     "acked": true,
+     "media_id": 55992,
+     "expected": 179,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000847298,
+     "trigger_utc": "2026-10-01T09:34:58Z",
+     "acked": true,
+     "media_id": 56001,
+     "expected": 177,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000849132,
+     "trigger_utc": "2026-10-01T10:05:32Z",
+     "acked": true,
+     "media_id": 56009,
+     "expected": 174,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000850964,
+     "trigger_utc": "2026-10-01T10:36:04Z",
+     "acked": true,
+     "media_id": 56017,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000852796,
+     "trigger_utc": "2026-10-01T11:06:36Z",
+     "acked": true,
+     "media_id": 56025,
+     "expected": 179,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000854628,
+     "trigger_utc": "2026-10-01T11:37:08Z",
+     "acked": true,
+     "media_id": 56033,
+     "expected": 179,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000856463,
+     "trigger_utc": "2026-10-01T12:07:43Z",
+     "acked": true,
+     "media_id": 56041,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000858295,
+     "trigger_utc": "2026-10-01T12:38:15Z",
+     "acked": true,
+     "media_id": 56049,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000860128,
+     "trigger_utc": "2026-10-01T13:08:48Z",
+     "acked": true,
+     "media_id": 56057,
+     "expected": 178,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000861961,
+     "trigger_utc": "2026-10-01T13:39:21Z",
+     "acked": true,
+     "media_id": 56064,
+     "expected": 178,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000863797,
+     "trigger_utc": "2026-10-01T14:09:57Z",
+     "acked": true,
+     "media_id": 56074,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000865633,
+     "trigger_utc": "2026-10-01T14:40:33Z",
+     "acked": true,
+     "media_id": 56082,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000867470,
+     "trigger_utc": "2026-10-01T15:11:10Z",
+     "acked": true,
+     "media_id": 56090,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000869308,
+     "trigger_utc": "2026-10-01T15:41:48Z",
+     "acked": true,
+     "media_id": 56098,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000871146,
+     "trigger_utc": "2026-10-01T16:12:26Z",
+     "acked": true,
+     "media_id": 56103,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000872983,
+     "trigger_utc": "2026-10-01T16:43:03Z",
+     "acked": true,
+     "media_id": 56114,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000874820,
+     "trigger_utc": "2026-10-01T17:13:40Z",
+     "acked": true,
+     "media_id": 56120,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000876656,
+     "trigger_utc": "2026-10-01T17:44:16Z",
+     "acked": true,
+     "media_id": 56130,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000878493,
+     "trigger_utc": "2026-10-01T18:14:53Z",
+     "acked": true,
+     "media_id": 56137,
+     "expected": 186,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000880331,
+     "trigger_utc": "2026-10-01T18:45:31Z",
+     "acked": true,
+     "media_id": 56147,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000882168,
+     "trigger_utc": "2026-10-01T19:16:08Z",
+     "acked": true,
+     "media_id": 56155,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000884006,
+     "trigger_utc": "2026-10-01T19:46:46Z",
+     "acked": true,
+     "media_id": 56163,
+     "expected": 186,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000885847,
+     "trigger_utc": "2026-10-01T20:17:27Z",
+     "acked": true,
+     "media_id": 56171,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000887682,
+     "trigger_utc": "2026-10-01T20:48:02Z",
+     "acked": true,
+     "media_id": 56179,
+     "expected": 178,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000889517,
+     "trigger_utc": "2026-10-01T21:18:37Z",
+     "acked": true,
+     "media_id": 56187,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000891353,
+     "trigger_utc": "2026-10-01T21:49:13Z",
+     "acked": true,
+     "media_id": 56195,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000893188,
+     "trigger_utc": "2026-10-01T22:19:48Z",
+     "acked": true,
+     "media_id": 56203,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000895023,
+     "trigger_utc": "2026-10-01T22:50:23Z",
+     "acked": true,
+     "media_id": 56211,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000896858,
+     "trigger_utc": "2026-10-01T23:20:58Z",
+     "acked": true,
+     "media_id": 56220,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000898693,
+     "trigger_utc": "2026-10-01T23:51:33Z",
+     "acked": true,
+     "media_id": 56228,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000900526,
+     "trigger_utc": "2026-10-02T00:22:06Z",
+     "acked": true,
+     "media_id": 56236,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000902360,
+     "trigger_utc": "2026-10-02T00:52:40Z",
+     "acked": true,
+     "media_id": 56244,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000904195,
+     "trigger_utc": "2026-10-02T01:23:15Z",
+     "acked": true,
+     "media_id": 56251,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000906032,
+     "trigger_utc": "2026-10-02T01:53:52Z",
+     "acked": true,
+     "media_id": 56257,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000907864,
+     "trigger_utc": "2026-10-02T02:24:24Z",
+     "acked": true,
+     "media_id": 56264,
+     "expected": 178,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000909704,
+     "trigger_utc": "2026-10-02T02:55:04Z",
+     "acked": true,
+     "media_id": 56270,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000911544,
+     "trigger_utc": "2026-10-02T03:25:44Z",
+     "acked": true,
+     "media_id": 56279,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000913381,
+     "trigger_utc": "2026-10-02T03:56:21Z",
+     "acked": true,
+     "media_id": 56285,
+     "expected": 180,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000915217,
+     "trigger_utc": "2026-10-02T04:26:57Z",
+     "acked": true,
+     "media_id": 56294,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000917051,
+     "trigger_utc": "2026-10-02T04:57:31Z",
+     "acked": true,
+     "media_id": 56302,
+     "expected": 182,
+     "status": "partial",
+     "missing_count": 18,
+     "missing_reason": null
+    }
+   ]
+  },
+  "BMCAM_004": {
+   "triggers": 45,
+   "counts": {
+    "complete": 41,
+    "no_row": 4
+   },
+   "clips": [
+    {
+     "trigger_id": 2000832635,
+     "trigger_utc": "2026-10-01T05:30:35Z",
+     "acked": true,
+     "media_id": 55935,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000834481,
+     "trigger_utc": "2026-10-01T06:01:21Z",
+     "acked": true,
+     "media_id": 55942,
+     "expected": 179,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000836314,
+     "trigger_utc": "2026-10-01T06:31:54Z",
+     "acked": true,
+     "media_id": 55951,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000838146,
+     "trigger_utc": "2026-10-01T07:02:26Z",
+     "acked": true,
+     "media_id": 55959,
+     "expected": 177,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000839976,
+     "trigger_utc": "2026-10-01T07:32:56Z",
+     "acked": true,
+     "media_id": 55967,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000841808,
+     "trigger_utc": "2026-10-01T08:03:28Z",
+     "acked": true,
+     "media_id": 55975,
+     "expected": 180,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000843640,
+     "trigger_utc": "2026-10-01T08:34:00Z",
+     "acked": true,
+     "media_id": 55983,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000845471,
+     "trigger_utc": "2026-10-01T09:04:31Z",
+     "acked": true,
+     "media_id": 55991,
+     "expected": 174,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000847301,
+     "trigger_utc": "2026-10-01T09:35:01Z",
+     "acked": true,
+     "media_id": 56000,
+     "expected": 179,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000849133,
+     "trigger_utc": "2026-10-01T10:05:33Z",
+     "acked": true,
+     "media_id": 56008,
+     "expected": 175,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000850967,
+     "trigger_utc": "2026-10-01T10:36:07Z",
+     "acked": true,
+     "media_id": 56016,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000852800,
+     "trigger_utc": "2026-10-01T11:06:40Z",
+     "acked": true,
+     "media_id": 56024,
+     "expected": 176,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000854633,
+     "trigger_utc": "2026-10-01T11:37:13Z",
+     "acked": true,
+     "media_id": 56032,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000856465,
+     "trigger_utc": "2026-10-01T12:07:45Z",
+     "acked": true,
+     "media_id": 56040,
+     "expected": 177,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000858298,
+     "trigger_utc": "2026-10-01T12:38:18Z",
+     "acked": true,
+     "media_id": 56048,
+     "expected": 173,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000860131,
+     "trigger_utc": "2026-10-01T13:08:51Z",
+     "acked": true,
+     "media_id": 56056,
+     "expected": 177,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000861963,
+     "trigger_utc": "2026-10-01T13:39:23Z",
+     "acked": true,
+     "media_id": 56063,
+     "expected": 179,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000863799,
+     "trigger_utc": "2026-10-01T14:09:59Z",
+     "acked": true,
+     "media_id": 56073,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000865637,
+     "trigger_utc": "2026-10-01T14:40:37Z",
+     "acked": true,
+     "media_id": 56079,
+     "expected": 186,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000867476,
+     "trigger_utc": "2026-10-01T15:11:16Z",
+     "acked": true,
+     "media_id": 56089,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000869312,
+     "trigger_utc": "2026-10-01T15:41:52Z",
+     "acked": true,
+     "media_id": 56097,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000871149,
+     "trigger_utc": "2026-10-01T16:12:29Z",
+     "acked": true,
+     "media_id": 56106,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000872986,
+     "trigger_utc": "2026-10-01T16:43:06Z",
+     "acked": true,
+     "media_id": 56113,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000874824,
+     "trigger_utc": "2026-10-01T17:13:44Z",
+     "acked": true,
+     "media_id": 56122,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000876661,
+     "trigger_utc": "2026-10-01T17:44:21Z",
+     "acked": true,
+     "media_id": 56129,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000878496,
+     "trigger_utc": "2026-10-01T18:14:56Z",
+     "acked": true,
+     "media_id": 56139,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000880335,
+     "trigger_utc": "2026-10-01T18:45:35Z",
+     "acked": true,
+     "media_id": 56146,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000882171,
+     "trigger_utc": "2026-10-01T19:16:11Z",
+     "acked": true,
+     "media_id": 56154,
+     "expected": 181,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000884008,
+     "trigger_utc": "2026-10-01T19:46:48Z",
+     "acked": true,
+     "media_id": 56162,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000885849,
+     "trigger_utc": "2026-10-01T20:17:29Z",
+     "acked": true,
+     "media_id": 56170,
+     "expected": 177,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000887686,
+     "trigger_utc": "2026-10-01T20:48:06Z",
+     "acked": true,
+     "media_id": 56178,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000889521,
+     "trigger_utc": "2026-10-01T21:18:41Z",
+     "acked": true,
+     "media_id": 56186,
+     "expected": 187,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000891357,
+     "trigger_utc": "2026-10-01T21:49:17Z",
+     "acked": true,
+     "media_id": 56194,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000893192,
+     "trigger_utc": "2026-10-01T22:19:52Z",
+     "acked": true,
+     "media_id": 56201,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000895027,
+     "trigger_utc": "2026-10-01T22:50:27Z",
+     "acked": true,
+     "media_id": 56210,
+     "expected": 186,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000896861,
+     "trigger_utc": "2026-10-01T23:21:01Z",
+     "acked": true,
+     "media_id": 56218,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000898695,
+     "trigger_utc": "2026-10-01T23:51:35Z",
+     "acked": true,
+     "media_id": 56227,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000900531,
+     "trigger_utc": "2026-10-02T00:22:11Z",
+     "acked": true,
+     "media_id": 56235,
+     "expected": 183,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000902364,
+     "trigger_utc": "2026-10-02T00:52:44Z",
+     "acked": true,
+     "media_id": 56243,
+     "expected": 185,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000904197,
+     "trigger_utc": "2026-10-02T01:23:17Z",
+     "acked": true,
+     "media_id": null,
+     "expected": null,
+     "status": "no_row"
+    },
+    {
+     "trigger_id": 2000906951,
+     "trigger_utc": "2026-10-02T02:09:11Z",
+     "acked": true,
+     "media_id": null,
+     "expected": null,
+     "status": "no_row"
+    },
+    {
+     "trigger_id": 2000909705,
+     "trigger_utc": "2026-10-02T02:55:05Z",
+     "acked": true,
+     "media_id": null,
+     "expected": null,
+     "status": "no_row"
+    },
+    {
+     "trigger_id": 2000912460,
+     "trigger_utc": "2026-10-02T03:41:00Z",
+     "acked": true,
+     "media_id": null,
+     "expected": null,
+     "status": "no_row"
+    },
+    {
+     "trigger_id": 2000915210,
+     "trigger_utc": "2026-10-02T04:26:50Z",
+     "acked": true,
+     "media_id": 56293,
+     "expected": 182,
+     "status": "complete",
+     "missing_count": 0
+    },
+    {
+     "trigger_id": 2000917045,
+     "trigger_utc": "2026-10-02T04:57:25Z",
+     "acked": true,
+     "media_id": 56301,
+     "expected": 184,
+     "status": "complete",
+     "missing_count": 0
+    }
+   ]
+  }
+ }
+}

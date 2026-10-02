@@ -1,0 +1,371 @@
+{"utc": "2026-10-01T05:30:33Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "conductor_start", "run_dir": "/home/pi/spotter_logs/conductor/20261001T053033Z", "hours": 24.0, "heal": false, "min_interval_min": 30.0, "api": "https://nereus-vision-staging.onrender.com"}
+{"utc": "2026-10-01T05:30:33Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "conductor_start", "run_dir": "/home/pi/spotter_logs/conductor/20261001T053033Z", "hours": 24.0, "heal": false, "min_interval_min": 30.0, "api": "https://nereus-vision-staging.onrender.com"}
+{"utc": "2026-10-01T05:30:35Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "rig_start", "host": "bmcam003"}
+{"utc": "2026-10-01T05:30:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "rig_start", "host": "bmcam004"}
+{"utc": "2026-10-01T05:30:35Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000832635, "attempt": 1}
+{"utc": "2026-10-01T05:30:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000832635, "attempt": 1}
+{"utc": "2026-10-01T05:30:36Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000832635, "attempt": 1}
+{"utc": "2026-10-01T05:30:36Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000832635, "attempt": 1}
+{"utc": "2026-10-01T05:46:03Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000832635, "media_id": 55936, "received": 152, "expected": 176, "after_s": 927.5}
+{"utc": "2026-10-01T05:46:04Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000832635, "media_id": 55935, "received": 183, "expected": 183, "after_s": 928.3}
+{"utc": "2026-10-01T05:46:04Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000832635, "media_id": 55935, "chunks": 183, "after_s": 928.3, "healed_by": null}
+{"utc": "2026-10-01T06:01:20Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000834480, "attempt": 1}
+{"utc": "2026-10-01T06:01:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000834480, "attempt": 1}
+{"utc": "2026-10-01T06:01:21Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000834481, "attempt": 1}
+{"utc": "2026-10-01T06:01:22Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000834481, "attempt": 1}
+{"utc": "2026-10-01T06:11:34Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000834481, "media_id": 55942, "received": 179, "expected": 179, "after_s": 612.0}
+{"utc": "2026-10-01T06:11:34Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000834481, "media_id": 55942, "chunks": 179, "after_s": 612.1, "healed_by": null}
+{"utc": "2026-10-01T06:16:37Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000834480, "media_id": 55944, "received": 164, "expected": 172, "after_s": 917.1}
+{"utc": "2026-10-01T06:26:48Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000832635, "media_id": 55936, "chunks": 176, "after_s": 3372.3, "healed_by": null}
+{"utc": "2026-10-01T06:31:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000836312, "attempt": 1}
+{"utc": "2026-10-01T06:31:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000836312, "attempt": 1}
+{"utc": "2026-10-01T06:31:54Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000836314, "attempt": 1}
+{"utc": "2026-10-01T06:31:55Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000836314, "attempt": 1}
+{"utc": "2026-10-01T06:46:07Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000836312, "media_id": 55952, "received": 172, "expected": 180, "after_s": 854.7}
+{"utc": "2026-10-01T06:46:09Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000836314, "media_id": 55951, "received": 176, "expected": 184, "after_s": 855.8}
+{"utc": "2026-10-01T06:56:18Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000834480, "media_id": 55944, "chunks": 172, "after_s": 3297.4, "healed_by": null}
+{"utc": "2026-10-01T07:02:23Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000838143, "attempt": 1}
+{"utc": "2026-10-01T07:02:23Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000838143, "attempt": 1}
+{"utc": "2026-10-01T07:02:26Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000838146, "attempt": 1}
+{"utc": "2026-10-01T07:02:27Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000838146, "attempt": 1}
+{"utc": "2026-10-01T07:15:37Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000838143, "media_id": 55960, "received": 181, "expected": 181, "after_s": 794.3}
+{"utc": "2026-10-01T07:15:37Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000838143, "media_id": 55960, "chunks": 181, "after_s": 794.3, "healed_by": null}
+{"utc": "2026-10-01T07:15:40Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000838146, "media_id": 55959, "received": 177, "expected": 177, "after_s": 794.2}
+{"utc": "2026-10-01T07:15:40Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000838146, "media_id": 55959, "chunks": 177, "after_s": 794.2, "healed_by": null}
+{"utc": "2026-10-01T07:25:48Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000836312, "media_id": 55952, "chunks": 180, "after_s": 3235.8, "healed_by": null}
+{"utc": "2026-10-01T07:25:50Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000836314, "media_id": 55951, "chunks": 184, "after_s": 3236.7, "healed_by": null}
+{"utc": "2026-10-01T07:32:53Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000839973, "attempt": 1}
+{"utc": "2026-10-01T07:32:54Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000839973, "attempt": 1}
+{"utc": "2026-10-01T07:32:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000839976, "attempt": 1}
+{"utc": "2026-10-01T07:32:57Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000839976, "attempt": 1}
+{"utc": "2026-10-01T07:46:08Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000839973, "media_id": 55968, "received": 157, "expected": 181, "after_s": 794.4}
+{"utc": "2026-10-01T07:46:12Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000839976, "media_id": 55967, "received": 173, "expected": 181, "after_s": 795.7}
+{"utc": "2026-10-01T08:03:26Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000841806, "attempt": 1}
+{"utc": "2026-10-01T08:03:26Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000841806, "attempt": 1}
+{"utc": "2026-10-01T08:03:28Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000841808, "attempt": 1}
+{"utc": "2026-10-01T08:03:29Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000841808, "attempt": 1}
+{"utc": "2026-10-01T08:15:43Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000839976, "media_id": 55967, "chunks": 181, "after_s": 2567.3, "healed_by": null}
+{"utc": "2026-10-01T08:15:43Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000841808, "media_id": 55975, "received": 180, "expected": 180, "after_s": 735.2}
+{"utc": "2026-10-01T08:15:43Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000841808, "media_id": 55975, "chunks": 180, "after_s": 735.2, "healed_by": null}
+{"utc": "2026-10-01T08:16:40Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000839973, "media_id": 55968, "chunks": 181, "after_s": 2626.5, "healed_by": null}
+{"utc": "2026-10-01T08:16:40Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000841806, "media_id": 55976, "received": 159, "expected": 175, "after_s": 793.9}
+{"utc": "2026-10-01T08:33:56Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000843636, "attempt": 1}
+{"utc": "2026-10-01T08:33:56Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000843636, "attempt": 1}
+{"utc": "2026-10-01T08:34:00Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000843640, "attempt": 1}
+{"utc": "2026-10-01T08:34:01Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000843640, "attempt": 1}
+{"utc": "2026-10-01T08:46:08Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000843636, "media_id": 55984, "received": 173, "expected": 176, "after_s": 732.7}
+{"utc": "2026-10-01T08:46:14Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000843640, "media_id": 55983, "received": 173, "expected": 181, "after_s": 734.1}
+{"utc": "2026-10-01T09:04:26Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000845466, "attempt": 1}
+{"utc": "2026-10-01T09:04:27Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000845466, "attempt": 1}
+{"utc": "2026-10-01T09:04:31Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000845471, "attempt": 1}
+{"utc": "2026-10-01T09:04:31Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000845471, "attempt": 1}
+{"utc": "2026-10-01T09:15:39Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000845466, "media_id": 55992, "received": 104, "expected": 179, "after_s": 672.7}
+{"utc": "2026-10-01T09:15:43Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000843640, "media_id": 55983, "chunks": 181, "after_s": 2503.6, "healed_by": null}
+{"utc": "2026-10-01T09:15:43Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000845471, "media_id": 55991, "received": 141, "expected": 174, "after_s": 672.5}
+{"utc": "2026-10-01T09:25:50Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000841806, "media_id": 55976, "chunks": 175, "after_s": 4944.3, "healed_by": null}
+{"utc": "2026-10-01T09:25:50Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000843636, "media_id": 55984, "chunks": 176, "after_s": 3114.3, "healed_by": null}
+{"utc": "2026-10-01T09:34:58Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000847298, "attempt": 1}
+{"utc": "2026-10-01T09:34:59Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000847298, "attempt": 1}
+{"utc": "2026-10-01T09:35:01Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000847301, "attempt": 1}
+{"utc": "2026-10-01T09:35:02Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000847301, "attempt": 1}
+{"utc": "2026-10-01T09:51:17Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000847298, "media_id": 56001, "received": 173, "expected": 177, "after_s": 979.1}
+{"utc": "2026-10-01T09:51:19Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000847301, "media_id": 56000, "received": 179, "expected": 179, "after_s": 978.1}
+{"utc": "2026-10-01T09:51:19Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000847301, "media_id": 56000, "chunks": 179, "after_s": 978.1, "healed_by": null}
+{"utc": "2026-10-01T10:00:29Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000845471, "media_id": 55991, "chunks": 174, "after_s": 3358.5, "healed_by": null}
+{"utc": "2026-10-01T10:05:32Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000849132, "attempt": 1}
+{"utc": "2026-10-01T10:05:33Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000849132, "attempt": 1}
+{"utc": "2026-10-01T10:05:33Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000849133, "attempt": 1}
+{"utc": "2026-10-01T10:05:34Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000849133, "attempt": 1}
+{"utc": "2026-10-01T10:20:49Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000849132, "media_id": 56009, "received": 159, "expected": 174, "after_s": 916.8}
+{"utc": "2026-10-01T10:20:51Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000849133, "media_id": 56008, "received": 159, "expected": 175, "after_s": 917.8}
+{"utc": "2026-10-01T10:31:00Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000847298, "media_id": 56001, "chunks": 177, "after_s": 3361.2, "healed_by": null}
+{"utc": "2026-10-01T10:36:04Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000850964, "attempt": 1}
+{"utc": "2026-10-01T10:36:05Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000850964, "attempt": 1}
+{"utc": "2026-10-01T10:36:07Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000850967, "attempt": 1}
+{"utc": "2026-10-01T10:36:08Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000850967, "attempt": 1}
+{"utc": "2026-10-01T10:41:11Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000845466, "media_id": 55992, "chunks": 179, "after_s": 5804.2, "healed_by": null}
+{"utc": "2026-10-01T10:50:23Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000849133, "media_id": 56008, "chunks": 175, "after_s": 2689.7, "healed_by": null}
+{"utc": "2026-10-01T10:50:23Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000850967, "media_id": 56016, "received": 173, "expected": 181, "after_s": 856.1}
+{"utc": "2026-10-01T10:51:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000850964, "media_id": 56017, "received": 176, "expected": 181, "after_s": 917.3}
+{"utc": "2026-10-01T11:00:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000849132, "media_id": 56009, "chunks": 174, "after_s": 3298.5, "healed_by": null}
+{"utc": "2026-10-01T11:06:36Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000852796, "attempt": 1}
+{"utc": "2026-10-01T11:06:37Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000852796, "attempt": 1}
+{"utc": "2026-10-01T11:06:40Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000852800, "attempt": 1}
+{"utc": "2026-10-01T11:06:41Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000852800, "attempt": 1}
+{"utc": "2026-10-01T11:20:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000850964, "media_id": 56017, "chunks": 181, "after_s": 2688.6, "healed_by": null}
+{"utc": "2026-10-01T11:20:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000852796, "media_id": 56025, "received": 152, "expected": 179, "after_s": 855.9}
+{"utc": "2026-10-01T11:20:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000850967, "media_id": 56016, "chunks": 181, "after_s": 2689.0, "healed_by": null}
+{"utc": "2026-10-01T11:20:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000852800, "media_id": 56024, "received": 168, "expected": 176, "after_s": 856.0}
+{"utc": "2026-10-01T11:37:08Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000854628, "attempt": 1}
+{"utc": "2026-10-01T11:37:09Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000854628, "attempt": 1}
+{"utc": "2026-10-01T11:37:13Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000854633, "attempt": 1}
+{"utc": "2026-10-01T11:37:14Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000854633, "attempt": 1}
+{"utc": "2026-10-01T11:51:24Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000852796, "media_id": 56025, "chunks": 179, "after_s": 2687.9, "healed_by": null}
+{"utc": "2026-10-01T11:51:24Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000854628, "media_id": 56033, "received": 166, "expected": 179, "after_s": 855.8}
+{"utc": "2026-10-01T11:51:29Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000854633, "media_id": 56032, "received": 182, "expected": 182, "after_s": 855.9}
+{"utc": "2026-10-01T11:51:29Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000854633, "media_id": 56032, "chunks": 182, "after_s": 855.9, "healed_by": null}
+{"utc": "2026-10-01T12:07:43Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000856463, "attempt": 1}
+{"utc": "2026-10-01T12:07:44Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000856463, "attempt": 1}
+{"utc": "2026-10-01T12:07:45Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000856465, "attempt": 1}
+{"utc": "2026-10-01T12:07:46Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000856465, "attempt": 1}
+{"utc": "2026-10-01T12:20:57Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000856463, "media_id": 56041, "received": 172, "expected": 181, "after_s": 794.2}
+{"utc": "2026-10-01T12:21:00Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000856465, "media_id": 56040, "received": 161, "expected": 177, "after_s": 795.3}
+{"utc": "2026-10-01T12:31:08Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000854628, "media_id": 56033, "chunks": 179, "after_s": 3240.0, "healed_by": null}
+{"utc": "2026-10-01T12:38:15Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000858295, "attempt": 1}
+{"utc": "2026-10-01T12:38:16Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000858295, "attempt": 1}
+{"utc": "2026-10-01T12:38:18Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000858298, "attempt": 1}
+{"utc": "2026-10-01T12:38:19Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000858298, "attempt": 1}
+{"utc": "2026-10-01T12:41:23Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000856465, "media_id": 56040, "chunks": 177, "after_s": 2018.1, "healed_by": null}
+{"utc": "2026-10-01T12:51:30Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000856463, "media_id": 56041, "chunks": 181, "after_s": 2627.2, "healed_by": null}
+{"utc": "2026-10-01T12:51:30Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000858295, "media_id": 56049, "received": 166, "expected": 182, "after_s": 795.2}
+{"utc": "2026-10-01T12:51:34Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000858298, "media_id": 56048, "received": 165, "expected": 173, "after_s": 796.3}
+{"utc": "2026-10-01T13:08:48Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000860128, "attempt": 1}
+{"utc": "2026-10-01T13:08:49Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000860128, "attempt": 1}
+{"utc": "2026-10-01T13:08:51Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000860131, "attempt": 1}
+{"utc": "2026-10-01T13:08:52Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000860131, "attempt": 1}
+{"utc": "2026-10-01T13:21:02Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000860128, "media_id": 56057, "received": 178, "expected": 178, "after_s": 734.4}
+{"utc": "2026-10-01T13:21:02Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000860128, "media_id": 56057, "chunks": 178, "after_s": 734.4, "healed_by": null}
+{"utc": "2026-10-01T13:21:05Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000860131, "media_id": 56056, "received": 137, "expected": 177, "after_s": 733.8}
+{"utc": "2026-10-01T13:31:14Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000858295, "media_id": 56049, "chunks": 182, "after_s": 3178.8, "healed_by": null}
+{"utc": "2026-10-01T13:31:16Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000852800, "media_id": 56024, "chunks": 176, "after_s": 8676.1, "healed_by": null}
+{"utc": "2026-10-01T13:31:16Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000858298, "media_id": 56048, "chunks": 173, "after_s": 3178.2, "healed_by": null}
+{"utc": "2026-10-01T13:39:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000861961, "attempt": 1}
+{"utc": "2026-10-01T13:39:22Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000861961, "attempt": 1}
+{"utc": "2026-10-01T13:39:23Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000861963, "attempt": 1}
+{"utc": "2026-10-01T13:39:24Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000861963, "attempt": 1}
+{"utc": "2026-10-01T13:46:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000861961, "media_id": 56064, "received": 103, "expected": 178, "after_s": 429.6}
+{"utc": "2026-10-01T13:46:32Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000860131, "media_id": 56056, "chunks": 177, "after_s": 2261.2, "healed_by": null}
+{"utc": "2026-10-01T13:46:32Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000861963, "media_id": 56063, "received": 56, "expected": 179, "after_s": 429.4}
+{"utc": "2026-10-01T14:09:57Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000863797, "attempt": 1}
+{"utc": "2026-10-01T14:09:57Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000863797, "attempt": 1}
+{"utc": "2026-10-01T14:09:59Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000863799, "attempt": 1}
+{"utc": "2026-10-01T14:10:00Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000863799, "attempt": 1}
+{"utc": "2026-10-01T14:26:17Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000863797, "media_id": 56074, "received": 175, "expected": 184, "after_s": 980.7}
+{"utc": "2026-10-01T14:26:21Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000861963, "media_id": 56063, "chunks": 179, "after_s": 2817.8, "healed_by": null}
+{"utc": "2026-10-01T14:26:21Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000863799, "media_id": 56073, "received": 182, "expected": 182, "after_s": 981.7}
+{"utc": "2026-10-01T14:26:21Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000863799, "media_id": 56073, "chunks": 182, "after_s": 981.7, "healed_by": null}
+{"utc": "2026-10-01T14:35:29Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000861961, "media_id": 56064, "chunks": 178, "after_s": 3367.9, "healed_by": null}
+{"utc": "2026-10-01T14:40:33Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000865633, "attempt": 1}
+{"utc": "2026-10-01T14:40:34Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000865633, "attempt": 1}
+{"utc": "2026-10-01T14:40:37Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000865637, "attempt": 1}
+{"utc": "2026-10-01T14:40:38Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000865637, "attempt": 1}
+{"utc": "2026-10-01T14:50:52Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000865637, "media_id": 56079, "received": 186, "expected": 186, "after_s": 614.7}
+{"utc": "2026-10-01T14:50:52Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000865637, "media_id": 56079, "chunks": 186, "after_s": 614.7, "healed_by": null}
+{"utc": "2026-10-01T14:55:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000865633, "media_id": 56082, "received": 185, "expected": 185, "after_s": 919.1}
+{"utc": "2026-10-01T14:55:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000865633, "media_id": 56082, "chunks": 185, "after_s": 919.1, "healed_by": null}
+{"utc": "2026-10-01T15:11:10Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000867470, "attempt": 1}
+{"utc": "2026-10-01T15:11:11Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000867470, "attempt": 1}
+{"utc": "2026-10-01T15:11:16Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000867476, "attempt": 1}
+{"utc": "2026-10-01T15:11:17Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000867476, "attempt": 1}
+{"utc": "2026-10-01T15:25:29Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000867470, "media_id": 56090, "received": 176, "expected": 185, "after_s": 859.5}
+{"utc": "2026-10-01T15:25:36Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000867476, "media_id": 56089, "received": 184, "expected": 184, "after_s": 859.7}
+{"utc": "2026-10-01T15:25:36Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000867476, "media_id": 56089, "chunks": 184, "after_s": 859.7, "healed_by": null}
+{"utc": "2026-10-01T15:41:48Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000869308, "attempt": 1}
+{"utc": "2026-10-01T15:41:48Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000869308, "attempt": 1}
+{"utc": "2026-10-01T15:41:52Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000869312, "attempt": 1}
+{"utc": "2026-10-01T15:41:53Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000869312, "attempt": 1}
+{"utc": "2026-10-01T15:56:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000867470, "media_id": 56090, "chunks": 185, "after_s": 2695.9, "healed_by": null}
+{"utc": "2026-10-01T15:56:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000869308, "media_id": 56098, "received": 183, "expected": 183, "after_s": 858.1}
+{"utc": "2026-10-01T15:56:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000869308, "media_id": 56098, "chunks": 183, "after_s": 858.1, "healed_by": null}
+{"utc": "2026-10-01T15:56:10Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000869312, "media_id": 56097, "received": 181, "expected": 184, "after_s": 857.3}
+{"utc": "2026-10-01T16:12:26Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000871146, "attempt": 1}
+{"utc": "2026-10-01T16:12:26Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000871146, "attempt": 1}
+{"utc": "2026-10-01T16:12:29Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000871149, "attempt": 1}
+{"utc": "2026-10-01T16:12:30Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000871149, "attempt": 1}
+{"utc": "2026-10-01T16:16:32Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000871146, "media_id": 56103, "received": 2, "expected": 183, "after_s": 246.3}
+{"utc": "2026-10-01T16:25:47Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000869312, "media_id": 56097, "chunks": 184, "after_s": 2635.0, "healed_by": null}
+{"utc": "2026-10-01T16:25:47Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000871149, "media_id": 56106, "received": 184, "expected": 184, "after_s": 798.6}
+{"utc": "2026-10-01T16:25:47Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000871149, "media_id": 56106, "chunks": 184, "after_s": 798.6, "healed_by": null}
+{"utc": "2026-10-01T16:35:56Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000863797, "media_id": 56074, "chunks": 184, "after_s": 8759.5, "healed_by": null}
+{"utc": "2026-10-01T16:43:03Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000872983, "attempt": 1}
+{"utc": "2026-10-01T16:43:04Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000872983, "attempt": 1}
+{"utc": "2026-10-01T16:43:06Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000872986, "attempt": 1}
+{"utc": "2026-10-01T16:43:07Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000872986, "attempt": 1}
+{"utc": "2026-10-01T16:55:22Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000872986, "media_id": 56113, "received": 185, "expected": 185, "after_s": 736.0}
+{"utc": "2026-10-01T16:55:22Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000872986, "media_id": 56113, "chunks": 185, "after_s": 736.0, "healed_by": null}
+{"utc": "2026-10-01T16:56:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000872983, "media_id": 56114, "received": 183, "expected": 183, "after_s": 797.2}
+{"utc": "2026-10-01T16:56:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000872983, "media_id": 56114, "chunks": 183, "after_s": 797.2, "healed_by": null}
+{"utc": "2026-10-01T17:06:34Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000871146, "media_id": 56103, "chunks": 183, "after_s": 3248.0, "healed_by": null}
+{"utc": "2026-10-01T17:13:40Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000874820, "attempt": 1}
+{"utc": "2026-10-01T17:13:41Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000874820, "attempt": 1}
+{"utc": "2026-10-01T17:13:44Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000874824, "attempt": 1}
+{"utc": "2026-10-01T17:13:45Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000874824, "attempt": 1}
+{"utc": "2026-10-01T17:20:49Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000874820, "media_id": 56120, "received": 135, "expected": 183, "after_s": 428.9}
+{"utc": "2026-10-01T17:25:59Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000874824, "media_id": 56122, "received": 185, "expected": 185, "after_s": 735.0}
+{"utc": "2026-10-01T17:25:59Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000874824, "media_id": 56122, "chunks": 185, "after_s": 735.0, "healed_by": null}
+{"utc": "2026-10-01T17:44:16Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000876656, "attempt": 1}
+{"utc": "2026-10-01T17:44:17Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000876656, "attempt": 1}
+{"utc": "2026-10-01T17:44:21Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000876661, "attempt": 1}
+{"utc": "2026-10-01T17:44:22Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000876661, "attempt": 1}
+{"utc": "2026-10-01T17:55:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000876656, "media_id": 56130, "received": 96, "expected": 182, "after_s": 675.1}
+{"utc": "2026-10-01T17:55:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000876661, "media_id": 56129, "received": 183, "expected": 183, "after_s": 673.9}
+{"utc": "2026-10-01T17:55:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000876661, "media_id": 56129, "chunks": 183, "after_s": 673.9, "healed_by": null}
+{"utc": "2026-10-01T18:00:38Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000876656, "media_id": 56130, "chunks": 182, "after_s": 982.0, "healed_by": null}
+{"utc": "2026-10-01T18:14:53Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000878493, "attempt": 1}
+{"utc": "2026-10-01T18:14:54Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000878493, "attempt": 1}
+{"utc": "2026-10-01T18:14:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000878496, "attempt": 1}
+{"utc": "2026-10-01T18:14:57Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000878496, "attempt": 1}
+{"utc": "2026-10-01T18:26:07Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000874820, "media_id": 56120, "chunks": 183, "after_s": 4346.9, "healed_by": null}
+{"utc": "2026-10-01T18:26:07Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000878493, "media_id": 56137, "received": 170, "expected": 186, "after_s": 674.0}
+{"utc": "2026-10-01T18:31:18Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000878496, "media_id": 56139, "received": 184, "expected": 184, "after_s": 982.2}
+{"utc": "2026-10-01T18:31:18Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000878496, "media_id": 56139, "chunks": 184, "after_s": 982.2, "healed_by": null}
+{"utc": "2026-10-01T18:45:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000880331, "attempt": 1}
+{"utc": "2026-10-01T18:45:32Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000880331, "attempt": 1}
+{"utc": "2026-10-01T18:45:33Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000878493, "media_id": 56137, "chunks": 186, "after_s": 1840.1, "healed_by": null}
+{"utc": "2026-10-01T18:45:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000880335, "attempt": 1}
+{"utc": "2026-10-01T18:45:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000880335, "attempt": 1}
+{"utc": "2026-10-01T19:01:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000880331, "media_id": 56147, "received": 183, "expected": 183, "after_s": 981.2}
+{"utc": "2026-10-01T19:01:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000880331, "media_id": 56147, "chunks": 183, "after_s": 981.2, "healed_by": null}
+{"utc": "2026-10-01T19:01:54Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000880335, "media_id": 56146, "received": 185, "expected": 185, "after_s": 979.4}
+{"utc": "2026-10-01T19:01:54Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000880335, "media_id": 56146, "chunks": 185, "after_s": 979.4, "healed_by": null}
+{"utc": "2026-10-01T19:16:08Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000882168, "attempt": 1}
+{"utc": "2026-10-01T19:16:09Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000882168, "attempt": 1}
+{"utc": "2026-10-01T19:16:11Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000882171, "attempt": 1}
+{"utc": "2026-10-01T19:16:12Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000882171, "attempt": 1}
+{"utc": "2026-10-01T19:31:28Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000882168, "media_id": 56155, "received": 174, "expected": 182, "after_s": 920.4}
+{"utc": "2026-10-01T19:31:31Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000882171, "media_id": 56154, "received": 181, "expected": 181, "after_s": 920.3}
+{"utc": "2026-10-01T19:31:31Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000882171, "media_id": 56154, "chunks": 181, "after_s": 920.3, "healed_by": null}
+{"utc": "2026-10-01T19:46:46Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000884006, "attempt": 1}
+{"utc": "2026-10-01T19:46:47Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000884006, "attempt": 1}
+{"utc": "2026-10-01T19:46:48Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000884008, "attempt": 1}
+{"utc": "2026-10-01T19:46:49Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000884008, "attempt": 1}
+{"utc": "2026-10-01T20:02:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000884006, "media_id": 56163, "received": 177, "expected": 186, "after_s": 919.9}
+{"utc": "2026-10-01T20:02:08Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000884008, "media_id": 56162, "received": 184, "expected": 184, "after_s": 920.4}
+{"utc": "2026-10-01T20:02:08Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000884008, "media_id": 56162, "chunks": 184, "after_s": 920.4, "healed_by": null}
+{"utc": "2026-10-01T20:11:20Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000882168, "media_id": 56155, "chunks": 182, "after_s": 3312.1, "healed_by": null}
+{"utc": "2026-10-01T20:17:27Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000885847, "attempt": 1}
+{"utc": "2026-10-01T20:17:28Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000885847, "attempt": 1}
+{"utc": "2026-10-01T20:17:29Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000885849, "attempt": 1}
+{"utc": "2026-10-01T20:17:30Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000885849, "attempt": 1}
+{"utc": "2026-10-01T20:31:45Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000885847, "media_id": 56171, "received": 163, "expected": 181, "after_s": 857.8}
+{"utc": "2026-10-01T20:31:49Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000885849, "media_id": 56170, "received": 177, "expected": 177, "after_s": 860.1}
+{"utc": "2026-10-01T20:31:49Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000885849, "media_id": 56170, "chunks": 177, "after_s": 860.1, "healed_by": null}
+{"utc": "2026-10-01T20:40:56Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000884006, "media_id": 56163, "chunks": 186, "after_s": 3249.5, "healed_by": null}
+{"utc": "2026-10-01T20:48:02Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000887682, "attempt": 1}
+{"utc": "2026-10-01T20:48:03Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000887682, "attempt": 1}
+{"utc": "2026-10-01T20:48:06Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000887686, "attempt": 1}
+{"utc": "2026-10-01T20:48:07Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000887686, "attempt": 1}
+{"utc": "2026-10-01T21:01:19Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000887682, "media_id": 56179, "received": 160, "expected": 178, "after_s": 796.6}
+{"utc": "2026-10-01T21:01:23Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000887686, "media_id": 56178, "received": 183, "expected": 183, "after_s": 797.0}
+{"utc": "2026-10-01T21:01:23Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000887686, "media_id": 56178, "chunks": 183, "after_s": 797.0, "healed_by": null}
+{"utc": "2026-10-01T21:11:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000885847, "media_id": 56171, "chunks": 181, "after_s": 3244.0, "healed_by": null}
+{"utc": "2026-10-01T21:18:37Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000889517, "attempt": 1}
+{"utc": "2026-10-01T21:18:38Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000889517, "attempt": 1}
+{"utc": "2026-10-01T21:18:41Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000889521, "attempt": 1}
+{"utc": "2026-10-01T21:18:42Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000889521, "attempt": 1}
+{"utc": "2026-10-01T21:30:53Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000889517, "media_id": 56187, "received": 148, "expected": 184, "after_s": 735.8}
+{"utc": "2026-10-01T21:30:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000889521, "media_id": 56186, "received": 187, "expected": 187, "after_s": 735.3}
+{"utc": "2026-10-01T21:30:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000889521, "media_id": 56186, "chunks": 187, "after_s": 735.3, "healed_by": null}
+{"utc": "2026-10-01T21:41:05Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000887682, "media_id": 56179, "chunks": 178, "after_s": 3183.1, "healed_by": null}
+{"utc": "2026-10-01T21:49:13Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000891353, "attempt": 1}
+{"utc": "2026-10-01T21:49:14Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000891353, "attempt": 1}
+{"utc": "2026-10-01T21:49:17Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000891357, "attempt": 1}
+{"utc": "2026-10-01T21:49:17Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000891357, "attempt": 1}
+{"utc": "2026-10-01T22:01:28Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000889517, "media_id": 56187, "chunks": 184, "after_s": 2571.1, "healed_by": null}
+{"utc": "2026-10-01T22:01:28Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000891353, "media_id": 56195, "received": 175, "expected": 183, "after_s": 735.1}
+{"utc": "2026-10-01T22:01:32Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000891357, "media_id": 56194, "received": 185, "expected": 185, "after_s": 735.4}
+{"utc": "2026-10-01T22:01:32Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000891357, "media_id": 56194, "chunks": 185, "after_s": 735.4, "healed_by": null}
+{"utc": "2026-10-01T22:19:48Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000893188, "attempt": 1}
+{"utc": "2026-10-01T22:19:49Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000893188, "attempt": 1}
+{"utc": "2026-10-01T22:19:52Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000893192, "attempt": 1}
+{"utc": "2026-10-01T22:19:53Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000893192, "attempt": 1}
+{"utc": "2026-10-01T22:26:01Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000893192, "media_id": 56201, "received": 74, "expected": 185, "after_s": 369.0}
+{"utc": "2026-10-01T22:31:02Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000893188, "media_id": 56203, "received": 45, "expected": 184, "after_s": 673.3}
+{"utc": "2026-10-01T22:41:15Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000891353, "media_id": 56195, "chunks": 183, "after_s": 3121.4, "healed_by": null}
+{"utc": "2026-10-01T22:50:23Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000895023, "attempt": 1}
+{"utc": "2026-10-01T22:50:24Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000895023, "attempt": 1}
+{"utc": "2026-10-01T22:50:27Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000895027, "attempt": 1}
+{"utc": "2026-10-01T22:50:28Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000895027, "attempt": 1}
+{"utc": "2026-10-01T23:02:38Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000895023, "media_id": 56211, "received": 158, "expected": 182, "after_s": 735.5}
+{"utc": "2026-10-01T23:02:41Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000895027, "media_id": 56210, "received": 186, "expected": 186, "after_s": 734.1}
+{"utc": "2026-10-01T23:02:41Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000895027, "media_id": 56210, "chunks": 186, "after_s": 734.1, "healed_by": null}
+{"utc": "2026-10-01T23:20:58Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000896858, "attempt": 1}
+{"utc": "2026-10-01T23:20:59Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000896858, "attempt": 1}
+{"utc": "2026-10-01T23:21:01Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000896861, "attempt": 1}
+{"utc": "2026-10-01T23:21:02Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000896861, "attempt": 1}
+{"utc": "2026-10-01T23:31:15Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000896861, "media_id": 56218, "received": 167, "expected": 183, "after_s": 613.9}
+{"utc": "2026-10-01T23:36:18Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000895023, "media_id": 56211, "chunks": 182, "after_s": 2754.9, "healed_by": null}
+{"utc": "2026-10-01T23:36:18Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000896858, "media_id": 56220, "received": 185, "expected": 185, "after_s": 919.6}
+{"utc": "2026-10-01T23:36:18Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000896858, "media_id": 56220, "chunks": 185, "after_s": 919.6, "healed_by": null}
+{"utc": "2026-10-01T23:46:30Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000893188, "media_id": 56203, "chunks": 184, "after_s": 5201.4, "healed_by": null}
+{"utc": "2026-10-01T23:51:33Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000898693, "attempt": 1}
+{"utc": "2026-10-01T23:51:34Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000898693, "attempt": 1}
+{"utc": "2026-10-01T23:51:35Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000898695, "attempt": 1}
+{"utc": "2026-10-01T23:51:36Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000898695, "attempt": 1}
+{"utc": "2026-10-02T00:05:50Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000898693, "media_id": 56228, "received": 182, "expected": 182, "after_s": 856.6}
+{"utc": "2026-10-02T00:05:50Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000898693, "media_id": 56228, "chunks": 182, "after_s": 856.6, "healed_by": null}
+{"utc": "2026-10-02T00:05:53Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000896861, "media_id": 56218, "chunks": 183, "after_s": 2692.5, "healed_by": null}
+{"utc": "2026-10-02T00:05:53Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000898695, "media_id": 56227, "received": 183, "expected": 183, "after_s": 858.1}
+{"utc": "2026-10-02T00:05:53Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000898695, "media_id": 56227, "chunks": 183, "after_s": 858.1, "healed_by": null}
+{"utc": "2026-10-02T00:22:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000900526, "attempt": 1}
+{"utc": "2026-10-02T00:22:07Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000900526, "attempt": 1}
+{"utc": "2026-10-02T00:22:11Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000900531, "attempt": 1}
+{"utc": "2026-10-02T00:22:12Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000900531, "attempt": 1}
+{"utc": "2026-10-02T00:35:27Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000900531, "media_id": 56235, "received": 167, "expected": 183, "after_s": 795.2}
+{"utc": "2026-10-02T00:36:22Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000900526, "media_id": 56236, "received": 176, "expected": 184, "after_s": 855.9}
+{"utc": "2026-10-02T00:45:38Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000893192, "media_id": 56201, "chunks": 185, "after_s": 8746.4, "healed_by": null}
+{"utc": "2026-10-02T00:52:40Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000902360, "attempt": 1}
+{"utc": "2026-10-02T00:52:41Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000902360, "attempt": 1}
+{"utc": "2026-10-02T00:52:44Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000902364, "attempt": 1}
+{"utc": "2026-10-02T00:52:45Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000902364, "attempt": 1}
+{"utc": "2026-10-02T01:05:55Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000900526, "media_id": 56236, "chunks": 184, "after_s": 2629.1, "healed_by": null}
+{"utc": "2026-10-02T01:05:55Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000902360, "media_id": 56244, "received": 175, "expected": 183, "after_s": 795.6}
+{"utc": "2026-10-02T01:05:59Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000900531, "media_id": 56235, "chunks": 183, "after_s": 2628.0, "healed_by": null}
+{"utc": "2026-10-02T01:05:59Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000902364, "media_id": 56243, "received": 185, "expected": 185, "after_s": 795.2}
+{"utc": "2026-10-02T01:05:59Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000902364, "media_id": 56243, "chunks": 185, "after_s": 795.2, "healed_by": null}
+{"utc": "2026-10-02T01:23:15Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000904195, "attempt": 1}
+{"utc": "2026-10-02T01:23:16Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000904195, "attempt": 1}
+{"utc": "2026-10-02T01:23:17Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000904197, "attempt": 1}
+{"utc": "2026-10-02T01:23:18Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000904197, "attempt": 1}
+{"utc": "2026-10-02T01:36:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000902360, "media_id": 56244, "chunks": 183, "after_s": 2631.7, "healed_by": null}
+{"utc": "2026-10-02T01:36:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000904195, "media_id": 56251, "received": 177, "expected": 185, "after_s": 796.5}
+{"utc": "2026-10-02T01:53:52Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000906032, "attempt": 1}
+{"utc": "2026-10-02T01:53:53Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000906032, "attempt": 1}
+{"utc": "2026-10-02T02:06:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000904195, "media_id": 56251, "chunks": 185, "after_s": 2571.0, "healed_by": null}
+{"utc": "2026-10-02T02:06:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000906032, "media_id": 56257, "received": 176, "expected": 181, "after_s": 734.2}
+{"utc": "2026-10-02T02:09:11Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "no_row", "trigger_id": 2000904197}
+{"utc": "2026-10-02T02:09:11Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000906951, "attempt": 1}
+{"utc": "2026-10-02T02:09:12Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000906951, "attempt": 1}
+{"utc": "2026-10-02T02:24:24Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000907864, "attempt": 1}
+{"utc": "2026-10-02T02:24:25Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000907864, "attempt": 1}
+{"utc": "2026-10-02T02:36:41Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000906032, "media_id": 56257, "chunks": 181, "after_s": 2569.1, "healed_by": null}
+{"utc": "2026-10-02T02:36:41Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000907864, "media_id": 56264, "received": 170, "expected": 178, "after_s": 736.5}
+{"utc": "2026-10-02T02:55:04Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000909704, "attempt": 1}
+{"utc": "2026-10-02T02:55:05Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000909704, "attempt": 1}
+{"utc": "2026-10-02T02:55:05Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "no_row", "trigger_id": 2000906951}
+{"utc": "2026-10-02T02:55:05Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000909705, "attempt": 1}
+{"utc": "2026-10-02T02:55:05Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000909705, "attempt": 1}
+{"utc": "2026-10-02T03:01:16Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000907864, "media_id": 56264, "chunks": 178, "after_s": 2212.2, "healed_by": null}
+{"utc": "2026-10-02T03:01:16Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000909704, "media_id": 56270, "received": 24, "expected": 181, "after_s": 372.3}
+{"utc": "2026-10-02T03:25:44Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000911544, "attempt": 1}
+{"utc": "2026-10-02T03:25:45Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000911544, "attempt": 1}
+{"utc": "2026-10-02T03:41:00Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "no_row", "trigger_id": 2000909705}
+{"utc": "2026-10-02T03:41:00Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000912460, "attempt": 1}
+{"utc": "2026-10-02T03:41:01Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000912460, "attempt": 1}
+{"utc": "2026-10-02T03:41:03Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000911544, "media_id": 56279, "received": 173, "expected": 181, "after_s": 918.8}
+{"utc": "2026-10-02T03:56:21Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000913381, "attempt": 1}
+{"utc": "2026-10-02T03:56:22Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000913381, "attempt": 1}
+{"utc": "2026-10-02T04:05:35Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000913381, "media_id": 56285, "received": 172, "expected": 180, "after_s": 554.3}
+{"utc": "2026-10-02T04:20:51Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000909704, "media_id": 56270, "chunks": 181, "after_s": 5147.1, "healed_by": null}
+{"utc": "2026-10-02T04:20:51Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000911544, "media_id": 56279, "chunks": 181, "after_s": 3306.9, "healed_by": null}
+{"utc": "2026-10-02T04:26:50Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "no_row", "trigger_id": 2000912460}
+{"utc": "2026-10-02T04:26:50Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000915210, "attempt": 1}
+{"utc": "2026-10-02T04:26:51Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000915210, "attempt": 1}
+{"utc": "2026-10-02T04:26:57Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000915217, "attempt": 1}
+{"utc": "2026-10-02T04:26:58Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000915217, "attempt": 1}
+{"utc": "2026-10-02T04:41:06Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000915210, "media_id": 56293, "received": 174, "expected": 182, "after_s": 856.9}
+{"utc": "2026-10-02T04:41:15Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000913381, "media_id": 56285, "chunks": 180, "after_s": 2694.2, "healed_by": null}
+{"utc": "2026-10-02T04:41:15Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000915217, "media_id": 56294, "received": 151, "expected": 181, "after_s": 857.5}
+{"utc": "2026-10-02T04:57:25Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000917045, "attempt": 1}
+{"utc": "2026-10-02T04:57:25Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000917045, "attempt": 1}
+{"utc": "2026-10-02T04:57:31Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000917051, "attempt": 1}
+{"utc": "2026-10-02T04:57:32Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000917051, "attempt": 1}
+{"utc": "2026-10-02T05:10:39Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "row", "trigger_id": 2000917045, "media_id": 56301, "received": 184, "expected": 184, "after_s": 794.7}
+{"utc": "2026-10-02T05:10:39Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000917045, "media_id": 56301, "chunks": 184, "after_s": 794.7, "healed_by": null}
+{"utc": "2026-10-02T05:10:46Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "row", "trigger_id": 2000917051, "media_id": 56302, "received": 164, "expected": 182, "after_s": 794.7}
+{"utc": "2026-10-02T05:20:51Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "complete", "trigger_id": 2000915210, "media_id": 56293, "chunks": 182, "after_s": 3241.1, "healed_by": null}
+{"utc": "2026-10-02T05:20:59Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "complete", "trigger_id": 2000915217, "media_id": 56294, "chunks": 181, "after_s": 3241.2, "healed_by": null}
+{"utc": "2026-10-02T05:27:56Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "publish", "what": "trg", "id": 2000918876, "attempt": 1}
+{"utc": "2026-10-02T05:27:57Z", "spotter": "SPOT-31593C", "device": "BMCAM_004", "event": "acked", "what": "trg", "id": 2000918876, "attempt": 1}
+{"utc": "2026-10-02T05:28:05Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "publish", "what": "trg", "id": 2000918885, "attempt": 1}
+{"utc": "2026-10-02T05:28:06Z", "spotter": "SPOT-33507C", "device": "BMCAM_003", "event": "acked", "what": "trg", "id": 2000918885, "attempt": 1}

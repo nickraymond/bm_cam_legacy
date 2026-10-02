@@ -16,3 +16,28 @@
 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
 3c1801d7a69c
 2026-10-01T05:23:06Z [bmcam003] H3 armed: stay_on, trigger-only, held bus
+2026-10-01T05:44:01Z H4 auto-send ON confirmed by Nick (nereus-sofar-ingest-staging logs: [heal_autosend] BMCAM_003/004 decision=nothing_new attempts_24h=0). H3 conductor --no-heal since 2026-10-01T05:30:33Z.
+2026-10-01T06:28:16Z R4 BMCAM_003 (S6b judged, heal 100079): #1 PASS #3 PASS #4 PASS(so far) #5 PASS #6 PASS(data level; logs.html screenshot pending) #2 OPEN (received_age_s from the ~06:00Z cron line, Nick). BMCAM_004: no loss yet.
+2026-10-01 (Nick, Render nereus-sofar-ingest-staging logs; his display shows ~11:00:20 / 11:20 local):
+  [heal_autosend] device=BMCAM_003 decision=sent id=100079 http=202 chunks=38 attempts_24h=0 received_age_s={"0e1yjd": 879.1, "0e1zb5": 877.9} held=-
+  [heal_autosend] device=BMCAM_003 decision=nothing_new ... attempts_24h=1 held=0e1zb5:in_flight,0e1yjd:in_flight   (next tick ~20 min later)
+  -> R4 #2 PASS for 100079 (both keys >= 600 s); in_flight hold observed (#4).
+2026-10-01 ~07:40Z Nick (chat): Release R1 (PR #99) adopted for the bench: at R5 end NO restore; hold rigs (stay_on, armed, held buses, heal driver stopped) for the Test Engineer (G3). Nick removes BM_HEAL_AUTOSEND on the cron at R5 end (after the drain, ~07:30Z 10-02). H5 folded into G3 (Test Engineer); no commands from the bench owner.
+2026-10-02T02:26Z bench owner check (~21 h in):
+  SPOT-31593C rebooted itself 2026-10-02T01:27:20Z "Reset Reason: mem_fault_reboot" (FW v2.16.8, GIT 47FF21A4) -> bus reset -> bmcam004 hard-cut mid-burst (Pi up since 01:27:31, cron @reboot -> stay_on again OK).
+  Trigger 2000904197 (01:23:17Z, acked) -> 137 chunks submitted 01:23:30-01:27:20 -> no row at the backend (conductor no_row 02:09:11Z): whole clip lost with the Spotter's unsynced Notecard queue (cf. memory "Notecard unsynced loss on power cut").
+  Only Spotter reset in the run on either Spotter ("Neighbor added" every ~71.5 min on both is periodic, not a reset; bmcam003 up 21 h).
+  nvd #74 (migration 0018, DDL only) merged to staging 2026-10-02T02:23:35Z (EM) -> Render redeploy during R5; heal-walk gap check pending.
+  Auto ledger: 53 autosend heals (003: 37, 004: 16), 53/53 202, 53/53 at Spotter, 53/53 camera OK, 52 media complete, 1 in flight (100115).
+  Mirror gaps: passes at 23:28, 00:54, 02:20Z (Mac slept?); sources keep history, no evidence lost.
+2026-10-02 ~02:35Z S6b judgment (from the 02:24Z mirror): R5 "0 redundant heals" PASS. 53 autosend, all 202, no API heal since the flip.
+  8 re-asks, all by the rules: early release by <HL a=sent r=ok> then a subset re-ask (003: 0e26dt, 0e297h, 0e2lxq [F9 2nd part], 0e2vuw, 0e3a13; S6b said 6, listed 5 - to reconcile in RESULTS),
+  3 waited >= REASK_S with no release (5402/5698/5462 s): 0e2ncu (003), 0e2evc + 0e3a1d (004); the first heal was sent r=ok but its <HL> + some chunks were lost at the Spotter (queue full).
+  Each re-ask is a strict subset; each clip completed only after the re-ask reached the camera -> redundant = 0.
+  SPOT-31593C mem_fault_reboot = Spotter-firmware finding outside the backend gate. #74 = DDL only, no behaviour change; a 1-2 tick gap is harmless.
+  S6b correction: 5 early-release re-asks (not 6) + 3 after REASK_S = 8 re-asks; verdict unchanged (0 redundant).
+2026-10-02 ~05:25Z S6b, read-only Sofar API check (api/sensor-data, BM_REEF token): SPOT-31593C rows by hour 00h 239, 01h 5, 02h 0, 03h 0, 04h 292 (from 04:27:18 = 0e3r0y), 05h 118.
+  Keys 0e3knk (02:09), 0e3mrx (02:55), 0e3owl (03:41): 0 rows; no rows at odd timestamps (1970, 1980 GPS epoch, 2000, future). Sofar never exposed them -> not an ingest drop.
+  => BMCAM_004 lost 4 clips, all Spotter-side: 1 in the mem_fault_reboot (01:27:20Z); 3 handed to the cell-only queue during the post-reboot no-GPS stretch (GPS failed to initialize 02:27Z, OK 04:25Z) and never delivered. None healable (no key at the backend). Sofar ticket candidate (FW v2.16.8).
+2026-10-02T05:30:46Z G1 CUT: conductor stopped at 05:30Z (no drain, Nick via EM 22:12 PDT); snapshot r5_snapshot_cut.json
+2026-10-02T05:31:28Z HANDOFF sent to the Test Engineer (bench theirs from 05:30Z). Rigs held as-is: both stay_on, armed, buses held, 3c1801d; heal driver + conductor stopped; auto-send ON (Render).
