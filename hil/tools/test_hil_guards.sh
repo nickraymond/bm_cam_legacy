@@ -39,6 +39,7 @@ expect "sofar refuses BMCAM_001"   5 0 "$T/hil_sofar_change.sh" X BMCAM_001 '{"s
 expect "sofar refuses empty"       1 0 "$T/hil_sofar_change.sh" X "" '{"set":{}}'
 expect "pistate refuses bmcam001"  5 0 "$T/hil_pistate.sh" X bmcam001
 expect "snapshot refuses bmcam002" 5 0 "$T/hil_unit_snapshot.sh" bmcam002 x
+expect "ip probe refuses bmcam002"  5 0 "$T/hil_ip_range_probe.sh" bmcam002 "$W/ipp"
 expect "p0 refuses bmcam001"       5 0 "$T/hil_p0_probe.sh" bmcam001 "$W/p0"
 # positive controls: a real rig passes the guard and reaches the (fake) network
 expect "control: console rig SPOT-31593C reaches ssh" 4 1 "$T/hil_console.sh" SPOT-31593C post 1
