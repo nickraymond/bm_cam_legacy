@@ -1,0 +1,1 @@
+-n --timeout 2000 --width 4608 --height 2592 --quality 95

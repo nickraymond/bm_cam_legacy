@@ -2265,3 +2265,10 @@ CON  2026-10-02T08:05:54Z 1790928354.472 e6fe83ea6b4a2b7f, [bmcam004] OK id=6418
 CON  2026-10-02T08:05:54Z 1790928354.519 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
 CON  2026-10-02T08:05:54Z 1790928354.570 e6fe83ea6b4a2b7f, [bmcam004] OK id=64186 reset still.message_cap -> YAML (duplicate: original answer) cfg=f7c9194f
 SUMMARY cell=0 con=9
+----- 2026-10-02T19:13:18Z STATE smoke.plain bmcam004
+sha256 bdf950b1f4491517 bm_command_state_v2.json 0L
+sha256 c8a9c0c989ab6e7e camera_config.yaml 145L
+sha256 c32bb3c343cff2c4 config_journal.jsonl 178L
+overlay {"mode.run": "stay_on"}
+guarded {}
+boot 33 hw {"remote": 1000035, "service": 100000032} trg null cache 256
