@@ -62,6 +62,11 @@ CONTROL_KEYS = (
     "camera.white_balance.enabled", "camera.white_balance.mode", "camera.white_balance.gains",
     "camera.exposure.enabled", "camera.exposure.ev", "camera.exposure.shutter_us",
     "camera.exposure.analogue_gain",
+    # Sprint27 Nick Q2: writable with ranges / names measured on the unit (registry v6)
+    "camera.image_processing.enabled", "camera.image_processing.sharpness",
+    "camera.image_processing.contrast", "camera.image_processing.saturation",
+    "camera.image_processing.brightness", "camera.image_processing.denoise",
+    "camera.image_processing.hdr",
     "still.crop", "still.output_width", "still.quality_ladder", "still.message_cap",
     "still.budget_min",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
@@ -88,10 +93,9 @@ BASIC_KEYS = (
     "video.send.duration_s", "video.send.size", "video.send.fps",
 )
 
-# Shown (current value) but NOT writable in the MVP (REVIEW_r1 rows 2 / C2).
+# Shown (current value) but NOT writable in the MVP (REVIEW_r1 rows 2 / C2). The
+# camera.image_processing.* keys moved to control in Sprint27 Q2 (measured ranges).
 ENGINEERING_REASON = {
-    "camera.image_processing.": "free strings / unranged floats go straight into rpicam argv and "
-                                "video has no fallback: a bad value loses every clip",
     "camera.exposure.mode": "reported only: builds no camera flag (W7)",
     "still.save.quality": "only used by save_local, which is not writable yet",
 }
@@ -144,6 +148,9 @@ UNITS = {
     "mode.interval_s": "s", "mode.heartbeat_s": "s",
     "camera.native.jpeg_quality": "JPEG q", "camera.focus.lens_position": "dioptres",
     "camera.exposure.ev": "EV", "camera.exposure.shutter_us": "us",
+    "camera.image_processing.sharpness": "x (1 = normal)", "camera.image_processing.contrast": "x (1 = normal)",
+    "camera.image_processing.saturation": "x (1 = normal)",
+    "camera.image_processing.brightness": "offset (0 = normal)",
     "still.crop": "native px [x, y, w, h]", "still.output_width": "px",
     "still.quality_ladder": "JPEG q, best first", "still.save.quality": "JPEG q",
     "still.message_cap": "messages", "still.budget_min": "min",

@@ -36,11 +36,12 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 5          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 6          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
-                              #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11)
+                              #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11;
+                              # 6: camera.image_processing.* measured ranges / enums, Sprint27)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -225,18 +226,28 @@ KEYS = (
         range=(0.0, 64.0), v1_sources=(_V1_EXP + ".analogue_gain",), wire_visible=True),
     Key("camera.image_processing.enabled", BOOL, False, "Pass image-processing controls.",
         v1_sources=(_V1_IP + ".enabled",)),
-    Key("camera.image_processing.sharpness", FLOAT, None, "Sharpness.", nullable=True,
-        v1_sources=(_V1_IP + ".sharpness",)),
-    Key("camera.image_processing.contrast", FLOAT, None, "Contrast.", nullable=True,
-        v1_sources=(_V1_IP + ".contrast",)),
-    Key("camera.image_processing.saturation", FLOAT, None, "Saturation.", nullable=True,
-        v1_sources=(_V1_IP + ".saturation",)),
-    Key("camera.image_processing.brightness", FLOAT, None, "Brightness.", nullable=True,
-        v1_sources=(_V1_IP + ".brightness",)),
-    Key("camera.image_processing.denoise", STR, None, "Denoise mode (passed through).",
-        nullable=True, v1_sources=(_V1_IP + ".denoise",)),
-    Key("camera.image_processing.hdr", BOOL_OR_STR, None, "HDR (passed through).",
-        nullable=True, v1_sources=(_V1_IP + ".hdr",)),
+    # Sprint27 (Nick Q2): ranges / names MEASURED on bmcam004 (rpicam-apps v1.12.0, libcamera
+    # v0.7.1, IMX708; runs/s27_ladder_20261001/p0_rpicam_limits/, Picamera2 camera_controls
+    # [min, max, default]). rpicam does NOT refuse out-of-range floats (it clamps silently), so
+    # this registry range is the only check; a bogus denoise / hdr name exits 255 (clip lost).
+    Key("camera.image_processing.sharpness", FLOAT, None, "Sharpness 0..16 (1 = normal).",
+        nullable=True, range=(0.0, 16.0), v1_sources=(_V1_IP + ".sharpness",)),
+    Key("camera.image_processing.contrast", FLOAT, None, "Contrast 0..32 (1 = normal).",
+        nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".contrast",)),
+    Key("camera.image_processing.saturation", FLOAT, None, "Saturation 0..32 (1 = normal, "
+        "0 = greyscale).", nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".saturation",)),
+    Key("camera.image_processing.brightness", FLOAT, None, "Brightness -1..1 (0 = normal).",
+        nullable=True, range=(-1.0, 1.0), v1_sources=(_V1_IP + ".brightness",)),
+    Key("camera.image_processing.denoise", STR, None, "Denoise mode (rpicam --denoise).",
+        nullable=True, enum=("auto", "off", "cdn_off", "cdn_fast", "cdn_hq"),
+        v1_sources=(_V1_IP + ".denoise",)),
+    # true = --hdr auto, false / "off" = no flag (rc_capture). "single-exp" is PiSP (Pi 5)
+    # multiframe HDR per rpicam's help; it ran on bmcam004 (Pi Zero 2 W) but its effect there
+    # is unverified.
+    Key("camera.image_processing.hdr", BOOL_OR_STR, None, "HDR: off / auto / sensor (Camera "
+        "Module 3 sensor HDR) / single-exp; true = auto.", nullable=True,
+        enum=(True, False, "off", "auto", "sensor", "single-exp"),
+        v1_sources=(_V1_IP + ".hdr",)),
 
     # ---- still --------------------------------------------------------------
     Key("still.crop", CROP, [1504, 846, 1600, 900], "Still crop [x, y, w, h], native px.",
