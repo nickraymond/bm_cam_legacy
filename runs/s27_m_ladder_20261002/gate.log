@@ -43,3 +43,6 @@ CRON_MATCHES_BACKUP
 2026-10-02T21:22:06Z [restore SPOT-31593C/bmcam004] bmcam004 dark
 2026-10-02T21:22:20Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
 2026-10-02T21:22:20Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-02T22:39:43Z both Spotters entered CHARGE MODE during Nick's move (power switch off); 23:00Z wake LOST on both.
+2026-10-02T23:04Z Nick toggled both ON; bridges self-test OK; cold boot opened 120 s bus stubs (SPOT-31593C 23:03:53, SPOT-33507C 23:03:55 + 23:04:30).
+2026-10-02T23:05Z bmcam004 (up in the stub) halted 23:05:12, bmcam003 halted 23:05:32 via tuned_halt.sh, both dark by 23:06:04: protective SSH halts (pre-G4) to avoid a stub-end hard cut mid-cycle.
