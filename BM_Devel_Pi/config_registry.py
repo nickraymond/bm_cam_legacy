@@ -235,12 +235,17 @@ KEYS = (
     Key("camera.image_processing.sharpness", FLOAT, None, "Sharpness 0..16 (1 = normal).",
         nullable=True, range=(0.0, 16.0),
         v1_sources=(_V1_IP + ".sharpness", "video.encoder.sharpness")),
-    Key("camera.image_processing.contrast", FLOAT, None, "Contrast 0..32 (1 = normal).",
-        nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".contrast",)),
-    Key("camera.image_processing.saturation", FLOAT, None, "Saturation 0..32 (1 = normal, "
-        "0 = greyscale).", nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".saturation",)),
-    Key("camera.image_processing.brightness", FLOAT, None, "Brightness -1..1 (0 = normal).",
-        nullable=True, range=(-1.0, 1.0), v1_sources=(_V1_IP + ".brightness",)),
+    # Sprint27 F-G3-5 (Nick 2026-10-02): contrast / saturation / brightness NARROWED to the range
+    # that keeps a usable image, measured in daylight on bmcam003 (TE probe 2026-10-02,
+    # runs/s27_ip_range_probe_20261002/stats.csv): the libcamera range (contrast / saturation 0..32,
+    # brightness -1..1) blanked frames (G3: contrast 32 / saturation >= 6 / brightness -0.75 black,
+    # brightness +0.75 white, contrast 0 flat grey).
+    Key("camera.image_processing.contrast", FLOAT, None, "Contrast 0.5..2 (1 = normal).",
+        nullable=True, range=(0.5, 2.0), v1_sources=(_V1_IP + ".contrast",)),
+    Key("camera.image_processing.saturation", FLOAT, None, "Saturation 0..2 (1 = normal, "
+        "0 = greyscale).", nullable=True, range=(0.0, 2.0), v1_sources=(_V1_IP + ".saturation",)),
+    Key("camera.image_processing.brightness", FLOAT, None, "Brightness -0.25..0.25 (0 = normal).",
+        nullable=True, range=(-0.25, 0.25), v1_sources=(_V1_IP + ".brightness",)),
     Key("camera.image_processing.denoise", STR, None, "Denoise mode (rpicam --denoise).",
         nullable=True, enum=("auto", "off", "cdn_off", "cdn_fast", "cdn_hq"),
         v1_sources=(_V1_IP + ".denoise", "video.encoder.denoise")),

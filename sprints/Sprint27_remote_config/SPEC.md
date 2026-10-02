@@ -502,7 +502,7 @@ Writable now: 54 control keys. Read-only: `camera.exposure.mode`, `still.save.qu
 **transmit window** (minutes, or unlimited for field testing). The message budget would then be
 derived as window ÷ pacing (`uplink.msg_interval_s`). Note only; nothing built.
 
-### 9.7 F-G3-5: narrow image-processing ranges (Nick 2026-10-02, R1). PENDING bench data
+### 9.7 F-G3-5: narrow image-processing ranges (Nick 2026-10-02, R1). DONE
 
 G3 (`runs/g3_hardmode_20261001`, TE) found that values inside the libcamera range blank the image:
 
@@ -537,3 +537,15 @@ answered:
    unit's own `build_cf`. That is a one-off cost of about 9 minutes of the shared 65 s/Spotter lane.
    Without a full base config the command stays "sent · ack not received".
 4. **Not predicted:** a `reset`, because its YAML value is not known to the backend.
+
+**F-G3-5 result (2026-10-02).** The TE's daylight probe on bmcam003 (`runs/s27_ip_range_probe_20261002/`,
+bm PR #107; rpicam-still, one key per still, mean luma / sd / mean saturation) set the registry ranges:
+
+| key | new range | probe evidence |
+|---|---|---|
+| contrast | 0.5..2.0 | luma sd 34.6..84.6; 0.25 washed out (sd 22.8); ≥ 3 crushes shadows (at night 2.0 was near-black) |
+| saturation | 0..2.0 | 2 → mean sat 132; 3 → 240 (strong cast); ≥ 6 → black (luma 1.3) |
+| brightness | −0.25..0.25 | luma 55.8..172.3; ±0.5 → 19.6 / 222.8; ±0.75 → 9.6 / 249.3 |
+
+Sharpness is unchanged (0..16). The same range drives the unit, the backend and the UI (§9.6).
+No repo config sets these keys.

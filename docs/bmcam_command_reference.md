@@ -176,9 +176,9 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `camera.exposure.analogue_gain` | float | null | 0.0 – 64.0 | next_action |  | Fixed analogue gain. |  |
 | `camera.image_processing.enabled` | bool | false | bool | next_action |  | Pass image-processing controls. |  |
 | `camera.image_processing.sharpness` | float | null | 0.0 – 16.0 | next_action |  | Sharpness 0..16 (1 = normal). |  |
-| `camera.image_processing.contrast` | float | null | 0.0 – 32.0 | next_action |  | Contrast 0..32 (1 = normal). |  |
-| `camera.image_processing.saturation` | float | null | 0.0 – 32.0 | next_action |  | Saturation 0..32 (1 = normal, 0 = greyscale). |  |
-| `camera.image_processing.brightness` | float | null | -1.0 – 1.0 | next_action |  | Brightness -1..1 (0 = normal). |  |
+| `camera.image_processing.contrast` | float | null | 0.5 – 2.0 | next_action |  | Contrast 0.5..2 (1 = normal). |  |
+| `camera.image_processing.saturation` | float | null | 0.0 – 2.0 | next_action |  | Saturation 0..2 (1 = normal, 0 = greyscale). |  |
+| `camera.image_processing.brightness` | float | null | -0.25 – 0.25 | next_action |  | Brightness -0.25..0.25 (0 = normal). |  |
 | `camera.image_processing.denoise` | str | null | auto / off / cdn_off / cdn_fast / cdn_hq | next_action |  | Denoise mode (rpicam --denoise). |  |
 | `camera.image_processing.hdr` | bool_or_str | null | true / false / off / auto / sensor / single-exp | next_action |  | HDR: off / auto / sensor (Camera Module 3 sensor HDR) / single-exp; true = auto. |  |
 

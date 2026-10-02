@@ -339,9 +339,10 @@ def _sizing_values():
     v["camera.white_balance.gains"] = [1.8125, 1.6875]
     v["camera.image_processing.hdr"] = "single-exp"
     v["camera.image_processing.denoise"] = "cdn_fast"
-    for k in ("sharpness", "contrast", "saturation"):
-        v[f"camera.image_processing.{k}"] = 12.25
-    v["camera.image_processing.brightness"] = -0.75
+    v["camera.image_processing.sharpness"] = 12.25
+    v["camera.image_processing.contrast"] = 1.875          # widest text inside the F-G3-5 ranges
+    v["camera.image_processing.saturation"] = 1.875
+    v["camera.image_processing.brightness"] = -0.125
     return v
 
 

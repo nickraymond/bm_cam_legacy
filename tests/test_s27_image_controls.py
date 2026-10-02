@@ -7,6 +7,8 @@ ranges / names MEASURED on bmcam004 (runs/s27_ladder_20261001/p0_rpicam_limits/ 
 feature/r1-hil-test-engineer 27ffd9b: rpicam-apps v1.12.0, libcamera v0.7.1, IMX708):
 
   sharpness 0..16, contrast 0..32, saturation 0..32, brightness -1..1  (Picamera2 camera_controls)
+  -> F-G3-5 (Nick 2026-10-02): contrast 0.5..2, saturation 0..2, brightness -0.25..0.25, the
+     USABLE range from the TE's daylight probe (runs/s27_ip_range_probe_20261002/stats.csv)
   denoise   auto off cdn_off cdn_fast cdn_hq                           (rpicam --help; bogus -> 255)
   hdr       off auto sensor single-exp (+ true/false: true = auto)     (rpicam --help; bogus -> 255)
 
@@ -36,9 +38,10 @@ import config_registry as R  # noqa: E402
 
 MEASURED = {
     "camera.image_processing.sharpness": {"range": (0.0, 16.0)},
-    "camera.image_processing.contrast": {"range": (0.0, 32.0)},
-    "camera.image_processing.saturation": {"range": (0.0, 32.0)},
-    "camera.image_processing.brightness": {"range": (-1.0, 1.0)},
+    # F-G3-5: narrowed to the usable range (daylight probe, bmcam003 2026-10-02)
+    "camera.image_processing.contrast": {"range": (0.5, 2.0)},
+    "camera.image_processing.saturation": {"range": (0.0, 2.0)},
+    "camera.image_processing.brightness": {"range": (-0.25, 0.25)},
     "camera.image_processing.denoise": {"enum": ("auto", "off", "cdn_off", "cdn_fast", "cdn_hq")},
     "camera.image_processing.hdr": {"enum": (True, False, "off", "auto", "sensor", "single-exp")},
 }
@@ -56,8 +59,11 @@ class Measured(unittest.TestCase):
 
     def test_out_of_range_and_bogus_names_refused(self):
         for path, bad in (("camera.image_processing.sharpness", 16.5),
-                          ("camera.image_processing.contrast", -0.1),
-                          ("camera.image_processing.brightness", 1.21),
+                          ("camera.image_processing.contrast", 0.25),
+                          ("camera.image_processing.contrast", 3.0),
+                          ("camera.image_processing.saturation", 3.0),
+                          ("camera.image_processing.brightness", 0.5),
+                          ("camera.image_processing.brightness", -0.3),
                           ("camera.image_processing.denoise", "bogus"),
                           ("camera.image_processing.hdr", "bogus")):
             self.assertIsNotNone(R.check_value(R.BY_PATH[path], bad), (path, bad))

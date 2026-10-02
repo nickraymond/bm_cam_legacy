@@ -101,12 +101,12 @@ YAML value. Any SSH needed = FAIL.
 
 | # | change (`kv`; with `camera.controls_enabled` and `camera.image_processing.enabled` true) | check |
 |---|---|---|
-| IP1 | `sharpness` 0 then 16, `contrast` 0 then 32, `saturation` 0 then 32 (P0-measured; one change each) | still AND clip produced; sidecar `requested_*`; visible effect |
-| IP2 | `brightness` -1.0 / 1.0 | as IP1 |
+| IP1 | `sharpness` 0 then 16, `contrast` 0.5 then 2.0, `saturation` 0 then 2.0 (F-G3-5 usable ranges; one change each) | still AND clip produced; sidecar `requested_*`; visible effect |
+| IP2 | `brightness` -0.25 / 0.25 | as IP1 |
 | IP3 | each `denoise` value: auto, off, cdn_off, cdn_fast, cdn_hq | still + clip produced |
 | IP4 | `hdr` off / auto / sensor / single-exp (and `true`), on a still unit and on a video unit | still + clip produced; refused combinations get `e:xk` |
 | IP6 (video retry, Nick 2026-10-01) | on a video unit, a camera-control combination P0 showed `rpicam-vid` refuses at run time (e.g. duplicate `--denoise`, if it fails), set through the console lane | the clip is STILL produced; log `[VID][WARN] … retrying … without camera controls`; the clip manifest `requested_controls.controls_dropped: true` |
-| IP5 (negative) | sharpness 16.5, brightness 1.2, denoise `bogus`; (after F-G3-4) `video.record.encoder.denoise` → `e:key` (console range id) | `e:xk`, nothing stored, next clip produced |
+| IP5 (negative) | sharpness 16.5, contrast 3, saturation 3, brightness 0.5, denoise `bogus`; (after F-G3-4) `video.record.encoder.denoise` → `e:key` (console range id) | `e:xk`, nothing stored, next clip produced |
 
 ## F-G3-4 — retired encoder knobs (Nick 2026-10-02; after the F-G3-4 bm PR is on the unit)
 
