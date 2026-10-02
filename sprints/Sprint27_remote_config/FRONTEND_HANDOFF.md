@@ -44,7 +44,10 @@ Request body for plan / changes: `{"set": {path: value}}` **or** `{"reset": [pat
 
 `path, section, group, type, default, nullable, enum, range, choices, unit, help, presets,
 apply (next_action | next_boot), tier, tier_reason, blocked_values[{value, why}],
-requires[switch paths], limits{max, max_each, max_items, warn_above, warn_below, warn_not, why, proposal}`.
+requires[switch paths], limits{max, max_each, max_items, warn_above, warn_below, warn_not, why, proposal}, level (basic | advanced)`.
+
+`level` (added 2026-10-01, Nick): show `basic` keys up front and fold `advanced` ones away. It is
+display only; `tier` still decides what is writable.
 
 Widget by `type`: `bool` toggle · `int`/`float` number in `range` (+ `presets`) · `enum` select
 (`""` cannot be sent: offer "reset to default" instead) · `crop` 4 ints `[x, y, w, h]` native px ·
