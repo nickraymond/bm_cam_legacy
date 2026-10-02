@@ -2097,3 +2097,542 @@
 2026-10-02T21:02:37Z 2026-10-02T21:02:40.101Z [MS] [DEBUG] Has message 4182 expired? queuedTime: 70535697, now64: 70535745, remaining: 86399952
 2026-10-02T21:02:37Z 2026-10-02T21:02:40.101Z [MS] [INFO] Sending Cellular message to Notecard.
 2026-10-02T21:02:37Z 2026-10-02T21:02:40.101Z [MS] [INFO] Queuing message 4182 20004E68
+2026-10-02T21:03:49Z SPOT-31593C > bm pub bmcam/cmd {"id":1000038,"c":"get","k":["video.record","video.logger"]} 1 1
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-02T21:05:02Z SPOT-31593C > bm pub bmcam/cmd {"id":1000039,"c":"get","k":["camera.image_processing","mode"]} 1 1
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-02T21:06:15Z SPOT-31593C > bm pub bmcam/cmd {"id":1000040,"c":"get","k":["commands","camera.focus"]} 1 1
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-02T21:07:28Z SPOT-31593C > bm pub bmcam/cmd {"id":1000041,"c":"get","k":["time","schedule"]} 1 1
+2026-10-02T21:07:30Z bm pub bmcam/cmd {"id":1000041,"c":"get","k":["time","schedule"]} 1 1
+2026-10-02T21:07:30Z 2026-10-02T21:07:33.597Z [MS] [INFO] Added message(id: 4184 len: 163) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:07:30Z 2026-10-02T21:07:33.597Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 37
+2026-10-02T21:07:30Z 2026-10-02T21:07:33.597Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:07:30Z  7b 22 69 64 22 3a 31 30
+2026-10-02T21:07:30Z  30 30 30 34 31 2c 22 6f
+2026-10-02T21:07:30Z  6b 22 3a 31 2c 22 68 22
+2026-10-02T21:07:30Z  3a 22 35 34 64 39 30 34
+2026-10-02T21:07:30Z  62 37 22 7d
+2026-10-02T21:07:30Z Message: 1790975253.609 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) cfg=54d904b7
+2026-10-02T21:07:31Z 2026-10-02T21:07:33.644Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:07:31Z 2026-10-02T21:07:33.648Z [MS] [DEBUG] Has message 4184 expired? queuedTime: 70829296, now64: 70829345, remaining: 86399951
+2026-10-02T21:07:31Z 1790975253.648 e6fe83ea6b4a2b7f,   time.source = spotter_utc (yaml)
+2026-10-02T21:07:31Z 2026-10-02T21:07:33.648Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:07:31Z 2026-10-02T21:07:33.648Z [MS] [INFO] Queuing message 4184 20004E68
+2026-10-02T21:07:31Z 1790975253.699 e6fe83ea6b4a2b7f,   time.set_system_clock = true (yaml)
+2026-10-02T21:07:31Z 1790975253.746 e6fe83ea6b4a2b7f,   time.timeout_s = 60 (yaml)
+2026-10-02T21:07:31Z 1790975253.796 e6fe83ea6b4a2b7f,   time.allow_system_fallback = true (yaml)
+2026-10-02T21:07:31Z 1790975253.847 e6fe83ea6b4a2b7f,   time.rtc.hwclock_path = /usr/sbin/hwclock (yaml)
+2026-10-02T21:07:31Z 1790975253.898 e6fe83ea6b4a2b7f,   time.rtc.set_system_clock = true (yaml)
+2026-10-02T21:07:31Z 1790975253.949 e6fe83ea6b4a2b7f,   time.rtc.plausible_after_utc = 2026-01-01T00:00:00+00:00 (yaml)
+2026-10-02T21:07:31Z 1790975254.000 e6fe83ea6b4a2b7f,   schedule.timezone = America/Los_Angeles (yaml)
+2026-10-02T21:07:31Z 1790975254.046 e6fe83ea6b4a2b7f,   schedule.window.enabled = true (yaml)
+2026-10-02T21:07:31Z 1790975254.097 e6fe83ea6b4a2b7f,   schedule.window.start = 00:00 (yaml)
+2026-10-02T21:07:31Z 1790975254.148 e6fe83ea6b4a2b7f,   schedule.window.end = 00:00 (yaml)
+2026-10-02T21:07:31Z 1790975254.207 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:31Z 1790975254.257 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:31Z 1790975254.308 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:31Z 1790975254.359 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:31Z 1790975254.410 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:31Z 1790975254.457 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.699Z [MS] [INFO] Added message(id: 4185 len: 371) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.703Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 244
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.703Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:07:32Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:07:32Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:07:32Z  62 37 20 6e 3d 31 2f 32
+2026-10-02T21:07:32Z  20 74 69 6d 65 2e 73 6f
+2026-10-02T21:07:32Z  75 72 63 65 3d 73 70 6f
+2026-10-02T21:07:32Z  74 74 65 72 5f 75 74 63
+2026-10-02T21:07:32Z  20 74 69 6d 65 2e 73 65
+2026-10-02T21:07:32Z  74 5f 73 79 73 74 65 6d
+2026-10-02T21:07:32Z  5f 63 6c 6f 63 6b 3d 31
+2026-10-02T21:07:32Z  20 74 69 6d 65 2e 74 69
+2026-10-02T21:07:32Z  6d 65 6f 75 74 5f 73 3d
+2026-10-02T21:07:32Z  36 30 20 74 69 6d 65 2e
+2026-10-02T21:07:32Z  61 6c 6c 6f 77 5f 73 79
+2026-10-02T21:07:32Z  73 74 65 6d 5f 66 61 6c
+2026-10-02T21:07:32Z  6c 62 61 63 6b 3d 31 20
+2026-10-02T21:07:32Z  74 69 6d 65 2e 72 74 63
+2026-10-02T21:07:32Z  2e 68 77 63 6c 6f 63 6b
+2026-10-02T21:07:32Z  5f 70 61 74 68 3d 2f 75
+2026-10-02T21:07:32Z  73 72 2f 73 62 69 6e 2f
+2026-10-02T21:07:32Z  68 77 63 6c 6f 63 6b 20
+2026-10-02T21:07:32Z  74 69 6d 65 2e 72 74 63
+2026-10-02T21:07:32Z  2e 73 65 74 5f 73 79 73
+2026-10-02T21:07:32Z  74 65 6d 5f 63 6c 6f 63
+2026-10-02T21:07:32Z  6b 3d 31 20 74 69 6d 65
+2026-10-02T21:07:32Z  2e 72 74 63 2e 70 6c 61
+2026-10-02T21:07:32Z  75 73 69 62 6c 65 5f 61
+2026-10-02T21:07:32Z  66 74 65 72 5f 75 74 63
+2026-10-02T21:07:32Z  3d 32 30 32 36 2d 30 31
+2026-10-02T21:07:32Z  2d 30 31 54 30 30 3a 30
+2026-10-02T21:07:32Z  30 3a 30 30 2b 30 30 3a
+2026-10-02T21:07:32Z  30 30 3e
+2026-10-02T21:07:32Z Message: 1790975254.726 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:32Z 1790975254.750 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.757Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.757Z [MS] [DEBUG] Has message 4185 expired? queuedTime: 70830399, now64: 70830457, remaining: 86399942
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.757Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:07:32Z 2026-10-02T21:07:34.761Z [MS] [INFO] Queuing message 4185 20004E68
+2026-10-02T21:07:32Z 1790975254.796 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.808Z [MS] [INFO] Added message(id: 4186 len: 271) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.808Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 144
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.808Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:07:33Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:07:33Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:07:33Z  62 37 20 6e 3d 32 2f 32
+2026-10-02T21:07:33Z  20 73 63 68 65 64 75 6c
+2026-10-02T21:07:33Z  65 2e 74 69 6d 65 7a 6f
+2026-10-02T21:07:33Z  6e 65 3d 41 6d 65 72 69
+2026-10-02T21:07:33Z  63 61 2f 4c 6f 73 5f 41
+2026-10-02T21:07:33Z  6e 67 65 6c 65 73 20 73
+2026-10-02T21:07:33Z  63 68 65 64 75 6c 65 2e
+2026-10-02T21:07:33Z  77 69 6e 64 6f 77 2e 65
+2026-10-02T21:07:33Z  6e 61 62 6c 65 64 3d 31
+2026-10-02T21:07:33Z  20 73 63 68 65 64 75 6c
+2026-10-02T21:07:33Z  65 2e 77 69 6e 64 6f 77
+2026-10-02T21:07:33Z  2e 73 74 61 72 74 3d 30
+2026-10-02T21:07:33Z  30 3a 30 30 20 73 63 68
+2026-10-02T21:07:33Z  65 64 75 6c 65 2e 77 69
+2026-10-02T21:07:33Z  6e 64 6f 77 2e 65 6e 64
+2026-10-02T21:07:33Z  3d 30 30 3a 30 30 3e
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.855Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.855Z [MS] [DEBUG] Has message 4186 expired? queuedTime: 70831508, now64: 70831552, remaining: 86399956
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.855Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:07:33Z 2026-10-02T21:07:35.855Z [MS] [INFO] Queuing message 4186 20004E68
+2026-10-02T21:08:45Z SPOT-31593C > bm pub bmcam/cmd {"id":1000042,"c":"get","k":["video.send","still"]} 1 1
+2026-10-02T21:08:47Z bm pub bmcam/cmd {"id":1000042,"c":"get","k":["video.send","still"]} 1 1
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.656Z [MS] [INFO] Added message(id: 4187 len: 163) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.656Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 37
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.656Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:08:48Z  7b 22 69 64 22 3a 31 30
+2026-10-02T21:08:48Z  30 30 30 34 32 2c 22 6f
+2026-10-02T21:08:48Z  6b 22 3a 31 2c 22 68 22
+2026-10-02T21:08:48Z  3a 22 35 34 64 39 30 34
+2026-10-02T21:08:48Z  62 37 22 7d
+2026-10-02T21:08:48Z Message: 1790975330.664 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) cfg=54d904b7
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.703Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.703Z [MS] [DEBUG] Has message 4187 expired? queuedTime: 70906366, now64: 70906413, remaining: 86399953
+2026-10-02T21:08:48Z 1790975330.703 e6fe83ea6b4a2b7f,   video.send.duration_s = 15 (cmd 1000036)
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.703Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:08:48Z 2026-10-02T21:08:50.703Z [MS] [INFO] Queuing message 4187 20004E68
+2026-10-02T21:08:48Z 1790975330.753 e6fe83ea6b4a2b7f,   video.send.lead_in_s = 2.0 (yaml)
+2026-10-02T21:08:48Z 1790975330.804 e6fe83ea6b4a2b7f,   video.send.fps = 10 (yaml)
+2026-10-02T21:08:48Z 1790975330.855 e6fe83ea6b4a2b7f,   video.send.message_cap = 190 (yaml)
+2026-10-02T21:08:48Z 1790975330.902 e6fe83ea6b4a2b7f,   video.send.keyframe_repeat_max = 30 (yaml)
+2026-10-02T21:08:48Z 1790975330.953 e6fe83ea6b4a2b7f,   video.send.size = 480x270 (yaml)
+2026-10-02T21:08:48Z 1790975331.003 e6fe83ea6b4a2b7f,   video.send.x264_preset = medium (yaml)
+2026-10-02T21:08:48Z 1790975331.054 e6fe83ea6b4a2b7f,   video.send.budget_min = 8 (yaml)
+2026-10-02T21:08:48Z 1790975331.105 e6fe83ea6b4a2b7f,   still.crop = 1504,846,1600,900 (yaml)
+2026-10-02T21:08:48Z 1790975331.152 e6fe83ea6b4a2b7f,   still.output_width = 1000 (yaml)
+2026-10-02T21:08:48Z 1790975331.214 e6fe83ea6b4a2b7f,   still.quality_ladder = 20,15,11,9 (cmd 65003)
+2026-10-02T21:08:48Z 1790975331.253 e6fe83ea6b4a2b7f,   still.save.quality = 85 (yaml)
+2026-10-02T21:08:48Z 1790975331.304 e6fe83ea6b4a2b7f,   still.message_cap = 195 (yaml)
+2026-10-02T21:08:48Z 1790975331.363 e6fe83ea6b4a2b7f,   still.budget_min = 8 (yaml)
+2026-10-02T21:08:48Z 1790975331.414 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:48Z 1790975331.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:48Z 1790975331.515 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:48Z 1790975331.566 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:49Z 1790975331.625 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:49Z 1790975331.675 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:49Z 1790975331.726 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:49Z 1790975331.773 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:49Z 1790975331.824 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.046Z [MS] [INFO] Added message(id: 4188 len: 398) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.046Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 271
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.046Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:08:49Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:08:49Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:08:49Z  62 37 20 6e 3d 31 2f 32
+2026-10-02T21:08:49Z  20 76 69 64 65 6f 2e 73
+2026-10-02T21:08:49Z  65 6e 64 2e 64 75 72 61
+2026-10-02T21:08:49Z  74 69 6f 6e 5f 73 3d 31
+2026-10-02T21:08:49Z  35 40 63 31 30 30 30 30
+2026-10-02T21:08:49Z  33 36 20 76 69 64 65 6f
+2026-10-02T21:08:49Z  2e 73 65 6e 64 2e 6c 65
+2026-10-02T21:08:49Z  61 64 5f 69 6e 5f 73 3d
+2026-10-02T21:08:49Z  32 2e 30 20 76 69 64 65
+2026-10-02T21:08:49Z  6f 2e 73 65 6e 64 2e 66
+2026-10-02T21:08:49Z  70 73 3d 31 30 20 76 69
+2026-10-02T21:08:49Z  64 65 6f 2e 73 65 6e 64
+2026-10-02T21:08:49Z  2e 6d 65 73 73 61 67 65
+2026-10-02T21:08:49Z  5f 63 61 70 3d 31 39 30
+2026-10-02T21:08:49Z  20 76 69 64 65 6f 2e 73
+2026-10-02T21:08:49Z  65 6e 64 2e 6b 65 79 66
+2026-10-02T21:08:49Z  72 61 6d 65 5f 72 65 70
+2026-10-02T21:08:49Z  65 61 74 5f 6d 61 78 3d
+2026-10-02T21:08:49Z  33 30 20 76 69 64 65 6f
+2026-10-02T21:08:49Z  2e 73 65 6e 64 2e 73 69
+2026-10-02T21:08:49Z  7a 65 3d 34 38 30 78 32
+2026-10-02T21:08:49Z  37 30 20 76 69 64 65 6f
+2026-10-02T21:08:49Z  2e 73 65 6e 64 2e 78 32
+2026-10-02T21:08:49Z  36 34 5f 70 72 65 73 65
+2026-10-02T21:08:49Z  74 3d 6d 65 64 69 75 6d
+2026-10-02T21:08:49Z  20 76 69 64 65 6f 2e 73
+2026-10-02T21:08:49Z  65 6e 64 2e 62 75 64 67
+2026-10-02T21:08:49Z  65 74 5f 6d 69 6e 3d 38
+2026-10-02T21:08:49Z  20 73 74 69 6c 6c 2e 63
+2026-10-02T21:08:49Z  72 6f 70 3d 31 35 30 34
+2026-10-02T21:08:49Z  2c 38 34 36 2c 31 36 30
+2026-10-02T21:08:49Z  30 2c 39 30 30 3e
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.109Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.109Z [MS] [DEBUG] Has message 4188 expired? queuedTime: 70907760, now64: 70907822, remaining: 86399938
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.109Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:08:49Z 2026-10-02T21:08:52.113Z [MS] [INFO] Queuing message 4188 20004E68
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.035Z [MS] [INFO] Added message(id: 4189 len: 279) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.035Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 152
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.035Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:08:50Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:08:50Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:08:50Z  62 37 20 6e 3d 32 2f 32
+2026-10-02T21:08:50Z  20 73 74 69 6c 6c 2e 6f
+2026-10-02T21:08:50Z  75 74 70 75 74 5f 77 69
+2026-10-02T21:08:50Z  64 74 68 3d 31 30 30 30
+2026-10-02T21:08:50Z  20 73 74 69 6c 6c 2e 71
+2026-10-02T21:08:50Z  75 61 6c 69 74 79 5f 6c
+2026-10-02T21:08:50Z  61 64 64 65 72 3d 32 30
+2026-10-02T21:08:50Z  2c 31 35 2c 31 31 2c 39
+2026-10-02T21:08:50Z  40 63 36 35 30 30 33 20
+2026-10-02T21:08:50Z  73 74 69 6c 6c 2e 73 61
+2026-10-02T21:08:50Z  76 65 2e 71 75 61 6c 69
+2026-10-02T21:08:50Z  74 79 3d 38 35 20 73 74
+2026-10-02T21:08:50Z  69 6c 6c 2e 6d 65 73 73
+2026-10-02T21:08:50Z  61 67 65 5f 63 61 70 3d
+2026-10-02T21:08:50Z  31 39 35 20 73 74 69 6c
+2026-10-02T21:08:50Z  6c 2e 62 75 64 67 65 74
+2026-10-02T21:08:50Z  5f 6d 69 6e 3d 38 3e
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.078Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.078Z [MS] [DEBUG] Has message 4189 expired? queuedTime: 70908748, now64: 70908791, remaining: 86399957
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.082Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:08:50Z 2026-10-02T21:08:53.082Z [MS] [INFO] Queuing message 4189 20004E68
+2026-10-02T21:10:02Z SPOT-31593C > bm pub bmcam/cmd {"id":1000043,"c":"get","k":["power","camera.exposure","camera.controls_enabled","camera.backend"]} 1 1
+2026-10-02T21:10:04Z bm pub bmcam/cmd {"id":1000043,"c":"get","k":["power","camera.exposure","camera.controls_enabled","camera.backend"]} 1 1
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.281Z [MS] [INFO] Added message(id: 4190 len: 163) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.281Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 37
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.281Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:10:04Z  7b 22 69 64 22 3a 31 30
+2026-10-02T21:10:04Z  30 30 30 34 33 2c 22 6f
+2026-10-02T21:10:04Z  6b 22 3a 31 2c 22 68 22
+2026-10-02T21:10:04Z  3a 22 35 34 64 39 30 34
+2026-10-02T21:10:04Z  62 37 22 7d
+2026-10-02T21:10:04Z Message: 1790975407.304 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) cfg=54d904b7
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.328Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.328Z [MS] [DEBUG] Has message 4190 expired? queuedTime: 70983007, now64: 70983052, remaining: 86399955
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.328Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:10:04Z 2026-10-02T21:10:07.328Z [MS] [INFO] Queuing message 4190 20004E68
+2026-10-02T21:10:04Z 1790975407.339 e6fe83ea6b4a2b7f,   power.halt.enabled = true (yaml)
+2026-10-02T21:10:04Z 1790975407.390 e6fe83ea6b4a2b7f,   power.halt.dry_run = false (yaml)
+2026-10-02T21:10:04Z 1790975407.441 e6fe83ea6b4a2b7f,   power.halt.mode = halt (yaml)
+2026-10-02T21:10:04Z 1790975407.492 e6fe83ea6b4a2b7f,   power.halt.script_path = /home/pi/BM_Devel_Pi/tuned_halt.sh (yaml)
+2026-10-02T21:10:04Z 1790975407.542 e6fe83ea6b4a2b7f,   power.bus_always_on = false (yaml)
+2026-10-02T21:10:05Z 1790975407.589 e6fe83ea6b4a2b7f,   camera.exposure.enabled = false (yaml)
+2026-10-02T21:10:05Z 1790975407.640 e6fe83ea6b4a2b7f,   camera.exposure.mode = none (yaml)
+2026-10-02T21:10:05Z 1790975407.691 e6fe83ea6b4a2b7f,   camera.exposure.ev = none (yaml)
+2026-10-02T21:10:05Z 1790975407.742 e6fe83ea6b4a2b7f,   camera.exposure.shutter_us = none (yaml)
+2026-10-02T21:10:05Z 1790975407.792 e6fe83ea6b4a2b7f,   camera.exposure.analogue_gain = none (yaml)
+2026-10-02T21:10:05Z 1790975407.843 e6fe83ea6b4a2b7f,   camera.controls_enabled = true (cmd 65002)
+2026-10-02T21:10:05Z 1790975407.890 e6fe83ea6b4a2b7f,   camera.backend = rpicam (yaml)
+2026-10-02T21:10:05Z 1790975407.953 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.003 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.062 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.113 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.164 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.214 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.261 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.312 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:05Z 1790975408.363 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.574Z [MS] [INFO] Added message(id: 4191 len: 404) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.574Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 277
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.574Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:10:07Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:10:07Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:10:07Z  62 37 20 6e 3d 31 2f 32
+2026-10-02T21:10:07Z  20 70 6f 77 65 72 2e 68
+2026-10-02T21:10:07Z  61 6c 74 2e 65 6e 61 62
+2026-10-02T21:10:07Z  6c 65 64 3d 31 20 70 6f
+2026-10-02T21:10:07Z  77 65 72 2e 68 61 6c 74
+2026-10-02T21:10:07Z  2e 64 72 79 5f 72 75 6e
+2026-10-02T21:10:07Z  3d 30 20 70 6f 77 65 72
+2026-10-02T21:10:07Z  2e 68 61 6c 74 2e 6d 6f
+2026-10-02T21:10:07Z  64 65 3d 68 61 6c 74 20
+2026-10-02T21:10:07Z  70 6f 77 65 72 2e 68 61
+2026-10-02T21:10:07Z  6c 74 2e 73 63 72 69 70
+2026-10-02T21:10:07Z  74 5f 70 61 74 68 3d 2f
+2026-10-02T21:10:07Z  68 6f 6d 65 2f 70 69 2f
+2026-10-02T21:10:07Z  42 4d 5f 44 65 76 65 6c
+2026-10-02T21:10:07Z  5f 50 69 2f 74 75 6e 65
+2026-10-02T21:10:07Z  64 5f 68 61 6c 74 2e 73
+2026-10-02T21:10:07Z  68 20 70 6f 77 65 72 2e
+2026-10-02T21:10:07Z  62 75 73 5f 61 6c 77 61
+2026-10-02T21:10:07Z  79 73 5f 6f 6e 3d 30 20
+2026-10-02T21:10:07Z  63 61 6d 65 72 61 2e 65
+2026-10-02T21:10:07Z  78 70 6f 73 75 72 65 2e
+2026-10-02T21:10:07Z  65 6e 61 62 6c 65 64 3d
+2026-10-02T21:10:07Z  30 20 63 61 6d 65 72 61
+2026-10-02T21:10:07Z  2e 65 78 70 6f 73 75 72
+2026-10-02T21:10:07Z  65 2e 6d 6f 64 65 3d 6e
+2026-10-02T21:10:07Z  75 6c 6c 20 63 61 6d 65
+2026-10-02T21:10:07Z  72 61 2e 65 78 70 6f 73
+2026-10-02T21:10:07Z  75 72 65 2e 65 76 3d 6e
+2026-10-02T21:10:07Z  75 6c 6c 20 63 61 6d 65
+2026-10-02T21:10:07Z  72 61 2e 65 78 70 6f 73
+2026-10-02T21:10:07Z  75 72 65 2e 73 68 75 74
+2026-10-02T21:10:07Z  74 65 72 5f 75 73 3d 6e
+2026-10-02T21:10:07Z  75 6c 6c 3e
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.605Z [MS] [INFO] Added message(id: 4192 len: 242) to queue MS_Q_CELLULAR_ONLY: (2)!
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.605Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 116
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.605Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:10:07Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:10:07Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:10:07Z  62 37 20 6e 3d 32 2f 32
+2026-10-02T21:10:07Z  20 63 61 6d 65 72 61 2e
+2026-10-02T21:10:07Z  65 78 70 6f 73 75 72 65
+2026-10-02T21:10:07Z  2e 61 6e 61 6c 6f 67 75
+2026-10-02T21:10:07Z  65 5f 67 61 69 6e 3d 6e
+2026-10-02T21:10:07Z  75 6c 6c 20 63 61 6d 65
+2026-10-02T21:10:07Z  72 61 2e 63 6f 6e 74 72
+2026-10-02T21:10:07Z  6f 6c 73 5f 65 6e 61 62
+2026-10-02T21:10:07Z  6c 65 64 3d 31 40 63 36
+2026-10-02T21:10:07Z  35 30 30 32 20 63 61 6d
+2026-10-02T21:10:07Z  65 72 61 2e 62 61 63 6b
+2026-10-02T21:10:07Z  65 6e 64 3d 72 70 69 63
+2026-10-02T21:10:07Z  61 6d 3e
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.621Z [GPS] [WARNING] Dropped gps sentence (1)
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.660Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.660Z [MS] [DEBUG] Has message 4191 expired? queuedTime: 70985299, now64: 70985384, remaining: 86399915
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.660Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:10:07Z 2026-10-02T21:10:09.660Z [MS] [INFO] Queuing message 4191 20004E68
+2026-10-02T21:10:07Z 2026-10-02T21:10:10.230Z [MS] [DEBUG] Has message 4192 expired? queuedTime: 70985331, now64: 70985957, remaining: 86399374
+2026-10-02T21:10:07Z 2026-10-02T21:10:10.230Z [MS] [INFO] Queuing message 4192 20004F60
+2026-10-02T21:10:08Z 2026-10-02T21:10:10.578Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:11:18Z SPOT-31593C > bm pub bmcam/cmd {"id":1000044,"c":"get","k":["camera.white_balance","camera.native","storage","network"]} 1 1
+2026-10-02T21:11:20Z bm pub bmcam/cmd {"id":1000044,"c":"get","k":["camera.white_balance","camera.native","storage","network"]} 1 1
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.839Z [MS] [INFO] Added message(id: 4193 len: 163) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.839Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 37
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.839Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:11:21Z  7b 22 69 64 22 3a 31 30
+2026-10-02T21:11:21Z  30 30 30 34 34 2c 22 6f
+2026-10-02T21:11:21Z  6b 22 3a 31 2c 22 68 22
+2026-10-02T21:11:21Z  3a 22 35 34 64 39 30 34
+2026-10-02T21:11:21Z  62 37 22 7d
+2026-10-02T21:11:21Z Message: 1790975483.847 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) cfg=54d904b7
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.882Z [MS] [DEBUG] Notecard is 20.000000 pct full.
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.882Z [MS] [DEBUG] Has message 4193 expired? queuedTime: 71059577, now64: 71059623, remaining: 86399954
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.886Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:11:21Z 2026-10-02T21:11:23.886Z [MS] [INFO] Queuing message 4193 20004E68
+2026-10-02T21:11:21Z 1790975483.886 e6fe83ea6b4a2b7f,   camera.white_balance.enabled = false (yaml)
+2026-10-02T21:11:21Z 1790975483.937 e6fe83ea6b4a2b7f,   camera.white_balance.mode = none (yaml)
+2026-10-02T21:11:21Z 1790975483.988 e6fe83ea6b4a2b7f,   camera.white_balance.gains = none (yaml)
+2026-10-02T21:11:21Z 1790975484.039 e6fe83ea6b4a2b7f,   camera.native.width = 4608 (yaml)
+2026-10-02T21:11:21Z 1790975484.085 e6fe83ea6b4a2b7f,   camera.native.height = 2592 (yaml)
+2026-10-02T21:11:21Z 1790975484.136 e6fe83ea6b4a2b7f,   camera.native.jpeg_quality = 95 (yaml)
+2026-10-02T21:11:21Z 1790975484.187 e6fe83ea6b4a2b7f,   storage.max_used_pct = 75.0 (yaml)
+2026-10-02T21:11:21Z 1790975484.238 e6fe83ea6b4a2b7f,   storage.min_free_gb = 10.0 (yaml)
+2026-10-02T21:11:21Z 1790975484.289 e6fe83ea6b4a2b7f,   storage.ring_dry_run = false (yaml)
+2026-10-02T21:11:21Z 1790975484.335 e6fe83ea6b4a2b7f,   network.default = nereus_hq (yaml)
+2026-10-02T21:11:21Z 1790975484.386 e6fe83ea6b4a2b7f,   network.ap_fallback_s = 90 (yaml)
+2026-10-02T21:11:21Z 1790975484.437 e6fe83ea6b4a2b7f,   network.ap_timeout_min = 60 (yaml)
+2026-10-02T21:11:21Z 1790975484.500 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:21Z 1790975484.546 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:21Z 1790975484.609 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:21Z 1790975484.660 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:22Z 1790975484.707 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:22Z 1790975484.757 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:22Z 1790975484.808 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:22Z 1790975484.859 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:22Z 1790975484.910 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.128Z [MS] [INFO] Added message(id: 4194 len: 402) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.132Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 275
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.132Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:11:22Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:11:22Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:11:22Z  62 37 20 6e 3d 31 2f 32
+2026-10-02T21:11:22Z  20 63 61 6d 65 72 61 2e
+2026-10-02T21:11:22Z  77 68 69 74 65 5f 62 61
+2026-10-02T21:11:22Z  6c 61 6e 63 65 2e 65 6e
+2026-10-02T21:11:22Z  61 62 6c 65 64 3d 30 20
+2026-10-02T21:11:22Z  63 61 6d 65 72 61 2e 77
+2026-10-02T21:11:22Z  68 69 74 65 5f 62 61 6c
+2026-10-02T21:11:22Z  61 6e 63 65 2e 6d 6f 64
+2026-10-02T21:11:22Z  65 3d 6e 75 6c 6c 20 63
+2026-10-02T21:11:22Z  61 6d 65 72 61 2e 77 68
+2026-10-02T21:11:22Z  69 74 65 5f 62 61 6c 61
+2026-10-02T21:11:22Z  6e 63 65 2e 67 61 69 6e
+2026-10-02T21:11:22Z  73 3d 6e 75 6c 6c 20 63
+2026-10-02T21:11:22Z  61 6d 65 72 61 2e 6e 61
+2026-10-02T21:11:22Z  74 69 76 65 2e 77 69 64
+2026-10-02T21:11:22Z  74 68 3d 34 36 30 38 20
+2026-10-02T21:11:22Z  63 61 6d 65 72 61 2e 6e
+2026-10-02T21:11:22Z  61 74 69 76 65 2e 68 65
+2026-10-02T21:11:22Z  69 67 68 74 3d 32 35 39
+2026-10-02T21:11:22Z  32 20 63 61 6d 65 72 61
+2026-10-02T21:11:22Z  2e 6e 61 74 69 76 65 2e
+2026-10-02T21:11:22Z  6a 70 65 67 5f 71 75 61
+2026-10-02T21:11:22Z  6c 69 74 79 3d 39 35 20
+2026-10-02T21:11:22Z  73 74 6f 72 61 67 65 2e
+2026-10-02T21:11:22Z  6d 61 78 5f 75 73 65 64
+2026-10-02T21:11:22Z  5f 70 63 74 3d 37 35 2e
+2026-10-02T21:11:22Z  30 20 73 74 6f 72 61 67
+2026-10-02T21:11:22Z  65 2e 6d 69 6e 5f 66 72
+2026-10-02T21:11:22Z  65 65 5f 67 62 3d 31 30
+2026-10-02T21:11:22Z  2e 30 20 73 74 6f 72 61
+2026-10-02T21:11:22Z  67 65 2e 72 69 6e 67 5f
+2026-10-02T21:11:22Z  64 72 79 5f 72 75 6e 3d
+2026-10-02T21:11:22Z  30 3e
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.191Z [MS] [DEBUG] Notecard is 21.000000 pct full.
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.191Z [MS] [DEBUG] Has message 4194 expired? queuedTime: 71060870, now64: 71060931, remaining: 86399939
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.191Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.195Z [MS] [INFO] Queuing message 4194 20004E68
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.386Z [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.390Z [BRIDGE_CFG] [INFO] 0e582dd12c1e1480
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.394Z [BRIDGE_CFG] [INFO] e6fe83ea6b4a2b7f
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.394Z [BRIDGE_SYS] [INFO] Checking CRC in report builder!
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.398Z [BRIDGE_SYS] [INFO] Got CRC f3b914aa OLD CRC f3b914aa
+2026-10-02T21:11:22Z 2026-10-02T21:11:25.398Z [BRIDGE_SYS] [INFO] CRCs match, not updating
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.117Z [MS] [INFO] Added message(id: 4195 len: 229) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.121Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 103
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.121Z [BM_TX] [DEBUG] Message:
+2026-10-02T21:11:23Z  3c 43 46 20 76 3d 31 20
+2026-10-02T21:11:23Z  68 3d 35 34 64 39 30 34
+2026-10-02T21:11:23Z  62 37 20 6e 3d 32 2f 32
+2026-10-02T21:11:23Z  20 6e 65 74 77 6f 72 6b
+2026-10-02T21:11:23Z  2e 64 65 66 61 75 6c 74
+2026-10-02T21:11:23Z  3d 6e 65 72 65 75 73 5f
+2026-10-02T21:11:23Z  68 71 20 6e 65 74 77 6f
+2026-10-02T21:11:23Z  72 6b 2e 61 70 5f 66 61
+2026-10-02T21:11:23Z  6c 6c 62 61 63 6b 5f 73
+2026-10-02T21:11:23Z  3d 39 30 20 6e 65 74 77
+2026-10-02T21:11:23Z  6f 72 6b 2e 61 70 5f 74
+2026-10-02T21:11:23Z  69 6d 65 6f 75 74 5f 6d
+2026-10-02T21:11:23Z  69 6e 3d 36 30 3e
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.156Z [MS] [DEBUG] Notecard is 21.000000 pct full.
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.156Z [MS] [DEBUG] Has message 4195 expired? queuedTime: 71061858, now64: 71061896, remaining: 86399962
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.156Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T21:11:23Z 2026-10-02T21:11:26.156Z [MS] [INFO] Queuing message 4195 20004E68
+2026-10-02T21:11:32Z SPOT-31593C > bm pub bmcam/cmd {"id":65081,"c":"reset","k":["video.record.fps","video.send.duration_s","camera.controls_enabled","camera.image_processing.enabled"]} 1 1
+2026-10-02T21:11:33Z bm pub bmcam/cmd {"id":65081,"c":"reset","k":["video.record.fps","video.send.duration_s","camera.controls_enabled","camera.image_processing.enabled"]} 1 1
+2026-10-02T21:11:33Z 1790975496.054 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML cfg=d8e1a1fd
+2026-10-02T21:11:33Z 1790975496.105 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.156 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.207 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.257 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.316 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.367 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.417 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:33Z 1790975496.515 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+2026-10-02T21:11:41Z SPOT-31593C > bm pub bmcam/cmd {"id":65082,"c":"reset","k":["camera.image_processing.denoise","still.quality_ladder"]} 1 1
+2026-10-02T21:11:42Z bm pub bmcam/cmd {"id":65082,"c":"reset","k":["camera.image_processing.denoise","still.quality_ladder"]} 1 1
+2026-10-02T21:11:42Z 1790975505.273 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML cfg=32bd824c
+2026-10-02T21:11:42Z 1790975505.335 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:42Z 1790975505.386 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:42Z 1790975505.433 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:42Z 1790975505.484 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:42Z 1790975505.535 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:43Z 1790975505.585 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:43Z 1790975505.636 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:43Z 1790975505.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:43Z 1790975505.746 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+2026-10-02T21:11:50Z SPOT-31593C > bm pub bmcam/cmd {"id":65083,"c":"reset","k":["mode.run"]} 1 1
+2026-10-02T21:11:51Z bm pub bmcam/cmd {"id":65083,"c":"reset","k":["mode.run"]} 1 1
+2026-10-02T21:11:51Z 1790975514.480 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML cfg=67f930c4
+2026-10-02T21:11:51Z 1790975514.531 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:51Z 1790975514.582 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.632 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.683 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.730 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.781 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.832 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.882 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:11:52Z 1790975514.941 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+2026-10-02T21:20:25Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-02T21:20:26Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-02T21:20:26Z Succesfully sent config get msg
+2026-10-02T21:20:26Z 2026-10-02T21:20:29.226Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T21:20:29Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-02T21:20:31Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-02T21:20:31Z Succesfully sent config get msg
+2026-10-02T21:20:31Z 2026-10-02T21:20:33.843Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T21:20:34Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-02T21:20:35Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-02T21:20:35Z Succesfully sent config get msg
+2026-10-02T21:20:35Z 2026-10-02T21:20:38.261Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-02T21:20:39Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-02T21:20:40Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-02T21:20:40Z Succesfully sent config get msg
+2026-10-02T21:20:40Z 2026-10-02T21:20:43.082Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T21:20:43Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-02T21:20:45Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-02T21:20:45Z Succesfully sent config get msg
+2026-10-02T21:20:45Z 2026-10-02T21:20:47.699Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T21:20:48Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-02T21:20:49Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-02T21:20:49Z Succesfully sent config get msg
+2026-10-02T21:20:49Z 2026-10-02T21:20:52.117Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-02T21:20:52Z SPOT-31593C > bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 1
+2026-10-02T21:20:54Z bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 1
+2026-10-02T21:20:54Z Succesfully sent config set msg
+2026-10-02T21:20:54Z 2026-10-02T21:20:56.742Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:20:58Z SPOT-31593C > bridge cfg commit 0e582dd12c1e1480 s
+2026-10-02T21:20:59Z bridge cfg commit 0e582dd12c1e1480 s
+2026-10-02T21:20:59Z Succesfull config commit send
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.523Z [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.527Z [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 1000000
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.531Z [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.535Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.539Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.589Z [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.589Z [BRIDGE_CFG] [INFO] Num Keys: 16
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.589Z [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.589Z [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.589Z [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.589Z [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.593Z [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.597Z [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.597Z [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.597Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.601Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.605Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.609Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.613Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.617Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.621Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.625Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.628Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.632Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.636Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.640Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.644Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.648Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.652Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.656Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.660Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.664Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-02T21:21:01Z 2026-10-02T21:21:04.562Z [BRIDGE_SYS] [INFO] Neighbor e6fe83ea6b4a2b7f added
+2026-10-02T21:22:06Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-02T21:22:08Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-02T21:22:08Z Succesfully sent config get msg
+2026-10-02T21:22:08Z 2026-10-02T21:22:11.093Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:22:11Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-02T21:22:13Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-02T21:22:13Z Succesfully sent config get msg
+2026-10-02T21:22:13Z 2026-10-02T21:22:15.710Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T21:22:16Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-02T21:22:17Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-02T21:22:17Z Succesfully sent config get msg
+2026-10-02T21:22:17Z 2026-10-02T21:22:20.128Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000

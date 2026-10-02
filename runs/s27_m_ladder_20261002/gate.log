@@ -29,3 +29,17 @@ CRON_MATCHES_BACKUP
 2026-10-02T21:00:56Z [restore SPOT-33507C/bmcam003] bmcam003 dark
 2026-10-02T21:01:11Z [restore SPOT-33507C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
 2026-10-02T21:01:11Z [restore SPOT-33507C/bmcam003] PRODUCTION schedule confirmed
+2026-10-02T21:11:30Z [bmcam004] PRODUCTION switch: reset all overlay keys, mode.run last
+2026-10-02T21:20:39Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-02T21:20:54Z Succesfully sent config set msg
+2026-10-02T21:20:54Z 2026-10-02T21:20:56.742Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.535Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.539Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.597Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-02T21:21:03Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+34a6222ea94c
+[restore] halt issued 21:21:45
+2026-10-02T21:22:06Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-02T21:22:20Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-02T21:22:20Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed

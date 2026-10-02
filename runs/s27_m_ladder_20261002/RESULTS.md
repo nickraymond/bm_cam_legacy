@@ -34,3 +34,15 @@ Spec: `sprints/Sprint27_remote_config/LADDER.md` (M1–M6, L1b). Timeline: `gate
 See `gate.log` and `prod004.out`: overlays reset (Nick's UI values included, his decision), `mode.run`
 reset → per_boot cycle → halt; bridge back to 1 / 3600000 / 600000; stub-window boot armed + halted.
 bmcam003 done 14:01 PDT; bmcam004 after its L1b.
+
+## Production verification — first scheduled window 22:00Z (15:00 PDT), both units
+
+| unit | bus on → off | Pi load (bridge current > 0.025 A) | wake→halt | margin to cut | burst | queue-full | verdict |
+|---|---|---|---|---|---|---|---|
+| bmcam003 | 22:00:00 → 22:10:00 | 22:00:08 → 22:08:18 | ~8.4 min | ~1.6 min | START 22:00:58, 181/181, 279.7 s | 16 (SPOT-33507C) | PASS |
+| bmcam004 | 22:00:00 → 22:10:00 | 22:00:03 → 22:08:23 | ~8.4 min | ~1.6 min | START 22:01:00, 184/184, 283.7 s | 0 | PASS |
+
+Both at base config 67f930c4 (no overlay), per_boot, cron armed, bridges 1/3600000/600000, heal cap 24/day
+on both Spotters (EM, admin API). Halt = bridge current 0.034 → 0.018 A (mote + bridge only). Worst
+case: the runtime's 8-min awake budget bounds a cycle with a full 40-chunk heal pass to ≈ 8.8 min, so no
+budget/window change before G4. Evidence: `console/prod_verify_00{3,4}_2200.txt`.

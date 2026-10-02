@@ -1338,3 +1338,164 @@ CON  2026-10-02T21:02:36Z 1790974958.839 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000
 CELL 2026-10-02T21:02:36Z len=261 <CF v=1 h=54d904b7 n=1/2 uplink.uart.port=/dev/ttyAMA0 uplink.uart.baudrate=115200 uplink.network_type=2 uplink.chunk_chars=384 uplink.msg_interval_s=1.3 uplink.lane.enabled=0 uplink.lane.grid_s=300.0 uplink.lane.pre_guard_s=20.0 uplink.lane.post_guard_s=30.0>
 CELL 2026-10-02T21:02:37Z len=154 <CF v=1 h=54d904b7 n=2/2 uplink.lane.max_wait_s=300.0 uplink.media_key.enabled=1 uplink.media_key.retain_days=14.0 video.ui.enabled=1 video.ui.port=8080>
 SUMMARY cell=3 con=25
+===== 2026-10-02T21:03:49Z L1b.BMCAM_004.1000038 SPOT-31593C  bm pub bmcam/cmd {"id":1000038,"c":"get","k":["video.record","video.logger"]} 1 1  (82 B line)
+
+SUMMARY cell=0 con=0
+===== 2026-10-02T21:05:02Z L1b.BMCAM_004.1000039 SPOT-31593C  bm pub bmcam/cmd {"id":1000039,"c":"get","k":["camera.image_processing","mode"]} 1 1  (85 B line)
+
+SUMMARY cell=0 con=0
+===== 2026-10-02T21:06:15Z L1b.BMCAM_004.1000040 SPOT-31593C  bm pub bmcam/cmd {"id":1000040,"c":"get","k":["commands","camera.focus"]} 1 1  (78 B line)
+
+SUMMARY cell=0 con=0
+===== 2026-10-02T21:07:28Z L1b.BMCAM_004.1000041 SPOT-31593C  bm pub bmcam/cmd {"id":1000041,"c":"get","k":["time","schedule"]} 1 1  (70 B line)
+CON  2026-10-02T21:07:30Z bm pub bmcam/cmd {"id":1000041,"c":"get","k":["time","schedule"]} 1 1
+CELL 2026-10-02T21:07:30Z len=37 {"id":1000041,"ok":1,"h":"54d904b7"}
+CON  2026-10-02T21:07:30Z Message: 1790975253.609 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) cfg=54d904b7
+CON  2026-10-02T21:07:31Z 1790975253.648 e6fe83ea6b4a2b7f,   time.source = spotter_utc (yaml)
+CON  2026-10-02T21:07:31Z 1790975253.699 e6fe83ea6b4a2b7f,   time.set_system_clock = true (yaml)
+CON  2026-10-02T21:07:31Z 1790975253.746 e6fe83ea6b4a2b7f,   time.timeout_s = 60 (yaml)
+CON  2026-10-02T21:07:31Z 1790975253.796 e6fe83ea6b4a2b7f,   time.allow_system_fallback = true (yaml)
+CON  2026-10-02T21:07:31Z 1790975253.847 e6fe83ea6b4a2b7f,   time.rtc.hwclock_path = /usr/sbin/hwclock (yaml)
+CON  2026-10-02T21:07:31Z 1790975253.898 e6fe83ea6b4a2b7f,   time.rtc.set_system_clock = true (yaml)
+CON  2026-10-02T21:07:31Z 1790975253.949 e6fe83ea6b4a2b7f,   time.rtc.plausible_after_utc = 2026-01-01T00:00:00+00:00 (yaml)
+CON  2026-10-02T21:07:31Z 1790975254.000 e6fe83ea6b4a2b7f,   schedule.timezone = America/Los_Angeles (yaml)
+CON  2026-10-02T21:07:31Z 1790975254.046 e6fe83ea6b4a2b7f,   schedule.window.enabled = true (yaml)
+CON  2026-10-02T21:07:31Z 1790975254.097 e6fe83ea6b4a2b7f,   schedule.window.start = 00:00 (yaml)
+CON  2026-10-02T21:07:31Z 1790975254.148 e6fe83ea6b4a2b7f,   schedule.window.end = 00:00 (yaml)
+CON  2026-10-02T21:07:31Z 1790975254.207 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:31Z 1790975254.257 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:31Z 1790975254.308 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:31Z 1790975254.359 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:31Z 1790975254.410 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:31Z 1790975254.457 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CELL 2026-10-02T21:07:32Z len=244 <CF v=1 h=54d904b7 n=1/2 time.source=spotter_utc time.set_system_clock=1 time.timeout_s=60 time.allow_system_fallback=1 time.rtc.hwclock_path=/usr/sbin/hwclock time.rtc.set_system_clock=1 time.rtc.plausible_after_utc=2026-01-01T00:00:00+00:00>
+CON  2026-10-02T21:07:32Z Message: 1790975254.726 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:32Z 1790975254.750 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:07:32Z 1790975254.796 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) (duplicate: original answer) cfg=54d904b7
+CELL 2026-10-02T21:07:33Z len=144 <CF v=1 h=54d904b7 n=2/2 schedule.timezone=America/Los_Angeles schedule.window.enabled=1 schedule.window.start=00:00 schedule.window.end=00:00>
+SUMMARY cell=3 con=22
+===== 2026-10-02T21:08:45Z L1b.BMCAM_004.1000042 SPOT-31593C  bm pub bmcam/cmd {"id":1000042,"c":"get","k":["video.send","still"]} 1 1  (73 B line)
+CON  2026-10-02T21:08:47Z bm pub bmcam/cmd {"id":1000042,"c":"get","k":["video.send","still"]} 1 1
+CELL 2026-10-02T21:08:48Z len=37 {"id":1000042,"ok":1,"h":"54d904b7"}
+CON  2026-10-02T21:08:48Z Message: 1790975330.664 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) cfg=54d904b7
+CON  2026-10-02T21:08:48Z 1790975330.703 e6fe83ea6b4a2b7f,   video.send.duration_s = 15 (cmd 1000036)
+CON  2026-10-02T21:08:48Z 1790975330.753 e6fe83ea6b4a2b7f,   video.send.lead_in_s = 2.0 (yaml)
+CON  2026-10-02T21:08:48Z 1790975330.804 e6fe83ea6b4a2b7f,   video.send.fps = 10 (yaml)
+CON  2026-10-02T21:08:48Z 1790975330.855 e6fe83ea6b4a2b7f,   video.send.message_cap = 190 (yaml)
+CON  2026-10-02T21:08:48Z 1790975330.902 e6fe83ea6b4a2b7f,   video.send.keyframe_repeat_max = 30 (yaml)
+CON  2026-10-02T21:08:48Z 1790975330.953 e6fe83ea6b4a2b7f,   video.send.size = 480x270 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.003 e6fe83ea6b4a2b7f,   video.send.x264_preset = medium (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.054 e6fe83ea6b4a2b7f,   video.send.budget_min = 8 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.105 e6fe83ea6b4a2b7f,   still.crop = 1504,846,1600,900 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.152 e6fe83ea6b4a2b7f,   still.output_width = 1000 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.214 e6fe83ea6b4a2b7f,   still.quality_ladder = 20,15,11,9 (cmd 65003)
+CON  2026-10-02T21:08:48Z 1790975331.253 e6fe83ea6b4a2b7f,   still.save.quality = 85 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.304 e6fe83ea6b4a2b7f,   still.message_cap = 195 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.363 e6fe83ea6b4a2b7f,   still.budget_min = 8 (yaml)
+CON  2026-10-02T21:08:48Z 1790975331.414 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:48Z 1790975331.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:48Z 1790975331.515 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:48Z 1790975331.566 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:49Z 1790975331.625 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:49Z 1790975331.675 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:49Z 1790975331.726 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:49Z 1790975331.773 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:08:49Z 1790975331.824 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) (duplicate: original answer) cfg=54d904b7
+CELL 2026-10-02T21:08:49Z len=271 <CF v=1 h=54d904b7 n=1/2 video.send.duration_s=15@c1000036 video.send.lead_in_s=2.0 video.send.fps=10 video.send.message_cap=190 video.send.keyframe_repeat_max=30 video.send.size=480x270 video.send.x264_preset=medium video.send.budget_min=8 still.crop=1504,846,1600,900>
+CELL 2026-10-02T21:08:50Z len=152 <CF v=1 h=54d904b7 n=2/2 still.output_width=1000 still.quality_ladder=20,15,11,9@c65003 still.save.quality=85 still.message_cap=195 still.budget_min=8>
+SUMMARY cell=3 con=25
+===== 2026-10-02T21:10:02Z L1b.BMCAM_004.1000043 SPOT-31593C  bm pub bmcam/cmd {"id":1000043,"c":"get","k":["power","camera.exposure","camera.controls_enabled","camera.backend"]} 1 1  (121 B line)
+CON  2026-10-02T21:10:04Z bm pub bmcam/cmd {"id":1000043,"c":"get","k":["power","camera.exposure","camera.controls_enabled","camera.backend"]} 1 1
+CELL 2026-10-02T21:10:04Z len=37 {"id":1000043,"ok":1,"h":"54d904b7"}
+CON  2026-10-02T21:10:04Z Message: 1790975407.304 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) cfg=54d904b7
+CON  2026-10-02T21:10:04Z 1790975407.339 e6fe83ea6b4a2b7f,   power.halt.enabled = true (yaml)
+CON  2026-10-02T21:10:04Z 1790975407.390 e6fe83ea6b4a2b7f,   power.halt.dry_run = false (yaml)
+CON  2026-10-02T21:10:04Z 1790975407.441 e6fe83ea6b4a2b7f,   power.halt.mode = halt (yaml)
+CON  2026-10-02T21:10:04Z 1790975407.492 e6fe83ea6b4a2b7f,   power.halt.script_path = /home/pi/BM_Devel_Pi/tuned_halt.sh (yaml)
+CON  2026-10-02T21:10:04Z 1790975407.542 e6fe83ea6b4a2b7f,   power.bus_always_on = false (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.589 e6fe83ea6b4a2b7f,   camera.exposure.enabled = false (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.640 e6fe83ea6b4a2b7f,   camera.exposure.mode = none (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.691 e6fe83ea6b4a2b7f,   camera.exposure.ev = none (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.742 e6fe83ea6b4a2b7f,   camera.exposure.shutter_us = none (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.792 e6fe83ea6b4a2b7f,   camera.exposure.analogue_gain = none (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.843 e6fe83ea6b4a2b7f,   camera.controls_enabled = true (cmd 65002)
+CON  2026-10-02T21:10:05Z 1790975407.890 e6fe83ea6b4a2b7f,   camera.backend = rpicam (yaml)
+CON  2026-10-02T21:10:05Z 1790975407.953 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.003 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.062 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.113 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.164 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.214 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.261 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.312 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:10:05Z 1790975408.363 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CELL 2026-10-02T21:10:07Z len=277 <CF v=1 h=54d904b7 n=1/2 power.halt.enabled=1 power.halt.dry_run=0 power.halt.mode=halt power.halt.script_path=/home/pi/BM_Devel_Pi/tuned_halt.sh power.bus_always_on=0 camera.exposure.enabled=0 camera.exposure.mode=null camera.exposure.ev=null camera.exposure.shutter_us=null>
+CELL 2026-10-02T21:10:07Z len=116 <CF v=1 h=54d904b7 n=2/2 camera.exposure.analogue_gain=null camera.controls_enabled=1@c65002 camera.backend=rpicam>
+SUMMARY cell=3 con=23
+===== 2026-10-02T21:11:18Z L1b.BMCAM_004.1000044 SPOT-31593C  bm pub bmcam/cmd {"id":1000044,"c":"get","k":["camera.white_balance","camera.native","storage","network"]} 1 1  (111 B line)
+CON  2026-10-02T21:11:20Z bm pub bmcam/cmd {"id":1000044,"c":"get","k":["camera.white_balance","camera.native","storage","network"]} 1 1
+CELL 2026-10-02T21:11:21Z len=37 {"id":1000044,"ok":1,"h":"54d904b7"}
+CON  2026-10-02T21:11:21Z Message: 1790975483.847 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) cfg=54d904b7
+CON  2026-10-02T21:11:21Z 1790975483.886 e6fe83ea6b4a2b7f,   camera.white_balance.enabled = false (yaml)
+CON  2026-10-02T21:11:21Z 1790975483.937 e6fe83ea6b4a2b7f,   camera.white_balance.mode = none (yaml)
+CON  2026-10-02T21:11:21Z 1790975483.988 e6fe83ea6b4a2b7f,   camera.white_balance.gains = none (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.039 e6fe83ea6b4a2b7f,   camera.native.width = 4608 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.085 e6fe83ea6b4a2b7f,   camera.native.height = 2592 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.136 e6fe83ea6b4a2b7f,   camera.native.jpeg_quality = 95 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.187 e6fe83ea6b4a2b7f,   storage.max_used_pct = 75.0 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.238 e6fe83ea6b4a2b7f,   storage.min_free_gb = 10.0 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.289 e6fe83ea6b4a2b7f,   storage.ring_dry_run = false (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.335 e6fe83ea6b4a2b7f,   network.default = nereus_hq (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.386 e6fe83ea6b4a2b7f,   network.ap_fallback_s = 90 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.437 e6fe83ea6b4a2b7f,   network.ap_timeout_min = 60 (yaml)
+CON  2026-10-02T21:11:21Z 1790975484.500 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:21Z 1790975484.546 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:21Z 1790975484.609 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:21Z 1790975484.660 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:22Z 1790975484.707 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:22Z 1790975484.757 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:22Z 1790975484.808 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:22Z 1790975484.859 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CON  2026-10-02T21:11:22Z 1790975484.910 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s) (duplicate: original answer) cfg=54d904b7
+CELL 2026-10-02T21:11:22Z len=275 <CF v=1 h=54d904b7 n=1/2 camera.white_balance.enabled=0 camera.white_balance.mode=null camera.white_balance.gains=null camera.native.width=4608 camera.native.height=2592 camera.native.jpeg_quality=95 storage.max_used_pct=75.0 storage.min_free_gb=10.0 storage.ring_dry_run=0>
+CELL 2026-10-02T21:11:23Z len=103 <CF v=1 h=54d904b7 n=2/2 network.default=nereus_hq network.ap_fallback_s=90 network.ap_timeout_min=60>
+SUMMARY cell=3 con=23
+===== 2026-10-02T21:11:32Z P.004.65081 SPOT-31593C  bm pub bmcam/cmd {"id":65081,"c":"reset","k":["video.record.fps","video.send.duration_s","camera.controls_enabled","camera.image_processing.enabled"]} 1 1  (155 B line)
+CON  2026-10-02T21:11:33Z bm pub bmcam/cmd {"id":65081,"c":"reset","k":["video.record.fps","video.send.duration_s","camera.controls_enabled","camera.image_processing.enabled"]} 1 1
+CON  2026-10-02T21:11:33Z 1790975496.054 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML cfg=d8e1a1fd
+CON  2026-10-02T21:11:33Z 1790975496.105 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.156 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.207 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.257 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.316 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.367 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.417 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.464 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+CON  2026-10-02T21:11:33Z 1790975496.515 e6fe83ea6b4a2b7f, [bmcam004] OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML (duplicate: original answer) cf
+SUMMARY cell=0 con=11
+===== 2026-10-02T21:11:41Z P.004.65082 SPOT-31593C  bm pub bmcam/cmd {"id":65082,"c":"reset","k":["camera.image_processing.denoise","still.quality_ladder"]} 1 1  (109 B line)
+CON  2026-10-02T21:11:42Z bm pub bmcam/cmd {"id":65082,"c":"reset","k":["camera.image_processing.denoise","still.quality_ladder"]} 1 1
+CON  2026-10-02T21:11:42Z 1790975505.273 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML cfg=32bd824c
+CON  2026-10-02T21:11:42Z 1790975505.335 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:42Z 1790975505.386 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:42Z 1790975505.433 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:42Z 1790975505.484 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:42Z 1790975505.535 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:43Z 1790975505.585 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:43Z 1790975505.636 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:43Z 1790975505.695 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+CON  2026-10-02T21:11:43Z 1790975505.746 e6fe83ea6b4a2b7f, [bmcam004] OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML (duplicate: original answer) cfg=32bd824c
+SUMMARY cell=0 con=11
+===== 2026-10-02T21:11:50Z P.004.run SPOT-31593C  bm pub bmcam/cmd {"id":65083,"c":"reset","k":["mode.run"]} 1 1  (63 B line)
+CON  2026-10-02T21:11:51Z bm pub bmcam/cmd {"id":65083,"c":"reset","k":["mode.run"]} 1 1
+CON  2026-10-02T21:11:51Z 1790975514.480 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML cfg=67f930c4
+CON  2026-10-02T21:11:51Z 1790975514.531 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:51Z 1790975514.582 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.632 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.683 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.730 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.781 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.832 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.882 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+CON  2026-10-02T21:11:52Z 1790975514.941 e6fe83ea6b4a2b7f, [bmcam004] OK id=65083 reset mode.run -> YAML (duplicate: original answer) cfg=67f930c4
+SUMMARY cell=0 con=11

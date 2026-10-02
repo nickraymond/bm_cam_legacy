@@ -1,6 +1,6 @@
 # G4 — outdoor tethered 12 h (Release R1)
 
-When: Tue 10/6 (PDT), 12 h of capture + a 3 h completion tail. Owner: Test Engineer + Nick (puts
+When: **Sat 10/3 08:00 → 20:00 PDT** (pulled in by Nick, RELEASE_PLAN §2a / bm #108), 12 h of capture + a 3 h completion tail. Owner: Test Engineer + Nick (puts
 the box outside). Units: bmcam003 (SPOT-33507C), bmcam004 (SPOT-31593C), both on **RC1** (the
 development tip frozen Mon 10/5 EOD). Mains power, nereus000 on both USB consoles.
 Plan: RELEASE_PLAN §2 (G4), D1, D3, D4, D5. Evidence: `runs/g4_outdoor12h_<YYYYMMDD>/`.
@@ -31,6 +31,23 @@ D1, D3, D4 hold for 12 h; no bus drops.
       per-Spotter settings (backend, S6b backend session's admin API); `BM_HEAL_AUTOSEND` live; bm-heal-driver
       and the conductor STOPPED (backend is the only heal sender).
 - [ ] Nick has the box outside, mains connected, console cables to nereus000 checked (`hil_console.sh <SPOT> post`).
+
+## Nick's physical steps (Sat morning)
+
+The units run the production schedule: the bus is ON only :00–:10 each hour, and each Pi halts itself
+before :10. **Only move hardware between :12 and :55 past the hour** (bus off, Pis halted = safe to
+unplug). Never unplug during :00–:10 (an SD hard cut mid-write).
+
+1. Between 07:12 and 07:55 PDT: move both Spotters + bmcam003/004 (still connected by their BM bus
+   cables) into the outdoor box. Keep each Spotter's mains/tether power connected if possible; if a Spotter
+   must be unplugged, do it inside the off window (its bridge config is on flash and survives).
+2. Antennas: both Spotters with open sky (cellular + GPS).
+3. nereus000: powered, with BOTH USB console cables (SPOT-33507C → hub port 1.2, SPOT-31593C → 1.3, as
+   now) and on the LAN/Wi-Fi (the Test Engineer reaches it at 192.168.1.45). If the box location has no
+   LAN Wi-Fi, tell the EM before moving: G4 then runs without consoles (G5-style evidence only).
+4. Tell the EM "moved" with the time. The Test Engineer checks `post` on both consoles and watches the
+   08:00 window; first G4 capture = 08:00.
+5. Do not touch the units during 08:00–20:00 unless the Test Engineer asks via the EM.
 
 ## Steps
 
