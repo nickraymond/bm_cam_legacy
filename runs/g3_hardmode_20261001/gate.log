@@ -1,0 +1,23 @@
+2026-10-02T06:06:22Z run created for G3 units: bmcam003 bmcam004
+2026-10-02T06:08Z G3 prep (read-only). Both units 7d47ff956c4b, hash f7c9194f, overlay {mode.run: stay_on}, 0 errors (snapshots/*_g3_baseline_*).
+2026-10-02T06:08Z staging /remote-config/* = 404 (no s27 push yet) -> Part A (plan sweep) and L14 BLOCKED until the push.
+2026-10-02T06:08Z ID PLAN: console-range ids only (bmcam004 64001+, bmcam003 54001+; last used 004=63001, 003 checked before use).
+  Why: the backend auto-heal allocates REMOTE ids (1000xx) concurrently; a hand-picked remote id could collide with a
+  future heal id and that heal would be answered "duplicate" (lost). Deviation from LADDER "remote range" noted.
+2026-10-02T06:08Z WAITING: Nick's console cmd.txt OK (asked via EM + chat). No console sends until then.
+2026-10-02T06:08:03Z [bmcam004] deploy 91a08f6: backup+disarm TS=20261002T060803Z; restore: crontab /home/pi/hil_backup/20261002T060803Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T060803Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+TERM-sent
+06:08:10
+STOPPED
+rc=0
+11
+CRON_MATCHES_BACKUP
+2026-10-02T06:10:00Z [bmcam004] on 91a08f6 OK; [bmcam003] deploy 91a08f6 TS=20261002T061000Z; restore: crontab /home/pi/hil_backup/20261002T061000Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T061000Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+TERM-sent
+06:10:07
+STOPPED
+rc=0
+CRON_MATCHES_BACKUP
+2026-10-02T06:11:48Z both units on 91a08f6 (registry v6), hash f7c9194f, stay_on, armed. Ladder BLOCKED on Nick's console OK; backend half BLOCKED on staging push.

@@ -1,0 +1,69 @@
+{
+  "schema": "hil_run_manifest/1",
+  "gate": "G3",
+  "run_dir": "runs/g3_hardmode_20261001",
+  "start_utc": "2026-10-02T06:06:22+00:00",
+  "start_pdt": "2026-10-01T23:06:22-07:00",
+  "end_utc": null,
+  "end_pdt": null,
+  "operator": "Test Engineer",
+  "repo": {
+    "branch": "feature/r1-hil-test-engineer",
+    "sha": "974c86597c41c3da0b1695f5049145b6cf6c8507",
+    "dirty": true
+  },
+  "units": [
+    {
+      "host": "bmcam003",
+      "before": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      },
+      "after": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      }
+    },
+    {
+      "host": "bmcam004",
+      "before": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      },
+      "after": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      }
+    }
+  ],
+  "env": {
+    "HIL_RIG_A": "SPOT-33507C=BMCAM_003=bmcam003=c3c564b91856226c",
+    "HIL_UNIT_REPO": "/home/pi/repos/bm_cam_legacy",
+    "HIL_RIG_B": "SPOT-31593C=BMCAM_004=bmcam004=0e582dd12c1e1480",
+    "HIL_MONITOR_LOG_ROOT": "/home/pi/spotter_logs",
+    "HIL_UNIT_APP": "/home/pi/BM_Devel_Pi",
+    "HIL_MONITOR_ENV_FILE": "/home/pi/.config/nereus/heal_driver.env",
+    "HIL_API": "https://nereus-vision-staging.onrender.com",
+    "HIL_RUNS": "runs",
+    "HIL_UNIT_USER": "pi",
+    "HIL_MONITOR": "pi@192.168.1.45"
+  },
+  "tools_sha256_16": {
+    "hil/tools/hil_cmd.sh": "555ecf606769b969",
+    "hil/tools/hil_con_decode.py": "edeb85d2d873a899",
+    "hil/tools/hil_console.sh": "5c06f68b72c52738",
+    "hil/tools/hil_hardmode_cases.py": "ba5e8058ee1a4089",
+    "hil/tools/hil_new_run.sh": "4ce98c7372585017",
+    "hil/tools/hil_p0_probe.sh": "11aebf6adf854c40",
+    "hil/tools/hil_pistate.sh": "0300fb942cddb794",
+    "hil/tools/hil_plan_check.py": "b36e1b0d23e38c93",
+    "hil/tools/hil_unit_snapshot.sh": "7dabaf90500275f3"
+  },
+  "media": [],
+  "verdict": null,
+  "notes": []
+}
