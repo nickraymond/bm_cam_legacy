@@ -1,0 +1,5 @@
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T202006Z.log
+13:[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=683a9a62 hv=1 registry=v7 overlay=3 key(s)
+14:[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+15:[CFG] supervisor runs the effective config: base ⊕ 3 overlay key(s) hash=683a9a62 (render /dev/shm/bmcam/camera_schedule.yaml)
+42:[VID] encoder knobs: all rpicam-vid defaults

@@ -1,0 +1,4 @@
+[UPGRADE] dry-run: would rewrite (same values, same hash); pass --write
+rc=0
+[UPGRADE] rewritten (hash 67f930c4 unchanged); old file kept as /home/pi/BM_Devel_Pi/camera_config.yaml.before_upgrade_20261002T203935Z
+CRON_MATCHES_BACKUP

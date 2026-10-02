@@ -1,0 +1,53 @@
+== bmcam003 2026-10-02T20:38:04Z up 1666.04s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root   60 Oct  2 20:37 .
+drwxr-xr-x 16 root root 4040 Oct  2 20:10 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 20:38 bmcam
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 20:38 .
+drwxrwxrwt 3 root root   60 Oct  2 20:37 ..
+-rw-r--r-- 1 pi   pi   2286 Oct  2 20:38 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 34a6222ea94c
+KEY repo development 34a6222 Merge pull request #106 from nickraymond/claude/s27-retire-encoder-knobs
+KEY cfg_hash hash=f333bfb7
+[CFG][WARN] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+[CFG][WARN] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled are true)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f333bfb7 hv=1 registry=v7 overlay=4 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.Cm2v2w/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 8b9dd8472f1d2e8b bm_command_state_v2.json 0L
+file 0824cc167ad8fc9f config_journal.jsonl 97L
+state overlay {"mode.run": "stay_on", "video.record.fps": 14, "video.send.duration_s": 15, "video.send.fps": 14}
+state guarded {}
+state boot 27 hw {"remote": 1000007, "service": 100000021}
+-- crontab
+# DISABLED hil 20261002T203716Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+13 1000 pi - 1570 manager - no -
+19 1000 pi - 2621 user    - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     202916 kB
+CmaTotal:         262144 kB
+CmaFree:           42676 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T201022Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[CMD] stopped: applied=0 dup=0 rejected=0 unackable=0 acks=0 frames=0 sig_hits=0 crc_scan_fail=0 bad_start=0 read_err=0
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-02T20:37:23+00:00
+============================================================

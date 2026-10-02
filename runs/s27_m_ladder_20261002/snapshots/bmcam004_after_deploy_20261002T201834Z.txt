@@ -1,0 +1,57 @@
+== bmcam004 2026-10-02T20:18:35Z up 50967.39s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct  2 20:17 .
+drwxr-xr-x 16 root root 4040 Oct  2 06:09 ..
+drwxrwxr-x  2 pi   pi     80 Oct  2 20:18 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  2 06:24 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  2 06:24 lttng-ust-wait-8-1000
+total 8
+drwxrwxr-x 2 pi   pi     80 Oct  2 20:18 .
+drwxrwxrwt 3 root root  100 Oct  2 20:17 ..
+-rw-r--r-- 1 pi   pi   2432 Oct  2 07:37 camera_schedule.one_shot.yaml
+-rw-r--r-- 1 pi   pi   2286 Oct  2 20:18 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 34a6222ea94c
+KEY repo development 34a6222 Merge pull request #106 from nickraymond/claude/s27-retire-encoder-knobs
+KEY cfg_hash hash=683a9a62
+[CFG][WARN] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+[CFG][WARN] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled are true)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=683a9a62 hv=1 registry=v7 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.DsEJ9Q/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file 73dfd98e1c8dd973 bm_command_state_v2.json 0L
+file 210cbe8d47d957b0 config_journal.jsonl 182L
+state overlay {"mode.run": "stay_on", "video.record.fps": 14, "video.send.duration_s": 15}
+state guarded {}
+state boot 33 hw {"remote": 1000036, "service": 100000032}
+-- crontab
+# DISABLED hil 20261002T201745Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+1106 1000 pi - 26549 manager - no -
+1112 1000 pi - 27601 user    - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     210088 kB
+CmaTotal:         262144 kB
+CmaFree:           92536 kB
+disk /dev/mmcblk0p2  115G   87G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T060912Z.log
+KEY err_count 1
+KEY reresolve_fail 0
+[RC][ERR] save_local: SD over its limit after pruning; capture refused
+-- tail
+[CMD] stopped: applied=12 dup=112 rejected=0 unackable=0 acks=6 frames=136 sig_hits=158 crc_scan_fail=0 bad_start=0 read_err=0
+[SUP] stay_on exit 0
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-02T20:17:52+00:00
+============================================================

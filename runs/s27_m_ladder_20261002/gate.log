@@ -1,0 +1,31 @@
+2026-10-02T20:17:08Z run created for M106 units: bmcam003 bmcam004
+34a6222ea94c5564cc4f601975fa75123411374c
+2026-10-02T20:17:45Z [bmcam004] deploy: backup+disarm TS=20261002T201745Z; restore: crontab /home/pi/hil_backup/20261002T201745Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T201745Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+STOPPED
+rc=0
+CRON_MATCHES_BACKUP
+2026-10-02T20:18:39Z [bmcam004] re-armed + reboot
+2026-10-02T20:19:40Z [bmcam004] M3: disarm+stop TS=20261002T201940Z; restore: crontab /home/pi/hil_backup/20261002T201940Z/crontab_ARMED.txt && sudo reboot
+2026-10-02T20:37:16Z [bmcam003] deploy: backup+disarm TS=20261002T203716Z; restore: crontab /home/pi/hil_backup/20261002T203716Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T203716Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+STOPPED
+rc=0
+CRON_MATCHES_BACKUP
+2026-10-02T20:38:08Z [bmcam003] re-armed + reboot
+2026-10-02T20:39:25Z [bmcam003] M3: disarm+stop TS=20261002T203925Z; restore: crontab /home/pi/hil_backup/20261002T203925Z/crontab_ARMED.txt && sudo reboot
+2026-10-02T20:49:23Z Nick in Test Engineer chat: 'bridge cfg OK for production schedule on both Spotters'. Nick (via EM): reset his UI values to YAML for G4/G5; 15 s clips -> X1 after exit.
+2026-10-02T20:50:28Z [bmcam003] PRODUCTION switch: reset Nick UI keys, then mode.run
+2026-10-02T20:59:15Z [restore SPOT-33507C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-02T20:59:29Z Succesfully sent config set msg
+2026-10-02T20:59:29Z 2026-10-02T20:59:31.964Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T20:59:36Z 2026-10-02T20:59:38.718Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-02T20:59:36Z 2026-10-02T20:59:38.726Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-02T20:59:36Z 2026-10-02T20:59:38.781Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-02T20:59:39Z [restore SPOT-33507C/bmcam003] committed; waiting for the stub-window boot
+[restore] cron ARMED
+34a6222ea94c
+[restore] halt issued 21:00:33
+2026-10-02T21:00:56Z [restore SPOT-33507C/bmcam003] bmcam003 dark
+2026-10-02T21:01:11Z [restore SPOT-33507C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-02T21:01:11Z [restore SPOT-33507C/bmcam003] PRODUCTION schedule confirmed

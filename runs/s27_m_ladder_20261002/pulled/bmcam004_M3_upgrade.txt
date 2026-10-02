@@ -1,0 +1,14 @@
+--- dry run
+[UPGRADE] /home/pi/BM_Devel_Pi/camera_config.yaml: registry v7, hash 67f930c4
+[UPGRADE] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+[UPGRADE] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled are true)
+[UPGRADE] dry-run: would rewrite (same values, same hash); pass --write
+rc=0
+--- write
+[UPGRADE] /home/pi/BM_Devel_Pi/camera_config.yaml: registry v7, hash 67f930c4
+[UPGRADE] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+[UPGRADE] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled are true)
+[UPGRADE] rewritten (hash 67f930c4 unchanged); old file kept as /home/pi/BM_Devel_Pi/camera_config.yaml.before_upgrade_20261002T201950Z
+rc=0
+/home/pi/BM_Devel_Pi/camera_config.yaml.before_upgrade_20261002T201950Z
+CRON_MATCHES_BACKUP

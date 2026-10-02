@@ -1,0 +1,55 @@
+== bmcam003 2026-10-02T20:37:17Z up 1619.67s
+-- /dev/shm
+total 4
+drwxrwxrwt  3 root root   80 Oct  2 20:10 .
+drwxr-xr-x 16 root root 4040 Oct  2 20:10 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 20:35 bmcam
+-rw-rw-r--  1 pi   pi      4 Oct  2 20:10 bmcam_stay_on
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 20:35 .
+drwxrwxrwt 3 root root   80 Oct  2 20:10 ..
+-rw-r--r-- 1 pi   pi   2299 Oct  2 20:35 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on present
+KEY sha 91a08f624011
+KEY repo development 91a08f6 Merge pull request #104 from nickraymond/docs/release-r1-g1-decisions
+KEY cfg_hash hash=d1af75c0
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=d1af75c0 hv=1 registry=v6 overlay=4 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.NhHhjY/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 8b9dd8472f1d2e8b bm_command_state_v2.json 0L
+file ca37f1048d387d9c config_journal.jsonl 96L
+state overlay {"mode.run": "stay_on", "video.record.fps": 14, "video.send.duration_s": 15, "video.send.fps": 14}
+state guarded {}
+state boot 27 hw {"remote": 1000007, "service": 100000021}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+591 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+592 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+596 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+628 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+12 1000 pi - 1565 user    - no -
+13 1000 pi - 1570 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     239960 kB
+CmaTotal:         262144 kB
+CmaFree:           85776 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T201022Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[SUP] heartbeat <WS a=idle> after 300s idle
+[DEBUG] Sent compact telemetry message (132 bytes): <WS v=1 a=idle cfg=d1af75c0 up=1207 tz=America/Los_Angeles lt=1330 ws=0000 we=0000 rk=480x270 ct=35.4 sha=91a08f624011 hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[DEBUG] Sent compact telemetry message (132 bytes): <WS v=1 a=idle cfg=d1af75c0 up=1507 tz=America/Los_Angeles lt=1335 ws=0000 we=0000 rk=480x270 ct=35.9 sha=91a08f624011 hn=bmcam003>
+[SUP] heartbeat <WS a=idle> after 300s idle

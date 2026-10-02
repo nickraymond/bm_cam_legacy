@@ -1,0 +1,1210 @@
+[FIELD-UPDATE] === stage 0: preflight ===
+[FIELD-UPDATE] repo=/home/pi/repos/bm_cam_legacy ref=development profile=bmcam003/live_20260925 dry_run=false
+[FIELD-UPDATE] preflight OK (24714MB free, no cycle running)
+[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+[FIELD-UPDATE] crontab backed up -> /home/pi/crontab_before_field_update_20261002T203729Z.txt; RC @reboot line disabled
+[FIELD-UPDATE] === stage 2: repo sync ===
+From https://github.com/nickraymond/bm_cam_legacy
+   91a08f6..34a6222  development -> origin/development
+   abcd098..a0525aa  claude/s27-image-controls -> origin/claude/s27-image-controls
+   974c865..db30f55  feature/r1-hil-test-engineer -> origin/feature/r1-hil-test-engineer
+Already on 'development'
+Your branch is behind 'origin/development' by 26 commits, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+From https://github.com/nickraymond/bm_cam_legacy
+ * branch            development -> FETCH_HEAD
+Updating 91a08f6..34a6222
+Fast-forward
+ .claude/settings.json                              |    15 +
+ BM_Devel_Pi/config_registry.py                     |    85 +-
+ BM_Devel_Pi/config_v1_reader.py                    |    17 +-
+ BM_Devel_Pi/config_v2.py                           |    12 +-
+ BM_Devel_Pi/config_validate.py                     |    33 +-
+ BM_Devel_Pi/video_recorder.py                      |    41 +-
+ BM_Devel_Pi/video_settings.py                      |    30 +-
+ CLAUDE.md                                          |    20 +
+ docs/bmcam_command_reference.md                    |    20 +-
+ docs/bmcam_config_catalog.json                     |   177 +-
+ hil/.gitignore                                     |     2 +
+ hil/README.md                                      |   152 +
+ hil/gates/G3_api_hard_mode.md                      |   104 +
+ hil/gates/G4_outdoor_tethered_12h.md               |    60 +
+ hil/gates/G5_solar_24h.md                          |    53 +
+ hil/hil.env                                        |    23 +
+ hil/hil.env.example                                |    23 +
+ hil/procedures/TAKEOVER.md                         |   157 +
+ hil/templates/RESULTS.md                           |    39 +
+ hil/templates/run_manifest.json                    |    21 +
+ hil/tools/hil_change.sh                            |    41 +
+ hil/tools/hil_cmd.sh                               |    25 +
+ hil/tools/hil_common.sh                            |    42 +
+ hil/tools/hil_con_decode.py                        |    65 +
+ hil/tools/hil_console.sh                           |    33 +
+ hil/tools/hil_hardmode_cases.py                    |   282 +
+ hil/tools/hil_ip_range_probe.sh                    |   114 +
+ hil/tools/hil_new_run.sh                           |    50 +
+ hil/tools/hil_p0_probe.sh                          |   158 +
+ hil/tools/hil_pistate.sh                           |    28 +
+ hil/tools/hil_plan_check.py                        |   187 +
+ hil/tools/hil_sofar_change.sh                      |    34 +
+ hil/tools/hil_step.sh                              |    53 +
+ hil/tools/hil_unit_snapshot.sh                     |    73 +
+ hil/tools/hil_use_run.sh                           |    10 +
+ hil/tools/test_hil_guards.sh                       |    48 +
+ runs/g3_hardmode_20261001/RESULTS.md               |   107 +
+ runs/g3_hardmode_20261001/analysis/cases/cases.csv |   876 ++
+ .../g3_hardmode_20261001/analysis/cases/cases.json | 12503 +++++++++++++++++++
+ .../analysis/plan_BMCAM_003/api/catalog_head.json  |     5 +
+ .../plan_BMCAM_003/api/device_view_start.json      |   731 ++
+ .../analysis/plan_BMCAM_003/plan_check.csv         |   876 ++
+ .../analysis/plan_BMCAM_003/plan_check.json        |    44 +
+ .../analysis/plan_BMCAM_004/api/catalog_head.json  |     5 +
+ .../plan_BMCAM_004/api/device_view_start.json      |  1114 ++
+ .../analysis/plan_BMCAM_004/plan_check.csv         |   876 ++
+ .../analysis/plan_BMCAM_004/plan_check.json        |    44 +
+ runs/g3_hardmode_20261001/api/003.IP_change.json   |     1 +
+ runs/g3_hardmode_20261001/api/003.IP_sent.json     |     1 +
+ .../api/IP.brightness -1.0._change.json            |     1 +
+ .../api/IP.brightness 1.0._change.json             |     1 +
+ .../api/IP.brightness.-1.0_change.json             |     1 +
+ .../api/IP.brightness.-1.0_sent.json               |     1 +
+ .../api/IP.brightness.1.0_change.json              |     1 +
+ .../api/IP.brightness.1.0_sent.json                |     1 +
+ .../api/IP.contrast 0.0._change.json               |     1 +
+ .../api/IP.contrast 32.0._change.json              |     1 +
+ .../api/IP.contrast.0.0_change.json                |     1 +
+ .../api/IP.contrast.0.0_sent.json                  |     1 +
+ .../api/IP.contrast.32.0_change.json               |     1 +
+ .../api/IP.contrast.32.0_sent.json                 |     1 +
+ .../api/IP.denoise.auto_change.json                |     1 +
+ .../api/IP.denoise.auto_sent.json                  |     1 +
+ .../api/IP.denoise.cdn_fast_change.json            |     1 +
+ .../api/IP.denoise.cdn_fast_sent.json              |     1 +
+ .../api/IP.denoise.cdn_hq_change.json              |     1 +
+ .../api/IP.denoise.cdn_hq_sent.json                |     1 +
+ .../api/IP.denoise.cdn_off_change.json             |     1 +
+ .../api/IP.denoise.cdn_off_sent.json               |     1 +
+ .../api/IP.denoise.off_change.json                 |     1 +
+ .../api/IP.denoise.off_sent.json                   |     1 +
+ .../api/IP.hdr.auto_change.json                    |     1 +
+ .../g3_hardmode_20261001/api/IP.hdr.auto_sent.json |     1 +
+ .../api/IP.hdr.false_change.json                   |     1 +
+ .../api/IP.hdr.false_sent.json                     |     1 +
+ .../api/IP.hdr.off_change.json                     |     1 +
+ runs/g3_hardmode_20261001/api/IP.hdr.off_sent.json |     1 +
+ .../api/IP.hdr.sensor_change.json                  |     1 +
+ .../api/IP.hdr.sensor_sent.json                    |     1 +
+ .../api/IP.hdr.single-exp_change.json              |     1 +
+ .../api/IP.hdr.single-exp_sent.json                |     1 +
+ .../api/IP.hdr.true_change.json                    |     1 +
+ .../g3_hardmode_20261001/api/IP.hdr.true_sent.json |     1 +
+ .../api/IP.reset.contrast_change.json              |     1 +
+ .../api/IP.reset.contrast_sent.json                |     1 +
+ .../api/IP.saturation 0.0._change.json             |     1 +
+ .../api/IP.saturation 32.0._change.json            |     1 +
+ .../api/IP.saturation.0.0_change.json              |     1 +
+ .../api/IP.saturation.0.0_sent.json                |     1 +
+ .../api/IP.saturation.32.0_change.json             |     1 +
+ .../api/IP.saturation.32.0_sent.json               |     1 +
+ .../api/IP.sharpness 0.0._change.json              |     1 +
+ .../api/IP.sharpness 16.0._change.json             |     1 +
+ .../api/IP.sharpness.0.0_change.json               |     1 +
+ .../api/IP.sharpness.0.0_sent.json                 |     1 +
+ .../api/IP.sharpness.16.0_change.json              |     1 +
+ .../api/IP.sharpness.16.0_sent.json                |     1 +
+ .../api/IP0.enable_change.json                     |     1 +
+ runs/g3_hardmode_20261001/api/IP0.enable_sent.json |     1 +
+ .../api/IP2.brightness.-1.0.reset_change.json      |     1 +
+ .../api/IP2.brightness.-1.0.reset_sent.json        |     1 +
+ .../api/IP2.brightness.-1.0_change.json            |     1 +
+ .../api/IP2.brightness.-1.0_sent.json              |     1 +
+ .../api/IP2.brightness.1.0.reset_change.json       |     1 +
+ .../api/IP2.brightness.1.0.reset_sent.json         |     1 +
+ .../api/IP2.brightness.1.0_change.json             |     1 +
+ .../api/IP2.brightness.1.0_sent.json               |     1 +
+ .../api/IP2.contrast.0.5.reset_change.json         |     1 +
+ .../api/IP2.contrast.0.5.reset_sent.json           |     1 +
+ .../api/IP2.contrast.0.5_change.json               |     1 +
+ .../api/IP2.contrast.0.5_sent.json                 |     1 +
+ .../api/IP2.contrast.2.0.reset_change.json         |     1 +
+ .../api/IP2.contrast.2.0.reset_sent.json           |     1 +
+ .../api/IP2.contrast.2.0_change.json               |     1 +
+ .../api/IP2.contrast.2.0_sent.json                 |     1 +
+ .../api/IP2.saturation.0.0.reset_change.json       |     1 +
+ .../api/IP2.saturation.0.0.reset_sent.json         |     1 +
+ .../api/IP2.saturation.0.0_change.json             |     1 +
+ .../api/IP2.saturation.0.0_sent.json               |     1 +
+ .../api/IP2.saturation.32.0.reset_change.json      |     1 +
+ .../api/IP2.saturation.32.0.reset_sent.json        |     1 +
+ .../api/IP2.saturation.32.0_change.json            |     1 +
+ .../api/IP2.saturation.32.0_sent.json              |     1 +
+ .../api/d4_commands_BMCAM_004.json                 |     1 +
+ .../api/g3_end_device_view_BMCAM_003.json          |     1 +
+ .../api/g3_end_device_view_BMCAM_004.json          |     1 +
+ runs/g3_hardmode_20261001/api/l12b.txt             |     2 +
+ .../api/l14_device_view_BMCAM_004.json             |     1 +
+ runs/g3_hardmode_20261001/api/l14a.txt             |     2 +
+ .../api/l1_ping_create_BMCAM_003.json              |     1 +
+ .../api/l1_ping_create_BMCAM_004.json              |     1 +
+ .../api/l1_ping_sent_BMCAM_003.json                |     1 +
+ .../api/l1_ping_sent_BMCAM_004.json                |     1 +
+ runs/g3_hardmode_20261001/api/r003_sofar.txt       |    10 +
+ runs/g3_hardmode_20261001/commands.log             |  3355 +++++
+ .../console/l12_l14_arrival.txt                    |    37 +
+ .../console/r003_sofar_arrival.txt                 |    15 +
+ .../console/starts_bmcam004.txt                    |    37 +
+ runs/g3_hardmode_20261001/gate.log                 |    58 +
+ runs/g3_hardmode_20261001/ip12.out                 |    32 +
+ runs/g3_hardmode_20261001/ip34.out                 |    22 +
+ runs/g3_hardmode_20261001/ip_redo.out              |    14 +
+ runs/g3_hardmode_20261001/l10_step.out             |     6 +
+ ...:23Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:55:23Z_image_native_full.metadata.json |    21 +
+ .../pulled/003.IP.cap/action.log                   |    43 +
+ .../pulled/003.IP.clip/action.log                  |    25 +
+ ...:53Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:47:53Z_image_native_full.metadata.json |    21 +
+ .../pulled/003.L4b-5/action.log                    |    42 +
+ ...:33Z_image_compressed.jpg.capture_metadata.json |     1 +
+ runs/g3_hardmode_20261001/pulled/003.L6/action.log |    39 +
+ runs/g3_hardmode_20261001/pulled/003.L8/action.log |    24 +
+ ...:17Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:33:17Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/E1a/action.log    |    44 +
+ ...:17Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:35:17Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/E1b/action.log    |    40 +
+ runs/g3_hardmode_20261001/pulled/E1d/action.log    |    24 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.brightness -1.0..cap/action.log      |    37 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.brightness 1.0..cap/action.log       |    37 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:03:47Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.brightness.-1.0.cap/action.log       |    37 +
+ ...:37Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:04:37Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.brightness.1.0.cap/action.log        |    43 +
+ ...-10-02T06-45-17Z_video_1280x720_15fps_thumb.jpg |   Bin 0 -> 41724 bytes
+ ...10-02T07-16-17Z_video_1920x1080_15fps_thumb.jpg |   Bin 0 -> 12445 bytes
+ .../pulled/IP.clip1/action.log                     |    25 +
+ ...10-02T07-28-37Z_video_1920x1080_15fps_thumb.jpg |   Bin 0 -> 105262 bytes
+ .../pulled/IP.clip2/action.log                     |    27 +
+ ...:07Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:54:07Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.contrast 0.0..cap/action.log         |    37 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:54:47Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.contrast 32.0..cap/action.log        |    37 +
+ ...:17Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.contrast.0.0.cap/action.log          |    41 +
+ ...:07Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.contrast.32.0.cap/action.log         |    37 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:06:47Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.denoise.auto.cap/action.log          |    43 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:09:27Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.denoise.cdn_fast.cap/action.log      |    37 +
+ ...:17Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:10:17Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.denoise.cdn_hq.cap/action.log        |    37 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:08:27Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.denoise.cdn_off.cap/action.log       |    37 +
+ ...:37Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:07:37Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.denoise.off.cap/action.log           |    37 +
+ ...:57Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.hdr.auto.cap/action.log              |    41 +
+ ...:37Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.hdr.false.cap/action.log             |    41 +
+ ...:07Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:11:07Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.hdr.off.cap/action.log               |    41 +
+ ...:57Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:12:57Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.hdr.sensor.cap/action.log            |    37 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:13:47Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.hdr.single-exp.cap/action.log        |    37 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.hdr.true.cap/action.log              |    37 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:55:27Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.saturation 0.0..cap/action.log       |    37 +
+ ...:07Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.saturation 32.0..cap/action.log      |    37 +
+ ...:07Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:02:07Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.saturation.0.0.cap/action.log        |    41 +
+ ...:57Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:02:57Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.saturation.32.0.cap/action.log       |    37 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:52:47Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.sharpness 0.0..cap/action.log        |    40 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:53:27Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.sharpness 16.0..cap/action.log       |    37 +
+ ...:37Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:58:37Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP.sharpness.0.0.cap/action.log         |    41 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP.sharpness.16.0.cap/action.log        |    41 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP2.brightness.-1.0.cap/action.log      |    41 +
+ ...:37Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:23:37Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP2.brightness.1.0.cap/action.log       |    42 +
+ ...:47Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:24:47Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP2.contrast.0.5.cap/action.log         |    37 +
+ ...:57Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP2.contrast.2.0.cap/action.log         |    37 +
+ ...:57Z_image_compressed.jpg.capture_metadata.json |     1 +
+ .../pulled/IP2.none.-.cap/action.log               |    41 +
+ ...:07Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:20:07Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP2.saturation.0.0.cap/action.log       |    37 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T07:21:27Z_image_native_full.metadata.json |    21 +
+ .../pulled/IP2.saturation.32.0.cap/action.log      |    37 +
+ runs/g3_hardmode_20261001/pulled/L10/action.log    |    26 +
+ ...:27Z_image_compressed.jpg.capture_metadata.json |     1 +
+ runs/g3_hardmode_20261001/pulled/L11b/action.log   |    39 +
+ ...:28Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...:08Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:28:08Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/L3/action.log     |    46 +
+ ...:28Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:30:28Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/L4/action.log     |    46 +
+ ...:08Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:32:08Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/L4b/action.log    |    50 +
+ ...:48Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:33:48Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/L5/action.log     |    46 +
+ ...:28Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:35:28Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/L6/action.log     |    43 +
+ ...:58Z_image_compressed.jpg.capture_metadata.json |     1 +
+ ...10-02T06:36:58Z_image_native_full.metadata.json |    21 +
+ runs/g3_hardmode_20261001/pulled/L7/action.log     |    41 +
+ runs/g3_hardmode_20261001/pulled/L8/action.log     |    27 +
+ runs/g3_hardmode_20261001/pulled/L9/action.log     |    25 +
+ .../pulled/bmcam003_field_update_91a08f6.log       |   256 +
+ .../pulled/bmcam004_field_update_91a08f6.log       |   253 +
+ .../pulled/ip_stills/index.txt                     |    27 +
+ runs/g3_hardmode_20261001/run_manifest.json        |    69 +
+ ...am003_after_deploy_91a08f6_20261002T061041Z.txt |    51 +
+ ...am003_after_reboot_91a08f6_20261002T061144Z.txt |    55 +
+ .../bmcam003_g3_baseline_20261002T060622Z.txt      |    55 +
+ .../snapshots/bmcam003_g3_end_20261002T093003Z.txt |    58 +
+ ...am004_after_deploy_91a08f6_20261002T060851Z.txt |    51 +
+ ...am004_after_reboot_91a08f6_20261002T060944Z.txt |    55 +
+ .../bmcam004_g3_baseline_20261002T060627Z.txt      |    55 +
+ .../snapshots/bmcam004_g3_end_20261002T093009Z.txt |    59 +
+ runs/g3_hardmode_20261001/steps.log                |  2274 ++++
+ runs/r1_takeover_20261001/RESULTS.md               |    59 +
+ runs/r1_takeover_20261001/commands.log             |     0
+ .../console/bmcam003_after_reboot.txt              |    11 +
+ .../console/bmcam004_after_reboot.txt              |     3 +
+ runs/r1_takeover_20261001/gate.log                 |    99 +
+ runs/r1_takeover_20261001/p0_run.log               |   108 +
+ .../pulled/bmcam003_field_update.log               |   322 +
+ .../pulled/bmcam004_field_update.log               |   321 +
+ runs/r1_takeover_20261001/pulled/p0_run.log        |   108 +
+ runs/r1_takeover_20261001/run_manifest.json        |    74 +
+ .../snapshots/bmcam003_after_20261002T053537Z.txt  |    55 +
+ .../bmcam003_after_deploy_20261002T053409Z.txt     |    55 +
+ .../bmcam003_before_deploy_20261002T053325Z.txt    |    51 +
+ .../bmcam003_logout1_20261002T053608Z.txt          |    55 +
+ .../bmcam003_logout2_20261002T053633Z.txt          |    55 +
+ .../bmcam003_takeover_20261002T053143Z.txt         |    57 +
+ .../bmcam003_takeover_v2_20261002T053236Z.txt      |    54 +
+ .../snapshots/bmcam004_after_20261002T055223Z.txt  |    55 +
+ .../bmcam004_after_deploy_20261002T054733Z.txt     |    55 +
+ .../bmcam004_before_deploy_20261002T054654Z.txt    |    51 +
+ .../bmcam004_logout1_20261002T055259Z.txt          |    55 +
+ .../bmcam004_logout2_20261002T055329Z.txt          |    55 +
+ .../bmcam004_takeover_20261002T053149Z.txt         |    57 +
+ runs/s27_ip_range_probe_20261002/RESULTS.md        |    23 +
+ runs/s27_ip_range_probe_20261002/SUMMARY.md        |    11 +
+ runs/s27_ip_range_probe_20261002/base_argv.txt     |     1 +
+ runs/s27_ip_range_probe_20261002/commands.log      |     0
+ runs/s27_ip_range_probe_20261002/contact_sheet.jpg |   Bin 0 -> 429797 bytes
+ runs/s27_ip_range_probe_20261002/gate.log          |     8 +
+ runs/s27_ip_range_probe_20261002/probe_run.log     |    44 +
+ runs/s27_ip_range_probe_20261002/run_manifest.json |    64 +
+ .../snapshots/bmcam003_before_20261002T200720Z.txt |    58 +
+ runs/s27_ip_range_probe_20261002/stats.csv         |    32 +
+ runs/s27_ip_range_probe_20261002/thumbs/base_1.jpg |   Bin 0 -> 12687 bytes
+ runs/s27_ip_range_probe_20261002/thumbs/base_2.jpg |   Bin 0 -> 12899 bytes
+ .../thumbs/brightness_-0.1.jpg                     |   Bin 0 -> 12838 bytes
+ .../thumbs/brightness_-0.25.jpg                    |   Bin 0 -> 11761 bytes
+ .../thumbs/brightness_-0.5.jpg                     |   Bin 0 -> 7877 bytes
+ .../thumbs/brightness_-0.75.jpg                    |   Bin 0 -> 5851 bytes
+ .../thumbs/brightness_0.1.jpg                      |   Bin 0 -> 12615 bytes
+ .../thumbs/brightness_0.25.jpg                     |   Bin 0 -> 12016 bytes
+ .../thumbs/brightness_0.5.jpg                      |   Bin 0 -> 9506 bytes
+ .../thumbs/brightness_0.75.jpg                     |   Bin 0 -> 5246 bytes
+ .../thumbs/brightness_0.jpg                        |   Bin 0 -> 12855 bytes
+ .../thumbs/contrast_0.25.jpg                       |   Bin 0 -> 7311 bytes
+ .../thumbs/contrast_0.5.jpg                        |   Bin 0 -> 9511 bytes
+ .../thumbs/contrast_0.75.jpg                       |   Bin 0 -> 11221 bytes
+ .../thumbs/contrast_1.5.jpg                        |   Bin 0 -> 14129 bytes
+ .../thumbs/contrast_1.jpg                          |   Bin 0 -> 12678 bytes
+ .../thumbs/contrast_2.jpg                          |   Bin 0 -> 14238 bytes
+ .../thumbs/contrast_3.jpg                          |   Bin 0 -> 14304 bytes
+ .../thumbs/contrast_4.jpg                          |   Bin 0 -> 14105 bytes
+ .../thumbs/contrast_6.jpg                          |   Bin 0 -> 14251 bytes
+ .../thumbs/contrast_8.jpg                          |   Bin 0 -> 14098 bytes
+ .../thumbs/saturation_0.25.jpg                     |   Bin 0 -> 11762 bytes
+ .../thumbs/saturation_0.5.jpg                      |   Bin 0 -> 12155 bytes
+ .../thumbs/saturation_1.jpg                        |   Bin 0 -> 12704 bytes
+ .../thumbs/saturation_12.jpg                       |   Bin 0 -> 2233 bytes
+ .../thumbs/saturation_16.jpg                       |   Bin 0 -> 2210 bytes
+ .../thumbs/saturation_2.jpg                        |   Bin 0 -> 13591 bytes
+ .../thumbs/saturation_3.jpg                        |   Bin 0 -> 13855 bytes
+ .../thumbs/saturation_4.jpg                        |   Bin 0 -> 10998 bytes
+ .../thumbs/saturation_6.jpg                        |   Bin 0 -> 2724 bytes
+ .../thumbs/saturation_8.jpg                        |   Bin 0 -> 2264 bytes
+ .../p0_rpicam_limits/00_env.txt                    |    20 +
+ .../p0_rpicam_limits/01_help_rpicam-still.txt      |   136 +
+ .../p0_rpicam_limits/01_help_rpicam-vid.txt        |   167 +
+ .../p0_rpicam_limits/02_picamera2_controls.err     |     8 +
+ .../p0_rpicam_limits/02_picamera2_controls.json    |   182 +
+ .../s27_ladder_20261001/p0_rpicam_limits/README.md |    39 +
+ .../p0_rpicam_limits/SUMMARY.md                    |    25 +
+ .../p0_rpicam_limits/probe_logs/p001.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p002.txt           |     1 +
+ .../p0_rpicam_limits/probe_logs/p003.txt           |     1 +
+ .../p0_rpicam_limits/probe_logs/p004.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p005.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p006.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p007.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p008.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p009.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p010.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p011.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p012.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p013.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p014.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p015.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p016.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p017.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p018.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p019.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p020.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p021.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p022.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p023.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p024.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p025.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p026.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p027.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p028.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p029.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p030.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p031.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p032.txt           |    13 +
+ .../p0_rpicam_limits/probe_logs/p033.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p034.txt           |    15 +
+ .../p0_rpicam_limits/probe_logs/p035.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p036.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p037.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p038.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p039.txt           |    25 +
+ .../p0_rpicam_limits/probe_logs/p040.txt           |    17 +
+ .../p0_rpicam_limits/probe_logs/p041.txt           |     1 +
+ .../p0_rpicam_limits/probe_logs/p042.txt           |     1 +
+ .../p0_rpicam_limits/probe_logs/p043.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p044.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p045.txt           |    25 +
+ .../p0_rpicam_limits/probe_logs/p046.txt           |    25 +
+ .../p0_rpicam_limits/probe_logs/p047.txt           |    33 +
+ .../p0_rpicam_limits/probe_logs/p048.txt           |     1 +
+ .../p0_rpicam_limits/probe_logs/p049.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p050.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p051.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p052.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p053.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p054.txt           |    13 +
+ .../p0_rpicam_limits/probe_logs/p055.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p056.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p057.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p058.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p059.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p060.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p061.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p062.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p063.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p064.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p065.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p066.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p067.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p068.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p069.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p070.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p071.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p072.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p073.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p074.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p075.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p076.txt           |    21 +
+ .../p0_rpicam_limits/probe_logs/p077.txt           |    21 +
+ .../p0_rpicam_limits/probes.csv                    |    78 +
+ .../p0_rpicam_limits/still_meta/p043.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p044.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p045.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p046.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p047.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p049.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p050.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p051.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p052.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p053.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p055.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p056.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p057.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p058.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p059.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p060.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p061.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p062.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p063.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p064.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p065.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p066.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p067.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p068.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p069.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p070.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p071.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p072.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p073.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p074.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p075.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p076.json          |    21 +
+ .../p0_rpicam_limits/still_meta/p077.json          |    21 +
+ sprints/Sprint27_remote_config/FRONTEND_HANDOFF.md |     7 +
+ sprints/Sprint27_remote_config/LADDER.md           |    31 +-
+ sprints/Sprint27_remote_config/SPEC.md             |    89 +
+ tests/golden/README.md                             |     1 +
+ .../settings.json                                  |     4 +-
+ .../settings/bmcam003+awb1_exp4/settings.json      |     4 +-
+ .../bmcam003+foc0_over_manual/settings.json        |     4 +-
+ tests/golden/settings/bmcam003+foc3/settings.json  |     4 +-
+ tests/golden/settings/bmcam003+hlt3/settings.json  |     4 +-
+ tests/golden/settings/bmcam003+roi5/settings.json  |     4 +-
+ .../settings/bmcam003+twn1_tmz2/settings.json      |     4 +-
+ .../settings/bmcam003+win2_txd1_cap1/settings.json |     4 +-
+ .../settings.json                                  |     4 +-
+ .../settings.json                                  |     4 +-
+ .../settings.json                                  |     4 +-
+ .../settings.json                                  |     4 +-
+ .../settings.json                                  |     7 +-
+ .../settings.json                                  |     7 +-
+ .../settings.json                                  |     4 +-
+ .../save_local_still/summary.json                  |    10 +-
+ .../vectors_save_local/save_local_still/trace.txt  |     4 +-
+ .../save_local_still_full/summary.json             |    10 +-
+ .../save_local_still_full/trace.txt                |     2 +-
+ .../save_local_still_window_off/summary.json       |    10 +-
+ .../save_local_still_window_off/trace.txt          |     2 +-
+ .../save_local_video/summary.json                  |    14 +-
+ .../vectors_save_local/save_local_video/trace.txt  |     4 +-
+ .../save_local_video_full/summary.json             |    10 +-
+ .../save_local_video_full/trace.txt                |     2 +-
+ .../stay_on_capture_only/summary.json              |    10 +-
+ .../vectors_stay_on/stay_on_capture_only/trace.txt |     2 +-
+ .../stay_on_crashloop_fallback/summary.json        |    10 +-
+ .../stay_on_crashloop_fallback/trace.txt           |     6 +-
+ .../vectors_stay_on/stay_on_idle_heal/summary.json |    10 +-
+ .../vectors_stay_on/stay_on_idle_heal/trace.txt    |     6 +-
+ .../stay_on_save_local_still/summary.json          |    10 +-
+ .../stay_on_save_local_still/trace.txt             |    18 +-
+ .../stay_on_save_local_video/summary.json          |    62 +-
+ .../stay_on_save_local_video/trace.txt             |     6 +-
+ .../vectors_stay_on/stay_on_still/summary.json     |    10 +-
+ .../golden/vectors_stay_on/stay_on_still/trace.txt |    36 +-
+ .../vectors_stay_on/stay_on_video/summary.json     |    10 +-
+ .../golden/vectors_stay_on/stay_on_video/trace.txt |    18 +-
+ .../stay_on_video_set_d/summary.json               |    10 +-
+ .../vectors_stay_on/stay_on_video_set_d/trace.txt  |    16 +-
+ .../stay_on_window_skip/summary.json               |    10 +-
+ .../vectors_stay_on/stay_on_window_skip/trace.txt  |    22 +-
+ tests/golden/vectors_v9/v9_heal/summary.json       |    10 +-
+ tests/golden/vectors_v9/v9_heal/trace.txt          |     8 +-
+ tests/golden/vectors_v9/v9_lane/summary.json       |    10 +-
+ tests/golden/vectors_v9/v9_lane/trace.txt          |    14 +-
+ .../v9_media_override_still/summary.json           |    14 +-
+ .../vectors_v9/v9_media_override_still/trace.txt   |    10 +-
+ .../v9_media_override_video/summary.json           |    14 +-
+ .../vectors_v9/v9_media_override_video/trace.txt   |    10 +-
+ tests/golden/vectors_v9/v9_still/summary.json      |    10 +-
+ tests/golden/vectors_v9/v9_still/trace.txt         |    34 +-
+ .../vectors_v9/v9_trigger_in_tail/summary.json     |    10 +-
+ .../golden/vectors_v9/v9_trigger_in_tail/trace.txt |    12 +-
+ tests/golden/vectors_v9/v9_trigger_kv/summary.json |    14 +-
+ tests/golden/vectors_v9/v9_trigger_kv/trace.txt    |    14 +-
+ tests/golden/vectors_v9/v9_video/summary.json      |    10 +-
+ tests/golden/vectors_v9/v9_video/trace.txt         |    12 +-
+ .../vectors_v9/v9_video_trigger_kv/summary.json    |    14 +-
+ .../vectors_v9/v9_video_trigger_kv/trace.txt       |     6 +-
+ tests/test_deploy_rc_runtime.py                    |    20 +-
+ tests/test_s27_config_catalog.py                   |    42 +
+ tests/test_s27_image_controls.py                   |   114 +-
+ tests/test_s27_retired_encoder_knobs.py            |   201 +
+ tools/add_sprint17_video_keys.py                   |    11 +-
+ tools/config_parity.py                             |     8 +-
+ tools/gen_config_catalog.py                        |   125 +-
+ tools/sprint17_denoise_sweep.py                    |    16 +-
+ 547 files changed, 34601 insertions(+), 690 deletions(-)
+ create mode 100644 .claude/settings.json
+ create mode 100644 hil/.gitignore
+ create mode 100644 hil/README.md
+ create mode 100644 hil/gates/G3_api_hard_mode.md
+ create mode 100644 hil/gates/G4_outdoor_tethered_12h.md
+ create mode 100644 hil/gates/G5_solar_24h.md
+ create mode 100644 hil/hil.env
+ create mode 100644 hil/hil.env.example
+ create mode 100644 hil/procedures/TAKEOVER.md
+ create mode 100644 hil/templates/RESULTS.md
+ create mode 100644 hil/templates/run_manifest.json
+ create mode 100755 hil/tools/hil_change.sh
+ create mode 100755 hil/tools/hil_cmd.sh
+ create mode 100755 hil/tools/hil_common.sh
+ create mode 100755 hil/tools/hil_con_decode.py
+ create mode 100755 hil/tools/hil_console.sh
+ create mode 100644 hil/tools/hil_hardmode_cases.py
+ create mode 100755 hil/tools/hil_ip_range_probe.sh
+ create mode 100755 hil/tools/hil_new_run.sh
+ create mode 100755 hil/tools/hil_p0_probe.sh
+ create mode 100755 hil/tools/hil_pistate.sh
+ create mode 100644 hil/tools/hil_plan_check.py
+ create mode 100755 hil/tools/hil_sofar_change.sh
+ create mode 100755 hil/tools/hil_step.sh
+ create mode 100755 hil/tools/hil_unit_snapshot.sh
+ create mode 100755 hil/tools/hil_use_run.sh
+ create mode 100755 hil/tools/test_hil_guards.sh
+ create mode 100644 runs/g3_hardmode_20261001/RESULTS.md
+ create mode 100644 runs/g3_hardmode_20261001/analysis/cases/cases.csv
+ create mode 100644 runs/g3_hardmode_20261001/analysis/cases/cases.json
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_003/api/catalog_head.json
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_003/api/device_view_start.json
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_003/plan_check.csv
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_003/plan_check.json
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_004/api/catalog_head.json
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_004/api/device_view_start.json
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_004/plan_check.csv
+ create mode 100644 runs/g3_hardmode_20261001/analysis/plan_BMCAM_004/plan_check.json
+ create mode 100644 runs/g3_hardmode_20261001/api/003.IP_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/003.IP_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.brightness -1.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.brightness 1.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.brightness.-1.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.brightness.-1.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.brightness.1.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.brightness.1.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.contrast 0.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.contrast 32.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.contrast.0.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.contrast.0.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.contrast.32.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.contrast.32.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.auto_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.auto_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.cdn_fast_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.cdn_fast_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.cdn_hq_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.cdn_hq_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.cdn_off_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.cdn_off_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.off_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.denoise.off_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.auto_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.auto_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.false_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.false_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.off_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.off_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.sensor_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.sensor_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.single-exp_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.single-exp_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.true_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.hdr.true_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.reset.contrast_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.reset.contrast_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.saturation 0.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.saturation 32.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.saturation.0.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.saturation.0.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.saturation.32.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.saturation.32.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.sharpness 0.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.sharpness 16.0._change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.sharpness.0.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.sharpness.0.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.sharpness.16.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP.sharpness.16.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP0.enable_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP0.enable_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.-1.0.reset_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.-1.0.reset_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.-1.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.-1.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.1.0.reset_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.1.0.reset_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.1.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.brightness.1.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.0.5.reset_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.0.5.reset_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.0.5_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.0.5_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.2.0.reset_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.2.0.reset_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.2.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.contrast.2.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.0.0.reset_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.0.0.reset_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.0.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.0.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.32.0.reset_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.32.0.reset_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.32.0_change.json
+ create mode 100644 runs/g3_hardmode_20261001/api/IP2.saturation.32.0_sent.json
+ create mode 100644 runs/g3_hardmode_20261001/api/d4_commands_BMCAM_004.json
+ create mode 100644 runs/g3_hardmode_20261001/api/g3_end_device_view_BMCAM_003.json
+ create mode 100644 runs/g3_hardmode_20261001/api/g3_end_device_view_BMCAM_004.json
+ create mode 100644 runs/g3_hardmode_20261001/api/l12b.txt
+ create mode 100644 runs/g3_hardmode_20261001/api/l14_device_view_BMCAM_004.json
+ create mode 100644 runs/g3_hardmode_20261001/api/l14a.txt
+ create mode 100644 runs/g3_hardmode_20261001/api/l1_ping_create_BMCAM_003.json
+ create mode 100644 runs/g3_hardmode_20261001/api/l1_ping_create_BMCAM_004.json
+ create mode 100644 runs/g3_hardmode_20261001/api/l1_ping_sent_BMCAM_003.json
+ create mode 100644 runs/g3_hardmode_20261001/api/l1_ping_sent_BMCAM_004.json
+ create mode 100644 runs/g3_hardmode_20261001/api/r003_sofar.txt
+ create mode 100644 runs/g3_hardmode_20261001/commands.log
+ create mode 100644 runs/g3_hardmode_20261001/console/l12_l14_arrival.txt
+ create mode 100644 runs/g3_hardmode_20261001/console/r003_sofar_arrival.txt
+ create mode 100644 runs/g3_hardmode_20261001/console/starts_bmcam004.txt
+ create mode 100644 runs/g3_hardmode_20261001/gate.log
+ create mode 100644 runs/g3_hardmode_20261001/ip12.out
+ create mode 100644 runs/g3_hardmode_20261001/ip34.out
+ create mode 100644 runs/g3_hardmode_20261001/ip_redo.out
+ create mode 100644 runs/g3_hardmode_20261001/l10_step.out
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.IP.cap/2026-10-02T07:55:23Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.IP.cap/2026-10-02T07:55:23Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.IP.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.IP.clip/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.L4b-5/2026-10-02T07:47:53Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.L4b-5/2026-10-02T07:47:53Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.L4b-5/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.L6/2026-10-02T07:49:33Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.L6/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/003.L8/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1a/2026-10-02T07:33:17Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1a/2026-10-02T07:33:17Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1a/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1b/2026-10-02T07:35:17Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1b/2026-10-02T07:35:17Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1b/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/E1d/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness -1.0..cap/2026-10-02T06:56:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness -1.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness 1.0..cap/2026-10-02T06:57:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness 1.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness.-1.0.cap/2026-10-02T07:03:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness.-1.0.cap/2026-10-02T07:03:47Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness.-1.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness.1.0.cap/2026-10-02T07:04:37Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness.1.0.cap/2026-10-02T07:04:37Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.brightness.1.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.clip1/2026-10-02T06-45-17Z_video_1280x720_15fps_thumb.jpg
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.clip1/2026-10-02T07-16-17Z_video_1920x1080_15fps_thumb.jpg
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.clip1/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.clip2/2026-10-02T07-28-37Z_video_1920x1080_15fps_thumb.jpg
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.clip2/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast 0.0..cap/2026-10-02T06:54:07Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast 0.0..cap/2026-10-02T06:54:07Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast 0.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast 32.0..cap/2026-10-02T06:54:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast 32.0..cap/2026-10-02T06:54:47Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast 32.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast.0.0.cap/2026-10-02T07:00:17Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast.0.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast.32.0.cap/2026-10-02T07:01:07Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.contrast.32.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.auto.cap/2026-10-02T07:06:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.auto.cap/2026-10-02T07:06:47Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.auto.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_fast.cap/2026-10-02T07:09:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_fast.cap/2026-10-02T07:09:27Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_fast.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_hq.cap/2026-10-02T07:10:17Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_hq.cap/2026-10-02T07:10:17Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_hq.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_off.cap/2026-10-02T07:08:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_off.cap/2026-10-02T07:08:27Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.cdn_off.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.off.cap/2026-10-02T07:07:37Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.off.cap/2026-10-02T07:07:37Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.denoise.off.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.auto.cap/2026-10-02T07:11:57Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.auto.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.false.cap/2026-10-02T07:14:37Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.false.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.off.cap/2026-10-02T07:11:07Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.off.cap/2026-10-02T07:11:07Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.off.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.sensor.cap/2026-10-02T07:12:57Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.sensor.cap/2026-10-02T07:12:57Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.sensor.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.single-exp.cap/2026-10-02T07:13:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.single-exp.cap/2026-10-02T07:13:47Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.single-exp.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.true.cap/2026-10-02T07:15:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.hdr.true.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation 0.0..cap/2026-10-02T06:55:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation 0.0..cap/2026-10-02T06:55:27Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation 0.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation 32.0..cap/2026-10-02T06:56:07Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation 32.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation.0.0.cap/2026-10-02T07:02:07Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation.0.0.cap/2026-10-02T07:02:07Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation.0.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation.32.0.cap/2026-10-02T07:02:57Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation.32.0.cap/2026-10-02T07:02:57Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.saturation.32.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness 0.0..cap/2026-10-02T06:52:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness 0.0..cap/2026-10-02T06:52:47Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness 0.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness 16.0..cap/2026-10-02T06:53:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness 16.0..cap/2026-10-02T06:53:27Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness 16.0..cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness.0.0.cap/2026-10-02T06:58:37Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness.0.0.cap/2026-10-02T06:58:37Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness.0.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness.16.0.cap/2026-10-02T06:59:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP.sharpness.16.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.brightness.-1.0.cap/2026-10-02T07:22:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.brightness.-1.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.brightness.1.0.cap/2026-10-02T07:23:37Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.brightness.1.0.cap/2026-10-02T07:23:37Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.brightness.1.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.contrast.0.5.cap/2026-10-02T07:24:47Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.contrast.0.5.cap/2026-10-02T07:24:47Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.contrast.0.5.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.contrast.2.0.cap/2026-10-02T07:25:57Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.contrast.2.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.none.-.cap/2026-10-02T07:18:57Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.none.-.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.saturation.0.0.cap/2026-10-02T07:20:07Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.saturation.0.0.cap/2026-10-02T07:20:07Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.saturation.0.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.saturation.32.0.cap/2026-10-02T07:21:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.saturation.32.0.cap/2026-10-02T07:21:27Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/IP2.saturation.32.0.cap/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L10/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L11b/2026-10-02T06:50:27Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L11b/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L2/2026-10-02T06:24:28Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L3/2026-10-02T06:28:08Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L3/2026-10-02T06:28:08Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L3/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L4/2026-10-02T06:30:28Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L4/2026-10-02T06:30:28Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L4/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L4b/2026-10-02T06:32:08Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L4b/2026-10-02T06:32:08Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L4b/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L5/2026-10-02T06:33:48Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L5/2026-10-02T06:33:48Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L5/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L6/2026-10-02T06:35:28Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L6/2026-10-02T06:35:28Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L6/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L7/2026-10-02T06:36:58Z_image_compressed.jpg.capture_metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L7/2026-10-02T06:36:58Z_image_native_full.metadata.json
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L7/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L8/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/L9/action.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/bmcam003_field_update_91a08f6.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/bmcam004_field_update_91a08f6.log
+ create mode 100644 runs/g3_hardmode_20261001/pulled/ip_stills/index.txt
+ create mode 100644 runs/g3_hardmode_20261001/run_manifest.json
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam003_after_deploy_91a08f6_20261002T061041Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam003_after_reboot_91a08f6_20261002T061144Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam003_g3_baseline_20261002T060622Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam003_g3_end_20261002T093003Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam004_after_deploy_91a08f6_20261002T060851Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam004_after_reboot_91a08f6_20261002T060944Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam004_g3_baseline_20261002T060627Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/snapshots/bmcam004_g3_end_20261002T093009Z.txt
+ create mode 100644 runs/g3_hardmode_20261001/steps.log
+ create mode 100644 runs/r1_takeover_20261001/RESULTS.md
+ create mode 100644 runs/r1_takeover_20261001/commands.log
+ create mode 100644 runs/r1_takeover_20261001/console/bmcam003_after_reboot.txt
+ create mode 100644 runs/r1_takeover_20261001/console/bmcam004_after_reboot.txt
+ create mode 100644 runs/r1_takeover_20261001/gate.log
+ create mode 100644 runs/r1_takeover_20261001/p0_run.log
+ create mode 100644 runs/r1_takeover_20261001/pulled/bmcam003_field_update.log
+ create mode 100644 runs/r1_takeover_20261001/pulled/bmcam004_field_update.log
+ create mode 100644 runs/r1_takeover_20261001/pulled/p0_run.log
+ create mode 100644 runs/r1_takeover_20261001/run_manifest.json
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_after_20261002T053537Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_after_deploy_20261002T053409Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_before_deploy_20261002T053325Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_logout1_20261002T053608Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_logout2_20261002T053633Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_takeover_20261002T053143Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam003_takeover_v2_20261002T053236Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam004_after_20261002T055223Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam004_after_deploy_20261002T054733Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam004_before_deploy_20261002T054654Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam004_logout1_20261002T055259Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam004_logout2_20261002T055329Z.txt
+ create mode 100644 runs/r1_takeover_20261001/snapshots/bmcam004_takeover_20261002T053149Z.txt
+ create mode 100644 runs/s27_ip_range_probe_20261002/RESULTS.md
+ create mode 100644 runs/s27_ip_range_probe_20261002/SUMMARY.md
+ create mode 100644 runs/s27_ip_range_probe_20261002/base_argv.txt
+ create mode 100644 runs/s27_ip_range_probe_20261002/commands.log
+ create mode 100644 runs/s27_ip_range_probe_20261002/contact_sheet.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/gate.log
+ create mode 100644 runs/s27_ip_range_probe_20261002/probe_run.log
+ create mode 100644 runs/s27_ip_range_probe_20261002/run_manifest.json
+ create mode 100644 runs/s27_ip_range_probe_20261002/snapshots/bmcam003_before_20261002T200720Z.txt
+ create mode 100644 runs/s27_ip_range_probe_20261002/stats.csv
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/base_1.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/base_2.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_-0.1.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_-0.25.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_-0.5.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_-0.75.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_0.1.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_0.25.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_0.5.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_0.75.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/brightness_0.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_0.25.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_0.5.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_0.75.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_1.5.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_1.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_2.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_3.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_4.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_6.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/contrast_8.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_0.25.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_0.5.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_1.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_12.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_16.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_2.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_3.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_4.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_6.jpg
+ create mode 100644 runs/s27_ip_range_probe_20261002/thumbs/saturation_8.jpg
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/00_env.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/01_help_rpicam-still.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/01_help_rpicam-vid.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/02_picamera2_controls.err
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/02_picamera2_controls.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/README.md
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/SUMMARY.md
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p001.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p002.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p003.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p004.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p005.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p006.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p007.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p008.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p009.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p010.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p011.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p012.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p013.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p014.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p015.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p016.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p017.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p018.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p019.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p020.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p021.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p022.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p023.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p024.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p025.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p026.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p027.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p028.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p029.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p030.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p031.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p032.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p033.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p034.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p035.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p036.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p037.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p038.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p039.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p040.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p041.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p042.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p043.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p044.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p045.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p046.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p047.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p048.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p049.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p050.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p051.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p052.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p053.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p054.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p055.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p056.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p057.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p058.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p059.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p060.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p061.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p062.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p063.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p064.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p065.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p066.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p067.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p068.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p069.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p070.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p071.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p072.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p073.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p074.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p075.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p076.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probe_logs/p077.txt
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/probes.csv
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p043.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p044.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p045.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p046.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p047.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p049.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p050.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p051.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p052.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p053.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p055.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p056.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p057.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p058.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p059.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p060.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p061.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p062.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p063.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p064.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p065.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p066.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p067.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p068.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p069.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p070.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p071.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p072.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p073.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p074.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p075.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p076.json
+ create mode 100644 runs/s27_ladder_20261001/p0_rpicam_limits/still_meta/p077.json
+ create mode 100644 tests/test_s27_retired_encoder_knobs.py
+[FIELD-UPDATE] repo: 91a08f624011 -> 34a6222ea94c (development)
+[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+[RC-DEPLOY] repo=/home/pi/repos/bm_cam_legacy
+[RC-DEPLOY] manifest=/home/pi/repos/bm_cam_legacy/tools/rc_runtime_manifest.txt
+[RC-DEPLOY] destination=/home/pi/BM_Devel_Pi (staging in /home/pi/BM_Devel_Pi.next)
+[RC-DEPLOY] mode=field-update profile=none cron=false
+[RC-DEPLOY] timestamp=20261002T203734Z hostname=bmcam003 python=/usr/bin/python3
+[RC-DEPLOY] preflight: PyYAML present
+[RC-DEPLOY] preflight: boot cycle not armed
+[RC-DEPLOY] staged 58 files in /home/pi/BM_Devel_Pi.next
+[RC-DEPLOY] syntax check (py_compile 53 files, staged)
+[PARITY][DIFF] print-config text differs:
+  --- /home/pi/BM_Devel_Pi.next/.deploy_check/pc_old.txt
+  +++ /home/pi/BM_Devel_Pi.next/.deploy_check/pc_new.txt
+  @@ -22,3 +22,3 @@
+   [VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+  -[VID] encoder knobs: profile=default level=default intra=default denoise=default sharpness=1.0
+  +[VID] encoder knobs: all rpicam-vid defaults
+   [VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[RC-DEPLOY] print-config differs (above) — ACCEPTED by --accept-print-config-diff
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash 67f930c4
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] backing up runtime code/config to /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam003_20261002T203734Z.tgz (images/buffers/logs/videos excluded)
+[RC-DEPLOY] restore command: tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam003_20261002T203734Z.tgz -C /home/pi
+[RC-DEPLOY] copy rc_progressive_jpeg.py
+[RC-DEPLOY] copy rc_time_budget.py
+[RC-DEPLOY] copy rc_jpeg_encoder.py
+[RC-DEPLOY] copy rc_quality_selector.py
+[RC-DEPLOY] copy rc_uplink_messages.py
+[RC-DEPLOY] copy rc_transmit.py
+[RC-DEPLOY] copy rc_transmit_phase.py
+[RC-DEPLOY] copy rc_power_halt.py
+[RC-DEPLOY] copy rc_run_capture_cycle.sh
+[RC-DEPLOY] copy spotter_time_sync.py
+[RC-DEPLOY] copy bm_serial.py
+[RC-DEPLOY] copy bm_codec.py
+[RC-DEPLOY] copy bm_port.py
+[RC-DEPLOY] copy rc_capture.py
+[RC-DEPLOY] copy rc_telemetry.py
+[RC-DEPLOY] copy rc_port_owner.py
+[RC-DEPLOY] copy rc_supervisor.py
+[RC-DEPLOY] copy rc_stay_on_guard.py
+[RC-DEPLOY] copy rc_still_storage.py
+[RC-DEPLOY] copy command_tables.py
+[RC-DEPLOY] copy command_messages.py
+[RC-DEPLOY] copy command_state.py
+[RC-DEPLOY] copy command_bindings.py
+[RC-DEPLOY] copy command_daemon.py
+[RC-DEPLOY] copy command_help.py
+[RC-DEPLOY] copy bm_frame_decoder.py
+[RC-DEPLOY] copy rc_command_hooks.py
+[RC-DEPLOY] copy rc_media_key.py
+[RC-DEPLOY] copy rc_heal.py
+[RC-DEPLOY] copy config_registry.py
+[RC-DEPLOY] copy config_v1_reader.py
+[RC-DEPLOY] copy config_dump.py
+[RC-DEPLOY] copy config_migrate.py
+[RC-DEPLOY] copy atomic_io.py
+[RC-DEPLOY] copy config_v2.py
+[RC-DEPLOY] copy config_journal.py
+[RC-DEPLOY] copy config_validate.py
+[RC-DEPLOY] copy command_wire.py
+[RC-DEPLOY] copy command_state_v9.py
+[RC-DEPLOY] copy command_inbox.py
+[RC-DEPLOY] copy supervisor_config.py
+[RC-DEPLOY] copy command_replies.py
+[RC-DEPLOY] copy command_v9.py
+[RC-DEPLOY] copy command_guards.py
+[RC-DEPLOY] copy command_trigger.py
+[RC-DEPLOY] copy video_geometry.py
+[RC-DEPLOY] copy video_recorder.py
+[RC-DEPLOY] copy video_ring.py
+[RC-DEPLOY] copy video_manifest.py
+[RC-DEPLOY] copy videoui_server.py
+[RC-DEPLOY] copy video_settings.py
+[RC-DEPLOY] copy rc_video_clip.py
+[RC-DEPLOY] copy rc_video_tx.py
+[RC-DEPLOY] copy network_ap.sh
+[RC-DEPLOY] copy network_config.py
+[RC-DEPLOY] copy tuned_halt.sh
+[RC-DEPLOY] copy reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg
+[RC-DEPLOY] copy reference_images/reference_card_native_imx708.jpg
+[RC-DEPLOY] installed 58 files; staging dir removed
+[RC-DEPLOY] camera_schedule.yaml untouched (device-specific; use --profile to install one)
+[RC-DEPLOY] crontab untouched (use --install-cron to arm the boot cycle)
+[RC-DEPLOY] config v2 effective hash: f333bfb7
+[RC-DEPLOY] write software_sha.txt=34a6222ea94c
+[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+[BOOT] main_entry uptime_s=1658.16
+[CFG][WARN] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+[CFG][WARN] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled are true)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f333bfb7 hv=1 registry=v7 overlay=4 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: all rpicam-vid defaults
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[RC-DEPLOY] UART check: /dev/serial0 -> ttyAMA0, no serial console (BM-transmit-capable)
+[RC-DEPLOY] deploy complete
+[RC-DEPLOY] next (new unit validation ladder — NOTE: with power_halt enabled, ANY cycle HALTS the box at cycle end):
+[RC-DEPLOY]   cd /home/pi/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh --check   # UART transmit-capable gate
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --compress-only <native.jpg>
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit
+[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+[FIELD-UPDATE] config v2 unit (/home/pi/BM_Devel_Pi/camera_config.yaml): camera_schedule.yaml is NOT patched
+[FIELD-UPDATE]   uplink.chunk_chars: unit=384 profile=384
+[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.3 profile=1.3
+[FIELD-UPDATE]   uplink.network_type: unit=2 profile=2
+[FIELD-UPDATE]   to adopt the profile, re-migrate it (backs up the v2 files first):
+[FIELD-UPDATE]     cp /home/pi/repos/bm_cam_legacy/device_profiles/bmcam003/live_20260925/camera_schedule.yaml /home/pi/BM_Devel_Pi/camera_schedule.yaml && python3 /home/pi/repos/bm_cam_legacy/tools/config_migrate_v1_v2.py --app /home/pi/BM_Devel_Pi --write --force
+[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+[FIELD-UPDATE] UART OK: serial0 -> ttyAMA0, no kernel console on the link
+[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+[BOOT] main_entry uptime_s=1661.53
+[CFG][WARN] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+[CFG][WARN] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled are true)
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f333bfb7 hv=1 registry=v7 overlay=4 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: all rpicam-vid defaults
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[FIELD-UPDATE] UART open OK: /dev/ttyAMA0 @ 115200, network 0x02 cellular-only
+[FIELD-UPDATE] validation OK (real-transmit check is a manual step — see summary)
+[FIELD-UPDATE] === stage 7: re-arm ===
+[FIELD-UPDATE] crontab left DISARMED (--leave-disarmed); restore with: crontab /home/pi/crontab_before_field_update_20261002T203729Z.txt
+[FIELD-UPDATE] power_halt state (verify matches intent for this unit): config v2 (effective, incl. command overlay): enabled=True dry_run=False level=v2
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: 91a08f624011 -> 34a6222ea94c | values: chunk=384 delay=1.3
+[FIELD-UPDATE] rollback: crontab /home/pi/crontab_before_field_update_20261002T203729Z.txt; cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.before_field_update_20261002T203729Z /home/pi/BM_Devel_Pi/camera_schedule.yaml; runtime tar in /home/pi/backups (see deploy output)
+[FIELD-UPDATE] recommended live check (SPENDS QUOTA; with power_halt enabled the box HALTS after):
+[FIELD-UPDATE]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit --skip-time-window

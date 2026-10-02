@@ -1,0 +1,1 @@
+13009 /usr/bin/rpicam-vid -n -t 17000 --codec h264 --inline --mode 2304:1296:10:P --width 1920 --height 1080 --framerate 14 --bitrate 6000000 --roi 0.000000,0.000000,1.000000,1.000000 -o /home/pi/BM_Devel_Pi/videos/2026-10-02T20-58-46Z_video_1920x1080_14fps.h264.part --autofocus-mode auto --lens-position 1.82 --sharpness 1 --denoise cdn_hq

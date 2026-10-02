@@ -1,0 +1,59 @@
+== bmcam004 2026-10-02T20:17:10Z up 50882.40s
+-- /dev/shm
+total 4
+drwxrwxrwt  3 root root  120 Oct  2 07:45 .
+drwxr-xr-x 16 root root 4040 Oct  2 06:09 ..
+drwxrwxr-x  2 pi   pi     80 Oct  2 20:14 bmcam
+-rw-rw-r--  1 pi   pi      6 Oct  2 07:45 bmcam_stay_on
+-rw-rw-rw-  1 pi   pi   4096 Oct  2 06:24 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  2 06:24 lttng-ust-wait-8-1000
+total 8
+drwxrwxr-x 2 pi   pi     80 Oct  2 20:14 .
+drwxrwxrwt 3 root root  120 Oct  2 07:45 ..
+-rw-r--r-- 1 pi   pi   2432 Oct  2 07:37 camera_schedule.one_shot.yaml
+-rw-r--r-- 1 pi   pi   2299 Oct  2 20:14 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on present
+KEY sha 91a08f624011
+KEY repo development 91a08f6 Merge pull request #104 from nickraymond/docs/release-r1-g1-decisions
+KEY cfg_hash hash=6e7f9989
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=6e7f9989 hv=1 registry=v6 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.0qE41w/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file 73dfd98e1c8dd973 bm_command_state_v2.json 0L
+file 16e84a08acb7f313 config_journal.jsonl 181L
+state overlay {"mode.run": "stay_on", "video.record.fps": 14, "video.send.duration_s": 15}
+state guarded {}
+state boot 33 hw {"remote": 1000036, "service": 100000032}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+587 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+588 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+591 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+25293 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+1103 1000 pi - 26415 user    - no -
+1104 1000 pi - 26420 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     252808 kB
+CmaTotal:         262144 kB
+CmaFree:           73808 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T060912Z.log
+KEY err_count 1
+KEY reresolve_fail 0
+[RC][ERR] save_local: SD over its limit after pruning; capture refused
+-- tail
+[SUP] heartbeat <WS a=idle> after 300s idle
+[DEBUG] Sent compact telemetry message (133 bytes): <WS v=1 a=idle cfg=6e7f9989 up=44642 tz=America/Los_Angeles lt=1309 ws=0000 we=0000 rk=480x270 ct=36.5 sha=91a08f624011 hn=bmcam004>
+[SUP] heartbeat <WS a=idle> after 300s idle
+[DEBUG] Sent compact telemetry message (133 bytes): <WS v=1 a=idle cfg=6e7f9989 up=44942 tz=America/Los_Angeles lt=1314 ws=0000 we=0000 rk=480x270 ct=36.5 sha=91a08f624011 hn=bmcam004>
+[SUP] heartbeat <WS a=idle> after 300s idle
