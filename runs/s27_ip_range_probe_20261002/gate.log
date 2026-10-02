@@ -1,0 +1,8 @@
+2026-10-02T20:07:20Z run created for IPRANGE units: bmcam003
+2026-10-02T20:07:20Z [bmcam003] F-G3-5 daylight probe: backup+disarm TS=20261002T200720Z; restore: crontab /home/pi/hil_backup/20261002T200720Z/crontab_ARMED.txt && sudo reboot
+1:# DISABLED hil 20261002T200720Z: @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+TERM-sent
+20:07:37
+STOPPED
+CRON_MATCHES_BACKUP
+2026-10-02T20:10:06Z probe done; re-armed + reboot
