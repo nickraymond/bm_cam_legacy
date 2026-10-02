@@ -1,0 +1,55 @@
+== bmcam003 2026-10-02T20:11:19Z up 61.71s
+-- /dev/shm
+total 4
+drwxrwxrwt  3 root root   80 Oct  2 20:10 .
+drwxr-xr-x 16 root root 4040 Oct  2 20:10 ..
+drwxrwxr-x  2 pi   pi     60 Oct  2 20:10 bmcam
+-rw-rw-r--  1 pi   pi      4 Oct  2 20:10 bmcam_stay_on
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  2 20:10 .
+drwxrwxrwt 3 root root   80 Oct  2 20:10 ..
+-rw-r--r-- 1 pi   pi   2299 Oct  2 20:10 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on present
+KEY sha 91a08f624011
+KEY repo development 91a08f6 Merge pull request #104 from nickraymond/docs/release-r1-g1-decisions
+KEY cfg_hash hash=d1af75c0
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=d1af75c0 hv=1 registry=v6 overlay=4 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.YLCJ5x/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 8b9dd8472f1d2e8b bm_command_state_v2.json 0L
+file ca37f1048d387d9c config_journal.jsonl 96L
+state overlay {"mode.run": "stay_on", "video.record.fps": 14, "video.send.duration_s": 15, "video.send.fps": 14}
+state guarded {}
+state boot 27 hw {"remote": 1000007, "service": 100000021}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+591 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+592 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+596 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+628 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+7 1000 pi - 1273 manager - no -
+8 1000 pi - 1306 user    - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     229000 kB
+CmaTotal:         262144 kB
+CmaFree:           76072 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T201022Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-02T20:10:47.496000+00:00
+Fri  2 Oct 20:10:47 UTC 2026
+[SUP] stay_on boot time read: 2026-10-02T20:10:47.496000+00:00 (clock: ok)
+[NET] 2026-10-02T20:10:54Z client WiFi UP: profile=nereus-hq
