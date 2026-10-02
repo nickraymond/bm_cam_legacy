@@ -20,7 +20,7 @@ sent through the Sofar API. bm-heal-driver stopped; no Mac/GUI Sofar sends; no A
 |---|---|---|
 | **R4** (PLAN_S6 §9.14 H4, 6 criteria) | **PASS** | **PASS** (#1, #3–#6) · #2 needs Nick's cron line for 100073 |
 | **R5** 0 clips lost | **PASS** (0 lost; 1 partial + 1 in flight = stopped early) | **FAIL**: 4 clips never reached Sofar, **all Spotter-side** (below) |
-| **R5** 0 redundant heals | **PASS** (S6b judged, 8 re-asks all by the rules) | **PASS** |
+| **R5** 0 redundant heals | **PASS** (S6b judged, 9 re-asks all by the rules) | **PASS** |
 | **R5** every command on logs.html | **PASS** at the data level (sent_via=sofar, 202, last_hl_action) | **PASS** at the data level |
 
 **The backend half of G1 passes on both rigs.** Every clip the backend ever saw was healed by
@@ -56,9 +56,10 @@ acked (events.jsonl) and were cut mid-cycle.
 | chunks asked | 609 | 244 | 853 |
 | non-202 / rate-limited / auth-failed / 409 / other_sender_active | 0 | 0 | 0 |
 
-Re-asks (S6b, from heal-events): 8.
-- 5 were released early by `<HL a=sent r=ok>` and re-asked only for chunks still missing:
-  0e26dt, 0e297h, 0e2lxq (F9 second part), 0e2vuw, 0e3a13, all on bmcam003.
+Re-asks (S6b, from heal-events in the final 05:30Z mirror): 9.
+- 6 were released early by `<HL a=sent r=ok>` and re-asked only for chunks still missing:
+  0e26dt, 0e297h, 0e2lxq (F9 second part), 0e2vuw, 0e3a13, 0e3mrw (100117 → 100118 after
+  2102 s, complete 04:20:37Z), all on bmcam003.
 - 3 waited ≥ REASK_S with no release (5402 / 5698 / 5462 s): 0e2ncu (bmcam003), 0e2evc and
   0e3a1d (bmcam004). The first heal was sent r=ok, but its `<HL>` and part of its chunks were
   lost in the Spotter queue.

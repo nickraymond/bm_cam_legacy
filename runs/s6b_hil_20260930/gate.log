@@ -41,3 +41,4 @@
   => BMCAM_004 lost 4 clips, all Spotter-side: 1 in the mem_fault_reboot (01:27:20Z); 3 handed to the cell-only queue during the post-reboot no-GPS stretch (GPS failed to initialize 02:27Z, OK 04:25Z) and never delivered. None healable (no key at the backend). Sofar ticket candidate (FW v2.16.8).
 2026-10-02T05:30:46Z G1 CUT: conductor stopped at 05:30Z (no drain, Nick via EM 22:12 PDT); snapshot r5_snapshot_cut.json
 2026-10-02T05:31:28Z HANDOFF sent to the Test Engineer (bench theirs from 05:30Z). Rigs held as-is: both stay_on, armed, buses held, 3c1801d; heal driver + conductor stopped; auto-send ON (Render).
+2026-10-02T05:34:35Z S6b correction: 9 re-asks in the final mirror (6 early-release incl. 0e3mrw 100117->100118, 3 after REASK_S); redundant 0. RESULTS.md updated.
