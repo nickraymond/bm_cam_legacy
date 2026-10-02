@@ -1,0 +1,58 @@
+== bmcam003 2026-10-02T09:30:05Z up 11947.41s
+-- /dev/shm
+total 4
+drwxrwxrwt  3 root root  120 Oct  2 07:47 .
+drwxr-xr-x 16 root root 4040 Oct  2 06:10 ..
+drwxrwxr-x  2 pi   pi     80 Oct  2 09:29 bmcam
+-rw-rw-r--  1 pi   pi      4 Oct  2 06:11 bmcam_stay_on
+-rw-rw-rw-  1 pi   pi   4096 Oct  2 07:47 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  2 07:47 lttng-ust-wait-8-1000
+total 8
+drwxrwxr-x 2 pi   pi     80 Oct  2 09:29 .
+drwxrwxrwt 3 root root  120 Oct  2 07:47 ..
+-rw-r--r-- 1 pi   pi   2468 Oct  2 07:56 camera_schedule.one_shot.yaml
+-rw-r--r-- 1 pi   pi   2300 Oct  2 09:29 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on present
+KEY sha 91a08f624011
+KEY repo development 91a08f6 Merge pull request #104 from nickraymond/docs/release-r1-g1-decisions
+KEY cfg_hash hash=f7c9194f
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f7c9194f hv=1 registry=v6 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.FAGUpH/camera_schedule.yaml (level=v2)
+file c8a9c0c989ab6e7e camera_config.yaml 145L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 12d77ade240d10b6 bm_command_state_v2.json 0L
+file 3488026c1dfeb5e2 config_journal.jsonl 92L
+state overlay {"mode.run": "stay_on"}
+state guarded {}
+state boot 26 hw {"remote": 1000006, "service": 100000021}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 4
+593 /bin/sh -c /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+596 /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+597 /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+626 /usr/bin/python3 -u rc_progressive_jpeg.py --transmit
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+168 1000 pi - 5597 user    - no -
+169 1000 pi - 5602 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     240272 kB
+CmaTotal:         262144 kB
+CmaFree:           90732 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T061102Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[CMD] duplicate id=100123: original answer (console)
+[CMD] console: 3 line(s) sent, 0 queued
+[SUP] ===== action 7 (heal) after 5435s idle: 4 pending heal(s) (O5) =====
+[HEAL] wake plan: 4 pending heal(s), 26 chunk(s) this wake (cap 40)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3

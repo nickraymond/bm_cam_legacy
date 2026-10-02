@@ -53,3 +53,6 @@ CRON_MATCHES_BACKUP
 2026-10-02T07:47:11Z EM: bmcam003 also available until 07:00 PDT; must end at f7c9194f. Starting 003 subset (console ids 54001+).
 2026-10-02T08:00:17Z L12/L14 PASS: 1000034 recv 07:55:06Z (sent 07:31:53, 23 min), 1000035 recv 07:55:41Z, acked in id order; bmcam004 final hash f7c9194f == baseline (G3.9 004 PASS). Part A rerun (fixed model): 796 PASS / 0 FAIL / 79 INFO on both devices. Next: restore bmcam003 ONLY via the Sofar lane (remote-recovery proof).
 2026-10-02T08:06:02Z E2: out-of-frame still/video crops (backend accepts: native not reported) REFUSED by unit (does not fit native frame). ev 8.01 / gain 64.1 e=val. F-G3-8: still.message_cap 501 ACCEPTED by the unit (Q7 refuse>500 is backend-only; unit range 1..2000) -> reset 64186. Only console/direct senders can exceed the cost cap.
+2026-10-02T08:26:16Z bmcam003 Sofar restore: 1000002/3/5 OK; 1000004 REJECTED e=xk (reset wb.gains while wb.mode still manual; whole reset atomic). F-G3-9. Re-sending 1000004's keys now that wb.mode is reset.
+SPOT-31593C queue_full since 06:20Z: 126  first: 2026-10-02T06:30:52Z  last: 2026-10-02T08:57:58Z
+SPOT-33507C queue_full since 06:20Z: 54  first: 2026-10-02T07:48:34Z  last: 2026-10-02T09:30:00Z

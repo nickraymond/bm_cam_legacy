@@ -4,8 +4,8 @@
   "run_dir": "runs/g3_hardmode_20261001",
   "start_utc": "2026-10-02T06:06:22+00:00",
   "start_pdt": "2026-10-01T23:06:22-07:00",
-  "end_utc": null,
-  "end_pdt": null,
+  "end_utc": "2026-10-02T09:31:29+00:00",
+  "end_pdt": "2026-10-02T02:31:29-07:00",
   "operator": "Test Engineer",
   "repo": {
     "branch": "feature/r1-hil-test-engineer",
@@ -16,27 +16,27 @@
     {
       "host": "bmcam003",
       "before": {
-        "runtime_sha": null,
-        "cfg_hash": null,
-        "cron_armed": null
+        "runtime_sha": "91a08f624011",
+        "cfg_hash": "f7c9194f",
+        "cron_armed": true
       },
       "after": {
-        "runtime_sha": null,
-        "cfg_hash": null,
-        "cron_armed": null
+        "runtime_sha": "91a08f624011",
+        "cfg_hash": "f7c9194f",
+        "cron_armed": true
       }
     },
     {
       "host": "bmcam004",
       "before": {
-        "runtime_sha": null,
-        "cfg_hash": null,
-        "cron_armed": null
+        "runtime_sha": "91a08f624011",
+        "cfg_hash": "f7c9194f",
+        "cron_armed": true
       },
       "after": {
-        "runtime_sha": null,
-        "cfg_hash": null,
-        "cron_armed": null
+        "runtime_sha": "91a08f624011",
+        "cfg_hash": "f7c9194f",
+        "cron_armed": true
       }
     }
   ],
@@ -64,6 +64,6 @@
     "hil/tools/hil_unit_snapshot.sh": "7dabaf90500275f3"
   },
   "media": [],
-  "verdict": null,
+  "verdict": "PASS (G3.7, G3.10 PARTIAL)",
   "notes": []
 }

@@ -1,0 +1,15 @@
+2026-10-02T08:23:26Z 2026-10-02T08:23:28.386Z [SYS] [INFO] Remote message received(168)! "bm pub bmcam/cmd {"id":1000002,"c":"reset","k":["camera.controls_enabled","camera.exposure.analogue_gain","cam
+2026-10-02T08:23:27Z Message: 1790929408.746 53171fa3d81a8e6f, [bmcam003] OK id=1000002 reset camera.controls_enabled, camera.exposure.analogue_gain, camera.exposure.enabled, camera.exposure.ev -> YAM
+2026-10-02T08:24:10Z 2026-10-02T08:24:11.894Z [SYS] [INFO] Remote message received(175)! "bm pub bmcam/cmd {"id":1000003,"c":"reset","k":["camera.exposure.shutter_us","camera.focus.lens_position","cam
+2026-10-02T08:24:10Z .1790929452.218 53171fa3d81a8e6f, [bmcam003] OK id=1000003 reset camera.exposure.shutter_us, camera.focus.lens_position, camera.focus.mode, camera.image_processing.denoise -> YAML
+2026-10-02T08:25:00Z 2026-10-02T08:25:02.703Z [SYS] [INFO] Remote message received(187)! "bm pub bmcam/cmd {"id":1000004,"c":"reset","k":["camera.image_processing.enabled","camera.image_processing.hdr
+2026-10-02T08:25:01Z .1790929503.000 53171fa3d81a8e6f, [bmcam003] REJECTED id=1000004 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.gains cfg=52761f46
+2026-10-02T08:25:44Z 2026-10-02T08:25:46.089Z [SYS] [INFO] Remote message received(104)! "bm pub bmcam/cmd {"id":1000005,"c":"reset","k":["camera.white_balance.mode","still.crop"]} 1 1
+2026-10-02T08:25:44Z Message: 1790929546.250 53171fa3d81a8e6f, [bmcam003] OK id=1000005 reset camera.white_balance.mode, still.crop -> YAML cfg=ccd00260
+overlay {'mode.run': 'stay_on', 'camera.white_balance.enabled': True, 'camera.white_balance.gains': [1.8, 1.6], 'camera.image_processing.enabled': True, 'camera.image_processing.hdr': 'sensor'}
+
+[exited with code 0]
+2026-10-02T09:29:22Z Message: 1790933363.839 53171fa3d81a8e6f, [bmcam003] OK id=1000006 reset camera.image_processing.enabled, camera.image_processing.hdr, camera.white_balance.enabled, camera.white_balance.gains -> YAML
+overlay {'mode.run': 'stay_on'}
+
+[exited with code 0]
