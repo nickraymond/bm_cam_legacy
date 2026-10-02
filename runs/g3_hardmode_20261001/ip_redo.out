@@ -1,0 +1,14 @@
+ OK id=1000021 reset camera.image_processing.contrast, camera.image_processing.saturation, camera.image_processing.brightness -> YAML cfg=dc8b8368
+IP2.none.- mean 35.0 sd 9.8 satmean 163.2
+ OK id=1000022 camera.image_processing.saturation: none -> 0.0 (next action) cfg=dedd7f4b
+IP2.saturation.0.0 mean 36.0 sd 9.9 satmean 0.0
+ OK id=1000024 camera.image_processing.saturation: none -> 32.0 (next action) cfg=af36f065
+IP2.saturation.32.0 mean 3.0 sd 0.3 satmean 0.7
+ OK id=1000026 camera.image_processing.brightness: none -> -1.0 (next action) cfg=ac84aaba
+IP2.brightness.-1.0 mean 3.0 sd 0.0 satmean 0.0
+ OK id=1000028 camera.image_processing.brightness: none -> 1.0 (next action) cfg=2586c201
+IP2.brightness.1.0 mean 253.0 sd 0.0 satmean 0.0
+ OK id=1000030 camera.image_processing.contrast: none -> 0.5 (next action) cfg=3c236126
+IP2.contrast.0.5 mean 81.4 sd 5.0 satmean 42.8
+ OK id=1000032 camera.image_processing.contrast: none -> 2.0 (next action) cfg=edcd4560
+IP2.contrast.2.0 mean 2.0 sd 5.7 satmean 4.4

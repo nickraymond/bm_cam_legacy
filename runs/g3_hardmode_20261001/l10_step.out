@@ -1,0 +1,6 @@
+===== 2026-10-02T06:45:01Z L10.cmd SPOT-31593C  bm pub bmcam/cmd {"id":64026,"c":"set","kv":{"video.send.duration_s":8.0}} 1 1  (79 B line)
+CON  2026-10-02T06:45:03Z bm pub bmcam/cmd {"id":64026,"c":"set","kv":{"video.send.duration_s":8.0}} 1 1
+CON  2026-10-02T06:45:03Z 1790923503.457 e6fe83ea6b4a2b7f, [bmcam004] OK id=64026 video.send.duration_s: 5.0 -> 8.0 (next action) cfg=2b7f1d7f
+SUMMARY cell=0 con=4
+CON  2026-10-02T06:45:13Z 1790923513.437 e6fe83ea6b4a2b7f, [bmcam004] OK id=64027 trg 2 armed: capture + output per mode (next decision point); one action only: video.send.message_cap=80 cfg=2b7f1d7f
+STEP L10 ack=OK action=stage=done files=action.log 

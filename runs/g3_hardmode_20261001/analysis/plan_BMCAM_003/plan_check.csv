@@ -1,0 +1,876 @@
+id,key,body,expect,expect_reason,http,got,reasons,warnings,json_bytes,verdict,reason_match
+c0001,mode.media,"{""set"": {""mode.media"": ""still""}}",depends,,200,accept,,video.send.message_cap:video message-cap floor not checked here: video.send.message,53,INFO,
+c0002,mode.media,"{""set"": {""mode.media"": ""video""}}",depends,,200,accept,,"video.send.message_cap:video message-cap floor not checked here: video.send.message|mode.media:video geometry not checked here: video.record.framing, video",53,INFO,
+c0003,mode.media,"{""set"": {""mode.media"": ""video_logger""}}",depends,,200,refuse,blocked_value,,,INFO,
+c0004,mode.media,"{""set"": {""mode.media"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0005,mode.media,"{""set"": {""mode.media"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0006,mode.media,"{""set"": {""mode.media"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0007,mode.media,"{""set"": {""mode.media"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0008,mode.media,"{""set"": {""mode.media"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0009,mode.media,"{""set"": {""mode.media"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0010,mode.media,"{""set"": {""mode.media"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0011,mode.media,"{""set"": {""mode.media"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0012,mode.media,"{""set"": {""mode.media"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0013,mode.media,"{""reset"": [""mode.media""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,46,PASS,
+c0014,mode.run,"{""set"": {""mode.run"": ""per_boot""}}",depends,,200,accept,,,54,INFO,
+c0015,mode.run,"{""set"": {""mode.run"": ""stay_on""}}",depends,,200,refuse,cross_key|cross_key,,,INFO,
+c0016,mode.run,"{""set"": {""mode.run"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0017,mode.run,"{""set"": {""mode.run"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0018,mode.run,"{""set"": {""mode.run"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0019,mode.run,"{""set"": {""mode.run"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0020,mode.run,"{""set"": {""mode.run"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0021,mode.run,"{""set"": {""mode.run"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0022,mode.run,"{""set"": {""mode.run"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0023,mode.run,"{""set"": {""mode.run"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0024,mode.run,"{""set"": {""mode.run"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0025,mode.run,"{""reset"": [""mode.run""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,44,PASS,
+c0026,mode.interval_s,"{""set"": {""mode.interval_s"": 0}}",accept,,200,accept,,,52,PASS,
+c0027,mode.interval_s,"{""set"": {""mode.interval_s"": 1}}",refuse,cross_key,200,refuse,cross_key,mode.interval_s:below 600 s: below 10 min a stay_on unit is near-continuous ,,PASS,yes
+c0028,mode.interval_s,"{""set"": {""mode.interval_s"": 86400}}",accept,,200,accept,,,56,PASS,
+c0029,mode.interval_s,"{""set"": {""mode.interval_s"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0030,mode.interval_s,"{""set"": {""mode.interval_s"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0031,mode.interval_s,"{""set"": {""mode.interval_s"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0032,mode.interval_s,"{""set"": {""mode.interval_s"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0033,mode.interval_s,"{""set"": {""mode.interval_s"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0034,mode.interval_s,"{""set"": {""mode.interval_s"": 86401}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0035,mode.interval_s,"{""set"": {""mode.interval_s"": 0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0036,mode.interval_s,"{""set"": {""mode.interval_s"": ""0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0037,mode.interval_s,"{""set"": {""mode.interval_s"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0038,mode.interval_s,"{""reset"": [""mode.interval_s""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,51,PASS,
+c0039,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 0}}",accept,,200,accept,,,53,PASS,
+c0040,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 1}}",refuse,cross_key,200,refuse,cross_key,mode.heartbeat_s:below 600 s: below 10 min a stay_on unit is near-continuous ,,PASS,yes
+c0041,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 300}}",accept,,200,accept,,mode.heartbeat_s:below 600 s: below 10 min a stay_on unit is near-continuous ,55,PASS,
+c0042,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 86400}}",accept,,200,accept,,,57,PASS,
+c0043,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0044,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0045,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0046,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0047,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0048,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 86401}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0049,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": 0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0050,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": ""0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0051,mode.heartbeat_s,"{""set"": {""mode.heartbeat_s"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0052,mode.heartbeat_s,"{""reset"": [""mode.heartbeat_s""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,52,PASS,
+c0053,mode.output,"{""set"": {""mode.output"": ""transmit""}}",accept,,200,accept,,,57,PASS,
+c0054,mode.output,"{""set"": {""mode.output"": ""save_local""}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0055,mode.output,"{""set"": {""mode.output"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0056,mode.output,"{""set"": {""mode.output"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0057,mode.output,"{""set"": {""mode.output"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0058,mode.output,"{""set"": {""mode.output"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0059,mode.output,"{""set"": {""mode.output"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0060,mode.output,"{""set"": {""mode.output"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0061,mode.output,"{""set"": {""mode.output"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0062,mode.output,"{""set"": {""mode.output"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0063,mode.output,"{""set"": {""mode.output"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0064,mode.output,"{""reset"": [""mode.output""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,47,PASS,
+c0065,schedule.timezone,"{""set"": {""schedule.timezone"": ""UTC""}}",accept,,200,accept,,,58,PASS,
+c0066,schedule.timezone,"{""set"": {""schedule.timezone"": ""America/Los_Angeles""}}",accept,,200,accept,,,74,PASS,
+c0067,schedule.timezone,"{""set"": {""schedule.timezone"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0068,schedule.timezone,"{""set"": {""schedule.timezone"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0069,schedule.timezone,"{""set"": {""schedule.timezone"": false}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0070,schedule.timezone,"{""set"": {""schedule.timezone"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0071,schedule.timezone,"{""set"": {""schedule.timezone"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0072,schedule.timezone,"{""set"": {""schedule.timezone"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0073,schedule.timezone,"{""set"": {""schedule.timezone"": ""Not/AZone""}}",depends,,200,refuse,bad_value,,,INFO,
+c0074,schedule.timezone,"{""set"": {""schedule.timezone"": """"}}",depends,,200,refuse,bad_value,,,INFO,
+c0075,schedule.timezone,"{""reset"": [""schedule.timezone""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,53,PASS,
+c0076,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": true}}",accept,,200,accept,,,63,PASS,
+c0077,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": false}}",accept,,200,accept,,,64,PASS,
+c0078,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0079,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0080,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0081,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0082,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0083,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0084,schedule.window.enabled,"{""set"": {""schedule.window.enabled"": ""true""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0085,schedule.window.enabled,"{""reset"": [""schedule.window.enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,59,PASS,
+c0086,schedule.window.start,"{""set"": {""schedule.window.start"": ""12:00""}}",accept,,200,accept,,,64,PASS,
+c0087,schedule.window.start,"{""set"": {""schedule.window.start"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0088,schedule.window.start,"{""set"": {""schedule.window.start"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0089,schedule.window.start,"{""set"": {""schedule.window.start"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0090,schedule.window.start,"{""set"": {""schedule.window.start"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0091,schedule.window.start,"{""set"": {""schedule.window.start"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0092,schedule.window.start,"{""set"": {""schedule.window.start"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0093,schedule.window.start,"{""set"": {""schedule.window.start"": ""00:00""}}",depends,,200,accept,,,64,INFO,
+c0094,schedule.window.start,"{""set"": {""schedule.window.start"": ""23:59""}}",depends,,200,accept,,,64,INFO,
+c0095,schedule.window.start,"{""set"": {""schedule.window.start"": ""24:00""}}",depends,,200,refuse,bad_value,,,INFO,
+c0096,schedule.window.start,"{""set"": {""schedule.window.start"": ""7:00""}}",depends,,200,refuse,bad_value,,,INFO,
+c0097,schedule.window.start,"{""set"": {""schedule.window.start"": ""12:60""}}",depends,,200,refuse,bad_value,,,INFO,
+c0098,schedule.window.start,"{""reset"": [""schedule.window.start""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,57,PASS,
+c0099,schedule.window.end,"{""set"": {""schedule.window.end"": ""12:00""}}",accept,,200,accept,,,62,PASS,
+c0100,schedule.window.end,"{""set"": {""schedule.window.end"": ""15:00""}}",accept,,200,accept,,,62,PASS,
+c0101,schedule.window.end,"{""set"": {""schedule.window.end"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0102,schedule.window.end,"{""set"": {""schedule.window.end"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0103,schedule.window.end,"{""set"": {""schedule.window.end"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0104,schedule.window.end,"{""set"": {""schedule.window.end"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0105,schedule.window.end,"{""set"": {""schedule.window.end"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0106,schedule.window.end,"{""set"": {""schedule.window.end"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0107,schedule.window.end,"{""set"": {""schedule.window.end"": ""00:00""}}",depends,,200,accept,,,62,INFO,
+c0108,schedule.window.end,"{""set"": {""schedule.window.end"": ""23:59""}}",depends,,200,accept,,,62,INFO,
+c0109,schedule.window.end,"{""set"": {""schedule.window.end"": ""24:00""}}",depends,,200,refuse,bad_value,,,INFO,
+c0110,schedule.window.end,"{""set"": {""schedule.window.end"": ""7:00""}}",depends,,200,refuse,bad_value,,,INFO,
+c0111,schedule.window.end,"{""set"": {""schedule.window.end"": ""12:60""}}",depends,,200,refuse,bad_value,,,INFO,
+c0112,schedule.window.end,"{""reset"": [""schedule.window.end""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,55,PASS,
+c0113,time.source,"{""set"": {""time.source"": ""spotter_utc""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0114,time.source,"{""reset"": [""time.source""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0115,time.set_system_clock,"{""set"": {""time.set_system_clock"": true}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0116,time.set_system_clock,"{""reset"": [""time.set_system_clock""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0117,time.timeout_s,"{""set"": {""time.timeout_s"": 60}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0118,time.timeout_s,"{""reset"": [""time.timeout_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0119,time.allow_system_fallback,"{""set"": {""time.allow_system_fallback"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0120,time.allow_system_fallback,"{""reset"": [""time.allow_system_fallback""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0121,time.rtc.hwclock_path,"{""set"": {""time.rtc.hwclock_path"": ""/usr/sbin/hwclock""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0122,time.rtc.hwclock_path,"{""reset"": [""time.rtc.hwclock_path""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0123,time.rtc.set_system_clock,"{""set"": {""time.rtc.set_system_clock"": true}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0124,time.rtc.set_system_clock,"{""reset"": [""time.rtc.set_system_clock""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0125,time.rtc.plausible_after_utc,"{""set"": {""time.rtc.plausible_after_utc"": ""2026-01-01T00:00:00+00:00""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0126,time.rtc.plausible_after_utc,"{""reset"": [""time.rtc.plausible_after_utc""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0127,power.halt.enabled,"{""set"": {""power.halt.enabled"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0128,power.halt.enabled,"{""reset"": [""power.halt.enabled""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0129,power.halt.dry_run,"{""set"": {""power.halt.dry_run"": true}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0130,power.halt.dry_run,"{""reset"": [""power.halt.dry_run""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0131,power.halt.mode,"{""set"": {""power.halt.mode"": ""halt""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0132,power.halt.mode,"{""reset"": [""power.halt.mode""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0133,power.halt.script_path,"{""set"": {""power.halt.script_path"": ""/home/pi/BM_Devel_Pi/tuned_halt.sh""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0134,power.halt.script_path,"{""reset"": [""power.halt.script_path""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0135,power.bus_always_on,"{""set"": {""power.bus_always_on"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0136,power.bus_always_on,"{""reset"": [""power.bus_always_on""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0137,camera.backend,"{""set"": {""camera.backend"": ""rpicam""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0138,camera.backend,"{""reset"": [""camera.backend""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0139,camera.native.width,"{""set"": {""camera.native.width"": 4608}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0140,camera.native.width,"{""reset"": [""camera.native.width""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0141,camera.native.height,"{""set"": {""camera.native.height"": 2592}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0142,camera.native.height,"{""reset"": [""camera.native.height""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0143,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 1}}",accept,,200,accept,,,63,PASS,
+c0144,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 95}}",accept,,200,accept,,,64,PASS,
+c0145,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 100}}",accept,,200,accept,,,65,PASS,
+c0146,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0147,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0148,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0149,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0150,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0151,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0152,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 101}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0153,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0154,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0155,camera.native.jpeg_quality,"{""set"": {""camera.native.jpeg_quality"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0156,camera.native.jpeg_quality,"{""reset"": [""camera.native.jpeg_quality""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
+c0157,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": true}}",accept,,200,accept,,,63,PASS,
+c0158,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": false}}",accept,,200,accept,,,64,PASS,
+c0159,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0160,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0161,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0162,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0163,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0164,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0165,camera.controls_enabled,"{""set"": {""camera.controls_enabled"": ""true""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0166,camera.controls_enabled,"{""reset"": [""camera.controls_enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,59,PASS,
+c0167,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": true}}",accept,,200,accept,,camera.focus.enabled:camera.controls_enabled is not reported: the value is saved ,60,PASS,
+c0168,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": false}}",accept,,200,accept,,camera.focus.enabled:camera.controls_enabled is not reported: the value is saved ,61,PASS,
+c0169,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0170,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0171,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0172,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0173,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0174,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0175,camera.focus.enabled,"{""set"": {""camera.focus.enabled"": ""true""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0176,camera.focus.enabled,"{""reset"": [""camera.focus.enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,56,PASS,
+c0177,camera.focus.mode,"{""set"": {""camera.focus.mode"": null}}",accept,,200,accept,,,57,PASS,
+c0178,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""auto""}}",accept,,200,accept,,camera.focus.mode:camera.controls_enabled is not reported: the value is saved |camera.focus.mode:camera.focus.enabled is not reported: the value is saved but,59,PASS,
+c0179,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""manual""}}",accept,,200,accept,,camera.focus.mode:camera.controls_enabled is not reported: the value is saved |camera.focus.mode:camera.focus.enabled is not reported: the value is saved but,61,PASS,
+c0180,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""continuous""}}",accept,,200,accept,,camera.focus.mode:camera.controls_enabled is not reported: the value is saved |camera.focus.mode:camera.focus.enabled is not reported: the value is saved but,65,PASS,
+c0181,camera.focus.mode,"{""set"": {""camera.focus.mode"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0182,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0183,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0184,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0185,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0186,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0187,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0188,camera.focus.mode,"{""set"": {""camera.focus.mode"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0189,camera.focus.mode,"{""set"": {""camera.focus.mode"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0190,camera.focus.mode,"{""reset"": [""camera.focus.mode""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,53,PASS,
+c0191,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": null}}",accept,,200,accept,,,66,PASS,
+c0192,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 0}}",accept,,200,accept,,camera.focus.lens_position:camera.controls_enabled is not reported: the value is saved |camera.focus.lens_position:camera.focus.enabled is not reported: the value is saved but,63,PASS,
+c0193,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 1}}",accept,,200,accept,,camera.focus.lens_position:camera.controls_enabled is not reported: the value is saved |camera.focus.lens_position:camera.focus.enabled is not reported: the value is saved but,63,PASS,
+c0194,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 2.5}}",accept,,200,accept,,camera.focus.lens_position:camera.controls_enabled is not reported: the value is saved |camera.focus.lens_position:camera.focus.enabled is not reported: the value is saved but,65,PASS,
+c0195,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 8.0}}",accept,,200,accept,,camera.focus.lens_position:camera.controls_enabled is not reported: the value is saved |camera.focus.lens_position:camera.focus.enabled is not reported: the value is saved but,65,PASS,
+c0196,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 0.0}}",accept,,200,accept,,camera.focus.lens_position:camera.controls_enabled is not reported: the value is saved |camera.focus.lens_position:camera.focus.enabled is not reported: the value is saved but,65,PASS,
+c0197,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 32.0}}",accept,,200,accept,,camera.focus.lens_position:camera.controls_enabled is not reported: the value is saved |camera.focus.lens_position:camera.focus.enabled is not reported: the value is saved but,66,PASS,
+c0198,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0199,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0200,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0201,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0202,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 32.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0203,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0204,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": -0.032}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0205,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": 32.032}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0206,camera.focus.lens_position,"{""set"": {""camera.focus.lens_position"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0207,camera.focus.lens_position,"{""reset"": [""camera.focus.lens_position""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
+c0208,camera.focus.range,"{""set"": {""camera.focus.range"": null}}",accept,,200,accept,,,58,PASS,
+c0209,camera.focus.range,"{""set"": {""camera.focus.range"": ""normal""}}",accept,,200,accept,,camera.focus.range:camera.controls_enabled is not reported: the value is saved |camera.focus.range:camera.focus.enabled is not reported: the value is saved but,62,PASS,
+c0210,camera.focus.range,"{""set"": {""camera.focus.range"": ""macro""}}",accept,,200,accept,,camera.focus.range:camera.controls_enabled is not reported: the value is saved |camera.focus.range:camera.focus.enabled is not reported: the value is saved but,61,PASS,
+c0211,camera.focus.range,"{""set"": {""camera.focus.range"": ""full""}}",accept,,200,accept,,camera.focus.range:camera.controls_enabled is not reported: the value is saved |camera.focus.range:camera.focus.enabled is not reported: the value is saved but,60,PASS,
+c0212,camera.focus.range,"{""set"": {""camera.focus.range"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0213,camera.focus.range,"{""set"": {""camera.focus.range"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0214,camera.focus.range,"{""set"": {""camera.focus.range"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0215,camera.focus.range,"{""set"": {""camera.focus.range"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0216,camera.focus.range,"{""set"": {""camera.focus.range"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0217,camera.focus.range,"{""set"": {""camera.focus.range"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0218,camera.focus.range,"{""set"": {""camera.focus.range"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0219,camera.focus.range,"{""set"": {""camera.focus.range"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0220,camera.focus.range,"{""set"": {""camera.focus.range"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0221,camera.focus.range,"{""reset"": [""camera.focus.range""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,54,PASS,
+c0222,camera.focus.speed,"{""set"": {""camera.focus.speed"": null}}",accept,,200,accept,,,58,PASS,
+c0223,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""normal""}}",accept,,200,accept,,camera.focus.speed:camera.controls_enabled is not reported: the value is saved |camera.focus.speed:camera.focus.enabled is not reported: the value is saved but,62,PASS,
+c0224,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""fast""}}",accept,,200,accept,,camera.focus.speed:camera.controls_enabled is not reported: the value is saved |camera.focus.speed:camera.focus.enabled is not reported: the value is saved but,60,PASS,
+c0225,camera.focus.speed,"{""set"": {""camera.focus.speed"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0226,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0227,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0228,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0229,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0230,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0231,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0232,camera.focus.speed,"{""set"": {""camera.focus.speed"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0233,camera.focus.speed,"{""set"": {""camera.focus.speed"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0234,camera.focus.speed,"{""reset"": [""camera.focus.speed""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,54,PASS,
+c0235,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": true}}",accept,,200,accept,,camera.white_balance.enabled:camera.controls_enabled is not reported: the value is saved ,68,PASS,
+c0236,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": false}}",accept,,200,accept,,camera.white_balance.enabled:camera.controls_enabled is not reported: the value is saved ,69,PASS,
+c0237,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0238,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0239,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0240,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0241,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0242,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0243,camera.white_balance.enabled,"{""set"": {""camera.white_balance.enabled"": ""true""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0244,camera.white_balance.enabled,"{""reset"": [""camera.white_balance.enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,64,PASS,
+c0245,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": null}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.,65,INFO,
+c0246,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""auto""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,67,INFO,
+c0247,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""daylight""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,71,INFO,
+c0248,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""cloudy""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,69,INFO,
+c0249,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""indoor""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,69,INFO,
+c0250,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""fluorescent""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,74,INFO,
+c0251,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""tungsten""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,71,INFO,
+c0252,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""incandescent""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,75,INFO,
+c0253,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""custom""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,69,INFO,
+c0254,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""manual""}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.mode:camera.controls_enabled is not reported: the value is saved |camera.white_balance.mode:camera.white_balance.enabled is not reported: the value is s,69,INFO,
+c0255,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0256,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0257,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0258,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0259,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0260,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0261,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0262,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0263,camera.white_balance.mode,"{""set"": {""camera.white_balance.mode"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0264,camera.white_balance.mode,"{""reset"": [""camera.white_balance.mode""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,61,PASS,
+c0265,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": null}}",accept,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.,66,PASS,
+c0266,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [9, 11]}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0267,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1.8, 1.6]}}",accept,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.gains:camera.controls_enabled is not reported: the value is saved |camera.white_balance.gains:camera.white_balance.enabled is not reported: the value is s,71,PASS,
+c0268,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1, 2]}}",accept,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.gains:camera.controls_enabled is not reported: the value is saved |camera.white_balance.gains:camera.white_balance.enabled is not reported: the value is s,67,PASS,
+c0269,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1, 2, 3, 4]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0270,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [0, 0, 4608, 2592]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0271,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1504, 846, 1600, 900]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0272,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [-1, 0, 10, 10]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0273,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [15, 13, 11, 9]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0274,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1.8, 0]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0275,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [8.0, 8.0]}}",depends,,200,accept,,camera.white_balance.mode:manual white balance not checked here: camera.white_balance.|camera.white_balance.gains:camera.controls_enabled is not reported: the value is saved |camera.white_balance.gains:camera.white_balance.enabled is not reported: the value is s,71,INFO,
+c0276,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [8.01, 1.0]}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0277,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1.0, 8.01]}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0278,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [0.0, 1.0]}}",depends,,200,refuse,bad_value,,,INFO,
+c0279,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1.8]}}",depends,,200,refuse,bad_value,,,INFO,
+c0280,camera.white_balance.gains,"{""set"": {""camera.white_balance.gains"": [1.8, 1.6, 1.0]}}",depends,,200,refuse,bad_value,,,INFO,
+c0281,camera.white_balance.gains,"{""reset"": [""camera.white_balance.gains""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
+c0282,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": true}}",accept,,200,accept,,camera.exposure.enabled:camera.controls_enabled is not reported: the value is saved ,63,PASS,
+c0283,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": false}}",accept,,200,accept,,camera.exposure.enabled:camera.controls_enabled is not reported: the value is saved ,64,PASS,
+c0284,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0285,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0286,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0287,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0288,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0289,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0290,camera.exposure.enabled,"{""set"": {""camera.exposure.enabled"": ""true""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0291,camera.exposure.enabled,"{""reset"": [""camera.exposure.enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,59,PASS,
+c0292,camera.exposure.mode,"{""set"": {""camera.exposure.mode"": null}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0293,camera.exposure.mode,"{""reset"": [""camera.exposure.mode""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0294,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": null}}",accept,,200,accept,,,58,PASS,
+c0295,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 0}}",accept,,200,accept,,camera.exposure.ev:camera.controls_enabled is not reported: the value is saved |camera.exposure.ev:camera.exposure.enabled is not reported: the value is saved ,55,PASS,
+c0296,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 1}}",accept,,200,accept,,camera.exposure.ev:camera.controls_enabled is not reported: the value is saved |camera.exposure.ev:camera.exposure.enabled is not reported: the value is saved ,55,PASS,
+c0297,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": -1}}",accept,,200,accept,,camera.exposure.ev:camera.controls_enabled is not reported: the value is saved |camera.exposure.ev:camera.exposure.enabled is not reported: the value is saved ,56,PASS,
+c0298,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 2.5}}",accept,,200,accept,,camera.exposure.ev:camera.controls_enabled is not reported: the value is saved |camera.exposure.ev:camera.exposure.enabled is not reported: the value is saved ,57,PASS,
+c0299,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 8.0}}",accept,,200,accept,,camera.exposure.ev:camera.controls_enabled is not reported: the value is saved |camera.exposure.ev:camera.exposure.enabled is not reported: the value is saved ,57,PASS,
+c0300,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": -8.0}}",accept,,200,accept,,camera.exposure.ev:camera.controls_enabled is not reported: the value is saved |camera.exposure.ev:camera.exposure.enabled is not reported: the value is saved ,58,PASS,
+c0301,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0302,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0303,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0304,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0305,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": false}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0306,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0307,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": -8.016}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0308,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": 8.016}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0309,camera.exposure.ev,"{""set"": {""camera.exposure.ev"": ""-8.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0310,camera.exposure.ev,"{""reset"": [""camera.exposure.ev""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,54,PASS,
+c0311,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": null}}",accept,,200,accept,,,66,PASS,
+c0312,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 1}}",accept,,200,accept,,camera.exposure.shutter_us:camera.controls_enabled is not reported: the value is saved |camera.exposure.shutter_us:camera.exposure.enabled is not reported: the value is saved ,63,PASS,
+c0313,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 100000}}",accept,,200,accept,,camera.exposure.shutter_us:camera.controls_enabled is not reported: the value is saved |camera.exposure.shutter_us:camera.exposure.enabled is not reported: the value is saved ,68,PASS,
+c0314,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 120000000}}",accept,,200,accept,,camera.exposure.shutter_us:camera.controls_enabled is not reported: the value is saved |camera.exposure.shutter_us:camera.exposure.enabled is not reported: the value is saved ,71,PASS,
+c0315,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0316,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0317,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0318,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0319,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0320,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 120000001}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0321,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0322,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0323,camera.exposure.shutter_us,"{""set"": {""camera.exposure.shutter_us"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0324,camera.exposure.shutter_us,"{""reset"": [""camera.exposure.shutter_us""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
+c0325,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": null}}",accept,,200,accept,,,69,PASS,
+c0326,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 0}}",accept,,200,accept,,camera.exposure.analogue_gain:camera.controls_enabled is not reported: the value is saved |camera.exposure.analogue_gain:camera.exposure.enabled is not reported: the value is saved ,66,PASS,
+c0327,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 1}}",accept,,200,accept,,camera.exposure.analogue_gain:camera.controls_enabled is not reported: the value is saved |camera.exposure.analogue_gain:camera.exposure.enabled is not reported: the value is saved ,66,PASS,
+c0328,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 2.5}}",accept,,200,accept,,camera.exposure.analogue_gain:camera.controls_enabled is not reported: the value is saved |camera.exposure.analogue_gain:camera.exposure.enabled is not reported: the value is saved ,68,PASS,
+c0329,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 8.0}}",accept,,200,accept,,camera.exposure.analogue_gain:camera.controls_enabled is not reported: the value is saved |camera.exposure.analogue_gain:camera.exposure.enabled is not reported: the value is saved ,68,PASS,
+c0330,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 0.0}}",accept,,200,accept,,camera.exposure.analogue_gain:camera.controls_enabled is not reported: the value is saved |camera.exposure.analogue_gain:camera.exposure.enabled is not reported: the value is saved ,68,PASS,
+c0331,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 64.0}}",accept,,200,accept,,camera.exposure.analogue_gain:camera.controls_enabled is not reported: the value is saved |camera.exposure.analogue_gain:camera.exposure.enabled is not reported: the value is saved ,69,PASS,
+c0332,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0333,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0334,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0335,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0336,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 64.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0337,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0338,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": -0.064}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0339,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": 64.064}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0340,camera.exposure.analogue_gain,"{""set"": {""camera.exposure.analogue_gain"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0341,camera.exposure.analogue_gain,"{""reset"": [""camera.exposure.analogue_gain""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,65,PASS,
+c0342,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": true}}",accept,,200,accept,,camera.image_processing.enabled:camera.controls_enabled is not reported: the value is saved ,71,PASS,
+c0343,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": false}}",accept,,200,accept,,camera.image_processing.enabled:camera.controls_enabled is not reported: the value is saved ,72,PASS,
+c0344,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0345,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0346,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0347,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0348,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0349,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0350,camera.image_processing.enabled,"{""set"": {""camera.image_processing.enabled"": ""true""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0351,camera.image_processing.enabled,"{""reset"": [""camera.image_processing.enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,67,PASS,
+c0352,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": null}}",accept,,200,accept,,,73,PASS,
+c0353,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c|camera.image_processing.sharpness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.sharpness:camera.image_processing.enabled is not reported: the value i",70,PASS,
+c0354,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 1}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c|camera.image_processing.sharpness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.sharpness:camera.image_processing.enabled is not reported: the value i",70,PASS,
+c0355,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 2.5}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c|camera.image_processing.sharpness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.sharpness:camera.image_processing.enabled is not reported: the value i",72,PASS,
+c0356,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 8.0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c|camera.image_processing.sharpness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.sharpness:camera.image_processing.enabled is not reported: the value i",72,PASS,
+c0357,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 0.0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c|camera.image_processing.sharpness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.sharpness:camera.image_processing.enabled is not reported: the value i",72,PASS,
+c0358,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 16.0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c|camera.image_processing.sharpness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.sharpness:camera.image_processing.enabled is not reported: the value i",73,PASS,
+c0359,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0360,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0361,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0362,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0363,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 16.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0364,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0365,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": -0.016}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0366,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": 16.016}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0367,camera.image_processing.sharpness,"{""set"": {""camera.image_processing.sharpness"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0368,camera.image_processing.sharpness,"{""reset"": [""camera.image_processing.sharpness""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,69,PASS,
+c0369,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": null}}",accept,,200,accept,,,72,PASS,
+c0370,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 0}}",accept,,200,accept,,camera.image_processing.contrast:camera.controls_enabled is not reported: the value is saved |camera.image_processing.contrast:camera.image_processing.enabled is not reported: the value i,69,PASS,
+c0371,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 1}}",accept,,200,accept,,camera.image_processing.contrast:camera.controls_enabled is not reported: the value is saved |camera.image_processing.contrast:camera.image_processing.enabled is not reported: the value i,69,PASS,
+c0372,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 2.5}}",accept,,200,accept,,camera.image_processing.contrast:camera.controls_enabled is not reported: the value is saved |camera.image_processing.contrast:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0373,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 8.0}}",accept,,200,accept,,camera.image_processing.contrast:camera.controls_enabled is not reported: the value is saved |camera.image_processing.contrast:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0374,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 0.0}}",accept,,200,accept,,camera.image_processing.contrast:camera.controls_enabled is not reported: the value is saved |camera.image_processing.contrast:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0375,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 32.0}}",accept,,200,accept,,camera.image_processing.contrast:camera.controls_enabled is not reported: the value is saved |camera.image_processing.contrast:camera.image_processing.enabled is not reported: the value i,72,PASS,
+c0376,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0377,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0378,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0379,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0380,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 32.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0381,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0382,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": -0.032}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0383,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": 32.032}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0384,camera.image_processing.contrast,"{""set"": {""camera.image_processing.contrast"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0385,camera.image_processing.contrast,"{""reset"": [""camera.image_processing.contrast""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,68,PASS,
+c0386,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": null}}",accept,,200,accept,,,74,PASS,
+c0387,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 0}}",accept,,200,accept,,camera.image_processing.saturation:camera.controls_enabled is not reported: the value is saved |camera.image_processing.saturation:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0388,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 1}}",accept,,200,accept,,camera.image_processing.saturation:camera.controls_enabled is not reported: the value is saved |camera.image_processing.saturation:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0389,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 2.5}}",accept,,200,accept,,camera.image_processing.saturation:camera.controls_enabled is not reported: the value is saved |camera.image_processing.saturation:camera.image_processing.enabled is not reported: the value i,73,PASS,
+c0390,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 8.0}}",accept,,200,accept,,camera.image_processing.saturation:camera.controls_enabled is not reported: the value is saved |camera.image_processing.saturation:camera.image_processing.enabled is not reported: the value i,73,PASS,
+c0391,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 0.0}}",accept,,200,accept,,camera.image_processing.saturation:camera.controls_enabled is not reported: the value is saved |camera.image_processing.saturation:camera.image_processing.enabled is not reported: the value i,73,PASS,
+c0392,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 32.0}}",accept,,200,accept,,camera.image_processing.saturation:camera.controls_enabled is not reported: the value is saved |camera.image_processing.saturation:camera.image_processing.enabled is not reported: the value i,74,PASS,
+c0393,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0394,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0395,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0396,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0397,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 32.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0398,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0399,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": -0.032}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0400,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": 32.032}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0401,camera.image_processing.saturation,"{""set"": {""camera.image_processing.saturation"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0402,camera.image_processing.saturation,"{""reset"": [""camera.image_processing.saturation""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,70,PASS,
+c0403,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": null}}",accept,,200,accept,,,74,PASS,
+c0404,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 0}}",accept,,200,accept,,camera.image_processing.brightness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.brightness:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0405,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 1}}",accept,,200,accept,,camera.image_processing.brightness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.brightness:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0406,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": -1}}",accept,,200,accept,,camera.image_processing.brightness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.brightness:camera.image_processing.enabled is not reported: the value i,72,PASS,
+c0407,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": -1.0}}",accept,,200,accept,,camera.image_processing.brightness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.brightness:camera.image_processing.enabled is not reported: the value i,74,PASS,
+c0408,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 1.0}}",accept,,200,accept,,camera.image_processing.brightness:camera.controls_enabled is not reported: the value is saved |camera.image_processing.brightness:camera.image_processing.enabled is not reported: the value i,73,PASS,
+c0409,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0410,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0411,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0412,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0413,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": -1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0414,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0415,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": -1.002}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0416,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": 1.002}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0417,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": ""-1.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0418,camera.image_processing.brightness,"{""set"": {""camera.image_processing.brightness"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0419,camera.image_processing.brightness,"{""reset"": [""camera.image_processing.brightness""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,70,PASS,
+c0420,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": null}}",accept,,200,accept,,,71,PASS,
+c0421,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""auto""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con|camera.image_processing.denoise:camera.controls_enabled is not reported: the value is saved |camera.image_processing.denoise:camera.image_processing.enabled is not reported: the value i",73,PASS,
+c0422,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""off""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con|camera.image_processing.denoise:camera.controls_enabled is not reported: the value is saved |camera.image_processing.denoise:camera.image_processing.enabled is not reported: the value i",72,PASS,
+c0423,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""cdn_off""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con|camera.image_processing.denoise:camera.controls_enabled is not reported: the value is saved |camera.image_processing.denoise:camera.image_processing.enabled is not reported: the value i",76,PASS,
+c0424,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""cdn_fast""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con|camera.image_processing.denoise:camera.controls_enabled is not reported: the value is saved |camera.image_processing.denoise:camera.image_processing.enabled is not reported: the value i",77,PASS,
+c0425,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""cdn_hq""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con|camera.image_processing.denoise:camera.controls_enabled is not reported: the value is saved |camera.image_processing.denoise:camera.image_processing.enabled is not reported: the value i",75,PASS,
+c0426,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0427,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0428,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0429,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0430,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0431,camera.image_processing.denoise,"{""set"": {""camera.image_processing.denoise"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0432,camera.image_processing.denoise,"{""reset"": [""camera.image_processing.denoise""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,67,PASS,
+c0433,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": null}}",accept,,200,accept,,,67,PASS,
+c0434,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": true}}",accept,,200,accept,,camera.image_processing.hdr:camera.controls_enabled is not reported: the value is saved |camera.image_processing.hdr:camera.image_processing.enabled is not reported: the value i,67,PASS,
+c0435,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": false}}",accept,,200,accept,,camera.image_processing.hdr:camera.controls_enabled is not reported: the value is saved |camera.image_processing.hdr:camera.image_processing.enabled is not reported: the value i,68,PASS,
+c0436,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": ""auto""}}",accept,,200,accept,,camera.image_processing.hdr:camera.controls_enabled is not reported: the value is saved |camera.image_processing.hdr:camera.image_processing.enabled is not reported: the value i,69,PASS,
+c0437,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": ""off""}}",accept,,200,accept,,camera.image_processing.hdr:camera.controls_enabled is not reported: the value is saved |camera.image_processing.hdr:camera.image_processing.enabled is not reported: the value i,68,PASS,
+c0438,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": ""sensor""}}",accept,,200,accept,,camera.image_processing.hdr:camera.controls_enabled is not reported: the value is saved |camera.image_processing.hdr:camera.image_processing.enabled is not reported: the value i,71,PASS,
+c0439,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": ""single-exp""}}",accept,,200,accept,,camera.image_processing.hdr:camera.controls_enabled is not reported: the value is saved |camera.image_processing.hdr:camera.image_processing.enabled is not reported: the value i,75,PASS,
+c0440,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0441,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0442,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0443,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0444,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0445,camera.image_processing.hdr,"{""set"": {""camera.image_processing.hdr"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0446,camera.image_processing.hdr,"{""reset"": [""camera.image_processing.hdr""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,63,PASS,
+c0447,still.crop,"{""set"": {""still.crop"": [1, 2, 3, 4]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",55,INFO,
+c0448,still.crop,"{""set"": {""still.crop"": [0, 0, 4608, 2592]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",61,INFO,
+c0449,still.crop,"{""set"": {""still.crop"": [1504, 846, 1600, 900]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",65,INFO,
+c0450,still.crop,"{""set"": {""still.crop"": [15, 13, 11, 9]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",58,INFO,
+c0451,still.crop,"{""set"": {""still.crop"": [-1, 0, 10, 10]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0452,still.crop,"{""set"": {""still.crop"": [9, 11]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0453,still.crop,"{""set"": {""still.crop"": [1.8, 1.6]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0454,still.crop,"{""set"": {""still.crop"": [1.8, 0]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0455,still.crop,"{""set"": {""still.crop"": [1, 2]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0456,still.crop,"{""set"": {""still.crop"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0457,still.crop,"{""set"": {""still.crop"": [1904, 1071, 800, 450]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",65,INFO,
+c0458,still.crop,"{""set"": {""still.crop"": [4000, 0, 800, 450]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",62,INFO,
+c0459,still.crop,"{""set"": {""still.crop"": [0, 0, 4609, 2592]}}",depends,,200,accept,,"still.crop:still crop fit not checked here: camera.native.width, camera",61,INFO,
+c0460,still.crop,"{""set"": {""still.crop"": [0, 0, 0, 10]}}",depends,,200,refuse,bad_value,,,INFO,
+c0461,still.crop,"{""reset"": [""still.crop""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,46,PASS,
+c0462,still.output_width,"{""set"": {""still.output_width"": 1000}}",accept,,200,accept,,,58,PASS,
+c0463,still.output_width,"{""set"": {""still.output_width"": 16}}",accept,,200,accept,,,56,PASS,
+c0464,still.output_width,"{""set"": {""still.output_width"": 4608}}",accept,,200,accept,,,58,PASS,
+c0465,still.output_width,"{""set"": {""still.output_width"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0466,still.output_width,"{""set"": {""still.output_width"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0467,still.output_width,"{""set"": {""still.output_width"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0468,still.output_width,"{""set"": {""still.output_width"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0469,still.output_width,"{""set"": {""still.output_width"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0470,still.output_width,"{""set"": {""still.output_width"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0471,still.output_width,"{""set"": {""still.output_width"": 15}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0472,still.output_width,"{""set"": {""still.output_width"": 4609}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0473,still.output_width,"{""set"": {""still.output_width"": 16.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0474,still.output_width,"{""set"": {""still.output_width"": ""16""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0475,still.output_width,"{""set"": {""still.output_width"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0476,still.output_width,"{""reset"": [""still.output_width""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,54,PASS,
+c0477,still.quality_ladder,"{""set"": {""still.quality_ladder"": [15, 13, 11, 9]}}",accept,,200,accept,,,68,PASS,
+c0478,still.quality_ladder,"{""set"": {""still.quality_ladder"": [1, 2, 3, 4]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0479,still.quality_ladder,"{""set"": {""still.quality_ladder"": [0, 0, 4608, 2592]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0480,still.quality_ladder,"{""set"": {""still.quality_ladder"": [1504, 846, 1600, 900]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0481,still.quality_ladder,"{""set"": {""still.quality_ladder"": [-1, 0, 10, 10]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0482,still.quality_ladder,"{""set"": {""still.quality_ladder"": [9, 11]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0483,still.quality_ladder,"{""set"": {""still.quality_ladder"": [1.8, 1.6]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0484,still.quality_ladder,"{""set"": {""still.quality_ladder"": [90]}}",depends,,200,accept,,,60,INFO,
+c0485,still.quality_ladder,"{""set"": {""still.quality_ladder"": [20, 15, 11, 9]}}",depends,,200,accept,,,68,INFO,
+c0486,still.quality_ladder,"{""set"": {""still.quality_ladder"": [20, 15, 11, 9, 7]}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0487,still.quality_ladder,"{""set"": {""still.quality_ladder"": [101, 50]}}",depends,,200,refuse,bad_value,,,INFO,
+c0488,still.quality_ladder,"{""set"": {""still.quality_ladder"": [0]}}",depends,,200,refuse,bad_value,,,INFO,
+c0489,still.quality_ladder,"{""reset"": [""still.quality_ladder""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,56,PASS,
+c0490,still.save.quality,"{""set"": {""still.save.quality"": 85}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0491,still.save.quality,"{""reset"": [""still.save.quality""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0492,still.message_cap,"{""set"": {""still.message_cap"": 1}}",accept,,200,accept,,,54,PASS,
+c0493,still.message_cap,"{""set"": {""still.message_cap"": 195}}",accept,,200,accept,,,56,PASS,
+c0494,still.message_cap,"{""set"": {""still.message_cap"": 2000}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0495,still.message_cap,"{""set"": {""still.message_cap"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0496,still.message_cap,"{""set"": {""still.message_cap"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0497,still.message_cap,"{""set"": {""still.message_cap"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0498,still.message_cap,"{""set"": {""still.message_cap"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0499,still.message_cap,"{""set"": {""still.message_cap"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0500,still.message_cap,"{""set"": {""still.message_cap"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0501,still.message_cap,"{""set"": {""still.message_cap"": 2001}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0502,still.message_cap,"{""set"": {""still.message_cap"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0503,still.message_cap,"{""set"": {""still.message_cap"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0504,still.message_cap,"{""set"": {""still.message_cap"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0505,still.message_cap,"{""reset"": [""still.message_cap""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,53,PASS,
+c0506,still.budget_min,"{""set"": {""still.budget_min"": 1}}",accept,,200,accept,,,53,PASS,
+c0507,still.budget_min,"{""set"": {""still.budget_min"": 18}}",accept,,200,accept,,,54,PASS,
+c0508,still.budget_min,"{""set"": {""still.budget_min"": 240}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0509,still.budget_min,"{""set"": {""still.budget_min"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0510,still.budget_min,"{""set"": {""still.budget_min"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0511,still.budget_min,"{""set"": {""still.budget_min"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0512,still.budget_min,"{""set"": {""still.budget_min"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0513,still.budget_min,"{""set"": {""still.budget_min"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0514,still.budget_min,"{""set"": {""still.budget_min"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0515,still.budget_min,"{""set"": {""still.budget_min"": 241}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0516,still.budget_min,"{""set"": {""still.budget_min"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0517,still.budget_min,"{""set"": {""still.budget_min"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0518,still.budget_min,"{""set"": {""still.budget_min"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0519,still.budget_min,"{""reset"": [""still.budget_min""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,52,PASS,
+c0520,video.record.framing,"{""set"": {""video.record.framing"": null}}",depends,,200,accept,,video.record.framing:video settings not checked here: mode.media not reported yet,60,INFO,
+c0521,video.record.framing,"{""set"": {""video.record.framing"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0522,video.record.framing,"{""set"": {""video.record.framing"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0523,video.record.framing,"{""set"": {""video.record.framing"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0524,video.record.framing,"{""set"": {""video.record.framing"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0525,video.record.framing,"{""set"": {""video.record.framing"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0526,video.record.framing,"{""set"": {""video.record.framing"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0527,video.record.framing,"{""reset"": [""video.record.framing""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,56,PASS,
+c0528,video.record.crop,"{""set"": {""video.record.crop"": null}}",depends,,200,accept,,video.record.crop:video settings not checked here: mode.media not reported yet,57,INFO,
+c0529,video.record.crop,"{""set"": {""video.record.crop"": [1, 2, 3, 4]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",62,INFO,
+c0530,video.record.crop,"{""set"": {""video.record.crop"": [0, 0, 4608, 2592]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",68,INFO,
+c0531,video.record.crop,"{""set"": {""video.record.crop"": [1504, 846, 1600, 900]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",72,INFO,
+c0532,video.record.crop,"{""set"": {""video.record.crop"": [15, 13, 11, 9]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",65,INFO,
+c0533,video.record.crop,"{""set"": {""video.record.crop"": [-1, 0, 10, 10]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0534,video.record.crop,"{""set"": {""video.record.crop"": [9, 11]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0535,video.record.crop,"{""set"": {""video.record.crop"": [1.8, 1.6]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0536,video.record.crop,"{""set"": {""video.record.crop"": [1.8, 0]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0537,video.record.crop,"{""set"": {""video.record.crop"": [1, 2]}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0538,video.record.crop,"{""set"": {""video.record.crop"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0539,video.record.crop,"{""set"": {""video.record.crop"": [1904, 1071, 800, 450]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",72,INFO,
+c0540,video.record.crop,"{""set"": {""video.record.crop"": [4000, 0, 800, 450]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",69,INFO,
+c0541,video.record.crop,"{""set"": {""video.record.crop"": [0, 0, 4609, 2592]}}",depends,,200,accept,,"video.record.crop:video crop fit not checked here: camera.native.width, camera|video.record.crop:video settings not checked here: mode.media not reported yet",68,INFO,
+c0542,video.record.crop,"{""set"": {""video.record.crop"": [0, 0, 0, 10]}}",depends,,200,refuse,bad_value,,,INFO,
+c0543,video.record.crop,"{""reset"": [""video.record.crop""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,53,PASS,
+c0544,video.record.output,"{""set"": {""video.record.output"": null}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,59,INFO,
+c0545,video.record.output,"{""set"": {""video.record.output"": ""480x270""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
+c0546,video.record.output,"{""set"": {""video.record.output"": ""481x271""}}",refuse,cross_key,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,FAIL,
+c0547,video.record.output,"{""set"": {""video.record.output"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0548,video.record.output,"{""set"": {""video.record.output"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0549,video.record.output,"{""set"": {""video.record.output"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0550,video.record.output,"{""set"": {""video.record.output"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0551,video.record.output,"{""set"": {""video.record.output"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0552,video.record.output,"{""set"": {""video.record.output"": ""0x10""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0553,video.record.output,"{""set"": {""video.record.output"": ""16x16""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,62,INFO,
+c0554,video.record.output,"{""set"": {""video.record.output"": ""14x16""}}",refuse,cross_key,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,62,FAIL,
+c0555,video.record.output,"{""set"": {""video.record.output"": ""482x272""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
+c0556,video.record.output,"{""set"": {""video.record.output"": ""640x360""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
+c0557,video.record.output,"{""set"": {""video.record.output"": ""1280x720""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,65,INFO,
+c0558,video.record.output,"{""set"": {""video.record.output"": ""4608x2592""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,66,INFO,
+c0559,video.record.output,"{""set"": {""video.record.output"": ""640X360""}}",depends,,200,accept,,video.record.output:video settings not checked here: mode.media not reported yet,64,INFO,
+c0560,video.record.output,"{""set"": {""video.record.output"": ""640x""}}",depends,,200,refuse,bad_value,,,INFO,
+c0561,video.record.output,"{""reset"": [""video.record.output""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,55,PASS,
+c0562,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": null}}",depends,,200,accept,,video.record.sensor_mode:video settings not checked here: mode.media not reported yet,64,INFO,
+c0563,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0564,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0565,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0566,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0567,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0568,video.record.sensor_mode,"{""set"": {""video.record.sensor_mode"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0569,video.record.sensor_mode,"{""reset"": [""video.record.sensor_mode""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,60,PASS,
+c0570,video.record.fps,"{""set"": {""video.record.fps"": 1}}",depends,,200,accept,,video.record.fps:video settings not checked here: mode.media not reported yet,53,INFO,
+c0571,video.record.fps,"{""set"": {""video.record.fps"": 15}}",depends,,200,accept,,video.record.fps:video settings not checked here: mode.media not reported yet,54,INFO,
+c0572,video.record.fps,"{""set"": {""video.record.fps"": 30}}",depends,,200,accept,,video.record.fps:video settings not checked here: mode.media not reported yet,54,INFO,
+c0573,video.record.fps,"{""set"": {""video.record.fps"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0574,video.record.fps,"{""set"": {""video.record.fps"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0575,video.record.fps,"{""set"": {""video.record.fps"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0576,video.record.fps,"{""set"": {""video.record.fps"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0577,video.record.fps,"{""set"": {""video.record.fps"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0578,video.record.fps,"{""set"": {""video.record.fps"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0579,video.record.fps,"{""set"": {""video.record.fps"": 31}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0580,video.record.fps,"{""set"": {""video.record.fps"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0581,video.record.fps,"{""set"": {""video.record.fps"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0582,video.record.fps,"{""set"": {""video.record.fps"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0583,video.record.fps,"{""reset"": [""video.record.fps""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,52,PASS,
+c0584,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 1}}",accept,,200,accept,,,62,PASS,
+c0585,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 2.5}}",accept,,200,accept,,,64,PASS,
+c0586,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 8.0}}",accept,,200,accept,,,64,PASS,
+c0587,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 2.0}}",accept,,200,accept,,,64,PASS,
+c0588,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 0.1}}",accept,,200,accept,,,64,PASS,
+c0589,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 25.0}}",accept,,200,accept,,,65,PASS,
+c0590,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0591,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0592,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0593,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0594,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": -0.4}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0595,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 25.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0596,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 0.0751}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0597,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": 25.0249}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0598,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": ""0.1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0599,video.record.bitrate_mbps,"{""set"": {""video.record.bitrate_mbps"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0600,video.record.bitrate_mbps,"{""reset"": [""video.record.bitrate_mbps""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,61,PASS,
+c0601,video.record.dir,"{""set"": {""video.record.dir"": ""/home/pi/BM_Devel_Pi/videos""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0602,video.record.dir,"{""reset"": [""video.record.dir""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0603,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": """"}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0604,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""baseline""}}",accept,,200,accept,,,74,PASS,
+c0605,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""main""}}",accept,,200,accept,,,70,PASS,
+c0606,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""high""}}",accept,,200,accept,,,70,PASS,
+c0607,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0608,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0609,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0610,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0611,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0612,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0613,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0614,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0615,video.record.encoder.profile,"{""set"": {""video.record.encoder.profile"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0616,video.record.encoder.profile,"{""reset"": [""video.record.encoder.profile""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,64,PASS,
+c0617,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": """"}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0618,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4""}}",accept,,200,accept,,,65,PASS,
+c0619,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4.1""}}",accept,,200,accept,,,67,PASS,
+c0620,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""4.2""}}",accept,,200,accept,,,67,PASS,
+c0621,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0622,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0623,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0624,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0625,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0626,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0627,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0628,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0629,video.record.encoder.level,"{""set"": {""video.record.encoder.level"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0630,video.record.encoder.level,"{""reset"": [""video.record.encoder.level""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
+c0631,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 0}}",accept,,200,accept,,,63,PASS,
+c0632,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 1}}",accept,,200,accept,,,63,PASS,
+c0633,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 3000}}",accept,,200,accept,,,66,PASS,
+c0634,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0635,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0636,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0637,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0638,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0639,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 3001}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0640,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": 0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0641,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": ""0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0642,video.record.encoder.intra,"{""set"": {""video.record.encoder.intra"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0643,video.record.encoder.intra,"{""reset"": [""video.record.encoder.intra""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,62,PASS,
+c0644,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": """"}}",accept,,200,refuse,blocked_value,,,FAIL,
+c0645,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""auto""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",70,PASS,
+c0646,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""off""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",69,PASS,
+c0647,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""cdn_off""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",73,PASS,
+c0648,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""cdn_fast""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",74,PASS,
+c0649,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""cdn_hq""}}",accept,,200,accept,,"camera.image_processing.denoise:--denoise duplicate not checked here: mode.media, camera.con",72,PASS,
+c0650,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0651,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0652,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0653,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0654,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""481x271""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0655,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""0x10""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0656,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0657,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0658,video.record.encoder.denoise,"{""set"": {""video.record.encoder.denoise"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0659,video.record.encoder.denoise,"{""reset"": [""video.record.encoder.denoise""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,64,PASS,
+c0660,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": null}}",accept,,200,accept,,,70,PASS,
+c0661,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c",67,PASS,
+c0662,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 1}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c",67,PASS,
+c0663,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 2.5}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c",69,PASS,
+c0664,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 8.0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c",69,PASS,
+c0665,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 0.0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c",69,PASS,
+c0666,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 16.0}}",accept,,200,accept,,"camera.image_processing.sharpness:--sharpness duplicate not checked here: mode.media, camera.c",70,PASS,
+c0667,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0668,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0669,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0670,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0671,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 16.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0672,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0673,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": -0.016}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0674,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": 16.016}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0675,video.record.encoder.sharpness,"{""set"": {""video.record.encoder.sharpness"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0676,video.record.encoder.sharpness,"{""reset"": [""video.record.encoder.sharpness""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,66,PASS,
+c0677,video.send.duration_s,"{""set"": {""video.send.duration_s"": 1}}",accept,,200,accept,,video.send.duration_s:not 5: only 5 s clips are ladder-validated,58,PASS,
+c0678,video.send.duration_s,"{""set"": {""video.send.duration_s"": 2.5}}",accept,,200,accept,,video.send.duration_s:not 5: only 5 s clips are ladder-validated,60,PASS,
+c0679,video.send.duration_s,"{""set"": {""video.send.duration_s"": 8.0}}",accept,,200,accept,,video.send.duration_s:not 5: only 5 s clips are ladder-validated,60,PASS,
+c0680,video.send.duration_s,"{""set"": {""video.send.duration_s"": 5.0}}",accept,,200,accept,,,60,PASS,
+c0681,video.send.duration_s,"{""set"": {""video.send.duration_s"": 1.0}}",accept,,200,accept,,video.send.duration_s:not 5: only 5 s clips are ladder-validated,60,PASS,
+c0682,video.send.duration_s,"{""set"": {""video.send.duration_s"": 30.0}}",accept,,200,accept,,video.send.duration_s:not 5: only 5 s clips are ladder-validated,61,PASS,
+c0683,video.send.duration_s,"{""set"": {""video.send.duration_s"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0684,video.send.duration_s,"{""set"": {""video.send.duration_s"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0685,video.send.duration_s,"{""set"": {""video.send.duration_s"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0686,video.send.duration_s,"{""set"": {""video.send.duration_s"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0687,video.send.duration_s,"{""set"": {""video.send.duration_s"": 0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0688,video.send.duration_s,"{""set"": {""video.send.duration_s"": 30.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0689,video.send.duration_s,"{""set"": {""video.send.duration_s"": 0.971}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0690,video.send.duration_s,"{""set"": {""video.send.duration_s"": 30.029}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0691,video.send.duration_s,"{""set"": {""video.send.duration_s"": ""1.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0692,video.send.duration_s,"{""set"": {""video.send.duration_s"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0693,video.send.duration_s,"{""reset"": [""video.send.duration_s""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,57,PASS,
+c0694,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 0}}",accept,,200,accept,,,57,PASS,
+c0695,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 1}}",accept,,200,accept,,,57,PASS,
+c0696,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 2.5}}",accept,,200,accept,,,59,PASS,
+c0697,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 8.0}}",accept,,200,accept,,,59,PASS,
+c0698,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 2.0}}",accept,,200,accept,,,59,PASS,
+c0699,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 0.0}}",accept,,200,accept,,,59,PASS,
+c0700,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 10.0}}",accept,,200,accept,,,60,PASS,
+c0701,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0702,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0703,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0704,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": -0.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0705,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 10.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0706,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": null}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0707,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": -0.01}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0708,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": 10.01}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0709,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": ""0.0""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0710,video.send.lead_in_s,"{""set"": {""video.send.lead_in_s"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0711,video.send.lead_in_s,"{""reset"": [""video.send.lead_in_s""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,56,PASS,
+c0712,video.send.fps,"{""set"": {""video.send.fps"": 1}}",depends,,200,accept,,video.send.fps:video settings not checked here: mode.media not reported yet,51,INFO,
+c0713,video.send.fps,"{""set"": {""video.send.fps"": 10}}",depends,,200,accept,,video.send.fps:video settings not checked here: mode.media not reported yet,52,INFO,
+c0714,video.send.fps,"{""set"": {""video.send.fps"": 30}}",depends,,200,accept,,video.send.fps:video settings not checked here: mode.media not reported yet,52,INFO,
+c0715,video.send.fps,"{""set"": {""video.send.fps"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0716,video.send.fps,"{""set"": {""video.send.fps"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0717,video.send.fps,"{""set"": {""video.send.fps"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0718,video.send.fps,"{""set"": {""video.send.fps"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0719,video.send.fps,"{""set"": {""video.send.fps"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0720,video.send.fps,"{""set"": {""video.send.fps"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0721,video.send.fps,"{""set"": {""video.send.fps"": 31}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0722,video.send.fps,"{""set"": {""video.send.fps"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0723,video.send.fps,"{""set"": {""video.send.fps"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0724,video.send.fps,"{""set"": {""video.send.fps"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0725,video.send.fps,"{""reset"": [""video.send.fps""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,50,PASS,
+c0726,video.send.message_cap,"{""set"": {""video.send.message_cap"": 126}}",accept,,200,accept,,video.send.message_cap:video message-cap floor not checked here: mode.media not rep,61,PASS,
+c0727,video.send.message_cap,"{""set"": {""video.send.message_cap"": 8}}",accept,,200,accept,,video.send.message_cap:video message-cap floor not checked here: mode.media not rep,59,PASS,
+c0728,video.send.message_cap,"{""set"": {""video.send.message_cap"": 1000}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0729,video.send.message_cap,"{""set"": {""video.send.message_cap"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0730,video.send.message_cap,"{""set"": {""video.send.message_cap"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0731,video.send.message_cap,"{""set"": {""video.send.message_cap"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0732,video.send.message_cap,"{""set"": {""video.send.message_cap"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0733,video.send.message_cap,"{""set"": {""video.send.message_cap"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0734,video.send.message_cap,"{""set"": {""video.send.message_cap"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0735,video.send.message_cap,"{""set"": {""video.send.message_cap"": 7}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0736,video.send.message_cap,"{""set"": {""video.send.message_cap"": 1001}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0737,video.send.message_cap,"{""set"": {""video.send.message_cap"": 8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0738,video.send.message_cap,"{""set"": {""video.send.message_cap"": ""8""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0739,video.send.message_cap,"{""set"": {""video.send.message_cap"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0740,video.send.message_cap,"{""reset"": [""video.send.message_cap""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,58,PASS,
+c0741,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 1}}",accept,,200,accept,,,67,PASS,
+c0742,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 30}}",accept,,200,accept,,,68,PASS,
+c0743,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 200}}",accept,,200,accept,,,69,PASS,
+c0744,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0745,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0746,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0747,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0748,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0749,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0750,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 201}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0751,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0752,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0753,video.send.keyframe_repeat_max,"{""set"": {""video.send.keyframe_repeat_max"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0754,video.send.keyframe_repeat_max,"{""reset"": [""video.send.keyframe_repeat_max""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,66,PASS,
+c0755,video.send.size,"{""set"": {""video.send.size"": ""480x270""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,60,INFO,
+c0756,video.send.size,"{""set"": {""video.send.size"": ""481x271""}}",refuse,cross_key,200,refuse,bad_value,,,PASS,no
+c0757,video.send.size,"{""set"": {""video.send.size"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0758,video.send.size,"{""set"": {""video.send.size"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0759,video.send.size,"{""set"": {""video.send.size"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0760,video.send.size,"{""set"": {""video.send.size"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0761,video.send.size,"{""set"": {""video.send.size"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0762,video.send.size,"{""set"": {""video.send.size"": ""0x10""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0763,video.send.size,"{""set"": {""video.send.size"": ""16x16""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,58,INFO,
+c0764,video.send.size,"{""set"": {""video.send.size"": ""14x16""}}",refuse,cross_key,200,refuse,bad_value,,,PASS,no
+c0765,video.send.size,"{""set"": {""video.send.size"": ""482x272""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,60,INFO,
+c0766,video.send.size,"{""set"": {""video.send.size"": ""640x360""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,60,INFO,
+c0767,video.send.size,"{""set"": {""video.send.size"": ""1280x720""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,61,INFO,
+c0768,video.send.size,"{""set"": {""video.send.size"": ""4608x2592""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,62,INFO,
+c0769,video.send.size,"{""set"": {""video.send.size"": ""640X360""}}",depends,,200,accept,,video.send.size:video settings not checked here: mode.media not reported yet,60,INFO,
+c0770,video.send.size,"{""set"": {""video.send.size"": ""640x""}}",depends,,200,refuse,bad_value,,,INFO,
+c0771,video.send.size,"{""reset"": [""video.send.size""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,51,PASS,
+c0772,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""medium""}}",accept,,200,accept,,,66,PASS,
+c0773,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""ultrafast""}}",accept,,200,accept,,,69,PASS,
+c0774,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""superfast""}}",accept,,200,accept,,,69,PASS,
+c0775,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""veryfast""}}",accept,,200,accept,,,68,PASS,
+c0776,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""faster""}}",accept,,200,accept,,,66,PASS,
+c0777,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""fast""}}",accept,,200,accept,,,64,PASS,
+c0778,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": """"}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0779,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""x""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0780,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""auto""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0781,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""12:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0782,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""25:00""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0783,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""480x270""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0784,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""bogus""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0785,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": ""AUTO""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0786,video.send.x264_preset,"{""set"": {""video.send.x264_preset"": 1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0787,video.send.x264_preset,"{""reset"": [""video.send.x264_preset""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,58,PASS,
+c0788,video.send.budget_min,"{""set"": {""video.send.budget_min"": 1}}",accept,,200,accept,,,58,PASS,
+c0789,video.send.budget_min,"{""set"": {""video.send.budget_min"": 18}}",accept,,200,accept,,,59,PASS,
+c0790,video.send.budget_min,"{""set"": {""video.send.budget_min"": 240}}",refuse,over_limit,200,refuse,over_limit,,,PASS,yes
+c0791,video.send.budget_min,"{""set"": {""video.send.budget_min"": 0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0792,video.send.budget_min,"{""set"": {""video.send.budget_min"": -1}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0793,video.send.budget_min,"{""set"": {""video.send.budget_min"": 2.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0794,video.send.budget_min,"{""set"": {""video.send.budget_min"": -8.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0795,video.send.budget_min,"{""set"": {""video.send.budget_min"": 8.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0796,video.send.budget_min,"{""set"": {""video.send.budget_min"": 100000}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0797,video.send.budget_min,"{""set"": {""video.send.budget_min"": 241}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0798,video.send.budget_min,"{""set"": {""video.send.budget_min"": 1.5}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0799,video.send.budget_min,"{""set"": {""video.send.budget_min"": ""1""}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0800,video.send.budget_min,"{""set"": {""video.send.budget_min"": true}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0801,video.send.budget_min,"{""reset"": [""video.send.budget_min""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,57,PASS,
+c0802,video.logger.clip_minutes,"{""set"": {""video.logger.clip_minutes"": 5.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0803,video.logger.clip_minutes,"{""reset"": [""video.logger.clip_minutes""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0804,video.logger.session_minutes,"{""set"": {""video.logger.session_minutes"": 0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0805,video.logger.session_minutes,"{""reset"": [""video.logger.session_minutes""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0806,video.ui.enabled,"{""set"": {""video.ui.enabled"": true}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0807,video.ui.enabled,"{""reset"": [""video.ui.enabled""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0808,video.ui.port,"{""set"": {""video.ui.port"": 8080}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0809,video.ui.port,"{""reset"": [""video.ui.port""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0810,storage.max_used_pct,"{""set"": {""storage.max_used_pct"": 75.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0811,storage.max_used_pct,"{""reset"": [""storage.max_used_pct""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0812,storage.min_free_gb,"{""set"": {""storage.min_free_gb"": 10.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0813,storage.min_free_gb,"{""reset"": [""storage.min_free_gb""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0814,storage.ring_dry_run,"{""set"": {""storage.ring_dry_run"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0815,storage.ring_dry_run,"{""reset"": [""storage.ring_dry_run""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0816,uplink.uart.port,"{""set"": {""uplink.uart.port"": ""/dev/ttyAMA0""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0817,uplink.uart.port,"{""reset"": [""uplink.uart.port""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0818,uplink.uart.baudrate,"{""set"": {""uplink.uart.baudrate"": 115200}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0819,uplink.uart.baudrate,"{""reset"": [""uplink.uart.baudrate""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0820,uplink.network_type,"{""set"": {""uplink.network_type"": 2}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0821,uplink.network_type,"{""reset"": [""uplink.network_type""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0822,uplink.chunk_chars,"{""set"": {""uplink.chunk_chars"": 300}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0823,uplink.chunk_chars,"{""reset"": [""uplink.chunk_chars""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0824,uplink.msg_interval_s,"{""set"": {""uplink.msg_interval_s"": 5.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0825,uplink.msg_interval_s,"{""reset"": [""uplink.msg_interval_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0826,uplink.lane.enabled,"{""set"": {""uplink.lane.enabled"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0827,uplink.lane.enabled,"{""reset"": [""uplink.lane.enabled""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0828,uplink.lane.grid_s,"{""set"": {""uplink.lane.grid_s"": 300.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0829,uplink.lane.grid_s,"{""reset"": [""uplink.lane.grid_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0830,uplink.lane.pre_guard_s,"{""set"": {""uplink.lane.pre_guard_s"": 20.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0831,uplink.lane.pre_guard_s,"{""reset"": [""uplink.lane.pre_guard_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0832,uplink.lane.post_guard_s,"{""set"": {""uplink.lane.post_guard_s"": 30.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0833,uplink.lane.post_guard_s,"{""reset"": [""uplink.lane.post_guard_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0834,uplink.lane.max_wait_s,"{""set"": {""uplink.lane.max_wait_s"": 300.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0835,uplink.lane.max_wait_s,"{""reset"": [""uplink.lane.max_wait_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0836,uplink.media_key.enabled,"{""set"": {""uplink.media_key.enabled"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0837,uplink.media_key.enabled,"{""reset"": [""uplink.media_key.enabled""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0838,uplink.media_key.retain_days,"{""set"": {""uplink.media_key.retain_days"": 14.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0839,uplink.media_key.retain_days,"{""reset"": [""uplink.media_key.retain_days""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0840,commands.enabled,"{""set"": {""commands.enabled"": false}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0841,commands.enabled,"{""reset"": [""commands.enabled""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0842,commands.runtime,"{""set"": {""commands.runtime"": ""legacy""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0843,commands.runtime,"{""reset"": [""commands.runtime""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0844,commands.topic,"{""set"": {""commands.topic"": ""bmcam/cmd""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0845,commands.topic,"{""reset"": [""commands.topic""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0846,commands.listen_tail_s,"{""set"": {""commands.listen_tail_s"": 150.0}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0847,commands.listen_tail_s,"{""reset"": [""commands.listen_tail_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0848,commands.keepalive_s,"{""set"": {""commands.keepalive_s"": 300}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0849,commands.keepalive_s,"{""reset"": [""commands.keepalive_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0850,commands.keepalive_max_s,"{""set"": {""commands.keepalive_max_s"": 1800}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0851,commands.keepalive_max_s,"{""reset"": [""commands.keepalive_max_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0852,commands.hold_max_min,"{""set"": {""commands.hold_max_min"": 120}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0853,commands.hold_max_min,"{""reset"": [""commands.hold_max_min""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0854,commands.state_path,"{""set"": {""commands.state_path"": ""/home/pi/BM_Devel_Pi/bm_command_state_v2.json""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0855,commands.state_path,"{""reset"": [""commands.state_path""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0856,network.default,"{""set"": {""network.default"": ""none""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0857,network.default,"{""reset"": [""network.default""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0858,network.ap_fallback_s,"{""set"": {""network.ap_fallback_s"": 90}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0859,network.ap_fallback_s,"{""reset"": [""network.ap_fallback_s""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0860,network.ap_timeout_min,"{""set"": {""network.ap_timeout_min"": 60}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0861,network.ap_timeout_min,"{""reset"": [""network.ap_timeout_min""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0862,empty_set,"{""set"": {}}",refuse,empty,200,refuse,empty,,,PASS,yes
+c0863,empty_reset,"{""reset"": []}",refuse,empty,200,refuse,empty,,,PASS,yes
+c0864,mixed,"{""set"": {""camera.exposure.ev"": 0.0}, ""reset"": [""camera.exposure.ev""]}",refuse,mixed,200,refuse,mixed,,,PASS,yes
+c0865,unknown_key,"{""set"": {""camera.exposure.evv"": 0.0}}",refuse,unknown_key,200,refuse,unknown_key,,,PASS,yes
+c0866,group_prefix_set,"{""set"": {""camera.exposure"": {""ev"": 0.0}}}",refuse,unknown_key,200,refuse,unknown_key,,,PASS,yes
+c0867,reset_group_prefix,"{""reset"": [""camera.exposure""]}",refuse,unknown_key,200,refuse,unknown_key,,,PASS,yes
+c0868,reset_5_keys,"{""reset"": [""camera.exposure.ev"", ""camera.exposure.shutter_us"", ""camera.exposure.analogue_gain"", ""camera.exposure.enabled"", ""camera.controls_enabled""]}",refuse,too_big,200,refuse,too_big,,,PASS,yes
+c0869,reset_4_keys,"{""reset"": [""camera.exposure.ev"", ""camera.exposure.shutter_us"", ""camera.exposure.analogue_gain"", ""camera.exposure.enabled""]}",accept,,200,accept,,:reset returns the keys to the unit's deploy YAML; the backen,141,PASS,
+c0870,exposure_5_keys_fits,"{""set"": {""camera.controls_enabled"": true, ""camera.exposure.enabled"": true, ""camera.exposure.ev"": -1.0, ""camera.exposure.shutter_us"": 10000, ""camera.exposure.analogue_gain"": 2.0}}",accept,,200,accept,,,191,PASS,
+c0871,exposure_plus_wb_too_big,"{""set"": {""camera.controls_enabled"": true, ""camera.exposure.enabled"": true, ""camera.exposure.ev"": -1.0, ""camera.exposure.shutter_us"": 10000, ""camera.exposure.analogue_gain"": 2.0, ""camera.white_balance.enabled"": true, ""camera.white_balance.mode"": ""manual"", ""camera.white_balance.gains"": [1.8, 1.6]}}",refuse,too_big,200,refuse,too_big,,303,PASS,yes
+c0872,tz_long_plus_window,"{""set"": {""schedule.timezone"": ""America/Argentina/ComodRivadavia"", ""schedule.window.enabled"": true, ""schedule.window.start"": ""06:00"", ""schedule.window.end"": ""18:00"", ""still.message_cap"": 200, ""still.budget_min"": 10}}",depends,,200,accept,,,226,INFO,
+c0873,int_as_float,"{""set"": {""still.message_cap"": 200.0}}",refuse,bad_value,200,refuse,bad_value,,,PASS,yes
+c0874,blocked_key_locked,"{""set"": {""commands.runtime"": ""x""}}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes
+c0875,reset_engineering_key,"{""reset"": [""still.save.quality""]}",refuse,not_writable,200,refuse,not_writable,,,PASS,yes

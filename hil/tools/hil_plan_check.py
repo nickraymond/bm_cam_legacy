@@ -93,7 +93,7 @@ class Api:
 def classify(status, resp):
     """(got, reasons[], warnings[], json_bytes)."""
     if status == 200 and isinstance(resp, dict):
-        warns = [w.get("key", "") + ":" + str(w.get("why", ""))[:60] for w in resp.get("warnings") or []]
+        warns = [str(w.get("key") or "") + ":" + str(w.get("why") or "")[:60] for w in resp.get("warnings") or []]
         jb = resp.get("json_bytes", (resp.get("command") or {}).get("json_bytes"))
         if resp.get("refusals") or resp.get("ok") is False:
             return "refuse", [r.get("reason", "") for r in resp.get("refusals") or []] or ["ok=false"], warns, jb

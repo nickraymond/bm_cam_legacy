@@ -21,3 +21,31 @@ STOPPED
 rc=0
 CRON_MATCHES_BACKUP
 2026-10-02T06:11:48Z both units on 91a08f6 (registry v6), hash f7c9194f, stay_on, armed. Ladder BLOCKED on Nick's console OK; backend half BLOCKED on staging push.
+2026-10-02T06:21:58Z Nick in Test Engineer chat: 'console cmd.txt OK for G3 on both Spotters'. Ladder starts on bmcam004/SPOT-31593C.
+2026-10-02T06:22:20Z F-G3-1: LADDER baseline get lists 5 k names; unit limit 1..4 (e=val k=k). Split into 2 gets.
+2026-10-02T06:24:17Z F-G3-2: one-shot save_local still on bmcam004 REFUSED: SD 75% == video ring cap -> [RC][ERR] save_local: SD over its limit after pruning; stage=storage_full (log label says media=video for a still override). Switching visual checks to transmit stills m=30. Cellular msg budget for G3 stills: <= 1200 msgs total, counted in gate.log.
+2026-10-02T06:25:38Z staging live (UI session: a5de198, 23:25 PDT). Part A plan sweep started on nereus000 (plan-only).
+2026-10-02T06:27:43Z F-G3-3: still.message_cap is not a hard ceiling: when the q-floor exceeds the cap (no_fit_cap) the unit sends the floor anyway, bounded by the time budget only (L2 m=30 -> 32 msgs sent, rc_transmit send_target=min(planned, budget)). Using m=40 from here. CELL MSG COUNT: 32 (L2)
+2026-10-02T06:33:23Z CELL MSG COUNT: L3 ~40, L4 40, L4b 38 -> total 150
+2026-10-02T06:37:54Z CELL MSG COUNT stills total 235 (L2-L7). Video steps use trg m=80.
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T060912Z.log
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T055149Z.log
+46:[SUP] stay_on: media=video interval_s=0 (trigger-only) heartbeat_s=300
+50:[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+52:[BOOT] cmd_subscribed uptime_s=20.55
+99:[RC][ERR] save_local: SD over its limit after pruning; capture refused
+609:[SUP] config restart: mode.media changed (next boot); exit 72 (the wrapper restarts in 5 s)
+614:[SUP] stay_on exit 72
+615:[RC-CRON] rc_progressive_jpeg.py exit_code=72
+616:[RC-CRON] stay_on config restart (a next-boot setting changed) in 5s;  not counted toward the crash-loop cap
+617:[RC-CRON] restart_utc=2026-10-02T06:50:03+00:00
+627:[NET] boot default already applied this boot; leaving the network alone (runtime restart)
+67:[RC-CRON] rc_progressive_jpeg.py exit_code=0
+2026-10-02T06:51:27Z both devices eligible+writable at staging; Part A re-run
+2026-10-02T06:58:19Z IP1/2 attempt 1 void: zsh did not word-split the loop var; backend refused the malformed bodies (no unit change); 8 stills x14 msgs taken at unchanged settings = IP baselines. CELL stills total ~470.
+2026-10-02T07:06:22Z Part A: 791 PASS / 6 FAIL / 78 INFO per device. FAIL disposition: 4 = model ignored catalog blocked_values (save_local, empty enums) -> refused correctly; 2 = video.record.output odd/tiny accepted by backend by spec (geometry unknown) -> unit refused (e=xk). 0 backend defects. F-G3-4: image_processing.sharpness refused by UNIT (duplicate --sharpness with video.record.encoder.sharpness=1.0 in YAML); backend only warned (inputs not reported) -> sharpness can never apply on these units' YAML.
+2026-10-02T07:18:39Z F-G3-5: image_processing.contrast extremes destroy the image: 0.0 -> flat grey (mean 128, sd 0), 32.0 -> black (mean 3, sd 0), stills AND clip (IP.clip1 thumb all black). Valid per libcamera range, useless in practice. Everything after contrast 32 was black, so saturation/brightness/denoise/hdr effects are re-run with contrast reset.
+2026-10-02T07:27:04Z IP2 redo (contrast reset): sat0 greyscale (satmean 0), sat32 black, bright-1 black, bright+1 white (253), contrast0.5 lifted, contrast2.0 near-black at night. Effects real; extremes unusable.
+2026-10-02T07:28:24Z IP5 PASS (6 out-of-range/bogus -> e=val, config+journal sha unchanged). IP6: duplicate --denoise refused at set time (#103 rule) -> retry path not reachable by command -> G3.6 N/A.
+2026-10-02T07:31:51Z L12/L14 Sofar lane: reset hdr, then reset denoise >=65 s later (BMCAM_004)
+2026-10-02T07:32:39Z checked: unit id ranges console 1-99999 | heals 1e5-999999 | remote 1e6+ (command_v9.py:75); remote hw 1000033 does not affect backend heal ids.

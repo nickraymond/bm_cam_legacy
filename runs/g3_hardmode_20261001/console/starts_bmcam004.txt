@@ -1,0 +1,37 @@
+CON  2026-10-02T06:24:20Z bm pub bmcam/cmd {"id":64007,"c":"trg","v":2,"kv":{"med":"still","m":30}} 1 1
+CELL 2026-10-02T06:24:36Z len=278 <START IMG> filename: 2026-10-02T06:24:28Z_image_compressed.jpg, timestamp: 2026-10-02T06:24:34Z, length: 32, key=0e3wgr, cfg=9bb7c063, tg=64007, r=1600x900+1504+846, m=30, fmt=pjpg, q=9, att=13, 
+CELL 2026-10-02T06:25:19Z len=244 <END IMG> filename: 2026-10-02T06:24:28Z_image_compressed.jpg, uart_duration_sec: 44.8, sent_buffers: 32, cpu_temp_c: 39.7, et_us: 58154, ag: 2, dg: 1, cg: 1.57:2.61, cct: 3478, lp: 0.88, afs: 2, 
+CON  2026-10-02T06:26:27Z bm pub bmcam/cmd {"id":1000000,"c":"ping"} 1 1
+CELL 2026-10-02T06:26:27Z len=37 {"id":1000000,"ok":1,"h":"9bb7c063"}
+CON  2026-10-02T06:27:48Z bm pub bmcam/cmd {"id":64010,"c":"set","kv":{"camera.exposure.shutter_us":10000,"camera.exposure.analogue_gain":2.0}} 1 1
+CON  2026-10-02T06:27:58Z bm pub bmcam/cmd {"id":64011,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CELL 2026-10-02T06:28:13Z len=282 <START IMG> filename: 2026-10-02T06:28:08Z_image_compressed.jpg, timestamp: 2026-10-02T06:28:13Z, length: 36, key=0e3wmv, cfg=8b5a56bd, tg=64011, r=1600x900+1504+846, m=40, fmt=pjpg, q=40, att=6, 
+CELL 2026-10-02T06:29:02Z len=243 <END IMG> filename: 2026-10-02T06:28:08Z_image_compressed.jpg, uart_duration_sec: 48.8, sent_buffers: 36, cpu_temp_c: 39.7, et_us: 9990, ag: 2, dg: 1, cg: 1.58:2.58, cct: 3504, lp: 0.99, afs: 2, f
+CON  2026-10-02T06:30:08Z bm pub bmcam/cmd {"id":64012,"c":"set","kv":{"camera.white_balance.enabled":true,"camera.white_balance.mode":"daylight"}} 1 1
+CON  2026-10-02T06:30:18Z bm pub bmcam/cmd {"id":64013,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CELL 2026-10-02T06:30:34Z len=282 <START IMG> filename: 2026-10-02T06:30:28Z_image_compressed.jpg, timestamp: 2026-10-02T06:30:33Z, length: 40, key=0e3wqr, cfg=976272f9, tg=64013, r=1600x900+1504+846, m=40, fmt=pjpg, q=40, att=6, 
+CELL 2026-10-02T06:31:28Z len=241 <END IMG> filename: 2026-10-02T06:30:28Z_image_compressed.jpg, uart_duration_sec: 54.1, sent_buffers: 40, cpu_temp_c: 38.6, et_us: 9990, ag: 2, dg: 1, cg: 2.18:1.78, cct: 5619, lp: 0.56, afs: 2, f
+CON  2026-10-02T06:31:52Z bm pub bmcam/cmd {"id":64014,"c":"set","kv":{"camera.white_balance.mode":"manual","camera.white_balance.gains":[1.8,1.6]}} 1 1
+CON  2026-10-02T06:32:02Z bm pub bmcam/cmd {"id":64015,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CELL 2026-10-02T06:32:12Z len=282 <START IMG> filename: 2026-10-02T06:32:08Z_image_compressed.jpg, timestamp: 2026-10-02T06:32:12Z, length: 38, key=0e3wtj, cfg=c8db3742, tg=64015, r=1600x900+1504+846, m=40, fmt=pjpg, q=40, att=6, 
+CELL 2026-10-02T06:33:04Z len=241 <END IMG> filename: 2026-10-02T06:32:08Z_image_compressed.jpg, uart_duration_sec: 51.4, sent_buffers: 38, cpu_temp_c: 39.2, et_us: 9990, ag: 2, dg: 1, cg: 1.8:1.6, cct: 5057, lp: 0.88, afs: 2, ffo
+CON  2026-10-02T06:33:26Z bm pub bmcam/cmd {"id":64016,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":0.5}} 1 1
+CON  2026-10-02T06:33:37Z bm pub bmcam/cmd {"id":64017,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CELL 2026-10-02T06:33:53Z len=282 <START IMG> filename: 2026-10-02T06:33:48Z_image_compressed.jpg, timestamp: 2026-10-02T06:33:52Z, length: 38, key=0e3wwb, cfg=2e83a43a, tg=64017, r=1600x900+1504+846, m=40, fmt=pjpg, q=40, att=6, 
+CELL 2026-10-02T06:34:44Z len=240 <END IMG> filename: 2026-10-02T06:33:48Z_image_compressed.jpg, uart_duration_sec: 51.4, sent_buffers: 38, cpu_temp_c: 39.2, et_us: 9990, ag: 2, dg: 1, cg: 1.8:1.6, cct: 5057, lp: 0.5, afs: 0, ffom
+CON  2026-10-02T06:35:11Z bm pub bmcam/cmd {"id":64018,"c":"set","kv":{"still.crop":[1904,1071,800,450]}} 1 1
+CON  2026-10-02T06:35:22Z bm pub bmcam/cmd {"id":64019,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CELL 2026-10-02T06:35:34Z len=281 <START IMG> filename: 2026-10-02T06:35:28Z_image_compressed.jpg, timestamp: 2026-10-02T06:35:33Z, length: 37, key=0e3wz3, cfg=b6c0e763, tg=64019, r=800x450+1904+1071, m=40, fmt=pjpg, q=70, att=3, 
+CELL 2026-10-02T06:36:24Z len=240 <END IMG> filename: 2026-10-02T06:35:28Z_image_compressed.jpg, uart_duration_sec: 50.1, sent_buffers: 37, cpu_temp_c: 40.8, et_us: 9990, ag: 2, dg: 1, cg: 1.8:1.6, cct: 5057, lp: 0.5, afs: 0, ffom
+CON  2026-10-02T06:36:44Z bm pub bmcam/cmd {"id":64020,"c":"set","kv":{"still.quality_ladder":[20,15,11,9]}} 1 1
+CON  2026-10-02T06:36:55Z bm pub bmcam/cmd {"id":64021,"c":"trg","v":2,"kv":{"med":"still","m":40}} 1 1
+CELL 2026-10-02T06:37:03Z len=281 <START IMG> filename: 2026-10-02T06:36:58Z_image_compressed.jpg, timestamp: 2026-10-02T06:37:03Z, length: 14, key=0e3x1l, cfg=d28e1733, tg=64021, r=800x450+1904+1071, m=40, fmt=pjpg, q=20, att=1, 
+CELL 2026-10-02T06:37:23Z len=240 <END IMG> filename: 2026-10-02T06:36:58Z_image_compressed.jpg, uart_duration_sec: 19.8, sent_buffers: 14, cpu_temp_c: 40.2, et_us: 9990, ag: 2, dg: 1, cg: 1.8:1.6, cct: 5057, lp: 0.5, afs: 0, ffom
+CELL 2026-10-02T06:38:41Z len=281 <START IMG> filename: 2026-10-02T06-38-18Z_video_5s.h264, timestamp: 2026-10-02T06:38:40Z, length: 78, key=0e3x3t, cfg=a9b8acf4, tg=64023, m=80, d=5.0, fmt=h264, fps=10, dur=5.0, res=480x270, crop=4608x2592+0+0, br=39, cmp=1, tz=America/Los_Angeles, sha=91a08f624011
+CELL 2026-10-02T06:41:04Z len=129 <END IMG> filename: 2026-10-02T06-38-18Z_video_5s.h264, fmt: h264, uart_duration_sec: 143.7, sent_buffers: 78, cpu_temp_c: 44.0
+CELL 2026-10-02T06:42:09Z len=280 <START IMG> filename: 2026-10-02T06-41-47Z_video_5s.h264, timestamp: 2026-10-02T06:42:08Z, length: 78, key=0e3x9n, cfg=42b2e2ce, tg=64025, m=80, d=5.0, fmt=h264, fps=8, dur=5.0, res=640x360, crop=4608x2592+0+0, br=32, cmp=1, tz=America/Los_Angeles, sha=91a08f624011,
+CELL 2026-10-02T06:44:32Z len=129 <END IMG> filename: 2026-10-02T06-41-47Z_video_5s.h264, fmt: h264, uart_duration_sec: 143.7, sent_buffers: 78, cpu_temp_c: 43.5
+CON  2026-10-02T06:45:26Z bm pub bmcam/cmd {"id":64028,"c":"set","kv":{"video.send.fps":10}} 1 1
+CELL 2026-10-02T06:45:47Z len=280 <START IMG> filename: 2026-10-02T06-45-17Z_video_8s.h264, timestamp: 2026-10-02T06:45:46Z, length: 79, key=0e3xfh, cfg=2b7f1d7f, tg=64027, m=80, d=8.0, fmt=h264, fps=8, dur=8.0, res=640x360, crop=4608x2592+0+0, br=26, cmp=1, t
+CELL 2026-10-02T06:48:12Z len=129 <END IMG> filename: 2026-10-02T06-45-17Z_video_8s.h264, fmt: h264, uart_duration_sec: 145.1, sent_buffers: 79, cpu_temp_c: 45.1
+CON  2026-10-02T06:48:12Z Message: 1790923691.972 e6fe83ea6b4a2b7f, [bmcam004] OK id=64028 video.send.fps: 8 -> 10 (next action) cfg=f4e7978f
