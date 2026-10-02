@@ -73,6 +73,21 @@ CONTROL_KEYS = (
     "video.send.budget_min",
 )
 
+# UI level (Nick 2026-10-01, via the config UI session): "basic" keys are shown up front, every
+# other key is "advanced" (folded away). Display only: it never changes what is writable (tier).
+# camera.controls_enabled is basic because no exposure / WB / focus value takes effect without it
+# (rc_capture.py:387-474).
+BASIC_KEYS = (
+    "mode.media", "camera.controls_enabled",
+    "camera.exposure.enabled", "camera.exposure.ev", "camera.exposure.shutter_us",
+    "camera.exposure.analogue_gain",
+    "camera.white_balance.enabled", "camera.white_balance.mode", "camera.white_balance.gains",
+    "camera.focus.enabled", "camera.focus.mode", "camera.focus.lens_position",
+    "still.crop", "still.output_width",
+    "video.record.framing", "video.record.fps",
+    "video.send.duration_s", "video.send.size", "video.send.fps",
+)
+
 # Shown (current value) but NOT writable in the MVP (REVIEW_r1 rows 2 / C2).
 ENGINEERING_REASON = {
     "camera.image_processing.": "free strings / unranged floats go straight into rpicam argv and "
@@ -223,6 +238,7 @@ def _key_doc(key):
         "short": key.short, "wire_visible": key.wire_visible,
         "tier": tier, "tier_reason": why, "blocked_values": _blocked_values(key),
         "requires": _requires(key.path), "limits": LIMITS.get(key.path),
+        "level": "basic" if key.path in BASIC_KEYS else "advanced",
     }
     return d
 

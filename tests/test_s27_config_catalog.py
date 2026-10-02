@@ -85,6 +85,17 @@ class Catalog(unittest.TestCase):
         for path in G.CONTROL_KEYS:
             self.assertIn(path, R.BY_PATH)
 
+    def test_level_basic_keys_are_writable_controls(self):
+        """UI level (Nick 2026-10-01): every basic key exists and is a writable control;
+        every key has a level."""
+        cat = json.loads(_load())
+        for doc in cat["keys"]:
+            self.assertIn(doc["level"], ("basic", "advanced"), doc["path"])
+        basic = [d for d in cat["keys"] if d["level"] == "basic"]
+        self.assertEqual(sorted(d["path"] for d in basic), sorted(G.BASIC_KEYS))
+        for d in basic:
+            self.assertEqual(d["tier"], "control", d["path"])
+
     def test_geometry_vectors_match_the_unit_rule(self):
         import config_validate as V
         cat = json.loads(_load())
