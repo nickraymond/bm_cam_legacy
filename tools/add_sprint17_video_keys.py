@@ -18,7 +18,6 @@ INPUTS
   --preset NAME     value for video.preset
   --fps N           value for video.fps (optional)
   --bitrate N       value for video.bitrate_mbps (optional)
-  --denoise MODE    value for video.encoder.denoise (optional)
   --dry-run         print the resulting island, write nothing
 
 OUTPUTS
@@ -55,8 +54,6 @@ ENCODER_BLOCK = """  # Sprint17 D-S17-4: encoder knobs. Empty string / 0 = leave
     profile: ""            # baseline|main|high
     level: ""              # 4|4.1|4.2
     intra: 0               # keyframe interval; 0 = camera default
-    denoise: ""            # auto|off|cdn_off|cdn_fast|cdn_hq
-    sharpness: 1.0         # 0..16, 1.0 = normal
 """
 
 PRESET_COMMENT = """  # Sprint17 D-S17-1: VIDEO-ONLY geometry. The preset carries its own crop,
@@ -119,7 +116,6 @@ def main():
     ap.add_argument("--preset", default=None)
     ap.add_argument("--fps", default=None)
     ap.add_argument("--bitrate", default=None)
-    ap.add_argument("--denoise", default=None)
     ap.add_argument("--repo", default=None,
                     help="checkout to import the validators from")
     ap.add_argument("--dry-run", action="store_true")
@@ -161,11 +157,8 @@ def main():
         lines.insert(insert_at, ENCODER_BLOCK)
         end = insert_at + 1
         print("[S17CFG] inserted video.encoder block")
-    if args.denoise is not None:
-        start, end = find_island(lines)
-        enc_at = has_subsection(lines, start, end, "encoder")
-        set_scalar(lines, enc_at, end, "denoise", f'"{args.denoise}"', indent=4)
-        print(f"[S17CFG] video.encoder.denoise = {args.denoise}")
+    # (--denoise removed in Sprint27 F-G3-4: video.encoder.denoise is retired; use
+    # image_pipeline.camera_controls.image_processing.denoise.)
 
     start, end = find_island(lines)
     if args.dry_run:

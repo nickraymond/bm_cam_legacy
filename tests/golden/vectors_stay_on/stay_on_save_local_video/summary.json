@@ -338,20 +338,20 @@
  "fake_clock_elapsed_s": 700.0,
  "files": {
   "camera_config.lkg.json": {
-   "bytes": 3249,
+   "bytes": 3177,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2471,
-   "sha256": "7d2b3e5160ac292f"
+   "bytes": 2431,
+   "sha256": "fd0d4ddcce521984"
   },
   "camera_schedule.yaml": {
    "bytes": 7907,
    "sha256": "8a8ad15fcd4f5753"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2223,
-   "sha256": "8dedba797bcb93e0"
+   "bytes": 2207,
+   "sha256": "bfbeadcdb2a3bfc6"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 290,
@@ -362,104 +362,104 @@
    "sha256": "306c6ca740756034"
   },
   "videos/2026-09-24T15-00-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "6baff500d385481c"
+   "bytes": 644,
+   "sha256": "ef478ba7b7697589"
   },
   "videos/2026-09-24T15-00-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-01-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "4f652b1cfc139ff7"
+   "bytes": 644,
+   "sha256": "39df8384a3f939be"
   },
   "videos/2026-09-24T15-01-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-02-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "cff156c6bcee993d"
+   "bytes": 644,
+   "sha256": "4c13f6465af1c8ce"
   },
   "videos/2026-09-24T15-02-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-03-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "50b24497350f53a1"
+   "bytes": 644,
+   "sha256": "2c8711d1cbb5b6f7"
   },
   "videos/2026-09-24T15-03-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-04-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "b633694da15a014f"
+   "bytes": 644,
+   "sha256": "6b4a5e50b2af5911"
   },
   "videos/2026-09-24T15-04-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-05-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "e4fccbba7aee3bd3"
+   "bytes": 644,
+   "sha256": "e55b9c1b48c3ec9f"
   },
   "videos/2026-09-24T15-05-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-05-30Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "032e2fa7635bec1f"
+   "bytes": 644,
+   "sha256": "3ce595e3190c3256"
   },
   "videos/2026-09-24T15-05-30Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-06-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "8332cbafb94b654f"
+   "bytes": 644,
+   "sha256": "f8b53e52c4a329c2"
   },
   "videos/2026-09-24T15-06-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-07-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "1368986037053b14"
+   "bytes": 644,
+   "sha256": "dbf220a589ed5afa"
   },
   "videos/2026-09-24T15-07-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-08-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "2b4eefc1e3dfd3b8"
+   "bytes": 644,
+   "sha256": "e2afa03846e8ec93"
   },
   "videos/2026-09-24T15-08-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-09-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "00d7e99949d463cb"
+   "bytes": 644,
+   "sha256": "c7f90554b1e29b17"
   },
   "videos/2026-09-24T15-09-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-10-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "7b071c80822eee6f"
+   "bytes": 644,
+   "sha256": "3eda973fba29ca01"
   },
   "videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/2026-09-24T15-11-00Z_video_1000x562_15fps.json": {
-   "bytes": 682,
-   "sha256": "18a65a41de66b65e"
+   "bytes": 644,
+   "sha256": "be91d381c95367ba"
   },
   "videos/2026-09-24T15-11-00Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,

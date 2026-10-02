@@ -105,7 +105,22 @@ YAML value. Any SSH needed = FAIL.
 | IP3 | each `denoise` value: auto, off, cdn_off, cdn_fast, cdn_hq | still + clip produced |
 | IP4 | `hdr` off / auto / sensor / single-exp (and `true`), on a still unit and on a video unit | still + clip produced; refused combinations get `e:xk` |
 | IP6 (video retry, Nick 2026-10-01) | on a video unit, a camera-control combination P0 showed `rpicam-vid` refuses at run time (e.g. duplicate `--denoise`, if it fails), set through the console lane | the clip is STILL produced; log `[VID][WARN] … retrying … without camera controls`; the clip manifest `requested_controls.controls_dropped: true` |
-| IP5 (negative) | sharpness 16.5, brightness 1.2, denoise `bogus`; and on a video unit `video.record.encoder.denoise` set + `camera.image_processing.denoise` (console range id) | `e:xk`, nothing stored, next clip produced |
+| IP5 (negative) | sharpness 16.5, brightness 1.2, denoise `bogus`; (after F-G3-4) `video.record.encoder.denoise` → `e:key` (console range id) | `e:xk`, nothing stored, next clip produced |
+
+## F-G3-4 — retired encoder knobs (Nick 2026-10-02; after the F-G3-4 bm PR is on the unit)
+
+Deploy note: `deploy_rc_runtime.sh` refuses this change unless `--accept-print-config-diff` is
+given. That is intended: the `[VID] encoder knobs:` line loses denoise / sharpness. Every unit's
+config hash changes (the registry lost 2 keys): run `/refresh` after the deploy (L1b).
+
+| # | step | pass |
+|---|---|---|
+| M1 | Deploy on bmcam003 + bmcam004 with `--accept-print-config-diff`; read the diff it prints | the diff only contains the `[VID] encoder knobs:` line (and, on a v1 file, the `video.encoder.sharpness is retired` line); deploy OK |
+| M2 | First start: boot log `[CFG]` lines | `[CFG] config v2 ... registry=v7` (NOT an LKG / v1 fallback); a `video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness` warning; `[VID] encoder knobs: all rpicam-vid defaults` |
+| M3 | `tools/config_v2_upgrade.py <unit>/camera_config.yaml` (dry run), then `--write` (cron disarmed) | dry run: "would rewrite (same values, same hash)"; write: backup `*.before_upgrade_*` kept; next boot has NO retired warning; the hash equals M2's |
+| M4 | console `set` `{"video.record.encoder.denoise":"cdn_off"}` (console range id) | `e:key`; nothing stored |
+| M5 | one clip and one still with `camera.controls_enabled` + `camera.image_processing.enabled` true and `camera.image_processing.denoise: cdn_fast`, `sharpness: 2.0` | clip AND still produced; the video log/argv has `--denoise cdn_fast` and `--sharpness 2` ONCE each; no `controls_dropped` |
+| M6 | re-run IP1–IP5 (image processing) on the deployed code | as in the IP table above; IP5's encoder-knob combination is now refused `e:key` (the key no longer exists) instead of `e:xk` |
 
 ## Negative steps (the unit must refuse, and stay reachable)
 

@@ -36,12 +36,13 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 6          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 7          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
                               #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11;
-                              # 6: camera.image_processing.* measured ranges / enums, Sprint27)
+                              # 6: camera.image_processing.* measured ranges / enums, Sprint27;
+                              # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -231,7 +232,8 @@ KEYS = (
     # [min, max, default]). rpicam does NOT refuse out-of-range floats (it clamps silently), so
     # this registry range is the only check; a bogus denoise / hdr name exits 255 (clip lost).
     Key("camera.image_processing.sharpness", FLOAT, None, "Sharpness 0..16 (1 = normal).",
-        nullable=True, range=(0.0, 16.0), v1_sources=(_V1_IP + ".sharpness",)),
+        nullable=True, range=(0.0, 16.0),
+        v1_sources=(_V1_IP + ".sharpness", "video.encoder.sharpness")),
     Key("camera.image_processing.contrast", FLOAT, None, "Contrast 0..32 (1 = normal).",
         nullable=True, range=(0.0, 32.0), v1_sources=(_V1_IP + ".contrast",)),
     Key("camera.image_processing.saturation", FLOAT, None, "Saturation 0..32 (1 = normal, "
@@ -240,7 +242,7 @@ KEYS = (
         nullable=True, range=(-1.0, 1.0), v1_sources=(_V1_IP + ".brightness",)),
     Key("camera.image_processing.denoise", STR, None, "Denoise mode (rpicam --denoise).",
         nullable=True, enum=("auto", "off", "cdn_off", "cdn_fast", "cdn_hq"),
-        v1_sources=(_V1_IP + ".denoise",)),
+        v1_sources=(_V1_IP + ".denoise", "video.encoder.denoise")),
     # true = --hdr auto, false / "off" = no flag (rc_capture). "single-exp" is PiSP (Pi 5)
     # multiframe HDR per rpicam's help; it ran on bmcam004 (Pi Zero 2 W) but its effect there
     # is unverified.
@@ -299,11 +301,9 @@ KEYS = (
         enum=("", "4", "4.1", "4.2"), v1_sources=("video.encoder.level",)),
     Key("video.record.encoder.intra", INT, 0, "GOP length (0 = default).", range=(0, 3000),
         v1_sources=("video.encoder.intra",)),
-    Key("video.record.encoder.denoise", ENUM, "", "Denoise ('' = default).",
-        enum=("", "auto", "off", "cdn_off", "cdn_fast", "cdn_hq"),
-        v1_sources=("video.encoder.denoise",)),
-    Key("video.record.encoder.sharpness", FLOAT, None, "Sharpness 0..16 (null = default).",
-        nullable=True, range=(0.0, 16.0), v1_sources=("video.encoder.sharpness",)),
+    # video.record.encoder.denoise / .sharpness RETIRED in registry v7 (Sprint27 F-G3-4, Nick
+    # 2026-10-02, "one owner per camera option"): camera.image_processing.* own --denoise /
+    # --sharpness for stills AND video. Old values are moved on load: see RETIRED below.
 
     # ---- video: the one clip sent per action (v1 video_tx) -------------------
     Key("video.send.duration_s", FLOAT, 5.0, "Clip length sent (s).", range=(1.0, 30.0),
@@ -418,6 +418,38 @@ ALIASES = {
     "video.storage.min_free_gb": "storage.min_free_gb",
     "video.storage.ring_dry_run": "storage.ring_dry_run",
 }
+
+# Retired keys (registry v7, Sprint27 F-G3-4, Nick 2026-10-02: "one owner per camera option").
+# old path -> the key that now owns the same rpicam option. On load (a v2 file, the LKG, a v1
+# file) an old value MOVES to the new key only if that key is unset; it is dropped otherwise,
+# and an empty value is dropped. Every case leaves one note (retire()). Unlike ALIASES the new
+# key is not the same setting: camera.image_processing.* apply only while
+# camera.controls_enabled and camera.image_processing.enabled are true (rc_capture), whereas the
+# encoder knobs always reached rpicam-vid.
+RETIRED = {
+    "video.record.encoder.denoise": "camera.image_processing.denoise",
+    "video.record.encoder.sharpness": "camera.image_processing.sharpness",
+}
+
+
+def retire(flat, notes):
+    """{path: value} with RETIRED paths moved / dropped; one line per retired path in `notes`."""
+    out = dict(flat)
+    for old, new in RETIRED.items():
+        if old not in out:
+            continue
+        value = out.pop(old)
+        if value is None or value == "":
+            notes.append(f"{old} is retired (registry v7): its empty value is dropped")
+        elif out.get(new) is not None:
+            notes.append(f"{old}={value!r} is retired (registry v7): dropped, {new}={out[new]!r} "
+                         "already governs")
+        else:
+            out[new] = value
+            notes.append(f"{old}={value!r} is retired (registry v7): moved to {new} (applied only "
+                         "while camera.controls_enabled and camera.image_processing.enabled are true)")
+    return out
+
 
 # Short names for byte-tight commands (O7 letters, value-typed per N8;
 # PLAN_S4 G5). Single-key letters are the Key.short fields above; `m` means

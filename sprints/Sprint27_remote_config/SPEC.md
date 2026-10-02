@@ -460,3 +460,25 @@ What the probe found:
   Pi Zero 2 W, but its effect there is unverified (ladder IP4).
 
 Writable now: 54 control keys. Read-only: `camera.exposure.mode`, `still.save.quality`.
+
+### 9.5 F-G3-4: one owner per camera option (Nick 2026-10-02, R1)
+
+- **Retired:** `video.record.encoder.denoise` / `.sharpness` (registry v7). `camera.image_processing.*`
+  owns `--denoise` / `--sharpness` for stills AND video. The v2 render, `video_recorder` (knob
+  args, defaults, print), the v1 reader, the bench GUI fields and the two Sprint17 tools no longer
+  read or write them. The duplicate-option rule (§9.4) is deleted: nothing can emit the option twice.
+- **Load-time migration (`config_registry.RETIRED` / `retire()`, used by the v2 loader, the LKG
+  and the v1 reader):**
+  - a value moves to the image_processing key only if that key is unset;
+  - an empty value, or one whose target is already set, is dropped;
+  - every case leaves one `[CFG][WARN]` note.
+  - A plain deletion would have bricked boots: an unknown key is fatal for the v2 file and the LKG.
+- **Behaviour change (sent to the EM):** a moved value applies only while `camera.controls_enabled`
+  and `camera.image_processing.enabled` are true; the encoder knob always applied. On 003/004
+  nothing changes (sharpness 1.0 = neutral, denoise '' = unset).
+- **Hash change:** every config hash changes (the hash covers every registry key). Run `/refresh`
+  after the deploy. The goldens were re-recorded: the 23 traces differ ONLY by `cfg=` / `h=`
+  (checked with the hashes masked); the settings goldens lose the two encoder fields.
+- **Deploy:** needs `--accept-print-config-diff` (the encoder-knobs line changes). The rehearsal
+  test pins that nothing else differs.
+- **Ladder:** M1–M6 (`LADDER.md`), including the `config_v2_upgrade.py --write` file clean-up.

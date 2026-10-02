@@ -71,8 +71,7 @@ CONTROL_KEYS = (
     "still.budget_min",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
     "video.record.fps", "video.record.bitrate_mbps", "video.record.encoder.profile",
-    "video.record.encoder.level", "video.record.encoder.intra", "video.record.encoder.denoise",
-    "video.record.encoder.sharpness",
+    "video.record.encoder.level", "video.record.encoder.intra",
     "video.send.duration_s", "video.send.lead_in_s", "video.send.fps", "video.send.message_cap",
     "video.send.keyframe_repeat_max", "video.send.size", "video.send.x264_preset",
     "video.send.budget_min",
@@ -354,6 +353,8 @@ def build():
             "stay_on_requires_reported_true": "power.bus_always_on",
         },
         "keys": keys,
+        # registry v7 (Sprint27 F-G3-4): old key -> the key that owns its rpicam option now
+        "retired": dict(R.RETIRED),
         "selftest": {k.path: _vectors(k) for k in R.KEYS},
         "geometry_selftest": _geometry_vectors(),
     }
