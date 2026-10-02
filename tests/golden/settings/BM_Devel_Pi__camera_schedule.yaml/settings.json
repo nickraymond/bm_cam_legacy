@@ -130,11 +130,9 @@
   "crop_native_xywh": null,
   "dir": "/home/pi/BM_Devel_Pi/videos",
   "encoder": {
-   "denoise": "",
    "intra": 0,
    "level": "",
-   "profile": "",
-   "sharpness": null
+   "profile": ""
   },
   "fps": 15,
   "geometry": {

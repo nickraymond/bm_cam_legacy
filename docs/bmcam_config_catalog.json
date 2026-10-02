@@ -391,6 +391,10 @@
   [["wide_720p_lean",null,null,"2304x1296",30],[1280,720,"2304x1296",30]],
   [["wide_720p_lean",null,null,"4608x2592",30],[1280,720,"4608x2592",14]]
  ],
+ "hash": {
+  "selftest": [[{"mode.media":"still","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Los_Angeles","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":null,"camera.image_processing.contrast":null,"camera.image_processing.saturation":null,"camera.image_processing.brightness":null,"camera.image_processing.denoise":null,"camera.image_processing.hdr":null,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"video.record.framing":null,"video.record.crop":null,"video.record.output":null,"video.record.sensor_mode":null,"video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"0956886d"],[{"mode.media":"video","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Los_Angeles","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":null,"camera.image_processing.contrast":null,"camera.image_processing.saturation":null,"camera.image_processing.brightness":null,"camera.image_processing.denoise":null,"camera.image_processing.hdr":null,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"video.record.framing":null,"video.record.crop":null,"video.record.output":null,"video.record.sensor_mode":null,"video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"c7da61c5"],[{"mode.media":"video","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Argentina/ComodRivadavia","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":[1.8125,1.6875],"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":12.25,"camera.image_processing.contrast":1.875,"camera.image_processing.saturation":1.875,"camera.image_processing.brightness":-0.125,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":"single-exp","still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"video.record.framing":"stills_roi_1000p","video.record.crop":[1504,846,1600,900],"video.record.output":"1000x562","video.record.sensor_mode":"4608x2592","video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"1ac78997"],[{"mode.media":"video","mode.run":"stay_on","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Argentina/ComodRivadavia","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":-1.0,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":12.25,"camera.image_processing.contrast":1.875,"camera.image_processing.saturation":1.875,"camera.image_processing.brightness":-0.125,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":true,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":300,"still.budget_min":18,"video.record.framing":"stills_roi_1000p","video.record.crop":[1504,846,1600,900],"video.record.output":"1000x562","video.record.sensor_mode":"4608x2592","video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"high","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":1.3,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"1ba435f6"]],
+  "version": 1
+ },
  "keys": [
   {
    "apply": "next_boot",
@@ -1481,18 +1485,18 @@
    "group": "camera.white_balance",
    "guard": "none",
    "guard_when": null,
-   "help": "Manual [red, blue] gains.",
+   "help": "Manual [red, blue] gains (each 0..8).",
    "level": "basic",
-   "limits": {
-    "max_each": 8.0,
-    "why": "no registry upper bound; the gains go straight into rpicam argv (Nick 2026-10-01)"
-   },
+   "limits": null,
    "media": null,
    "nullable": true,
    "one_shot": true,
    "path": "camera.white_balance.gains",
    "presets": [],
-   "range": null,
+   "range": [
+    0.0,
+    8.0
+   ],
    "requires": [
     "camera.controls_enabled",
     "camera.white_balance.enabled"
@@ -1763,7 +1767,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Contrast 0..32 (1 = normal).",
+   "help": "Contrast 0.5..2 (1 = normal).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1772,8 +1776,8 @@
    "path": "camera.image_processing.contrast",
    "presets": [],
    "range": [
-    0.0,
-    32.0
+    0.5,
+    2.0
    ],
    "requires": [
     "camera.controls_enabled",
@@ -1796,7 +1800,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Saturation 0..32 (1 = normal, 0 = greyscale).",
+   "help": "Saturation 0..2 (1 = normal, 0 = greyscale).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1806,7 +1810,7 @@
    "presets": [],
    "range": [
     0.0,
-    32.0
+    2.0
    ],
    "requires": [
     "camera.controls_enabled",
@@ -1829,7 +1833,7 @@
    "group": "camera.image_processing",
    "guard": "none",
    "guard_when": null,
-   "help": "Brightness -1..1 (0 = normal).",
+   "help": "Brightness -0.25..0.25 (0 = normal).",
    "level": "advanced",
    "limits": null,
    "media": null,
@@ -1838,8 +1842,8 @@
    "path": "camera.image_processing.brightness",
    "presets": [],
    "range": [
-    -1.0,
-    1.0
+    -0.25,
+    0.25
    ],
    "requires": [
     "camera.controls_enabled",
@@ -2142,7 +2146,6 @@
    "help": "Most messages one still may use.",
    "level": "advanced",
    "limits": {
-    "max": 500,
     "warn_above": 300,
     "why": "cellular cost (Nick 2026-10-01)"
    },
@@ -2174,7 +2177,7 @@
    ],
    "range": [
     1,
-    2000
+    500
    ],
    "requires": [],
    "section": "still",
@@ -2197,7 +2200,6 @@
    "help": "Cycle budget for a still action (min).",
    "level": "advanced",
    "limits": {
-    "max": 30,
     "warn_above": 18,
     "why": "battery: minutes awake (Nick 2026-10-01)"
    },
@@ -2225,7 +2227,7 @@
    ],
    "range": [
     1,
-    240
+    30
    ],
    "requires": [],
    "section": "still",
@@ -2548,75 +2550,6 @@
   },
   {
    "apply": "next_action",
-   "blocked_values": [
-    {
-     "value": "",
-     "why": "cannot be sent (wire strings are 1..48 chars): use reset"
-    }
-   ],
-   "choices": null,
-   "default": "",
-   "enum": [
-    "",
-    "auto",
-    "off",
-    "cdn_off",
-    "cdn_fast",
-    "cdn_hq"
-   ],
-   "group": "video.record.encoder",
-   "guard": "none",
-   "guard_when": null,
-   "help": "Denoise ('' = default).",
-   "level": "advanced",
-   "limits": null,
-   "media": null,
-   "nullable": false,
-   "one_shot": false,
-   "path": "video.record.encoder.denoise",
-   "presets": [],
-   "range": null,
-   "requires": [],
-   "section": "video",
-   "short": null,
-   "tier": "control",
-   "tier_reason": null,
-   "type": "enum",
-   "unit": null,
-   "wire_visible": false
-  },
-  {
-   "apply": "next_action",
-   "blocked_values": [],
-   "choices": null,
-   "default": null,
-   "enum": [],
-   "group": "video.record.encoder",
-   "guard": "none",
-   "guard_when": null,
-   "help": "Sharpness 0..16 (null = default).",
-   "level": "advanced",
-   "limits": null,
-   "media": null,
-   "nullable": true,
-   "one_shot": false,
-   "path": "video.record.encoder.sharpness",
-   "presets": [],
-   "range": [
-    0.0,
-    16.0
-   ],
-   "requires": [],
-   "section": "video",
-   "short": null,
-   "tier": "control",
-   "tier_reason": null,
-   "type": "float",
-   "unit": null,
-   "wire_visible": false
-  },
-  {
-   "apply": "next_action",
    "blocked_values": [],
    "choices": null,
    "default": 5.0,
@@ -2720,7 +2653,6 @@
    "help": "Most messages one clip may use.",
    "level": "advanced",
    "limits": {
-    "max": 500,
     "warn_above": 300,
     "why": "cellular cost (Nick 2026-10-01)"
    },
@@ -2731,7 +2663,7 @@
    "presets": [],
    "range": [
     8,
-    1000
+    500
    ],
    "requires": [],
    "section": "video",
@@ -2845,7 +2777,6 @@
    "help": "Cycle budget for a video action (min).",
    "level": "advanced",
    "limits": {
-    "max": 30,
     "warn_above": 18,
     "why": "battery: minutes awake (Nick 2026-10-01)"
    },
@@ -2856,7 +2787,7 @@
    "presets": [],
    "range": [
     1,
-    240
+    30
    ],
    "requires": [],
    "section": "video",
@@ -3770,7 +3701,49 @@
    "wire_visible": false
   }
  ],
- "registry_version": 6,
+ "refresh_gets": [
+  [
+   "uplink",
+   "video.ui"
+  ],
+  [
+   "video.record",
+   "video.logger"
+  ],
+  [
+   "camera.image_processing",
+   "mode"
+  ],
+  [
+   "commands",
+   "camera.focus"
+  ],
+  [
+   "time",
+   "schedule"
+  ],
+  [
+   "video.send",
+   "still"
+  ],
+  [
+   "power",
+   "camera.exposure",
+   "camera.controls_enabled",
+   "camera.backend"
+  ],
+  [
+   "camera.white_balance",
+   "camera.native",
+   "storage",
+   "network"
+  ]
+ ],
+ "registry_version": 7,
+ "retired": {
+  "video.record.encoder.denoise": "camera.image_processing.denoise",
+  "video.record.encoder.sharpness": "camera.image_processing.sharpness"
+ },
  "rules": {
   "interval_min_s": 60,
   "stay_on_requires_reported_true": "power.bus_always_on",
@@ -3798,18 +3771,18 @@
   "camera.focus.mode": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["manual",true],["continuous",true]],
   "camera.focus.range": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["normal",true],["macro",true],["full",true]],
   "camera.focus.speed": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["normal",true],["fast",true]],
-  "camera.image_processing.brightness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,true],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[-1.0,true],[1.0,true],[-1.5,false],[1.5,false]],
-  "camera.image_processing.contrast": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[32.0,true],[-0.5,false],[32.5,false]],
+  "camera.image_processing.brightness": [[null,true],[true,false],[false,false],[0,true],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[-0.25,true],[0.25,true],[-0.75,false],[0.75,false]],
+  "camera.image_processing.contrast": [[null,true],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.5,true],[2.0,true],[0.0,false]],
   "camera.image_processing.denoise": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["off",true],["cdn_off",true],["cdn_fast",true],["cdn_hq",true]],
   "camera.image_processing.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "camera.image_processing.hdr": [[null,true],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["off",true],["sensor",true],["single-exp",true]],
-  "camera.image_processing.saturation": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[32.0,true],[-0.5,false],[32.5,false]],
+  "camera.image_processing.saturation": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[2.0,true],[-0.5,false]],
   "camera.image_processing.sharpness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[16.0,true],[-0.5,false],[16.5,false]],
   "camera.native.height": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[2592,true],[16,true],[6944,true],[15,false],[6945,false]],
   "camera.native.jpeg_quality": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[95,true],[100,true],[101,false]],
   "camera.native.width": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[4608,true],[16,true],[9152,true],[15,false],[9153,false]],
   "camera.white_balance.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "camera.white_balance.gains": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],true],[[1.8,1.6],true],[[1.8,0],false],[[1,2],true],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
+  "camera.white_balance.gains": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],true],[[1.8,0],false],[[1,2],true],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,false],[-0.5,false],[8.5,false]],
   "camera.white_balance.mode": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["daylight",true],["cloudy",true],["indoor",true],["fluorescent",true],["tungsten",true],["incandescent",true],["custom",true],["manual",true]],
   "commands.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "commands.hold_max_min": [[null,false],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[120,true],[240,true],[241,false]],
@@ -3836,9 +3809,9 @@
   "schedule.window.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "schedule.window.end": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",true],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["15:00",true]],
   "schedule.window.start": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",true],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "still.budget_min": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[18,true],[240,true],[241,false]],
+  "still.budget_min": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[18,true],[30,true],[31,false]],
   "still.crop": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],true],[[0,0,4608,2592],true],[[1504,846,1600,900],true],[[-1,0,10,10],false],[[15,13,11,9],true],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "still.message_cap": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[195,true],[2000,true],[2001,false]],
+  "still.message_cap": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[195,true],[500,true],[501,false]],
   "still.output_width": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[1000,true],[16,true],[4608,true],[15,false],[4609,false]],
   "still.quality_ladder": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],true],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "still.save.quality": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[85,true],[95,true],[96,false]],
@@ -3869,27 +3842,25 @@
   "video.record.bitrate_mbps": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[2.0,true],[0.1,true],[25.0,true],[-0.4,false],[25.5,false]],
   "video.record.crop": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],true],[[0,0,4608,2592],true],[[1504,846,1600,900],true],[[-1,0,10,10],false],[[15,13,11,9],true],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.record.dir": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",true],["2026-01-01T00:00:00+00:00",false],["/home/pi/BM_Devel_Pi/videos",true]],
-  "video.record.encoder.denoise": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",true],["x",false],["auto",true],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["off",true],["cdn_off",true],["cdn_fast",true],["cdn_hq",true]],
   "video.record.encoder.intra": [[null,false],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[3000,true],[3001,false]],
   "video.record.encoder.level": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",true],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["4",true],["4.1",true],["4.2",true]],
   "video.record.encoder.profile": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",true],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["baseline",true],["main",true],["high",true]],
-  "video.record.encoder.sharpness": [[null,true],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.0,true],[16.0,true],[-0.5,false],[16.5,false]],
   "video.record.fps": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[15,true],[30,true],[31,false]],
   "video.record.framing": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.record.output": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",true],["481x271",true],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.record.sensor_mode": [[null,true],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
-  "video.send.budget_min": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[18,true],[240,true],[241,false]],
+  "video.send.budget_min": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[18,true],[30,true],[31,false]],
   "video.send.duration_s": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[5.0,true],[1.0,true],[30.0,true],[0.5,false],[30.5,false]],
   "video.send.fps": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[10,true],[30,true],[31,false]],
   "video.send.keyframe_repeat_max": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[30,true],[200,true],[201,false]],
   "video.send.lead_in_s": [[null,false],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[2.0,true],[0.0,true],[10.0,true],[-0.5,false],[10.5,false]],
-  "video.send.message_cap": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[126,true],[8,true],[1000,true],[7,false],[1001,false]],
+  "video.send.message_cap": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[126,true],[8,true],[500,true],[7,false],[501,false]],
   "video.send.size": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",true],["481x271",true],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.send.x264_preset": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["medium",true],["ultrafast",true],["superfast",true],["veryfast",true],["faster",true],["fast",true]],
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "7e9ff7a314d2a18bc87dbe5a175637acefee567ca32748aa237bbc94018bc1aa",
+ "sha256": "4d6d115e626527e613a7e325900afc48ae8ba70427b6cb1d611587386b11a0df",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",

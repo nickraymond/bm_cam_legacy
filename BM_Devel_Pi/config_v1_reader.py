@@ -261,9 +261,13 @@ def read_v1(config_path):
             v["video.record.encoder.profile"] = str(enc["profile"])
             v["video.record.encoder.level"] = str(enc["level"])
             v["video.record.encoder.intra"] = _num(enc["intra"], integer=True)
-            v["video.record.encoder.denoise"] = str(enc["denoise"])
-            v["video.record.encoder.sharpness"] = (None if enc["sharpness"] is None
-                                                   else _num(enc["sharpness"]))
+            # Sprint27 F-G3-4: video.encoder.denoise / sharpness are retired (the v1 video
+            # loader ignores them now); read them RAW here and let R.retire() move them to
+            # camera.image_processing.* below, as the v2 loader does.
+            raw_dn, raw_sh = flat.get("video.encoder.denoise"), flat.get("video.encoder.sharpness")
+            v["video.record.encoder.denoise"] = (None if raw_dn in (None, "")
+                                                 else str(raw_dn).strip().lower())
+            v["video.record.encoder.sharpness"] = None if raw_sh in (None, "") else _num(raw_sh)
             v["video.logger.clip_minutes"] = _num(vid["clip_minutes"])
             v["video.logger.session_minutes"] = _num(vid["session_minutes"], integer=True)
             st, ui = vid["storage"], vid["ui"]
@@ -367,6 +371,13 @@ def read_v1(config_path):
         v["network.default"] = net.get("default", "none")
         v["network.ap_fallback_s"] = int(net.get("ap_fallback_s", 90))
         v["network.ap_timeout_min"] = int(net.get("ap_timeout_min", 60))
+
+    # ---- retired keys (registry v7): move to their new owner or drop, one note each
+    notes = []
+    retired = R.retire(v, notes)
+    v.clear()
+    v.update(retired)
+    out.notes.extend(notes)
 
     # ---- every value must be a valid registry value --------------------------
     for key in R.KEYS:

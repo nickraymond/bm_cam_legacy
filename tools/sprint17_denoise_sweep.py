@@ -168,10 +168,13 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
 
     modes = [m.strip() for m in args.modes.split(",") if m.strip()]
-    bad = [m for m in modes if m not in vr.ENCODER_DENOISE]
+    # Sprint27 F-G3-4: --denoise is owned by camera.image_processing.denoise (the encoder
+    # knob was retired); the names are the registry's (measured on bmcam004).
+    import config_registry as R
+    known = R.BY_PATH["camera.image_processing.denoise"].enum
+    bad = [m for m in modes if m not in known]
     if bad:
-        print(f"[DN][ERROR] unknown denoise mode(s) {bad}; known: "
-              f"{sorted(x for x in vr.ENCODER_DENOISE if x)}")
+        print(f"[DN][ERROR] unknown denoise mode(s) {bad}; known: {list(known)}")
         return 2
 
     print(f"[DN] Sprint17 denoise sweep — {len(modes)} modes x {args.seconds:.0f}s")
@@ -185,15 +188,14 @@ def main():
     rows, argv_by_mode = [], {}
 
     for mode in modes:
-        enc = dict(vcfg["encoder"])
-        enc["denoise"] = "" if mode == "auto" else mode
         sweep_cfg = dict(vcfg)
-        sweep_cfg["encoder"] = enc
+        controls = None if mode == "auto" else {
+            "enabled": True, "image_processing": {"enabled": True, "denoise": mode}}
 
         base = os.path.join(out_dir, mode)
         part, mp4 = base + ".h264", base + ".mp4"
         argv, _ = vr.build_encoder_command(
-            {"capture_backend": "rpicam"}, sweep_cfg, part, binary=encoder)
+            {"capture_backend": "rpicam"}, sweep_cfg, part, binary=encoder, controls=controls)
         argv = list(argv)
         if mode == "auto":
             pass                      # baseline: the flag is genuinely absent

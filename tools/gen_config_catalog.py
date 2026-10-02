@@ -71,8 +71,7 @@ CONTROL_KEYS = (
     "still.budget_min",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
     "video.record.fps", "video.record.bitrate_mbps", "video.record.encoder.profile",
-    "video.record.encoder.level", "video.record.encoder.intra", "video.record.encoder.denoise",
-    "video.record.encoder.sharpness",
+    "video.record.encoder.level", "video.record.encoder.intra",
     "video.send.duration_s", "video.send.lead_in_s", "video.send.fps", "video.send.message_cap",
     "video.send.keyframe_repeat_max", "video.send.size", "video.send.x264_preset",
     "video.send.budget_min",
@@ -122,18 +121,15 @@ BLOCKED_VALUES = {
     "mode.output": (("save_local", "guarded: needs the cfm flow (Next sprint)"),),
 }
 
-# Backend-only clamps tighter than the registry: cellular cost and battery.
-# `max` is refused above, `warn_above` warns. Decided by Nick 2026-10-01 (SPEC Q7):
-# message caps warn > 300 / refuse > 500 (still AND video); budgets warn > 18 /
-# refuse > 30 min; WB gains refuse > 8.0 each.
+# WARNING thresholds only (Sprint27 F-G3-8, Nick 2026-10-02): the hard limit is the registry
+# RANGE, the one source the unit, the backend and the UI all read (config_registry: message
+# caps ..500, budgets ..30 min, WB gains ..8). Nothing here may refuse a value; a test pins
+# every warn_above below its key's range max.
 LIMITS = {
-    "still.message_cap": {"max": 500, "warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
-    "video.send.message_cap": {"max": 500, "warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
-    "still.budget_min": {"max": 30, "warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
-    "video.send.budget_min": {"max": 30, "warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
-    "camera.white_balance.gains": {"max_each": 8.0,
-                                   "why": "no registry upper bound; the gains go straight into "
-                                          "rpicam argv (Nick 2026-10-01)"},
+    "still.message_cap": {"warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
+    "video.send.message_cap": {"warn_above": 300, "why": "cellular cost (Nick 2026-10-01)"},
+    "still.budget_min": {"warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
+    "video.send.budget_min": {"warn_above": 18, "why": "battery: minutes awake (Nick 2026-10-01)"},
     "mode.interval_s": {"warn_below": 600, "why": "below 10 min a stay_on unit is near-continuous "
                                                   "on cellular"},
     "mode.heartbeat_s": {"warn_below": 600, "why": "below 10 min a stay_on unit is near-continuous "
@@ -316,6 +312,101 @@ def _geometry_vectors():
     return out
 
 
+# F-G3-10 (Nick 2026-10-02): the backend confirms a command whose ack was lost when a later
+# <WS>/START carries the EXPECTED post-change config hash. It needs (1) the unit's hash function
+# (config_v2.canonical + sha256, pinned by `hash_selftest`) and (2) every registry key of the
+# base config, which a full refresh fetches: `refresh_gets` = `get` name lists (<= MAX_LIST names,
+# groups allowed) covering EVERY key, each answered in <= REFRESH_MAX_PARTS <CF> parts, sized
+# with the unit's own build_cf on long-valued settings (cap: 3 parts per cellular get, e:big).
+REFRESH_MAX_PARTS = 2
+REFRESH_GROUPS = ("mode", "schedule", "time", "power", "camera.backend", "camera.native",
+                  "camera.controls_enabled", "camera.focus", "camera.white_balance",
+                  "camera.exposure", "camera.image_processing", "still", "video.record",
+                  "video.send", "video.logger", "video.ui", "storage", "uplink.uart",
+                  "uplink.network_type", "uplink.chunk_chars", "uplink.msg_interval_s",
+                  "uplink.lane", "uplink.media_key", "commands", "network")
+
+
+def _sizing_values():
+    """Registry defaults with long values where a key is free text (worst case for a <CF>)."""
+    v = R.defaults()
+    v["mode.media"] = "video"
+    v["schedule.timezone"] = "America/Argentina/ComodRivadavia"
+    v["video.record.framing"] = "stills_roi_1000p"
+    v["video.record.crop"] = [1504, 846, 1600, 900]
+    v["video.record.output"] = "1000x562"
+    v["video.record.sensor_mode"] = "4608x2592"
+    v["camera.white_balance.gains"] = [1.8125, 1.6875]
+    v["camera.image_processing.hdr"] = "single-exp"
+    v["camera.image_processing.denoise"] = "cdn_fast"
+    v["camera.image_processing.sharpness"] = 12.25
+    v["camera.image_processing.contrast"] = 1.875          # widest text inside the F-G3-5 ranges
+    v["camera.image_processing.saturation"] = 1.875
+    v["camera.image_processing.brightness"] = -0.125
+    return v
+
+
+def _refresh_gets():
+    v = _sizing_values()
+
+    def expand(name):
+        return [name] if name in R.BY_PATH else [k.path for k in R.keys_in(name)]
+
+    def parts(names):
+        keys = [p for n in names for p in expand(n)]
+        return len(W.build_cf("0123abcd", [(k, v[k], "c1000000") for k in keys]))
+
+    def size(names):
+        keys = [p for n in names for p in expand(n)]
+        return sum(len(t) for t in W.build_cf("0123abcd", [(k, v[k], "c1000000") for k in keys]))
+
+    # first-fit decreasing: biggest groups first, each into the first get it still fits
+    # a whole top-level group when it fits one get, else its sub-groups / keys (fewer names)
+    groups = []
+    for top in R.groups():
+        subs = [g for g in REFRESH_GROUPS if g == top or g.startswith(top + ".")]
+        groups += [top] if parts([top]) <= REFRESH_MAX_PARTS else subs
+    gets = []
+    for g in sorted(groups, key=lambda g: (-size([g]), groups.index(g))):
+        assert parts([g]) <= REFRESH_MAX_PARTS, g
+        for names in gets:
+            if len(names) < W.MAX_LIST and parts(names + [g]) <= REFRESH_MAX_PARTS:
+                names.append(g)
+                break
+        else:
+            gets.append([g])
+    covered = {p for names in gets for n in names for p in expand(n)}
+    missing = [k.path for k in R.KEYS if k.path not in covered]
+    assert not missing, f"refresh_gets misses {missing}"
+    return gets
+
+
+def _hash_version():
+    import config_v2
+    return config_v2.HASH_VERSION
+
+
+def _hash_vectors():
+    """[{path: value} for EVERY key, config_hash] from the unit's own function."""
+    import config_v2
+    out = []
+    bases = []
+    d = R.defaults()
+    for media in ("still", "video"):
+        b = dict(d)
+        b["mode.media"] = media
+        bases.append(b)
+    bases.append(_sizing_values())
+    b = dict(_sizing_values())
+    b.update({"camera.exposure.ev": -1.0, "still.message_cap": 300, "mode.run": "stay_on",
+              "camera.white_balance.gains": None, "uplink.msg_interval_s": 1.3,
+              "video.record.encoder.profile": "high", "camera.image_processing.hdr": True})
+    bases.append(b)
+    for values in bases:
+        out.append([{k.path: values.get(k.path) for k in R.KEYS}, config_v2.config_hash(values)])
+    return out
+
+
 def build():
     keys = [_key_doc(k) for k in R.KEYS]
     body = {
@@ -354,6 +445,10 @@ def build():
             "stay_on_requires_reported_true": "power.bus_always_on",
         },
         "keys": keys,
+        # registry v7 (Sprint27 F-G3-4): old key -> the key that owns its rpicam option now
+        "retired": dict(R.RETIRED),
+        "hash": {"version": _hash_version(), "selftest": _hash_vectors()},
+        "refresh_gets": _refresh_gets(),
         "selftest": {k.path: _vectors(k) for k in R.KEYS},
         "geometry_selftest": _geometry_vectors(),
     }
@@ -373,6 +468,10 @@ def render():
         tag = f"@@ST:{path}@@"
         compact[tag] = json.dumps(vectors, separators=(",", ":"), ensure_ascii=True)
         pretty["selftest"][path] = tag
+    pretty["hash"] = dict(body["hash"])
+    tag = "@@HV@@"
+    compact[tag] = json.dumps(body["hash"]["selftest"], separators=(",", ":"), ensure_ascii=True)
+    pretty["hash"]["selftest"] = tag
     pretty["geometry_selftest"] = []
     for i, vec in enumerate(body["geometry_selftest"]):
         tag = f"@@GV:{i}@@"

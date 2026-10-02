@@ -77,8 +77,8 @@ DEFAULT_VIDEO_CONFIG = {
         "profile": "",          # baseline|main|high
         "level": "",            # 4|4.1|4.2
         "intra": 0,             # GOP; 0 = encoder default
-        "denoise": "",          # auto|off|cdn_off|cdn_fast|cdn_hq
-        "sharpness": None,      # 0..16, 1.0 = normal
+        # denoise / sharpness RETIRED (Sprint27 F-G3-4): camera.image_processing.* own
+        # --denoise / --sharpness for stills and video (rc_capture camera controls).
     },
     "storage": {
         "max_used_pct": 75.0,   # ring cap primary knob (D-S15-5)
@@ -166,7 +166,6 @@ def validate_video_config(cfg):
 # 2026-08-18. "" means "do not pass the flag" (today's default behaviour).
 ENCODER_PROFILES = {"", "baseline", "main", "high"}
 ENCODER_LEVELS = {"", "4", "4.1", "4.2"}
-ENCODER_DENOISE = {"", "auto", "off", "cdn_off", "cdn_fast", "cdn_hq"}
 
 
 def _validate_encoder_block(enc):
@@ -189,18 +188,6 @@ def _validate_encoder_block(enc):
     enc["intra"] = _parse_number("encoder.intra", enc.get("intra", 0) or 0,
                                  0, 3000, integer=True)
 
-    denoise = str(enc.get("denoise", "") or "").strip().lower()
-    if denoise not in ENCODER_DENOISE:
-        raise ValueError(
-            f"video.encoder.denoise must be one of "
-            f"{sorted(x for x in ENCODER_DENOISE if x)}, got {denoise!r}")
-    enc["denoise"] = denoise
-
-    sharpness = enc.get("sharpness", None)
-    if sharpness in (None, ""):
-        enc["sharpness"] = None
-    else:
-        enc["sharpness"] = _parse_number("encoder.sharpness", sharpness, 0, 16)
     return enc
 
 
@@ -282,9 +269,17 @@ def load_video_config(config_path):
                 continue
 
             if subsection == "encoder":
-                if key in ("profile", "level", "intra", "denoise", "sharpness"):
+                if key in ("profile", "level", "intra"):
                     cfg["encoder"][key] = value
                     saw_key = True
+                elif key in ("denoise", "sharpness"):
+                    # Sprint27 F-G3-4: retired, never a boot failure (a v1 file may still carry it).
+                    # An empty value is silent (it never passed a flag).
+                    if value in (None, "", "null"):
+                        continue
+                    print(f"[VID][WARN] video.encoder.{key} is retired and ignored: set "
+                          f"image_pipeline.camera_controls.image_processing.{key} (v2: "
+                          f"camera.image_processing.{key}) instead")
                 else:
                     print(f"[VID][WARN] unknown key video.encoder.{key} ignored")
                 continue
@@ -316,9 +311,7 @@ def print_video_settings(vcfg):
     enc = vcfg["encoder"]
     if any(v not in (None, "", 0) for v in enc.values()):
         print(f"[VID] encoder knobs: profile={enc['profile'] or 'default'} "
-              f"level={enc['level'] or 'default'} intra={enc['intra'] or 'default'} "
-              f"denoise={enc['denoise'] or 'default'} "
-              f"sharpness={enc['sharpness'] if enc['sharpness'] is not None else 'default'}")
+              f"level={enc['level'] or 'default'} intra={enc['intra'] or 'default'}")
     else:
         print("[VID] encoder knobs: all rpicam-vid defaults")
     st, ui = vcfg["storage"], vcfg["ui"]
@@ -373,7 +366,7 @@ def build_encoder_command(settings, vcfg, h264_path, *, binary=None,
       selected the 1536x864 mode and produced the 1.88x upscale.
     - `--roi` fractions are relative to THAT MODE's field of view, computed by
       video_geometry.crop_to_roi.
-    - encoder knobs (profile/level/intra/denoise/sharpness) are appended only
+    - encoder knobs (profile/level/intra) are appended only
       when set, so an absent block reproduces today's rpicam-vid defaults.
     - `--inline` repeats SPS/PPS headers so the raw .h264.part muxes cleanly
       even when a clip is cut mid-stream.
@@ -410,7 +403,9 @@ def build_encoder_command(settings, vcfg, h264_path, *, binary=None,
 def build_encoder_knob_args(enc):
     """video.encoder -> argv fragments (D-S17-4). Only SET knobs are emitted.
 
-    All five verified present in rpicam-apps v1.12.0 on bmcam000. Note that
+    profile / level / intra (verified in rpicam-apps v1.12.0 on bmcam000). denoise and
+    sharpness were retired here in Sprint27 F-G3-4: camera.image_processing.* own those
+    options (one owner per camera option; a repeated option made rpicam-vid exit 255). Note that
     `--qp` is NOT among them — it does not exist in this build, and the libav
     path that would offer constant-quality encoding is not compiled in
     (libav:0), so constant quality is out of reach without moving video to
@@ -423,10 +418,6 @@ def build_encoder_knob_args(enc):
         args += ["--level", str(enc["level"])]
     if enc.get("intra"):
         args += ["--intra", str(int(enc["intra"]))]
-    if enc.get("denoise"):
-        args += ["--denoise", str(enc["denoise"])]
-    if enc.get("sharpness") is not None:
-        args += ["--sharpness", str(enc["sharpness"])]
     return args
 
 

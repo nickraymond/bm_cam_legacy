@@ -186,29 +186,8 @@ FIELDS = [
         "help": "Sets the video field of view, sensor readout and recorded "
                 "size together.",
     },
-    {
-        "key": "video.encoder.denoise",
-        "label": "Video noise reduction (engineering)",
-        "kind": "choice",
-        "quote": True,
-        "choices": [("", "Camera default"),
-                    ("cdn_off", "Off — keep all detail and all noise"),
-                    ("cdn_fast", "Fast"),
-                    ("cdn_hq", "High quality — slowest, cleanest")],
-        "help": "Colour denoise mode. Likely the biggest lever for murky or "
-                "particulate-heavy water; untested underwater as of Sprint17.",
-    },
-    {
-        "key": "video.encoder.sharpness",
-        "label": "Video sharpness (engineering)",
-        "kind": "choice",
-        "choices": [("1.0", "1.0 — normal (camera default)"),
-                    ("0.0", "0.0 — none"),
-                    ("1.5", "1.5 — moderate"),
-                    ("2.0", "2.0 — strong")],
-        "help": "ISP sharpening applied before encoding. Over-sharpening "
-                "makes compression work harder for no real detail.",
-    },
+    # video.encoder.denoise / .sharpness removed (Sprint27 F-G3-4: retired; the camera
+    # controls camera.image_processing.* own --denoise / --sharpness now).
     {
         "key": "video.encoder.profile",
         "label": "H.264 profile (engineering)",
@@ -277,8 +256,6 @@ _APPLIES = {
     "video.bitrate_mbps": ("video",),
     "video.session_minutes": ("video",),
     "video.preset": ("video",),
-    "video.encoder.denoise": ("video",),
-    "video.encoder.sharpness": ("video",),
     "video.encoder.profile": ("video",),
     "video.encoder.level": ("video",),
     "video.encoder.intra": ("video",),
@@ -293,8 +270,7 @@ for _field in FIELDS:
     _field["applies"] = _APPLIES.get(_field["key"], BOTH_MODES)
 
 # Engineering knobs live behind the "Advanced" disclosure on the page.
-ADVANCED_KEYS = ("video.encoder.denoise", "video.encoder.sharpness",
-                 "video.encoder.profile", "video.encoder.level",
+ADVANCED_KEYS = ("video.encoder.profile", "video.encoder.level",
                  "video.encoder.intra", "video.storage.ring_dry_run")
 
 # Page grouping (customer-facing order). Keys absent from the current

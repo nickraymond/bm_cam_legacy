@@ -40,9 +40,6 @@ Rules added in Sprint27 (strict + effective; SPEC §3.4, REVIEW_r1 row 1):
     (video_geometry.resolve_geometry, the loader's own check)
   - mode.media video: video.send.size even, >= 16x16, not larger than the
     recording output
-  - video / video_logger with image processing on: an image-processing denoise /
-    sharpness and the matching video.record.encoder knob are not both set
-    (rpicam-vid refuses the repeated option; measured, Sprint27 P0)
 
 Example:
   python3 -c "import config_validate as V, config_registry as R; \\
@@ -284,37 +281,9 @@ def _rule_video_send_size(values):
     return []
 
 
-# Camera controls and encoder knobs that emit the SAME rpicam-vid option (rc_capture image
-# processing vs video_recorder.build_encoder_knob_args). Measured on bmcam004 (Sprint27 P0):
-# a repeated option exits 255 "cannot be specified more than once", 0 bytes.
-VIDEO_DUPLICATE_FLAGS = (("camera.image_processing.denoise", "video.record.encoder.denoise", "--denoise"),
-                         ("camera.image_processing.sharpness", "video.record.encoder.sharpness",
-                          "--sharpness"))
-
-
-def _rule_video_duplicate_flags(values):
-    """Sprint27: on a video unit, an image-processing control and the matching encoder knob
-    may not both be set: rpicam-vid refuses the repeated option and the clip is lost (the
-    video retry without camera controls would save it, but without ANY control)."""
-    if values.get("mode.media") not in ("video", "video_logger"):
-        return []
-    if values.get("camera.controls_enabled") is not True or \
-            values.get("camera.image_processing.enabled") is not True:
-        return []
-    out = []
-    for ip_key, enc_key, flag in VIDEO_DUPLICATE_FLAGS:
-        if values.get(ip_key) is not None and values.get(enc_key) not in (None, ""):
-            out.append(Violation("xk", (ip_key, enc_key, "camera.image_processing.enabled",
-                                        "camera.controls_enabled", "mode.media"),
-                                 f"{ip_key} and {enc_key} would both pass {flag} to rpicam-vid, which "
-                                 "refuses a repeated option: set one of them"))
-    return out
-
-
 def s4_rules(values):
     return (_rule_manual_wb(values) + _rule_video_crop(values) + _rule_video_cap_floor(values)
-            + _rule_video_geometry(values) + _rule_video_send_size(values)
-            + _rule_video_duplicate_flags(values))
+            + _rule_video_geometry(values) + _rule_video_send_size(values))
 
 
 def validate(values, scope="effective", env=None):
