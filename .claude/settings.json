@@ -7,7 +7,9 @@
       "Bash(python3 hil/tools/hil_*)",
       "Bash(ssh pi@bmcam003 *)",
       "Bash(ssh pi@bmcam004 *)",
-      "Bash(ssh pi@192.168.1.45 *)"
+      "Bash(ssh pi@192.168.1.45 *)",
+      "Bash(hil/tools/test_hil_*)",
+      "Bash(bash hil/tools/test_hil_*)"
     ]
   }
 }
