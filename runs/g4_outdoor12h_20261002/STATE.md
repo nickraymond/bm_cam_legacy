@@ -117,3 +117,14 @@ items immediately; ≤ 5 bullets to Nick.
   on EVEN hours from 06:00. Phase-2 T = **08:00Z**, second video wake 10:00Z → **phase 3 at ~10:20Z** (EM told;
   EM raises heal cap to 48/day then).
 - trg: 004 armed at 06:06 for 07:00; 003's trg/still/cap not yet delivered by Sofar at 06:12.
+
+## 11. After G4 (updated 2026-10-03 18:15Z)
+
+- All sessions stopped ~10:22–17:30Z (observer gap). Phase 3 never ran; EM put it on hold. G4 verdict FAIL:
+  `RESULTS.md` (4935663). New defect: trg clip captured but NOT sent (budget reserve counted twice).
+- Nick (via EM, ~10:45 PDT): R1 ships on G1–G4; no G5 before ship. Rigs split: A = reliability A/B (:15 vs :00 bus
+  start), B = Sprint28 JPEG-XL R0. Plan sent to the EM 18:15Z (swap recommended: A = bmcam004/SPOT-31593C,
+  B = bmcam003/SPOT-33507C). **Nothing changed on either rig; waiting for Nick's OK on the plan.**
+- Units now: hourly production, cap 126 overlay, cron armed. Alternator timer still installed on nereus000 but idle
+  (past --until): remove it before the rig work. Watcher and caffeinate not running.
+- :15 start = `ticksSamplingEnabled 1` + a timed commit (no offset key in bm_protocol); needs Nick's bridge OK in chat.
