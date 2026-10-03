@@ -1,6 +1,7 @@
-# Sprint28: RAW → JPEG XL stills from the IMX708 bm cameras to the backend (SPEC, r1)
+# Sprint28: RAW → JPEG XL stills from the IMX708 bm cameras to the backend (SPEC, r2)
 
-Status: **r1 draft** (2026-10-02), written desk-only during the R1 gates G4/G5. The build starts
+Status: **r2** (2026-10-02). r1 was reviewed by an independent fresh-context reviewer (§12), and all
+findings are applied. Written desk-only during the R1 gates G4/G5. The build starts
 Mon 2026-10-05, after the R1 ship decision (Sun 10/4). Nick decided on 2026-10-01 (option A) that this is
 its own sprint after R1.
 Author: Claude session "Sprint28 RAW→JXL spec". Coordinator: the EM session "Engineering Manager
@@ -27,7 +28,8 @@ without one is marked **ASSUMPTION** or **ESTIMATE**.
 | The 6.4 s is **4 `cjxl` runs (one per 800×450 plane), single-threaded, at a distance picked on the Mac**. No on-device rate search. The distance that hit 50 kB ranged **3.62–4.85** over the 4 frame sets | `phase2/pi_bench.py` `run_planes`; results.csv `knob` |
 | Crop sweep at a fixed 50 kB (D2 = modular, **effort 7, encoded on the Mac**): stress ΔE worse-lamp air / water: 1600×900 0.14/0.17 · 2400×1350 0.25/0.30 · 3600×2024 **0.45/0.55** · full frame 0.56*/0.81. AprilTags 4/4 at every size | REPORT "How big a crop fits 50 kB?", `crop_sweep.py` |
 | Pi time and memory for crops **above** 1600×900: **not measured**. The full 12 MP in modular e7 does not fit in a 250 MB cap; VarDCT e7 takes 127–142 s | REPORT Phase 2 table |
-| hydrium (H, standard JPEG XL VarDCT, our patched BSD-2 C build, linear-light input): **1.3 s** for the IMX708 field crop at 50 kB on the Pi Zero 2 W. Its Pi peak RSS is **not in the REPORT**. The ~1.3 MB figure is the OpenMV board heap | REPORT "hydrium vs wl53" (last paragraph of the cost table) |
+| hydrium (H, standard JPEG XL VarDCT, our patched BSD-2 C build, linear-light input): **1.3 s** for the IMX708 field crop at 50 kB on the Pi Zero 2 W. Its Pi peak RSS was **not measured**. Memory figures in the REPORT: desk study "~2.2 MB, flat"; OpenMV board heap ~1.3 MB | REPORT "hydrium vs wl53" (cost table, last paragraph), desk table (`REPORT.md:84`) |
+| wl53 (our 5/3 wavelet + Rice coder, W): Pi Zero 2 W **0.36 s, 2.7 MB** for the field crop at 50 kB; stress ΔE 0.10 vs D2 0.11 there. Not standard JPEG XL: only our own decoder reads it. Breaks down above 2400×1350 at 50 kB | REPORT wl53 tables (`REPORT.md:111, 122`), crop sweep |
 | Raw capture `rpicam-still -n --immediate --raw` (DNG + JPEG) = 5.9 s on nereus002 (a Pi Zero 2 W) | REPORT Phase 2 table; `pi_bench.py --capture` |
 | **No real-water data.** "Underwater" = red ×0.14 / blue ×0.8 thinning at capture under LEDs. The pool test is specified (`docs/SPEC_pool_codec_test.md`) but has not been run | REPORT "Not tested / limits" |
 | Toolchain of the study: cjxl/djxl libjxl **v0.11.1** on the Mac | `results/versions.json` |
@@ -36,14 +38,17 @@ without one is marked **ASSUMPTION** or **ESTIMATE**.
 
 | fact | source |
 |---|---|
-| Production still capture = one `rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata … -o native.jpg`, with a retry ladder (without `-n`, without `--metadata`, without camera controls) | `BM_Devel_Pi/rc_capture.py:588-700` |
+| Production still capture = one `rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata … -o native.jpg`. The retry ladder drops only `-n`, `--metadata` and the camera controls, and accepts on rc 0 plus a non-empty JPEG. There are 4 attempts, each with a 30 s watchdog and a 60 s delay between attempts, and each failure sends WS `cap_rc` / `cap_timeout` / `retry` | `BM_Devel_Pi/rc_capture.py:174-180, 588-800` |
 | Then: in-process crop + lanczos to `still.output_width` (prep ~2.4 s) → progressive-JPEG quality ladder against the message cap (encode ≤ 0.06 s) → transmit | `rc_progressive_jpeg.py:1-45`; Sprint08 spec line 132 |
-| Capture 4.8–5.3 s (incl. the 2 s AE timeout). **CMA is the binding constraint: CmaFree bottoms at 1.9 MB during the native capture with `cma=128M`**. "Never run concurrent CMA users." Peak RSS of the encode ~123 MB; MemAvailable ≥ 180 MB | `sprints/Sprint07_pi_jpeg_validation.md:58, 148-154` |
+| Capture 4.8–5.3 s (incl. the 2 s AE timeout). **CMA is the binding constraint: CmaFree bottoms at 1.9 MB during the native capture with `cma=128M`**. "Never run concurrent CMA users." Peak RSS of the encode ~123 MB; MemAvailable ≥ 180 MB. Measured on **bmcam000, Bullseye, `libcamera-still`**, 2026-07-24. Not re-measured on trixie / rpicam on 003/004 | `sprints/Sprint07_pi_jpeg_validation.md:58, 99, 146-154` |
 | `still.crop` default `[1504, 846, 1600, 900]` (native px), `still.output_width` 1000 (→ 1000×562), `still.quality_ladder` [15,13,11,9], `still.message_cap` 195 (range 1..500), `still.budget_min` 18 (1..30) | `config_registry.py:261-286` |
 | `REGISTRY_VERSION = 7` | `config_registry.py:39` |
 | **Chunk size:** registry default `uplink.chunk_chars` 300 (= 225 raw B). **The deployed units run 384 chars = 288 raw B** (bmcam003/004 pulled configs, bmcam001 profile). This spec computes with **288 B** and shows 225 B where it matters | `config_registry.py:362`; `runs/s4a_soak_20260928/pulled/bmcam00{3,4}_camera_config.yaml:115`; `device_profiles/bmcam001/camera_schedule.yaml:146` |
 | Pacing 1.3 s/msg (Sprint25, decided for bmcam003/004); bmcam001 runs 1.0 s | `device_profiles/bmcam003/camera_schedule.yaml:145`; memory note Sprint25 |
-| Still wake on the bench: bus on → capture +30..+40 s → START at **+57 s**. Bus off at +600 s (production 10 min/hour); listen tail 150 s; halt margin 30 s (ASSUMPTION in Sprint26) | `sprints/Sprint25_transmit_timing_resend/RESULTS.md:19, 52`; `sprints/Sprint26_bus_window_transmit/SPEC.md` §3-4 |
+| Wake timing on the bench, **video cycles** (record + fit, not stills): bus on → START at **+57..+66 s**, bus on for 592 s in that run. Production bus: 10 min/hour; listen tail 150 s; halt margin 30 s (ASSUMPTION in Sprint26). **No still-cycle START time is recorded**; R0/R4 measure it | `sprints/Sprint25_transmit_timing_resend/RESULTS.md:18-23`; `sprints/Sprint26_bus_window_transmit/SPEC.md` §3-4 |
+| **No bus deadline in the code:** the Sprint26 §5 deadline design was not built. The cycle budget is `still.budget_min × 60` from process start (**8 min = 480 s** on bmcam003/004), and the process starts at ~+21 s. Halt before bus off is measured, never enforced | `runs/s4a_soak_20260928/pulled/bmcam003_camera_config.yaml:73`; Sprint26 SPEC §3, §5 |
+| Heal slot: up to 40 heal chunks go out **before** START on a wake that has heals (≈ 52 s at 1.3 s/msg) | `rc_heal.py:53`; Sprint26 SPEC §2 |
+| `uplink.network_type` 1 (Iridium fallback) is allowed for stills; the bench units run 2 (cellular only) | `config_registry.py:359-361`; pulled config `:114` |
 | Heal: ≤ 40 chunks per wake (camera) and per command (backend), 8 heals per command, heal cap 24/day per Spotter (production) | `rc_heal.py:53`; nvd `heal_commands.py:43-44`; RELEASE_PLAN §2a |
 | START: `fmt=` is a core RC field (never dropped), START payload budget 285 B; video already sends `fmt=h264` | `rc_uplink_messages.py:15-30, 60-70, 110` |
 | rpicam `--metadata` carries `ColourGains` [2], `ColourCorrectionMatrix` [9], `SensorBlackLevels` [4096×4] (16-bit scale = 64 at 10 bits), `ScalerCrop`, `SensorTemperature` | `runs/sprint10_phaseB_20260727/*capture_metadata.json` |
@@ -55,8 +60,9 @@ without one is marked **ASSUMPTION** or **ESTIMATE**.
 | fact | source |
 |---|---|
 | START `fmt` is a loose key. Video iff `fmt ∈ {"h264"}`. Everything else is an image. Content type, extension and `MediaFormat` follow the **sniffed** bytes (JPEG, PNG, HEIC, Annex-B), not `fmt` | `services/bm_image_parser.py:23, 28-29, 315, 340-342`; `services/poll_once_ingest.py:503, 535-580` |
-| Unknown fmt today: not flagged (`format_disagreement` returns `[]`, contrary to the wire contract), `MediaFormat` falls back to **heic**, `normalize_filename` rewrites the extension to `.jpg` | `bm_image_parser.py:361-363`; `poll_once_ingest.py:547`; `bm_image_parser.py:201-202`; `docs/bm_media_wire_contract.md:44-45` |
-| New fmt values are added to `docs/bm_media_wire_contract.md` first | contract `:35-45` |
+| Unknown fmt today: not flagged (`format_disagreement` returns `[]`, contrary to the wire contract). `MediaFormat` follows the filename extension: **jpeg** for a `.jpg` name, **heic** as the last fallback. `normalize_filename` rewrites any extension outside `ALLOWED_EXTS` to `.jpg` | `bm_image_parser.py:201-202, 361-363`; `poll_once_ingest.py:535-547`; `backend/docs/bm_media_wire_contract.md:44-45` |
+| New fmt values are added to `backend/docs/bm_media_wire_contract.md` first | contract `:35-45` |
+| Gallery "renderable" for images = complete **or** has a `display_key`, served as `display_key or r2_key`. Videos need a `display_key`. Processing enqueues complete images without checking `display_key`; inference falls back to `r2_key` | nvd `main.py:150-158, 1000-1007`; `processing/enqueue.py:25-37`; `services/inference/worker.py:89-92` |
 | Keyed grouping (`<I{key}.{n}/{M}>`) only runs with `BM_KEYED_GROUPING` on (code default off; the staging value is not verified here). Heal needs keyed media | `bm_image_parser.py:641-650`; `heal_commands.py:159-217` |
 | Partial images: the decodable prefix (chunks 0..first gap) is rendered as a truncated JPEG preview | `bm_image_parser.py:465-472`; `poll_once_ingest.py:1324-1337` |
 | Storage: R2 original `{device}/bm_sofar/{Y/m/d}/…{sha16}.{ext}`, display JPEG q90 `{parent}/display/{stem}.jpg`, variants `{parent}/variants/{stem}__{proc}.jpg` | `poll_once_ingest.py:583-595`; `image_derivatives.py:36-43, 198, 247-258` |
@@ -75,6 +81,8 @@ without one is marked **ASSUMPTION** or **ESTIMATE**.
 3. **The 6.4 s D2 time uses a fixed distance chosen offline.** Hitting a byte target on the unit needs
    a distance ladder or search, so time = 6.4 s × attempts (§3.5).
 4. **Crop-sweep quality beyond 1600×900 was measured with e7 on the Mac.** Zero time/RSS there is unknown.
+5. **The only measured bench wake timings are from video cycles**, and the binding limit on a still wake
+   today is the 8-min cycle budget, not the 10-min bus window (§0.2).
 
 ---
 
@@ -96,7 +104,7 @@ and this sprint does not block on it.
 
 ```text
 UNIT (per_boot wake, bus 10 min)
- rpicam-still … --raw ─▶ native.jpg (today) + native.dng (new, ~24 MB, SD)
+ rpicam-still … [+ --raw iff nrjxl] ─▶ native.jpg (today) + native.dng (new, ~24 MB, SD)
    │                         │
    │  [A] today's path        │  [B] new, only if still.format = nrjxl
    ▼                         ▼
@@ -122,15 +130,29 @@ hard time and memory cap. The wake always has a sendable payload.
 ### 3.1 Capture path (MVP now)
 
 - **Production path, one capture:** the existing `_run_native_full_capture` command plus `--raw`, which
-  writes `native.dng` next to `native.jpg` from the **same exposure**. Picamera2 is rejected for
+  writes `native.dng` next to `native.jpg` from the **same exposure**. **Only when
+  `still.format = nrjxl`**: a pjpg unit runs today's exact command and code path. Picamera2 is rejected for
   the MVP: it is a different capture path with different buffers (CLAUDE.md "Camera path matters").
-- **Fallback, MVP now:** if the `--raw` command fails or leaves no DNG, the existing retry ladder
-  runs the **exact pre-Sprint28 command** (no `--raw`) and the wake continues on path [A] with
-  `rfb=cap`. A RAW problem can never cost the JPEG.
-- **CMA risk (main hardware unknown):** the native capture already leaves only 1.9 MB CmaFree
-  (Sprint07). Whether `--raw` needs more CMA on bmcam003/004 is **unknown**. nereus002 captured with
-  `--raw` fine, but its `cma=` is not recorded. **R0 measures CmaFree min with and without `--raw`
-  before any code ships to a unit.** If `--raw` fails at `cma=128M`, the options in order of risk:
+- **Fallback, MVP now. The existing retry ladder must NOT carry `--raw`.** Every rung of that
+  ladder keeps every other argument, accepts on rc 0 plus a JPEG, and never checks for a DNG. A
+  hanging `--raw` would cost 4 × (30 s watchdog) + 3 × 60 s ≈ 300 s, could end with no JPEG, and
+  would send WS capture-failure messages (§0.2). So:
+  1. **One RAW attempt:** the production command + `--raw`, one 30 s watchdog, no retries, no WS
+     status on failure (a log line only).
+  2. On a non-zero rc, a timeout, a missing / empty JPEG **or** a missing / empty DNG: delete the
+     partial files and call the **unchanged pre-Sprint28 `_run_native_full_capture`** at once. That
+     is today's command, ladder and WS behaviour. Path [A] continues with `rfb=cap`.
+  3. If the RAW attempt gave a JPEG but no DNG, the JPEG is still used (no second capture). This
+     saves ~5 s and a CMA cycle.
+
+  Worst case: a hanging `--raw` costs 30 s before today's capture starts. Desk tests cover a
+  hanging, failing and DNG-less `--raw` with a fake runner. **A RAW problem can never cost the JPEG.**
+- **CMA risk (main hardware unknown):** the native capture already left only 1.9 MB CmaFree in
+  Sprint07 (bmcam000, Bullseye, `libcamera-still`; not re-measured on trixie / rpicam). Whether
+  `--raw` needs more CMA on bmcam003/004 is **unknown**. nereus002 captured with `--raw` fine, but
+  its `cma=` is not recorded. **R0 measures CmaFree min with and without `--raw`, with the Sprint07
+  sampling method, before any code ships to a unit.** If `--raw` fails at `cma=128M`, the options in
+  order of risk:
   1. `--buffer-count 1` (rpicam option; effect on CMA unmeasured);
   2. raise `cma=` (a `/boot` change: backup + restore command, Nick's OK via the EM);
   3. stop and re-plan. Decision at the S3 gate.
@@ -138,6 +160,9 @@ hard time and memory cap. The wake always has a sendable payload.
   writes at 24 wakes, ESTIMATE). Not `/dev/shm`: it is RAM on a 415 MB board, and the RemoveIPC
   wipe applies there (`runs/render_dir_vanish_20261001/`). `still.raw.keep_crop` (§3.7) keeps only
   the crop (2.9 MB at 1600×900) for the outdoor test.
+- **Orphan sweep:** a crash or power cut mid-encode leaves a 24 MB DNG. Every still action deletes
+  `*.dng` / `*.pgm` work files older than the current action from the capture dir before it
+  captures, logged with a count. The stills storage guard then sees the true free space.
 - **Time:** the DNG write adds an unmeasured amount to today's 4.8–5.3 s capture. The study's 5.9 s
   was on a different unit and command, so it is not a delta. R0 measures it.
 
@@ -147,8 +172,9 @@ hard time and memory cap. The wake always has a sendable payload.
   (PhotometricInterpretation 32803; IFD0 or a SubIFD), read only the crop rows by seek. That is
   1600×900×2 B = 2.9 MB, not 24 MB.
 - Read `CFAPattern`, `BlackLevel`, `WhiteLevel` and `BitsPerSample` from the tags. **Fail loudly**
-  on compressed data, a LinearizationTable, a non-2×2 or non-RGB CFA, or a per-position black
-  level. These are the rig reader's refusals (`raw_io.read_dng`).
+  on compressed data, a LinearizationTable, a non-2×2 or non-RGB CFA, a per-position black
+  level, or an `ActiveArea` with an odd origin. These are the rig reader's refusals
+  (`raw_io.read_dng`, `:242`). An even `ActiveArea` offsets the crop, and the reader applies it.
 - Expected values for the IMX708: black 64, white 1023 at 10 bits. These are an ASSUMPTION from
   `SensorBlackLevels` 4096 at 16-bit scale and the study's `bits=10`. The reader takes them from
   the tags, never from constants.
@@ -163,6 +189,10 @@ hard time and memory cap. The wake always has a sendable payload.
   (this keeps the CFA phase; the registry accepts odd values today) and w × h ≤ `RAW_MAX_PX`.
 - `RAW_MAX_PX` = 1600×900 until R0 measures larger crops on the Zero. 2400×1350 is unlocked only by
   a measured R0 row (§7.2). Default crop: **Q1**.
+- Two existing `still.crop` presets have an **odd y** and would be refused with nrjxl:
+  "1000x562 max detail" `[1804, 1015, …]` and "800x450 reef A" `[1904, 1071, …]`
+  (`config_registry.py:268-269`). S1 moves each y down by 1 to 1014 / 1070. That is a 1-px shift
+  for pjpg users of those presets, stated in the PR.
 - Coordinate systems (CLAUDE.md §12):
   - `still.crop` and the header `crop_x/crop_y` are **native sensor px**.
   - Plane px = crop px / 2.
@@ -197,18 +227,34 @@ hard time and memory cap. The wake always has a sendable payload.
 the deploy. hydrium is a strong fast path (5× faster, better block colour), but it adds a vendored
 C build to the unit deploy. It joins only if R0 shows cjxl over the time cap at the chosen crop.
 
+**wl53 is rejected for the backend link, although it is fastest** (0.36 s, 2.7 MB, the same colour at
+1600×900):
+- its bytes are readable only by our own decoder, so there is no independent decoder for the §4.10
+  cross-check and no stock tool for customers;
+- it breaks down above 2400×1350 at 50 kB (§0.1).
+
+It stays the study's OpenMV fallback.
+
 **Rate control:** a **distance ladder**, as the JPEG quality ladder works today:
 - `still.raw.distances`, ≤ 4 rungs, low → high. The defaults come from the S0 Mac calibration on the
   study frames for the default crop. The 50 kB distance spread was 3.62–4.85.
-- Encode all 4 planes at rung 1. If the container fits `budget_bytes = (cap_chunks) × 288`, stop.
-  Else try the next rung.
+- Encode all 4 planes at rung 1. If the container fits `budget_bytes`, stop. Else try the next rung.
+  `budget_bytes = (budget_chunks) × uplink.chunk_chars × 3 / 4`; that is 288 B per chunk on the
+  deployed units, derived, never hard-coded. `budget_chunks` is the same message budget the pjpg
+  selector uses: `still.message_cap` and the cycle budget's `messages_fit`, with START/END
+  reserved.
 - Each rung ≈ 6.4 s at 1600×900, so 3 rungs ≈ 19 s. `att=` records the attempts.
 - An optional speed-up, decided in S1 and not required: estimate from the first plane's size and skip
   rungs.
 
 **Guards:**
-- Every `cjxl` runs as a child with `RLIMIT_AS` 250 MB and `oom_score_adj` 1000, as in the study's
-  `pi_bench.child`. An overrun kills the encoder, never the supervisor.
+- Every `cjxl` runs as `cjxl in.pgm out.jxl -m 1 -e <effort> -d <distance> --num_threads=0`.
+  `--num_threads=0` is the measured setting (`pi_bench.py:196-197`). The default thread pool
+  changes time and RSS, and on 64-bit glibc its per-thread arenas could hit `RLIMIT_AS` and
+  cause false `rfb=mem` results. Encoding the 4 planes in parallel processes is an unmeasured
+  option (S0/R0 may test it; not MVP).
+- Each child gets `RLIMIT_AS` 250 MB and `oom_score_adj` 1000, as in the study's `pi_bench.child`.
+  An overrun kills the encoder, never the supervisor.
 - A wall-clock cap of `still.raw.encode_max_s` per image (default 30 s) applies on top of the existing
   `CycleBudget` check.
 - No concurrent CMA user: the encode starts after `rpicam-still` has exited.
@@ -226,8 +272,18 @@ On a fallback, the pjpg START also carries `rfb=<code>` as a core field. The cod
 | `mem` | killed (RLIMIT / OOM) |
 | `time` | encode cap reached |
 | `fit` | no rung fits the budget |
+| `err` | anything else in path [B] (catch-all, §6) |
 
-A unit with `still.format = pjpg` sends exactly today's bytes: golden traces unchanged.
+With `still.format = pjpg`, the unit behaves as today, but the bytes are not identical. The v8 keys
+change the config hash, so `cfg=` / `h=` change in every trace. This is the F-G3-4 precedent
+(`tests/golden/README.md:181`). The 23 golden traces are re-recorded. The gate: they differ **only**
+in `cfg=` / `h=`, checked byte-for-byte with the hashes masked. Deploy then needs `/refresh`, as after
+F-G3-4.
+
+**Filename on the wire:** nrjxl stills are named `<timestamp>_image.nrjxl`, not `_image.jpg`. The
+backend's extension witness and `_media_format_for_image` read the extension (§0.3); a `.jpg` name
+would be flagged by `format_disagreement` and stored as jpeg. `.nrjxl` goes into the contract table
+and `ALLOWED_EXTS` (§4).
 
 **No bounded partial `nrjxl` send in the MVP.** A prefix of 4 concatenated planes renders nothing. If no
 rung fits, the wake sends the JPEG (`rfb=fit`). So `nrjxl` is always `cmp=1`.
@@ -262,14 +318,28 @@ The header is ~80 B (ESTIMATE), < 0.2 % of 50 kB. The keyed sent record keeps th
 | key | type / range | default | tier (Sprint27) | why |
 |---|---|---|---|---|
 | `still.format` | ENUM `pjpg` / `nrjxl` | `pjpg` | **control** | the switch; per unit, from the UI |
-| `still.raw.distances` | LADDER, ≤ 4 floats in 0.1..15 | from S0 | engineering | rate rungs |
-| `still.raw.effort` | INT 1..7 | 5 | engineering | 5 measured on the Zero |
-| `still.raw.encode_max_s` | INT 5..120 | 30 | engineering | per-image time cap |
-| `still.raw.keep_crop` | BOOL | false | engineering | keep the raw crop (2.9 MB as PGM) + the pjpg built that wake for paired analysis (storage guard applies) |
+| `still.raw.distances` | LADDER, ≤ 4 floats in 0.1..15 | from S0 | **control** | rate rungs; the bench forces fallbacks with it |
+| `still.raw.encode_max_s` | INT 5..120 | 30 | **control** | per-image time cap; R3 forces `rfb=time` with it |
+| `still.raw.keep_crop` | BOOL | false | **control** | keep the raw crop (2.9 MB as PGM) + the pjpg built that wake for paired analysis (storage guard applies) |
+| `still.raw.effort` | INT 1..7 | 5 | engineering (read-only) | 5 is the measured setting on the Zero; not a bench knob |
+
+Why control and not engineering:
+- Sprint27 engineering keys are read-only, and the backend refuses a `set` of them as `not_writable`
+  (Sprint27 SPEC §2.1, §2.3).
+- `hil_change.sh` goes through that backend plan. The ladder's forced fallbacks (R3), its restore
+  and O1's `keep_crop` need these keys writable.
+- Each has a registry range, and per Sprint27 §9.6 the range is the limit everywhere.
 
 Camera rules (in `config_validate`, same scope as the Sprint27 rules):
 - `_rule_raw_crop`: even crop, ≤ `RAW_MAX_PX`.
 - `_rule_raw_keyed`: `still.format = nrjxl` needs `uplink.media_key.enabled` (heal needs keyed media).
+- `_rule_raw_cellular`: `still.format = nrjxl` needs `uplink.network_type = 2`. Iridium is refused
+  because a lost chunk there leaves no image at all.
+
+Backend: the device view warns when `still.format = nrjxl` is reported, or a change sets it, while
+the Spotter's `self_heal` is off or its `link` is not cellular (`rollout.gateway_allows`). The
+reason: an nrjxl with a missing chunk renders **nothing**, while a pjpg still shows a prefix
+preview. Healing is the only recovery.
 
 Then:
 - regenerate `docs/bmcam_config_catalog.json` and vendor it into nvd;
@@ -281,26 +351,44 @@ ENUM needs no frontend code.
 **Rollout:** per unit through remote config (`set still.format=nrjxl`). There is no new per-Spotter
 column in the MVP. The backend always accepts `nrjxl`, and receiving it changes nothing for other units.
 
-### 3.8 Wake budget (production 10-min bus, 1.3 s/msg, 288 B/chunk)
+### 3.8 Wake budget (production 10-min bus, 8-min cycle budget, 1.3 s/msg, 288 B/chunk)
 
-| segment | pjpg today | nrjxl at 1600×900 | source |
+There is no still-cycle timing on 003/004. The pjpg column is built from Sprint07 / 08 component
+times plus the video-cycle boot marks; everything in the nrjxl column is an ESTIMATE until R0 / R4.
+
+| segment | pjpg (ESTIMATE from parts) | nrjxl at 1600×900 (ESTIMATE) | source |
 |---|---|---|---|
-| bus on → capture | +30..+40 s | same | Sprint25 RESULTS |
-| capture | 4.8–5.3 s | + DNG write (unmeasured, R0) | Sprint07 |
+| bus on → `main()` | ~+21 s | same | Sprint26 §3 (video cycles) |
+| Spotter UTC read → capture | ~+23..+30 s | same | Sprint26 §3 |
+| capture | 4.8–5.3 s | + DNG write (unmeasured, R0) | Sprint07 (bmcam000) |
 | JPEG prep + ladder | ~2.5 s | same (fallback is built first) | Sprint08 |
-| DNG crop + split + LUT | — | < 1 s (ESTIMATE) | §3.2-3.4 |
+| DNG crop + split + LUT | — | < 1 s | §3.2-3.4 |
 | cjxl | — | 6.4 s × rungs (1–3) | REPORT |
-| START | +57 s | **+65..+80 s** (ESTIMATE) | — |
+| heal slot (wakes with heals only) | ≤ 40 chunks ≈ 52 s | same | `rc_heal.py:53` |
+| START (no heals) | ~+40..+45 s | **~+50..+70 s** | — |
 | burst, 50 kB | — | 176 msgs = 229 s | arithmetic |
-| END → tail 150 s → halt | — | ~+455 s ≤ +570 s (bus off 600 − 30 margin) | Sprint26 |
+| END → tail 150 s → halt | — | ~+430..+450 s | — |
 
-Room left: from START +80 s, (600 − 30 − 150 − 80) / 1.3 − 2 ≈ **259 chunks ≈ 75 kB** per wake.
+The binding limits are both checked; the tighter one wins:
+- **Cycle budget:** 480 s from process start (≈ +21 s) → ends ≈ +501 s. Whether the 150 s tail is
+  reserved inside it is not verified (ASSUMPTION: it is). From START at +70 s: (501 − 70 − 150) / 1.3 − 2
+  ≈ **214 chunks ≈ 62 kB**.
+- **Bus window:** off at +600 s, halt by +570 s. From +70 s: (570 − 150 − 70) / 1.3 − 2 ≈ 267 chunks.
+  Not binding while `budget_min` = 8.
+- **Wake with a heal slot (−52 s):** ≈ **174 chunks ≈ 50 kB** under the 8-min budget. **50 kB is the
+  largest size that fits every wake.** On heal wakes the encoder's rung walk sees a smaller
+  `budget_chunks` and steps down, or falls back with `rfb=fit`.
+- **:05 boundary:** a 229 s burst from START +50..+70 s ends at ~+280..+300 s. That is at or past the
+  :05 grid boundary when the bus is anchored at :00. Sprint26 §4 point 2: stills lose chunks at
+  that boundary (no keyframe repeat), and the lane planner (`uplink.lane.*`) decides. Lost chunks
+  become heals: they count against the 24/day cap and are measured in R4 / O1 (heals per image).
 
 ---
 
 ## 4. Backend (nvd, PR into `staging`)
 
-1. **Wire contract first:** add `fmt=nrjxl` (and the `rfb` codes) to `docs/bm_media_wire_contract.md`.
+1. **Wire contract first:** add `fmt=nrjxl`, the `.nrjxl` filename extension and the `rfb` codes to
+   `backend/docs/bm_media_wire_contract.md`.
 2. **Parser:**
    - add `nrjxl` to `_FORMAT_FAMILY`;
    - `sniff_format` recognises `b"NR"` + method byte 14 (or 19 = hydrium, Next sprint) → `nrjxl`;
@@ -334,10 +422,18 @@ Room left: from START +80 s, (600 − 30 − 150 − 80) / 1.3 − 2 ≈ **259 c
    - ASSUMPTION: its manylinux wheel ships libjxl and returns uint16 for 12-bit grey. S0 verifies this
      on the Mac and in a Render-like Debian 12 container (local docker; no Render change).
    - Fallback candidate: `pillow-jxl-plugin`. The choice is recorded at the S0 gate.
-7. **Processing:** for `format = nrjxl`, the worker reads `display_key` (the render), not `r2_key`. This
-   is a one-rule change plus a test. Inference already prefers `display_key`.
+7. **Processing and inference: never the raw original.**
+   - Processing: for `format = nrjxl`, the worker reads `display_key`, not `r2_key`, and
+     `eligible_media_filter` excludes nrjxl rows without a `display_key`. Otherwise a failed render
+     would burn 3 failed jobs, the case the contract already records.
+   - Inference: drop the `r2_key` fallback for nrjxl.
+   - Tests for both rules.
 8. **Gallery:**
-   - It shows `image_url` as today, so nothing breaks.
+   - **Renderable rule:** nrjxl is treated like video, `renderable = bool(display_key)`. Today an image
+     is renderable when it is complete, and is served `display_key or r2_key`. A complete nrjxl
+     without a render (render failure, or the kill switch on) would serve the `.nrjxl` bytes as an
+     `<img>`. With the rule it shows "no preview" plus the download link.
+   - Otherwise it shows `image_url` as today.
    - Small additions: a "RAW·JXL" badge and a "download original" link (presigned `r2_key`).
    - The UI session reviews the change.
 9. **MVP stretch:** the card-corrected variant `raw_card_v1`:
@@ -356,8 +452,8 @@ Room left: from START +80 s, (600 − 30 − 150 − 80) / 1.3 − 2 ≈ **259 c
     - also run the rig's `raw_planes.decode` on the same blobs. The mosaic must equal the production
       decode's mosaic.
 
-Kill switch: env `BM_NRJXL_RENDER=0` skips the render (the original is still stored, and the row shows "no
-preview"). Global env stays kill-switch only (RELEASE_PLAN rollout ruling).
+Kill switch: env `BM_NRJXL_RENDER=0` skips the render. The original is still stored, and through the
+item 8 rule the row shows "no preview". Global env stays kill-switch only (RELEASE_PLAN rollout ruling).
 
 ---
 
@@ -365,15 +461,22 @@ preview"). Global env stays kill-switch only (RELEASE_PLAN rollout ruling).
 
 ### 5.1 Bytes → messages → minutes
 
-| payload | chunks | burst | fits one production wake (≤ ~259 chunks)? | at 225 B/chunk |
-|---|---|---|---|---|
-| 44 kB (today's typical cap region) | 153 | 202 s | yes | 196 chunks |
-| **50 kB (study budget)** | **174** | **229 s** | **yes** | 223 |
-| 56 kB (= today's 195-chunk cap) | 195 | 256 s | yes | 249 |
-| 65 kB | 226 | 296 s | yes | 289 |
-| 75 kB | 261 | 342 s | borderline | 334 |
-| 113 kB | 393 | 514 s | no (2 wakes) | 503 |
-| 144 kB (registry max 500) | 500 | 653 s | no: longer than the whole window | 640 |
+Fit columns use §3.8: ≤ 214 chunks on a wake without heals, ≤ 174 with a full heal slot, under
+today's 8-min cycle budget.
+
+| payload | chunks | burst | fits, no heals | fits, heal wake | at 225 B/chunk |
+|---|---|---|---|---|---|
+| 44 kB | 153 | 202 s | yes | yes | 196 chunks |
+| **50 kB (study budget)** | **174** | **229 s** | **yes** | **yes (limit)** | 223 |
+| 56 kB (= today's 195-chunk cap) | 195 | 256 s | yes | no | 249 |
+| 62 kB | 214 | 281 s | limit | no | 276 |
+| 75 kB | 261 | 342 s | no at 8 min (yes at `budget_min` ≥ 9) | no | 334 |
+| 112.5 kB (2400×1350 at 0.278 bpp) | 391 | 511 s | no | no | 500 |
+| 144 kB (registry max 500) | 500 | 653 s | no: longer than the whole window | no | 640 |
+
+Anything above 56 kB also needs `still.message_cap` > 195 (and above 300 the catalog warns). That cap
+is shared with the pjpg fallback, so raising it lets the fallback JPEG grow too. Say so in any change
+that raises it.
 
 ### 5.2 Crop vs bytes
 
@@ -385,11 +488,13 @@ bits per sensor px) are an ASSUMPTION: constant bpp ≈ constant quality, which 
 |---|---|---|---|---|---|
 | 1600×900 | 1× | 0.14 / 0.17 | 50 kB | 174 | 1 |
 | 2000×1124 | 1.6× | 0.17 / 0.20 | 78 kB | 272 | 2 |
-| 2400×1350 | 2.25× | 0.25 / 0.30 | 113 kB | 391 | 2 |
-| 3600×2024 | 5× | 0.45 / 0.55 | 253 kB | 880 | 4 |
-| 4608×2592 | 8.3× | 0.56* / 0.81 | 415 kB | 1442 | 6 |
+| 2400×1350 | 2.25× | 0.25 / 0.30 | 112.5 kB | 391 | 2 |
+| 3600×2024 | 5× | 0.45 / 0.55 | 253 kB | 879 | 5 |
+| 4608×2592 | 8.3× | 0.56* / 0.81 | 415 kB | 1442 | 7 |
 
-Reading: within one wake, the choice is **bigger crop at 50–75 kB with more colour error** (2400×1350
+Wakes = ceil(chunks / 214), the no-heal limit under the 8-min budget (§3.8).
+
+Reading: within one wake, the choice is **bigger crop at ≤ 50–62 kB with more colour error** (2400×1350
 stays at 0.25–0.30, still half of today's JPEG at 1600×900) or **same crop, better colour**. Q1 decides
 the default.
 
@@ -397,8 +502,11 @@ the default.
 
 - **Idea:** replace `*.message_cap` as the user knob with a per-Spotter **transmit window**: minutes, or
   unlimited for field testing.
-- **Derivation:** `budget_chunks = floor(window_s / uplink.msg_interval_s) − 2`. This is Sprint26 §5.2's
-  formula, which was never built.
+- **Derivation (window as burst time):** `budget_chunks = floor(window_s / uplink.msg_interval_s) − 2`
+  (START + END). It is bounded by the wake itself, which is Sprint26 §5.2's formula,
+  `floor((deadline − now − tail − heal_slot) / pacing) − envelope − repeat`. That formula needs a bus
+  deadline, which **does not exist in the code today**: the cycle budget is `budget_min × 60` (§0.2).
+  So the window knob and the Sprint26 deadline go together.
 
 | window | chunks at 1.3 s | kB at 288 B | kB at 225 B |
 |---|---|---|---|
@@ -423,7 +531,7 @@ It touches pjpg and video on the R1 units too, so it is its own change with its 
 | option | how | cost |
 |---|---|---|
 | a. never (MVP) | pick a rung that fits one wake, else send the JPEG | none |
-| b. heals carry the tail | send `cmp=0` with the first ~259 chunks; the backend re-requests the rest at 40 chunks per wake | a 391-chunk image needs ≥ 4 more wakes and 4 heal commands. That uses heal budget (24/day per Spotter) meant for losses, and each heal waits for command latency (94 s to 20+ min indoors). Abuses the heal path |
+| b. heals carry the tail | send `cmp=0` with the first ~214 chunks; the backend re-requests the rest at 40 chunks per wake | a 391-chunk image leaves 177 chunks: ≥ 5 more wakes and 5 heal commands. That uses heal budget (24/day per Spotter) meant for losses, and each heal waits for command latency (94 s to 20+ min indoors). Abuses the heal path |
 | c. camera carry-over | the next wake sends the remaining keyed chunks (`<I{key}.{n}/{M}>`, from the sent record) before its own capture; the backend already merges keyed chunks across wakes | ~1 day camera work + a ladder; no heal budget; a skipped wake delays the image by one hour |
 
 Recommendation: **(a) now, (c) Next sprint** if Nick wants crops above ~2000×1124 at full quality.
@@ -443,7 +551,12 @@ It needs a plane-order change to the container.
 | encode over `encode_max_s` or the cycle budget | wall clock | pjpg | `rfb=time` |
 | no rung fits the budget | bytes | pjpg | `rfb=fit` |
 | bad config (odd crop, too big, keyed off) | `config_validate` at `set` / boot / deploy | `e:xk`, nothing stored | ack |
-| backend cannot render | render raises | original kept, row "no preview", logged | — |
+| anything else in path [B] (numpy missing, ENOSPC / IOError on the DNG or PGM, metadata JSON missing → no WB/CCM params, an unexpected exception) | one `try` around all of path [B] | pjpg | `rfb=err` (the `reason_code` convention, `rc_uplink_messages.py:47-56`) |
+| backend cannot render | render raises | original kept, row "no preview" (§4.8 rule), logged, not enqueued for processing | — |
+
+After any failed RAW attempt, the pjpg selector **runs again** against the remaining budget before
+sending, because time has passed since the fallback was built. That is the same `select_quality` call
+as today.
 
 ---
 
@@ -459,7 +572,9 @@ bm (`tests/test_s28_*`):
   the params round-trip;
 - rung walk + caps with a fake runner (fits at rung 1 / 2 / none, timeout, RLIMIT kill, missing binary);
 - the fallback matrix row by row, each ending in a pjpg send;
-- START goldens for `nrjxl` and every `rfb`, plus the existing 23 traces unchanged with `still.format=pjpg`;
+- START goldens for `nrjxl` and every `rfb`, plus the existing 23 traces re-recorded with `still.format=pjpg`: they differ only in `cfg=` / `h=` (compared with the hashes masked, §3.6);
+- capture: a hanging, failing and DNG-less `--raw` each lead to today's unchanged capture call and a pjpg, with no WS capture-failure message for the RAW attempt (§3.1);
+- orphan sweep removes old `*.dng` / `*.pgm` work files (§3.1);
 - registry v8 / catalog / rule parity tests.
 
 Mac end-to-end: the production module on the study DNGs → blob → rig decoder → stress ΔE within
@@ -483,24 +598,28 @@ The six HIL-ready items (`hil/README.md` §1):
 | 1 | Spec | this §7.2 (moved to `sprints/Sprint28_raw_jxl/LADDER.md` with the code) |
 | 2 | Code ref | the merged Sprint28 commit on `development`. Check: `grep -n nrjxl ~/BM_Devel_Pi/rc_uplink_messages.py` and `cjxl --version` on the unit |
 | 3 | Criteria | the table below |
-| 4 | Inputs | R1–R3 console lane via `hil_change.sh`; R4 Sofar lane via `hil_sofar_change.sh`; written out below |
+| 4 | Inputs | R0: manual `rpicam-still` / `cjxl` over ssh (commands in `LADDER.md`), cron backed up first. R1–R3: console lane via `hil_change.sh`. R4: Sofar lane via `hil_sofar_change.sh`. All `still.*` keys used are control tier (§3.7), so both go through the backend plan. Each kv is written out in the row below |
 | 5 | Restore | `{"reset":["still.format","still.raw.distances","still.raw.encode_max_s","still.raw.keep_crop"]}` → `get` hash == the pre-test hash; crontab restored from backup; R0 test files deleted |
 | 6 | Budget | R0–R3 ~3 h, 0 cellular. R4 12 h, ~12 × 176 messages (same as pjpg). Nick: none (the bench is already wired) |
 
-Unit: bmcam003 (SPOT-33507C) first; bmcam004 joins at R4 only if R0 passes on it too.
+Units: R0 runs on **both** bmcam003 (SPOT-33507C) and bmcam004 (SPOT-31593C); each row has a per-unit verdict. R1–R3 run on bmcam003. bmcam004 joins at R4 only if its own R0 rows PASS.
 
 | id | criterion | PASS when | evidence |
 |---|---|---|---|
-| R0.1 | raw capture works at the unit's CMA | 10/10 `--raw` captures produce DNG + JPEG; CmaFree min recorded, > 0, no capture error in dmesg | `analysis/r0_capture.csv`, `pulled/cma_samples.csv` |
+| R0.1 | raw capture works at the unit's CMA | 10/10 `--raw` captures produce DNG + JPEG; no capture error in dmesg; **CmaFree min ≥ 1 MB**, sampled from `/proc/meminfo` every 0.1 s through each capture (the Sprint07 `cma_samples.csv` method); baseline min without `--raw` recorded beside it | `analysis/r0_capture.csv`, `pulled/cma_samples.csv` |
 | R0.2 | capture time cost | median(`--raw`) − median(no `--raw`) recorded; ≤ 3 s | `analysis/r0_capture.csv` |
 | R0.3 | encode on the unit | cjxl e5 at the default crop, 10 runs: median ≤ 10 s per rung, peak RSS ≤ 60 MB; 2400×1350: recorded (unlocks `RAW_MAX_PX` only if ≤ 20 s and ≤ 120 MB) | `analysis/r0_encode.csv` |
 | R0.4 | tools present | cjxl version, numpy import, free SD recorded | `snapshots/` |
 | R1.1 | console lane, one nrjxl still | START `fmt=nrjxl`; reassembled console bytes sha256 == sent record sha256; rig decoder decodes it | `console/`, `analysis/r1_decode.json` |
 | R2.1 | backend | media row `format=nrjxl`, complete, display JPEG present; jxl-oxide == production decode | `api/`, `analysis/r2_parity.json` |
-| R3.1 | forced fallbacks | `encode_max_s=5` with a 1-rung ladder at a distance that cannot fit (→ `rfb=fit` or `time`): the pjpg arrives complete; odd crop → `e:xk`, nothing stored | `commands.log`, `api/` |
+| R3.1 | forced `time` | `set {"still.format":"nrjxl","still.raw.encode_max_s":5}`, then `trg` still. One rung takes ~6.4 s > 5 s → START `fmt=pjpg rfb=time`, and the pjpg arrives complete | `commands.log`, `console/`, `api/` |
+| R3.2 | forced `fit` | `set {"still.raw.distances":[0.3],"still.raw.encode_max_s":60}`, then `trg` still. Distance 0.3 is near-lossless, far above the budget (ESTIMATE; S0 confirms its size on the Mac) → `rfb=fit`, and the pjpg arrives complete | same |
+| R3.3 | refused config | `set {"still.crop":[1505,846,1600,900]}` with nrjxl on → ack `e:xk`, `get` hash unchanged | `commands.log` |
+| R3.4 | other `rfb` codes | `cap`, `dng`, `enc`, `mem`, `err` are **N/A on hardware** (forcing them needs edits on the unit); covered by the §7.1 fake-runner tests | §7.1 test log |
 | R4.1 | production wakes | 12/12 wakes deliver an image (nrjxl or pjpg) complete ≤ 3 h, 0 redundant heals | `api/media_*.json` |
 | R4.2 | wake fits the window | halt uptime ≤ 570 s on 12/12 | `pulled/` cycle logs |
 | R4.3 | fallback rate | ≤ 1/12 wakes fall back | START `rfb` count |
+| R4.4 | still START time | uptime at START recorded per wake (no-heal and heal wakes separately); feeds §3.8 r3 | cycle logs |
 
 R0 uses the camera manually: back up crontab, check for running camera processes, restore after
 (CLAUDE.md §15). R0 is the only step that can change a unit's `/boot` (only if CMA forces it), and
@@ -530,7 +649,8 @@ only with Nick's OK via the EM.
 | O1.5 | time to complete | median capture → complete ≤ the G5 pjpg median + 2 min | backend |
 | O1.6 | fallback | ≤ 5 % of wakes; 100 % of fallbacks complete | START `rfb` |
 | O1.7 | window | halt before bus off on 100 % of wakes | cycle logs / Spotter SD |
-| O1.8 | energy | ΔJ per wake vs G5 **reported** (no threshold agreed) | Spotter SD logs |
+| O1.8 | energy | **N/A (agreed: reported, not gated)**: ΔJ per wake vs G5 from the Spotter SD logs, for Nick's decision | `analysis/o1_energy.csv` |
+| O1.9 | heal cost | heals per nrjxl image and per day recorded; ≤ 24/day per Spotter (production cap) | backend heal log |
 
 Plus Nick's eye on a before-after page (skill `before-after-report`): today's pjpg vs nrjxl neutral
 render vs nrjxl card render, at the same bytes. The neutral render will **not** match today's JPEG look.
@@ -543,8 +663,8 @@ expected; the review is about colour and detail, not look.
 
 | stage | what | who | ESTIMATE | gate (all must hold) |
 |---|---|---|---|---|
-| **S0** desk (Mon 10/5) | Mac: distance rungs for the default crop; crop × bytes grid (50/65/75/113 kB); container v1 frozen; decoder candidate verified in a Debian 12 container; hydrium Pi RSS from the rig data if present | this session | 1 d | rungs + `RAW_MAX_PX` proposal + decoder choice written into this SPEC (r2) |
-| **S1** camera (Tue–Wed) | `rc_raw_jxl.py`, still_action integration (JPEG first), START fields, registry v8 + rules + catalog, tests | bm dev session | 2 d | §7.1 bm suite green; Mac end-to-end within ±0.02 ΔE of the study; pjpg goldens unchanged |
+| **S0** desk (Mon 10/5) | Mac: distance rungs for the default crop; crop × bytes grid (50/62/75/112.5 kB); container v1 frozen; decoder candidate verified in a Debian 12 container; hydrium Pi RSS from the rig data if present | this session | 1 d | rungs + `RAW_MAX_PX` proposal + decoder choice written into this SPEC (r3) |
+| **S1** camera (Tue–Wed) | `rc_raw_jxl.py`, still_action integration (JPEG first), START fields, registry v8 + rules + catalog, tests | bm dev session | 2 d | §7.1 bm suite green; Mac end-to-end within ±0.02 ΔE of the study; pjpg traces differ only in `cfg=` / `h=` (hashes masked) |
 | **S2** backend (Tue–Wed, parallel) | contract, parser / sniff, migration 0020, ingest, `raw_render`, processing rule, gallery badge + download, tests | nvd session | 2 d | §7.1 nvd suite green; jxl-oxide parity; damaged streams fail loudly; no pjpg / h264 regression |
 | **S2b** stretch | `raw_card_v1` variant | nvd session | 0.5 d | patch ΔE on fixtures within ±0.05 of the rig's card correction |
 | **S3** bench R0–R3 | after the TE hands the bench over | Test Engineer | 0.5 d | R0–R3 rows PASS (R0 fail = stop, re-plan with the EM) |
@@ -612,3 +732,21 @@ and the box. The desk stages S0–S2 do not.
 - The neutral render's look vs the ISP JPEG (§7.3).
 - Energy per wake is reported, not gated.
 - All times except the study's Pi rows and Sprint07/25/26 are ESTIMATES until R0.
+
+---
+
+## 12. Review record (r1 → r2, 2026-10-02)
+
+An independent reviewer (fresh context) spot-checked ~35 cited values against the three repos. The
+mismatches and design holes it found are all applied here:
+
+| # | finding | where fixed |
+|---|---|---|
+| 1 | the capture retry ladder would carry `--raw` (≈ 300 s hang, possibly no JPEG, false WS capture errors) | §3.1: single RAW attempt, then today's unchanged capture |
+| 2 | engineering-tier keys are read-only, so R3, the restore and `keep_crop` could not run | §3.7: `still.raw.distances` / `encode_max_s` / `keep_crop` are control tier |
+| 3 | a failed render would serve the `.nrjxl` bytes in the gallery and feed processing / inference | §4.7-4.8: renderable = has a render; nrjxl without a render excluded |
+| 4 | "pjpg goldens unchanged" is impossible (the v8 keys change the hash) | §3.6, §7.1, §8: re-record; only `cfg=` / `h=` differ |
+| 5-7, 15 | heal slot, video-only timings, the 8-min cycle budget, the :05 boundary, the misquoted Sprint26 formula | §0.2, §3.8, §5.1, §5.3 |
+| 8-14, 16 | CMA provenance + threshold, `--num_threads=0`, wl53 rejection, `.nrjxl` filename, `rfb=err` catch-all, odd-y presets, Iridium / self_heal rules, orphan DNG sweep | §0.2, §3.1, §3.3, §3.5-3.7, §6, §7.2 |
+| 17-22 | contract path, hydrium memory wording, chunk arithmetic, derived chunk size, HIL determinism, `ActiveArea` | throughout |
+
