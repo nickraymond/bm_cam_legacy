@@ -10,3 +10,7 @@ RED 04:14:20 alternator service not clean (Result / REFUSED count): exit-code 2
 2026-10-03T05:14:07Z alt service: success 0 
 WAKE SPOT-33507C 2026-10-03T05:00: bus 04:59:59→05:09:59 | Pi 05:00:03→05:08:23 (wake→halt 504 s) | START len 182 END sent - burst - s | queue_full 20 | heal cmds 1 | nereus000 wifi yes:Ford:73
 WAKE SPOT-31593C 2026-10-03T05:00: bus 04:59:58→05:09:58 | Pi 05:00:03→05:08:23 (wake→halt 505 s) | START len 183 END sent - burst - s | queue_full 66 | heal cmds 1 | nereus000 wifi yes:Ford:72
+2026-10-03T06:14:18Z alt: [('BMCAM_003', 'media_command', 'still', 200), ('BMCAM_004', 'media_command', 'still', 200), ('BMCAM_003', 'trg_command', None, 200), ('BMCAM_004', 'trg_command', None, 200)]
+2026-10-03T06:14:19Z alt service: success 0 
+WAKE SPOT-33507C 2026-10-03T06:00: bus 05:59:59→06:09:59 | Pi 06:00:13→06:08:23 (wake→halt 504 s) | START len 190 END sent 190 burst 291.6 s | queue_full 5 | heal cmds 1 | nereus000 wifi yes:Ford:63
+WAKE SPOT-31593C 2026-10-03T06:00: bus 05:59:58→06:09:58 | Pi 06:00:03→06:08:23 (wake→halt 505 s) | START len 184 END sent 25 burst 51.4 s | queue_full 114 | heal cmds 1 | nereus000 wifi yes:Ford:68
