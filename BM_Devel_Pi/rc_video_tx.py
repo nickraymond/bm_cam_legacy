@@ -515,6 +515,11 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     if result["refused_reason"]:
         print(f"[VTX][ERROR] clip NOT sent — {result['refused_reason']}. The recording is "
               f"on the SD card: {clip['mp4']}")
+        if supervised is not None and result["refused_reason"].startswith("budget"):
+            # R1 G4 finding 5: say so on the existing <WS> line (a=skip_err, as
+            # for storage_full) so a trg's capture does not vanish silently.
+            # Legacy (unsupervised) cycle: unchanged, sends nothing (as W3).
+            _status_line(settings, vtx, wake_fn, "skip_err", "budget")
     else:
         print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
               f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "

@@ -292,11 +292,17 @@ def transmit_video_clip(
     form, no gid) and the same pacing pattern (sleep after START and after
     every chunk, not after END).
 
-    A clip that does not fit the remaining budget is REFUSED before START —
-    never truncated silently (the encoder already sized it; not fitting here
-    means the budget moved). Once started, the per-chunk guard still keeps
-    room for END, so a stall closes the group honestly with
-    sent_buffers < length and the backend stores a partial clip.
+    A clip whose START + chunks + END do not fit the remaining budget is
+    REFUSED before START — never truncated silently. The keyframe repeat is NOT
+    part of that check (R1 G4 finding 5): the caller already reserved room for
+    it when it sized the clip, and the fit (prescale + 2-pass encode, ~5-10 s on
+    a Pi Zero 2W) spends part of that reserve before we get here. Demanding the
+    full repeat again refused budget-sized trg clips that fit
+    (`clip needs 136 paced messages, 130 fit`). The repeat is best-effort: its
+    own per-copy guard below sends what still fits and `repeated` says how many.
+    Once started, the per-chunk guard still keeps room for END, so a stall
+    closes the group honestly with sent_buffers < length and the backend stores
+    a partial clip.
 
     Returns {planned, sent, started, complete_send, repeated, repeat_sent,
              refused_reason, uart_duration_sec}. repeat_sent = the WHOLE keyframe
@@ -324,12 +330,18 @@ def transmit_video_clip(
     if planned < 1:
         result["refused_reason"] = "empty_payload"
         return result
-    needed = planned + keyframe_chunks + VIDEO_ENVELOPE_MSGS
+    # Only the clip itself must fit (START + chunks + END); the keyframe repeat
+    # takes what is left (G4 finding 5: the reserve was counted twice).
+    needed = planned + VIDEO_ENVELOPE_MSGS
     if not budget.messages_fit(needed):
         result["refused_reason"] = (
             f"budget: clip needs {needed} paced messages, "
             f"{budget.max_messages_now()} fit in the {budget.remaining_s():.0f}s left")
         return result
+    if not budget.messages_fit(needed + keyframe_chunks):
+        print(f"[VTX][WARN] keyframe repeat trimmed: {budget.max_messages_now()} paced "
+              f"messages fit, the clip needs {needed} + {keyframe_chunks} repeat; "
+              f"sending the clip, repeating what still fits")
 
     if current_timestamp is None:
         current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

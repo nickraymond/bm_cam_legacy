@@ -108,11 +108,21 @@ class TestTransmitVideoClip(unittest.TestCase):
         self.assertEqual(result["repeated"], 8)
 
     def test_refused_before_start_when_budget_cannot_hold_it(self):
+        # Only START + chunks + END must fit (R1 G4 finding 5); the repeat is optional.
         result, wire = send(_read("payload.h264"), keyframe_chunks=8,
-                            budget_s=126 + 8 + VIDEO_ENVELOPE_MSGS - 1)
+                            budget_s=126 + VIDEO_ENVELOPE_MSGS - 1)
         self.assertEqual(wire, [])
         self.assertFalse(result["started"])
-        self.assertIn("budget: clip needs 136", result["refused_reason"])
+        self.assertIn("budget: clip needs 128", result["refused_reason"])
+
+    def test_short_of_the_full_repeat_sends_the_clip_and_trims_the_repeat(self):
+        # Before G4 finding 5 this budget refused the whole clip ("needs 136").
+        result, wire = send(_read("payload.h264"), keyframe_chunks=8,
+                            budget_s=126 + 8 + VIDEO_ENVELOPE_MSGS - 1)
+        self.assertIsNone(result["refused_reason"])
+        self.assertTrue(result["complete_send"] and not result["repeat_sent"])
+        self.assertEqual(result["repeated"], 7)
+        self.assertTrue(wire[-1].startswith(b"<END IMG> ") and b"sent_buffers: 126" in wire[-1])
 
     def test_stall_mid_send_closes_with_an_honest_end(self):
         clk, wire = FakeClock(), []
