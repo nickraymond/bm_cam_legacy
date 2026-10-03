@@ -19,7 +19,7 @@ and, AFTER END, one status line per key per wake:
 Rules
   - Only with the command daemon running (no daemon = no pending list = the
     cycle's wire is unchanged).
-  - <= HEAL_CAP_PER_WAKE (40) chunks per wake, newest heal first, and never the
+  - <= heal.max_chunks_per_wake (registry, default 40) chunks per wake, newest heal first, and never the
     room the new capture needs: before each heal chunk the budget must still hold
     that chunk + the capture's whole burst (`reserve_msgs`, the caller's count
     incl. START/END and the keyframe repeat).
@@ -50,7 +50,11 @@ import time
 
 import rc_media_key
 
-HEAL_CAP_PER_WAKE = 40
+import config_registry as _R
+
+# The registry default; the unit's configured value rides on the daemon (daemon.heal_cap, set from
+# bm_commands.heal_max_chunks_per_wake by rc_command_hooks.default_daemon_factory).
+HEAL_CAP_PER_WAKE = _R.BY_PATH["heal.max_chunks_per_wake"].default
 HL_PRIORITY = {"sent": 3, "dropped": 2, "refused": 1, "requested": 0}
 
 
@@ -284,7 +288,7 @@ class WakeHeals:
         return sent
 
 
-def begin_wake(daemon, settings, summary, pump_fn=None, cap=HEAL_CAP_PER_WAKE):
+def begin_wake(daemon, settings, summary, pump_fn=None, cap=None):
     """WakeHeals for this wake, or None without a daemon. Pumps pending commands first
     (pump-only: persists, touches no wire) so an rsd that arrived early in the wake is
     planned now instead of next wake. Never raises."""
@@ -296,6 +300,8 @@ def begin_wake(daemon, settings, summary, pump_fn=None, cap=HEAL_CAP_PER_WAKE):
             summary.setdefault("command_events", []).extend(e["action"] for e in drain())  # S4 b.7
         if pump_fn is not None:
             pump_fn()
+        if cap is None:
+            cap = int(getattr(daemon, "heal_cap", HEAL_CAP_PER_WAKE) or HEAL_CAP_PER_WAKE)
         return WakeHeals(daemon, _sent_dir(settings), summary, cap=cap, pump_fn=pump_fn)
     except Exception as exc:
         print(f"[HEAL][WARN] heal planning failed ({exc}); no heals this wake")

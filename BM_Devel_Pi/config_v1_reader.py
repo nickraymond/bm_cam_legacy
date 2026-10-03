@@ -359,6 +359,7 @@ def read_v1(config_path):
         v["commands.enabled"] = bool(bmc["enabled"])
         v["commands.topic"] = bmc["topic"]
         v["commands.listen_tail_s"] = _num(bmc["post_transmit_listen_s"])
+        v["heal.max_chunks_per_wake"] = int(bmc["heal_max_chunks_per_wake"])   # default 40 when absent
         if bmc["defer_acks_during_transmit"]:
             p.append("bm_commands.defer_acks_during_transmit is true: v2 has no key for it "
                      "until W2 (S3) makes it always on; a human must decide")

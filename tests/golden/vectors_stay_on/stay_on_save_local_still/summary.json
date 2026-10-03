@@ -147,12 +147,12 @@
  "fake_clock_elapsed_s": 1900.2,
  "files": {
   "camera_config.lkg.json": {
-   "bytes": 3192,
+   "bytes": 3222,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2446,
-   "sha256": "6f0c89d88a9591ad"
+   "bytes": 2478,
+   "sha256": "75d78325770fae1d"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -295,8 +295,8 @@
    "sha256": "49401993375a0f77"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2233,
-   "sha256": "0e7e9d3cffa224d0"
+   "bytes": 2264,
+   "sha256": "627b88d08c9d9747"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 500,

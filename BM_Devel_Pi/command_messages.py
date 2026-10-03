@@ -69,7 +69,11 @@ MAX_COMMAND_ID = 2**32 - 1
 
 # rsd (Sprint25 S5, tables v8; SPEC_resend_heal.md §5). Limits are per command.
 RSD_MAX_HEALS = 8        # 270 B Sofar cap holds ~6-8 heals (spec §0c S2b record)
-RSD_MAX_CHUNKS = 40      # per command AND per wake to start (spec §0b Q1; ceiling 60)
+# The most chunks one rsd command may ask for = the registry ceiling of heal.max_chunks_per_wake
+# (one source, Nick 2026-10-02). A command above the unit's configured per-wake value is still
+# accepted: the excess waits for the next wake (rc_heal), it is never refused.
+import config_registry as _R
+RSD_MAX_CHUNKS = _R.BY_PATH["heal.max_chunks_per_wake"].range[1]
 RE_MEDIA_KEY = re.compile(r"^[0-9a-z]{6}$")
 RE_RANGES = re.compile(r"^\d+(-\d+)?(,\d+(-\d+)?)*$")
 

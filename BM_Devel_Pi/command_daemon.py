@@ -85,6 +85,8 @@ DEFAULT_BM_COMMANDS_CONFIG = {
     "post_transmit_listen_s": 150.0,   # C4/D6 tail; ~0.017 Wh at ~0.5 W
     "defer_acks_during_transmit": False,   # C3/D5; off == Sprint10 wire
     "state_path": None,             # None -> command_state.py default
+    # heal size, one source: config_registry heal.max_chunks_per_wake (the v2 render writes it)
+    "heal_max_chunks_per_wake": 40,
 }
 
 # Rolling raw-buffer size for the clock pattern-scan — same 4 KB bound
@@ -169,6 +171,14 @@ def load_bm_commands_config(config_path):
     cfg["defer_acks_during_transmit"] = bool(
         island.get("defer_acks_during_transmit",
                    cfg["defer_acks_during_transmit"]))
+    try:
+        cap = island.get("heal_max_chunks_per_wake", cfg["heal_max_chunks_per_wake"])
+        if isinstance(cap, bool) or int(cap) != float(cap) or int(cap) < 1:
+            raise ValueError(repr(cap))
+        cfg["heal_max_chunks_per_wake"] = int(cap)
+    except (TypeError, ValueError) as exc:
+        print(f"[CMD][WARN] bm_commands.heal_max_chunks_per_wake invalid ({exc}); "
+              f"using {cfg['heal_max_chunks_per_wake']}")
     state_path = island.get("state_path", cfg["state_path"])
     if state_path is None or (isinstance(state_path, str) and state_path):
         cfg["state_path"] = state_path

@@ -129,7 +129,7 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
     # S4 c.2: on the v9 path (a V9State) the dispatcher answers help/get; the v8
     # help/cfg renderer (command_help + the v8 bindings) is not built.
     v9 = getattr(state, "is_v9", False) is True
-    return CommandDaemon(
+    daemon = CommandDaemon(
         bm, state, topic=bm_commands_cfg["topic"],
         query_render_fn=None if v9 else make_query_render_fn(
             settings, state, bm_commands_cfg["topic"]),
@@ -137,6 +137,9 @@ def default_daemon_factory(settings, bm_commands_cfg, state):
         # Sprint25 S5: rsd heals are checked against the sent records.
         heal_validate_fn=rc_heal.make_heal_validate_fn(rc_heal._sent_dir(settings)),
     )
+    # heal size, one source (registry heal.max_chunks_per_wake via the render): rc_heal.begin_wake
+    daemon.heal_cap = int(bm_commands_cfg.get("heal_max_chunks_per_wake", rc_heal.HEAL_CAP_PER_WAKE))
+    return daemon
 
 
 def apply_command_overlay(settings, state, load_controls_fn):

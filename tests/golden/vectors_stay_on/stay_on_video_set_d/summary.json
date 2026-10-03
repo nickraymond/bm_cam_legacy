@@ -121,20 +121,20 @@
    "sha256": "710dbcdaf9deae5b"
   },
   "camera_config.lkg.json": {
-   "bytes": 3174,
+   "bytes": 3204,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2428,
-   "sha256": "3f1395e16838cca8"
+   "bytes": 2460,
+   "sha256": "a1f1803ecab0fc4f"
   },
   "camera_schedule.yaml": {
    "bytes": 7907,
    "sha256": "8a8ad15fcd4f5753"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2205,
-   "sha256": "57451fbcbefb310e"
+   "bytes": 2236,
+   "sha256": "710fdd38f93abb9a"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 443,

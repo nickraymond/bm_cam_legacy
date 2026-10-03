@@ -124,8 +124,8 @@ class TestParseRsd(unittest.TestCase):
             {"h": [["0dhnso", "3,1-4"]]},                    # duplicate index
             {"h": [["0dhnso", " 1"]]}, {"h": [["0dhnso", "1,"]]}, {"h": [["0dhnso", "-1"]]},
             {"h": [["0dhnso", "1"], ["0dhnso", "2"]]},       # duplicate key
-            {"h": [["0dhnso", "0-40"]]},                     # 41 chunks
-            {"h": [["0dhnso", "0-20"], ["0dhzzz", "0-19"]]}, # 41 across heals
+            {"h": [["0dhnso", "0-120"]]},                    # 121 chunks (> registry ceiling 120)
+            {"h": [["0dhnso", "0-60"], ["0dhzzz", "0-59"]]}, # 121 across heals
             {"h": [[f"0dh{i:03d}", "1"] for i in range(9)]}, # 9 heals
             {"h": [["0dhnso", "1", "extra"]]},
         ):

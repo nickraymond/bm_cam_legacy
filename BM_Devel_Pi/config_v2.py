@@ -343,6 +343,7 @@ def render_v1_text(values):
           f"  image_transmit_delay_seconds: {_n(v['uplink.msg_interval_s'])}",
           "bm_commands:",
           f"  enabled: {_n(v['commands.enabled'])}",
+          f"  heal_max_chunks_per_wake: {_n(v['heal.max_chunks_per_wake'])}",
           f"  topic: {_q(v['commands.topic'])}",
           f"  post_transmit_listen_s: {_n(v['commands.listen_tail_s'])}",
           "  defer_acks_during_transmit: false",

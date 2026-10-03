@@ -36,13 +36,14 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 7          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 8          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
                               #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11;
                               # 6: camera.image_processing.* measured ranges / enums, Sprint27;
-                              # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4)
+                              # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4;
+                              # 8: heal.max_chunks_per_wake (one source for the heal size))
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -404,6 +405,16 @@ KEYS = (
     Key("commands.state_path", PATH, "/home/pi/BM_Devel_Pi/bm_command_state_v2.json",
         "Command state file (v2).", guard=LOCKED, apply=NEXT_BOOT,
         v1_sources=("bm_commands.state_path",)),
+
+    # ---- heal ---------------------------------------------------------------
+    # Heal size, ONE source (Nick 2026-10-02): how many chunks one wake re-sends AND the most one
+    # `rsd` command may carry (its range max is the parse ceiling, command_messages); the backend
+    # packs heals to the unit's value (catalog). Was 3 hard-coded 40s (unit RSD_MAX_CHUNKS,
+    # HEAL_CAP_PER_WAKE, backend MAX_CHUNKS_PER_COMMAND). Ceiling 120: what a 12-min bus window
+    # holds after a ~184-msg video burst at 1.54 s/msg with a 30 s margin (Sprint27 sizing).
+    Key("heal.max_chunks_per_wake", INT, 40, "Most chunks re-sent per wake (rsd heals), and the "
+        "most one rsd command may ask for. Keep (burst + this) x pacing inside the bus window.",
+        range=(1, 120), v1_sources=("bm_commands.heal_max_chunks_per_wake",)),
 
     # ---- network ------------------------------------------------------------
     Key("network.default", ENUM, "none", "WiFi at boot: none (leave as is), ap (open hotspot "

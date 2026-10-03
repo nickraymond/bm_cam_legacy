@@ -2,6 +2,7 @@
  "bm_commands": {
   "defer_acks_during_transmit": false,
   "enabled": true,
+  "heal_max_chunks_per_wake": 40,
   "post_transmit_listen_s": 150.0,
   "state_path": "{TMP}/state/bm_command_state.json",
   "topic": "bmcam/cmd"
