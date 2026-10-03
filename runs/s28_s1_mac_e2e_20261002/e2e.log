@@ -1,0 +1,5 @@
+[E2E] imx708_cool_s-1_air_field: 48634 B (study 48629) d=5.2996 stress dE 0.1196 vs study 0.1144 (diff +0.0053) PASS
+[E2E] imx708_cool_s-1_uw_field: 50076 B (study 50073) d=4.2083 stress dE 0.1781 vs study 0.1816 (diff -0.0036) PASS
+[E2E] imx708_warm_s-1_air_field: 49930 B (study 49933) d=5.0652 stress dE 0.1256 vs study 0.1385 (diff -0.0129) PASS
+[E2E] imx708_warm_s-1_uw_field: 51246 B (study 51236) d=3.9583 stress dE 0.2235 vs study 0.2297 (diff -0.0061) PASS
+[E2E] PASS: worst |diff| 0.0129 (tolerance 0.02)

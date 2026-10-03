@@ -338,12 +338,12 @@
  "fake_clock_elapsed_s": 700.0,
  "files": {
   "camera_config.lkg.json": {
-   "bytes": 3177,
+   "bytes": 3318,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2431,
-   "sha256": "fd0d4ddcce521984"
+   "bytes": 2566,
+   "sha256": "860d12c60fa7edcc"
   },
   "camera_schedule.yaml": {
    "bytes": 7907,

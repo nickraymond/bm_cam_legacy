@@ -1,0 +1,15 @@
+{
+ "run": "s28_s1_mac_e2e_20261002",
+ "sprint": "Sprint28 S1",
+ "utc": "2026-10-03T04:24:29Z",
+ "host": "Nicks-MBP.localdomain",
+ "cjxl": "cjxl v0.11.1 0.11.1 [NEON]",
+ "tolerance_stress_de": 0.02,
+ "worst_abs_diff": 0.0129,
+ "verdict": "PASS",
+ "rig": "compression_study + src from rig origin/main (read-only copies)",
+ "outputs": [
+  "e2e.csv",
+  "e2e.log"
+ ]
+}

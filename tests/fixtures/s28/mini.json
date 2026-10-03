@@ -1,0 +1,48 @@
+{
+ "source": "cool_imx708/stop_-1_r0.dng",
+ "source_sha256": "f04790729124578e7225c128f289b09f95874e687bd53cc0b1df66e88c9512a4",
+ "origin_native_px": [
+  2400,
+  1300
+ ],
+ "wh": [
+  160,
+  96
+ ],
+ "cfa": "BGGR",
+ "black": 64,
+ "white": 1023,
+ "windows": {
+  "full": {
+   "crop": [
+    0,
+    0,
+    160,
+    96
+   ],
+   "sha256_u16le": "1287c3d96aee6e03fa5915a984e6e465911afc08b245a96dade4cd962150f6e0",
+   "mean": 410.8884765625
+  },
+  "inner": {
+   "crop": [
+    10,
+    6,
+    64,
+    40
+   ],
+   "sha256_u16le": "443683255eb947d39ba25bfeb8211c04e687e7a99386eaa80f381b0e61e871b4",
+   "mean": 471.38046875
+  },
+  "corner": {
+   "crop": [
+    96,
+    56,
+    64,
+    40
+   ],
+   "sha256_u16le": "46db04e720580fb0b94461ee8411a3111fd1c656362c50b7cfd5103705b10dc3",
+   "mean": 435.50703125
+  }
+ },
+ "writer": "tifffile 2026.9.20"
+}

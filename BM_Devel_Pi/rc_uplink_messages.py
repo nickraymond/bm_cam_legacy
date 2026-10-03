@@ -42,6 +42,11 @@ from rc_telemetry import (
 )
 
 RC_IMAGE_FORMAT = "pjpg"
+# Sprint28 (SPEC r4 §3.6, CONTAINER.md §7): RAW planes in JPEG XL. q = distance x 100;
+# always cmp=1 (no partial nrjxl send).
+RC_RAW_FORMAT = "nrjxl"
+# Why a pjpg START is a fallback from nrjxl (SPEC §3.6): core field `rfb`, never dropped.
+RAW_FALLBACK_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err")
 
 # M3 selector reason -> compact wire code. Anything unexpected maps to "err"
 # so a future selector change can never build an unsendable message.
@@ -57,16 +62,22 @@ def reason_code(selector_reason):
     return _REASON_CODES.get(str(selector_reason), "err")
 
 
-def _rc_field_pairs(quality, enc_attempts, complete, reason):
-    """The M4 field set shared by START and END. reason only rides when cmp=0."""
+def _rc_field_pairs(quality, enc_attempts, complete, reason, fmt=RC_IMAGE_FORMAT, rfb=None):
+    """The M4 field set shared by START and END. reason only rides when cmp=0.
+    Sprint28: fmt=nrjxl for a RAW still; rfb=<code> on a pjpg that fell back from nrjxl
+    (both default to today's wire, byte-identical)."""
+    if fmt not in (RC_IMAGE_FORMAT, RC_RAW_FORMAT):
+        raise ValueError(f"still START fmt must be pjpg or nrjxl, got {fmt!r}")
     pairs = [
-        ("fmt", RC_IMAGE_FORMAT),
+        ("fmt", fmt),
         ("q", int(quality)),
         ("att", int(enc_attempts)),
         ("cmp", 1 if complete else 0),
     ]
     if not complete:
         pairs.append(("rsn", _clean_value(reason if reason else "err", max_len=8)))
+    if rfb is not None:
+        pairs.append(("rfb", rfb if rfb in RAW_FALLBACK_CODES else "err"))
     return pairs
 
 
@@ -109,6 +120,8 @@ def build_rc_start_message(
     start_metadata=None,
     max_payload_bytes=285,
     key=None,
+    fmt=RC_IMAGE_FORMAT,
+    rfb=None,
 ):
     """Build the RC START IMG message (one unchunked BM message).
 
@@ -121,6 +134,9 @@ def build_rc_start_message(
     `key=<key>` right after `length` — a core field, never dropped. None =
     legacy wire, byte-identical. (The Sprint10 `gid:` field was retired in
     Sprint26 S1.)
+
+    fmt / rfb (Sprint28): fmt=nrjxl for a RAW still (q = distance x 100); rfb=<code>
+    rides a pjpg START that fell back from nrjxl. Both are core RC fields.
     """
     base_parts = [
         f"filename: {_clean_value(compressed_file_name, max_len=96)}",
@@ -133,7 +149,7 @@ def build_rc_start_message(
     base_parts += extra_parts
     rc_parts = [
         f"{key}={_clean_value(value, max_len=12)}"
-        for key, value in _rc_field_pairs(quality, enc_attempts, complete, reason)
+        for key, value in _rc_field_pairs(quality, enc_attempts, complete, reason, fmt, rfb)
     ]
 
     # Reuse the HEIC START metadata pairing; drop its "q" (the RC q above is

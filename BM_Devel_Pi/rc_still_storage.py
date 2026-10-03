@@ -60,6 +60,11 @@ NATIVE_SUFFIX = "_native_full.jpg"
 NATIVE_SIDE = (".stdout.log", ".stderr.log", ".metadata.json")   # after "<stem>_native_full"
 COMPRESSED_SUFFIX = "_compressed.jpg"
 SIDECAR_SUFFIX = ".capture_metadata.json"                        # after "<stem>_compressed.jpg"
+# Sprint28 (nrjxl stills): the sent RAW payload joins its stem's compressed group (tier 3,
+# protected while a live sent record names it: it is the heal payload); a kept raw crop
+# (still.raw.keep_crop) joins the native group (tier 1). rc_raw_jxl names both.
+RAW_COMPRESSED_SUFFIX = "_compressed.nrjxl"
+RAW_CROP_SUFFIX = "_raw_crop.pgm"
 
 
 def _size(path):
@@ -81,8 +86,11 @@ def stems(images_dir, list_fn=os.listdir):
     except OSError:
         return {}
     out = {}
+    extra = []
     for name in names:
-        if name.endswith(NATIVE_SUFFIX):
+        if name.endswith(RAW_COMPRESSED_SUFFIX) or name.endswith(RAW_CROP_SUFFIX):
+            extra.append(name)
+        elif name.endswith(NATIVE_SUFFIX):
             stem = name[: -len(NATIVE_SUFFIX)]
             base = os.path.join(images_dir, stem + "_native_full")
             out.setdefault(stem, {"native": [], "compressed": []})["native"] = _existing(
@@ -92,6 +100,15 @@ def stems(images_dir, list_fn=os.listdir):
             jpg = os.path.join(images_dir, name)
             out.setdefault(stem, {"native": [], "compressed": []})["compressed"] = _existing(
                 [jpg, jpg + SIDECAR_SUFFIX])
+    for name in sorted(extra):            # Sprint28 files, appended after today's groups
+        path = os.path.join(images_dir, name)
+        if name.endswith(RAW_CROP_SUFFIX):
+            stem = name[: -len(RAW_CROP_SUFFIX)]
+            out.setdefault(stem, {"native": [], "compressed": []})["native"] += _existing([path])
+        else:
+            stem = name[: -len(RAW_COMPRESSED_SUFFIX)]
+            out.setdefault(stem, {"native": [], "compressed": []})["compressed"] += _existing(
+                [path, path + SIDECAR_SUFFIX])
     return dict(sorted(out.items()))
 
 

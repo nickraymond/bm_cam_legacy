@@ -70,11 +70,13 @@ class Catalog(unittest.TestCase):
 
     def test_still_and_video_keys_are_controls(self):
         """Nick's goal: every still and video control is writable (still.save.quality
-        only serves save_local, which is not writable yet)."""
+        only serves save_local, which is not writable yet; still.raw.effort is the
+        measured Pi setting, read-only by Sprint28 SPEC r4 §3.7)."""
         cat = json.loads(_load())
         for doc in cat["keys"]:
             if doc["path"].startswith(("still.", "video.send.", "video.record.")) and \
-                    doc["guard"] != R.LOCKED and doc["path"] != "still.save.quality":
+                    doc["guard"] != R.LOCKED and \
+                    doc["path"] not in ("still.save.quality", "still.raw.effort"):
                 self.assertEqual(doc["tier"], "control", doc["path"])
 
     def test_control_allowlist_is_explicit(self):

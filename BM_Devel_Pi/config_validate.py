@@ -35,6 +35,11 @@ Rules added in S4 (strict + effective):
     measured, so the floor lives here, not in the registry range)
   - env: mode.media video needs ffmpeg; schedule.timezone must resolve
 
+Rules added in Sprint28 (strict + effective; Sprint28 SPEC r4 §3.7), mode.media
+still with still.format nrjxl only:
+  - still.crop even (x, y, w, h) and w x h <= RAW_MAX_PX (1600x900 until R0.3)
+  - uplink.media_key.enabled true; uplink.network_type 2
+
 Rules added in Sprint27 (strict + effective; SPEC §3.4, REVIEW_r1 row 1):
   - mode.media video / video_logger: the recording geometry resolves
     (video_geometry.resolve_geometry, the loader's own check)
@@ -281,9 +286,59 @@ def _rule_video_send_size(values):
     return []
 
 
+# ---------------------------------------------------------------------------
+# Sprint28 rules (SPEC r4 §3.7): what an nrjxl still needs, checked at set / boot /
+# deploy so a unit never runs a RAW config it cannot send
+# ---------------------------------------------------------------------------
+
+# SPEC §3.3: the largest RAW crop proven on the Pi Zero 2 W. 1600x900 until R0.3
+# measures a larger preset (rc_raw_jxl.RAW_MAX_PX is the same number; a test pins it).
+RAW_MAX_PX = 1600 * 900
+
+
+def _nrjxl_still(values):
+    return values.get("mode.media") == "still" and values.get("still.format") == "nrjxl"
+
+
+def _rule_raw_crop(values):
+    """nrjxl sends still.crop at sensor resolution as 4 Bayer planes: x, y, w, h must
+    be even (keeps the CFA phase) and w x h <= RAW_MAX_PX."""
+    crop = values.get("still.crop")
+    if not _nrjxl_still(values) or not (isinstance(crop, list) and len(crop) == 4):
+        return []
+    paths = ("still.crop", "still.format", "mode.media")
+    if any(not isinstance(v, int) or v % 2 for v in crop):
+        return [Violation("xk", paths, f"nrjxl needs an even still.crop (CFA phase), got {crop}")]
+    if crop[2] * crop[3] > RAW_MAX_PX:
+        return [Violation("xk", paths, f"nrjxl crop {crop[2]}x{crop[3]} is larger than the "
+                                       f"{RAW_MAX_PX} px measured on the Pi Zero 2 W (R0.3)")]
+    return []
+
+
+def _rule_raw_keyed(values):
+    """An nrjxl with a lost chunk renders nothing; healing (keyed media) is its only
+    recovery."""
+    if _nrjxl_still(values) and values.get("uplink.media_key.enabled") is not True:
+        return [Violation("xk", ("still.format", "uplink.media_key.enabled", "mode.media"),
+                          "nrjxl needs uplink.media_key.enabled: true (heal needs keyed media)")]
+    return []
+
+
+def _rule_raw_cellular(values):
+    """Iridium (0x01) is refused: a lost chunk there leaves no image at all."""
+    if _nrjxl_still(values) and values.get("uplink.network_type") != 2:
+        return [Violation("xk", ("still.format", "uplink.network_type", "mode.media"),
+                          "nrjxl needs uplink.network_type 2 (cellular only)")]
+    return []
+
+
+def s28_rules(values):
+    return _rule_raw_crop(values) + _rule_raw_keyed(values) + _rule_raw_cellular(values)
+
+
 def s4_rules(values):
     return (_rule_manual_wb(values) + _rule_video_crop(values) + _rule_video_cap_floor(values)
-            + _rule_video_geometry(values) + _rule_video_send_size(values))
+            + _rule_video_geometry(values) + _rule_video_send_size(values) + s28_rules(values))
 
 
 def validate(values, scope="effective", env=None):
