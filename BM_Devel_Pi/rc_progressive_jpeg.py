@@ -624,6 +624,10 @@ def still_action(
         gate_info, gate_mono = info, clock()
         cmd_hooks.boot_mark("spotter_utc_read")
         time_source = info.get("source_time")
+        if supervised is not None:
+            # R1: re-send the last boots' lost acks now (after the time read:
+            # the lane guard needs it; before capture).
+            getattr(supervised, "resend_recent_acks", lambda *a: None)(daemon, summary, sleep_fn)
         if save_local and info.get("spotter_time_error"):
             # S3c §5 C9: a wrong timestamp is recoverable, a lost picture is not.
             # The window is enforced only on a Spotter time.
@@ -665,6 +669,10 @@ def still_action(
                     clock=clock, sleep_fn=sleep_fn, supervised=supervised,
                 )
             return summary
+
+    if supervised is not None:
+        # R1: no-op if the gate block above already re-sent
+        getattr(supervised, "resend_recent_acks", lambda *a: None)(daemon, summary, sleep_fn)
 
     if save_local and transmit and not settings["enforce_time_window"]:
         # S3c §5 C9: the window is off, so the gate read nothing; filenames are

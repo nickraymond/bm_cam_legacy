@@ -33,8 +33,8 @@
    "sha256": "9964a1ececae7074"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 292,
-   "sha256": "48e6d5026c8ae313"
+   "bytes": 307,
+   "sha256": "b59f3ad3702c7297"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -70,6 +70,7 @@
   "result_cache": {
    "100003": {
     "b": 1,
+    "h": "b6637476",
     "ok": 1,
     "t": "rsd: 1 heal(s) queued (<HL> reports each)"
    }

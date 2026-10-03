@@ -61,8 +61,11 @@ class V9Replies:
             return None
 
     def reply(self, command_id, ok, error, result, duplicate=False, key=None, text=None,
-              staged=False, granted=None):
-        h = self._hash()
+              staged=False, granted=None, h=None):
+        """h: the config hash to report (an ack re-send passes the ORIGINAL
+        answer's, R1); None = the hash now."""
+        if h is None:
+            h = self._hash()
         rng = W.id_range(command_id) if isinstance(command_id, int) else None
         ack = None
         if rng in W.CELLULAR_RANGES:

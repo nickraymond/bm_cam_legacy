@@ -62,10 +62,11 @@
     "video.send.message_cap": 90
    },
    "value": 2
-  }
+  },
+  "trigger_outcome": "sent"
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 325.5,
+ "fake_clock_elapsed_s": 326.8,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
@@ -100,8 +101,8 @@
    "sha256": "bfbeadcdb2a3bfc6"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 370,
-   "sha256": "b203d9c6df6e610e"
+   "bytes": 385,
+   "sha256": "b77563f697301dd0"
   },
   "state/config_journal.jsonl": {
    "bytes": 113,
@@ -148,6 +149,7 @@
   "result_cache": {
    "1000531": {
     "b": 1,
+    "h": "1910bbef",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point); one action only: video.send.duration_s=8, video.send.messa"
    }
