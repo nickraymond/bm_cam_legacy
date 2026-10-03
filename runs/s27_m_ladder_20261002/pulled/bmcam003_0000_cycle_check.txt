@@ -1,0 +1,25 @@
+uptime 46.57
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261003T000538Z.log
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261003T000239Z.log
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261002T230559Z.log
+--- previous cycle /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261003T000239Z.log
+2:[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+11:[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+25:[RC] cycle budget: max_run_time_min=8 (480 s)
+28:[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+29:[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+46:[VTX] cycle start: budget=480s pacing=1.3s/msg transmit=True
+52:[CMD] spotter UTC decoded: 2026-10-03T00:05:13.585000+00:00
+60:[VTX] message budget: cap=190 affordable_now=317 (after reserving 32) -> 190 chunk msgs (54720 B)
+63:[VTX] payload: 52655 B = 183 msgs (96.2% of budget) 2 pass-2 tries, prescale 4.6s encode 4.2s
+--- tail
+[KEY] media key 0e59kp from Spotter UTC 2026-10-03T00:05:13.585000+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-03T00-05-13Z_video_5s.sent.json (183 msgs, chunks <I0e59kp.n/183>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.3
+[BOOT] transmit_start uptime_s=55.50
+--- fs
+Oct 03 00:05:30 bmcam003 systemd-udevd[328]: /usr/lib/udev/rules.d/90-alsa-restore.rules:18 GOTO="alsa_restore_std" has no matching label, ignoring.
+Oct 03 00:05:30 bmcam003 systemd-udevd[328]: /usr/lib/udev/rules.d/90-alsa-restore.rules:22 GOTO="alsa_restore_std" has no matching label, ignoring.
+Oct 03 01:00:41 bmcam003 wpa_supplicant[599]: nl80211: kernel reports: Registration to specific type not supported
+Oct 03 01:00:42 bmcam003 wpa_supplicant[599]: bgscan simple: Failed to enable signal strength monitoring
+Oct 03 01:00:44 bmcam003 wpa_supplicant[599]: bgscan simple: Failed to enable signal strength monitoring
