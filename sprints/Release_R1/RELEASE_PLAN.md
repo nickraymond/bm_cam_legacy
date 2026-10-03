@@ -36,6 +36,25 @@ G1, G2, G3 passed early and every R1 PR is merged. The outdoor box is ready **Sa
 | Sun 10/4 | exit review → **ship decision** (5 days early); Mon–Fri = slack for any fix + re-run |
 | after exit | next sprint: RAW → JPEG-XL (own sprint, Nick 2026-10-01) |
 
+## 2b. Re-plan after G4 FAIL (Nick, Sat 2026-10-03)
+
+G4 FAILED (`runs/g4_outdoor12h_20261002/RESULTS.md`): D1 17/28, trg 2/6 (budget defect), 9/32 acks lost at
+the Spotter. Nick: fix now; ship target back to **Fri 10/9**; no G5 before ship (solar 24 h runs after).
+
+**R1 exit = commands first** (replaces D1's 3 h limit for the ship gate):
+- every command confirmed at the backend (direct ack, re-sent `d:1` ack, or heartbeat hash);
+- every trg delivers its clip or reports its failure (`tr=` on `<WS>`); none silent;
+- no unit needs SSH;
+- every clip completes eventually, with 0 redundant heals. The 3 h target moves to the comms-reliability sprint (C1).
+
+| rig | unit / Spotter | role |
+|---|---|---|
+| repair | bmcam003 / SPOT-33507C (worst in G4) | iterative R1 fixes, command resilience (R1F baseline, bm #121 gate) |
+| comms | bmcam004 / SPOT-31593C | C1 comms reliability: :15 vs :00 bus start, then message size (`hil/gates/C1_comms_reliability.md`) |
+
+Fixes: bm #121 (trg budget, ack re-send, `tr=`), nvd #84 (merged: heartbeat fallback, `tr=` parse), bm #122 (END temp
+after burst). R1.1: camera `post` command (`sprints/R1.1_post_command/SPEC.md`, approved).
+
 The table below is the original plan, kept for reference.
 
 ## 2. Gates (each gate = a RESULTS.md with PASS/FAIL per criterion)
@@ -99,6 +118,9 @@ Retired: "Finish S5 details, then take the rig for 24 h gate" (superseded by G1 
 | G1 cut | ended 22:30 PDT 10/1 with no drain (Nick); clips in flight = "stopped early" |
 | `REASK_S` | keep 5400 s (only 3/60 heals needed a re-ask) |
 | rollout model | **per-Spotter** settings (not per-device Render env); global env = kill switches only; iridium defaults OFF. Fri demo uses the env once |
+| G4 FAIL (10/3) | fix now, ship Fri 10/9; no G5 before ship; worst rig = repair rig; R1 exit = commands first, 3 h D1 → comms sprint (§2b) |
+| ack fixes (10/3) | approved: camera re-sends last 2 boots' acks as `d:1`; `tr=<id>:sent\|budget\|fail` on `<WS>` (additive wire); backend hash fallback |
+| `post` verb (10/3) | approved: terse console self-report + one `<PS>` line, on request only; nereus000 may auto-post to bench rigs each wake |
 
 Note: a 500-message cap at the validated 1.3 s/msg is 650 s, longer than the 10-min production
 bus window; caps above ~450 only complete on a longer window.
