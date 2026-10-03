@@ -4,6 +4,7 @@ __pycache__/
 
 cron_logs/
 *.log
+!tests/fixtures/**/*.log
 
 buffer/
 buffers/
