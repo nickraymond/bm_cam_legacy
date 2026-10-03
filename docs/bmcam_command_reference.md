@@ -262,7 +262,7 @@ Only these may be overridden for one action (never saved; re-checked at action t
 
 | key | type | default | allowed | apply | guard | meaning | presets |
 |---|---|---|---|---|---|---|---|
-| `heal.max_chunks_per_wake` | int | 40 | 1 – 120 | next_action |  | Most chunks re-sent per wake (rsd heals), and the most one rsd command may ask for. Keep (burst + this) x pacing inside the bus window. |  |
+| `heal.max_chunks_per_wake` | int | 40 | 1 – 120 | next_boot |  | Most chunks re-sent per wake (rsd heals), and the most one rsd command may ask for. Keep (burst + this) x pacing inside the bus window. |  |
 
 ### network
 

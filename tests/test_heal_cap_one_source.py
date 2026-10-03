@@ -87,6 +87,7 @@ class OneSource(unittest.TestCase):
     def test_registry_bounds(self):
         self.assertEqual(KEY.default, 40)
         self.assertEqual(KEY.range, (1, 120))
+        self.assertEqual(KEY.apply, R.NEXT_BOOT)        # read once, when the daemon is built
         self.assertIsNotNone(R.check_value(KEY, 121))
         self.assertIsNone(R.check_value(KEY, 100))
 

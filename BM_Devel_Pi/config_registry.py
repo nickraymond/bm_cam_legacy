@@ -414,7 +414,9 @@ KEYS = (
     # holds after a ~184-msg video burst at 1.54 s/msg with a 30 s margin (Sprint27 sizing).
     Key("heal.max_chunks_per_wake", INT, 40, "Most chunks re-sent per wake (rsd heals), and the "
         "most one rsd command may ask for. Keep (burst + this) x pacing inside the bus window.",
-        range=(1, 120), v1_sources=("bm_commands.heal_max_chunks_per_wake",)),
+        range=(1, 120), apply=NEXT_BOOT, v1_sources=("bm_commands.heal_max_chunks_per_wake",)),
+    # ^ NEXT_BOOT: the command daemon reads it once when it is built (rc_command_hooks), so a
+    #   remote set takes effect at the next wake (per_boot) / the stay_on config restart.
 
     # ---- network ------------------------------------------------------------
     Key("network.default", ENUM, "none", "WiFi at boot: none (leave as is), ap (open hotspot "
