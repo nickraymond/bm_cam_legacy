@@ -1,0 +1,6 @@
+13:[CFG][WARN] video.record.encoder.denoise is retired (registry v7): its empty value is dropped
+14:[CFG][WARN] video.record.encoder.sharpness=1.0 is retired (registry v7): moved to camera.image_processing.sharpness (applied only while camera.controls_enabled and camera.image_processing.enabled a
+15:[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=f333bfb7 hv=1 registry=v7 overlay=4 key(s)
+16:[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+17:[CFG] last-known-good saved /home/pi/BM_Devel_Pi/camera_config.lkg.json
+18:[CFG] supervisor runs the effective config: base ⊕ 4 overlay key(s) hash=f333bfb7 (render /dev/shm/bmcam/camera_schedule.yaml)

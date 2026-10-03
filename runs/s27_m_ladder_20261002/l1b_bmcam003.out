@@ -1,0 +1,10 @@
+[refresh] BMCAM_003: 8 gets recorded; publishing every 65s
+CON  2026-10-02T20:41:19Z Message: 1790973681.968 53171fa3d81a8e6f, [bmcam003] OK id=1000008 get uplink, video.ui: 14 key(s) cfg=f333bfb7
+CON  2026-10-02T20:42:36Z Message: 1790973758.644 53171fa3d81a8e6f, [bmcam003] OK id=1000009 get video.record, video.logger: 12 key(s) cfg=f333bfb7
+CON  2026-10-02T20:43:53Z Message: 1790973835.343 53171fa3d81a8e6f, [bmcam003] OK id=1000010 get camera.image_processing, mode: 12 key(s) cfg=f333bfb7
+CON  2026-10-02T20:45:10Z Message: 1790973912.238 53171fa3d81a8e6f, [bmcam003] OK id=1000011 get commands, camera.focus: 13 key(s) cfg=f333bfb7
+CON  2026-10-02T20:46:25Z Message: 1790973987.722 53171fa3d81a8e6f, [bmcam003] OK id=1000012 get time, schedule: 11 key(s) cfg=f333bfb7
+CON  2026-10-02T20:47:40Z Message: 1790974063.179 53171fa3d81a8e6f, [bmcam003] OK id=1000013 get video.send, still: 14 key(s) cfg=f333bfb7
+CON  2026-10-02T20:48:57Z Message: 1790974140.187 53171fa3d81a8e6f, [bmcam003] OK id=1000014 get power, camera.exposure, camera.controls_enabled, camera.backend
+CON  2026-10-02T20:50:13Z Message: 1790974215.664 53171fa3d81a8e6f, [bmcam003] OK id=1000015 get camera.white_balance, camera.native, storage, network: 12 key(s
+[refresh] BMCAM_003 done 2026-10-02T20:50:22Z

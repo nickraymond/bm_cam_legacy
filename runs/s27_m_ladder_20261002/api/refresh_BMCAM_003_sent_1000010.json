@@ -1,0 +1,1 @@
+{"command_id":1000010,"id_range":"remote","verb":"get","sender":"admin","lane":"console","command":"{\"id\":1000010,\"c\":\"get\",\"k\":[\"camera.image_processing\",\"mode\"]}","kv":null,"base_hash":null,"created_at":"2026-10-02T20:41:18.240302+00:00","sent_at":"2026-10-02T20:44:02.181783+00:00","sent_status":null,"sends":[],"ack":null}

@@ -1,6 +1,6 @@
 # G4 — outdoor tethered 12 h (Release R1)
 
-When: Tue 10/6 (PDT), 12 h of capture + a 3 h completion tail. Owner: Test Engineer + Nick (puts
+When: **Sat 10/3 08:00 → 20:00 PDT** (pulled in by Nick, RELEASE_PLAN §2a / bm #108), 12 h of capture + a 3 h completion tail. Owner: Test Engineer + Nick (puts
 the box outside). Units: bmcam003 (SPOT-33507C), bmcam004 (SPOT-31593C), both on **RC1** (the
 development tip frozen Mon 10/5 EOD). Mains power, nereus000 on both USB consoles.
 Plan: RELEASE_PLAN §2 (G4), D1, D3, D4, D5. Evidence: `runs/g4_outdoor12h_<YYYYMMDD>/`.
@@ -22,6 +22,7 @@ D1, D3, D4 hold for 12 h; no bus drops.
 | G4.7 | D4 visible | every trg, ack and heal in G4.4–G4.6 is on logs.html (full list, not a sample) | `analysis/logs_check.csv` |
 | G4.8 | 0 SSH needed | no write over ssh to a unit during the 12 h + tail | `gate.log` |
 | G4.9 | thermal / power sanity | no Pi undervoltage / thermal throttle in the cycle logs; Spotter `post` clean at start and end (spotter-health-check skill) | `console/post_*.txt` |
+| G4.10 | Spotter power-cycle stub cuts (Nick 2026-10-02) | each event logged as an OBSERVED EVENT (time, unit, cut or protectively halted, next wake normal?). FAIL only if it loses data beyond that one cycle or damages the SD/filesystem (`fsck`/journal errors at the next boot, missing/corrupt state or config files). No protective SSH halt of a stub-booted Pi (Nick 2026-10-02: the Pi tolerates mid-cycle cuts; the stub guard is dropped, not R1.1) unless something is actually going wrong | `gate.log` "stub event" lines, next-boot log |
 
 ## Preconditions
 
@@ -31,6 +32,37 @@ D1, D3, D4 hold for 12 h; no bus drops.
       per-Spotter settings (backend, S6b backend session's admin API); `BM_HEAL_AUTOSEND` live; bm-heal-driver
       and the conductor STOPPED (backend is the only heal sender).
 - [ ] Nick has the box outside, mains connected, console cables to nereus000 checked (`hil_console.sh <SPOT> post`).
+
+## Nick's physical steps (Sat morning)
+
+The units run the production schedule: the bus is ON only :00–:10 each hour, and each Pi halts itself
+before :10. **Only move hardware between :12 and :55 past the hour** (bus off, Pis halted = safe to
+unplug). Never unplug during :00–:10 (an SD hard cut mid-write).
+
+1. Between 07:12 and 07:55 PDT: move both Spotters + bmcam003/004 (still connected by their BM bus
+   cables) into the outdoor box. Keep each Spotter's mains/tether power connected if possible; if a Spotter
+   must be unplugged, do it inside the off window (its bridge config is on flash and survives).
+2. Antennas: both Spotters with open sky (cellular + GPS).
+3. nereus000: powered, with BOTH USB console cables (SPOT-33507C → hub port 1.2, SPOT-31593C → 1.3, as
+   now) and on the LAN/Wi-Fi (the Test Engineer reaches it at 192.168.1.45). If the box location has no
+   LAN Wi-Fi, tell the EM before moving: G4 then runs without consoles (G5-style evidence only).
+4. Tell the EM "moved" with the time. The Test Engineer checks `post` on both consoles and watches the
+   08:00 window; first G4 capture = 08:00.
+5. Do not touch the units during 08:00–20:00 unless the Test Engineer asks via the EM.
+6. **Never turn a Spotter's power switch off** (2026-10-02 shakedown: the move left both Spotters in
+   CHARGE MODE, off, for 25 min; a wake was lost). After any Spotter power cycle the bridge opens a
+   120 s bus stub: an armed Pi boots in it and is cut at its end; that is logged as an observed event (G4.10).
+
+## Fallback: nereus000 unreachable at the box (decided 2026-10-02 evening, EM)
+
+nereus000 lost its link at the outdoor box (Wi-Fi 55–59 there vs 76 indoors; down 17:22 PDT). If it is
+not fixed by Sat 07:30, G4 runs **G5-style**:
+- Evidence = backend media/heal/command rows, pulled by the EM (the admin token lives only on
+  nereus000, so the Test Engineer cannot read the backend without it). Bus windows / wake→halt come
+  from the unit's own cycle logs, read-only over the tailnet during a wake.
+- D3 triggers (G4.6) go over the Sofar lane, sent by the EM's backend access (same reason).
+- G4.2 (every wake), G4.9 (`post`) become "from backend + unit logs" (no console); queue-full counts
+  (F1) are not measurable without the console: G4 reports them as N/A.
 
 ## Steps
 

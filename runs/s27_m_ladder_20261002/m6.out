@@ -1,0 +1,53 @@
+ OK id=65011 camera.image_processing.sharpness: 2.0 -> 0.0 (next action) cfg=ac04c5e0
+  argv: --sharpness 0 --denoise cdn_fast  | mean 86.5 sd 52.7 sat 80.6
+ OK id=65013 camera.image_processing.sharpness: 0.0 -> 16.0 (next action) cfg=12fd5a5b
+  argv: --sharpness 16 --denoise cdn_fast  | mean 81.2 sd 52.7 sat 82.7
+ OK id=65015 reset camera.image_processing.sharpness -> YAML cfg=59a4dc32
+ OK id=65016 camera.image_processing.contrast: none -> 0.5 (next action) cfg=48a13b4f
+  argv: --sharpness 1 --contrast 0.5 --denoise cdn_fast  | mean 106.6 sd 27.4 sat 31.6
+ OK id=65018 camera.image_processing.contrast: 0.5 -> 2.0 (next action) cfg=aa3d07d3
+  argv: --sharpness 1 --contrast 2 --denoise cdn_fast  | mean 63.0 sd 81.1 sat 74.1
+ OK id=65020 reset camera.image_processing.contrast -> YAML cfg=59a4dc32
+ OK id=65021 camera.image_processing.saturation: none -> 0.0 (next action) cfg=f6387d28
+  argv: --sharpness 1 --saturation 0 --denoise cdn_fast  | mean 84.6 sd 53.4 sat 0.0
+ OK id=65023 camera.image_processing.saturation: 0.0 -> 2.0 (next action) cfg=b7bc8144
+  argv: --sharpness 1 --saturation 2 --denoise cdn_fast  | mean 82.4 sd 52.5 sat 131.2
+ OK id=65025 reset camera.image_processing.saturation -> YAML cfg=59a4dc32
+ OK id=65026 camera.image_processing.brightness: none -> -0.25 (next action) cfg=e663f3d4
+  argv: --sharpness 1 --brightness -0.25 --denoise cdn_fast  | mean 30.3 sd 45.5 sat 34.9
+ OK id=65028 camera.image_processing.brightness: -0.25 -> 0.25 (next action) cfg=dd5c383e
+  argv: --sharpness 1 --brightness 0.25 --denoise cdn_fast  | mean 145.3 sd 50.0 sat 43.1
+ OK id=65030 reset camera.image_processing.brightness -> YAML cfg=59a4dc32
+ OK id=65031 camera.image_processing.denoise: cdn_fast -> auto (next action) cfg=be001346
+  argv: --sharpness 1 --denoise auto  | mean 82.4 sd 53.0 sat 85.9
+ OK id=65033 camera.image_processing.denoise: auto -> off (next action) cfg=d558cca1
+  argv: --sharpness 1 --denoise off  | mean 72.4 sd 52.1 sat 81.1
+ OK id=65035 camera.image_processing.denoise: off -> cdn_off (next action) cfg=f9e6349d
+  argv: --sharpness 1 --denoise cdn_off  | mean 85.6 sd 48.8 sat 83.6
+ OK id=65037 camera.image_processing.denoise: cdn_off -> cdn_fast (next action) cfg=59a4dc32
+  argv: --sharpness 1 --denoise cdn_fast  | mean 86.3 sd 48.8 sat 78.1
+ OK id=65039 camera.image_processing.denoise: cdn_fast -> cdn_hq (next action) cfg=54d904b7
+  argv: --sharpness 1 --denoise cdn_hq  | mean 85.1 sd 48.1 sat 81.6
+ OK id=65041 camera.image_processing.hdr: none -> off (next action) cfg=3a6a6514
+  argv: --sharpness 1 --denoise cdn_hq  | mean 94.9 sd 49.0 sat 75.8
+ OK id=65043 camera.image_processing.hdr: off -> auto (next action) cfg=1f3bf233
+  argv: --sharpness 1 --denoise cdn_hq --hdr auto  | mean 113.6 sd 46.5 sat 66.0
+ OK id=65045 camera.image_processing.hdr: auto -> sensor (next action) cfg=2799c210
+  argv: --sharpness 1 --denoise cdn_hq --hdr sensor  | mean 109.5 sd 44.9 sat 66.1
+ OK id=65047 camera.image_processing.hdr: sensor -> single-exp (next action) cfg=05793b3b
+  argv: --sharpness 1 --denoise cdn_hq --hdr single-exp  | mean 95.9 sd 49.8 sat 74.1
+ OK id=65049 camera.image_processing.hdr: single-exp -> false (next action) cfg=4deeb108
+  argv: --sharpness 1 --denoise cdn_hq  | mean 96.1 sd 49.9 sat 74.0
+ OK id=65051 camera.image_processing.hdr: false -> true (next action) cfg=e99d3ccd
+  argv: --sharpness 1 --denoise cdn_hq --hdr auto  | mean 114.9 sd 46.7 sat 65.7
+ OK id=65053 reset camera.image_processing.hdr -> YAML cfg=54d904b7
+--- IP5 negatives (new bounds)
+ REJECTED id=65054 must be in 0.5..2.0 e=val k=camera.image_processing.contrast cfg=54d904b7
+ REJECTED id=65055 must be in 0.0..2.0 e=val k=camera.image_processing.saturation cfg=54d904b7
+ REJECTED id=65056 must be in -0.25..0.25 e=val k=camera.image_processing.brightness cfg=54d904b7
+ REJECTED id=65057 must be in 0.5..2.0 e=val k=camera.image_processing.contrast cfg=54d904b7
+ REJECTED id=65058 must be in 0.0..2.0 e=val k=camera.image_processing.saturation cfg=54d904b7
+ REJECTED id=65059 must be in -0.25..0.25 e=val k=camera.image_processing.brightness cfg=54d904b7
+ REJECTED id=65060 must be in 0.0..16.0 e=val k=camera.image_processing.sharpness cfg=54d904b7
+ REJECTED id=65061 'video.record.encoder.sharpness' is not a setting e=key k=video.record.encoder.sharpness cfg=54d904b7
+next id 65061

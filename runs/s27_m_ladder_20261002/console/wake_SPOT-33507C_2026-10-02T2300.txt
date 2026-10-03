@@ -1,0 +1,959 @@
+2026-10-02T22:58:00Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:05Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:10Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:15Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:20Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:25Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:30Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:35Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:40Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:45Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:50Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:58:55Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:00Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:05Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:10Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:15Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:20Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:25Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:30Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:35Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:40Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:45Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:50Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T22:59:55Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:00Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:05Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:10Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:15Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:20Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:25Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:30Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:35Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:40Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:45Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:50Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:00:55Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:00Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:06Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:10Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:15Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:20Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:25Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:30Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:35Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:40Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:45Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:51Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:01:55Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:00Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:05Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:10Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:15Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:20Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:25Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:31Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:36Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:40Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:45Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:50Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:02:55Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:00Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:05Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:11Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:16Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:21Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:25Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:30Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:35Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:40Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:45Z Charge mode enabled. Toggle power switch to turn on
+2026-10-02T23:03:51Z 971006t [SYS] [INFO] Switch toggled to ON. Continuing boot process.
+2026-10-02T23:03:51Z 971010t [ERR] [INFO] SdQueueErrorState changed from N/A to OK
+2026-10-02T23:03:51Z 971011t [SYS] [INFO] GpsPowerManager disabled, starting up GPS normally.
+2026-10-02T23:03:51Z 971011t [GPS] [WARNING] Initializing GPS. Tries remaining 3
+2026-10-02T23:03:51Z 971257t [GPS] [WARNING] TXT: u-blox AG - www.u-blox.com
+2026-10-02T23:03:51Z 971301t [GPS] [WARNING] TXT: HW UBX-M8030 00080000
+2026-10-02T23:03:51Z 971346t [GPS] [WARNING] TXT: EXT CORE 3.01 (107900)
+2026-10-02T23:03:51Z 971390t [GPS] [WARNING] TXT: ROM BASE 2.01 (75331)
+2026-10-02T23:03:51Z 971426t [GPS] [WARNING] TXT: FWVER=SPG 3.01
+2026-10-02T23:03:51Z 971461t [GPS] [WARNING] TXT: PROTVER=18.00
+2026-10-02T23:03:51Z 971497t [GPS] [WARNING] TXT: MOD=NEO-M8N-0
+2026-10-02T23:03:51Z 971541t [GPS] [WARNING] TXT: FIS=0xEF4015 (100111)
+2026-10-02T23:03:51Z 971578t [GPS] [WARNING] TXT: GPS;GLO;GAL;BDS
+2026-10-02T23:03:51Z 971615t [GPS] [WARNING] TXT: SBAS;IMES;QZSS
+2026-10-02T23:03:51Z 971653t [GPS] [WARNING] TXT: GNSS OTP=GPS;GLO
+2026-10-02T23:03:51Z 971725t [GPS] [WARNING] TXT: LLC=FFFFFFFF-FFFFFFED-FFFFFFFF-FFFFFFFF-FFFFFF69
+2026-10-02T23:03:51Z 971771t [GPS] [WARNING] TXT: ANTSUPERV=AC SD PDoS SR
+2026-10-02T23:03:51Z 971811t [GPS] [WARNING] TXT: ANTSTATUS=DONTKNOW
+2026-10-02T23:03:51Z 971839t [GPS] [WARNING] TXT: PF=3FF
+2026-10-02T23:03:52Z 972012t [UBX] [WARNING] Packet RX timeout
+2026-10-02T23:03:52Z 972436t [GPS] [WARNING] TXT: ANTSTATUS=INIT
+2026-10-02T23:03:52Z 972764t [GPS] [WARNING] TXT: Resetting GNSS
+2026-10-02T23:03:53Z 973195t [GPS] [WARNING] TXT: Resetting GNSS
+2026-10-02T23:03:53Z 973263t [GPS] [WARNING] TXT: ANTSUPERV=AC SD OD PDoS SR
+2026-10-02T23:03:53Z 973776t [UBX] [INFO] Requesting TP5 Data
+2026-10-02T23:03:54Z 973973t [UBX] [WARNING] Packet RX timeout
+2026-10-02T23:03:54Z 974035t [ERR] [INFO] GpsErrorState changed from N/A to NO_SIGNAL
+2026-10-02T23:03:54Z 974036t [GPS] [WARNING] Successfully initialized GPS!
+2026-10-02T23:03:54Z 974040t [ORC] [INFO] Standard Mode Enabled
+2026-10-02T23:03:54Z 974041t [ERR] [INFO] OrchErrorState changed from N/A to OK
+2026-10-02T23:03:54Z 974049t [SYS] [INFO] APP_NAME: spotter_bm
+2026-10-02T23:03:54Z 974049t [SYS] [INFO] UID: 203533483430501800330027
+2026-10-02T23:03:54Z 974049t [SYS] [INFO] FW Version: v2.16.8
+2026-10-02T23:03:54Z 974049t [SYS] [INFO] GIT SHA: 47FF21A4
+2026-10-02T23:03:54Z 974049t [SYS] [INFO] Build ID: 6266c608e6ab80955456b2c8e68e565f7e2ce753
+2026-10-02T23:03:54Z 974050t [SYS] [INFO] BSP: sunflower_v3.3
+2026-10-02T23:03:54Z 974051t [SYS] [INFO] Reset Reason: Invalid reset or first power on since flashing
+2026-10-02T23:03:54Z 974051t [SYS] [INFO] Main Deck HW Version: 03
+2026-10-02T23:03:54Z 974052t [SYS] [INFO] Upper Deck HW Version: 02
+2026-10-02T23:03:54Z 974052t [SYS] [INFO] Bootloader Information:
+2026-10-02T23:03:54Z   Version: v2.16.6
+2026-10-02T23:03:54Z   SHA: 667E60F9
+2026-10-02T23:03:54Z   Signature support: 1
+2026-10-02T23:03:54Z   Encrytion support: 0
+2026-10-02T23:03:54Z   Swap Type: NONE
+2026-10-02T23:03:54Z 974062t [BRIDGE] [INFO] Bridge Enabled
+2026-10-02T23:03:54Z 974228t [GPS] [WARNING] TXT: ANTSTATUS=OK
+2026-10-02T23:03:54Z 974362t [ORC] [INFO] Iridium modem enabled
+2026-10-02T23:03:54Z 974387t [SYS] [INFO] Iridium IMEI: 300534068638440
+2026-10-02T23:03:54Z 974401t [IRI] [INFO] ATI0 - 2400
+2026-10-02T23:03:54Z 974416t [IRI] [INFO] ATI1 - 0000
+2026-10-02T23:03:54Z 974430t [IRI] [INFO] ATI2 - OK
+2026-10-02T23:03:54Z 974446t [IRI] [INFO] ATI3 - TA21004
+2026-10-02T23:03:54Z 974469t [IRI] [INFO] ATI4 - IRIDIUM 9600 Family
+2026-10-02T23:03:54Z 974483t [IRI] [INFO] ATI5 - 8816
+2026-10-02T23:03:54Z 974497t [IRI] [INFO] ATI6 - 2DF
+2026-10-02T23:03:54Z 974525t [IRI] [INFO] ATI7 - BOOT07d4/9602NGrevA/04/RAW10
+2026-10-02T23:03:54Z 974545t [IRI] [INFO] AT+CGMI - Iridium
+2026-10-02T23:03:54Z 974579t [IRI] [INFO] AT+CGMM - IRIDIUM 9600 Family SBD Transceiver
+2026-10-02T23:03:54Z 974603t [IRI] [INFO] AT+CGSN - 300534068638440
+2026-10-02T23:03:54Z 974650t [IRI] [INFO] AT+CGMR - Modem DSP Version: 1.7 svn: 2358
+2026-10-02T23:03:54Z 974666t [IRI] [INFO] AT+CGMR - DBB Version: 0x0001 (ASIC)
+2026-10-02T23:03:54Z 974683t [IRI] [INFO] AT+CGMR - RFA Version: 0x001a (GRFA1B)
+2026-10-02T23:03:54Z 974693t [IRI] [INFO] AT+CGMR - NVM Version: KVS
+2026-10-02T23:03:54Z 974719t [IRI] [INFO] AT+CGMR - Hardware Version: BOOT07d4/9602NGrevA/04/RAW10
+2026-10-02T23:03:54Z 974741t [IRI] [INFO] AT+CGMR - BOOT Version: 2004 TD2-BLB960X-27 R4710
+2026-10-02T23:03:54Z 974745t [ERR] [INFO] IridiumErrorState changed from N/A to OK
+2026-10-02T23:03:54Z 974745t [ORC] [INFO] Iridium modem disabled
+2026-10-02T23:03:55Z 975416t [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-02T23:03:55Z 975423t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-02T23:03:55Z 975425t [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-02T23:03:55Z 975427t [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 115200
+2026-10-02T23:03:55Z 975433t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 8 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-02T23:03:55Z 975465t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-02T23:03:55Z 975466t [BRIDGE_CFG] [INFO] Num Keys: 18
+2026-10-02T23:03:55Z 975466t [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-02T23:03:55Z 975466t [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-02T23:03:55Z 975466t [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-02T23:03:55Z 975466t [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-02T23:03:55Z 975466t [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-02T23:03:55Z 975467t [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-02T23:03:55Z 975467t [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-02T23:03:55Z 975467t [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-02T23:03:55Z 975467t [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-02T23:03:55Z 975468t [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-02T23:03:55Z 975468t [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-02T23:03:55Z 975468t [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-02T23:03:55Z 975468t [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-02T23:03:55Z 975468t [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-02T23:03:55Z 975468t [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-02T23:03:55Z 975469t [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-02T23:03:55Z 975469t [BRIDGE_CFG] [INFO] Key 16: sensorsCheckIntervalS
+2026-10-02T23:03:55Z 975469t [BRIDGE_CFG] [INFO] Key 17: sensorsPollIntervalMs
+2026-10-02T23:03:55Z 975469t [BRIDGE] [INFO]
+2026-10-02T23:03:55Z Processing Packet Stats:
+2026-10-02T23:03:55Z   Packets Received: 7
+2026-10-02T23:03:55Z   Dropped Packets: 0
+2026-10-02T23:03:55Z   Max Processing Time: 4ms
+2026-10-02T23:03:55Z   Max Processing Message Type: 69
+2026-10-02T23:03:55Z 975470t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-02T23:03:55Z 975470t [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-02T23:03:55Z 975474t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-02T23:03:55Z 975474t [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-02T23:03:55Z 975474t [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-02T23:03:55Z 975477t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-02T23:03:55Z 975483t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T23:03:55Z 975487t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-02T23:03:55Z 975492t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-02T23:03:55Z 975497t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-02T23:03:55Z 975501t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:03:55Z 975506t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:03:55Z 975511t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:03:55Z 975516t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:03:55Z 975520t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:03:55Z 975525t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:03:55Z 975530t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-02T23:03:55Z 975535t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-02T23:03:55Z 975540t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-02T23:03:55Z 975545t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-02T23:03:55Z 975550t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:03:55Z 975555t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-02T23:03:55Z 975560t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60
+2026-10-02T23:03:55Z 975565t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 10000
+2026-10-02T23:03:55Z 975569t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-02T23:03:56Z 976439t [BRIDGE_SYS] [INFO] Neighbor 53171fa3d81a8e6f added
+2026-10-02T23:04:00Z 980186t [MS] [INFO] Notecard powered on!
+2026-10-02T23:04:00Z 980187t [MS] [INFO] Notecard enabled successfully
+2026-10-02T23:04:00Z 980249t [SYS] [INFO] Notecard IMEI: 351077454541593
+2026-10-02T23:04:00Z 980249t [SYS] [INFO] Notecard sku: NOTE-WBGLW
+2026-10-02T23:04:00Z 980249t [SYS] [INFO] Notecard Board Version: 5.13
+2026-10-02T23:04:00Z 980249t [SYS] [INFO] Notecard Firmware Version: notecard-6.2.5.16868
+2026-10-02T23:04:00Z 980250t [MS] [INFO] Removing old notecard tx messages
+2026-10-02T23:04:00Z 980414t [SYS] [WARNING] New lowest heap size: 106648
+2026-10-02T23:04:00Z 980440t [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-10-02T23:04:00Z 980448t [BRIDGE_CFG] [INFO] c3c564b91856226c
+2026-10-02T23:04:00Z 980451t [BRIDGE_CFG] [INFO] 53171fa3d81a8e6f
+2026-10-02T23:04:00Z 980453t [BRIDGE_CFG] [INFO] Network configuration change detected! crc: 0xa73850dc at UTC:0
+2026-10-02T23:04:00Z 980456t [BRIDGE_CFG] [INFO] Stored CRCs:
+2026-10-02T23:04:00Z 0xddf6e9b9
+2026-10-02T23:04:00Z 0xa73850dc
+2026-10-02T23:04:00Z 0xba829098
+2026-10-02T23:04:00Z 0x1539bc17
+2026-10-02T23:04:00Z 0x82e414ca
+2026-10-02T23:04:00Z 0xf9cb90d5
+2026-10-02T23:04:00Z 0x6e163808
+2026-10-02T23:04:00Z 0x1614bd85
+2026-10-02T23:04:00Z 0x24b9d688
+2026-10-02T23:04:00Z 980477t [BRIDGE_CFG] [INFO] Bridge network config: [[14106792153947972204, "bridge", 362149892, 4146432334, {"sampleIntervalMs": 3600000, "sampleDurationMs": 600000, "subsampleIntervalMs": 300000, "subsampleDurationMs": 30000, "subsampleEnabled": 0, "bridgePowerControllerEnabled": 1, "alignmentInterval5Min": 1, "ticksSamplingEnabled": 0, "samplesPerReport": 1, "transmitAggregations": 0, "currentReadingPeriodMs": 60000, "softReadingPeriodMs": 500, "rbrCodaReadingPeriodMs": 500, "turbidityReadingPeriodMs": 1000, "disableUnusedPortsTimeMs": 0, "salinityReadingPeriodMs": 30000, "sensorsCheckIntervalS": 60, "sensorsPollIntervalMs": 10000}], [5987289018178113135, "nereus_cam", 4240228634, 1030244400, {"disableUnusedPortsTimeMs": 0}]]
+2026-10-02T23:04:00Z 980496t [BRIDGE_CFG] [INFO] Bridge network info CRC: a73850dc
+2026-10-02T23:04:00Z 980496t [BRIDGE_CFG] [INFO] Bridge FW Version: Major: 0 Minor: 13 Revision: 11
+2026-10-02T23:04:00Z 980496t [BRIDGE_CFG] [INFO] Bridge sys config partition CRC: f725894e
+2026-10-02T23:04:00Z 980496t [BRIDGE_CFG] [INFO] Bridge toplogy: c3c564b91856226c | 53171fa3d81a8e6f
+2026-10-02T23:04:00Z 980497t [BRIDGE] [INFO] Received Bristlemouth network crc that matches the last sent crc value, not sending network information.
+2026-10-02T23:04:00Z 980498t [BRIDGE_SYS] [INFO] Checking CRC in report builder!
+2026-10-02T23:04:00Z 980500t [BRIDGE_SYS] [INFO] Got CRC a73850dc OLD CRC 0
+2026-10-02T23:04:00Z No update available for 53171fa3d81a8e6f
+2026-10-02T23:04:00Z No update available for c3c564b91856226c
+2026-10-02T23:04:00Z 980503t [BRIDGE_SYS] [INFO] Getting topology in report builder!
+2026-10-02T23:04:00Z 980505t [BRIDGE_SYS] [INFO] Got topology in report builder!
+2026-10-02T23:04:00Z 980507t [BRIDGE_SYS] [INFO] Updating CRC and topology in report builder!
+2026-10-02T23:04:00Z 980510t [BRIDGE_SYS] [INFO] Updated reportBuilders max network configuration CBOR map
+2026-10-02T23:04:00Z 980513t [BRIDGE_SYS] [INFO] Updated reportBuilders max network sensor type list
+2026-10-02T23:04:02Z 983011t [MS] [INFO] Checking for update (and clearing successful one!)
+2026-10-02T23:04:02Z 983027t [ERR] [INFO] CellularErrorState changed from N/A to OK
+2026-10-02T23:04:03Z 983040t [ERR] [INFO] BusVErrorState changed from OVERVOLT to OK
+2026-10-02T23:04:04Z 984062t [BRIDGE] [INFO] Requesting self test
+2026-10-02T23:04:04Z 984062t [BRIDGE] [DEBUG] Self test attempts remaining: 3
+2026-10-02T23:04:04Z 984062t [BRIDGE] [DEBUG] Self test request sent
+2026-10-02T23:04:04Z 984065t [BRIDGE] [INFO] Self test result from c3c564b91856226c - 1
+2026-10-02T23:04:04Z 984066t [ERR] [INFO] bridgeErrorState changed from N/A to OK
+2026-10-02T23:04:04Z 984066t [BRIDGE] [INFO] Self test successful
+2026-10-02T23:04:04Z Neighbor information:
+2026-10-02T23:04:04Z Node ID: c3c564b91856226c
+2026-10-02T23:04:04Z VID: 0000 PID: 0000
+2026-10-02T23:04:04Z Serial number 0000000000000000
+2026-10-02T23:04:04Z GIT SHA: 1595F804
+2026-10-02T23:04:04Z Version: 0.13.11
+2026-10-02T23:04:04Z HW Version: 0
+2026-10-02T23:04:04Z VersionStr: bridge@v0.13.11
+2026-10-02T23:04:04Z Device Name: 2039364e55315013004e0032
+2026-10-02T23:04:04Z 984160t [BM_DFU] [INFO] Bm bridge dfu init complete
+2026-10-02T23:04:04Z 984160t [BM_DFU] [INFO] Transitioning to state: idle
+2026-10-02T23:04:04Z 984729t [MS] [INFO] Entering Transmit cellular state.
+2026-10-02T23:04:05Z 985402t c3c564b91856226c, power | tick: 10274, rtc: 0, addr: 65, voltage: 23.888000, current: 0.054500
+2026-10-02T23:04:06Z 986224t 53171fa3d81a8e6f, power | tick: 10264, rtc: 0, addr: 65, voltage: 23.822399, current: 0.000000
+2026-10-02T23:04:10Z 990414t [SYS] [WARNING] New lowest heap size: 105072
+2026-10-02T23:04:15Z 995403t c3c564b91856226c, power | tick: 20273, rtc: 0, addr: 65, voltage: 23.884800, current: 0.096000
+2026-10-02T23:04:16Z 996225t 53171fa3d81a8e6f, power | tick: 20264, rtc: 0, addr: 65, voltage: 23.740801, current: -0.000250
+2026-10-02T23:04:20Z 1000414t [SYS] [WARNING] New lowest heap size: 104896
+2026-10-02T23:04:23Z 1004040t [SYS] [ERROR] rebootctl reset 1. Source: 7
+2026-10-02T23:04:23Z Flushing log buffers.
+2026-10-02T23:04:27Z 
+2026-10-02T23:04:27Z [36m;1m _____        __             _____             _   _
+2026-10-02T23:04:27Z /  ___|      / _|           /  ___|           | | | |
+2026-10-02T23:04:27Z \ `--.  ___ | |_ __ _ _ __  \ `--. _ __   ___ | |_| |_ ___ _ __
+2026-10-02T23:04:27Z  `--. \/ _ \|  _/ _` | '__|  `--. \ '_ \ / _ \| __| __/ _ \ '__|
+2026-10-02T23:04:27Z /\__/ / (_) | || (_| | |    /\__/ / |_) | (_) | |_| ||  __/ |
+2026-10-02T23:04:27Z \____/ \___/|_| \__,_|_|    \____/| .__/ \___/ \__|\__\___|_|
+2026-10-02T23:04:27Z                                   | |
+2026-10-02T23:04:27Z                                   |_| v2.16.8
+2026-10-02T23:04:27Z [0m
+2026-10-02T23:04:27Z 
+2026-10-02T23:04:27Z 1987t [GPS] [WARNING] TXT: ANTSTATUS=INIT
+2026-10-02T23:04:27Z 2307t [GPS] [WARNING] TXT: Resetting GNSS
+2026-10-02T23:04:28Z 2738t [GPS] [WARNING] TXT: Resetting GNSS
+2026-10-02T23:04:28Z 2808t [GPS] [WARNING] TXT: ANTSUPERV=AC SD OD PDoS SR
+2026-10-02T23:04:28Z 3319t [UBX] [INFO] Requesting TP5 Data
+2026-10-02T23:04:28Z 3516t [UBX] [WARNING] Packet RX timeout
+2026-10-02T23:04:28Z 3579t [ERR] [INFO] GpsErrorState changed from N/A to NO_SIGNAL
+2026-10-02T23:04:28Z 3579t [GPS] [WARNING] Successfully initialized GPS!
+2026-10-02T23:04:28Z 3584t [ORC] [INFO] Standard Mode Enabled
+2026-10-02T23:04:28Z 3584t [ERR] [INFO] OrchErrorState changed from N/A to OK
+2026-10-02T23:04:28Z 3592t [SYS] [INFO] APP_NAME: spotter_bm
+2026-10-02T23:04:28Z 3592t [SYS] [INFO] UID: 203533483430501800330027
+2026-10-02T23:04:28Z 3592t [SYS] [INFO] FW Version: v2.16.8
+2026-10-02T23:04:28Z 3592t [SYS] [INFO] GIT SHA: 47FF21A4
+2026-10-02T23:04:28Z 3592t [SYS] [INFO] Build ID: 6266c608e6ab80955456b2c8e68e565f7e2ce753
+2026-10-02T23:04:28Z 3594t [SYS] [INFO] BSP: sunflower_v3.3
+2026-10-02T23:04:28Z 3594t [SYS] [INFO] Reset Reason: Reboot Controller
+2026-10-02T23:04:28Z 3594t [SYS] [INFO] RebootCtl Source: 7
+2026-10-02T23:04:28Z 3594t [SYS] [INFO] Main Deck HW Version: 03
+2026-10-02T23:04:28Z 3595t [SYS] [INFO] Upper Deck HW Version: 02
+2026-10-02T23:04:28Z 3595t [SYS] [INFO] Bootloader Information:
+2026-10-02T23:04:28Z   Version: v2.16.6
+2026-10-02T23:04:28Z   SHA: 667E60F9
+2026-10-02T23:04:28Z   Signature support: 1
+2026-10-02T23:04:28Z   Encrytion support: 0
+2026-10-02T23:04:28Z   Swap Type: NONE
+2026-10-02T23:04:28Z 3605t [BRIDGE] [INFO] Bridge Enabled
+2026-10-02T23:04:29Z 3768t [GPS] [WARNING] TXT: ANTSTATUS=OK
+2026-10-02T23:04:29Z 3904t [ORC] [INFO] Iridium modem enabled
+2026-10-02T23:04:29Z 3928t [SYS] [INFO] Iridium IMEI: 300534068638440
+2026-10-02T23:04:29Z 3942t [IRI] [INFO] ATI0 - 2400
+2026-10-02T23:04:29Z 3957t [IRI] [INFO] ATI1 - 0000
+2026-10-02T23:04:29Z 3971t [IRI] [INFO] ATI2 - OK
+2026-10-02T23:04:29Z 3987t [IRI] [INFO] ATI3 - TA21004
+2026-10-02T23:04:29Z 4009t [IRI] [INFO] ATI4 - IRIDIUM 9600 Family
+2026-10-02T23:04:29Z 4024t [IRI] [INFO] ATI5 - 8816
+2026-10-02T23:04:29Z 4038t [IRI] [INFO] ATI6 - 2DF
+2026-10-02T23:04:29Z 4065t [IRI] [INFO] ATI7 - BOOT07d4/9602NGrevA/04/RAW10
+2026-10-02T23:04:29Z 4085t [IRI] [INFO] AT+CGMI - Iridium
+2026-10-02T23:04:29Z 4119t [IRI] [INFO] AT+CGMM - IRIDIUM 9600 Family SBD Transceiver
+2026-10-02T23:04:29Z 4143t [IRI] [INFO] AT+CGSN - 300534068638440
+2026-10-02T23:04:29Z 4190t [IRI] [INFO] AT+CGMR - Modem DSP Version: 1.7 svn: 2358
+2026-10-02T23:04:29Z 4206t [IRI] [INFO] AT+CGMR - DBB Version: 0x0001 (ASIC)
+2026-10-02T23:04:29Z 4223t [IRI] [INFO] AT+CGMR - RFA Version: 0x001a (GRFA1B)
+2026-10-02T23:04:29Z 4233t [IRI] [INFO] AT+CGMR - NVM Version: KVS
+2026-10-02T23:04:29Z 4259t [IRI] [INFO] AT+CGMR - Hardware Version: BOOT07d4/9602NGrevA/04/RAW10
+2026-10-02T23:04:29Z 4282t [IRI] [INFO] AT+CGMR - BOOT Version: 2004 TD2-BLB960X-27 R4710
+2026-10-02T23:04:29Z 4285t [ERR] [INFO] IridiumErrorState changed from N/A to OK
+2026-10-02T23:04:29Z 4285t [ORC] [INFO] Iridium modem disabled
+2026-10-02T23:04:30Z 4966t [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-02T23:04:30Z 4968t [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-02T23:04:30Z 4970t [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 115200
+2026-10-02T23:04:30Z 4975t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-02T23:04:30Z 4976t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 8 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-02T23:04:30Z 4977t [BRIDGE] [INFO]
+2026-10-02T23:04:30Z Processing Packet Stats:
+2026-10-02T23:04:30Z   Packets Received: 5
+2026-10-02T23:04:30Z   Dropped Packets: 0
+2026-10-02T23:04:30Z   Max Processing Time: 1ms
+2026-10-02T23:04:30Z   Max Processing Message Type: 10
+2026-10-02T23:04:30Z 5008t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-02T23:04:30Z 5008t [BRIDGE_CFG] [INFO] Num Keys: 18
+2026-10-02T23:04:30Z 5008t [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-02T23:04:30Z 5009t [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-02T23:04:30Z 5009t [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-02T23:04:30Z 5009t [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-02T23:04:30Z 5009t [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-02T23:04:30Z 5009t [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-02T23:04:30Z 5010t [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-02T23:04:30Z 5010t [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-02T23:04:30Z 5010t [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-02T23:04:30Z 5010t [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-02T23:04:30Z 5010t [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-02T23:04:30Z 5011t [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-02T23:04:30Z 5011t [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-02T23:04:30Z 5011t [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-02T23:04:30Z 5011t [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-02T23:04:30Z 5011t [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-02T23:04:30Z 5012t [BRIDGE_CFG] [INFO] Key 16: sensorsCheckIntervalS
+2026-10-02T23:04:30Z 5012t [BRIDGE_CFG] [INFO] Key 17: sensorsPollIntervalMs
+2026-10-02T23:04:30Z 5012t [BRIDGE] [INFO]
+2026-10-02T23:04:30Z Processing Packet Stats:
+2026-10-02T23:04:30Z   Packets Received: 6
+2026-10-02T23:04:30Z   Dropped Packets: 0
+2026-10-02T23:04:30Z   Max Processing Time: 4ms
+2026-10-02T23:04:30Z   Max Processing Message Type: 69
+2026-10-02T23:04:30Z 5016t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-02T23:04:30Z 5016t [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-02T23:04:30Z 5020t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-02T23:04:30Z 5021t [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-02T23:04:30Z 5021t [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-02T23:04:30Z 5024t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-02T23:04:30Z 5029t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T23:04:30Z 5034t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-02T23:04:30Z 5039t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-02T23:04:30Z 5044t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-02T23:04:30Z 5049t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:04:30Z 5054t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:04:30Z 5059t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:04:30Z 5064t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:04:30Z 5069t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:04:30Z 5074t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:04:30Z 5079t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-02T23:04:30Z 5084t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-02T23:04:30Z 5089t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-02T23:04:30Z 5094t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-02T23:04:30Z 5099t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-02T23:04:30Z 5104t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-02T23:04:30Z 5109t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60
+2026-10-02T23:04:30Z 5114t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 10000
+2026-10-02T23:04:30Z 5119t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-02T23:04:31Z 5993t [BRIDGE_SYS] [INFO] Neighbor 53171fa3d81a8e6f added
+2026-10-02T23:04:35Z 9726t [MS] [INFO] Notecard powered on!
+2026-10-02T23:04:35Z 9727t [MS] [INFO] Notecard enabled successfully
+2026-10-02T23:04:35Z 9787t [SYS] [INFO] Notecard IMEI: 351077454541593
+2026-10-02T23:04:35Z 9788t [SYS] [INFO] Notecard sku: NOTE-WBGLW
+2026-10-02T23:04:35Z 9789t [SYS] [INFO] Notecard Board Version: 5.13
+2026-10-02T23:04:35Z 9790t [SYS] [INFO] Notecard Firmware Version: notecard-6.2.5.16868
+2026-10-02T23:04:35Z 9792t [MS] [INFO] Removing old notecard tx messages
+2026-10-02T23:04:35Z 9982t [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-10-02T23:04:35Z 9990t [BRIDGE_CFG] [INFO] c3c564b91856226c
+2026-10-02T23:04:35Z 9992t [BRIDGE_CFG] [INFO] 53171fa3d81a8e6f
+2026-10-02T23:04:35Z 9995t [BRIDGE_CFG] [INFO] Network configuration change detected! crc: 0xa73850dc at UTC:0
+2026-10-02T23:04:35Z 9997t [BRIDGE_CFG] [INFO] Stored CRCs:
+2026-10-02T23:04:35Z 0xddf6e9b9
+2026-10-02T23:04:35Z 0xa73850dc
+2026-10-02T23:04:35Z 0xba829098
+2026-10-02T23:04:35Z 0x1539bc17
+2026-10-02T23:04:35Z 0x82e414ca
+2026-10-02T23:04:35Z 0xf9cb90d5
+2026-10-02T23:04:35Z 0x6e163808
+2026-10-02T23:04:35Z 0x1614bd85
+2026-10-02T23:04:35Z 0x24b9d688
+2026-10-02T23:04:35Z 10019t [BRIDGE_CFG] [INFO] Bridge network config: [[14106792153947972204, "bridge", 362149892, 4146432334, {"sampleIntervalMs": 3600000, "sampleDurationMs": 600000, "subsampleIntervalMs": 300000, "subsampleDurationMs": 30000, "subsampleEnabled": 0, "bridgePowerControllerEnabled": 1, "alignmentInterval5Min": 1, "ticksSamplingEnabled": 0, "samplesPerReport": 1, "transmitAggregations": 0, "currentReadingPeriodMs": 60000, "softReadingPeriodMs": 500, "rbrCodaReadingPeriodMs": 500, "turbidityReadingPeriodMs": 1000, "disableUnusedPortsTimeMs": 0, "salinityReadingPeriodMs": 30000, "sensorsCheckIntervalS": 60, "sensorsPollIntervalMs": 10000}], [5987289018178113135, "nereus_cam", 4240228634, 1030244400, {"disableUnusedPortsTimeMs": 0}]]
+2026-10-02T23:04:35Z 10037t [BRIDGE_CFG] [INFO] Bridge network info CRC: a73850dc
+2026-10-02T23:04:35Z 10037t [BRIDGE_CFG] [INFO] Bridge FW Version: Major: 0 Minor: 13 Revision: 11
+2026-10-02T23:04:35Z 10038t [BRIDGE_CFG] [INFO] Bridge sys config partition CRC: f725894e
+2026-10-02T23:04:35Z 10038t [BRIDGE_CFG] [INFO] Bridge toplogy: c3c564b91856226c | 53171fa3d81a8e6f
+2026-10-02T23:04:35Z 10038t [BRIDGE] [INFO] Received Bristlemouth network crc that matches the last sent crc value, not sending network information.
+2026-10-02T23:04:35Z No update available for 53171fa3d81a8e6f
+2026-10-02T23:04:35Z 10040t [BRIDGE_SYS] [INFO] Checking CRC in report builder!
+2026-10-02T23:04:35Z No update available for c3c564b91856226c
+2026-10-02T23:04:35Z 10042t [BRIDGE_SYS] [INFO] Got CRC a73850dc OLD CRC 0
+2026-10-02T23:04:35Z 10044t [BRIDGE_SYS] [INFO] Getting topology in report builder!
+2026-10-02T23:04:35Z 10046t [BRIDGE_SYS] [INFO] Got topology in report builder!
+2026-10-02T23:04:35Z 10049t [BRIDGE_SYS] [INFO] Updating CRC and topology in report builder!
+2026-10-02T23:04:35Z 10052t [BRIDGE_SYS] [INFO] Updated reportBuilders max network configuration CBOR map
+2026-10-02T23:04:35Z 10055t [BRIDGE_SYS] [INFO] Updated reportBuilders max network sensor type list
+2026-10-02T23:04:35Z 10242t [SYS] [WARNING] New lowest heap size: 112160
+2026-10-02T23:04:38Z 13605t [BRIDGE] [INFO] Requesting self test
+2026-10-02T23:04:38Z 13605t [BRIDGE] [DEBUG] Self test attempts remaining: 3
+2026-10-02T23:04:38Z 13605t [BRIDGE] [DEBUG] Self test request sent
+2026-10-02T23:04:38Z 13608t [BRIDGE] [INFO] Self test result from c3c564b91856226c - 1
+2026-10-02T23:04:38Z 13608t [ERR] [INFO] bridgeErrorState changed from N/A to OK
+2026-10-02T23:04:38Z 13609t [BRIDGE] [INFO] Self test successful
+2026-10-02T23:04:38Z Neighbor information:
+2026-10-02T23:04:38Z Node ID: c3c564b91856226c
+2026-10-02T23:04:38Z VID: 0000 PID: 0000
+2026-10-02T23:04:38Z Serial number 0000000000000000
+2026-10-02T23:04:38Z GIT SHA: 1595F804
+2026-10-02T23:04:38Z Version: 0.13.11
+2026-10-02T23:04:38Z HW Version: 0
+2026-10-02T23:04:38Z VersionStr: bridge@v0.13.11
+2026-10-02T23:04:38Z Device Name: 2039364e55315013004e0032
+2026-10-02T23:04:38Z 13703t [BM_DFU] [INFO] Bm bridge dfu init complete
+2026-10-02T23:04:38Z 13703t [BM_DFU] [INFO] Transitioning to state: idle
+2026-10-02T23:04:40Z 14951t c3c564b91856226c, power | tick: 10272, rtc: 0, addr: 65, voltage: 23.888000, current: 0.054500
+2026-10-02T23:04:41Z 15779t 53171fa3d81a8e6f, power | tick: 10265, rtc: 0, addr: 65, voltage: 23.823999, current: -0.000250
+2026-10-02T23:04:41Z 16383t [MS] [INFO] Checking for update (and clearing successful one!)
+2026-10-02T23:04:41Z 16408t [ERR] [INFO] CellularErrorState changed from N/A to OK
+2026-10-02T23:04:41Z 16758t [MS] [INFO] Entering Transmit cellular state.
+2026-10-02T23:04:45Z 20242t [SYS] [WARNING] New lowest heap size: 109648
+2026-10-02T23:04:50Z 24953t c3c564b91856226c, power | tick: 20272, rtc: 0, addr: 65, voltage: 23.884800, current: 0.119500
+2026-10-02T23:04:51Z 25780t 53171fa3d81a8e6f, power | tick: 20265, rtc: 0, addr: 65, voltage: 23.753599, current: -0.000250
+2026-10-02T23:04:52Z 26892t [ERR] [INFO] BusVErrorState changed from OVERVOLT to OK
+2026-10-02T23:04:58Z Reboot time not reached, ignoring. (source 7)
+2026-10-02T23:05:00Z 34954t c3c564b91856226c, power | tick: 30272, rtc: 0, addr: 65, voltage: 23.886400, current: 0.086250
+2026-10-02T23:05:00Z 35011t [ERR] [INFO] GpsErrorState changed from NO_SIGNAL to OK
+2026-10-02T23:05:00Z 35011t [SYS] [INFO] Setting RTC from GPS for the first time to 2026-10-02T23:05:01.000Z
+2026-10-02T23:05:00Z 35011t [SYS] [WARNING] Updating RTC from GPS time.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.000Z [SYS] [WARNING] Rotating logs.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.027Z [MS] [INFO] Added message(id: 0 len: 171) to queue MS_Q_LEGACY: (1)!
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.027Z [MFLT] [INFO] Sending memfault message!
+2026-10-02T23:05:00Z Message: Current bit offset: 134
+2026-10-02T23:05:00Z Rounded bit offset: 136
+2026-10-02T23:05:00Z New bit offset: 664
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.027Z [MS] [INFO] Added message(id: 1 len: 83) to queue MS_Q_LEGACY: (2)!
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.027Z [MFLT] [INFO] Message 1 added to queue.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.027Z [MS] [INFO] Added message(id: 2 len: 37) to queue MS_Q_LEGACY: (3)!
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.027Z [ERR] [INFO] OrchErrorState changed from OK to SCHEDULE_SAMPLE_ALIGNMENT
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.035Z [MS] [DEBUG] Has message 0 expired? queuedTime: 35040, now64: 35046, remaining: 86399994
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.035Z [MS] [DEBUG] Sending legacy messages to Notecard.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.039Z [SYS] [WARNING] Logging queue hit new lowest ever spaces available. Dropped from 244 to 243 out of 256.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.039Z [SYS] [WARNING] Logging queue hit new lowest ever spaces available. Dropped from 243 to 242 out of 256.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.066Z [MS] [DEBUG] Notecard is 2.000000 pct full.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.066Z [MS] [INFO] Queuing message 0 20004FA8
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.152Z [SYS] [WARNING] Logging queue hit new lowest ever spaces available. Dropped from 242 to 239 out of 256.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.410Z [MS] [DEBUG] Has message 1 expired? queuedTime: 35041, now64: 35423, remaining: 86399618
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.410Z [MS] [INFO] Queuing message 1 20023A60
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.472Z [MS] [DEBUG] Has message 2 expired? queuedTime: 35042, now64: 35487, remaining: 86399555
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.472Z [MS] [INFO] Queuing message 2 200263F0
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.523Z [MS] [INFO] Setting GPS coordinates lat:37.758118, lon: -122.430771
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.593Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T23:05:00Z 2026-10-02T23:05:01.621Z [MS] [DEBUG] Waiting for TX
+2026-10-02T23:05:01Z Message: Message: 1790982301.765 53171fa3d81a8e6f, power | tick: 30265, rtc: 0, addr: 65, voltage: 23.823999, current: 0.000000
+2026-10-02T23:05:05Z 2026-10-02T23:05:06.226Z [SYS] [WARNING] New lowest heap size: 106784
+2026-10-02T23:05:09Z 2026-10-02T23:05:09.734Z [GPS] [INFO] Max CNO changed from -1 to 45
+2026-10-02T23:05:10Z 1790982310.941 c3c564b91856226c, power | tick: 40273, rtc: 2026-10-02T23:05:10.929, addr: 65, voltage: 23.886400, current: 0.073750
+2026-10-02T23:05:11Z 1790982311.765 53171fa3d81a8e6f, power | tick: 40265, rtc: 2026-10-02T23:05:11.753, addr: 65, voltage: 23.790400, current: 0.000000
+2026-10-02T23:05:15Z 2026-10-02T23:05:16.226Z [SYS] [WARNING] New lowest heap size: 104880
+2026-10-02T23:05:20Z 1790982320.937 c3c564b91856226c, power | tick: 50272, rtc: 2026-10-02T23:05:20.925, addr: 65, voltage: 23.886400, current: 0.080000
+2026-10-02T23:05:21Z 1790982321.765 53171fa3d81a8e6f, power | tick: 50265, rtc: 2026-10-02T23:05:21.750, addr: 65, voltage: 23.812799, current: 0.000000
+2026-10-02T23:05:25Z 2026-10-02T23:05:26.222Z [SYS] [WARNING] New lowest heap size: 101448
+2026-10-02T23:05:30Z 1790982330.937 c3c564b91856226c, power | tick: 60273, rtc: 2026-10-02T23:05:30.925, addr: 65, voltage: 23.886400, current: 0.088000
+2026-10-02T23:05:31Z 1790982331.765 53171fa3d81a8e6f, power | tick: 60265, rtc: 2026-10-02T23:05:31.753, addr: 65, voltage: 23.755199, current: -0.000250
+2026-10-02T23:05:32Z 2026-10-02T23:05:33.644Z [MS] [INFO] Added message(id: 0 len: 527) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T23:05:32Z 2026-10-02T23:05:33.644Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 401
+2026-10-02T23:05:32Z 2026-10-02T23:05:33.644Z [BM_TX] [DEBUG] Message:
+2026-10-02T23:05:32Z  3c 49 30 65 35 31 30 68
+2026-10-02T23:05:32Z  2e 35 2f 31 37 38 3e 69
+2026-10-02T23:05:32Z  31 4f 4d 31 48 50 6b 76
+2026-10-02T23:05:32Z  42 41 4e 74 61 7a 7a 38
+2026-10-02T23:05:32Z  47 74 69 76 36 55 4b 59
+2026-10-02T23:05:32Z  66 41 49 71 51 57 63 5a
+2026-10-02T23:05:32Z  71 45 6a 4a 66 69 7a 47
+2026-10-02T23:05:32Z  44 4a 68 58 63 44 67 49
+2026-10-02T23:05:32Z  4a 57 41 38 37 45 2f 33
+2026-10-02T23:05:32Z  47 4c 76 35 47 71 6d 50
+2026-10-02T23:05:32Z  74 62 31 69 6d 2f 4b 31
+2026-10-02T23:05:32Z  6f 6f 2b 38 76 51 78 56
+2026-10-02T23:05:32Z  73 41 63 38 53 75 4d 79
+2026-10-02T23:05:32Z  49 2b 75 6c 34 41 72 47
+2026-10-02T23:05:32Z  51 35 51 62 56 6d 6f 6d
+2026-10-02T23:05:32Z  53 4d 6f 2f 73 58 69 47
+2026-10-02T23:05:32Z  30 79 44 44 6b 64 71 4e
+2026-10-02T23:05:33Z  56 7a 6e 63 62 4e 73 4a
+2026-10-02T23:05:33Z  6f 43 65 73 77 6a 65 6b
+2026-10-02T23:05:33Z  4b 47 76 6f 6e 48 57 6b
+2026-10-02T23:05:33Z  32 6f 47 41 43 41 45 5a
+2026-10-02T23:05:33Z  72 44 72 6a 66 6f 50 41
+2026-10-02T23:05:33Z  74 43 6a 4a 74 61 43 4a
+2026-10-02T23:05:33Z  6a 64 57 50 56 46 69 64
+2026-10-02T23:05:33Z  71 57 65 35 2b 77 30 4c
+2026-10-02T23:05:33Z  54 59 49 39 46 58 35 64
+2026-10-02T23:05:33Z  6a 4a 2f 34 4c 59 67 59
+2026-10-02T23:05:33Z  4c 36 69 78 6f 44 77 62
+2026-10-02T23:05:33Z  6d 66 4e 34 58 6c 79 4d
+2026-10-02T23:05:33Z  72 76 34 76 6a 75 44 4f
+2026-10-02T23:05:33Z  54 33 62 69 6c 4d 36 79
+2026-10-02T23:05:33Z  63 69 6d 46 68 74 36 50
+2026-10-02T23:05:33Z  47 56 35 73 47 38 47 4b
+2026-10-02T23:05:33Z  44 47 35 67 72 5a 52 4c
+2026-10-02T23:05:33Z  68 65 39 42 74 52 32 35
+2026-10-02T23:05:33Z  43 43 65 69 58 62 50 6a
+2026-10-02T23:05:33Z  39 2f 62 42 43 47 4d 51
+2026-10-02T23:05:33Z  4a 58 54 4e 4d 62 58 78
+2026-10-02T23:05:33Z  49 49 32 58 37 4e 52 43
+2026-10-02T23:05:33Z  2b 72 6b 38 72 73 4a 4f
+2026-10-02T23:05:33Z  78 65 71 35 41 61 5a 59
+2026-10-02T23:05:33Z  2f 63 6e 75 50 72 71 6c
+2026-10-02T23:05:33Z  53 55 2b 2b 36 34 5a 54
+2026-10-02T23:05:33Z  78 53 6c 37 77 5a 46 36
+2026-10-02T23:05:33Z  70 47 67 4b 73 75 65 43
+2026-10-02T23:05:33Z  78 48 71 5a 6d 77 4c 4d
+2026-10-02T23:05:33Z  61 57 30 70 69 35 73 2f
+2026-10-02T23:05:33Z  78 63 4f 74 44 44 59 79
+2026-10-02T23:05:33Z  47 50 48 4b 6d 58 4a 34
+2026-10-02T23:05:33Z  57 46 2f 55 56 43 50 0a
+2026-10-02T23:05:33Z 
+2026-10-02T23:05:33Z 2026-10-02T23:05:33.695Z [BRIDGE] [INFO]
+2026-10-02T23:05:33Z Processing Packet Stats:
+2026-10-02T23:05:33Z   Packets Received: 82
+2026-10-02T23:05:33Z   Dropped Packets: 0
+2026-10-02T23:05:33Z   Max Processing Time: 50ms
+2026-10-02T23:05:33Z   Max Processing Message Type: 2
+2026-10-02T23:05:34Z 2026-10-02T23:05:34.964Z [MS] [INFO] Added message(id: 1 len: 527) to queue MS_Q_CELLULAR_ONLY: (2)!
+2026-10-02T23:05:34Z 2026-10-02T23:05:34.964Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 401
+2026-10-02T23:05:34Z 2026-10-02T23:05:34.964Z [BM_TX] [DEBUG] Message:
+2026-10-02T23:05:34Z  3c 49 30 65 35 31 30 68
+2026-10-02T23:05:34Z  2e 36 2f 31 37 38 3e 46
+2026-10-02T23:05:34Z  58 77 37 6f 42 69 37 56
+2026-10-02T23:05:34Z  68 54 41 52 59 55 77 4f
+2026-10-02T23:05:34Z  75 76 57 4b 2f 2b 6f 75
+2026-10-02T23:05:34Z  64 68 35 31 66 56 54 6f
+2026-10-02T23:05:34Z  77 6a 6f 72 75 70 47 30
+2026-10-02T23:05:34Z  4a 44 6a 68 4f 33 6c 52
+2026-10-02T23:05:34Z  77 41 59 47 5a 6e 49 59
+2026-10-02T23:05:34Z  70 51 2f 30 77 78 69 6f
+2026-10-02T23:05:34Z  41 71 65 74 52 72 48 53
+2026-10-02T23:05:34Z  36 4c 39 51 64 42 67 6a
+2026-10-02T23:05:34Z  54 77 5a 4e 59 70 44 6f
+2026-10-02T23:05:34Z  54 44 46 36 56 63 4c 6f
+2026-10-02T23:05:34Z  6f 4e 4a 52 77 34 66 6b
+2026-10-02T23:05:34Z  69 59 70 58 64 47 6d 62
+2026-10-02T23:05:34Z  59 31 56 2f 70 72 71 39
+2026-10-02T23:05:34Z  50 78 44 2f 44 39 41 63
+2026-10-02T23:05:34Z  57 52 78 68 66 69 79 71
+2026-10-02T23:05:34Z  46 7a 63 6c 69 41 48 47
+2026-10-02T23:05:34Z  64 51 30 4e 62 67 33 64
+2026-10-02T23:05:34Z  74 65 7a 56 53 36 6a 77
+2026-10-02T23:05:34Z  4e 37 64 41 37 69 63 72
+2026-10-02T23:05:34Z  77 2f 79 71 32 4a 61 74
+2026-10-02T23:05:34Z  43 36 6f 63 33 69 69 4a
+2026-10-02T23:05:34Z  34 59 63 6d 4c 6c 73 34
+2026-10-02T23:05:34Z  68 6a 33 7a 6d 7a 43 77
+2026-10-02T23:05:34Z  38 57 76 66 2b 54 32 75
+2026-10-02T23:05:34Z  55 42 43 6b 35 53 45 42
+2026-10-02T23:05:34Z  38 72 51 4b 4d 34 4d 4b
+2026-10-02T23:05:34Z  62 39 47 49 30 78 79 56
+2026-10-02T23:05:34Z  78 36 39 4f 63 76 2f 2f
+2026-10-02T23:05:34Z  53 4f 2b 50 4b 4d 34 54
+2026-10-02T23:05:34Z  72 48 63 59 57 6f 7a 44
+2026-10-02T23:05:34Z  62 67 63 2b 47 53 4a 65
+2026-10-02T23:05:34Z  41 7a 52 41 72 4f 47 51
+2026-10-02T23:05:34Z  59 39 6d 66 42 54 51 49
+2026-10-02T23:05:34Z  6e 38 6a 73 76 72 38 38
+2026-10-02T23:05:34Z  55 65 63 6e 7a 56 79 62
+2026-10-02T23:05:34Z  4b 6e 2b 75 49 74 6f 6f
+2026-10-02T23:05:34Z  55 45 62 4f 72 72 4f 58
+2026-10-02T23:05:34Z  70 34 4a 6b 53 69 4b 5a
+2026-10-02T23:05:34Z  6f 49 45 41 53 62 6d 66
+2026-10-02T23:05:34Z  58 6a 71 5a 51 35 33 43
+2026-10-02T23:05:34Z  69 55 70 49 71 57 67 2b
+2026-10-02T23:05:34Z  54 6e 34 6f 47 79 4b 52
+2026-10-02T23:05:34Z  42 70 49 65 43 43 34 63
+2026-10-02T23:05:34Z  65 33 47 72 50 51 4e 6b
+2026-10-02T23:05:34Z  76 56 47 63 39 72 76 66
+2026-10-02T23:05:34Z  6b 43 51 4b 57 4f 73 0a
+2026-10-02T23:05:34Z 
+2026-10-02T23:05:35Z 2026-10-02T23:05:36.222Z [SYS] [WARNING] New lowest heap size: 83120
+2026-10-02T23:05:35Z 2026-10-02T23:05:36.285Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+2026-10-02T23:05:35Z 2026-10-02T23:05:36.285Z [MS] [INFO] Error adding message to queue.
+2026-10-02T23:05:35Z 2026-10-02T23:05:36.285Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+2026-10-02T23:05:36Z .2026-10-02T23:05:37.605Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+2026-10-02T23:05:36Z 2026-10-02T23:05:37.605Z [MS] [INFO] Error adding message to queue.
+2026-10-02T23:05:36Z 2026-10-02T23:05:37.605Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+2026-10-02T23:05:38Z .2026-10-02T23:05:38.925Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+2026-10-02T23:05:38Z 2026-10-02T23:05:38.925Z [MS] [INFO] Error adding message to queue.
+2026-10-02T23:05:38Z 2026-10-02T23:05:38.925Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+2026-10-02T23:05:39Z .2026-10-02T23:05:40.242Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+2026-10-02T23:05:39Z 2026-10-02T23:05:40.242Z [MS] [INFO] Error adding message to queue.
+2026-10-02T23:05:39Z 2026-10-02T23:05:40.242Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+2026-10-02T23:05:40Z .Message: Message: 1790982340.937 c3c564b91856226c, power | tick: 70273, rtc: 2026-10-02T23:05:40.929, addr: 65, voltage: 23.891199, current: 0.034250
+2026-10-02T23:05:40Z 2026-10-02T23:05:41.562Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+2026-10-02T23:05:40Z 2026-10-02T23:05:41.562Z [MS] [INFO] Error adding message to queue.
+2026-10-02T23:05:40Z 2026-10-02T23:05:41.562Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+2026-10-02T23:05:41Z .1790982341.765 53171fa3d81a8e6f, power | tick: 70265, rtc: 2026-10-02T23:05:41.753, addr: 65, voltage: 23.856001, current: 0.000000
+2026-10-02T23:05:42Z 2026-10-02T23:05:42.882Z [MS] [ERROR] Queue MS_Q_CELLULAR_ONLY is full.
+2026-10-02T23:05:42Z 2026-10-02T23:05:42.882Z [MS] [INFO] Error adding message to queue.
+2026-10-02T23:05:42Z 2026-10-02T23:05:42.882Z [BM_TX] [ERROR] Unable to submit message to cell-only queue
+2026-10-02T23:05:42Z .2026-10-02T23:05:42.996Z [ORC] [INFO] Message 0 transmitted successfully!
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.019Z [MS] [DEBUG] Notecard is 2.000000 pct full.
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.019Z [MS] [INFO] All messages sent successfully!
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.019Z [MS] [DEBUG] Checking for Rx Messages
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.066Z [ERR] [INFO] Cellular SignalErrorState changed from N/A to OK
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.066Z [MS] [DEBUG] Messages sent/received successfully.
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.125Z [SYS] [INFO] Returning 0 from sdMsgQueue::size, queue 0
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.125Z [MS] [DEBUG] Have 0 messages on the SD card queue that we will try to send
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.128Z [MS] [INFO] Number of SD messages we attempted to send: 0
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.148Z [MS] [DEBUG] Notecard is 2.000000 pct full.
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.148Z [MS] [DEBUG] Has message 0 expired? queuedTime: 67664, now64: 77171, remaining: 86390493
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.152Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T23:05:42Z 2026-10-02T23:05:43.152Z [MS] [INFO] Queuing message 0 2001B7A8
+2026-10-02T23:05:43Z 2026-10-02T23:05:44.003Z [MS] [DEBUG] Has message 1 expired? queuedTime: 68984, now64: 78026, remaining: 86390958
+2026-10-02T23:05:43Z 2026-10-02T23:05:44.007Z [MS] [INFO] Queuing message 1 2001B750
+2026-10-02T23:05:43Z 2026-10-02T23:05:44.203Z [MS] [INFO] Added message(id: 8 len: 528) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T23:05:43Z 2026-10-02T23:05:44.203Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 402
+2026-10-02T23:05:43Z 2026-10-02T23:05:44.203Z [BM_TX] [DEBUG] Message:
+2026-10-02T23:05:43Z  3c 49 30 65 35 31 30 68
+2026-10-02T23:05:43Z  2e 31 33 2f 31 37 38 3e
+2026-10-02T23:05:43Z  5a 79 36 58 64 47 34 61
+2026-10-02T23:05:43Z  64 70 2f 39 6f 2b 75 52
+2026-10-02T23:05:43Z  6c 4f 6a 4b 63 33 55 70
+2026-10-02T23:05:43Z  4a 2b 44 4e 32 47 39 66
+2026-10-02T23:05:43Z  4f 4e 75 48 4d 54 66 75
+2026-10-02T23:05:43Z  2b 39 4e 65 4d 66 68 5a
+2026-10-02T23:05:43Z  67 42 39 50 36 33 6d 6e
+2026-10-02T23:05:43Z  57 79 44 73 4b 56 54 54
+2026-10-02T23:05:43Z  2f 79 4f 4f 35 43 30 4c
+2026-10-02T23:05:43Z  61 45 4a 6d 77 6d 55 36
+2026-10-02T23:05:43Z  2b 51 4d 51 46 44 35 33
+2026-10-02T23:05:43Z  6a 72 75 6b 47 2f 6f 54
+2026-10-02T23:05:43Z  70 72 2b 4b 71 4e 56 77
+2026-10-02T23:05:43Z  5a 2f 73 4b 33 51 2f 39
+2026-10-02T23:05:43Z  2f 45 76 56 4c 39 67 49
+2026-10-02T23:05:43Z  77 62 32 54 4b 6d 61 76
+2026-10-02T23:05:43Z  72 4d 63 6c 64 4e 38 37
+2026-10-02T23:05:43Z  42 35 66 69 63 6b 30 36
+2026-10-02T23:05:43Z  71 48 6e 53 62 35 74 6d
+2026-10-02T23:05:43Z  5a 73 7a 2b 67 41 66 6f
+2026-10-02T23:05:43Z  42 31 63 55 35 73 6b 53
+2026-10-02T23:05:43Z  31 75 50 55 35 71 68 59
+2026-10-02T23:05:43Z  7a 71 74 30 53 2f 4a 61
+2026-10-02T23:05:43Z  69 4d 4b 76 35 33 4a 50
+2026-10-02T23:05:43Z  46 75 76 39 43 6f 6e 2b
+2026-10-02T23:05:43Z  74 61 6b 30 56 56 38 4e
+2026-10-02T23:05:43Z  35 2f 38 64 2f 4f 4b 72
+2026-10-02T23:05:43Z  31 55 4e 46 58 61 79 52
+2026-10-02T23:05:43Z  51 6e 58 5a 39 37 4f 54
+2026-10-02T23:05:43Z  48 68 37 56 34 4d 51 6d
+2026-10-02T23:05:43Z  55 51 44 6b 50 53 55 71
+2026-10-02T23:05:43Z  6b 72 51 48 47 76 62 46
+2026-10-02T23:05:43Z  39 79 4b 39 62 4e 6c 7a
+2026-10-02T23:05:43Z  32 72 45 34 59 77 69 35
+2026-10-02T23:05:43Z  4c 46 77 66 51 53 4d 32
+2026-10-02T23:05:43Z  51 64 66 4b 2b 68 61 6d
+2026-10-02T23:05:43Z  77 77 4a 65 55 4b 4d 6f
+2026-10-02T23:05:43Z  78 30 55 44 30 4a 76 6a
+2026-10-02T23:05:43Z  66 49 36 51 65 59 57 76
+2026-10-02T23:05:43Z  4e 61 33 56 65 34 4c 66
+2026-10-02T23:05:43Z  74 2f 31 35 4e 34 48 4e
+2026-10-02T23:05:43Z  71 68 51 38 53 67 54 7a
+2026-10-02T23:05:43Z  43 4e 4a 35 39 77 76 45
+2026-10-02T23:05:43Z  72 41 64 44 31 70 44 35
+2026-10-02T23:05:43Z  51 75 64 39 41 70 43 6c
+2026-10-02T23:05:43Z  44 41 47 43 38 44 53 6e
+2026-10-02T23:05:43Z  64 6e 41 70 44 69 7a 65
+2026-10-02T23:05:43Z  48 34 45 63 57 66 6c 78
+2026-10-02T23:05:43Z  0a
+2026-10-02T23:05:44Z 2026-10-02T23:05:44.808Z [MS] [DEBUG] Has message 8 expired? queuedTime: 78225, now64: 78828, remaining: 86399397
+2026-10-02T23:05:44Z 2026-10-02T23:05:44.808Z [MS] [INFO] Queuing message 8 20023A60
+2026-10-02T23:05:44Z 2026-10-02T23:05:45.523Z [MS] [INFO] Added message(id: 9 len: 528) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T23:05:44Z 2026-10-02T23:05:45.523Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 402
+2026-10-02T23:05:44Z 2026-10-02T23:05:45.523Z [BM_TX] [DEBUG] Message:
+2026-10-02T23:05:44Z  3c 49 30 65 35 31 30 68
+2026-10-02T23:05:44Z  2e 31 34 2f 31 37 38 3e
+2026-10-02T23:05:44Z  4d 6e 54 59 38 44 49 2b
+2026-10-02T23:05:44Z  68 39 6a 6f 53 6b 35 6c
+2026-10-02T23:05:44Z  52 30 50 74 57 58 71 6b
+2026-10-02T23:05:44Z  68 76 54 6a 67 65 6a 68
+2026-10-02T23:05:44Z  59 32 69 30 4c 65 75 44
+2026-10-02T23:05:44Z  56 54 5a 37 6b 4a 58 75
+2026-10-02T23:05:44Z  4c 4d 44 62 6d 76 77 42
+2026-10-02T23:05:44Z  70 44 7a 6d 2f 52 2f 57
+2026-10-02T23:05:44Z  50 73 58 46 6f 36 31 59
+2026-10-02T23:05:44Z  2b 64 36 70 4c 75 7a 72
+2026-10-02T23:05:44Z  67 4c 31 47 71 54 74 78
+2026-10-02T23:05:44Z  37 39 78 56 32 6e 2b 35
+2026-10-02T23:05:44Z  39 77 55 48 55 53 63 69
+2026-10-02T23:05:44Z  4b 6f 39 5a 57 37 43 36
+2026-10-02T23:05:44Z  34 39 32 78 33 44 4f 37
+2026-10-02T23:05:44Z  72 46 78 64 43 44 7a 71
+2026-10-02T23:05:44Z  50 67 30 35 5a 78 79 57
+2026-10-02T23:05:44Z  6a 37 2b 74 65 6e 76 78
+2026-10-02T23:05:44Z  4d 2f 75 4e 45 69 74 41
+2026-10-02T23:05:44Z  65 36 67 47 73 46 77 31
+2026-10-02T23:05:44Z  67 41 4f 34 62 57 51 31
+2026-10-02T23:05:44Z  35 50 53 33 30 69 7a 66
+2026-10-02T23:05:44Z  31 39 37 78 54 73 49 6f
+2026-10-02T23:05:44Z  44 68 5a 31 77 33 4a 31
+2026-10-02T23:05:44Z  34 62 75 49 4e 78 68 58
+2026-10-02T23:05:44Z  42 44 6a 63 51 54 6c 6a
+2026-10-02T23:05:44Z  35 4b 31 31 30 48 4c 57
+2026-10-02T23:05:44Z  54 77 57 41 79 69 6b 37
+2026-10-02T23:05:44Z  79 4f 4b 47 61 44 38 6e
+2026-10-02T23:05:44Z  34 42 76 4c 5a 69 48 36
+2026-10-02T23:05:44Z  44 66 39 79 56 59 72 53
+2026-10-02T23:05:44Z  4f 58 43 59 36 4a 48 44
+2026-10-02T23:05:44Z  58 58 4c 39 4e 2f 6d 67
+2026-10-02T23:05:44Z  32 31 39 32 42 38 71 47
+2026-10-02T23:05:44Z  73 53 50 4c 4f 79 72 75
+2026-10-02T23:05:44Z  50 4c 6a 67 61 4f 51 46
+2026-10-02T23:05:44Z  2f 73 2f 79 70 36 4c 51
+2026-10-02T23:05:44Z  45 49 70 38 4f 46 41 43
+2026-10-02T23:05:44Z  44 77 69 58 79 4d 49 4e
+2026-10-02T23:05:44Z  41 4c 57 6f 49 4c 53 70
+2026-10-02T23:05:44Z  56 57 59 6b 57 4f 74 62
+2026-10-02T23:05:44Z  4d 6c 53 79 7a 41 38 35
+2026-10-02T23:05:44Z  41 5a 44 32 76 77 69 51
+2026-10-02T23:05:44Z  56 50 48 4e 6c 46 47 4f
+2026-10-02T23:05:44Z  51 56 33 78 2b 32 65 70
+2026-10-02T23:05:44Z  6d 36 50 39 54 4c 6b 77
+2026-10-02T23:05:44Z  35 73 61 73 6f 44 4f 63
+2026-10-02T23:05:44Z  65 30 63 48 34 32 6f 66
+2026-10-02T23:05:44Z  0a
+2026-10-02T23:05:44Z 2026-10-02T23:05:45.609Z [MS] [DEBUG] Has message 9 expired? queuedTime: 79545, now64: 79632, remaining: 86399913
+2026-10-02T23:05:44Z 2026-10-02T23:05:45.613Z [MS] [INFO] Queuing message 9 20023550
+2026-10-02T23:05:45Z 2026-10-02T23:05:46.218Z [SYS] [WARNING] New lowest heap size: 80568
+2026-10-02T23:05:45Z 2026-10-02T23:05:46.441Z [MS] [DEBUG] Sending legacy messages to Notecard.
+2026-10-02T23:05:45Z 2026-10-02T23:05:46.460Z [MS] [DEBUG] Notecard is 3.000000 pct full.
+2026-10-02T23:05:45Z 2026-10-02T23:05:46.460Z [MS] [INFO] Setting GPS coordinates lat:37.758114, lon: -122.430801
+2026-10-02T23:05:45Z 2026-10-02T23:05:46.519Z [MS] [DEBUG] Attempting to Sync.
+2026-10-02T23:05:46Z 2026-10-02T23:05:46.843Z [MS] [INFO] Added message(id: 10 len: 528) to queue MS_Q_CELLULAR_ONLY: (1)!
+2026-10-02T23:05:46Z 2026-10-02T23:05:46.843Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 402
+2026-10-02T23:05:46Z 2026-10-02T23:05:46.843Z [BM_TX] [DEBUG] Message:
+2026-10-02T23:05:46Z  3c 49 30 65 35 31 30 68
+2026-10-02T23:05:46Z  2e 31 35 2f 31 37 38 3e
+2026-10-02T23:05:46Z  46 32 55 77 59 6a 49 48
+2026-10-02T23:05:46Z  78 6c 4e 30 30 45 6d 4a
+2026-10-02T23:05:46Z  70 44 72 2f 4f 50 37 47
+2026-10-02T23:05:46Z  53 66 48 47 6c 53 64 6e
+2026-10-02T23:05:46Z  36 59 64 68 54 6a 69 4f
+2026-10-02T23:05:46Z  2b 7a 4a 77 4c 79 68 4c
+2026-10-02T23:05:46Z  30 66 72 31 39 66 63 72
+2026-10-02T23:05:46Z  45 56 59 45 38 4f 72 66
+2026-10-02T23:05:46Z  46 41 51 77 6c 6d 71 72
+2026-10-02T23:05:46Z  38 30 71 63 45 55 59 61
+2026-10-02T23:05:46Z  33 31 4b 73 4b 2b 66 4e
+2026-10-02T23:05:46Z  56 41 75 6c 30 65 72 46
+2026-10-02T23:05:46Z  32 62 38 65 33 57 6a 39
+2026-10-02T23:05:46Z  46 51 55 7a 71 4b 79 61
+2026-10-02T23:05:46Z  68 56 42 37 38 69 68 50
+2026-10-02T23:05:46Z  33 6e 36 6c 52 32 79 50
+2026-10-02T23:05:46Z  53 32 54 77 6c 4e 30 32
+2026-10-02T23:05:46Z  77 75 44 39 51 76 30 67
+2026-10-02T23:05:46Z  6c 52 74 35 51 69 45 36
+2026-10-02T23:05:46Z  54 50 35 4b 75 36 54 64
+2026-10-02T23:05:46Z  35 66 63 68 53 4f 54 42
+2026-10-02T23:05:46Z  6c 66 5a 39 68 4a 76 59
+2026-10-02T23:05:46Z  32 33 6f 30 67 70 78 75
+2026-10-02T23:05:46Z  4a 33 79 41 34 59 61 7a
+2026-10-02T23:05:46Z  52 32 37 56 38 73 32 57
+2026-10-02T23:05:46Z  33 42 38 76 33 7a 56 6a
+2026-10-02T23:05:46Z  43 62 6c 35 4e 45 30 48
+2026-10-02T23:05:46Z  46 48 4a 49 68 2b 33 31
+2026-10-02T23:05:46Z  2f 67 61 6b 46 6e 39 6d
+2026-10-02T23:05:46Z  36 42 35 48 63 4c 30 42
+2026-10-02T23:05:46Z  75 66 58 39 70 33 32 65
+2026-10-02T23:05:46Z  54 6c 50 35 2b 4d 63 6f
+2026-10-02T23:05:46Z  45 36 49 50 33 62 61 69
+2026-10-02T23:05:46Z  50 77 56 58 73 6f 77 64
+2026-10-02T23:05:46Z  48 76 31 4b 33 4b 55 58
+2026-10-02T23:05:46Z  2b 36 74 64 48 33 30 37
+2026-10-02T23:05:46Z  69 37 47 38 58 45 64 38
+2026-10-02T23:05:46Z  67 6a 2f 54 76 72 35 31
+2026-10-02T23:05:46Z  53 30 33 5a 46 77 35 38
+2026-10-02T23:05:46Z  66 6d 5a 37 48 4c 74 6a
+2026-10-02T23:05:46Z  6e 4e 77 74 61 73 55 6b
+2026-10-02T23:05:46Z  55 71 4b 53 66 57 6e 54
+2026-10-02T23:05:46Z  57 47 74 4a 70 64 58 2b
+2026-10-02T23:05:46Z  46 64 74 31 32 46 70 70
+2026-10-02T23:05:46Z  6e 74 41 71 4d 37 77 4c
+2026-10-02T23:05:46Z  73 2f 64 50 6b 41 55 70
+2026-10-02T23:05:46Z  79 51 4e 46 38 72 36 63
+2026-10-02T23:05:46Z  56 51 2f 31 2b 4a 72 47
+2026-10-02T23:05:46Z  0a
+2026-10-02T23:05:46Z 2026-10-02T23:05:46.898Z [BRIDGE] [INFO]
+2026-10-02T23:05:46Z Processing Packet Stats:
+2026-10-02T23:05:46Z   Packets Received: 96
+2026-10-02T23:05:46Z   Dropped Packets: 0
+2026-10-02T23:05:46Z   Max Processing Time: 55ms
+2026-10-02T23:05:46Z   Max Processing Message Type: 2
+2026-10-02T23:05:47Z 2026-10-02T23:05:48.152Z [MS] [INFO] Added message(id: 11 len: 528) to queue MS_Q_CELLULAR_ONLY: (2)!
+2026-10-02T23:05:47Z 2026-10-02T23:05:48.152Z [BM_TX] [INFO] Submitted spotter/transmit-data message to cell-only queue, Len: 402
+2026-10-02T23:05:47Z 2026-10-02T23:05:48.152Z [BM_TX] [DEBUG] Message:
+2026-10-02T23:05:47Z  3c 49 30 65 35 31 30 68
+2026-10-02T23:05:47Z  2e 31 36 2f 31 37 38 3e
+2026-10-02T23:05:47Z  77 6a 42 4f 64 50 42 4a
+2026-10-02T23:05:47Z  2b 59 56 63 64 70 76 53
+2026-10-02T23:05:47Z  52 71 6f 6c 56 5a 49 71
+2026-10-02T23:05:47Z  36 37 4b 55 56 31 6e 56
+2026-10-02T23:05:47Z  44 4f 4f 4a 4d 4e 79 2f
+2026-10-02T23:05:47Z  5a 39 77 52 7a 33 58 63
+2026-10-02T23:05:47Z  30 4c 68 39 65 6e 77 61
+2026-10-02T23:05:47Z  52 42 4c 4e 78 6f 63 57
+2026-10-02T23:05:47Z  59 46 4f 49 65 2f 57 30
+2026-10-02T23:05:47Z  54 56 6a 34 38 31 61 75
+2026-10-02T23:05:47Z  7a 39 69 6e 45 59 4b 69
+2026-10-02T23:05:47Z  79 6b 57 66 4f 46 42 43
+2026-10-02T23:05:47Z  5a 2f 54 4d 49 62 61 4a
+2026-10-02T23:05:47Z  47 65 58 76 76 42 6e 41
+2026-10-02T23:05:47Z  45 54 7a 6b 6e 66 61 6b
+2026-10-02T23:05:47Z  7a 55 4e 38 46 76 34 32
+2026-10-02T23:05:47Z  2f 79 4f 6f 4f 49 73 70
+2026-10-02T23:05:47Z  33 33 72 6e 38 38 59 79
+2026-10-02T23:05:47Z  38 33 74 39 39 4b 74 70
+2026-10-02T23:05:47Z  63 47 76 6f 72 57 75 4b
+2026-10-02T23:05:47Z  36 6f 48 4e 6d 74 49 6e
+2026-10-02T23:05:47Z  30 76 2b 41 6d 41 38 7a
+2026-10-02T23:05:47Z  42 6e 64 4d 59 66 70 43
+2026-10-02T23:05:47Z  57 75 52 7a 52 41 2b 37
+2026-10-02T23:05:47Z  72 58 47 37 72 2f 44 66
+2026-10-02T23:05:47Z  6b 7a 61 67 49 78 53 61
+2026-10-02T23:05:47Z  75 61 77 62 4b 6e 4e 61
+2026-10-02T23:05:47Z  64 7a 4c 65 74 2f 39 2f
+2026-10-02T23:05:47Z  6e 6c 58 52 47 33 79 71
+2026-10-02T23:05:47Z  58 39 57 43 76 77 54 32
+2026-10-02T23:05:47Z  48 71 73 67 52 48 53 30
+2026-10-02T23:05:47Z  70 34 7a 6e 72 6a 4f 79
+2026-10-02T23:05:47Z  63 4c 32 44 57 31 46 49
+2026-10-02T23:05:47Z  77 45 64 37 73 6e 35 51
+2026-10-02T23:05:47Z  36 62 37 2f 30 33 43 31
+2026-10-02T23:05:47Z  61 76 74 6a 75 6d 37 56
+2026-10-02T23:05:47Z  4a 50 70 68 42 6f 43 4f
+2026-10-02T23:05:47Z  75 75 7a 39 77 68 7a 47
+2026-10-02T23:05:47Z  53 48 50 32 6b 45 47 73
+2026-10-02T23:05:47Z  42 4f 6c 6e 54 43 6d 46
+2026-10-02T23:05:47Z  6f 71 67 78 61 61 36 4f
+2026-10-02T23:05:47Z  4d 4e 57 6e 76 62 52 49
+2026-10-02T23:05:47Z  65 2f 64 6f 41 64 61 54
+2026-10-02T23:05:47Z  43 52 44 46 46 71 53 6e
+2026-10-02T23:05:47Z  4c 66 33 6f 46 57 41 53
+2026-10-02T23:05:47Z  49 76 4f 68 39 6c 72 34
+2026-10-02T23:05:47Z  48 55 74 39 61 47 4e 37
+2026-10-02T23:05:47Z  42 71 36 67 63 37 6c 64
+2026-10-02T23:05:47Z  0a
+2026-10-02T23:05:48Z 2026-10-02T23:05:49.265Z [MS] [DEBUG] Waiting for TX
+2026-10-02T23:05:50Z Message: Message: Message: Message: 1790982350.937 c3c564b91856226c, power | tick: 80272, rtc: 2026-10-02T23:05:50.925, addr: 65, voltage: 23.894400, current: 0.018500
+2026-10-02T23:05:51Z 1790982351.765 53171fa3d81a8e6f, power | tick: 80265, rtc: 2026-10-02T23:05:51.750, addr: 65, voltage: 23.878401, current: 0.000000
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.296Z [MS] [DEBUG] Notecard is 3.000000 pct full.
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.296Z [MS] [INFO] All messages sent successfully!
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.300Z [MS] [DEBUG] Checking for Rx Messages
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.347Z [MS] [DEBUG] Messages sent/received successfully.
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.367Z [SYS] [INFO] Returning 0 from sdMsgQueue::size, queue 0
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.367Z [MS] [DEBUG] Have 0 messages on the SD card queue that we will try to send
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.367Z [MS] [INFO] Number of SD messages we attempted to send: 0
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.386Z [MS] [DEBUG] Notecard is 3.000000 pct full.
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.386Z [MS] [DEBUG] Has message 10 expired? queuedTime: 80865, now64: 89411, remaining: 86391454
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.390Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-02T23:05:54Z 2026-10-02T23:05:55.390Z [MS] [INFO] Queuing message 10 20022C78
+2026-10-02T23:05:55Z 2026-10-02T23:05:56.195Z [MS] [DEBUG] Has message 11 expired? queuedTime: 82175, now64: 90218, remaining: 86391957
+2026-10-02T23:05:55Z 2026-10-02T23:05:56.195Z [MS] [INFO] Queuing message 11 20022FB0
+2026-10-02T23:06:00Z 1790982360.937 c3c564b91856226c, power | tick: 90273, rtc: 2026-10-02T23:06:00.925, addr: 65, voltage: 23.894400, current: 0.017750
+2026-10-02T23:06:01Z 1790982361.761 53171fa3d81a8e6f, power | tick: 90265, rtc: 2026-10-02T23:06:01.753, addr: 65, voltage: 23.878401, current: 0.000000
+2026-10-02T23:06:10Z 1790982370.937 c3c564b91856226c, power | tick: 100273, rtc: 2026-10-02T23:06:10.925, addr: 65, voltage: 23.894400, current: 0.017750
+2026-10-02T23:06:11Z 1790982371.761 53171fa3d81a8e6f, power | tick: 100265, rtc: 2026-10-02T23:06:11.750, addr: 65, voltage: 23.878401, current: 0.000000
+2026-10-02T23:06:20Z 1790982380.937 c3c564b91856226c, power | tick: 110272, rtc: 2026-10-02T23:06:20.925, addr: 65, voltage: 23.894400, current: 0.017750
+2026-10-02T23:06:21Z 1790982381.761 53171fa3d81a8e6f, power | tick: 110265, rtc: 2026-10-02T23:06:21.750, addr: 65, voltage: 23.878401, current: 0.000000
+2026-10-02T23:06:27Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-02T23:06:27Z Succesfully sent config get msg
+2026-10-02T23:06:27Z 2026-10-02T23:06:28.105Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T23:06:30Z 1790982390.937 c3c564b91856226c, power | tick: 120273, rtc: 2026-10-02T23:06:30.921, addr: 65, voltage: 23.894400, current: 0.017750
+2026-10-02T23:06:30Z 2026-10-02T23:06:30.949Z [BRIDGE_SYS] [INFO] Sample enabled 1
+2026-10-02T23:06:30Z Sample Duration: 600 s
+2026-10-02T23:06:30Z Sample Interval: 3600 s
+2026-10-02T23:06:30Z Subsample enabled: 0
+2026-10-02T23:06:30Z Subsample Duration: 30 s
+2026-10-02T23:06:30Z Subsample Interval: 300 s
+2026-10-02T23:06:30Z Alignment Interval: 300 s
+2026-10-02T23:06:30Z 2026-10-02T23:06:30.949Z [BRIDGE_SYS] [INFO] Using RTC timebase
+2026-10-02T23:06:30Z 2026-10-02T23:06:30.953Z [BRIDGE_SYS] [INFO] Bridge State Init Complete
+2026-10-02T23:06:30Z 2026-10-02T23:06:30.953Z [BRIDGE_SYS] [INFO] Bridge bus power: 0
+2026-10-02T23:06:30Z 2026-10-02T23:06:30.957Z [BRIDGE_SYS] [INFO] Controller task will wait 3210000 ms
+2026-10-02T23:06:30Z 2026-10-02T23:06:30.996Z [BRIDGE] [INFO] handle_power_states, power off for: 3218000
+2026-10-02T23:06:31Z bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-02T23:06:31Z Succesfully sent config get msg
+2026-10-02T23:06:31Z 2026-10-02T23:06:32.527Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-02T23:06:36Z bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-02T23:06:36Z Succesfully sent config get msg
+2026-10-02T23:06:36Z 2026-10-02T23:06:37.140Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-02T23:06:40Z 1790982400.933 c3c564b91856226c, power | tick: 130272, rtc: 2026-10-02T23:06:40.925, addr: 65, voltage: 1.075200, current: -0.000250
+2026-10-02T23:06:41Z 2026-10-02T23:06:41.976Z [BRIDGE_SYS] [INFO] Neighbor 53171fa3d81a8e6f lost
+2026-10-02T23:06:50Z 1790982410.933 c3c564b91856226c, power | tick: 140272, rtc: 2026-10-02T23:06:50.921, addr: 65, voltage: 1.051200, current: -0.000250
+2026-10-02T23:07:00Z 1790982420.933 c3c564b91856226c, power | tick: 150272, rtc: 2026-10-02T23:07:00.921, addr: 65, voltage: 1.003200, current: -0.000250
+2026-10-02T23:07:00Z 2026-10-02T23:07:01.218Z [ERR] [INFO] BusVErrorState changed from OK to OVERVOLT
+2026-10-02T23:07:10Z 1790982430.933 c3c564b91856226c, power | tick: 160272, rtc: 2026-10-02T23:07:10.921, addr: 65, voltage: 0.953600, current: -0.000250
+2026-10-02T23:07:20Z 1790982440.933 c3c564b91856226c, power | tick: 170272, rtc: 2026-10-02T23:07:20.921, addr: 65, voltage: 0.899200, current: -0.000250
+2026-10-02T23:07:30Z 1790982450.933 c3c564b91856226c, power | tick: 180272, rtc: 2026-10-02T23:07:30.917, addr: 65, voltage: 0.851200, current: -0.000250
+2026-10-02T23:07:40Z 1790982460.933 c3c564b91856226c, power | tick: 190272, rtc: 2026-10-02T23:07:40.921, addr: 65, voltage: 0.808000, current: -0.000250
+2026-10-02T23:07:50Z 1790982470.929 c3c564b91856226c, power | tick: 200272, rtc: 2026-10-02T23:07:50.921, addr: 65, voltage: 0.766400, current: -0.000250
+2026-10-02T23:08:00Z 1790982480.929 c3c564b91856226c, power | tick: 210272, rtc: 2026-10-02T23:08:00.917, addr: 65, voltage: 0.729600, current: -0.000250
+2026-10-02T23:08:10Z 1790982490.929 c3c564b91856226c, power | tick: 220272, rtc: 2026-10-02T23:08:10.921, addr: 65, voltage: 0.694400, current: 0.000000
+2026-10-02T23:08:20Z 1790982500.929 c3c564b91856226c, power | tick: 230272, rtc: 2026-10-02T23:08:20.917, addr: 65, voltage: 0.660800, current: -0.000250
+2026-10-02T23:08:30Z 1790982510.929 c3c564b91856226c, power | tick: 240272, rtc: 2026-10-02T23:08:30.917, addr: 65, voltage: 0.628800, current: -0.000250
+2026-10-02T23:08:40Z 1790982520.929 c3c564b91856226c, power | tick: 250272, rtc: 2026-10-02T23:08:40.914, addr: 65, voltage: 0.598400, current: -0.000250
+2026-10-02T23:08:50Z 1790982530.929 c3c564b91856226c, power | tick: 260272, rtc: 2026-10-02T23:08:50.917, addr: 65, voltage: 0.569600, current: -0.000250
+2026-10-02T23:09:00Z 1790982540.925 c3c564b91856226c, power | tick: 270272, rtc: 2026-10-02T23:09:00.914, addr: 65, voltage: 0.542400, current: -0.000250
+2026-10-02T23:09:10Z 1790982550.925 c3c564b91856226c, power | tick: 280272, rtc: 2026-10-02T23:09:10.914, addr: 65, voltage: 0.516800, current: 0.000000
+2026-10-02T23:09:20Z 1790982560.925 c3c564b91856226c, power | tick: 290272, rtc: 2026-10-02T23:09:20.914, addr: 65, voltage: 0.491200, current: -0.000250
+2026-10-02T23:09:30Z 1790982570.925 c3c564b91856226c, power | tick: 300272, rtc: 2026-10-02T23:09:30.914, addr: 65, voltage: 0.467200, current: -0.000250
+2026-10-02T23:09:40Z 1790982580.925 c3c564b91856226c, power | tick: 310272, rtc: 2026-10-02T23:09:40.910, addr: 65, voltage: 0.444800, current: 0.000000
+2026-10-02T23:09:50Z 1790982590.925 c3c564b91856226c, power | tick: 320272, rtc: 2026-10-02T23:09:50.914, addr: 65, voltage: 0.424000, current: -0.000250
+2026-10-02T23:10:00Z 1790982600.925 c3c564b91856226c, power | tick: 330272, rtc: 2026-10-02T23:10:00.914, addr: 65, voltage: 0.404800, current: -0.000250
+2026-10-02T23:10:10Z 1790982610.921 c3c564b91856226c, power | tick: 340272, rtc: 2026-10-02T23:10:10.910, addr: 65, voltage: 0.385600, current: -0.000250
+2026-10-02T23:10:20Z 1790982620.921 c3c564b91856226c, power | tick: 350272, rtc: 2026-10-02T23:10:20.914, addr: 65, voltage: 0.368000, current: -0.000250
+2026-10-02T23:10:29Z 2026-10-02T23:10:29.777Z [GPS] [INFO] Max CNO changed from 45 to 48
+2026-10-02T23:10:30Z 1790982630.921 c3c564b91856226c, power | tick: 360272, rtc: 2026-10-02T23:10:30.910, addr: 65, voltage: 0.350400, current: -0.000250
+2026-10-02T23:10:40Z 1790982640.921 c3c564b91856226c, power | tick: 370272, rtc: 2026-10-02T23:10:40.910, addr: 65, voltage: 0.334400, current: -0.000250
+2026-10-02T23:10:50Z 1790982650.921 c3c564b91856226c, power | tick: 380272, rtc: 2026-10-02T23:10:50.910, addr: 65, voltage: 0.318400, current: -0.000250
+2026-10-02T23:11:00Z 1790982660.921 c3c564b91856226c, power | tick: 390272, rtc: 2026-10-02T23:11:00.910, addr: 65, voltage: 0.302400, current: -0.000250
+2026-10-02T23:11:10Z 1790982670.921 c3c564b91856226c, power | tick: 400272, rtc: 2026-10-02T23:11:10.906, addr: 65, voltage: 0.289600, current: -0.000250
+2026-10-02T23:11:20Z 1790982680.917 c3c564b91856226c, power | tick: 410272, rtc: 2026-10-02T23:11:20.910, addr: 65, voltage: 0.275200, current: 0.000000
+2026-10-02T23:11:30Z 1790982690.917 c3c564b91856226c, power | tick: 420272, rtc: 2026-10-02T23:11:30.906, addr: 65, voltage: 0.262400, current: -0.000250
+2026-10-02T23:11:40Z 1790982700.917 c3c564b91856226c, power | tick: 430272, rtc: 2026-10-02T23:11:40.906, addr: 65, voltage: 0.251200, current: -0.000250
+2026-10-02T23:11:50Z 1790982710.917 c3c564b91856226c, power | tick: 440272, rtc: 2026-10-02T23:11:50.910, addr: 65, voltage: 0.240000, current: -0.000250
+2026-10-02T23:12:00Z 1790982720.917 c3c564b91856226c, power | tick: 450272, rtc: 2026-10-02T23:12:00.906, addr: 65, voltage: 0.228800, current: -0.000250
+2026-10-02T23:12:10Z 1790982730.917 c3c564b91856226c, power | tick: 460272, rtc: 2026-10-02T23:12:10.906, addr: 65, voltage: 0.219200, current: -0.000250
+2026-10-02T23:12:20Z 1790982740.917 c3c564b91856226c, power | tick: 470272, rtc: 2026-10-02T23:12:20.902, addr: 65, voltage: 0.209600, current: -0.000250
+2026-10-02T23:12:30Z 1790982750.914 c3c564b91856226c, power | tick: 480272, rtc: 2026-10-02T23:12:30.906, addr: 65, voltage: 0.200000, current: -0.000250
+2026-10-02T23:12:40Z 1790982760.914 c3c564b91856226c, power | tick: 490272, rtc: 2026-10-02T23:12:40.902, addr: 65, voltage: 0.190400, current: 0.000000
+2026-10-02T23:12:50Z 1790982770.914 c3c564b91856226c, power | tick: 500272, rtc: 2026-10-02T23:12:50.902, addr: 65, voltage: 0.182400, current: -0.000250
+2026-10-02T23:13:00Z 1790982780.914 c3c564b91856226c, power | tick: 510272, rtc: 2026-10-02T23:13:00.902, addr: 65, voltage: 0.174400, current: -0.000250
+2026-10-02T23:13:10Z 1790982790.914 c3c564b91856226c, power | tick: 520272, rtc: 2026-10-02T23:13:10.902, addr: 65, voltage: 0.166400, current: -0.000250
+2026-10-02T23:13:20Z 1790982800.914 c3c564b91856226c, power | tick: 530272, rtc: 2026-10-02T23:13:20.898, addr: 65, voltage: 0.160000, current: -0.000250
+2026-10-02T23:13:30Z 1790982810.914 c3c564b91856226c, power | tick: 540272, rtc: 2026-10-02T23:13:30.902, addr: 65, voltage: 0.153600, current: -0.000250
+2026-10-02T23:13:40Z 1790982820.914 c3c564b91856226c, power | tick: 550272, rtc: 2026-10-02T23:13:40.898, addr: 65, voltage: 0.147200, current: -0.000250
+2026-10-02T23:13:50Z 1790982830.910 c3c564b91856226c, power | tick: 560272, rtc: 2026-10-02T23:13:50.898, addr: 65, voltage: 0.140800, current: -0.000250

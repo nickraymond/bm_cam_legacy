@@ -1,0 +1,30 @@
+[refresh] BMCAM_004: 8 gets recorded; publishing every 65s
+CON  2026-10-02T21:02:35Z Message: 1790974957.671 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000037 get uplink, video.ui: 14 key(s) cfg=54d904b7
+ssh: connect to host 192.168.1.45 port 22: Host is down
+ssh: connect to host 192.168.1.45 port 22: Host is down
+ssh: connect to host 192.168.1.45 port 22: Host is down
+CON  2026-10-02T21:07:30Z Message: 1790975253.609 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000041 get time, schedule: 11 key(s) cfg=54d904b7
+CON  2026-10-02T21:08:48Z Message: 1790975330.664 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000042 get video.send, still: 14 key(s) cfg=54d904b7
+CON  2026-10-02T21:10:04Z Message: 1790975407.304 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000043 get power, camera.exposure, camera.controls_enabled, camera.backend
+CON  2026-10-02T21:11:21Z Message: 1790975483.847 e6fe83ea6b4a2b7f, [bmcam004] OK id=1000044 get camera.white_balance, camera.native, storage, network: 12 key(s
+[refresh] BMCAM_004 done 2026-10-02T21:11:30Z
+overlay to reset: video.record.fps video.send.duration_s camera.controls_enabled camera.image_processing.enabled camera.image_processing.denoise still.quality_ladder
+ OK id=65081 reset video.record.fps, video.send.duration_s, camera.controls_enabled, camera.image_processing.enabled -> YAML cfg=d8e1a1fd
+ OK id=65082 reset camera.image_processing.denoise, still.quality_ladder -> YAML cfg=32bd824c
+ OK id=65083 reset mode.run -> YAML cfg=67f930c4
+dark at 21:20:18
+CELL 2026-10-02T21:12:27Z len=259 <START IMG> filename: 2026-10-02T21-12-06Z_video_5s.h264, timestamp: 2026-10-02T21:12:27Z, length: 184, key=0e51k8, cfg=67f930c4, fmt=h264, fps=10, dur=5.0, res=480x2
+CELL 2026-10-02T21:17:11Z len=130 <END IMG> filename: 2026-10-02T21-12-06Z_video_5s.h264, fmt: h264, uart_duration_sec: 283.5, sent_buffers: 184, cpu_temp_c: 44.0
+2026-10-02T21:20:39Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-02T21:20:54Z Succesfully sent config set msg
+2026-10-02T21:20:54Z 2026-10-02T21:20:56.742Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.535Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-02T21:21:00Z 2026-10-02T21:21:03.539Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-02T21:21:01Z 2026-10-02T21:21:03.597Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-02T21:21:03Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+34a6222ea94c
+[restore] halt issued 21:21:45
+2026-10-02T21:22:06Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-02T21:22:20Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-02T21:22:20Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed

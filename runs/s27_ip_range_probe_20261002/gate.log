@@ -6,3 +6,4 @@ TERM-sent
 STOPPED
 CRON_MATCHES_BACKUP
 2026-10-02T20:10:06Z probe done; re-armed + reboot
+2026-10-02T20:15:59Z bmcam003 back in service after probe (see console_after.txt)

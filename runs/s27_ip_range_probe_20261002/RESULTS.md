@@ -5,7 +5,7 @@ limits: contrast 0.5–2.0, saturation 0.0–2.0, brightness −0.25–0.25.
 
 Tool: `hil/tools/hil_ip_range_probe.sh` (rpicam-still, the runtime's native size/quality, every camera
 control at rpicam default: auto exposure / AWB / AF, ONE image-processing flag per still). Runtime paused
-13:07–13:16 PDT with cron backed up/disarmed, then re-armed + rebooted (`gate.log`). Indoor scene lit by a
+13:07–13:10 PDT with cron backed up/disarmed, then re-armed + rebooted (`gate.log`). Indoor scene lit by a
 daylight window. Files: `stats.csv`, `SUMMARY.md` (metric table), `contact_sheet.jpg` (thumbnails scaled
 to 400x225, NOT 1:1), `thumbs/`, `base_argv.txt`.
 

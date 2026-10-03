@@ -23,6 +23,7 @@ D1, D3, D4 hold for 24 h; commands only via cellular.
 | G5.7 | remote recovery reachable | a cellular `ping` near the end (≥ 06:00 Fri) answered by each unit | `api/ping_*.json` |
 | G5.8 | D4 visible | every command, ack and heal in the 24 h on logs.html | `analysis/logs_check.csv` |
 | G5.9 | power held | Spotter battery / solar data (Sofar API, or the SD card after) show no brown-out; units woke on schedule through the night | `analysis/power.csv` |
+| G5.10 | Spotter power-cycle stub cuts (Nick 2026-10-02) | logged as an OBSERVED EVENT from the backend / SD card (no console): time, unit, next wake normal? FAIL only if data loss beyond that one cycle or SD/filesystem damage (next-boot errors, corrupt state/config). No protective halt (Nick 2026-10-02: the stub guard is dropped) | backend rows, SD card after |
 
 ## Preconditions
 

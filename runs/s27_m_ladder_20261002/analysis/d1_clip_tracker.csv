@@ -1,0 +1,6 @@
+device,captured_utc,expected,class,readout_utc,received,complete,note
+BMCAM_004,2026-10-02T23:04:33Z,182,stub_cut,2026-10-03T01:36Z,3,no,"Spotter power-on stub; Pi protectively halted 23:05:12 (observed event)"
+BMCAM_004,2026-10-03T00:00:32Z,187,normal,2026-10-03T01:36Z,137,no,"outdoors; 50 missing"
+BMCAM_003,2026-10-03T00:05:13Z,183,power_cut,2026-10-03T01:36Z,5,no,"power cut ~00:05:3x (observed event)"
+BMCAM_003,2026-10-03T01:00:32Z,182,normal,2026-10-03T01:36Z,154,no,"outdoors; 28 missing"
+BMCAM_004,2026-10-03T01:00:31Z,184,normal,2026-10-03T01:36Z,135,no,"outdoors; 49 missing"
