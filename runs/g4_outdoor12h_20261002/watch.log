@@ -6,3 +6,7 @@ WAKE SPOT-31593C 2026-10-03T03:00: bus 02:59:59→03:09:59 | Pi 03:00:14→03:08
 WAKE SPOT-33507C 2026-10-03T04:00: bus 03:59:59→04:09:59 | Pi 04:00:14→04:08:24 (wake→halt 505 s) | START len 183 END sent 183 burst 282.3 s | queue_full 21 | heal cmds 1 | nereus000 wifi yes:Ford:62
 WAKE SPOT-31593C 2026-10-03T04:00: bus 03:59:59→04:09:59 | Pi 04:00:14→04:08:24 (wake→halt 505 s) | START len 182 END sent 182 burst 281.0 s | queue_full 52 | heal cmds 1 | nereus000 wifi yes:Ford:61
 RED 04:14:20 alternator service not clean (Result / REFUSED count): exit-code 2 
+2026-10-03T05:14:06Z alt: [('BMCAM_003', 'media_command', 'video', 200), ('BMCAM_004', 'media_command', 'video', 200), ('BMCAM_003', 'media_command', 'video', 200), ('BMCAM_004', 'media_command', 'video', 200)]
+2026-10-03T05:14:07Z alt service: success 0 
+WAKE SPOT-33507C 2026-10-03T05:00: bus 04:59:59→05:09:59 | Pi 05:00:03→05:08:23 (wake→halt 504 s) | START len 182 END sent - burst - s | queue_full 20 | heal cmds 1 | nereus000 wifi yes:Ford:73
+WAKE SPOT-31593C 2026-10-03T05:00: bus 04:59:58→05:09:58 | Pi 05:00:03→05:08:23 (wake→halt 505 s) | START len 183 END sent - burst - s | queue_full 66 | heal cmds 1 | nereus000 wifi yes:Ford:72

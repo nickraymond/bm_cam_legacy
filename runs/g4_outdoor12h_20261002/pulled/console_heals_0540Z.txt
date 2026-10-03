@@ -1,0 +1,35 @@
+== SPOT-33507C
+2026-10-03T00:06:22Z .2026-10-03T00:06:22.953Z [SYS] [INFO] Remote message received(80)! "bm pub bmcam/cmd {"id":100126,"c":"rsd","h":[["0e53t0","98-105"]]} 1 1
+2026-10-03T01:05:36Z .2026-10-03T01:05:37.535Z [SYS] [INFO] Remote message received(84)! "bm pub bmcam/cmd {"id":100127,"c":"rsd","h":[["0e59kp","1-32,37-44"]]} 1 1
+2026-10-03T01:05:52Z Message: Message: 1790989553.367 53171fa3d81a8e6f, [bmcam003] OK id=100126 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T01:05:52Z 1790989553.417 53171fa3d81a8e6f, [bmcam003] OK id=100127 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T03:05:42Z Message: 1790996742.867 53171fa3d81a8e6f, [bmcam003] OK id=100128 rsd: 2 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T03:11:11Z 2026-10-03T03:11:12.648Z [SYS] [INFO] Remote message received(89)! "bm pub bmcam/cmd {"id":100129,"c":"rsd","h":[["0e5eww","111-118,144-148"]]} 1 1
+2026-10-03T03:11:11Z 2026-10-03T03:11:12.648Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":100129,"c":"rsd","h":[["0e5eww","111-118,144-148"]]} 1 1
+2026-10-03T04:06:30Z Message: Message: Message: Message: Message: Message: 1791000391.125 53171fa3d81a8e6f, [bmcam003] OK id=100129 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T04:11:12Z 2026-10-03T04:11:12.812Z [SYS] [INFO] Remote message received(102)! "bm pub bmcam/cmd {"id":100130,"c":"rsd","h":[["0e5hov","137-144"],["0e5c4w","154-181"]]} 1 1
+2026-10-03T04:11:12Z 2026-10-03T04:11:12.812Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":100130,"c":"rsd","h":[["0e5hov","137-144"],["0e5c4w","154-181"]]} 1 1
+2026-10-03T05:05:57Z .1791003958.875 53171fa3d81a8e6f, [bmcam003] OK id=100130 rsd: 2 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T05:11:09Z 2026-10-03T05:11:10.046Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":1000016,"c":"set","kv":{"mode.media":"video"}} 1 1
+2026-10-03T05:11:09Z 2026-10-03T05:11:10.046Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":1000016,"c":"set","kv":{"mode.media":"video"}} 1 1
+2026-10-03T05:11:55Z 2026-10-03T05:11:56.511Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":1000017,"c":"set","kv":{"mode.media":"video"}} 1 1
+2026-10-03T05:11:55Z 2026-10-03T05:11:56.511Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":1000017,"c":"set","kv":{"mode.media":"video"}} 1 1
+2026-10-03T05:12:41Z 2026-10-03T05:12:42.000Z [SYS] [INFO] Remote message received(124)! "bm pub bmcam/cmd {"id":100131,"c":"rsd","h":[["0e5kgv","30-37,147-151,165-172"],["0e5eww","111-118,144-148"]]} 1 1
+2026-10-03T05:12:41Z 2026-10-03T05:12:42.000Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":100131,"c":"rsd","h":[["0e5kgv","30-37,147-151,165-172"],["0e5eww","111-118,144-148"]]} 1 1
+== SPOT-31593C
+2026-10-02T23:05:24Z 2026-10-02T23:05:25.328Z [SYS] [INFO] Remote message received(79)! "bm pub bmcam/cmd {"id":100098,"c":"rsd","h":[["0e50ng","0-2,4"]]} 1 1
+2026-10-03T00:04:41Z 2026-10-03T00:04:41.996Z [SYS] [INFO] Remote message received(78)! "bm pub bmcam/cmd {"id":100099,"c":"rsd","h":[["0e50ig","0-37"]]} 1 1
+2026-10-03T00:05:48Z .1790985949.851 e6fe83ea6b4a2b7f, [bmcam004] OK id=100098 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T00:05:49Z 1790985949.914 e6fe83ea6b4a2b7f, [bmcam004] OK id=100099 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T01:06:16Z .2026-10-03T01:06:17.933Z [SYS] [INFO] Remote message received(84)! "bm pub bmcam/cmd {"id":100100,"c":"rsd","h":[["0e56rl","1-19,22-42"]]} 1 1
+2026-10-03T01:06:29Z Message: Message: Message: Message: Message: 1790989590.324 e6fe83ea6b4a2b7f, [bmcam004] OK id=100100 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T02:06:09Z .2026-10-03T02:06:11.257Z [SYS] [INFO] Remote message received(93)! "bm pub bmcam/cmd {"id":100101,"c":"rsd","h":[["0e59cw","0,5-6,89-96,131-159"]]} 1 1
+2026-10-03T02:06:35Z Message: Message: Message: 1790993197.195 e6fe83ea6b4a2b7f, [bmcam004] OK id=100101 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T03:05:56Z .2026-10-03T03:05:58.218Z [SYS] [INFO] Remote message received(89)! "bm pub bmcam/cmd {"id":100102,"c":"rsd","h":[["0e5ewv","146-150,154-185"]]} 1 1
+2026-10-03T03:06:36Z Message: Message: Message: Message: 1790996798.324 e6fe83ea6b4a2b7f, [bmcam004] OK id=100102 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T04:05:59Z .2026-10-03T04:06:00.957Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100103,"c":"rsd","h":[["0e5hou","145-184"]]} 1 1
+2026-10-03T04:06:25Z Message: Message: 1791000386.753 e6fe83ea6b4a2b7f, [bmcam004] OK id=100103 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T05:06:11Z .2026-10-03T05:06:13.578Z [SYS] [INFO] Remote message received(81)! "bm pub bmcam/cmd {"id":100104,"c":"rsd","h":[["0e5kgu","148-181"]]} 1 1
+2026-10-03T05:06:29Z .1791003991.402 e6fe83ea6b4a2b7f, [bmcam004] OK id=100104 rsd: 1 heal(s) queued (<HL> reports each) cfg=67f930c4
+2026-10-03T05:06:47Z 2026-10-03T05:06:49.281Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":1000045,"c":"set","kv":{"mode.media":"video"}} 1 1
+2026-10-03T05:06:52Z 2026-10-03T05:06:54.394Z [SYS] [INFO] Remote message received(83)! "bm pub bmcam/cmd {"id":1000046,"c":"set","kv":{"mode.media":"video"}} 1 1
