@@ -15,6 +15,14 @@ without one is marked **ASSUMPTION** or **ESTIMATE**.
 
 ---
 
+> **r4 RULING (Nick, 2026-10-02 ~21:30 PDT): spatial DENSITY over field of view. Supersedes the r3 Q1 "go bigger".**
+> Nick's goal is more detail per coral, not a wider scene. Today's still = the 1600×900 native crop **downsampled to
+> 1000×562** (`still.output_width` 1000; density 0.625) and heavy JPEG. nrjxl keeps **every native pixel** (density 1.0),
+> so the **default nrjxl crop = today's `still.crop` 1600×900 at native resolution** (same field of view, 1.6× linear /
+> 2.56× pixel density, ΔE00 0.11 vs 0.50 at 50 kB). 2000×1124 and 2400×1350 stay as **optional presets only**, never the
+> default. R0.3 measures 1600×900 FIRST (it gates the feature), then the larger presets for information. Wherever this
+> SPEC says "default 2400×1350" or "step down", read: default 1600×900 native; larger crops are opt-in presets.
+
 ## 0. Facts this spec rests on
 
 ### 0.1 The compression study (rig `compression_study/REPORT.md`, `results/results.csv`)
@@ -631,7 +639,7 @@ Units: R0 runs on **both** bmcam003 (SPOT-33507C) and bmcam004 (SPOT-31593C); ea
 |---|---|---|---|
 | R0.1 | raw capture works at the unit's CMA | 10/10 `--raw` captures produce DNG + JPEG; no capture error in dmesg; **CmaFree min ≥ 1 MB**, sampled from `/proc/meminfo` every 0.1 s through each capture (the Sprint07 `cma_samples.csv` method); baseline min without `--raw` recorded beside it | `analysis/r0_capture.csv`, `pulled/cma_samples.csv` |
 | R0.2 | capture time cost | median(`--raw`) − median(no `--raw`) recorded; ≤ 3 s | `analysis/r0_capture.csv` |
-| R0.3 | encode on the unit, per crop: 2400×1350 first, then 2000×1124, then 1600×900, stopping at the first PASS | 10 full encodes (4 planes, `--num_threads=0`) from a real DNG crop. **PASS** when: median per rung ≤ 20 s; peak RSS ≤ 120 MB (cap 250 MB); 0 kills; CmaFree as R0.1 (the encode runs after the capture). The predicted wake (measured capture + 2 rungs + 50 kB burst + 150 s tail) must also fit the 480 s cycle budget. The largest PASS sets the default crop and `RAW_MAX_PX` | `analysis/r0_encode.csv`, `analysis/r0_budget.csv` |
+| R0.3 | encode on the unit, per crop: 1600×900 FIRST (gates the feature), then 2000×1124 and 2400×1350 for the opt-in presets | 10 full encodes (4 planes, `--num_threads=0`) from a real DNG crop. **PASS** when: median per rung ≤ 20 s; peak RSS ≤ 120 MB (cap 250 MB); 0 kills; CmaFree as R0.1 (the encode runs after the capture). The predicted wake (measured capture + 2 rungs + 50 kB burst + 150 s tail) must also fit the 480 s cycle budget. The largest PASS sets the default crop and `RAW_MAX_PX` | `analysis/r0_encode.csv`, `analysis/r0_budget.csv` |
 | R0.4 | tools present | cjxl version, numpy import, free SD recorded | `snapshots/` |
 | R1.1 | console lane, one nrjxl still | START `fmt=nrjxl`; reassembled console bytes sha256 == sent record sha256; rig decoder decodes it | `console/`, `analysis/r1_decode.json` |
 | R2.1 | backend | media row `format=nrjxl`, complete, display JPEG present; jxl-oxide == production decode | `api/`, `analysis/r2_parity.json` |
@@ -705,7 +713,7 @@ and the box. The desk stages S0–S2 do not.
 
 | in (MVP now) | MVP stretch | Next sprint (Sprint29 = transmit window, ruled) | Future |
 |---|---|---|---|
-| `still.format` switch; D2 cjxl modular e5 + distance rungs; default crop 2400×1350 (or the largest R0-proven preset; 1600×900 safe preset), set with `still.format` in one change; one image per wake, never spread over wakes; JPEG fallback in the same wake; START `fmt`/`rfb`; NR container v1; backend ingest + neutral render + original kept + gallery; jxl-oxide + rig-decoder parity tests; HIL R0–R4; outdoor O1 | `raw_card_v1` card-corrected variant | hydrium fast path; lens shading from the IMX708 tuning file in the render; DNG download for customers | grey preview from G1-first planes; lossless "RAW on command" (study C packer, ~3 bpp); OpenMV units; video |
+| `still.format` switch; D2 cjxl modular e5 + distance rungs; default crop 1600×900 at native density (today's FOV); 2000×1124 / 2400×1350 opt-in presets, set with `still.format` in one change; one image per wake, never spread over wakes; JPEG fallback in the same wake; START `fmt`/`rfb`; NR container v1; backend ingest + neutral render + original kept + gallery; jxl-oxide + rig-decoder parity tests; HIL R0–R4; outdoor O1 | `raw_card_v1` card-corrected variant | hydrium fast path; lens shading from the IMX708 tuning file in the render; DNG download for customers | grey preview from G1-first planes; lossless "RAW on command" (study C packer, ~3 bpp); OpenMV units; video |
 
 ---
 
@@ -728,7 +736,7 @@ and the box. The desk stages S0–S2 do not.
 
 | Q | ruling | where applied |
 |---|---|---|
-| Q1 default crop | **go bigger: 2400×1350 by default**, conditional on R0 measuring time / RSS / CMA on the unit. If it does not fit memory or the 8-min budget, use the largest crop R0 proves fits. Keep 1600×900 as the safe preset | §3.3, §5.2, §7.2 R0.3, §8 |
+| Q1 default crop | **r4: default = 1600×900 at NATIVE density** (today's field of view, no downsampling). Nick wants spatial density, not a wider crop. 2000×1124 / 2400×1350 = opt-in presets only. (r3 "go bigger" withdrawn: it was a framing error) | §3.3, §5.2, §7.2 R0.3, §8 |
 | Q2 transmit window | its own sprint, right after Sprint28 | §5.3, §8 |
 | Q3 multi-wake images | **no**, in Sprint28 or as a planned follow-up. An image should mostly fit its window; healing after loss is fine; never intentionally reserve messages for a later cycle. The camera carry-over idea is dropped | §5.4, §8 |
 
