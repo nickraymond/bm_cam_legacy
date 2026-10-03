@@ -25,3 +25,4 @@ yes:Ford:72
 /dev/ttyACM1
 2026-10-03T02:23:23Z 1790994204.476 c3c5
 2026-10-03T02:23:22Z 1790994204.167 0e58
+2026-10-03T03:50:25Z Nick in Test Engineer chat: 'OK: bridge cfg set/commit on SPOT-33507C and SPOT-31593C to change the bus schedule to every 30 min (1800000/600000) for G4 phase 3'

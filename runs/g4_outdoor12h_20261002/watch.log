@@ -1,0 +1,3 @@
+2026-10-03T03:14:18Z alt: []
+WAKE SPOT-33507C 2026-10-03T03:00: bus 03:00:00→03:09:59 | Pi 03:00:04→03:08:14 (wake→halt 494 s) | START len 183 END sent 183 burst 282.3 s | queue_full 13 | heal cmds 1 | nereus000 wifi yes:Ford:62
+WAKE SPOT-31593C 2026-10-03T03:00: bus 02:59:59→03:09:59 | Pi 03:00:14→03:08:24 (wake→halt 505 s) | START len 188 END sent 188 burst 289.0 s | queue_full 48 | heal cmds 1 | nereus000 wifi yes:Ford:61
