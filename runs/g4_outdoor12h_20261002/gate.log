@@ -27,3 +27,6 @@ yes:Ford:72
 2026-10-03T02:23:22Z 1790994204.167 0e58
 2026-10-03T03:50:25Z Nick in Test Engineer chat: 'OK: bridge cfg set/commit on SPOT-33507C and SPOT-31593C to change the bus schedule to every 30 min (1800000/600000) for G4 phase 3'
 2026-10-03T03:54:41Z RED alternator 03:20Z run REFUSED 403 remote_config_disabled (BM_REMOTE_CONFIG off on staging web service) for BMCAM_003+004; plan endpoint 200. 04:00Z wake stays on the current media (video). Reported to EM; Render env not Test Engineer's to change.
+2026-10-03T03:56:24Z EM: BM_REMOTE_CONFIG=1 restored by Nick, Render redeploy running; HOLD all sends until EM confirms writable+send_enabled. Alternator timer STOPPED (still enabled; resume: sudo systemctl start hil-g4-alternator.timer)
+2026-10-03T04:04:21Z EM: BM_REMOTE_CONFIG live (writable=True 03:57Z); send_enabled False (BM_COMMAND_SEND missing, Nick setting it). Still HOLDING.
+2026-10-03T04:14:32Z G4 T0 = 04:00Z wake: both units normal (003 Pi 04:00:14→04:08:24 505 s, START len 183 video, qfull 21; 004 Pi 04:00:14→04:08:24 505 s, START len 182 video, qfull 52; 1 heal cmd each). Watcher RED 04:14 = the known 03:20Z refusal; watcher restarted for 05–15.
