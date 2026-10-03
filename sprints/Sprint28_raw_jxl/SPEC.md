@@ -1,7 +1,8 @@
-# Sprint28: RAW → JPEG XL stills from the IMX708 bm cameras to the backend (SPEC, r2)
+# Sprint28: RAW → JPEG XL stills from the IMX708 bm cameras to the backend (SPEC, r3)
 
-Status: **r2** (2026-10-02). r1 was reviewed by an independent fresh-context reviewer (§12), and all
-findings are applied. Written desk-only during the R1 gates G4/G5. The build starts
+Status: **r3** (2026-10-02). r1 was reviewed by an independent fresh-context reviewer (§12), and all
+findings are applied. r2 merged as bm #114. r3 records Nick's rulings on Q1–Q3 (§10).
+Written desk-only during the R1 gates G4/G5. The build starts
 Mon 2026-10-05, after the R1 ship decision (Sun 10/4). Nick decided on 2026-10-01 (option A) that this is
 its own sprint after R1.
 Author: Claude session "Sprint28 RAW→JXL spec". Coordinator: the EM session "Engineering Manager
@@ -187,8 +188,23 @@ hard time and memory cap. The wake always has a sendable payload.
   w/2 × h/2.
 - With `still.format = nrjxl`, a new camera rule `_rule_raw_crop` requires x, y, w, h to be even
   (this keeps the CFA phase; the registry accepts odd values today) and w × h ≤ `RAW_MAX_PX`.
-- `RAW_MAX_PX` = 1600×900 until R0 measures larger crops on the Zero. 2400×1350 is unlocked only by
-  a measured R0 row (§7.2). Default crop: **Q1**.
+- **Default RAW crop = 2400×1350** (Nick, 2026-10-02, §10 Q1), conditional on R0. The step-down
+  order is 2400×1350 → 2000×1124 → 1600×900. The default is the **largest crop whose R0 rows
+  PASS** (time, RSS, CMA and the 8-min budget, §7.2 R0.3). 1600×900 stays as the safe preset.
+- Even, near-centred native coordinates (a centred 2400×1350 would have an odd y = 621):
+
+  | preset | `still.crop` [x, y, w, h] | note |
+  |---|---|---|
+  | 2400x1350 raw default | `[1104, 620, 2400, 1350]` | new; 1 px above centre |
+  | 2000x1124 raw step-down | `[1304, 734, 2000, 1124]` | new; centred |
+  | 1600x900 safe | `[1504, 846, 1600, 900]` | today's default |
+- `RAW_MAX_PX` = the area of the crop R0 proves. Until then the rule allows 1600×900 only, so no
+  unit can run an unmeasured crop.
+- **How the default applies:** the registry default of `still.crop` stays `[1504, 846, 1600, 900]`, so
+  pjpg units keep today's field of view (CLAUDE.md §7). Switching a unit to nrjxl is **one command**
+  that sets `still.format=nrjxl` and `still.crop` = the R0-proven raw preset together (~105 B, inside
+  the 234 B wire limit). The UI offers that pair as the nrjxl choice. Its pjpg fallback then shows
+  the same wider scene, resized to 1000 px wide (`still.output_width`).
 - Two existing `still.crop` presets have an **odd y** and would be refused with nrjxl:
   "1000x562 max detail" `[1804, 1015, …]` and "800x450 reef A" `[1904, 1071, …]`
   (`config_registry.py:268-269`). S1 moves each y down by 1 to 1014 / 1070. That is a 1-px shift
@@ -495,10 +511,16 @@ bits per sensor px) are an ASSUMPTION: constant bpp ≈ constant quality, which 
 Wakes = ceil(chunks / 214), the no-heal limit under the 8-min budget (§3.8).
 
 Reading: within one wake, the choice is **bigger crop at ≤ 50–62 kB with more colour error** (2400×1350
-stays at 0.25–0.30, still half of today's JPEG at 1600×900) or **same crop, better colour**. Q1 decides
-the default.
+stays at 0.25–0.30, still half of today's JPEG at 1600×900) or **same crop, better colour**. Nick chose
+the bigger crop (Q1): 2400×1350 at the one-wake budget, if R0 proves it.
 
-### 5.3 Nick's transmit window (Next sprint; analysis only)
+Budget check for 2400×1350. Time is an ESTIMATE that scales with area, until R0 measures it:
+- One rung ≈ 6.4 s × 2.25 ≈ 14 s. With 2 rungs, START ≈ +75..+100 s.
+- No-heal wake: (501 − 100 − 150) / 1.3 − 2 ≈ 191 chunks ≈ 55 kB, so 50 kB fits.
+- Heal wake (−52 s): ≈ 151 chunks ≈ 43 kB. The rung walk then targets the smaller budget (a higher
+  distance, lower quality), or falls back with `rfb=fit`. R4 counts how often.
+
+### 5.3 Nick's transmit window (its own sprint right after Sprint28, Nick 2026-10-02; analysis only)
 
 - **Idea:** replace `*.message_cap` as the user knob with a per-Spotter **transmit window**: minutes, or
   unlimited for field testing.
@@ -524,19 +546,20 @@ Shape when built:
 - **Camera:** `budget = min(tx_window_s, bus deadline − now − tail) / pacing`. `message_cap` stays as
   an engineering ceiling.
 
-It touches pjpg and video on the R1 units too, so it is its own change with its own ladder: **Q2**.
+It touches pjpg and video on the R1 units too, so it is its own change with its own ladder. **Ruled
+(Q2): its own sprint right after Sprint28.** Sprint28 keeps `still.message_cap` as the size knob.
 
-### 5.4 One image across several wakes?
+### 5.4 One image across several wakes? No (Nick, 2026-10-02)
 
-| option | how | cost |
-|---|---|---|
-| a. never (MVP) | pick a rung that fits one wake, else send the JPEG | none |
-| b. heals carry the tail | send `cmp=0` with the first ~214 chunks; the backend re-requests the rest at 40 chunks per wake | a 391-chunk image leaves 177 chunks: ≥ 5 more wakes and 5 heal commands. That uses heal budget (24/day per Spotter) meant for losses, and each heal waits for command latency (94 s to 20+ min indoors). Abuses the heal path |
-| c. camera carry-over | the next wake sends the remaining keyed chunks (`<I{key}.{n}/{M}>`, from the sent record) before its own capture; the backend already merges keyed chunks across wakes | ~1 day camera work + a ladder; no heal budget; a skipped wake delays the image by one hour |
+**Ruling:** no multi-wake images, in Sprint28 or as a planned follow-up. An image should fit in its own
+wake. Healing after a **loss** is fine. Never intentionally hold back part of an image, or reserve
+messages, for a later wake. So:
+- The rung walk targets the current wake's budget. If no rung fits, the wake sends the JPEG (`rfb=fit`).
+- There is no `cmp=0` nrjxl send and no camera carry-over. The carry-over idea in r2 is dropped.
+- Heals run only for chunks that were sent and lost, as for pjpg today.
 
-Recommendation: **(a) now, (c) Next sprint** if Nick wants crops above ~2000×1124 at full quality.
-**Q3.** Partial rendering of an incomplete `nrjxl` (G1 plane first = grey preview) is Future.
-It needs a plane-order change to the container.
+Partial rendering of an incomplete `nrjxl` (G1 plane first = grey preview) stays Future. It needs a
+plane-order change to the container.
 
 ---
 
@@ -608,7 +631,7 @@ Units: R0 runs on **both** bmcam003 (SPOT-33507C) and bmcam004 (SPOT-31593C); ea
 |---|---|---|---|
 | R0.1 | raw capture works at the unit's CMA | 10/10 `--raw` captures produce DNG + JPEG; no capture error in dmesg; **CmaFree min ≥ 1 MB**, sampled from `/proc/meminfo` every 0.1 s through each capture (the Sprint07 `cma_samples.csv` method); baseline min without `--raw` recorded beside it | `analysis/r0_capture.csv`, `pulled/cma_samples.csv` |
 | R0.2 | capture time cost | median(`--raw`) − median(no `--raw`) recorded; ≤ 3 s | `analysis/r0_capture.csv` |
-| R0.3 | encode on the unit | cjxl e5 at the default crop, 10 runs: median ≤ 10 s per rung, peak RSS ≤ 60 MB; 2400×1350: recorded (unlocks `RAW_MAX_PX` only if ≤ 20 s and ≤ 120 MB) | `analysis/r0_encode.csv` |
+| R0.3 | encode on the unit, per crop: 2400×1350 first, then 2000×1124, then 1600×900, stopping at the first PASS | 10 full encodes (4 planes, `--num_threads=0`) from a real DNG crop. **PASS** when: median per rung ≤ 20 s; peak RSS ≤ 120 MB (cap 250 MB); 0 kills; CmaFree as R0.1 (the encode runs after the capture). The predicted wake (measured capture + 2 rungs + 50 kB burst + 150 s tail) must also fit the 480 s cycle budget. The largest PASS sets the default crop and `RAW_MAX_PX` | `analysis/r0_encode.csv`, `analysis/r0_budget.csv` |
 | R0.4 | tools present | cjxl version, numpy import, free SD recorded | `snapshots/` |
 | R1.1 | console lane, one nrjxl still | START `fmt=nrjxl`; reassembled console bytes sha256 == sent record sha256; rig decoder decodes it | `console/`, `analysis/r1_decode.json` |
 | R2.1 | backend | media row `format=nrjxl`, complete, display JPEG present; jxl-oxide == production decode | `api/`, `analysis/r2_parity.json` |
@@ -663,11 +686,11 @@ expected; the review is about colour and detail, not look.
 
 | stage | what | who | ESTIMATE | gate (all must hold) |
 |---|---|---|---|---|
-| **S0** desk (Mon 10/5) | Mac: distance rungs for the default crop; crop × bytes grid (50/62/75/112.5 kB); container v1 frozen; decoder candidate verified in a Debian 12 container; hydrium Pi RSS from the rig data if present | this session | 1 d | rungs + `RAW_MAX_PX` proposal + decoder choice written into this SPEC (r3) |
+| **S0** desk (Mon 10/5) | Mac: distance rungs for each of the 3 raw presets (2400×1350, 2000×1124, 1600×900); crop × bytes grid (50/62/75/112.5 kB); container v1 frozen; decoder candidate verified in a Debian 12 container; hydrium Pi RSS from the rig data if present | this session | 1 d | rungs per preset + decoder choice written into this SPEC (r4) |
 | **S1** camera (Tue–Wed) | `rc_raw_jxl.py`, still_action integration (JPEG first), START fields, registry v8 + rules + catalog, tests | bm dev session | 2 d | §7.1 bm suite green; Mac end-to-end within ±0.02 ΔE of the study; pjpg traces differ only in `cfg=` / `h=` (hashes masked) |
 | **S2** backend (Tue–Wed, parallel) | contract, parser / sniff, migration 0020, ingest, `raw_render`, processing rule, gallery badge + download, tests | nvd session | 2 d | §7.1 nvd suite green; jxl-oxide parity; damaged streams fail loudly; no pjpg / h264 regression |
 | **S2b** stretch | `raw_card_v1` variant | nvd session | 0.5 d | patch ΔE on fixtures within ±0.05 of the rig's card correction |
-| **S3** bench R0–R3 | after the TE hands the bench over | Test Engineer | 0.5 d | R0–R3 rows PASS (R0 fail = stop, re-plan with the EM) |
+| **S3** bench R0–R3 | after the TE hands the bench over | Test Engineer | 0.5 d | R0–R3 rows PASS; R0.3 sets the default crop (largest passing preset); no preset passes = stop, re-plan with the EM |
 | **S4** bench R4 | 12 production wakes on bmcam003 | Test Engineer | 12 h | R4 rows PASS |
 | **S5** outdoor O1 | 24 h, both units | Test Engineer + Nick (box) | 24 h + 0.5 d analysis | O1.1–O1.7 PASS → Nick decides the release units' default `still.format` |
 
@@ -680,9 +703,9 @@ and the box. The desk stages S0–S2 do not.
 
 ### MVP cut
 
-| in (MVP now) | MVP stretch | Next sprint | Future |
+| in (MVP now) | MVP stretch | Next sprint (Sprint29 = transmit window, ruled) | Future |
 |---|---|---|---|
-| `still.format` switch; D2 cjxl modular e5 + distance rungs; crop = `still.crop` ≤ `RAW_MAX_PX`; one image per wake; JPEG fallback in the same wake; START `fmt`/`rfb`; NR container v1; backend ingest + neutral render + original kept + gallery; jxl-oxide + rig-decoder parity tests; HIL R0–R4; outdoor O1 | `raw_card_v1` card-corrected variant | transmit window (Q2); camera carry-over across wakes (Q3c); hydrium fast path; lens shading from the IMX708 tuning file in the render; DNG download for customers | grey preview from G1-first planes; lossless "RAW on command" (study C packer, ~3 bpp); OpenMV units; video |
+| `still.format` switch; D2 cjxl modular e5 + distance rungs; default crop 2400×1350 (or the largest R0-proven preset; 1600×900 safe preset), set with `still.format` in one change; one image per wake, never spread over wakes; JPEG fallback in the same wake; START `fmt`/`rfb`; NR container v1; backend ingest + neutral render + original kept + gallery; jxl-oxide + rig-decoder parity tests; HIL R0–R4; outdoor O1 | `raw_card_v1` card-corrected variant | hydrium fast path; lens shading from the IMX708 tuning file in the render; DNG download for customers | grey preview from G1-first planes; lossless "RAW on command" (study C packer, ~3 bpp); OpenMV units; video |
 
 ---
 
@@ -692,7 +715,8 @@ and the box. The desk stages S0–S2 do not.
 |---|---|---|
 | `--raw` exceeds CMA at `cma=128M` (Sprint07: 1.9 MB left) | RAW never works; capture retries cost time | R0 first; fallback keeps the JPEG; `--buffer-count` / `cma=` options at the S3 gate |
 | cjxl on trixie differs from the study's 0.11.1 | different bytes per distance | S0 calibrates rungs; R0 records the version; the rung ladder absorbs drift |
-| Larger crops slow or OOM on the Zero | crop stays 1600×900 | `RAW_MAX_PX` gate on measured R0 rows |
+| 2400×1350 slow or OOM on the Zero | default steps down to 2000×1124 or 1600×900 | R0.3 per-preset gate; `RAW_MAX_PX` only from measured rows |
+| 2400×1350 does not fit 50 kB on heal wakes (≈ 43 kB room, §5.2) | lower quality on those wakes, or `rfb=fit` | rung walk targets the wake's own budget; R4 counts fallbacks |
 | Decoder wheel lacks JXL on Render | no render | S0 checks in a Debian 12 container; the original is always stored; kill switch |
 | Render memory at big crops | worker OOM | float32; crop limit; measured in S2 |
 | No real-water data | colour gain under water unproven | rig pool test (separate); O1 is in air |
@@ -700,28 +724,17 @@ and the box. The desk stages S0–S2 do not.
 
 ---
 
-## 10. Open questions for Nick (via the EM)
+## 10. Nick's rulings (2026-10-02, via the EM)
 
-**Q1. Default RAW crop.**
-- (a) 1600×900, same as today: stress ΔE 0.14 / 0.17 at 50 kB, 6.4 s encode.
-- (b) 2400×1350, 2.25× the area: 0.25 / 0.30 at 50 kB; Zero time unmeasured.
-- (c) 3600×2024, 5× the area: 0.45 / 0.55, about today's JPEG colour; may not run on the Zero.
+| Q | ruling | where applied |
+|---|---|---|
+| Q1 default crop | **go bigger: 2400×1350 by default**, conditional on R0 measuring time / RSS / CMA on the unit. If it does not fit memory or the 8-min budget, use the largest crop R0 proves fits. Keep 1600×900 as the safe preset | §3.3, §5.2, §7.2 R0.3, §8 |
+| Q2 transmit window | its own sprint, right after Sprint28 | §5.3, §8 |
+| Q3 multi-wake images | **no**, in Sprint28 or as a planned follow-up. An image should mostly fit its window; healing after loss is fine; never intentionally reserve messages for a later cycle. The camera carry-over idea is dropped | §5.4, §8 |
 
-**Recommendation: (a) as the default; (b) offered as a preset once R0 measures it within budget.**
-
-**Q2. Transmit window (your idea).**
-- (a) Build it in Sprint28: camera key + per-Spotter setting + UI, ~1.5 d more across both repos. It
-  also changes pjpg and video on the R1 units.
-- (b) Its own small sprint right after; Sprint28 keeps `still.message_cap` as the size knob.
-
-**Recommendation: (b).** One variable at a time, and R1 units keep their proven budget during O1.
-
-**Q3. Images bigger than one wake.**
-- (a) Never in Sprint28: pick a rung that fits, else send the JPEG.
-- (b) Heals carry the tail: uses the 24/day heal cap meant for losses.
-- (c) Camera carry-over at the next wake: ~1 d, Next sprint.
-
-**Recommendation: (a) now, (c) next** if larger crops are wanted at full quality.
+Reading recorded for the EM to correct if wrong: "default crop" applies to nrjxl units. The registry
+default of `still.crop` stays 1600×900, so pjpg units do not change field of view. The switch to
+nrjxl sets the raw crop in the same command (§3.3).
 
 ---
 
