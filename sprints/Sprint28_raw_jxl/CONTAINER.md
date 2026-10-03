@@ -1,6 +1,6 @@
 # Sprint28: the `nrjxl` container, profile v1 (camera ⇄ backend contract)
 
-Status: **draft v1** (2026-10-02). This is the one shared contract between the camera build session
+Status: **v1, agreed** (2026-10-02; camera session approved 7ca92d1 + the §7 filename change). This is the one shared contract between the camera build session
 ("Build Sprint28 camera side") and the backend build session ("Build Sprint28 backend side").
 Both sessions agreed positions 1–7 on 2026-10-02 and approve this doc in the PR on
 `docs/sprint28-container`. SPEC.md §3.6 and §4 describe the design. Where this doc and the SPEC
@@ -123,7 +123,8 @@ The backend refuses a blob when any of these is true:
 
 ## 7. Wire (SPEC §3.6)
 
-- Filename: `<timestamp>_image.nrjxl`.
+- Filename: `<stem>_compressed.nrjxl`, e.g. `2026-10-05T17:00:41Z_image_compressed.nrjxl` (today's pjpg is
+  `<stem>_compressed.jpg`; the SPEC's `_image.nrjxl` was loose). The backend keys on the `.nrjxl` extension only.
 - START: `fmt=nrjxl q=<distance × 100, int> att=<attempts> cmp=1`, with keyed chunks
   `<I{key}.{n}/{M}>` as for pjpg. nrjxl is never `cmp=0`: there is no partial send.
 - The pjpg fallback START carries `rfb=<code>`, a core field. The codes are `cap`, `dng`, `enc`, `mem`,
