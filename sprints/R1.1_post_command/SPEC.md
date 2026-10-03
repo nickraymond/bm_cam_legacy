@@ -1,6 +1,6 @@
-# R1.1 — camera `post` self-report command (SPEC, draft r2)
+# R1.1 — camera `post` self-report command (SPEC r3)
 
-Status: **draft r2** (2026-10-03: terse console per Nick's review of r1), docs only, nothing built. Base: bm `development` 32f7c9f (commands v9, registry v7). Labels: **MVP** = R1.1 · **Later** = a later sprint. ASSUMPTION = not measured yet, HIL checks it.
+Status: **r3, approved, ready to build (R1.1)** (Nick, 2026-10-03; rulings in §7). Docs only, nothing built yet. Base: bm `development` 32f7c9f (commands v9, registry v7). Labels: **MVP** = R1.1 · **Later** = a later sprint. ASSUMPTION = not measured yet, HIL checks it.
 
 ## 1. Purpose
 
@@ -52,8 +52,19 @@ Each value is one word or a short phrase. Details show only when something is no
 [bmcam003] post end
 ```
 
-| line (others: value only, as in the mock) | shown when OK | shown when not OK (status word first) |
+Video unit (`mode.media` = video): only the setup lines change, the health lines stay the same.
+
+```text
+[bmcam004] setup.media:     video
+[bmcam004] setup.output:    transmit
+[bmcam004] setup.window:    12:00-15:00 open
+[bmcam004] setup.video:     480x270 10fps 5s
+[bmcam004] setup.cap:       126 msgs
+```
+
+| line (others: value only, as in the mocks) | shown when OK | shown when not OK (status word first) |
 |---|---|---|
+| setup.still / .video | still: `1600x900 -> 1000x562 q90`; video: `480x270 10fps 5s` replaces setup.still, and setup.cap shows the video cap | — |
 | setup.output | `transmit` / `save_local` | `save_local, reverts unless cfm` |
 | setup.camera | `auto` | only the non-auto controls: `ev -1, focus 0.5` |
 | setup.pending | `none` | `cfm o`, `staged halt`, `trg 2` |
@@ -123,7 +134,7 @@ A unit test pins the worst-case `<PS>` at ≤ 280 B. If a later field would push
 
 | area | work | tier |
 |---|---|---|
-| wire (needs **Nick's approval**) | Additive: `command_wire.VERBS` + `FIELDS["post"]={"to"}`, `_verb_post` in `command_v9.py`, help text, regenerated `docs/bmcam_command_reference.md` (the stale-doc test enforces this), new cellular tag `<PS v=1>`. Older units answer `e:"cmd"`. `post` changes no config (`h` unchanged); a remote id moves the high-water as usual | MVP |
+| wire (**approved** by Nick 2026-10-03) | Additive: `command_wire.VERBS` + `FIELDS["post"]={"to"}`, `_verb_post` in `command_v9.py`, help text, regenerated `docs/bmcam_command_reference.md` (the stale-doc test enforces this), new cellular tag `<PS v=1>`. Older units answer `e:"cmd"`. `post` changes no config (`h` unchanged); a remote id moves the high-water as usual | MVP |
 | unit | `rc_health.py` (gather, each collector returns `na` on failure and never raises), the supervisor keeps `cp`/`sg`/`crc`/`sk`/the used `q`/error counters in memory; console status-word rules (§3.1) | MVP |
 | backend (nvd) | Parse `<PS>` into a `camera_health` row (node, cmd id, received_at, fields JSON; migration DDL only). Dashboard: latest post per camera, decoded `th`, thresholds (ASSUMPTION, set at HIL): any `th` bit = WARN, under-voltage / `sg=full` / `ro=1` / `crc≠0` = FAIL, \|`sk`\| > 5 s = WARN. Logs page: raw + decoded rows. "post" button on the command panel (remote range) | MVP |
 | rig (nereus000 spotter-monitor) | Each wake at ~:03, `bm pub bmcam/cmd {"id":<console range>,"c":"post"} 1 1` on each bench Spotter, parse the block between `post` and `post end`, show the latest per unit + a CSV history. Console-range id = zero cellular. **Approved by Nick 2026-10-03 (bench rigs only)** | MVP |
@@ -142,9 +153,11 @@ A unit test pins the worst-case `<PS>` at ≤ 280 B. If a later field would push
 | H3 | remote-range `post` (cellular send: **needs Nick's OK**) | ack + 1 `<PS>` at Sofar, ≤ 280 B, decoded on staging |
 | H4 | mote 60 s replay of H1 | console only, no second cellular copy |
 
-## 7. Open questions for Nick
+## 7. Rulings (Nick, 2026-10-03, EM chat)
 
-Ruled 2026-10-03: nereus000 sends `post` to the bench rigs every wake (bench only). The previous-wake snapshot is **Later** (so `lw` moved to Later as well).
-
-1. Approve the wire change: new verb `post` + new cellular tag `<PS>`? (`<CF>` is not reused, because it feeds the backend's hash → config snapshot.)
-2. On request only (the default), or also sent unasked, e.g. once a day from field units (+2 cellular msgs each time)?
+| ruling | effect |
+|---|---|
+| Verb `post` + cellular `<PS v=1>` **approved**, with the r2 terse layout | additive wire change; build in R1.1 |
+| **On request only**: never sent unasked | no periodic or automatic cellular `post` from any unit |
+| nereus000 auto-posts every wake: **bench rigs only**, never field units | rig row in §5 |
+| Previous-wake snapshot (incl. `lw`) = **Later** | MVP keeps only this wake's values |
