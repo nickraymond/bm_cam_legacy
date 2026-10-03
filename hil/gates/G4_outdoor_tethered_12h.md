@@ -53,6 +53,17 @@ unplug). Never unplug during :00–:10 (an SD hard cut mid-write).
    CHARGE MODE, off, for 25 min; a wake was lost). After any Spotter power cycle the bridge opens a
    120 s bus stub: an armed Pi boots in it and is cut at its end; that is logged as an observed event (G4.10).
 
+## Fallback: nereus000 unreachable at the box (decided 2026-10-02 evening, EM)
+
+nereus000 lost its link at the outdoor box (Wi-Fi 55–59 there vs 76 indoors; down 17:22 PDT). If it is
+not fixed by Sat 07:30, G4 runs **G5-style**:
+- Evidence = backend media/heal/command rows, pulled by the EM (the admin token lives only on
+  nereus000, so the Test Engineer cannot read the backend without it). Bus windows / wake→halt come
+  from the unit's own cycle logs, read-only over the tailnet during a wake.
+- D3 triggers (G4.6) go over the Sofar lane, sent by the EM's backend access (same reason).
+- G4.2 (every wake), G4.9 (`post`) become "from backend + unit logs" (no console); queue-full counts
+  (F1) are not measurable without the console: G4 reports them as N/A.
+
 ## Steps
 
 1. T−30 min: `hil_unit_snapshot.sh` can't be taken on a halted unit: take it inside the first window
