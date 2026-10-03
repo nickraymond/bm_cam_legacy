@@ -26,6 +26,24 @@ ssh -t pi@bmcamNNN.local 'echo "pi ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudo
 ```
 Wait for `NOPASSWD_OK` before proceeding — everything below needs non-interactive sudo.
 
+## Phase 1b — Host hardening (standard on EVERY Pi, Nick 2026-10-03)
+
+Two NetworkManager/systemd drop-ins, each reversible by deleting one file. Both were found missing in
+the field: Wi-Fi power save ON dropped nereus000 off the LAN outdoors (2026-10-02) and earlier a fresh
+bmcam003; logind RemoveIPC wiped the stay_on render (bm #97). Details + verification:
+`hil/procedures/BENCH_HOST_SETUP.md`.
+```
+ssh pi@bmcamNNN 'sudo mkdir -p /etc/NetworkManager/conf.d /etc/systemd/logind.conf.d && \
+  printf "[connection]\nwifi.powersave = 2\n" | sudo tee /etc/NetworkManager/conf.d/90-wifi-powersave-off.conf >/dev/null && \
+  printf "[Login]\nRemoveIPC=no\n" | sudo tee /etc/systemd/logind.conf.d/90-bmcam-removeipc.conf >/dev/null && echo HARDEN_OK'
+```
+Both take effect at the next boot (Phase 4 reboots anyway). Verify after that reboot:
+`sudo dmesg | grep brcmf_cfg80211_set_power_mgmt` must END with `power save disabled`, and
+`systemd-analyze cat-config systemd/logind.conf | grep RemoveIPC` must show `RemoveIPC=no`.
+(`iw` is not installed on trixie images; a runtime `iw … power_save off` does not survive a reboot.)
+Cost: ~20 mW more idle draw with power save off (`tools/power/RESULTS_2026-07-24.md`); accepted for
+link reliability.
+
 ## Phase 2 — Dependencies
 
 Fresh trixie is missing git and the Python camera stack (`yaml` is present; `serial`, `PIL`, `picamera2` are not). Install via apt (never pip — these must match the system libcamera):

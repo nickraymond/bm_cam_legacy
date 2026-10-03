@@ -1,0 +1,12 @@
+== bmcam003 03:00:54
+wifi-powersave.conf
+wifi.powersave = 2
+[   31.616046] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save enabled
+[   32.691367] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+conn nereus-hq profile powersave: default
+== bmcam004 03:00:58
+wifi-powersave-off.conf
+wifi.powersave = 2
+[   22.589512] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save enabled
+[   23.628197] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+conn nereus-hq profile powersave: disable
