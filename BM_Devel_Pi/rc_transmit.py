@@ -60,6 +60,19 @@ def split_base64_chunks(jpeg_data, chunk_b64_chars):
     return [b64[i:i + chunk_b64_chars] for i in range(0, len(b64), chunk_b64_chars)]
 
 
+def end_temp_text(cpu_temp_text):
+    """The END's cpu_temp_c value. A callable is read NOW, at END time (after
+    the burst: the wake's peak, not the cold boot; ct-every-wake, 2026-10-03);
+    a string is used as given (tests, goldens); None or a failed read -> "na".
+    Never raises: END must always go out."""
+    if callable(cpu_temp_text):
+        try:
+            cpu_temp_text = cpu_temp_text()
+        except Exception:
+            cpu_temp_text = None
+    return cpu_temp_text if cpu_temp_text is not None else "na"
+
+
 def transmit_progressive_image(
     tx,
     budget,
@@ -131,7 +144,7 @@ def transmit_progressive_image(
             reason=wire_reason,
             planned_msgs=planned,
             send_msgs=send_target,
-            cpu_temp_text=cpu_temp_text,
+            cpu_temp_text=end_temp_text(cpu_temp_text),
             software_sha=software_sha,
             hostname=hostname,
         )
@@ -189,7 +202,7 @@ def transmit_progressive_image(
         compressed_file_name,
         uart_duration_sec=clock() - uart_start,
         sent_buffers=sent,
-        cpu_temp_text=cpu_temp_text if cpu_temp_text is not None else "na",
+        cpu_temp_text=end_temp_text(cpu_temp_text),
         capture_metadata=capture_metadata,
     )
     tx(end_msg.encode("ascii"))
@@ -373,7 +386,7 @@ def transmit_video_clip(
 
     tx(build_rc_video_end_message(
         file_name, uart_duration_sec=clock() - uart_start, sent_buffers=sent,
-        cpu_temp_text=cpu_temp_text if cpu_temp_text is not None else "na",
+        cpu_temp_text=end_temp_text(cpu_temp_text),
     ).encode("ascii"))
 
     result.update({"sent": sent, "complete_send": sent == planned,
