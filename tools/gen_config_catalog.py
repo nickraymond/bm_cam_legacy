@@ -464,9 +464,10 @@ def build():
             "stay_on_requires_reported_true": "power.bus_always_on",
             # Sprint28 (config_validate.s28_rules): mode.media still + still.format nrjxl needs
             # an even still.crop with w*h <= raw_max_px, keyed media and cellular only.
-            # `presets` = the one-command switch the UI offers (SPEC r4 §3.3): the default
-            # is today's field of view at native density; larger crops are opt-in and
-            # refused until R0.3 raises raw_max_px.
+            # `presets` = the one-command switch the UI offers (SPEC r4 §3.3): today's field
+            # of view at native density. Customer crop presets (WIDE / MEDIUM / HIGH DETAIL)
+            # wait for Nick's ruling from the cut sheets (EM, 2026-10-02): add none here
+            # before it.
             "nrjxl": {
                 "raw_max_px": V.RAW_MAX_PX,
                 "crop_even": True,
@@ -474,10 +475,6 @@ def build():
                 "presets": [
                     ["1600x900 native (default)",
                      {"still.format": "nrjxl", "still.crop": [1504, 846, 1600, 900]}],
-                    ["2000x1124 native (opt-in, needs R0.3)",
-                     {"still.format": "nrjxl", "still.crop": [1304, 734, 2000, 1124]}],
-                    ["2400x1350 native (opt-in, needs R0.3)",
-                     {"still.format": "nrjxl", "still.crop": [1104, 620, 2400, 1350]}],
                     ["back to pjpg", {"still.format": "pjpg"}],
                 ],
             },

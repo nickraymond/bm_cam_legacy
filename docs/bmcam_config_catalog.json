@@ -3931,30 +3931,6 @@
      }
     ],
     [
-     "2000x1124 native (opt-in, needs R0.3)",
-     {
-      "still.crop": [
-       1304,
-       734,
-       2000,
-       1124
-      ],
-      "still.format": "nrjxl"
-     }
-    ],
-    [
-     "2400x1350 native (opt-in, needs R0.3)",
-     {
-      "still.crop": [
-       1104,
-       620,
-       2400,
-       1350
-      ],
-      "still.format": "nrjxl"
-     }
-    ],
-    [
      "back to pjpg",
      {
       "still.format": "pjpg"
@@ -4086,7 +4062,7 @@
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "543f1197ebc630554836e7f6257083318a69dc5a6c3f5e9cb47a3352365fcce1",
+ "sha256": "f223989cab050544c296b07e63e81862307f4a62bfe9cae482b1ae76b6a46a33",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",
