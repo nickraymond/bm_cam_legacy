@@ -9,7 +9,8 @@ console command, never writes to a unit, never sends data off the rig.
 Checks per run:
   nereus000  CPU temp + get_throttled; LiFePO4 VIN / VBAT / VOUT / IOUT; external power = VIN >= VIN_THRESHOLD;
              SoC estimated from VBAT (no SoC register on the Pi+); VBAT trend vs the last runs.
-  Spotters   new console lines since the last run: ChargerErrorState (current state), rebootctl, charge mode,
+  Spotters   battery V / power / input V / humidity every 15 min from our backend (Sofar latest-data, hourly
+             samples; no battery temperature exists there); new console lines since the last run: ChargerErrorState (current state), rebootctl, charge mode,
              BusVErrorState, the bridge bus voltage (while on) and current (Pi on = > 0.025 A).
   cameras    CPU temp at wake: the `<WS … ct=…>` heartbeat decoded from the console (boot-time value), plus
              `vcgencmd measure_temp/get_throttled` over ssh at window+3..+7 min IF --cam-ssh-key is set.
@@ -44,6 +45,8 @@ TH = {  # proposed thresholds (EM / Nick to confirm)
     "vbat_crit_mv": 3100, "vbat_drop_warn_mv": 30,  # drop over ~30 min while on external power
     "bus_v_lo": 23.0, "bus_v_hi": 24.6,
     "pi_on_a": 0.025,
+    "charger_fault_crit_min": 15,
+    "spot_batt_crit_v": 3.7, "spot_batt_drop_warn_v": 0.05, "spot_batt_discharge_warn_w": 0.5,  # Li-ion; 4.10 V ~ full       # a Spotter charger fault longer than this = CRIT (shorter = WARN)
 }
 THROTTLE_NOW = {0: "under-voltage", 1: "freq-capped", 2: "throttled", 3: "soft-temp-limit"}
 THROTTLE_SINCE = {16: "under-voltage", 17: "freq-capped", 18: "throttled", 19: "soft-temp-limit"}
@@ -98,6 +101,28 @@ def soc_estimate(vbat_mv, on_ext):
     return "~0%"
 
 
+def spotter_battery(api, env_file, spot):
+    """Latest Sofar `status` row from our backend (/systems/{spot}/spotter-telemetry): battery V/W, input V,
+    humidity. Read-only, token from the rig's env file. No battery temperature exists in that feed."""
+    if not api:
+        return None
+    try:
+        import urllib.request
+        tok = next(l.split("=", 1)[1].strip().strip("'\"") for l in open(env_file) if l.startswith("ADMIN_TOKEN="))
+        req = urllib.request.Request(f"{api}/systems/{spot}/spotter-telemetry?hours=3&limit=200",
+                                     headers={"Authorization": f"Bearer {tok}"})
+        rows = json.loads(urllib.request.urlopen(req, timeout=30).read()).get("rows") or []
+        st_ = [r for r in rows if r.get("stream") == "status"]
+        if not st_:
+            return None
+        r = max(st_, key=lambda r: r.get("timestamp_utc") or "")
+        m = r.get("metrics") or r.get("data") or {}
+        return {"at": r.get("timestamp_utc"), "v": m.get("battery_voltage_v"), "w": m.get("battery_power_w"),
+                "vin": m.get("solar_voltage_v"), "rh": m.get("humidity_pct")}
+    except Exception as e:  # noqa: BLE001
+        return {"err": f"{type(e).__name__}"}
+
+
 RE_PWR = re.compile(r"([0-9a-f]{16}), power \| .*voltage: ([-\d.]+), current: ([-\d.]+)")
 RE_CHG = re.compile(r"ChargerErrorState changed from (\w+) to (\w+)")
 RE_BUSV = re.compile(r"BusVErrorState changed from (\w+) to (\w+)")
@@ -140,6 +165,8 @@ def main():
     ap.add_argument("--out", default="/home/pi/hil_health")
     ap.add_argument("--log-root", default="/home/pi/spotter_logs")
     ap.add_argument("--cam-ssh-key", default="")
+    ap.add_argument("--api", default="https://nereus-vision-staging.onrender.com")
+    ap.add_argument("--env-file", default="/home/pi/.config/nereus/heal_driver.env")
     a = ap.parse_args()
     cfg = json.load(open(a.config))
     os.makedirs(a.out, exist_ok=True)
@@ -225,10 +252,35 @@ def main():
         R[f"{spot}_bus_v_on"] = ss.get("bus_v_on")
         R[f"{spot}_cam_ws_ct"] = ss.get("ws_ct")
         R[f"{spot}_cam_ws_at"] = ss.get("ws_at")
+        if ss["charger"] != "OK":  # standing rule (EM/Nick 2026-10-03): charger fault > 15 min = CRIT
+            at = ss.get("charger_at") or ""
+            age = (t - datetime.datetime.fromisoformat(at.replace("Z", "+00:00"))).total_seconds() / 60 if at else 999
+            msg = f"{spot} charger {ss['charger']} since {at[11:19]}Z ({age:.0f} min)"
+            (crit if age > TH["charger_fault_crit_min"] else warn).append(msg)
+        elif ss.get("charger_at") and ss.get("charger_was_fault"):
+            warn.append(f"{spot} charger back to OK at {ss['charger_at'][11:19]}Z")
+            ss["charger_was_fault"] = False
         if ss["charger"] != "OK":
-            crit.append(f"{spot} charger {ss['charger']} since {ss.get('charger_at','?')[11:19]}Z")
+            ss["charger_was_fault"] = True
         if bus_v is not None and not (TH["bus_v_lo"] <= bus_v <= TH["bus_v_hi"]):
             warn.append(f"{spot} bus {bus_v:.2f} V outside {TH['bus_v_lo']}-{TH['bus_v_hi']}")
+        if ss.get("batt_poll") is None or (t - datetime.datetime.fromisoformat(ss["batt_poll"])).total_seconds() >= 900:
+            b = spotter_battery(a.api, a.env_file, spot)
+            ss["batt_poll"] = t.isoformat()
+            if b and "err" not in b:
+                ss["batt"] = b
+                ss.setdefault("batt_ref_v", b["v"])  # the reference for the "dropped > 5 %" rule
+        b = ss.get("batt") or {}
+        R[f"{spot}_batt_v"], R[f"{spot}_batt_w"], R[f"{spot}_in_v"], R[f"{spot}_rh"] = b.get("v"), b.get("w"), b.get("vin"), b.get("rh")
+        R[f"{spot}_batt_at"] = b.get("at")
+        if b.get("v") is not None:
+            ref = ss.get("batt_ref_v") or b["v"]
+            if b["v"] < TH["spot_batt_crit_v"]:
+                crit.append(f"{spot} battery {b['v']} V")
+            elif ref - b["v"] >= TH["spot_batt_drop_warn_v"]:
+                warn.append(f"{spot} battery dropped {ref} -> {b['v']} V")
+            if b.get("w") is not None and b["w"] <= -TH["spot_batt_discharge_warn_w"]:
+                warn.append(f"{spot} battery discharging {b['w']} W")
         ct = ss.get("ws_ct")
         if ct is not None and ct >= TH["pi_crit_c"]: crit.append(f"{sc['host']} CPU {ct} C (WS)")
         elif ct is not None and ct >= TH["pi_warn_c"]: warn.append(f"{sc['host']} CPU {ct} C (WS)")
