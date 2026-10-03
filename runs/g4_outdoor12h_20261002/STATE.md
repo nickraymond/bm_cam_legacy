@@ -105,3 +105,15 @@ on nereus000 only); remote-config view `GET /devices/<dev>/remote-config`.
 
 Reporting: ONE line per step to "Engineering Manager coordination" (session id local_f63137ac-…); red
 items immediately; ≤ 5 bullets to Nick.
+
+## 10. Progress since the compaction (updated 06:15Z)
+
+- 03:20–04:25Z backend kill-switch outage (BM_REMOTE_CONFIG / BM_COMMAND_SEND missing; Nick restored). Alternator
+  run by hand 04:25Z; timer running again (next :20). Watcher = task `bk3qggjea` (v2, also REDs on a failed alternator run).
+- T0 04:00Z wake normal on both. 22:50 D1 table sent: `analysis/d1_heal_2250PDT.md` (two-wake heal pipeline;
+  004 01:00Z clip starving; halt is budget-bound 480 s; 100-chunk heal fits only with cap 126).
+- **Phase 2 SENT 05:55Z** (BMCAM_003 cid 1000020, BMCAM_004 cid 1000049; 004 acked 06:08 "190 -> 126 next action").
+- **Command lag = 1 wake** (media `set` + trg apply at the NEXT boot) → the alternation runs one hour late: video
+  on EVEN hours from 06:00. Phase-2 T = **08:00Z**, second video wake 10:00Z → **phase 3 at ~10:20Z** (EM told;
+  EM raises heal cap to 48/day then).
+- trg: 004 armed at 06:06 for 07:00; 003's trg/still/cap not yet delivered by Sofar at 06:12.
