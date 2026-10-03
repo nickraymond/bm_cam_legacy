@@ -60,3 +60,22 @@ chunks/wake needs a longer window (sampleDurationMs) or fewer clip chunks (phase
 - The config-only lever for latency is **phase 3 (30-min wakes)**: the same two-wake pipeline becomes ≈ 1.2–1.8 h.
 </content>
 </invoke>
+
+## Update 06:05Z — measured from the units' own cycle logs (`pulled/bmcam00x_rc_cycle_wake0500Z.log`)
+
+- **The halt is budget-bound, not send-bound:** `max_run_time_min=8` → halt at uptime 480 s on every cycle
+  (+ ~25 s boot = the 494–505 s wake→halt). Order inside the cycle: boot → capture/encode → **heal chunks
+  sent BEFORE START** → clip burst (1.54 s/msg: 283 s for 183) → post-transmit command listen window
+  (nominal 150 s) **trimmed by the budget** → halt.
+- Heal cost: bmcam003 sent 13 heal chunks → listen window 127 s; bmcam004 sent 40 → 95 s. ≈ 1.2 s per heal
+  chunk comes out of the listen window.
+- **100-chunk heal with today's 184-chunk clips:** +60 × 1.2 ≈ +72 s → listen window ≈ 23 s (commands arriving
+  later in the wake wait for the next one). Wake→halt stays ≈ 505 s (budget), so the bus window (600 s) is NOT the
+  limit; the 480 s budget and the listen window are. **With phase 2 (cap 126, −57 msgs ≈ −88 s) a 100-chunk heal
+  fits and the listen window stays ≈ 110 s.** Whether the transmit itself is cut when it overruns 480 s: not measured.
+- **Wasted heal seen:** rsd 100130 (created 03:36Z) re-asks 0e5c4w 154–181, which 100128 already resent at 04:06Z
+  (clip complete before 05:38Z). The unit queued it at 05:05Z, so it will resend 28 chunks at 06:00Z that the
+  backend already holds. Not G4.4 by the letter (the backend did not hold them when 100130 was created), but it spends cap.
+- **Command → effect lag (G4.11):** the 04:25Z media `set`s (1000045/46) were applied in the 05:00 wake's listen
+  window as "(next boot)" → they take effect at the 06:00 wake. A :20 send for wake H+1 therefore lands at H+2
+  (one wake late): the alternation is consistently phase-shifted by one hour. Measured lag = 1 wake.
