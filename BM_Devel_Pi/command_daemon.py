@@ -261,7 +261,7 @@ class CommandDaemon:
         self.consecutive_read_errors = 0     # S3b watchdog (reader_health)
         self.stats = {"read_errors": 0, "applied": 0, "duplicates": 0,
                       "rejected": 0, "unackable": 0, "acks_sent": 0,
-                      "console_lines_sent": 0}
+                      "console_lines_sent": 0, "acks_resent": 0}
 
     # ------------------------------------------------------------------
     # Lifecycle (main thread)
@@ -653,6 +653,33 @@ class CommandDaemon:
             sent += 1
             self.stats["acks_sent"] += 1
             print(f"[CMD] ack sent: {ack}")
+        return sent
+
+    def resend_acks(self, acks, clock=time.monotonic, sleep_fn=time.sleep):
+        """R1 ack re-send: put already-built acks on the wire NOW, paced like
+        drain_acks (ack_interval_s floor since the last ack, then the lane
+        guard), sleeping instead of deferring: the caller runs this at the
+        start of the wake, before capture. Never touches the normal ack queue.
+        A send failure stops (the next boot re-sends). Returns the count sent."""
+        sent = 0
+        for ack in acks:
+            wait = 0.0
+            if self._last_ack_ts is not None:
+                wait = self.ack_interval_s - (clock() - self._last_ack_ts)
+            if wait > 0:
+                sleep_fn(wait)
+            lane = self.lane_wait_s()
+            if lane > 0:
+                sleep_fn(lane)
+            try:
+                self.bm.spotter_tx(ack)
+            except Exception as exc:
+                print(f"[CMD][WARN] ack re-send failed (left for the next boot): {exc}")
+                break
+            self._last_ack_ts = clock()
+            sent += 1
+            self.stats["acks_resent"] += 1
+            print(f"[CMD] ack re-sent: {ack}")
         return sent
 
     # ------------------------------------------------------------------

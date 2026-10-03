@@ -147,6 +147,7 @@ class Boot:
         self._sleep_fn = None
         self._guard_mark = None           # clock() of the last guard note (uptime accrual)
         self._guard_clock = None
+        self.acks_resent = False          # R1: the last boots' answers re-sent (once/process)
 
     def start(self, summary, *, clock, sleep_fn, halt_fn, bm_close_fn, daemon_factory,
               log_fn, close_warn, end_line):
@@ -547,8 +548,42 @@ class Boot:
                     # none, so it records and sends a clip (window bypassed).
                     print(f"[SUP][WARN] trg {settings['trigger'].get('value')} names a stills "
                           "reference; a video unit records and sends a clip instead")
+        self._resend_recent_acks(daemon, summary, sleep_fn)
         self.settings = settings
         return settings, flags
+
+    def _resend_recent_acks(self, daemon, summary, sleep_fn):
+        """R1 ack re-send (Nick 2026-10-03): once per process, at the start of
+        the wake and BEFORE capture, re-send the cellular answers of the last
+        command_v9.RESEND_BOOTS boots as d:1 duplicate acks (the form the
+        backend already dedupes). An ack sent during the Spotter mailbox sync is
+        often dropped by a full cell-only queue and nothing else re-sends it.
+        Bounded (RESEND_MAX), paced like every ack, and only as many as the
+        wake budget can pace. Counted (--transmit) runs only. Never raises."""
+        if self.acks_resent or not self.transmit or daemon is None:
+            return
+        self.acks_resent = True
+        dispatch = getattr(daemon, "v9_dispatch", None)
+        if dispatch is None or not hasattr(dispatch, "recent_answers"):
+            return
+        try:
+            picks = dispatch.recent_answers()
+            if not picks:
+                return
+            fit = self.budget.max_messages_now() if self.budget is not None else len(picks)
+            if fit < len(picks):
+                print(f"[CMD][WARN] ack re-send: {len(picks)} answer(s), the budget paces "
+                      f"{fit}; sending the newest {max(fit, 0)}")
+                picks = picks[len(picks) - max(fit, 0):]
+            ids = [cid for cid, _ack in picks]
+            clock = self._guard_clock or time.monotonic
+            print(f"[CMD] ack re-send: {len(ids)} answer(s) from the last boots as d:1 "
+                  f"(ids {ids}; {len(ids)} paced msg(s) from the wake budget)")
+            sent = daemon.resend_acks([ack for _cid, ack in picks], clock=clock,
+                                      sleep_fn=sleep_fn)
+            summary["ack_resend"] = {"ids": ids, "sent": sent}
+        except Exception as exc:
+            print(f"[CMD][WARN] ack re-send skipped: {type(exc).__name__}: {exc}")
 
     def _apply_one_shot(self, settings, daemon):
         """b.6a: the trigger's kv, re-validated against the config as it is NOW

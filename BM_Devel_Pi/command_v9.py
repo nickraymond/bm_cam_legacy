@@ -43,6 +43,13 @@ import config_validate
 import supervisor_config
 
 DUP_CELLULAR_QUIET_S = 600.0      # G9: no cellular d:1 copy within 10 min of the answer
+# R1 ack re-send (Nick 2026-10-03): a cellular ack sent during the Spotter's
+# mailbox sync is often dropped ("Unable to submit message to cell-only queue")
+# and nothing re-sends it. The next boots re-send the cached answer as the
+# existing d:1 duplicate ack, bounded: answers from the last RESEND_BOOTS boots,
+# at most RESEND_MAX of them (newest first), once per id per process (G9).
+RESEND_BOOTS = 2
+RESEND_MAX = 6
 GET_MAX_CF_PARTS = 3              # §6.1: a cellular get is capped at 3 <CF> parts (e:"big")
 JOURNAL_LINES = 5                 # `get journal`: the last N lines, console only
 WAP_VALUES = (0, 1, 2)            # command_tables.WAP_TABLE (wap is unchanged, §6.1)
@@ -229,12 +236,7 @@ class Dispatcher:
             cellular = last is None
         if cellular:
             self._dup_cell[cid] = now
-        ok = bool(cached.get("ok"))
-        text, granted = cached.get("t", ""), cached.get("v")
-        if cached.get("hld") and first is None:
-            # S4b review #9: a hold is never persisted; one granted in an earlier
-            # boot is not active now (the re-send must not claim it is).
-            text, granted = "hold from an earlier boot: NOT active (send a new hld)", 0
+        ok, text, granted = self._dup_fields(cached, first)
         self._answer(cid, ok, cached.get("e"), key=cached.get("k"), text=text,
                      staged=cached.get("s"), granted=granted, duplicate=True,
                      cellular=cellular)
@@ -249,6 +251,56 @@ class Dispatcher:
         print(f"[CMD] duplicate id={cid}: original answer "
               f"({'cellular + ' if cellular else ''}console)")
         return {"action": "duplicate", "id": cid}
+
+    @staticmethod
+    def _dup_fields(cached, first):
+        """(ok, text, granted) of a duplicate answer from its cached original."""
+        ok = bool(cached.get("ok"))
+        text, granted = cached.get("t", ""), cached.get("v")
+        if cached.get("hld") and first is None:
+            # S4b review #9: a hold is never persisted; one granted in an earlier
+            # boot is not active now (the re-send must not claim it is).
+            text, granted = "hold from an earlier boot: NOT active (send a new hld)", 0
+        return ok, text, granted
+
+    def recent_answers(self, boots=RESEND_BOOTS, max_n=RESEND_MAX):
+        """R1 ack re-send: the d:1 duplicate acks (the form the backend already
+        reads) of the cellular-range answers cached in the last `boots` boots
+        BEFORE this one (result_cache `b`), newest `max_n`, oldest first. Each
+        counts as this process's one cellular d:1 copy of that id (G9), so a
+        mote replay later in this process does not send it again; ids already
+        answered or copied in this process are skipped. Console lines are not
+        repeated (the console is not lossy). -> [(id, ack JSON)]"""
+        cur = getattr(self.state, "boot_counter", None)
+        cache = getattr(self.state, "result_cache", None)
+        if not isinstance(cur, int) or not isinstance(cache, dict) or max_n <= 0:
+            return []
+        picks = []
+        for key, cached in cache.items():          # insertion order: oldest first
+            try:
+                cid = int(key)
+            except (TypeError, ValueError):
+                continue
+            b = cached.get("b") if isinstance(cached, dict) else None
+            if not isinstance(b, int) or not cur - boots <= b < cur:
+                continue
+            if W.id_range(cid) not in W.CELLULAR_RANGES:
+                continue
+            if cid in self._dup_cell or cid in self._answered_at:
+                continue
+            picks.append(cid)
+        out = []
+        for cid in picks[-max_n:]:
+            cached = cache[str(cid)]
+            ok, text, granted = self._dup_fields(cached, None)
+            ack, _lines = self.daemon.v9.reply(cid, ok, cached.get("e"), {}, duplicate=True,
+                                               key=cached.get("k"), text=text,
+                                               staged=cached.get("s"), granted=granted)
+            if ack is None:
+                continue
+            self._dup_cell[cid] = self.clock()
+            out.append((cid, ack))
+        return out
 
     def _applied(self, cmd, text, mutate=None, source=None, answer_extra=None):
         answer = {"ok": 1, "t": text[:120]}
