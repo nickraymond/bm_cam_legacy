@@ -1,6 +1,6 @@
 # G4 — outdoor tethered 12 h (Release R1)
 
-When: **Sat 10/3 08:00 → 20:00 PDT** (pulled in by Nick, RELEASE_PLAN §2a / bm #108), 12 h of capture + a 3 h completion tail. Owner: Test Engineer + Nick (puts
+When: **Fri 10/2 21:00 PDT → Sat 10/3 09:00 PDT (T0 = the 04:00Z wake, end 16:00Z)** (Nick 2026-10-02 evening: start tonight; 21:00 because the alternator needed a dry run), 12 h of capture + a 3 h completion tail. Owner: Test Engineer + Nick (puts
 the box outside). Units: bmcam003 (SPOT-33507C), bmcam004 (SPOT-31593C), both on **RC1** (the
 development tip frozen Mon 10/5 EOD). Mains power, nereus000 on both USB consoles.
 Plan: RELEASE_PLAN §2 (G4), D1, D3, D4, D5. Evidence: `runs/g4_outdoor12h_<YYYYMMDD>/`.
@@ -33,7 +33,31 @@ D1, D3, D4 hold for 12 h; no bus drops.
       and the conductor STOPPED (backend is the only heal sender).
 - [ ] Nick has the box outside, mains connected, console cables to nereus000 checked (`hil_console.sh <SPOT> post`).
 
-## Nick's physical steps (Sat morning)
+
+## Plan as amended by Nick (2026-10-02 evening, via the EM) — supersedes the D3/console lines below
+
+1. **Mixed media:** still ↔ video alternate every hour, driven by BACKEND remote-config commands
+   (`set mode.media`, `/devices/{d}/remote-config/changes` + `/admin/.../send`, Sofar lane) sent while the
+   units are off (:20), so the command waits for the next wake. Tool: `hil/tools/hil_g4_alternator.py` on
+   nereus000 as `hil-g4-alternator.timer` (hourly :20 UTC, until 15:00Z; target = still on even UTC
+   hours, video on odd; allow-list BMCAM_003/004; 409 rate_limited → retry the same id).
+2. **D3:** `trg` via the backend (Sofar lane), 3 per unit, sent by the same timer at 05:20, 09:20, 13:20Z
+   (for the 06:00, 10:00, 14:00 wakes), ≥ 70 s after that hour's media change (65 s Spotter guard).
+3. **Self-heal:** backend auto-send as configured (cap 24/day per Spotter).
+4. **Console: OBSERVE ONLY** (bus windows, queue-full, resets, health checks). No console sends during G4.
+   `post` (G4.9) is therefore N/A; Spotter health = passive console log (errors, rebootctl, charge mode).
+
+Added criteria:
+
+| id | criterion | PASS when | evidence |
+|---|---|---|---|
+| G4.11 | commanded media = captured media | for every wake, the START type (still `IMG …jpg` / video `…h264`) equals the media commanded for it, allowing the measured command→effect lag (reported in wakes, per unit); a wrong media beyond that lag = FAIL | `alternator.jsonl` + console START lines |
+| G4.12 | every backend command acked or confirmed | each media / trg command: ack at the backend, or (ack lost at the Spotter, F-G3-10) its effect confirmed by a later `<WS>`/START hash | backend command log, `analysis/commands.csv` |
+
+Also measured: a still cycle's wake→halt vs the 10-min window (budget `still.budget_min` 8), and any 409
+collisions between the timer's sends and heal sends.
+
+## Nick's physical steps (done 2026-10-02 15:38–15:55 PDT)
 
 The units run the production schedule: the bus is ON only :00–:10 each hour, and each Pi halts itself
 before :10. **Only move hardware between :12 and :55 past the hour** (bus off, Pis halted = safe to
