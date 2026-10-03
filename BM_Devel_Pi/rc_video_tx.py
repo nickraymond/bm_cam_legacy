@@ -218,19 +218,32 @@ def _skip_status(settings, vtx, gate_info, wake_fn=None):
         print(f"[VTX][WARN] wake status send failed, continuing safely: {exc}")
 
 
-def _status_line(settings, vtx, wake_fn, action, reason):
-    """One <WS> for a save_local video action; never raises. -> True if sent."""
+def _status_line(settings, vtx, wake_fn, action, reason, trigger_result=None):
+    """One <WS> for a video action (save_local, refused clip, trg outcome);
+    never raises. -> True if sent."""
     if wake_fn is None:
         from rc_telemetry import send_wake_status as wake_fn
     try:
         w, h = vtx["output_wh"]
+        extra = {"trigger_result": trigger_result} if trigger_result else {}
         wake_fn(action=action, timezone_name=settings["timezone"], local_time=None,
                 window_start=settings["window_start"], window_end=settings["window_end"],
-                image_res_key=f"{w}x{h}", image_quality=None, reason=reason)
+                image_res_key=f"{w}x{h}", image_quality=None, reason=reason, **extra)
         return True
     except Exception as exc:
         print(f"[VTX][WARN] wake status send failed, continuing safely: {exc}")
         return False
+
+
+def _trigger_result(summary, outcome):
+    """R1 trg outcome: "<trg command id>:<outcome>" (outcome sent | budget |
+    fail) for a trg-fired action, else None. The id is the one the supervisor's
+    boot drain serviced (summary["trigger"])."""
+    trig = (summary or {}).get("trigger")
+    if not isinstance(trig, dict) or trig.get("id") is None:
+        return None
+    summary["trigger_outcome"] = outcome
+    return f"{trig['id']}:{outcome}"
 
 
 def _save_local_tail(daemon, summary, budget, *, bm_commands_cfg, clock, sleep_fn, supervised):
@@ -515,15 +528,26 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     if result["refused_reason"]:
         print(f"[VTX][ERROR] clip NOT sent — {result['refused_reason']}. The recording is "
               f"on the SD card: {clip['mp4']}")
-        if supervised is not None and result["refused_reason"].startswith("budget"):
+        if supervised is not None:
             # R1 G4 finding 5: say so on the existing <WS> line (a=skip_err, as
-            # for storage_full) so a trg's capture does not vanish silently.
-            # Legacy (unsupervised) cycle: unchanged, sends nothing (as W3).
-            _status_line(settings, vtx, wake_fn, "skip_err", "budget")
+            # for storage_full) so a trg's capture does not vanish silently;
+            # a trg's line carries tr=<id>:budget|fail. Legacy (unsupervised)
+            # cycle: unchanged, sends nothing (as W3).
+            outcome = "budget" if result["refused_reason"].startswith("budget") else "fail"
+            tr = _trigger_result(summary, outcome)
+            if outcome == "budget" or tr:
+                _status_line(settings, vtx, wake_fn, "skip_err", outcome, trigger_result=tr)
     else:
         print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
               f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "
               f"uart={result['uart_duration_sec']:.1f}s file={file_name}")
+        tr = _trigger_result(summary, "sent") if supervised is not None else None
+        if tr:
+            # R1 trg outcome: one <WS a=trg tr=<id>:sent>, one paced slot after
+            # END (END is not followed by a sleep), so the backend can close the
+            # command even when its ack was lost.
+            sleep_fn(float(settings["pacing_delay_seconds"]))
+            _status_line(settings, vtx, wake_fn, "trg", None, trigger_result=tr)
     # S3: the clip is off the wire — release the deferred acks, then the
     # bounded listen tail (the mailbox drain our own transmit triggers).
     if daemon is not None:
@@ -628,6 +652,12 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
     except Exception as exc:
         summary["error"] = f"{type(exc).__name__}: {exc}"
         print(f"[VTX][ERROR] cycle failed at stage {summary['stage']!r}: {summary['error']}")
+        if supervised is not None and transmit and not summary.get("trigger_outcome"):
+            # R1 trg outcome: a trg-fired action that failed (recording, fit,
+            # ...) says so with its id; the clip, if any, stays on the SD.
+            tr = _trigger_result(summary, "fail")
+            if tr:
+                _status_line(settings, vtx, None, "skip_err", "fail", trigger_result=tr)
         return summary
     finally:
         # S3 ordering (RESEND_DEVICE.md §1): final pickup + paced ack flush +

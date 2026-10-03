@@ -21,6 +21,10 @@ Pins:
                         END do not fit) is refused before START AND reported on
                         the existing <WS> status line (a=skip_err r=budget) on a
                         supervised action, so the trg does not vanish silently
+  trg outcome           a trg-fired action reports `tr=<cmd id>:<sent|budget|fail>`
+                        on a <WS> line (wire contract addition, Nick 2026-10-03):
+                        a=trg after a send, the a=skip_err line on a refusal or
+                        a failed action; nothing for an untriggered action
 
 Everything is zero-sleep, fake clock; no hardware, no ffmpeg.
 
@@ -35,6 +39,7 @@ import sys
 import tempfile
 import types
 import unittest
+from unittest import mock
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
@@ -87,7 +92,7 @@ def _supervised():
                                  gate_kwargs=lambda daemon, settings: {})
 
 
-def run_trg_action(*, remaining_s, encode_s, supervised=None):
+def run_trg_action(*, remaining_s, encode_s, supervised=None, trigger_id=None):
     """One video_action on a budget with `remaining_s` left at the sizing
     point; the fit (encode) takes `encode_s` and fills the budget it is given
     exactly, the way a budget-bound trg clip does in the field."""
@@ -118,6 +123,8 @@ def run_trg_action(*, remaining_s, encode_s, supervised=None):
     try:
         with contextlib.redirect_stdout(out):
             summary = {"command_events": []}
+            if trigger_id is not None:          # what the boot drain sets for a trg
+                summary["trigger"] = {"id": trigger_id, "value": 2}
             vtx.video_action(
                 _settings(tmp.name), cfg, summary, None, budget, {"opened": False},
                 transmit=True, skip_time_window=False,
@@ -180,6 +187,82 @@ class TestUnsendableClipIsReported(unittest.TestCase):
         _, _, wake_calls, out = run_trg_action(remaining_s=85.0, encode_s=40.0)
         self.assertIn("NOT sent", out)
         self.assertEqual(wake_calls, [])
+
+
+
+class TestTriggerOutcome(unittest.TestCase):
+    def test_sent_trg_reports_tr_sent_after_end(self):
+        summary, wire, wake_calls, out = run_trg_action(
+            remaining_s=85.0, encode_s=9.0, supervised=_supervised(), trigger_id=1000059)
+        self.assertTrue(summary["transmit_result"]["started"], out)
+        self.assertEqual(len(wake_calls), 1, wake_calls)
+        self.assertEqual((wake_calls[0]["action"], wake_calls[0]["reason"],
+                          wake_calls[0]["trigger_result"]), ("trg", None, "1000059:sent"))
+        self.assertEqual(summary["trigger_outcome"], "sent")
+
+    def test_refused_trg_reports_tr_budget_on_the_skip_err_line(self):
+        summary, _, wake_calls, _ = run_trg_action(
+            remaining_s=85.0, encode_s=40.0, supervised=_supervised(), trigger_id=1000025)
+        self.assertEqual(len(wake_calls), 1, wake_calls)
+        self.assertEqual((wake_calls[0]["action"], wake_calls[0]["reason"],
+                          wake_calls[0]["trigger_result"]), ("skip_err", "budget", "1000025:budget"))
+        self.assertEqual(summary["trigger_outcome"], "budget")
+
+    def test_untriggered_action_has_no_tr(self):
+        _, _, wake_calls, _ = run_trg_action(remaining_s=85.0, encode_s=0.0,
+                                             supervised=_supervised())
+        self.assertEqual(wake_calls, [])                 # a normal send: no <WS> added
+        _, _, wake_calls, _ = run_trg_action(remaining_s=85.0, encode_s=40.0,
+                                             supervised=_supervised())
+        self.assertNotIn("trigger_result", wake_calls[0])
+
+    def test_failed_trg_action_reports_tr_fail(self):
+        class Sup:
+            run, save_local, storage_reason, quiet_skip = "per_boot", False, None, False
+            one_shot_vtx = current_vtx = None
+
+            def gate_kwargs(self, daemon, settings):
+                return {}
+
+            def start(self, summary, **kw):
+                return None, CycleBudget(480, SPM, clock=Clock())
+
+            def boot_drain(self, settings, summary, sleep_fn):
+                summary["trigger"] = {"id": 1000048, "value": 2}
+                return settings, {"skip_time_window": False, "capture_only": False}
+
+        cfg = vtx.validate_video_tx_config(dict(vtx.DEFAULT_VIDEO_TX_CONFIG, enabled=True,
+                                                source="test"))
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch("rc_telemetry.send_wake_status") as ws, \
+                contextlib.redirect_stdout(io.StringIO()):
+            summary = vtx.run_video_tx_cycle(
+                _settings(tmp), cfg, transmit=True, supervised=Sup(),
+                gate_fn=lambda path, **kw: (True, {"reason": "test gate"}),
+                record_fn=lambda *a, **kw: {"ok": False, "stage": "encode"},
+                ensure_room_fn=lambda d, st: {"paused": False}, sleep_fn=lambda s: None,
+                clock=Clock(), encoder_binary="/usr/bin/rpicam-vid",
+                ffmpeg_binary="/usr/bin/ffmpeg")
+        self.assertIn("recording failed", summary["error"])
+        ws.assert_called_once()
+        kw = ws.call_args.kwargs
+        self.assertEqual((kw["action"], kw["reason"], kw["trigger_result"]),
+                         ("skip_err", "fail", "1000048:fail"))
+
+    def test_ws_line_carries_tr_right_after_the_extras(self):
+        import rc_telemetry
+        sent = []
+        with mock.patch.object(rc_telemetry, "send_compact_text_message", sent.append), \
+                mock.patch.object(rc_telemetry, "get_cpu_temperature", lambda: 45.0), \
+                mock.patch.object(rc_telemetry, "get_software_sha", lambda: "abc"), \
+                mock.patch.object(rc_telemetry, "get_hostname", lambda: "bmcam003"), \
+                mock.patch.object(rc_telemetry, "WS_EXTRA_FN", lambda: [("cfg", "1910bbef")]):
+            rc_telemetry.send_wake_status("trg", timezone_name="UTC", image_res_key="480x270",
+                                          trigger_result="1000059:sent")
+            rc_telemetry.send_wake_status("cap", timezone_name="UTC", image_res_key="480x270")
+        self.assertTrue(sent[0].startswith("<WS v=1 a=trg cfg=1910bbef tr=1000059:sent tz=UTC "),
+                        sent[0])
+        self.assertNotIn("tr=", sent[1])
 
 
 if __name__ == "__main__":

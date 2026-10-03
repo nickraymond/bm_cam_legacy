@@ -49,7 +49,8 @@
    "id": 713,
    "kv": {},
    "value": 2
-  }
+  },
+  "trigger_outcome": "sent"
  },
  "cycles": [
   {
@@ -99,7 +100,8 @@
     "id": 711,
     "kv": {},
     "value": 2
-   }
+   },
+   "trigger_outcome": "sent"
   },
   {
    "clip": {
@@ -151,7 +153,8 @@
     "id": 713,
     "kv": {},
     "value": 2
-   }
+   },
+   "trigger_outcome": "sent"
   }
  ],
  "exit_code": 0,
