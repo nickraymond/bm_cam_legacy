@@ -15,7 +15,7 @@ D1, D3, D4 hold for 12 h; no bus drops.
 |---|---|---|---|
 | G4.1 | production config (D5) | both bridges read back `bridgePowerControllerEnabled 1`, `sampleIntervalMs 3600000`, `sampleDurationMs 600000`; heal cap 24/day per Spotter in the backend settings; units per_boot, cron armed, real halt; runtime sha == RC1 on both | `snapshots/*_g4_start_*`, `console/bridge_readback.txt`, `api/gateway_settings.json` |
 | G4.2 | every wake happened (no bus drops) | each unit: one bus-on window per hour, 12/12 (console `power on for` / bus lines), and a `<WS>` or START per window; 0 unscheduled bus-off events | `analysis/windows.csv` |
-| G4.3 | D1 complete within 3 h | 100 % of media captured in the 12 h are complete at the backend ≤ 3 h after capture (`captured_at` → complete time) | `analysis/media.csv` |
+| G4.3 | D1 complete within 3 h | 100 % of media from COMPLETE cycles (not cut by a power event, G4.10) captured in the 12 h are complete at the backend ≤ 3 h after capture (`captured_at` → complete time) | `analysis/media.csv` |
 | G4.4 | D1 0 redundant heals | 0 heal commands asking for chunks the backend already held at send time | `analysis/heals.csv` |
 | G4.5 | heal cap respected | heal commands per Spotter ≤ the cap in any 24 h window | `analysis/heals.csv` |
 | G4.6 | D3 on-demand capture | ≥ 3 `trg` per unit (console lane, inside a bus window), each → one media row, complete ≤ 3 h | `steps.log`, `analysis/media.csv` |
@@ -76,6 +76,13 @@ not fixed by Sat 07:30, G4 runs **G5-style**:
 4. Watch (every ~2 h): console queue-full counts, bus windows, backend media completeness. No
    intervention unless a unit stops waking for 2 windows (then: BLOCKED + console `post`, and tell the EM).
 5. T0+12 h: stop counting captures. Tail: +3 h for completeness. Then pull the analysis.
+
+## Watch item: heal backlog vs the 40-chunk/wake cap
+
+Shakedown 2026-10-02 outdoors: normal clips arrived 15–27 % short (28–50 of 182–187 chunks). If G4 shows
+the heal backlog growing against `max_chunks` 40/wake, report the numbers for raising it (design ceiling
+60) against the 10-min window: each +20 chunks ≈ +26 s on a ~8.5-min wake→halt. A Nick decision before
+G5, not a G4 change.
 
 ## Analysis
 
