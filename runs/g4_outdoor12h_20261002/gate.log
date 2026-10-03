@@ -26,3 +26,4 @@ yes:Ford:72
 2026-10-03T02:23:23Z 1790994204.476 c3c5
 2026-10-03T02:23:22Z 1790994204.167 0e58
 2026-10-03T03:50:25Z Nick in Test Engineer chat: 'OK: bridge cfg set/commit on SPOT-33507C and SPOT-31593C to change the bus schedule to every 30 min (1800000/600000) for G4 phase 3'
+2026-10-03T03:54:41Z RED alternator 03:20Z run REFUSED 403 remote_config_disabled (BM_REMOTE_CONFIG off on staging web service) for BMCAM_003+004; plan endpoint 200. 04:00Z wake stays on the current media (video). Reported to EM; Render env not Test Engineer's to change.

@@ -30,7 +30,7 @@ branch `feature/r1-hil-test-engineer` (PRs go to the EM, who has Nick's standing
 | what | where | schedule | stop |
 |---|---|---|---|
 | **alternator** `hil-g4-alternator.timer` (+ `.service`) | nereus000 (pi@192.168.1.45), script `/home/pi/hil_g4/hil_g4_alternator.py`, log `/home/pi/hil_g4/alternator.jsonl` | hourly **:20 UTC**, until 15:00Z; target media for the NEXT wake = still on even UTC hours, video on odd; `trg` at 05:20, 09:20, 13:20Z; allow-list BMCAM_003/004; retries 409 | `sudo systemctl disable --now hil-g4-alternator.timer && sudo rm /etc/systemd/system/hil-g4-alternator.* && sudo systemctl daemon-reload` — **MUST be stopped before G5** (nereus000 leaves) |
-| **red watcher** (Mac, read-only) | `/private/tmp/claude-501/…/scratchpad/g4_watch.sh` → `runs/g4_outdoor12h_20261002/watch.log`; background task id `b3c8q55vl` | hourly :14 for 03–15Z; exits with `RED …` on: unit didn't wake, wake→halt > 590 s, nereus000 unreachable twice, alternator send failed; logs AMBER (rebootctl/charge mode) | TaskStop `b3c8q55vl` |
+| **red watcher** (Mac, read-only) | `/private/tmp/claude-501/…/scratchpad/g4_watch.sh` → `runs/g4_outdoor12h_20261002/watch.log`; background task id `b70giir3n` (v2 since 03:59Z: also REDs on a failed alternator service run; copy in scripts/g4_watch_v2.sh) | hourly :14 for 03–15Z; exits with `RED …` on: unit didn't wake, wake→halt > 590 s, nereus000 unreachable twice, alternator send failed; logs AMBER (rebootctl/charge mode) | TaskStop `b70giir3n` |
 | **caffeinate** (Mac awake 14 h) | pid 88617, started 02:21Z | until ~16:21Z | `kill 88617` |
 | **05:38Z timer** (reminder to run the 22:50 PDT analysis) | background task `buo825em2` | fires 05:38Z | — |
 
