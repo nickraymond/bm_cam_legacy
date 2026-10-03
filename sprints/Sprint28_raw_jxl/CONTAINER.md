@@ -89,11 +89,20 @@ All values are signed integers. Scaled values are rounded **half away from zero*
   clipped to `white` first. Built once in float64 per (black, white) and applied as an integer LUT.
 - Inverse (study `sqrt_inverse`): `raw = (code / S)² + black`, in float.
 
-## 4. crc32
+## 4. crc32 (rule "crc-v1b", agreed 2026-10-02)
 
-`crc32 = zlib.crc32(R ‖ G1 ‖ G2 ‖ B) & 0xFFFFFFFF`, over the four payloads in container order and
-**excluding the header**. It is stored in params[5] as a non-negative integer. A mismatch means the
-backend refuses the blob: no render, original kept.
+`crc32 = zlib.crc32(H0 ‖ R ‖ G1 ‖ G2 ‖ B) & 0xFFFFFFFF`, where **H0 = the header packed exactly as
+sent, but with params[5] = 0** (minimal LEB128, as the study's `Header.pack` writes it). It is
+stored in params[5] as a non-negative integer.
+
+- Camera: pack the header with params[5] = 0, compute the crc over that plus the payloads, then
+  pack again with params[5] = crc. The varint length of [5] changes, and that is fine.
+- Backend: re-serialise the parsed header with params[5] = 0 and check the crc. A mismatch means
+  the blob is refused: no render, original kept.
+- Why the header is covered: the render trusts the colour params (ColourGains, CCM, DigitalGain,
+  black and white). With a payload-only crc, the backend's damaged-stream test found that one
+  flipped bit in those params decoded silently, with wrong colours. A non-minimal varint (a
+  flipped continuation bit) re-packs differently, so it fails too.
 
 ## 5. Backend render (neutral, `render_version` = `nrjxl-neutral-v1`)
 
