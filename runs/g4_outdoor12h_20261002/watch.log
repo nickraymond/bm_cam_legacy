@@ -14,3 +14,7 @@ WAKE SPOT-31593C 2026-10-03T05:00: bus 04:59:58→05:09:58 | Pi 05:00:03→05:08
 2026-10-03T06:14:19Z alt service: success 0 
 WAKE SPOT-33507C 2026-10-03T06:00: bus 05:59:59→06:09:59 | Pi 06:00:13→06:08:23 (wake→halt 504 s) | START len 190 END sent 190 burst 291.6 s | queue_full 5 | heal cmds 1 | nereus000 wifi yes:Ford:63
 WAKE SPOT-31593C 2026-10-03T06:00: bus 05:59:58→06:09:58 | Pi 06:00:03→06:08:23 (wake→halt 505 s) | START len 184 END sent 25 burst 51.4 s | queue_full 114 | heal cmds 1 | nereus000 wifi yes:Ford:68
+2026-10-03T07:14:29Z alt: [('BMCAM_003', 'trg_command', None, 200), ('BMCAM_004', 'trg_command', None, 200), ('BMCAM_003', 'media_command', 'video', 200), ('BMCAM_004', 'media_command', 'video', 200)]
+2026-10-03T07:14:30Z alt service: success 0 
+WAKE SPOT-33507C 2026-10-03T07:00: bus 06:59:59→07:09:59 | Pi 07:00:03→07:08:43 (wake→halt 524 s) | START len 34 END sent 188 burst 288.9 s | queue_full 21 | heal cmds 1 | nereus000 wifi yes:Ford:69
+WAKE SPOT-31593C 2026-10-03T07:00: bus 06:59:58→07:09:58 | Pi 07:00:03→07:08:23 (wake→halt 505 s) | START len 115 END sent 115 burst 153.0 s | queue_full 1 | heal cmds 1 | nereus000 wifi yes:Ford:65
