@@ -62,14 +62,19 @@ cd "$D"
 python3 -c "import json, rc_raw_jxl as X; print('guard', json.dumps(X.run_capped(['python3', '-c', 'x = bytearray(400 * 2 ** 20)'], timeout_s=60, stdout_path='guard.out', stderr_path='guard.err')))" >> env.txt 2>&1 < /dev/null
 cat env.txt
 
-# CMA sampler: label,t,CmaFree_kB,MemAvailable_kB every 0.1 s; the label file names the phase
-echo idle > label.txt
-python3 - <<'PY' > cma_samples.csv 2> sampler.err < /dev/null &
+# >>> sampler (tests/test_s28_hil_r0_analyze.py runs this block as-is with a fake meminfo)
+# CMA sampler: label,t,CmaFree_kB,MemAvailable_kB every 0.1 s; the label file names the phase.
+# Written to a FILE first: in `python3 - <<'PY' ... < /dev/null &` the later redirection
+# replaces the heredoc, python runs an EMPTY program and every CMA row is lost (bm #120 bug,
+# found by the rig study on nereus002, 2026-10-03).
+cat > sampler.py <<'PY'
+import os
 import time
+MEMINFO = os.environ.get("S28R0_MEMINFO", "/proc/meminfo")   # test hook only
 print("label,t,cma_free_kb,mem_available_kb", flush=True)
 while True:
     vals = {}
-    with open("/proc/meminfo") as fh:
+    with open(MEMINFO) as fh:
         for line in fh:
             k, v = line.split(":", 1)
             if k in ("CmaFree", "MemAvailable"):
@@ -84,7 +89,23 @@ while True:
         break
     time.sleep(0.1)
 PY
+echo idle > label.txt
+python3 sampler.py > cma_samples.csv 2> sampler.err < /dev/null &
 SAMPLER=$!
+sleep 1
+ROWS=$(( $(wc -l < cma_samples.csv) - 1 ))
+if [ "$ROWS" -lt 3 ] || ! grep -q '^idle,' cma_samples.csv; then
+  echo "FATAL: the CMA sampler wrote $ROWS row(s) in 1 s (want >= 3); R0.1 cannot be measured. sampler.err: $(tail -3 sampler.err 2>/dev/null)"
+  echo stop > label.txt; kill $SAMPLER 2>/dev/null
+  exit 3
+fi
+if grep -q '^idle,[^,]*,-1,' cma_samples.csv; then
+  echo "FATAL: /proc/meminfo has no CmaFree on this kernel; R0.1 cannot be measured"
+  echo stop > label.txt; kill $SAMPLER 2>/dev/null
+  exit 3
+fi
+echo "CMA sampler running: pid $SAMPLER, $ROWS rows in the first second"
+# <<< sampler
 
 echo "mode,i,rc,elapsed_s,jpeg_bytes,dng_bytes" > captures.csv
 cap() {  # $1 mode (plain|raw), $2 i
@@ -146,6 +167,7 @@ fi
 echo stop > label.txt; sleep 0.5; kill $SAMPLER 2>/dev/null
 df -h "$HOME" | tail -1 >> env.txt
 REMOTE
+REMOTE_RC=${PIPESTATUS[0]}
 
 scp -q -r -o BatchMode=yes "$U@$H:$D/env.txt" "$U@$H:$D/captures.csv" "$U@$H:$D/cma_samples.csv" \
     "$U@$H:$D/encodes.csv" "$U@$H:$D/dmesg_tail.txt" "$P/" 2>/dev/null
@@ -153,4 +175,10 @@ scp -q -r -o BatchMode=yes "$U@$H:$D/keep.json" "$P/capture_metadata_raw1.json" 
 scp -q -r -o BatchMode=yes "$U@$H:$D/enc_*" "$P/" 2>/dev/null
 find "$P" -name "*.nrjxl" -size +200k -delete 2>/dev/null   # keep the small blobs only
 if [ "${S28R0_KEEP:-0}" != 1 ]; then $SSH "rm -rf $D" < /dev/null; fi
+# Fail loudly: an empty CMA log means R0.1 was never measured (not a FAIL of the unit).
+CMA_ROWS=$(( $( (wc -l < "$P/cma_samples.csv") 2>/dev/null || echo 0) - 1 ))
+if [ "$REMOTE_RC" != 0 ] || [ "$CMA_ROWS" -lt 10 ]; then
+  log "R0 probe FAILED TO MEASURE: remote exit $REMOTE_RC, $CMA_ROWS CMA rows pulled (want >= 10); see gate.log [r0][pi] lines. Do NOT score R0.1 from this run."
+  exit 3
+fi
 log "R0 probe done: pulled to $P ($(ls "$P" | wc -l | tr -d ' ') entries); next: hil/tools/hil_s28_r0_analyze.py $OUT $H"

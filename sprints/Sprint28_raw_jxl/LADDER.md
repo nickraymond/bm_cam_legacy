@@ -45,6 +45,12 @@ own verdict.
    - 10 encodes per preset, with 1600×900 first, from one real DNG.
 5. `hil/tools/hil_s28_r0_analyze.py runs/s28_ladder_<YYYYMMDD> bmcam003` prints the R0.1–R0.4
    rows and writes `analysis/r0_{capture,encode,budget,verdict}_bmcam003.*`.
+   **Not measured ≠ FAIL.** The probe exits 3 if the CMA sampler wrote fewer than 3 rows in its
+   first second, if the kernel has no CmaFree, or if fewer than 10 rows were pulled. The analyzer
+   exits 2 when the CMA log has no usable `cap_raw_*` rows, and it writes no verdict then. In
+   both cases R0.1 was never measured: fix the cause and re-run. Never score it as a unit FAIL.
+   History: the #120 sampler ran an empty program, a heredoc + `< /dev/null` bug found by the rig
+   study on nereus002 and fixed 2026-10-03.
 6. Restore the crontab and reboot (step 3's restore line). `hil_unit_snapshot.sh bmcam003 after_r0`
    must show the same runtime sha + config hash as before.
 

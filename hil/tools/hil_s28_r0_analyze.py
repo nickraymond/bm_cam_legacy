@@ -20,6 +20,8 @@ Assumptions (labelled in the budget CSV): process start -> capture start 9 s (Sp
          main ~+21 s, Spotter read ~+23..+30 s), JPEG prep + ladder 2.5 s (Sprint08), the
          50 kB burst = 176 msgs at 1.3 s/msg, tail 150 s.
 Example: hil/tools/hil_s28_r0_analyze.py runs/s28_ladder_20261005 bmcam003
+Exit codes: 0 all PASS, 1 a criterion FAILs, 2 NOT MEASURED (an empty / -1-only CMA log, or
+         no --raw capture rows in it): no verdict is written, re-run the probe.
 Known limits: dmesg "error" matching is a keyword scan (camera / unicam / cma / alloc).
 """
 
@@ -48,6 +50,15 @@ def main(argv=None):
     os.makedirs(out, exist_ok=True)
     caps = read_csv(os.path.join(p, "captures.csv"))
     cma = read_csv(os.path.join(p, "cma_samples.csv"))
+    measured = [r for r in cma if r.get("cma_free_kb") not in (None, "", "-1")]
+    if len(measured) < 10 or not any(r["label"].startswith("cap_raw_") for r in measured):
+        # Not a unit FAIL: R0.1 was never measured (e.g. the sampler ran an empty program,
+        # bm #120 bug fixed 2026-10-03). Refuse to score it.
+        print(f"[R0][FATAL] {host}: cma_samples.csv has {len(measured)} usable row(s) and "
+              f"{'no' if not any(r['label'].startswith('cap_raw_') for r in measured) else 'some'} "
+              "--raw capture rows: the CMA sampler did not run. R0.1 is NOT measured; re-run "
+              "hil_s28_r0_probe.sh. No verdict written.", file=sys.stderr)
+        return 2
     encs = read_csv(os.path.join(p, "encodes.csv")) if os.path.exists(
         os.path.join(p, "encodes.csv")) else []
     env = open(os.path.join(p, "env.txt")).read()

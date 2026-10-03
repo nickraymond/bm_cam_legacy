@@ -8,7 +8,11 @@ import csv
 import importlib.util
 import json
 import os
+import re
+import shutil
+import subprocess
 import tempfile
+import time
 import unittest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -97,6 +101,86 @@ class Analyze(unittest.TestCase):
         self.assertEqual(self.run_it(env="cjxl:  \nnumpy missing\n")[1]["R0.4"]["verdict"], "FAIL")
         weak = ENV.replace('"kind": "mem"', '"kind": "ok"')
         self.assertEqual(self.run_it(env=weak)[1]["R0.4"]["verdict"], "FAIL")
+
+
+class NotMeasured(unittest.TestCase):
+    def test_an_empty_cma_log_is_not_scored(self):
+        with tempfile.TemporaryDirectory() as run:
+            write(run, "bmcam003")
+            path = os.path.join(run, "pulled", "bmcam003_r0", "cma_samples.csv")
+            with open(path, "w") as fh:
+                fh.write("label,t,cma_free_kb,mem_available_kb\n")      # the #120 bug's output
+            self.assertEqual(A.main([run, "bmcam003"]), 2)
+            self.assertFalse(os.path.exists(os.path.join(run, "analysis",
+                                                         "r0_verdict_bmcam003.json")))
+
+    def test_a_cma_log_without_raw_capture_rows_is_not_scored(self):
+        with tempfile.TemporaryDirectory() as run:
+            write(run, "bmcam003")
+            path = os.path.join(run, "pulled", "bmcam003_r0", "cma_samples.csv")
+            with open(path) as fh:
+                rows = [ln for ln in fh if not ln.startswith("cap_raw_")]
+            with open(path, "w") as fh:
+                fh.writelines(rows)
+            self.assertEqual(A.main([run, "bmcam003"]), 2)
+
+
+PROBE = os.path.join(REPO, "hil", "tools", "hil_s28_r0_probe.sh")
+FAKE_MEMINFO = "MemTotal:  427000 kB\nMemAvailable:  190000 kB\nCmaTotal:  131072 kB\nCmaFree:  1900 kB\n"
+BUGGY = """python3 - <<'PY' > cma_samples.csv 2> sampler.err < /dev/null &
+import sys
+print("label,t,cma_free_kb,mem_available_kb", flush=True)
+PY"""
+
+
+def _sampler_block():
+    with open(PROBE) as fh:
+        text = fh.read()
+    return text[text.index("# >>> sampler"):text.index("# <<< sampler")]
+
+
+@unittest.skipIf(shutil.which("bash") is None or shutil.which("python3") is None, "needs bash")
+class ProbeSampler(unittest.TestCase):
+    """Runs the probe's OWN sampler block (not a copy) against a fake meminfo."""
+
+    def run_block(self, block):
+        with tempfile.TemporaryDirectory() as d:
+            meminfo = os.path.join(d, "meminfo")
+            with open(meminfo, "w") as fh:
+                fh.write(FAKE_MEMINFO)
+            env = dict(os.environ, S28R0_MEMINFO=meminfo)
+            r = subprocess.run(["bash", "-c", "set -u\n" + block + "\nsleep 0.3\n"
+                                "echo cap_raw_1 > label.txt; sleep 0.3; echo stop > label.txt; wait"],
+                               cwd=d, env=env, capture_output=True, text=True, timeout=30)
+            time.sleep(0.2)
+            with open(os.path.join(d, "cma_samples.csv")) as fh:
+                rows = list(csv.DictReader(fh))
+            return r, rows
+
+    def test_the_sampler_writes_rows(self):
+        r, rows = self.run_block(_sampler_block())
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("CMA sampler running", r.stdout)
+        self.assertGreaterEqual(len(rows), 5)
+        self.assertEqual({row["cma_free_kb"] for row in rows}, {"1900"})
+        self.assertTrue(any(row["label"] == "cap_raw_1" for row in rows))
+        self.assertEqual(rows[-1]["label"], "stop")
+
+    def test_the_guard_catches_the_original_heredoc_bug(self):
+        block = re.sub(r"python3 sampler\.py > cma_samples\.csv 2> sampler\.err < /dev/null &",
+                       lambda _m: BUGGY, _sampler_block())
+        self.assertIn("python3 - <<'PY'", block)
+        r, rows = self.run_block(block)
+        self.assertEqual(r.returncode, 3)
+        self.assertIn("FATAL: the CMA sampler wrote", r.stdout)
+        self.assertEqual(rows, [])
+
+    def test_no_heredoc_program_also_takes_dev_null(self):
+        with open(PROBE) as fh:
+            for n, line in enumerate(fh, 1):
+                code = line.split("#", 1)[0]
+                self.assertFalse("<<'" in code and "< /dev/null" in code,
+                                 f"line {n}: a heredoc program with < /dev/null runs EMPTY")
 
 
 if __name__ == "__main__":
