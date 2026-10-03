@@ -1,0 +1,81 @@
+{
+  "schema": "hil_run_manifest/1",
+  "gate": "G4",
+  "run_dir": "runs/g4_outdoor12h_20261002",
+  "start_utc": "2026-10-03T02:16:29+00:00",
+  "start_pdt": "2026-10-02T19:16:29-07:00",
+  "end_utc": null,
+  "end_pdt": null,
+  "operator": "Test Engineer",
+  "repo": {
+    "branch": "feature/r1-hil-test-engineer",
+    "sha": "87a09a0c5f1176af1f889fd523fbf6bf1e39e20e",
+    "dirty": true
+  },
+  "units": [
+    {
+      "host": "bmcam003",
+      "before": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      },
+      "after": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      }
+    },
+    {
+      "host": "bmcam004",
+      "before": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      },
+      "after": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      }
+    }
+  ],
+  "env": {
+    "HIL_RIG_A": "SPOT-33507C=BMCAM_003=bmcam003=c3c564b91856226c",
+    "HIL_UNIT_REPO": "/home/pi/repos/bm_cam_legacy",
+    "HIL_RIG_B": "SPOT-31593C=BMCAM_004=bmcam004=0e582dd12c1e1480",
+    "HIL_MONITOR_LOG_ROOT": "/home/pi/spotter_logs",
+    "HIL_UNIT_APP": "/home/pi/BM_Devel_Pi",
+    "HIL_MONITOR_ENV_FILE": "/home/pi/.config/nereus/heal_driver.env",
+    "HIL_API": "https://nereus-vision-staging.onrender.com",
+    "HIL_RUNS": "runs",
+    "HIL_RUN_DIR": "runs/s27_m_ladder_20261002",
+    "HIL_UNIT_USER": "pi",
+    "HIL_MONITOR": "pi@192.168.1.45"
+  },
+  "tools_sha256_16": {
+    "hil/tools/hil_change.sh": "834bd15f1a32d303",
+    "hil/tools/hil_cmd.sh": "4e7f862ef2def1d9",
+    "hil/tools/hil_common.sh": "1b05bfb04ac122e0",
+    "hil/tools/hil_con_decode.py": "edeb85d2d873a899",
+    "hil/tools/hil_console.sh": "fef83dda979919e8",
+    "hil/tools/hil_deploy_unit.sh": "b8e54ab4cab6f5d0",
+    "hil/tools/hil_hardmode_cases.py": "dbe5109965a26fa2",
+    "hil/tools/hil_ip_range_probe.sh": "daec20b439eefcca",
+    "hil/tools/hil_new_run.sh": "3b750f55a0a02d05",
+    "hil/tools/hil_p0_probe.sh": "87ce22966f1ebb70",
+    "hil/tools/hil_pistate.sh": "c92adb56ad8ea6b4",
+    "hil/tools/hil_plan_check.py": "8f9ae2be8feecb74",
+    "hil/tools/hil_refresh.sh": "eda838357abe8092",
+    "hil/tools/hil_restore_schedule.sh": "7349f6cb17ee08e4",
+    "hil/tools/hil_sofar_change.sh": "871fb2a184ab0f03",
+    "hil/tools/hil_step.sh": "c8fd44d7d19c766f",
+    "hil/tools/hil_unit_snapshot.sh": "483c9da90a296974",
+    "hil/tools/hil_use_run.sh": "f31aae46683d21da",
+    "hil/tools/hil_wake_report.sh": "298555637a457eed",
+    "hil/tools/test_hil_guards.sh": "e49ae9e32f26a885"
+  },
+  "media": [],
+  "verdict": null,
+  "notes": []
+}

@@ -1,0 +1,27 @@
+2026-10-03T02:16:29Z run created for G4 units: bmcam003 bmcam004
+2026-10-03T02:16:29Z G4 per Nick (via EM): 12 h from the 03:00Z wake to 15:00Z, outdoors, production, nereus000 on consoles. D1 on complete cycles only; power events = observed events (G4.10).
+uptime up 6 minutes
+active
+yes:Ford:58
+1
+wifi.powersave = 2
+throttled=0x0
+temp=46.2'C
+/dev/mmcblk0p2  115G  2.9G  108G   3% /
+SPOT-33507C: last 2026-10-03T02:17:03Z; errors since 01:00Z: 1; rebootctl since 01:00: 0; charge-mode: 0
+SPOT-31593C: last 2026-10-03T02:17:02Z; errors since 01:00Z: 0; rebootctl since 01:00: 0; charge-mode: 0
+2026-10-03T02:18:35Z nereus000 journald Storage=persistent drop-in /etc/systemd/journald.conf.d/90-hil-persistent.conf (SystemMaxUse=200M). RESTORE: sudo rm that file && sudo systemctl restart systemd-journald
+2026-10-03T02:20:15Z G4 alternator installed on nereus000: /etc/systemd/system/hil-g4-alternator.{service,timer} (hourly :20 UTC, until 15:00Z, trg hours 5,9,13). RESTORE: sudo systemctl disable --now hil-g4-alternator.timer && sudo rm /etc/systemd/system/hil-g4-alternator.* && sudo systemctl daemon-reload
+2026-10-03T02:22:12Z nereus000 reboot to prove the Wi-Fi power-save drop-in persists (off-window)
+back 02:23:25 up 61.77s
+[   34.787430] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save enabled
+[   35.767034] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+active
+active
+yes:Ford:72
+ -1 d0312fc947d849e993343adffbb1d24b Sat 2026-10-03 02:10:00 UTC Sat 2026-10-03 02:22:17 UTC
+  0 504e4b2ea3c84fac82898e72614503b3 Sat 2026-10-03 02:22:20 UTC Sat 2026-10-03 02:23:25 UTC
+/dev/ttyACM0
+/dev/ttyACM1
+2026-10-03T02:23:23Z 1790994204.476 c3c5
+2026-10-03T02:23:22Z 1790994204.167 0e58
