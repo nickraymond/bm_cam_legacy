@@ -492,6 +492,39 @@ V9_SCENARIOS = {
     },
 }
 
+# Sprint28 (SPEC r4 §3, §6): RAW-plane JPEG XL stills on the v9 path. The crop is the
+# 160x96 frame of the committed mini DNG (tests/fixtures/s28/mini.dng); cjxl is the
+# deterministic size/time model in run_scenario.fake_cjxl_runner (NOT real JPEG XL), so
+# these pin the WIRE: START fmt=nrjxl / q / att and every pjpg rfb fallback, the keyed
+# chunks of the .nrjxl payload, and that a RAW problem never costs the JPEG.
+NRJXL_V2 = {**V9_V2, "still.format": "nrjxl", "still.crop": [0, 0, 160, 96],
+            "still.output_width": 160}
+_NRJXL = {"kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY}
+V9_SCENARIOS.update({
+    "v9_nrjxl": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok"},
+                 "notes": "nrjxl sent: one --raw capture, rung 1 fits, START fmt=nrjxl "
+                          "q=380 att=1 cmp=1, keyed chunks of <stem>_compressed.nrjxl"},
+    "v9_nrjxl_rfb_cap": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "fail"},
+                         "notes": "the --raw attempt exits 1: today's capture runs at once "
+                                  "(no WS for the RAW attempt), pjpg rfb=cap"},
+    "v9_nrjxl_rfb_dng": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "bad_dng"},
+                         "notes": "the DNG has no CFA image: the reader refuses, pjpg rfb=dng"},
+    "v9_nrjxl_rfb_enc": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "cjxl": "enc"},
+                         "notes": "cjxl exits 1 on the first plane: pjpg rfb=enc"},
+    "v9_nrjxl_rfb_mem": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "cjxl": "mem"},
+                         "notes": "cjxl killed (RLIMIT/OOM model): pjpg rfb=mem"},
+    "v9_nrjxl_rfb_time": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "plane_s": 20},
+                          "notes": "20 s per plane against encode_max_s 30: the second plane "
+                                   "hits the cap, pjpg rfb=time"},
+    "v9_nrjxl_rfb_fit": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.distances": [0.1]},
+                         "raw": {"cam": "ok"},
+                         "notes": "one rung at d=0.1 (near-lossless model, ~307 kB) is over "
+                                  "the 195 cap: pjpg rfb=fit"},
+    "v9_nrjxl_rfb_err": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "ccm": False},
+                         "notes": "the capture metadata has no ColourCorrectionMatrix: no "
+                                  "WB/CCM params, pjpg rfb=err"},
+})
+
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}
 VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},
                **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS},

@@ -123,6 +123,12 @@ log "timestamp=$TS hostname=$HOSTNAME_VALUE python=$PY"
 "$PY" -c "import yaml" 2>/dev/null \
   || die "PyYAML is missing for $PY (sudo apt install python3-yaml); refusing to deploy"
 log "preflight: PyYAML present"
+# Sprint28 (SPEC r4 §3.4-3.5): nrjxl stills need numpy + cjxl. NOT fatal: a pjpg unit
+# never uses them, and an nrjxl unit without them sends today's JPEG (rfb=err / rfb=enc).
+if "$PY" -c "import numpy" 2>/dev/null; then log "preflight: numpy present (nrjxl ok)"
+else log "preflight: WARN numpy missing (nrjxl would send pjpg rfb=err; sudo apt install python3-numpy)"; fi
+if command -v cjxl >/dev/null 2>&1; then log "preflight: cjxl present ($(cjxl --version 2>/dev/null | head -1))"
+else log "preflight: WARN cjxl missing (nrjxl would send pjpg rfb=enc; sudo apt install libjxl-tools)"; fi
 # An ARMED unit can boot into a half-copied runtime or halt mid-deploy.
 if [[ -n "${BMCAM_CRONTAB_FILE:-}" ]]; then CRON_NOW="$(cat "$BMCAM_CRONTAB_FILE" 2>/dev/null || true)"
 else CRON_NOW="$(crontab -l 2>/dev/null || true)"; fi

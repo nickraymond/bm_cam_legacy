@@ -368,6 +368,214 @@ def _default_capture(settings, output_dir):
     return native_path, capture_info, image_stem
 
 
+def _default_raw_capture(settings, output_dir, capture_fn):
+    """Sprint28 SPEC r4 §3.1 (still.format nrjxl only): ONE production capture + `--raw`
+    (30 s watchdog, no retries, no WS status). Any failure deletes the partial files and
+    calls `capture_fn` — today's UNCHANGED capture, ladder and WS behaviour — at once.
+    A JPEG without a DNG is kept (no second capture). A RAW problem can never cost the
+    JPEG. Returns (native_path, capture_info, image_stem, dng_path | None, why | None)."""
+    from rc_capture import run_raw_capture_once
+    command, backend = _select_camera_command(settings["capture_backend"])
+    if command is None:
+        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        return native_path, capture_info, image_stem, None, f"backend {backend}"
+    os.makedirs(output_dir, exist_ok=True)
+    image_stem = os.path.splitext(generate_filename())[0]  # "<ts>_image"
+    native_path = os.path.join(output_dir, f"{image_stem}_native_full.jpg")
+    log_prefix = os.path.join(output_dir, f"{image_stem}_native_full")
+    controls = settings.get("camera_controls_override")
+    if controls is None:
+        controls = _load_camera_controls_island(settings["config_path"])
+    capture_settings = {"camera_controls": controls} if controls else None
+    info, dng_path, why = run_raw_capture_once(
+        command, native_path, settings["source_width"], settings["source_height"],
+        settings["source_jpeg_quality"], log_prefix, settings=capture_settings)
+    if info is None:
+        print(f"[RAW] --raw capture failed ({why}); today's capture runs now (rfb=cap)")
+        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        return native_path, capture_info, image_stem, None, why
+    return native_path, info, image_stem, dng_path, why
+
+
+def _raw_begin(settings, native_path, output_dir):
+    """Sprint28: the nrjxl state of this still action, or None for a pjpg unit (then
+    nothing below changes a byte). An unreadable `still_raw:` island is a fallback
+    (rfb=err), never a failed action."""
+    import rc_raw_jxl
+    try:
+        cfg = rc_raw_jxl.load_raw_config(settings["config_path"])
+    except ValueError as exc:
+        print(f"[RAW][WARN] still_raw island unreadable ({exc}): this still goes out as "
+              "pjpg rfb=err")
+        return {"cfg": None, "rfb": "err", "detail": str(exc), "dng": None, "metadata": None}
+    if native_path is None:
+        # A crash or power cut mid-encode leaves a 24 MB DNG, also on a unit switched back
+        # to pjpg since; never when a caller handed us an existing native (its DNG may be
+        # the input). Silent when there is nothing to remove.
+        rc_raw_jxl.sweep_orphans(output_dir)
+    if not rc_raw_jxl.enabled(cfg):
+        return None
+    print(f"[RAW] still.format=nrjxl: distances={cfg['distances']} effort={cfg['effort']} "
+          f"encode_max_s={cfg['encode_max_s']} keep_crop={cfg['keep_crop']} "
+          f"crop={list(settings['crop_native_xywh'])} (native px)")
+    return {"cfg": cfg, "rfb": None, "detail": None, "dng": None, "metadata": None}
+
+
+def _raw_discard(raw, output_dir, image_stem):
+    """Delete this action's DNG and encoder work dir (24 MB on the SD)."""
+    import rc_raw_jxl
+    if raw.get("dng") and not raw.get("dng_is_input"):
+        rc_raw_jxl.remove_quietly(raw["dng"])
+    rc_raw_jxl.remove_quietly(rc_raw_jxl.work_dir_for(output_dir, image_stem))
+
+
+def _raw_attempt(raw, settings, budget, *, output_dir, image_stem, capture_info,
+                 fallback_msgs, reserve_msgs, runner=None, clock=time.monotonic):
+    """Path [B] once per action: -> the success dict (and raw["result"]), or None with
+    raw["rfb"] / raw["detail"] set. Never raises. The DNG and work dir are gone after."""
+    import rc_raw_jxl
+    if raw.get("rfb") is not None or raw["cfg"] is None:
+        return None
+    if not raw.get("dng"):
+        raw["rfb"], raw["detail"] = "cap", raw.get("detail") or "no DNG"
+        return None
+    metadata = _load_libcamera_metadata_json(capture_info.get("metadata_json")
+                                             or raw.get("metadata_json"))
+    keep = (os.path.join(output_dir, image_stem + rc_raw_jxl.RAW_CROP_SUFFIX)
+            if raw["cfg"]["keep_crop"] else None)
+    t0 = time.monotonic()
+    try:
+        result = rc_raw_jxl.encode_still(
+            raw["dng"], metadata, raw["cfg"], crop_xywh=settings["crop_native_xywh"],
+            budget=budget, message_cap=settings["message_cap"],
+            chunk_b64_chars=settings["pacing_chunk_b64_chars"], reserve_msgs=reserve_msgs,
+            fallback_msgs=fallback_msgs,
+            work_dir=rc_raw_jxl.work_dir_for(output_dir, image_stem), keep_crop_path=keep,
+            runner=runner or rc_raw_jxl.run_capped, clock=clock)
+    except rc_raw_jxl.RawFallback as exc:
+        raw["rfb"], raw["detail"] = exc.code, exc.detail
+        raw["attempt_log"], raw["timings"] = exc.attempt_log, exc.timings
+        print(f"[RAW] FALLBACK rfb={exc.code}: {exc.detail} "
+              f"({time.monotonic() - t0:.1f} s); sending today's JPEG")
+        return None
+    finally:
+        _raw_discard(raw, output_dir, image_stem)
+    raw["result"] = result
+    raw["kept_crop"] = keep
+    print(f"[RAW] nrjxl ready: {len(result['blob'])} B, {result['message_count']} msgs at "
+          f"d={result['distance']} att={result['attempts']} "
+          f"(encode {result['encode_s']:.1f} s, elapsed={budget.elapsed_s():.1f}s)")
+    return result
+
+
+def _raw_write(raw, settings, *, output_dir, image_stem, native_path, capture_metadata,
+               selection, encode):
+    """Write `<stem>_compressed.nrjxl` + its sidecar (atomic). -> (final_name, path)."""
+    import atomic_io
+    import hashlib
+    import rc_raw_jxl
+    from rc_capture import _json_safe_metadata
+    res = raw["result"]
+    final_name = f"{image_stem}{rc_raw_jxl.CONTENT_SUFFIX}"
+    final_path = os.path.join(output_dir, final_name)
+    atomic_io.write_bytes(final_path, res["blob"])
+    camera = {k: v for k, v in (capture_metadata or {}).items()
+              if k not in ("img_format", "jpeg_quality_used", "enc_attempts", "fits",
+                           "selector_reason", "attempt_log", "jpeg_bytes", "base64_chars",
+                           "message_count", "jpeg_sha256")}
+    meta = dict(camera, **{
+        "metadata_source": "rc_progressive_jpeg", "img_format": rc_raw_jxl.FORMAT,
+        "nrjxl_bytes": len(res["blob"]), "nrjxl_sha256": hashlib.sha256(res["blob"]).hexdigest(),
+        "message_count": res["message_count"], "raw_distance": res["distance"],
+        "raw_attempts": res["attempts"], "raw_attempt_log": res["attempt_log"],
+        "raw_timings": res["timings"], "raw_encode_s": res["encode_s"],
+        "raw_crc32": res["crc32"], "raw_cfa": res["cfa"], "raw_black": res["black"],
+        "raw_white": res["white"], "raw_effort": raw["cfg"]["effort"],
+        "raw_kept_crop": raw.get("kept_crop"),
+        "crop_native_xywh": list(settings["crop_native_xywh"]),
+        "native_path": native_path,
+        # The pjpg built this wake (kept on the SD: the fallback, and O1's pair)
+        "pjpg_quality": selection["quality"], "pjpg_bytes": encode["jpeg_bytes"],
+        "pjpg_message_count": encode["message_count"],
+    })
+    atomic_io.write_text(final_path + ".capture_metadata.json",
+                         json.dumps(_json_safe_metadata(meta), sort_keys=True))
+    return final_name, final_path
+
+
+def _pjpg_send(selection, encode, final_name, final_path, rfb=None):
+    """What M5 sends for a pjpg still (today's values, unchanged)."""
+    return {"fmt": "pjpg", "data": encode["jpeg_data"], "name": final_name, "path": final_path,
+            "quality": selection["quality"], "attempts": selection["attempts"],
+            "fits": selection["fits"], "reason": selection["reason"],
+            "msgs": encode["message_count"], "bytes": encode["jpeg_bytes"], "rfb": rfb}
+
+
+def _raw_choose(raw, settings, summary, budget, send, *, source, selection, encode,
+                capture_info, capture_metadata, output_dir, image_stem, native_path,
+                reserve_msgs, runner=None, clock=time.monotonic):
+    """Sprint28 SPEC §2/§6: try path [B] against THIS wake's budget (heals reserved);
+    send nrjxl if it fits, else today's pjpg with rfb=<code>, re-selected against the
+    remaining budget first (time has passed since it was built).
+    -> (send, selection, encode)."""
+    import rc_raw_jxl
+    res = _raw_attempt(raw, settings, budget, output_dir=output_dir, image_stem=image_stem,
+                       capture_info=capture_info, fallback_msgs=encode["message_count"],
+                       reserve_msgs=reserve_msgs, runner=runner, clock=clock)
+    if res is not None:
+        try:
+            name, path = _raw_write(raw, settings, output_dir=output_dir, image_stem=image_stem,
+                                    native_path=native_path, capture_metadata=capture_metadata,
+                                    selection=selection, encode=encode)
+        except Exception as exc:              # ENOSPC etc.: the JPEG is still sendable
+            raw["rfb"], raw["detail"] = "err", f"writing the nrjxl failed: {exc}"
+            print(f"[RAW] FALLBACK rfb=err: {raw['detail']}")
+            res = None
+    if res is not None:
+        send = {"fmt": rc_raw_jxl.FORMAT, "data": res["blob"], "name": name, "path": path,
+                "quality": rc_raw_jxl.scaled(res["distance"], 100), "attempts": res["attempts"],
+                "fits": True, "reason": "fit", "msgs": res["message_count"],
+                "bytes": len(res["blob"]), "rfb": None}
+    else:
+        again = select_quality(source, budget, ladder=settings["quality_ladder"],
+                               message_cap=settings["message_cap"],
+                               chunk_b64_chars=settings["pacing_chunk_b64_chars"])
+        if again["encode"] is not None and (
+                again["encode"]["jpeg_sha256"] != encode["jpeg_sha256"]
+                or again["fits"] != selection["fits"]):
+            print(f"[RAW] pjpg re-selected after the RAW attempt: q{again['quality']} "
+                  f"fits={again['fits']} (was q{selection['quality']} fits={selection['fits']})")
+            selection, encode = again, again["encode"]
+            with open(send["path"], "wb") as f:
+                f.write(encode["jpeg_data"])
+            try:
+                update_capture_metadata(send["path"], {
+                    "jpeg_quality_used": selection["quality"], "enc_attempts": selection["attempts"],
+                    "fits": selection["fits"], "selector_reason": selection["reason"],
+                    "attempt_log": selection["attempt_log"], "jpeg_bytes": encode["jpeg_bytes"],
+                    "base64_chars": encode["base64_len"], "message_count": encode["message_count"],
+                    "jpeg_sha256": encode["jpeg_sha256"]})
+            except Exception as exc:
+                debug_print(f"RC sidecar update failed, continuing safely: {exc}")
+            summary["selection"] = {k: selection[k] for k in ("quality", "attempts", "fits",
+                                                              "reason")}
+            summary["selection"]["attempt_log"] = selection["attempt_log"]
+        send = _pjpg_send(selection, encode, send["name"], send["path"], rfb=raw["rfb"])
+        try:
+            update_capture_metadata(send["path"], {"raw_rfb": raw["rfb"],
+                                                   "raw_detail": raw["detail"]})
+        except Exception as exc:
+            debug_print(f"RC sidecar update failed, continuing safely: {exc}")
+    summary["final_path"] = send["path"]
+    summary["raw"] = {"fmt": send["fmt"], "rfb": raw["rfb"], "detail": raw["detail"],
+                      "attempt_log": (res or raw).get("attempt_log", []),
+                      "distance": res["distance"] if res else None,
+                      "bytes": send["bytes"], "message_count": send["msgs"],
+                      "reserve_msgs": int(reserve_msgs), "kept_crop": raw.get("kept_crop"),
+                      "timings": (res or raw).get("timings", {})}
+    return send, selection, encode
+
+
 def _default_bm_open(config_path):
     """Apply bm_serial runtime settings and return the production tx callable."""
     apply_bm_serial_runtime_settings(configure_serial=True)
@@ -591,6 +799,8 @@ def still_action(
     bench_commands,
     grid_clock_fn,
     supervised=None,
+    raw_capture_fn=None,
+    raw_runner=None,
 ):
     """The still action (Sprint26 S3a, DESIGN_supervisor.md §4 "Actions"): the body
     of one stills cycle, from the schedule gate to the listen tail, moved here
@@ -735,15 +945,34 @@ def still_action(
         print(f"[RC] src override: camera SKIPPED, using reference "
               f"{settings['source_image_path']}")
 
+    # Sprint28: None on a pjpg unit (every line below then runs exactly as before).
+    raw = _raw_begin(settings, native_path, output_dir)
+
     # Capture (or reuse an existing native in --compress-only).
     capture_info = {}
     if native_path is None:
-        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        if raw is not None and raw["cfg"] is not None:
+            native_path, capture_info, image_stem, raw["dng"], why = (
+                raw_capture_fn or _default_raw_capture)(settings, output_dir, capture_fn)
+            if raw["dng"] is None:
+                raw["rfb"], raw["detail"] = "cap", f"--raw capture: {why}"
+        else:
+            native_path, capture_info, image_stem = capture_fn(settings, output_dir)
         summary["native_path"] = native_path
     else:
         image_stem = os.path.splitext(os.path.basename(native_path))[0]
         if image_stem.endswith("_native_full"):
             image_stem = image_stem[: -len("_native_full")]
+        if raw is not None and raw["cfg"] is not None:
+            # --compress-only / src: a DNG next to the native (bench) is the RAW source.
+            import rc_raw_jxl
+            dng = rc_raw_jxl.dng_path_for(native_path)
+            if os.path.exists(dng):
+                raw["dng"] = dng
+                raw["metadata_json"] = os.path.splitext(native_path)[0] + ".metadata.json"
+                raw["dng_is_input"] = True
+            else:
+                raw["rfb"], raw["detail"] = "cap", f"no DNG next to {native_path}"
     print(f"[RC] native ready: {native_path} "
           f"({os.path.getsize(native_path)} B, elapsed={budget.elapsed_s():.1f}s)")
 
@@ -756,9 +985,18 @@ def still_action(
 
     if capture_only:
         print("[RC] --capture-only: stopping before encode/transmit.")
+        if raw is not None and raw.get("dng"):
+            print(f"[RAW] --capture-only: DNG kept for inspection: {raw['dng']} (the next "
+                  "action's orphan sweep removes it)")
         if save_local:
             summary["uplinked"] = sent
         return summary
+
+    if raw is not None and save_local:
+        print("[RAW] save_local saves the JPEG; still.format nrjxl applies to transmit only")
+        if not raw.get("dng_is_input"):
+            _raw_discard(raw, output_dir, image_stem)
+        raw = None
 
     if save_local:
         return _save_local_still(
@@ -832,11 +1070,22 @@ def still_action(
         debug_print(f"RC sidecar update failed, continuing safely: {exc}")
         capture_metadata = libcamera_metadata
 
-    est_minutes = encode["message_count"] * settings["pacing_delay_seconds"] / 60.0
+    send = _pjpg_send(selection, encode, final_name, final_path)
+    raw_kwargs = dict(source=source, capture_info=capture_info, output_dir=output_dir,
+                      image_stem=image_stem, native_path=native_path, runner=raw_runner,
+                      clock=clock)
+    if not transmit and raw is not None:
+        # Bench (no BM bus): the RAW attempt runs too, with no heal slot.
+        send, selection, encode = _raw_choose(
+            raw, settings, summary, budget, send, selection=selection, encode=encode,
+            capture_metadata=capture_metadata, reserve_msgs=0, **raw_kwargs)
+    est_minutes = send["msgs"] * settings["pacing_delay_seconds"] / 60.0
     if not transmit:
-        print(f"[RC] send plan (NO transmit): {encode['message_count']} chunks "
-              f"(+2 START/END) at q{selection['quality']}, "
-              f"est {est_minutes:.1f} min, fits={selection['fits']}")
+        tag = "" if send["fmt"] == "pjpg" and send["rfb"] is None else (
+            f" fmt={send['fmt']}" + (f" rfb={send['rfb']}" if send["rfb"] else ""))
+        print(f"[RC] send plan (NO transmit): {send['msgs']} chunks "
+              f"(+2 START/END) at q{send['quality']}, "
+              f"est {est_minutes:.1f} min, fits={send['fits']}{tag}")
         # Bench-commands mode: no image transmit, but late commands
         # still ack + persist for the next cycle.
         cmd_hooks.drain_now(daemon, summary, clock=clock)
@@ -870,6 +1119,11 @@ def still_action(
         daemon, settings, summary,
         pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
     heal_msgs = heals.planned_msgs if heals is not None else 0
+    if raw is not None:
+        # Sprint28: the rung walk sees THIS wake's budget, the heal slot reserved.
+        send, selection, encode = _raw_choose(
+            raw, settings, summary, budget, send, selection=selection, encode=encode,
+            capture_metadata=capture_metadata, reserve_msgs=heal_msgs, **raw_kwargs)
 
     # --- Sprint11 C2: wait for a clean lane on the 5-minute grid -----
     # Everything above this line is cycle-relative; this is the ONE
@@ -877,8 +1131,8 @@ def still_action(
     phase_cfg = settings.get("transmit_phase_cfg") or {}
     if phase_cfg.get("enabled"):
         burst_s = rc_transmit_phase.burst_seconds_for(
-            encode["message_count"] + heal_msgs, settings["pacing_delay_seconds"],
-            incomplete=not selection["fits"],
+            send["msgs"] + heal_msgs, settings["pacing_delay_seconds"],
+            incomplete=not send["fits"],
         )
         grid_clock = grid_clock_fn(
             gate_info, gate_mono, daemon=daemon, clock=clock)
@@ -915,9 +1169,21 @@ def still_action(
     chunk_total = rc_media_key.CHUNK_TOTAL
     media_key = rc_media_key.prepare_keyed_send(
         settings, gate_info=gate_info, daemon=daemon,
-        stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
-        payload=encode["jpeg_data"], payload_path=final_path,
+        stem=os.path.splitext(send["name"])[0], fmt=send["fmt"], filename=send["name"],
+        payload=send["data"], payload_path=send["path"],
         chunk_b64_chars=settings["pacing_chunk_b64_chars"], chunk_total=chunk_total)
+    if send["fmt"] != "pjpg" and media_key is None:
+        # An unkeyed nrjxl cannot heal and a lost chunk renders nothing (SPEC §3.7).
+        print("[RAW] FALLBACK rfb=err: no media key this wake (an nrjxl must be keyed); "
+              "sending today's JPEG")
+        raw["rfb"], raw["detail"] = "err", "no media key"
+        summary["raw"].update(fmt="pjpg", rfb="err", detail="no media key")
+        send = _pjpg_send(selection, encode, final_name, final_path, rfb="err")
+        media_key = rc_media_key.prepare_keyed_send(
+            settings, gate_info=gate_info, daemon=daemon,
+            stem=os.path.splitext(final_name)[0], fmt="pjpg", filename=final_name,
+            payload=encode["jpeg_data"], payload_path=final_path,
+            chunk_b64_chars=settings["pacing_chunk_b64_chars"], chunk_total=chunk_total)
     if supervised is not None:
         # The action log's media_key (the stills summary does not carry it;
         # adding it there would change every stills golden).
@@ -928,17 +1194,17 @@ def still_action(
         # Reserve the image's whole burst: START + chunks + END (+ a=inc).
         heals.send_before_start(
             tx, budget,
-            reserve_msgs=encode["message_count"] + 2 + (0 if selection["fits"] else 1),
+            reserve_msgs=send["msgs"] + 2 + (0 if send["fits"] else 1),
             delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
     result = transmit_progressive_image(
         tx,
         budget,
-        jpeg_data=encode["jpeg_data"],
-        compressed_file_name=final_name,
-        quality=selection["quality"],
-        enc_attempts=selection["attempts"],
-        fits=selection["fits"],
-        selector_reason=selection["reason"],
+        jpeg_data=send["data"],
+        compressed_file_name=send["name"],
+        quality=send["quality"],
+        enc_attempts=send["attempts"],
+        fits=send["fits"],
+        selector_reason=send["reason"],
         chunk_b64_chars=settings["pacing_chunk_b64_chars"],
         delay_seconds=settings["pacing_delay_seconds"],
         start_metadata=start_metadata,
@@ -960,6 +1226,8 @@ def still_action(
         pending_pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
         media_key=media_key,
         chunk_total=chunk_total,
+        fmt=send["fmt"],
+        rfb=send["rfb"],
     )
     summary["transmit_result"] = result
     print(f"[RC] transmit done: sent={result['sent']}/{result['planned']} "
@@ -968,7 +1236,7 @@ def still_action(
           f"uart={result['uart_duration_sec']:.1f}s")
 
     try:
-        update_capture_metadata(final_path, {
+        update_capture_metadata(send["path"], {
             "transmit_success": result["complete_send"],
             "sent_buffers": result["sent"],
             "planned_buffers": result["planned"],
@@ -980,10 +1248,10 @@ def still_action(
     try:
         log_message(
             datetime.now(),
-            final_name,
+            send["name"],
             os.path.getsize(native_path) if native_path and os.path.exists(native_path) else 0,
-            encode["jpeg_bytes"],
-            selection["quality"],
+            send["bytes"],
+            send["quality"],
             result["sent"],
             budget.elapsed_s() / 60.0,
             True,
@@ -1032,6 +1300,8 @@ def run_cycle(
     daemon_factory=cmd_hooks.default_daemon_factory,
     grid_clock_fn=rc_transmit_phase.acquire_grid_clock,
     supervised=None,
+    raw_capture_fn=None,
+    raw_runner=None,
 ):
     """Run one RC cycle. Returns a summary dict; raises only on runtime failure
     before the halt (the halt itself runs in finally and never raises).
@@ -1111,7 +1381,7 @@ def run_cycle(
             capture_fn=capture_fn, bm_open_fn=bm_open_fn, wake_fn=wake_fn,
             sleep_fn=sleep_fn, clock=clock, bm_commands_cfg=bm_commands_cfg,
             bench_commands=bench_commands, grid_clock_fn=grid_clock_fn,
-            supervised=supervised,
+            supervised=supervised, raw_capture_fn=raw_capture_fn, raw_runner=raw_runner,
         )
 
     finally:

@@ -84,6 +84,8 @@ def transmit_progressive_image(
     pending_pump_fn=None,
     media_key=None,
     chunk_total=False,
+    fmt="pjpg",
+    rfb=None,
 ):
     """Send one RC image over the BM uplink; bounded when it doesn't fit.
 
@@ -105,9 +107,15 @@ def transmit_progressive_image(
     chunk_total (Sprint26 S4w, W9): keyed chunks carry the PLANNED total,
     `<I{key}.{i}/{planned}>` (= START `length`; a bounded a=inc send too). Ignored
     without a key. False = the rev 5 wire, byte-identical.
+    fmt / rfb (Sprint28): START fmt=nrjxl for a RAW still (always fits: no partial
+    nrjxl send), or rfb=<code> on a pjpg that fell back from nrjxl. Defaults = today's
+    wire, byte-identical.
     Returns {planned, send_target, sent, started, complete_send,
              incomplete_emitted, uart_duration_sec}.
     """
+    if fmt == "nrjxl" and not fits:
+        # SPEC r4 §3.6: a prefix of 4 concatenated planes renders nothing.
+        raise ValueError("an nrjxl still is never sent incomplete (fits=False)")
     chunk_tag = media_key
     delay_seconds = float(delay_seconds)
     chunks = split_base64_chunks(jpeg_data, chunk_b64_chars)
@@ -163,6 +171,8 @@ def transmit_progressive_image(
         reason=wire_reason,
         start_metadata=start_metadata,
         key=media_key,
+        fmt=fmt,
+        rfb=rfb,
     )
     tx(start_msg.encode("ascii"))
     sleep_fn(delay_seconds)

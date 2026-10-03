@@ -53,6 +53,10 @@ BM_Devel_Pi/rc_command_hooks.py
 BM_Devel_Pi/rc_media_key.py        # Sprint25 S4 keyed media (was missing: import crash on deploy)
 BM_Devel_Pi/rc_heal.py             # Sprint25 S5 rsd heals + <HL>
 
+# Sprint28 RAW -> JPEG XL stills (still.format nrjxl; inert for pjpg but imported by
+# rc_progressive_jpeg and config_v1_reader). Needs numpy + cjxl only when nrjxl is on.
+BM_Devel_Pi/rc_raw_jxl.py
+
 # Sprint26 S2 config v2 (registry + v1 reader; the migrator runs on the unit)
 BM_Devel_Pi/config_registry.py     # every setting: type, default, guard, v1 source
 BM_Devel_Pi/config_v1_reader.py    # v1 YAML -> v2 values, each key via its own v1 loader

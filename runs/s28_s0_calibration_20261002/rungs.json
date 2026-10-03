@@ -1,0 +1,226 @@
+{
+ "rule": "median over frames of the interpolated distance at each target, rounded up to 0.05",
+ "targets": [
+  [
+   "rung1_cap195",
+   56100
+  ],
+  [
+   "rung2_heal174",
+   50000
+  ],
+  [
+   "rung3_150",
+   43000
+  ],
+  [
+   "rung4_complex",
+   34000
+  ]
+ ],
+ "grid": [
+  1.5,
+  1.75,
+  2.0,
+  2.25,
+  2.5,
+  2.75,
+  3.0,
+  3.25,
+  3.5,
+  3.75,
+  4.0,
+  4.25,
+  4.5,
+  4.75,
+  5.0,
+  5.25,
+  5.5,
+  5.75,
+  6.0,
+  6.25,
+  6.5,
+  6.75,
+  7.0,
+  7.25,
+  7.5,
+  7.75,
+  8.0,
+  8.25,
+  8.5,
+  8.75,
+  9.0
+ ],
+ "frames": [
+  "cool_s-1_r0",
+  "cool_s+0_r0",
+  "cool_s+1_r0",
+  "warm_s-1_r0",
+  "warm_s+0_r0",
+  "warm_s+1_r0"
+ ],
+ "picked": {
+  "1600x900": {
+   "rung1_cap195": {
+    "target_bytes": 56100,
+    "per_frame": [
+     3.692,
+     4.484,
+     3.79,
+     3.654,
+     4.429,
+     3.641
+    ],
+    "median": 3.79,
+    "rung": 3.8
+   },
+   "rung2_heal174": {
+    "target_bytes": 50000,
+    "per_frame": [
+     4.442,
+     5.431,
+     4.575,
+     4.4,
+     5.37,
+     4.386
+    ],
+    "median": 4.575,
+    "rung": 4.6
+   },
+   "rung3_150": {
+    "target_bytes": 43000,
+    "per_frame": [
+     5.61,
+     6.96,
+     5.904,
+     5.543,
+     6.887,
+     5.635
+    ],
+    "median": 5.904,
+    "rung": 5.95
+   },
+   "rung4_complex": {
+    "target_bytes": 34000,
+    "per_frame": [
+     8.056,
+     null,
+     8.62,
+     7.915,
+     null,
+     8.239
+    ],
+    "median": 8.239,
+    "rung": 8.25
+   }
+  },
+  "2000x1124": {
+   "rung1_cap195": {
+    "target_bytes": 56100,
+    "per_frame": [
+     6.226,
+     7.862,
+     7.275,
+     6.146,
+     7.77,
+     6.984
+    ],
+    "median": 7.275,
+    "rung": 7.3
+   },
+   "rung2_heal174": {
+    "target_bytes": 50000,
+    "per_frame": [
+     7.384,
+     null,
+     8.626,
+     7.291,
+     null,
+     8.273
+    ],
+    "median": 8.273,
+    "rung": 8.3
+   },
+   "rung3_150": {
+    "target_bytes": 43000,
+    "per_frame": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "rung": null
+   },
+   "rung4_complex": {
+    "target_bytes": 34000,
+    "per_frame": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "rung": null
+   }
+  },
+  "2400x1350": {
+   "rung1_cap195": {
+    "target_bytes": 56100,
+    "per_frame": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "rung": null
+   },
+   "rung2_heal174": {
+    "target_bytes": 50000,
+    "per_frame": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "rung": null
+   },
+   "rung3_150": {
+    "target_bytes": 43000,
+    "per_frame": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "rung": null
+   },
+   "rung4_complex": {
+    "target_bytes": 34000,
+    "per_frame": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "rung": null
+   }
+  }
+ }
+}

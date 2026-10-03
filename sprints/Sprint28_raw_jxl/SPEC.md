@@ -259,6 +259,12 @@ C build to the unit deploy. It joins only if R0 shows cjxl over the time cap at 
 
 It stays the study's OpenMV fallback.
 
+> **S0 result (camera, 2026-10-02; `S0_CALIBRATION.md`):** the default `still.raw.distances` =
+> **[3.8, 4.6, 5.95, 8.25]**. These are the median study frame at 56 / 50 / 43 / 34 kB for the
+> 1600×900 native crop (Mac, libjxl 0.11.1, e5). The S1 Mac end-to-end gate PASSES: worst
+> |Δ stress ΔE| = 0.013 vs the study's D2 row. Finding: at e5, 2400×1350 does not get under 56 kB
+> even at d 9.
+
 **Rate control:** a **distance ladder**, as the JPEG quality ladder works today:
 - `still.raw.distances`, ≤ 4 rungs, low → high. The defaults come from the S0 Mac calibration on the
   study frames for the default crop. The 50 kB distance spread was 3.62–4.85.

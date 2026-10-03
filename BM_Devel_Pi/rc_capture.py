@@ -585,18 +585,12 @@ def _retry_wait(seconds):
     return True
 
 
-def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix, settings=None):
-    """Capture native/full-source JPEG with rpicam-still or libcamera-still.
-
-    The camera app is already a subprocess, but on bmcam000 we observed native
-    capture can occasionally stall when stress-testing repeated full cycles.
-    Add the same safety pattern used for HEIC: timeout, cleanup, cooldown,
-    retry, and parseable WS telemetry before giving up.
-    """
-    stdout_log = f"{log_prefix}.stdout.log"
-    stderr_log = f"{log_prefix}.stderr.log"
-    metadata_json_path = f"{log_prefix}.metadata.json"
-
+def native_capture_command(command, native_image_path, source_width, source_height,
+                           jpeg_quality, metadata_json_path, settings=None, raw=False):
+    """The production native capture argv (moved out of _run_native_full_capture
+    unchanged, Sprint28 S1, so the RAW attempt runs the SAME command).
+    raw=True adds `--raw` right before `-o` (rpicam-still then also writes
+    `<-o stem>.dng` of the same exposure). -> (argv, control_args, requested)."""
     base_cmd = [
         command,
         "-n",
@@ -616,7 +610,93 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
             f"requested={requested_camera_controls}"
         )
 
+    if raw:
+        base_cmd.append("--raw")
     base_cmd.extend(["-o", native_image_path])
+    return base_cmd, camera_control_args, requested_camera_controls
+
+
+def run_raw_capture_once(command, native_image_path, source_width, source_height, jpeg_quality,
+                         log_prefix, settings=None, timeout_s=CAPTURE_HELPER_TIMEOUT_SECONDS):
+    """Sprint28 SPEC r4 §3.1: ONE `--raw` attempt of the production command. No retry
+    ladder, no WS status (a log line only): the caller falls back to the UNCHANGED
+    _run_native_full_capture on any failure. -> (capture_info | None, dng_path | None,
+    reason). capture_info has the _run_native_full_capture shape; a JPEG without a
+    DNG is still returned (reason "no_dng"), so no second capture is needed."""
+    stdout_log = f"{log_prefix}.stdout.log"
+    stderr_log = f"{log_prefix}.stderr.log"
+    metadata_json_path = f"{log_prefix}.metadata.json"
+    dng_path = os.path.splitext(native_image_path)[0] + ".dng"
+    cmd, control_args, requested = native_capture_command(
+        command, native_image_path, source_width, source_height, jpeg_quality,
+        metadata_json_path, settings, raw=True)
+    for path in (stdout_log, stderr_log):
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("")
+        except Exception:
+            pass
+    for path in (native_image_path, dng_path, metadata_json_path):
+        _remove_capture_artifact(path)
+    debug_print("Running RAW capture (one attempt, no retries): " + " ".join(cmd))
+    t0 = time.monotonic()
+    try:
+        with open(stdout_log, "a", encoding="utf-8") as out, \
+                open(stderr_log, "a", encoding="utf-8") as err:
+            result = subprocess.run(cmd, stdout=out, stderr=err, text=True,
+                                    timeout=timeout_s, check=False)
+        rc, reason = result.returncode, None
+    except subprocess.TimeoutExpired:
+        rc, reason = None, "timeout"
+    duration = time.monotonic() - t0
+
+    def ok(path):
+        return os.path.exists(path) and os.path.getsize(path) > 0
+
+    if reason is None and rc != 0:
+        reason = f"rc={rc}"
+    if reason is None and not ok(native_image_path):
+        reason = "no_jpeg"
+    if reason is not None:
+        debug_print(f"RAW capture failed ({reason}, {duration:.1f} s): removing partial "
+                    "files; today's capture runs next")
+        for path in (native_image_path, dng_path, metadata_json_path):
+            _remove_capture_artifact(path)
+        return None, None, reason
+    info = {
+        "capture_command": cmd,
+        "stdout_log": stdout_log,
+        "stderr_log": stderr_log,
+        "metadata_json": metadata_json_path if os.path.exists(metadata_json_path) else None,
+        "camera_control_args": control_args,
+        "camera_control_args_used": _command_has_camera_control_args(cmd),
+        "camera_controls_fallback_used": False,
+        "requested_camera_controls": requested,
+    }
+    if not ok(dng_path):
+        _remove_capture_artifact(dng_path)
+        debug_print(f"RAW capture gave a JPEG but no DNG ({duration:.1f} s): keeping the JPEG")
+        return info, None, "no_dng"
+    debug_print(f"RAW capture completed: {native_image_path} + {dng_path} "
+                f"({os.path.getsize(dng_path)} B DNG, {duration:.2f} s)")
+    return info, dng_path, None
+
+
+def _run_native_full_capture(command, native_image_path, source_width, source_height, jpeg_quality, log_prefix, settings=None):
+    """Capture native/full-source JPEG with rpicam-still or libcamera-still.
+
+    The camera app is already a subprocess, but on bmcam000 we observed native
+    capture can occasionally stall when stress-testing repeated full cycles.
+    Add the same safety pattern used for HEIC: timeout, cleanup, cooldown,
+    retry, and parseable WS telemetry before giving up.
+    """
+    stdout_log = f"{log_prefix}.stdout.log"
+    stderr_log = f"{log_prefix}.stderr.log"
+    metadata_json_path = f"{log_prefix}.metadata.json"
+
+    base_cmd, camera_control_args, requested_camera_controls = native_capture_command(
+        command, native_image_path, source_width, source_height, jpeg_quality,
+        metadata_json_path, settings)
 
     max_attempts = 1 + CAPTURE_HELPER_MAX_RETRIES
     last_error = None

@@ -69,6 +69,8 @@ CONTROL_KEYS = (
     "camera.image_processing.hdr",
     "still.crop", "still.output_width", "still.quality_ladder", "still.message_cap",
     "still.budget_min",
+    # Sprint28 (SPEC r4 §3.7): control, so the bench ladder can force fallbacks and restore
+    "still.format", "still.raw.distances", "still.raw.encode_max_s", "still.raw.keep_crop",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
     "video.record.fps", "video.record.bitrate_mbps", "video.record.encoder.profile",
     "video.record.encoder.level", "video.record.encoder.intra",
@@ -87,7 +89,7 @@ BASIC_KEYS = (
     "camera.exposure.analogue_gain",
     "camera.white_balance.enabled", "camera.white_balance.mode", "camera.white_balance.gains",
     "camera.focus.enabled", "camera.focus.mode", "camera.focus.lens_position",
-    "still.crop", "still.output_width",
+    "still.crop", "still.output_width", "still.format",
     "video.record.framing", "video.record.fps",
     "video.send.duration_s", "video.send.size", "video.send.fps",
 )
@@ -97,6 +99,7 @@ BASIC_KEYS = (
 ENGINEERING_REASON = {
     "camera.exposure.mode": "reported only: builds no camera flag (W7)",
     "still.save.quality": "only used by save_local, which is not writable yet",
+    "still.raw.effort": "5 is the setting measured on the Pi Zero 2 W (Sprint28 SPEC §3.5)",
 }
 
 # Never written remotely, whatever the token (reason shown). Checked by prefix.
@@ -138,6 +141,10 @@ LIMITS = {
     # the wire carries lists of at most W.MAX_LIST items (command_wire.py)
     "still.quality_ladder": {"max_items": W.MAX_LIST, "why": "a command carries lists of at most "
                                                             f"{W.MAX_LIST} items"},
+    "still.raw.distances": {"max_items": W.MAX_LIST, "why": "a command carries lists of at most "
+                                                           f"{W.MAX_LIST} items"},
+    "still.raw.encode_max_s": {"warn_above": 60, "why": "each second is awake time on the "
+                                                        "battery (Sprint28 SPEC §3.5)"},
 }
 
 UNITS = {
@@ -150,6 +157,7 @@ UNITS = {
     "still.crop": "native px [x, y, w, h]", "still.output_width": "px",
     "still.quality_ladder": "JPEG q, best first", "still.save.quality": "JPEG q",
     "still.message_cap": "messages", "still.budget_min": "min",
+    "still.raw.distances": "JPEG XL distance, best first", "still.raw.encode_max_s": "s",
     "video.record.crop": "native px [x, y, w, h]", "video.record.output": "px WxH",
     "video.record.fps": "fps", "video.record.bitrate_mbps": "Mbps",
     "video.send.duration_s": "s", "video.send.lead_in_s": "s", "video.send.fps": "fps",
@@ -257,8 +265,15 @@ _PROBES = (None, True, False, 0, 1, -1, 2.5, -8.5, 8.0, 100000, "", "x", "auto",
            "2026-01-01T00:00:00+00:00")
 
 
+# Sprint28: list-of-distance probes, only for DLADDER keys (every other key's vectors unchanged)
+_DLADDER_PROBES = ([3.0, 3.6, 4.3, 5.2], [3, 4], [0.1], [15.0], [0.05], [15.5], [4.0, 3.0],
+                   [3.0, 3.0], [1.0, 2.0, 3.0, 4.0, 5.0], [], [2.5, "x"], [2.5, True])
+
+
 def _vectors(key):
     probes = list(_PROBES) + [key.default] + list(key.enum)
+    if key.type == R.DLADDER:
+        probes += [list(p) for p in _DLADDER_PROBES]
     if key.range:
         lo, hi = key.range
         probes += [lo, hi]
@@ -343,6 +358,8 @@ def _sizing_values():
     v["camera.image_processing.contrast"] = 1.875          # widest text inside the F-G3-5 ranges
     v["camera.image_processing.saturation"] = 1.875
     v["camera.image_processing.brightness"] = -0.125
+    v["still.format"] = "nrjxl"
+    v["still.raw.distances"] = [12.25, 13.25, 14.25, 14.75]   # widest text in 0.1..15
     return v
 
 
@@ -400,7 +417,9 @@ def _hash_vectors():
     b = dict(_sizing_values())
     b.update({"camera.exposure.ev": -1.0, "still.message_cap": 300, "mode.run": "stay_on",
               "camera.white_balance.gains": None, "uplink.msg_interval_s": 1.3,
-              "video.record.encoder.profile": "high", "camera.image_processing.hdr": True})
+              "video.record.encoder.profile": "high", "camera.image_processing.hdr": True,
+              # Sprint28: a DLADDER with an int member hashes as floats (config_v2.canonical)
+              "still.raw.distances": [3, 4.5], "still.raw.keep_crop": True})
     bases.append(b)
     for values in bases:
         out.append([{k.path: values.get(k.path) for k in R.KEYS}, config_v2.config_hash(values)])
@@ -443,6 +462,25 @@ def build():
             "video_geometry_keys": list(V.VIDEO_GEOMETRY_KEYS),
             # backend-only (REVIEW_r1 row 3): stay_on only on a unit whose bus is held on
             "stay_on_requires_reported_true": "power.bus_always_on",
+            # Sprint28 (config_validate.s28_rules): mode.media still + still.format nrjxl needs
+            # an even still.crop with w*h <= raw_max_px, keyed media and cellular only.
+            # `presets` = the one-command switch the UI offers (SPEC r4 §3.3): the default
+            # is today's field of view at native density; larger crops are opt-in and
+            # refused until R0.3 raises raw_max_px.
+            "nrjxl": {
+                "raw_max_px": V.RAW_MAX_PX,
+                "crop_even": True,
+                "requires": {"uplink.media_key.enabled": True, "uplink.network_type": 2},
+                "presets": [
+                    ["1600x900 native (default)",
+                     {"still.format": "nrjxl", "still.crop": [1504, 846, 1600, 900]}],
+                    ["2000x1124 native (opt-in, needs R0.3)",
+                     {"still.format": "nrjxl", "still.crop": [1304, 734, 2000, 1124]}],
+                    ["2400x1350 native (opt-in, needs R0.3)",
+                     {"still.format": "nrjxl", "still.crop": [1104, 620, 2400, 1350]}],
+                    ["back to pjpg", {"still.format": "pjpg"}],
+                ],
+            },
         },
         "keys": keys,
         # registry v7 (Sprint27 F-G3-4): old key -> the key that owns its rpicam option now
