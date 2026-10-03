@@ -440,7 +440,7 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         res=f"{vtx['output_wh'][0]}x{vtx['output_wh'][1]}",
         crop=format_crop(geo.get("crop_native_xywh")), br=fit["target_kbps"],
         chunk_b64_chars=chunk_chars, delay_seconds=settings["pacing_delay_seconds"],
-        start_metadata=_start_metadata(settings), cpu_temp_text=_cpu_temp_text(),
+        start_metadata=_start_metadata(settings), cpu_temp_text=_cpu_temp_text,
         current_timestamp=now_fn().strftime("%Y-%m-%dT%H:%M:%SZ"),
         sleep_fn=sleep_fn, clock=clock)
 
