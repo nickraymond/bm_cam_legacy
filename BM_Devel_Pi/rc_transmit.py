@@ -252,6 +252,7 @@ def transmit_video_clip(
     media_key=None,
     bench_drop_chunks=None,
     chunk_total=False,
+    tail_reserve_msgs=0,
 ):
     """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
     (contract sections 1 + 5).
@@ -277,6 +278,10 @@ def transmit_video_clip(
     drops the START the same way (slot paced), as a Spotter queue-full rejection
     would: the W9 proof that `/M` alone makes the media healable. None/empty = no
     effect.
+
+    tail_reserve_msgs (R1): paced slots the OPTIONAL keyframe repeat leaves
+    free after END for the caller's status line (the trg outcome <WS>); the
+    clip's own chunks never give way to it. 0 = unchanged.
 
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
@@ -372,10 +377,10 @@ def transmit_video_clip(
         sleep_fn(delay_seconds)
 
     # Keyframe repeat: only after a complete first pass, and each copy still
-    # leaves room for END.
+    # leaves room for END (+ tail_reserve_msgs for a status line after END).
     if sent == planned:
         for i in range(keyframe_chunks):
-            if not budget.messages_fit(2):
+            if not budget.messages_fit(2 + int(tail_reserve_msgs)):
                 break
             send_chunk(i)
             result["repeated"] += 1

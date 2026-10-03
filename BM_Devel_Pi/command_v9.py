@@ -138,7 +138,16 @@ class Dispatcher:
         def m(st):
             if mutate is not None:
                 done.extend(mutate(st) or [])
-            st.remember(cid, answer)
+            entry = dict(answer)
+            try:
+                # R1 review: the config hash AFTER this command (the ack's `h`),
+                # cached so a later d:1 re-send carries the ORIGINAL h, not the
+                # hash after commands applied since. In memory = what the ack's
+                # file read sees once this transaction persists.
+                entry["h"] = self.current_hash()
+            except Exception as exc:
+                self._log(f"[CMD][WARN] id={cid}: config hash not cached: {exc}")
+            st.remember(cid, entry)
             if answer.get("ok") and rng in W.HIGH_WATER_RANGES:
                 old = st.high_water.get(rng)
                 st.advance_high_water(rng, cid)
@@ -263,10 +272,12 @@ class Dispatcher:
             text, granted = "hold from an earlier boot: NOT active (send a new hld)", 0
         return ok, text, granted
 
-    def recent_answers(self, boots=RESEND_BOOTS, max_n=RESEND_MAX):
+    def recent_answers(self, boots=RESEND_BOOTS, max_n=RESEND_MAX, claim=True):
         """R1 ack re-send: the d:1 duplicate acks (the form the backend already
         reads) of the cellular-range answers cached in the last `boots` boots
-        BEFORE this one (result_cache `b`), newest `max_n`, oldest first. Each
+        BEFORE this one (result_cache `b`), newest `max_n`, oldest first, with
+        the ORIGINAL config hash `h` (cached; today's hash if the entry
+        predates that). Each
         counts as this process's one cellular d:1 copy of that id (G9), so a
         mote replay later in this process does not send it again; ids already
         answered or copied in this process are skipped. Console lines are not
@@ -295,10 +306,12 @@ class Dispatcher:
             ok, text, granted = self._dup_fields(cached, None)
             ack, _lines = self.daemon.v9.reply(cid, ok, cached.get("e"), {}, duplicate=True,
                                                key=cached.get("k"), text=text,
-                                               staged=cached.get("s"), granted=granted)
+                                               staged=cached.get("s"), granted=granted,
+                                               h=cached.get("h"))
             if ack is None:
                 continue
-            self._dup_cell[cid] = self.clock()
+            if claim:                     # claim=False: a peek, nothing marked
+                self._dup_cell[cid] = self.clock()
             out.append((cid, ack))
         return out
 

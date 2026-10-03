@@ -192,8 +192,8 @@
    "sha256": "bfbeadcdb2a3bfc6"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 367,
-   "sha256": "5f4e6aee34eae432"
+   "bytes": 382,
+   "sha256": "6f8d9db59095599c"
   },
   "state/config_journal.jsonl": {
    "bytes": 113,
@@ -432,6 +432,7 @@
   "result_cache": {
    "1000551": {
     "b": 1,
+    "h": "1910bbef",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=60"
    }

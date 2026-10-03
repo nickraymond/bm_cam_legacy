@@ -28,7 +28,9 @@ import io
 import json
 import os
 import sys
+import time
 import unittest
+from datetime import datetime, timezone
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
@@ -56,6 +58,20 @@ def resend(rig):
 
 
 class TestAckResend(unittest.TestCase):
+    def test_resend_carries_the_original_config_hash(self):
+        # R1 review: boot N set A (ack lost); boot N+1 applies C first; the
+        # re-send of A carries A's h, not the hash after C.
+        r = Rig(self)
+        boot(r)
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 90}})
+        h_a = r.acks()[0]["h"]
+        boot(r)
+        r.send({"id": 1_000_002, "c": "set", "kv": {"m": 120}})
+        h_c = r.acks()[0]["h"]
+        self.assertNotEqual(h_a, h_c)
+        self.assertEqual(r.state.cached(1_000_001)["h"], h_a)
+        self.assertEqual(resend(r), [{"id": 1_000_001, "ok": 1, "h": h_a, "d": 1}])
+
     def test_lost_ack_is_resent_next_boot_as_d1(self):
         r = Rig(self)
         boot(r)
@@ -145,7 +161,7 @@ class TestSupervisorResend(unittest.TestCase):
             rig.clock.t += s
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            b._resend_recent_acks(rig.daemon, summary, sleep)
+            b.resend_recent_acks(rig.daemon, summary, sleep)
         return summary, sleeps, out.getvalue()
 
     def rig_with_answers(self, n):
@@ -174,10 +190,52 @@ class TestSupervisorResend(unittest.TestCase):
 
     def test_trimmed_to_the_wake_budget(self):
         r = self.rig_with_answers(3)
-        b = self.make_boot(r, 2.0)                                # paces 2 messages
+        # 22 s - the 20 s tail margin = room for 2 paced acks (no lane guard)
+        b = self.make_boot(r, rc_supervisor.cmd_hooks.TAIL_SAFETY_S + 2.0)
         summary, _, out = self.run_resend(r, b)
         self.assertEqual(summary["ack_resend"]["ids"], [1_000_002, 1_000_003])
-        self.assertIn("[CMD][WARN] ack re-send: 3 answer(s), the budget paces 2", out)
+        self.assertIn("[CMD][WARN] ack re-send: 3 answer(s), the budget holds 2", out)
+
+    def test_trim_counts_a_worst_case_lane_wait(self):
+        r = self.rig_with_answers(3)
+        r.daemon.lane_cfg = {"enabled": True, "grid_seconds": 300.0,
+                             "post_boundary_guard_s": 30.0}
+        r.daemon._last_utc = datetime(2026, 10, 3, 12, 2, 0, tzinfo=timezone.utc)  # mid-lane
+        r.daemon._last_utc_mono = time.monotonic()
+        # room 34 s = 32 s worst lane wait + 2 acks
+        b = self.make_boot(r, rc_supervisor.cmd_hooks.TAIL_SAFETY_S + 34.0)
+        summary, _, out = self.run_resend(r, b)
+        self.assertEqual(summary["ack_resend"]["ids"], [1_000_002, 1_000_003], out)
+        self.assertIn("+ 32s lane wait", out)
+
+    def test_lane_guard_reads_the_time_first_when_the_gate_did_not(self):
+        r = self.rig_with_answers(1)
+        r.daemon.lane_cfg = {"enabled": True, "grid_seconds": 300.0,
+                             "post_boundary_guard_s": 30.0}
+        reads = []
+
+        def read(timeout):
+            reads.append(timeout)
+            # 10 s after a 5-min boundary: inside the 30 s guard
+            r.daemon._last_utc = datetime(2026, 10, 3, 12, 5, 10, tzinfo=timezone.utc)
+            r.daemon._last_utc_mono = time.monotonic()
+            return r.daemon._last_utc
+        r.daemon.wait_for_spotter_utc = read
+        summary, sleeps, out = self.run_resend(r, self.make_boot(r, 480))
+        self.assertEqual(reads, [rc_supervisor.RESEND_TIME_READ_S])
+        self.assertEqual(summary["ack_resend"]["sent"], 1)
+        self.assertTrue(any(19.0 < s <= 20.0 for s in sleeps), sleeps)   # waited the guard out
+
+    def test_no_time_for_the_lane_guard_skips_this_boot(self):
+        r = self.rig_with_answers(1)
+        r.daemon.lane_cfg = {"enabled": True}
+
+        def read(timeout):
+            raise TimeoutError("no utc")
+        r.daemon.wait_for_spotter_utc = read
+        summary, _, out = self.run_resend(r, self.make_boot(r, 480))
+        self.assertEqual((summary, r.daemon.bm.tx), ({}, []))
+        self.assertIn("ack re-send skipped this boot", out)
 
     def test_no_resend_without_transmit(self):
         r = self.rig_with_answers(2)

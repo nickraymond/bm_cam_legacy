@@ -63,6 +63,9 @@ CLOCK_STEP_MIN_DRIFT_S = 2.0
 # encode + a small burst; the ladder sizes the image to what is left).
 W10_MIN_STILL_ACTION_S = 60.0
 W10_VIDEO_MARGIN_S = 60.0      # video: clip + lead-in + this
+# R1 ack re-send: the explicit Spotter time read for the lane guard when the
+# gate read none (window off); same bound as rc_transmit_phase.acquire_grid_clock.
+RESEND_TIME_READ_S = 20.0
 
 ACTION_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "cron_logs", "supervisor_actions.jsonl")
@@ -548,18 +551,27 @@ class Boot:
                     # none, so it records and sends a clip (window bypassed).
                     print(f"[SUP][WARN] trg {settings['trigger'].get('value')} names a stills "
                           "reference; a video unit records and sends a clip instead")
-        self._resend_recent_acks(daemon, summary, sleep_fn)
         self.settings = settings
         return settings, flags
 
-    def _resend_recent_acks(self, daemon, summary, sleep_fn):
+    def resend_recent_acks(self, daemon, summary, sleep_fn):
         """R1 ack re-send (Nick 2026-10-03): once per process, at the start of
-        the wake and BEFORE capture, re-send the cellular answers of the last
+        the wake (the actions call it right after the schedule gate, before
+        capture), re-send the cellular answers of the last
         command_v9.RESEND_BOOTS boots as d:1 duplicate acks (the form the
         backend already dedupes). An ack sent during the Spotter mailbox sync is
         often dropped by a full cell-only queue and nothing else re-sends it.
-        Bounded (RESEND_MAX), paced like every ack, and only as many as the
-        wake budget can pace. Counted (--transmit) runs only. Never raises."""
+
+        Lane guard (R1 review): the guard needs a Spotter time read, and the
+        drops happen exactly in the 30 s after a 5-min boundary. So this runs
+        after the gate's read; with the lane enabled and no read yet (window
+        off), it reads the time once over the shared port first (the same
+        explicit read rc_transmit_phase.acquire_grid_clock makes), and skips the
+        re-send this boot if that fails (the next boot re-sends).
+
+        Bounded (RESEND_MAX), paced like every ack, and trimmed to what the
+        wake budget can hold INCLUDING one worst-case lane wait. Counted
+        (--transmit) runs only. Never raises."""
         if self.acks_resent or not self.transmit or daemon is None:
             return
         self.acks_resent = True
@@ -567,14 +579,40 @@ class Boot:
         if dispatch is None or not hasattr(dispatch, "recent_answers"):
             return
         try:
+            # Peek first: the time read below is paid only when there is
+            # something to re-send. The picks are claimed (G9) only once sent.
+            if not dispatch.recent_answers(claim=False):
+                return
+            lane = dict(getattr(daemon, "lane_cfg", None) or {})
+            lane_on = bool(lane.get("enabled"))
+            if lane_on and getattr(daemon, "_last_utc", None) is None:
+                try:
+                    daemon.wait_for_spotter_utc(RESEND_TIME_READ_S)
+                except Exception as exc:
+                    print(f"[CMD][WARN] ack re-send skipped this boot: no Spotter time for "
+                          f"the lane guard ({exc}); the next boot re-sends")
+                    return
             picks = dispatch.recent_answers()
             if not picks:
                 return
-            fit = self.budget.max_messages_now() if self.budget is not None else len(picks)
+            # Worst case: one lane wait (post-boundary guard + pre-margin, the
+            # guard is left once) + one paced slot per ack.
+            lane_max = (float(lane.get("post_boundary_guard_s", 30.0))
+                        + float(getattr(daemon, "LANE_PRE_MARGIN_S", 2.0))) if lane_on else 0.0
+            slot = max(float(getattr(daemon, "ack_interval_s", 1.0)),
+                       self.budget.seconds_per_message if self.budget is not None else 0.0)
+            room = (self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
+                    if self.budget is not None else float("inf"))
+            fit = len(picks)
+            while fit > 0 and lane_max + fit * slot > room:
+                fit -= 1
             if fit < len(picks):
-                print(f"[CMD][WARN] ack re-send: {len(picks)} answer(s), the budget paces "
-                      f"{fit}; sending the newest {max(fit, 0)}")
-                picks = picks[len(picks) - max(fit, 0):]
+                print(f"[CMD][WARN] ack re-send: {len(picks)} answer(s), the budget holds "
+                      f"{fit} ({room:.0f}s left; {slot:g}s each + {lane_max:.0f}s lane "
+                      f"wait); sending the newest {fit}")
+                picks = picks[len(picks) - fit:]
+            if not picks:
+                return
             ids = [cid for cid, _ack in picks]
             clock = self._guard_clock or time.monotonic
             print(f"[CMD] ack re-send: {len(ids)} answer(s) from the last boots as d:1 "

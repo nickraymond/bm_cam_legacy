@@ -131,8 +131,8 @@
    "sha256": "2bb75b34d797281f"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 370,
-   "sha256": "c778100d94f62034"
+   "bytes": 385,
+   "sha256": "713b69115947692b"
   },
   "state/config_journal.jsonl": {
    "bytes": 113,
@@ -322,6 +322,7 @@
   "result_cache": {
    "1000541": {
     "b": 1,
+    "h": "ce14a72e",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=video, video.send.duration_s=5"
    }

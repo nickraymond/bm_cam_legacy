@@ -89,7 +89,8 @@ def _supervised():
     """The fields of rc_supervisor.Supervisor that video_action reads on a
     transmit (not save_local) per_boot action."""
     return types.SimpleNamespace(run="per_boot", save_local=False, storage_reason=None,
-                                 gate_kwargs=lambda daemon, settings: {})
+                                 gate_kwargs=lambda daemon, settings: {},
+                                 resend_recent_acks=lambda daemon, summary, sleep_fn: None)
 
 
 def run_trg_action(*, remaining_s, encode_s, supervised=None, trigger_id=None):
@@ -190,7 +191,29 @@ class TestUnsendableClipIsReported(unittest.TestCase):
 
 
 
+class TestAckResendPlacement(unittest.TestCase):
+    def test_video_action_resends_after_the_gate_before_recording(self):
+        # R1 review: the re-send needs the gate's Spotter time read (lane guard)
+        # and must still go before the recording.
+        calls = []
+
+        def resend(daemon, summary, sleep_fn):
+            calls.append(("resend", summary["stage"]))
+        sup = types.SimpleNamespace(
+            run="per_boot", save_local=False, storage_reason=None,
+            gate_kwargs=lambda daemon, settings: calls.append(("gate", None)) or {},
+            resend_recent_acks=resend)
+        run_trg_action(remaining_s=85.0, encode_s=0.0, supervised=sup)
+        self.assertEqual(calls, [("gate", None), ("resend", "time_gate")])
+
+
 class TestTriggerOutcome(unittest.TestCase):
+    def setUp(self):
+        import rc_telemetry
+        patcher = mock.patch.object(rc_telemetry, "WS_EXTRA_FN", lambda: [("cfg", "1910bbef")])
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_sent_trg_reports_tr_sent_after_end(self):
         summary, wire, wake_calls, out = run_trg_action(
             remaining_s=85.0, encode_s=9.0, supervised=_supervised(), trigger_id=1000059)
@@ -224,6 +247,9 @@ class TestTriggerOutcome(unittest.TestCase):
             def gate_kwargs(self, daemon, settings):
                 return {}
 
+            def resend_recent_acks(self, daemon, summary, sleep_fn):
+                pass
+
             def start(self, summary, **kw):
                 return None, CycleBudget(480, SPM, clock=Clock())
 
@@ -248,6 +274,48 @@ class TestTriggerOutcome(unittest.TestCase):
         kw = ws.call_args.kwargs
         self.assertEqual((kw["action"], kw["reason"], kw["trigger_result"]),
                          ("skip_err", "fail", "1000048:fail"))
+
+    def test_no_trg_line_without_cfg(self):
+        # R1 review: the backend drops tr= without cfg= (a non-v9 supervisor).
+        import rc_telemetry
+        with mock.patch.object(rc_telemetry, "WS_EXTRA_FN", None):
+            summary, _, wake_calls, _ = run_trg_action(
+                remaining_s=85.0, encode_s=9.0, supervised=_supervised(), trigger_id=600)
+        self.assertTrue(summary["transmit_result"]["complete_send"])
+        self.assertEqual(wake_calls, [])
+
+    def test_stalled_partial_send_is_fail_not_sent(self):
+        # R1 review: a send that started but stalled reports fail (r=partial).
+        real = vtx.transmit_video_clip
+
+        def stalled(tx, budget, **kw):
+            res = real(tx, budget, **kw)
+            return dict(res, complete_send=False, sent=res["planned"] - 3)
+        with mock.patch.object(vtx, "transmit_video_clip", stalled):
+            summary, _, wake_calls, _ = run_trg_action(
+                remaining_s=85.0, encode_s=0.0, supervised=_supervised(), trigger_id=1000060)
+        self.assertEqual((wake_calls[0]["action"], wake_calls[0]["reason"],
+                          wake_calls[0]["trigger_result"]), ("trg", "partial", "1000060:fail"))
+        self.assertEqual(summary["trigger_outcome"], "fail")
+
+    def test_trg_line_skipped_when_the_budget_is_spent(self):
+        # R1 review: the +1 <WS> is budget-checked. 55 s: START + 53 chunks +
+        # END = 55 msgs, nothing left for the pacing lead + the line.
+        summary, _, wake_calls, out = run_trg_action(
+            remaining_s=85.0, encode_s=30.0, supervised=_supervised(), trigger_id=1000061)
+        self.assertTrue(summary["transmit_result"]["complete_send"], out)
+        self.assertEqual(wake_calls, [])
+        self.assertIn("no budget left for the <WS> status line", out)
+
+    def test_ws_drops_tr_without_cfg(self):
+        import rc_telemetry
+        sent = []
+        with mock.patch.object(rc_telemetry, "send_compact_text_message", sent.append), \
+                mock.patch.object(rc_telemetry, "get_cpu_temperature", lambda: 45.0), \
+                mock.patch.object(rc_telemetry, "WS_EXTRA_FN", None):
+            rc_telemetry.send_wake_status("skip_err", reason="budget",
+                                          trigger_result="600:budget")
+        self.assertNotIn("tr=", sent[0])
 
     def test_ws_line_carries_tr_right_after_the_extras(self):
         import rc_telemetry

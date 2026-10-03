@@ -235,6 +235,22 @@ def _status_line(settings, vtx, wake_fn, action, reason, trigger_result=None):
         return False
 
 
+def _tr_carried():
+    """True when <WS> carries cfg= (the supervisor's W8b extras on a migrated
+    v9 unit): the backend reads tr= only from such lines (R1 review)."""
+    import rc_telemetry
+    return rc_telemetry.WS_EXTRA_FN is not None
+
+
+def _ws_fits(budget, lead_s=0.0):
+    """One more <WS> (+ an optional pacing lead) fits the budget; else say so."""
+    if budget is None or budget.has_time_for(lead_s + budget.seconds_per_message):
+        return True
+    print(f"[VTX][WARN] no budget left for the <WS> status line "
+          f"({budget.remaining_s():.0f}s); not sent")
+    return False
+
+
 def _trigger_result(summary, outcome):
     """R1 trg outcome: "<trg command id>:<outcome>" (outcome sent | budget |
     fail) for a trg-fired action, else None. The id is the one the supervisor's
@@ -339,6 +355,10 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         gate_mono = clock()
         cmd_hooks.boot_mark("spotter_utc_read")
         print(f"[VTX] schedule gate: {gate_info.get('reason')}")
+        if supervised is not None:
+            # R1: re-send the last boots' lost acks now (after the time read:
+            # the lane guard needs it; before recording).
+            getattr(supervised, "resend_recent_acks", lambda *a: None)(daemon, summary, sleep_fn)
         time_source = gate_info.get("source_time")
         if save_local and gate_info.get("spotter_time_error"):
             # S3c §5 C9: record anyway on the Pi clock; the window is enforced
@@ -523,6 +543,9 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         send_args["pending_pump_fn"] = pump
     if bench_drop_chunks:
         send_args["bench_drop_chunks"] = bench_drop_chunks
+    if supervised is not None and (summary.get("trigger") or {}).get("id") is not None \
+            and _tr_carried():
+        send_args["tail_reserve_msgs"] = 1    # R1: room for the trg outcome <WS>
     result = transmit_video_clip(tx, budget, **send_args)
     summary["transmit_result"] = result
     if result["refused_reason"]:
@@ -535,19 +558,25 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
             # cycle: unchanged, sends nothing (as W3).
             outcome = "budget" if result["refused_reason"].startswith("budget") else "fail"
             tr = _trigger_result(summary, outcome)
-            if outcome == "budget" or tr:
+            if (outcome == "budget" or tr) and _ws_fits(budget):
                 _status_line(settings, vtx, wake_fn, "skip_err", outcome, trigger_result=tr)
     else:
         print(f"[VTX] transmit done: sent={result['sent']}/{result['planned']} "
               f"complete={result['complete_send']} keyframe_repeat={result['repeated']}/{keyframe_chunks} "
               f"uart={result['uart_duration_sec']:.1f}s file={file_name}")
-        tr = _trigger_result(summary, "sent") if supervised is not None else None
-        if tr:
-            # R1 trg outcome: one <WS a=trg tr=<id>:sent>, one paced slot after
-            # END (END is not followed by a sleep), so the backend can close the
-            # command even when its ack was lost.
+        # R1 trg outcome: one <WS a=trg tr=<id>:sent>, one paced slot after
+        # END (END is not followed by a sleep), so the backend can close the
+        # command even when its ack was lost. A stalled partial send is `fail`
+        # (r=partial), never `sent`. Only where tr= rides with cfg= (a migrated
+        # v9 unit: the backend drops tr= without it), and only if the budget
+        # still holds the slot.
+        outcome = "sent" if result["complete_send"] else "fail"
+        tr = (_trigger_result(summary, outcome)
+              if supervised is not None and _tr_carried() else None)
+        if tr and _ws_fits(budget, float(settings["pacing_delay_seconds"])):
             sleep_fn(float(settings["pacing_delay_seconds"]))
-            _status_line(settings, vtx, wake_fn, "trg", None, trigger_result=tr)
+            _status_line(settings, vtx, wake_fn, "trg",
+                         None if outcome == "sent" else "partial", trigger_result=tr)
     # S3: the clip is off the wire — release the deferred acks, then the
     # bounded listen tail (the mailbox drain our own transmit triggers).
     if daemon is not None:
@@ -656,7 +685,7 @@ def run_video_tx_cycle(settings, vtx, *, transmit=False, skip_time_window=False,
             # R1 trg outcome: a trg-fired action that failed (recording, fit,
             # ...) says so with its id; the clip, if any, stays on the SD.
             tr = _trigger_result(summary, "fail")
-            if tr:
+            if tr and _ws_fits(budget):
                 _status_line(settings, vtx, None, "skip_err", "fail", trigger_result=tr)
         return summary
     finally:

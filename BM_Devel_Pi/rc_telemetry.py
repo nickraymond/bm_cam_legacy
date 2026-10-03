@@ -443,7 +443,8 @@ def send_wake_status(
         ("v", "1"),
         ("a", action),
         *extra,
-        ("tr", trigger_result),
+        # R1 review: tr= only beside cfg= (the backend drops it otherwise).
+        ("tr", trigger_result if any(k == "cfg" and v for k, v in extra) else None),
         ("tz", timezone_name),
         ("lt", _format_hhmm(local_time)),
         ("ws", _format_hhmm(window_start)),

@@ -56,11 +56,10 @@
   "trigger": {
    "id": 600,
    "value": 2
-  },
-  "trigger_outcome": "sent"
+  }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 326.8,
+ "fake_clock_elapsed_s": 325.5,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
