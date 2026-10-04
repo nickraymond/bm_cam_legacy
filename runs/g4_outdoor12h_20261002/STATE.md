@@ -128,3 +128,15 @@ items immediately; ≤ 5 bullets to Nick.
 - Units now: hourly production, cap 126 overlay, cron armed. Alternator timer still installed on nereus000 but idle
   (past --until): remove it before the rig work. Watcher and caffeinate not running.
 - :15 start = `ticksSamplingEnabled 1` + a timed commit (no offset key in bm_protocol); needs Nick's bridge OK in chat.
+
+## 12. Rig work after G4 (updated 2026-10-04 04:35Z) — READ THIS FIRST after a pause
+
+| thread | where | status |
+|---|---|---|
+| bmcam003 = repair rig, R1F-CMD | `runs/r1fix_cmdres_20261003/`, `hil/gates/R1F_cmd_resilience.md` | `hil-r1-cmdres.timer` on nereus000 (hourly set + 3-hourly trg, BMCAM_003 only). **bm #121 (fix/trg-budget-reserve a50636e) deploy scripted for the 05:00Z window** (scratchpad `deploy_121_bmcam003.sh`, task b4vtlk7q7); gate ≥ 6 wakes (EM criteria 1–4), then PASS/FAIL per item to the EM |
+| R1 re-gate (commands first) | `hil/gates/R1G_commands_first.md` | written; runs after #121 merges. "listen until :13" = proposal only |
+| bmcam004 = C1 comms | `runs/c1_comms_20261003/`, `hil/gates/C1_comms_reliability.md` | Nick's OK (TE chat 21:2x PDT "full scope" + EM relay 13:40 PDT). `hil_bridge_phase.sh SPOT-31593C ticks 15` at 05:12Z (task bknn7qg6o), commit 05:14:52Z, first :15 window 06:15Z; health window_minute → 15. Arm B 12 wakes then arm A (`utc`) 12 |
+| rig health + dashboard | nereus000 `/home/pi/hil_health/`, http://192.168.1.45:8095/ | `hil-rig-health.timer` 5 min + `hil-rig-dashboard.service`; alerts.json polled by the EM. NOT approved: camera ssh key, `sensors`, ntfy, LED |
+| stopped | — | G4 alternator removed; watcher/caffeinate not running |
+
+Never use the Browser pane on LAN hosts (its site prompt blocked this session ~9 h); verify pages with curl.
