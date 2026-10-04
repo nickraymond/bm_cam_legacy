@@ -136,8 +136,8 @@ def main():
                 pass
         dev, port, _ = usb.get(spot, (None, None, None))
         rows = "".join(
-            f"<tr><td><code>{esc(nid)}</code></td><td>{esc(names.get(nid) or ('bridge' if nid == sc['bridge'] else 'camera mote' if nid == sc['mote'] else '?'))}</td>"
-            f"<td>{v:.2f} V</td><td>{i * 1000:.1f} mA</td><td>{esc(t[11:19])}Z</td></tr>"
+            f"<tr title='{esc(nid)} · last {esc(t[11:19])}Z'><td><code>…{esc(nid[-4:])}</code></td><td>{esc(names.get(nid) or ('bridge' if nid == sc['bridge'] else 'camera mote' if nid == sc['mote'] else '?'))}</td>"
+            f"<td>{v:.1f} V</td><td>{i * 1000:.0f} mA</td></tr>"
             for nid, (t, v, i) in sorted(nodes.items()))
         b = ss.get("batt") or {}
         chg = ss.get("charger", "?")
@@ -152,11 +152,11 @@ def main():
 <tr><th>Camera wake</th><td>{esc(ss.get('last_wake'))}</td></tr>
 <tr><th>Camera CPU</th><td>{(esc(ss.get('ws_ct')) + ' °C <small>(' + (('&lt;END&gt;' + ((', sensor ' + esc(ss['ws_src'].split('stemp ')[1]) + ' °C') if 'stemp ' in ss['ws_src'] else '')) if (ss.get('ws_src') or '').startswith('END') else 'boot-time &lt;WS&gt;') + ', ' + esc((ss.get('ws_at') or '')[11:19]) + 'Z)</small>') if ss.get('ws_ct') is not None else '— <small>(no &lt;WS&gt; heartbeat decoded yet)</small>'}</td></tr>
 </table>
-<h3>Charger thermal timeline <small>(console ChargerErrorState; flaps &lt; 2 min merged; hours per UTC day)</small></h3>
+<h3>Charger thermal faults <small>(flaps &lt; 2 min merged)</small></h3>
 <div>fault hours: {', '.join(f"{esc(d)} <b>{h:.2f} h</b>" for d, h in sorted((ss.get('charger_fault_h') or {}).items())) or 'none in the last 2 days'}</div>
-<table class="grid"><tr><th>state</th><th>start</th><th>end</th><th>duration</th><th>flaps</th></tr>{''.join(f"<tr><td class='crit'>{esc(st_)}</td><td>{esc(a_[5:16].replace('T',' '))}Z</td><td>{(esc(b_[5:16].replace('T',' ')) + 'Z') if b_ else '<b>ongoing</b>'}</td><td>{int(((datetime.datetime.fromisoformat((b_ or now.isoformat()).replace('Z','+00:00')) - datetime.datetime.fromisoformat(a_.replace('Z','+00:00'))).total_seconds()) // 60)} min</td><td>{n_}</td></tr>" for a_, b_, st_, n_ in reversed(merged_episodes(ss.get('charger_episodes') or [])[-8:])) or '<tr><td colspan=5>no charger faults in the last 2 days</td></tr>'}</table>
-<h3>BM nodes heard on this bus <small>(console power lines; names from the bridge config of {esc((net_at or '?')[:16])})</small></h3>
-<table class="grid"><tr><th>node</th><th>role</th><th>V</th><th>I</th><th>last</th></tr>{rows or '<tr><td colspan=5>none in the last log window</td></tr>'}</table>
+<table class="grid"><tr><th>state</th><th>start Z</th><th>end</th><th>min</th><th>flaps</th></tr>{''.join(f"<tr><td class='crit'>{esc(st_.replace('_', ' ').lower())}</td><td>{esc(a_[5:16].replace('T',' '))}</td><td>{esc(b_[11:16]) if b_ else '<b>now</b>'}</td><td>{int(((datetime.datetime.fromisoformat((b_ or now.isoformat()).replace('Z','+00:00')) - datetime.datetime.fromisoformat(a_.replace('Z','+00:00'))).total_seconds()) // 60)}</td><td>{n_}</td></tr>" for a_, b_, st_, n_ in reversed(merged_episodes(ss.get('charger_episodes') or [])[-3:])) or '<tr><td colspan=5>no charger faults in the last 2 days</td></tr>'}</table>
+<h3>BM nodes on the bus <small>(names: bridge config {esc((net_at or '?')[5:16])}Z)</small></h3>
+<table class="grid"><tr><th>node</th><th>role</th><th>V</th><th>I</th></tr>{rows or '<tr><td colspan=5>none in the last log window</td></tr>'}</table>
 </section>""")
 
     lvl = al.get("level", "?")
@@ -180,7 +180,7 @@ details>summary{{cursor:pointer;color:var(--mute);margin:14px 0 4px}}
 body{{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}}
 h1{{font-size:20px;margin:0 0 4px}} h2{{font-size:16px;margin:0 0 8px}} h3{{font-size:13px;margin:12px 0 6px;color:var(--mute)}}
 small{{color:var(--mute);font-weight:normal}} code{{font-size:12px}}
-.wrap{{max-width:1100px;margin:0 auto}} .row{{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:12px}}
+.wrap{{max-width:1100px;margin:0 auto}} .row{{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-top:10px}} .row .card{{font-size:13px}} .row h3{{margin:8px 0 4px}}
 .card{{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto}}
 table{{border-collapse:collapse;width:100%}} td,th{{text-align:left;padding:3px 6px;vertical-align:top;border-bottom:1px solid var(--line)}}
 .kv th{{width:120px;color:var(--mute);font-weight:500}} .grid th{{color:var(--mute);font-weight:500}}
@@ -191,12 +191,6 @@ pre{{white-space:pre-wrap;font-size:12px;margin:0}}
 <h1>HIL rig — {esc(socket.gethostname())} {badge(lvl)}</h1>
 <div><small>health run {esc(al.get('ts'))} ({age_txt(al.get('ts'), now)}) · page built {now:%Y-%m-%d %H:%M:%S}Z · refreshes every 60 s · read-only</small></div>
 <section class="card" style="margin-top:12px"><h2>Alerts now</h2><ul>{reasons}</ul></section>
-<section class="card" style="margin-top:12px"><h2 style="display:flex;justify-content:space-between;align-items:center">Rig timeline <span class="rng"><button data-r="6">6 h</button> <button data-r="24">24 h</button> <button data-r="72">3 d</button></span></h2>
-<div class="lg"><span><i style="background:var(--m-cpu)"></i>CPU temp (nereus000, cameras)</span><span><i style="background:var(--m-sensor)"></i>camera image-sensor temp</span><span><i style="background:var(--m-batt)"></i>battery V (LiFePO4, Spotter)</span><span><i style="background:var(--m-volt)"></i>supply / BM bus V</span><span><i style="background:var(--m-wake)"></i>bus window</span><span><i style="background:var(--m-pion)"></i>camera Pi up</span><span><i style="background:var(--st-serious);opacity:.5"></i>charger thermal fault</span><span><i style="background:var(--st-warning)"></i>WARN</span><span><i style="background:var(--st-critical)"></i>CRIT / ✕ Spotter reset or charge mode</span><span>┊ rig event</span></div>
-{''.join(f'<div class="tlw" data-r="{h}"' + ('' if h == 24 else ' style="display:none"') + '>' + f'{hil_rig_timeline.build(a.health_dir, h)}</div>' for h in (6, 24, 72))}
-<small>Hover any mark for its value and time. Each track has its own scale (min/max at left); colours mean the same metric in every lane. Times UTC (PDT = UTC − 7).</small>
-</section>
-<details><summary>Details: tables (USB, Spotters, BM nodes, charger timeline, recent alerts)</summary>
 <div class="row">
 <section class="card"><h2>nereus000 <small>console monitor</small></h2><table class="kv">
 <tr><th>CPU</th><td>{esc(R.get('n000_temp_c'))} °C · throttled <span class="{'ok' if thr in ('0x0', None) else 'crit'}">{esc(thr)}</span></td></tr>
@@ -204,11 +198,17 @@ pre{{white-space:pre-wrap;font-size:12px;margin:0}}
 <tr><th>LiFePO4</th><td>VBAT {esc(R.get('lp_vbat_mv'))} mV · {esc(R.get('lp_soc_est'))} · Pi draw {esc(R.get('lp_iout_ma'))} mA</td></tr>
 <tr><th>Uptime</th><td>{esc(sh(['uptime', '-p']).strip())}</td></tr>
 </table>
-<h3>USB devices</h3><pre>{esc(chr(10).join(lsusb))}</pre></section>
+<h3>USB devices</h3><pre style="font-size:11px;max-height:90px;overflow:auto">{esc(chr(10).join(lsusb))}</pre></section>
 {''.join(spot_cards)}
 </div>
-<section class="card" style="margin-top:12px"><h2>Recent alerts <small>ALERTS.log</small></h2><pre>{esc(chr(10).join(reversed(alerts_log))) or 'none'}</pre></section>
-</details>
+
+<section class="card" style="margin-top:12px"><h2 style="display:flex;justify-content:space-between;align-items:center">Rig timeline <span class="rng"><button data-r="6">6 h</button> <button data-r="24">24 h</button> <button data-r="72">3 d</button></span></h2>
+<div class="lg"><span><i style="background:var(--m-cpu)"></i>CPU temp (nereus000, cameras)</span><span><i style="background:var(--m-sensor)"></i>camera image-sensor temp</span><span><i style="background:var(--m-batt)"></i>battery V (LiFePO4, Spotter)</span><span><i style="background:var(--m-volt)"></i>supply / BM bus V</span><span><i style="background:var(--m-wake)"></i>bus window</span><span><i style="background:var(--m-pion)"></i>camera Pi up</span><span><i style="background:var(--st-serious);opacity:.5"></i>charger thermal fault</span><span><i style="background:var(--st-warning)"></i>WARN</span><span><i style="background:var(--st-critical)"></i>CRIT / ✕ Spotter reset or charge mode</span><span>┊ rig event</span></div>
+{''.join(f'<div class="tlw" data-r="{h}"' + ('' if h == 24 else ' style="display:none"') + '>' + f'{hil_rig_timeline.build(a.health_dir, h)}</div>' for h in (6, 24, 72))}
+<small>Hover any mark for its value and time. Each track has its own scale (min/max at left); colours mean the same metric in every lane. Times UTC (PDT = UTC − 7).</small>
+</section>
+<section class="card" style="margin-top:12px"><h2>Recent alerts <small>ALERTS.log</small></h2><pre style="max-height:160px;overflow:auto">{esc(chr(10).join(reversed(alerts_log))) or 'none'}</pre></section>
+
 </div>
 <script>
 (function(){{
