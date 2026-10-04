@@ -20,7 +20,14 @@
   "listen_tail_s": 150.0,
   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
   "raw": {
-   "attempt_log": [],
+   "attempt_log": [
+    {
+     "distance": 0.1,
+     "failed": "time",
+     "seconds": 30.0,
+     "step": "search1"
+    }
+   ],
    "bytes": 3300,
    "detail": "cjxl plane G1 d=0.1: time rc=-9 after 10.0 s",
    "distance": null,

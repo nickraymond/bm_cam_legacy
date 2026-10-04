@@ -30,7 +30,7 @@ Wait for `NOPASSWD_OK` before proceeding — everything below needs non-interact
 
 Fresh trixie is missing git and the Python camera stack (`yaml` is present; `serial`, `PIL`, `picamera2` are not). Install via apt (never pip — these must match the system libcamera):
 ```
-ssh pi@bmcamNNN 'sudo apt-get install -y git python3-serial python3-pil python3-picamera2 ffmpeg'
+ssh pi@bmcamNNN 'sudo apt-get install -y git python3-serial python3-pil python3-picamera2 ffmpeg libjxl-tools python3-numpy'
 ```
 Sanity: `which rpicam-still` should already exist on Raspberry Pi OS; if it doesn't, the wrong OS image was flashed — stop.
 
@@ -38,6 +38,14 @@ Sanity: `which rpicam-still` should already exist on Raspberry Pi OS; if it does
 preinstalled on trixie (found missing on bmcam003/004, 2026-08-18).
 Install it unconditionally — a stills unit flipped to video in the field
 must not discover the gap then.
+
+`libjxl-tools` (`cjxl`) and `python3-numpy` are for Sprint28 nrjxl stills (RAW planes →
+JPEG XL, `rc_raw_jxl.py`). They are not otherwise guaranteed on trixie: numpy arrives only
+as a picamera2 dependency, and nothing else installs cjxl. Install both unconditionally, for
+the same reason as ffmpeg. Without them, `set still.format=nrjxl` is refused (config_validate
+env rule), and a stored nrjxl config sends pjpg without a `--raw` capture. Check:
+`cjxl --version` (the study used libjxl 0.11.1; the trixie package version is not yet recorded
+on a unit, R0.4 records it) and `python3 -c "import numpy"`.
 
 ## Phase 3 — Clone
 

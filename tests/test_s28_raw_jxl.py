@@ -628,6 +628,157 @@ class Search(unittest.TestCase):
         self.assertIn("cmp=1, rfb=floor", msg)
 
 
+class _Clock:
+    def __init__(self):
+        self.t = 0.0
+
+    def __call__(self):
+        return self.t
+
+
+def _scripted(plan, clock=None, log=None):
+    """Fake cjxl driven per ENCODE (4 planes = one encode): plan[i] = (bytes_per_plane, kind,
+    seconds_per_plane) for encode i (the last entry repeats). Advances `clock`."""
+    calls = {"n": 0}
+
+    def run(cmd, *, timeout_s, stdout_path, stderr_path):
+        i = calls["n"] // 4
+        calls["n"] += 1
+        n, kind, sec = plan[min(i, len(plan) - 1)]
+        d = float(cmd[cmd.index("-d") + 1])
+        if log is not None and calls["n"] % 4 == 1:
+            log.append(d)
+        if sec > timeout_s:
+            kind, sec = "time", timeout_s
+        if clock is not None:
+            clock.t += sec
+        if kind == "ok":
+            with open(cmd[2], "wb") as fh:
+                fh.write(b"\xff\x0a" + b"x" * int(n))
+        return {"rc": 0 if kind == "ok" else 1, "kind": kind, "seconds": sec,
+                "peak_rss_kb": 31000}
+    return run
+
+
+class ReviewFixes(unittest.TestCase):
+    """Independent review of #120 at 8070e64 (via the EM, 2026-10-03)."""
+    CFG = dict(X.DEFAULT_CONFIG, format="nrjxl")
+
+    def encode(self, runner, cfg=None, budget=None, clock=None):
+        with tempfile.TemporaryDirectory() as d:
+            kw = {"clock": clock} if clock is not None else {}
+            return X.encode_still(MINI, META, cfg or self.CFG, crop_xywh=[0, 0, 160, 96],
+                                  budget=budget or Budget(), message_cap=195,
+                                  chunk_b64_chars=384, work_dir=os.path.join(d, "w"),
+                                  cjxl="/usr/bin/cjxl", runner=runner, log=lambda *_: None, **kw)
+
+    def test_1_a_later_failure_keeps_the_fit_in_hand(self):
+        # encode 1 overshoots, encode 2 fits at low fill (the search goes on), encode 3
+        # fails: the fit in hand is sent (the reviewer's repro: fit, then a timeout)
+        for kind in ("time", "mem", "enc"):
+            res = self.encode(_scripted([(400000, "ok", 1.0), (5000, "ok", 1.0),
+                                         (0, kind, 1.0)]))
+            self.assertEqual((res["attempts"], res["rate_mode"]), (3, "search"), kind)
+            self.assertEqual(res["attempt_log"][-1]["failed"], kind)
+            self.assertEqual(len(res["blob"]) // 1000, 20, kind)          # the 4 x 5 kB fit
+        # the same failure with nothing in hand is still a fallback
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_scripted([(400000, "ok", 1.0), (0, "mem", 1.0)]))
+        self.assertEqual(cm.exception.code, "mem")
+
+    def test_1_an_encode_that_cannot_finish_is_not_started(self):
+        # each encode takes 4 x 10 s = 40 s; encode 1 overshoots, encode 2 fits at low fill;
+        # encode_max_s 90 leaves 10 s, less than the last encode took: no 3rd encode
+        clock, log = _Clock(), []
+        res = self.encode(_scripted([(400000, "ok", 10.0), (5000, "ok", 10.0)], clock=clock,
+                                    log=log), cfg=dict(self.CFG, encode_max_s=90), clock=clock)
+        self.assertEqual((len(log), res["attempts"]), (2, 2))
+        # with nothing in hand it is rfb=time, without starting the encode
+        clock, log = _Clock(), []
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_scripted([(400000, "ok", 10.0)], clock=clock, log=log),
+                        cfg=dict(self.CFG, encode_max_s=60), clock=clock)
+        self.assertEqual((cm.exception.code, len(log)), ("time", 1))
+        self.assertIn("last encode 40.0 s", cm.exception.detail)
+
+    def test_2_nrjxl_needs_cjxl_and_numpy_on_the_unit(self):
+        v = _still(**{"still.format": "nrjxl"})
+        env_ok = {"ffmpeg": True, "timezones_ok": {"America/Los_Angeles"}, "cjxl": True,
+                  "numpy": True}
+        self.assertEqual([x for x in V.validate(v, "effective", env=env_ok) if x.code == "xk"], [])
+        for tool in ("cjxl", "numpy"):
+            errs = [x for x in V.validate(v, "effective", env=dict(env_ok, **{tool: False}))
+                    if x.code == "xk"]
+            self.assertEqual(len(errs), 1, tool)
+            self.assertEqual(errs[0].paths[0], "still.format")
+            self.assertIn(tool, errs[0].message)
+        # pjpg units and video units do not care
+        self.assertEqual([x for x in V.validate(_still(), "effective",
+                                                env=dict(env_ok, cjxl=False, numpy=False))
+                          if x.code == "xk"], [])
+        probe = V.probe_env([])
+        self.assertIn("cjxl", probe)
+        self.assertIn("numpy", probe)
+
+    def test_2_no_encoder_means_no_raw_capture(self):
+        import rc_progressive_jpeg as rc
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "camera_schedule.yaml")
+            with open(path, "w") as fh:
+                fh.write('still_raw:\n  format: "nrjxl"\n')
+            settings = {"config_path": path, "crop_native_xywh": (1504, 846, 1600, 900)}
+            real_which = rc.shutil.which
+            with mock.patch.object(rc.shutil, "which",
+                                   side_effect=lambda n: None if n == "cjxl" else real_which(n)):
+                raw = rc._raw_begin(settings, None, d)
+        self.assertEqual((raw["rfb"], raw["dng"]), ("enc", None))
+        self.assertIn("cjxl", raw["detail"])
+
+    def test_3_a_raising_raw_capture_runs_todays_capture(self):
+        import rc_capture
+        import rc_progressive_jpeg as rc
+        today = mock.Mock(return_value=("n.jpg", {}, "stem"))
+        settings = {"capture_backend": "rpicam", "camera_controls_override": {},
+                    "config_path": "/nonexistent", "source_width": 4608, "source_height": 2592,
+                    "source_jpeg_quality": 95}
+        with tempfile.TemporaryDirectory() as d, \
+                mock.patch.object(rc, "_select_camera_command",
+                                  return_value=("/usr/bin/rpicam-still", "rpicam")), \
+                mock.patch.object(rc_capture, "run_raw_capture_once",
+                                  side_effect=OSError("disk gone")):
+            out = rc._default_raw_capture(settings, d, today)
+        today.assert_called_once()
+        self.assertEqual(out, ("n.jpg", {}, "stem", None, "OSError"))
+        # today's capture failing is today's failure (not swallowed, not retried)
+        boom = mock.Mock(side_effect=RuntimeError("Native capture failed after 4 attempts"))
+        with tempfile.TemporaryDirectory() as d, \
+                mock.patch.object(rc, "_select_camera_command",
+                                  return_value=("/usr/bin/rpicam-still", "rpicam")), \
+                mock.patch.object(rc_capture, "run_raw_capture_once",
+                                  return_value=(None, None, "timeout")), \
+                self.assertRaisesRegex(RuntimeError, "after 4 attempts"):
+            rc._default_raw_capture(settings, d, boom)
+        boom.assert_called_once()
+
+    def test_5_search_and_rungs_miss_then_d_max_is_measured(self):
+        log = []
+        big = 0.5 * 3 * ((195 * 384) // 4)          # x4 planes = 2x the room
+        # misses everywhere below 10, fits at d_max 10.4
+        res = self.encode(_law(1, 1, log=log, override=lambda d: big if d < 10 else 2000))
+        self.assertEqual((res["distance"], res["rate_mode"]), (10.4, "rungs"))
+        self.assertEqual(log[-1], 10.4)
+        # misses at d_max too: floor, not fit
+        log = []
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_law(1, 1, log=log, override=lambda d: big))
+        self.assertEqual(cm.exception.code, "floor")
+        self.assertEqual(log[-1], 10.4)
+        # the rungs-only mode keeps its r4 answer (fit)
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_law(1, 1, override=lambda d: big), cfg=dict(self.CFG, target_fill=0.0))
+        self.assertEqual(cm.exception.code, "fit")
+
+
 class _StepClock:
     """A clock that advances by the seconds each fake cjxl run reports."""
 

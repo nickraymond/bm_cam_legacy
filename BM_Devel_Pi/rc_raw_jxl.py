@@ -784,10 +784,14 @@ class _Walk:
         cap_left = float(self.cfg["encode_max_s"]) - (self.clock() - self.t_start)
         budget_left = self.budget.remaining_s() - self.fallback_s
         timeout_s = min(cap_left, budget_left)
-        if timeout_s <= 0:
+        last_s = self.attempt_log[-1]["seconds"] if self.attempt_log else 0.0
+        if timeout_s <= 0 or timeout_s < last_s:
+            # review #1: an encode that cannot finish in the time left is not started
+            # (the last one took last_s; same crop, so this one takes about as long).
             raise RawFallback("time", f"no time for d={distance} (encode cap left "
                                       f"{cap_left:.1f} s, budget left after the fallback "
-                                      f"send {budget_left:.1f} s)", self.attempt_log)
+                                      f"send {budget_left:.1f} s, last encode {last_s:.1f} s)",
+                              self.attempt_log)
         t0 = self.clock()
         try:
             payloads, runs = encode_rung(self.codes, distance, self.cfg["effort"], self.work,
@@ -795,6 +799,9 @@ class _Walk:
         except RawFallback as exc:
             if exc.code == "time" and cap_left > budget_left:
                 exc.detail += " (cycle budget)"
+            # a failed encode is an attempt too (att= on the wire, the sidecar log)
+            self.attempt_log.append({"step": step, "distance": distance, "failed": exc.code,
+                                     "seconds": round(self.clock() - t0, 3)})
             exc.attempt_log = self.attempt_log
             raise
         params = build_params(crop_xywh=self.xywh,
@@ -927,21 +934,45 @@ def choose_rate(crop, codes, meta_params, cfg, *, crop_xywh, budget, message_cap
                  message_cap=message_cap, chunk_b64_chars=chunk_b64_chars,
                  reserve_msgs=reserve_msgs, fallback_msgs=fallback_msgs, work_dir=work_dir,
                  cjxl=cjxl, runner=runner, clock=clock, log=log)
-    if float(cfg.get("target_fill") or 0) > 0:
-        res = target_search(walk)
-        if res is not None:
-            return res
-        tried = max((e["distance"] for e in walk.attempt_log), default=0.0)
-        rest = [d for d in cfg["distances"] if tried < d <= float(cfg["d_max"])]
-        log(f"[RAW] search found no fit in {len(walk.attempt_log)} encode(s); fixed rungs "
-            f"{rest} next")
-        res = rung_walk_list(walk, rest)
-    else:
-        res = rung_walk_list(walk, cfg["distances"])
+    search = float(cfg.get("target_fill") or 0) > 0
+    try:
+        res = _choose(walk, cfg, search, log)
+    except RawFallback as exc:
+        # review #1: a later encode's time / mem / enc failure must not cost a fit already
+        # in hand (it was built and still fits this wake).
+        res = walk.result("search" if search else "rungs") if exc.code in (
+            "time", "mem", "enc") else None
+        if res is None:
+            raise
+        log(f"[RAW] {exc.code} on a later encode ({exc.detail}); sending the best fit "
+            f"found (d={res['distance']}, {res['message_count']} msgs)")
+        return res
     if res is not None:
         return res
     raise RawFallback("fit", f"nothing fits (cap {message_cap}, reserve {reserve_msgs}, "
                              f"{len(walk.attempt_log)} encode(s))", walk.attempt_log)
+
+
+def _choose(walk, cfg, search, log):
+    if not search:
+        return rung_walk_list(walk, cfg["distances"])
+    res = target_search(walk)
+    if res is not None:
+        return res
+    d_max = float(cfg["d_max"])
+    tried = max((e["distance"] for e in walk.attempt_log), default=0.0)
+    rest = [d for d in cfg["distances"] if tried < d < d_max]
+    log(f"[RAW] search found no fit in {len(walk.attempt_log)} encode(s); fixed rungs "
+        f"{rest} then d_max {d_max} next")
+    res = rung_walk_list(walk, rest)
+    if res is not None:
+        return res
+    # review #5: same rule as the search's floor: measure at d_max, then floor
+    if tried < d_max:
+        _entry, ok = walk.attempt(_clamp_d(d_max), "d_max")
+        if ok:
+            return walk.result("rungs")
+    _floor(walk, d_max, d_max)
 
 
 def rung_walk(crop, codes, meta_params, cfg, **kw):

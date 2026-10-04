@@ -33,7 +33,8 @@ Rules added in S4 (strict + effective):
   - mode.media video: video.send.message_cap >= VIDEO_CAP_FLOOR (80; S3b bench
     F1: cap 40 failed x264 pass 2 on bmcam003, 80 worked; nothing between
     measured, so the floor lives here, not in the registry range)
-  - env: mode.media video needs ffmpeg; schedule.timezone must resolve
+  - env: mode.media video needs ffmpeg; schedule.timezone must resolve; mode.media still +
+    still.format nrjxl needs cjxl and numpy (Sprint28)
 
 Rules added in Sprint28 (strict + effective; Sprint28 SPEC r4 §3.7), mode.media
 still with still.format nrjxl only:
@@ -163,6 +164,14 @@ def _rule_env(values, env):
     out = []
     if values.get("mode.media") == "video" and not env.get("ffmpeg", True):
         out.append(Violation("xk", ("mode.media",), "video needs ffmpeg (not found on PATH)"))
+    # Sprint28 review #2: an nrjxl unit without its encoder would still capture --raw (a
+    # 24 MB DNG per wake) and fall back every time. Refused at set, dropped at boot.
+    if _nrjxl_still(values):
+        for tool, fix in (("cjxl", "sudo apt install libjxl-tools"),
+                          ("numpy", "sudo apt install python3-numpy")):
+            if not env.get(tool, True):
+                out.append(Violation("xk", ("still.format", "mode.media"),
+                                     f"nrjxl needs {tool} (not found on this unit; {fix})"))
     zones = env.get("timezones_ok")
     tz = values.get("schedule.timezone")
     if zones is not None and tz not in zones:
@@ -380,4 +389,8 @@ def probe_env(zones=()):
             ok.add(zone)
         except Exception:
             pass
-    return {"ffmpeg": shutil.which("ffmpeg") is not None, "timezones_ok": ok}
+    import importlib.util
+    return {"ffmpeg": shutil.which("ffmpeg") is not None, "timezones_ok": ok,
+            # Sprint28: the nrjxl encoder and its plane maths (rc_raw_jxl)
+            "cjxl": shutil.which("cjxl") is not None,
+            "numpy": importlib.util.find_spec("numpy") is not None}

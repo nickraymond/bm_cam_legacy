@@ -374,10 +374,37 @@ def _default_raw_capture(settings, output_dir, capture_fn):
     calls `capture_fn` — today's UNCHANGED capture, ladder and WS behaviour — at once.
     A JPEG without a DNG is kept (no second capture). A RAW problem can never cost the
     JPEG. Returns (native_path, capture_info, image_stem, dng_path | None, why | None)."""
+    try:
+        return _raw_capture_or_fallback(settings, output_dir, capture_fn)
+    except _TodayCaptureFailed as exc:
+        raise exc.cause                   # today's capture itself failed: as before S28
+    except Exception as exc:
+        # review #3: ANY RAW-side surprise (paths, rc_capture, the camera command) goes
+        # straight to today's capture; its own failure stays today's failure.
+        print(f"[RAW] --raw capture raised {type(exc).__name__}: {exc}; today's capture "
+              "runs now (rfb=cap)")
+        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        return native_path, capture_info, image_stem, None, f"{type(exc).__name__}"
+
+
+class _TodayCaptureFailed(Exception):
+    def __init__(self, cause):
+        super().__init__(str(cause))
+        self.cause = cause
+
+
+def _today(capture_fn, settings, output_dir):
+    try:
+        return capture_fn(settings, output_dir)
+    except Exception as exc:
+        raise _TodayCaptureFailed(exc)
+
+
+def _raw_capture_or_fallback(settings, output_dir, capture_fn):
     from rc_capture import run_raw_capture_once
     command, backend = _select_camera_command(settings["capture_backend"])
     if command is None:
-        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        native_path, capture_info, image_stem = _today(capture_fn, settings, output_dir)
         return native_path, capture_info, image_stem, None, f"backend {backend}"
     os.makedirs(output_dir, exist_ok=True)
     image_stem = os.path.splitext(generate_filename())[0]  # "<ts>_image"
@@ -392,7 +419,7 @@ def _default_raw_capture(settings, output_dir, capture_fn):
         settings["source_jpeg_quality"], log_prefix, settings=capture_settings)
     if info is None:
         print(f"[RAW] --raw capture failed ({why}); today's capture runs now (rfb=cap)")
-        native_path, capture_info, image_stem = capture_fn(settings, output_dir)
+        native_path, capture_info, image_stem = _today(capture_fn, settings, output_dir)
         return native_path, capture_info, image_stem, None, why
     return native_path, info, image_stem, dng_path, why
 
@@ -415,6 +442,16 @@ def _raw_begin(settings, native_path, output_dir):
         rc_raw_jxl.sweep_orphans(output_dir)
     if not rc_raw_jxl.enabled(cfg):
         return None
+    import importlib.util
+    missing = [t for t, ok in (("cjxl", shutil.which("cjxl") is not None),
+                               ("numpy", importlib.util.find_spec("numpy") is not None)) if not ok]
+    if missing:
+        # review #2: without the encoder a --raw capture is a wasted 24 MB DNG: capture as
+        # today and send pjpg (config_validate refuses this config where it can probe).
+        print(f"[RAW][WARN] still.format=nrjxl but {', '.join(missing)} missing on this unit: "
+              f"no --raw capture, pjpg rfb={'enc' if 'cjxl' in missing else 'err'}")
+        return {"cfg": cfg, "rfb": "enc" if "cjxl" in missing else "err",
+                "detail": f"{', '.join(missing)} not installed", "dng": None, "metadata": None}
     print(f"[RAW] still.format=nrjxl: target_fill={cfg['target_fill']} d_max={cfg['d_max']} "
           f"distances={cfg['distances']} effort={cfg['effort']} "
           f"encode_max_s={cfg['encode_max_s']} keep_crop={cfg['keep_crop']} "
@@ -547,8 +584,8 @@ def _raw_choose(raw, settings, summary, budget, send, *, source, selection, enco
             print(f"[RAW] pjpg re-selected after the RAW attempt: q{again['quality']} "
                   f"fits={again['fits']} (was q{selection['quality']} fits={selection['fits']})")
             selection, encode = again, again["encode"]
-            with open(send["path"], "wb") as f:
-                f.write(encode["jpeg_data"])
+            import atomic_io
+            atomic_io.write_bytes(send["path"], encode["jpeg_data"])
             try:
                 update_capture_metadata(send["path"], {
                     "jpeg_quality_used": selection["quality"], "enc_attempts": selection["attempts"],
@@ -952,11 +989,13 @@ def still_action(
     # Capture (or reuse an existing native in --compress-only).
     capture_info = {}
     if native_path is None:
-        if raw is not None and raw["cfg"] is not None:
+        if raw is not None and raw["cfg"] is not None and raw["rfb"] is None:
             native_path, capture_info, image_stem, raw["dng"], why = (
                 raw_capture_fn or _default_raw_capture)(settings, output_dir, capture_fn)
             if raw["dng"] is None:
                 raw["rfb"], raw["detail"] = "cap", f"--raw capture: {why}"
+        elif raw is not None and raw["cfg"] is not None:
+            native_path, capture_info, image_stem = capture_fn(settings, output_dir)
         else:
             native_path, capture_info, image_stem = capture_fn(settings, output_dir)
         summary["native_path"] = native_path
