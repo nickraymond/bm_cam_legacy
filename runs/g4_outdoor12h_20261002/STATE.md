@@ -152,3 +152,14 @@ Never use the Browser pane on LAN hosts (its site prompt blocked this session ~9
 - JPEG-XL next (first free rig = bmcam004 Mon): needs Nick's bridge OK for bus-always-on on SPOT-31593C, apt install
   libjxl-tools, R0 → #120 (e44dde5) deploy → nrjxl via backend (nvd #83) → first render ≈ Mon noon PDT.
 - Never block: ask Nick in plain text (AskUserQuestion stalled the session 10 h).
+
+## 14. Tonight's plan (2026-10-04 19:45Z) — session crons fire the checkpoints (CronList)
+
+- C1 checks per window +15 min to 04:46Z; C1 verdict + JPEG-XL start at 04:47Z (21:47 PDT).
+- JPEG-XL R0 on bmcam004: `HIL_RUN_DIR=runs/s28_ladder_<date> hil/tools/hil_bus_always_on.sh SPOT-31593C` (bus on, Pi caught
+  + disarmed; restore = re-arm crontab backup, halt, `hil_restore_schedule.sh SPOT-31593C`), then
+  `sudo apt-get install -y libjxl-tools` (restore: `apt-get remove -y libjxl-tools`). R0 tools exist ONLY on
+  origin/feature/sprint28-camera (e44dde5) and read `$REPO_ROOT/BM_Devel_Pi/rc_raw_jxl.py`: run them from a detached
+  worktree `git worktree add --detach <scratchpad>/s28_e44dde5 e44dde5` with this branch's hil/hil.env copied in.
+- Ack-loss stress: transient unit hil-r1-ackloss on nereus000 (log /home/pi/hil_r1/ackloss.log).
+- R1G 24th wake 05:00Z; verdict 11:17Z.
