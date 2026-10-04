@@ -409,8 +409,13 @@ def send_wake_status(
     image_res_key=None,
     image_quality=None,
     reason=None,
+    trigger_result=None,
 ):
     """Send one compact wake heartbeat.
+
+    trigger_result (R1, wire contract addition approved by Nick 2026-10-03):
+    "<trg command id>:<sent|budget|fail>", sent as `tr=` right after the
+    extras so a 280 B cut never drops it. None = the line is unchanged.
 
     Action codes:
       cap       = capture path allowed
@@ -438,6 +443,8 @@ def send_wake_status(
         ("v", "1"),
         ("a", action),
         *extra,
+        # R1 review: tr= only beside cfg= (the backend drops it otherwise).
+        ("tr", trigger_result if any(k == "cfg" and v for k, v in extra) else None),
         ("tz", timezone_name),
         ("lt", _format_hhmm(local_time)),
         ("ws", _format_hhmm(window_start)),

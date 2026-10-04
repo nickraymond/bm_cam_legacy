@@ -49,7 +49,8 @@
    "id": 1000752,
    "kv": {},
    "value": 2
-  }
+  },
+  "trigger_outcome": "sent"
  },
  "cycles": [
   {
@@ -102,11 +103,12 @@
     "id": 1000752,
     "kv": {},
     "value": 2
-   }
+   },
+   "trigger_outcome": "sent"
   }
  ],
  "exit_code": 0,
- "fake_clock_elapsed_s": 900.1,
+ "fake_clock_elapsed_s": 900.0,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
@@ -137,8 +139,8 @@
    "sha256": "57451fbcbefb310e"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 443,
-   "sha256": "99e867fc45d0f1c5"
+   "bytes": 473,
+   "sha256": "d97e91c0ec4f3867"
   },
   "state/config_journal.jsonl": {
    "bytes": 343,
@@ -189,11 +191,13 @@
   "result_cache": {
    "1000751": {
     "b": 1,
+    "h": "4146ada4",
     "ok": 1,
     "t": "video.send.duration_s: 5.0 -> 8 (next action)"
    },
    "1000752": {
     "b": 1,
+    "h": "4146ada4",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point)"
    }
