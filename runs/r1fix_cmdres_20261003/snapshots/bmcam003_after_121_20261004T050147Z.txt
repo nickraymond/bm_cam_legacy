@@ -1,0 +1,53 @@
+== bmcam003 2026-10-04T05:01:48Z up 101.05s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct  4 05:00 .
+drwxr-xr-x 16 root root 4040 Oct  4 04:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct  4 05:01 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  4 05:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  4 05:00 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  4 05:01 .
+drwxrwxrwt 3 root root  100 Oct  4 05:00 ..
+-rw-r--r-- 1 pi   pi   2286 Oct  4 05:01 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha a50636e8c4f8
+KEY repo fix/trg-budget-reserve a50636e Address #121 review: original ack hash, lane-guarded re-send, trg line rules
+KEY cfg_hash hash=51d1c26d
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=51d1c26d hv=1 registry=v7 overlay=2 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.uGnSx6/camera_schedule.yaml (level=v2)
+file 38739b9717560b1f camera_config.yaml 143L
+file c5376fa8d06ea5bf camera_schedule.yaml 214L
+file 733adbea71450d15 bm_command_state_v2.json 0L
+file 69a9f8fad095bd3a config_journal.jsonl 158L
+state overlay {"mode.media": "video", "video.send.message_cap": 126}
+state guarded {}
+state boot 65 hw {"remote": 1000042, "service": 100000021}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+10 1000 pi - 2365 user    - no -
+ 3 1000 pi - 1256 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     225228 kB
+CmaTotal:         262144 kB
+CmaFree:           69744 kB
+disk /dev/mmcblk0p2  115G   86G   25G  78% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261004T040833Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[VTX] encode try 1: 55.7 kbps -> 27929 B = 77% of 126 msgs
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-04T05:00:56+00:00
+============================================================

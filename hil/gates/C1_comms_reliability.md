@@ -27,12 +27,26 @@ bridge reset (Spotter reboot / rebootctl / power cycle) re-phases it → detecte
 Back to :00 = `hil_bridge_phase.sh SPOT-31593C utc` (also the restore). **Each use needs Nick's bridge OK in the
 Test Engineer chat.**
 
-### Arms
-| arm | window | wakes | when |
-|---|---|---|---|
-| B | :15 (uptime timebase) | 12 consecutive | first |
-| A | :00 (UTC, production) | 12 consecutive | after B (the switch back is the restore) |
-The G4 hourly wakes of 10/3 04–15Z on this rig are an extra :00 reference (mixed media, so not pooled).
+### Arms — AS RUN (Nick 2026-10-04: 5 + 5, ALTERNATING; replaces the 12-then-12 plan above)
+Alternation by the bridge itself, one commit, no camera change: `sampleIntervalMs 5400000` (90 min) on the UTC
+timebase (ticks stay 0). Windows open at multiples of 5400 s since the epoch, i.e. **:00 and :30 alternate**:
+15:00, 16:30, 18:00, 19:30, 21:00, 22:30, 00:00, 01:30, 03:00, 04:30Z (10 wakes ≈ 15 h). Arm A = :00 (the burst
+:01–:05 overlaps SPOT-31593C's report :05:00 and health check ~:03); arm B = :30 (both 25+ min before the burst).
+Why not :15 (the original ask): a fixed UTC interval can only alternate :00/:30; alternating :15 needs a bridge
+re-commit every hour (10 stub boots cut, self-inflicted noise) or a camera-side delay (budget/energy changes).
+:30 tests the same thing (burst clear of the report and health check) and is reset-proof (UTC-aligned).
+Committed 2026-10-04 14:53:50Z with `hil_restore_schedule.sh SPOT-31593C 5400000 600000` (stub boot halted
+14:54:33Z), Nick's OK in the TE chat. Restore after the 10th wake: `hil_restore_schedule.sh SPOT-31593C`
+(3600000 / 600000). Confound to state: the gap between wakes is 90 min in both arms (not production's 60).
+The G4 + 10/3–10/4 hourly :00 wakes are extra :00 references (different spacing: reported, not pooled).
+
+### Significance bar (Nick: significant findings only; decided BEFORE the first window)
+B (:30) is declared **better** only if BOTH:
+1. median queue-full per wake drops ≥ 50 % (B vs A, 5 wakes each), AND
+2. first-send-complete improves by ≥ 2 of 5 wakes, OR the median first-send loss (chunks) halves.
+Otherwise the verdict is **"no significant effect"** (no partial credit for 1–3-message differences). The same bar,
+reversed, declares A better. Wakes with an external event (Spotter reset, power move, backend outage) are excluded
+and the arm extended by one wake.
 
 ### Measured per wake
 | metric | source |
