@@ -40,3 +40,4 @@ halt-issued
   Deploy side effect: 1000043 (still for 05:00) never executed (the deploy SIGTERMed the 05:00 cycle before its listen tail); backend shows it superseded. Expected, logged.
 2026-10-04T15:02:00Z JPEG-XL readiness (read-only, EM): bmcam003 + bmcam004: cjxl MISSING, numpy 2.2.4, / 25G free of 115G (79% used). R0.4 will need apt-get install libjxl-tools (restore: apt-get remove libjxl-tools).
 2026-10-04T15:04:20Z R1G ack-loss stress armed on nereus000 (transient unit hil-r1-ackloss, /home/pi/hil_r1/ackloss.sh, log ackloss.log): get as 3rd command at 16:22:40Z, check 18:45Z; repeat 20:22/22:45, 00:22/02:45 until an original ack is missing. EM GO; deliberate, not counted against R1G.1; recovery must PASS. STOP: sudo systemctl stop hil-r1-ackloss
+2026-10-04T15:12:00Z 1000057 (sent 13:20) replied OK at 15:04 (lag 2, the known SPOT-33507C limit).
