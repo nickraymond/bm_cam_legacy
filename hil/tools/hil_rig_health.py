@@ -123,6 +123,37 @@ def spotter_battery(api, env_file, spot):
         return {"err": f"{type(e).__name__}"}
 
 
+def charger_timeline(log_root, spot, t):
+    """ChargerErrorState episodes from the last two console files: [(start, end|None, state)], and hours per UTC
+    day spent in a non-OK state (THERMAL_FAULT etc.). Passive: the console line only, no charger current exists."""
+    ev = []
+    for d in (t - datetime.timedelta(days=1), t):
+        p = os.path.join(log_root, spot, f"console_{d:%Y%m%d}.log")
+        if os.path.exists(p):
+            out = run(["bash", "-c", f"grep -a 'ChargerErrorState changed' {p}"], 30)
+            for ln in out.splitlines():
+                m = RE_CHG.search(ln)
+                if m:
+                    ev.append((ln[:20], m.group(1), m.group(2)))
+    eps, cur = [], None
+    for ts_, frm, to in ev:
+        if cur and cur[2] != "OK":
+            eps.append((cur[0], ts_, cur[2]))
+        cur = (ts_, None, to)
+    if cur and cur[2] != "OK":
+        eps.append((cur[0], None, cur[2]))
+    hours = {}
+    P = lambda x: datetime.datetime.fromisoformat(x.replace("Z", "+00:00"))
+    for a_, b_, stt in eps:
+        a2, b2 = P(a_), (P(b_) if b_ else t)
+        while a2 < b2:
+            day_end = (a2 + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            seg = min(b2, day_end) - a2
+            hours[f"{a2:%Y-%m-%d}"] = hours.get(f"{a2:%Y-%m-%d}", 0) + seg.total_seconds() / 3600
+            a2 = day_end
+    return eps, {k: round(v, 2) for k, v in hours.items()}
+
+
 RE_PWR = re.compile(r"([0-9a-f]{16}), power \| .*voltage: ([-\d.]+), current: ([-\d.]+)")
 RE_CHG = re.compile(r"ChargerErrorState changed from (\w+) to (\w+)")
 RE_BUSV = re.compile(r"BusVErrorState changed from (\w+) to (\w+)")
@@ -153,7 +184,10 @@ def ws_temps(lines):
             txt = bytes.fromhex("".join(buf).replace(" ", "")).decode("ascii", "replace")
             w = re.search(r"<WS [^>]*?ct=([\d.]+)[^>]*?hn=(\w+)", txt)
             if w:
-                out.append((hdr_t, float(w.group(1)), w.group(2)))
+                out.append((hdr_t, float(w.group(1)), "WS"))
+            e = re.search(r"<END [^>]*?\b(?:ct|cpu_temp_c)=([\d.]+)", txt)  # bm #122: temp read after the burst
+            if e:
+                out.append((hdr_t, float(e.group(1)), "END"))
             buf = []
         hdr_t = ln[:20] if "[BM_TX]" in ln and "Message:" in ln else None
     return out
@@ -245,8 +279,15 @@ def main():
                 hh = ts_[:13]
                 if hh not in ss["pi_on_hours"]:
                     ss["pi_on_hours"] = (ss["pi_on_hours"] + [hh])[-48:]
-        for ts_, ct, hn in ws_temps(lines):
-            ss["ws_ct"], ss["ws_at"] = ct, ts_
+        for ts_, ct, src in ws_temps(lines):
+            ss["ws_ct"], ss["ws_at"], ss["ws_src"] = ct, ts_, src
+        if ss.get("tl_at") is None or (t - datetime.datetime.fromisoformat(ss["tl_at"])).total_seconds() >= 600:
+            eps, hrs = charger_timeline(a.log_root, spot, t)
+            # merge brief flaps (< 60 s apart) only for display; the hours count every second of fault
+            ss["charger_episodes"] = eps[-30:]
+            ss["charger_fault_h"] = hrs
+            ss["tl_at"] = t.isoformat()
+        R[f"{spot}_charger_fault_h_today"] = (ss.get("charger_fault_h") or {}).get(f"{t:%Y-%m-%d}", 0)
         R[f"{spot}_charger"] = ss["charger"]
         if bus_v is not None:
             ss["bus_v_on"], ss["bus_v_at"] = bus_v, t.isoformat(timespec="seconds")

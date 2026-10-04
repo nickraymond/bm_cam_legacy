@@ -58,6 +58,18 @@ def last_network_config(log_root, spot):
     return None, []
 
 
+def merged_episodes(eps, gap_s=120):
+    """Merge fault episodes that restart within gap_s (charger flapping) for display: (start, end, state, flaps)."""
+    P = lambda x: datetime.datetime.fromisoformat(x.replace("Z", "+00:00"))
+    out = []
+    for a, b, stt in eps:
+        if out and out[-1][1] and (P(a) - P(out[-1][1])).total_seconds() <= gap_s:
+            out[-1] = (out[-1][0], b, out[-1][2], out[-1][3] + 1)
+        else:
+            out.append((a, b, stt, 1))
+    return out
+
+
 def esc(x):
     return html.escape("" if x is None else str(x))
 
@@ -134,8 +146,11 @@ def main():
 <tr><th>Battery</th><td>{esc(b.get('v'))} V · {esc(b.get('w'))} W · input {esc(b.get('vin'))} V · RH {esc(b.get('rh'))} % <small>(Sofar, {age_txt(b.get('at'), now)})</small></td></tr>
 <tr><th>BM bus (on)</th><td>{esc(ss.get('bus_v_on'))} V <small>({age_txt(ss.get('bus_v_at'), now)})</small></td></tr>
 <tr><th>Camera wake</th><td>{esc(ss.get('last_wake'))}</td></tr>
-<tr><th>Camera CPU</th><td>{(esc(ss.get('ws_ct')) + ' °C <small>(boot-time &lt;WS&gt;, ' + esc((ss.get('ws_at') or '')[11:19]) + 'Z)</small>') if ss.get('ws_ct') is not None else '— <small>(no &lt;WS&gt; heartbeat decoded yet)</small>'}</td></tr>
+<tr><th>Camera CPU</th><td>{(esc(ss.get('ws_ct')) + ' °C <small>(' + ('after-burst &lt;END&gt;' if ss.get('ws_src') == 'END' else 'boot-time &lt;WS&gt;') + ', ' + esc((ss.get('ws_at') or '')[11:19]) + 'Z)</small>') if ss.get('ws_ct') is not None else '— <small>(no &lt;WS&gt; heartbeat decoded yet)</small>'}</td></tr>
 </table>
+<h3>Charger thermal timeline <small>(console ChargerErrorState; flaps &lt; 2 min merged; hours per UTC day)</small></h3>
+<div>fault hours: {', '.join(f"{esc(d)} <b>{h:.2f} h</b>" for d, h in sorted((ss.get('charger_fault_h') or {}).items())) or 'none in the last 2 days'}</div>
+<table class="grid"><tr><th>state</th><th>start</th><th>end</th><th>duration</th><th>flaps</th></tr>{''.join(f"<tr><td class='crit'>{esc(st_)}</td><td>{esc(a_[5:16].replace('T',' '))}Z</td><td>{(esc(b_[5:16].replace('T',' ')) + 'Z') if b_ else '<b>ongoing</b>'}</td><td>{int(((datetime.datetime.fromisoformat((b_ or now.isoformat()).replace('Z','+00:00')) - datetime.datetime.fromisoformat(a_.replace('Z','+00:00'))).total_seconds()) // 60)} min</td><td>{n_}</td></tr>" for a_, b_, st_, n_ in reversed(merged_episodes(ss.get('charger_episodes') or [])[-8:])) or '<tr><td colspan=5>no charger faults in the last 2 days</td></tr>'}</table>
 <h3>BM nodes heard on this bus <small>(console power lines; names from the bridge config of {esc((net_at or '?')[:16])})</small></h3>
 <table class="grid"><tr><th>node</th><th>role</th><th>V</th><th>I</th><th>last</th></tr>{rows or '<tr><td colspan=5>none in the last log window</td></tr>'}</table>
 </section>""")
