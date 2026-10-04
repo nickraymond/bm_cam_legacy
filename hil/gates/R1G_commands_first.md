@@ -27,7 +27,13 @@ Measured, not gated: command lag in wakes, arrival minute vs report minute, D1 m
 1. bm #121 gate (`R1F_cmd_resilience.md` § fix verification, ≥ 6 wakes) → EM merges #121 on PASS.
 2. bmcam003 to the merged development tip (the same one-window deploy), then this 24-wake re-gate.
 
-## Option (measure after #121 passes; NOT applied): listen until ~:13 so SPOT-33507C's commands land the same hour
+## Known limit for R1 (Nick, EM chat 2026-10-03 ~21:50 PDT)
+
+SPOT-33507C commands take effect **2 wakes** after they are sent (its hourly report + hub.sync is at :10, after the
+:08 halt, so the unit only sees a command at the next wake). Documented, not gated. The timing fix is chosen AFTER the
+C1 :15 results on bmcam004 (zero-energy option first). "Listen until ~:13" below is NOT applied for R1.
+
+## Option (NOT for R1; kept for the C1 decision): listen until ~:13 so SPOT-33507C's commands land the same hour
 
 Why: SPOT-33507C's hourly report + hub.sync is at :10:00 (boot-anchored since its 10/3 00:04Z reset). Every
 command reaches the Spotter 56–209 s after it (G4 ledger: 58–118 s typical, 2nd/3rd command of a batch ~45 s apart)
