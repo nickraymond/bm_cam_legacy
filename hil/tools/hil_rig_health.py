@@ -42,7 +42,7 @@ UTC = datetime.timezone.utc
 TH = {  # proposed thresholds (EM / Nick to confirm)
     "pi_warn_c": 70.0, "pi_crit_c": 80.0,
     "vin_margin_warn_mv": 100,          # VIN within this of VIN_THRESHOLD = sagging supply
-    "vbat_crit_mv": 3100, "vbat_drop_warn_mv": 30,  # drop over ~30 min while on external power
+    "vbat_crit_mv": 3100, "vbat_low_on_ext_warn_mv": 3250,  # level, not a drop (hourly top-up dips to ~3290)
     "bus_v_lo": 23.0, "bus_v_hi": 24.6,
     "pi_on_a": 0.025,
     "charger_fault_crit_min": 15,
@@ -200,9 +200,10 @@ def main():
         st.pop("on_battery_since", None)
         if lp["vin_mv"] < lp["vin_threshold_mv"] + TH["vin_margin_warn_mv"]:
             warn.append(f"nereus000 supply sagging: VIN {lp['vin_mv']} mV (threshold {lp['vin_threshold_mv']})")
-        old = [h[1] for h in hist if (t - datetime.datetime.fromisoformat(h[0])).total_seconds() >= 1500]
-        if old and lp["vbat_mv"] is not None and old[0] - lp["vbat_mv"] >= TH["vbat_drop_warn_mv"]:
-            warn.append(f"nereus000 VBAT falling on external power: {old[0]} -> {lp['vbat_mv']} mV")
+        # Measured 2026-10-03: every bus window (:00-:10) the pack tops up the input (VBAT 3636 -> ~3290-3420 mV
+        # while VIN is present) and recharges after; a relative-drop rule fired every hour. Use a level instead.
+        if lp["vbat_mv"] is not None and lp["vbat_mv"] < TH["vbat_low_on_ext_warn_mv"]:
+            warn.append(f"nereus000 VBAT {lp['vbat_mv']} mV on external power (input not covering the load)")
     if lp["vbat_mv"] is not None and lp["vbat_mv"] < TH["vbat_crit_mv"]:
         crit.append(f"nereus000 VBAT {lp['vbat_mv']} mV (< {TH['vbat_crit_mv']})")
 
