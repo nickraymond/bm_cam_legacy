@@ -46,3 +46,28 @@ on nereus000. The unit keeps whatever media the last set gave it (production con
 32/32 commands reached the Spotter 56–209 s after its hourly report and got a unit OK. SPOT-33507C reports at :10
 (after the :08 halt) → reply one wake later (lag 2); SPOT-31593C at :05 → same wake (lag 1). Backend ack 23/32;
 2 trg clips captured but not sent (budget double count).
+
+## Fix verification plan: bm #121 (camera) + nvd #84 (backend) — PREPARED, not started (EM go needed)
+
+Fixes under test: #121 = trg budget double-count fix + ack re-send + `tr=` trigger outcome in the reply;
+#84 = backend hash fallback (a set confirmed by a later `<CF>`/WS hash), `tr=` parsing, late `d:1` upgrade.
+Order (EM): #84 merged to staging first → this deploy of the #121 branch tip to bmcam003 → EM merges #121 on PASS.
+
+1. Baseline freeze: `hil_cmd_ledger.py --device BMCAM_003 --since 2026-10-03T19:00` → `analysis/ledger_baseline.csv`
+   (the R1F-CMD hours on R1 code); `hil_media_table.py` for the same span.
+2. Confirm #84 is live: `GET /admin/devices/BMCAM_003/commands` returns the new status fields / a known
+   late command re-evaluated (EM confirms the staging deploy).
+3. `hil_unit_snapshot.sh bmcam003 before_121` inside a window; then `hil_deploy_unit.sh bmcam003 <#121 sha>` in the
+   next window (armed per_boot unit: catch awake, disarm, deploy, re-arm; print-config diff must be empty —
+   #121 adds no keys); `after_121` snapshot: sha = #121, config hash unchanged, cron armed.
+4. Run ≥ 12 wakes with the same driver (hourly set) and **trg every 2 h** (6 trgs) — `hil-r1-cmdres.timer`
+   `--trg-hours` changed to even hours for the gate (one edit, logged).
+5. PASS when, over those 12 wakes:
+   - C1: 100 % of commands get a unit OK (console);
+   - C2: 0 commands that ran show `late`/`superseded`-without-effect at the backend (acks re-sent or hash-confirmed);
+     every backend status = the unit's real outcome (ledger vs console);
+   - C3: 6/6 trg → one media row, complete; 0 `clip NOT sent — budget`; backend trg status `triggered` with the
+     media key from `tr=`;
+   - regression: 12/12 wakes, wake→halt ≤ 540 s, 0 Spotter-side changes, heals still sent/served, normal clips'
+     first-send loss and D1 not worse than the baseline (same media mix).
+6. FAIL / rollback: `hil_deploy_unit.sh bmcam003 34a6222` (development R1) in the next window; snapshot = before_121.
