@@ -197,6 +197,8 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `still.raw.encode_max_s` | int | 30 | 5 – 120 | next_action |  | nrjxl: most seconds the RAW encode may take per image (all rungs); over it the unit sends the JPEG (rfb=time). |  |
 | `still.raw.keep_crop` | bool | false | bool | next_action |  | nrjxl: keep the raw crop (16-bit PGM, 2.9 MB at 1600x900) on the SD for paired analysis; the storage guard prunes it. |  |
 | `still.raw.effort` | int | 5 | 1 – 7 | next_action |  | nrjxl: cjxl effort (5 = the setting measured on the Pi Zero 2 W). |  |
+| `still.raw.target_fill` | float | 0.97 | 0.0 – 1.0 | next_action |  | nrjxl: fill this share of the wake's message room (best quality that fits); 0 = only try still.raw.distances. |  |
+| `still.raw.d_max` | float | 10.4 | 0.1 – 15.0 | next_action |  | nrjxl: quality floor: if the room needs a JPEG XL distance above this, send today's JPEG (START rfb=floor). |  |
 
 ### video
 

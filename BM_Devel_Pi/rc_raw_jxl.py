@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # filename: rc_raw_jxl.py
-# description: Sprint28 S1 — RAW-plane JPEG XL stills (fmt=nrjxl): DNG crop reader, 4 Bayer planes, sqrt 12-bit, capped cjxl rung walk, NR container v1.
+# description: Sprint28 S1 — RAW-plane JPEG XL stills (fmt=nrjxl): DNG crop reader, 4 Bayer planes, sqrt 12-bit, capped cjxl byte-target search (fixed rungs as fallback), NR container v1.
 """
 Sprint28 path [B]: a native-resolution RAW still as JPEG XL (SPEC r4 §3, CONTAINER.md v1).
 
@@ -12,9 +12,12 @@ What it does (one still action, only when `still.format = nrjxl`):
   3. encode each plane with `cjxl -m 1 -e <effort> -d <distance> --num_threads=0` in its
      OWN process with RLIMIT_AS 250 MB and oom_score_adj 1000 (run_capped): an overrun
      kills the encoder, never this process;
-  4. walk the distance rungs (still.raw.distances, best quality first) until the blob fits
-     the SAME message budget the pjpg selector uses (message_cap and the CycleBudget,
-     START/END and the heal slot reserved) — rung_walk;
+  4. pick the distance (choose_rate): a byte-target search (Nick 2026-10-03) for the best
+     quality that fills still.raw.target_fill of THIS wake's room = min(message_cap, the
+     CycleBudget's messages) - START/END - the heal slot, in <= 3 encodes, with a quality
+     floor still.raw.d_max (rfb=floor); the fixed still.raw.distances are the fallback list
+     (and the whole rate control when target_fill = 0). Every fit uses the pjpg
+     selector's own rule;
   5. wrap the 4 streams in the study's `NR` header (CONTAINER.md §1-2, profile v1, with
      the capture's WB/CCM and a crc32 over header + payloads, §4 crc-v1b) — seal_container.
   Any failure raises RawFallback(code), and the caller sends today's JPEG with `rfb=<code>`
@@ -88,7 +91,17 @@ ENCODER_OOM_SCORE_ADJ = 1000
 RAW_CAPTURE_TIMEOUT_S = 30                   # one --raw attempt, no retries (SPEC §3.1)
 
 # START rfb codes (SPEC §3.6 table)
-RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err")
+RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor")
+
+# Byte-target search (Nick 2026-10-03, rig PR #89 compression_study/presets/
+# PROPOSAL_byte_target.md). The prior is FITTED on the rig's 2026-10-03 nereus002 sweep
+# (indoor card scene): bytes ~= B_REF * (area / A_REF) * (d / D_REF) ** -K. It only picks the
+# FIRST distance; every later step uses measured bytes, so a wrong prior costs an encode,
+# never a wrong fit.
+PRIOR_B_REF, PRIOR_A_REF, PRIOR_D_REF, PRIOR_K = 51_000.0, 1600 * 900, 3.8, 0.8
+SEARCH_MAX_ENCODES = 3
+SEARCH_FILL_SLACK = 0.04          # accept a fit that fills >= target_fill - 0.04 (0.93 at 0.97)
+DIST_RANGE = (0.1, 15.0)          # still.raw.distances / still.raw.d_max registry range
 
 def _registry_default(path):
     import config_registry
@@ -104,6 +117,8 @@ DEFAULT_CONFIG = {
     "encode_max_s": _registry_default("still.raw.encode_max_s"),
     "keep_crop": _registry_default("still.raw.keep_crop"),
     "effort": _registry_default("still.raw.effort"),
+    "target_fill": _registry_default("still.raw.target_fill"),
+    "d_max": _registry_default("still.raw.d_max"),
     "source": "default",
 }
 
@@ -183,6 +198,15 @@ def load_raw_config(config_path):
                     if not v.isdigit() or not 1 <= int(v) <= 7:
                         raise ValueError(f"still_raw.effort must be 1..7, got {v!r}")
                     cfg["effort"] = int(v)
+                elif k in ("target_fill", "d_max"):
+                    lo, hi = (0.0, 1.0) if k == "target_fill" else DIST_RANGE
+                    try:
+                        num = float(v)
+                    except ValueError:
+                        raise ValueError(f"still_raw.{k} must be a number, got {v!r}")
+                    if not math.isfinite(num) or not lo <= num <= hi:
+                        raise ValueError(f"still_raw.{k} must be {lo}..{hi}, got {v!r}")
+                    cfg[k] = num
     except OSError:
         pass
     return cfg
@@ -721,70 +745,214 @@ def encode_rung(codes, distance, effort, work_dir, *, cjxl, runner, timeout_s):
     return payloads, runs
 
 
-def rung_walk(crop, codes, meta_params, cfg, *, crop_xywh, budget, message_cap,
-              chunk_b64_chars, reserve_msgs, fallback_msgs, work_dir, cjxl, runner,
-              clock=time.monotonic, log=print):
-    """Walk still.raw.distances until the blob fits this wake. -> result dict.
+class _Walk:
+    """One wake's encode attempts: the fit rule, the time guards and the attempt log,
+    shared by the byte-target search and the fixed rung walk.
 
-    A rung FITS iff (the pjpg selector's rule, rc_quality_selector):
+    An attempt FITS iff (the pjpg selector's rule, rc_quality_selector):
         message_count <= message_cap
         AND budget.messages_fit(message_count + 2 + reserve_msgs)  (START/END + heals)
-    Time: each rung's encoders get min(encode_max_s left, the cycle budget left after
+    Time: each attempt's encoders get min(encode_max_s left, the cycle budget left after
     the pjpg fallback's own send: fallback_msgs + 2 + reserve_msgs paced messages), so a
     RAW attempt can never eat the time the fallback JPEG needs (SPEC §6)."""
-    t_start = clock()
-    attempt_log = []
-    pace = float(budget.seconds_per_message)
-    fallback_s = (int(fallback_msgs) + 2 + int(reserve_msgs)) * pace
-    for distance in cfg["distances"]:
-        cap_left = float(cfg["encode_max_s"]) - (clock() - t_start)
-        budget_left = budget.remaining_s() - fallback_s
+
+    def __init__(self, crop, codes, meta_params, cfg, *, crop_xywh, budget, message_cap,
+                 chunk_b64_chars, reserve_msgs, fallback_msgs, work_dir, cjxl, runner, clock,
+                 log):
+        self.crop, self.codes, self.meta, self.cfg = crop, codes, meta_params, cfg
+        self.xywh, self.budget, self.cap = crop_xywh, budget, int(message_cap)
+        self.chunk, self.reserve = int(chunk_b64_chars), int(reserve_msgs)
+        self.work, self.cjxl, self.runner, self.clock, self.log = work_dir, cjxl, runner, clock, log
+        self.pace = float(budget.seconds_per_message)
+        self.fallback_s = (int(fallback_msgs) + 2 + self.reserve) * self.pace
+        self.t_start = clock()
+        self.attempt_log = []
+        self.fits = []                     # (attempt_log entry, blob, crc, params)
+
+    def room_msgs(self, est_encode_s=0.0):
+        """Chunks this wake can still carry: min(cap, what the budget sends after an
+        encode of est_encode_s) - START/END - the heal reserve (Nick's condition 1)."""
+        left = self.budget.remaining_s() - float(est_encode_s)
+        by_time = int(math.floor(left / self.pace)) - 2 - self.reserve if self.pace > 0 else self.cap
+        return max(0, min(self.cap, by_time))
+
+    def room_bytes(self, msgs):
+        """Largest payload whose base64 fits `msgs` chunks (inverse of message_count)."""
+        return 3 * ((int(msgs) * self.chunk) // 4)
+
+    def attempt(self, distance, step):
+        cap_left = float(self.cfg["encode_max_s"]) - (self.clock() - self.t_start)
+        budget_left = self.budget.remaining_s() - self.fallback_s
         timeout_s = min(cap_left, budget_left)
         if timeout_s <= 0:
-            raise RawFallback("time", f"no time for rung d={distance} (encode cap left "
+            raise RawFallback("time", f"no time for d={distance} (encode cap left "
                                       f"{cap_left:.1f} s, budget left after the fallback "
-                                      f"send {budget_left:.1f} s)", attempt_log)
-        t_rung = clock()
+                                      f"send {budget_left:.1f} s)", self.attempt_log)
+        t0 = self.clock()
         try:
-            payloads, runs = encode_rung(codes, distance, cfg["effort"], work_dir,
-                                         cjxl=cjxl, runner=runner, timeout_s=timeout_s)
+            payloads, runs = encode_rung(self.codes, distance, self.cfg["effort"], self.work,
+                                         cjxl=self.cjxl, runner=self.runner, timeout_s=timeout_s)
         except RawFallback as exc:
             if exc.code == "time" and cap_left > budget_left:
                 exc.detail += " (cycle budget)"
-            exc.attempt_log = attempt_log
+            exc.attempt_log = self.attempt_log
             raise
-        params = build_params(crop_xywh=crop_xywh, native_wh=(crop["native_w"], crop["native_h"]),
-                              crc=0, colour=meta_params, distance=distance,
-                              effort=cfg["effort"])
-        blob, crc = seal_container(w=crop["mosaic"].shape[1], h=crop["mosaic"].shape[0],
-                                   cfa=crop["cfa"], black=crop["black"], white=crop["white"],
-                                   params=params, payloads=payloads)
+        params = build_params(crop_xywh=self.xywh,
+                              native_wh=(self.crop["native_w"], self.crop["native_h"]),
+                              crc=0, colour=self.meta, distance=distance, effort=self.cfg["effort"])
+        blob, crc = seal_container(w=self.crop["mosaic"].shape[1], h=self.crop["mosaic"].shape[0],
+                                   cfa=self.crop["cfa"], black=self.crop["black"],
+                                   white=self.crop["white"], params=params, payloads=payloads)
         params[CRC_PARAM] = crc
-        msgs = message_count(len(blob), chunk_b64_chars)
-        over_cap = msgs > int(message_cap)
-        budget_fit = budget.messages_fit(msgs + 2 + int(reserve_msgs))
-        attempt_log.append({
-            "distance": distance, "bytes": len(blob), "message_count": msgs,
-            "plane_bytes": [len(p) for p in payloads], "over_cap": over_cap,
-            "budget_fit": budget_fit, "seconds": round(clock() - t_rung, 3),
-            "cjxl_seconds": [r["seconds"] for r in runs],
-            "peak_rss_kb": max(r["peak_rss_kb"] for r in runs),
-        })
-        log(f"[RAW] rung d={distance}: {len(blob)} B, {msgs} msgs, over_cap={over_cap}, "
-            f"budget_fit={budget_fit}, {attempt_log[-1]['seconds']:.1f} s, "
-            f"peak_rss={attempt_log[-1]['peak_rss_kb']} KiB")
-        if not over_cap and budget_fit:
-            return {"blob": blob, "distance": distance, "attempts": len(attempt_log),
-                    "attempt_log": attempt_log, "message_count": msgs, "crc32": crc,
-                    "params": params, "encode_s": round(clock() - t_start, 3)}
-    raise RawFallback("fit", f"no rung of {cfg['distances']} fits (cap {message_cap}, "
-                             f"reserve {reserve_msgs})", attempt_log)
+        msgs = message_count(len(blob), self.chunk)
+        over_cap = msgs > self.cap
+        budget_fit = self.budget.messages_fit(msgs + 2 + self.reserve)
+        entry = {"step": step, "distance": distance, "bytes": len(blob), "message_count": msgs,
+                 "plane_bytes": [len(p) for p in payloads], "over_cap": over_cap,
+                 "budget_fit": budget_fit, "seconds": round(self.clock() - t0, 3),
+                 "cjxl_seconds": [r["seconds"] for r in runs],
+                 "peak_rss_kb": max(r["peak_rss_kb"] for r in runs)}
+        self.attempt_log.append(entry)
+        self.log(f"[RAW] {step} d={distance}: {len(blob)} B, {msgs} msgs, over_cap={over_cap}, "
+                 f"budget_fit={budget_fit}, {entry['seconds']:.1f} s, "
+                 f"peak_rss={entry['peak_rss_kb']} KiB")
+        ok = not over_cap and budget_fit
+        if ok:
+            self.fits.append((entry, blob, crc, params))
+        return entry, ok
+
+    def valid_fits(self):
+        """Fits that STILL fit: time passed while later attempts encoded."""
+        return [f for f in self.fits
+                if self.budget.messages_fit(f[0]["message_count"] + 2 + self.reserve)]
+
+    def result(self, mode):
+        """The largest still-valid fit as the result dict, or None."""
+        valid = self.valid_fits()
+        if not valid:
+            return None
+        entry, blob, crc, params = max(valid, key=lambda f: f[0]["bytes"])
+        return {"blob": blob, "distance": entry["distance"], "attempts": len(self.attempt_log),
+                "attempt_log": self.attempt_log, "message_count": entry["message_count"],
+                "crc32": crc, "params": params, "encode_s": round(self.clock() - self.t_start, 3),
+                "rate_mode": mode}
+
+
+def _clamp_d(d):
+    return round(min(max(float(d), DIST_RANGE[0]), DIST_RANGE[1]), 3)
+
+
+def target_search(walk):
+    """Byte-target search (Nick 2026-10-03): the best quality that fills
+    still.raw.target_fill of THIS wake's room, in <= SEARCH_MAX_ENCODES encodes.
+      1. prior (PRIOR_*) -> the distance that lands at the aim;
+      2. one-point correction with the prior slope K (log bytes vs log d);
+      3. secant in log-log through the last two measured points (slope clamped 0.3..2).
+    The room is re-read before every step (time passes while encoding). Stops at the first
+    fit that fills >= target_fill - SEARCH_FILL_SLACK; else keeps the largest fit.
+    Quality floor: a plan at or above still.raw.d_max is first MEASURED at d_max; if that
+    does not fit either -> RawFallback("floor") (pjpg). d_max 10.4 is from ONE indoor
+    scene: re-check on R4/O1 field frames. -> the walk result, or None when no attempt
+    fitted below d_max (the caller then walks the fixed rungs)."""
+    cfg = walk.cfg
+    fill, d_max = float(cfg["target_fill"]), float(cfg["d_max"])
+    area = int(walk.xywh[2]) * int(walk.xywh[3])
+    est_s = 0.0
+    aim = fill * walk.room_bytes(walk.room_msgs())
+    if aim <= 0:
+        raise RawFallback("fit", f"no room this wake (cap {walk.cap}, reserve {walk.reserve})",
+                          walk.attempt_log)
+    d = _clamp_d(PRIOR_D_REF * (aim / (PRIOR_B_REF * area / PRIOR_A_REF)) ** (-1.0 / PRIOR_K))
+    tried_floor = False
+    for step in range(SEARCH_MAX_ENCODES):
+        if d >= d_max:
+            if walk.valid_fits():
+                break                      # keep the best fit found so far
+            if tried_floor:
+                _floor(walk, d_max, d)
+            # The plan is an EXTRAPOLATION (prior or one point): measure at d_max before
+            # declaring the floor, so a scene that codes better than the prior is not lost.
+            d, tried_floor = _clamp_d(d_max), True
+        entry, ok = walk.attempt(d, f"search{step + 1}")
+        est_s = entry["seconds"]
+        now = walk.room_bytes(walk.room_msgs())            # the room if we stop here
+        valid = walk.valid_fits()
+        if valid and max(f[0]["bytes"] for f in valid) >= (fill - SEARCH_FILL_SLACK) * now:
+            break
+        aim = fill * walk.room_bytes(walk.room_msgs(est_s))  # the room after one more encode
+        if aim <= 0:
+            break
+        n = entry["bytes"]
+        if step == 0 or len(walk.attempt_log) < 2:
+            k = PRIOR_K
+            d_ref, n_ref = d, n
+        else:
+            (d1, n1), (d2, n2) = [(e["distance"], e["bytes"]) for e in walk.attempt_log[-2:]]
+            k = PRIOR_K if (n1 == n2 or d1 == d2) else \
+                min(max(-math.log(n2 / n1) / math.log(d2 / d1), 0.3), 2.0)
+            d_ref, n_ref = d2, n2
+        nxt = _clamp_d(d_ref * (n_ref / aim) ** (1.0 / k))
+        if nxt == d:
+            break                          # clamped at the range edge: no new information
+        d = nxt
+    res = walk.result("search")
+    if res is None and tried_floor:
+        _floor(walk, d_max, d_max)         # measured: even d_max does not fit the room
+    return res
+
+
+def _floor(walk, d_max, d):
+    raise RawFallback("floor", f"the room needs d>={d} > still.raw.d_max {d_max} (crop "
+                               f"{walk.xywh[2]}x{walk.xywh[3]}, {walk.room_msgs()} msgs, "
+                               f"{len(walk.attempt_log)} encode(s))", walk.attempt_log)
+
+
+def rung_walk_list(walk, distances):
+    """Walk fixed distances, best quality first, until one fits."""
+    for distance in distances:
+        _entry, ok = walk.attempt(distance, "rung")
+        if ok:
+            return walk.result("rungs")
+    return None
+
+
+def choose_rate(crop, codes, meta_params, cfg, *, crop_xywh, budget, message_cap,
+                chunk_b64_chars, reserve_msgs, fallback_msgs, work_dir, cjxl, runner,
+                clock=time.monotonic, log=print):
+    """-> the result dict of this wake's nrjxl, or RawFallback (fit / floor / time / ...).
+    still.raw.target_fill > 0: the byte-target search; if it ends with nothing fitting, the
+    fixed still.raw.distances strictly above the largest distance tried (and <= d_max) are
+    walked as the fallback list. target_fill 0: the fixed rungs only (the r4 behaviour)."""
+    walk = _Walk(crop, codes, meta_params, cfg, crop_xywh=crop_xywh, budget=budget,
+                 message_cap=message_cap, chunk_b64_chars=chunk_b64_chars,
+                 reserve_msgs=reserve_msgs, fallback_msgs=fallback_msgs, work_dir=work_dir,
+                 cjxl=cjxl, runner=runner, clock=clock, log=log)
+    if float(cfg.get("target_fill") or 0) > 0:
+        res = target_search(walk)
+        if res is not None:
+            return res
+        tried = max((e["distance"] for e in walk.attempt_log), default=0.0)
+        rest = [d for d in cfg["distances"] if tried < d <= float(cfg["d_max"])]
+        log(f"[RAW] search found no fit in {len(walk.attempt_log)} encode(s); fixed rungs "
+            f"{rest} next")
+        res = rung_walk_list(walk, rest)
+    else:
+        res = rung_walk_list(walk, cfg["distances"])
+    if res is not None:
+        return res
+    raise RawFallback("fit", f"nothing fits (cap {message_cap}, reserve {reserve_msgs}, "
+                             f"{len(walk.attempt_log)} encode(s))", walk.attempt_log)
+
+
+def rung_walk(crop, codes, meta_params, cfg, **kw):
+    """The r4 fixed-rung walk (kept for callers and tests): choose_rate with the search off."""
+    return choose_rate(crop, codes, meta_params, dict(cfg, target_fill=0.0), **kw)
 
 
 def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chunk_b64_chars,
                  reserve_msgs=0, fallback_msgs=0, work_dir, cjxl=None, runner=run_capped,
                  keep_crop_path=None, clock=time.monotonic, log=print):
-    """Path [B] for one wake: DNG crop -> planes -> rung walk -> NR blob.
+    """Path [B] for one wake: DNG crop -> planes -> rate choice (search / rungs) -> NR blob.
     -> result dict (rung_walk + timings). Raises RawFallback(code) for EVERY failure
     (an unexpected exception becomes rfb=err), never anything else."""
     timings = {}
@@ -812,7 +980,7 @@ def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chu
             # still.raw.keep_crop (O1 paired analysis): the crop mosaic itself, 16-bit
             # PGM at the sensor's white level, native px.
             write_pgm(keep_crop_path, crop["mosaic"], maxval=crop["white"])
-        result = rung_walk(crop, codes, meta_params, cfg, crop_xywh=crop_xywh, budget=budget,
+        result = choose_rate(crop, codes, meta_params, cfg, crop_xywh=crop_xywh, budget=budget,
                            message_cap=message_cap, chunk_b64_chars=chunk_b64_chars,
                            reserve_msgs=reserve_msgs, fallback_msgs=fallback_msgs,
                            work_dir=work_dir, cjxl=cjxl, runner=runner, clock=clock, log=log)
@@ -904,6 +1072,9 @@ def main(argv=None):
     ap.add_argument("--crop", default="1504,846,1600,900", help="x,y,w,h native px (even)")
     ap.add_argument("--distances", default=",".join(str(d) for d in DEFAULT_CONFIG["distances"]))
     ap.add_argument("--effort", type=int, default=DEFAULT_CONFIG["effort"])
+    ap.add_argument("--target-fill", type=float, default=DEFAULT_CONFIG["target_fill"],
+                    help="0 = the fixed --distances only (R0.3 times ONE rung this way)")
+    ap.add_argument("--d-max", type=float, default=DEFAULT_CONFIG["d_max"])
     ap.add_argument("--encode-max-s", type=int, default=120)
     ap.add_argument("--message-cap", type=int, default=195)
     ap.add_argument("--chunk-chars", type=int, default=384)
@@ -916,7 +1087,7 @@ def main(argv=None):
         RAW_MAX_PX = 4608 * 2592
     crop = [int(v) for v in args.crop.split(",")]
     cfg = dict(DEFAULT_CONFIG, distances=parse_distances(args.distances), effort=args.effort,
-               encode_max_s=args.encode_max_s)
+               encode_max_s=args.encode_max_s, target_fill=args.target_fill, d_max=args.d_max)
     with open(args.metadata, "r", encoding="utf-8") as fh:
         meta = json.load(fh)
     os.makedirs(args.out, exist_ok=True)

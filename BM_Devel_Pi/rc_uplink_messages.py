@@ -46,7 +46,8 @@ RC_IMAGE_FORMAT = "pjpg"
 # always cmp=1 (no partial nrjxl send).
 RC_RAW_FORMAT = "nrjxl"
 # Why a pjpg START is a fallback from nrjxl (SPEC §3.6): core field `rfb`, never dropped.
-RAW_FALLBACK_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err")
+# floor (Nick 2026-10-03, additive): the room needs a distance above still.raw.d_max.
+RAW_FALLBACK_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor")
 
 # M3 selector reason -> compact wire code. Anything unexpected maps to "err"
 # so a future selector change can never build an unsendable message.

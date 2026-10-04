@@ -22,7 +22,7 @@
   "raw": {
    "attempt_log": [],
    "bytes": 3300,
-   "detail": "cjxl plane G1 d=3.8: time rc=-9 after 10.0 s",
+   "detail": "cjxl plane G1 d=0.1: time rc=-9 after 10.0 s",
    "distance": null,
    "fmt": "pjpg",
    "kept_crop": null,
@@ -73,12 +73,12 @@
    "sha256": "bd8f6ac1971c1b58"
   },
   "camera_config.lkg.json": {
-   "bytes": 3323,
+   "bytes": 3375,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2571,
-   "sha256": "d8bfad3742ce6dea"
+   "bytes": 2609,
+   "sha256": "23413b5eeefe7c9d"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -90,7 +90,7 @@
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
    "bytes": 2356,
-   "sha256": "ed824f51f4f21add"
+   "sha256": "8a3d64bbe850106c"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
@@ -113,8 +113,8 @@
    "sha256": "5f35c72cd6be0b6b"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2337,
-   "sha256": "a79f78cbb00804f2"
+   "bytes": 2371,
+   "sha256": "562a995e01090f23"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 203,
@@ -254,7 +254,7 @@
     96
    ],
    "planned_buffers": 12,
-   "raw_detail": "cjxl plane G1 d=3.8: time rc=-9 after 10.0 s",
+   "raw_detail": "cjxl plane G1 d=0.1: time rc=-9 after 10.0 s",
    "raw_rfb": "time",
    "sd_free_bytes": 22000000000,
    "sd_total_bytes": 31000000000,

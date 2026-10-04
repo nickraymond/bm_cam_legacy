@@ -502,8 +502,10 @@ NRJXL_V2 = {**V9_V2, "still.format": "nrjxl", "still.crop": [0, 0, 160, 96],
 _NRJXL = {"kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY}
 V9_SCENARIOS.update({
     "v9_nrjxl": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok"},
-                 "notes": "nrjxl sent: one --raw capture, rung 1 fits, START fmt=nrjxl "
-                          "q=380 att=1 cmp=1, keyed chunks of <stem>_compressed.nrjxl"},
+                 "notes": "nrjxl sent: one --raw capture, the byte-target search fills 97 % of "
+                          "the 195-chunk room in 3 encodes (prior clamped at d 0.1, one-point "
+                          "correction, secant), START fmt=nrjxl cmp=1, keyed chunks of "
+                          "<stem>_compressed.nrjxl"},
     "v9_nrjxl_rfb_cap": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "fail"},
                          "notes": "the --raw attempt exits 1: today's capture runs at once "
                                   "(no WS for the RAW attempt), pjpg rfb=cap"},
@@ -516,10 +518,17 @@ V9_SCENARIOS.update({
     "v9_nrjxl_rfb_time": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "plane_s": 20},
                           "notes": "20 s per plane against encode_max_s 30: the second plane "
                                    "hits the cap, pjpg rfb=time"},
-    "v9_nrjxl_rfb_fit": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.distances": [0.1]},
+    "v9_nrjxl_rfb_fit": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.distances": [0.1],
+                                          "still.raw.target_fill": 0.0},
                          "raw": {"cam": "ok"},
-                         "notes": "one rung at d=0.1 (near-lossless model, ~307 kB) is over "
-                                  "the 195 cap: pjpg rfb=fit"},
+                         "notes": "search off (target_fill 0 = the fixed rungs only): one rung "
+                                  "at d=0.1 (near-lossless model, ~307 kB) is over the 195 cap: "
+                                  "pjpg rfb=fit"},
+    "v9_nrjxl_rfb_floor": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.d_max": 0.3},
+                           "raw": {"cam": "ok"},
+                           "notes": "quality floor d_max 0.3: d 0.1 overshoots, the plan passes "
+                                    "d_max, d_max itself is measured and overshoots too: pjpg "
+                                    "rfb=floor after 2 encodes"},
     "v9_nrjxl_rfb_err": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "ccm": False},
                          "notes": "the capture metadata has no ColourCorrectionMatrix: no "
                                   "WB/CCM params, pjpg rfb=err"},

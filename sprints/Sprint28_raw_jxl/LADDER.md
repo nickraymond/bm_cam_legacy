@@ -73,7 +73,7 @@ even at distance 9 on the study frames. Its R0.3 encode runs at d 9.0 and cap 50
 ### R1: one nrjxl still on the console lane (bmcam003)
 
 Preconditions: the Sprint28 commit is deployed to bmcam003 through `hil_deploy_unit.sh`
-(`--accept-print-config-diff`: registry v8 adds 5 keys, and the print-config diff shows exactly
+(`--accept-print-config-diff`: registry v8 adds 7 keys, and the print-config diff shows exactly
 those). Then run `hil/tools/hil_refresh.sh BMCAM_003 SPOT-33507C`. The unit runs stay_on with
 the G5 values.
 
@@ -121,7 +121,8 @@ console shows the START.
 | step | change | expected START |
 |---|---|---|
 | R3.1 | `{"set":{"still.format":"nrjxl","still.raw.encode_max_s":5}}` | `fmt=pjpg ... rfb=time`: one rung takes ~6.4 s on the Zero (study), which is over 5 s |
-| R3.2 | `{"set":{"still.raw.distances":[0.3],"still.raw.encode_max_s":60}}` | `fmt=pjpg ... rfb=fit`: d 0.3 gave 369 kB = 1282 msgs on the Mac (study frame cool stop −1, 1600×900, libjxl 0.11.1), against a cap of 195 |
+| R3.2 | `{"set":{"still.raw.distances":[0.3],"still.raw.target_fill":0.0,"still.raw.encode_max_s":60}}` | `fmt=pjpg ... rfb=fit`: the search is off (`target_fill 0` = fixed rungs only). d 0.3 gave 369 kB = 1282 msgs on the Mac (study frame cool stop −1, 1600×900, libjxl 0.11.1), against a cap of 195 |
+| R3.5 | `{"set":{"still.raw.target_fill":0.97,"still.raw.distances":[3.8,4.6,5.95,8.25],"still.raw.d_max":0.5}}` | `fmt=pjpg ... rfb=floor`: the search plans d ≈ 3.8 > d_max 0.5, measures d 0.5 (far over the cap), and floors after 1 encode |
 | R3.3 | `{"set":{"still.crop":[1505,846,1600,900]}}` with nrjxl on | ack `e:xk` (config_validate `_rule_raw_crop`); `get` hash unchanged |
 
 ### R4: production wakes (bmcam003, Sofar lane, 12 h)
@@ -144,6 +145,7 @@ and the START `rfb` count.
 | R3.1 | forced `time` | START `fmt=pjpg rfb=time`, and that pjpg arrives complete | `commands.log`, `console/`, `api/` |
 | R3.2 | forced `fit` | START `fmt=pjpg rfb=fit`, and that pjpg arrives complete | same |
 | R3.3 | refused config | ack `e:xk`; `get` hash unchanged | `commands.log` |
+| R3.5 | forced `floor` | START `fmt=pjpg rfb=floor`, and that pjpg arrives complete | `commands.log`, `console/`, `api/` |
 | R3.4 | other `rfb` codes | `cap`, `dng`, `enc`, `mem`, `err` are **N/A on hardware** (forcing them needs edits on the unit). They are covered by the golden vectors `tests/golden/vectors_v9/v9_nrjxl_rfb_*` and `tests/test_s28_raw_jxl.py` | test log |
 | R4.1 | production wakes | 12/12 wakes deliver an image (nrjxl or pjpg) complete ≤ 3 h, with 0 redundant heals | `api/media_*.json` |
 | R4.2 | wake fits the window | halt uptime ≤ 570 s on 12/12 | `pulled/` cycle logs |
@@ -153,10 +155,11 @@ and the START `rfb` count.
 ## 3. What a cycle log shows (for the operator)
 
 ```text
-[RAW] still.format=nrjxl: distances=[3.8, 4.6, 5.95, 8.25] effort=5 encode_max_s=30 keep_crop=False crop=[1504, 846, 1600, 900] (native px)
+[RAW] still.format=nrjxl: target_fill=0.97 d_max=10.4 distances=[3.8, 4.6, 5.95, 8.25] effort=5 encode_max_s=30 keep_crop=False crop=[1504, 846, 1600, 900] (native px)
 [DEBUG] Running RAW capture (one attempt, no retries): /usr/bin/rpicam-still ... --raw -o ..._native_full.jpg
-[RAW] rung d=3.8: 55281 B, 193 msgs, over_cap=False, budget_fit=True, 6.4 s, peak_rss=31000 KiB
-[RAW] nrjxl ready: 55281 B, 193 msgs at d=3.8 att=1 (encode 6.4 s, elapsed=...)
+[RAW] search1 d=3.499: 58345 B, 203 msgs, over_cap=True, budget_fit=True, 6.4 s, peak_rss=31040 KiB
+[RAW] search2 d=3.812: 55205 B, 192 msgs, over_cap=False, budget_fit=True, 6.4 s, peak_rss=30752 KiB
+[RAW] nrjxl ready: 55205 B, 192 msgs at d=3.812 att=2 (encode 12.8 s, elapsed=...)
 ```
 A fallback shows `[RAW] FALLBACK rfb=<code>: <why>; sending today's JPEG`. If the pjpg is
 re-selected against the remaining budget, the log adds `[RAW] pjpg re-selected ...`.
@@ -165,6 +168,7 @@ re-selected against the remaining budget, the log adds `[RAW] pjpg re-selected .
 
 ```bash
 hil/tools/hil_change.sh RESTORE BMCAM_003 SPOT-33507C '{"reset":["still.format","still.raw.distances","still.raw.encode_max_s","still.raw.keep_crop"]}'
+hil/tools/hil_change.sh RESTORE2 BMCAM_003 SPOT-33507C '{"reset":["still.raw.target_fill","still.raw.d_max"]}'
 hil/tools/hil_pistate.sh RESTORE.after bmcam003   # config hash == R1.before
 ```
 `still.crop` is reset too if R1 set it away from the YAML value. Crontab: as in R0 step 6.

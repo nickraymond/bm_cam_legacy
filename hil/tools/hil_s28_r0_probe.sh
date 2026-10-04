@@ -142,7 +142,7 @@ if [ -s keep.dng ]; then
       echo "enc_${preset}_$i" > label.txt
       t0=$(date +%s.%N)
       python3 rc_raw_jxl.py --dng keep.dng --metadata keep.json --crop "$(crop_of "$preset")" \
-          --distances "$(dist_of "$preset")" --encode-max-s 120 --message-cap 500 \
+          --distances "$(dist_of "$preset")" --target-fill 0 --encode-max-s 120 --message-cap 500 \
           --allow-any-crop --out "enc_${preset}_$i" > "enc_${preset}_$i.log" 2>&1 < /dev/null
       rc=$?; t1=$(date +%s.%N); echo idle > label.txt
       python3 - "$preset" "$i" "$rc" "$(awk "BEGIN{print $t1 - $t0}")" "enc_${preset}_$i/result.json" >> encodes.csv <<'PY'

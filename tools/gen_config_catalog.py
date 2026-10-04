@@ -71,6 +71,7 @@ CONTROL_KEYS = (
     "still.budget_min",
     # Sprint28 (SPEC r4 §3.7): control, so the bench ladder can force fallbacks and restore
     "still.format", "still.raw.distances", "still.raw.encode_max_s", "still.raw.keep_crop",
+    "still.raw.target_fill", "still.raw.d_max",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
     "video.record.fps", "video.record.bitrate_mbps", "video.record.encoder.profile",
     "video.record.encoder.level", "video.record.encoder.intra",
@@ -158,6 +159,8 @@ UNITS = {
     "still.quality_ladder": "JPEG q, best first", "still.save.quality": "JPEG q",
     "still.message_cap": "messages", "still.budget_min": "min",
     "still.raw.distances": "JPEG XL distance, best first", "still.raw.encode_max_s": "s",
+    "still.raw.target_fill": "share of the wake's message room (0 = fixed distances)",
+    "still.raw.d_max": "JPEG XL distance (higher = worse)",
     "video.record.crop": "native px [x, y, w, h]", "video.record.output": "px WxH",
     "video.record.fps": "fps", "video.record.bitrate_mbps": "Mbps",
     "video.send.duration_s": "s", "video.send.lead_in_s": "s", "video.send.fps": "fps",

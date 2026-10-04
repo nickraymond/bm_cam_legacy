@@ -4,9 +4,9 @@ RX cmd {"id":1000521,"c":"trg","v":2,"kv":{"r":[768,432,3072,1728],"m":100,"e":-
 W sub spotter/utc-time
 RX utc 2026-09-24T21:00:00+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 21:00:00
-W tx.02 <WS v=1 a=cap cfg=78b2c9ad up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=3cb20f4d up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T21:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto --ev -1 -o {TMP}/images/2026-09-24T21:00:00Z_image_native_full.jpg
-W tx.02 <START IMG> filename: 2026-09-24T21:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T21:00:00Z, length: 86, key=0dq7o0, cfg=78b2c9ad, tg=1000521, r=3072x1728+768+432, m=100, fmt=pjpg, q=20, att=9, cmp=1, rk=1000x562, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T21:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T21:00:00Z, length: 86, key=0dq7o0, cfg=3cb20f4d, tg=1000521, r=3072x1728+768+432, m=100, fmt=pjpg, q=20, att=9, cmp=1, rk=1000x562, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, sf=20981, sp=29\x0a
 W tx.02 <I0dq7o0.0/86>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDACgcHiMeGSgjISMtKygwPGRBPDc3PHtYXUlkkYCZlo+AjIqgtObDoKrarYqMyP/L2u71////m8H////6/+b9//j/2wBDASstLTw1PHZBQXb4pYyl+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj/wgARCAIyA+gDASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAAeKyyAAWUAAoiWWiyFyqoKgsC2AAAAAAAAABZSkiwALFJqBYGgsiWEs6ZzVgQgWA\x0a
 W tx.02 <I0dq7o0.1/86>KAJSiKUysoEABQABqICNDLUqAASwoAAAAAAAMpRNQgFCxCoKgqUsAAABVJVjLUIKazYsCLRUJKI0MtwlmjKwAWUFCwttl5tZGbLFCKJKIsAoBKIC2DUSAqoKAAAC2ItyLECgSgAAAAAAAAAMggAFgssAAFgqUAAWahVWVIEpLEqDUgVRKUow65TFsNRAACgQG8bNSJY7Q5S5sIFg2zVQSTQysrTKCgsqwAAAKlFiLCqIqCyAKAAAFIAAAAAADJAsAAAAAAFgWC2ahRUZNSEqCgaRbEKgISpS3IqDTOiLkazos1zKlLYCDckWwSNZACwFIBFqUgUSiEKKAAWBc6ALKiNZAoWIoiqiiKiUABAKAAAjUiTeTLUqLAogAAAFlGpY\x0a
 W tx.02 <I0dq7o0.2/86>RVZ1CKSNUzaXMsRYFgKFQqCpSyxYVJvOhjWRZoSiy4KgWUQAAFUiBYKQEFgssKKAAAWCgtiVBFAAUl2MNjE7Q5NDIEsAoAACLJUodOekzOuTNkEsAoABVihVAshLKqQ3JTMtSSiKAANSCApCpRZS5sFgbuFISywAFJdlyoZ2ObWUllBCgQLAWWgAAAKIFDpTF2MbmS4zV6ayjTORcWzVxS87C2aMkKaMrTLQ5LBQusVWbCyxJVMqIKAu8WFlVAKJYFdU553hYEus0shbNaTndQyABKJQAAFBVzq0mNwy3ozemYyyLEqyCpSBC0w1CLAC6miTQxaMrAKtnSFDWco3GREqagAp1OL04OLeCAWAABYKDmAACpSkEoiwAWUqFpCp\x0a
@@ -95,12 +95,12 @@ W tx.02 <I0dq7o0.84/86>fadfgNj3qIXrLB2c/kyfxT6LhQUVRfmLY+XglYuFudxa7SnZT0alz+4f5
 W tx.02 <I0dq7o0.85/86>AGTaE7/UOWkIzxNMdfqafubMZt+0dH3zaJgUj/Z8WJ/SOcsz/h/N/an9n4E3/XB3N/6mATyzT9Td9xNC8VGdJhOiO+CENkyN5iSwayTLgPxJu4OTjb4//9k=\x0a
 W tx.02 <END IMG> filename: 2026-09-24T21:00:00Z_image_compressed.jpg, uart_duration_sec: 113.1, sent_buffers: 86, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000522,"c":"get","k":["r","m"]}
-W printf [bmcam-golden] OK id=1000521 trg 2 armed: capture + output per mode (next decision point); one action only: still.crop=768,432,3072,1728, still.message_cap=100, camera.exposure.ev=-1.0 cfg=78b2c9ad
-W printf [bmcam-golden] OK id=1000522 get r, m: 2 key(s) cfg=78b2c9ad
+W printf [bmcam-golden] OK id=1000521 trg 2 armed: capture + output per mode (next decision point); one action only: still.crop=768,432,3072,1728, still.message_cap=100, camera.exposure.ev=-1.0 cfg=3cb20f4d
+W printf [bmcam-golden] OK id=1000522 get r, m: 2 key(s) cfg=3cb20f4d
 W printf   still.crop = 1504,846,1600,900 (yaml)
 W printf   still.message_cap = 195 (yaml)
-W tx.02 {"id":1000521,"ok":1,"h":"78b2c9ad"}
-W tx.02 {"id":1000522,"ok":1,"h":"78b2c9ad"}
-W tx.02 <CF v=1 h=78b2c9ad still.crop=1504,846,1600,900 still.message_cap=195>
+W tx.02 {"id":1000521,"ok":1,"h":"3cb20f4d"}
+W tx.02 {"id":1000522,"ok":1,"h":"3cb20f4d"}
+W tx.02 <CF v=1 h=3cb20f4d still.crop=1504,846,1600,900 still.message_cap=195>
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

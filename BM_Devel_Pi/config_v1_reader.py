@@ -356,6 +356,8 @@ def read_v1(config_path):
         v["still.raw.encode_max_s"] = int(sr["encode_max_s"])
         v["still.raw.keep_crop"] = bool(sr["keep_crop"])
         v["still.raw.effort"] = int(sr["effort"])
+        v["still.raw.target_fill"] = float(sr["target_fill"])
+        v["still.raw.d_max"] = float(sr["d_max"])
 
     # ---- commands (PyYAML, with its own quoted-string traps) ----------------
     bmc_raw = raw.get("bm_commands") if isinstance(raw.get("bm_commands"), dict) else {}

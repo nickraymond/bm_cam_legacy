@@ -5,9 +5,9 @@ RX cmd {"id":7,"c":"ping"}
 W sub spotter/utc-time
 RX utc 2026-09-24T15:00:00+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 15:00:00
-W tx.02 <WS v=1 a=cap cfg=286cefd3 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=4ed6ff24 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg
-W tx.02 <START IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T15:00:00Z, length: 169, key=0dpr00, cfg=286cefd3, fmt=pjpg, q=50, att=5, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T15:00:00Z, length: 169, key=0dpr00, cfg=4ed6ff24, fmt=pjpg, q=50, att=5, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
 W tx.02 <I0dpr00.0/169>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAIyA+gDASIAAhEBAxEB/8QAGQAAAwEBAQAAAAAAAAAAAAAAAAECAwQF/8QAFwEBAQEBAAAAAAAAAAAAAAAAAAECA//aAAwDAQACEAMQAAAB4FcayAqYAVNQJggCqShNVSbmKeTpuQsgGgKqAGIABtME0CYIYIABghiDKKEp\x0a
 W tx.02 <I0dpr00.1/169>XKYNBSLJqWNxULQpaiHENTXVlkxIVlJKm4qE0U0IblpRShjZCqaExAAALRpwmIpGpmMJNVGRpNSMEmUgAAAGAEAAxAAAmqoCMXIrVohip1LipEDQMQNyFksQMAAABlAU5czSSBqw1hxpmCyW0LIlUjsk0DM3gm5shaQAINIuCXazTmLd3LyvXGx5NUNqyVqGStElKkAAgE2SAU5pLSUAnTJZUsBDFSYADuSWqzUaZtUikAKxDBJgAAMENAACYAAAAAYjFQAJoYmOakYACKYEMQMTBphU6DbrOkNQgkJFqUkJrMiqi4SsJdkYLsyrC3NmglKknYNBYEJSLW+G0bRDlk9DKOONMNxiVjEzcxvNIHpmaJITVWSKhuRUKmgRNAxA\x0a
 W tx.02 <I0dpr00.2/169>wBiY6SluGqpokshrSgExWMTAAAABiABMEDEADQNAABiAoAAAJgIAABoGAAAADqdYLCUh5LooLLlBQA9BQ5UlmbpyIbmiqzRo8maqNIU3kj0z1Kz155QT1L0zcqcB0xnMtQyxLTOkMsBqBpqJyjkqpbZLVDmiJHINFACDQOpZNTajAaZCLgEFgOlltCGIhgikJgDThyIE1QmAAABL1jOs46IrIsshMEUEjBAAAMTAGPRPNEqDPREDKTujK9JjNOaGimIGqIKUlvMiyWaRUCc1Yt8tYMNcldRsKKC5vniknoqTCQABBMHTJVKVNoLSCQEBA01TAABAYAAVLViZo5WdOQuSkFIBD0Ie9RzHQHOu2DlWysxbQkykmCAAAACRmdKW\x0a
@@ -184,12 +184,12 @@ W tx.02 <I0dpr00.168/169>blDCWWrBuaXBidQmVFi5gKVZNeo8XnOfuEy1mAsrIY9RWueJ9RI0OK1
 W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_duration_sec: 221.0, sent_buffers: 169, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000503,"c":"help"}
 RX cmd {"id":1000507,"c":"get","k":["mode","r"]}
-W printf [bmcam-golden] OK id=1000501 still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action) cfg=286cefd3
-W printf [bmcam-golden] OK id=7 ping cfg=286cefd3
-W printf [bmcam-golden] OK id=1000502 ping cfg=286cefd3
-W printf [bmcam-golden] REJECTED id=1000505 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=286cefd3
-W printf [bmcam-golden] REJECTED id=1000506 unknown command 'roi' e=cmd cfg=286cefd3
-W printf [bmcam-golden] OK id=1000503 help (reference follows) cfg=286cefd3
+W printf [bmcam-golden] OK id=1000501 still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action) cfg=4ed6ff24
+W printf [bmcam-golden] OK id=7 ping cfg=4ed6ff24
+W printf [bmcam-golden] OK id=1000502 ping cfg=4ed6ff24
+W printf [bmcam-golden] REJECTED id=1000505 manual white balance needs camera.white_balance.gains [red, blue] e=xk k=camera.white_balance.mode cfg=4ed6ff24
+W printf [bmcam-golden] REJECTED id=1000506 unknown command 'roi' e=cmd cfg=4ed6ff24
+W printf [bmcam-golden] OK id=1000503 help (reference follows) cfg=4ed6ff24
 W printf v9 commands: bm pub bmcam/cmd <json> 1 1   (json <= 248 B)
 W printf ping   {"id":N,"c":"ping"}   help {"id":N,"c":"help"}
 W printf get    {"id":N,"c":"get","k":["<key, short or group>",...]}  "journal" = last changes
@@ -201,20 +201,20 @@ W printf hld    {"id":N,"c":"hld","v":<min>}  stay awake (0 releases)
 W printf rsd    heals (unchanged)   wap {"v":0-2} WiFi (unchanged)
 W printf short: b=camera.white_balance.mode d=video.send.duration_s e=camera.exposure.ev f=camera.focus.mode med=mode.media o=mode.output r=still.crop m=message cap of the media
 W printf ids: 1-99999 console | 1e5- heals | 1e6-99999999 remote (+cellular ack) | 1e8- signed service | 2e9- conductor
-W printf [bmcam-golden] OK id=1000507 get mode, r: 6 key(s) cfg=286cefd3
+W printf [bmcam-golden] OK id=1000507 get mode, r: 6 key(s) cfg=4ed6ff24
 W printf   mode.media = still (yaml)
 W printf   mode.run = per_boot (yaml)
 W printf   mode.interval_s = 0 (yaml)
 W printf   mode.heartbeat_s = 300 (yaml)
 W printf   mode.output = transmit (yaml)
 W printf   still.crop = 768,432,3072,1728 (cmd 1000501)
-W tx.02 {"id":1000501,"ok":1,"h":"286cefd3"}
-W tx.02 <CF v=1 h=286cefd3 still.crop=768,432,3072,1728@c1000501>
-W tx.02 {"id":1000502,"ok":1,"h":"286cefd3"}
-W tx.02 {"id":1000505,"ok":0,"h":"286cefd3","e":"xk","k":"camera.white_balance.mode"}
-W tx.02 {"id":1000506,"ok":0,"h":"286cefd3","e":"cmd"}
-W tx.02 {"id":1000503,"ok":1,"h":"286cefd3"}
-W tx.02 {"id":1000507,"ok":1,"h":"286cefd3"}
-W tx.02 <CF v=1 h=286cefd3 mode.media=still mode.run=per_boot mode.interval_s=0 mode.heartbeat_s=300 mode.output=transmit still.crop=768,432,3072,1728@c1000501>
+W tx.02 {"id":1000501,"ok":1,"h":"4ed6ff24"}
+W tx.02 <CF v=1 h=4ed6ff24 still.crop=768,432,3072,1728@c1000501>
+W tx.02 {"id":1000502,"ok":1,"h":"4ed6ff24"}
+W tx.02 {"id":1000505,"ok":0,"h":"4ed6ff24","e":"xk","k":"camera.white_balance.mode"}
+W tx.02 {"id":1000506,"ok":0,"h":"4ed6ff24","e":"cmd"}
+W tx.02 {"id":1000503,"ok":1,"h":"4ed6ff24"}
+W tx.02 {"id":1000507,"ok":1,"h":"4ed6ff24"}
+W tx.02 <CF v=1 h=4ed6ff24 mode.media=still mode.run=per_boot mode.interval_s=0 mode.heartbeat_s=300 mode.output=transmit still.crop=768,432,3072,1728@c1000501>
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

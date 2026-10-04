@@ -275,7 +275,8 @@ def _n(value):
 
 
 STILL_RAW_KEYS = ("still.format", "still.raw.distances", "still.raw.encode_max_s",
-                  "still.raw.keep_crop", "still.raw.effort")
+                  "still.raw.keep_crop", "still.raw.effort", "still.raw.target_fill",
+                  "still.raw.d_max")
 
 
 def _still_raw_lines(v):
@@ -290,7 +291,9 @@ def _still_raw_lines(v):
             f"  distances: {_q(dist)}",
             f"  encode_max_s: {_n(v['still.raw.encode_max_s'])}",
             f"  keep_crop: {_n(v['still.raw.keep_crop'])}",
-            f"  effort: {_n(v['still.raw.effort'])}"]
+            f"  effort: {_n(v['still.raw.effort'])}",
+            f"  target_fill: {_n(float(v['still.raw.target_fill']))}",
+            f"  d_max: {_n(float(v['still.raw.d_max']))}"]
 
 
 def render_v1_text(values):

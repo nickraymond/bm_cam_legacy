@@ -40,11 +40,12 @@
       76818,
       76818
      ],
-     "seconds": 6.4
+     "seconds": 6.4,
+     "step": "rung"
     }
    ],
    "bytes": 3300,
-   "detail": "no rung of [0.1] fits (cap 195, reserve 0)",
+   "detail": "nothing fits (cap 195, reserve 0, 1 encode(s))",
    "distance": null,
    "fmt": "pjpg",
    "kept_crop": null,
@@ -95,12 +96,12 @@
    "sha256": "dc98097edc93bbc5"
   },
   "camera_config.lkg.json": {
-   "bytes": 3309,
+   "bytes": 3360,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2539,
-   "sha256": "d211097344dcf6e1"
+   "bytes": 2576,
+   "sha256": "1ba0af18ba649d79"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -111,8 +112,8 @@
    "sha256": "4a6b67539f0bec6a"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2353,
-   "sha256": "311918c2ba7b3446"
+   "bytes": 2357,
+   "sha256": "b86753aa88664a4b"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
@@ -135,8 +136,8 @@
    "sha256": "8a738f40007d31fe"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2323,
-   "sha256": "734384881133a46a"
+   "bytes": 2356,
+   "sha256": "5bf342b7b36879f6"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 203,
@@ -152,7 +153,7 @@
   "numpy",
   "yaml"
  ],
- "notes": "one rung at d=0.1 (near-lossless model, ~307 kB) is over the 195 cap: pjpg rfb=fit",
+ "notes": "search off (target_fill 0 = the fixed rungs only): one rung at d=0.1 (near-lossless model, ~307 kB) is over the 195 cap: pjpg rfb=fit",
  "scenario": "v9_nrjxl_rfb_fit",
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
@@ -276,7 +277,7 @@
     96
    ],
    "planned_buffers": 12,
-   "raw_detail": "no rung of [0.1] fits (cap 195, reserve 0)",
+   "raw_detail": "nothing fits (cap 195, reserve 0, 1 encode(s))",
    "raw_rfb": "fit",
    "sd_free_bytes": 22000000000,
    "sd_total_bytes": 31000000000,

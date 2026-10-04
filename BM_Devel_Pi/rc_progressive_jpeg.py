@@ -415,7 +415,8 @@ def _raw_begin(settings, native_path, output_dir):
         rc_raw_jxl.sweep_orphans(output_dir)
     if not rc_raw_jxl.enabled(cfg):
         return None
-    print(f"[RAW] still.format=nrjxl: distances={cfg['distances']} effort={cfg['effort']} "
+    print(f"[RAW] still.format=nrjxl: target_fill={cfg['target_fill']} d_max={cfg['d_max']} "
+          f"distances={cfg['distances']} effort={cfg['effort']} "
           f"encode_max_s={cfg['encode_max_s']} keep_crop={cfg['keep_crop']} "
           f"crop={list(settings['crop_native_xywh'])} (native px)")
     return {"cfg": cfg, "rfb": None, "detail": None, "dng": None, "metadata": None}

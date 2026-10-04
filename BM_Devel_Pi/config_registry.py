@@ -43,7 +43,8 @@ REGISTRY_VERSION = 8          # bump when a key is added/removed/retyped (2: com
                               #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11;
                               # 6: camera.image_processing.* measured ranges / enums, Sprint27;
                               # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4;
-                              # 8: still.format + still.raw.* (nrjxl RAW stills), Sprint28 S1)
+                              # 8: still.format + still.raw.* (nrjxl RAW stills; incl. the
+                              #    byte-target search keys target_fill / d_max), Sprint28 S1)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -310,6 +311,18 @@ KEYS = (
     Key("still.raw.effort", INT, 5, "nrjxl: cjxl effort (5 = the setting measured on the "
         "Pi Zero 2 W).", range=(1, 7), v1_sources=("still_raw.effort",),
         validate_when=_MEDIA_STILL),
+    # Byte-target search (Nick 2026-10-03, rig PR #89 PROPOSAL_byte_target.md): the camera
+    # picks the best quality that fills this share of the wake's room (min(message_cap,
+    # budget) - START/END - heals); measured fill 94-99 % on nereus002. 0 = the fixed
+    # still.raw.distances only.
+    Key("still.raw.target_fill", FLOAT, 0.97, "nrjxl: fill this share of the wake's message "
+        "room (best quality that fits); 0 = only try still.raw.distances.", range=(0.0, 1.0),
+        v1_sources=("still_raw.target_fill",), validate_when=_MEDIA_STILL),
+    # ASSUMPTION to re-check on the R4/O1 field frames: 10.4 = where card-area SSIM vs RAW
+    # met today's pjpg on ONE indoor scene (rig 2026-10-03).
+    Key("still.raw.d_max", FLOAT, 10.4, "nrjxl: quality floor: if the room needs a JPEG XL "
+        "distance above this, send today's JPEG (START rfb=floor).", range=(0.1, 15.0),
+        v1_sources=("still_raw.d_max",), validate_when=_MEDIA_STILL),
 
     # ---- video: recording (clip source and the continuous recorder) ---------
     Key("video.record.framing", STR, None, "Named geometry preset (video_geometry.PRESETS); "

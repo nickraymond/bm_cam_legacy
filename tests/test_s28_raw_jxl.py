@@ -350,7 +350,9 @@ def _runner(sizes=None, kinds=None, seconds=1.0, log=None):
 
 
 class RungWalk(unittest.TestCase):
-    CFG = dict(X.DEFAULT_CONFIG, format="nrjxl", distances=[3.8, 4.6, 5.95, 8.25])
+    """still.raw.target_fill = 0: the fixed rungs only (the r4 rate control)."""
+    CFG = dict(X.DEFAULT_CONFIG, format="nrjxl", distances=[3.8, 4.6, 5.95, 8.25],
+               target_fill=0.0)
 
     def encode(self, runner, budget=None, cfg=None, **kw):
         with tempfile.TemporaryDirectory() as d:
@@ -471,6 +473,159 @@ class RungWalk(unittest.TestCase):
         self.assertEqual(X.message_count(50_000, 384), 174)
         self.assertEqual(X.message_count(56_100, 384), 195)
         self.assertEqual(X.message_count(50_000, 300), 223)
+
+
+def _law(a, k, seconds=1.0, log=None, override=None):
+    """Fake cjxl whose plane bytes follow a power law a * d ** -k (override(d) -> bytes
+    replaces it when it returns a number)."""
+    def run(cmd, *, timeout_s, stdout_path, stderr_path):
+        d = float(cmd[cmd.index("-d") + 1])
+        if log is not None:
+            log.append(d)
+        n = override(d) if override else None
+        n = int(a * d ** -k) if n is None else int(n)
+        with open(cmd[2], "wb") as fh:
+            fh.write(b"\xff\x0a" + b"x" * n)
+        return {"rc": 0, "kind": "ok", "seconds": seconds, "peak_rss_kb": 31000}
+    return run
+
+
+class Search(unittest.TestCase):
+    """The byte-target search (Nick 2026-10-03; rig PR #89 PROPOSAL_byte_target.md)."""
+    CFG = dict(X.DEFAULT_CONFIG, format="nrjxl")
+    ROOM_195 = 3 * ((195 * 384) // 4)                    # 56 160 B: the 195-chunk room
+
+    def encode(self, runner, budget=None, cfg=None, **kw):
+        with tempfile.TemporaryDirectory() as d:
+            return X.encode_still(MINI, META, cfg or self.CFG, crop_xywh=[0, 0, 160, 96],
+                                  budget=budget or Budget(), message_cap=kw.pop("cap", 195),
+                                  chunk_b64_chars=384, work_dir=os.path.join(d, "w"),
+                                  cjxl="/usr/bin/cjxl", runner=runner, log=lambda *_: None, **kw)
+
+    def test_defaults(self):
+        self.assertEqual((X.DEFAULT_CONFIG["target_fill"], X.DEFAULT_CONFIG["d_max"]), (0.97, 10.4))
+        self.assertEqual(R.BY_PATH["still.raw.target_fill"].range, (0.0, 1.0))
+        self.assertEqual(R.BY_PATH["still.raw.d_max"].range, (0.1, 15.0))
+
+    def test_fills_the_cap_in_at_most_3_encodes_for_any_slope(self):
+        for a, k in ((3000, 0.8), (3000, 0.5), (3000, 1.0), (3000, 1.5), (40000, 0.8), (500, 1.2),
+                     (40000, 0.5), (90000, 1.5), (12000, 1.0)):
+            res = self.encode(_law(a, k))
+            fill = res["message_count"] / 195
+            self.assertLessEqual(res["message_count"], 195, (a, k))
+            self.assertLessEqual(res["attempts"], X.SEARCH_MAX_ENCODES, (a, k))
+            if res["distance"] > X.DIST_RANGE[0]:     # else: best quality allowed already fits
+                self.assertGreaterEqual(len(res["blob"]), 0.93 * self.ROOM_195, (a, k, fill))
+            self.assertEqual(res["rate_mode"], "search")
+            X.unpack_container(res["blob"])
+
+    def test_the_target_is_this_wakes_room_not_the_cap(self):
+        # 100 s left at 1.3 s/msg = 76 msgs - START/END = 74 < cap 195 (condition 1)
+        res = self.encode(_law(3000, 0.8), budget=Budget(remaining=100.0))
+        self.assertLessEqual(res["message_count"], 74)
+        self.assertGreaterEqual(res["message_count"], 66)
+        # ... and the heal reserve comes off it too
+        res = self.encode(_law(3000, 0.8), budget=Budget(remaining=100.0), reserve_msgs=30)
+        self.assertLessEqual(res["message_count"], 44)
+        self.assertGreaterEqual(res["message_count"], 38)
+
+    def test_quality_floor_after_one_overshoot(self):
+        log = []
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_law(2_000_000, 0.8, log=log), cfg=dict(self.CFG, d_max=0.5))
+        self.assertEqual(cm.exception.code, "floor")
+        self.assertEqual(len(log), 2 * 4)        # d 0.1 overshoots, d_max 0.5 measured: floor
+        self.assertEqual(log[-1], 0.5)
+        self.assertIn("d_max 0.5", cm.exception.detail)
+
+    def test_a_plan_past_d_max_is_measured_before_the_floor(self):
+        # steep scene (k 1.5): the one-point correction overshoots to d 15, but d 3.5 fits
+        log = []
+        res = self.encode(_law(90000, 1.5, log=log))
+        self.assertEqual(res["rate_mode"], "search")
+        self.assertIn(10.4, log)                 # d_max was measured, not assumed
+        self.assertLess(res["distance"], 10.4)
+
+    def test_a_crop_too_large_for_the_room_floors_after_one_encode_at_d_max(self):
+        crop = X.read_dng_crop(MINI, [0, 0, 160, 96])
+        log = []
+        with tempfile.TemporaryDirectory() as d:
+            walk = X._Walk(crop, X.code_planes(crop), X.colour_params(META), self.CFG,
+                           crop_xywh=[0, 0, 3072, 1728], budget=Budget(), message_cap=195,
+                           chunk_b64_chars=384, reserve_msgs=0, fallback_msgs=0, work_dir=d,
+                           cjxl="/x", runner=_law(200_000, 0.8, log=log), clock=lambda: 0.0,
+                           log=lambda *_: None)
+            with self.assertRaises(X.RawFallback) as cm:
+                X.target_search(walk)
+        self.assertEqual((cm.exception.code, log), ("floor", [10.4] * 4))
+
+    def test_no_fit_in_the_search_walks_the_fixed_rungs_above_it(self):
+        log = []
+        too_big = 0.5 * self.ROOM_195            # per plane: x4 = 2x the room, whatever d < 3
+        res = self.encode(_law(1, 1, log=log, override=lambda d: too_big if d < 3 else 2000))
+        self.assertEqual(res["rate_mode"], "rungs")
+        self.assertEqual(res["distance"], 3.8)
+        self.assertEqual(len(log), 4 * 4)        # (3 search encodes + the first rung) x 4 planes
+        self.assertTrue(all(d < 3 for d in log[:12]))
+
+    def test_target_fill_0_is_the_rungs_only(self):
+        log = []
+        res = self.encode(_law(3000, 0.8, log=log), cfg=dict(self.CFG, target_fill=0.0))
+        self.assertEqual((res["rate_mode"], log[0]), ("rungs", 3.8))
+
+    def test_no_room_is_fit(self):
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_law(3000, 0.8), budget=Budget(remaining=2.0))
+        self.assertEqual(cm.exception.code, "fit")
+
+    def test_a_fit_that_no_longer_fits_is_dropped(self):
+        crop = X.read_dng_crop(MINI, [0, 0, 160, 96])
+        budget = Budget(remaining=480.0)
+        with tempfile.TemporaryDirectory() as d:
+            walk = X._Walk(crop, X.code_planes(crop), X.colour_params(META), self.CFG,
+                           crop_xywh=[0, 0, 160, 96], budget=budget, message_cap=195,
+                           chunk_b64_chars=384, reserve_msgs=0, fallback_msgs=0, work_dir=d,
+                           cjxl="/x", runner=_law(10000, 1.0), clock=lambda: 0.0,
+                           log=lambda *_: None)
+            entry, ok = walk.attempt(1.0, "t")
+            self.assertTrue(ok)
+            budget.left = (entry["message_count"] + 1) * 1.3       # no longer room for it
+            self.assertEqual(walk.valid_fits(), [])
+            self.assertIsNone(walk.result("search"))
+
+    def test_room_bytes_inverts_message_count(self):
+        crop = X.read_dng_crop(MINI, [0, 0, 160, 96])
+        walk = X._Walk(crop, {}, {}, self.CFG, crop_xywh=[0, 0, 160, 96], budget=Budget(),
+                       message_cap=195, chunk_b64_chars=384, reserve_msgs=0, fallback_msgs=0,
+                       work_dir="/x", cjxl="/x", runner=None, clock=lambda: 0.0,
+                       log=lambda *_: None)
+        for m in range(1, 400):
+            self.assertLessEqual(X.message_count(walk.room_bytes(m), 384), m)
+            self.assertGreater(X.message_count(walk.room_bytes(m) + 3, 384), m)
+
+    def test_island_and_render_carry_the_search_keys(self):
+        text = config_v2.render_v1_text(_still(**{"still.format": "nrjxl",
+                                                  "still.raw.d_max": 9.5}))
+        self.assertIn("  target_fill: 0.97\n  d_max: 9.5\n", text)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "c.yaml")
+            with open(path, "w") as fh:
+                fh.write(text)
+            cfg = X.load_raw_config(path)
+            self.assertEqual((cfg["target_fill"], cfg["d_max"]), (0.97, 9.5))
+            for bad in ("target_fill: 1.5", "d_max: 0.05", "d_max: x"):
+                with open(path, "w") as fh:
+                    fh.write(f"still_raw:\n  {bad}\n")
+                with self.assertRaises(ValueError, msg=bad):
+                    X.load_raw_config(path)
+        self.assertNotIn("still_raw:", config_v2.render_v1_text(_still()))
+
+    def test_floor_is_a_wire_code(self):
+        self.assertIn("floor", U.RAW_FALLBACK_CODES)
+        self.assertIn("floor", X.RFB_CODES)
+        msg = U.build_rc_start_message("a_compressed.jpg", "t", 12, quality=13, enc_attempts=4,
+                                       complete=True, rfb="floor")
+        self.assertIn("cmp=1, rfb=floor", msg)
 
 
 class _StepClock:

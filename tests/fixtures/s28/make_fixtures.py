@@ -109,7 +109,10 @@ def main(argv=None):
     print(f"[FIX] mini.dng {os.path.getsize(dng)} B, windows {list(oracle)}")
 
     # ---- production blobs ------------------------------------------------
-    cfg = dict(R.DEFAULT_CONFIG, format="nrjxl")
+    # The committed blobs were built with the fixed rungs (pre byte-target search); pin that
+    # so a re-run reproduces them byte for byte (the backend copied them by sha256).
+    cfg = dict(R.DEFAULT_CONFIG, format="nrjxl", distances=[3.8, 4.6, 5.95, 8.25],
+               target_fill=0.0)
     blobs = {}
     for folder, stem in BLOB_FRAMES:
         dpath = os.path.join(args.data, folder, stem + ".dng")
