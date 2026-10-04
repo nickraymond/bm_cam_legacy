@@ -146,7 +146,7 @@ def main():
 <tr><th>Battery</th><td>{esc(b.get('v'))} V · {esc(b.get('w'))} W · input {esc(b.get('vin'))} V · RH {esc(b.get('rh'))} % <small>(Sofar, {age_txt(b.get('at'), now)})</small></td></tr>
 <tr><th>BM bus (on)</th><td>{esc(ss.get('bus_v_on'))} V <small>({age_txt(ss.get('bus_v_at'), now)})</small></td></tr>
 <tr><th>Camera wake</th><td>{esc(ss.get('last_wake'))}</td></tr>
-<tr><th>Camera CPU</th><td>{(esc(ss.get('ws_ct')) + ' °C <small>(' + ('after-burst &lt;END&gt;' if ss.get('ws_src') == 'END' else 'boot-time &lt;WS&gt;') + ', ' + esc((ss.get('ws_at') or '')[11:19]) + 'Z)</small>') if ss.get('ws_ct') is not None else '— <small>(no &lt;WS&gt; heartbeat decoded yet)</small>'}</td></tr>
+<tr><th>Camera CPU</th><td>{(esc(ss.get('ws_ct')) + ' °C <small>(' + (('&lt;END&gt;' + ((', sensor ' + esc(ss['ws_src'].split('stemp ')[1]) + ' °C') if 'stemp ' in ss['ws_src'] else '')) if (ss.get('ws_src') or '').startswith('END') else 'boot-time &lt;WS&gt;') + ', ' + esc((ss.get('ws_at') or '')[11:19]) + 'Z)</small>') if ss.get('ws_ct') is not None else '— <small>(no &lt;WS&gt; heartbeat decoded yet)</small>'}</td></tr>
 </table>
 <h3>Charger thermal timeline <small>(console ChargerErrorState; flaps &lt; 2 min merged; hours per UTC day)</small></h3>
 <div>fault hours: {', '.join(f"{esc(d)} <b>{h:.2f} h</b>" for d, h in sorted((ss.get('charger_fault_h') or {}).items())) or 'none in the last 2 days'}</div>

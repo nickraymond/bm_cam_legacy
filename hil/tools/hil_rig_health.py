@@ -185,9 +185,11 @@ def ws_temps(lines):
             w = re.search(r"<WS [^>]*?ct=([\d.]+)[^>]*?hn=(\w+)", txt)
             if w:
                 out.append((hdr_t, float(w.group(1)), "WS"))
-            e = re.search(r"<END [^>]*?\b(?:ct|cpu_temp_c)=([\d.]+)", txt)  # bm #122: temp read after the burst
+            # END carries `cpu_temp_c: 36.5, … stemp: 29` (key: value) on every transmitting wake; bm #122 moves the
+            # cpu read to after the burst (peak). stemp = camera sensor temperature.
+            e = re.search(r"<END[^>]*>.*?\bcpu_temp_c:\s*([\d.]+)(?:.*?\bstemp:\s*([\d.]+))?", txt)
             if e:
-                out.append((hdr_t, float(e.group(1)), "END"))
+                out.append((hdr_t, float(e.group(1)), "END" + (f" stemp {e.group(2)}" if e.group(2) else "")))
             buf = []
         hdr_t = ln[:20] if "[BM_TX]" in ln and "Message:" in ln else None
     return out
