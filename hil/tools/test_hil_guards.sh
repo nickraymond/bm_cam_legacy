@@ -44,6 +44,7 @@ expect "deploy refuses bmcam001"   5 0 "$T/hil_deploy_unit.sh" bmcam001 x
 expect "refresh refuses SPOT-33361C" 5 0 "$T/hil_refresh.sh" BMCAM_003 SPOT-33361C
 expect "restore_schedule refuses SPOT-33361C" 5 0 "$T/hil_restore_schedule.sh" SPOT-33361C
 expect "bridge_phase refuses SPOT-33361C" 5 0 "$T/hil_bridge_phase.sh" SPOT-33361C utc
+expect "bus_always_on refuses SPOT-33361C" 5 0 "$T/hil_bus_always_on.sh" SPOT-33361C
 expect "wake_report refuses SPOT-33361C" 5 0 "$T/hil_wake_report.sh" SPOT-33361C 2026-10-02T22:00
 expect "p0 refuses bmcam001"       5 0 "$T/hil_p0_probe.sh" bmcam001 "$W/p0"
 # positive controls: a real rig passes the guard and reaches the (fake) network
