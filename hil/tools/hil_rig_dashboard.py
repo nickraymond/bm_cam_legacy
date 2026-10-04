@@ -134,7 +134,7 @@ def main():
 <tr><th>Battery</th><td>{esc(b.get('v'))} V · {esc(b.get('w'))} W · input {esc(b.get('vin'))} V · RH {esc(b.get('rh'))} % <small>(Sofar, {age_txt(b.get('at'), now)})</small></td></tr>
 <tr><th>BM bus (on)</th><td>{esc(ss.get('bus_v_on'))} V <small>({age_txt(ss.get('bus_v_at'), now)})</small></td></tr>
 <tr><th>Camera wake</th><td>{esc(ss.get('last_wake'))}</td></tr>
-<tr><th>Camera CPU</th><td>{esc(ss.get('ws_ct'))} °C <small>(boot-time &lt;WS&gt;, {esc((ss.get('ws_at') or '')[11:19])}Z)</small></td></tr>
+<tr><th>Camera CPU</th><td>{(esc(ss.get('ws_ct')) + ' °C <small>(boot-time &lt;WS&gt;, ' + esc((ss.get('ws_at') or '')[11:19]) + 'Z)</small>') if ss.get('ws_ct') is not None else '— <small>(no &lt;WS&gt; heartbeat decoded yet)</small>'}</td></tr>
 </table>
 <h3>BM nodes heard on this bus <small>(console power lines; names from the bridge config of {esc((net_at or '?')[:16])})</small></h3>
 <table class="grid"><tr><th>node</th><th>role</th><th>V</th><th>I</th><th>last</th></tr>{rows or '<tr><td colspan=5>none in the last log window</td></tr>'}</table>
