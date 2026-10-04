@@ -1,0 +1,20 @@
+2026-10-04T04:26:49Z run created for C1 units: bmcam004
+2026-10-04T04:26:49Z Nick in the Test Engineer chat (2026-10-03 21:2x PDT), answering my scoped question: "Yes, full scope" = OK for bridge cfg set/commit on SPOT-31593C for the comms A/B: ticksSamplingEnabled 1 with a timed commit for a :15 bus start, re-commits if a Spotter reset re-phases it, and ticksSamplingEnabled 0 + commit to return to :00 after arm B. (His typed message: "the bmcam004 :15 bus OK in the test engineer's chat".)
+2026-10-04T04:26:49Z C1 phase 1 arm B start: hil_bridge_phase.sh SPOT-31593C ticks 15, commit at 05:14:52Z (lead 8 s) with the Pi halted; first :15 window expected 06:15Z. Fixed config: video (last set 1000060), cap 126, chunk 384, no test commands to BMCAM_004 (hil-r1-cmdres targets BMCAM_003 only), heal auto-send on. Health monitor window_minute for SPOT-31593C → 15 right after the commit.
+2026-10-04T04:32:17Z Also recorded: Nick via EM chat, 2026-10-03 ~13:40 PDT: GO on C1 phase 1 incl. its bridge changes on SPOT-31593C only (ticks 1 + timed commit, re-commits after a reset, restore ticks 0 + commit).
+2026-10-04T14:53:07Z Nick in the TE chat (answer to my scoped question): 'Yes, 90-min :00/:30' = OK to set SPOT-31593C sampleIntervalMs 5400000 (UTC, 10-min window) for C1 alternating arms (:00 report-colliding vs :30 report-clear), one commit now, restore to 3600000 after 10 wakes. Design per EM/Nick: alternate arms 5+5, significance bar in the spec.
+2026-10-04T14:53:24Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-04T14:53:38Z Succesfully sent config set msg
+2026-10-04T14:53:38Z 2026-10-04T14:53:38.906Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 5400000
+2026-10-04T14:53:44Z Succesfully sent config set msg
+2026-10-04T14:53:44Z 2026-10-04T14:53:44.335Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-04T14:53:50Z 2026-10-04T14:53:50.925Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-04T14:53:50Z 2026-10-04T14:53:50.933Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-04T14:53:50Z 2026-10-04T14:53:50.988Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-04T14:53:53Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+34a6222ea94c
+[restore] halt issued 14:54:33
+2026-10-04T14:54:56Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-04T14:55:10Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=5400000 sampleDurationMs=600000 
+2026-10-04T14:55:10Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed

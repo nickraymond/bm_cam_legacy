@@ -351,13 +351,13 @@ def main():
             if cthr and cthr & 0xF: crit.append(f"{sc['host']} throttled {throttle_text(cthr)}")
         R[f"{spot}_cam_temp_c"] = ss.get("cam_temp")
         R[f"{spot}_cam_throttled"] = ss.get("cam_thr")
-        win_start = t.replace(minute=wm, second=0, microsecond=0)
-        if t < win_start:
-            win_start -= datetime.timedelta(hours=1)
+        iv = int(sc.get("interval_min", 60)) * 60  # bridge sampleIntervalMs / 60000 (UTC-aligned windows)
+        epoch = int(t.timestamp())
+        win_start = datetime.datetime.fromtimestamp(epoch - (epoch - wm * 60) % iv, UTC)
         if 9 <= (t - win_start).total_seconds() / 60 < 15 and ss.get("wake_checked") != win_start.isoformat():
             ss["wake_checked"] = win_start.isoformat()
             hh = win_start.strftime("%Y-%m-%dT%H")
-            woke = hh in ss.get("pi_on_hours", [])
+            woke = hh in ss.get("pi_on_hours", [])  # Pi-on evidence is kept per UTC hour (window starts inside it)
             ss["last_wake"] = f"{hh}:{wm:02d} {'ok' if woke else 'MISSED'}"
             if not woke:
                 crit.append(f"{sc['host']} did not wake at {hh[11:]}:{wm:02d}Z (no bus current on {spot})")
