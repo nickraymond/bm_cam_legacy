@@ -24,6 +24,10 @@ import os
 import re
 import socket
 import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hil_rig_timeline  # noqa: E402  (same folder on nereus000)
 
 UTC = datetime.timezone.utc
 RE_PWR = re.compile(r"^(\S+Z) .*?([0-9a-f]{16}), power \| .*voltage: ([-\d.]+), current: ([-\d.]+)")
@@ -164,7 +168,15 @@ def main():
 <title>HIL Rig Status</title>
 <style>
 :root{{--bg:#f6f7f9;--fg:#1d2330;--card:#fff;--mute:#667085;--line:#e3e6eb;--ok:#18794e;--warn:#a35200;--crit:#c4221a}}
-@media (prefers-color-scheme: dark){{:root{{--bg:#12151b;--fg:#e6e9ef;--card:#1b2029;--mute:#98a2b3;--line:#2b3240;--ok:#4cc38a;--warn:#f0a44b;--crit:#ff6b62}}}}
+:root{{--surface:#fcfcfb;--m-cpu:#eb6834;--m-sensor:#4a3aa7;--m-batt:#1baf7a;--m-volt:#2a78d6;--m-wake:#c3c2b7;--m-pion:#52514e;--st-warning:#fab219;--st-serious:#ec835a;--st-critical:#d03b3b;--gridl:#e1e0d9;--axisc:#898781}}
+@media (prefers-color-scheme: dark){{:root{{--bg:#0d0d0d;--fg:#e6e9ef;--card:#1a1a19;--mute:#98a2b3;--line:#2c2c2a;--ok:#4cc38a;--warn:#f0a44b;--crit:#ff6b62;--surface:#1a1a19;--m-cpu:#d95926;--m-sensor:#9085e9;--m-batt:#199e70;--m-volt:#3987e5;--m-wake:#383835;--m-pion:#c3c2b7;--gridl:#2c2c2a}}}}
+.tl text{{font:11px system-ui,sans-serif;fill:var(--axisc)}} .tl .lanet{{font-weight:600;fill:var(--fg);font-size:12px}} .tl .trk{{fill:var(--mute)}}
+.tl .lane{{fill:none;stroke:var(--line)}} .tl .grid{{stroke:var(--gridl);stroke-width:1}} .tl .bandt{{fill:var(--st-serious);font-size:10px}}
+.tl .xmark{{stroke:var(--st-critical);stroke-width:2.5;fill:none}} .tl .ann{{stroke:var(--fg);stroke-dasharray:3 3;stroke-width:1}} .tl .annt{{fill:var(--fg);font-size:10px}}
+.tl .none{{font-style:italic}} .tl .xhair{{stroke:var(--fg);stroke-width:1;opacity:.5}} .tl .xhairt{{fill:var(--fg)}}
+.rng button{{font:inherit;padding:3px 10px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:6px;cursor:pointer}} .rng button.on{{background:var(--fg);color:var(--card)}}
+.lg{{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--mute);margin:6px 0}} .lg i{{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}}
+details>summary{{cursor:pointer;color:var(--mute);margin:14px 0 4px}}
 body{{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}}
 h1{{font-size:20px;margin:0 0 4px}} h2{{font-size:16px;margin:0 0 8px}} h3{{font-size:13px;margin:12px 0 6px;color:var(--mute)}}
 small{{color:var(--mute);font-weight:normal}} code{{font-size:12px}}
@@ -179,6 +191,12 @@ pre{{white-space:pre-wrap;font-size:12px;margin:0}}
 <h1>HIL rig — {esc(socket.gethostname())} {badge(lvl)}</h1>
 <div><small>health run {esc(al.get('ts'))} ({age_txt(al.get('ts'), now)}) · page built {now:%Y-%m-%d %H:%M:%S}Z · refreshes every 60 s · read-only</small></div>
 <section class="card" style="margin-top:12px"><h2>Alerts now</h2><ul>{reasons}</ul></section>
+<section class="card" style="margin-top:12px"><h2 style="display:flex;justify-content:space-between;align-items:center">Rig timeline <span class="rng"><button data-r="6">6 h</button> <button data-r="24">24 h</button> <button data-r="72">3 d</button></span></h2>
+<div class="lg"><span><i style="background:var(--m-cpu)"></i>CPU temp (nereus000, cameras)</span><span><i style="background:var(--m-sensor)"></i>camera image-sensor temp</span><span><i style="background:var(--m-batt)"></i>battery V (LiFePO4, Spotter)</span><span><i style="background:var(--m-volt)"></i>supply / BM bus V</span><span><i style="background:var(--m-wake)"></i>bus window</span><span><i style="background:var(--m-pion)"></i>camera Pi up</span><span><i style="background:var(--st-serious);opacity:.5"></i>charger thermal fault</span><span><i style="background:var(--st-warning)"></i>WARN</span><span><i style="background:var(--st-critical)"></i>CRIT / ✕ Spotter reset or charge mode</span><span>┊ rig event</span></div>
+{''.join(f'<div class="tlw" data-r="{h}"' + ('' if h == 24 else ' style="display:none"') + '>' + f'{hil_rig_timeline.build(a.health_dir, h)}</div>' for h in (6, 24, 72))}
+<small>Hover any mark for its value and time. Each track has its own scale (min/max at left); colours mean the same metric in every lane. Times UTC (PDT = UTC − 7).</small>
+</section>
+<details><summary>Details: tables (USB, Spotters, BM nodes, charger timeline, recent alerts)</summary>
 <div class="row">
 <section class="card"><h2>nereus000 <small>console monitor</small></h2><table class="kv">
 <tr><th>CPU</th><td>{esc(R.get('n000_temp_c'))} °C · throttled <span class="{'ok' if thr in ('0x0', None) else 'crit'}">{esc(thr)}</span></td></tr>
@@ -190,7 +208,27 @@ pre{{white-space:pre-wrap;font-size:12px;margin:0}}
 {''.join(spot_cards)}
 </div>
 <section class="card" style="margin-top:12px"><h2>Recent alerts <small>ALERTS.log</small></h2><pre>{esc(chr(10).join(reversed(alerts_log))) or 'none'}</pre></section>
-</div></body></html>"""
+</details>
+</div>
+<script>
+(function(){{
+  var pick=24; try{{pick=+localStorage.getItem('tlr')||24}}catch(e){{}}
+  function show(r){{document.querySelectorAll('.tlw').forEach(function(d){{d.style.display=(+d.dataset.r===r)?'':'none'}});
+    document.querySelectorAll('.rng button').forEach(function(b){{b.classList.toggle('on',+b.dataset.r===r)}});
+    try{{localStorage.setItem('tlr',r)}}catch(e){{}}}}
+  document.querySelectorAll('.rng button').forEach(function(b){{b.onclick=function(){{show(+b.dataset.r)}}}});
+  show([6,24,72].indexOf(pick)>=0?pick:24);
+  document.querySelectorAll('svg.tl').forEach(function(svg){{
+    var l=svg.querySelector('.xhair'),t=svg.querySelector('.xhairt'),t0=+svg.dataset.t0,t1=+svg.dataset.t1,ml=+svg.dataset.ml,mr=+svg.dataset.mr,w=+svg.dataset.w;
+    svg.addEventListener('mousemove',function(ev){{var r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)*w/r.width;
+      if(x<ml||x>w-mr){{l.style.display=t.style.display='none';return}}
+      var ts=new Date((t0+(x-ml)/(w-ml-mr)*(t1-t0))*1000);l.setAttribute('x1',x);l.setAttribute('x2',x);l.style.display='';
+      t.setAttribute('x',x+4);t.textContent=ts.toISOString().slice(5,16).replace('T',' ')+'Z';t.style.display=''}});
+    svg.addEventListener('mouseleave',function(){{l.style.display=t.style.display='none'}});
+  }});
+}})();
+</script>
+</body></html>"""
     tmp = out + ".tmp"
     open(tmp, "w").write(page)
     os.replace(tmp, out)

@@ -38,6 +38,9 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hil_rig_events import Scanner  # noqa: E402  (same folder on nereus000)
+
 UTC = datetime.timezone.utc
 TH = {  # proposed thresholds (EM / Nick to confirm)
     "pi_warn_c": 70.0, "pi_crit_c": 80.0,
@@ -251,6 +254,11 @@ def main():
         if key not in offs:  # first run on this file: look back ~10 min only
             offs[key] = max(0, (os.path.getsize(p) if os.path.exists(p) else 0) - 3_000_000)
         lines, offs[key] = read_new_console(p, offs[key])
+        new_ev = Scanner(spot, sc["bridge"], st.setdefault("ev_state", {}).setdefault(spot, {})).feed(lines)
+        if new_ev:
+            with open(os.path.join(a.out, "events.jsonl"), "a") as f:
+                for e in new_ev:
+                    f.write(json.dumps(e) + "\n")
         ss = st.setdefault("spot", {}).setdefault(spot, {"charger": "OK"})
         if not ss.get("charger_seeded"):  # first run: the charger state may have changed hours ago
             last = run(["bash", "-c", f"grep -a 'ChargerErrorState changed' {p} | tail -1"], 30)
@@ -359,6 +367,8 @@ def main():
     R["level"] = level
     reasons = crit + warn
     alert = {"ts": R["ts"], "level": level, "reasons": reasons, "readings": R}
+    with open(os.path.join(a.out, "metrics.jsonl"), "a") as f:  # flexible-schema history for the timeline
+        f.write(json.dumps(dict(R, reasons=reasons)) + "\n")
     tmp = os.path.join(a.out, "alerts.json.tmp")
     json.dump(alert, open(tmp, "w"), indent=1); os.replace(tmp, os.path.join(a.out, "alerts.json"))
     csv_path = os.path.join(a.out, "health.csv")
