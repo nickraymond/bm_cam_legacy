@@ -18,3 +18,4 @@
 2026-10-04T14:54:56Z [restore SPOT-31593C/bmcam004] bmcam004 dark
 2026-10-04T14:55:10Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=5400000 sampleDurationMs=600000 
 2026-10-04T14:55:10Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-04T15:02:00Z JPEG-XL readiness (read-only, EM): bmcam003 + bmcam004: cjxl MISSING, numpy 2.2.4, / 25G free of 115G (79% used). R0.4 will need apt-get install libjxl-tools (restore: apt-get remove libjxl-tools).

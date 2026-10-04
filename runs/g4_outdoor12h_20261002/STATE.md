@@ -140,3 +140,15 @@ items immediately; ≤ 5 bullets to Nick.
 | stopped | — | G4 alternator removed; watcher/caffeinate not running |
 
 Never use the Browser pane on LAN hosts (its site prompt blocked this session ~9 h); verify pages with curl.
+
+## 13. Update 2026-10-04 15:05Z (07:05 PDT Sun)
+
+- bm #121 MERGED (development 5ea193a); bmcam003 runs a50636e since 05:01Z. Gate: items 1+4 PASS, 2+3 not exercised.
+  R1G (commands first) counts wakes from 06:00Z; 24 at Mon 05:00Z. Ack-loss test = proposal sent (batch 3 commands).
+- C1 RUNNING: SPOT-31593C sampleIntervalMs 5400000 (UTC) since 14:53:50Z (Nick OK in TE chat): windows alternate
+  :00/:30 from 15:00Z, 10 wakes to 04:30Z Mon, then `hil_restore_schedule.sh SPOT-31593C` (hourly). Significance bar in
+  `hil/gates/C1_comms_reliability.md`. Monitor config interval_min 90 for SPOT-31593C.
+- Dashboard v3 (cards + timeline) live; events.jsonl / metrics.jsonl on nereus000.
+- JPEG-XL next (first free rig = bmcam004 Mon): needs Nick's bridge OK for bus-always-on on SPOT-31593C, apt install
+  libjxl-tools, R0 → #120 (e44dde5) deploy → nrjxl via backend (nvd #83) → first render ≈ Mon noon PDT.
+- Never block: ask Nick in plain text (AskUserQuestion stalled the session 10 h).

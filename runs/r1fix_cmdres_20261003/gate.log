@@ -38,3 +38,4 @@ halt-issued
   (3) lost-ack set -> in_effect via heartbeat: NOT EXERCISED (0 lost acks).
   (4) no media regression: 9/9 wakes, START+END every wake, wake->halt 499–519 s (G4 band 494–524), heals 1/wake, queue-full 0–35, D1 pattern unchanged (healed video 195–196 min = the known 2-wake path). PASS.
   Deploy side effect: 1000043 (still for 05:00) never executed (the deploy SIGTERMed the 05:00 cycle before its listen tail); backend shows it superseded. Expected, logged.
+2026-10-04T15:02:00Z JPEG-XL readiness (read-only, EM): bmcam003 + bmcam004: cjxl MISSING, numpy 2.2.4, / 25G free of 115G (79% used). R0.4 will need apt-get install libjxl-tools (restore: apt-get remove libjxl-tools).
