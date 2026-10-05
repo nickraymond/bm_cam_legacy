@@ -5,7 +5,8 @@
 # the runtime and disarms cron FIRST, LADDER R0 steps 1-3); writes only /tmp/s28r0_<ts>/ on the
 # Pi and deletes it at the end (unless S28R0_KEEP=1).
 #
-# Purpose:  R0.1 CmaFree min during --raw captures (Sprint07 method: /proc/meminfo every 0.1 s),
+# Purpose:  R0.1 no failed CMA allocation during --raw captures (/sys/kernel/mm/cma/*/
+#           alloc_pages_fail snapshots per phase; CmaFree every 0.1 s is logged as info),
 #           R0.2 capture time with vs without --raw, R0.3 encode time / peak RSS per crop preset
 #           (1600x900 FIRST: it gates the feature), R0.4 tools present (cjxl, numpy, SD free).
 # Inputs:   $1 host (bmcam003 | bmcam004), $2 local output dir (the run folder, e.g.
@@ -107,6 +108,19 @@ fi
 echo "CMA sampler running: pid $SAMPLER, $ROWS rows in the first second"
 # <<< sampler
 
+# R0.1 (EM 2026-10-05): the CMA allocation counters are the criterion (a failed allocation
+# is a real CMA shortage); CmaFree above is info. Absent on a kernel without CONFIG_CMA_SYSFS:
+# the analyzer then falls back to the kernel's "cma_alloc ... failed" dmesg lines.
+echo "label,area,alloc_pages_success,alloc_pages_fail" > cma_counters.csv
+cma_counters() {  # $1 phase label
+  for a in /sys/kernel/mm/cma/*/; do
+    [ -d "$a" ] || continue
+    echo "$1,$(basename "$a"),$(cat "$a/alloc_pages_success" 2>/dev/null || echo NA),$(cat "$a/alloc_pages_fail" 2>/dev/null || echo NA)" >> cma_counters.csv
+  done
+}
+cma_counters start
+echo "CMA counters: $(( $(wc -l < cma_counters.csv) - 1 )) area(s) $(tail -1 cma_counters.csv)"
+
 echo "mode,i,rc,elapsed_s,jpeg_bytes,dng_bytes" > captures.csv
 cap() {  # $1 mode (plain|raw), $2 i
   local extra=""; [ "$1" = raw ] && extra="--raw"
@@ -123,11 +137,13 @@ cap() {  # $1 mode (plain|raw), $2 i
   echo "capture $1 #$2 rc=$rc jpeg=$jb dng=$db"
 }
 for i in $(seq 1 "$N"); do cap plain "$i"; sleep 3; done
+cma_counters after_plain
 for i in $(seq 1 "$N"); do
   cap raw "$i"
   if [ "$i" = 1 ] && [ -s c.dng ]; then cp c.dng keep.dng; cp c.json keep.json; fi
   sleep 3
 done
+cma_counters after_raw
 rm -f c.jpg c.dng
 { dmesg 2>/dev/null || sudo -n dmesg 2>/dev/null; } < /dev/null | tail -60 > dmesg_tail.txt
 
@@ -164,12 +180,14 @@ PY
 else
   echo "NO DNG from any --raw capture: R0.3 not run (R0.1 FAILS)"
 fi
+cma_counters after_encode
 echo stop > label.txt; sleep 0.5; kill $SAMPLER 2>/dev/null
 df -h "$HOME" | tail -1 >> env.txt
 REMOTE
 REMOTE_RC=${PIPESTATUS[0]}
 
 scp -q -r -o BatchMode=yes "$U@$H:$D/env.txt" "$U@$H:$D/captures.csv" "$U@$H:$D/cma_samples.csv" \
+    "$U@$H:$D/cma_counters.csv" \
     "$U@$H:$D/encodes.csv" "$U@$H:$D/dmesg_tail.txt" "$P/" 2>/dev/null
 scp -q -r -o BatchMode=yes "$U@$H:$D/keep.json" "$P/capture_metadata_raw1.json" 2>/dev/null
 scp -q -r -o BatchMode=yes "$U@$H:$D/enc_*" "$P/" 2>/dev/null

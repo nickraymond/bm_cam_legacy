@@ -779,6 +779,82 @@ class ReviewFixes(unittest.TestCase):
         self.assertEqual(cm.exception.code, "fit")
 
 
+class Memory(unittest.TestCase):
+    """bmcam004 2026-10-05: wait4 reported 136 MB (the supervisor's RSS at fork), cjxl ~31-39."""
+
+    def fake_proc(self, files):
+        real_open = open
+
+        def fake(path, *a, **k):
+            if isinstance(path, str) and path in files:
+                import io
+                return io.StringIO(files[path])
+            if isinstance(path, str) and path.startswith("/proc/"):
+                raise FileNotFoundError(path)
+            return real_open(path, *a, **k)
+        return mock.patch("builtins.open", side_effect=fake)
+
+    def test_hwm_counts_only_after_the_exec(self):
+        status = "Name:\tx\nVmHWM:\t   31744 kB\nVmRSS:\t 30000 kB\n"
+        with self.fake_proc({"/proc/7/comm": "sh\n", "/proc/7/status": status}):
+            self.assertIsNone(X._own_hwm_kb(7, "cjxl"))      # still the forked shell
+        with self.fake_proc({"/proc/7/comm": "cjxl\n", "/proc/7/status": status}):
+            self.assertEqual(X._own_hwm_kb(7, "cjxl"), 31744)
+        with self.fake_proc({}):
+            self.assertIsNone(X._own_hwm_kb(7, "cjxl"))      # gone / not Linux
+        with self.fake_proc({"/proc/self/status": status}):
+            self.assertEqual(X.self_rss_kb(), 30000)
+
+    def test_both_figures_are_reported(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = X.run_capped([sys.executable, "-c", "import time; time.sleep(0.3)"],
+                             timeout_s=10, stdout_path=os.path.join(d, "o"),
+                             stderr_path=os.path.join(d, "e"))
+        self.assertIn("maxrss_incl_parent_kb", r)
+        self.assertGreater(r["maxrss_incl_parent_kb"], 0)
+        if not sys.platform.startswith("linux"):
+            self.assertIsNone(r["peak_rss_kb"])               # no /proc: unknown, not 0
+
+    @unittest.skipUnless(sys.platform.startswith("linux"), "Linux /proc + fork semantics")
+    def test_a_big_parent_does_not_inflate_the_tools_own_peak(self):
+        ballast = bytearray(150 * 2 ** 20)                     # the supervisor's RSS
+        for i in range(0, len(ballast), 4096):
+            ballast[i] = 1
+        with tempfile.TemporaryDirectory() as d:
+            r = X.run_capped([sys.executable, "-c", "import time; time.sleep(0.5)"],
+                             timeout_s=10, stdout_path=os.path.join(d, "o"),
+                             stderr_path=os.path.join(d, "e"))
+        self.assertGreater(r["maxrss_incl_parent_kb"], 140 * 1024)
+        self.assertLess(r["peak_rss_kb"], 60 * 1024)
+        del ballast
+
+    def test_planes_are_written_once_and_the_arrays_dropped(self):
+        seen = []
+
+        def runner(cmd, *, timeout_s, stdout_path, stderr_path):
+            work = os.path.dirname(cmd[1])
+            seen.append(sorted(f for f in os.listdir(work) if f.endswith(".pgm")))
+            with open(cmd[2], "wb") as fh:
+                fh.write(b"\xff\x0a" + b"x" * 500)
+            return {"rc": 0, "kind": "ok", "seconds": 0.1, "peak_rss_kb": None}
+        with tempfile.TemporaryDirectory() as d, \
+                mock.patch.object(X, "rung_walk_list", wraps=X.rung_walk_list) as rw:
+            X.encode_still(MINI, META, dict(X.DEFAULT_CONFIG, target_fill=0.0),
+                           crop_xywh=[0, 0, 160, 96], budget=Budget(), message_cap=195,
+                           chunk_b64_chars=384, work_dir=os.path.join(d, "w"), cjxl="/x",
+                           runner=runner, log=lambda *_: None)
+            walk = rw.call_args[0][0]
+        self.assertEqual(seen[0], ["B.pgm", "G1.pgm", "G2.pgm", "R.pgm"])   # before plane 1
+        self.assertIsNone(walk.codes)
+        self.assertNotIn("mosaic", walk.crop)
+        self.assertEqual((walk.crop["w"], walk.crop["h"]), (160, 96))
+
+    def test_a_missing_plane_without_codes_is_err(self):
+        with tempfile.TemporaryDirectory() as d, self.assertRaises(X.RawFallback) as cm:
+            X.encode_rung(None, 3.8, 5, d, cjxl="/x", runner=None, timeout_s=10)
+        self.assertEqual(cm.exception.code, "err")
+
+
 class _StepClock:
     """A clock that advances by the seconds each fake cjxl run reports."""
 

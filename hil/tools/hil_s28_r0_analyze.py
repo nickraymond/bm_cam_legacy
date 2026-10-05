@@ -8,8 +8,13 @@ Outputs: analysis/r0_capture_<host>.csv, analysis/r0_encode_<host>.csv,
          analysis/r0_budget_<host>.csv, analysis/r0_verdict_<host>.json; prints the
          criteria table rows (LADDER.md R0.1-R0.4).
 Criteria (sprints/Sprint28_raw_jxl/LADDER.md, from SPEC r4 §7.2):
-  R0.1  10/10 --raw captures give DNG + JPEG, no capture error in dmesg, CmaFree min >= 1 MB
-        during the --raw captures (baseline min without --raw recorded beside it)
+  R0.1  10/10 --raw captures give DNG + JPEG, no capture error in dmesg, and NO failed CMA
+        allocation during the --raw captures: the delta of /sys/kernel/mm/cma/*/alloc_pages_fail
+        over the --raw phase == 0 (EM 2026-10-05). CmaFree is info only: the kernel parks
+        movable pages (page cache) in the CMA area and migrates them out on demand, so a
+        long-running unit shows low CmaFree with full headroom (bmcam004 6.3 MB, 10/10, 0
+        errors). A kernel without CMA sysfs counters (CONFIG_CMA_SYSFS) is judged by the
+        kernel's own "cma_alloc ... failed" dmesg lines instead (the verdict says which).
   R0.2  median(--raw) - median(no --raw) capture time <= 3 s
   R0.3  per preset: median rung <= 20 s, peak RSS <= 120 MB, 0 kills / failures, and the
         predicted wake (capture + 2 rungs + 50 kB burst + 150 s tail, from process start)
@@ -40,6 +45,31 @@ DMESG_WORDS = ("unicam", "imx708", "cma", "dma", "alloc", "pisp", "v4l2", "error
 def read_csv(path):
     with open(path, newline="") as fh:
         return list(csv.DictReader(fh))
+
+
+def _cma_counter_deltas(path):
+    """cma_counters.csv (label, area, alloc_pages_success, alloc_pages_fail, summed over
+    areas) -> {"plain": {"success", "fail"}, "raw": {...}, "encode": {...}} or None when the
+    file is absent / has no numeric rows (no CMA sysfs on this kernel)."""
+    if not os.path.exists(path):
+        return None
+    totals = {}
+    for r in read_csv(path):
+        try:
+            s, f = int(r["alloc_pages_success"]), int(r["alloc_pages_fail"])
+        except (TypeError, ValueError):
+            continue
+        t = totals.setdefault(r["label"], [0, 0])
+        t[0] += s
+        t[1] += f
+    order = ("start", "after_plain", "after_raw", "after_encode")
+    if not all(k in totals for k in order[:3]):
+        return None
+    out = {}
+    for name, (a, b) in (("plain", order[:2]), ("raw", order[1:3]), ("encode", order[2:4])):
+        if a in totals and b in totals:
+            out[name] = {"success": totals[b][0] - totals[a][0], "fail": totals[b][1] - totals[a][1]}
+    return out
 
 
 def main(argv=None):
@@ -87,8 +117,14 @@ def main(argv=None):
                     default=None)
     dmesg_hits = [ln for ln in dmesg.splitlines() if any(w in ln for w in DMESG_WORDS)
                   and ("error" in ln or "fail" in ln)]
-    r01 = (ok_raw == len(raw) and len(raw) >= 10 and not dmesg_hits
-           and raw_cma is not None and raw_cma >= 1024)
+    counters = _cma_counter_deltas(os.path.join(p, "cma_counters.csv"))
+    cma_dmesg_fail = [ln for ln in dmesg.splitlines() if "cma" in ln and "fail" in ln]
+    if counters is not None:
+        cma_ok, cma_source = counters["raw"]["fail"] == 0, "sysfs alloc_pages_fail"
+    else:
+        cma_ok, cma_source = not cma_dmesg_fail, ("dmesg (no usable cma_counters.csv: not "
+                                                   "collected, or no CMA sysfs on this kernel)")
+    r01 = ok_raw == len(raw) and len(raw) >= 10 and not dmesg_hits and cma_ok
     med_raw = statistics.median(float(r["elapsed_s"]) for r in raw) if raw else None
     med_plain = statistics.median(float(r["elapsed_s"]) for r in plain) if plain else None
     delta = None if med_raw is None or med_plain is None else med_raw - med_plain
@@ -140,7 +176,10 @@ def main(argv=None):
             break
     verdict = {"host": host,
                "R0.1": {"verdict": "PASS" if r01 else "FAIL", "raw_ok": f"{ok_raw}/{len(raw)}",
-                        "cma_free_min_kb_raw": raw_cma, "cma_free_min_kb_plain": plain_cma,
+                        "cma_alloc_check": cma_source, "cma_counter_deltas": counters,
+                        "cma_dmesg_failures": cma_dmesg_fail[:10],
+                        "info_cma_free_min_kb_raw": raw_cma,
+                        "info_cma_free_min_kb_plain": plain_cma,
                         "dmesg_errors": dmesg_hits[:10]},
                "R0.2": {"verdict": "PASS" if r02 else "FAIL", "median_raw_s": med_raw,
                         "median_plain_s": med_plain, "delta_s": delta},

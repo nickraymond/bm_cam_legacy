@@ -441,6 +441,12 @@ def code_planes(crop):
     return {k: lut[p] for k, p in split_planes(mosaic, crop["cfa"]).items()}
 
 
+def slim_crop(crop):
+    """read_dng_crop's dict without the pixel array (what the container header needs)."""
+    h, w = crop["mosaic"].shape
+    return {k: crop[k] for k in ("cfa", "black", "white", "native_w", "native_h")} | {"w": w, "h": h}
+
+
 def write_pgm(path, plane, maxval=CODE_MAX):
     """Binary P5, 16-bit big-endian (netpbm), maxval 4095 -> cjxl reads 12-bit grey."""
     import numpy as np
@@ -642,22 +648,66 @@ _MEM_SIGNALS = {signal.SIGKILL, signal.SIGABRT, signal.SIGSEGV, getattr(signal, 
 _MEM_WORDS = (b"bad_alloc", b"out of memory", b"memory", b"alloc")
 
 
+def _own_hwm_kb(pid, comm):
+    """VmHWM (KiB) of `pid` once it IS the tool (`comm` = its exec name), else None.
+    Before the exec the child is still /bin/sh, whose memory map is a fork of THIS
+    process: its high-water mark is the parent's RSS, not the tool's. None off Linux."""
+    try:
+        with open(f"/proc/{pid}/comm") as fh:
+            if fh.read().strip() != comm:
+                return None
+        with open(f"/proc/{pid}/status") as fh:
+            for line in fh:
+                if line.startswith("VmHWM:"):
+                    return int(line.split()[1])
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+def self_rss_kb():
+    """VmRSS (KiB) of this process (the supervisor), or None off Linux."""
+    try:
+        with open("/proc/self/status") as fh:
+            for line in fh:
+                if line.startswith("VmRSS:"):
+                    return int(line.split()[1])
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
 def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
-    """Run one encoder child under the guards. -> {rc, kind, seconds, peak_rss_kb}
+    """Run one encoder child under the guards.
+    -> {rc, kind, seconds, peak_rss_kb, maxrss_incl_parent_kb}
 
     kind: "ok" (rc 0), "time" (killed at timeout_s), "mem" (killed by a signal the
     RLIMIT/OOM path raises, or stderr names an allocation failure), "enc" (any other
-    non-zero exit, incl. 127 = binary not found). Peak RSS comes from wait4 (ru_maxrss:
-    KiB on Linux, bytes on macOS; normalised to KiB). Never raises for a child failure;
-    raises OSError only if /bin/sh itself cannot start."""
+    non-zero exit, incl. 127 = binary not found). Never raises for a child failure;
+    raises OSError only if /bin/sh itself cannot start.
+
+    Memory (bmcam004 2026-10-05: wait4 said 136 MB where cjxl alone is ~31-39 MB):
+      peak_rss_kb            the TOOL's own peak: VmHWM polled from /proc in the wait loop,
+                             counted only after the exec (_own_hwm_kb); None when no sample
+                             landed (off Linux, or a run shorter than poll_s). The study's
+                             method (rig pi_bench.child).
+      maxrss_incl_parent_kb  wait4 ru_maxrss: on Linux fork copies the parent's RSS into the
+                             child's high-water mark and exec keeps it, so this is
+                             max(supervisor RSS at fork, the tool's peak). KiB on Linux,
+                             bytes on macOS (normalised to KiB). Kept for comparison only."""
     import subprocess
     t0 = time.monotonic()
+    comm = os.path.basename(cmd[0])[:15]          # the kernel's comm is 15 chars at most
+    hwm = None
     with open(stdout_path, "wb") as out, open(stderr_path, "wb") as err:
         p = subprocess.Popen(guarded(cmd), stdout=out, stderr=err, stdin=subprocess.DEVNULL,
                              close_fds=True)
         status = rusage = None
         killed = False
         while True:
+            sample = _own_hwm_kb(p.pid, comm)        # monotonic: the last sample ~ the peak
+            if sample is not None:
+                hwm = sample if hwm is None else max(hwm, sample)
             pid, st, ru = os.wait4(p.pid, os.WNOHANG)
             if pid:
                 status, rusage = st, ru
@@ -674,7 +724,7 @@ def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
         p.returncode = os.waitstatus_to_exitcode(status)
     seconds = time.monotonic() - t0
     rss = int(rusage.ru_maxrss) if rusage is not None else 0
-    peak_kb = rss // 1024 if sys.platform == "darwin" else rss
+    incl_parent_kb = rss // 1024 if sys.platform == "darwin" else rss
     rc = p.returncode
     if killed:
         kind = "time"
@@ -689,7 +739,8 @@ def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
         except OSError:
             tail = b""
         kind = "mem" if any(word in tail for word in _MEM_WORDS) else "enc"
-    return {"rc": rc, "kind": kind, "seconds": round(seconds, 3), "peak_rss_kb": peak_kb}
+    return {"rc": rc, "kind": kind, "seconds": round(seconds, 3), "peak_rss_kb": hwm,
+            "maxrss_incl_parent_kb": incl_parent_kb}
 
 
 def cjxl_command(cjxl, src, dst, distance, effort):
@@ -720,6 +771,8 @@ def encode_rung(codes, distance, effort, work_dir, *, cjxl, runner, timeout_s):
         src = os.path.join(work_dir, f"{name}.pgm")
         dst = os.path.join(work_dir, f"{name}.jxl")
         if not os.path.exists(src):
+            if codes is None:
+                raise RawFallback("err", f"plane {name}.pgm missing from {work_dir}")
             write_pgm(src, codes[name])
         if os.path.exists(dst):
             os.remove(dst)
@@ -807,7 +860,9 @@ class _Walk:
         params = build_params(crop_xywh=self.xywh,
                               native_wh=(self.crop["native_w"], self.crop["native_h"]),
                               crc=0, colour=self.meta, distance=distance, effort=self.cfg["effort"])
-        blob, crc = seal_container(w=self.crop["mosaic"].shape[1], h=self.crop["mosaic"].shape[0],
+        w, h = ((self.crop["w"], self.crop["h"]) if "w" in self.crop
+                else (self.crop["mosaic"].shape[1], self.crop["mosaic"].shape[0]))
+        blob, crc = seal_container(w=w, h=h,
                                    cfa=self.crop["cfa"], black=self.crop["black"],
                                    white=self.crop["white"], params=params, payloads=payloads)
         params[CRC_PARAM] = crc
@@ -818,7 +873,10 @@ class _Walk:
                  "plane_bytes": [len(p) for p in payloads], "over_cap": over_cap,
                  "budget_fit": budget_fit, "seconds": round(self.clock() - t0, 3),
                  "cjxl_seconds": [r["seconds"] for r in runs],
-                 "peak_rss_kb": max(r["peak_rss_kb"] for r in runs)}
+                 "peak_rss_kb": _max_or_none(r.get("peak_rss_kb") for r in runs)}
+        incl = _max_or_none(r.get("maxrss_incl_parent_kb") for r in runs)
+        if incl is not None:
+            entry["maxrss_incl_parent_kb"] = incl
         self.attempt_log.append(entry)
         self.log(f"[RAW] {step} d={distance}: {len(blob)} B, {msgs} msgs, over_cap={over_cap}, "
                  f"budget_fit={budget_fit}, {entry['seconds']:.1f} s, "
@@ -843,6 +901,11 @@ class _Walk:
                 "attempt_log": self.attempt_log, "message_count": entry["message_count"],
                 "crc32": crc, "params": params, "encode_s": round(self.clock() - self.t_start, 3),
                 "rate_mode": mode}
+
+
+def _max_or_none(values):
+    vals = [v for v in values if v is not None]
+    return max(vals) if vals else None
 
 
 def _clamp_d(d):
@@ -1011,6 +1074,16 @@ def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chu
             # still.raw.keep_crop (O1 paired analysis): the crop mosaic itself, 16-bit
             # PGM at the sensor's white level, native px.
             write_pgm(keep_crop_path, crop["mosaic"], maxval=crop["white"])
+        # The 4 plane PGMs ARE the encoder input: write them once, then drop the mosaic
+        # and the code arrays (~6-9 MB at 1600x900) so the supervisor does not hold them
+        # through every encode (bmcam004 memory review, EM 2026-10-05).
+        for name in ("R", "G1", "G2", "B"):
+            write_pgm(os.path.join(work_dir, f"{name}.pgm"), codes[name])
+        crop = slim_crop(crop)
+        codes = None
+        rss = self_rss_kb()          # log only: a host-dependent number stays out of sidecars
+        log(f"[RAW] planes written to {work_dir}; supervisor VmRSS="
+            f"{'n/a' if rss is None else f'{rss} KiB'} (cjxl runs on top of this)")
         result = choose_rate(crop, codes, meta_params, cfg, crop_xywh=crop_xywh, budget=budget,
                            message_cap=message_cap, chunk_b64_chars=chunk_b64_chars,
                            reserve_msgs=reserve_msgs, fallback_msgs=fallback_msgs,

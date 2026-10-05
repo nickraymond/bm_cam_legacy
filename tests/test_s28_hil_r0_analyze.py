@@ -27,7 +27,8 @@ ENV = ("2026-10-05T16:00:00Z\nbmcam003\ncjxl: /usr/bin/cjxl JPEG XL encoder v0.1
 
 
 def write(run, host, *, raw_dng=10, cma_raw=1500, raw_s=6.0, rung_s=6.4, rss=31000,
-          presets=("1600x900", "2000x1124", "2400x1350"), fail_preset=None, env=ENV, dmesg=""):
+          presets=("1600x900", "2000x1124", "2400x1350"), fail_preset=None, env=ENV, dmesg="",
+          cma_fail_raw=0, counters=True):
     p = os.path.join(run, "pulled", f"{host}_r0")
     os.makedirs(p, exist_ok=True)
     with open(os.path.join(p, "captures.csv"), "w", newline="") as fh:
@@ -58,6 +59,14 @@ def write(run, host, *, raw_dng=10, cma_raw=1500, raw_s=6.0, rung_s=6.4, rss=310
         fh.write(env)
     with open(os.path.join(p, "dmesg_tail.txt"), "w") as fh:
         fh.write(dmesg)
+    if counters:
+        with open(os.path.join(p, "cma_counters.csv"), "w", newline="") as fh:
+            wr = csv.writer(fh)
+            wr.writerow(["label", "area", "alloc_pages_success", "alloc_pages_fail"])
+            for label, ok, fail in (("start", 1000, 0), ("after_plain", 31000, 0),
+                                    ("after_raw", 71000, cma_fail_raw),
+                                    ("after_encode", 71000, cma_fail_raw)):
+                wr.writerow([label, "linux,cma", ok, fail])
 
 
 class Analyze(unittest.TestCase):
@@ -80,9 +89,26 @@ class Analyze(unittest.TestCase):
         self.assertEqual(v["R0.3"]["largest_passing_preset"], "2400x1350")
         self.assertAlmostEqual(float(budget[2]["predicted_end_s"]), 438.3, places=1)
 
-    def test_cma_below_1_mb_or_a_missing_dng_fails_r01(self):
-        self.assertEqual(self.run_it(cma_raw=900)[1]["R0.1"]["verdict"], "FAIL")
+    def test_a_failed_cma_allocation_or_a_missing_dng_fails_r01(self):
+        _rc, v, _b = self.run_it(cma_fail_raw=3)
+        self.assertEqual(v["R0.1"]["verdict"], "FAIL")
+        self.assertEqual(v["R0.1"]["cma_counter_deltas"]["raw"], {"success": 40000, "fail": 3})
         self.assertEqual(self.run_it(raw_dng=9)[1]["R0.1"]["verdict"], "FAIL")
+
+    def test_low_cma_free_alone_is_info_not_a_fail(self):
+        # bmcam004 2026-10-05: CmaFree min 6.3 MB, 10/10, 0 errors (page cache in the CMA area)
+        rc, v, _b = self.run_it(cma_raw=900)
+        self.assertEqual(v["R0.1"]["verdict"], "PASS")
+        self.assertEqual(v["R0.1"]["info_cma_free_min_kb_raw"], 900)
+        self.assertEqual(v["R0.1"]["cma_alloc_check"], "sysfs alloc_pages_fail")
+
+    def test_without_cma_sysfs_the_kernels_cma_failure_lines_decide(self):
+        _rc, v, _b = self.run_it(counters=False)
+        self.assertEqual(v["R0.1"]["verdict"], "PASS")
+        self.assertIn("dmesg", v["R0.1"]["cma_alloc_check"])
+        _rc, v, _b = self.run_it(counters=False, dmesg="cma: cma_alloc: linux,cma: alloc failed, "
+                                                      "req-size: 8192 pages, ret: -12\n")
+        self.assertEqual(v["R0.1"]["verdict"], "FAIL")
         self.assertEqual(self.run_it(dmesg="unicam: dma alloc error\n")[1]["R0.1"]["verdict"],
                          "FAIL")
 
