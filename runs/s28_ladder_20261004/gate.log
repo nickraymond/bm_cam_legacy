@@ -1,0 +1,21 @@
+2026-10-05T04:48:04Z run created for S28-R0 units: bmcam004
+2026-10-05T04:48:04Z Sprint28 JPEG-XL on bmcam004 (EM plan; Nick: bus-always-on OK in the TE chat 2026-10-04T15:46Z; libjxl install/remove covered by his JPEG-XL bench approval, bench units only). Code ref for R0: origin/feature/sprint28-camera e44dde5 (review-fixed). RESTORES: (a) bus: re-arm crontab backup, halt, hil/tools/hil_restore_schedule.sh SPOT-31593C (1/3600000/600000); (b) tools: ssh pi@bmcam004 'sudo apt-get remove -y libjxl-tools'.
+2026-10-05T04:48:12Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261005T044807Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-05T04:48:13Z Succesfully sent config set msg
+2026-10-05T04:48:13Z 2026-10-05T04:48:16.332Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-05T04:48:20Z 2026-10-05T04:48:22.917Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-05T04:48:20Z 2026-10-05T04:48:22.921Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-05T04:48:20Z 2026-10-05T04:48:22.980Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-05T04:48:23Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+2026-10-05T04:49:07Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-05T04:49:07Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261005T044807Z)
+Setting up libgif7:arm64 (5.2.2-1+deb13u1) ...
+Setting up libjxl-tools (0.11.2-0.1~deb13u2) ...
+Processing triggers for man-db (2.13.1-1) ...
+Processing triggers for libc-bin (2.41-12+rpt1+deb13u3) ...
+cjxl: /usr/bin/cjxl cjxl v0.11.2 [NEON_WITHOUT_AES]
+numpy: 2.2.4
+/dev/mmcblk0p2  115G   86G   25G  79% /
+2026-10-05T04:50:01Z R0.4 tools on bmcam004: cjxl v0.11.2 (libjxl-tools 0.11.2-0.1~deb13u2, + dep libgif7), numpy 2.2.4, / 25G free. RESTORE (updated): ssh pi@bmcam004 'sudo apt-get remove -y libjxl-tools && sudo apt-get autoremove -y'
+2026-10-05T04:50:13Z [bmcam004] R0 probe start: N=10 ENC_N=10 presets=1600x900 2000x1124 2400x1350 remote=/tmp/s28r0_20261005T045013Z
+2026-10-05T04:50:17Z [bmcam004] encoder copied: e44dde5 rc_raw_jxl.py sha256=f3bfa3f739a2625b
