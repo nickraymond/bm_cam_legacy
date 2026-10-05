@@ -36,7 +36,7 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 9         # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 10        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
@@ -46,7 +46,8 @@ REGISTRY_VERSION = 9         # bump when a key is added/removed/retyped (2: comm
                               # 8: still.format + still.raw.* (nrjxl RAW stills; incl. the
                               #    byte-target search keys target_fill / d_max), Sprint28 S1;
                               # 9: camera.exposure.profile / max_shutter_us / max_gain
-                              #    (low-gain stills), Sprint28)
+                              #    (low-gain stills), Sprint28;
+                              # 10: still.raw.layout (B3a linear-RGB nrjxl), Sprint28)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -344,6 +345,14 @@ KEYS = (
     Key("still.raw.d_max", FLOAT, 10.4, "nrjxl: quality floor: if the room needs a JPEG XL "
         "distance above this, send today's JPEG (START rfb=floor).", range=(0.1, 15.0),
         v1_sources=("still_raw.d_max",), validate_when=_MEDIA_STILL),
+    # B3a (DESIGN_B3a.md, Nick 2026-10-05): rgb = linear camera RGB (bilinear demosaic on
+    # the unit, WB as a coding transform with no clip) in ONE JPEG XL VarDCT payload,
+    # container profile v2. bayer4 (the 4 Bayer planes, profile v1) stays the default
+    # until the Pi bench (LADDER B0/B1) passes AND the backend decodes v2.
+    Key("still.raw.layout", ENUM, "bayer4", "nrjxl: what the JPEG XL carries: bayer4 = the 4 "
+        "Bayer planes (v1); rgb = linear camera RGB (B3a, v2: more detail per byte).",
+        enum=("bayer4", "rgb"), v1_sources=("still_raw.layout",), validate_when=_MEDIA_STILL,
+        presets=(("bayer4 (v1)", "bayer4"), ("rgb (B3a)", "rgb"))),
 
     # ---- video: recording (clip source and the continuous recorder) ---------
     Key("video.record.framing", STR, None, "Named geometry preset (video_geometry.PRESETS); "

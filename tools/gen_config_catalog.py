@@ -73,7 +73,7 @@ CONTROL_KEYS = (
     "still.budget_min",
     # Sprint28 (SPEC r4 §3.7): control, so the bench ladder can force fallbacks and restore
     "still.format", "still.raw.distances", "still.raw.encode_max_s", "still.raw.keep_crop",
-    "still.raw.target_fill", "still.raw.d_max",
+    "still.raw.target_fill", "still.raw.d_max", "still.raw.layout",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
     "video.record.fps", "video.record.bitrate_mbps", "video.record.encoder.profile",
     "video.record.encoder.level", "video.record.encoder.intra",

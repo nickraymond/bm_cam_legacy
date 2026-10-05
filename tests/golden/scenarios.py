@@ -529,6 +529,12 @@ V9_SCENARIOS.update({
                            "notes": "quality floor d_max 0.3: d 0.1 overshoots, the plan passes "
                                     "d_max, d_max itself is measured and overshoots too: pjpg "
                                     "rfb=floor after 2 encodes"},
+    "v9_nrjxl_rgb": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.layout": "rgb"},
+                     "raw": {"cam": "ok"},
+                     "notes": "B3a (still.raw.layout rgb, DESIGN_B3a.md): one --raw capture, "
+                              "the bilinear strip demosaic + no-clip coding into ONE rgb.ppm, "
+                              "ONE VarDCT encode per search step (-m 0), container profile v2 "
+                              "(method 20); START unchanged (fmt=nrjxl cmp=1)"},
     "v9_nrjxl_rfb_err": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "ccm": False},
                          "notes": "the capture metadata has no ColourCorrectionMatrix: no "
                                   "WB/CCM params, pjpg rfb=err"},
