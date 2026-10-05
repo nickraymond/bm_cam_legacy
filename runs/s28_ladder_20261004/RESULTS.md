@@ -58,7 +58,7 @@ Evidence: the nvd session's parity run (backend side); this run's `api/nrjxl_fir
 | step | change | sent / fired (UTC) | on the wire | backend complete? | verdict |
 |---|---|---|---|---|---|
 | R3.1 | encode_max_s 5 (cid 1000063) + trg (1000064) | 09:49 / 10:06:33 | `[RAW] FALLBACK rfb=time` (cjxl killed at 5.2 s); START 10:06:47 `fmt=pjpg … rfb=time`, key 0e9qqx, 162/162 | media 57443 COMPLETE 14:20:25 (254 min; stay_on heals 100135/100136) | **PASS** |
-| R3.2 | distances [0.3], target_fill 0, encode_max_s 60 (cid 1000065, supersede) + trg 1000066 | 11:03 / 11:07:42 (the 1000063 ack was LOST and stay_on never re-sends it → in_flight 48 min → supersede) | `[RAW] FALLBACK rfb=fit: nothing fits (cap 195)`; START 11:07:56 `fmt=pjpg … rfb=fit`, key 0e9tkv, 154/154 | media 57457: 151/154 at 15:47 (rsd 100137 for 26-28 → sent before START at the 16:00 per_boot wake) | PASS on the wire; completion pending |
+| R3.2 | distances [0.3], target_fill 0, encode_max_s 60 (cid 1000065, supersede) + trg 1000066 | 11:03 / 11:07:42 (the 1000063 ack was LOST and stay_on never re-sends it → in_flight 48 min → supersede) | `[RAW] FALLBACK rfb=fit: nothing fits (cap 195)`; START 11:07:56 `fmt=pjpg … rfb=fit`, key 0e9tkv, 154/154 | media 57457 COMPLETE 16:10:15 (303 min; last 3 chunks before START at the 16:00 per_boot boot) | **PASS** |
 | R3.5 | target_fill 0.97, distances default, d_max 0.5 (cid 1000067, supersede: 1000065's ack also lost) + trg 1000068 | 11:58 / 12:07:13 | `search1 d=0.5: 420529 B, 1461 msgs … FALLBACK rfb=floor: the room needs d>=6.434 > d_max 0.5`; START 12:07:34 `fmt=pjpg … rfb=floor`, key 0e9wca, 157/157 | media 57472 COMPLETE on first send 12:40:46 (33 min) | **PASS** |
 | R3.3 | crop [1505,846,1600,900] (cid 1000069; backend plan ok: defers to the unit) | 12:16 / applied 13:05:40 | **ACCEPTED**: `still.crop: 1504,… -> 1505,… (next action)`, ack ok h=315ea3dd; no e:xk at either layer | n/a | **FAIL** — `_nrjxl_still()` needs `mode.media == still`; on a video unit taking trg stills (`kv med:still`) the nrjxl rules (crop / keyed / cellular) never run. Fix in #120: validate whenever `still.format == nrjxl` (or validate the trg media override). Mitigation: crop reset with the R3 reset |
 
@@ -69,3 +69,12 @@ stay_on heal finding (#126, severe): the 3 rsds serviced in stay_on put 4 of 30 
 57443 rsd 100133 0/13, 57457 rsd 100134 2/13): the heal burst fires at the hub.sync and the 2-slot queue drops the
 rest. The fallback pjpgs (R3.1/R3.2/R3.5) therefore complete only after the unit is back in per_boot (heals before START
 at boot), so "arrives complete" is scored after the restore.
+
+**R3 final: R3.1, R3.2, R3.5 PASS (fallback on the wire AND the pjpg arrives complete); R3.3 FAIL (nrjxl validation
+skipped on a video unit taking trg stills: #120 fix needed). R3.4 N/A on hardware (golden vectors).**
+
+## R4 production wakes on bmcam004 (per_boot, hourly bus, mode.media=still, still.format=nrjxl, defaults)
+
+| wake (Z) | media | START | delivered / complete | wake→halt | notes |
+|---|---|---|---|---|---|
+| 16:00 (1) | 57521 | nrjxl len 195 (d 9.70, att 2, encode 15.4 s) | 190/195 at 16:47 (healing) | 483 s | CmaFree 72→96 MB, 0 CMA errors; peak_rss 138 MB |
