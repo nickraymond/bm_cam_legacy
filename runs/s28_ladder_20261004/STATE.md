@@ -86,3 +86,9 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
   deploy pattern of `deploy_121_bmcam003.sh`: catch at boot, disarm, rc_field_update --ref feature/sprint28-camera
   --leave-disarmed (staged in /tmp), verify sha, re-arm, halt) and re-run R3.3 (crop 1505 via the Sofar lane, no trg):
   expect ERR e:xk at the unit; once #91 is merged, a backend plan refusal before send. Ask the EM before the final restore.
+
+## 8. Update 2026-10-05 (scope change, RELEASE_PLAN §2c)
+- R1 ships Fri 10/9 = commands + nrjxl (#120) + low-gain exposure. Gate doc written: `hil/gates/R1RC_release_candidate.md`
+  (commit 787a592), sent to the EM; Nick approves before Wed 10/7. RC run Wed–Thu on BOTH units, ≥ 24 wakes, per_boot.
+- Open in the doc: low-gain key names + `ag` floor come from the PR's bench (nereus002 + bmcam004, Tue) = entry E3.
+- Crons alive after compaction: 0d62cb1d (R4 mid-check 15:17 PDT), b3705182 (R4 verdict 23:17 PDT).
