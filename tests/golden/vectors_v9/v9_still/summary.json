@@ -99,7 +99,7 @@
   },
   "camera_config.yaml": {
    "bytes": 2679,
-   "sha256": "d6fabeb94fb3fee8"
+   "sha256": "c8921985980b505b"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -139,7 +139,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 764,
-   "sha256": "1173b2ed6597a6e3"
+   "sha256": "b1659f5867a9450e"
   },
   "state/config_journal.jsonl": {
    "bytes": 598,
@@ -330,33 +330,33 @@
   "result_cache": {
    "1000501": {
     "b": 1,
-    "h": "3bf25992",
+    "h": "99a50a69",
     "ok": 1,
     "t": "still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action)"
    },
    "1000502": {
     "b": 1,
-    "h": "3bf25992",
+    "h": "99a50a69",
     "ok": 1,
     "t": "ping"
    },
    "1000503": {
     "b": 1,
-    "h": "3bf25992",
+    "h": "99a50a69",
     "ok": 1,
     "t": "help (reference follows)"
    },
    "1000505": {
     "b": 1,
     "e": "xk",
-    "h": "3bf25992",
+    "h": "99a50a69",
     "k": "camera.white_balance.mode",
     "ok": 0
    },
    "1000506": {
     "b": 1,
     "e": "cmd",
-    "h": "3bf25992",
+    "h": "99a50a69",
     "ok": 0
    },
    "1000507": {
@@ -365,13 +365,13 @@
      "mode",
      "r"
     ],
-    "h": "3bf25992",
+    "h": "99a50a69",
     "ok": 1,
     "t": "get mode, r: 6 key(s)"
    },
    "7": {
     "b": 1,
-    "h": "3bf25992",
+    "h": "99a50a69",
     "ok": 1,
     "t": "ping"
    }

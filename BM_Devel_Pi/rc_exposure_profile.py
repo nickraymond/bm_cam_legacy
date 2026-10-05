@@ -4,7 +4,7 @@
 """
 camera.exposure.profile = low_gain (Nick, 2026-10-05, RELEASE_PLAN §2c; via the EM):
   analogue gain at the sensor floor; AE varies the SHUTTER up to a cap
-  (camera.exposure.max_shutter_us, default 16667 = 1/60 s); gain rises only once the shutter
+  (camera.exposure.max_shutter_us, default 30000: the stock AGC holds gain 1.0 up to 30 ms); gain rises only once the shutter
   is capped (up to camera.exposure.max_gain); past that the RAW is darker, never a longer
   shutter. Why: colour correction must not amplify red-channel noise from analogue gain.
 

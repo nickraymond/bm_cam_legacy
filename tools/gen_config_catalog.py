@@ -503,8 +503,8 @@ def build():
                                                       "camera.exposure.analogue_gain"]},
                 "recommended_with": {"still.format": "nrjxl"},
                 "presets": [
-                    ["low gain, 1/60 s", {"camera.exposure.profile": "low_gain",
-                                          "camera.exposure.max_shutter_us": 16667,
+                    ["low gain, 30 ms", {"camera.exposure.profile": "low_gain",
+                                         "camera.exposure.max_shutter_us": 30000,
                                           "camera.exposure.max_gain": 16.0}],
                     ["auto (today)", {"camera.exposure.profile": "auto"}],
                 ],

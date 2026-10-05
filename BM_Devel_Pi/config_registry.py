@@ -240,10 +240,13 @@ KEYS = (
         "then gain up to max_gain (less red-channel noise for colour correction).",
         enum=("auto", "low_gain"), v1_sources=("exposure_profile.profile",),
         presets=(("auto", "auto"), ("low gain", "low_gain"))),
-    Key("camera.exposure.max_shutter_us", INT, 16667, "low_gain: longest shutter (us) before "
-        "gain rises (16667 = 1/60 s; 66666 = the IMX708 limit).", range=(100, 66666),
+    # default 30000 (Nick 2026-10-05): the stock IMX708 AGC already holds gain 1.0 up to 30 ms,
+    # so low_gain adds no gain anywhere stock does not; it only stops the gain stages past 30 ms.
+    Key("camera.exposure.max_shutter_us", INT, 30000, "low_gain: longest shutter (us) before "
+        "gain rises (30000 = where the stock AGC starts adding gain; 66666 = the IMX708 limit).",
+        range=(100, 66666),
         v1_sources=("exposure_profile.max_shutter_us",),
-        presets=(("1/60 s", 16667), ("1/30 s", 33333), ("1/15 s", 66666))),
+        presets=(("1/60 s", 16667), ("30 ms (stock gain floor)", 30000), ("1/15 s", 66666))),
     Key("camera.exposure.max_gain", FLOAT, 16.0, "low_gain: highest analogue gain once the "
         "shutter is capped (past it the ISP adds digital gain; the RAW gets darker).",
         range=(1.0, 16.0), v1_sources=("exposure_profile.max_gain",),

@@ -120,7 +120,7 @@ class StillArgs(unittest.TestCase):
         self.args({"profile": "low_gain"}, run)
         args, _ = self.args({"profile": "low_gain"}, run)
         self.assertEqual(len(calls), 1)
-        self.assertEqual(os.path.basename(args[1]), "imx708_lowgain_s16667_g16.json")  # defaults
+        self.assertEqual(os.path.basename(args[1]), "imx708_lowgain_s30000_g16.json")  # defaults
 
     def test_every_failure_is_todays_command_with_the_reason(self):
         def broken(cmd, **kw):
@@ -218,11 +218,11 @@ class Config(unittest.TestCase):
         self.assertGreaterEqual(R.REGISTRY_VERSION, 9)
         self.assertEqual(R.BY_PATH["camera.exposure.profile"].enum, ("auto", "low_gain"))
         self.assertEqual(R.BY_PATH["camera.exposure.profile"].default, "auto")
-        self.assertEqual(R.BY_PATH["camera.exposure.max_shutter_us"].default, 16667)
+        self.assertEqual(R.BY_PATH["camera.exposure.max_shutter_us"].default, 30000)
         self.assertEqual(R.BY_PATH["camera.exposure.max_shutter_us"].range, (100, 66666))
         self.assertEqual(R.BY_PATH["camera.exposure.max_gain"].default, 16.0)
         self.assertEqual(R.BY_PATH["camera.exposure.max_gain"].range, (1.0, 16.0))
-        self.assertEqual(E.DEFAULT_CONFIG, {"profile": "auto", "max_shutter_us": 16667,
+        self.assertEqual(E.DEFAULT_CONFIG, {"profile": "auto", "max_shutter_us": 30000,
                                             "max_gain": 16.0})
 
     def test_auto_renders_no_island_and_ignores_the_caps(self):
@@ -316,7 +316,7 @@ class StillSettings(unittest.TestCase):
     def test_low_gain_joins_the_controls(self):
         got = self.run_with('exposure_profile:\n  profile: "low_gain"\n  max_gain: 4.0\n')
         self.assertEqual(got, {"exposure_profile": {"profile": "low_gain",
-                                                    "max_shutter_us": 16667, "max_gain": 4.0}})
+                                                    "max_shutter_us": 30000, "max_gain": 4.0}})
 
     def test_an_unreadable_island_captures_as_today(self):
         self.assertIsNone(self.run_with('exposure_profile:\n  profile: "dim"\n'))

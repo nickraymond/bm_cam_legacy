@@ -78,7 +78,7 @@
   },
   "camera_config.yaml": {
    "bytes": 2665,
-   "sha256": "b4b5f8da3b8004a4"
+   "sha256": "c61b719f7095af0c"
   },
   "camera_schedule.yaml": {
    "bytes": 7907,
@@ -90,7 +90,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 586,
-   "sha256": "e7975cdf086284eb"
+   "sha256": "91ab05a3ed9f09a7"
   },
   "state/config_journal.jsonl": {
    "bytes": 604,
@@ -145,13 +145,13 @@
   "result_cache": {
    "1000511": {
     "b": 1,
-    "h": "e784ffb2",
+    "h": "74510d90",
     "ok": 1,
     "t": "ping"
    },
    "1000512": {
     "b": 1,
-    "h": "31dffdc5",
+    "h": "71297031",
     "ok": 1,
     "t": "camera.white_balance.mode: auto -> daylight (next action)"
    }
