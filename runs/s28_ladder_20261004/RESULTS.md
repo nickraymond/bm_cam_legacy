@@ -21,3 +21,19 @@ assumes 176 + 2 msgs at 1.3 s. The 1600×900 encode at d 3.8 is 58.7 kB (above a
 runtime's rung search picks the distance that fits, so R1 will show the real distance/size on the wire.
 Restores (gate.log): `apt-get remove -y libjxl-tools && apt-get autoremove -y`; crontab
 `~/hil_backup/20261005T044807Z/crontab_ARMED.txt`; `hil_restore_schedule.sh SPOT-31593C`.
+
+## R1 / R2 on bmcam004 (in progress, 2026-10-05)
+
+Setup: e44dde5 deployed (`hil_deploy_unit.sh … --ref feature/sprint28-camera`, FIELD-UPDATE PASS, registry v8,
+cfg 7a9ed97b); bench YAML `mode.run: stay_on` (trigger-only; backup + restore in gate.log); bus held on; nvd #83 live.
+`hil_refresh` skipped (console lane needs Nick's console OK); the backend plan accepted the change without it.
+
+| step | time (UTC) | evidence |
+|---|---|---|
+| set still.format=nrjxl + crop via backend (Sofar) | sent 05:24:45, applied ~06:06 (at the 06:05 hub.sync) | cid 1000061; unit `still.format: pjpg -> nrjxl (next action)`; `<CF h=42c14d76 still.format=nrjxl still.crop=1504,846,1600,900>` |
+| trg {med: still} via backend | sent 05:25:57, fired 06:07:40 | cid 1000062; `one still action on a video unit` |
+| nrjxl encode | 06:07:47 capture | 54,569 B, 190 msgs at d=4.342, att=3, encode 19.4 s (R0 predicted d 3.8 → 58.7 kB: the rung search found the fit) |
+| **first nrjxl START on air** | 06:08:15 | `<START IMG> …nrjxl, length 190, key=0e9fp2, tg=1000062, r=1600x900+1504+846, fmt=nrjxl, q=434, att=3, sha=e44dde54e26f` |
+| backend row | first seen ~06:42 (last chunk 06:40:36) | media 57389, 186/190, format nrjxl, placeholder (by design until complete). Upload lag ≈ 28 min = Notecard periodic upload (no hub.sync in the off-hour) |
+| rsd 1 | created 06:55:37, rx 07:06:22, serviced at once (stay_on) | 100131 chunks 81-84; only 81, 82 on air; 83, 84 + `<HL>` dropped by the Spotter's 2-slot queue during the sync → issue #126 |
+| row 188/190 | ~07:40 | 2nd rsd for 83-84 pending (still_arriving guard) |
