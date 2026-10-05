@@ -244,9 +244,10 @@ def main():
         if lp["vbat_mv"] is not None and lp["vbat_mv"] < TH["vbat_low_on_ext_warn_mv"]:
             warn.append(f"nereus000 VBAT {lp['vbat_mv']} mV on external power (input not covering the load)")
     # TEMPORARY rules while a bench bus is held on (config "bus_on_watch": true; EM/Nick 2026-10-05). The known hourly
-    # :00-:12 top-up dip is excluded from the drop and SoC rules (it would cry wolf every hour).
-    if cfg.get("bus_on_watch") and lp["vbat_mv"] is not None and on_ext and not (0 <= t.minute <= 12):
-        quiet = [h for h in hist if not (0 <= datetime.datetime.fromisoformat(h[0]).minute <= 12)]
+    # :00-:12 top-up dip + ~15 min recovery (:00-:27) is excluded from the drop and SoC rules.
+    # quiet = outside the :00-:12 window AND its ~15 min recovery (measured 10/5: 3408 mV at :15, 3620+ by :25)
+    if cfg.get("bus_on_watch") and lp["vbat_mv"] is not None and on_ext and not (0 <= t.minute <= 27):
+        quiet = [h for h in hist if not (0 <= datetime.datetime.fromisoformat(h[0]).minute <= 27)]
         old_q = [v for ts_, v in quiet if (t - datetime.datetime.fromisoformat(ts_)).total_seconds() >= 1500]
         if old_q and old_q[0] - lp["vbat_mv"] > 30:
             warn.append(f"[bus-on watch] nereus000 VBAT down {old_q[0] - lp['vbat_mv']} mV in 30 min on external ({old_q[0]} -> {lp['vbat_mv']})")

@@ -106,3 +106,4 @@ CRON_MATCHES_BACKUP
 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
 CID 1000061 outcome=sent
 2026-10-05T05:25:57Z R1.trg (still) via backend Sofar lane: CID 1000062 send 200. Expected: the set (1000061) + trg arrive at SPOT-31593C's 06:05 report sync; stay_on runtime applies the set, then fires the trg → first nrjxl START.
+2026-10-05T05:26:41Z Bus-on watch false alarm 05:15Z (VBAT 3631->3408 = the 05:00 window dip still recovering at :15; 05:25Z quiet sample VBAT 3620–3630, VIN 4712–4759, IOUT 747–865 mA). Rule fixed: quiet = minutes 28–59 only (window + 15 min recovery excluded).
