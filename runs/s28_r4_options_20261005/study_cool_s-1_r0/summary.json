@@ -1,0 +1,57 @@
+{
+ "label": "study_cool_s-1_r0",
+ "roi": [
+  1504,
+  846,
+  1600,
+  900
+ ],
+ "today": {
+  "option": "today pjpg (1000x562 q-ladder, UPSAMPLED to 1600x900)",
+  "budget_msgs": 195,
+  "distance": "",
+  "quality": 80,
+  "bytes": 46361,
+  "msgs": 161,
+  "ssimulacra2": 71.423,
+  "butteraugli_max": 4.276,
+  "butteraugli_3norm": 1.369,
+  "ssim_luma": 0.97552,
+  "png": "today_pjpg_upsampled.png"
+ },
+ "smallest_passing_budget_msgs": 260,
+ "smallest_passing": {
+  "option": "(a) nrjxl at 260 msgs",
+  "budget_msgs": 260,
+  "distance": 2.388,
+  "quality": "",
+  "bytes": 74858,
+  "msgs": 260,
+  "ssimulacra2": 74.582,
+  "butteraugli_max": 4.139,
+  "butteraugli_3norm": 1.358,
+  "ssim_luma": 0.97734,
+  "png": "nrjxl_d2.388.png",
+  "pass_vs_jpeg": true
+ },
+ "windows_crop_px": {
+  "fine texture": [
+   549,
+   344,
+   200,
+   200
+  ],
+  "edges": [
+   584,
+   194,
+   200,
+   200
+  ],
+  "dark area": [
+   546,
+   693,
+   200,
+   200
+  ]
+ }
+}
