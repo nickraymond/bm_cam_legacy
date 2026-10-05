@@ -85,3 +85,10 @@ Mid-check 2026-10-05 18:45Z: **R4.3 (≤ 1/12 fallback) already FAILED**: 2 fall
 (nrjxl search hit the d_max floor without fitting; the unit fell back loudly with a reason = RC.5 behaviour, not
 silent). R4.1 / R4.2 / R4.4 still running (all 3 wakes delivered or healing; wake→halt 483–504 s ≤ 570; START every
 wake). Sources: console decode (`hil_con_decode.py`), `analysis/r4_media_midday.csv`, backend `/media/{id}` format.
+
+## Transmission Phase A (bm #129) notes
+
+Phase A timing assumptions (EM 2026-10-05, no code change, no extra ssh): the Pi logs no per-message send time,
+so the Spotter console's `[BM_TX] Submitted … to cell-only queue` time is the send-time proxy (assumes UART/mote delay
+≪ the 1.3 s pacing; not measured). Pi `rc_cycle_*.log` files exist only from deploy-window pulls, not every wake.
+A per-message Pi log is a Phase C item if the ranking needs it.

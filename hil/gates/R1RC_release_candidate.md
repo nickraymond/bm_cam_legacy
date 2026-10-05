@@ -56,6 +56,10 @@ Phase A is analysed from existing logs (G4, R1G, R4, this RC run). Keep, per wak
 2. Sofar: a raw `api/sensor-data` pull per window (`api/*_sofar.json`, row `timestamp`);
 3. backend: `hil_media_table.py` (chunk receipt `received_at_utc`, completion `timestamp_utc`) + `hil_cmd_ledger.py`.
 Do not trim or summarise the console files; commit them with the run.
+Phase A timing assumptions (EM 2026-10-05, no code change, no extra ssh): the Pi logs no per-message send time,
+so the Spotter console's `[BM_TX] Submitted … to cell-only queue` time is the send-time proxy (assumes UART/mote delay
+≪ the 1.3 s pacing; not measured). Pi `rc_cycle_*.log` files exist only from deploy-window pulls, not every wake.
+A per-message Pi log is a Phase C item if the ranking needs it.
 
 ## Deploy (per unit, one bus window each; Wed early)
 
