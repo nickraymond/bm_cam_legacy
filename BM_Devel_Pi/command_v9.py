@@ -43,6 +43,9 @@ import config_validate
 import supervisor_config
 
 DUP_CELLULAR_QUIET_S = 600.0      # G9: no cellular d:1 copy within 10 min of the answer
+# #126: one command delivered 4x within 150 ms (SPOT-31593C 2026-10-05) printed 4 console
+# answers; a duplicate is answered on the console at most once per this window (log only else).
+DUP_CONSOLE_QUIET_S = 60.0
 # R1 ack re-send (Nick 2026-10-03): a cellular ack sent during the Spotter's
 # mailbox sync is often dropped ("Unable to submit message to cell-only queue")
 # and nothing re-sends it. The next boots re-send the cached answer as the
@@ -99,6 +102,7 @@ class Dispatcher:
         self.boot = None              # rc_supervisor.Boot (b.6c): note_command, request_hold
         self._answered_at = {}     # id -> clock() when first answered in THIS process
         self._dup_cell = {}        # id -> clock() of the last cellular d:1 copy
+        self._dup_console = {}     # id -> clock() of the last console answer (#126)
 
     # ------------------------------------------------------------ helpers
     def _state_dict(self, overlay=None):
@@ -245,6 +249,13 @@ class Dispatcher:
             cellular = last is None
         if cellular:
             self._dup_cell[cid] = now
+        last_con = self._dup_console.get(cid, first)
+        if not cellular and last_con is not None and now - last_con < DUP_CONSOLE_QUIET_S:
+            # #126: a burst of copies of one command is answered once (the original)
+            print(f"[CMD] duplicate id={cid}: {now - last_con:.1f}s after its last answer; "
+                  "log only (#126)")
+            return {"action": "duplicate", "id": cid}
+        self._dup_console[cid] = now
         ok, text, granted = self._dup_fields(cached, first)
         self._answer(cid, ok, cached.get("e"), key=cached.get("k"), text=text,
                      staged=cached.get("s"), granted=granted, duplicate=True,

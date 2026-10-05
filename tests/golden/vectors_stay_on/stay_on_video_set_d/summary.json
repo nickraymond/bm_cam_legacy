@@ -1,9 +1,9 @@
 {
  "cycle": {
   "clip": {
-   "basename": "2026-09-24T15-06-40Z_video_1000x562_15fps",
+   "basename": "2026-09-24T15-07-25Z_video_1000x562_15fps",
    "bytes": 36019,
-   "mp4": "{TMP}/videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4",
+   "mp4": "{TMP}/videos/2026-09-24T15-07-25Z_video_1000x562_15fps.mp4",
    "ok": true,
    "stage": "done"
   },
@@ -31,7 +31,7 @@
   "heal": {
    "hl": []
   },
-  "media_key": "0dprb4",
+  "media_key": "0dprcd",
   "schedule_allowed": true,
   "stage": "done",
   "transmit": true,
@@ -55,9 +55,9 @@
  "cycles": [
   {
    "clip": {
-    "basename": "2026-09-24T15-06-40Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-07-25Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-07-25Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -85,7 +85,7 @@
    "heal": {
     "hl": []
    },
-   "media_key": "0dprb4",
+   "media_key": "0dprcd",
    "schedule_allowed": true,
    "stage": "done",
    "transmit": true,
@@ -112,15 +112,15 @@
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
-   "sha256": "dd207132356977f6"
+   "sha256": "40f8e45d200d1220"
   },
-  "app/sent/2026-09-24T15-06-40Z_video_8s.sent": {
+  "app/sent/2026-09-24T15-07-25Z_video_8s.sent": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "app/sent/2026-09-24T15-06-40Z_video_8s.sent.json": {
+  "app/sent/2026-09-24T15-07-25Z_video_8s.sent.json": {
    "bytes": 330,
-   "sha256": "710dbcdaf9deae5b"
+   "sha256": "c696d448c97a460b"
   },
   "camera_config.lkg.json": {
    "bytes": 3174,
@@ -150,7 +150,7 @@
    "bytes": 17,
    "sha256": "306c6ca740756034"
   },
-  "videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-07-25Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   }
@@ -161,15 +161,15 @@
  "notes": "S4b review R2-4: a next-action key outside `settings` (the clip length) set while idle governs the next clip in the SAME process (VFIT duration 8)",
  "scenario": "stay_on_video_set_d",
  "sent_records": {
-  "app/sent/2026-09-24T15-06-40Z_video_8s.sent.json": {
+  "app/sent/2026-09-24T15-07-25Z_video_8s.sent.json": {
    "chunk_b64_chars": 384,
    "chunk_total": true,
-   "filename": "2026-09-24T15-06-40Z_video_8s.h264",
+   "filename": "2026-09-24T15-07-25Z_video_8s.h264",
    "fmt": "h264",
-   "key": "0dprb4",
+   "key": "0dprcd",
    "msgs": 126,
-   "payload": "{TMP}/app/sent/2026-09-24T15-06-40Z_video_8s.sent",
-   "sent_utc": "2026-09-24T15:06:40Z",
+   "payload": "{TMP}/app/sent/2026-09-24T15-07-25Z_video_8s.sent",
+   "sent_utc": "2026-09-24T15:07:25Z",
    "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
   }
  },

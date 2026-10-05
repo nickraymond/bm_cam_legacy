@@ -344,11 +344,34 @@ class Get(unittest.TestCase):
 
 
 class Dedupe(unittest.TestCase):
+    def test_a_burst_of_copies_is_answered_once_on_the_console(self):
+        # #126: SPOT-31593C 2026-10-05 delivered one rsd 4x within 150 ms (4 console OKs)
+        r = Rig(self)
+        r.send({"id": 1_000_001, "c": "ping"})
+        self.assertEqual(len(r.lines()), 1)                       # the original answer
+        for _ in range(3):
+            r.clock.t += 0.05
+            r.send({"id": 1_000_001, "c": "ping"})
+        self.assertEqual(r.lines(), [])                           # the copies: log only
+        self.assertEqual(r.daemon.stats["duplicates"], 3)
+        r.clock.t += V.DUP_CONSOLE_QUIET_S
+        r.send({"id": 1_000_001, "c": "ping"})
+        lines = r.lines()
+        self.assertEqual(len(lines), 1)                           # then once per 60 s
+        self.assertIn("duplicate", lines[0])
+        r.send({"id": 1_000_001, "c": "ping"})
+        self.assertEqual(r.lines(), [])
+
     def test_duplicate_returns_the_original_answer(self):
         r = Rig(self)
         r.send({"id": 1_000_001, "c": "set", "kv": {"m": 150}})
         first = r.acks()[0]
+        r.lines()
         r.send({"id": 1_000_001, "c": "set", "kv": {"m": 999}})    # same id, other body
+        self.assertEqual(r.acks(), [])                            # < 10 min: no cellular
+        self.assertEqual(r.lines(), [])                           # < 60 s: log only (#126)
+        r.clock.t += V.DUP_CONSOLE_QUIET_S
+        r.send({"id": 1_000_001, "c": "set", "kv": {"m": 999}})
         self.assertEqual(r.acks(), [])                            # < 10 min: console only
         self.assertIn("duplicate", r.lines()[-1])
         self.assertEqual(S.V9State(r.state_path).overlay["still.message_cap"], 150)
@@ -378,6 +401,7 @@ class Dedupe(unittest.TestCase):
         r.send({"id": 1_000_020, "c": "set", "kv": {"no.such": 1}},     # rejected: no advance
                {"id": 1_000_015, "c": "ping"})
         self.assertEqual([a.get("e") for a in r.acks()], ["key", None])
+        r.clock.t += V.DUP_CONSOLE_QUIET_S                               # #126: not a burst
         r.send({"id": 1_000_010, "c": "ping"})                          # cached beats old
         self.assertIn("duplicate", r.lines()[-1])
         r.send({"id": 5, "c": "ping"}, {"id": 4, "c": "ping"})           # console: no HW

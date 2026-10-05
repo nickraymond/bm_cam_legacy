@@ -1,9 +1,9 @@
 {
  "cycle": {
   "clip": {
-   "basename": "2026-09-24T15-11-00Z_video_1000x562_15fps",
+   "basename": "2026-09-24T15-11-15Z_video_1000x562_15fps",
    "bytes": 36019,
-   "mp4": "{TMP}/videos/2026-09-24T15-11-00Z_video_1000x562_15fps.mp4",
+   "mp4": "{TMP}/videos/2026-09-24T15-11-15Z_video_1000x562_15fps.mp4",
    "ok": true,
    "stage": "done"
   },
@@ -16,7 +16,7 @@
   },
   "saved": {
    "bytes": 36019,
-   "mp4": "{TMP}/videos/2026-09-24T15-11-00Z_video_1000x562_15fps.mp4",
+   "mp4": "{TMP}/videos/2026-09-24T15-11-15Z_video_1000x562_15fps.mp4",
    "time_source": "spotter"
   },
   "schedule_allowed": true,
@@ -166,9 +166,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-05-30Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-06-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-05-30Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-06-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -178,7 +178,7 @@
    "halt_result": null,
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-05-30Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-06-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -194,9 +194,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-06-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-06-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-06-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-06-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -206,7 +206,7 @@
    "halt_result": null,
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-06-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-06-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -217,9 +217,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-07-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-07-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-07-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-07-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -229,7 +229,7 @@
    "halt_result": null,
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-07-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-07-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -240,9 +240,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-08-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-08-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-08-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-08-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -252,7 +252,7 @@
    "halt_result": null,
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-08-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-08-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -263,9 +263,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-09-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-09-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-09-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-09-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -275,7 +275,7 @@
    "halt_result": null,
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-09-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-09-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -286,9 +286,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-10-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-10-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-10-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -298,7 +298,7 @@
    "halt_result": null,
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-10-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -309,9 +309,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-11-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-11-15Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-11-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-11-15Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -324,7 +324,7 @@
    },
    "saved": {
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-11-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-11-15Z_video_1000x562_15fps.mp4",
     "time_source": "spotter"
    },
    "schedule_allowed": true,
@@ -409,65 +409,57 @@
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-05-30Z_video_1000x562_15fps.json": {
+  "videos/2026-09-24T15-06-15Z_video_1000x562_15fps.json": {
    "bytes": 644,
-   "sha256": "3ce595e3190c3256"
+   "sha256": "92aa8bacdff69eff"
   },
-  "videos/2026-09-24T15-05-30Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-06-15Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-06-00Z_video_1000x562_15fps.json": {
+  "videos/2026-09-24T15-07-15Z_video_1000x562_15fps.json": {
    "bytes": 644,
-   "sha256": "f8b53e52c4a329c2"
+   "sha256": "f6fbb91eb4f1d8f3"
   },
-  "videos/2026-09-24T15-06-00Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-07-15Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-07-00Z_video_1000x562_15fps.json": {
+  "videos/2026-09-24T15-08-15Z_video_1000x562_15fps.json": {
    "bytes": 644,
-   "sha256": "dbf220a589ed5afa"
+   "sha256": "06960ae46dd12dc9"
   },
-  "videos/2026-09-24T15-07-00Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-08-15Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-08-00Z_video_1000x562_15fps.json": {
+  "videos/2026-09-24T15-09-15Z_video_1000x562_15fps.json": {
    "bytes": 644,
-   "sha256": "e2afa03846e8ec93"
+   "sha256": "04cdb09a92460009"
   },
-  "videos/2026-09-24T15-08-00Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-09-15Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-09-00Z_video_1000x562_15fps.json": {
+  "videos/2026-09-24T15-10-15Z_video_1000x562_15fps.json": {
    "bytes": 644,
-   "sha256": "c7f90554b1e29b17"
+   "sha256": "1c5048fefdea1230"
   },
-  "videos/2026-09-24T15-09-00Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-10-15Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-10-00Z_video_1000x562_15fps.json": {
+  "videos/2026-09-24T15-11-15Z_video_1000x562_15fps.json": {
    "bytes": 644,
-   "sha256": "3eda973fba29ca01"
+   "sha256": "371af682c8b48945"
   },
-  "videos/2026-09-24T15-10-00Z_video_1000x562_15fps.mp4": {
-   "bytes": 36019,
-   "sha256": "5fd3ce5507f69931"
-  },
-  "videos/2026-09-24T15-11-00Z_video_1000x562_15fps.json": {
-   "bytes": 644,
-   "sha256": "be91d381c95367ba"
-  },
-  "videos/2026-09-24T15-11-00Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-11-15Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
   "videos/manifest.json": {
-   "bytes": 3413,
-   "sha256": "ed272eece5d32fb3"
+   "bytes": 3159,
+   "sha256": "9adca3472711025e"
   }
  },
  "heavy_modules_loaded": [

@@ -1,9 +1,9 @@
 {
  "cycle": {
   "clip": {
-   "basename": "2026-09-24T15-25-00Z_video_1000x562_15fps",
+   "basename": "2026-09-24T15-25-45Z_video_1000x562_15fps",
    "bytes": 36019,
-   "mp4": "{TMP}/videos/2026-09-24T15-25-00Z_video_1000x562_15fps.mp4",
+   "mp4": "{TMP}/videos/2026-09-24T15-25-45Z_video_1000x562_15fps.mp4",
    "ok": true,
    "stage": "done"
   },
@@ -31,7 +31,7 @@
   "heal": {
    "hl": []
   },
-  "media_key": "0dps5o",
+  "media_key": "0dps6x",
   "schedule_allowed": true,
   "stage": "done",
   "transmit": true,
@@ -55,9 +55,9 @@
  "cycles": [
   {
    "clip": {
-    "basename": "2026-09-24T15-06-40Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-07-25Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-07-25Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -82,7 +82,7 @@
    "heal": {
     "hl": []
    },
-   "media_key": "0dprb4",
+   "media_key": "0dprcd",
    "schedule_allowed": true,
    "stage": "done",
    "transmit": true,
@@ -105,9 +105,9 @@
   },
   {
    "clip": {
-    "basename": "2026-09-24T15-25-00Z_video_1000x562_15fps",
+    "basename": "2026-09-24T15-25-45Z_video_1000x562_15fps",
     "bytes": 36019,
-    "mp4": "{TMP}/videos/2026-09-24T15-25-00Z_video_1000x562_15fps.mp4",
+    "mp4": "{TMP}/videos/2026-09-24T15-25-45Z_video_1000x562_15fps.mp4",
     "ok": true,
     "stage": "done"
    },
@@ -135,7 +135,7 @@
    "heal": {
     "hl": []
    },
-   "media_key": "0dps5o",
+   "media_key": "0dps6x",
    "schedule_allowed": true,
    "stage": "done",
    "transmit": true,
@@ -162,23 +162,23 @@
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
-   "sha256": "b91042bb8ca1a91a"
+   "sha256": "4fa15b10c3263ff8"
   },
-  "app/sent/2026-09-24T15-06-40Z_video_5s.sent": {
+  "app/sent/2026-09-24T15-07-25Z_video_5s.sent": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "app/sent/2026-09-24T15-06-40Z_video_5s.sent.json": {
+  "app/sent/2026-09-24T15-07-25Z_video_5s.sent.json": {
    "bytes": 330,
-   "sha256": "e15d53d4980ad6bb"
+   "sha256": "76ed3f5bf950d66f"
   },
-  "app/sent/2026-09-24T15-25-00Z_video_5s.sent": {
+  "app/sent/2026-09-24T15-25-45Z_video_5s.sent": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "app/sent/2026-09-24T15-25-00Z_video_5s.sent.json": {
+  "app/sent/2026-09-24T15-25-45Z_video_5s.sent.json": {
    "bytes": 330,
-   "sha256": "41ea654b9dc1fa18"
+   "sha256": "7c321aa68df3987a"
   },
   "camera_config.lkg.json": {
    "bytes": 3174,
@@ -208,11 +208,11 @@
    "bytes": 17,
    "sha256": "306c6ca740756034"
   },
-  "videos/2026-09-24T15-06-40Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-07-25Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   },
-  "videos/2026-09-24T15-25-00Z_video_1000x562_15fps.mp4": {
+  "videos/2026-09-24T15-25-45Z_video_1000x562_15fps.mp4": {
    "bytes": 36019,
    "sha256": "5fd3ce5507f69931"
   }
@@ -223,26 +223,26 @@
  "notes": "trigger-only video: no action at boot, a heartbeat, trg -> clip, a txd applied while idle governs the next clip, trg -> clip, SIGTERM",
  "scenario": "stay_on_video",
  "sent_records": {
-  "app/sent/2026-09-24T15-06-40Z_video_5s.sent.json": {
+  "app/sent/2026-09-24T15-07-25Z_video_5s.sent.json": {
    "chunk_b64_chars": 384,
    "chunk_total": true,
-   "filename": "2026-09-24T15-06-40Z_video_5s.h264",
+   "filename": "2026-09-24T15-07-25Z_video_5s.h264",
    "fmt": "h264",
-   "key": "0dprb4",
+   "key": "0dprcd",
    "msgs": 126,
-   "payload": "{TMP}/app/sent/2026-09-24T15-06-40Z_video_5s.sent",
-   "sent_utc": "2026-09-24T15:06:40Z",
+   "payload": "{TMP}/app/sent/2026-09-24T15-07-25Z_video_5s.sent",
+   "sent_utc": "2026-09-24T15:07:25Z",
    "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
   },
-  "app/sent/2026-09-24T15-25-00Z_video_5s.sent.json": {
+  "app/sent/2026-09-24T15-25-45Z_video_5s.sent.json": {
    "chunk_b64_chars": 384,
    "chunk_total": true,
-   "filename": "2026-09-24T15-25-00Z_video_5s.h264",
+   "filename": "2026-09-24T15-25-45Z_video_5s.h264",
    "fmt": "h264",
-   "key": "0dps5o",
+   "key": "0dps6x",
    "msgs": 126,
-   "payload": "{TMP}/app/sent/2026-09-24T15-25-00Z_video_5s.sent",
-   "sent_utc": "2026-09-24T15:25:00Z",
+   "payload": "{TMP}/app/sent/2026-09-24T15-25-45Z_video_5s.sent",
+   "sent_utc": "2026-09-24T15:25:45Z",
    "sha256": "5fd3ce5507f69931aa0b84828794083212ea02fe5885a4accc3cfd42ea30fefe"
   }
  },
