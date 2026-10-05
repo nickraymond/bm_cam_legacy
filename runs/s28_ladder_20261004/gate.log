@@ -91,3 +91,18 @@ numpy: 2.2.4
 2026-10-05T04:59:35Z [bmcam004] R0 probe done: pulled to /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_ladder_20261004/pulled/bmcam004_r0 (66 entries); next: hil/tools/hil_s28_r0_analyze.py /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_ladder_20261004 bmcam004
 2026-10-05T05:01:47Z Power check with SPOT-31593C bus held on (EM/Nick): SPOT-31593C battery 4.10 V, +0.01..+0.18 W (charging), input 4.55–4.67 V (unchanged). nereus000 external, VBAT 3612–3631 between windows, 3388 in the 05:00 window; IOUT ~0.9 A between windows since bus-on (was ~0.5 A) → possible shared supply via nereus000's USB hub; quiet sample 05:25Z to confirm. Temporary monitor rules ON (config bus_on_watch=true, bus_on_spots=[SPOT-31593C]); remove at restore. Monitor interval_min for SPOT-31593C set back to 60.
 2026-10-05T05:04:26Z RIG FACT (Nick via EM): both Spotters charge from nereus000's USB hub; bus-on camera load flows through nereus000's adapter. Power watch stays on; sustained VBAT decline outside :00–:12 = STOP long bus-on runs.
+2026-10-05T05:18:42Z EM: #83 LIVE (nvd aaeeece, libjxl 0.12.0, render_enabled) → GO R1 on bmcam004. Deploying e44dde5 (feature/sprint28-camera) via hil_deploy_unit.sh --ref feature/sprint28-camera --accept-print-config-diff (registry v8 +5 keys expected).
+2026-10-05T05:18:42Z [bmcam004] deploy: backup+disarm TS=20261005T051842Z; restore: crontab /home/pi/hil_backup/20261005T051842Z/crontab_ARMED.txt && sudo reboot
+1:# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+STOPPED
+rc=0
+CRON_MATCHES_BACKUP
+2026-10-05T05:19:36Z [bmcam004] re-armed + reboot
+2026-10-05T05:19:49Z R1 deploy DONE: bmcam004 e44dde54e26f, cfg hash 7a9ed97b, FIELD-UPDATE PASS; runtime tar /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20261005T051901Z.tgz. NOTE: the wrapper's backup 20261005T051842Z holds the DISARMED crontab; the real ARMED one is ~/hil_backup/20261005T044807Z/crontab_ARMED.txt.
+2026-10-05T05:23:49Z R1 setup: bench YAML edit on bmcam004 mode.run per_boot -> stay_on (LADDER R1: 'unit runs stay_on'; interval_s 0 = trigger-only, heartbeat 300 s). Reason: --bench-commands ends its cycle in a REAL halt (power_halt enabled) — the 05:20Z run was SIGTERMed inside its listen window (unit stayed up, verified). RESTORE: ssh pi@bmcam004 'cp /home/pi/hil_backup/s28_20261005T052349Z/camera_config.yaml /home/pi/BM_Devel_Pi/camera_config.yaml'. Then re-arm cron (~/hil_backup/20261005T044807Z/crontab_ARMED.txt) + reboot.
+8:  run: "stay_on"  # per_boot: one action per power-on then halt; stay_on: keep running (needs commands.enabled and the supervisor runtime).
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+CID 1000061 outcome=sent
+2026-10-05T05:25:57Z R1.trg (still) via backend Sofar lane: CID 1000062 send 200. Expected: the set (1000061) + trg arrive at SPOT-31593C's 06:05 report sync; stay_on runtime applies the set, then fires the trg → first nrjxl START.

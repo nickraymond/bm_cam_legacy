@@ -9,7 +9,8 @@ Inputs:  --api, --env-file, --device (BMCAM_003 | BMCAM_004), --json '{"c":"get"
 Outputs: prints "CID <id> send <status>"; appends request/answer lines to --log; exit 0 on a 200/202 send.
 Example: python3 /home/pi/hil_r1/hil_backend_cmd.py --api https://nereus-vision-staging.onrender.com
            --device BMCAM_003 --json '{"c":"get","k":["mode.media"]}'
-Limits:  read-only verbs only (refuses set/reset/trg/cfm/hld: those go through the remote-config path or the driver).
+Limits:  read-only verbs only by default (refuses set/reset/cfm/hld: those go through the remote-config path).
+         `--allow-trg` additionally permits ONE `trg` (one-shot capture, e.g. Sprint28 R1 `{"c":"trg","v":2,"kv":{"med":"still"}}`).
 """
 
 import argparse
@@ -31,11 +32,12 @@ def main():
     ap.add_argument("--device", required=True)
     ap.add_argument("--json", required=True)
     ap.add_argument("--log", default="/home/pi/hil_r1/backend_cmd.jsonl")
+    ap.add_argument("--allow-trg", action="store_true", help="also allow a one-shot trg command")
     a = ap.parse_args()
     if a.device not in ALLOWED:
         raise SystemExit(f"REFUSED: {a.device} not in {sorted(ALLOWED)}")
     body = json.loads(a.json)
-    if body.get("c") not in VERBS:
+    if body.get("c") not in VERBS | ({"trg"} if a.allow_trg else set()):
         raise SystemExit(f"REFUSED: verb {body.get('c')!r} (read-only verbs only: {sorted(VERBS)})")
     body["lane"] = "sofar"
     tok = next(l.split("=", 1)[1].strip().strip("'\"") for l in open(a.env_file) if l.startswith("ADMIN_TOKEN="))
