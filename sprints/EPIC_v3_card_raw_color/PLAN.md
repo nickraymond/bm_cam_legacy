@@ -50,7 +50,7 @@ IMX708 nrjxl vs today's JPEG at 180/250/500 msgs; pass = ≥ 30 % lower ΔE00 at
 ## 4. Decisions for Nick
 
 1. Approve this plan (Phase 1 in the Friday RC; Phase 3 in the pool week)?
-2. Card truth method: spectrophotometer (which one?) or side-by-side with a known chart?
+2. ~~Card truth method~~ **Ruled (Nick 10/5): side-by-side with the SpyderCheckr colour chart under the same light; Nick exports the chart's reference swatches from the Spyder software.** The camera is calibrated on the SpyderCheckr's known values, then the v3 patches are measured through that calibration (dry and wet).
 3. Turn on processing (`features.image_filter = raw_card_v1`) for SPOT-31593C / SPOT-33507C once Phase 1 merges
    (a production config change)?
 4. Pool card: v3 c1 only, or v3 + V1 for continuity?
