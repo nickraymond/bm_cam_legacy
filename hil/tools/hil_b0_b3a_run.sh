@@ -8,19 +8,22 @@
 # Inputs:   env APP (default /home/pi/BM_Devel_Pi: the DEPLOYED app, which must contain the B3a rc_raw_jxl.py),
 #           DNG + META (rpicam --metadata JSON); if DNG is unset, ONE capture is taken:
 #           `rpicam-still -n --raw -t 1000 --metadata cap.json -o cap.jpg` (the capture cycle must be stopped).
-#           RUNS_E5 (default 10), RUNS_E4 (default 2), OUT (default /tmp/b0_b3a)
+#           RUNS_E5 (default 10), RUNS_E4 (default 2), OUT (default /home/pi/b0_b3a: survives a reboot, so a second
+#           bus window RESUMES: finished runs are skipped, the same DNG is reused), DEADLINE (epoch s: no new run starts
+#           after it; set it ~2.5 min before the bus hard-cut at :10)
 # Outputs:  $OUT/run_e<E>_<n>/{result.json,stdout.txt,time.txt,vm.txt}, $OUT/b0_summary.csv, summary on stdout
 # Example:  scp hil/tools/hil_b0_b3a_run.sh pi@bmcam004:/tmp/ && ssh pi@bmcam004 'bash /tmp/hil_b0_b3a_run.sh'
 # Limits:   a sub-50 ms VmPeak spike can be missed by the sampler (VmPeak itself is a high-water mark, so the last
 #           sample of a run is representative); a night capture is a noisy scene (harder for the encoder than day).
 set -u
 case "$(hostname)" in bmcam003|bmcam004) ;; *) echo "[hil-guard] REFUSED: not a bench unit ($(hostname))" >&2; exit 5;; esac
-APP="${APP:-/home/pi/BM_Devel_Pi}"; OUT="${OUT:-/tmp/b0_b3a}"; RUNS_E5="${RUNS_E5:-10}"; RUNS_E4="${RUNS_E4:-2}"
+APP="${APP:-/home/pi/BM_Devel_Pi}"; OUT="${OUT:-/home/pi/b0_b3a}"; DEADLINE="${DEADLINE:-0}"; RUNS_E5="${RUNS_E5:-10}"; RUNS_E4="${RUNS_E4:-2}"
 mkdir -p "$OUT"
 grep -q "layout" "$APP/rc_raw_jxl.py" || { echo "FAIL: $APP/rc_raw_jxl.py has no --layout (not the B3a build)"; exit 2; }
 pgrep -f 'rc_progressive_jpeg.py|rc_run_capture_cycle.sh' >/dev/null && { echo "FAIL: capture cycle running"; exit 3; }
 echo "[b0] host=$(hostname) sha=$(cat "$APP/software_sha.txt" 2>/dev/null | head -1) $(cjxl --version 2>&1 | head -1)"
 grep -E "MemTotal|MemAvailable|CmaTotal|CmaFree" /proc/meminfo | tr -s ' ' | tr '\n' ' '; echo
+[ -z "${DNG:-}" ] && [ -s "$OUT/cap.dng" ] && { DNG="$OUT/cap.dng"; META="$OUT/cap.json"; echo "[b0] resuming with $DNG"; }
 if [ -z "${DNG:-}" ]; then
   echo "[b0] no DNG given: one capture"
   rpicam-still -n --raw -t 1000 --metadata "$OUT/cap.json" -o "$OUT/cap.jpg" > "$OUT/cap.log" 2>&1 || { echo "FAIL: capture"; tail -5 "$OUT/cap.log"; exit 4; }
@@ -30,7 +33,10 @@ fi
 echo "[b0] dng=$DNG ($(stat -c %s "$DNG") B) meta=$META"
 
 run() {   # $1 effort, $2 n
-  local d="$OUT/run_e$1_$2"; mkdir -p "$d"
+  local d="$OUT/run_e$1_$2"
+  [ -s "$d/rc_wall.txt" ] && return 0                                   # done in an earlier window
+  if [ "$DEADLINE" -gt 0 ] && [ "$(date +%s)" -ge "$DEADLINE" ]; then echo "[b0] deadline: e$1 #$2 not started"; return 0; fi
+  mkdir -p "$d"
   ( pk=0; hw=0; while :; do
       for p in $(pgrep -x cjxl); do
         read -r a b < <(awk '/^VmPeak/{p=$2}/^VmHWM/{h=$2}END{print p+0, h+0}' /proc/$p/status 2>/dev/null)
@@ -48,10 +54,11 @@ run() {   # $1 effort, $2 n
 }
 for i in $(seq 1 "$RUNS_E5"); do run 5 "$i"; done
 for i in $(seq 1 "$RUNS_E4"); do run 4 "$i"; done
-python3 - "$OUT" <<'EOF'
+ls -d "$OUT"/run_e* >/dev/null 2>&1 && python3 - "$OUT" <<'EOF'
 import csv, glob, json, os, re, statistics, sys
 out = sys.argv[1]; rows = []
 for d in sorted(glob.glob(os.path.join(out, "run_e*"))):
+    if not os.path.exists(os.path.join(d, "rc_wall.txt")): continue
     e, n = re.search(r"run_e(\d)_(\d+)", d).groups()
     r = json.load(open(os.path.join(d, "result.json"))) if os.path.exists(os.path.join(d, "result.json")) else {}
     rc, wall = open(os.path.join(d, "rc_wall.txt")).read().split()
