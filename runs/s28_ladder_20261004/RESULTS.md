@@ -59,8 +59,13 @@ Evidence: the nvd session's parity run (backend side); this run's `api/nrjxl_fir
 |---|---|---|---|---|---|
 | R3.1 | encode_max_s 5 (cid 1000063) + trg (1000064) | 09:49 / 10:06:33 | `[RAW] FALLBACK rfb=time` (cjxl killed at 5.2 s); START 10:06:47 `fmt=pjpg … rfb=time`, key 0e9qqx, 162/162 | media 57443: 149/162 at 11:13 (heal path) | PASS on the wire |
 | R3.2 | distances [0.3], target_fill 0, encode_max_s 60 (cid 1000065, supersede) + trg 1000066 | 11:03 / 11:07:42 (the 1000063 ack was LOST and stay_on never re-sends it → in_flight 48 min → supersede) | `[RAW] FALLBACK rfb=fit: nothing fits (cap 195)`; START 11:07:56 `fmt=pjpg … rfb=fit`, key 0e9tkv, 154/154 | pending | PASS on the wire |
-| R3.5 | target_fill 0.97, distances default, d_max 0.5 | | | | |
-| R3.3 | crop [1505,846,1600,900] | | | | |
+| R3.5 | target_fill 0.97, distances default, d_max 0.5 (cid 1000067, supersede: 1000065's ack also lost) + trg 1000068 | 11:58 / 12:07:13 | `search1 d=0.5: 420529 B, 1461 msgs … FALLBACK rfb=floor: the room needs d>=6.434 > d_max 0.5`; START 12:07:34 `fmt=pjpg … rfb=floor`, key 0e9wca, 157/157 | pending | PASS on the wire |
+| R3.3 | crop [1505,846,1600,900] (backend plan ok: defers to the unit) | sent 12:2x, no trg | expect ERR e:xk at the 13:05 sync | n/a | |
 
 Observation (for the camera session): the runtime rung search on the first nrjxl still logged `peak_rss=139384 KiB`
 (136 MB), above R0.3's 120 MB criterion (R0 measured the encoder alone at 39 MB).
+
+stay_on heal finding (#126, severe): the 3 rsds serviced in stay_on put 4 of 30 heal chunks on air (57389 rsd1 2/4,
+57443 rsd 100133 0/13, 57457 rsd 100134 2/13): the heal burst fires at the hub.sync and the 2-slot queue drops the
+rest. The fallback pjpgs (R3.1/R3.2/R3.5) therefore complete only after the unit is back in per_boot (heals before START
+at boot), so "arrives complete" is scored after the restore.
