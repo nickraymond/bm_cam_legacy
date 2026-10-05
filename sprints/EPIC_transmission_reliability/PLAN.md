@@ -25,8 +25,12 @@ as low as we can. #127 (sync settle) is decided inside this epic, not alone.
 
 ## 3. What we know (facts, with sources)
 
-- **Spotter cellular queue holds 2 messages** (cellular-only lane). Bursts that arrive while it is full are dropped
-  silently (`MS_Q_CELLULAR_ONLY is full`). Sprint23/25 notes, G4, #126 trace.
+- **Three queues on the way out:** (1) mote → Spotter, bm_core, depth 32 (documented, `integrations/spotter.c`);
+  (2) the Spotter's **handoff queue into the Notecard** (`MS_Q_CELLULAR_ONLY`), **≈ 2 messages, measured, not
+  documented** (Sprint09/10: loss per blackout = D / delay − 2); (3) the Notecard's own store, many messages, sent
+  on the 30 min outbound / hourly sync. (2) drains faster than our 1.3 s pace, so it only fills while the Spotter
+  is busy with its own traffic (HDR every 5 min, hourly report + sync ~45 s); camera messages submitted then are
+  dropped silently. Whether (2) can be made deeper is a Sofar question (H2). Sprint09/10/23/25 notes, G4, #126.
 - **The Spotter syncs (hub.sync) only at its hourly LEGACY report** (+ boot); the Notecard is in **periodic outbound
   mode, 30 min**. Inbound commands arrive only at the sync; outbound messages wait up to ~30 min to leave
   (first nrjxl: burst 06:12, last chunk at backend 06:40). Sprint25 + 2026-10-04 measurements.
