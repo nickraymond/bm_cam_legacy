@@ -26,4 +26,4 @@
 2026-10-04T19:46:09Z C1 wake B2 (:30 arm, wake 2): WAKE SPOT-31593C 2026-10-04T19:30: bus 19:30:00→19:40:00 | Pi 19:30:10→19:37:10 (wake→halt 430 s) | START len 126 END sent 126 burst 207.1 s | queue_full 8 | heal cmds 0 | nereus000 wifi yes:Ford:70
 2026-10-04T21:16:12Z C1 wake A3 (:00 arm, wake 3): WAKE SPOT-31593C 2026-10-04T21:00: bus 20:59:59→21:09:59 | Pi 21:00:10→21:08:20 (wake→halt 501 s) | START len 124 END sent 124 burst 204.5 s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
 2026-10-04T23:28:17Z C1 wake B3 (:30 arm, wake 3): WAKE SPOT-31593C 2026-10-04T22:30: bus 22:29:59→22:39:59 | Pi 22:30:10→22:38:20 (wake→halt 501 s) | START len 125 END sent 125 burst 205.8 s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:77
-2026-10-05T00:33:50Z C1 wake A4 (:00 arm, wake 4): (eval):1: command not found: timeout
+2026-10-05T00:34:06Z C1 wake A4 (:00 arm, wake 4): WAKE SPOT-31593C 2026-10-05T00:00: bus 23:59:59→00:09:59 | Pi 00:00:09→00:07:19 (wake→halt 440 s) | START len 125 END sent 125 burst 205.8 s | queue_full 24 | heal cmds 0 | nereus000 wifi yes:Ford:75
