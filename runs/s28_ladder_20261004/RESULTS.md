@@ -96,6 +96,14 @@ START every wake. R4.4 START uptime: from the cycle logs at the Tue 17:00Z windo
 over the same hours. Spotter not touched (Nick decides any console post/reset). If not drained by ~01:00Z: R4.1 gets
 the external-event exclusion or R4 delivery = NOT ASSESSABLE; the camera-side criteria (R4.2, R4.4, fallback count) stand.
 
+X1 desk forensic ("Raw compression test spec" session, read-only, `~/Downloads/x1_spotter_incident_20261005/X1_VERDICT.md`,
+from `console_full/`): **delay** = Notecard → cellular (no cellular transmission 20:13:52Z → 22:16:54Z; 21:15:02 "Have
+not transmitted message over cellular in 30 minutes" → Iridium fallback; recovery 22:16:54Z). **Loss** = only at the
+Pi → Spotter queue (`MS_Q_CELLULAR_ONLY is full`); accepted = Sofar = backend chunk counts for 20/21/22/23Z.
+Second, independent cause for no complete bmcam004 image since 17Z: SPOT-31593C's health check (~:02:55) and hourly
+report (~:05) fall inside the :01–:05 burst; SPOT-33507C syncs at :10, after its burst. (C1 phase 1 found no
+significant :00 vs :30 effect on 5+5 wakes; reconcile with the forensic before acting on it.)
+
 Mid-check 2026-10-05 18:45Z: **R4.3 (≤ 1/12 fallback) already FAILED**: 2 fallbacks in 3 wakes, both `rfb=floor`
 (nrjxl search hit the d_max floor without fitting; the unit fell back loudly with a reason = RC.5 behaviour, not
 silent). R4.1 / R4.2 / R4.4 still running (all 3 wakes delivered or healing; wake→halt 483–504 s ≤ 570; START every
