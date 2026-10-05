@@ -92,6 +92,9 @@ def main(argv=None):
                     help="per-row widths, e.g. 'bayer:1600;rgbv:1600,1440,1000' (overrides "
                          "--widths for the rows named)")
     ap.add_argument("--no-slider", action="store_true")
+    ap.add_argument("--equal-quality", action="store_true",
+                    help="only: B3a (rgbwa) at 1600, bisect d to the JPEG's SSIMULACRA2 "
+                         "(equal quality); writes equal_quality.json")
     ap.add_argument("--merge", action="store_true",
                     help="keep the rows of an existing summary.json that this run does not redo")
     args = ap.parse_args(argv)
@@ -336,6 +339,50 @@ def main(argv=None):
             if hi - lo < 0.02:
                 break
         return best[0], best[1], True
+
+    if args.equal_quality:
+        # equal quality (EM / Nick 2026-10-05): the largest d (fewest bytes) whose B3a decode
+        # still scores SSIMULACRA2 >= the JPEG's. Container header: a nominal 60 B is added
+        # (the 4-plane container's header is ~50-60 B; B3a has no container yet).
+        w, h = ROI[2], ROI[3]
+        lin = rgb_lin(w, h)
+        g = g3 if render_mode == "tg7" else dg * g3
+        sc_ = max(1.0, float((lin * g).max()))
+        codes = rgb_codes(lin * (g / sc_))
+
+        def at(d):
+            b = rgb_blob(codes, d, "0")
+            img = finish((rgb_decode(b, w, h, wb_applied=None) * (sc_ / g)).astype(np.float32))
+            return b, score(img)
+        lo, hi = 0.1, 25.0
+        b, sc = at(lo)
+        best = (lo, b, sc) if sc["ssimulacra2"] >= jrow["ssimulacra2"] else None
+        if best is not None:
+            for _ in range(12):
+                mid = round((lo + hi) / 2, 3)
+                b, sc = at(mid)
+                if sc["ssimulacra2"] >= jrow["ssimulacra2"]:
+                    lo, best = mid, (mid, b, sc)
+                else:
+                    hi = mid
+                if hi - lo < 0.02:
+                    break
+        res = {"label": args.label, "source": source, "jpeg": jrow, "header_b_nominal": 60}
+        if best is None:
+            res["note"] = "B3a cannot reach the JPEG's SSIMULACRA2 even at d 0.1"
+        else:
+            d, b, sc = best
+            n = len(b) + 60
+            res.update({"distance": d, "bytes": n, "msgs": X.message_count(n, CHUNK), **sc,
+                        "bytes_ratio_vs_jpeg": round(n / jrow["bytes"], 3),
+                        "headroom_scale": round(sc_, 4)})
+        with open(os.path.join(out, "equal_quality.json"), "w") as fh:
+            json.dump(res, fh, indent=1, default=str)
+        print(f"[EQ] {args.label}: JPEG {jrow['bytes']} B s2 {jrow['ssimulacra2']} -> B3a "
+              f"d={res.get('distance')} {res.get('bytes')} B {res.get('msgs')} msgs s2 "
+              f"{res.get('ssimulacra2')} ratio {res.get('bytes_ratio_vs_jpeg')}", flush=True)
+        shutil.rmtree(tmp_png, ignore_errors=True)
+        return 0
 
     rows = [jrow]
     imgs = {("jpeg", 1000): jimg}
