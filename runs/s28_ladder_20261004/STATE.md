@@ -68,3 +68,12 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - R1/R2: first nrjxl COMPLETE + renderable (media 57389, 09:40:30Z, D1 3 h 32 m: #126 collision + REASK 90 min + sync alignment). Parity R2.1 requested from the nvd session.
 - R3 over the Sofar lane (EM-approved): R3.1 sent 09:49Z (encode_max_s 5 + trg) → check 10:13Z cron (2f344883), which sends R3.2. Then R3.3 (bad crop → e:xk), then reset still.raw.* to defaults.
 - After R3: restore bmcam004 (§1 list) unless R4 starts right after (R4 = 12 production wakes with nrjxl: then restore bus to hourly + per_boot YAML + armed crontab but KEEP still.format=nrjxl and libjxl).
+
+## 7. Update 2026-10-05 14:22Z (after R3)
+- R3: R3.1/R3.2/R3.5 PASS on the wire; R3.3 FAIL (nrjxl rules skipped on a video unit: `_nrjxl_still` needs mode.media=still); resets applied 14:05 (still.crop + still.raw.* -> YAML).
+- bmcam004 now: development? NO — still e44dde5 runtime; per_boot YAML (5ac06d1f), cron ARMED, hourly bus restored 14:20:42, power watch OFF.
+  still.format=nrjxl overlay + libjxl-tools KEPT pending the EM's R4 decision.
+- Remaining restore if no R4: backend reset still.format; `sudo apt-get remove -y libjxl-tools && sudo apt-get autoremove -y`;
+  redeploy development (`hil_deploy_unit.sh` needs stay_on/held bus → use the bmcam-field-update one-window pattern like the #121 deploy).
+- Fallback pjpgs 57443 (0e9qqx), 57457 (0e9tkv), R3.5 (0e9wca) should heal before START at the hourly boots.
+- Mistake logged: YAML backup path guessed (05:24 vs real 05:23:49) → halt before restore → recovered via hil_bus_always_on.sh.

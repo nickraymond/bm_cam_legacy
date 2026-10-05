@@ -135,3 +135,46 @@ REFUSED {"detail":{"reason":"in_flight","ok":false,"verb":"set","kv":{"still.raw
 2026-10-05T13:14:58Z R3 reset (still.crop + still.raw.*): REFUSED {"detail":{"reason":"too_big","ok":false,"verb":"reset","kv":null,"refusals":[{"reason":"too_big","key":null,"why":"a reset carries at most 4 keys (send two changes)"}],"warnings":[],"key_bytes":{},"j → lands at the 14:05Z sync.
 2026-10-05T13:15:14Z R3.resetA {"reset":["still.crop"]} → (supersede) CID 1000070 outcome=sent
 2026-10-05T13:16:29Z R3.resetB {"reset":["still.raw.distances","still.raw.target_fill","still.raw.encode_max_s","still.raw.d_max"]} → (supersede) CID 1000071 outcome=sent
+2026-10-05T14:16:34Z R3 resets APPLIED at the 14:05 sync (1000070 still.crop -> YAML, cfg ef0bff75; 1000071 still.raw.* -> YAML). No R4 answer from the EM yet → partial restore now (EM rule: restore after R3 unless R4 starts): per_boot YAML + armed cron + hourly bus (ends the bus-on load on nereus000; fallback pjpgs heal before START at the boots). KEPT pending the R4 decision: e44dde5 runtime, still.format=nrjxl, libjxl-tools (harmless while mode.media=video).
+ls: cannot access '/home/pi/hil_backup/s28_20261005T0524*Z': No such file or directory
+backup=
+cp: cannot stat '/camera_config.yaml': No such file or directory
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+cron-ARMED
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=42c14d76 hv=1 registry=v8 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+halt issued 14:16:38
+2026-10-05T14:16:53Z MISTAKE: YAML backup path guessed wrong (no ~/hil_backup/s28_20261005T0524*Z); the copy failed, YAML still stay_on, and the halt was already issued (14:16:38) → bmcam004 halted on the held bus. NOT restoring the schedule yet (a stay_on YAML would never halt → hard bus cuts each hour). Recovery: hil_bus_always_on.sh again (commit cycles the bus, Pi caught + disarmed), then fix the YAML from the real backup, re-arm, halt, restore schedule.
+2026-10-05T14:17:05Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261005T141659Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-05T14:17:06Z Succesfully sent config set msg
+2026-10-05T14:17:06Z 2026-10-05T14:17:06.496Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-05T14:17:12Z 2026-10-05T14:17:13.078Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-05T14:17:12Z 2026-10-05T14:17:13.085Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-05T14:17:12Z 2026-10-05T14:17:13.140Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-05T14:17:15Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+2026-10-05T14:17:59Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-05T14:17:59Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261005T141659Z)
+8:  run: "per_boot"  # per_boot: one action per power-on then halt; stay_on: keep running (needs commands.enabled and the supervisor runtime).
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+cron-ARMED
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=5ac06d1f hv=1 registry=v8 overlay=3 key(s)
+halt issued 14:18:18
+dark at 14:18:32
+2026-10-05T14:18:57Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=5400000 sampleDurationMs=600000 
+2026-10-05T14:19:11Z Succesfully sent config set msg
+2026-10-05T14:19:11Z 2026-10-05T14:19:12.093Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-05T14:19:17Z Succesfully sent config set msg
+2026-10-05T14:19:17Z 2026-10-05T14:19:17.320Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-05T14:19:23Z 2026-10-05T14:19:23.906Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-05T14:19:23Z 2026-10-05T14:19:23.914Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-05T14:19:23Z 2026-10-05T14:19:23.968Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-05T14:19:26Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+e44dde54e26f
+[restore] halt issued 14:20:05
+2026-10-05T14:20:28Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-05T14:20:42Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-05T14:20:42Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-05T14:21:01Z bmcam004 RESTORED to production (partial, pending R4): per_boot YAML from ~/hil_backup/s28_20261005T052349Z (cfg 5ac06d1f), cron ARMED (from ~/hil_backup/20261005T141659Z/crontab_ARMED.txt), SPOT-31593C 1/3600000/600000 confirmed 14:20:42 (stub boot halted), monitor bus_on_watch OFF, interval 60. KEPT: e44dde5 runtime, still.format=nrjxl overlay, libjxl-tools (pending the EM's R4 decision; remove/redeploy per STATE §1 if no R4). First hourly wake 15:00Z: fallback pjpgs heal before START.
