@@ -1,0 +1,43 @@
+{
+ "label": "tg7_P9160527",
+ "orf": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/tg7_channel_islands/raw/1_reference_A_iso100/P9160527.orf",
+ "target_bytes": 54475,
+ "headroom_x10000": 12234,
+ "note": "TG-7 resampled to IMX708 geometry, an approximation; times = this host",
+ "e4": {
+  "equal_bytes": {
+   "distance": 4.5444,
+   "bytes": 54470,
+   "ssimulacra2": 30.88,
+   "butteraugli_3norm": 2.676,
+   "encode_s_median": 0.062
+  },
+  "production": {
+   "distance": 4.572,
+   "bytes": 54311,
+   "msgs": 189,
+   "attempts": 3,
+   "search_s": 0.338,
+   "ssimulacra2": 30.557,
+   "butteraugli_3norm": 2.684
+  }
+ },
+ "e5": {
+  "equal_bytes": {
+   "distance": 4.5507,
+   "bytes": 54460,
+   "ssimulacra2": 34.579,
+   "butteraugli_3norm": 2.525,
+   "encode_s_median": 0.395
+  },
+  "production": {
+   "distance": 4.454,
+   "bytes": 55632,
+   "msgs": 194,
+   "attempts": 2,
+   "search_s": 0.888,
+   "ssimulacra2": 35.492,
+   "butteraugli_3norm": 2.421
+  }
+ }
+}
