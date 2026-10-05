@@ -36,6 +36,21 @@ G1, G2, G3 passed early and every R1 PR is merged. The outdoor box is ready **Sa
 | Sun 10/4 | exit review → **ship decision** (5 days early); Mon–Fri = slack for any fix + re-run |
 | after exit | next sprint: RAW → JPEG-XL (own sprint, Nick 2026-10-01) |
 
+## 2d. Friday = Release Candidate; next week = pool (Nick, Mon 2026-10-05)
+
+**Fri 10/9 is a Release Candidate, not the ship.** The R1RC gate (hil/gates/R1RC_release_candidate.md, approved by
+Nick 10/5) runs Wed–Thu; its PASS makes the RC. **Week of 10/12: pool testing** with the cameras in the water and the
+new **v3 reference cards** (arrive 10/5) over a range of light conditions; the ship decision follows the pool data.
+
+The RC should deliver, as far as proven by Thursday:
+1. **More reliable cellular transmission:** the transmission-reliability epic (bm #129). Phase A is analysed from
+   existing logs (G4, R1G, R4, RC), and any fix that is proven by Thursday goes in.
+2. **More efficient data per message:** JPEG-XL at the lowest analog gain (#120 + the low-gain mode).
+3. **Best-in-class underwater colour correction in the cloud on the DNGs we send:** NEW epic, the v3 reference card
+   integrated into the workflow (card detection + raw-domain correction on the unpacked RAW, as a gallery variant).
+
+Epics (sub-categories of R1): transmission reliability · JPEG-XL efficiency · v3 card + cloud raw colour correction.
+
 ## 2c. R1 scope refined (Nick, Mon 2026-10-05). Ship Fri 10/9
 
 R1 is the next release and contains:
