@@ -52,3 +52,15 @@ cfg 7a9ed97b); bench YAML `mode.run: stay_on` (trigger-only; backup + restore in
 | DNG | opens in LibRaw with the right CFA / levels / WB |
 
 Evidence: the nvd session's parity run (backend side); this run's `api/nrjxl_first_57389_display.jpg` is the staging render.
+
+## R3 forced fallbacks on bmcam004 (Sofar lane, EM-approved; LADDER e44dde5 order R3.1 → R3.2 → R3.5 → R3.3)
+
+| step | change | sent / fired (UTC) | on the wire | backend complete? | verdict |
+|---|---|---|---|---|---|
+| R3.1 | encode_max_s 5 (cid 1000063) + trg (1000064) | 09:49 / 10:06:33 | `[RAW] FALLBACK rfb=time` (cjxl killed at 5.2 s); START 10:06:47 `fmt=pjpg … rfb=time`, key 0e9qqx, 162/162 | pending | PASS on the wire |
+| R3.2 | distances [0.3], target_fill 0, encode_max_s 60 | backend refused `in_flight` at 10:13 (1000063's ack not yet ingested); retry loop | | | |
+| R3.5 | target_fill 0.97, distances default, d_max 0.5 | | | | |
+| R3.3 | crop [1505,846,1600,900] | | | | |
+
+Observation (for the camera session): the runtime rung search on the first nrjxl still logged `peak_rss=139384 KiB`
+(136 MB), above R0.3's 120 MB criterion (R0 measured the encoder alone at 39 MB).
