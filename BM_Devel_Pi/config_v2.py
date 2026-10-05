@@ -276,7 +276,7 @@ def _n(value):
 
 STILL_RAW_KEYS = ("still.format", "still.raw.distances", "still.raw.encode_max_s",
                   "still.raw.keep_crop", "still.raw.effort", "still.raw.target_fill",
-                  "still.raw.d_max")
+                  "still.raw.d_max", "still.raw.layout")
 
 
 def _still_raw_lines(v):
@@ -293,7 +293,9 @@ def _still_raw_lines(v):
             f"  keep_crop: {_n(v['still.raw.keep_crop'])}",
             f"  effort: {_n(v['still.raw.effort'])}",
             f"  target_fill: {_n(float(v['still.raw.target_fill']))}",
-            f"  d_max: {_n(float(v['still.raw.d_max']))}"]
+            f"  d_max: {_n(float(v['still.raw.d_max']))}",
+            *([f"  layout: {_q(v['still.raw.layout'])}"]
+              if v.get("still.raw.layout", "bayer4") != "bayer4" else [])]
 
 
 EXPOSURE_PROFILE_KEYS = ("camera.exposure.profile", "camera.exposure.max_shutter_us",

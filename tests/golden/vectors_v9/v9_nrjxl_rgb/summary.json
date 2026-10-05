@@ -2,7 +2,7 @@
  "cycle": {
   "budget_seconds": 720,
   "command_events": [],
-  "final_path": "{TMP}/images/2026-09-24T15:04:10Z_image_compressed.jpg",
+  "final_path": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.nrjxl",
   "halt_result": {
    "action": "halt_initiated",
    "command": [
@@ -18,150 +18,165 @@
    "hl": []
   },
   "listen_tail_s": 150.0,
-  "native_path": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.jpg",
+  "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
+  "raw": {
+   "attempt_log": [
+    {
+     "budget_fit": false,
+     "bytes": 307294,
+     "cjxl_seconds": [
+      6.4
+     ],
+     "distance": 0.1,
+     "message_count": 1067,
+     "over_cap": true,
+     "peak_rss_kb": 31000,
+     "plane_bytes": [
+      307218
+     ],
+     "seconds": 6.4,
+     "step": "search1"
+    },
+    {
+     "budget_fit": true,
+     "bytes": 40199,
+     "cjxl_seconds": [
+      6.4
+     ],
+     "distance": 0.766,
+     "message_count": 140,
+     "over_cap": false,
+     "peak_rss_kb": 31000,
+     "plane_bytes": [
+      40122
+     ],
+     "seconds": 6.4,
+     "step": "search2"
+    },
+    {
+     "budget_fit": true,
+     "bytes": 54465,
+     "cjxl_seconds": [
+      6.4
+     ],
+     "distance": 0.565,
+     "message_count": 190,
+     "over_cap": false,
+     "peak_rss_kb": 31000,
+     "plane_bytes": [
+      54389
+     ],
+     "seconds": 6.4,
+     "step": "search3"
+    }
+   ],
+   "bytes": 54465,
+   "detail": null,
+   "distance": 0.565,
+   "fmt": "nrjxl",
+   "kept_crop": null,
+   "message_count": 190,
+   "reserve_msgs": 0,
+   "rfb": null,
+   "timings": {
+    "dng_read_s": 0.0,
+    "headroom_x10000": 10000,
+    "rgb_prep_s": 0.0
+   }
+  },
   "schedule_allowed": true,
   "selection": {
    "attempt_log": [
     {
-     "budget_fit": false,
-     "jpeg_bytes": 137623,
-     "message_count": 478,
-     "over_cap": true,
-     "quality": 90
-    },
-    {
      "budget_fit": true,
-     "jpeg_bytes": 88579,
-     "message_count": 308,
-     "over_cap": true,
-     "quality": 80
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 68061,
-     "message_count": 237,
-     "over_cap": true,
-     "quality": 70
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 55070,
-     "message_count": 192,
+     "jpeg_bytes": 3300,
+     "message_count": 12,
      "over_cap": false,
-     "quality": 60
+     "quality": 90
     }
    ],
-   "attempts": 4,
+   "attempts": 1,
    "fits": true,
-   "quality": 60,
+   "quality": 90,
    "reason": "fit"
   },
   "transmit": true,
   "transmit_result": {
    "complete_send": true,
    "incomplete_emitted": false,
-   "planned": 192,
-   "send_target": 192,
-   "sent": 192,
+   "planned": 190,
+   "send_target": 190,
+   "sent": 190,
    "started": true,
-   "uart_duration_sec": 250.89999999999122
-  },
-  "trigger": {
-   "id": 1000504,
-   "kv": {},
-   "value": 2
+   "uart_duration_sec": 248.29999999999143
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 651.8,
+ "fake_clock_elapsed_s": 417.5,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
-   "sha256": "e36cc880637b4e34"
+   "sha256": "5fa8e69e461e3634"
   },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
-   "bytes": 342,
-   "sha256": "495ae8493af789b1"
-  },
-  "app/sent/2026-09-24T15:04:10Z_image_compressed.sent.json": {
-   "bytes": 342,
-   "sha256": "9f415f5e9ae5608d"
+   "bytes": 347,
+   "sha256": "f384207a744f0719"
   },
   "camera_config.lkg.json": {
-   "bytes": 3515,
+   "bytes": 3505,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2698,
-   "sha256": "0829876dce7d2324"
+   "bytes": 2688,
+   "sha256": "46568f7309fe7d5d"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
    "sha256": "676b414910d2df13"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg": {
-   "bytes": 55070,
-   "sha256": "12db91e1030d4f9a"
+   "bytes": 3300,
+   "sha256": "4a6b67539f0bec6a"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2474,
-   "sha256": "1ad82333027b9950"
+   "bytes": 2162,
+   "sha256": "1317314344adc493"
+  },
+  "images/2026-09-24T15:00:00Z_image_compressed.nrjxl": {
+   "bytes": 54465,
+   "sha256": "1b3c8ceddd077b92"
+  },
+  "images/2026-09-24T15:00:00Z_image_compressed.nrjxl.capture_metadata.json": {
+   "bytes": 3022,
+   "sha256": "3c5fb863a7d85ef5"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
    "sha256": "eb364d9cdb375bd0"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.metadata.json": {
-   "bytes": 246,
-   "sha256": "bec2860ed6d72147"
+   "bytes": 350,
+   "sha256": "0dfc804982d17312"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.stderr.log": {
-   "bytes": 21,
-   "sha256": "49401993375a0f77"
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c14"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.stdout.log": {
-   "bytes": 21,
-   "sha256": "49401993375a0f77"
-  },
-  "images/2026-09-24T15:04:10Z_image_compressed.jpg": {
-   "bytes": 55070,
-   "sha256": "12db91e1030d4f9a"
-  },
-  "images/2026-09-24T15:04:10Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2475,
-   "sha256": "deaaba90e7d95053"
-  },
-  "images/2026-09-24T15:04:10Z_image_native_full.jpg": {
-   "bytes": 4178802,
-   "sha256": "eb364d9cdb375bd0"
-  },
-  "images/2026-09-24T15:04:10Z_image_native_full.metadata.json": {
-   "bytes": 246,
-   "sha256": "bec2860ed6d72147"
-  },
-  "images/2026-09-24T15:04:10Z_image_native_full.stderr.log": {
-   "bytes": 21,
-   "sha256": "49401993375a0f77"
-  },
-  "images/2026-09-24T15:04:10Z_image_native_full.stdout.log": {
-   "bytes": 21,
-   "sha256": "49401993375a0f77"
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c14"
   },
   "logs/camera_log.csv": {
-   "bytes": 391,
-   "sha256": "050b17e8f1f81476"
+   "bytes": 292,
+   "sha256": "36d02d157a5f482b"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2233,
-   "sha256": "9964a1ececae7074"
+   "bytes": 2387,
+   "sha256": "405a6fa22336ee17"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 325,
-   "sha256": "a35eea07387d314b"
-  },
-  "state/config_journal.jsonl": {
-   "bytes": 113,
-   "sha256": "wall-time"
+   "bytes": 203,
+   "sha256": "a48c6bbf3d54bcc5"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -170,38 +185,39 @@
  },
  "heavy_modules_loaded": [
   "PIL",
+  "numpy",
   "yaml"
  ],
- "notes": "W10 on v9: a remote trg in the listen tail fires this boot",
- "scenario": "v9_trigger_in_tail",
+ "notes": "B3a (still.raw.layout rgb, DESIGN_B3a.md): one --raw capture, the bilinear strip demosaic + no-clip coding into ONE rgb.ppm, ONE VarDCT encode per search step (-m 0), container profile v2 (method 20); START unchanged (fmt=nrjxl cmp=1)",
+ "scenario": "v9_nrjxl_rgb",
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
    "chunk_total": true,
-   "filename": "2026-09-24T15:00:00Z_image_compressed.jpg",
-   "fmt": "pjpg",
+   "filename": "2026-09-24T15:00:00Z_image_compressed.nrjxl",
+   "fmt": "nrjxl",
    "key": "0dpr00",
-   "msgs": 192,
-   "payload": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
-   "sent_utc": "2026-09-24T15:00:00Z",
-   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
-  },
-  "app/sent/2026-09-24T15:04:10Z_image_compressed.sent.json": {
-   "chunk_b64_chars": 384,
-   "chunk_total": true,
-   "filename": "2026-09-24T15:04:10Z_image_compressed.jpg",
-   "fmt": "pjpg",
-   "key": "0dpr6y",
-   "msgs": 192,
-   "payload": "{TMP}/images/2026-09-24T15:04:10Z_image_compressed.jpg",
-   "sent_utc": "2026-09-24T15:04:10Z",
-   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
+   "msgs": 190,
+   "payload": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.nrjxl",
+   "sent_utc": "2026-09-24T15:00:19Z",
+   "sha256": "1b3c8ceddd077b92fb67e9dd2979bebaec2c007be9ca9b4d15c1a2c5818614b2"
   }
  },
  "sidecars": {
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
    "AfState": 0,
    "AnalogueGain": 1.5,
+   "ColourCorrectionMatrix": [
+    1.6077,
+    -0.416,
+    -0.1918,
+    -0.3678,
+    1.7546,
+    -0.3868,
+    0.0051,
+    -0.5874,
+    1.5823
+   ],
    "ColourGains": [
     1.8,
     1.6
@@ -222,34 +238,13 @@
    "attempt_log": [
     {
      "budget_fit": true,
-     "jpeg_bytes": 137623,
-     "message_count": 478,
-     "over_cap": true,
-     "quality": 90
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 88579,
-     "message_count": 308,
-     "over_cap": true,
-     "quality": 80
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 68061,
-     "message_count": 237,
-     "over_cap": true,
-     "quality": 70
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 55070,
-     "message_count": 192,
+     "jpeg_bytes": 3300,
+     "message_count": 12,
      "over_cap": false,
-     "quality": 60
+     "quality": 90
     }
    ],
-   "base64_chars": 73428,
+   "base64_chars": 4400,
    "camera_control_args": [
     "--autofocus-mode",
     "manual",
@@ -287,51 +282,59 @@
     "normal",
     "--awb",
     "auto",
+    "--raw",
     "-o",
     "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
    ],
    "capture_mode": "progressive_jpeg",
    "cron_logs_dir_bytes": 4567890,
    "crop_native_xywh": [
-    1504,
-    846,
-    1600,
-    900
+    0,
+    0,
+    160,
+    96
    ],
-   "enc_attempts": 4,
+   "enc_attempts": 1,
    "fits": true,
    "hostname": "bmcam-golden",
    "images_dir_bytes": 123456789,
    "img_format": "pjpg",
-   "jpeg_bytes": 55070,
-   "jpeg_quality_used": 60,
-   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
-   "message_count": 192,
+   "jpeg_bytes": 3300,
+   "jpeg_quality_used": 90,
+   "jpeg_sha256": "4a6b67539f0bec6a66e40a84f79ba95feb6e689b544fc11c72f4d2ffde669756",
+   "message_count": 12,
    "metadata_json": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
    "metadata_schema": "bmcam_runtime_sidecar_v1",
    "metadata_source": "rc_progressive_jpeg",
    "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
    "output_size": [
-    1000,
-    562
+    160,
+    96
    ],
-   "planned_buffers": 192,
    "sd_free_bytes": 22000000000,
    "sd_total_bytes": 31000000000,
    "sd_used_bytes": 9000000000,
    "sd_used_pct": 29.03,
    "selector_reason": "fit",
-   "sent_buffers": 192,
    "software_sha": "golden0",
    "stderr_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stderr.log",
    "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
-   "transmit_duration_sec": 250.89999999999122,
-   "transmit_success": true,
    "utc_capture_timestamp": "2026-09-24T15:00:00Z"
   },
-  "images/2026-09-24T15:04:10Z_image_compressed.jpg.capture_metadata.json": {
+  "images/2026-09-24T15:00:00Z_image_compressed.nrjxl.capture_metadata.json": {
    "AfState": 0,
    "AnalogueGain": 1.5,
+   "ColourCorrectionMatrix": [
+    1.6077,
+    -0.416,
+    -0.1918,
+    -0.3678,
+    1.7546,
+    -0.3868,
+    0.0051,
+    -0.5874,
+    1.5823
+   ],
    "ColourGains": [
     1.8,
     1.6
@@ -349,37 +352,6 @@
     2592
    ],
    "SensorTemperature": 41.0,
-   "attempt_log": [
-    {
-     "budget_fit": false,
-     "jpeg_bytes": 137623,
-     "message_count": 478,
-     "over_cap": true,
-     "quality": 90
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 88579,
-     "message_count": 308,
-     "over_cap": true,
-     "quality": 80
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 68061,
-     "message_count": 237,
-     "over_cap": true,
-     "quality": 70
-    },
-    {
-     "budget_fit": true,
-     "jpeg_bytes": 55070,
-     "message_count": 192,
-     "over_cap": false,
-     "quality": 60
-    }
-   ],
-   "base64_chars": 73428,
    "camera_control_args": [
     "--autofocus-mode",
     "manual",
@@ -406,7 +378,7 @@
     "--quality",
     "95",
     "--metadata",
-    "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.metadata.json",
+    "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
     "--autofocus-mode",
     "manual",
     "--lens-position",
@@ -417,67 +389,122 @@
     "normal",
     "--awb",
     "auto",
+    "--raw",
     "-o",
-    "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.jpg"
+    "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
    ],
    "capture_mode": "progressive_jpeg",
    "cron_logs_dir_bytes": 4567890,
    "crop_native_xywh": [
-    1504,
-    846,
-    1600,
-    900
+    0,
+    0,
+    160,
+    96
    ],
-   "enc_attempts": 4,
-   "fits": true,
    "hostname": "bmcam-golden",
    "images_dir_bytes": 123456789,
-   "img_format": "pjpg",
-   "jpeg_bytes": 55070,
-   "jpeg_quality_used": 60,
-   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
-   "message_count": 192,
-   "metadata_json": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.metadata.json",
+   "img_format": "nrjxl",
+   "message_count": 190,
+   "metadata_json": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
    "metadata_schema": "bmcam_runtime_sidecar_v1",
    "metadata_source": "rc_progressive_jpeg",
-   "native_path": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.jpg",
+   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
+   "nrjxl_bytes": 54465,
+   "nrjxl_sha256": "1b3c8ceddd077b92fb67e9dd2979bebaec2c007be9ca9b4d15c1a2c5818614b2",
    "output_size": [
-    1000,
-    562
+    160,
+    96
    ],
-   "planned_buffers": 192,
+   "pjpg_bytes": 3300,
+   "pjpg_message_count": 12,
+   "pjpg_quality": 90,
+   "planned_buffers": 190,
+   "raw_attempt_log": [
+    {
+     "budget_fit": false,
+     "bytes": 307294,
+     "cjxl_seconds": [
+      6.4
+     ],
+     "distance": 0.1,
+     "message_count": 1067,
+     "over_cap": true,
+     "peak_rss_kb": 31000,
+     "plane_bytes": [
+      307218
+     ],
+     "seconds": 6.4,
+     "step": "search1"
+    },
+    {
+     "budget_fit": true,
+     "bytes": 40199,
+     "cjxl_seconds": [
+      6.4
+     ],
+     "distance": 0.766,
+     "message_count": 140,
+     "over_cap": false,
+     "peak_rss_kb": 31000,
+     "plane_bytes": [
+      40122
+     ],
+     "seconds": 6.4,
+     "step": "search2"
+    },
+    {
+     "budget_fit": true,
+     "bytes": 54465,
+     "cjxl_seconds": [
+      6.4
+     ],
+     "distance": 0.565,
+     "message_count": 190,
+     "over_cap": false,
+     "peak_rss_kb": 31000,
+     "plane_bytes": [
+      54389
+     ],
+     "seconds": 6.4,
+     "step": "search3"
+    }
+   ],
+   "raw_attempts": 3,
+   "raw_black": 64,
+   "raw_cfa": "BGGR",
+   "raw_crc32": 1541704631,
+   "raw_distance": 0.565,
+   "raw_effort": 5,
+   "raw_encode_s": 19.2,
+   "raw_kept_crop": null,
+   "raw_timings": {
+    "dng_read_s": 0.0,
+    "headroom_x10000": 10000,
+    "rgb_prep_s": 0.0
+   },
+   "raw_white": 1023,
    "sd_free_bytes": 22000000000,
    "sd_total_bytes": 31000000000,
    "sd_used_bytes": 9000000000,
    "sd_used_pct": 29.03,
-   "selector_reason": "fit",
-   "sent_buffers": 192,
+   "sent_buffers": 190,
    "software_sha": "golden0",
-   "stderr_log": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.stderr.log",
-   "stdout_log": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.stdout.log",
-   "transmit_duration_sec": 250.89999999999122,
+   "stderr_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
+   "transmit_duration_sec": 248.29999999999143,
    "transmit_success": true,
-   "utc_capture_timestamp": "2026-09-24T15:04:10Z"
+   "utc_capture_timestamp": "2026-09-24T15:00:00Z"
   }
  },
  "state_file": null,
  "state_file_v2": {
   "boot_counter": 1,
   "guarded": {},
-  "high_water": {
-   "remote": 1000504
-  },
+  "high_water": {},
   "overlay": {},
   "overlay_ids": {},
   "pending_trigger_v9": null,
-  "result_cache": {
-   "1000504": {
-    "b": 1,
-    "h": "34a6e9ba",
-    "ok": 1,
-    "t": "trg 2 armed: capture + output per mode (next decision point)"
-   }
-  },
+  "result_cache": {},
   "schema": "bm_command_state_v2",
   "v8": {},
   "v8_fold_values": {},

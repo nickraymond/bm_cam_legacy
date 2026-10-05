@@ -48,7 +48,7 @@ linear).
 | params[25] | **demosaic_id**: 1 = bilinear (v2.0), 2 = MHC (reserved) | new, required |
 | params[26] | **output scale** ×10000 (10000 = native density) | new, required. Always 10000 in R1 (Nick: no downscale) |
 | n_len | **1** | |
-| payload | one JPEG XL stream, VarDCT, **h × w × 3** (R, G, B), codes 0..4095 | decode to 16-bit, `code = round(v · 4095 / 65535)` |
+| payload | one JPEG XL stream, VarDCT, **h × w × 3** (R, G, B), codes 0..4095 (12-bit) | decode at the stream's 12-bit depth (djxl to PPM keeps maxval 4095, even with `--bits_per_sample=16`), or to a 16-bit PNG and `code = round(v · 4095 / 65535)`. Always honour the output's maxval |
 | crc | crc-v1b, unchanged (header with params[5] = 0, then the payload) | |
 
 Backend decode → camera-native linear RGB: `lin_c = ((code / S)² ) / (white − black) · s / g_c`,

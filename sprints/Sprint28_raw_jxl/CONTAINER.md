@@ -143,6 +143,14 @@ The backend refuses a blob when any of these is true:
   does not know a code must still ingest the pjpg normally (the codes are informational).
 - Backend: MIME `application/x-nereus-nrjxl`, stored extension `.nrjxl`, `media.format = nrjxl`.
 
+## 7a. Profile v2 (B3a, linear camera RGB, method 20)
+
+DESIGN_B3a.md §2 is the v2 contract (agreed through the EM, 2026-10-05): method byte **20**,
+flags **0x06** (layout rgb3), params[0] = **2**, params[24..26] = headroom scale ×10000 /
+demosaic_id / output scale ×10000, **one** 3-channel JPEG XL VarDCT payload of 12-bit codes, crc
+rule unchanged. A v1 decoder refuses it ("unknown method"), which is safe. The camera sends
+v2 only with `still.raw.layout rgb` (default `bayer4` = this document's v1).
+
 ## 8. Fixtures
 
 - Camera: 3 production blobs and their sha256 under bm `tests/fixtures/s28/` on `feature/sprint28-camera`.

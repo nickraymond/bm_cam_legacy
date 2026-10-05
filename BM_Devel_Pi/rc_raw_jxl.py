@@ -81,6 +81,19 @@ PROFILE_VERSION = 1
 N_PARAMS_V1 = 24
 SENTINEL = -32768                            # an optional param that is absent
 
+# Sprint28 B3a (DESIGN_B3a.md, Nick 2026-10-05): container profile v2 = linear camera RGB
+# (bilinear demosaic on the unit), WB as a CODING transform with no clip (undone at decode),
+# ONE 3-channel JPEG XL VarDCT payload. still.raw.layout picks it; bayer4 (v1) stays the default.
+LAYOUT_BAYER4, LAYOUT_RGB = "bayer4", "rgb"
+LAYOUTS = (LAYOUT_BAYER4, LAYOUT_RGB)
+METHOD_B3A = 20
+FLAGS_RGB3_SQRT = 0x06                       # layout rgb3 = 2 | curve sqrt = 1 << 2
+PROFILE_VERSION_V2 = 2
+N_PARAMS_V2 = 27
+P_HEADROOM, P_DEMOSAIC, P_OUTPUT_SCALE = 24, 25, 26
+DEMOSAIC_BILINEAR = 1
+RGB_STRIP_ROWS = 64                          # demosaic strip height (memory, not quality)
+
 # SPEC §3.3: until R0.3 proves a larger crop on the Zero, nrjxl allows 1600x900 only.
 # One number: config_validate refuses the config, this module refuses the encode.
 from config_validate import RAW_MAX_PX  # noqa: E402
@@ -99,6 +112,9 @@ RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor")
 # FIRST distance; every later step uses measured bytes, so a wrong prior costs an encode,
 # never a wrong fit.
 PRIOR_B_REF, PRIOR_A_REF, PRIOR_D_REF, PRIOR_K = 51_000.0, 1600 * 900, 3.8, 0.8
+# B3a (VarDCT RGB) prior, from the 2026-10-05 TG-7 sweeps at 1600x900: P50 d 2.58 at 54 kB,
+# 5.36 at 29 kB (runs/s28_density_sweep_20261005, equal_quality_tg7.md).
+PRIOR_RGB = (54_000.0, 1600 * 900, 2.6, 0.85)
 SEARCH_MAX_ENCODES = 3
 SEARCH_FILL_SLACK = 0.04          # accept a fit that fills >= target_fill - 0.04 (0.93 at 0.97)
 DIST_RANGE = (0.1, 15.0)          # still.raw.distances / still.raw.d_max registry range
@@ -119,6 +135,7 @@ DEFAULT_CONFIG = {
     "effort": _registry_default("still.raw.effort"),
     "target_fill": _registry_default("still.raw.target_fill"),
     "d_max": _registry_default("still.raw.d_max"),
+    "layout": _registry_default("still.raw.layout"),
     "source": "default",
 }
 
@@ -198,6 +215,11 @@ def load_raw_config(config_path):
                     if not v.isdigit() or not 1 <= int(v) <= 7:
                         raise ValueError(f"still_raw.effort must be 1..7, got {v!r}")
                     cfg["effort"] = int(v)
+                elif k == "layout":
+                    if v not in LAYOUTS:
+                        raise ValueError(f"still_raw.layout must be {'|'.join(LAYOUTS)}, "
+                                         f"got {v!r}")
+                    cfg["layout"] = v
                 elif k in ("target_fill", "d_max"):
                     lo, hi = (0.0, 1.0) if k == "target_fill" else DIST_RANGE
                     try:
@@ -457,6 +479,107 @@ def write_pgm(path, plane, maxval=CODE_MAX):
 
 
 # ---------------------------------------------------------------------------
+# B3a: linear camera RGB (DESIGN_B3a.md §1)
+# ---------------------------------------------------------------------------
+
+def coding_gains(colour):
+    """g = DigitalGain x [gain_R, 1, gain_B] from the ROUNDED header params (the values the
+    backend reads back), so its decode inverts the coding exactly. DigitalGain absent = 1."""
+    gr, gb = (v / 10000.0 for v in colour["gains_x10000"])
+    dg = 1.0 if colour["dgain_x1000"] == SENTINEL else colour["dgain_x1000"] / 1000.0
+    return (dg * gr, dg, dg * gb)
+
+
+def headroom_x10000(mosaic, cfa, black, white, g):
+    """The no-clip scale s (x10000, rounded UP) for coded = lin x g / s <= 1. A bilinear
+    demosaic output is a convex mix of same-colour samples, so max over the image of
+    lin_c x g_c <= g_c x max(normalised samples of colour c): an EXACT bound from one pass
+    over the mosaic (no demosaic needed). s >= 1: a frame that would not clip is coded as
+    plain WB (B3a == rgbw there)."""
+    planes = split_planes(mosaic, cfa)
+    top = {"R": planes["R"].max(), "G": max(planes["G1"].max(), planes["G2"].max()),
+           "B": planes["B"].max()}
+
+    def norm(v):
+        return min(max((float(v) - black) / float(white - black), 0.0), 1.0)
+    s = max(1.0, g[0] * norm(top["R"]), g[1] * norm(top["G"]), g[2] * norm(top["B"]))
+    return int(math.ceil(s * 10000 - 1e-9))
+
+
+def _cfa_masks(cfa, ys, xs):
+    """Boolean R, G, B site masks for the rows ys / columns xs (absolute coordinates;
+    the crop origin is even, so the 2x2 pattern holds from (0, 0))."""
+    import numpy as np
+    py, px = (ys % 2)[:, None], (xs % 2)[None, :]
+    idx = py * 2 + px
+    return {c: np.isin(idx, [i for i, cc in enumerate(cfa) if cc == c]) for c in "RGB"}
+
+
+_K_RB = ((0.25, 0.5, 0.25), (0.5, 1.0, 0.5), (0.25, 0.5, 0.25))
+_K_G = ((0.0, 0.25, 0.0), (0.25, 1.0, 0.25), (0.0, 0.25, 0.0))
+
+
+def _conv3(p, k, r0, n, w):
+    """3x3 correlation of the padded array p for output rows r0..r0+n-1 (p row index) and
+    columns 0..w-1 (p column 1..w)."""
+    out = None
+    for i in range(3):
+        for j in range(3):
+            if k[i][j]:
+                t = k[i][j] * p[r0 - 1 + i:r0 - 1 + i + n, j:j + w]
+                out = t if out is None else out + t
+    return out
+
+
+def rgb_codes(mosaic, cfa, black, white, g, s_x10000, strip_rows=RGB_STRIP_ROWS):
+    """Mosaic -> uint16 h x w x 3 codes of B3a (DESIGN_B3a.md §1 steps 2-3): normalise,
+    bilinear demosaic (the classic masked 3x3 kernels; reflect padding keeps the CFA
+    phase), x g / s, then the v1 curve code = floor(sqrt(v) x 4095 + 0.5) (= CONTAINER.md
+    §3 with v = (raw - black) / (white - black)). Row strips of `strip_rows` + a 1-row halo
+    bound the float32 temporaries to ~8 arrays of (strip + 2) x (w + 2) x 4 B (~3.4 MB at
+    64 x 1600); the output codes are h x w x 3 x 2 B (8.6 MB at 1600x900)."""
+    import numpy as np
+    h, w = mosaic.shape
+    s = s_x10000 / 10000.0
+    mul = np.asarray(g, np.float32) / np.float32(s)
+    out = np.empty((h, w, 3), np.uint16)
+    xs = np.arange(-1, w + 1)
+    for y0 in range(0, h, strip_rows):
+        y1 = min(h, y0 + strip_rows)
+        a, b = max(0, y0 - 1), min(h, y1 + 1)
+        sub = np.clip((mosaic[a:b].astype(np.float32) - black) / float(white - black), 0, 1)
+        top, bot = (1 if a == y0 else 0), (1 if b == y1 else 0)
+        p = np.pad(sub, ((top, bot), (1, 1)), mode="reflect")
+        ys = np.arange(a - top, a - top + p.shape[0])
+        m = _cfa_masks(cfa, ys, xs)
+        r0, n = y0 - (a - top), y1 - y0
+        chans = []
+        for c, k in (("R", _K_RB), ("G", _K_G), ("B", _K_RB)):
+            chans.append(_conv3(p * m[c], k, r0, n, w))
+        v = np.stack(chans, -1) * mul
+        np.clip(v, 0.0, 1.0, out=v)               # float rounding only: s bounds v <= 1
+        out[y0:y1] = np.floor(np.sqrt(v) * CODE_MAX + 0.5).astype(np.uint16)
+    return out
+
+
+def rgb_linear_from_codes(codes, g, s_x10000):
+    """The backend's decode (DESIGN_B3a.md §2): codes -> camera-native linear RGB 0..1 of
+    (white - black). Used by the tests and the Mac e2e check."""
+    import numpy as np
+    v = (codes.astype(np.float64) / CODE_MAX) ** 2
+    return v * (s_x10000 / 10000.0) / np.asarray(g, np.float64)
+
+
+def write_ppm(path, codes, maxval=CODE_MAX):
+    """Binary P6, 16-bit big-endian, maxval 4095: cjxl reads 12-bit RGB."""
+    import numpy as np
+    h, w, _ = codes.shape
+    with open(path, "wb") as fh:
+        fh.write(f"P6\n{w} {h}\n{maxval}\n".encode("ascii"))
+        fh.write(np.ascontiguousarray(codes, dtype=">u2").tobytes())
+
+
+# ---------------------------------------------------------------------------
 # NR container v1 (CONTAINER.md §1-4)
 # ---------------------------------------------------------------------------
 
@@ -547,13 +670,30 @@ def build_params(*, crop_xywh, native_wh, crc, colour, distance, effort):
     return params
 
 
-def pack_container(*, w, h, cfa, black, white, params, payloads):
-    """Header + R, G1, G2, B payloads (byte-identical to the study's Header.pack for
-    method D2 / flags 0x04 / b=12 / pedestal 0)."""
-    if len(payloads) != 4:
-        raise ValueError("nrjxl carries exactly 4 planes")
+def build_params_v2(*, crop_xywh, native_wh, crc, colour, distance, effort, headroom_x10000,
+                    demosaic_id=DEMOSAIC_BILINEAR, output_scale_x10000=10000):
+    """Profile v2 (DESIGN_B3a.md §2): v1's 24 params with params[0] = 2, then the headroom
+    scale, the demosaic id and the output scale (append-only)."""
+    params = build_params(crop_xywh=crop_xywh, native_wh=native_wh, crc=crc, colour=colour,
+                          distance=distance, effort=effort)
+    params[0] = PROFILE_VERSION_V2
+    params += [int(headroom_x10000), int(demosaic_id), int(output_scale_x10000)]
+    assert len(params) == N_PARAMS_V2, len(params)
+    return params
+
+
+_METHOD_LAYOUT = {METHOD_D2: (FLAGS_4PL_SQRT, 4), METHOD_B3A: (FLAGS_RGB3_SQRT, 1)}
+
+
+def pack_container(*, w, h, cfa, black, white, params, payloads, method=METHOD_D2):
+    """Header + payloads. v1 (method D2): R, G1, G2, B, byte-identical to the study's
+    Header.pack for flags 0x04 / b=12 / pedestal 0. v2 (method 20, B3a): ONE RGB payload,
+    flags 0x06 (DESIGN_B3a.md §2)."""
+    flags, n_payloads = _METHOD_LAYOUT[method]
+    if len(payloads) != n_payloads:
+        raise ValueError(f"method {method} carries exactly {n_payloads} payload(s)")
     out = bytearray(MAGIC)
-    out += bytes([METHOD_D2, FLAGS_4PL_SQRT, CFA_PATTERNS.index(cfa), CODE_BITS])
+    out += bytes([method, flags, CFA_PATTERNS.index(cfa), CODE_BITS])
     for n in (int(w), int(h), int(black), int(white), 0, len(params)):
         out += _uvarint(n)
     for p in params:
@@ -567,24 +707,25 @@ def pack_container(*, w, h, cfa, black, white, params, payloads):
 CRC_PARAM = 5
 
 
-def container_crc(*, w, h, cfa, black, white, params, payloads):
+def container_crc(*, w, h, cfa, black, white, params, payloads, method=METHOD_D2):
     """CONTAINER.md §4 (crc-v1b, agreed with the backend 2026-10-02): crc32 over the
     header packed with params[5] = 0 (minimal LEB128) followed by the 4 payloads, so a
     flipped bit in the colour params fails as loudly as one in a plane."""
     zeroed = list(params)
     zeroed[CRC_PARAM] = 0
     return zlib.crc32(pack_container(w=w, h=h, cfa=cfa, black=black, white=white,
-                                     params=zeroed, payloads=payloads)) & 0xFFFFFFFF
+                                     params=zeroed, payloads=payloads,
+                                     method=method)) & 0xFFFFFFFF
 
 
-def seal_container(*, w, h, cfa, black, white, params, payloads):
+def seal_container(*, w, h, cfa, black, white, params, payloads, method=METHOD_D2):
     """-> (blob, crc): params[5] filled with container_crc, then packed."""
     crc = container_crc(w=w, h=h, cfa=cfa, black=black, white=white, params=params,
-                        payloads=payloads)
+                        payloads=payloads, method=method)
     sealed = list(params)
     sealed[CRC_PARAM] = crc
     return pack_container(w=w, h=h, cfa=cfa, black=black, white=white, params=sealed,
-                          payloads=payloads), crc
+                          payloads=payloads, method=method), crc
 
 
 def unpack_container(blob):
@@ -616,10 +757,15 @@ def unpack_container(blob):
     head = {"method": method, "flags": flags, "cfa": CFA_PATTERNS[cfa], "b": b, "w": w, "h": h,
             "black": black, "white": white, "pedestal": pedestal, "params": params,
             "lengths": lengths}
+    if method not in _METHOD_LAYOUT or flags != _METHOD_LAYOUT[method][0]:
+        raise ValueError(f"unknown method/flags {method}/{flags:#04x}")
+    if n_len != _METHOD_LAYOUT[method][1]:
+        raise ValueError(f"method {method} needs {_METHOD_LAYOUT[method][1]} payload(s), "
+                         f"got {n_len}")
     if len(params) > CRC_PARAM:
         want = container_crc(w=w, h=h, cfa=CFA_PATTERNS[cfa], black=black, white=white,
-                             params=params, payloads=payloads)
-        if params[CRC_PARAM] != want or pedestal != 0 or n_len != 4:
+                             params=params, payloads=payloads, method=method)
+        if params[CRC_PARAM] != want or pedestal != 0:
             raise ValueError("crc32 mismatch (header or payload damaged)")
     return head, payloads
 
@@ -743,6 +889,12 @@ def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
             "maxrss_incl_parent_kb": incl_parent_kb}
 
 
+def cjxl_rgb_command(cjxl, src, dst, distance, effort):
+    """B3a (DESIGN_B3a.md §1 step 5): VarDCT, one thread."""
+    return [cjxl, str(src), str(dst), "-m", "0", "-e", str(int(effort)),
+            "-d", f"{float(distance):.4f}", "--num_threads=0"]
+
+
 def cjxl_command(cjxl, src, dst, distance, effort):
     """The measured invocation (SPEC §3.5; rig pi_bench.py:196-197): modular, one thread."""
     return [cjxl, str(src), str(dst), "-m", "1", "-e", str(int(effort)),
@@ -758,6 +910,37 @@ def message_count(n_bytes, chunk_b64_chars):
     (the pjpg encoder's own arithmetic, rc_jpeg_encoder.encode_progressive)."""
     b64 = 4 * ((int(n_bytes) + 2) // 3)
     return -(-b64 // int(chunk_b64_chars))
+
+
+RGB_PPM = "rgb.ppm"
+
+
+def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s):
+    """B3a: the ONE RGB payload at one distance from <work>/rgb.ppm. -> ([payload], [run]).
+    Raises RawFallback for a child failure (enc / mem / time), as encode_rung."""
+    src, dst = os.path.join(work_dir, RGB_PPM), os.path.join(work_dir, "rgb.jxl")
+    if not os.path.exists(src):
+        raise RawFallback("err", f"{RGB_PPM} missing from {work_dir}")
+    if os.path.exists(dst):
+        os.remove(dst)
+    try:
+        r = runner(cjxl_rgb_command(cjxl, src, dst, distance, effort), timeout_s=timeout_s,
+                   stdout_path=os.path.join(work_dir, "rgb.cjxl.out"),
+                   stderr_path=os.path.join(work_dir, "rgb.cjxl.err"))
+    except OSError as exc:
+        raise RawFallback("enc", f"cjxl could not start: {exc}")
+    r = dict(r, plane="RGB")
+    if r["kind"] != "ok":
+        raise RawFallback(r["kind"], f"cjxl rgb d={distance}: {r['kind']} rc={r['rc']} after "
+                                     f"{r['seconds']} s")
+    try:
+        with open(dst, "rb") as fh:
+            data = fh.read()
+    except OSError:
+        data = b""
+    if not data:
+        raise RawFallback("enc", f"cjxl rgb d={distance}: rc 0 but no output")
+    return [data], [r]
 
 
 def encode_rung(codes, distance, effort, work_dir, *, cjxl, runner, timeout_s):
@@ -846,9 +1029,16 @@ class _Walk:
                                       f"send {budget_left:.1f} s, last encode {last_s:.1f} s)",
                               self.attempt_log)
         t0 = self.clock()
+        rgb = self.cfg.get("layout") == LAYOUT_RGB
         try:
-            payloads, runs = encode_rung(self.codes, distance, self.cfg["effort"], self.work,
-                                         cjxl=self.cjxl, runner=self.runner, timeout_s=timeout_s)
+            if rgb:
+                payloads, runs = encode_rgb(distance, self.cfg["effort"], self.work,
+                                            cjxl=self.cjxl, runner=self.runner,
+                                            timeout_s=timeout_s)
+            else:
+                payloads, runs = encode_rung(self.codes, distance, self.cfg["effort"],
+                                             self.work, cjxl=self.cjxl, runner=self.runner,
+                                             timeout_s=timeout_s)
         except RawFallback as exc:
             if exc.code == "time" and cap_left > budget_left:
                 exc.detail += " (cycle budget)"
@@ -857,14 +1047,21 @@ class _Walk:
                                      "seconds": round(self.clock() - t0, 3)})
             exc.attempt_log = self.attempt_log
             raise
-        params = build_params(crop_xywh=self.xywh,
-                              native_wh=(self.crop["native_w"], self.crop["native_h"]),
-                              crc=0, colour=self.meta, distance=distance, effort=self.cfg["effort"])
+        native = (self.crop["native_w"], self.crop["native_h"])
+        if rgb:
+            params = build_params_v2(crop_xywh=self.xywh, native_wh=native, crc=0,
+                                     colour=self.meta, distance=distance,
+                                     effort=self.cfg["effort"],
+                                     headroom_x10000=self.crop["headroom_x10000"])
+        else:
+            params = build_params(crop_xywh=self.xywh, native_wh=native, crc=0,
+                                  colour=self.meta, distance=distance, effort=self.cfg["effort"])
         w, h = ((self.crop["w"], self.crop["h"]) if "w" in self.crop
                 else (self.crop["mosaic"].shape[1], self.crop["mosaic"].shape[0]))
         blob, crc = seal_container(w=w, h=h,
                                    cfa=self.crop["cfa"], black=self.crop["black"],
-                                   white=self.crop["white"], params=params, payloads=payloads)
+                                   white=self.crop["white"], params=params, payloads=payloads,
+                                   method=METHOD_B3A if rgb else METHOD_D2)
         params[CRC_PARAM] = crc
         msgs = message_count(len(blob), self.chunk)
         over_cap = msgs > self.cap
@@ -932,7 +1129,9 @@ def target_search(walk):
     if aim <= 0:
         raise RawFallback("fit", f"no room this wake (cap {walk.cap}, reserve {walk.reserve})",
                           walk.attempt_log)
-    d = _clamp_d(PRIOR_D_REF * (aim / (PRIOR_B_REF * area / PRIOR_A_REF)) ** (-1.0 / PRIOR_K))
+    b_ref, a_ref, d_ref0, prior_k = (PRIOR_RGB if cfg.get("layout") == LAYOUT_RGB else
+                                     (PRIOR_B_REF, PRIOR_A_REF, PRIOR_D_REF, PRIOR_K))
+    d = _clamp_d(d_ref0 * (aim / (b_ref * area / a_ref)) ** (-1.0 / prior_k))
     tried_floor = False
     for step in range(SEARCH_MAX_ENCODES):
         if d >= d_max:
@@ -954,11 +1153,11 @@ def target_search(walk):
             break
         n = entry["bytes"]
         if step == 0 or len(walk.attempt_log) < 2:
-            k = PRIOR_K
+            k = prior_k
             d_ref, n_ref = d, n
         else:
             (d1, n1), (d2, n2) = [(e["distance"], e["bytes"]) for e in walk.attempt_log[-2:]]
-            k = PRIOR_K if (n1 == n2 or d1 == d2) else \
+            k = prior_k if (n1 == n2 or d1 == d2) else \
                 min(max(-math.log(n2 / n1) / math.log(d2 / d1), 0.3), 2.0)
             d_ref, n_ref = d2, n2
         nxt = _clamp_d(d_ref * (n_ref / aim) ** (1.0 / k))
@@ -1066,23 +1265,37 @@ def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chu
         except DngError as exc:
             raise RawFallback("dng", str(exc))
         timings["dng_read_s"] = round(clock() - t0, 3)
-        t1 = clock()
-        codes = code_planes(crop)
-        timings["planes_s"] = round(clock() - t1, 3)
         os.makedirs(work_dir, exist_ok=True)
         if keep_crop_path:
             # still.raw.keep_crop (O1 paired analysis): the crop mosaic itself, 16-bit
             # PGM at the sensor's white level, native px.
             write_pgm(keep_crop_path, crop["mosaic"], maxval=crop["white"])
-        # The 4 plane PGMs ARE the encoder input: write them once, then drop the mosaic
-        # and the code arrays (~6-9 MB at 1600x900) so the supervisor does not hold them
-        # through every encode (bmcam004 memory review, EM 2026-10-05).
-        for name in ("R", "G1", "G2", "B"):
-            write_pgm(os.path.join(work_dir, f"{name}.pgm"), codes[name])
-        crop = slim_crop(crop)
-        codes = None
+        t1 = clock()
+        if cfg.get("layout") == LAYOUT_RGB:
+            # B3a (DESIGN_B3a.md §1): the no-clip bound, the strip demosaic + coding, one
+            # PPM as the encoder input; then the arrays are dropped (8.6 MB at 1600x900).
+            g = coding_gains(meta_params)
+            hx = headroom_x10000(crop["mosaic"], crop["cfa"], crop["black"], crop["white"], g)
+            rgb = rgb_codes(crop["mosaic"], crop["cfa"], crop["black"], crop["white"], g, hx)
+            write_ppm(os.path.join(work_dir, RGB_PPM), rgb)
+            rgb = None
+            timings["rgb_prep_s"] = round(clock() - t1, 3)
+            timings["headroom_x10000"] = hx
+            crop = dict(slim_crop(crop), headroom_x10000=hx)
+            codes = None
+        else:
+            codes = code_planes(crop)
+            timings["planes_s"] = round(clock() - t1, 3)
+            # The 4 plane PGMs ARE the encoder input: write them once, then drop the mosaic
+            # and the code arrays (~6-9 MB at 1600x900) so the supervisor does not hold
+            # them through every encode (bmcam004 memory review, EM 2026-10-05).
+            for name in ("R", "G1", "G2", "B"):
+                write_pgm(os.path.join(work_dir, f"{name}.pgm"), codes[name])
+            crop = slim_crop(crop)
+            codes = None
         rss = self_rss_kb()          # log only: a host-dependent number stays out of sidecars
-        log(f"[RAW] planes written to {work_dir}; supervisor VmRSS="
+        log(f"[RAW] {'rgb (B3a)' if cfg.get('layout') == LAYOUT_RGB else 'planes'} written to "
+            f"{work_dir}; supervisor VmRSS="
             f"{'n/a' if rss is None else f'{rss} KiB'} (cjxl runs on top of this)")
         result = choose_rate(crop, codes, meta_params, cfg, crop_xywh=crop_xywh, budget=budget,
                            message_cap=message_cap, chunk_b64_chars=chunk_b64_chars,
@@ -1179,6 +1392,8 @@ def main(argv=None):
     ap.add_argument("--target-fill", type=float, default=DEFAULT_CONFIG["target_fill"],
                     help="0 = the fixed --distances only (R0.3 times ONE rung this way)")
     ap.add_argument("--d-max", type=float, default=DEFAULT_CONFIG["d_max"])
+    ap.add_argument("--layout", choices=LAYOUTS, default=DEFAULT_CONFIG["layout"],
+                    help="bayer4 = 4 Bayer planes (v1); rgb = B3a linear RGB VarDCT (v2)")
     ap.add_argument("--encode-max-s", type=int, default=120)
     ap.add_argument("--message-cap", type=int, default=195)
     ap.add_argument("--chunk-chars", type=int, default=384)
@@ -1191,7 +1406,8 @@ def main(argv=None):
         RAW_MAX_PX = 4608 * 2592
     crop = [int(v) for v in args.crop.split(",")]
     cfg = dict(DEFAULT_CONFIG, distances=parse_distances(args.distances), effort=args.effort,
-               encode_max_s=args.encode_max_s, target_fill=args.target_fill, d_max=args.d_max)
+               encode_max_s=args.encode_max_s, target_fill=args.target_fill, d_max=args.d_max,
+               layout=args.layout)
     with open(args.metadata, "r", encoding="utf-8") as fh:
         meta = json.load(fh)
     os.makedirs(args.out, exist_ok=True)
