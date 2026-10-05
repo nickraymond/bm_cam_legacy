@@ -262,6 +262,7 @@ def transmit_video_clip(
     media_key=None,
     bench_drop_chunks=None,
     chunk_total=False,
+    tail_reserve_msgs=0,
 ):
     """Send one H.264 clip: START, chunks, the KEYFRAME chunks again, END
     (contract sections 1 + 5).
@@ -288,6 +289,10 @@ def transmit_video_clip(
     would: the W9 proof that `/M` alone makes the media healable. None/empty = no
     effect.
 
+    tail_reserve_msgs (R1): paced slots the OPTIONAL keyframe repeat leaves
+    free after END for the caller's status line (the trg outcome <WS>); the
+    clip's own chunks never give way to it. 0 = unchanged.
+
     keyframe_chunks: how many leading chunks hold SPS/PPS + the IDR frame. They
     are re-sent, in order, after the last chunk. Lose any of them and the whole
     clip smears — and the camera cannot see a loss: on 2026-09-21 the Spotter
@@ -302,11 +307,17 @@ def transmit_video_clip(
     form, no gid) and the same pacing pattern (sleep after START and after
     every chunk, not after END).
 
-    A clip that does not fit the remaining budget is REFUSED before START —
-    never truncated silently (the encoder already sized it; not fitting here
-    means the budget moved). Once started, the per-chunk guard still keeps
-    room for END, so a stall closes the group honestly with
-    sent_buffers < length and the backend stores a partial clip.
+    A clip whose START + chunks + END do not fit the remaining budget is
+    REFUSED before START — never truncated silently. The keyframe repeat is NOT
+    part of that check (R1 G4 finding 5): the caller already reserved room for
+    it when it sized the clip, and the fit (prescale + 2-pass encode, ~5-10 s on
+    a Pi Zero 2W) spends part of that reserve before we get here. Demanding the
+    full repeat again refused budget-sized trg clips that fit
+    (`clip needs 136 paced messages, 130 fit`). The repeat is best-effort: its
+    own per-copy guard below sends what still fits and `repeated` says how many.
+    Once started, the per-chunk guard still keeps room for END, so a stall
+    closes the group honestly with sent_buffers < length and the backend stores
+    a partial clip.
 
     Returns {planned, sent, started, complete_send, repeated, repeat_sent,
              refused_reason, uart_duration_sec}. repeat_sent = the WHOLE keyframe
@@ -334,12 +345,18 @@ def transmit_video_clip(
     if planned < 1:
         result["refused_reason"] = "empty_payload"
         return result
-    needed = planned + keyframe_chunks + VIDEO_ENVELOPE_MSGS
+    # Only the clip itself must fit (START + chunks + END); the keyframe repeat
+    # takes what is left (G4 finding 5: the reserve was counted twice).
+    needed = planned + VIDEO_ENVELOPE_MSGS
     if not budget.messages_fit(needed):
         result["refused_reason"] = (
             f"budget: clip needs {needed} paced messages, "
             f"{budget.max_messages_now()} fit in the {budget.remaining_s():.0f}s left")
         return result
+    if not budget.messages_fit(needed + keyframe_chunks):
+        print(f"[VTX][WARN] keyframe repeat trimmed: {budget.max_messages_now()} paced "
+              f"messages fit, the clip needs {needed} + {keyframe_chunks} repeat; "
+              f"sending the clip, repeating what still fits")
 
     if current_timestamp is None:
         current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -370,10 +387,10 @@ def transmit_video_clip(
         sleep_fn(delay_seconds)
 
     # Keyframe repeat: only after a complete first pass, and each copy still
-    # leaves room for END.
+    # leaves room for END (+ tail_reserve_msgs for a status line after END).
     if sent == planned:
         for i in range(keyframe_chunks):
-            if not budget.messages_fit(2):
+            if not budget.messages_fit(2 + int(tail_reserve_msgs)):
                 break
             send_chunk(i)
             result["repeated"] += 1

@@ -78,8 +78,8 @@
    "sha256": "4d164957abb53518"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 568,
-   "sha256": "1fb14ec830ca0a12"
+   "bytes": 583,
+   "sha256": "53ccdb8daed6c44e"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -163,6 +163,7 @@
   "result_cache": {
    "551": {
     "b": 1,
+    "h": "c7a49408",
     "ok": 1,
     "t": "ping"
    }

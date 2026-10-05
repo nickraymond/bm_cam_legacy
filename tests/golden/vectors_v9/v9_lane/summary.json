@@ -151,8 +151,8 @@
    "sha256": "9545a0458a26a5a8"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 379,
-   "sha256": "0069b990be08d845"
+   "bytes": 409,
+   "sha256": "374b786c8782b205"
   },
   "state/config_journal.jsonl": {
    "bytes": 341,
@@ -345,11 +345,13 @@
   "result_cache": {
    "1000561": {
     "b": 1,
+    "h": "2a68c789",
     "ok": 1,
     "t": "still.message_cap: 195 -> 150 (next action)"
    },
    "1000562": {
     "b": 1,
+    "h": "2a68c789",
     "ok": 1,
     "t": "ping"
    }

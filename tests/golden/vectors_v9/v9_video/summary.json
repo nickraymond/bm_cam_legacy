@@ -89,8 +89,8 @@
    "sha256": "bfbeadcdb2a3bfc6"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 556,
-   "sha256": "5eb837495f4f491f"
+   "bytes": 586,
+   "sha256": "7bb2e6824bdc2262"
   },
   "state/config_journal.jsonl": {
    "bytes": 604,
@@ -145,11 +145,13 @@
   "result_cache": {
    "1000511": {
     "b": 1,
+    "h": "fcf7ae4c",
     "ok": 1,
     "t": "ping"
    },
    "1000512": {
     "b": 1,
+    "h": "f4c5a4fa",
     "ok": 1,
     "t": "camera.white_balance.mode: auto -> daylight (next action)"
    }

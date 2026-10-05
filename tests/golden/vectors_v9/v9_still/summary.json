@@ -138,8 +138,8 @@
    "sha256": "ea97c4247592a15e"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 659,
-   "sha256": "df456b97344d7072"
+   "bytes": 764,
+   "sha256": "9a35bd61b3474f75"
   },
   "state/config_journal.jsonl": {
    "bytes": 598,
@@ -330,28 +330,33 @@
   "result_cache": {
    "1000501": {
     "b": 1,
+    "h": "4ed6ff24",
     "ok": 1,
     "t": "still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action)"
    },
    "1000502": {
     "b": 1,
+    "h": "4ed6ff24",
     "ok": 1,
     "t": "ping"
    },
    "1000503": {
     "b": 1,
+    "h": "4ed6ff24",
     "ok": 1,
     "t": "help (reference follows)"
    },
    "1000505": {
     "b": 1,
     "e": "xk",
+    "h": "4ed6ff24",
     "k": "camera.white_balance.mode",
     "ok": 0
    },
    "1000506": {
     "b": 1,
     "e": "cmd",
+    "h": "4ed6ff24",
     "ok": 0
    },
    "1000507": {
@@ -360,11 +365,13 @@
      "mode",
      "r"
     ],
+    "h": "4ed6ff24",
     "ok": 1,
     "t": "get mode, r: 6 key(s)"
    },
    "7": {
     "b": 1,
+    "h": "4ed6ff24",
     "ok": 1,
     "t": "ping"
    }
