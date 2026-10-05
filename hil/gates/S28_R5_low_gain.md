@@ -2,7 +2,9 @@
 
 Question: does libcamera's AGC honour the patched `exposure_modes.normal` (shutter [100, cap], gain [1.0, max_gain])
 that `camera.exposure.profile low_gain` writes into a per-unit tuning copy? Desk tests (23) cover the patch, not the AGC.
-Owner: Test Engineer. Times UTC (PDT = UTC − 7). Evidence: `runs/s28_ladder_20261004/` (R5 section).
+Owner: Test Engineer. **Plan approved by the EM 2026-10-05 (GO to deploy the #133 branch on bmcam003 for R5).**
+Merge order (EM): #120 → development after the R4 verdict (R4.3 fallback rate = Nick's product decision);
+#133 → development after R5.1–R5.3 PASS in the Wed 08:00Z pull, before the RC deploy. R5 FAIL → RC without low-gain. Times UTC (PDT = UTC − 7). Evidence: `runs/s28_ladder_20261004/` (R5 section).
 
 ## Host: bmcam003 / SPOT-33507C, production per_boot wakes, outdoors (proposed)
 

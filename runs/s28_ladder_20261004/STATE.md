@@ -97,3 +97,6 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - Tuning JSON handed (vc4/imx708_wide.json in use, pulled/bmcam003_tuning/).
 - PROPOSED to the EM (await OK + low-gain slot): Tue ~14:30Z set still.raw.keep_crop=true on BMCAM_004 (backend Sofar lane) →
   16:00Z daylight capture keeps the PGM → 17:00Z window: #120 tip deploy + pull PGM + backend reset keep_crop + BMCAM_004 refresh.
+- R5 APPROVED (EM): bmcam003, #133 8129845. Crons (PDT): ca9dd864 Tue 07:43 deploy prep (15:00Z window), da158e5f Tue 19:15 cap 30000,
+  66e33199 Tue 23:25 refusal check, 5ef77726 Wed 00:47 R5 verdict pull (gates #133 merge before the RC deploy).
+  Other Tue crons: 4e46c2a0 07:27 keep_crop on 004, d5c1be49 09:47 bmcam004 17:00Z window. R4 verdict b3705182 Mon 23:17.
