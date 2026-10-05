@@ -3,7 +3,10 @@
 Scope (Nick, RELEASE_PLAN §2c, 2026-10-05): R1 ships Fri 10/9 with **commands** (bm #121 + nvd #84), **JPEG-XL stills**
 (bm #120 + nvd #83) and the new **low-gain exposure mode** (PR in progress). This gate runs the development tip that
 contains all three on BOTH bench units, unattended, on the production schedule. Owner: Test Engineer (sole bench owner).
-Approval: Nick, before Wed 10/7. Evidence: `runs/r1rc_<YYYYMMDD>/`. Times UTC (PDT = UTC − 7).
+Approval: **APPROVED by Nick as written, typed in the Test Engineer chat on Mon 10/5** (first given in the EM chat ~11:00 PDT). Evidence: `runs/r1rc_<YYYYMMDD>/`. Times UTC (PDT = UTC − 7).
+
+Framing (RELEASE_PLAN §2d): Fri 10/9 = **Release Candidate**, not ship. The week of 10/12 = pool tests (cameras in
+water, v3 reference cards); the ship decision follows the pool data. R1RC PASS = the RC is fit for the pool tests.
 
 ## Entry conditions (all before the first counted wake)
 
@@ -44,6 +47,15 @@ nrjxl distance / size per wake, CmaFree before/after (counters unavailable on th
 Known limits carried in (documented, not RC failures): SPOT-33507C 2-wake command lag; lost SET ack → heartbeat hash
 path not exercised on hardware (nvd #84 tests); stay_on findings (#126 heal/sync collision, no d:1 re-send, duplicate
 answers) do not apply to per_boot production; nrjxl search peak RSS > 120 MB (open with the camera session).
+
+## Evidence kept for the transmission epic Phase A (bm #129; no extra rig time)
+
+Phase A is analysed from existing logs (G4, R1G, R4, this RC run). Keep, per wake and per unit, the full timed chain:
+1. send / queue accept-reject: the nereus000 console capture (`console/wake_<SPOT>_<ts>.txt`, every line host-UTC +
+   Spotter-UTC stamped: `[MS] Added message(id … len …) to queue`, queue-full / reject lines, `Notecard is N pct full`);
+2. Sofar: a raw `api/sensor-data` pull per window (`api/*_sofar.json`, row `timestamp`);
+3. backend: `hil_media_table.py` (chunk receipt `received_at_utc`, completion `timestamp_utc`) + `hil_cmd_ledger.py`.
+Do not trim or summarise the console files; commit them with the run.
 
 ## Deploy (per unit, one bus window each; Wed early)
 
