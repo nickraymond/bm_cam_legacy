@@ -128,3 +128,4 @@ REFUSED {"detail":{"reason":"in_flight","ok":false,"verb":"set","kv":{"still.raw
 2026-10-05T11:13:51Z R3.2 PASS on the wire: 1000065 applied 11:07:00 (distances 0.3, target_fill 0, encode_max_s 60), trg 1000066 action 7 @11:07:42, '[RAW] FALLBACK rfb=fit: nothing fits (cap 195, reserve 0, 1 encode) (7.8 s); sending today's JPEG'; START 11:07:56 key=0e9tkv cfg=726783e6 tg=1000066 fmt=pjpg rfb=fit, 154/154. R3.1 pjpg media 57443 at 11:13: 149/162 (13 missing → heal path).
 2026-10-05T11:58:42Z R3.5 set (supersede: 1000065 ack not ingested by 11:58): CID 1000067 outcome=sent
 2026-10-05T11:59:55Z R3.5 trg still: CID 1000068 send 200 → expect START fmt=pjpg rfb=floor at the 12:05Z sync.
+2026-10-05T12:00:20Z stay_on lost-ack #2: 1000065 (R3.2 set) ack not at the backend by 11:58 (51 min after apply) → R3.5 needed supersede too.
