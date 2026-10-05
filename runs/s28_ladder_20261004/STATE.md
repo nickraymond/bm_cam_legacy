@@ -77,3 +77,7 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
   redeploy development (`hil_deploy_unit.sh` needs stay_on/held bus → use the bmcam-field-update one-window pattern like the #121 deploy).
 - Fallback pjpgs 57443 (0e9qqx), 57457 (0e9tkv), R3.5 (0e9wca) should heal before START at the hourly boots.
 - Mistake logged: YAML backup path guessed (05:24 vs real 05:23:49) → halt before restore → recovered via hil_bus_always_on.sh.
+- 14:22Z: EM said R4 YES on bmcam004 → keep nrjxl/libjxl/defaults; mode.media=still sent (cid 1000072, lands 15:05, applies next boot);
+  **R4 = 12 production wakes 16:00Z → 03:00Z** (LADDER R4.1–R4.4: each wake delivers an image complete ≤ 3 h, 0 redundant heals,
+  halt uptime ≤ 570 s, fallback ≤ 1/12, START uptime recorded). DO NOT change still.crop during R4 (R3.3 defect).
+  Read-only checks: sub-frame count vs duplicates (15:00Z wake), CMA alloc_pages_fail before/after the 16:00Z nrjxl capture.
