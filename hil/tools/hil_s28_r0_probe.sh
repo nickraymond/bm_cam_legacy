@@ -17,7 +17,9 @@
 #           config_validate.py), copied to the Pi's /tmp dir by scp: NOT a deploy.
 # Preconditions (the script REFUSES otherwise): no camera / runtime process on the unit.
 # Outputs (in $2): pulled/<host>_r0/{env.txt, captures.csv, cma_samples.csv, encodes.csv,
-#           dmesg_tail.txt, enc_<preset>_<i>/result.json, one capture metadata JSON};
+#           dmesg_tail.txt, dmesg_raw_phase.txt, dmesg_status.txt, raw_cap_stderr.txt,
+#           cma_counters.csv, cma_debugfs.txt (if readable), enc_<preset>_<i>/result.json,
+#           one capture metadata JSON};
 #           then run hil/tools/hil_s28_r0_analyze.py to write analysis/r0_*.csv + verdicts.
 # Example:  hil/tools/hil_s28_r0_probe.sh bmcam003 runs/s28_ladder_20261005
 # Limits:   ~25 min per unit (20 captures + 30 encodes + rests). The capture command is the
@@ -108,9 +110,26 @@ fi
 echo "CMA sampler running: pid $SAMPLER, $ROWS rows in the first second"
 # <<< sampler
 
-# R0.1 (EM 2026-10-05): the CMA allocation counters are the criterion (a failed allocation
-# is a real CMA shortage); CmaFree above is info. Absent on a kernel without CONFIG_CMA_SYSFS:
-# the analyzer then falls back to the kernel's "cma_alloc ... failed" dmesg lines.
+# R0.1 (EM 2026-10-05): a FAILED CMA allocation during the --raw phase is the criterion;
+# CmaFree above is info. Evidence, in order of use (the analyzer names what it used):
+#   1. /sys/kernel/mm/cma/*/alloc_pages_fail deltas (CONFIG_CMA_SYSFS; NOT on bmcam004's
+#      rpi trixie kernel, 2026-10-05: then "counter unavailable -> dmesg rule used");
+#   2. the kernel log of the --raw phase only (dmesg_raw_phase.txt: cma_alloc / alloc failed /
+#      camera buffer errors) + rpicam's own stderr of every --raw capture (raw_cap_stderr.txt:
+#      libcamera / V4L2 / dma-heap allocation errors);
+#   neither readable -> R0.1 NOT MEASURED (never a silent PASS). debugfs CMA is info only and
+#   only if readable WITHOUT root (the probe never needs root).
+dmesg_read() { dmesg 2>/dev/null || sudo -n dmesg 2>/dev/null; }
+if dmesg_read < /dev/null > /dev/null 2>&1 && [ -n "$(dmesg_read < /dev/null | head -1)" ]; then
+  DMESG_OK=1; echo "dmesg=readable" > dmesg_status.txt
+else
+  DMESG_OK=0; echo "dmesg=unavailable" > dmesg_status.txt
+fi
+cma_debugfs() {  # $1 phase label -> cma_debugfs.txt (info, only when readable without root)
+  for f in /sys/kernel/debug/cma/*/used /sys/kernel/debug/cma/*/maxchunk; do
+    [ -r "$f" ] && echo "$1 $f $(cat "$f" 2>/dev/null)" >> cma_debugfs.txt
+  done
+}
 echo "label,area,alloc_pages_success,alloc_pages_fail" > cma_counters.csv
 cma_counters() {  # $1 phase label
   for a in /sys/kernel/mm/cma/*/; do
@@ -119,7 +138,12 @@ cma_counters() {  # $1 phase label
   done
 }
 cma_counters start
-echo "CMA counters: $(( $(wc -l < cma_counters.csv) - 1 )) area(s) $(tail -1 cma_counters.csv)"
+cma_debugfs start
+if [ "$(( $(wc -l < cma_counters.csv) - 1 ))" -gt 0 ]; then
+  echo "CMA counters: $(( $(wc -l < cma_counters.csv) - 1 )) area(s) $(tail -1 cma_counters.csv)"
+else
+  echo "CMA counters: unavailable on this kernel -> the dmesg rule decides R0.1 ($(cat dmesg_status.txt))"
+fi
 
 echo "mode,i,rc,elapsed_s,jpeg_bytes,dng_bytes" > captures.csv
 cap() {  # $1 mode (plain|raw), $2 i
@@ -132,20 +156,28 @@ cap() {  # $1 mode (plain|raw), $2 i
   local rc=$?
   local t1=$(date +%s.%N)
   echo "idle" > label.txt
+  if [ "$1" = raw ]; then { echo "--- raw $2 rc=$rc"; cat cap.err; } >> raw_cap_stderr.txt; fi
   local jb=$(stat -c %s c.jpg 2>/dev/null || echo 0); local db=$(stat -c %s c.dng 2>/dev/null || echo 0)
   echo "$1,$2,$rc,$(awk "BEGIN{print $t1 - $t0}"),$jb,$db" >> captures.csv
   echo "capture $1 #$2 rc=$rc jpeg=$jb dng=$db"
 }
 for i in $(seq 1 "$N"); do cap plain "$i"; sleep 3; done
 cma_counters after_plain
+: > raw_cap_stderr.txt
+DMESG_BEFORE=$(dmesg_read < /dev/null | wc -l)
 for i in $(seq 1 "$N"); do
   cap raw "$i"
   if [ "$i" = 1 ] && [ -s c.dng ]; then cp c.dng keep.dng; cp c.json keep.json; fi
   sleep 3
 done
 cma_counters after_raw
+cma_debugfs after_raw
+# the kernel log of the --raw phase only (lines added since DMESG_BEFORE; ring-buffer
+# wrap would only make it longer, never hide a line)
+dmesg_read < /dev/null | tail -n +"$((DMESG_BEFORE + 1))" > dmesg_raw_phase.txt
+echo "dmesg raw phase: $(wc -l < dmesg_raw_phase.txt) new line(s) ($(cat dmesg_status.txt))"
 rm -f c.jpg c.dng
-{ dmesg 2>/dev/null || sudo -n dmesg 2>/dev/null; } < /dev/null | tail -60 > dmesg_tail.txt
+dmesg_read < /dev/null | tail -60 > dmesg_tail.txt
 
 # R0.3: path [B] on the kept DNG, per preset, one rung (rung 1 of the S0 calibration)
 echo "preset,i,rc,wall_s,bytes,distance,cjxl_s_sum,peak_rss_kb,rfb" > encodes.csv
@@ -187,9 +219,11 @@ REMOTE
 REMOTE_RC=${PIPESTATUS[0]}
 
 scp -q -r -o BatchMode=yes "$U@$H:$D/env.txt" "$U@$H:$D/captures.csv" "$U@$H:$D/cma_samples.csv" \
-    "$U@$H:$D/cma_counters.csv" \
+    "$U@$H:$D/cma_counters.csv" "$U@$H:$D/dmesg_status.txt" "$U@$H:$D/dmesg_raw_phase.txt" \
+    "$U@$H:$D/raw_cap_stderr.txt" \
     "$U@$H:$D/encodes.csv" "$U@$H:$D/dmesg_tail.txt" "$P/" 2>/dev/null
 scp -q -r -o BatchMode=yes "$U@$H:$D/keep.json" "$P/capture_metadata_raw1.json" 2>/dev/null
+scp -q -o BatchMode=yes "$U@$H:$D/cma_debugfs.txt" "$P/" 2>/dev/null   # info; absent without root
 scp -q -r -o BatchMode=yes "$U@$H:$D/enc_*" "$P/" 2>/dev/null
 find "$P" -name "*.nrjxl" -size +200k -delete 2>/dev/null   # keep the small blobs only
 if [ "${S28R0_KEEP:-0}" != 1 ]; then $SSH "rm -rf $D" < /dev/null; fi

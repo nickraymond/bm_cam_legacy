@@ -13,8 +13,11 @@ Criteria (sprints/Sprint28_raw_jxl/LADDER.md, from SPEC r4 §7.2):
         over the --raw phase == 0 (EM 2026-10-05). CmaFree is info only: the kernel parks
         movable pages (page cache) in the CMA area and migrates them out on demand, so a
         long-running unit shows low CmaFree with full headroom (bmcam004 6.3 MB, 10/10, 0
-        errors). A kernel without CMA sysfs counters (CONFIG_CMA_SYSFS) is judged by the
-        kernel's own "cma_alloc ... failed" dmesg lines instead (the verdict says which).
+        errors). Without CMA sysfs counters (bmcam004's rpi trixie kernel has none): "counter
+        unavailable -> dmesg rule used" = no cma_alloc / alloc failed / camera buffer
+        allocation line in the kernel log of the --raw phase AND none in rpicam's stderr of
+        any --raw capture. Neither counters nor a readable kernel log: NOT MEASURED (exit 2).
+        debugfs /sys/kernel/debug/cma is info, only if readable without root.
   R0.2  median(--raw) - median(no --raw) capture time <= 3 s
   R0.3  per preset: median rung <= 20 s, peak RSS <= 120 MB, 0 kills / failures, and the
         predicted wake (capture + 2 rungs + 50 kB burst + 150 s tail, from process start)
@@ -25,14 +28,16 @@ Assumptions (labelled in the budget CSV): process start -> capture start 9 s (Sp
          main ~+21 s, Spotter read ~+23..+30 s), JPEG prep + ladder 2.5 s (Sprint08), the
          50 kB burst = 176 msgs at 1.3 s/msg, tail 150 s.
 Example: hil/tools/hil_s28_r0_analyze.py runs/s28_ladder_20261005 bmcam003
-Exit codes: 0 all PASS, 1 a criterion FAILs, 2 NOT MEASURED (an empty / -1-only CMA log, or
-         no --raw capture rows in it): no verdict is written, re-run the probe.
+Exit codes: 0 all PASS, 1 a criterion FAILs, 2 NOT MEASURED: an empty / -1-only CMA log or
+         no --raw capture rows in it (no verdict written, re-run the probe), or R0.1 with
+         neither CMA counters nor a readable kernel log (verdict "NOT MEASURED").
 Known limits: dmesg "error" matching is a keyword scan (camera / unicam / cma / alloc).
 """
 
 import csv
 import json
 import os
+import re
 import statistics
 import sys
 
@@ -45,6 +50,60 @@ DMESG_WORDS = ("unicam", "imx708", "cma", "dma", "alloc", "pisp", "v4l2", "error
 def read_csv(path):
     with open(path, newline="") as fh:
         return list(csv.DictReader(fh))
+
+
+# The kernel's own CMA allocation failure lines (mm/cma.c "cma_alloc: ... alloc failed",
+# alloc_contig_range) and camera buffer failures in the kernel log.
+CMA_DMESG = re.compile(r"cma_alloc|cma:.*fail|alloc_contig_range|"
+                       r"(unicam|rp1-cfe|bcm2835-isp|pisp|v4l2|dma.?heap).*(alloc|nomem|-12)",
+                       re.IGNORECASE)
+# libcamera / V4L2 / dma-heap buffer allocation errors in rpicam-still's own stderr.
+ALLOC_STDERR = re.compile(r"failed to allocate|cannot allocate|out of memory|\benomem\b|"
+                          r"dma.?heap.*(fail|error)|vidioc_reqbufs.*(fail|error)|"
+                          r"unable to (allocate|import)|buffer.*alloc.*fail", re.IGNORECASE)
+
+
+def _read(path):
+    try:
+        with open(path, "r", errors="replace") as fh:
+            return fh.read()
+    except OSError:
+        return None
+
+
+def _cma_evidence(p, dmesg_tail):
+    """R0.1's CMA decision from what the unit could give (EM 2026-10-05: bmcam004's rpi
+    trixie kernel has NO /sys/kernel/mm/cma/*/alloc_pages_fail).
+    -> {ok: True/False/None (None = NOT MEASURED), source, counters, dmesg_failures,
+        stderr_errors, debugfs}"""
+    counters = _cma_counter_deltas(os.path.join(p, "cma_counters.csv"))
+    stderr = _read(os.path.join(p, "raw_cap_stderr.txt"))
+    err_scope = (" + rpicam stderr of every --raw capture" if stderr is not None
+                 else " (no rpicam stderr file: older probe)")
+    stderr = stderr or ""
+    stderr_errors = [ln.strip() for ln in stderr.splitlines() if ALLOC_STDERR.search(ln)]
+    status = (_read(os.path.join(p, "dmesg_status.txt")) or "").strip()
+    phase = _read(os.path.join(p, "dmesg_raw_phase.txt"))
+    if phase is not None:
+        log, scope = phase, "the kernel log of the --raw phase"
+    else:                                   # a pull from before 2026-10-05: the last 60 lines
+        log, scope = dmesg_tail, "the last 60 kernel-log lines (older probe: not phase-scoped)"
+    readable = status == "dmesg=readable" or (not status and bool(dmesg_tail.strip()))
+    dmesg_failures = [ln.strip() for ln in log.splitlines() if CMA_DMESG.search(ln)]
+    debugfs = [ln.strip() for ln in (_read(os.path.join(p, "cma_debugfs.txt")) or "").splitlines()]
+    out = {"counters": counters, "dmesg_failures": dmesg_failures if readable else [],
+           "stderr_errors": stderr_errors, "debugfs": debugfs or "not readable without root"}
+    if counters is not None:
+        out["ok"] = counters["raw"]["fail"] == 0 and not stderr_errors
+        out["source"] = f"sysfs alloc_pages_fail delta over the --raw phase{err_scope}"
+    elif readable:
+        out["ok"] = not dmesg_failures and not stderr_errors
+        out["source"] = f"counter unavailable -> dmesg rule used ({scope}{err_scope})"
+    else:
+        out["ok"] = None
+        out["source"] = ("counter unavailable AND the kernel log unreadable -> NOT MEASURED "
+                         "(never a silent PASS); rpicam stderr alone is not enough")
+    return out
 
 
 def _cma_counter_deltas(path):
@@ -115,16 +174,14 @@ def main(argv=None):
                   default=None)
     plain_cma = min((r["cma_free_min_kb"] for r in plain if r["cma_free_min_kb"] is not None),
                     default=None)
-    dmesg_hits = [ln for ln in dmesg.splitlines() if any(w in ln for w in DMESG_WORDS)
+    phase_log = _read(os.path.join(p, "dmesg_raw_phase.txt"))
+    scan = phase_log.lower() if phase_log is not None else dmesg   # the --raw phase if known
+    dmesg_hits = [ln for ln in scan.splitlines() if any(w in ln for w in DMESG_WORDS)
                   and ("error" in ln or "fail" in ln)]
-    counters = _cma_counter_deltas(os.path.join(p, "cma_counters.csv"))
-    cma_dmesg_fail = [ln for ln in dmesg.splitlines() if "cma" in ln and "fail" in ln]
-    if counters is not None:
-        cma_ok, cma_source = counters["raw"]["fail"] == 0, "sysfs alloc_pages_fail"
-    else:
-        cma_ok, cma_source = not cma_dmesg_fail, ("dmesg (no usable cma_counters.csv: not "
-                                                   "collected, or no CMA sysfs on this kernel)")
-    r01 = ok_raw == len(raw) and len(raw) >= 10 and not dmesg_hits and cma_ok
+    cev = _cma_evidence(p, dmesg)
+    print(f"[R0][{host}] R0.1 CMA check: {cev['source']}")
+    r01 = (None if cev["ok"] is None else
+           ok_raw == len(raw) and len(raw) >= 10 and not dmesg_hits and cev["ok"])
     med_raw = statistics.median(float(r["elapsed_s"]) for r in raw) if raw else None
     med_plain = statistics.median(float(r["elapsed_s"]) for r in plain) if plain else None
     delta = None if med_raw is None or med_plain is None else med_raw - med_plain
@@ -175,9 +232,12 @@ def main(argv=None):
         else:
             break
     verdict = {"host": host,
-               "R0.1": {"verdict": "PASS" if r01 else "FAIL", "raw_ok": f"{ok_raw}/{len(raw)}",
-                        "cma_alloc_check": cma_source, "cma_counter_deltas": counters,
-                        "cma_dmesg_failures": cma_dmesg_fail[:10],
+               "R0.1": {"verdict": "NOT MEASURED" if r01 is None else "PASS" if r01 else "FAIL",
+                        "raw_ok": f"{ok_raw}/{len(raw)}",
+                        "cma_alloc_check": cev["source"], "cma_counter_deltas": cev["counters"],
+                        "cma_dmesg_failures": cev["dmesg_failures"][:10],
+                        "raw_capture_alloc_errors": cev["stderr_errors"][:10],
+                        "info_cma_debugfs": cev["debugfs"],
                         "info_cma_free_min_kb_raw": raw_cma,
                         "info_cma_free_min_kb_plain": plain_cma,
                         "dmesg_errors": dmesg_hits[:10]},
@@ -193,7 +253,10 @@ def main(argv=None):
     for k in ("R0.1", "R0.2", "R0.3", "R0.4"):
         print(f"| {k} | {host} | {verdict[k]['verdict']} | "
               + json.dumps({a: b for a, b in verdict[k].items() if a != 'verdict'}) + " |")
-    return 0 if all(verdict[k]["verdict"] == "PASS" for k in ("R0.1", "R0.2", "R0.3", "R0.4")) else 1
+    verdicts = [verdict[k]["verdict"] for k in ("R0.1", "R0.2", "R0.3", "R0.4")]
+    if "NOT MEASURED" in verdicts:
+        return 2
+    return 0 if all(v == "PASS" for v in verdicts) else 1
 
 
 if __name__ == "__main__":

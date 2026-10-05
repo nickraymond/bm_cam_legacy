@@ -28,7 +28,8 @@ ENV = ("2026-10-05T16:00:00Z\nbmcam003\ncjxl: /usr/bin/cjxl JPEG XL encoder v0.1
 
 def write(run, host, *, raw_dng=10, cma_raw=1500, raw_s=6.0, rung_s=6.4, rss=31000,
           presets=("1600x900", "2000x1124", "2400x1350"), fail_preset=None, env=ENV, dmesg="",
-          cma_fail_raw=0, counters=True):
+          cma_fail_raw=0, counters=True, dmesg_status="dmesg=readable", phase=None,
+          raw_stderr=""):
     p = os.path.join(run, "pulled", f"{host}_r0")
     os.makedirs(p, exist_ok=True)
     with open(os.path.join(p, "captures.csv"), "w", newline="") as fh:
@@ -59,6 +60,14 @@ def write(run, host, *, raw_dng=10, cma_raw=1500, raw_s=6.0, rung_s=6.4, rss=310
         fh.write(env)
     with open(os.path.join(p, "dmesg_tail.txt"), "w") as fh:
         fh.write(dmesg)
+    if dmesg_status is not None:
+        with open(os.path.join(p, "dmesg_status.txt"), "w") as fh:
+            fh.write(dmesg_status + "\n")
+    if phase is not None:
+        with open(os.path.join(p, "dmesg_raw_phase.txt"), "w") as fh:
+            fh.write(phase)
+    with open(os.path.join(p, "raw_cap_stderr.txt"), "w") as fh:
+        fh.write(raw_stderr)
     if counters:
         with open(os.path.join(p, "cma_counters.csv"), "w", newline="") as fh:
             wr = csv.writer(fh)
@@ -100,15 +109,42 @@ class Analyze(unittest.TestCase):
         rc, v, _b = self.run_it(cma_raw=900)
         self.assertEqual(v["R0.1"]["verdict"], "PASS")
         self.assertEqual(v["R0.1"]["info_cma_free_min_kb_raw"], 900)
-        self.assertEqual(v["R0.1"]["cma_alloc_check"], "sysfs alloc_pages_fail")
+        self.assertTrue(v["R0.1"]["cma_alloc_check"].startswith("sysfs alloc_pages_fail"))
 
     def test_without_cma_sysfs_the_kernels_cma_failure_lines_decide(self):
-        _rc, v, _b = self.run_it(counters=False)
-        self.assertEqual(v["R0.1"]["verdict"], "PASS")
-        self.assertIn("dmesg", v["R0.1"]["cma_alloc_check"])
-        _rc, v, _b = self.run_it(counters=False, dmesg="cma: cma_alloc: linux,cma: alloc failed, "
-                                                      "req-size: 8192 pages, ret: -12\n")
+        # bmcam004's rpi trixie kernel: no /sys/kernel/mm/cma/*/alloc_pages_fail
+        rc, v, _b = self.run_it(counters=False, phase="[ 9.1] unicam: probed\n")
+        self.assertEqual((rc, v["R0.1"]["verdict"]), (0, "PASS"))
+        self.assertTrue(v["R0.1"]["cma_alloc_check"].startswith(
+            "counter unavailable -> dmesg rule used (the kernel log of the --raw phase"))
+        _rc, v, _b = self.run_it(counters=False, phase="cma: cma_alloc: linux,cma: alloc "
+                                                       "failed, req-size: 8192 pages, ret: -12\n")
         self.assertEqual(v["R0.1"]["verdict"], "FAIL")
+        self.assertEqual(len(v["R0.1"]["cma_dmesg_failures"]), 1)
+
+    def test_the_dmesg_rule_is_scoped_to_the_raw_phase(self):
+        old = "cma: cma_alloc: linux,cma: alloc failed, req-size: 8192 pages, ret: -12\n"
+        _rc, v, _b = self.run_it(counters=False, dmesg=old, phase="")   # before the phase
+        self.assertEqual(v["R0.1"]["verdict"], "PASS")
+
+    def test_no_counter_and_no_kernel_log_is_not_measured(self):
+        rc, v, _b = self.run_it(counters=False, dmesg_status="dmesg=unavailable", phase="")
+        self.assertEqual((rc, v["R0.1"]["verdict"]), (2, "NOT MEASURED"))
+        self.assertIn("NOT MEASURED", v["R0.1"]["cma_alloc_check"])
+
+    def test_an_rpicam_buffer_allocation_error_fails_even_with_counters(self):
+        err = "--- raw 3 rc=0\nERROR RPI pipeline: Failed to allocate buffers: Cannot allocate memory\n"
+        _rc, v, _b = self.run_it(raw_stderr=err)
+        self.assertEqual(v["R0.1"]["verdict"], "FAIL")
+        self.assertEqual(len(v["R0.1"]["raw_capture_alloc_errors"]), 1)
+
+    def test_an_older_pull_without_status_files_uses_the_tail(self):
+        rc, v, _b = self.run_it(counters=False, dmesg_status=None, dmesg="[ 9.1] unicam: probed\n")
+        self.assertEqual(v["R0.1"]["verdict"], "PASS")
+        self.assertIn("older probe", v["R0.1"]["cma_alloc_check"])
+        # ... and an older pull with an empty tail is NOT MEASURED, not a PASS
+        rc, v, _b = self.run_it(counters=False, dmesg_status=None, dmesg="")
+        self.assertEqual((rc, v["R0.1"]["verdict"]), (2, "NOT MEASURED"))
         self.assertEqual(self.run_it(dmesg="unicam: dma alloc error\n")[1]["R0.1"]["verdict"],
                          "FAIL")
 
