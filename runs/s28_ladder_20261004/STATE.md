@@ -35,8 +35,10 @@ ALERTS.log,summary.log,annotations.jsonl,config.json}, /home/pi/hil_r1/{cmdres.j
    by nvd #84 tests; 1000043 = deploy event; stress slots excluded from R1G.1; trg 1000069 backend status `answered`
    though its clip exists (recheck linkage); SPOT-33507C 2-wake command lag = documented R1 known limit.
 3. **Temporary power watch** while SPOT-31593C's bus is held on (config `bus_on_watch`); remove at the restore.
-   Open question to Nick: is any Spotter powered via nereus000's USB hub? (nereus000 IOUT rose 0.5 → 0.9 A after
-   bus-on.) Quiet sample task at 05:25Z.
+   **Rig fact (Nick 2026-10-05): both Spotters charge from nereus000's USB hub** → the bus-on camera load comes
+   through nereus000's marginal adapter (IOUT 0.5 → 0.9 A with the bus held on; 1.2 A in windows). Sustained VBAT
+   decline outside :00–:12 = STOP long bus-on runs; short R1–R3 OK; flag before any multi-hour bus-on step (R4 runs on
+   the production schedule: fine). Recommendation to Nick: bigger nereus000 adapter or a separate Spotter supply.
 4. C1 phase 2 (message size) = parked: needs Nick's OK on the wire change + signed `uplink.chunk_chars`.
 
 ## 3. Session crons (session-only; re-create after a restart)

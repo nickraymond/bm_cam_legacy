@@ -12,6 +12,17 @@ skill, Phase 1b) applies the unit items; this file is the reference and the veri
 | logind `RemoveIPC=no` (units) | 2026-10-01, bm #97: pi's last ssh logout wiped `/dev/shm/bmcam` under stay_on | remote `set` acked but not applied |
 | journald persistent (bench hosts) | 2026-10-02: nereus000 outage had no previous-boot log | no root cause possible |
 
+## Rig fact: the Spotters charge from nereus000 (confirmed by Nick 2026-10-05)
+
+Both bench Spotters (SPOT-33507C, SPOT-31593C) charge over their USB console cables from nereus000's USB hub, so the
+whole chain (Spotter → BM bus → camera Pi) is ultimately fed by nereus000's adapter through its LiFePO4wered/Pi+.
+Measured 2026-10-04/05: nereus000's own output (IOUT) is ~0.5 A idle, ~1.2 A during each :00–:10 bus window (VIN sags
+4.91 → 4.66 V and the pack tops up: VBAT 3.64 → ~3.30 V, recovering by :15), and ~0.9 A between windows when a bus is
+held on (SPOT-31593C bus-always-on for Sprint28). The adapter is marginal for bursts.
+Rules: keep the rig-health power watch on while any bus is held on; a sustained VBAT decline outside the :00–:12
+windows = STOP for long bus-on runs (short bench steps OK; flag before any multi-hour bus-on step).
+Recommendation (pending Nick): a higher-current adapter for nereus000, or a separate supply for the Spotters.
+
 ## Items
 
 | host | file | content |
