@@ -77,4 +77,11 @@ skipped on a video unit taking trg stills: #120 fix needed). R3.4 N/A on hardwar
 
 | wake (Z) | media | START | delivered / complete | wake→halt | notes |
 |---|---|---|---|---|---|
-| 16:00 (1) | 57521 | nrjxl len 195 (d 9.70, att 2, encode 15.4 s) | 190/195 at 16:47 (healing) | 483 s | CmaFree 72→96 MB, 0 CMA errors; peak_rss 138 MB |
+| 16:00 (1) | 57521 | nrjxl len 195 (d 9.70, att 2, encode 15.4 s) | 195/195 complete 18:06 (126 min, healed) | 483 s | CmaFree 72→96 MB, 0 CMA errors; peak_rss 138 MB |
+| 17:00 (2) | 57534 | **pjpg len 180, q 30, att 7, rfb=floor** (fallback) | 180/180 complete 17:10 (10 min) | 503 s | queue_full 0 |
+| 18:00 (3) | 57549 | **pjpg len 193, q 30, att 7, rfb=floor** (fallback) | 150/193 at 18:41 (healing) | 504 s | queue_full 45 |
+
+Mid-check 2026-10-05 18:45Z: **R4.3 (≤ 1/12 fallback) already FAILED**: 2 fallbacks in 3 wakes, both `rfb=floor`
+(nrjxl search hit the d_max floor without fitting; the unit fell back loudly with a reason = RC.5 behaviour, not
+silent). R4.1 / R4.2 / R4.4 still running (all 3 wakes delivered or healing; wake→halt 483–504 s ≤ 570; START every
+wake). Sources: console decode (`hil_con_decode.py`), `analysis/r4_media_midday.csv`, backend `/media/{id}` format.
