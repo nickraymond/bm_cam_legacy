@@ -442,6 +442,15 @@ def _raw_begin(settings, native_path, output_dir):
         rc_raw_jxl.sweep_orphans(output_dir)
     if not rc_raw_jxl.enabled(cfg):
         return None
+    x, y, w, h = (int(v) for v in settings["crop_native_xywh"])
+    if any(v % 2 for v in (x, y, w, h)) or w * h > rc_raw_jxl.RAW_MAX_PX:
+        # Last line of defence (R3.3): config_validate refuses this at set / trg / boot; a
+        # crop that still got here (odd = wrong CFA phase, or too large) is never captured
+        # --raw: today's JPEG goes out with rfb=err.
+        print(f"[RAW][WARN] still.format=nrjxl but crop {[x, y, w, h]} is not a valid RAW crop "
+              f"(even, <= {rc_raw_jxl.RAW_MAX_PX} px): no --raw capture, pjpg rfb=err")
+        return {"cfg": cfg, "rfb": "err", "detail": f"invalid RAW crop {[x, y, w, h]}",
+                "dng": None, "metadata": None}
     import importlib.util
     missing = [t for t, ok in (("cjxl", shutil.which("cjxl") is not None),
                                ("numpy", importlib.util.find_spec("numpy") is not None)) if not ok]

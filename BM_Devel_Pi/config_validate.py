@@ -33,11 +33,11 @@ Rules added in S4 (strict + effective):
   - mode.media video: video.send.message_cap >= VIDEO_CAP_FLOOR (80; S3b bench
     F1: cap 40 failed x264 pass 2 on bmcam003, 80 worked; nothing between
     measured, so the floor lives here, not in the registry range)
-  - env: mode.media video needs ffmpeg; schedule.timezone must resolve; mode.media still +
-    still.format nrjxl needs cjxl and numpy (Sprint28)
+  - env: mode.media video needs ffmpeg; schedule.timezone must resolve; still.format nrjxl
+    needs cjxl and numpy (Sprint28)
 
-Rules added in Sprint28 (strict + effective; Sprint28 SPEC r4 §3.7), mode.media
-still with still.format nrjxl only:
+Rules added in Sprint28 (strict + effective; Sprint28 SPEC r4 §3.7), whenever
+still.format is nrjxl (any mode.media: video units take stills via trg med:still):
   - still.crop even (x, y, w, h) and w x h <= RAW_MAX_PX (1600x900 until R0.3)
   - uplink.media_key.enabled true; uplink.network_type 2
 
@@ -306,7 +306,11 @@ RAW_MAX_PX = 1600 * 900
 
 
 def _nrjxl_still(values):
-    return values.get("mode.media") == "still" and values.get("still.format") == "nrjxl"
+    """still.format nrjxl, WHATEVER mode.media is: a video unit takes stills through a trg
+    kv med:still (R3.3 FAIL on bmcam004, 2026-10-05: an odd crop was accepted because this
+    rule asked for mode.media still). mode.media stays in each rule's paths, so a one-shot
+    `med: still` or a switch of media is refused when it would run a bad nrjxl config."""
+    return values.get("still.format") == "nrjxl"
 
 
 def _rule_raw_crop(values):

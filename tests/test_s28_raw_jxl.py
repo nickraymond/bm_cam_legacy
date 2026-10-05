@@ -855,6 +855,54 @@ class Memory(unittest.TestCase):
         self.assertEqual(cm.exception.code, "err")
 
 
+class R33VideoUnitStills(unittest.TestCase):
+    """LADDER R3.3 FAIL on bmcam004 (2026-10-05): a video unit with still.format nrjxl ACCEPTED
+    still.crop [1505, 846, 1600, 900] (ack ok) because the nrjxl rules required mode.media
+    still. The unit's own v9 dispatcher must refuse it (e:xk), and so must a trg kv."""
+
+    def rig(self):
+        sys.path.insert(0, HERE)
+        from test_s4_dispatch import Rig
+        return Rig(self, base_over={"mode.media": "video", "still.format": "nrjxl",
+                                    "uplink.media_key.enabled": True})
+
+    def test_set_of_an_odd_crop_on_a_video_unit_is_refused(self):
+        r = self.rig()
+        r.send({"id": 1_000_001, "c": "set", "kv": {"still.crop": [1505, 846, 1600, 900]}})
+        ack = r.acks()[0]
+        self.assertEqual((ack["ok"], ack.get("e")), (0, "xk"))
+        r.send({"id": 1_000_002, "c": "set", "kv": {"still.crop": [1504, 846, 1600, 900]}})
+        self.assertEqual(r.acks()[0]["ok"], 1)               # an even crop is fine
+
+    def test_a_trg_kv_with_an_odd_crop_is_refused(self):
+        r = self.rig()
+        r.send({"id": 1_000_003, "c": "trg", "v": 2,
+                "kv": {"med": "still", "r": [1505, 846, 1600, 900]}})
+        ack = r.acks()[0]
+        self.assertEqual((ack["ok"], ack.get("e")), (0, "xk"))
+        self.assertIsNone(r.state.pending_trigger)           # nothing armed
+        r.send({"id": 1_000_004, "c": "trg", "v": 2,
+                "kv": {"med": "still", "r": [1504, 846, 1600, 900]}})
+        self.assertEqual(r.acks()[0]["ok"], 1)
+
+    def test_too_large_a_crop_on_a_video_unit_is_refused(self):
+        r = self.rig()
+        r.send({"id": 1_000_005, "c": "trg", "v": 2,
+                "kv": {"med": "still", "r": [0, 0, 4608, 2592]}})
+        self.assertEqual(r.acks()[0].get("e"), "xk")
+
+    def test_a_bad_crop_that_reaches_the_action_is_never_captured_raw(self):
+        import rc_progressive_jpeg as rc
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "camera_schedule.yaml")
+            with open(path, "w") as fh:
+                fh.write('still_raw:\n  format: "nrjxl"\n')
+            for crop in ((1505, 846, 1600, 900), (0, 0, 4608, 2592)):
+                raw = rc._raw_begin({"config_path": path, "crop_native_xywh": crop}, None, d)
+                self.assertEqual((raw["rfb"], raw["dng"]), ("err", None), crop)
+                self.assertIn("invalid RAW crop", raw["detail"])
+
+
 class _StepClock:
     """A clock that advances by the seconds each fake cjxl run reports."""
 
@@ -970,9 +1018,16 @@ class Config(unittest.TestCase):
         self.assertEqual(e[0].paths[:2], ("still.format", "uplink.media_key.enabled"))
         e = errs(**{"still.format": "nrjxl", "uplink.network_type": 1})
         self.assertEqual(e[0].paths[:2], ("still.format", "uplink.network_type"))
-        # a video unit's still.format does not matter
+        # R3.3 FAIL (bmcam004 2026-10-05): a VIDEO unit with still.format nrjxl takes stills
+        # through trg med:still, so the rules apply to it too
+        e = errs(**{"mode.media": "video", "still.format": "nrjxl",
+                    "still.crop": [1505, 846, 1600, 900]})
+        self.assertEqual(e[0].paths[0], "still.crop")
         self.assertEqual(errs(**{"mode.media": "video", "still.format": "nrjxl",
-                                 "uplink.media_key.enabled": False}), [])
+                                 "uplink.media_key.enabled": False})[0].paths[1],
+                         "uplink.media_key.enabled")
+        # a pjpg video unit: no nrjxl rule
+        self.assertEqual(errs(**{"mode.media": "video", "still.crop": [1505, 846, 1600, 900]}), [])
         # the base scope (a plain boot load) never runs them (S4 doctrine)
         self.assertEqual([v for v in V.validate(_still(**{"still.format": "nrjxl",
                                                           "uplink.network_type": 1}), "base")

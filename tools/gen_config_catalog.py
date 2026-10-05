@@ -465,13 +465,15 @@ def build():
             "video_geometry_keys": list(V.VIDEO_GEOMETRY_KEYS),
             # backend-only (REVIEW_r1 row 3): stay_on only on a unit whose bus is held on
             "stay_on_requires_reported_true": "power.bus_always_on",
-            # Sprint28 (config_validate.s28_rules): mode.media still + still.format nrjxl needs
-            # an even still.crop with w*h <= raw_max_px, keyed media and cellular only.
+            # Sprint28 (config_validate.s28_rules): still.format nrjxl (ANY mode.media: a video
+            # unit takes stills via trg kv med:still; R3.3 FAIL bmcam004 2026-10-05) needs an
+            # even still.crop with w*h <= raw_max_px, keyed media and cellular only.
             # `presets` = the one-command switch the UI offers (SPEC r4 §3.3): today's field
             # of view at native density. Customer crop presets (WIDE / MEDIUM / HIGH DETAIL)
             # wait for Nick's ruling from the cut sheets (EM, 2026-10-02): add none here
             # before it.
             "nrjxl": {
+                "applies_when": {"still.format": "nrjxl"},       # any mode.media
                 "raw_max_px": V.RAW_MAX_PX,
                 "crop_even": True,
                 "requires": {"uplink.media_key.enabled": True, "uplink.network_type": 2},
