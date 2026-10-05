@@ -535,6 +535,12 @@ V9_SCENARIOS.update({
                               "the bilinear strip demosaic + no-clip coding into ONE rgb.ppm, "
                               "ONE VarDCT encode per search step (-m 0), container profile v2 "
                               "(method 20); START unchanged (fmt=nrjxl cmp=1)"},
+    "v9_low_gain_rgb": {**_NRJXL, "low_gain": True, "raw": {"cam": "ok"},
+                        "v2": {**NRJXL_V2, "still.raw.layout": "rgb",
+                               "camera.exposure.profile": "low_gain"},
+                        "notes": "low_gain + B3a together (bmcam004 deploy, EM 2026-10-05): the "
+                                 "--raw capture carries --tuning-file (s30000_g16), the encode "
+                                 "is the rgb.ppm VarDCT path; the two keys do not interact"},
     "v9_nrjxl_rfb_err": {**_NRJXL, "v2": NRJXL_V2, "raw": {"cam": "ok", "ccm": False},
                          "notes": "the capture metadata has no ColourCorrectionMatrix: no "
                                   "WB/CCM params, pjpg rfb=err"},
