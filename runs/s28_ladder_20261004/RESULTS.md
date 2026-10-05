@@ -36,4 +36,5 @@ cfg 7a9ed97b); bench YAML `mode.run: stay_on` (trigger-only; backup + restore in
 | **first nrjxl START on air** | 06:08:15 | `<START IMG> …nrjxl, length 190, key=0e9fp2, tg=1000062, r=1600x900+1504+846, fmt=nrjxl, q=434, att=3, sha=e44dde54e26f` |
 | backend row | first seen ~06:42 (last chunk 06:40:36) | media 57389, 186/190, format nrjxl, placeholder (by design until complete). Upload lag ≈ 28 min = Notecard periodic upload (no hub.sync in the off-hour) |
 | rsd 1 | created 06:55:37, rx 07:06:22, serviced at once (stay_on) | 100131 chunks 81-84; only 81, 82 on air; 83, 84 + `<HL>` dropped by the Spotter's 2-slot queue during the sync → issue #126 |
-| row 188/190 | ~07:40 | 2nd rsd for 83-84 pending (still_arriving guard) |
+| row 188/190 | ~07:40 | 81, 82 landed via the periodic upload |
+| rsd 2 | created 08:31:21 (= rsd 1 + REASK_S 5400 s + next autosend pass) | 100132 chunks 83-84; missed the 08:05 sync → delivery at the 09:05 sync, expected complete ≈ 09:40 (D1 ≈ 3 h 32 m) |
