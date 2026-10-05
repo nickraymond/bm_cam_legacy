@@ -1,0 +1,14 @@
+{
+ "container": "profile v2 (DESIGN_B3a.md \u00a72, method 20)",
+ "blobs": {
+  "blob_v2_bmcam004_57521.nrjxl": {
+   "sha256": "0c386e8f2dc1f8dcc13014fd7dd1295ce9372bbee821bd1e104c6bdf63d3d984",
+   "bytes": 52983,
+   "distance": 3.42,
+   "msgs_384": 184,
+   "headroom_x10000": 21827,
+   "source": "bmcam004 media 57521 (SPOT-31593C 2026-10-05T16:00:29Z): the DNG unpacked from its v1 nrjxl (lossy), 1600x900, colour params from that nrjxl; encoded by rc_raw_jxl.encode_still layout rgb, cjxl v0.11.1 e5 (Mac)",
+   "check": "tools/s28_b3a_e2e_check.py (independent djxl + numpy decode)"
+  }
+ }
+}
