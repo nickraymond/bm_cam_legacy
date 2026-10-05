@@ -56,6 +56,8 @@ BM_Devel_Pi/rc_heal.py             # Sprint25 S5 rsd heals + <HL>
 # Sprint28 RAW -> JPEG XL stills (still.format nrjxl; inert for pjpg but imported by
 # rc_progressive_jpeg and config_v1_reader). Needs numpy + cjxl only when nrjxl is on.
 BM_Devel_Pi/rc_raw_jxl.py
+# Sprint28 low-gain stills (exposure_profile island; inert under auto)
+BM_Devel_Pi/rc_exposure_profile.py
 
 # Sprint26 S2 config v2 (registry + v1 reader; the migrator runs on the unit)
 BM_Devel_Pi/config_registry.py     # every setting: type, default, guard, v1 source

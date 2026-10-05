@@ -5,10 +5,10 @@ W sub spotter/utc-time
 RX utc 2026-09-24T15:00:00+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 15:00:00
 VREC {"bitrate_mbps": 2.0, "controls": {"enabled": true, "exposure": {"enabled": true, "mode": "auto"}, "focus": {"enabled": true, "lens_position": 1.82, "mode": "manual", "range": "normal", "speed": "normal"}, "image_processing": {"enabled": false}, "white_balance": {"enabled": true, "mode": "auto"}}, "encoder": "/usr/bin/rpicam-vid", "ffmpeg": "/usr/bin/ffmpeg", "fps": 15, "geometry": {"available_px": [1600, 900], "crop_native_xywh": [1504, 846, 1600, 900], "fps": 14, "mode_arg": "4608:2592:10:P", "mode_fov_xywh": [0, 0, 4608, 2592], "mode_wh": [4608, 2592], "notes": ["no video geometry keys in the config; resolved to the stills_roi_1000p preset (Sprint17 migration default). The picture WILL change: Sprint15 recorded an unintended (1770,996,1066,599) native box at a 1.88x upscale.", "fps 15 exceeds sensor mode 4608x2592's 14 fps readout limit; clamped to 14"], "output_wh": [1000, 562], "preset": "stills_roi_1000p", "roi": "0.326389,0.326389,0.347222,0.347222", "scale": 0.625, "sensor_mode": "4608x2592", "source": "migration-default"}, "record_s": 7.0}
-W tx.02 <WS v=1 a=saved cfg=c7a49408 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=480x270 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=saved cfg=f9ceb2ff up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=480x270 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 W tx.02 <I0dnwc0.1>q9D1Gj9kia7T+B1CZ4yx1vsgRWqPtNn+I0htkrfcASZLcJW63wQpTnOYveIHLFF2m8DlCi9UeZ7D6A0yV3yhxusQNVp/pMnuEzhdgqfM8RY7YIWqz/QZPmOIrdL3HEFmi7DV+h9EaY6z2P0iR2yRttsAJUpvlLneAyhNcpe84QYrUHWav+QJLlN4ncLnDDFWe6DF6g80WX6jyO0SN1yBpsvwFTpfhKnO8xg9Yoes0fYbQGWKr9T5HkNojbLX/CFGa5C12v8kSW6TuN0CJ0xxlrvgBSpPdJm+4wgtUnecweYLMFV6n8TpDjNYfaLH7BE2W4Clyu8UOV6DqM3yFzxhhqvQ9Ro/ZImu0/gdQmeMsdb7IEVqj7TZ/iNIbZK33AEm\x0a
 W tx.02 <I0dnwc0.3>6xA1Wn+kye4TOF2Cp8zxFjtgharP9Bk+Y4it0vccQWaLsNX6H0RpjrPY/SJHbJG22wAlSm+Uud4DKE1yl7zhBitQdZq/5AkuU3idwucMMVZ7oMXqDzRZfqPI7RI3XIGmy/AVOl+Eqc7zGD1ih6zR9htAZYqv1PkeQ2iNstf8IUZrkLXa/yRJbpO43QInTHGWu+AFKk90mb7jCC1Sd5zB5gswVXqfxOkOM1h9osfsETZbgKXK7xQ5XoOozfIXPGGGq9D1Gj9kia7T+B1CZ4yx1vsgRWqPtNn+I0htkrfcASZLcJW63wQpTnOYveIHLFF2m8DlCi9UeZ7D6A0yV3yhxusQNVp/pMnuEzhdgqfM8RY7YIWqz/QZPmOIrdL3HEFm\x0a
 W tx.02 <HL v=1 key=0dnwc0 a=sent n=2 r=ok id=100001>\x0a
-W printf [bmcam-golden] OK id=551 ping cfg=c7a49408
+W printf [bmcam-golden] OK id=551 ping cfg=f9ceb2ff
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

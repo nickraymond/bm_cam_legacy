@@ -296,6 +296,22 @@ def _still_raw_lines(v):
             f"  d_max: {_n(float(v['still.raw.d_max']))}"]
 
 
+EXPOSURE_PROFILE_KEYS = ("camera.exposure.profile", "camera.exposure.max_shutter_us",
+                         "camera.exposure.max_gain")
+
+
+def _exposure_profile_lines(v):
+    """Sprint28 low gain: the `exposure_profile:` island rc_exposure_profile reads. Written
+    ONLY when the profile is not auto (the caps mean nothing under auto), so an auto unit's
+    render is byte-identical to registry v8's."""
+    if v.get("camera.exposure.profile") in (None, "auto"):
+        return []
+    return ["exposure_profile:",
+            f"  profile: {_q(v['camera.exposure.profile'])}",
+            f"  max_shutter_us: {_n(v['camera.exposure.max_shutter_us'])}",
+            f"  max_gain: {_n(float(v['camera.exposure.max_gain']))}"]
+
+
 def render_v1_text(values):
     """v1 camera_schedule.yaml text for the BASE values (see module doc)."""
     v = values
@@ -355,6 +371,7 @@ def render_v1_text(values):
           "  crop:",
           f"    x: {x}", f"    y: {y}", f"    w: {w}", f"    h: {h}",
           *_still_raw_lines(v),
+          *_exposure_profile_lines(v),
           "power_halt:",
           f"  enabled: {_n(v['power.halt.enabled'])}",
           f"  dry_run: {_n(v['power.halt.dry_run'])}",

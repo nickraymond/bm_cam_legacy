@@ -4,9 +4,9 @@ RX cmd {"id":1000561,"c":"set","kv":{"m":150}}
 W sub spotter/utc-time
 RX utc 2026-09-24T15:03:40+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 15:03:40
-W tx.02 <WS v=1 a=cap cfg=2a68c789 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=6d7d7440 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:03:40Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:03:40Z_image_native_full.jpg
-W tx.02 <START IMG> filename: 2026-09-24T15:03:40Z_image_compressed.jpg, timestamp: 2026-09-24T15:05:30Z, length: 138, key=0dpr64, cfg=2a68c789, fmt=pjpg, q=40, att=6, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T15:03:40Z_image_compressed.jpg, timestamp: 2026-09-24T15:05:30Z, length: 138, key=0dpr64, cfg=6d7d7440, fmt=pjpg, q=40, att=6, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
 W tx.02 <I0dpr64.0/138>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wgARCAIyA+gDASIAAhEBAxEB/8QAGQAAAwEBAQAAAAAAAAAAAAAAAAECAwQF/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/9oADAMBAAIQAxAAAAHlopMy4EAAAADFQikq6DWHz1lnVPF2b689y7c+wYl52MNbOZdEGbpma1khaWYG\x0a
 W tx.02 <I0dpr64.1/138>mZSVg0iyaJnSah3aZTsLFkwOQsihgENaEtMUaIhaTU3NF3GubHN28Ng3pZNXktVnvCkiWtMCtcG0nRUSrRE6RUjQAIAqdS5dpbjO7ozy6WnJo5qS5EmgoZIimgAYAMTTgGgAqg6cuS/RcvmZ+xEeUuzl0QyxFSp0Ybw881LdxrZJvWbgtclrXDQudJM1oiQiy0WAKJRnWmRdY6E2EmhTrKXQ5w6DnR1HNZ0EECbqB5oyKOi8ol1zjOt3hoVKBDlOis0umNhOjcYzqGO5JEaTZDJsokWyApKw2eubzY93JZmNWAAAGm2amrygSiStjGhqWjEzXOoEBQ0wDpjDo0zlvDaC751GxiVpWZm646ZheVFZVNQnNg72JzrOWRuytsFG\x0a
 W tx.02 <I0dpr64.2/138>+nG5ejGbVdWXSjy1U1jNlZ1rmiWedaznKaSiwaCnG5GrUsZJU01Ym9YyWsCvMN3DW5cC1ikedzLOeueoMQwRXVyXHVmZS61iG9cwvWsNofPpCRneeok1YADEK7jQ0Mql1zHGUdGGogYikXNTEjVIBG0DGyRMAVMGJjg9HDqzrjrTFGsyrIZQBtXM83eMZXbKKsRLsjbOhsmWVedAmiAsdOZdFDzZqDU64wuXbbkhenLJFqHctCp1FDK0gsJqcZQr0LnIqgtSrzEibsTcrUlEaZUgEmuVIStVIAAFkkMaG0i9MqXaZIWWxZzmudSAABV50VKQaZ3GuI1zcuzS40leFaJzgWIAYUDQAAkyilpHTpyTL0xijSABJ0VVxJYYkOEk\x0a
@@ -147,10 +147,10 @@ W tx.02 <I0dpr64.136/138>1c0S7NI+46t3O/N/imZr+Qgy7g5gt3Q5jFCviH5H8f15dfwZ88Qc+RQ
 W tx.02 <I0dpr64.137/138>RMcRyuJkevHzDg6nwijlJh0VC3Ey3g49y4OUZGpQkw4KmaO8xrcTnMA5lxolRZgh60YvNTDHpjsyb5jeW3MdsbWXE2PiJ58xIYodRjLVfcTsmz5hMEm33HZ8wBg3dwAAKAMRNs8R0gtEciFrkm2OmavxN2G0dvm3ZjQxDbHwTvx14JwQ1P8AuczmPjqceGcwhsnMOIQ8aTbw4ZzGceePLz4IR1OYcfPn/ucvjknEdH48R14upxhCEJyR141J3GEP6mbMI/0PB2Yw3OJzDbGlC7f4n//Z\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:03:40Z_image_compressed.jpg, uart_duration_sec: 180.7, sent_buffers: 138, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
 RX cmd {"id":1000562,"c":"ping"}
-W printf [bmcam-golden] OK id=1000561 still.message_cap: 195 -> 150 (next action) cfg=2a68c789
-W printf [bmcam-golden] OK id=1000562 ping cfg=2a68c789
-W tx.02 {"id":1000561,"ok":1,"h":"2a68c789"}
-W tx.02 <CF v=1 h=2a68c789 still.message_cap=150@c1000561>
-W tx.02 {"id":1000562,"ok":1,"h":"2a68c789"}
+W printf [bmcam-golden] OK id=1000561 still.message_cap: 195 -> 150 (next action) cfg=6d7d7440
+W printf [bmcam-golden] OK id=1000562 ping cfg=6d7d7440
+W tx.02 {"id":1000561,"ok":1,"h":"6d7d7440"}
+W tx.02 <CF v=1 h=6d7d7440 still.message_cap=150@c1000561>
+W tx.02 {"id":1000562,"ok":1,"h":"6d7d7440"}
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

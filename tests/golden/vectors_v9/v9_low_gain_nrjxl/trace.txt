@@ -3,8 +3,9 @@ W sub bmcam/cmd
 W sub spotter/utc-time
 RX utc 2026-09-24T15:00:00+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 15:00:00
-W tx.02 <WS v=1 a=cap cfg=3df2430e up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=160x96 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto --raw -o {TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg
+W tx.02 <WS v=1 a=cap cfg=94d20bb0 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=160x96 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+CAMLIST rpicam-hello --list-cameras
+CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto --tuning-file {TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json --raw -o {TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg
 JXL R.pgm d=0.1000 mode=ok
 JXL G1.pgm d=0.1000 mode=ok
 JXL G2.pgm d=0.1000 mode=ok
@@ -17,7 +18,7 @@ JXL R.pgm d=0.5660 mode=ok
 JXL G1.pgm d=0.5660 mode=ok
 JXL G2.pgm d=0.5660 mode=ok
 JXL B.pgm d=0.5660 mode=ok
-W tx.02 <START IMG> filename: 2026-09-24T15:00:00Z_image_compressed.nrjxl, timestamp: 2026-09-24T15:00:19Z, length: 189, key=0dpr00, cfg=3df2430e, fmt=nrjxl, q=57, att=3, cmp=1, rk=160x96, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T15:00:00Z_image_compressed.nrjxl, timestamp: 2026-09-24T15:00:19Z, length: 189, key=0dpr00, cfg=94d20bb0, fmt=nrjxl, q=57, att=3, cmp=1, rk=160x96, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
 W tx.02 <I0dpr00.0/189>TlIOBAEMoAFgQP8HABgCAADAAsABxIOWsxzAuwG4F6CZAoD6AZr7Af9A+x27OZSSArc8ZuNbnvcBtAZyCtAPoFEEkmqSapJqkmr/Cu2L7wrUBqap04hdgMmqEp+wIamvO0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamvO0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamv\x0a
 W tx.02 <I0dpr00.1/189>O0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamvO0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamvO0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamv\x0a
 W tx.02 <I0dpr00.2/189>O0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamvO0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamvO0BKYQG4PSuvGaXi7YvvCtQGpqnTiF2AyaoSn7Ahqa87QEphAbg9K68ZpeLti+8K1AamqdOIXYDJqhKfsCGprztASmEBuD0rrxml4u2L7wrUBqap04hdgMmqEp+wIamv\x0a

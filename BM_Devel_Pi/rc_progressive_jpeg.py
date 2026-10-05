@@ -334,6 +334,34 @@ def _load_camera_controls_island(config_path):
         return {}
 
 
+def _load_exposure_profile(config_path):
+    """Sprint28 low gain: the `exposure_profile:` island, or None under auto (then the
+    capture command is today's, byte for byte). An unreadable island is logged and
+    captured as today: never a lost still."""
+    try:
+        import rc_exposure_profile
+        cfg = rc_exposure_profile.load_profile_config(config_path)
+    except Exception as exc:
+        print(f"[EXP][WARN] exposure_profile island unreadable ({exc}); capturing with "
+              "today's auto exposure")
+        return None
+    return cfg if cfg.get("profile") == "low_gain" else None
+
+
+def _capture_settings(settings):
+    """The rc_capture `settings` of a still: the camera_controls island (a command-overlay
+    override (D13) replaces it when set) plus, Sprint28, the low-gain exposure profile.
+    None when neither is set (today's call)."""
+    controls = settings.get("camera_controls_override")
+    if controls is None:
+        controls = _load_camera_controls_island(settings["config_path"])
+    capture_settings = {"camera_controls": controls} if controls else None
+    profile = _load_exposure_profile(settings["config_path"])
+    if profile is not None:
+        capture_settings = dict(capture_settings or {}, exposure_profile=profile)
+    return capture_settings
+
+
 def _default_capture(settings, output_dir):
     """Native full capture via the production watchdog path. Returns
     (native_path, capture_info, image_stem)."""
@@ -351,10 +379,7 @@ def _default_capture(settings, output_dir):
     # manual focus); _run_native_full_capture already handles the fallback
     # retry without controls if the camera app rejects them. Sprint10:
     # a command-overlay override (D13) replaces the YAML island when set.
-    controls = settings.get("camera_controls_override")
-    if controls is None:
-        controls = _load_camera_controls_island(settings["config_path"])
-    capture_settings = {"camera_controls": controls} if controls else None
+    capture_settings = _capture_settings(settings)
 
     capture_info = _run_native_full_capture(
         command=command,
@@ -410,10 +435,7 @@ def _raw_capture_or_fallback(settings, output_dir, capture_fn):
     image_stem = os.path.splitext(generate_filename())[0]  # "<ts>_image"
     native_path = os.path.join(output_dir, f"{image_stem}_native_full.jpg")
     log_prefix = os.path.join(output_dir, f"{image_stem}_native_full")
-    controls = settings.get("camera_controls_override")
-    if controls is None:
-        controls = _load_camera_controls_island(settings["config_path"])
-    capture_settings = {"camera_controls": controls} if controls else None
+    capture_settings = _capture_settings(settings)
     info, dng_path, why = run_raw_capture_once(
         command, native_path, settings["source_width"], settings["source_height"],
         settings["source_jpeg_quality"], log_prefix, settings=capture_settings)

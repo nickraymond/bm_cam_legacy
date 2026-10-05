@@ -19,147 +19,116 @@
   },
   "listen_tail_s": 150.0,
   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
-  "raw": {
-   "attempt_log": [
-    {
-     "budget_fit": false,
-     "bytes": 307350,
-     "cjxl_seconds": [
-      1.6,
-      1.6,
-      1.6,
-      1.6
-     ],
-     "distance": 0.1,
-     "message_count": 1068,
-     "over_cap": true,
-     "peak_rss_kb": 31000,
-     "plane_bytes": [
-      76818,
-      76818,
-      76818,
-      76818
-     ],
-     "seconds": 6.4,
-     "step": "search1"
-    },
-    {
-     "budget_fit": true,
-     "bytes": 102550,
-     "cjxl_seconds": [
-      1.6,
-      1.6,
-      1.6,
-      1.6
-     ],
-     "distance": 0.3,
-     "message_count": 357,
-     "over_cap": true,
-     "peak_rss_kb": 31000,
-     "plane_bytes": [
-      25618,
-      25618,
-      25618,
-      25618
-     ],
-     "seconds": 6.4,
-     "step": "search2"
-    }
-   ],
-   "bytes": 3300,
-   "detail": "the room needs d>=0.565 > still.raw.d_max 0.3 (crop 160x96, 195 msgs, 2 encode(s))",
-   "distance": null,
-   "fmt": "pjpg",
-   "kept_crop": null,
-   "message_count": 12,
-   "reserve_msgs": 0,
-   "rfb": "floor",
-   "timings": {
-    "dng_read_s": 0.0,
-    "planes_s": 0.0
-   }
-  },
   "schedule_allowed": true,
   "selection": {
    "attempt_log": [
     {
      "budget_fit": true,
-     "jpeg_bytes": 3300,
-     "message_count": 12,
-     "over_cap": false,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
      "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
     }
    ],
-   "attempts": 1,
+   "attempts": 4,
    "fits": true,
-   "quality": 90,
+   "quality": 60,
    "reason": "fit"
   },
   "transmit": true,
   "transmit_result": {
    "complete_send": true,
    "incomplete_emitted": false,
-   "planned": 12,
-   "send_target": 12,
-   "sent": 12,
+   "planned": 192,
+   "send_target": 192,
+   "sent": 192,
    "started": true,
-   "uart_duration_sec": 16.89999999999941
+   "uart_duration_sec": 250.89999999999122
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 179.7,
+ "fake_clock_elapsed_s": 400.9,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
    "sha256": "5fa8e69e461e3634"
   },
+  "app/exposure_profile/sensor_model.txt": {
+   "bytes": 12,
+   "sha256": "06843cbf396f3caa"
+  },
+  "app/exposure_profile/tuning/imx708_wide_lowgain_s16667_g16.json": {
+   "bytes": 26830,
+   "sha256": "0271f00c174eea84"
+  },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
-   "bytes": 341,
-   "sha256": "634fdb96f8e89e70"
+   "bytes": 342,
+   "sha256": "495ae8493af789b1"
   },
   "camera_config.lkg.json": {
-   "bytes": 3478,
+   "bytes": 3490,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2671,
-   "sha256": "54868c0f9e90d999"
+   "bytes": 2683,
+   "sha256": "2c6e9df514a7d424"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
    "sha256": "676b414910d2df13"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg": {
-   "bytes": 3300,
-   "sha256": "4a6b67539f0bec6a"
+   "bytes": 55070,
+   "sha256": "12db91e1030d4f9a"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2395,
-   "sha256": "a38f85351bca4bb8"
+   "bytes": 2953,
+   "sha256": "88e92bce74d13d12"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
    "sha256": "eb364d9cdb375bd0"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.metadata.json": {
-   "bytes": 350,
-   "sha256": "0dfc804982d17312"
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.stderr.log": {
-   "bytes": 0,
-   "sha256": "e3b0c44298fc1c14"
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.stdout.log": {
-   "bytes": 0,
-   "sha256": "e3b0c44298fc1c14"
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
   },
   "logs/camera_log.csv": {
-   "bytes": 288,
-   "sha256": "8b9891491cedfe6d"
+   "bytes": 290,
+   "sha256": "7f553f534eb2a5dd"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2370,
-   "sha256": "cd966a4d78624f4e"
+   "bytes": 2314,
+   "sha256": "45fe84e27e5f7fb1"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 203,
@@ -172,11 +141,10 @@
  },
  "heavy_modules_loaded": [
   "PIL",
-  "numpy",
   "yaml"
  ],
- "notes": "quality floor d_max 0.3: d 0.1 overshoots, the plan passes d_max, d_max itself is measured and overshoots too: pjpg rfb=floor after 2 encodes",
- "scenario": "v9_nrjxl_rfb_floor",
+ "notes": "low_gain (1/60 s, gain 16): one rpicam-hello --list-cameras, then rpicam-still --tuning-file <app>/exposure_profile/tuning/imx708_wide_lowgain_s16667_g16.json; the rest is v9_still",
+ "scenario": "v9_low_gain",
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
@@ -184,27 +152,16 @@
    "filename": "2026-09-24T15:00:00Z_image_compressed.jpg",
    "fmt": "pjpg",
    "key": "0dpr00",
-   "msgs": 12,
+   "msgs": 192,
    "payload": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
-   "sent_utc": "2026-09-24T15:00:12Z",
-   "sha256": "4a6b67539f0bec6a66e40a84f79ba95feb6e689b544fc11c72f4d2ffde669756"
+   "sent_utc": "2026-09-24T15:00:00Z",
+   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
   }
  },
  "sidecars": {
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
    "AfState": 0,
    "AnalogueGain": 1.5,
-   "ColourCorrectionMatrix": [
-    1.6077,
-    -0.416,
-    -0.1918,
-    -0.3678,
-    1.7546,
-    -0.3868,
-    0.0051,
-    -0.5874,
-    1.5823
-   ],
    "ColourGains": [
     1.8,
     1.6
@@ -225,13 +182,34 @@
    "attempt_log": [
     {
      "budget_fit": true,
-     "jpeg_bytes": 3300,
-     "message_count": 12,
-     "over_cap": false,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
      "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
     }
    ],
-   "base64_chars": 4400,
+   "base64_chars": 73428,
    "camera_control_args": [
     "--autofocus-mode",
     "manual",
@@ -242,7 +220,9 @@
     "--autofocus-speed",
     "normal",
     "--awb",
-    "auto"
+    "auto",
+    "--tuning-file",
+    "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s16667_g16.json"
    ],
    "camera_control_args_used": true,
    "camera_controls_fallback_used": false,
@@ -269,48 +249,54 @@
     "normal",
     "--awb",
     "auto",
-    "--raw",
+    "--tuning-file",
+    "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s16667_g16.json",
     "-o",
     "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
    ],
    "capture_mode": "progressive_jpeg",
    "cron_logs_dir_bytes": 4567890,
    "crop_native_xywh": [
-    0,
-    0,
-    160,
-    96
+    1504,
+    846,
+    1600,
+    900
    ],
-   "enc_attempts": 1,
+   "enc_attempts": 4,
+   "exposure_max_gain": 16.0,
+   "exposure_max_shutter_us": 16667,
+   "exposure_profile": "low_gain",
+   "exposure_profile_applied": true,
+   "exposure_sensor_model": "imx708_wide",
+   "exposure_tuning_file": "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s16667_g16.json",
+   "exposure_tuning_file_used": true,
    "fits": true,
    "hostname": "bmcam-golden",
    "images_dir_bytes": 123456789,
    "img_format": "pjpg",
-   "jpeg_bytes": 3300,
-   "jpeg_quality_used": 90,
-   "jpeg_sha256": "4a6b67539f0bec6a66e40a84f79ba95feb6e689b544fc11c72f4d2ffde669756",
-   "message_count": 12,
+   "jpeg_bytes": 55070,
+   "jpeg_quality_used": 60,
+   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
+   "message_count": 192,
    "metadata_json": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
    "metadata_schema": "bmcam_runtime_sidecar_v1",
    "metadata_source": "rc_progressive_jpeg",
    "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
    "output_size": [
-    160,
-    96
+    1000,
+    562
    ],
-   "planned_buffers": 12,
-   "raw_detail": "the room needs d>=0.565 > still.raw.d_max 0.3 (crop 160x96, 195 msgs, 2 encode(s))",
-   "raw_rfb": "floor",
+   "planned_buffers": 192,
    "sd_free_bytes": 22000000000,
    "sd_total_bytes": 31000000000,
    "sd_used_bytes": 9000000000,
    "sd_used_pct": 29.03,
    "selector_reason": "fit",
-   "sent_buffers": 12,
+   "sent_buffers": 192,
    "software_sha": "golden0",
    "stderr_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stderr.log",
    "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
-   "transmit_duration_sec": 16.89999999999941,
+   "transmit_duration_sec": 250.89999999999122,
    "transmit_success": true,
    "utc_capture_timestamp": "2026-09-24T15:00:00Z"
   }

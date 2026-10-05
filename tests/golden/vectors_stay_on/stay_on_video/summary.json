@@ -181,12 +181,12 @@
    "sha256": "41ea654b9dc1fa18"
   },
   "camera_config.lkg.json": {
-   "bytes": 3367,
+   "bytes": 3471,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2601,
-   "sha256": "535d532f998c977d"
+   "bytes": 2664,
+   "sha256": "a014b1a0e461cf9f"
   },
   "camera_schedule.yaml": {
    "bytes": 7907,
@@ -198,7 +198,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 552,
-   "sha256": "3956dd689e40220e"
+   "sha256": "dc9f865a9c5d64ad"
   },
   "state/config_journal.jsonl": {
    "bytes": 113,
@@ -262,19 +262,19 @@
   "result_cache": {
    "711": {
     "b": 1,
-    "h": "39bf4e5a",
+    "h": "ffaa28b5",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point)"
    },
    "712": {
     "b": 1,
-    "h": "46b8afc3",
+    "h": "8233a1b1",
     "ok": 1,
     "t": "uplink.msg_interval_s: 1.3 -> 1.5 (next action)"
    },
    "713": {
     "b": 1,
-    "h": "46b8afc3",
+    "h": "8233a1b1",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point)"
    }
