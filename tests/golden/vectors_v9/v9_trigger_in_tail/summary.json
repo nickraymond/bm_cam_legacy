@@ -2,7 +2,7 @@
  "cycle": {
   "budget_seconds": 720,
   "command_events": [],
-  "final_path": "{TMP}/images/2026-09-24T15:04:10Z_image_compressed.jpg",
+  "final_path": "{TMP}/images/2026-09-24T15:04:55Z_image_compressed.jpg",
   "halt_result": {
    "action": "halt_initiated",
    "command": [
@@ -18,7 +18,7 @@
    "hl": []
   },
   "listen_tail_s": 150.0,
-  "native_path": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.jpg",
+  "native_path": "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.jpg",
   "schedule_allowed": true,
   "selection": {
    "attempt_log": [
@@ -73,19 +73,19 @@
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 651.8,
+ "fake_clock_elapsed_s": 696.8,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
-   "sha256": "e36cc880637b4e34"
+   "sha256": "c537505aaf06a2f6"
   },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "bytes": 342,
    "sha256": "495ae8493af789b1"
   },
-  "app/sent/2026-09-24T15:04:10Z_image_compressed.sent.json": {
+  "app/sent/2026-09-24T15:04:55Z_image_compressed.sent.json": {
    "bytes": 342,
-   "sha256": "9f415f5e9ae5608d"
+   "sha256": "4551d6c56481d217"
   },
   "camera_config.lkg.json": {
    "bytes": 3189,
@@ -123,33 +123,33 @@
    "bytes": 21,
    "sha256": "49401993375a0f77"
   },
-  "images/2026-09-24T15:04:10Z_image_compressed.jpg": {
+  "images/2026-09-24T15:04:55Z_image_compressed.jpg": {
    "bytes": 55070,
    "sha256": "12db91e1030d4f9a"
   },
-  "images/2026-09-24T15:04:10Z_image_compressed.jpg.capture_metadata.json": {
+  "images/2026-09-24T15:04:55Z_image_compressed.jpg.capture_metadata.json": {
    "bytes": 2475,
-   "sha256": "deaaba90e7d95053"
+   "sha256": "8b0efccd89fcfb7d"
   },
-  "images/2026-09-24T15:04:10Z_image_native_full.jpg": {
+  "images/2026-09-24T15:04:55Z_image_native_full.jpg": {
    "bytes": 4178802,
    "sha256": "eb364d9cdb375bd0"
   },
-  "images/2026-09-24T15:04:10Z_image_native_full.metadata.json": {
+  "images/2026-09-24T15:04:55Z_image_native_full.metadata.json": {
    "bytes": 246,
    "sha256": "bec2860ed6d72147"
   },
-  "images/2026-09-24T15:04:10Z_image_native_full.stderr.log": {
+  "images/2026-09-24T15:04:55Z_image_native_full.stderr.log": {
    "bytes": 21,
    "sha256": "49401993375a0f77"
   },
-  "images/2026-09-24T15:04:10Z_image_native_full.stdout.log": {
+  "images/2026-09-24T15:04:55Z_image_native_full.stdout.log": {
    "bytes": 21,
    "sha256": "49401993375a0f77"
   },
   "logs/camera_log.csv": {
    "bytes": 391,
-   "sha256": "050b17e8f1f81476"
+   "sha256": "622b00ba2490eec3"
   },
   "render/camera_schedule.yaml": {
    "bytes": 2233,
@@ -186,15 +186,15 @@
    "sent_utc": "2026-09-24T15:00:00Z",
    "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
   },
-  "app/sent/2026-09-24T15:04:10Z_image_compressed.sent.json": {
+  "app/sent/2026-09-24T15:04:55Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
    "chunk_total": true,
-   "filename": "2026-09-24T15:04:10Z_image_compressed.jpg",
+   "filename": "2026-09-24T15:04:55Z_image_compressed.jpg",
    "fmt": "pjpg",
-   "key": "0dpr6y",
+   "key": "0dpr87",
    "msgs": 192,
-   "payload": "{TMP}/images/2026-09-24T15:04:10Z_image_compressed.jpg",
-   "sent_utc": "2026-09-24T15:04:10Z",
+   "payload": "{TMP}/images/2026-09-24T15:04:55Z_image_compressed.jpg",
+   "sent_utc": "2026-09-24T15:04:55Z",
    "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
   }
  },
@@ -329,7 +329,7 @@
    "transmit_success": true,
    "utc_capture_timestamp": "2026-09-24T15:00:00Z"
   },
-  "images/2026-09-24T15:04:10Z_image_compressed.jpg.capture_metadata.json": {
+  "images/2026-09-24T15:04:55Z_image_compressed.jpg.capture_metadata.json": {
    "AfState": 0,
    "AnalogueGain": 1.5,
    "ColourGains": [
@@ -406,7 +406,7 @@
     "--quality",
     "95",
     "--metadata",
-    "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.metadata.json",
+    "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.metadata.json",
     "--autofocus-mode",
     "manual",
     "--lens-position",
@@ -418,7 +418,7 @@
     "--awb",
     "auto",
     "-o",
-    "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.jpg"
+    "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.jpg"
    ],
    "capture_mode": "progressive_jpeg",
    "cron_logs_dir_bytes": 4567890,
@@ -437,10 +437,10 @@
    "jpeg_quality_used": 60,
    "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
    "message_count": 192,
-   "metadata_json": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.metadata.json",
+   "metadata_json": "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.metadata.json",
    "metadata_schema": "bmcam_runtime_sidecar_v1",
    "metadata_source": "rc_progressive_jpeg",
-   "native_path": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.jpg",
+   "native_path": "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.jpg",
    "output_size": [
     1000,
     562
@@ -453,11 +453,11 @@
    "selector_reason": "fit",
    "sent_buffers": 192,
    "software_sha": "golden0",
-   "stderr_log": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.stderr.log",
-   "stdout_log": "{TMP}/images/2026-09-24T15:04:10Z_image_native_full.stdout.log",
+   "stderr_log": "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.stderr.log",
+   "stdout_log": "{TMP}/images/2026-09-24T15:04:55Z_image_native_full.stdout.log",
    "transmit_duration_sec": 250.89999999999122,
    "transmit_success": true,
-   "utc_capture_timestamp": "2026-09-24T15:04:10Z"
+   "utc_capture_timestamp": "2026-09-24T15:04:55Z"
   }
  },
  "state_file": null,

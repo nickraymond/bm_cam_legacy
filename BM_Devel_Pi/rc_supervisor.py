@@ -282,6 +282,28 @@ class Boot:
             return None
         return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S
 
+    def settle_left_s(self):
+        """#126: seconds until SYNC_SETTLE_S after the last command received (0 = clear)."""
+        if self.last_command_at is None:
+            return 0.0
+        return max(0.0, SYNC_SETTLE_S - (self._now() - self.last_command_at))
+
+    def sync_settle(self, daemon, sleep_fn, what):
+        """#126: wait out the post-sync settle before a burst, still servicing commands,
+        acks and the console every IDLE_TICK_S (a command meanwhile restarts the settle).
+        -> seconds waited."""
+        left = self.settle_left_s()
+        if left <= 0:
+            return 0.0
+        print(f"[SUP] sync settle: {what} waits {left:.0f}s ({SYNC_SETTLE_S:.0f}s after the "
+              "last command: the Spotter's cellular queue is busy after its hub.sync, #126)")
+        t0 = self._now()
+        while self.settle_left_s() > 0 and not stop_requested():
+            if daemon is not None:
+                _idle_tick(daemon, self._now, sleep_fn)
+            sleep_fn(IDLE_TICK_S)
+        return self._now() - t0
+
     def note_command(self):
         """Keep-alive: every command received pushes the halt back (§4)."""
         self.last_command_at = self._now()
@@ -413,6 +435,7 @@ class Boot:
         if d is not None and (media or self.media) == "video":
             # S4b review R2-8: a one-shot clip longer than the configured one
             need += max(0.0, float(d) - float(self.video_duration_s or d))
+        need += self.settle_left_s()      # #126: the action starts after the sync settle
         return self.budget.remaining_s() - cmd_hooks.TAIL_SAFETY_S >= need
 
     def note_guards(self, summary=None):
@@ -820,6 +843,8 @@ def _w10_actions(boot, action_fn, n, summary):
             boot.settings = boot._reresolve(boot.settings, boot.summary or {})
         if boot.v9_limits.get("power.bus_always_on"):
             boot.reanchor_budget = True     # S5 F7: held bus, a fresh budget
+        boot.sync_settle(boot.owner.daemon if boot.owner else None,
+                         boot._sleep_fn or time.sleep, f"W10 trg id={trg.get('id')}")
         summary = boot.pick_action(action_fn)(boot)
         boot.note_guards(summary)
         if boot._pending_trigger() is trg:
@@ -834,6 +859,14 @@ def _w10_actions(boot, action_fn, n, summary):
 # ---------------------------------------------------------------------------
 
 IDLE_TICK_S = 0.2            # §4: commands processed every 0.2 s while idle
+# #126 (R1 G4 + Sprint28 heal test, 2026-10-03/05): commands reach a unit only at its
+# Spotter's hub.sync; for ~40-50 s after it the Spotter's 2-slot cellular queue is busy with
+# its own report and our acks (Sprint25 SD-log study: the queue-reject window after a LEGACY
+# report). A heal or trg burst started inside it loses chunks ("Queue MS_Q_CELLULAR_ONLY is
+# full"). So a heal pass, a stay_on trg action and a per_boot W10 trg wait until this long
+# after the LAST command received (Boot.note_command). Scheduled actions and the per_boot
+# main burst are not gated (they do not start at a sync).
+SYNC_SETTLE_S = 45.0
 IDLE_HEAL_S = 600.0          # O5 (Nick 2026-09-25): pending heals go out after 10 min idle
 GUARD_NOTE_S = 60.0          # S4: idle uptime is added to guarded keys at most this often
 EXIT_ARGS = 2                # stay_on cannot run as invoked (no daemon: no --transmit)
@@ -1107,6 +1140,7 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
     skip_run = False             # H3: the last scheduled action was a window skip
     stuck_trg = None             # a trg whose consume could not be persisted
     last_guard_note = clock()
+    settling = False             # #126: a trg / heal pass is waiting out the sync settle
     while not stop_requested():
         _idle_tick(daemon, clock, sleep_fn)
         if clock() - last_guard_note >= GUARD_NOTE_S:
@@ -1132,6 +1166,18 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
             trg = None           # already failed to consume: never a capture loop
         kind = "trg" if trg is not None else (
             "scheduled" if next_due is not None and now >= next_due else None)
+        heal_due = (heal_tx_open_fn is not None and state is not None and state.pending_heals
+                    and now - last_send >= IDLE_HEAL_S)
+        if (kind == "trg" or (kind is None and heal_due)) and boot.settle_left_s() > 0:
+            # #126: not inside the Spotter's post-sync window (commands keep flowing)
+            if not settling:
+                print(f"[SUP] sync settle: {'trg' if kind else 'heal pass'} waits "
+                      f"{boot.settle_left_s():.0f}s ({SYNC_SETTLE_S:.0f}s after the last "
+                      "command, #126)")
+                settling = True
+            sleep_fn(IDLE_TICK_S)
+            continue
+        settling = False
         if kind is not None:
             n += 1
             quiet = kind == "scheduled" and skip_run
@@ -1168,8 +1214,7 @@ def _loop(boot, daemon, action_fn, settings_fn, interval_s, heartbeat_s, heartbe
                       f"after action {n}; clean exit {EXIT_RSS} (the wrapper restarts)")
                 return EXIT_RSS
             continue
-        if (heal_tx_open_fn is not None and state is not None and state.pending_heals
-                and now - last_send >= IDLE_HEAL_S):
+        if heal_due:
             n += 1
             print(f"[SUP] ===== action {n} (heal) after {now - last_send:.0f}s idle: "
                   f"{len(state.pending_heals)} pending heal(s) (O5) =====")

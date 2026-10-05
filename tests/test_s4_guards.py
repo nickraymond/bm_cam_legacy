@@ -171,8 +171,10 @@ class Confirm(unittest.TestCase):
         r = Rig(self)
         r.send({"id": 1_000_001, "c": "set", "kv": {"power.halt.enabled": True}},
                {"id": 1_000_001, "c": "set", "kv": {"power.halt.enabled": True}})
-        self.assertIn("duplicate", r.lines()[-1])
-        self.assertEqual(len(reload(r).guarded), 1)
+        lines = r.lines()
+        self.assertEqual(len(lines), 1)              # #126: the same-instant copy is log only
+        self.assertIn("STAGED", lines[0])
+        self.assertEqual(len(reload(r).guarded), 1)  # staged once
 
 
 class Service(unittest.TestCase):
