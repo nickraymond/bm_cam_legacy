@@ -81,3 +81,8 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
   **R4 = 12 production wakes 16:00Z → 03:00Z** (LADDER R4.1–R4.4: each wake delivers an image complete ≤ 3 h, 0 redundant heals,
   halt uptime ≤ 570 s, fallback ≤ 1/12, START uptime recorded). DO NOT change still.crop during R4 (R3.3 defect).
   Read-only checks: sub-frame count vs duplicates (15:00Z wake), CMA alloc_pages_fail before/after the 16:00Z nrjxl capture.
+- 16:50Z EM: R3.3 fix on #120 (camera e7e4b10 + R0.1 fallback 7fa3b2d); backend plan refusal in nvd #91 (not merged).
+  AFTER the R4 verdict (06:17Z cron): deploy the #120 tip on bmcam004 (per_boot + hourly bus → use the one-window
+  deploy pattern of `deploy_121_bmcam003.sh`: catch at boot, disarm, rc_field_update --ref feature/sprint28-camera
+  --leave-disarmed (staged in /tmp), verify sha, re-arm, halt) and re-run R3.3 (crop 1505 via the Sofar lane, no trg):
+  expect ERR e:xk at the unit; once #91 is merged, a backend plan refusal before send. Ask the EM before the final restore.
