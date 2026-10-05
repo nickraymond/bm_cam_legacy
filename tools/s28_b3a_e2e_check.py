@@ -78,6 +78,7 @@ def main(argv=None):
     ap.add_argument("--metadata")
     ap.add_argument("--params-from")
     ap.add_argument("--crop", default="1504,846,1600,900")
+    ap.add_argument("--effort", type=int, default=None, help="cjxl effort (default: registry)")
     ap.add_argument("--out", required=True)
     args = ap.parse_args(argv)
     import numpy as np
@@ -93,6 +94,8 @@ def main(argv=None):
         meta = meta_from_nrjxl(args.params_from)
     crop_xywh = [int(v) for v in args.crop.split(",")]
     cfg = dict(X.DEFAULT_CONFIG, format="nrjxl", layout="rgb", encode_max_s=600)
+    if args.effort:
+        cfg["effort"] = args.effort
     work = tempfile.mkdtemp(prefix="b3a_e2e_")
     log = []
     res = X.encode_still(args.dng, meta, cfg, crop_xywh=crop_xywh, budget=_Budget(),
@@ -100,7 +103,7 @@ def main(argv=None):
                          log=lambda m: (log.append(m), print(m)))
     ppm_for_rss = os.path.join(work, X.RGB_PPM)
     rss = peak_rss_mb([shutil.which("cjxl"), ppm_for_rss, os.path.join(work, "rss.jxl"),
-                       "-m", "0", "-e", "5", "-d", f"{res['distance']:.4f}", "--num_threads=0",
+                       "-m", "0", "-e", str(cfg["effort"]), "-d", f"{res['distance']:.4f}", "--num_threads=0",
                        "--quiet"])
     with open(os.path.join(args.out, "blob.nrjxl"), "wb") as fh:
         fh.write(res["blob"])
