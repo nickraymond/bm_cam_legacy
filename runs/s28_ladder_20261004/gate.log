@@ -195,3 +195,4 @@ e44dde54e26f
 2026-10-05T22:19:35Z External event X1 recorded (EM): SPOT-31593C upload stall from ~20:16Z; Notecard % logged per wake; Spotter untouched.
 2026-10-05T23:37:08Z X1 update (EM): SPOT-31593C uplink resumed ~22:20Z but lossy (57610 21Z 177/178, 57611 22Z 51/195 at 22:20Z; 57621 23Z 149/194 at 23:05Z); no complete image since 17Z. Reset rule now: only if no 00Z rows after 23:05Z OR Notecard backlog still rising; else NO reset, X1 = degraded.
 2026-10-05T23:51:48Z X1 forensic verdict received (rig-study session): delay Notecard->cell 20:13:52-22:16:54Z (Iridium fallback 21:15:02); loss only at Pi->Spotter queue; burst overlaps 31593C health check/report. 01:00Z re-slice cancelled (not needed).
+2026-10-05T23:55:46Z R4 STOPPED (Nick via EM) at 8/12 wakes: R4.1 NOT ASSESSABLE (X1), R4.2 PASS 8/8, R4.3 FAIL 5/8 rfb=floor (product), R4.4 PASS so far.

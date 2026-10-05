@@ -115,3 +115,19 @@ Phase A timing assumptions (EM 2026-10-05, no code change, no extra ssh): the Pi
 so the Spotter console's `[BM_TX] Submitted … to cell-only queue` time is the send-time proxy (assumes UART/mote delay
 ≪ the 1.3 s pacing; not measured). Pi `rc_cycle_*.log` files exist only from deploy-window pulls, not every wake.
 A per-message Pi log is a Phase C item if the ranking needs it.
+
+| 23:00 (8) | 57621 | nrjxl len 194, q 875, att 2 | 149/194 at 23:05 (X1 degraded) | 504 s | queue_full 46 |
+
+## R4 VERDICT — STOPPED by Nick at 8 of 12 wakes (2026-10-05 ~23:55Z, via the EM)
+
+Reason (Nick): R4.3 already answered the question, and the B3a pivot makes the 4-plane fallback rate moot.
+
+| id | result | basis |
+|---|---|---|
+| R4.1 delivery ≤ 3 h, 0 redundant heals | **NOT ASSESSABLE (external event X1)** | SPOT-31593C cellular outage 20:13:52Z → 22:16:54Z plus queue-full loss at the Pi → Spotter hand-off; 57521 (16Z) and 57534 (17Z) complete (126 / 10 min), 18Z onward incomplete |
+| R4.2 halt uptime ≤ 570 s | **PASS (8/8)** | wake→halt 483–505 s |
+| R4.3 ≤ 1/12 fallback | **FAIL: product, not a defect** | 5/8 fell back, all `rfb=floor` (loud, with the reason); nrjxl at 16Z, 22Z, 23Z |
+| R4.4 START uptime recorded | **PASS so far** (START every wake on the console); per-wake uptime values read from the cycle logs at the next deploy-window pull | console START lines |
+
+Camera health over R4: no CMA errors (wake 1), nrjxl search peak RSS 138 MB (above R0.3's 120 MB: known finding),
+START every wake, 0 missed wakes.
