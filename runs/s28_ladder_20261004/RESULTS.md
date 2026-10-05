@@ -79,7 +79,17 @@ skipped on a video unit taking trg stills: #120 fix needed). R3.4 N/A on hardwar
 |---|---|---|---|---|---|
 | 16:00 (1) | 57521 | nrjxl len 195 (d 9.70, att 2, encode 15.4 s) | 195/195 complete 18:06 (126 min, healed) | 483 s | CmaFree 72→96 MB, 0 CMA errors; peak_rss 138 MB |
 | 17:00 (2) | 57534 | **pjpg len 180, q 30, att 7, rfb=floor** (fallback) | 180/180 complete 17:10 (10 min) | 503 s | queue_full 0 |
-| 18:00 (3) | 57549 | **pjpg len 193, q 30, att 7, rfb=floor** (fallback) | 150/193 at 18:41 (healing) | 504 s | queue_full 45 |
+| 18:00 (3) | 57549 | **pjpg len 193, q 30, att 7, rfb=floor** (fallback) | 190/193 at 22:17, **> 3 h, stuck** | 504 s | queue_full 45 |
+| 19:00 (4) | 57563 | **pjpg len 167, q 30, att 7, rfb=floor** | 73/167 at 22:17, **> 3 h, stuck** | 504 s | queue_full 94 |
+| 20:00 (5) | 57580 | **pjpg len 194, q 40, att 6, rfb=floor** | 147/194 at 22:17 (last chunk 20:15:55) | 505 s | queue_full 50; END not on console |
+| 21:00 (6) | — (no row) | **pjpg len 178, q 40, att 6, rfb=floor** | **0 at backend** | 505 s | queue_full 1; Notecard 5 → 19 % |
+| 22:00 (7) | — (no row) | nrjxl len 195, q 860, att 2 | **0 at backend** | 505 s | queue_full 145; Notecard 26 → 34 % |
+
+Mid-check 2026-10-05 22:17Z: **SPOT-31593C stopped uploading after ~20:16Z** (last backend chunk 20:15:55; the
+Notecard fill climbs 5 → 19 % in the 21:00 wake and 26 → 34 % in the 22:00 wake, where earlier wakes drained to 3 %).
+bmcam003 / SPOT-33507C ingests normally (rows to 22:16Z) → not the backend or Sofar: a Spotter-side cellular/Notecard
+stall on SPOT-31593C (rig event, not a camera result). Fallbacks 5/7 (all rfb=floor). Wake→halt 483–505 s every wake;
+START every wake. R4.4 START uptime: from the cycle logs at the Tue 17:00Z window pull (no extra ssh).
 
 Mid-check 2026-10-05 18:45Z: **R4.3 (≤ 1/12 fallback) already FAILED**: 2 fallbacks in 3 wakes, both `rfb=floor`
 (nrjxl search hit the d_max floor without fitting; the unit fell back loudly with a reason = RC.5 behaviour, not
