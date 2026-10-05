@@ -1,7 +1,7 @@
-# EPIC: Message transmission reliability (draft r1, for Nick's review)
+# EPIC: Message transmission reliability (r1, APPROVED by Nick 2026-10-05)
 
 Owner: Nick. Coordinator: EM. Bench: Test Engineer. Started 2026-10-05.
-Status: **DRAFT**. Nothing in this epic runs until Nick approves the plan.
+Status: **APPROVED** (plan + targets M1–M7, Nick 2026-10-05). Priority 2 after the JPEG-XL epic.
 
 ## 1. Why
 
@@ -84,7 +84,7 @@ The budget decision for nrjxl waits for Phase A numbers plus the TG-7 scene stud
 
 ## 7. Decisions for Nick
 
-1. Approve this plan and its metric targets (M1–M7)?
+1. ~~Approve this plan and its metric targets (M1–M7)?~~ **Approved (Nick 2026-10-05).**
 2. Who asks Sofar about Notecard sync / outbound options (H2)?
 3. Who talks to Matt about subscription dedupe in the mote firmware (H8)?
 4. #127: held until Phase A/C ranks it (Nick, 2026-10-05: not decided in isolation). R1 ships without it.
