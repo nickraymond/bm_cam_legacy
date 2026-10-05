@@ -63,3 +63,8 @@ bridge change; anything to field Spotter SPOT-33361C (never).
 
 G4 FAIL (`runs/g4_outdoor12h_20261002/RESULTS.md`); bm #121 gate items 1+4 PASS, 2 PASS (stress), 3 covered;
 C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_20261004/RESULTS.md`); rig dashboard v3 live.
+
+## 6. Update 2026-10-05 09:55Z
+- R1/R2: first nrjxl COMPLETE + renderable (media 57389, 09:40:30Z, D1 3 h 32 m: #126 collision + REASK 90 min + sync alignment). Parity R2.1 requested from the nvd session.
+- R3 over the Sofar lane (EM-approved): R3.1 sent 09:49Z (encode_max_s 5 + trg) → check 10:13Z cron (2f344883), which sends R3.2. Then R3.3 (bad crop → e:xk), then reset still.raw.* to defaults.
+- After R3: restore bmcam004 (§1 list) unless R4 starts right after (R4 = 12 production wakes with nrjxl: then restore bus to hourly + per_boot YAML + armed crontab but KEEP still.format=nrjxl and libjxl).
