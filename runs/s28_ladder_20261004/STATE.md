@@ -92,3 +92,8 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
   (commit 787a592), sent to the EM; Nick approves before Wed 10/7. RC run Wed–Thu on BOTH units, ≥ 24 wakes, per_boot.
 - Open in the doc: low-gain key names + `ag` floor come from the PR's bench (nereus002 + bmcam004, Tue) = entry E3.
 - Crons alive after compaction: 0d62cb1d (R4 mid-check 15:17 PDT), b3705182 (R4 verdict 23:17 PDT).
+- 18:45Z R4 mid-check: wakes 2+3 fell back pjpg rfb=floor → R4.3 FAIL locked; EM took it to the camera session + Nick. R4 runs to 03:00Z.
+- G2 refresh: BMCAM_003 9 gets sent 18:07Z (check cron 8d9bce79, 20:47Z); BMCAM_004 refresh goes with the Tue 17:00Z deploy window.
+- Tuning JSON handed (vc4/imx708_wide.json in use, pulled/bmcam003_tuning/).
+- PROPOSED to the EM (await OK + low-gain slot): Tue ~14:30Z set still.raw.keep_crop=true on BMCAM_004 (backend Sofar lane) →
+  16:00Z daylight capture keeps the PGM → 17:00Z window: #120 tip deploy + pull PGM + backend reset keep_crop + BMCAM_004 refresh.
