@@ -16,7 +16,7 @@ JPEG's bytes. The 4-plane v1 path stays the fallback and opt-in until B3a passes
 | 2 | headroom scale, one pass over the mosaic: `s = max(1, max_c g_c · max(norm. samples of colour c))`, with `g = DigitalGain · [gR, 1, gB]` built from the **rounded** header params (§2), so decode inverts exactly. A bilinear output is a convex mix of same-colour samples, so `s` is an **exact** no-clip bound | ~0 |
 | 3 | numpy bilinear demosaic in **row strips** (64 rows + 1-row halo), per strip: normalise → × g / s → sqrt LUT (§3 of CONTAINER v1, b = 12) → uint16 codes | codes 8.6 MB + strip temporaries < 4 MB |
 | 4 | write `x.ppm` (16-bit P6, maxval 4095) to the work dir, then drop the arrays | 8.6 MB on disk |
-| 5 | `cjxl x.ppm x.jxl -m 0 -e 5 -d D --num_threads=0` in the **same guarded child** as v1 (`oom_score_adj 1000; ulimit -v 250 MB; exec`) | Mac RSS 110 MB (measured); VmPeak under the guard = **bench item B0** |
+| 5 | `cjxl x.ppm x.jxl -m 0 -e 5 -d D --num_threads=0` in the **same guarded child** as v1 (`oom_score_adj 1000; ulimit -v 250 MB; exec`) | **Measured on Linux arm64 (Docker, Debian trixie, cjxl 0.11.2), real 004 frame: VmPeak 123.8–125.3 MiB under the guard, 0 kills, 2.0× headroom; VmHWM ~99 MiB** (`runs/s28_b3a_vmpeak_20261005/`). Pi CPU time = bench B0 |
 | 6 | byte-target search (§4), seal the container (§2), keyed send as #120 | blob ≤ 56 kB |
 
 Supervisor extra RSS is ESTIMATED at ~20 MB, logged as today (`supervisor_rss_kb_at_encode`). There
