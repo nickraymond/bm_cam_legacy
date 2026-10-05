@@ -158,6 +158,7 @@ def read_v1(config_path):
     import command_daemon
     import network_config
     import rc_media_key
+    import rc_exposure_profile
     import rc_progressive_jpeg as rc
     import rc_raw_jxl
     import rc_transmit_phase
@@ -358,6 +359,13 @@ def read_v1(config_path):
         v["still.raw.effort"] = int(sr["effort"])
         v["still.raw.target_fill"] = float(sr["target_fill"])
         v["still.raw.d_max"] = float(sr["d_max"])
+
+    # ---- exposure_profile (Sprint28 low gain; absent = auto + registry caps) --
+    ep = attempt("load_profile_config", rc_exposure_profile.load_profile_config, config_path)
+    if ep is not None:
+        v["camera.exposure.profile"] = ep["profile"]
+        v["camera.exposure.max_shutter_us"] = int(ep["max_shutter_us"])
+        v["camera.exposure.max_gain"] = float(ep["max_gain"])
 
     # ---- commands (PyYAML, with its own quoted-string traps) ----------------
     bmc_raw = raw.get("bm_commands") if isinstance(raw.get("bm_commands"), dict) else {}

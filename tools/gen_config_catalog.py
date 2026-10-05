@@ -62,6 +62,8 @@ CONTROL_KEYS = (
     "camera.white_balance.enabled", "camera.white_balance.mode", "camera.white_balance.gains",
     "camera.exposure.enabled", "camera.exposure.ev", "camera.exposure.shutter_us",
     "camera.exposure.analogue_gain",
+    # Sprint28 low-gain stills (registry v9; rc_exposure_profile.py)
+    "camera.exposure.profile", "camera.exposure.max_shutter_us", "camera.exposure.max_gain",
     # Sprint27 Nick Q2: writable with ranges / names measured on the unit (registry v6)
     "camera.image_processing.enabled", "camera.image_processing.sharpness",
     "camera.image_processing.contrast", "camera.image_processing.saturation",
@@ -152,6 +154,7 @@ UNITS = {
     "mode.interval_s": "s", "mode.heartbeat_s": "s",
     "camera.native.jpeg_quality": "JPEG q", "camera.focus.lens_position": "dioptres",
     "camera.exposure.ev": "EV", "camera.exposure.shutter_us": "us",
+    "camera.exposure.max_shutter_us": "us", "camera.exposure.max_gain": "x analogue gain",
     "camera.image_processing.sharpness": "x (1 = normal)", "camera.image_processing.contrast": "x (1 = normal)",
     "camera.image_processing.saturation": "x (1 = normal)",
     "camera.image_processing.brightness": "offset (0 = normal)",
@@ -177,8 +180,14 @@ _GATED = {"camera.focus.": "camera.focus.enabled",
           "camera.image_processing.": "camera.image_processing.enabled"}
 
 
+# Sprint28: the low-gain keys render to their own `exposure_profile:` island; no switch gates
+# them (rc_exposure_profile.py).
+_UNGATED = ("camera.exposure.profile", "camera.exposure.max_shutter_us",
+            "camera.exposure.max_gain")
+
+
 def _requires(path):
-    if path == "camera.controls_enabled":
+    if path == "camera.controls_enabled" or path in _UNGATED:
         return []
     for prefix, switch in _GATED.items():
         if path.startswith(prefix):
@@ -481,6 +490,23 @@ def build():
                     ["1600x900 native (default)",
                      {"still.format": "nrjxl", "still.crop": [1504, 846, 1600, 900]}],
                     ["back to pjpg", {"still.format": "pjpg"}],
+                ],
+            },
+            # Sprint28 low gain (config_validate._rule_low_gain_fixed): low_gain refuses a fixed
+            # shutter_us / analogue_gain while both camera switches are on. Recommended with
+            # nrjxl (colour correction on the RAW; Nick 2026-10-05); stills only.
+            "low_gain": {
+                "applies_when": {"camera.exposure.profile": "low_gain"},
+                "refuses_when_on": {"switches": ["camera.controls_enabled",
+                                                 "camera.exposure.enabled"],
+                                    "keys_not_null": ["camera.exposure.shutter_us",
+                                                      "camera.exposure.analogue_gain"]},
+                "recommended_with": {"still.format": "nrjxl"},
+                "presets": [
+                    ["low gain, 1/60 s", {"camera.exposure.profile": "low_gain",
+                                          "camera.exposure.max_shutter_us": 16667,
+                                          "camera.exposure.max_gain": 16.0}],
+                    ["auto (today)", {"camera.exposure.profile": "auto"}],
                 ],
             },
         },

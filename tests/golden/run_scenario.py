@@ -62,8 +62,12 @@ APP_MODULES = [
     "rc_time_budget", "rc_quality_selector", "rc_jpeg_encoder", "rc_power_halt",
     "network_config", "rc_progressive_jpeg", "rc_video_tx", "rc_video_clip",
     "video_recorder", "video_ring", "video_manifest", "video_geometry",
-    "rc_still_storage", "command_v9",
+    "rc_still_storage", "command_v9", "rc_exposure_profile",
 ]
+# Sprint28 low gain: the real IMX708 tuning files (read-only copies from bmcam003, TE
+# runs/s28_ladder_20261004) stand in for /usr/share/libcamera/ipa/rpi/vc4.
+TUNING_FIXTURE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                  "fixtures", "s28", "tuning")
 # Modules whose wall clock must stay real (read_spotter_utc loops on time.time()).
 REAL_CLOCK_MODULES = {"spotter_time_sync"}
 
@@ -477,6 +481,8 @@ def run_wire(name, outdir, app_src):
         return captured["cycle"]
 
     rc.run_cycle = cycle
+    if sc.get("low_gain") and "rc_exposure_profile" in mods:
+        mods["rc_exposure_profile"].SYSTEM_TUNING_DIRS = (TUNING_FIXTURE_DIR,)
     if sc.get("raw"):
         # Sprint28: cjxl is modelled, never run (deterministic bytes and Pi-like time).
         orig_cycle.__kwdefaults__["raw_runner"] = fake_cjxl_runner(sc["raw"], clock)

@@ -534,6 +534,26 @@ V9_SCENARIOS.update({
                                   "WB/CCM params, pjpg rfb=err"},
 })
 
+# Sprint28 low gain (rc_exposure_profile): a pjpg still with camera.exposure.profile
+# low_gain. Pins the capture argv (`--tuning-file` = the patched copy of the REAL bmcam003
+# imx708_wide.json, tests/fixtures/s28/tuning), the one-time `rpicam-hello --list-cameras`,
+# the generated file in the app dir, and that the wire is today's pjpg still.
+V9_SCENARIOS.update({
+    "v9_low_gain": {"kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS,
+                    "append": MEDIA_KEY, "low_gain": True,
+                    "v2": {**V9_V2, "camera.exposure.profile": "low_gain"},
+                    "notes": "low_gain (1/60 s, gain 16): one rpicam-hello --list-cameras, then "
+                             "rpicam-still --tuning-file <app>/exposure_profile/tuning/"
+                             "imx708_wide_lowgain_s16667_g16.json; the rest is v9_still"},
+    "v9_low_gain_nrjxl": {**_NRJXL, "low_gain": True, "raw": {"cam": "ok"},
+                          "v2": {**NRJXL_V2, "camera.exposure.profile": "low_gain",
+                                 "camera.exposure.max_shutter_us": 33333,
+                                 "camera.exposure.max_gain": 4.0},
+                          "notes": "low_gain with nrjxl (the recommended pair): the --raw "
+                                   "capture carries --tuning-file (s33333_g4); the rest is "
+                                   "v9_nrjxl"},
+})
+
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}
 VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},
                **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS},

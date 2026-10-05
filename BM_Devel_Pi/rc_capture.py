@@ -278,6 +278,9 @@ CAMERA_CONTROL_OPTIONS_WITH_VALUES.update({
     "--saturation",
     "--denoise",
     "--hdr",
+    # Sprint28 low gain (rc_exposure_profile): a camera app that rejects the patched tuning
+    # file gets today's command from the existing "WITHOUT camera controls" retry.
+    "--tuning-file",
 })
 
 
@@ -585,6 +588,33 @@ def _retry_wait(seconds):
     return True
 
 
+def _exposure_profile_args(settings):
+    """Sprint28 low gain: (["--tuning-file", copy], info) when settings carries an
+    exposure_profile other than auto, else ([], {}) -- today's command, byte for byte.
+    Never raises: any failure is today's command plus the reason in info."""
+    profile = settings.get("exposure_profile") if isinstance(settings, dict) else None
+    if not profile:
+        return [], {}
+    try:
+        import rc_exposure_profile
+        return rc_exposure_profile.still_args(profile, log=debug_print)
+    except Exception as exc:
+        debug_print(f"[EXP][WARN] low_gain profile raised {type(exc).__name__}: {exc}; "
+                    "capturing with today's auto exposure")
+        return [], {"exposure_profile": str(profile.get("profile")),
+                    "exposure_profile_applied": False,
+                    "exposure_profile_why": f"{type(exc).__name__}: {exc}"}
+
+
+def exposure_fields(requested, final_cmd):
+    """The exposure_profile_* fields for capture_info (top level, so they reach the
+    sidecar), with whether the --tuning-file survived the retries. {} under auto."""
+    out = {k: v for k, v in (requested or {}).items() if k.startswith("exposure_")}
+    if out.get("exposure_profile_applied"):
+        out["exposure_tuning_file_used"] = "--tuning-file" in (final_cmd or [])
+    return out
+
+
 def native_capture_command(command, native_image_path, source_width, source_height,
                            jpeg_quality, metadata_json_path, settings=None, raw=False):
     """The production native capture argv (moved out of _run_native_full_capture
@@ -602,6 +632,10 @@ def native_capture_command(command, native_image_path, source_width, source_heig
     ]
 
     camera_control_args, requested_camera_controls = _camera_controls_from_settings(settings)
+    profile_args, profile_info = _exposure_profile_args(settings)
+    if profile_args:
+        camera_control_args = list(camera_control_args) + profile_args
+    requested_camera_controls.update(profile_info)
     if camera_control_args:
         base_cmd.extend(camera_control_args)
         debug_print(
@@ -672,6 +706,7 @@ def run_raw_capture_once(command, native_image_path, source_width, source_height
         "camera_control_args_used": _command_has_camera_control_args(cmd),
         "camera_controls_fallback_used": False,
         "requested_camera_controls": requested,
+        **exposure_fields(requested, cmd),
     }
     if not ok(dng_path):
         _remove_capture_artifact(dng_path)
@@ -823,6 +858,7 @@ def _run_native_full_capture(command, native_image_path, source_width, source_he
                     "camera_control_args_used": _command_has_camera_control_args(final_cmd),
                     "camera_controls_fallback_used": bool(camera_control_args and not _command_has_camera_control_args(final_cmd)),
                     "requested_camera_controls": requested_camera_controls,
+                    **exposure_fields(requested_camera_controls, final_cmd),
                 }
 
             last_error = RuntimeError(

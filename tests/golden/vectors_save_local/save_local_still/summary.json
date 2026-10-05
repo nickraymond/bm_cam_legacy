@@ -46,12 +46,12 @@
    "sha256": "4120d9334b7c0f1f"
   },
   "camera_config.lkg.json": {
-   "bytes": 3384,
+   "bytes": 3488,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2618,
-   "sha256": "b5d6a69fe9293c30"
+   "bytes": 2681,
+   "sha256": "9c195ef63de4e9ed"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -99,7 +99,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 680,
-   "sha256": "3775c0c5272c9163"
+   "sha256": "fc18fb0f6e77f69e"
   },
   "state/config_journal.jsonl": {
    "bytes": 113,
@@ -274,7 +274,7 @@
   "result_cache": {
    "541": {
     "b": 1,
-    "h": "dd8f71ed",
+    "h": "287829fb",
     "ok": 1,
     "t": "uplink.msg_interval_s: 1.3 -> 1.5 (next action)"
    }
