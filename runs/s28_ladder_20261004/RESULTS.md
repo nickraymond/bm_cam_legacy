@@ -1,6 +1,6 @@
 # Sprint28 HIL ladder — RESULTS (`runs/s28_ladder_20261004`)
 
-**R0 on bmcam004: PASS (R0.1–R0.4)** — the Zero 2 W captures `--raw` at its CMA with margin and encodes nrjxl in
+**R0 on bmcam004: PASS (R0.1–R0.4). R1/R2: the first nrjxl still was captured, sent, healed and RENDERED (media 57389, 2026-10-05 09:40Z)** — the Zero 2 W captures `--raw` at its CMA with margin and encodes nrjxl in
 time and memory at all three presets; 1600×900 (the gating default) predicts a 410 s wake against the 480 s budget.
 
 Spec: `sprints/Sprint28_raw_jxl/LADDER.md` (origin/feature/sprint28-camera e44dde5, review-fixed).
@@ -37,4 +37,5 @@ cfg 7a9ed97b); bench YAML `mode.run: stay_on` (trigger-only; backup + restore in
 | backend row | first seen ~06:42 (last chunk 06:40:36) | media 57389, 186/190, format nrjxl, placeholder (by design until complete). Upload lag ≈ 28 min = Notecard periodic upload (no hub.sync in the off-hour) |
 | rsd 1 | created 06:55:37, rx 07:06:22, serviced at once (stay_on) | 100131 chunks 81-84; only 81, 82 on air; 83, 84 + `<HL>` dropped by the Spotter's 2-slot queue during the sync → issue #126 |
 | row 188/190 | ~07:40 | 81, 82 landed via the periodic upload |
-| rsd 2 | created 08:31:21 (= rsd 1 + REASK_S 5400 s + next autosend pass) | 100132 chunks 83-84; missed the 08:05 sync → delivery at the 09:05 sync, expected complete ≈ 09:40 (D1 ≈ 3 h 32 m) |
+| rsd 2 | created 08:31:21 (= rsd 1 + REASK_S 5400 s + next autosend pass), rx 09:05:36, on air 09:05:37/38 | 100132 chunks 83-84; both sent (2 chunks fit the 2-slot queue) |
+| **R1/R2: complete + renderable** | **09:40:30** | media 57389 190/190, format nrjxl, `render_state renderable`, display JPEG 1600x900 (`api/nrjxl_first_57389_display.jpg`), size 54,569 B = the unit's file. **D1 = 3 h 32 m 43 s** (one partial heal: #126 + REASK 90 min + sync alignment) |
