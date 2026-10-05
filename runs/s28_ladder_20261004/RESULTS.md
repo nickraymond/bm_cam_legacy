@@ -39,3 +39,16 @@ cfg 7a9ed97b); bench YAML `mode.run: stay_on` (trigger-only; backup + restore in
 | row 188/190 | ~07:40 | 81, 82 landed via the periodic upload |
 | rsd 2 | created 08:31:21 (= rsd 1 + REASK_S 5400 s + next autosend pass), rx 09:05:36, on air 09:05:37/38 | 100132 chunks 83-84; both sent (2 chunks fit the 2-slot queue) |
 | **R1/R2: complete + renderable** | **09:40:30** | media 57389 190/190, format nrjxl, `render_state renderable`, display JPEG 1600x900 (`api/nrjxl_first_57389_display.jpg`), size 54,569 B = the unit's file. **D1 = 3 h 32 m 43 s** (one partial heal: #126 + REASK 90 min + sync alignment) |
+
+## R2.1 parity on media 57389: **PASS** (run by the nvd/backend session, relayed by the EM 2026-10-05)
+
+| check | result |
+|---|---|
+| NR header + CRC | OK: BGGR 1600×900 at native [1504, 846], black/white 64/1023 |
+| production libjxl 0.12 vs djxl 0.11.1 | bit-exact |
+| jxl-oxide vs libjxl | ≤ 1 code after clamping to 0..4095 (jxl-oxide's float output shows the lossy undershoot below black, which libjxl clamps) |
+| rig study decoder mosaic | equal |
+| staging render vs a local render | equal |
+| DNG | opens in LibRaw with the right CFA / levels / WB |
+
+Evidence: the nvd session's parity run (backend side); this run's `api/nrjxl_first_57389_display.jpg` is the staging render.

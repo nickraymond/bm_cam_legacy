@@ -118,3 +118,4 @@ CID 1000061 outcome=sent
 CID 1000063 outcome=sent
 2026-10-05T09:50:36Z R3.1 (forced time fallback): set still.raw.encode_max_s=5 + trg still → CID 1000064 send 200. Expected at the 10:05Z sync: START fmt=pjpg rfb=time, and that pjpg arrives complete.
 2026-10-05T09:51:05Z EM: R3 over the Sofar lane APPROVED (bench bmcam004, inside Nick's JPEG-XL testing approval). After R3: restore bmcam004 (bus hourly, stay_on YAML, crontab) unless R4 starts right after; power watch stays on meanwhile.
+2026-10-05T09:55:19Z R2.1 PASS on 57389 (nvd session via EM): header/CRC ok, libjxl 0.12 == djxl 0.11.1 bit-exact, jxl-oxide ≤1 code after clamp, rig mosaic equal, staging render == local render, DNG ok in LibRaw.
