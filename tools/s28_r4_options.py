@@ -64,6 +64,10 @@ def main(argv=None):
     ap.add_argument("--label", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--noise", action="store_true", help="also the low-gain byte simulation")
+    ap.add_argument("--demosaic", choices=("bilinear", "ea"), default="bilinear",
+                    help="the render's demosaic, used for the reference, the JPEG's source AND "
+                         "the nrjxl decode alike (ea = OpenCV edge-aware: the backend lever)")
+    ap.add_argument("--budgets", default=",".join(str(b) for b in BUDGETS))
     args = ap.parse_args(argv)
     sys.path[:0] = [os.path.join(args.rig, "src"), args.rig, os.path.join(REPO, "BM_Devel_Pi")]
     import cv2
@@ -83,11 +87,13 @@ def main(argv=None):
     dg = float(meta.get("DigitalGain") or 1.0)
     gains = meta["ColourGains"]
     ccm = np.array(meta["ColourCorrectionMatrix"], np.float32).reshape(3, 3)
-    bayer_code = {"BGGR": cv2.COLOR_BayerRG2RGB, "RGGB": cv2.COLOR_BayerBG2RGB,
-                  "GRBG": cv2.COLOR_BayerGB2RGB, "GBRG": cv2.COLOR_BayerGR2RGB}[cfa]
+    sfx = "_EA" if args.demosaic == "ea" else ""
+    bayer_code = getattr(cv2, {"BGGR": "COLOR_BayerRG2RGB", "RGGB": "COLOR_BayerBG2RGB",
+                               "GRBG": "COLOR_BayerGB2RGB", "GBRG": "COLOR_BayerGR2RGB"}[cfa] + sfx)
 
     def render(mosaic):
-        """The backend's neutral render v1 (CONTAINER.md §5): normalise -> bilinear demosaic
+        """The backend's neutral render v1 (CONTAINER.md §5): normalise -> demosaic (bilinear =
+        v1; ea = the lever under test)
         -> x DigitalGain -> camera WB -> CCM -> sRGB 8-bit. Same function for every input."""
         m = np.clip((np.asarray(mosaic, np.float32) - black) / (white - black), 0, 1)
         rgb = cv2.cvtColor((m * 65535 + 0.5).astype(np.uint16), bayer_code).astype(np.float32) / 65535
@@ -187,7 +193,7 @@ def main(argv=None):
               f"{'PASS' if r['pass_vs_jpeg'] else 'FAIL'}", flush=True)
         return r
 
-    for b in BUDGETS:
+    for b in [int(x) for x in args.budgets.split(",")]:
         d = d_for_budget(b)
         if d is None:
             rows.append({"option": f"(a) nrjxl at {b} msgs", "budget_msgs": b,
@@ -270,7 +276,7 @@ def main(argv=None):
     sheet = Image.new("RGB", (len(cols) * (tw + 8) + 8, 3 * (tw + 40) + 60), (255, 255, 255))
     dr = ImageDraw.Draw(sheet)
     font = ImageFont.load_default()
-    dr.text((8, 6), f"Sprint28 nrjxl vs today's JPEG | {args.label} | ROI {ROI} native px | "
+    dr.text((8, 6), f"Sprint28 nrjxl vs today's JPEG | {args.label} | demosaic {args.demosaic} | ROI {ROI} native px | "
             "tiles = 200x200 native px shown 2x (nearest) | JPEG tiles are 1000x562 UPSAMPLED to "
             "1600x900 | neutral render both sides", fill=(0, 0, 0), font=font)
     dr.text((8, 22), "scores vs the lossless neutral RAW render: SSIMULACRA2 (higher better), "
@@ -284,7 +290,7 @@ def main(argv=None):
             dr.text((px, py), f"{wname} @({wx},{wy}) | {cname}"[:70], fill=(0, 0, 0), font=font)
             dr.text((px, py + 13), info[:70], fill=(60, 60, 60), font=font)
     sheet.save(os.path.join(out, "cutsheet.png"))
-    summary = {"label": args.label, "roi": ROI, "today": jrow,
+    summary = {"label": args.label, "roi": ROI, "demosaic": args.demosaic, "today": jrow,
                "smallest_passing_budget_msgs": smallest["budget_msgs"] if smallest else None,
                "smallest_passing": smallest, "windows_crop_px": {k: [int(v[1]), int(v[0]), win, win]
                                                                  for k, v in windows.items()}}
