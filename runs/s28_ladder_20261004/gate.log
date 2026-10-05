@@ -19,3 +19,73 @@ numpy: 2.2.4
 2026-10-05T04:50:01Z R0.4 tools on bmcam004: cjxl v0.11.2 (libjxl-tools 0.11.2-0.1~deb13u2, + dep libgif7), numpy 2.2.4, / 25G free. RESTORE (updated): ssh pi@bmcam004 'sudo apt-get remove -y libjxl-tools && sudo apt-get autoremove -y'
 2026-10-05T04:50:13Z [bmcam004] R0 probe start: N=10 ENC_N=10 presets=1600x900 2000x1124 2400x1350 remote=/tmp/s28r0_20261005T045013Z
 2026-10-05T04:50:17Z [bmcam004] encoder copied: e44dde5 rc_raw_jxl.py sha256=f3bfa3f739a2625b
+[r0][pi] 2026-10-05T04:50:18Z
+[r0][pi] bmcam004
+[r0][pi] Linux bmcam004 6.18.34+rpt-rpi-v8 #1 SMP PREEMPT Debian 1:6.18.34-1+rpt1 (2026-06-09) aarch64 GNU/Linux
+[r0][pi] PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+[r0][pi] NAME="Debian GNU/Linux"
+[r0][pi] VERSION_ID="13"
+[r0][pi] rpicam-apps build: v1.12.0 12-05-2026 (11:49:26)
+[r0][pi] rpicam-apps capabilites: egl:0 qt:0 drm:1 libav:0
+[r0][pi] cjxl: /usr/bin/cjxl cjxl v0.11.2 [NEON_WITHOUT_AES]
+[r0][pi] numpy 2.2.4
+[r0][pi] MemTotal:         425172 kB
+[r0][pi] MemAvailable:     264820 kB
+[r0][pi] CmaTotal:         262144 kB
+[r0][pi] CmaFree:          156192 kB
+[r0][pi] cmdline: coherent_pool=1M 8250.nr_uarts=1 snd_bcm2835.enable_headphones=0 cgroup_disable=memory snd_bcm2835.enable_hdmi=1 snd_bcm2835.enable_hdmi=0  smsc95xx.macaddr=B8:27:EB:1C:00:5C vc_mem.mem_base=0x1ec00000 vc_mem.mem_size=0x20000000  console=tty1 root=PARTUUID=93258cee-02 rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US
+[r0][pi] /dev/mmcblk0p2  115G   86G   25G  79% /
+[r0][pi] tmpfs           208M  124K  208M   1% /tmp
+[r0][pi] guard {"rc": 1, "kind": "mem", "seconds": 0.265, "peak_rss_kb": 15132}
+[r0][pi] CMA sampler running: pid 1244, 10 rows in the first second
+[r0][pi] capture plain #1 rc=0 jpeg=1992038 dng=0
+[r0][pi] capture plain #2 rc=0 jpeg=1891138 dng=0
+[r0][pi] capture plain #3 rc=0 jpeg=1967185 dng=0
+[r0][pi] capture plain #4 rc=0 jpeg=1873369 dng=0
+[r0][pi] capture plain #5 rc=0 jpeg=1956956 dng=0
+[r0][pi] capture plain #6 rc=0 jpeg=1950564 dng=0
+[r0][pi] capture plain #7 rc=0 jpeg=1987979 dng=0
+[r0][pi] capture plain #8 rc=0 jpeg=1885050 dng=0
+[r0][pi] capture plain #9 rc=0 jpeg=1969495 dng=0
+[r0][pi] capture plain #10 rc=0 jpeg=1871448 dng=0
+[r0][pi] capture raw #1 rc=0 jpeg=1923864 dng=24029068
+[r0][pi] capture raw #2 rc=0 jpeg=1913945 dng=24029068
+[r0][pi] capture raw #3 rc=0 jpeg=1992295 dng=24029068
+[r0][pi] capture raw #4 rc=0 jpeg=2003211 dng=24029068
+[r0][pi] capture raw #5 rc=0 jpeg=1973746 dng=24029068
+[r0][pi] capture raw #6 rc=0 jpeg=1855734 dng=24029068
+[r0][pi] capture raw #7 rc=0 jpeg=1909175 dng=24029068
+[r0][pi] capture raw #8 rc=0 jpeg=1908361 dng=24029068
+[r0][pi] capture raw #9 rc=0 jpeg=1918411 dng=24029068
+[r0][pi] capture raw #10 rc=0 jpeg=1882807 dng=24029068
+[r0][pi] 1600x900,1,0,7.84065,58686,3.8,6.481,38872,
+[r0][pi] 1600x900,2,0,7.52314,58686,3.8,6.379,38856,
+[r0][pi] 1600x900,3,0,7.5235,58686,3.8,6.378,38860,
+[r0][pi] 1600x900,4,0,7.52175,58686,3.8,6.38,38864,
+[r0][pi] 1600x900,5,0,7.57441,58686,3.8,6.429,38864,
+[r0][pi] 1600x900,6,0,7.47097,58686,3.8,6.328,38860,
+[r0][pi] 1600x900,7,0,7.4935,58686,3.8,6.329,38872,
+[r0][pi] 1600x900,8,0,7.47251,58686,3.8,6.327,38856,
+[r0][pi] 1600x900,9,0,7.49291,58686,3.8,6.33,38864,
+[r0][pi] 1600x900,10,0,7.52537,58686,3.8,6.381,38840,
+[r0][pi] 2000x1124,1,0,11.106,38727,7.3,9.896,45124,
+[r0][pi] 2000x1124,2,0,11.1081,38727,7.3,9.895,45120,
+[r0][pi] 2000x1124,3,0,11.1518,38727,7.3,9.944,45124,
+[r0][pi] 2000x1124,4,0,11.1506,38727,7.3,9.943,45124,
+[r0][pi] 2000x1124,5,0,11.1536,38727,7.3,9.944,45128,
+[r0][pi] 2000x1124,6,0,11.1704,38727,7.3,9.943,45120,
+[r0][pi] 2000x1124,7,0,11.2137,38727,7.3,9.994,45116,
+[r0][pi] 2000x1124,8,0,11.1491,38727,7.3,9.943,45056,
+[r0][pi] 2000x1124,9,0,11.1512,38727,7.3,9.944,45128,
+[r0][pi] 2000x1124,10,0,11.1036,38727,7.3,9.892,45120,
+[r0][pi] 2400x1350,1,0,15.3081,43934,9.0,14.012,70296,
+[r0][pi] 2400x1350,2,0,15.4571,43934,9.0,14.157,70296,
+[r0][pi] 2400x1350,3,0,15.3562,43934,9.0,14.055,70292,
+[r0][pi] 2400x1350,4,0,15.454,43934,9.0,14.157,70292,
+[r0][pi] 2400x1350,5,0,15.3551,43934,9.0,14.056,70292,
+[r0][pi] 2400x1350,6,0,15.3598,43934,9.0,14.062,70292,
+[r0][pi] 2400x1350,7,0,15.4439,43934,9.0,14.109,70288,
+[r0][pi] 2400x1350,8,0,15.4638,43934,9.0,14.16,70292,
+[r0][pi] 2400x1350,9,0,15.3599,43934,9.0,14.059,70280,
+[r0][pi] 2400x1350,10,0,15.4079,43934,9.0,14.109,70292,
+2026-10-05T04:59:35Z [bmcam004] R0 probe done: pulled to /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_ladder_20261004/pulled/bmcam004_r0 (66 entries); next: hil/tools/hil_s28_r0_analyze.py /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_ladder_20261004 bmcam004

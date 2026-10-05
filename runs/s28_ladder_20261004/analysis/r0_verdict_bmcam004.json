@@ -1,0 +1,33 @@
+{
+ "host": "bmcam004",
+ "R0.1": {
+  "verdict": "PASS",
+  "raw_ok": "10/10",
+  "cma_free_min_kb_raw": 6300,
+  "cma_free_min_kb_plain": 46464,
+  "dmesg_errors": []
+ },
+ "R0.2": {
+  "verdict": "PASS",
+  "median_raw_s": 3.6222450000000004,
+  "median_plain_s": 3.35401,
+  "delta_s": 0.2682350000000002
+ },
+ "R0.3": {
+  "verdict": "PASS",
+  "presets": {
+   "1600x900": true,
+   "2000x1124": true,
+   "2400x1350": true
+  },
+  "largest_passing_preset": "2400x1350"
+ },
+ "R0.4": {
+  "verdict": "PASS",
+  "env": [
+   "cjxl: /usr/bin/cjxl cjxl v0.11.2 [NEON_WITHOUT_AES]",
+   "numpy 2.2.4"
+  ],
+  "memory_guard_kind": "mem"
+ }
+}

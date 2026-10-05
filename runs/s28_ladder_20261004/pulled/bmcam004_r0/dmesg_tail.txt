@@ -1,0 +1,60 @@
+[   11.188283] bcm2835-codec bcm2835-codec: Loaded V4L2 decode
+[   11.192482] bcm2835_isp: module is from the staging directory, the quality is unknown, you have been warned.
+[   11.193893] bcm2835_v4l2: module is from the staging directory, the quality is unknown, you have been warned.
+[   11.196809] bcm2835-codec bcm2835-codec: Device registered as /dev/video11
+[   11.196866] bcm2835-codec bcm2835-codec: Loaded V4L2 encode
+[   11.202911] bcm2835-isp bcm2835-isp: Device node output[0] registered as /dev/video13
+[   11.205301] bcm2835-isp bcm2835-isp: Device node capture[0] registered as /dev/video14
+[   11.207283] bcm2835-isp bcm2835-isp: Device node capture[1] registered as /dev/video15
+[   11.207713] bcm2835-isp bcm2835-isp: Device node stats[2] registered as /dev/video16
+[   11.207743] bcm2835-isp bcm2835-isp: Register output node 0 with media controller
+[   11.207759] bcm2835-isp bcm2835-isp: Register capture node 1 with media controller
+[   11.207771] bcm2835-isp bcm2835-isp: Register capture node 2 with media controller
+[   11.207784] bcm2835-isp bcm2835-isp: Register capture node 3 with media controller
+[   11.216572] bcm2835-isp bcm2835-isp: Device node output[0] registered as /dev/video20
+[   11.217226] bcm2835-isp bcm2835-isp: Device node capture[0] registered as /dev/video21
+[   11.217976] bcm2835-isp bcm2835-isp: Device node capture[1] registered as /dev/video22
+[   11.218545] bcm2835-codec bcm2835-codec: Device registered as /dev/video12
+[   11.218594] bcm2835-codec bcm2835-codec: Loaded V4L2 isp
+[   11.220620] bcm2835-isp bcm2835-isp: Device node stats[2] registered as /dev/video23
+[   11.220677] bcm2835-isp bcm2835-isp: Register output node 0 with media controller
+[   11.220697] bcm2835-isp bcm2835-isp: Register capture node 1 with media controller
+[   11.220727] bcm2835-isp bcm2835-isp: Register capture node 2 with media controller
+[   11.220739] bcm2835-isp bcm2835-isp: Register capture node 3 with media controller
+[   11.225042] bcm2835-isp bcm2835-isp: Loaded V4L2 bcm2835-isp
+[   11.244006] bcm2835-codec bcm2835-codec: Device registered as /dev/video18
+[   11.244062] bcm2835-codec bcm2835-codec: Loaded V4L2 image_fx
+[   11.247945] bcm2835-codec bcm2835-codec: Device registered as /dev/video31
+[   11.247996] bcm2835-codec bcm2835-codec: Loaded V4L2 encode_image
+[   11.275641] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[   11.302476] imx708 10-001a: camera module ID 0x0302
+[   11.302710] imx708 10-001a: ctrl(id:0x9f0902,val:0x232aaf80) is not handled
+[   11.303892] imx708 10-001a: ctrl(id:0x9e0902,val:0x2b20) is not handled
+[   11.315373] Loaded X.509 cert 'benh@debian.org: 577e021cb980e0e820821ba7b54b4961b8b4fadf'
+[   11.316444] Loaded X.509 cert 'romain.perier@gmail.com: 3abbc6ec146e09d1b6016ab9d6cf71dd233f0328'
+[   11.317353] Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+[   11.318275] Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'
+[   11.499509] brcmfmac: F1 signature read @0x18000000=0x1541a9a6
+[   11.522889] brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43430-sdio for chip BCM43430/1
+[   11.523632] usbcore: registered new interface driver brcmfmac
+[   11.792602] brcmfmac: brcmf_c_process_txcap_blob: no txcap_blob available (err=-2)
+[   11.793299] brcmfmac: brcmf_c_preinit_dcmds: Firmware: BCM43430/1 wl0: Jun 14 2023 07:27:45 version 7.45.96.s1 (gf031a129) FWID 01-70bd2af7 es7
+[   12.031845] Console: switching to colour dummy device 80x25
+[   12.054998] vc4-drm soc:gpu: bound 3f400000.hvs (ops vc4_hvs_ops [vc4])
+[   12.083001] Registered IR keymap rc-cec
+[   12.121967] rc rc0: vc4-hdmi as /devices/platform/soc/3f902000.hdmi/rc/rc0
+[   12.122230] input: vc4-hdmi as /devices/platform/soc/3f902000.hdmi/rc/rc0/input0
+[   12.146412] input: vc4-hdmi HDMI Jack as /devices/platform/soc/3f902000.hdmi/sound/card0/input1
+[   12.159043] vc4-drm soc:gpu: bound 3f902000.hdmi (ops vc4_hdmi_ops [vc4])
+[   12.159492] vc4-drm soc:gpu: bound 3f004000.txp (ops vc4_txp_ops [vc4])
+[   12.159777] vc4-drm soc:gpu: bound 3f206000.pixelvalve (ops vc4_crtc_ops [vc4])
+[   12.160010] vc4-drm soc:gpu: bound 3f207000.pixelvalve (ops vc4_crtc_ops [vc4])
+[   12.160236] vc4-drm soc:gpu: bound 3f807000.pixelvalve (ops vc4_crtc_ops [vc4])
+[   12.162863] vc4-drm soc:gpu: bound 3fc00000.v3d (ops vc4_v3d_ops [vc4])
+[   12.175474] [drm] Initialized vc4 0.0.0 for soc:gpu on minor 0
+[   12.176793] vc4-drm soc:gpu: [drm] Cannot find any crtc or sizes
+[   12.180026] vc4-drm soc:gpu: [drm] Cannot find any crtc or sizes
+[   22.571610] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save enabled
+[   23.553327] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+[   24.398240] tun: Universal TUN/TAP device driver, 1.6
+[   42.129293] systemd-journald[270]: Time jumped backwards, rotating.

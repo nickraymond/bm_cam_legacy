@@ -1,0 +1,65 @@
+{
+ "distance": 7.3,
+ "attempts": 1,
+ "attempt_log": [
+  {
+   "step": "rung",
+   "distance": 7.3,
+   "bytes": 38727,
+   "message_count": 135,
+   "plane_bytes": [
+    10417,
+    8913,
+    8951,
+    10367
+   ],
+   "over_cap": false,
+   "budget_fit": true,
+   "seconds": 9.994,
+   "cjxl_seconds": [
+    2.362,
+    2.36,
+    2.36,
+    2.862
+   ],
+   "peak_rss_kb": 45124
+  }
+ ],
+ "message_count": 135,
+ "crc32": 2977184804,
+ "params": [
+  1,
+  1304,
+  734,
+  4608,
+  2592,
+  2977184804,
+  66645,
+  15515,
+  17772,
+  22089,
+  15862,
+  -3907,
+  -1955,
+  -3470,
+  17710,
+  -4241,
+  -25,
+  -5690,
+  15715,
+  350,
+  730,
+  5,
+  1011,
+  4124
+ ],
+ "encode_s": 9.994,
+ "rate_mode": "rungs",
+ "timings": {
+  "dng_read_s": 0.481,
+  "planes_s": 0.111
+ },
+ "cfa": "BGGR",
+ "black": 64,
+ "white": 1023
+}
