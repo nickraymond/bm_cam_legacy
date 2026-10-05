@@ -103,6 +103,6 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - 22:17Z: **External event X1**: SPOT-31593C upload stall from ~20:16Z (Notecard not draining; 33507C normal). Spotter untouched; Nick decides reset.
   Check cron 7c62bcc2 (18:17 PDT). keep_crop step re-made (new id, Tue 07:27 PDT) with the uplink-down fallback (local YAML + one detached capture in the 17:00Z window).
 - B3a (Nick's new JPEG-XL route): R6 DRAFT `hil/gates/S28_R6_b3a_pi_check.md`, option (a) inside RC / (b) Wed daytime; EM confirms tonight. RC deploy plan ON HOLD.
-- X1 reset (Nick GO via EM 22:45Z): crons 73f3b011 (17:55 PDT decision check) + b6f5011d (18:11 PDT: `debug reset` on SPOT-31593C if STUCK,
+- X1 reset (Nick GO via EM 22:45Z; rule narrowed 23:2xZ: reset only if 00Z rows absent or backlog rising): crons (new id) (17:55 PDT decision check) + b6f5011d (18:11 PDT: `debug reset` on SPOT-31593C if STUCK,
   halt stub boot, hil_bridge_phase.sh SPOT-31593C utc, re-measure report minute, confirm 02:00Z rows). Old check 7c62bcc2 deleted.
 - R6 (B3a) option (b) Wed; Tue B0 encoder de-risk YES (EM) in the 17:00Z window if it fits, else next window: hil/tools/hil_b0_cjxl_guard.sh.
