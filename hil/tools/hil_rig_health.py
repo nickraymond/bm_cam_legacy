@@ -243,6 +243,20 @@ def main():
         # while VIN is present) and recharges after; a relative-drop rule fired every hour. Use a level instead.
         if lp["vbat_mv"] is not None and lp["vbat_mv"] < TH["vbat_low_on_ext_warn_mv"]:
             warn.append(f"nereus000 VBAT {lp['vbat_mv']} mV on external power (input not covering the load)")
+    # TEMPORARY rules while a bench bus is held on (config "bus_on_watch": true; EM/Nick 2026-10-05). The known hourly
+    # :00-:12 top-up dip is excluded from the drop and SoC rules (it would cry wolf every hour).
+    if cfg.get("bus_on_watch") and lp["vbat_mv"] is not None and on_ext and not (0 <= t.minute <= 12):
+        quiet = [h for h in hist if not (0 <= datetime.datetime.fromisoformat(h[0]).minute <= 12)]
+        old_q = [v for ts_, v in quiet if (t - datetime.datetime.fromisoformat(ts_)).total_seconds() >= 1500]
+        if old_q and old_q[0] - lp["vbat_mv"] > 30:
+            warn.append(f"[bus-on watch] nereus000 VBAT down {old_q[0] - lp['vbat_mv']} mV in 30 min on external ({old_q[0]} -> {lp['vbat_mv']})")
+        soc = R["lp_soc_est"]
+        low = soc.startswith("~") and int(soc[1:-1]) < 50
+        st["soc_low_runs"] = (st.get("soc_low_runs", 0) + 1) if low else 0
+        if st["soc_low_runs"] >= 2:
+            crit.append(f"[bus-on watch] nereus000 SoC estimate {soc} (< 50 %, 2 runs)")
+    if cfg.get("bus_on_watch") and lp["vbat_mv"] is not None and lp["vbat_mv"] < 3250:
+        crit.append(f"[bus-on watch] nereus000 VBAT {lp['vbat_mv']} mV (< 3250)")
     if lp["vbat_mv"] is not None and lp["vbat_mv"] < TH["vbat_crit_mv"]:
         crit.append(f"nereus000 VBAT {lp['vbat_mv']} mV (< {TH['vbat_crit_mv']})")
 
@@ -331,6 +345,8 @@ def main():
                 crit.append(f"{spot} battery {b['v']} V")
             elif ref - b["v"] >= TH["spot_batt_drop_warn_v"]:
                 warn.append(f"{spot} battery dropped {ref} -> {b['v']} V")
+            if cfg.get("bus_on_watch") and spot in cfg.get("bus_on_spots", []) and b.get("w") is not None and b["w"] < -0.5:
+                warn.append(f"[bus-on watch] {spot} battery discharging {b['w']} W")
             if b.get("w") is not None and b["w"] <= -TH["spot_batt_discharge_warn_w"]:
                 warn.append(f"{spot} battery discharging {b['w']} W")
         ct = ss.get("ws_ct")
