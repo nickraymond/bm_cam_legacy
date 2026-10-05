@@ -91,6 +91,11 @@ bmcam003 / SPOT-33507C ingests normally (rows to 22:16Z) → not the backend or 
 stall on SPOT-31593C (rig event, not a camera result). Fallbacks 5/7 (all rfb=floor). Wake→halt 483–505 s every wake;
 START every wake. R4.4 START uptime: from the cycle logs at the Tue 17:00Z window pull (no extra ssh).
 
+**External event X1 (EM 2026-10-05 22:30Z): SPOT-31593C upload stall from ~20:16Z.** Evidence: no backend rows for the
+21:00Z / 22:00Z wakes; last chunk 20:15:55; Notecard fill not draining (5 → 19 %, 26 → 34 %); SPOT-33507C ingest normal
+over the same hours. Spotter not touched (Nick decides any console post/reset). If not drained by ~01:00Z: R4.1 gets
+the external-event exclusion or R4 delivery = NOT ASSESSABLE; the camera-side criteria (R4.2, R4.4, fallback count) stand.
+
 Mid-check 2026-10-05 18:45Z: **R4.3 (≤ 1/12 fallback) already FAILED**: 2 fallbacks in 3 wakes, both `rfb=floor`
 (nrjxl search hit the d_max floor without fitting; the unit fell back loudly with a reason = RC.5 behaviour, not
 silent). R4.1 / R4.2 / R4.4 still running (all 3 wakes delivered or healing; wake→halt 483–504 s ≤ 570; START every

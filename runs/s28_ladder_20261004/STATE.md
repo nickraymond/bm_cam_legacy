@@ -100,3 +100,6 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - R5 APPROVED (EM): bmcam003, #133 b19a4aa (cap default 30000 first, 16667 night comparison). Crons (PDT): 9245b2a3 Tue 07:43 deploy prep (15:00Z window), 078816a7 Tue 19:15 cap 16667,
   (new id) Tue 23:25 refusal check + cap back to 30000, 5ef77726 Wed 00:47 R5 verdict pull (gates #133 merge before the RC deploy).
   Other Tue crons: 4e46c2a0 07:27 keep_crop on 004, d5c1be49 09:47 bmcam004 17:00Z window. R4 verdict b3705182 Mon 23:17.
+- 22:17Z: **External event X1**: SPOT-31593C upload stall from ~20:16Z (Notecard not draining; 33507C normal). Spotter untouched; Nick decides reset.
+  Check cron 7c62bcc2 (18:17 PDT). keep_crop step re-made (new id, Tue 07:27 PDT) with the uplink-down fallback (local YAML + one detached capture in the 17:00Z window).
+- B3a (Nick's new JPEG-XL route): R6 DRAFT `hil/gates/S28_R6_b3a_pi_check.md`, option (a) inside RC / (b) Wed daytime; EM confirms tonight. RC deploy plan ON HOLD.
