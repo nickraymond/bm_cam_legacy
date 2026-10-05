@@ -57,8 +57,8 @@ Evidence: the nvd session's parity run (backend side); this run's `api/nrjxl_fir
 
 | step | change | sent / fired (UTC) | on the wire | backend complete? | verdict |
 |---|---|---|---|---|---|
-| R3.1 | encode_max_s 5 (cid 1000063) + trg (1000064) | 09:49 / 10:06:33 | `[RAW] FALLBACK rfb=time` (cjxl killed at 5.2 s); START 10:06:47 `fmt=pjpg … rfb=time`, key 0e9qqx, 162/162 | pending | PASS on the wire |
-| R3.2 | distances [0.3], target_fill 0, encode_max_s 60 | backend refused `in_flight` at 10:13 (1000063's ack not yet ingested); retry loop | | | |
+| R3.1 | encode_max_s 5 (cid 1000063) + trg (1000064) | 09:49 / 10:06:33 | `[RAW] FALLBACK rfb=time` (cjxl killed at 5.2 s); START 10:06:47 `fmt=pjpg … rfb=time`, key 0e9qqx, 162/162 | media 57443: 149/162 at 11:13 (heal path) | PASS on the wire |
+| R3.2 | distances [0.3], target_fill 0, encode_max_s 60 (cid 1000065, supersede) + trg 1000066 | 11:03 / 11:07:42 (the 1000063 ack was LOST and stay_on never re-sends it → in_flight 48 min → supersede) | `[RAW] FALLBACK rfb=fit: nothing fits (cap 195)`; START 11:07:56 `fmt=pjpg … rfb=fit`, key 0e9tkv, 154/154 | pending | PASS on the wire |
 | R3.5 | target_fill 0.97, distances default, d_max 0.5 | | | | |
 | R3.3 | crop [1505,846,1600,900] | | | | |
 
