@@ -1,4 +1,4 @@
-# EPIC: v3 reference card → cloud colour correction on the RAW (draft r1, for Nick's review)
+# EPIC: v3 reference card → cloud colour correction on the RAW (r1, APPROVED by Nick 2026-10-05)
 
 Owner: Nick. Coordinator: EM. Started 2026-10-05. Part of R1 (RELEASE_PLAN §2d): the Friday RC should unlock it,
 and the pool week (10/12) proves it.
