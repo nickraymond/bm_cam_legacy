@@ -175,7 +175,7 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `camera.exposure.shutter_us` | int | null | 1 – 120000000 | next_action |  | Fixed shutter (us). |  |
 | `camera.exposure.analogue_gain` | float | null | 0.0 – 64.0 | next_action |  | Fixed analogue gain. |  |
 | `camera.exposure.profile` | enum | auto | auto / low_gain | next_action |  | Stills: auto = today's auto exposure; low_gain = gain held at the sensor floor until the shutter reaches max_shutter_us, then gain up to max_gain (less red-channel noise for colour correction). | auto: auto; low gain: low_gain |
-| `camera.exposure.max_shutter_us` | int | 16667 | 100 – 66666 | next_action |  | low_gain: longest shutter (us) before gain rises (16667 = 1/60 s; 66666 = the IMX708 limit). | 1/60 s: 16667; 1/30 s: 33333; 1/15 s: 66666 |
+| `camera.exposure.max_shutter_us` | int | 30000 | 100 – 66666 | next_action |  | low_gain: longest shutter (us) before gain rises (30000 = where the stock AGC starts adding gain; 66666 = the IMX708 limit). | 1/60 s: 16667; 30 ms (stock gain floor): 30000; 1/15 s: 66666 |
 | `camera.exposure.max_gain` | float | 16.0 | 1.0 – 16.0 | next_action |  | low_gain: highest analogue gain once the shutter is capped (past it the ISP adds digital gain; the RAW gets darker). | 1x (no gain): 1.0; 4x: 4.0; 16x: 16.0 |
 | `camera.image_processing.enabled` | bool | false | bool | next_action |  | Pass image-processing controls. |  |
 | `camera.image_processing.sharpness` | float | null | 0.0 – 16.0 | next_action |  | Sharpness 0..16 (1 = normal). |  |

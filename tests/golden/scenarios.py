@@ -542,9 +542,9 @@ V9_SCENARIOS.update({
     "v9_low_gain": {"kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS,
                     "append": MEDIA_KEY, "low_gain": True,
                     "v2": {**V9_V2, "camera.exposure.profile": "low_gain"},
-                    "notes": "low_gain (1/60 s, gain 16): one rpicam-hello --list-cameras, then "
+                    "notes": "low_gain (defaults: 30 ms, gain 16): one rpicam-hello --list-cameras, then "
                              "rpicam-still --tuning-file <app>/exposure_profile/tuning/"
-                             "imx708_wide_lowgain_s16667_g16.json; the rest is v9_still"},
+                             "imx708_wide_lowgain_s30000_g16.json; the rest is v9_still"},
     "v9_low_gain_nrjxl": {**_NRJXL, "low_gain": True, "raw": {"cam": "ok"},
                           "v2": {**NRJXL_V2, "camera.exposure.profile": "low_gain",
                                  "camera.exposure.max_shutter_us": 33333,

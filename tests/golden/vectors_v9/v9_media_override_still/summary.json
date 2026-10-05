@@ -149,7 +149,7 @@
   },
   "camera_config.yaml": {
    "bytes": 2665,
-   "sha256": "b4b5f8da3b8004a4"
+   "sha256": "c61b719f7095af0c"
   },
   "camera_schedule.yaml": {
    "bytes": 7907,
@@ -193,7 +193,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 382,
-   "sha256": "6ec843f58d53677a"
+   "sha256": "a44af68892b8a3af"
   },
   "state/config_journal.jsonl": {
    "bytes": 113,
@@ -432,7 +432,7 @@
   "result_cache": {
    "1000551": {
     "b": 1,
-    "h": "e784ffb2",
+    "h": "74510d90",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point); one action only: mode.media=still, still.message_cap=60"
    }
