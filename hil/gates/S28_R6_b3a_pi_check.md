@@ -7,7 +7,7 @@ fall back loudly? Owner: Test Engineer. Host: bmcam004 / SPOT-31593C (has libjxl
 **Status: option (b) chosen by the EM 2026-10-05 ~22:45Z**, with R6 = the camera's B0/B1/B2
 (`sprints/Sprint28_raw_jxl/DESIGN_B3a.md` §6 on feature/sprint28-b3a d694b6a). B3a ships behind `still.raw.layout`
 (bayer4 default | rgb). Build target Wed ~16:00Z, backend decode Wed ~12:00Z; a slip past 16:00Z → R6 moves to pool week. Build = the B3a branch stacked
-on #120/#133 (sha to be filled in). The Tue keep_crop capture (R4 follow-up) is also the real-IMX708 input for B3a.
+on #120/#133: bm draft #134, feature/sprint28-b3a 385395c (2026-10-05). The Tue keep_crop capture (R4 follow-up) is also the real-IMX708 input for B3a.
 
 ## Criteria
 
@@ -39,7 +39,7 @@ fallback travel the Sofar lane, and R6.3 needs the stills at the backend.
 
 | Z | step |
 |---|---|
-| Tue 17:00 window (optional, early) | **B0-encoder** on the Tue deploy: 10× `cjxl` VarDCT d 2.6 e5 on a 1600×900 RGB PPM (made from Tue's kept PGM, demosaiced on the Mac) under the real guard (`oom_score_adj 1000; ulimit -v 250 MB`), VmPeak / VmHWM / time per run; a 3-encode search. Needs only libjxl, not the B3a build → de-risks Wed |
+| Tue **18:00** window (EM YES) | **B0 with the real pipeline** (B3a build done early: bm #134, 385395c): branch BM_Devel_Pi staged in a SCRATCH dir (`/home/pi/b0_b3a_385395c`, deployed app untouched), 10× `rc_raw_jxl.py --dng … --metadata … --layout rgb` under the production guard on one DNG (existing or one manual `rpicam-still --raw`), VmPeak sampled from /proc; `--effort 4` if VmPeak > 250 MB. Not the 17:00 window: the #120 deploy + PGM pull fill it and the bus hard-cuts at :10. `hil/tools/hil_b0_cjxl_guard.sh` (hand demosaic) = fallback only |
 | Wed ~16:30 | B3a build ready → one-window deploy at the **17:00 window**; `still.raw.layout=rgb` set in the local YAML in that window (applies at 18:00); B0 again with the real prep (supervisor RSS, prep time); backend: `encode_max_s=5` (applies 19:00) |
 | 18:00 wake | **B1**: B3a still over the production lane → reassembled sha, backend decode + render, LinearRaw DNG |
 | 19:00 wake | **B2 time** (`rfb=time`, pjpg complete); backend: reset encode_max_s + `d_max` low to force `floor` (applies 20:00) |
