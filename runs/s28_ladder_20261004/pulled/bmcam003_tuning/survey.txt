@@ -1,0 +1,20 @@
+aarch64
+Raspberry Pi Zero 2 W Rev 1.0
+-rw-r--r-- 1 root root 91687 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/pisp/imx708.json
+-rw-r--r-- 1 root root 87630 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/pisp/imx708_noir.json
+-rw-r--r-- 1 root root 92112 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/pisp/imx708_wide.json
+-rw-r--r-- 1 root root 84040 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/pisp/imx708_wide_noir.json
+-rw-r--r-- 1 root root 32416 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/vc4/imx708.json
+-rw-r--r-- 1 root root 34063 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/vc4/imx708_noir.json
+-rw-r--r-- 1 root root 32306 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+-rw-r--r-- 1 root root 29947 Jun  8 07:49 /usr/share/libcamera/ipa/rpi/vc4/imx708_wide_noir.json
+libcamera-ipa:arm64 0.7.1+rpt20260609-1
+libcamera0.7:arm64 0.7.1+rpt20260609-1
+librpicam-app1:arm64 1.12.0-1
+rpicam-apps-core 1.12.0-1
+rpicam-apps-lite 1.12.0-1
+cycle /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261005T180819Z.log
+    167 tuning file /usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+[    0.041743] /soc/csi@7e801000: Fixed dependency cycle(s) with /soc/i2c0mux/i2c@1/imx708@1a
+[    0.041875] /soc/i2c0mux/i2c@1/imx708@1a: Fixed dependency cycle(s) with /soc/csi@7e801000
+[    0.043831] /soc/csi@7e801000: Fixed dependency cycle(s) with /soc/i2c0mux/i2c@1/imx708@1a
