@@ -27,6 +27,13 @@ Measured, not gated: command lag in wakes, arrival minute vs report minute, D1 m
 1. bm #121 gate (`R1F_cmd_resilience.md` § fix verification, ≥ 6 wakes) → EM merges #121 on PASS.
 2. bmcam003 to the merged development tip (the same one-window deploy), then this 24-wake re-gate.
 
+## Recorded coverage (EM 2026-10-05)
+
+- Lost ack → `d:1` re-send with the ORIGINAL `h` → backend upgrade: PROVEN on hardware (stress slot 00:20Z 10/5,
+  1000076 trg + 1000077 get recovered at the next wake).
+- Lost SET ack → `in_effect` via the heartbeat hash: covered by nvd #84 DB tests + the live d:1 path; the heartbeat path
+  was NOT exercised on hardware. Limit: the hash cannot prove a toggle to an equal value.
+
 ## Known limit for R1 (Nick, EM chat 2026-10-03 ~21:50 PDT)
 
 SPOT-33507C commands take effect **2 wakes** after they are sent (its hourly report + hub.sync is at :10, after the
