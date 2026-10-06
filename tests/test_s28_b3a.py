@@ -298,6 +298,29 @@ class EncodeStill(unittest.TestCase):
         self.assertEqual(efforts, [5, 5, 4])
         self.assertEqual(X.unpack_container(res["blob"])[0]["params"][21], 4)   # effort param
 
+    def test_v2_carries_the_sensor_crop_origin_and_native_size(self):
+        # production reads the FULL DNG at still.crop: params[1..4] = crop x, y, native w, h
+        with tempfile.TemporaryDirectory() as d:
+            res = X.encode_still(MINI, META, RGB_CFG, crop_xywh=[16, 8, 128, 80], budget=Budget(),
+                                 message_cap=195, chunk_b64_chars=384,
+                                 work_dir=os.path.join(d, "w"), cjxl="/usr/bin/cjxl",
+                                 runner=_rgb_runner(size=40000), log=lambda *_: None)
+        head = X.unpack_container(res["blob"])[0]
+        self.assertEqual(head["params"][1:5], [16, 8, 160, 96])
+        self.assertEqual((head["w"], head["h"]), (128, 80))
+
+    def test_the_v2_fixture_has_production_geometry(self):
+        import hashlib
+        import json
+        with open(os.path.join(FIX, "blobs_v2.json")) as fh:
+            meta = json.load(fh)["blobs"]["blob_v2_bmcam004_57521.nrjxl"]
+        with open(os.path.join(FIX, "blob_v2_bmcam004_57521.nrjxl"), "rb") as fh:
+            blob = fh.read()
+        self.assertEqual(hashlib.sha256(blob).hexdigest(), meta["sha256"])
+        head, payloads = X.unpack_container(blob)
+        self.assertEqual((head["method"], head["params"][0], len(payloads)), (20, 2, 1))
+        self.assertEqual(head["params"][1:5], [1504, 846, 4608, 2592])
+
     def test_bayer4_is_untouched(self):
         log = []
         res, listing = self.encode(_rgb_runner(size=10000, log=log),
