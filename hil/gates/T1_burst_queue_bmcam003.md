@@ -4,7 +4,7 @@ Question: what drives `MS_Q_CELLULAR_ONLY is full` rejects at the Pi → Spotter
 `~/Downloads/x1_spotter_incident_20261005/X1_VERDICT.md`) located all loss there and predicts more rejects when the
 burst overlaps the Spotter's report / health-check sync. C1 phase 1 (5+5 wakes on SPOT-31593C, `runs/c1_comms_20261003`)
 found no significant :00 vs :30 effect, so this test pre-registers its bars before the first burst.
-Owner: Test Engineer. GO: Nick via the EM, 2026-10-06 ~00:15Z (bus held on + restore, bench rigs only; never
+Owner: Test Engineer. **Plan approved by the EM as written (2026-10-06).** GO: Nick via the EM, 2026-10-06 ~00:15Z (bus held on + restore, bench rigs only; never
 SPOT-33361C). Slot: **Tue 10/6 16:00–19:00Z** (after bmcam004's sunrise run is restored: one Spotter on bus-on load
 through nereus000's adapter at a time). Evidence: `runs/t1_burst_<date>/`. Times UTC.
 
@@ -14,7 +14,10 @@ through nereus000's adapter at a time). Evidence: `runs/t1_burst_<date>/`. Times
 - Sender: the Sprint09 UART tool (`sprints/Sprint09_mote_throughput/test_UART_throughput.py --phase tx`, real
   `bm_serial` COBS + spotter_tx path, cellular-only), staged in /tmp with the deployed `bm_serial.py`; a thin wrapper
   adds the burst-shape option and logs each send's UTC time. Payload: 120 messages × 384 B (a pjpg chunk's size) per
-  burst; synthetic payloads (the backend ignores them; the queue does not care what is inside).
+  burst; synthetic payloads `TST,<run>,<seq>,<A–Z0–9 pad>*<crc8>` (run ids [a-z0-9] only). **Approved by the EM
+  2026-10-06.** Backend check (staging `bm_image_parser.py` / `command_reply_ingest.py`): no `<START`/`<END`/`<I…>`/`<WS`/
+  `<T>`/`<CF`, no `:`/`=`/`{` → no media group, no chunk, no command answer, no heal candidate; an open legacy group's
+  filename/length regexes cannot match the pad. Expected media rows to hide afterwards: none (≈ 2160 undecodable rows).
   Deviation from "pjpg bursts", stated: synthetic chunks give second-exact start times and the burst-shape arm with
   no production code change. Cellular quota: ≈ 18 × 120 messages.
 - Read-out per burst, live from the nereus000 console capture: accepted (`Added message … to queue`) vs rejected
