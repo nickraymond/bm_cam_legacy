@@ -152,6 +152,32 @@ Read ExposureTime / AnalogueGain back from each still's `--metadata` sidecar (th
 | R5.4 | `{"set":{"camera.exposure.profile":"low_gain","camera.controls_enabled":true,"camera.exposure.enabled":true,"camera.exposure.shutter_us":8000}}` | ack `e:xk` (config_validate `_rule_low_gain_fixed`); `get` hash unchanged |
 
 Restore: `{"reset":["camera.exposure.profile","camera.exposure.max_shutter_us","camera.exposure.max_gain"]}`.
+
+**R5 sunrise run (Nick GO 2026-10-05; bmcam004, bus held on, Tue 13:15–15:00Z, Wi-Fi offload).**
+Needs #120 + #133 deployed. Stop the runtime and disarm cron first, as for R0 (the loop refuses
+while a camera or runtime process runs, and never edits cron).
+
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 detach
+```
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 status
+```
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 stop
+```
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 pull
+```
+```bash
+.venv-dev/bin/python hil/tools/hil_s28_lowgain_analyze.py runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+```
+`run` instead of `detach` keeps it in the foreground, where Ctrl-C stops it cleanly. The analysis
+PASSes when every low_gain capture keeps the shutter ≤ the cap (LG1), raises gain only at the cap
+(LG2), sits at the gain floor whenever auto needed no more than cap × floor (LG3), and loaded the
+patched tuning file (LG4). It also reports the RAW flat-patch noise ratios low_gain / auto (G and
+R) and writes `analysis/lowgain_cutsheet.png`. Afterwards: re-arm cron and restart the runtime as
+found (the manifest records the crontab hash at start and end).
 The generated copies stay in `<app>/exposure_profile/` (a few 27 kB files; delete freely).
 
 ### B3a bench: B0–B2 (DESIGN_B3a.md §6; bmcam004, after the TE hand-over)
