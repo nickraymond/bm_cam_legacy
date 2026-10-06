@@ -1,0 +1,10 @@
+{
+ "utc": "2026-10-06T15:07:35Z",
+ "inputs": {
+  "kind": "imx708_dng",
+  "dng": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/auto.dng",
+  "metadata": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/auto.json"
+ },
+ "command": "tools/s28_density_sweep.py --rig /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/rig --dng /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/auto.dng --metadata /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/auto.json --label day_auto --out /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/day_b3a --rows bayer,rgbwa --row-widths bayer:1600 --no-slider",
+ "cjxl": "cjxl v0.11.1 0.11.1 [NEON]"
+}
