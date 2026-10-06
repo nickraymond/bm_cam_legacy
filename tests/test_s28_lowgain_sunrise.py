@@ -92,6 +92,7 @@ class SunriseTools(unittest.TestCase):
                 sys.path.remove(app)
                 sys.path.remove(TOOLS)
             self.assertEqual(rc, 0)
+            self.assertFalse(os.path.exists(os.path.join(out, "loop.pid")))   # removed at the end
             with open(os.path.join(out, "pairs.csv")) as fh:
                 rows = list(csv.DictReader(fh))
             self.assertEqual([(r["pair"], r["profile"], r["ok"]) for r in rows],
@@ -128,6 +129,29 @@ class SunriseTools(unittest.TestCase):
         cap = 30000.0
         el, gl = 12000.0, 3.0
         self.assertFalse(not (gl > A.FLOOR * A.TOL_FLOOR) or el >= cap * A.TOL_AT_CAP)
+
+    def test_loop_writes_its_own_pid_while_running(self):
+        sys.path.insert(0, TOOLS)
+        try:
+            import s28_lowgain_pair_loop as L
+        finally:
+            sys.path.remove(TOOLS)
+        seen = {}
+        with tempfile.TemporaryDirectory() as tmp:
+            out = os.path.join(tmp, "o")
+            saved = L._run
+
+            def peek(args):
+                with open(os.path.join(out, "loop.pid")) as fh:
+                    seen["pid"] = int(fh.read())
+                return 0
+            L._run = peek
+            try:
+                self.assertEqual(L.main(["--out", out]), 0)
+            finally:
+                L._run = saved
+            self.assertEqual(seen["pid"], os.getpid())
+            self.assertFalse(os.path.exists(os.path.join(out, "loop.pid")))
 
     def test_loop_refuses_when_the_camera_is_busy(self):
         sys.path.insert(0, TOOLS)

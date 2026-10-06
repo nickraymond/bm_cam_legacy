@@ -175,6 +175,21 @@ def main(argv=None):
     os.makedirs(os.path.join(args.out, "pairs"), exist_ok=True)
     for s in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(s, on_signal)
+    # the loop writes its OWN pid (bmcam004 2026-10-06: the wrapper's `$!` after setsid named the
+    # wrong / no process, so status / stop failed); removed at the end
+    pid_path = os.path.join(args.out, "loop.pid")
+    with open(pid_path, "w") as fh:
+        fh.write(f"{os.getpid()}\n")
+    try:
+        return _run(args)
+    finally:
+        try:
+            os.remove(pid_path)
+        except OSError:
+            pass
+
+
+def _run(args):
 
     b = busy()
     if b:

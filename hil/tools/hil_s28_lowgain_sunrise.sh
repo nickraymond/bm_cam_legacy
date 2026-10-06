@@ -43,10 +43,12 @@ case "$MODE" in
       ssh -t -o ConnectTimeout=8 -o ServerAliveInterval=15 "$U@$H" "cd /home/$U/BM_Devel_Pi && python3 -u $R/s28_lowgain_pair_loop.py $ARGS"
       log "loop ended (rc $?); pull with: $0 $H $OUT pull"
     else
-      $SSH "cd /home/$U/BM_Devel_Pi && mkdir -p $RUN && setsid nohup python3 -u $R/s28_lowgain_pair_loop.py $ARGS > $RUN/nohup.out 2>&1 < /dev/null & echo \$! > $RUN/loop.pid; sleep 3; cat $RUN/loop.pid; tail -3 $RUN/loop.log 2>/dev/null || tail -3 $RUN/nohup.out" < /dev/null | tee -a "$OUT/gate.log"
+      # the loop writes $RUN/loop.pid itself (its own os.getpid()); wait up to 15 s for it
+      $SSH "cd /home/$U/BM_Devel_Pi && mkdir -p $RUN && (setsid nohup python3 -u $R/s28_lowgain_pair_loop.py $ARGS > $RUN/nohup.out 2>&1 < /dev/null &); for i in \$(seq 1 15); do [ -s $RUN/loop.pid ] && break; sleep 1; done; echo pid=\$(cat $RUN/loop.pid 2>/dev/null || echo MISSING); tail -3 $RUN/loop.log 2>/dev/null || tail -3 $RUN/nohup.out" < /dev/null | tee -a "$OUT/gate.log"
     fi ;;
   status)
-    RUN=$(cat "$OUT/.lowgain_remote_run"); $SSH "tail -5 $RUN/loop.log; wc -l < $RUN/pairs.csv; df -h /home | tail -1" < /dev/null ;;
+    RUN=$(cat "$OUT/.lowgain_remote_run")
+    $SSH "P=\$(cat $RUN/loop.pid 2>/dev/null); if [ -n \"\$P\" ] && kill -0 \$P 2>/dev/null; then echo RUNNING pid=\$P; else echo NOT RUNNING; fi; tail -5 $RUN/loop.log; echo csv_rows=\$(wc -l < $RUN/pairs.csv); df -h /home | tail -1" < /dev/null ;;
   stop)
     RUN=$(cat "$OUT/.lowgain_remote_run")
     # SIGINT to the loop only (not its rpicam child): the current capture finishes, then it exits cleanly

@@ -110,8 +110,15 @@ def main(argv=None):
     ap.add_argument("--out")
     ap.add_argument("--sheet-pairs", type=int, default=8)
     args = ap.parse_args(argv)
-    import numpy as np
-    from PIL import Image, ImageDraw, ImageFont
+    try:
+        import numpy as np
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError as exc:
+        print(f"[lowgain-analyze] needs numpy + Pillow ({exc}). Run it with the repo venv: "
+              ".venv-dev/bin/python hil/tools/hil_s28_lowgain_analyze.py <pulled dir> "
+              "(or the rig venv ~/Documents/GitHub/nereus-camera-test-rig/.venv/bin/python)",
+              file=sys.stderr)
+        return 3
     out = args.out or os.path.join(args.src, "analysis")
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(args.src, "run_manifest.json")) as fh:
