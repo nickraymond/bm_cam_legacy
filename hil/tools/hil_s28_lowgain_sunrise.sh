@@ -52,7 +52,9 @@ case "$MODE" in
   stop)
     RUN=$(cat "$OUT/.lowgain_remote_run")
     # SIGINT to the loop only (not its rpicam child): the current capture finishes, then it exits cleanly
-    $SSH "kill -INT \$(cat $RUN/loop.pid) 2>/dev/null || pkill -INT -f '[s]28_lowgain_pair_loop.py --out $RUN'; for i in \$(seq 1 60); do kill -0 \$(cat $RUN/loop.pid) 2>/dev/null || break; sleep 1; done; tail -2 $RUN/loop.log" < /dev/null | tee -a "$OUT/gate.log" ;;
+    # read the pid ONCE: the loop deletes loop.pid as it exits (bmcam004 2026-10-06: a second
+    # `cat` in the wait printed "No such file" after a clean stop)
+    $SSH "P=\$(cat $RUN/loop.pid 2>/dev/null); if [ -n \"\$P\" ]; then kill -INT \$P; else pkill -INT -f '[s]28_lowgain_pair_loop.py --out $RUN'; fi; for i in \$(seq 1 60); do if [ -n \"\$P\" ]; then kill -0 \$P 2>/dev/null || break; else pgrep -f '[s]28_lowgain_pair_loop.py --out $RUN' >/dev/null || break; fi; sleep 1; done; tail -2 $RUN/loop.log" < /dev/null | tee -a "$OUT/gate.log" ;;
   pull)
     RUN=$(cat "$OUT/.lowgain_remote_run"); mkdir -p "$OUT/pulled/${H}_lowgain"
     scp -q -r -o BatchMode=yes "$U@$H:$RUN/." "$OUT/pulled/${H}_lowgain/" && log "pulled $RUN -> $OUT/pulled/${H}_lowgain" ;;
