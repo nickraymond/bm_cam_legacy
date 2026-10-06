@@ -115,6 +115,26 @@ PRIOR_B_REF, PRIOR_A_REF, PRIOR_D_REF, PRIOR_K = 51_000.0, 1600 * 900, 3.8, 0.8
 # B3a (VarDCT RGB) prior, from the 2026-10-05 TG-7 sweeps at 1600x900: P50 d 2.58 at 54 kB,
 # 5.36 at 29 kB (runs/s28_density_sweep_20261005, equal_quality_tg7.md).
 PRIOR_RGB = (54_000.0, 1600 * 900, 2.6, 0.85)
+# B3a search calibration (bmcam004 B0 2026-10-06: 3 attempts every run, 28 s of 30): the MEDIAN
+# bytes(d) curve of 31 frames (30 TG-7 + bmcam004 57521, cjxl e5 VarDCT, 1600x900;
+# runs/s28_b3a_search_20261006/). The curves are near-parallel in log-log (+-3-5 % around the
+# target), so ONE measured point fixes a scene's scale and the second encode lands near the aim;
+# a constant slope over-/undershot the far scenes. Used for the first guess and the one-point
+# correction of the rgb layout; later steps stay the measured secant.
+PRIOR_RGB_CURVE = ((1.2, 102421), (1.4, 90610), (1.6, 82090), (1.8, 74714), (2.0, 68474),
+                   (2.2, 63098), (2.4, 58358), (2.6, 54383), (2.8, 51209), (3.0, 48056),
+                   (3.3, 43794), (3.6, 40525), (4.0, 37381), (4.5, 33882), (5.0, 31919),
+                   (6.0, 27306), (7.5, 22861))
+# The one-point correction's slope depends on how full the first encode came: smooth scenes
+# (underfilled at the median d) have steeper bytes(d) curves. Fitted on the same 31 frames:
+# K_eff = A + B x ln(bytes1 / room), residual sd 0.089 (K 0.69..1.27).
+RGB_KEFF_A, RGB_KEFF_B = 0.891, -0.387
+# rgb only: aim the CORRECTION steps this much below target_fill, and accept a fit that fills
+# >= target_fill - SEARCH_FILL_SLACK_RGB (an over-cap miss costs a whole ~9.5 s encode, an
+# under-fill of a few % costs ~1 % in d). Picked on the 31-frame replay (search_sim.json).
+RGB_CORRECTION_AIM_OFFSET = 0.0
+SEARCH_FILL_SLACK_RGB = 0.07
+E4_TIME_RATIO = 0.15              # cjxl VarDCT e4 / e5 seconds (Linux arm64 container + Mac, 2026-10-06)
 SEARCH_MAX_ENCODES = 3
 SEARCH_FILL_SLACK = 0.04          # accept a fit that fills >= target_fill - 0.04 (0.93 at 0.97)
 DIST_RANGE = (0.1, 15.0)          # still.raw.distances / still.raw.d_max registry range
@@ -131,6 +151,7 @@ DEFAULT_CONFIG = {
     "format": _registry_default("still.format"),
     "distances": _registry_default("still.raw.distances"),
     "encode_max_s": _registry_default("still.raw.encode_max_s"),
+    "rgb_encode_max_s": _registry_default("still.raw.rgb_encode_max_s"),
     "keep_crop": _registry_default("still.raw.keep_crop"),
     "effort": _registry_default("still.raw.effort"),
     "target_fill": _registry_default("still.raw.target_fill"),
@@ -203,10 +224,10 @@ def load_raw_config(config_path):
                     cfg["format"] = v
                 elif k == "distances":
                     cfg["distances"] = parse_distances(v)
-                elif k == "encode_max_s":
+                elif k in ("encode_max_s", "rgb_encode_max_s"):
                     if not v.isdigit() or not 5 <= int(v) <= 120:
-                        raise ValueError(f"still_raw.encode_max_s must be 5..120, got {v!r}")
-                    cfg["encode_max_s"] = int(v)
+                        raise ValueError(f"still_raw.{k} must be 5..120, got {v!r}")
+                    cfg[k] = int(v)
                 elif k == "keep_crop":
                     if v.lower() not in ("true", "false"):
                         raise ValueError(f"still_raw.keep_crop must be true|false, got {v!r}")
@@ -1016,11 +1037,29 @@ class _Walk:
         """Largest payload whose base64 fits `msgs` chunks (inverse of message_count)."""
         return 3 * ((int(msgs) * self.chunk) // 4)
 
+    def encode_cap_s(self):
+        """still.raw.encode_max_s (bayer4) / still.raw.rgb_encode_max_s (rgb: one VarDCT
+        encode is ~9.5 s on the Pi Zero 2 W, bmcam004 B0 2026-10-06)."""
+        if self.cfg.get("layout") == LAYOUT_RGB:
+            return float(self.cfg.get("rgb_encode_max_s") or DEFAULT_CONFIG["rgb_encode_max_s"])
+        return float(self.cfg["encode_max_s"])
+
     def attempt(self, distance, step):
-        cap_left = float(self.cfg["encode_max_s"]) - (self.clock() - self.t_start)
+        cap_left = self.encode_cap_s() - (self.clock() - self.t_start)
         budget_left = self.budget.remaining_s() - self.fallback_s
         timeout_s = min(cap_left, budget_left)
         last_s = self.attempt_log[-1]["seconds"] if self.attempt_log else 0.0
+        effort = int(self.cfg["effort"])
+        rgb = self.cfg.get("layout") == LAYOUT_RGB
+        if (rgb and effort > 4 and 0 < timeout_s < last_s and not self.valid_fits()
+                and timeout_s >= 2 * E4_TIME_RATIO * last_s):
+            # B3a last attempt: no time for another e5 and nothing fits yet -> one e4 encode
+            # (~0.15 x the time, ~4 SSIMULACRA2 lower at equal bytes) beats today's JPEG fallback
+            # (runs/s28_b3a_effort_20261005). Bytes at e4 ~= e5 at the same d (P50 0.97).
+            effort = 4
+            self.log(f"[RAW] {step}: {timeout_s:.1f} s left < one e5 encode ({last_s:.1f} s): "
+                     f"last attempt at effort 4")
+            last_s = last_s * E4_TIME_RATIO
         if timeout_s <= 0 or timeout_s < last_s:
             # review #1: an encode that cannot finish in the time left is not started
             # (the last one took last_s; same crop, so this one takes about as long).
@@ -1029,10 +1068,9 @@ class _Walk:
                                       f"send {budget_left:.1f} s, last encode {last_s:.1f} s)",
                               self.attempt_log)
         t0 = self.clock()
-        rgb = self.cfg.get("layout") == LAYOUT_RGB
         try:
             if rgb:
-                payloads, runs = encode_rgb(distance, self.cfg["effort"], self.work,
+                payloads, runs = encode_rgb(distance, effort, self.work,
                                             cjxl=self.cjxl, runner=self.runner,
                                             timeout_s=timeout_s)
             else:
@@ -1050,8 +1088,7 @@ class _Walk:
         native = (self.crop["native_w"], self.crop["native_h"])
         if rgb:
             params = build_params_v2(crop_xywh=self.xywh, native_wh=native, crc=0,
-                                     colour=self.meta, distance=distance,
-                                     effort=self.cfg["effort"],
+                                     colour=self.meta, distance=distance, effort=effort,
                                      headroom_x10000=self.crop["headroom_x10000"])
         else:
             params = build_params(crop_xywh=self.xywh, native_wh=native, crc=0,
@@ -1066,7 +1103,8 @@ class _Walk:
         msgs = message_count(len(blob), self.chunk)
         over_cap = msgs > self.cap
         budget_fit = self.budget.messages_fit(msgs + 2 + self.reserve)
-        entry = {"step": step, "distance": distance, "bytes": len(blob), "message_count": msgs,
+        entry = {"step": step, "distance": distance, "effort": effort, "bytes": len(blob),
+                 "message_count": msgs,
                  "plane_bytes": [len(p) for p in payloads], "over_cap": over_cap,
                  "budget_fit": budget_fit, "seconds": round(self.clock() - t0, 3),
                  "cjxl_seconds": [r["seconds"] for r in runs],
@@ -1109,6 +1147,29 @@ def _clamp_d(d):
     return round(min(max(float(d), DIST_RANGE[0]), DIST_RANGE[1]), 3)
 
 
+def _curve_bytes(curve, d):
+    """log-log piecewise-linear bytes(d) of a (d, bytes) curve, extrapolated at the ends."""
+    pts = [(math.log(a), math.log(b)) for a, b in curve]
+    x = math.log(d)
+    i = 1
+    while i < len(pts) - 1 and pts[i][0] < x:
+        i += 1
+    (x0, y0), (x1, y1) = pts[i - 1], pts[i]
+    return math.exp(y0 + (y1 - y0) * (x - x0) / (x1 - x0))
+
+
+def _curve_d(curve, n):
+    """The inverse: the d at which the (monotone decreasing) curve gives n bytes."""
+    lo, hi = 0.05, 30.0
+    for _ in range(60):
+        mid = math.sqrt(lo * hi)
+        if _curve_bytes(curve, mid) > n:
+            lo = mid
+        else:
+            hi = mid
+    return hi
+
+
 def target_search(walk):
     """Byte-target search (Nick 2026-10-03): the best quality that fills
     still.raw.target_fill of THIS wake's room, in <= SEARCH_MAX_ENCODES encodes.
@@ -1129,9 +1190,14 @@ def target_search(walk):
     if aim <= 0:
         raise RawFallback("fit", f"no room this wake (cap {walk.cap}, reserve {walk.reserve})",
                           walk.attempt_log)
-    b_ref, a_ref, d_ref0, prior_k = (PRIOR_RGB if cfg.get("layout") == LAYOUT_RGB else
+    rgb = cfg.get("layout") == LAYOUT_RGB
+    b_ref, a_ref, d_ref0, prior_k = (PRIOR_RGB if rgb else
                                      (PRIOR_B_REF, PRIOR_A_REF, PRIOR_D_REF, PRIOR_K))
-    d = _clamp_d(d_ref0 * (aim / (b_ref * area / a_ref)) ** (-1.0 / prior_k))
+    if rgb:
+        # the median curve, scaled to the crop area
+        d = _clamp_d(_curve_d(PRIOR_RGB_CURVE, aim / (area / PRIOR_RGB[1])))
+    else:
+        d = _clamp_d(d_ref0 * (aim / (b_ref * area / a_ref)) ** (-1.0 / prior_k))
     tried_floor = False
     for step in range(SEARCH_MAX_ENCODES):
         if d >= d_max:
@@ -1146,12 +1212,25 @@ def target_search(walk):
         est_s = entry["seconds"]
         now = walk.room_bytes(walk.room_msgs())            # the room if we stop here
         valid = walk.valid_fits()
-        if valid and max(f[0]["bytes"] for f in valid) >= (fill - SEARCH_FILL_SLACK) * now:
+        slack = SEARCH_FILL_SLACK_RGB if rgb else SEARCH_FILL_SLACK
+        if valid and max(f[0]["bytes"] for f in valid) >= (fill - slack) * now:
             break
-        aim = fill * walk.room_bytes(walk.room_msgs(est_s))  # the room after one more encode
+        aim_fill = fill - RGB_CORRECTION_AIM_OFFSET if rgb else fill
+        aim = aim_fill * walk.room_bytes(walk.room_msgs(est_s))  # the room after one more encode
         if aim <= 0:
             break
         n = entry["bytes"]
+        if rgb and (step == 0 or len(walk.attempt_log) < 2):
+            # one point: the slope from the fill of THIS encode (RGB_KEFF_*), clamped 0.5..1.6
+            room = walk.room_bytes(walk.room_msgs()) or n
+            # the fill is clamped to 0.5..2.0 (the fit saw 0.60..1.65): K 0.62..1.16
+            f1 = min(max(n / room, 0.5), 2.0)
+            k = RGB_KEFF_A + RGB_KEFF_B * math.log(f1)
+            nxt = _clamp_d(d * (n / aim) ** (1.0 / k))
+            if nxt == d:
+                break
+            d = nxt
+            continue
         if step == 0 or len(walk.attempt_log) < 2:
             k = prior_k
             d_ref, n_ref = d, n

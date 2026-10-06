@@ -69,6 +69,25 @@ B_REF 54 kB at D_REF 2.6, K 0.85 (TG-7: P50 d 2.58 at 54 kB, 5.36 at 29 kB). The
 correction and secant handle the scene. The fixed `still.raw.distances` fallback rungs get a VarDCT set
 (proposed: [2.0, 2.6, 3.5, 5.0]).
 
+### 3.1 Search calibration after bmcam004 B0 (2026-10-06)
+
+B0 measured 3 encodes on every run (d 2.573 → 2.277 over the cap → 2.365), ~9.5 s per encode
+and a 28.0 s search against a 30 s cap. Replaying the production `choose_rate` on the measured
+bytes(d) curves of 31 frames (30 TG-7 + bmcam004 57521; `tools/s28_b3a_search_calib.py`,
+`runs/s28_b3a_search_20261006/search_sim.json`):
+
+| search | 1 encode | 2 | 3 | fill min / P50 | search s P50 / max (9.5 s per encode) |
+|---|---|---|---|---|---|
+| before (constant-slope prior K 0.85, accept ≥ 0.93) | 4 | 21 | 6 | 0.931 / 0.975 | 19.0 / 28.5 |
+| **after**: median-curve first guess, fill-dependent slope `K = 0.891 − 0.387 ln(fill1)`, accept ≥ 0.90 | **6** | **23** | **2** | 0.906 / 0.969 | 19.0 / 28.5 |
+
+That's 29/31 in ≤ 2 encodes. A constant slope cannot do it: smooth scenes (first fill 0.60–0.75) have
+steeper curves (K 1.0–1.27) than busy ones (fill > 1, K 0.7–0.9). The remaining 3-encode cases
+fit the new cap: `still.raw.rgb_encode_max_s` **45 s** (registry v11; bayer4 keeps
+`still.raw.encode_max_s` 30). If the time left cannot fit another e5 encode and nothing fits
+yet, the last attempt runs at **effort 4** (~0.15× the time; −4 SSIMULACRA2 at equal bytes,
+which still beats the JPEG fallback). The effort used is in the attempt log and params[21].
+
 ## 4. Fallback (any failure → today's pjpg, same wake, loud `rfb=`)
 
 The existing codes and meanings are kept: `cap` (--raw capture), `dng` (crop read), `enc` (cjxl

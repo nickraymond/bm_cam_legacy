@@ -31,6 +31,7 @@
       1.6
      ],
      "distance": 0.1,
+     "effort": 5,
      "message_count": 1068,
      "over_cap": true,
      "peak_rss_kb": 31000,
@@ -53,6 +54,7 @@
       1.6
      ],
      "distance": 0.3,
+     "effort": 5,
      "message_count": 357,
      "over_cap": true,
      "peak_rss_kb": 31000,
@@ -118,12 +120,12 @@
    "sha256": "634fdb96f8e89e70"
   },
   "camera_config.lkg.json": {
-   "bytes": 3507,
+   "bytes": 3539,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2690,
-   "sha256": "9b9304ccac07aea8"
+   "bytes": 2715,
+   "sha256": "e227d5886ed901ae"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,

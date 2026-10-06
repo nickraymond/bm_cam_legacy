@@ -31,6 +31,7 @@
       1.6
      ],
      "distance": 0.1,
+     "effort": 5,
      "message_count": 1068,
      "over_cap": true,
      "peak_rss_kb": 31000,
@@ -53,6 +54,7 @@
       1.6
      ],
      "distance": 0.87,
+     "effort": 5,
      "message_count": 124,
      "over_cap": false,
      "peak_rss_kb": 31000,
@@ -75,6 +77,7 @@
       1.6
      ],
      "distance": 0.566,
+     "effort": 5,
      "message_count": 189,
      "over_cap": false,
      "peak_rss_kb": 31000,
@@ -140,12 +143,12 @@
    "sha256": "f3516aa777abc9d5"
   },
   "camera_config.lkg.json": {
-   "bytes": 3508,
+   "bytes": 3540,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2691,
-   "sha256": "6a75f979003d976d"
+   "bytes": 2716,
+   "sha256": "b0a1426316a2e1ff"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -164,8 +167,8 @@
    "sha256": "291259c2330b0c44"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.nrjxl.capture_metadata.json": {
-   "bytes": 3096,
-   "sha256": "3f8eb60669948ac4"
+   "bytes": 3135,
+   "sha256": "0fc72c76444548c3"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
@@ -447,6 +450,7 @@
       1.6
      ],
      "distance": 0.1,
+     "effort": 5,
      "message_count": 1068,
      "over_cap": true,
      "peak_rss_kb": 31000,
@@ -469,6 +473,7 @@
       1.6
      ],
      "distance": 0.87,
+     "effort": 5,
      "message_count": 124,
      "over_cap": false,
      "peak_rss_kb": 31000,
@@ -491,6 +496,7 @@
       1.6
      ],
      "distance": 0.566,
+     "effort": 5,
      "message_count": 189,
      "over_cap": false,
      "peak_rss_kb": 31000,

@@ -245,7 +245,7 @@ class EncodeStill(unittest.TestCase):
         self.assertEqual(head["params"][24], res["timings"]["headroom_x10000"])
         self.assertIn("rgb.ppm", listing)
         self.assertNotIn("R.pgm", listing)
-        self.assertGreaterEqual(res["message_count"], int(0.93 * 195))
+        self.assertGreaterEqual(res["message_count"], int(0.90 * 195))
 
     def test_the_prior_starts_near_d_2_6_for_the_full_crop(self):
         log = []
@@ -266,9 +266,37 @@ class EncodeStill(unittest.TestCase):
             with self.assertRaises(X.RawFallback) as cm:
                 self.encode(_rgb_runner(kinds={d / 1000: kind for d in range(100, 15001)}))
             self.assertEqual(cm.exception.code, kind)
-        with self.assertRaises(X.RawFallback) as cm:
-            self.encode(_rgb_runner(seconds=40))
+        with self.assertRaises(X.RawFallback) as cm:                 # over the 45 s rgb cap
+            self.encode(_rgb_runner(seconds=50))
         self.assertEqual(cm.exception.code, "time")
+
+    def test_rgb_cap_is_its_own_key(self):
+        res, _ = self.encode(_rgb_runner(size=54000, seconds=40))  # 40 s > 30 (bayer4 cap)
+        self.assertEqual(res["attempts"], 1)
+        with self.assertRaises(X.RawFallback) as cm:
+            self.encode(_rgb_runner(size=54000, seconds=40), cfg=dict(RGB_CFG, rgb_encode_max_s=30))
+        self.assertEqual(cm.exception.code, "time")
+
+    def test_e4_last_attempt_when_no_e5_fits_in_the_time_left(self):
+        t = [0.0]
+
+        def run(cmd, *, timeout_s, stdout_path, stderr_path):
+            e = int(cmd[cmd.index("-e") + 1])
+            secs = 2.7 if e == 4 else 18.0
+            t[0] += min(secs, timeout_s)
+            if secs > timeout_s:
+                return {"rc": -9, "kind": "time", "seconds": timeout_s, "peak_rss_kb": None}
+            with open(cmd[2], "wb") as fh:            # e5 always over the cap, e4 fits
+                fh.write(b"\xff\x0a" + b"x" * (52000 if e == 4 else 80000))
+            return {"rc": 0, "kind": "ok", "seconds": secs, "peak_rss_kb": None}
+        with tempfile.TemporaryDirectory() as d:
+            res = X.encode_still(MINI, META, RGB_CFG, crop_xywh=[0, 0, 160, 96], budget=Budget(),
+                                 message_cap=195, chunk_b64_chars=384,
+                                 work_dir=os.path.join(d, "w"), cjxl="/usr/bin/cjxl",
+                                 runner=run, clock=lambda: t[0], log=lambda *_: None)
+        efforts = [a.get("effort") for a in res["attempt_log"]]
+        self.assertEqual(efforts, [5, 5, 4])
+        self.assertEqual(X.unpack_container(res["blob"])[0]["params"][21], 4)   # effort param
 
     def test_bayer4_is_untouched(self):
         log = []
