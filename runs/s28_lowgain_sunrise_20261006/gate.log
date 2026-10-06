@@ -1,3 +1,31 @@
 2026-10-06T03:00:47Z [bmcam004] low-gain sunrise detach: /home/pi/s28lg/run_20261006T030045Z (--out /home/pi/s28lg/run_20261006T030045Z --interval-s 60 --max-shutter-us 30000 --max-gain 16 --max-pairs 2); loop b5ab4317d09c15cd
 2026-10-06T03:00:48Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 60 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab edbd37aa0c6e16e5
 2026-10-06T03:02:59Z [bmcam004] pulled /home/pi/s28lg/run_20261006T030045Z -> runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+bus_on_watch on: True ['SPOT-31593C']
+2026-10-06T13:10:38Z [sunriseA] hil_bus_always_on.sh SPOT-31593C (Nick GO via EM 10/6 00:15Z)
+2026-10-06T13:10:45Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261006T131041Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-06T13:10:46Z Succesfully sent config set msg
+2026-10-06T13:10:46Z 2026-10-06T13:10:47.207Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-06T13:10:53Z 2026-10-06T13:10:53.800Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-06T13:10:53Z 2026-10-06T13:10:53.808Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-06T13:10:53Z 2026-10-06T13:10:53.863Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-06T13:10:56Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+2026-10-06T13:11:40Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-06T13:11:40Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261006T131041Z)
+2026-10-06T13:11:40Z [sunriseA] hil_bus_always_on rc=0
+2026-10-06T13:11:45Z [sunriseA] snapshot before_sunrise
+1100 bash -c pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg|rpicam|main_pi_camera' || echo no-camera-process; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T13:11:47Z [bmcam004] low-gain sunrise detach: /home/pi/s28lg/run_20261006T131146Z (--out /home/pi/s28lg/run_20261006T131146Z --interval-s 180 --max-shutter-us 30000 --max-gain 16 --max-pairs 0 --keep-dng); loop a8020119f50b4919
+2026-10-06T13:11:47Z [bmcam004] low-gain sunrise detach: /home/pi/s28lg/run_20261006T131146Z (--out /home/pi/s28lg/run_20261006T131146Z --interval-s 180 --max-shutter-us 30000 --max-gain 16 --max-pairs 0 --keep-dng); loop a8020119f50b4919
+pid=1139
+pid=1139
+2026-10-06T13:11:49Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 180 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab b1f364e173515694
+2026-10-06T13:11:49Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 180 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab b1f364e173515694
+RUNNING pid=1139
+2026-10-06T13:11:49Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 180 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab b1f364e173515694
+2026-10-06T13:11:57Z [lowgain] pair 1 auto: ok=True  exp=66645 again=15.515152 lux=0.141547 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T13:12:02Z [lowgain] pair 1 low_gain: ok=True  exp=29997 again=16.0 lux=0.247575 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+csv_rows=3
+/dev/mmcblk0p2  115G   87G   24G  79% /
+2026-10-06T13:12:10Z [sunriseA] phase A done
