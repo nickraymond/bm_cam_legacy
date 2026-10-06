@@ -1,0 +1,374 @@
+[FIELD-UPDATE] === stage 0: preflight ===
+[FIELD-UPDATE] repo=/home/pi/repos/bm_cam_legacy ref=feature/sprint28-b3a profile=bmcam004/live_20260925 dry_run=false
+[FIELD-UPDATE] preflight OK (24230MB free, no cycle running)
+[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+[FIELD-UPDATE] crontab backed up -> /home/pi/crontab_before_field_update_20261006T180053Z.txt; RC @reboot line disabled
+[FIELD-UPDATE] === stage 2: repo sync ===
+From https://github.com/nickraymond/bm_cam_legacy
+   5f2e6a0..c51f1b5  feature/r1-hil-test-engineer -> origin/feature/r1-hil-test-engineer
+Already on 'feature/sprint28-b3a'
+Your branch is behind 'origin/feature/sprint28-b3a' by 6 commits, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+From https://github.com/nickraymond/bm_cam_legacy
+ * branch            feature/sprint28-b3a -> FETCH_HEAD
+Updating 1d0ff4f..104ee3c
+Fast-forward
+ BM_Devel_Pi/config_registry.py                     |  10 +-
+ BM_Devel_Pi/config_v1_reader.py                    |   1 +
+ BM_Devel_Pi/config_v2.py                           |   6 +-
+ BM_Devel_Pi/rc_raw_jxl.py                          | 105 +++++-
+ docs/bmcam_command_reference.md                    |   3 +-
+ docs/bmcam_config_catalog.json                     |  62 +++-
+ hil/tools/hil_s28_lowgain_analyze.py               |  11 +-
+ hil/tools/hil_s28_lowgain_sunrise.sh               |  10 +-
+ hil/tools/hil_s28_reassemble.py                    |  11 +-
+ hil/tools/s28_lowgain_pair_loop.py                 |  15 +
+ runs/s28_b3a_daylight_20261006/README.md           |  28 ++
+ .../day_auto/cutsheet_bayer.png                    | Bin 0 -> 768226 bytes
+ .../day_auto/cutsheet_rgbwa.png                    | Bin 0 -> 1949293 bytes
+ .../day_auto/equal_quality.json                    |  27 ++
+ .../day_auto/run_manifest.json                     |  10 +
+ runs/s28_b3a_daylight_20261006/day_auto/scores.csv |  10 +
+ .../day_auto/summary.json                          | 209 +++++++++++
+ .../day_lowgain/cutsheet_bayer.png                 | Bin 0 -> 763565 bytes
+ .../day_lowgain/cutsheet_rgbwa.png                 | Bin 0 -> 1933803 bytes
+ .../day_lowgain/equal_quality.json                 |  27 ++
+ .../day_lowgain/run_manifest.json                  |  10 +
+ .../day_lowgain/scores.csv                         |  10 +
+ .../day_lowgain/summary.json                       | 209 +++++++++++
+ .../curves/bmcam004_57521.json                     | 112 ++++++
+ .../curves/tg7_P9150344.json                       | 113 ++++++
+ .../curves/tg7_P9150348.json                       | 113 ++++++
+ .../curves/tg7_P9150352.json                       | 113 ++++++
+ .../curves/tg7_P9150363.json                       | 113 ++++++
+ .../curves/tg7_P9150374.json                       | 113 ++++++
+ .../curves/tg7_P9150382.json                       | 113 ++++++
+ .../curves/tg7_P9150405.json                       | 113 ++++++
+ .../curves/tg7_P9150415.json                       | 113 ++++++
+ .../curves/tg7_P9150419.json                       | 113 ++++++
+ .../curves/tg7_P9160438.json                       | 113 ++++++
+ .../curves/tg7_P9160441.json                       | 113 ++++++
+ .../curves/tg7_P9160450.json                       | 113 ++++++
+ .../curves/tg7_P9160481.json                       | 113 ++++++
+ .../curves/tg7_P9160496.json                       | 113 ++++++
+ .../curves/tg7_P9160509.json                       | 113 ++++++
+ .../curves/tg7_P9160516.json                       | 113 ++++++
+ .../curves/tg7_P9160522.json                       | 113 ++++++
+ .../curves/tg7_P9160527.json                       | 113 ++++++
+ .../curves/tg7_P9160544.json                       | 113 ++++++
+ .../curves/tg7_P9160546.json                       | 113 ++++++
+ .../curves/tg7_P9160558.json                       | 113 ++++++
+ .../curves/tg7_P9160561.json                       | 113 ++++++
+ .../curves/tg7_P9160564.json                       | 113 ++++++
+ .../curves/tg7_P9160565.json                       | 113 ++++++
+ .../curves/tg7_P9160578.json                       | 113 ++++++
+ .../curves/tg7_P9160597.json                       | 113 ++++++
+ .../curves/tg7_P9160601.json                       | 113 ++++++
+ .../curves/tg7_P9160634.json                       | 113 ++++++
+ .../curves/tg7_P9160640.json                       | 113 ++++++
+ .../curves/tg7_P9160650.json                       | 113 ++++++
+ runs/s28_b3a_search_20261006/search_sim.json       | 198 +++++++++++
+ sprints/Sprint28_raw_jxl/DESIGN_B3a.md             |  23 +-
+ sprints/Sprint28_raw_jxl/LADDER.md                 |   2 +-
+ tests/fixtures/s28/blob_v1_bmcam004_57521.nrjxl    | Bin 0 -> 56136 bytes
+ tests/fixtures/s28/blob_v2_bmcam004_57521.nrjxl    | Bin 52983 -> 52419 bytes
+ tests/fixtures/s28/blobs_v2.json                   |  74 +++-
+ tests/fixtures/s28/make_v2_fixture.py              |  99 ++++++
+ tests/golden/README.md                             |   1 +
+ .../save_local_still/summary.json                  |  10 +-
+ .../vectors_save_local/save_local_still/trace.txt  |   4 +-
+ .../save_local_still_full/summary.json             |   6 +-
+ .../save_local_still_full/trace.txt                |   2 +-
+ .../save_local_still_window_off/summary.json       |   6 +-
+ .../save_local_still_window_off/trace.txt          |   2 +-
+ .../save_local_video/summary.json                  |  10 +-
+ .../vectors_save_local/save_local_video/trace.txt  |   4 +-
+ .../save_local_video_full/summary.json             |   6 +-
+ .../save_local_video_full/trace.txt                |   2 +-
+ .../stay_on_capture_only/summary.json              |   6 +-
+ .../vectors_stay_on/stay_on_capture_only/trace.txt |   2 +-
+ .../stay_on_crashloop_fallback/summary.json        |   6 +-
+ .../stay_on_crashloop_fallback/trace.txt           |   6 +-
+ .../vectors_stay_on/stay_on_idle_heal/summary.json |  10 +-
+ .../vectors_stay_on/stay_on_idle_heal/trace.txt    |   6 +-
+ .../stay_on_save_local_still/summary.json          |  14 +-
+ .../stay_on_save_local_still/trace.txt             |  18 +-
+ .../stay_on_save_local_video/summary.json          |  10 +-
+ .../stay_on_save_local_video/trace.txt             |   6 +-
+ .../vectors_stay_on/stay_on_still/summary.json     |  12 +-
+ .../golden/vectors_stay_on/stay_on_still/trace.txt |  36 +-
+ .../vectors_stay_on/stay_on_video/summary.json     |  14 +-
+ .../golden/vectors_stay_on/stay_on_video/trace.txt |  22 +-
+ .../stay_on_video_set_d/summary.json               |  12 +-
+ .../vectors_stay_on/stay_on_video_set_d/trace.txt  |  18 +-
+ .../stay_on_window_skip/summary.json               |  10 +-
+ .../vectors_stay_on/stay_on_window_skip/trace.txt  |  22 +-
+ tests/golden/vectors_v9/v9_heal/summary.json       |  12 +-
+ tests/golden/vectors_v9/v9_heal/trace.txt          |   8 +-
+ tests/golden/vectors_v9/v9_lane/summary.json       |  12 +-
+ tests/golden/vectors_v9/v9_lane/trace.txt          |  14 +-
+ tests/golden/vectors_v9/v9_low_gain/summary.json   |   6 +-
+ tests/golden/vectors_v9/v9_low_gain/trace.txt      |   4 +-
+ .../vectors_v9/v9_low_gain_nrjxl/summary.json      |  16 +-
+ .../golden/vectors_v9/v9_low_gain_nrjxl/trace.txt  |   4 +-
+ .../golden/vectors_v9/v9_low_gain_rgb/summary.json |  92 ++---
+ tests/golden/vectors_v9/v9_low_gain_rgb/trace.txt  | 389 ++++++++++-----------
+ .../v9_media_override_still/summary.json           |  10 +-
+ .../vectors_v9/v9_media_override_still/trace.txt   |  10 +-
+ .../v9_media_override_video/summary.json           |  10 +-
+ .../vectors_v9/v9_media_override_video/trace.txt   |  12 +-
+ tests/golden/vectors_v9/v9_nrjxl/summary.json      |  16 +-
+ tests/golden/vectors_v9/v9_nrjxl/trace.txt         |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_cap/summary.json       |   6 +-
+ tests/golden/vectors_v9/v9_nrjxl_rfb_cap/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_dng/summary.json       |   6 +-
+ tests/golden/vectors_v9/v9_nrjxl_rfb_dng/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_enc/summary.json       |   6 +-
+ tests/golden/vectors_v9/v9_nrjxl_rfb_enc/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_err/summary.json       |   6 +-
+ tests/golden/vectors_v9/v9_nrjxl_rfb_err/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_fit/summary.json       |   7 +-
+ tests/golden/vectors_v9/v9_nrjxl_rfb_fit/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_floor/summary.json     |   8 +-
+ .../golden/vectors_v9/v9_nrjxl_rfb_floor/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_mem/summary.json       |   6 +-
+ tests/golden/vectors_v9/v9_nrjxl_rfb_mem/trace.txt |   4 +-
+ .../vectors_v9/v9_nrjxl_rfb_time/summary.json      |   6 +-
+ .../golden/vectors_v9/v9_nrjxl_rfb_time/trace.txt  |   4 +-
+ tests/golden/vectors_v9/v9_nrjxl_rgb/summary.json  |  92 ++---
+ tests/golden/vectors_v9/v9_nrjxl_rgb/trace.txt     | 389 ++++++++++-----------
+ tests/golden/vectors_v9/v9_still/summary.json      |  22 +-
+ tests/golden/vectors_v9/v9_still/trace.txt         |  34 +-
+ .../vectors_v9/v9_trigger_in_tail/summary.json     |  10 +-
+ .../golden/vectors_v9/v9_trigger_in_tail/trace.txt |  12 +-
+ tests/golden/vectors_v9/v9_trigger_kv/summary.json |  12 +-
+ tests/golden/vectors_v9/v9_trigger_kv/trace.txt    |  14 +-
+ tests/golden/vectors_v9/v9_video/summary.json      |  12 +-
+ tests/golden/vectors_v9/v9_video/trace.txt         |  12 +-
+ .../vectors_v9/v9_video_trigger_kv/summary.json    |  10 +-
+ .../vectors_v9/v9_video_trigger_kv/trace.txt       |   8 +-
+ tests/test_s28_b3a.py                              |  55 ++-
+ tests/test_s28_lowgain_sunrise.py                  |  24 ++
+ tools/gen_config_catalog.py                        |   8 +-
+ tools/s28_b3a_search_calib.py                      | 246 +++++++++++++
+ 138 files changed, 5775 insertions(+), 842 deletions(-)
+ create mode 100644 runs/s28_b3a_daylight_20261006/README.md
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_auto/cutsheet_bayer.png
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_auto/cutsheet_rgbwa.png
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_auto/equal_quality.json
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_auto/run_manifest.json
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_auto/scores.csv
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_auto/summary.json
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_lowgain/cutsheet_bayer.png
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_lowgain/cutsheet_rgbwa.png
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_lowgain/equal_quality.json
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_lowgain/run_manifest.json
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_lowgain/scores.csv
+ create mode 100644 runs/s28_b3a_daylight_20261006/day_lowgain/summary.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/bmcam004_57521.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150344.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150348.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150352.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150363.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150374.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150382.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150405.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150415.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9150419.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160438.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160441.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160450.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160481.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160496.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160509.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160516.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160522.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160527.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160544.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160546.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160558.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160561.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160564.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160565.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160578.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160597.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160601.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160634.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160640.json
+ create mode 100644 runs/s28_b3a_search_20261006/curves/tg7_P9160650.json
+ create mode 100644 runs/s28_b3a_search_20261006/search_sim.json
+ create mode 100644 tests/fixtures/s28/blob_v1_bmcam004_57521.nrjxl
+ create mode 100644 tests/fixtures/s28/make_v2_fixture.py
+ create mode 100644 tools/s28_b3a_search_calib.py
+[FIELD-UPDATE] repo: 1d0ff4f581af -> 104ee3cdbab0 (feature/sprint28-b3a)
+[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+[RC-DEPLOY] repo=/home/pi/repos/bm_cam_legacy
+[RC-DEPLOY] manifest=/home/pi/repos/bm_cam_legacy/tools/rc_runtime_manifest.txt
+[RC-DEPLOY] destination=/home/pi/BM_Devel_Pi (staging in /home/pi/BM_Devel_Pi.next)
+[RC-DEPLOY] mode=field-update profile=none cron=false
+[RC-DEPLOY] timestamp=20261006T180102Z hostname=bmcam004 python=/usr/bin/python3
+[RC-DEPLOY] preflight: PyYAML present
+[RC-DEPLOY] preflight: numpy present (nrjxl ok)
+[RC-DEPLOY] preflight: cjxl present (cjxl v0.11.2 [NEON_WITHOUT_AES])
+[RC-DEPLOY] preflight: boot cycle not armed
+[RC-DEPLOY] staged 60 files in /home/pi/BM_Devel_Pi.next
+[RC-DEPLOY] syntax check (py_compile 55 files, staged)
+[PARITY] print-config text OK (26 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash a3e3363a
+[PARITY] config json OK (13 loader outputs equal)
+[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+[RC-DEPLOY] backing up runtime code/config to /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20261006T180102Z.tgz (images/buffers/logs/videos excluded)
+[RC-DEPLOY] restore command: tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20261006T180102Z.tgz -C /home/pi
+[RC-DEPLOY] copy rc_progressive_jpeg.py
+[RC-DEPLOY] copy rc_time_budget.py
+[RC-DEPLOY] copy rc_jpeg_encoder.py
+[RC-DEPLOY] copy rc_quality_selector.py
+[RC-DEPLOY] copy rc_uplink_messages.py
+[RC-DEPLOY] copy rc_transmit.py
+[RC-DEPLOY] copy rc_transmit_phase.py
+[RC-DEPLOY] copy rc_power_halt.py
+[RC-DEPLOY] copy rc_run_capture_cycle.sh
+[RC-DEPLOY] copy spotter_time_sync.py
+[RC-DEPLOY] copy bm_serial.py
+[RC-DEPLOY] copy bm_codec.py
+[RC-DEPLOY] copy bm_port.py
+[RC-DEPLOY] copy rc_capture.py
+[RC-DEPLOY] copy rc_telemetry.py
+[RC-DEPLOY] copy rc_port_owner.py
+[RC-DEPLOY] copy rc_supervisor.py
+[RC-DEPLOY] copy rc_stay_on_guard.py
+[RC-DEPLOY] copy rc_still_storage.py
+[RC-DEPLOY] copy command_tables.py
+[RC-DEPLOY] copy command_messages.py
+[RC-DEPLOY] copy command_state.py
+[RC-DEPLOY] copy command_bindings.py
+[RC-DEPLOY] copy command_daemon.py
+[RC-DEPLOY] copy command_help.py
+[RC-DEPLOY] copy bm_frame_decoder.py
+[RC-DEPLOY] copy rc_command_hooks.py
+[RC-DEPLOY] copy rc_media_key.py
+[RC-DEPLOY] copy rc_heal.py
+[RC-DEPLOY] copy rc_raw_jxl.py
+[RC-DEPLOY] copy rc_exposure_profile.py
+[RC-DEPLOY] copy config_registry.py
+[RC-DEPLOY] copy config_v1_reader.py
+[RC-DEPLOY] copy config_dump.py
+[RC-DEPLOY] copy config_migrate.py
+[RC-DEPLOY] copy atomic_io.py
+[RC-DEPLOY] copy config_v2.py
+[RC-DEPLOY] copy config_journal.py
+[RC-DEPLOY] copy config_validate.py
+[RC-DEPLOY] copy command_wire.py
+[RC-DEPLOY] copy command_state_v9.py
+[RC-DEPLOY] copy command_inbox.py
+[RC-DEPLOY] copy supervisor_config.py
+[RC-DEPLOY] copy command_replies.py
+[RC-DEPLOY] copy command_v9.py
+[RC-DEPLOY] copy command_guards.py
+[RC-DEPLOY] copy command_trigger.py
+[RC-DEPLOY] copy video_geometry.py
+[RC-DEPLOY] copy video_recorder.py
+[RC-DEPLOY] copy video_ring.py
+[RC-DEPLOY] copy video_manifest.py
+[RC-DEPLOY] copy videoui_server.py
+[RC-DEPLOY] copy video_settings.py
+[RC-DEPLOY] copy rc_video_clip.py
+[RC-DEPLOY] copy rc_video_tx.py
+[RC-DEPLOY] copy network_ap.sh
+[RC-DEPLOY] copy network_config.py
+[RC-DEPLOY] copy tuned_halt.sh
+[RC-DEPLOY] copy reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg
+[RC-DEPLOY] copy reference_images/reference_card_native_imx708.jpg
+[RC-DEPLOY] installed 60 files; staging dir removed
+[RC-DEPLOY] camera_schedule.yaml untouched (device-specific; use --profile to install one)
+[RC-DEPLOY] crontab untouched (use --install-cron to arm the boot cycle)
+[RC-DEPLOY] config v2 effective hash: 26f6b946
+[RC-DEPLOY] write software_sha.txt=104ee3cdbab0
+[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+[BOOT] main_entry uptime_s=80.12
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=26f6b946 hv=1 registry=v11 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: all rpicam-vid defaults
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[RC-DEPLOY] UART check: /dev/serial0 -> ttyAMA0, no serial console (BM-transmit-capable)
+[RC-DEPLOY] deploy complete
+[RC-DEPLOY] next (new unit validation ladder — NOTE: with power_halt enabled, ANY cycle HALTS the box at cycle end):
+[RC-DEPLOY]   cd /home/pi/repos/bm_cam_legacy && ./tools/setup_bm_uart.sh --check   # UART transmit-capable gate
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --capture-only
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --compress-only <native.jpg>
+[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit
+[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+[FIELD-UPDATE] config v2 unit (/home/pi/BM_Devel_Pi/camera_config.yaml): camera_schedule.yaml is NOT patched
+[FIELD-UPDATE]   uplink.chunk_chars: unit=384 profile=384
+[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.3 profile=1.3
+[FIELD-UPDATE]   uplink.network_type: unit=2 profile=2
+[FIELD-UPDATE]   to adopt the profile, re-migrate it (backs up the v2 files first):
+[FIELD-UPDATE]     cp /home/pi/repos/bm_cam_legacy/device_profiles/bmcam004/live_20260925/camera_schedule.yaml /home/pi/BM_Devel_Pi/camera_schedule.yaml && python3 /home/pi/repos/bm_cam_legacy/tools/config_migrate_v1_v2.py --app /home/pi/BM_Devel_Pi --write --force
+[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+[FIELD-UPDATE] UART OK: serial0 -> ttyAMA0, no kernel console on the link
+[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+[BOOT] main_entry uptime_s=83.64
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=26f6b946 hv=1 registry=v11 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=video (Sprint15 video path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.3
+[RC] derived (informational): transmit-only budget holds 369 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[VID] video island (source=yaml): clip_minutes=5.0 fps=15 (requested) bitrate_mbps=6.0 session_minutes=0
+[VID] geometry preset=wide_1080p_lean (source=preset)
+[VID] crop (NATIVE 4608x2592 px): (0, 0, 4608, 2592)
+[VID] sensor mode: 2304x1296 (readout 2304x1296 px, field (0, 0, 4608, 2592) native px)
+[VID] --roi (fractions of that mode's field): 0.000000,0.000000,1.000000,1.000000
+[VID] available detail: 2304x1296 px -> output 1920x1080 px (scale 0.833x downscale)
+[VID] fps: 15
+[VID] bitrate 6.0 Mbps = 0.193 bits/px/frame (Hero8 class ~0.3); 64.8 GB/day, ring window ~1.34 days
+[VID] encoder knobs: all rpicam-vid defaults
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+[VID] ui: enabled=True port=8080
+[VTX] video_tx: enabled=True send 5s (+2s lead-in) 480x270@10fps cap=190 msgs keyframe_repeat_max=30 preset=medium source=yaml
+[FIELD-UPDATE] UART open OK: /dev/ttyAMA0 @ 115200, network 0x02 cellular-only
+[FIELD-UPDATE] validation OK (real-transmit check is a manual step — see summary)
+[FIELD-UPDATE] === stage 7: re-arm ===
+[FIELD-UPDATE] crontab left DISARMED (--leave-disarmed); restore with: crontab /home/pi/crontab_before_field_update_20261006T180053Z.txt
+[FIELD-UPDATE] power_halt state (verify matches intent for this unit): config v2 (effective, incl. command overlay): enabled=True dry_run=False level=v2
+[FIELD-UPDATE] === SUMMARY: PASS ===
+[FIELD-UPDATE] sha: 1d0ff4f581af -> 104ee3cdbab0 | values: chunk=384 delay=1.3
+[FIELD-UPDATE] rollback: crontab /home/pi/crontab_before_field_update_20261006T180053Z.txt; cp /home/pi/BM_Devel_Pi/camera_schedule.yaml.before_field_update_20261006T180053Z /home/pi/BM_Devel_Pi/camera_schedule.yaml; runtime tar in /home/pi/backups (see deploy output)
+[FIELD-UPDATE] recommended live check (SPENDS QUOTA; with power_halt enabled the box HALTS after):
+[FIELD-UPDATE]   cd /home/pi/BM_Devel_Pi && python3 -u rc_progressive_jpeg.py --transmit --skip-time-window

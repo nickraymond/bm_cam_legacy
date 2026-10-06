@@ -288,3 +288,34 @@ b0-clean
 halt-issued
 2026-10-06T17:06:15Z [w17 bmcam004] bmcam004 dark
 2026-10-06T17:06:48Z B0 fix 4584436: day auto/lg 2 att ~19.9 s, night 3 att 28.0 s deterministic, VmPeak <=126.4 MiB, 0 kills/rfb; 1d0ff4f day skipped (time); unit clean, re-armed, halted 17:06Z
+2026-10-06T17:46:24Z B1 deploy: branch head 104ee3c = 4584436 runtime (git diff 4584436..104ee3c touches no BM_Devel_Pi/ or tools/: tests, fixtures, docs, sunrise wrapper only) -> deploy 104ee3c
+2026-10-06T17:46:24Z [deploy-b3afix bmcam004] ref=feature/sprint28-b3a want=104ee3c profile=bmcam004/live_20260925 window=2026-10-06T18:00:00Z accept_diff=1; waiting
+2026-10-06T18:00:41Z [deploy-b3afix bmcam004] backup+disarm+stop TS=20261006T180040Z; RESTORE crontab: ssh pi@bmcam004 'crontab ~/hil_backup/20261006T180040Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-06T18:00:46Z [deploy-b3afix bmcam004] snapshot before_b3afix
+2026-10-06T18:01:34Z [deploy-b3afix bmcam004] rc_field_update rc=0 (log runs/s28_ladder_20261004/pulled/bmcam004_field_update_b3afix_20261006T180040Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+204:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+216:[PARITY] print-config text OK (26 lines)
+217:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+288:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+322:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+326:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+333:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+335:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+367:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-06T18:01:35Z [deploy-b3afix bmcam004] runtime sha now: 104ee3cdbab0
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T18:01:37Z [deploy-b3afix bmcam004] RE-ARMED from the ARMED backup
+2026-10-06T18:01:41Z [deploy-b3afix bmcam004] snapshot after_b3afix
+2026-10-06T18:01:41Z [deploy-b3afix bmcam004] POST hook: hil/tools/hil_b3a_layout.sh bmcam004 rgb
+backup: /home/pi/BM_Devel_Pi/camera_config.yaml.bak_b1_20261006T180142Z
+set still.raw.layout=rgb (base only; still.format comes from base ⊕ overlay)
+77a78,79
+>   raw:
+>     layout: rgb
+effective: nrjxl rgb 45 overlay ['mode.media', 'still.format', 'video.send.message_cap'] dropped []
+still path reads: nrjxl rgb 45
+halt-issued
+2026-10-06T18:02:11Z [deploy-b3afix bmcam004] bmcam004 dark (DEPLOYED)

@@ -1,0 +1,53 @@
+== bmcam004 2026-10-06T18:01:37Z up 89.79s
+-- /dev/shm
+total 8
+drwxrwxrwt  3 root root  100 Oct  6 18:00 .
+drwxr-xr-x 16 root root 4040 Oct  6 17:06 ..
+drwxrwxr-x  2 pi   pi     60 Oct  6 18:01 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  6 18:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  6 18:00 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  6 18:01 .
+drwxrwxrwt 3 root root  100 Oct  6 18:00 ..
+-rw-r--r-- 1 pi   pi   2286 Oct  6 18:01 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 104ee3cdbab0
+KEY repo feature/sprint28-b3a 104ee3c Sprint28 B3a on a lossless DAYLIGHT IMX708 frame (bmcam004 sunrise pair 36): B3a 1600 ~= today's JPEG (s2 +3.6/-1.9, b3 x1.23/x1.28; equal quality 1.01-1.03x bytes); 4-plane Bayer far worse
+KEY cfg_hash hash=26f6b946
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=26f6b946 hv=1 registry=v11 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.2cQsYa/camera_schedule.yaml (level=v2)
+file 38739b9717560b1f camera_config.yaml 143L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file a4d3b3347bc0c709 bm_command_state_v2.json 0L
+file 9c1322e7e6ebd29d config_journal.jsonl 33L
+state overlay {"mode.media": "still", "still.format": "nrjxl", "video.send.message_cap": 126}
+state guarded {}
+state boot 121 hw {"remote": 1000072, "service": 100000032}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+10 1000 pi - 2044 user    - no -
+ 3 1000 pi - 920  manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     233588 kB
+CmaTotal:         262144 kB
+CmaFree:           40184 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261006T170614Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[DEBUG] Running RAW capture (one attempt, no retries): /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-10-06T18:00:39Z_image
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-06T18:00:42+00:00
+============================================================
