@@ -117,3 +117,6 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - RC deploy Wed ~22:00Z on both units: ON HOLD until the EM confirms the development tip + config.
 - Tue crons: 37e36833 (05:45 PDT) sunrise run bmcam004 13:00–15:20Z (needs the camera session's loop script; restore by 15:45Z);
   ee0006ee (08:40 PDT) T1 on bmcam003 15:50–19:xxZ (hil_t1_burst.py; synthetic TST payloads approved; plan.csv committed before first burst).
+- 10/6 03:00Z: smoke PASS (2/2), B0 e5 6/10 on 1d0ff4f (3 attempts/still, search 28 s of 30, VmPeak 126 MiB). Crons now:
+  15e82baf (20:46 PDT) B0 remainder 04:00Z + keep DNG in /home/pi/b0_dng; 423d19b5 (Tue 05:45 PDT) sunrise run w/ 9efc3b4 tools;
+  ee0006ee (Tue 08:40 PDT) T1 on 003; 7f84d0d7 (Tue 09:46 PDT) B0 re-run on 4584436 (staged, same DNG) in the 17:00Z bmcam004 window.
