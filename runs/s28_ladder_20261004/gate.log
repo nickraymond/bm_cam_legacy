@@ -197,3 +197,25 @@ e44dde54e26f
 2026-10-05T23:51:48Z X1 forensic verdict received (rig-study session): delay Notecard->cell 20:13:52-22:16:54Z (Iridium fallback 21:15:02); loss only at Pi->Spotter queue; burst overlaps 31593C health check/report. 01:00Z re-slice cancelled (not needed).
 2026-10-05T23:55:46Z R4 STOPPED (Nick via EM) at 8/12 wakes: R4.1 NOT ASSESSABLE (X1), R4.2 PASS 8/8, R4.3 FAIL 5/8 rfb=floor (product), R4.4 PASS so far.
 2026-10-06T00:55:32Z X1 decision: NO RESET (degraded). Evidence: 00Z wake delivered (57635 137/193, last chunk 00:10:18Z, row present); Notecard 00Z 6 -> peak 20 % -> 3 % at 00:15Z, 3-6 % since (sawtooth, drains each sync); 00:05:23 sync -> 'All messages sent successfully' 00:06:00 (35 s, normal); 23Z also drained to 3 %. Backlog falling, not rising -> rule (a)/(b) not met. Loss continues only at the Pi->Spotter queue (queue_full 46 @23Z, 59 @00Z): the burst/report overlap cause, not the uplink.
+2026-10-06T01:46:09Z [deploy-b3a bmcam004] ref=feature/sprint28-b3a want=1d0ff4f profile=bmcam004/live_20260925 window=2026-10-06T02:00:00Z accept_diff=1; waiting
+2026-10-06T02:00:43Z [deploy-b3a bmcam004] backup+disarm+stop TS=20261006T020042Z; RESTORE crontab: ssh pi@bmcam004 'crontab ~/hil_backup/20261006T020042Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-06T02:00:47Z [deploy-b3a bmcam004] snapshot before_b3a
+2026-10-06T02:02:26Z [deploy-b3a bmcam004] rc_field_update rc=0 (log runs/s28_ladder_20261004/pulled/bmcam004_field_update_b3a_20261006T020042Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+18:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+30:[PARITY] print-config text OK (26 lines)
+31:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+102:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+136:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+140:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+147:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+149:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+181:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-06T02:02:27Z [deploy-b3a bmcam004] runtime sha now: 1d0ff4f581af
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T02:02:28Z [deploy-b3a bmcam004] RE-ARMED from the ARMED backup
+2026-10-06T02:02:32Z [deploy-b3a bmcam004] snapshot after_b3a
+halt-issued
+2026-10-06T02:03:00Z [deploy-b3a bmcam004] bmcam004 dark (DEPLOYED)

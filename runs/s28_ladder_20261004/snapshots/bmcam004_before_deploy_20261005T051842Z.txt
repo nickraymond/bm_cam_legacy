@@ -1,0 +1,53 @@
+== bmcam004 2026-10-05T05:18:44Z up 1815.60s
+-- /dev/shm
+total 8
+drwxrwxrwt  3 root root  100 Oct  5 04:49 .
+drwxr-xr-x 16 root root 4040 Oct  5 04:38 ..
+drwxrwxr-x  2 pi   pi     60 Oct  5 04:38 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  5 04:49 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  5 04:49 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  5 04:38 .
+drwxrwxrwt 3 root root  100 Oct  5 04:49 ..
+-rw-r--r-- 1 pi   pi   2286 Oct  5 04:38 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 34a6222ea94c
+KEY repo development 34a6222 Merge pull request #106 from nickraymond/claude/s27-retire-encoder-knobs
+KEY cfg_hash hash=51d1c26d
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=51d1c26d hv=1 registry=v7 overlay=2 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.L2J31l/camera_schedule.yaml (level=v2)
+file 38739b9717560b1f camera_config.yaml 143L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file d646e3c902734668 bm_command_state_v2.json 0L
+file 7fc530a9ec624e4a config_journal.jsonl 2L
+state overlay {"mode.media": "video", "video.send.message_cap": 126}
+state guarded {}
+state boot 90 hw {"remote": 1000060, "service": 100000032}
+-- crontab
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+22 1000 pi - 2226 user    - no -
+23 1000 pi - 2231 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     254072 kB
+CmaTotal:         262144 kB
+CmaFree:          105988 kB
+disk /dev/mmcblk0p2  115G   86G   25G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261005T043833Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[VID] clip start: 2026-10-05T04-49-01Z_video_1920x1080_15fps (7s nominal, 1920x1080@15fps 6.0Mbps, mode 2304x1296, 2304x1296 available px, scale 0.833x)
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-05T04:49:04+00:00
+============================================================
