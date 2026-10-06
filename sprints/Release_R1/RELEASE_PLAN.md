@@ -36,6 +36,41 @@ G1, G2, G3 passed early and every R1 PR is merged. The outdoor box is ready **Sa
 | Sun 10/4 | exit review → **ship decision** (5 days early); Mon–Fri = slack for any fix + re-run |
 | after exit | next sprint: RAW → JPEG-XL (own sprint, Nick 2026-10-01) |
 
+## 2d. Friday = Release Candidate; next week = pool (Nick, Mon 2026-10-05)
+
+**Fri 10/9 is a Release Candidate, not the ship.** The R1RC gate (hil/gates/R1RC_release_candidate.md, approved by
+Nick 10/5) runs Wed–Thu; its PASS makes the RC. **Week of 10/12: pool testing** with the cameras in the water and the
+new **v3 reference cards** (arrive 10/5) over a range of light conditions; the ship decision follows the pool data.
+
+The RC should deliver, as far as proven by Thursday:
+1. **More reliable cellular transmission:** the transmission-reliability epic (bm #129). Phase A is analysed from
+   existing logs (G4, R1G, R4, RC), and any fix that is proven by Thursday goes in.
+2. **More efficient data per message:** JPEG-XL at the lowest analog gain (#120 + the low-gain mode).
+3. **Best-in-class underwater colour correction in the cloud on the DNGs we send:** NEW epic, the v3 reference card
+   integrated into the workflow (card detection + raw-domain correction on the unpacked RAW, as a gallery variant).
+
+Epics (sub-categories of R1): transmission reliability · JPEG-XL efficiency · v3 card + cloud raw colour correction.
+
+## 2c. R1 scope refined (Nick, Mon 2026-10-05). Ship Fri 10/9
+
+R1 is the next release and contains:
+1. **Remote commands:** fix camera settings without a diver (Sprint26/27 + the command-resilience fixes; R1G PASS 10/5).
+2. **RAW images in some capacity:** JPEG-XL stills (Sprint28, bm #120) captured at the **lowest possible analog gain**
+   so colour correction doesn't boost red-channel noise (gain-priority exposure: gain at the sensor floor, shutter
+   up to a cap, raise gain only when capped; accept a darker RAW rather than exceed the cap; the cap is a setting).
+3. **Backend + frontend support** for the new image types and controls: ingest/render/DNG/download (nvd #83/#90,
+   live), remote-config UI for still.format, raw and exposure keys.
+
+The two epics (message transmission reliability, PR #129; JPEG-XL quality/budget) are sub-categories of this same
+work. R1 ships what is proven by Thursday; the epics continue after.
+
+| day | step |
+|---|---|
+| Mon 10/5 | low-gain exposure built (camera), remote-config UI check (backend/QC); bmcam004 R4 (12 nrjxl wakes) running |
+| Tue 10/6 | R4 verdict; #120 merged to development after the TE gate; low-gain bench on nereus002 + bmcam004 |
+| Wed–Thu | **RC gate:** development tip (commands + nrjxl + low gain) on both units, ≥ 24 wakes, outdoor |
+| Fri 10/9 | ship decision: development → main |
+
 ## 2b. Re-plan after G4 FAIL (Nick, Sat 2026-10-03)
 
 G4 FAILED (`runs/g4_outdoor12h_20261002/RESULTS.md`): D1 17/28, trg 2/6 (budget defect), 9/32 acks lost at

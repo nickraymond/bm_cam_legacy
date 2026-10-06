@@ -1,0 +1,22 @@
+{
+ "utc": "2026-10-05T21:10:10Z",
+ "inputs": {
+  "kind": "tg7_orf",
+  "orf": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/tg7_channel_islands/raw/2_underwater_preset/P9150374.orf",
+  "tg7_box_xywh": [
+   1310,
+   1116,
+   1394,
+   784
+  ],
+  "scale_to_imx": 1.1478,
+  "exposure_s": 0.01666666667,
+  "iso": 160,
+  "fnumber": 2,
+  "water_depth_m": null,
+  "label": "TG-7 resampled to IMX708 geometry, an approximation",
+  "exposure_scale": 1.4527
+ },
+ "command": "tools/s28_density_sweep.py --rig /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/rig_tg7 --orf /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/tg7_channel_islands/raw/2_underwater_preset/P9150374.orf --label tg7_P9150374 --out runs/s28_density_sweep_20261005 --rows rgbw,rgbwi,rgbwa --merge",
+ "cjxl": "cjxl v0.11.1 0.11.1 [NEON]"
+}

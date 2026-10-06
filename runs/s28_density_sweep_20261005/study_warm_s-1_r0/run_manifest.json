@@ -1,0 +1,10 @@
+{
+ "utc": "2026-10-05T21:13:26Z",
+ "inputs": {
+  "kind": "imx708_dng",
+  "dng": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/warm_imx708/stop_-1_r0.dng",
+  "metadata": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/warm_imx708/stop_-1_r0.json"
+ },
+ "command": "tools/s28_density_sweep.py --rig /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/rig --dng /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/warm_imx708/stop_-1_r0.dng --metadata /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/warm_imx708/stop_-1_r0.json --label study_warm_s-1_r0 --out runs/s28_density_sweep_20261005 --rows rgbw,rgbwi,rgbwa --merge",
+ "cjxl": "cjxl v0.11.1 0.11.1 [NEON]"
+}
