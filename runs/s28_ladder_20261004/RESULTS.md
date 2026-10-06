@@ -104,6 +104,8 @@ Second, independent cause for no complete bmcam004 image since 17Z: SPOT-31593C'
 report (~:05) fall inside the :01–:05 burst; SPOT-33507C syncs at :10, after its burst. (C1 phase 1 found no
 significant :00 vs :30 effect on 5+5 wakes; reconcile with the forensic before acting on it.)
 
+**X1 decision: NO RESET (degraded).** Evidence: 00Z wake delivered (57635 137/193, last chunk 00:10:18Z, row present); Notecard 00Z 6 -> peak 20 % -> 3 % at 00:15Z, 3-6 % since (sawtooth, drains each sync); 00:05:23 sync -> 'All messages sent successfully' 00:06:00 (35 s, normal); 23Z also drained to 3 %. Backlog falling, not rising -> rule (a)/(b) not met. Loss continues only at the Pi->Spotter queue (queue_full 46 @23Z, 59 @00Z): the burst/report overlap cause, not the uplink. (00:55Z 10/6). Spotter not reset; X1 stays the R4.1 external event (stalled 20:13–22:17Z, degraded after).
+
 Mid-check 2026-10-05 18:45Z: **R4.3 (≤ 1/12 fallback) already FAILED**: 2 fallbacks in 3 wakes, both `rfb=floor`
 (nrjxl search hit the d_max floor without fitting; the unit fell back loudly with a reason = RC.5 behaviour, not
 silent). R4.1 / R4.2 / R4.4 still running (all 3 wakes delivered or healing; wake→halt 483–504 s ≤ 570; START every
