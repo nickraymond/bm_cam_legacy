@@ -13,6 +13,9 @@
 #           after it; set it ~2.5 min before the bus hard-cut at :10)
 # Outputs:  $OUT/run_e<E>_<n>/{result.json,stdout.txt,time.txt,vm.txt}, $OUT/b0_summary.csv, summary on stdout
 # Example:  scp hil/tools/hil_b0_b3a_run.sh pi@bmcam004:/tmp/ && ssh pi@bmcam004 'bash /tmp/hil_b0_b3a_run.sh'
+#           LOWGAIN=1 (default): before the encodes, one AGC pair with the camera free: `rpicam-still` auto, then
+#           low_gain (args from the deployed rc_exposure_profile.py on a scratch island YAML, state dir in $OUT/ep,
+#           NOT the app's own state dir); records ExposureTime / AnalogueGain and the "tuning file" line → lg_pair.txt
 # Limits:   a sub-50 ms VmPeak spike can be missed by the sampler (VmPeak itself is a high-water mark, so the last
 #           sample of a run is representative); a night capture is a noisy scene (harder for the encoder than day).
 set -u
@@ -30,6 +33,23 @@ if [ -z "${DNG:-}" ]; then
   DNG="$OUT/cap.dng"; META="$OUT/cap.json"
 fi
 [ -s "$DNG" ] && [ -s "${META:?META}" ] || { echo "FAIL: DNG/META missing"; exit 4; }
+if [ "${LOWGAIN:-1}" = 1 ] && [ ! -s "$OUT/lg_pair.txt" ]; then
+  printf 'exposure_profile:\n  profile: low_gain\n  max_shutter_us: 30000\n  max_gain: 16.0\n' > "$OUT/lg.yaml"
+  LGARGS=$(cd "$APP" && python3 rc_exposure_profile.py --config "$OUT/lg.yaml" --state-dir "$OUT/ep" 2>"$OUT/lg_profile.err" \
+           | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin).get('args') or []))")
+  echo "[b0] low_gain args: ${LGARGS:-<none: see lg_profile.err>}"
+  for m in auto lowgain; do
+    A=""; [ "$m" = lowgain ] && A="$LGARGS"
+    rpicam-still -n -t 2000 $A --metadata "$OUT/lg_$m.json" -o "$OUT/lg_$m.jpg" > "$OUT/lg_$m.log" 2>&1
+    python3 - "$OUT/lg_$m.json" "$m" "$OUT/lg_$m.log" <<'PY' | tee -a "$OUT/lg_pair.txt"
+import json, re, sys
+j = json.load(open(sys.argv[1])); log = open(sys.argv[3]).read()
+t = re.findall(r"[Tt]uning file[^\n]*", log)
+print(f"[b0][agc] {sys.argv[2]}: ExposureTime={j.get('ExposureTime')} AnalogueGain={j.get('AnalogueGain')} "
+      f"DigitalGain={j.get('DigitalGain')} Lux={j.get('Lux')} | {t[-1] if t else 'no tuning-file line'}")
+PY
+  done
+fi
 echo "[b0] dng=$DNG ($(stat -c %s "$DNG") B) meta=$META"
 
 run() {   # $1 effort, $2 n
