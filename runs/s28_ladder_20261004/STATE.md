@@ -120,3 +120,6 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - 10/6 03:00Z: smoke PASS (2/2), B0 e5 6/10 on 1d0ff4f (3 attempts/still, search 28 s of 30, VmPeak 126 MiB). Crons now:
   15e82baf (20:46 PDT) B0 remainder 04:00Z + keep DNG in /home/pi/b0_dng; 423d19b5 (Tue 05:45 PDT) sunrise run w/ 9efc3b4 tools;
   ee0006ee (Tue 08:40 PDT) T1 on 003; 7f84d0d7 (Tue 09:46 PDT) B0 re-run on 4584436 (staged, same DNG) in the 17:00Z bmcam004 window.
+- 04:03Z: B0 baseline 12/12 done (RESULTS "B3a B0"). Tue crons (PDT): e3e7bc73 05:45 sunrise (KEEP_DNG, pull 2 daylight DNGs to day_dng/);
+  ee0006ee 08:40 T1 on 003; 17adaade 09:46 B0 re-run 4584436 (day + night); 8bb292ea 10:46 B1 pull-forward (deploy 4584436 at 18:00Z,
+  layout=rgb LOCAL, B1 still at 19:00Z; needs the camera session's YAML form + Render on nvd #102 23a4324).
