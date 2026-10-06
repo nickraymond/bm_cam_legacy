@@ -115,3 +115,5 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - Tue (Nick GO via EM 00:15Z, bus-on + restore, bench only): bmcam004 sunrise loop 13:15–15:00Z (camera session's script; bus-on ~13:05Z; restore ~15:05–15:20Z);
   bmcam003 T1 burst test 16:00–19:00Z (hil/gates/T1_burst_queue_bmcam003.md). Never both bus-on at once (nereus000 adapter). VBAT decline = stop.
 - RC deploy Wed ~22:00Z on both units: ON HOLD until the EM confirms the development tip + config.
+- Tue crons: 37e36833 (05:45 PDT) sunrise run bmcam004 13:00–15:20Z (needs the camera session's loop script; restore by 15:45Z);
+  ee0006ee (08:40 PDT) T1 on bmcam003 15:50–19:xxZ (hil_t1_burst.py; synthetic TST payloads approved; plan.csv committed before first burst).
