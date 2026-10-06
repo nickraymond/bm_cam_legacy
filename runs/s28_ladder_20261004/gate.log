@@ -330,3 +330,4 @@ halt-issued
 0eccx2 2026-10-06T20:00:38Z_image_compressed.nrjxl sha256 MATCH (7f3e624c1c235863293cf5e6ba5df85352d836646af2f601326c41ce6d49c8ba) msgs=187 fmt=nrjxl
 2026-10-06T22:00:48Z [b1pull] B1 container pull done (read-only)
 2026-10-06T22:02:26Z B1 heal check after 21Z: 57901 still 181/186 (no heal yet), 57914 138/187, 57928 143/185 (all :05 overlap); decode path = pulled containers (camera session). Re-check after 22Z.
+2026-10-06T22:04:17Z B1 decode PASS (camera session, nvd v2 decoder, 2272f87); delivery open pending heals

@@ -188,3 +188,10 @@ Second sample, 20:00Z wake: START fmt=nrjxl q=402 att=2 cmp=1 length 187, key 0e
 sync (`Attempting to Sync` 20:05:00) on (≈ chunks 138–186 by send time; START 20:01:59). Health check 20:02:34 caused
 none. No heal chunks for 57901 (0eca52) in this wake (REASK 5400 s → its heal is due later). B3a encode + send are
 consistent (2 attempts, ~187 msgs, ~500 s halt); delivery loss is the :05 overlap, not B3a.
+
+**B1 format/decode verdict: PASS** (2026-10-06 ~22:15Z). The complete containers for 57901 (0eca52) and 57914 (0eccx2),
+pulled read-only from bmcam004's sent records (sha256 MATCH, `pulled/B1_containers/`), decoded by the camera session
+with the backend's v2 decoder (nvd 23a4324): method 20 / profile 2, geometry 1504,846 1600×900, decoded codes
+bit-identical to djxl, render OK by eye, LinearRaw DNG opens in LibRaw (record: runs/s28_b3a_b1_decode_20261006/ on
+feature/sprint28-b3a 2272f87). **Delivery is OPEN**: backend rows 57901 181/186, 57914 138/187, 57928 143/185 —
+chunks lost to the :05 report overlap (T1/X1), heals pending. QC prod check (size line, Linear DNG, hq) once a row is complete.
