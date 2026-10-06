@@ -56,7 +56,9 @@ where `S = 4095 / sqrt(white − black)` and `g = DigitalGain · [gR, 1, gB]` fr
 (DigitalGain = 1 if absent). Neutral render = v1 §5 steps 8–10 on `lin` (× DigitalGain · WB,
 CCM, sRGB). **LinearRaw DNG (backend):** PhotometricInterpretation 34892 (LinearRaw), 3 samples
 per pixel; `lin` stored as 16-bit; BlackLevel 0, WhiteLevel 65535; AsShotNeutral = `1 / [gR, 1, gB]`;
-ColorMatrix1 = the XYZ→camera matrix derived from the CCM (`inv(M_sRGB→XYZ · CCM)`, normalised).
+ColorMatrix1 = the XYZ→camera matrix of the camera-NATIVE data: `inv(M_sRGB→XYZ · CCM · diag([gR, 1, gB]))`,
+normalised (the CCM maps WHITE-BALANCED camera RGB to linear sRGB, and the LinearRaw data has
+the gains divided out, as in the backend's nrjxl-dng-v1; corrected 2026-10-06 with the backend).
 Lightroom / RawTherapee / darktable open LinearRaw. **Not tested yet**: the backend needs one
 export check. The values are lossy (JPEG XL) camera-linear, not sensor-exact.
 
