@@ -106,3 +106,12 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - X1 reset (Nick GO via EM 22:45Z; rule narrowed 23:2xZ: reset only if 00Z rows absent or backlog rising): crons (new id) (17:55 PDT decision check) + b6f5011d (18:11 PDT: `debug reset` on SPOT-31593C if STUCK,
   halt stub boot, hil_bridge_phase.sh SPOT-31593C utc, re-measure report minute, confirm 02:00Z rows). Old check 7c62bcc2 deleted.
 - R6 (B3a) option (b) Wed; Tue B0 encoder de-risk YES (EM) in the 17:00Z window if it fits, else next window: hil/tools/hil_b0_cjxl_guard.sh.
+
+## 9. Update 2026-10-06 ~00:45Z (PLAN CHANGE: R4 stopped, B3a, bus-on tests)
+- R4 STOPPED by Nick at 8/12 (verdict in RESULTS). #120 merged to development bbda9bf. R5 on bmcam003 DROPPED; keep_crop capture DROPPED.
+- Tonight bmcam004: 02:00Z window deploy #134 tip **225a4ab** (cron 46d25458, 18:46 PDT; hil_deploy_window.sh). Production stays layout bayer4 / profile auto;
+  backend can't set v9/v10 keys. 03:00Z window: B0 (cron a1cc9c64, 19:46 PDT; hil_b0_b3a_run.sh: AGC pair auto/low_gain + e5×10 + e4×2, DEADLINE, resume at 04:00Z).
+- X1 crons still live: 59bc278d (17:55 PDT decision), b6f5011d (18:11 PDT reset only if RESET).
+- Tue (Nick GO via EM 00:15Z, bus-on + restore, bench only): bmcam004 sunrise loop 13:15–15:00Z (camera session's script; bus-on ~13:05Z; restore ~15:05–15:20Z);
+  bmcam003 T1 burst test 16:00–19:00Z (hil/gates/T1_burst_queue_bmcam003.md). Never both bus-on at once (nereus000 adapter). VBAT decline = stop.
+- RC deploy Wed ~22:00Z on both units: ON HOLD until the EM confirms the development tip + config.
