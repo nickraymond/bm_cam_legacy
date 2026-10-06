@@ -1,3 +1,19 @@
 [t1] host=bmcam003 bursts=18 count=120 size=384 gap=1.3s
 [t1] t1bsettl00 b-settle steady start=2026-10-06T16:05:03+00:00 sent=120 wall=154.7s
 [t1] t1aoverl01 a-overlap steady start=2026-10-06T16:09:30+00:00 sent=120 wall=154.7s
+[t1] t1clears02 clear-steady steady start=2026-10-06T16:25:00+00:00 sent=120 wall=154.7s
+[t1] t1clearp03 clear-pair pair start=2026-10-06T16:35:00+00:00 sent=120 wall=153.5s
+[t1] t1clears04 clear-steady steady start=2026-10-06T16:45:00+00:00 sent=120 wall=154.7s
+[t1] t1clearp05 clear-pair pair start=2026-10-06T16:55:00+00:00 sent=120 wall=153.5s
+[t1] t1bsettl06 b-settle steady start=2026-10-06T17:05:03+00:00 sent=120 wall=154.7s
+[t1] t1aoverl07 a-overlap steady start=2026-10-06T17:09:30+00:00 sent=120 wall=154.7s
+[t1] t1clears08 clear-steady steady start=2026-10-06T17:25:00+00:00 sent=120 wall=154.7s
+[t1] t1clearp09 clear-pair pair start=2026-10-06T17:35:00+00:00 sent=120 wall=153.5s
+[t1] t1clears10 clear-steady steady start=2026-10-06T17:45:00+00:00 sent=120 wall=154.7s
+[t1] t1clearp11 clear-pair pair start=2026-10-06T17:55:00+00:00 sent=120 wall=153.5s
+[t1] t1bsettl12 b-settle steady start=2026-10-06T18:05:03+00:00 sent=120 wall=154.7s
+[t1] t1aoverl13 a-overlap steady start=2026-10-06T18:09:30+00:00 sent=120 wall=154.7s
+[t1] t1clears14 clear-steady steady start=2026-10-06T18:25:00+00:00 sent=120 wall=154.7s
+[t1] t1clearp15 clear-pair pair start=2026-10-06T18:35:00+00:00 sent=120 wall=153.5s
+[t1] t1clears16 clear-steady steady start=2026-10-06T18:45:00+00:00 sent=120 wall=154.7s
+[t1] t1clearp17 clear-pair pair start=2026-10-06T18:55:00+00:00 sent=120 wall=153.5s
