@@ -6,9 +6,10 @@ cycle stopped.
 Payload: the Sprint09 format `TST,<run>,<seq>,<A–Z0–9 pad>*<crc8>` (sprints/Sprint09_mote_throughput/
 test_UART_throughput.py build_payload), 384 B: no `<START`/`<I…>`/`<CF`/`:`/`=` → the backend creates no media,
 chunks, command answers or heals (checked against staging bm_image_parser.py, 2026-10-06).
-Inputs:  --plan CSV (start_utc,arm,shape[,count]) — shape `steady` (one message every --gap-s) or `pair` (2 messages
+Inputs:  --plan CSV (start_utc,arm,shape[,count][,size][,gap_s]) — optional per-burst count / payload size (B) /
+         gap (s) override the CLI defaults (T2 message-size sweep); shape `steady` (one message every --gap-s) or `pair` (2 messages
          0.1 s apart, then a pause so the average rate equals steady); --app (deployed BM_Devel_Pi, for bm_serial.py);
-         --count 120, --size 384, --gap-s 1.3, --out CSV of every send (run, arm, shape, seq, utc, rc)
+         --count 120, --size 384, --gap-s 1.3, --out CSV of every send (run, arm, shape, seq, utc, rc, size, gap_s)
 Outputs: --out CSV; one summary line per burst on stdout (sent, wall s). Accept / reject is read from the Spotter
          console afterwards (nereus000 capture), not here: the Spotter does not answer the Pi per message.
 Example: python3 /tmp/hil_t1_burst.py --plan /tmp/t1_plan.csv --out /home/pi/t1/sends.csv
@@ -67,11 +68,13 @@ def main():
     out = open(a.out, "a", newline="")
     w = csv.writer(out)
     if new:
-        w.writerow(["run", "arm", "shape", "seq", "utc", "rc"])
+        w.writerow(["run", "arm", "shape", "seq", "utc", "rc", "size", "gap_s"])
     print(f"[t1] host={socket.gethostname()} bursts={len(plan)} count={a.count} size={a.size} gap={a.gap_s}s", flush=True)
     for i, p in enumerate(plan):
         start = dt.datetime.fromisoformat(p["start_utc"].replace("Z", "+00:00")).timestamp()
         count = int(p.get("count") or a.count)
+        size = int(p.get("size") or a.size)
+        gap = float(p.get("gap_s") or a.gap_s)
         run = f"t1{p['arm'].replace('-', '')[:6]}{i:02d}"[:12].lower()
         if time.time() > start + 60:
             print(f"[t1] SKIP {run} {p['arm']}: start {p['start_utc']} already passed", flush=True)
@@ -81,19 +84,19 @@ def main():
         t0 = time.time()
         for seq in range(count):
             if p["shape"] == "pair":
-                due = t0 + (seq // 2) * 2 * a.gap_s + (seq % 2) * 0.1
+                due = t0 + (seq // 2) * 2 * gap + (seq % 2) * 0.1
             else:
-                due = t0 + seq * a.gap_s
+                due = t0 + seq * gap
             while time.time() < due:
                 time.sleep(min(0.05, due - time.time()))
             rc = "ok"
             try:
-                bm.spotter_tx(build_payload(seq, a.size, run).encode())
+                bm.spotter_tx(build_payload(seq, size, run).encode())
             except Exception as exc:                  # log and carry on: a send error is data for T1
                 rc = f"err:{type(exc).__name__}"
-            w.writerow([run, p["arm"], p["shape"], seq, utc().isoformat(timespec="milliseconds"), rc])
+            w.writerow([run, p["arm"], p["shape"], seq, utc().isoformat(timespec="milliseconds"), rc, size, gap])
         out.flush()
-        print(f"[t1] {run} {p['arm']} {p['shape']} start={utc(t0).isoformat(timespec='seconds')} "
+        print(f"[t1] {run} {p['arm']} {p['shape']} size={size} gap={gap} start={utc(t0).isoformat(timespec='seconds')} "
               f"sent={count} wall={time.time() - t0:.1f}s", flush=True)
     return 0
 
