@@ -133,3 +133,21 @@ Reason (Nick): R4.3 already answered the question, and the B3a pivot makes the 4
 
 Camera health over R4: no CMA errors (wake 1), nrjxl search peak RSS 138 MB (above R0.3's 120 MB: known finding),
 START every wake, 0 missed wakes.
+
+## B3a B0 on bmcam004 — baseline build 1d0ff4f (2026-10-06 03:00Z + 04:00Z windows)
+
+Harness `hil/tools/hil_b0_b3a_run.sh` (deployed app, `rc_raw_jxl.py --layout rgb`, production guard), ONE night DNG
+(`rpicam-still --raw` at 03:03Z, 24.0 MB; dark noisy scene), 1600×900 crop. Data: `pulled/bmcam004_b0/` (b0_summary.csv,
+run_*/result.json). Before the encodes, the sunrise-loop smoke (2 pairs) passed: `runs/s28_lowgain_sunrise_20261006`.
+
+| effort | n | attempts | per-encode (s) | search total (s) | d chosen / bytes | cjxl VmPeak / VmHWM (kB) | CPU (s) | kills / rfb |
+|---|---|---|---|---|---|---|---|---|
+| e5 | 10 | 3 on 9/10, **2 on run 7** | 9.3–10.5 | median 28.0 (max 29.0); run 7: 20.4 | 2.365 / 54407 (run 7: 2.573 / 49099) | max 129468 (126 MiB) / 98284 | median 31.3 | 0 / none |
+| e4 | 2 | 3 | 1.13–1.18 | 3.4 | 3.047 / 54644 | 121884 / 87116 | 6.3 | 0 / none |
+
+Reading: VmPeak 126 MiB of the 250 MiB guard (PASS); per encode at e5 ~9.3–10 s (at the ≤ 10 s bar); the search is
+**time-bound at e5**: with encode_max_s 30, run 7's first attempt took 10.5 s instead of ~9.3 s, so the third rung did
+not fit and the still went out at d 2.573 (49 kB) instead of 2.365 (54 kB) — same DNG, different result. Prep:
+rgb_prep 1.72–1.76 s, dng_read 0.5–1.1 s. e4 is ~8× faster per encode and needs d ≈ 3.0 for the same bytes.
+Predicted wake: + ~13 s over the 4-plane path (R4 halts 483–505 s) → ~500–520 s: ≤ 570 s window, > B0's 480 s bar.
+The fix 4584436 (rgb_encode_max_s 45, d-prior, e4 last attempt) is re-measured Tue 17:00Z on the same DNG + 2 daylight DNGs.

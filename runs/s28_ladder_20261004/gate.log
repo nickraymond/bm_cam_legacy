@@ -246,3 +246,22 @@ MemAvailable: 226128 kB CmaFree: 127572 kB
 2026-10-06T03:06:16Z [w03 bmcam004] RE-ARMED
 halt-issued
 2026-10-06T03:06:45Z [w03 bmcam004] bmcam004 dark
+2026-10-06T04:00:43Z [w04 bmcam004] disarmed TS=20261006T040042Z
+[b0] e5 #7 rc=0 wall=21.48 s vm(peak,hwm kB)=127012 98200 [RAW] wrote /home/pi/b0_b3a/run_e5_7/image_compressed.nrjxl (49099 B, d=2.573, att=2, 20.367 s)
+[b0] e5 #8 rc=0 wall=31.74 s vm(peak,hwm kB)=129324 98236 [RAW] wrote /home/pi/b0_b3a/run_e5_8/image_compressed.nrjxl (54407 B, d=2.365, att=3, 28.116 s)
+[b0] e5 #9 rc=0 wall=30.96 s vm(peak,hwm kB)=128936 98272 [RAW] wrote /home/pi/b0_b3a/run_e5_9/image_compressed.nrjxl (54407 B, d=2.365, att=3, 27.977 s)
+[b0] e5 #10 rc=0 wall=30.90 s vm(peak,hwm kB)=129324 98240 [RAW] wrote /home/pi/b0_b3a/run_e5_10/image_compressed.nrjxl (54407 B, d=2.365, att=3, 27.987 s)
+[b0] e4 #1 rc=0 wall=6.37 s vm(peak,hwm kB)=121884 87116 [RAW] wrote /home/pi/b0_b3a/run_e4_1/image_compressed.nrjxl (54644 B, d=3.047, att=3, 3.457 s)
+[b0] e4 #2 rc=0 wall=6.31 s vm(peak,hwm kB)=121884 86972 [RAW] wrote /home/pi/b0_b3a/run_e4_2/image_compressed.nrjxl (54644 B, d=3.047, att=3, 3.406 s)
+[b0] e4: n=2 kills/fallbacks=0 median_encode_s=3.4314999999999998 max_encode_s=3.457 max_vmpeak_kb=121884 max_vmhwm_kb=87116 median_cpu_s=6.34 median_wall_s=6.34
+[b0] e5: n=10 kills/fallbacks=0 median_encode_s=27.988500000000002 max_encode_s=29.004 max_vmpeak_kb=129468 max_vmhwm_kb=98284 median_cpu_s=31.305 median_wall_s=31.045
+[b0] dmesg kill/oom lines: 0
+total 23472
+-rw-rw-r-- 1 pi pi 24029068 Oct  6 03:03 cap.dng
+-rw-rw-r-- 1 pi pi      689 Oct  6 03:03 cap.json
+2026-10-06T04:03:00Z [w04 bmcam004] B0 12/12 done; /home/pi/b0_b3a removed, DNG kept in /home/pi/b0_dng
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T04:03:01Z [w04 bmcam004] RE-ARMED
+halt-issued
+2026-10-06T04:03:30Z [w04 bmcam004] bmcam004 dark
+2026-10-06T04:04:04Z B0 baseline 1d0ff4f complete 12/12: e5 VmPeak 126 MiB, 3 att (run 7: 2, time-bound), search 28 s/30; e4 3.4 s; 0 kills. DNG kept /home/pi/b0_dng.

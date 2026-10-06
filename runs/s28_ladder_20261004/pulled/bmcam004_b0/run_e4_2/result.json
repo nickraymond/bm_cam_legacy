@@ -1,0 +1,98 @@
+{
+ "distance": 3.047,
+ "attempts": 3,
+ "attempt_log": [
+  {
+   "step": "search1",
+   "distance": 2.573,
+   "bytes": 67552,
+   "message_count": 235,
+   "plane_bytes": [
+    67469
+   ],
+   "over_cap": true,
+   "budget_fit": true,
+   "seconds": 1.148,
+   "cjxl_seconds": [
+    1.13
+   ],
+   "peak_rss_kb": 86964,
+   "maxrss_incl_parent_kb": 86964
+  },
+  {
+   "step": "search2",
+   "distance": 3.314,
+   "bytes": 48950,
+   "message_count": 170,
+   "plane_bytes": [
+    48867
+   ],
+   "over_cap": false,
+   "budget_fit": true,
+   "seconds": 1.128,
+   "cjxl_seconds": [
+    1.126
+   ],
+   "peak_rss_kb": 86964,
+   "maxrss_incl_parent_kb": 86964
+  },
+  {
+   "step": "search3",
+   "distance": 3.047,
+   "bytes": 54644,
+   "message_count": 190,
+   "plane_bytes": [
+    54561
+   ],
+   "over_cap": false,
+   "budget_fit": true,
+   "seconds": 1.128,
+   "cjxl_seconds": [
+    1.126
+   ],
+   "peak_rss_kb": 86972,
+   "maxrss_incl_parent_kb": 86972
+  }
+ ],
+ "message_count": 190,
+ "crc32": 626522779,
+ "params": [
+  2,
+  1504,
+  846,
+  4608,
+  2592,
+  626522779,
+  66645,
+  15515,
+  15043,
+  30597,
+  16846,
+  -4287,
+  -2559,
+  -3703,
+  17346,
+  -3643,
+  765,
+  -8892,
+  18128,
+  240,
+  305,
+  4,
+  1011,
+  3237,
+  10000,
+  1,
+  10000
+ ],
+ "encode_s": 3.406,
+ "rate_mode": "search",
+ "timings": {
+  "dng_read_s": 0.519,
+  "rgb_prep_s": 1.724,
+  "headroom_x10000": 10000
+ },
+ "cfa": "BGGR",
+ "black": 64,
+ "white": 1023
+}
