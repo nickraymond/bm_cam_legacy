@@ -1,0 +1,53 @@
+== bmcam004 2026-10-06T15:01:46Z up 6645.06s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct  6 13:11 .
+drwxr-xr-x 16 root root 4040 Oct  6 13:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct  6 13:08 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  6 13:11 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  6 13:11 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  6 13:08 .
+drwxrwxrwt 3 root root  100 Oct  6 13:11 ..
+-rw-r--r-- 1 pi   pi   2444 Oct  6 13:08 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 1d0ff4f581af
+KEY repo feature/sprint28-b3a 1d0ff4f Merge branch 'feature/sprint28-low-gain' into feature/sprint28-b3a
+KEY cfg_hash hash=030a3be4
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=030a3be4 hv=1 registry=v10 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.ByJicL/camera_schedule.yaml (level=v2)
+file 38739b9717560b1f camera_config.yaml 143L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file 2a27911a15a31d9b bm_command_state_v2.json 0L
+file 2ea13f652fde54c0 config_journal.jsonl 32L
+state overlay {"mode.media": "still", "still.format": "nrjxl", "video.send.message_cap": 126}
+state guarded {}
+state boot 117 hw {"remote": 1000072, "service": 100000032}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+23 1000 pi - 2424 user    - no -
+ 3 1000 pi - 925  manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     264980 kB
+CmaTotal:         262144 kB
+CmaFree:           74956 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261006T130834Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[DEBUG] Running RAW capture (one attempt, no retries): /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-10-06T13:11:32Z_image
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-06T13:11:34+00:00
+============================================================

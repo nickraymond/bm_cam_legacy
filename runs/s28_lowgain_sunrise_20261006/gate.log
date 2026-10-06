@@ -29,3 +29,49 @@ RUNNING pid=1139
 csv_rows=3
 /dev/mmcblk0p2  115G   87G   24G  79% /
 2026-10-06T13:12:10Z [sunriseA] phase A done
+2026-10-06T13:29:40Z [status] RUNNING pid 1139, 6 pairs (13:27Z), SD 24 GB free; no rig alerts since bus-on (ALERTS.log last 10/5); SPOT-31593C batt ~4.08 V; dawn: auto lux 0.14->0.17, low_gain still 29997 us / g16
+2026-10-06T13:59:35Z [status] RUNNING, 16 pairs (13:57Z), SD 24 GB free; no rig alerts; dawn: lux 0.17 -> ~25; auto still 66645 us (g 14.8), low_gain 29997 us / g16
+2026-10-06T14:29:31Z [status] RUNNING, 26 pairs (14:27Z), SD 23 GB free; no rig alerts; lux ~700: auto 29997 us g1.14 vs low_gain 29997 us g1.14 (converged in daylight)
+cat: /home/pi/s28lg/run_20261006T131146Z/loop.pid: No such file or directory
+2026-10-06T15:00:09Z [lowgain] pair 37 auto: ok=True  exp=8097 again=1.122807 lux=2326.741455 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T15:00:09Z [lowgain] end (SIGINT): 37 pair(s), 0 skipped; crontab unchanged; processes left: none
+2026-10-06T15:00:09Z [lowgain] pair 37 auto: ok=True  exp=8097 again=1.122807 lux=2326.741455 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T15:00:09Z [lowgain] end (SIGINT): 37 pair(s), 0 skipped; crontab unchanged; processes left: none
+2026-10-06T15:00:09Z [sunriseB] remote run /home/pi/s28lg/run_20261006T131146Z
+kept auto pair 36 2026-10-06T14:57:08Z pairs/036_auto/native.dng
+kept low_gain pair 36 2026-10-06T14:57:13Z pairs/036_low_gain/native.dng
+total 46944
+-rw-rw-r-- 1 pi pi 24029068 Oct  6 14:57 auto.dng
+-rw-rw-r-- 1 pi pi      693 Oct  6 14:57 auto.json
+-rw-rw-r-- 1 pi pi 24029068 Oct  6 14:57 lowgain.dng
+-rw-rw-r-- 1 pi pi      693 Oct  6 14:57 lowgain.json
+2026-10-06T15:01:26Z [sunriseB] pulled run (no DNGs) -> runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+2026-10-06T15:01:43Z [sunriseB] pulled 2 daylight DNGs -> runs/s28_lowgain_sunrise_20261006/day_dng
+# day DNGs from /home/pi/s28lg/run_20261006T131146Z (bmcam004 1d0ff4f, sunrise run 2026-10-06); NOT in git
+8a5123cbd811bda083bb40c4973da3e28a52635c899d805d35fe9b45239850fe  24029068  auto.dng
+940171911e3ef5137b9dcd59713160c7f48c8d878f05c85a92f6534d3a62fe0e  693  auto.json
+1d80a44dd41ac3794a4441e97218ebb0e842fa7675ea8e98b61a71909f93604e  24029068  lowgain.dng
+128a7aeb1e286488accd846b45559ea0af06415ff8bb5152d31c632f857f6f40  693  lowgain.json
+228M	/home/pi/s28lg/run_20261006T131146Z
+2026-10-06T15:01:44Z [sunriseB] deleted remaining DNGs on the unit (2 kept in /home/pi/b0_dng_day)
+2026-10-06T15:01:44Z [sunriseB] re-arm from ~/hil_backup/20261006T131041Z/crontab_ARMED.txt
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T15:01:50Z [sunriseB] snapshot after_sunrise
+halt-issued
+2026-10-06T15:02:49Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-06T15:03:03Z Succesfully sent config set msg
+2026-10-06T15:03:03Z 2026-10-06T15:03:04.218Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-06T15:03:10Z 2026-10-06T15:03:11.000Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-06T15:03:10Z 2026-10-06T15:03:11.007Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-06T15:03:10Z 2026-10-06T15:03:11.066Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-06T15:03:12Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+1d0ff4f581af
+[restore] halt issued 15:03:57
+2026-10-06T15:04:20Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-06T15:04:34Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-06T15:04:34Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-06T15:04:34Z [sunriseB] hil_restore_schedule rc=0
+bus_on_watch: False
+2026-10-06T15:04:35Z [sunriseB] phase B done
+2026-10-06T15:05:08Z [verdict] sunrise run 13:11-15:00Z: 37 pairs (36 complete), analyzer PASS: LG1 36/36, LG2 36/36, LG3 daylight 11/11, LG4 36/36; median noise ratio G 0.961 R 0.952, R SNR 0.875. Restored 15:04Z (1/3600000/600000, armed, halted). Minor: stop still printed loop.pid missing (9efc3b4) - SIGINT fallback worked.

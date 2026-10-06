@@ -1,0 +1,44 @@
+{
+ "capture_command": [
+  "/usr/bin/rpicam-still",
+  "-n",
+  "--timeout",
+  "2000",
+  "--width",
+  "4608",
+  "--height",
+  "2592",
+  "--quality",
+  "95",
+  "--metadata",
+  "/home/pi/s28lg/run_20261006T131146Z/pairs/034_auto/native.metadata.json",
+  "--autofocus-mode",
+  "auto",
+  "--lens-position",
+  "1.82",
+  "--raw",
+  "-o",
+  "/home/pi/s28lg/run_20261006T131146Z/pairs/034_auto/native.jpg"
+ ],
+ "stdout_log": "/home/pi/s28lg/run_20261006T131146Z/pairs/034_auto/native.stdout.log",
+ "stderr_log": "/home/pi/s28lg/run_20261006T131146Z/pairs/034_auto/native.stderr.log",
+ "metadata_json": "/home/pi/s28lg/run_20261006T131146Z/pairs/034_auto/native.metadata.json",
+ "camera_control_args": [
+  "--autofocus-mode",
+  "auto",
+  "--lens-position",
+  "1.82"
+ ],
+ "camera_control_args_used": true,
+ "camera_controls_fallback_used": false,
+ "requested_camera_controls": {
+  "camera_control_source": "image_pipeline.camera_controls",
+  "camera_controls_enabled": true,
+  "requested_focus_enabled": true,
+  "requested_focus_mode": "auto",
+  "requested_lens_position": 1.82,
+  "requested_white_balance_enabled": false,
+  "requested_exposure_enabled": false,
+  "requested_image_processing_enabled": false
+ }
+}

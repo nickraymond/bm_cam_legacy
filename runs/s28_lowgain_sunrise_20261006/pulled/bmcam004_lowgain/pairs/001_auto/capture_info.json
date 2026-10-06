@@ -11,18 +11,18 @@
   "--quality",
   "95",
   "--metadata",
-  "/home/pi/s28lg/run_20261006T030045Z/pairs/001_auto/native.metadata.json",
+  "/home/pi/s28lg/run_20261006T131146Z/pairs/001_auto/native.metadata.json",
   "--autofocus-mode",
   "auto",
   "--lens-position",
   "1.82",
   "--raw",
   "-o",
-  "/home/pi/s28lg/run_20261006T030045Z/pairs/001_auto/native.jpg"
+  "/home/pi/s28lg/run_20261006T131146Z/pairs/001_auto/native.jpg"
  ],
- "stdout_log": "/home/pi/s28lg/run_20261006T030045Z/pairs/001_auto/native.stdout.log",
- "stderr_log": "/home/pi/s28lg/run_20261006T030045Z/pairs/001_auto/native.stderr.log",
- "metadata_json": "/home/pi/s28lg/run_20261006T030045Z/pairs/001_auto/native.metadata.json",
+ "stdout_log": "/home/pi/s28lg/run_20261006T131146Z/pairs/001_auto/native.stdout.log",
+ "stderr_log": "/home/pi/s28lg/run_20261006T131146Z/pairs/001_auto/native.stderr.log",
+ "metadata_json": "/home/pi/s28lg/run_20261006T131146Z/pairs/001_auto/native.metadata.json",
  "camera_control_args": [
   "--autofocus-mode",
   "auto",
