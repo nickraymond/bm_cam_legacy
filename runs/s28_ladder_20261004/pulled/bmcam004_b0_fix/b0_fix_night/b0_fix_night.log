@@ -1,0 +1,13 @@
+[b0] host=bmcam004 sha= cjxl v0.11.2 [NEON_WITHOUT_AES]
+MemTotal: 425172 kB MemAvailable: 215312 kB CmaTotal: 262144 kB CmaFree: 133544 kB 
+[b0] dng=/home/pi/b0_dng/cap.dng (24029068 B) meta=/home/pi/b0_dng/cap.json
+[b0] e5 #1 rc=0 wall=31.60 s vm(peak,hwm kB)=129204 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_1/image_compressed.nrjxl (54357 B, d=2.366, att=3, 28.006 s)
+[b0] e5 #2 rc=0 wall=31.01 s vm(peak,hwm kB)=128256 98224 [RAW] wrote /home/pi/b0_fix_night/run_e5_2/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.985 s)
+[b0] e5 #3 rc=0 wall=31.50 s vm(peak,hwm kB)=129316 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_3/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.932 s)
+[b0] e5 #4 rc=0 wall=30.85 s vm(peak,hwm kB)=128964 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_4/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.869 s)
+[b0] e5 #5 rc=0 wall=30.81 s vm(peak,hwm kB)=129444 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_5/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.883 s)
+[b0] e5 #6 rc=0 wall=30.85 s vm(peak,hwm kB)=127764 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_6/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.931 s)
+[b0] e5: n=6 kills/fallbacks=0 median_encode_s=27.9315 max_encode_s=28.006 max_vmpeak_kb=129444 max_vmhwm_kb=98236 median_cpu_s=31.23 median_wall_s=30.93
+[b0] dmesg kill/oom lines: 0
+n/a
+MemAvailable: 240292 kB CmaFree: 143072 kB 

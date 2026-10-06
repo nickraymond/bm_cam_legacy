@@ -1,0 +1,83 @@
+{
+ "distance": 3.613,
+ "attempts": 2,
+ "attempt_log": [
+  {
+   "step": "search1",
+   "distance": 2.595,
+   "effort": 5,
+   "bytes": 70995,
+   "message_count": 247,
+   "plane_bytes": [
+    70914
+   ],
+   "over_cap": true,
+   "budget_fit": true,
+   "seconds": 9.96,
+   "cjxl_seconds": [
+    9.88
+   ],
+   "peak_rss_kb": 98136,
+   "maxrss_incl_parent_kb": 98136
+  },
+  {
+   "step": "search2",
+   "distance": 3.613,
+   "effort": 5,
+   "bytes": 53287,
+   "message_count": 186,
+   "plane_bytes": [
+    53206
+   ],
+   "over_cap": false,
+   "budget_fit": true,
+   "seconds": 9.828,
+   "cjxl_seconds": [
+    9.826
+   ],
+   "peak_rss_kb": 98124,
+   "maxrss_incl_parent_kb": 98124
+  }
+ ],
+ "message_count": 186,
+ "crc32": 3371876205,
+ "params": [
+  2,
+  1504,
+  846,
+  4608,
+  2592,
+  3371876205,
+  8859,
+  1123,
+  20714,
+  19433,
+  15835,
+  -3969,
+  -1865,
+  -3094,
+  17561,
+  -4467,
+  -190,
+  -5107,
+  15297,
+  250,
+  361,
+  5,
+  1000,
+  5017,
+  20714,
+  1,
+  10000
+ ],
+ "encode_s": 19.791,
+ "rate_mode": "search",
+ "timings": {
+  "dng_read_s": 0.892,
+  "rgb_prep_s": 1.709,
+  "headroom_x10000": 20714
+ },
+ "cfa": "BGGR",
+ "black": 64,
+ "white": 1023
+}

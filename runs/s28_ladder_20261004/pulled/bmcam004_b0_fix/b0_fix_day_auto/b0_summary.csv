@@ -1,0 +1,3 @@
+effort,run,rc,wall_s,cpu_s,rfb,distance,attempts,encode_s,bytes,timings,cjxl_vmpeak_kb,cjxl_vmhwm_kb,attempt_peak_rss_kb
+5,1,0,23.20,23.18,,3.613,2,19.791,,"{""dng_read_s"":0.892,""rgb_prep_s"":1.709,""headroom_x10000"":20714}",127956,98136,98136
+5,2,0,23.38,23.11,,3.613,2,19.955,,"{""dng_read_s"":0.922,""rgb_prep_s"":1.747,""headroom_x10000"":20714}",129236,98236,98236

@@ -1,0 +1,9 @@
+[b0] host=bmcam004 sha= cjxl v0.11.2 [NEON_WITHOUT_AES]
+MemTotal: 425172 kB MemAvailable: 212876 kB CmaTotal: 262144 kB CmaFree: 63344 kB 
+[b0] dng=/home/pi/b0_dng_day/lowgain.dng (24029068 B) meta=/home/pi/b0_dng_day/lowgain.json
+[b0] e5 #1 rc=0 wall=23.13 s vm(peak,hwm kB)=127948 98128 [RAW] wrote /home/pi/b0_fix_day_lg/run_e5_1/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.759 s)
+[b0] e5 #2 rc=0 wall=23.44 s vm(peak,hwm kB)=127956 98236 [RAW] wrote /home/pi/b0_fix_day_lg/run_e5_2/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.851 s)
+[b0] e5: n=2 kills/fallbacks=0 median_encode_s=19.805 max_encode_s=19.851 max_vmpeak_kb=127956 max_vmhwm_kb=98236 median_cpu_s=23.075 median_wall_s=23.285
+[b0] dmesg kill/oom lines: 0
+n/a
+MemAvailable: 234244 kB CmaFree: 133724 kB 

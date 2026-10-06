@@ -1,0 +1,5 @@
+[RAW] host=bmcam004 dng=/home/pi/b0_dng_day/lowgain.dng crop=[1504, 846, 1600, 900] cfg={'format': 'pjpg', 'distances': [3.8, 4.6, 5.95, 8.25], 'encode_max_s': 30, 'rgb_encode_max_s': 45, 'keep_crop': False, 'effort': 5, 'target_fill': 0.97, 'd_max': 10.4, 'layout': 'rgb', 'source': 'default'}
+[RAW] rgb (B3a) written to /home/pi/b0_fix_day_lg/run_e5_2/work; supervisor VmRSS=29496 KiB (cjxl runs on top of this)
+[RAW] search1 d=2.595: 69512 B, 242 msgs, over_cap=True, budget_fit=True, 10.0 s, peak_rss=98020 KiB
+[RAW] search2 d=3.508: 53509 B, 186 msgs, over_cap=False, budget_fit=True, 9.8 s, peak_rss=98236 KiB
+[RAW] wrote /home/pi/b0_fix_day_lg/run_e5_2/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.851 s)

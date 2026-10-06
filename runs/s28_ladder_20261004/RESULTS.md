@@ -151,3 +151,21 @@ not fit and the still went out at d 2.573 (49 kB) instead of 2.365 (54 kB) — s
 rgb_prep 1.72–1.76 s, dng_read 0.5–1.1 s. e4 is ~8× faster per encode and needs d ≈ 3.0 for the same bytes.
 Predicted wake: + ~13 s over the 4-plane path (R4 halts 483–505 s) → ~500–520 s: ≤ 570 s window, > B0's 480 s bar.
 The fix 4584436 (rgb_encode_max_s 45, d-prior, e4 last attempt) is re-measured Tue 17:00Z on the same DNG + 2 daylight DNGs.
+
+## B3a B0 re-run on the search fix 4584436 (staged, not deployed) — bmcam004 17:00Z window 2026-10-06
+
+Same harness; 4584436 BM_Devel_Pi staged in /home/pi/b0_b3a_4584436 (rgb_encode_max_s 45 default). Data:
+`pulled/bmcam004_b0_fix/<set>/`. Daylight DNGs = sunrise pair 36 (14:57Z, ~2300 lux); night = the 03:03Z baseline DNG.
+
+| scene × build | n | attempts | search (s) | d / bytes | VmPeak / VmHWM (kB) | CPU (s) | rfb |
+|---|---|---|---|---|---|---|---|
+| day auto × 4584436 | 2 | **2** (2.595 over cap 71.0 kB → 3.613) | 19.8–20.0 | 3.613 / 53287 | 129236 / 98236 | 23.1 | none |
+| day low_gain × 4584436 | 2 | **2** (2.595 over cap 69.5 kB → 3.508) | 19.8–19.9 | 3.508 / 53509 | 127956 / 98236 | 23.1 | none |
+| night × 4584436 | 6 | 3 (2.595 under → 2.298 over → 2.366) | 27.9–28.0 | 2.366 / 54357 (6/6 identical) | 129444 / 98236 | 31.2 | none |
+| night × 1d0ff4f (baseline) | 10 | 3 on 9/10, 2 on 1 (time-bound) | 20.4–29.0 | 2.365 / 54407 | 129468 / 98284 | 31.3 | none |
+| day × 1d0ff4f | — | not run (window time) | | | | | |
+
+Reading: daylight now takes 2 encodes (~20 s); night still 3 (~28 s) but with 45 s of cap it is deterministic (6/6
+identical; the baseline's run-7 truncation cannot recur). The e4 last attempt never fired (no time pressure).
+VmPeak ≤ 126.4 MiB everywhere (guard 250). Predicted wake vs the 4-plane path (R4: encode ~15 s, halts 483–505 s):
+day +5 s → ~488–510 s; night +13 s → ~496–518 s (EM's estimate 490–510; ≤ 570 window; above B0's 480 s bar at night).

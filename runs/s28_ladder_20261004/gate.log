@@ -265,3 +265,26 @@ total 23472
 halt-issued
 2026-10-06T04:03:30Z [w04 bmcam004] bmcam004 dark
 2026-10-06T04:04:04Z B0 baseline 1d0ff4f complete 12/12: e5 VmPeak 126 MiB, 3 att (run 7: 2, time-bound), search 28 s/30; e4 3.4 s; 0 kills. DNG kept /home/pi/b0_dng.
+2026-10-06T17:00:45Z [w17 bmcam004] disarmed TS=20261006T170044Z
+4
+[b0_fix_day_auto] [b0] e5 #1 rc=0 wall=23.20 s vm(peak,hwm kB)=127956 98136 [RAW] wrote /home/pi/b0_fix_day_auto/run_e5_1/image_compressed.nrjxl (53287 B, d=3.613, att=2, 19.791 s)
+[b0_fix_day_auto] [b0] e5 #2 rc=0 wall=23.38 s vm(peak,hwm kB)=129236 98236 [RAW] wrote /home/pi/b0_fix_day_auto/run_e5_2/image_compressed.nrjxl (53287 B, d=3.613, att=2, 19.955 s)
+[b0_fix_day_auto] [b0] e5: n=2 kills/fallbacks=0 median_encode_s=19.872999999999998 max_encode_s=19.955 max_vmpeak_kb=129236 max_vmhwm_kb=98236 median_cpu_s=23.145 median_wall_s=23.29
+[b0_fix_day_lg] [b0] e5 #1 rc=0 wall=23.13 s vm(peak,hwm kB)=127948 98128 [RAW] wrote /home/pi/b0_fix_day_lg/run_e5_1/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.759 s)
+[b0_fix_day_lg] [b0] e5 #2 rc=0 wall=23.44 s vm(peak,hwm kB)=127956 98236 [RAW] wrote /home/pi/b0_fix_day_lg/run_e5_2/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.851 s)
+[b0_fix_day_lg] [b0] e5: n=2 kills/fallbacks=0 median_encode_s=19.805 max_encode_s=19.851 max_vmpeak_kb=127956 max_vmhwm_kb=98236 median_cpu_s=23.075 median_wall_s=23.285
+[b0_fix_night] [b0] e5 #1 rc=0 wall=31.60 s vm(peak,hwm kB)=129204 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_1/image_compressed.nrjxl (54357 B, d=2.366, att=3, 28.006 s)
+[b0_fix_night] [b0] e5 #2 rc=0 wall=31.01 s vm(peak,hwm kB)=128256 98224 [RAW] wrote /home/pi/b0_fix_night/run_e5_2/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.985 s)
+[b0_fix_night] [b0] e5 #3 rc=0 wall=31.50 s vm(peak,hwm kB)=129316 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_3/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.932 s)
+[b0_fix_night] [b0] e5 #4 rc=0 wall=30.85 s vm(peak,hwm kB)=128964 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_4/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.869 s)
+[b0_fix_night] [b0] e5 #5 rc=0 wall=30.81 s vm(peak,hwm kB)=129444 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_5/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.883 s)
+[b0_fix_night] [b0] e5 #6 rc=0 wall=30.85 s vm(peak,hwm kB)=127764 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_6/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.931 s)
+[b0_fix_night] [b0] e5: n=6 kills/fallbacks=0 median_encode_s=27.9315 max_encode_s=28.006 max_vmpeak_kb=129444 max_vmhwm_kb=98236 median_cpu_s=31.23 median_wall_s=30.93
+2026-10-06T17:05:45Z [w17 bmcam004] 1d0ff4f daylight runs skipped (time)
+b0-clean
+2026-10-06T17:05:45Z [w17 bmcam004] B0 fix re-run done; pulled to runs/s28_ladder_20261004/pulled/bmcam004_b0_fix
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T17:05:46Z [w17 bmcam004] RE-ARMED
+halt-issued
+2026-10-06T17:06:15Z [w17 bmcam004] bmcam004 dark
+2026-10-06T17:06:48Z B0 fix 4584436: day auto/lg 2 att ~19.9 s, night 3 att 28.0 s deterministic, VmPeak <=126.4 MiB, 0 kills/rfb; 1d0ff4f day skipped (time); unit clean, re-armed, halted 17:06Z
