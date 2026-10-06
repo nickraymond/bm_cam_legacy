@@ -1,0 +1,7 @@
+crop,megapixels,mac_vardct_rgb_s,mac_vardct_rgb_rss_mb,vardct_d,mac_modular_1plane_s,mac_modular_1plane_rss_mb,EST_pi_vardct_s,EST_pi_modular_4plane_s,EST_pi_prep_numpy_mb,EST_pi_peak_mb,EST_kills_under_250MB_guard,EST_fits_512MB_unit
+1600x900,1.44,0.39,109.9,1.6,0.09,32.4,4.7,4.5,28.8,109.9,False,True
+1920x1080,2.07,0.54,148.1,2.6,0.13,42.2,6.4,6.3,41.5,148.1,False,True
+2304x1296,2.99,0.71,203.2,4.0,0.19,64.8,8.4,9.0,59.7,203.2,True,True
+2880x1620,4.67,1.04,303.4,8.7,0.29,90.5,12.3,13.8,93.3,303.4,True,False
+3200x1800,5.76,1.27,288.0,11.0,0.36,118.9,15.1,17.0,115.2,288.0,True,False
+4608x2592,11.94,2.34,558.1,25.0,0.73,262.7,27.9,34.9,238.9,558.1,True,False

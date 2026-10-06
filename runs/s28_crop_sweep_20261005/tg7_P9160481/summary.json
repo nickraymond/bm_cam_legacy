@@ -1,0 +1,439 @@
+{
+ "label": "tg7_P9160481",
+ "orf": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/tg7_channel_islands/raw/1_reference_A_iso100/P9160481.orf",
+ "rgb_row": "rgbwa",
+ "rows": [
+  {
+   "crop": "1600x900",
+   "row": "jpeg_central",
+   "quality": 70,
+   "bytes": 56073,
+   "msgs": 195,
+   "ssimulacra2": 49.705,
+   "butteraugli_3norm": 2.237,
+   "whole_jpeg_sameFOV_q": 70,
+   "whole_jpeg_sameFOV_ssimulacra2": 49.705
+  },
+  {
+   "crop": "1600x900",
+   "row": "rgbwa",
+   "distance": 3.321,
+   "fits": true,
+   "bytes": 54302,
+   "msgs": 189,
+   "ssimulacra2": 65.041,
+   "butteraugli_3norm": 1.479,
+   "whole_ssimulacra2": 65.041,
+   "whole_jpeg_sameFOV_ssimulacra2": 49.705,
+   "d_s2": 15.336,
+   "b3_ratio": 0.661,
+   "tg7_box_xywh": [
+    1310,
+    1116,
+    1394,
+    784
+   ],
+   "scale_to_imx": 1.1478,
+   "pass": true,
+   "sig": true
+  },
+  {
+   "crop": "1600x900",
+   "row": "bayer",
+   "distance": 8.569,
+   "fits": true,
+   "bytes": 54456,
+   "msgs": 190,
+   "ssimulacra2": 40.266,
+   "butteraugli_3norm": 3.252,
+   "whole_ssimulacra2": 40.266,
+   "whole_jpeg_sameFOV_ssimulacra2": 49.705,
+   "d_s2": -9.439,
+   "b3_ratio": 1.454,
+   "tg7_box_xywh": [
+    1310,
+    1116,
+    1394,
+    784
+   ],
+   "scale_to_imx": 1.1478,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "1920x1080",
+   "row": "jpeg_central",
+   "quality": 60,
+   "bytes": 46828,
+   "msgs": 163,
+   "ssimulacra2": 43.132,
+   "butteraugli_3norm": 2.494,
+   "whole_jpeg_sameFOV_q": 60,
+   "whole_jpeg_sameFOV_ssimulacra2": 29.866
+  },
+  {
+   "crop": "1920x1080",
+   "row": "rgbwa",
+   "distance": 5.402,
+   "fits": true,
+   "bytes": 54453,
+   "msgs": 190,
+   "ssimulacra2": 48.293,
+   "butteraugli_3norm": 2.087,
+   "whole_ssimulacra2": 46.077,
+   "whole_jpeg_sameFOV_ssimulacra2": 29.866,
+   "d_s2": 5.161,
+   "b3_ratio": 0.837,
+   "tg7_box_xywh": [
+    1170,
+    1038,
+    1672,
+    940
+   ],
+   "scale_to_imx": 1.1483,
+   "pass": true,
+   "sig": true
+  },
+  {
+   "crop": "1920x1080",
+   "row": "bayer",
+   "distance": 13.982,
+   "fits": true,
+   "bytes": 54440,
+   "msgs": 190,
+   "ssimulacra2": 15.494,
+   "butteraugli_3norm": 4.313,
+   "whole_ssimulacra2": 14.202,
+   "whole_jpeg_sameFOV_ssimulacra2": 29.866,
+   "d_s2": -27.638,
+   "b3_ratio": 1.729,
+   "tg7_box_xywh": [
+    1170,
+    1038,
+    1672,
+    940
+   ],
+   "scale_to_imx": 1.1483,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "2304x1296",
+   "row": "jpeg_central",
+   "quality": 60,
+   "bytes": 46829,
+   "msgs": 163,
+   "ssimulacra2": 43.112,
+   "butteraugli_3norm": 2.471,
+   "whole_jpeg_sameFOV_q": 50,
+   "whole_jpeg_sameFOV_ssimulacra2": 6.68
+  },
+  {
+   "crop": "2304x1296",
+   "row": "rgbwa",
+   "distance": 9.268,
+   "fits": true,
+   "bytes": 54435,
+   "msgs": 190,
+   "ssimulacra2": 27.269,
+   "butteraugli_3norm": 3.068,
+   "whole_ssimulacra2": 21.97,
+   "whole_jpeg_sameFOV_ssimulacra2": 6.68,
+   "d_s2": -15.843,
+   "b3_ratio": 1.242,
+   "tg7_box_xywh": [
+    1002,
+    942,
+    2008,
+    1130
+   ],
+   "scale_to_imx": 1.1474,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "2304x1296",
+   "row": "bayer",
+   "distance": 15.0,
+   "fits": false,
+   "bytes": 74714,
+   "msgs": 260,
+   "ssimulacra2": 11.594,
+   "butteraugli_3norm": 4.524,
+   "whole_ssimulacra2": 8.445,
+   "whole_jpeg_sameFOV_ssimulacra2": 6.68,
+   "d_s2": -31.518,
+   "b3_ratio": 1.831,
+   "tg7_box_xywh": [
+    1002,
+    942,
+    2008,
+    1130
+   ],
+   "scale_to_imx": 1.1474,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "2880x1620",
+   "row": "jpeg_central",
+   "quality": 60,
+   "bytes": 46871,
+   "msgs": 163,
+   "ssimulacra2": 43.066,
+   "butteraugli_3norm": 2.515,
+   "whole_jpeg_sameFOV_q": 50,
+   "whole_jpeg_sameFOV_ssimulacra2": -14.155
+  },
+  {
+   "crop": "2880x1620",
+   "row": "rgbwa",
+   "distance": 17.571,
+   "fits": true,
+   "bytes": 54450,
+   "msgs": 190,
+   "ssimulacra2": -7.711,
+   "butteraugli_3norm": 5.256,
+   "whole_ssimulacra2": -17.206,
+   "whole_jpeg_sameFOV_ssimulacra2": -14.155,
+   "d_s2": -50.777,
+   "b3_ratio": 2.09,
+   "tg7_box_xywh": [
+    752,
+    802,
+    2508,
+    1410
+   ],
+   "scale_to_imx": 1.1483,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "2880x1620",
+   "row": "bayer",
+   "distance": 15.0,
+   "fits": false,
+   "bytes": 118183,
+   "msgs": 411,
+   "ssimulacra2": 13.435,
+   "butteraugli_3norm": 4.496,
+   "whole_ssimulacra2": 5.856,
+   "whole_jpeg_sameFOV_ssimulacra2": -14.155,
+   "d_s2": -29.631,
+   "b3_ratio": 1.788,
+   "tg7_box_xywh": [
+    752,
+    802,
+    2508,
+    1410
+   ],
+   "scale_to_imx": 1.1483,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "3200x1800",
+   "row": "jpeg_central",
+   "quality": 60,
+   "bytes": 46797,
+   "msgs": 163,
+   "ssimulacra2": 43.029,
+   "butteraugli_3norm": 2.482,
+   "whole_jpeg_sameFOV_q": 50,
+   "whole_jpeg_sameFOV_ssimulacra2": -24.022
+  },
+  {
+   "crop": "3200x1800",
+   "row": "rgbwa",
+   "distance": 20.003,
+   "fits": true,
+   "bytes": 47369,
+   "msgs": 165,
+   "ssimulacra2": -17.082,
+   "butteraugli_3norm": 5.312,
+   "whole_ssimulacra2": -30.155,
+   "whole_jpeg_sameFOV_ssimulacra2": -24.022,
+   "d_s2": -60.111,
+   "b3_ratio": 2.14,
+   "tg7_box_xywh": [
+    612,
+    724,
+    2788,
+    1568
+   ],
+   "scale_to_imx": 1.1478,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "3200x1800",
+   "row": "bayer",
+   "distance": 15.0,
+   "fits": false,
+   "bytes": 143815,
+   "msgs": 500,
+   "ssimulacra2": 12.688,
+   "butteraugli_3norm": 4.498,
+   "whole_ssimulacra2": 4.86,
+   "whole_jpeg_sameFOV_ssimulacra2": -24.022,
+   "d_s2": -30.341,
+   "b3_ratio": 1.812,
+   "tg7_box_xywh": [
+    612,
+    724,
+    2788,
+    1568
+   ],
+   "scale_to_imx": 1.1478,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "4608x2592",
+   "row": "jpeg_central",
+   "quality": 70,
+   "bytes": 56143,
+   "msgs": 195,
+   "ssimulacra2": 49.733,
+   "butteraugli_3norm": 2.275,
+   "whole_jpeg_sameFOV_q": 40,
+   "whole_jpeg_sameFOV_ssimulacra2": -54.573
+  },
+  {
+   "crop": "4608x2592",
+   "row": "rgbwa",
+   "distance": 25.0,
+   "fits": false,
+   "bytes": 77342,
+   "msgs": 269,
+   "ssimulacra2": -25.999,
+   "butteraugli_3norm": 6.031,
+   "whole_ssimulacra2": -38.351,
+   "whole_jpeg_sameFOV_ssimulacra2": -54.573,
+   "d_s2": -75.732,
+   "b3_ratio": 2.651,
+   "tg7_box_xywh": [
+    0,
+    378,
+    4014,
+    2258
+   ],
+   "scale_to_imx": 1.148,
+   "pass": false,
+   "sig": false
+  },
+  {
+   "crop": "4608x2592",
+   "row": "bayer",
+   "distance": 15.0,
+   "fits": false,
+   "bytes": 275019,
+   "msgs": 955,
+   "ssimulacra2": 12.433,
+   "butteraugli_3norm": 4.479,
+   "whole_ssimulacra2": 4.443,
+   "whole_jpeg_sameFOV_ssimulacra2": -54.573,
+   "d_s2": -37.3,
+   "b3_ratio": 1.969,
+   "tg7_box_xywh": [
+    0,
+    378,
+    4014,
+    2258
+   ],
+   "scale_to_imx": 1.148,
+   "pass": false,
+   "sig": false
+  }
+ ],
+ "slider": [
+  {
+   "file": "tg7_P9160481/slider_sameFOV/jpeg_sameFOV_1600x900.jpg",
+   "crop": "1600x900",
+   "what": "today's JPEG of the same FOV (1000 px wide, upsampled)",
+   "ssimulacra2": 49.705
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/nrjxl_rgbwa_1600x900.jpg",
+   "crop": "1600x900",
+   "what": "nrjxl rgbwa at native density",
+   "distance": 3.321,
+   "bytes": 54302,
+   "whole_ssimulacra2": 65.041
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/jpeg_sameFOV_1920x1080.jpg",
+   "crop": "1920x1080",
+   "what": "today's JPEG of the same FOV (1000 px wide, upsampled)",
+   "ssimulacra2": 29.866
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/nrjxl_rgbwa_1920x1080.jpg",
+   "crop": "1920x1080",
+   "what": "nrjxl rgbwa at native density",
+   "distance": 5.402,
+   "bytes": 54453,
+   "whole_ssimulacra2": 46.077
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/jpeg_sameFOV_2304x1296.jpg",
+   "crop": "2304x1296",
+   "what": "today's JPEG of the same FOV (1000 px wide, upsampled)",
+   "ssimulacra2": 6.68
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/nrjxl_rgbwa_2304x1296.jpg",
+   "crop": "2304x1296",
+   "what": "nrjxl rgbwa at native density",
+   "distance": 9.268,
+   "bytes": 54435,
+   "whole_ssimulacra2": 21.97
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/jpeg_sameFOV_2880x1620.jpg",
+   "crop": "2880x1620",
+   "what": "today's JPEG of the same FOV (1000 px wide, upsampled)",
+   "ssimulacra2": -14.155
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/nrjxl_rgbwa_2880x1620.jpg",
+   "crop": "2880x1620",
+   "what": "nrjxl rgbwa at native density",
+   "distance": 17.571,
+   "bytes": 54450,
+   "whole_ssimulacra2": -17.206
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/jpeg_sameFOV_3200x1800.jpg",
+   "crop": "3200x1800",
+   "what": "today's JPEG of the same FOV (1000 px wide, upsampled)",
+   "ssimulacra2": -24.022
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/nrjxl_rgbwa_3200x1800.jpg",
+   "crop": "3200x1800",
+   "what": "nrjxl rgbwa at native density",
+   "distance": 20.003,
+   "bytes": 47369,
+   "whole_ssimulacra2": -30.155
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/jpeg_sameFOV_4608x2592.jpg",
+   "crop": "4608x2592",
+   "what": "today's JPEG of the same FOV (1000 px wide, upsampled)",
+   "ssimulacra2": -54.573
+  },
+  {
+   "file": "tg7_P9160481/slider_sameFOV/nrjxl_rgbwa_4608x2592.jpg",
+   "crop": "4608x2592",
+   "what": "nrjxl rgbwa at native density",
+   "distance": 25.0,
+   "bytes": 77342,
+   "whole_ssimulacra2": -38.351
+  }
+ ],
+ "exposure_scale": 0.760880215706182,
+ "target_bytes": 54475,
+ "label_note": "TG-7 resampled to IMX708 geometry, an approximation",
+ "utc": "2026-10-05T21:27:00Z"
+}
