@@ -1,0 +1,209 @@
+{
+ "label": "day_lowgain",
+ "source": {
+  "kind": "imx708_dng",
+  "dng": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/lowgain.dng",
+  "metadata": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/lowgain.json"
+ },
+ "roi": [
+  1504,
+  846,
+  1600,
+  900
+ ],
+ "cap_msgs": 195,
+ "target_bytes": 54475,
+ "jpeg": {
+  "row": "jpeg",
+  "width": 1000,
+  "height": 562,
+  "distance": "",
+  "quality": 60,
+  "bytes": 55969,
+  "msgs": 195,
+  "ssimulacra2": 55.008,
+  "butteraugli_3norm": 1.884
+ },
+ "rows": [
+  {
+   "row": "jpeg",
+   "width": 1000,
+   "height": 562,
+   "distance": "",
+   "quality": 60,
+   "bytes": 55969,
+   "msgs": 195,
+   "ssimulacra2": 55.008,
+   "butteraugli_3norm": 1.884
+  },
+  {
+   "row": "bayer",
+   "width": 1600,
+   "height": 900,
+   "distance": 9.18,
+   "quality": "",
+   "bytes": 54425,
+   "msgs": 189,
+   "fits": true,
+   "ssimulacra2": 18.03,
+   "butteraugli_3norm": 3.933,
+   "prod_distance": 9.218,
+   "prod_bytes": 54242,
+   "prod_msgs": 189,
+   "prod_attempts": 3,
+   "pass": false,
+   "sig": false,
+   "d_s2": -36.978,
+   "b3_ratio": 2.088
+  },
+  {
+   "row": "rgbwa",
+   "width": 1600,
+   "height": 900,
+   "distance": 3.431,
+   "quality": "",
+   "bytes": 54468,
+   "msgs": 190,
+   "fits": true,
+   "ssimulacra2": 53.147,
+   "butteraugli_3norm": 2.416,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": -1.861,
+   "b3_ratio": 1.282
+  },
+  {
+   "row": "rgbwa",
+   "width": 1440,
+   "height": 810,
+   "distance": 2.872,
+   "quality": "",
+   "bytes": 54309,
+   "msgs": 189,
+   "fits": true,
+   "ssimulacra2": 53.042,
+   "butteraugli_3norm": 2.69,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": -1.966,
+   "b3_ratio": 1.428
+  },
+  {
+   "row": "rgbwa",
+   "width": 1360,
+   "height": 764,
+   "distance": 2.604,
+   "quality": "",
+   "bytes": 54470,
+   "msgs": 190,
+   "fits": true,
+   "ssimulacra2": 53.47,
+   "butteraugli_3norm": 2.373,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": -1.538,
+   "b3_ratio": 1.26
+  },
+  {
+   "row": "rgbwa",
+   "width": 1280,
+   "height": 720,
+   "distance": 2.325,
+   "quality": "",
+   "bytes": 54438,
+   "msgs": 190,
+   "fits": true,
+   "ssimulacra2": 54.068,
+   "butteraugli_3norm": 2.46,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": -0.94,
+   "b3_ratio": 1.306
+  },
+  {
+   "row": "rgbwa",
+   "width": 1200,
+   "height": 674,
+   "distance": 2.131,
+   "quality": "",
+   "bytes": 54413,
+   "msgs": 189,
+   "fits": true,
+   "ssimulacra2": 54.573,
+   "butteraugli_3norm": 2.664,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": -0.435,
+   "b3_ratio": 1.414
+  },
+  {
+   "row": "rgbwa",
+   "width": 1120,
+   "height": 630,
+   "distance": 1.875,
+   "quality": "",
+   "bytes": 54239,
+   "msgs": 189,
+   "fits": true,
+   "ssimulacra2": 54.933,
+   "butteraugli_3norm": 2.333,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": -0.075,
+   "b3_ratio": 1.238
+  },
+  {
+   "row": "rgbwa",
+   "width": 1000,
+   "height": 562,
+   "distance": 1.51,
+   "quality": "",
+   "bytes": 54375,
+   "msgs": 189,
+   "fits": true,
+   "ssimulacra2": 55.602,
+   "butteraugli_3norm": 2.43,
+   "headroom_scale": 2.0635,
+   "pass": false,
+   "sig": false,
+   "d_s2": 0.594,
+   "b3_ratio": 1.29
+  }
+ ],
+ "slider": [],
+ "largest_sig_width": {
+  "bayer": null,
+  "rgbwa": null
+ },
+ "largest_pass_width": {
+  "bayer": null,
+  "rgbwa": null
+ },
+ "display_note": "every image is shown and scored at 1600x900; non-native ones are UPSAMPLED (lanczos); slider files are JPEG q92 display renders",
+ "windows_crop_px": {
+  "fine texture": [
+   688,
+   698,
+   200,
+   200
+  ],
+  "edges": [
+   647,
+   698,
+   200,
+   200
+  ],
+  "dark area": [
+   1166,
+   0,
+   200,
+   200
+  ]
+ }
+}

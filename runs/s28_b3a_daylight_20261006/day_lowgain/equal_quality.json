@@ -1,0 +1,27 @@
+{
+ "label": "day_lowgain",
+ "source": {
+  "kind": "imx708_dng",
+  "dng": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/lowgain.dng",
+  "metadata": "/Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_lowgain_sunrise_20261006/day_dng/lowgain.json"
+ },
+ "jpeg": {
+  "row": "jpeg",
+  "width": 1000,
+  "height": 562,
+  "distance": "",
+  "quality": 60,
+  "bytes": 55969,
+  "msgs": 195,
+  "ssimulacra2": 55.008,
+  "butteraugli_3norm": 1.884
+ },
+ "header_b_nominal": 60,
+ "distance": 3.212,
+ "bytes": 57601,
+ "msgs": 201,
+ "ssimulacra2": 55.332,
+ "butteraugli_3norm": 2.362,
+ "bytes_ratio_vs_jpeg": 1.029,
+ "headroom_scale": 2.0635
+}
