@@ -169,3 +169,16 @@ Reading: daylight now takes 2 encodes (~20 s); night still 3 (~28 s) but with 45
 identical; the baseline's run-7 truncation cannot recur). The e4 last attempt never fired (no time pressure).
 VmPeak ≤ 126.4 MiB everywhere (guard 250). Predicted wake vs the 4-plane path (R4: encode ~15 s, halts 483–505 s):
 day +5 s → ~488–510 s; night +13 s → ~496–518 s (EM's estimate 490–510; ≤ 570 window; above B0's 480 s bar at night).
+
+## B1 — first production-lane B3a still (bmcam004 104ee3c, still.raw.layout rgb, 2026-10-06 19:00Z wake)
+
+| item | result |
+|---|---|
+| deploy | 104ee3c (= 4584436 runtime) in the 18:00Z window; `still: raw: layout: rgb` added locally; effective `nrjxl rgb 45`, dropped [] |
+| START | fmt=nrjxl q=435 att=2 cmp=1 length 186, key 0eca52, cfg 9e346071 (no rfb) |
+| wake | END sent 186, burst 246.7 s, wake→halt 501 s; daylight et 3023 µs ag 1.12 lux 5085 |
+| queue | 5 rejected (`is full`) = chunks 178–182, sent ≈ 19:04:58–19:05:04Z: the Spotter's :05 hourly report (the T1/X1 overlap effect) |
+| backend 19:46Z | media **57901**, format nrjxl, 181/186, render_state placeholder (`api/B1_media.json`, URLs stripped) |
+| console reassembly | 181/186 (the 5 rejected chunks never reached the console); full-container check waits for the heal |
+Status: OPEN — B1 completes when the heal fills 178–182 (REASK 5400 s → expected at the 21:00Z or 22:00Z wake); then
+render + LinearRaw DNG check (QC gets 57901).

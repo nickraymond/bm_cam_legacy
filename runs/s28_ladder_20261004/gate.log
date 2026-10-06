@@ -320,3 +320,4 @@ still path reads: nrjxl rgb 45
 halt-issued
 2026-10-06T18:02:11Z [deploy-b3afix bmcam004] bmcam004 dark (DEPLOYED)
 2026-10-06T19:16:24Z B1 19:00Z wake: START fmt=nrjxl q=435 att=2 cmp=1 len 186 key=0eca52 cfg=9e346071 sha=104ee3cdbab0; END sent 186, burst 246.7 s; wake->halt 501 s; queue_full 5; daylight et_us 3023 ag 1.12 lux 5085. No fallback.
+2026-10-06T19:47:06Z B1 backend 19:46Z: media 57901 nrjxl 181/186 (missing 178-182 = :05 report overlap), placeholder; awaiting heal
