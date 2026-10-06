@@ -1266,7 +1266,8 @@ def still_action(
         delay_seconds=settings["pacing_delay_seconds"],
         start_metadata=start_metadata,
         capture_metadata=capture_metadata,
-        cpu_temp_text=_cpu_temp_text(),
+        # Read at END time (rc_transmit.end_temp_text): the wake's peak.
+        cpu_temp_text=_cpu_temp_text,
         software_sha=get_software_sha(),
         hostname=get_hostname(),
         sleep_fn=sleep_fn,
