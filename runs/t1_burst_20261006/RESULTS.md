@@ -1,8 +1,8 @@
 # T1 — Spotter queue burst test, bmcam003 / SPOT-33507C, 2026-10-06 16:05–18:57Z — RESULTS
 
 Gate: `hil/gates/T1_burst_queue_bmcam003.md` (bars pre-registered); plan as run: `t1_plan.csv` + `PLAN_NOTES.md`
-(b-settle on the health-check sync, committed 660bb9f before the first burst). Sender `hil/tools/hil_t1_score.py` /
-`hil_t1_burst.py`; 18 bursts × 120 synthetic 384 B messages, 0 send errors. Counts from the nereus000 console:
+(b-settle on the health-check sync, committed 660bb9f before the first burst). Sender `hil/tools/hil_t1_burst.py`, scorer
+`hil/tools/hil_t1_score.py`; 18 bursts × 120 synthetic 384 B messages, 0 send errors. Counts from the nereus000 console:
 accepted = `Submitted spotter/transmit-data … cell-only queue`, rejected = `MS_Q_CELLULAR_ONLY is full`.
 Per-burst table: `analysis/t1_bursts.csv`.
 
