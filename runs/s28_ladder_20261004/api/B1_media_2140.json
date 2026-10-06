@@ -19,7 +19,7 @@
   "missing_chunk_count": 5,
   "percent_received": 97,
   "is_complete": false,
-  "is_sealed": false,
+  "is_sealed": true,
   "is_partial": true,
   "render_state": "placeholder",
   "has_start_metadata": true,

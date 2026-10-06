@@ -1,0 +1,9 @@
+2026-10-06T21:10:45Z [busOn SPOT-33507C/bmcam003] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261006T211041Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-06T21:10:46Z Succesfully sent config set msg
+2026-10-06T21:10:46Z 2026-10-06T21:10:46.964Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-06T21:10:53Z 2026-10-06T21:10:53.910Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-06T21:10:53Z 2026-10-06T21:10:53.917Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-06T21:10:53Z 2026-10-06T21:10:53.976Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-06T21:10:56Z [busOn SPOT-33507C/bmcam003] committed (bus held on); catching the boot
+2026-10-06T21:11:51Z [busOn SPOT-33507C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-06T21:11:51Z [busOn SPOT-33507C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261006T211041Z)
