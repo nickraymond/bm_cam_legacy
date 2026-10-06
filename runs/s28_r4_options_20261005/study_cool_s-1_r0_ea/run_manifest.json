@@ -1,0 +1,16 @@
+{
+ "utc": "2026-10-05T18:53:55Z",
+ "inputs": {
+  "dng": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/cool_imx708/stop_-1_r0.dng",
+  "metadata": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/cool_imx708/stop_-1_r0.json",
+  "isp_jpg": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/cool_imx708/stop_-1_r0.jpg"
+ },
+ "command": "tools/s28_r4_options.py --rig /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/rig --dng /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/cool_imx708/stop_-1_r0.dng --metadata /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/cool_imx708/stop_-1_r0.json --isp-jpg /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930/cool_imx708/stop_-1_r0.jpg --label study_cool_s-1_r0_ea --demosaic ea --budgets 174,195,230,260,300,350 --out runs/s28_r4_options_20261005/study_cool_s-1_r0_ea",
+ "cjxl": "cjxl v0.11.1 0.11.1 [NEON]",
+ "outputs": [
+  "scores.csv",
+  "summary.json",
+  "cutsheet.png",
+  "noise.csv"
+ ]
+}

@@ -1,0 +1,23 @@
+[S0] host=Nicks-MBP.localdomain cjxl=cjxl v0.11.1 0.11.1 [NEON] effort=5 data=/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930
+[S0] cool stop -1 1600x900: d=1.5 -> 103474 B, d=9.0 -> 31807 B
+[S0] cool stop -1 2000x1124: d=1.5 -> 150952 B, d=9.0 -> 44030 B
+[S0] cool stop -1 2400x1350: d=1.5 -> 216095 B, d=9.0 -> 60606 B
+[S0] cool stop +0 1600x900: d=1.5 -> 111798 B, d=9.0 -> 36692 B
+[S0] cool stop +0 2000x1124: d=1.5 -> 170083 B, d=9.0 -> 51299 B
+[S0] cool stop +0 2400x1350: d=1.5 -> 251010 B, d=9.0 -> 71660 B
+[S0] cool stop +1 1600x900: d=1.5 -> 98527 B, d=9.0 -> 33081 B
+[S0] cool stop +1 2000x1124: d=1.5 -> 161870 B, d=9.0 -> 48669 B
+[S0] cool stop +1 2400x1350: d=1.5 -> 260468 B, d=9.0 -> 72623 B
+[S0] warm stop -1 1600x900: d=1.5 -> 103740 B, d=9.0 -> 31279 B
+[S0] warm stop -1 2000x1124: d=1.5 -> 151666 B, d=9.0 -> 43287 B
+[S0] warm stop -1 2400x1350: d=1.5 -> 217292 B, d=9.0 -> 60019 B
+[S0] warm stop +0 1600x900: d=1.5 -> 111485 B, d=9.0 -> 36361 B
+[S0] warm stop +0 2000x1124: d=1.5 -> 170011 B, d=9.0 -> 50850 B
+[S0] warm stop +0 2400x1350: d=1.5 -> 251927 B, d=9.0 -> 71332 B
+[S0] warm stop +1 1600x900: d=1.5 -> 96996 B, d=9.0 -> 32029 B
+[S0] warm stop +1 2000x1124: d=1.5 -> 159553 B, d=9.0 -> 47274 B
+[S0] warm stop +1 2400x1350: d=1.5 -> 257174 B, d=9.0 -> 70944 B
+[S0] 1600x900 rungs: rung1_cap195=3.8, rung2_heal174=4.6, rung3_150=5.95, rung4_complex=8.25
+[S0] 2000x1124 rungs: rung1_cap195=7.3, rung2_heal174=8.3, rung3_150=None, rung4_complex=None
+[S0] 2400x1350 rungs: rung1_cap195=None, rung2_heal174=None, rung3_150=None, rung4_complex=None
+[S0] wrote 558 rows to runs/s28_s0_calibration_20261002

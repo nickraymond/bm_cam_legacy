@@ -392,7 +392,7 @@
   [["wide_720p_lean",null,null,"4608x2592",30],[1280,720,"4608x2592",14]]
  ],
  "hash": {
-  "selftest": [[{"mode.media":"still","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Los_Angeles","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":null,"camera.image_processing.contrast":null,"camera.image_processing.saturation":null,"camera.image_processing.brightness":null,"camera.image_processing.denoise":null,"camera.image_processing.hdr":null,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"video.record.framing":null,"video.record.crop":null,"video.record.output":null,"video.record.sensor_mode":null,"video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"0956886d"],[{"mode.media":"video","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Los_Angeles","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":null,"camera.image_processing.contrast":null,"camera.image_processing.saturation":null,"camera.image_processing.brightness":null,"camera.image_processing.denoise":null,"camera.image_processing.hdr":null,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"video.record.framing":null,"video.record.crop":null,"video.record.output":null,"video.record.sensor_mode":null,"video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"c7da61c5"],[{"mode.media":"video","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Argentina/ComodRivadavia","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":[1.8125,1.6875],"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":12.25,"camera.image_processing.contrast":1.875,"camera.image_processing.saturation":1.875,"camera.image_processing.brightness":-0.125,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":"single-exp","still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"video.record.framing":"stills_roi_1000p","video.record.crop":[1504,846,1600,900],"video.record.output":"1000x562","video.record.sensor_mode":"4608x2592","video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"1ac78997"],[{"mode.media":"video","mode.run":"stay_on","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Argentina/ComodRivadavia","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":-1.0,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":12.25,"camera.image_processing.contrast":1.875,"camera.image_processing.saturation":1.875,"camera.image_processing.brightness":-0.125,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":true,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":300,"still.budget_min":18,"video.record.framing":"stills_roi_1000p","video.record.crop":[1504,846,1600,900],"video.record.output":"1000x562","video.record.sensor_mode":"4608x2592","video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"high","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":1.3,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"1ba435f6"]],
+  "selftest": [[{"mode.media":"still","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Los_Angeles","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":null,"camera.image_processing.contrast":null,"camera.image_processing.saturation":null,"camera.image_processing.brightness":null,"camera.image_processing.denoise":null,"camera.image_processing.hdr":null,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"still.format":"pjpg","still.raw.distances":[3.8,4.6,5.95,8.25],"still.raw.encode_max_s":30,"still.raw.keep_crop":false,"still.raw.effort":5,"still.raw.target_fill":0.97,"still.raw.d_max":10.4,"video.record.framing":null,"video.record.crop":null,"video.record.output":null,"video.record.sensor_mode":null,"video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"a642a147"],[{"mode.media":"video","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Los_Angeles","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":null,"camera.image_processing.contrast":null,"camera.image_processing.saturation":null,"camera.image_processing.brightness":null,"camera.image_processing.denoise":null,"camera.image_processing.hdr":null,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"still.format":"pjpg","still.raw.distances":[3.8,4.6,5.95,8.25],"still.raw.encode_max_s":30,"still.raw.keep_crop":false,"still.raw.effort":5,"still.raw.target_fill":0.97,"still.raw.d_max":10.4,"video.record.framing":null,"video.record.crop":null,"video.record.output":null,"video.record.sensor_mode":null,"video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"62d7a38c"],[{"mode.media":"video","mode.run":"per_boot","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Argentina/ComodRivadavia","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":[1.8125,1.6875],"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":null,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":12.25,"camera.image_processing.contrast":1.875,"camera.image_processing.saturation":1.875,"camera.image_processing.brightness":-0.125,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":"single-exp","still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":195,"still.budget_min":18,"still.format":"nrjxl","still.raw.distances":[12.25,13.25,14.25,14.75],"still.raw.encode_max_s":30,"still.raw.keep_crop":false,"still.raw.effort":5,"still.raw.target_fill":0.97,"still.raw.d_max":10.4,"video.record.framing":"stills_roi_1000p","video.record.crop":[1504,846,1600,900],"video.record.output":"1000x562","video.record.sensor_mode":"4608x2592","video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":5.0,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"2e2b5377"],[{"mode.media":"video","mode.run":"stay_on","mode.interval_s":0,"mode.heartbeat_s":300,"mode.output":"transmit","schedule.timezone":"America/Argentina/ComodRivadavia","schedule.window.enabled":true,"schedule.window.start":"12:00","schedule.window.end":"15:00","time.source":"spotter_utc","time.set_system_clock":true,"time.timeout_s":60,"time.allow_system_fallback":false,"time.rtc.hwclock_path":"/usr/sbin/hwclock","time.rtc.set_system_clock":true,"time.rtc.plausible_after_utc":"2026-01-01T00:00:00+00:00","power.halt.enabled":false,"power.halt.dry_run":true,"power.halt.mode":"halt","power.halt.script_path":"/home/pi/BM_Devel_Pi/tuned_halt.sh","power.bus_always_on":false,"camera.backend":"rpicam","camera.native.width":4608,"camera.native.height":2592,"camera.native.jpeg_quality":95,"camera.controls_enabled":false,"camera.focus.enabled":true,"camera.focus.mode":null,"camera.focus.lens_position":null,"camera.focus.range":null,"camera.focus.speed":null,"camera.white_balance.enabled":false,"camera.white_balance.mode":null,"camera.white_balance.gains":null,"camera.exposure.enabled":false,"camera.exposure.mode":null,"camera.exposure.ev":-1.0,"camera.exposure.shutter_us":null,"camera.exposure.analogue_gain":null,"camera.image_processing.enabled":false,"camera.image_processing.sharpness":12.25,"camera.image_processing.contrast":1.875,"camera.image_processing.saturation":1.875,"camera.image_processing.brightness":-0.125,"camera.image_processing.denoise":"cdn_fast","camera.image_processing.hdr":true,"still.crop":[1504,846,1600,900],"still.output_width":1000,"still.quality_ladder":[15,13,11,9],"still.save.quality":85,"still.message_cap":300,"still.budget_min":18,"still.format":"nrjxl","still.raw.distances":[3,4.5],"still.raw.encode_max_s":30,"still.raw.keep_crop":true,"still.raw.effort":5,"still.raw.target_fill":0.97,"still.raw.d_max":10.4,"video.record.framing":"stills_roi_1000p","video.record.crop":[1504,846,1600,900],"video.record.output":"1000x562","video.record.sensor_mode":"4608x2592","video.record.fps":15,"video.record.bitrate_mbps":2.0,"video.record.dir":"/home/pi/BM_Devel_Pi/videos","video.record.encoder.profile":"high","video.record.encoder.level":"","video.record.encoder.intra":0,"video.send.duration_s":5.0,"video.send.lead_in_s":2.0,"video.send.fps":10,"video.send.message_cap":126,"video.send.keyframe_repeat_max":30,"video.send.size":"480x270","video.send.x264_preset":"medium","video.send.budget_min":18,"video.logger.clip_minutes":5.0,"video.logger.session_minutes":0,"video.ui.enabled":true,"video.ui.port":8080,"storage.max_used_pct":75.0,"storage.min_free_gb":10.0,"storage.ring_dry_run":false,"uplink.uart.port":"/dev/ttyAMA0","uplink.uart.baudrate":115200,"uplink.network_type":2,"uplink.chunk_chars":300,"uplink.msg_interval_s":1.3,"uplink.lane.enabled":false,"uplink.lane.grid_s":300.0,"uplink.lane.pre_guard_s":20.0,"uplink.lane.post_guard_s":30.0,"uplink.lane.max_wait_s":300.0,"uplink.media_key.enabled":false,"uplink.media_key.retain_days":14.0,"commands.enabled":false,"commands.runtime":"legacy","commands.topic":"bmcam/cmd","commands.listen_tail_s":150.0,"commands.keepalive_s":300,"commands.keepalive_max_s":1800,"commands.hold_max_min":120,"commands.state_path":"/home/pi/BM_Devel_Pi/bm_command_state_v2.json","network.default":"none","network.ap_fallback_s":90,"network.ap_timeout_min":60},"c212ad8c"]],
   "version": 1
  },
  "keys": [
@@ -1992,7 +1992,7 @@
      "1000x562 max detail",
      [
       1804,
-      1015,
+      1014,
       1000,
       562
      ]
@@ -2001,7 +2001,7 @@
      "800x450 reef A",
      [
       1904,
-      1071,
+      1070,
       800,
       450
      ]
@@ -2236,6 +2236,233 @@
    "tier_reason": null,
    "type": "int",
    "unit": "min",
+   "wire_visible": false
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": "pjpg",
+   "enum": [
+    "pjpg",
+    "nrjxl"
+   ],
+   "group": "still",
+   "guard": "none",
+   "guard_when": null,
+   "help": "Still format: pjpg (progressive JPEG, resized) or nrjxl (native-resolution RAW planes in JPEG XL; today's JPEG is the fallback).",
+   "level": "basic",
+   "limits": null,
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.format",
+   "presets": [
+    [
+     "pjpg (today)",
+     "pjpg"
+    ],
+    [
+     "nrjxl RAW",
+     "nrjxl"
+    ]
+   ],
+   "range": null,
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "control",
+   "tier_reason": null,
+   "type": "enum",
+   "unit": null,
+   "wire_visible": true
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": [
+    3.8,
+    4.6,
+    5.95,
+    8.25
+   ],
+   "enum": [],
+   "group": "still.raw",
+   "guard": "none",
+   "guard_when": null,
+   "help": "nrjxl: JPEG XL distances tried, best quality first (1..4 values, 0.1..15, ascending).",
+   "level": "advanced",
+   "limits": {
+    "max_items": 4,
+    "why": "a command carries lists of at most 4 items"
+   },
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.raw.distances",
+   "presets": [],
+   "range": [
+    0.1,
+    15.0
+   ],
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "control",
+   "tier_reason": null,
+   "type": "dladder",
+   "unit": "JPEG XL distance, best first",
+   "wire_visible": false
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": 30,
+   "enum": [],
+   "group": "still.raw",
+   "guard": "none",
+   "guard_when": null,
+   "help": "nrjxl: most seconds the RAW encode may take per image (all rungs); over it the unit sends the JPEG (rfb=time).",
+   "level": "advanced",
+   "limits": {
+    "warn_above": 60,
+    "why": "each second is awake time on the battery (Sprint28 SPEC \u00a73.5)"
+   },
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.raw.encode_max_s",
+   "presets": [],
+   "range": [
+    5,
+    120
+   ],
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "control",
+   "tier_reason": null,
+   "type": "int",
+   "unit": "s",
+   "wire_visible": false
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": false,
+   "enum": [],
+   "group": "still.raw",
+   "guard": "none",
+   "guard_when": null,
+   "help": "nrjxl: keep the raw crop (16-bit PGM, 2.9 MB at 1600x900) on the SD for paired analysis; the storage guard prunes it.",
+   "level": "advanced",
+   "limits": null,
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.raw.keep_crop",
+   "presets": [],
+   "range": null,
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "control",
+   "tier_reason": null,
+   "type": "bool",
+   "unit": null,
+   "wire_visible": false
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": 5,
+   "enum": [],
+   "group": "still.raw",
+   "guard": "none",
+   "guard_when": null,
+   "help": "nrjxl: cjxl effort (5 = the setting measured on the Pi Zero 2 W).",
+   "level": "advanced",
+   "limits": null,
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.raw.effort",
+   "presets": [],
+   "range": [
+    1,
+    7
+   ],
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "engineering",
+   "tier_reason": "5 is the setting measured on the Pi Zero 2 W (Sprint28 SPEC \u00a73.5)",
+   "type": "int",
+   "unit": null,
+   "wire_visible": false
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": 0.97,
+   "enum": [],
+   "group": "still.raw",
+   "guard": "none",
+   "guard_when": null,
+   "help": "nrjxl: fill this share of the wake's message room (best quality that fits); 0 = only try still.raw.distances.",
+   "level": "advanced",
+   "limits": null,
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.raw.target_fill",
+   "presets": [],
+   "range": [
+    0.0,
+    1.0
+   ],
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "control",
+   "tier_reason": null,
+   "type": "float",
+   "unit": "share of the wake's message room (0 = fixed distances)",
+   "wire_visible": false
+  },
+  {
+   "apply": "next_action",
+   "blocked_values": [],
+   "choices": null,
+   "default": 10.4,
+   "enum": [],
+   "group": "still.raw",
+   "guard": "none",
+   "guard_when": null,
+   "help": "nrjxl: quality floor: if the room needs a JPEG XL distance above this, send today's JPEG (START rfb=floor).",
+   "level": "advanced",
+   "limits": null,
+   "media": "still",
+   "nullable": false,
+   "one_shot": false,
+   "path": "still.raw.d_max",
+   "presets": [],
+   "range": [
+    0.1,
+    15.0
+   ],
+   "requires": [],
+   "section": "still",
+   "short": null,
+   "tier": "control",
+   "tier_reason": null,
+   "type": "float",
+   "unit": "JPEG XL distance (higher = worse)",
    "wire_visible": false
   },
   {
@@ -3703,6 +3930,10 @@
  ],
  "refresh_gets": [
   [
+   "still",
+   "camera.controls_enabled"
+  ],
+  [
    "uplink",
    "video.ui"
   ],
@@ -3724,28 +3955,57 @@
   ],
   [
    "video.send",
-   "still"
+   "power"
   ],
   [
-   "power",
    "camera.exposure",
-   "camera.controls_enabled",
+   "camera.white_balance",
+   "camera.native",
    "camera.backend"
   ],
   [
-   "camera.white_balance",
-   "camera.native",
    "storage",
    "network"
   ]
  ],
- "registry_version": 7,
+ "registry_version": 8,
  "retired": {
   "video.record.encoder.denoise": "camera.image_processing.denoise",
   "video.record.encoder.sharpness": "camera.image_processing.sharpness"
  },
  "rules": {
   "interval_min_s": 60,
+  "nrjxl": {
+   "applies_when": {
+    "still.format": "nrjxl"
+   },
+   "crop_even": true,
+   "presets": [
+    [
+     "1600x900 native (default)",
+     {
+      "still.crop": [
+       1504,
+       846,
+       1600,
+       900
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
+     "back to pjpg",
+     {
+      "still.format": "pjpg"
+     }
+    ]
+   ],
+   "raw_max_px": 1440000,
+   "requires": {
+    "uplink.media_key.enabled": true,
+    "uplink.network_type": 2
+   }
+  },
   "stay_on_requires_reported_true": "power.bus_always_on",
   "video_cap_floor": 80,
   "video_geometry_keys": [
@@ -3811,9 +4071,16 @@
   "schedule.window.start": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",true],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "still.budget_min": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[18,true],[30,true],[31,false]],
   "still.crop": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],true],[[0,0,4608,2592],true],[[1504,846,1600,900],true],[[-1,0,10,10],false],[[15,13,11,9],true],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
+  "still.format": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],["pjpg",true],["nrjxl",true]],
   "still.message_cap": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[195,true],[500,true],[501,false]],
   "still.output_width": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[1000,true],[16,true],[4608,true],[15,false],[4609,false]],
   "still.quality_ladder": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],true],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
+  "still.raw.d_max": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[10.4,true],[0.1,true],[15.0,true],[-0.4,false],[15.5,false]],
+  "still.raw.distances": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],true],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],true],[[1.8,1.6],false],[[1.8,0],false],[[1,2],true],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[[3.8,4.6,5.95,8.25],true],[[3.0,3.6,4.3,5.2],true],[[3,4],true],[[0.1],true],[[15.0],true],[[0.05],false],[[15.5],false],[[4.0,3.0],false],[[3.0,3.0],false],[[1.0,2.0,3.0,4.0,5.0],false],[[],false],[[2.5,"x"],false],[[2.5,true],false],[0.1,false],[15.0,false],[-0.4,false],[15.5,false]],
+  "still.raw.effort": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[5,true],[7,true],[8,false]],
+  "still.raw.encode_max_s": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[30,true],[5,true],[120,true],[4,false],[121,false]],
+  "still.raw.keep_crop": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
+  "still.raw.target_fill": [[null,false],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[0.97,true],[0.0,true],[1.0,true],[-0.5,false],[1.5,false]],
   "still.save.quality": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[85,true],[95,true],[96,false]],
   "storage.max_used_pct": [[null,false],[true,false],[false,false],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[75.0,true],[10.0,true],[95.0,true],[9.5,false],[95.5,false]],
   "storage.min_free_gb": [[null,false],[true,false],[false,false],[0,true],[1,true],[-1,false],[2.5,true],[-8.5,false],[8.0,true],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[10.0,true],[0.0,true],[1000.0,true],[-0.5,false],[1000.5,false]],
@@ -3860,7 +4127,7 @@
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "4d6d115e626527e613a7e325900afc48ae8ba70427b6cb1d611587386b11a0df",
+ "sha256": "1d2406bdd4c4be79973a08271c6e2370d006d727ef67f03529ed14a48bc5fd89",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",

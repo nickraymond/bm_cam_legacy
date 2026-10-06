@@ -137,7 +137,15 @@ class TestRegistryIntegrity(unittest.TestCase):
 
     def test_presets_match_the_v8_tables_they_replace(self):
         crops = [v for _, v in R.BY_PATH["still.crop"].presets]
-        self.assertEqual(crops, [list(T.ROI_TABLE[i]["crop"]) for i in sorted(T.ROI_TABLE)])
+        want = [list(T.ROI_TABLE[i]["crop"]) for i in sorted(T.ROI_TABLE)]
+        # Sprint28 SPEC r4 §3.3: the two odd-y presets moved down 1 px so nrjxl (even crop)
+        # accepts them. The v8 ROI_TABLE keeps y 1015 / 1071: migrated v8 state (roi 5/6)
+        # runs exactly today's crop.
+        for crop in want:
+            if crop[1] in (1015, 1071):
+                crop[1] -= 1
+        self.assertEqual(crops, want)
+        self.assertTrue(all(c[1] % 2 == 0 for c in crops))
         lens = [v for _, v in R.BY_PATH["camera.focus.lens_position"].presets]
         self.assertEqual(lens, [T.FOC_TABLE[i]["lens_position"] for i in sorted(T.FOC_TABLE)
                                 if T.FOC_TABLE[i]["lens_position"] is not None])

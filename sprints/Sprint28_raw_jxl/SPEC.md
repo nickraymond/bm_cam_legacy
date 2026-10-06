@@ -49,7 +49,7 @@ without one is marked **ASSUMPTION** or **ESTIMATE**.
 |---|---|
 | Production still capture = one `rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata … -o native.jpg`. The retry ladder drops only `-n`, `--metadata` and the camera controls, and accepts on rc 0 plus a non-empty JPEG. There are 4 attempts, each with a 30 s watchdog and a 60 s delay between attempts, and each failure sends WS `cap_rc` / `cap_timeout` / `retry` | `BM_Devel_Pi/rc_capture.py:174-180, 588-800` |
 | Then: in-process crop + lanczos to `still.output_width` (prep ~2.4 s) → progressive-JPEG quality ladder against the message cap (encode ≤ 0.06 s) → transmit | `rc_progressive_jpeg.py:1-45`; Sprint08 spec line 132 |
-| Capture 4.8–5.3 s (incl. the 2 s AE timeout). **CMA is the binding constraint: CmaFree bottoms at 1.9 MB during the native capture with `cma=128M`**. "Never run concurrent CMA users." Peak RSS of the encode ~123 MB; MemAvailable ≥ 180 MB. Measured on **bmcam000, Bullseye, `libcamera-still`**, 2026-07-24. Not re-measured on trixie / rpicam on 003/004 | `sprints/Sprint07_pi_jpeg_validation.md:58, 99, 146-154` |
+| Capture 4.8–5.3 s (incl. the 2 s AE timeout). **CMA is the binding constraint: CmaFree bottoms at 1.9 MB during the native capture with `cma=128M`**. "Never run concurrent CMA users." Peak RSS of the encode ~123 MB; MemAvailable ≥ 180 MB. Measured on **bmcam000, Bullseye, `libcamera-still`**, 2026-07-24. Not re-measured on trixie / rpicam on 003/004. **Correction 2026-10-03:** bmcam003/004 run `cma` = 256 MB (TE snapshots), and the nereus002 proxy left 57 MB CmaFree with `--raw` (§3.1) | `sprints/Sprint07_pi_jpeg_validation.md:58, 99, 146-154`; EM 2026-10-03 (rig PR #89) |
 | `still.crop` default `[1504, 846, 1600, 900]` (native px), `still.output_width` 1000 (→ 1000×562), `still.quality_ladder` [15,13,11,9], `still.message_cap` 195 (range 1..500), `still.budget_min` 18 (1..30) | `config_registry.py:261-286` |
 | `REGISTRY_VERSION = 7` | `config_registry.py:39` |
 | **Chunk size:** registry default `uplink.chunk_chars` 300 (= 225 raw B). **The deployed units run 384 chars = 288 raw B** (bmcam003/004 pulled configs, bmcam001 profile). This spec computes with **288 B** and shows 225 B where it matters | `config_registry.py:362`; `runs/s4a_soak_20260928/pulled/bmcam00{3,4}_camera_config.yaml:115`; `device_profiles/bmcam001/camera_schedule.yaml:146` |
@@ -156,12 +156,18 @@ hard time and memory cap. The wake always has a sendable payload.
 
   Worst case: a hanging `--raw` costs 30 s before today's capture starts. Desk tests cover a
   hanging, failing and DNG-less `--raw` with a fake runner. **A RAW problem can never cost the JPEG.**
-- **CMA risk (main hardware unknown):** the native capture already left only 1.9 MB CmaFree in
-  Sprint07 (bmcam000, Bullseye, `libcamera-still`; not re-measured on trixie / rpicam). Whether
-  `--raw` needs more CMA on bmcam003/004 is **unknown**. nereus002 captured with `--raw` fine, but
-  its `cma=` is not recorded. **R0 measures CmaFree min with and without `--raw`, with the Sprint07
-  sampling method, before any code ships to a unit.** If `--raw` fails at `cma=128M`, the options in
-  order of risk:
+- **CMA risk (reduced, 2026-10-03; R0 on the units still required):** the 1.9 MB CmaFree of
+  Sprint07 was bmcam000 (Bullseye, `libcamera-still`, `cma=128M`). **bmcam003/004 run `cma` =
+  256 MB** (TE unit snapshots, via the EM 2026-10-03), not the 128M this SPEC assumed. The R0
+  proxy on **nereus002** (same board / OS / kernel / rpicam / RAM as 003/004; rig PR #89,
+  ENV_COMPARE.md; the f2687ec probe) passed all four R0 rows:
+  - `--raw` 10/10, CmaFree min **57 MB** with `--raw` vs 97 MB without (−40 MB), +0.27 s capture;
+  - encode 1600×900 6.3 s / 38 MB, 2304×1296 12.5 s / 51 MB;
+  - the memory guard kills a 400 MB allocation;
+  - predicted wake 410 / 422 s of 480.
+
+  It is a proxy, not the units. **R0 on bmcam003/004 still runs before any code ships** (it also
+  checks cjxl / numpy there). If `--raw` fails there, the options in order of risk:
   1. `--buffer-count 1` (rpicam option; effect on CMA unmeasured);
   2. raise `cma=` (a `/boot` change: backup + restore command, Nick's OK via the EM);
   3. stop and re-plan. Decision at the S3 gate.
@@ -259,7 +265,30 @@ C build to the unit deploy. It joins only if R0 shows cjxl over the time cap at 
 
 It stays the study's OpenMV fallback.
 
-**Rate control:** a **distance ladder**, as the JPEG quality ladder works today:
+> **S0 result (camera, 2026-10-02; `S0_CALIBRATION.md`):** the default `still.raw.distances` =
+> **[3.8, 4.6, 5.95, 8.25]**. These are the median study frame at 56 / 50 / 43 / 34 kB for the
+> 1600×900 native crop (Mac, libjxl 0.11.1, e5). The S1 Mac end-to-end gate PASSES: worst
+> |Δ stress ΔE| = 0.013 vs the study's D2 row. Finding: at e5, 2400×1350 does not get under 56 kB
+> even at d 9.
+
+> **Byte-target search (Nick, 2026-10-03; rig PR #89 `compression_study/presets/PROPOSAL_byte_target.md`):**
+> the unit picks the best quality that fills `still.raw.target_fill` (0.97) of **this wake's room**.
+> The room is min(`still.message_cap`, the cycle budget's messages) − START/END − the heal reserve.
+> The search takes ≤ 3 encodes: a prior (fitted on the rig's 2026-10-03 nereus002 sweep), a
+> one-point correction, then a secant in log–log. Every fit uses the pjpg selector's rule below,
+> and the fallback-send time guard is unchanged.
+> - **Quality floor:** if the room needs a distance above `still.raw.d_max` (10.4), the unit first
+>   measures d_max itself. If that does not fit either, it sends pjpg with `rfb=floor`.
+>   **ASSUMPTION:** 10.4 comes from one indoor scene; re-check it on the R4/O1 field frames.
+> - **Fallback list:** if the search ends with nothing fitting, it walks the fixed
+>   `still.raw.distances` above the largest distance tried (up to d_max).
+> - **Rungs only:** `target_fill 0` turns the search off and uses the fixed rungs below (the r4
+>   behaviour; R3.2 uses it).
+> - **Measured:** nereus002 33/33 fit, fill 94–99 % (rig). Mac, production code, study frames:
+>   97–98 % fill in 2–3 encodes at 800×450 … 1600×900.
+> - **Not in the first cut:** seeding the search from the last wake.
+
+**Rate control (r4; since 2026-10-03 the fallback list and the `target_fill 0` mode):** a **distance ladder**, as the JPEG quality ladder works today:
 - `still.raw.distances`, ≤ 4 rungs, low → high. The defaults come from the S0 Mac calibration on the
   study frames for the default crop. The 50 kB distance spread was 3.62–4.85.
 - Encode all 4 planes at rung 1. If the container fits `budget_bytes`, stop. Else try the next rung.
@@ -297,6 +326,7 @@ On a fallback, the pjpg START also carries `rfb=<code>` as a core field. The cod
 | `time` | encode cap reached |
 | `fit` | no rung fits the budget |
 | `err` | anything else in path [B] (catch-all, §6) |
+| `floor` | the room needs a distance above `still.raw.d_max`, measured at d_max (byte-target search; added 2026-10-03, Nick) |
 
 With `still.format = pjpg`, the unit behaves as today, but the bytes are not identical. The v8 keys
 change the config hash, so `cfg=` / `h=` change in every trace. This is the F-G3-4 precedent
@@ -346,6 +376,8 @@ The header is ~80 B (ESTIMATE), < 0.2 % of 50 kB. The keyed sent record keeps th
 | `still.raw.encode_max_s` | INT 5..120 | 30 | **control** | per-image time cap; R3 forces `rfb=time` with it |
 | `still.raw.keep_crop` | BOOL | false | **control** | keep the raw crop (2.9 MB as PGM) + the pjpg built that wake for paired analysis (storage guard applies) |
 | `still.raw.effort` | INT 1..7 | 5 | engineering (read-only) | 5 is the measured setting on the Zero; not a bench knob |
+| `still.raw.target_fill` | FLOAT 0..1 | 0.97 | **control** | the byte-target search's fill of the wake's room; 0 = fixed rungs only (added 2026-10-03) |
+| `still.raw.d_max` | FLOAT 0.1..15 | 10.4 | **control** | the quality floor (`rfb=floor`); ASSUMPTION from one scene, re-check on R4/O1 (added 2026-10-03) |
 
 Why control and not engineering:
 - Sprint27 engineering keys are read-only, and the backend refuses a `set` of them as `not_writable`
@@ -581,6 +613,7 @@ plane-order change to the container.
 | cjxl killed (RLIMIT / OOM) | signal / rc | pjpg | `rfb=mem` |
 | encode over `encode_max_s` or the cycle budget | wall clock | pjpg | `rfb=time` |
 | no rung fits the budget | bytes | pjpg | `rfb=fit` |
+| the room needs a distance above `still.raw.d_max` (measured at d_max) | bytes | pjpg | `rfb=floor` |
 | bad config (odd crop, too big, keyed off) | `config_validate` at `set` / boot / deploy | `e:xk`, nothing stored | ack |
 | anything else in path [B] (numpy missing, ENOSPC / IOError on the DNG or PGM, metadata JSON missing → no WB/CCM params, an unexpected exception) | one `try` around all of path [B] | pjpg | `rfb=err` (the `reason_code` convention, `rc_uplink_messages.py:47-56`) |
 | backend cannot render | render raises | original kept, row "no preview" (§4.8 rule), logged, not enqueued for processing | — |
@@ -721,7 +754,7 @@ and the box. The desk stages S0–S2 do not.
 
 | risk | effect | mitigation |
 |---|---|---|
-| `--raw` exceeds CMA at `cma=128M` (Sprint07: 1.9 MB left) | RAW never works; capture retries cost time | R0 first; fallback keeps the JPEG; `--buffer-count` / `cma=` options at the S3 gate |
+| `--raw` exceeds CMA (units run `cma` = 256 MB, not the 128M assumed; nereus002 proxy: 57 MB CmaFree min with `--raw`, 2026-10-03) | RAW never works; capture retries cost time | **reduced** by the proxy; R0 on bmcam003/004 still first; fallback keeps the JPEG; `--buffer-count` / `cma=` options at the S3 gate |
 | cjxl on trixie differs from the study's 0.11.1 | different bytes per distance | S0 calibrates rungs; R0 records the version; the rung ladder absorbs drift |
 | 2400×1350 slow or OOM on the Zero | default steps down to 2000×1124 or 1600×900 | R0.3 per-preset gate; `RAW_MAX_PX` only from measured rows |
 | 2400×1350 does not fit 50 kB on heal wakes (≈ 43 kB room, §5.2) | lower quality on those wakes, or `rfb=fit` | rung walk targets the wake's own budget; R4 counts fallbacks |

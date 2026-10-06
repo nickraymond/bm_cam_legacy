@@ -3,7 +3,7 @@ W sub bmcam/cmd
 W sub spotter/utc-time
 RX utc 2026-09-24T21:00:00+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 21:00:00
-W tx.02 <WS v=1 a=cap cfg=0e818286 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=655745a0 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T21:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T21:00:00Z_image_native_full.jpg
 CLOSE port=/dev/ttyAMA0
 HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

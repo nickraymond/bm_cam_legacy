@@ -1,0 +1,13 @@
+option,budget_msgs,distance,quality,bytes,msgs,ssimulacra2,butteraugli_3norm,butteraugli_max,ssim_luma,pass_vs_jpeg,note,png
+"today pjpg (1000x562 q-ladder, UPSAMPLED to 1600x900)",195,,80,50235,175,68.851,1.512,4.776,0.97483,,,today_pjpg_upsampled.png
+(a) nrjxl at 174 msgs,174,5.357,,50101,174,59.018,2.637,10.47,0.9681,False,,nrjxl_d5.357.png
+(a) nrjxl at 195 msgs,195,4.406,,56156,195,62.868,2.16,7.193,0.97133,False,,nrjxl_d4.406.png
+(a) nrjxl at 230 msgs,230,3.349,,66211,230,67.27,1.784,6.004,0.97455,False,,nrjxl_d3.349.png
+(a) nrjxl at 260 msgs,260,2.764,,74871,260,71.618,1.569,5.528,0.97668,False,,nrjxl_d2.764.png
+(a) nrjxl at 300 msgs,300,2.2,,86340,300,75.001,1.411,5.333,0.97862,True,,nrjxl_d2.2.png
+(a) nrjxl at 350 msgs,350,1.753,,100301,349,78.122,1.219,4.049,0.98044,True,,nrjxl_d1.753.png
+(b) nrjxl at d=3.8,,3.8,,61458,214,66.017,1.891,5.828,0.9733,False,,nrjxl_d3.8.png
+(b) nrjxl at d=6.0,,6.0,,46815,163,55.246,2.903,11.618,0.96606,False,,nrjxl_d6.0.png
+(b) nrjxl at d=9.7,,9.7,,34661,121,42.2,3.767,14.195,0.95515,False,,nrjxl_d9.7.png
+(b) nrjxl at d=12.0,,12.0,,30235,105,36.918,4.226,13.337,0.94857,False,,nrjxl_d12.0.png
+(b) nrjxl at d=15.0,,15.0,,26343,92,29.609,4.897,15.405,0.93995,False,,nrjxl_d15.0.png

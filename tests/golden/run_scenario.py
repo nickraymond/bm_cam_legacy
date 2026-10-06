@@ -400,6 +400,42 @@ def set_v2_keys(tmp, config_path, values):
         yaml.safe_dump(doc, fh, sort_keys=False)
 
 
+def fake_cjxl_runner(raw_sc, clock):
+    """Sprint28: a stand-in for rc_raw_jxl.run_capped. Each plane "takes"
+    raw_sc["plane_s"] fake seconds (default 1.6 = the study's 6.4 s per rung / 4 on the
+    Pi Zero 2 W) and yields bytes = plane_px * 2 / distance + 16, deterministic from the
+    PGM content (a size model, NOT JPEG XL). raw_sc["cjxl"]: ok | enc (exit 1) |
+    mem (SIGKILL) | none (no output). Over timeout_s it returns kind time, as run_capped
+    does after its kill."""
+    import hashlib
+
+    def runner(cmd, *, timeout_s, stdout_path, stderr_path):
+        src, dst = cmd[1], cmd[2]
+        dist = float(cmd[cmd.index("-d") + 1])
+        mode = raw_sc.get("cjxl", "ok")
+        plane_s = float(raw_sc.get("plane_s", 1.6))
+        W.WORLD.trace.add("JXL", f"{os.path.basename(src)} d={dist:.4f} mode={mode}")
+        if plane_s > timeout_s:
+            clock.sleep(timeout_s)
+            return {"rc": -9, "kind": "time", "seconds": timeout_s, "peak_rss_kb": 31000}
+        clock.sleep(plane_s)
+        if mode in ("enc", "mem"):
+            return {"rc": 1 if mode == "enc" else -9, "kind": mode, "seconds": plane_s,
+                    "peak_rss_kb": 31000}
+        with open(src, "rb") as fh:
+            pgm = fh.read()
+        _magic, wh, _maxval, _rest = pgm.split(b"\n", 3)
+        w, h = (int(v) for v in wh.split())
+        size = int(w * h * 2 / dist) + 16
+        seed = hashlib.sha256(pgm + f"{dist:.4f}".encode()).digest()
+        body = (seed * (size // len(seed) + 1))[:size]
+        if mode != "none":
+            with open(dst, "wb") as fh:
+                fh.write(b"\xff\x0a" + body)
+        return {"rc": 0, "kind": "ok", "seconds": plane_s, "peak_rss_kb": 31000}
+    return runner
+
+
 def run_wire(name, outdir, app_src):
     stay_on = name in S.STAY_ON_SCENARIOS
     supervisor_only = name in S.SUPERVISOR_ONLY       # stay_on + save_local (S3c)
@@ -416,7 +452,8 @@ def run_wire(name, outdir, app_src):
     sys.path.insert(0, os.path.join(tmp, "app"))
     import bm_frame_decoder
     W.WORLD.setup(tmp, dt.datetime.fromisoformat(sc["utc"]), NATIVE, bm_frame_decoder,
-                  rules=sc.get("rules", ()), cam_failures=sc.get("cam_failures", 0))
+                  rules=sc.get("rules", ()), cam_failures=sc.get("cam_failures", 0),
+                  raw=sc.get("raw"))
     mods = import_app(tmp)
     patch_app(mods, tmp)
     if sc.get("disk") == "full":
@@ -440,6 +477,9 @@ def run_wire(name, outdir, app_src):
         return captured["cycle"]
 
     rc.run_cycle = cycle
+    if sc.get("raw"):
+        # Sprint28: cjxl is modelled, never run (deterministic bytes and Pi-like time).
+        orig_cycle.__kwdefaults__["raw_runner"] = fake_cjxl_runner(sc["raw"], clock)
     if vtx is not None:                      # absent in older runtimes (e.g. main)
         orig_vtx = vtx.run_video_tx_cycle
 

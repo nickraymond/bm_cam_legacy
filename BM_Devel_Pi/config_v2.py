@@ -199,7 +199,7 @@ def canonical(values):
         v = values.get(key.path)
         if key.type == R.FLOAT and v is not None:
             v = float(v)
-        elif key.type == R.GAINS and v is not None:
+        elif key.type in (R.GAINS, R.DLADDER) and v is not None:
             v = [float(x) for x in v]
         out[key.path] = v
     return json.dumps(out, sort_keys=True, separators=(",", ":"))
@@ -274,6 +274,28 @@ def _n(value):
     return float_text(value) if isinstance(value, float) else str(value)
 
 
+STILL_RAW_KEYS = ("still.format", "still.raw.distances", "still.raw.encode_max_s",
+                  "still.raw.keep_crop", "still.raw.effort", "still.raw.target_fill",
+                  "still.raw.d_max")
+
+
+def _still_raw_lines(v):
+    """Sprint28: the `still_raw:` island rc_raw_jxl.load_raw_config reads. Written ONLY
+    when a key differs from its registry default: absent island == pjpg + defaults (the
+    v1 doctrine), so a pjpg unit's render is byte-identical to registry v7's."""
+    if all(v.get(p) == R.BY_PATH[p].default for p in STILL_RAW_KEYS):
+        return []
+    dist = ",".join(float_text(float(d)) for d in v["still.raw.distances"])
+    return ["still_raw:",
+            f"  format: {_q(v['still.format'])}",
+            f"  distances: {_q(dist)}",
+            f"  encode_max_s: {_n(v['still.raw.encode_max_s'])}",
+            f"  keep_crop: {_n(v['still.raw.keep_crop'])}",
+            f"  effort: {_n(v['still.raw.effort'])}",
+            f"  target_fill: {_n(float(v['still.raw.target_fill']))}",
+            f"  d_max: {_n(float(v['still.raw.d_max']))}"]
+
+
 def render_v1_text(values):
     """v1 camera_schedule.yaml text for the BASE values (see module doc)."""
     v = values
@@ -332,6 +354,7 @@ def render_v1_text(values):
           f"    ladder: {_q(ladder)}",
           "  crop:",
           f"    x: {x}", f"    y: {y}", f"    w: {w}", f"    h: {h}",
+          *_still_raw_lines(v),
           "power_halt:",
           f"  enabled: {_n(v['power.halt.enabled'])}",
           f"  dry_run: {_n(v['power.halt.dry_run'])}",

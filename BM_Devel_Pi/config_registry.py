@@ -36,13 +36,15 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 7          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 8          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
                               #    video.storage.* -> storage.* (ALIASES), S4 PLAN_S4 G11;
                               # 6: camera.image_processing.* measured ranges / enums, Sprint27;
-                              # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4)
+                              # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4;
+                              # 8: still.format + still.raw.* (nrjxl RAW stills; incl. the
+                              #    byte-target search keys target_fill / d_max), Sprint28 S1)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -64,6 +66,8 @@ PATH = "path"                # absolute filesystem path (always LOCKED)
 CROP = "crop"                # [x, y, w, h] native-sensor px ints
 WXH = "wxh"                  # "WxH" string, e.g. "480x270"
 LADDER = "ladder"            # list of ints 1..95, strictly descending
+DLADDER = "dladder"          # list of 1..4 finite numbers in key.range, strictly ascending
+                             # (JPEG XL distances, best quality first; Sprint28)
 GAINS = "gains"              # [red, blue] floats > 0
 NETWORK_TYPE = "network_type"  # 1 (0x01 sat/cell fallback) or 2 (0x02 cellular only)
 BOOL_OR_STR = "bool_or_str"  # v1 image_processing.hdr passes either through
@@ -265,8 +269,8 @@ KEYS = (
         presets=(("1600x900 default", [1504, 846, 1600, 900]),
                  ("full frame", [0, 0, 4608, 2592]), ("3072x1728 wide", [768, 432, 3072, 1728]),
                  ("2304x1296 mid", [1152, 648, 2304, 1296]),
-                 ("1000x562 max detail", [1804, 1015, 1000, 562]),
-                 ("800x450 reef A", [1904, 1071, 800, 450]),
+                 ("1000x562 max detail", [1804, 1014, 1000, 562]),
+                 ("800x450 reef A", [1904, 1070, 800, 450]),
                  ("640x360 reef B", [1984, 1116, 640, 360]))),
     Key("still.output_width", INT, 1000, "Sent still width (px); height follows the crop.",
         range=(16, 4608), v1_sources=("progressive_jpeg.output_width",), wire_visible=True,
@@ -284,6 +288,41 @@ KEYS = (
     Key("still.budget_min", INT, 18, "Cycle budget for a still action (min).", range=(1, 30),
         v1_sources=("progressive_jpeg.max_run_time_min",), validate_when=_MEDIA_STILL,
         presets=(("12 min", 12), ("5 min", 5), ("8 min", 8), ("16 min", 16))),
+    # Sprint28 (SPEC r4 §3.7): RAW-plane JPEG XL stills. pjpg = today's path, byte for
+    # byte; nrjxl = the native crop as 4 Bayer planes in JPEG XL, today's JPEG as the
+    # same-wake fallback (START rfb=). Switch a unit with ONE set of still.format +
+    # still.crop (catalog rules.nrjxl.presets); config_validate refuses an odd / too-large
+    # crop, keyed media off or Iridium with nrjxl.
+    Key("still.format", ENUM, "pjpg", "Still format: pjpg (progressive JPEG, resized) or "
+        "nrjxl (native-resolution RAW planes in JPEG XL; today's JPEG is the fallback).",
+        enum=("pjpg", "nrjxl"), v1_sources=("still_raw.format",), wire_visible=True,
+        validate_when=_MEDIA_STILL, presets=(("pjpg (today)", "pjpg"), ("nrjxl RAW", "nrjxl"))),
+    # S0 calibration (runs/s28_s0_calibration_20261002/rungs.json, 1600x900, Mac libjxl
+    # 0.11.1): the median study frame's distance at 56.1 / 50 / 43 / 34 kB.
+    Key("still.raw.distances", DLADDER, [3.8, 4.6, 5.95, 8.25], "nrjxl: JPEG XL distances "
+        "tried, best quality first (1..4 values, 0.1..15, ascending).", range=(0.1, 15.0),
+        v1_sources=("still_raw.distances",), validate_when=_MEDIA_STILL),
+    Key("still.raw.encode_max_s", INT, 30, "nrjxl: most seconds the RAW encode may take "
+        "per image (all rungs); over it the unit sends the JPEG (rfb=time).", range=(5, 120),
+        v1_sources=("still_raw.encode_max_s",), validate_when=_MEDIA_STILL),
+    Key("still.raw.keep_crop", BOOL, False, "nrjxl: keep the raw crop (16-bit PGM, 2.9 MB at "
+        "1600x900) on the SD for paired analysis; the storage guard prunes it.",
+        v1_sources=("still_raw.keep_crop",), validate_when=_MEDIA_STILL),
+    Key("still.raw.effort", INT, 5, "nrjxl: cjxl effort (5 = the setting measured on the "
+        "Pi Zero 2 W).", range=(1, 7), v1_sources=("still_raw.effort",),
+        validate_when=_MEDIA_STILL),
+    # Byte-target search (Nick 2026-10-03, rig PR #89 PROPOSAL_byte_target.md): the camera
+    # picks the best quality that fills this share of the wake's room (min(message_cap,
+    # budget) - START/END - heals); measured fill 94-99 % on nereus002. 0 = the fixed
+    # still.raw.distances only.
+    Key("still.raw.target_fill", FLOAT, 0.97, "nrjxl: fill this share of the wake's message "
+        "room (best quality that fits); 0 = only try still.raw.distances.", range=(0.0, 1.0),
+        v1_sources=("still_raw.target_fill",), validate_when=_MEDIA_STILL),
+    # ASSUMPTION to re-check on the R4/O1 field frames: 10.4 = where card-area SSIM vs RAW
+    # met today's pjpg on ONE indoor scene (rig 2026-10-03).
+    Key("still.raw.d_max", FLOAT, 10.4, "nrjxl: quality floor: if the room needs a JPEG XL "
+        "distance above this, send today's JPEG (START rfb=floor).", range=(0.1, 15.0),
+        v1_sources=("still_raw.d_max",), validate_when=_MEDIA_STILL),
 
     # ---- video: recording (clip source and the continuous recorder) ---------
     Key("video.record.framing", STR, None, "Named geometry preset (video_geometry.PRESETS); "
@@ -687,6 +726,13 @@ def check_value(key, value):
                            for v in value)
                 or any(a <= b for a, b in zip(value, value[1:]))):
             return "must be a strictly descending list of integers 1..95"
+    elif t == DLADDER:
+        lo, hi = key.range or (float("-inf"), float("inf"))
+        if (not isinstance(value, list) or not 1 <= len(value) <= 4
+                or not all(_is_num(v) and math.isfinite(v) and lo <= v <= hi for v in value)
+                or any(b <= a for a, b in zip(value, value[1:]))):
+            return (f"must be a strictly ascending list of 1..4 numbers, each in {lo}..{hi}")
+        return None
     elif t == GAINS:
         if (not isinstance(value, list) or len(value) != 2
                 or not all(_is_num(v) and math.isfinite(v) and v > 0 for v in value)):

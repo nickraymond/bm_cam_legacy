@@ -1,0 +1,5 @@
+fsid,crop_xywh,study_bytes,prod_bytes,prod_distance_e5,study_knob_e7,study_stress_de,prod_stress_de,diff_stress_de,study_block_de_med,prod_block_de_med,verdict
+imx708_cool_s-1_air_field,"1422,1048,1600,900",48629,48634,5.2996,4.8543,0.1144,0.1196,0.0053,0.3825,0.4385,PASS
+imx708_cool_s-1_uw_field,"1422,1048,1600,900",50073,50076,4.2083,3.8393,0.1816,0.1781,-0.0036,0.5118,0.5552,PASS
+imx708_warm_s-1_air_field,"1422,1048,1600,900",49933,49930,5.0652,4.5798,0.1385,0.1256,-0.0129,0.3844,0.4001,PASS
+imx708_warm_s-1_uw_field,"1422,1048,1600,900",51236,51246,3.9583,3.6192,0.2297,0.2235,-0.0061,0.4632,0.5036,PASS

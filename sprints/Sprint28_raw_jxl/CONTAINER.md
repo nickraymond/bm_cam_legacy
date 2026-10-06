@@ -137,7 +137,10 @@ The backend refuses a blob when any of these is true:
 - START: `fmt=nrjxl q=<distance × 100, int> att=<attempts> cmp=1`, with keyed chunks
   `<I{key}.{n}/{M}>` as for pjpg. nrjxl is never `cmp=0`: there is no partial send.
 - The pjpg fallback START carries `rfb=<code>`, a core field. The codes are `cap`, `dng`, `enc`, `mem`,
-  `time`, `fit` and `err` (SPEC §3.6 table).
+  `time`, `fit`, `err` and **`floor`** (SPEC §3.6 table). `floor` was added 2026-10-03 (Nick,
+  additive, with the byte-target search): this wake's room needs a JPEG XL distance above
+  `still.raw.d_max`, so the unit sends today's JPEG instead of a too-coarse nrjxl. A backend that
+  does not know a code must still ingest the pjpg normally (the codes are informational).
 - Backend: MIME `application/x-nereus-nrjxl`, stored extension `.nrjxl`, `media.format = nrjxl`.
 
 ## 8. Fixtures

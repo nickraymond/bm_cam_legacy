@@ -1,0 +1,39 @@
+{
+ "label": "tg7_P9160561",
+ "source": {
+  "kind": "tg7_orf",
+  "orf": "/Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/tg7_channel_islands/raw/3_scene_card_offcenter/P9160561.orf",
+  "tg7_box_xywh": [
+   1310,
+   1116,
+   1394,
+   784
+  ],
+  "scale_to_imx": 1.1478,
+  "exposure_s": 0.004,
+  "iso": 100,
+  "fnumber": 2,
+  "water_depth_m": null,
+  "label": "TG-7 resampled to IMX708 geometry, an approximation",
+  "exposure_scale": 1.6081
+ },
+ "jpeg": {
+  "row": "jpeg",
+  "width": 1000,
+  "height": 562,
+  "distance": "",
+  "quality": 70,
+  "bytes": 47136,
+  "msgs": 164,
+  "ssimulacra2": 41.704,
+  "butteraugli_3norm": 2.596
+ },
+ "header_b_nominal": 60,
+ "distance": 5.778,
+ "bytes": 23308,
+ "msgs": 81,
+ "ssimulacra2": 41.801,
+ "butteraugli_3norm": 2.133,
+ "bytes_ratio_vs_jpeg": 0.494,
+ "headroom_scale": 1.0544
+}

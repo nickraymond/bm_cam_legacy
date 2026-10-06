@@ -90,6 +90,14 @@ FIXED_LIBCAMERA_METADATA = {
 }
 
 
+# Sprint28: what `rpicam-still --raw` adds in an nrjxl scenario. The DNG is the committed
+# 160x96 real-data fixture (tests/fixtures/s28/make_fixtures.py); the metadata gains the
+# colour matrix the NR container needs (the non-raw metadata above is unchanged).
+RAW_FIXTURE_DNG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                               "fixtures", "s28", "mini.dng")
+FIXED_RAW_CCM = [1.6077, -0.416, -0.1918, -0.3678, 1.7546, -0.3868, 0.0051, -0.5874, 1.5823]
+
+
 def esc(data):
     """Bytes -> one-line readable text (printable ASCII kept, rest \\xNN)."""
     out = []
@@ -340,10 +348,12 @@ class World:
         self.utc_start = None           # aware UTC datetime the Spotter reports at t=0
         self.native_jpeg = None         # what the fake camera "captures"
         self.cam_failures = 0           # fail this many camera invocations first
+        self.raw = None                 # Sprint28: {"cam": ok|fail|no_dng|bad_dng, "ccm": bool}
         self.decoder = None             # bm_frame_decoder module (from the app under test)
 
     # --- setup -------------------------------------------------------------------------
-    def setup(self, tmp, utc_start, native_jpeg, decoder, rules=(), cam_failures=0):
+    def setup(self, tmp, utc_start, native_jpeg, decoder, rules=(), cam_failures=0, raw=None):
+        self.raw = dict(raw) if raw else None
         self.trace = Trace(tmp)
         self.utc_start = utc_start
         self.native_jpeg = native_jpeg
@@ -447,11 +457,25 @@ class World:
                 return self._result(kind, argv, 1)
             out = _opt(core, "-o", "--output")
             meta = _opt(core, "--metadata")
+            raw = self.raw if "--raw" in core else None
+            if raw is not None and raw.get("cam") == "fail":
+                self.trace.add("CAM", f"rc=1 {shown}")
+                return self._result(kind, argv, 1)
             if out:
                 shutil.copyfile(self.native_jpeg, out)
             if meta:
                 with open(meta, "w", encoding="utf-8") as fh:
-                    json.dump(FIXED_LIBCAMERA_METADATA, fh)
+                    md = dict(FIXED_LIBCAMERA_METADATA)
+                    if raw is not None and raw.get("ccm", True):
+                        md["ColourCorrectionMatrix"] = FIXED_RAW_CCM
+                    json.dump(md, fh)
+            if raw is not None and out and raw.get("cam", "ok") != "no_dng":
+                dng = os.path.splitext(out)[0] + ".dng"
+                if raw.get("cam") == "bad_dng":
+                    with open(dng, "wb") as fh:          # a TIFF with no CFA image
+                        fh.write(b"II*\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+                else:
+                    shutil.copyfile(RAW_FIXTURE_DNG, dng)
             self.trace.add("CAM", f"rc=0 {shown}")
             return self._result(kind, argv, 0)
         if name == "vcgencmd":
@@ -505,7 +529,8 @@ def install_process_fakes():
     subprocess.Popen = lambda cmd, *a, **k: WORLD.subprocess(cmd, "popen", **k)
 
     real_which = shutil.which
-    fake_bins = {"rpicam-still", "libcamera-still", "rpicam-vid", "ffmpeg", "vcgencmd"}
+    fake_bins = {"rpicam-still", "libcamera-still", "rpicam-vid", "ffmpeg", "vcgencmd",
+                 "cjxl"}   # Sprint28: cjxl only via the injected raw_runner (never spawned)
     shutil.which = lambda name, *a, **k: (f"/usr/bin/{name}" if name in fake_bins
                                           else real_which(name, *a, **k))
     socket.gethostname = lambda: "bmcam-golden"

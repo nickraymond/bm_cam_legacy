@@ -1,0 +1,23 @@
+{
+ "run": "s28_s0_calibration_20261002",
+ "sprint": "Sprint28 S0",
+ "utc": "2026-10-03T04:07:05Z",
+ "host": "Nicks-MBP.localdomain",
+ "cjxl": "cjxl v0.11.1 0.11.1 [NEON]",
+ "effort": 5,
+ "command": "tools/s28_calibrate_distances.py --data /Users/nickbuemond/Documents/GitHub/nereus-camera-test-rig/data/s4_20260930 --out runs/s28_s0_calibration_20261002",
+ "encoder": "BM_Devel_Pi/rc_raw_jxl.py",
+ "inputs_sha256": {
+  "cool_imx708/stop_-1_r0.dng": "f04790729124578e7225c128f289b09f95874e687bd53cc0b1df66e88c9512a4",
+  "cool_imx708/stop_+0_r0.dng": "c1515e8dc62188560df6440a5c358817280219ea35b7ed3bb4d0c9c281ab0554",
+  "cool_imx708/stop_+1_r0.dng": "89fdd080db233fc7c0414d0c92ac1fae1fd01c267273f746b35a7371c3b49a60",
+  "warm_imx708/stop_-1_r0.dng": "d594fb92933f63c45123f4d1d5635a85bc1e5aad199b732df9b643cb6da10871",
+  "warm_imx708/stop_+0_r0.dng": "81d3ccaa76ad588b26256da1e385c4f3831ef8004afa7c5587f962ae7097e8a6",
+  "warm_imx708/stop_+1_r0.dng": "6c7d025bf81dd639c2415d673e876b34d73db4ea2e34b4c123c65c53732f74d9"
+ },
+ "outputs": [
+  "curves.csv",
+  "rungs.json",
+  "calibration.log"
+ ]
+}

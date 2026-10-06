@@ -1,0 +1,58 @@
+{
+ "label": "study_cool_s+1_r0_bilinear",
+ "roi": [
+  1504,
+  846,
+  1600,
+  900
+ ],
+ "demosaic": "bilinear",
+ "today": {
+  "option": "today pjpg (1000x562 q-ladder, UPSAMPLED to 1600x900)",
+  "budget_msgs": 195,
+  "distance": "",
+  "quality": 80,
+  "bytes": 50854,
+  "msgs": 177,
+  "ssimulacra2": 65.949,
+  "butteraugli_max": 6.109,
+  "butteraugli_3norm": 1.803,
+  "ssim_luma": 0.97591,
+  "png": "today_pjpg_upsampled.png"
+ },
+ "smallest_passing_budget_msgs": 230,
+ "smallest_passing": {
+  "option": "(a) nrjxl at 230 msgs",
+  "budget_msgs": 230,
+  "distance": 2.869,
+  "quality": "",
+  "bytes": 66216,
+  "msgs": 230,
+  "ssimulacra2": 72.719,
+  "butteraugli_max": 5.287,
+  "butteraugli_3norm": 1.718,
+  "ssim_luma": 0.97788,
+  "png": "nrjxl_d2.869.png",
+  "pass_vs_jpeg": true
+ },
+ "windows_crop_px": {
+  "fine texture": [
+   1196,
+   164,
+   200,
+   200
+  ],
+  "edges": [
+   1167,
+   437,
+   200,
+   200
+  ],
+  "dark area": [
+   546,
+   692,
+   200,
+   200
+  ]
+ }
+}

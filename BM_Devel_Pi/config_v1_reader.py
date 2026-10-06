@@ -159,6 +159,7 @@ def read_v1(config_path):
     import network_config
     import rc_media_key
     import rc_progressive_jpeg as rc
+    import rc_raw_jxl
     import rc_transmit_phase
     import rc_video_tx
     import spotter_time_sync as sts
@@ -346,6 +347,17 @@ def read_v1(config_path):
     if _quiet(rc_media_key.warn_retired_media_gid, config_path)[0]:
         p.append("media_gid.enabled is true: media_gid was retired by wire rev 5; remove the "
                  "island before migrating (REVIEW R1)")
+
+    # ---- still_raw (Sprint28 flat island; absent = pjpg + registry defaults) --
+    sr = attempt("load_raw_config", rc_raw_jxl.load_raw_config, config_path)
+    if sr is not None:
+        v["still.format"] = sr["format"]
+        v["still.raw.distances"] = [float(d) for d in sr["distances"]]
+        v["still.raw.encode_max_s"] = int(sr["encode_max_s"])
+        v["still.raw.keep_crop"] = bool(sr["keep_crop"])
+        v["still.raw.effort"] = int(sr["effort"])
+        v["still.raw.target_fill"] = float(sr["target_fill"])
+        v["still.raw.d_max"] = float(sr["d_max"])
 
     # ---- commands (PyYAML, with its own quoted-string traps) ----------------
     bmc_raw = raw.get("bm_commands") if isinstance(raw.get("bm_commands"), dict) else {}
