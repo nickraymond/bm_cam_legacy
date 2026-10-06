@@ -1,0 +1,67 @@
+{
+ "src": "runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain",
+ "manifest": {
+  "script": "/home/pi/s28lg/s28_lowgain_pair_loop.py",
+  "host": "bmcam004",
+  "started_utc": "2026-10-06T03:00:48Z",
+  "config": "v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory",
+  "camera_controls": {
+   "enabled": true,
+   "focus": {
+    "enabled": true,
+    "mode": "auto",
+    "lens_position": 1.82
+   },
+   "white_balance": {
+    "enabled": false
+   },
+   "exposure": {
+    "enabled": false
+   },
+   "image_processing": {
+    "enabled": false,
+    "sharpness": 1.0
+   }
+  },
+  "still_crop": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "interval_s": 60,
+  "low_gain": {
+   "profile": "low_gain",
+   "max_shutter_us": 30000,
+   "max_gain": 16.0
+  },
+  "crontab_sha_start": "edbd37aa0c6e16e5",
+  "crontab_active_cycle_lines": [],
+  "software_sha": "1d0ff4f581af",
+  "ended_utc": "2026-10-06T03:02:50Z",
+  "stopped_by": "limit",
+  "pairs_attempted": 2,
+  "pairs_captured": 2,
+  "pairs_skipped_busy": 0,
+  "crontab_sha_end": "edbd37aa0c6e16e5",
+  "crontab_unchanged": true,
+  "processes_left": []
+ },
+ "pairs": 2,
+ "complete_pairs": 2,
+ "cap_us": 30000.0,
+ "floor_gain": 1.1228,
+ "tolerances_ASSUMED": {
+  "cap": 1.01,
+  "at_cap": 0.95,
+  "floor": 1.05
+ },
+ "LG1": "2/2",
+ "LG2": "2/2",
+ "LG3_daylight_pairs": "n/a",
+ "LG4": "2/2",
+ "median_g_noise_ratio": 0.838,
+ "median_r_noise_ratio": 0.806,
+ "median_r_snr_ratio": 0.65,
+ "PASS": true
+}

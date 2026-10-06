@@ -1,0 +1,6 @@
+2026-10-06T03:00:48Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 60 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab edbd37aa0c6e16e5
+2026-10-06T03:00:55Z [lowgain] pair 1 auto: ok=True  exp=66645 again=15.515152 lux=0.697069 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T03:01:01Z [lowgain] pair 1 low_gain: ok=True  exp=29997 again=16.0 lux=0.971779 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+2026-10-06T03:01:53Z [lowgain] pair 2 auto: ok=True  exp=66645 again=15.515152 lux=0.689685 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T03:01:58Z [lowgain] pair 2 low_gain: ok=True  exp=29997 again=16.0 lux=0.943168 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+2026-10-06T03:02:50Z [lowgain] end (limit): 2 pair(s), 0 skipped; crontab unchanged; processes left: none

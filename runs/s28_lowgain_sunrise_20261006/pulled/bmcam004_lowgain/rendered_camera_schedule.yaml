@@ -1,0 +1,104 @@
+# GENERATED at boot from camera_config.yaml (config v2) for the legacy runtime.
+# tmpfs only; never edit; never the source of truth (PLAN_S2.md G2).
+time_source: "spotter_utc"
+timezone: "America/Los_Angeles"
+transmit_window:
+  start: "00:00"
+  end: "00:00"
+enforce_time_window: true
+enforce_spotter_time_window: true
+set_system_clock_from_spotter: true
+spotter_time_timeout_seconds: 60
+allow_system_clock_fallback: true
+uart_port: "/dev/ttyAMA0"
+baudrate: 115200
+rtc:
+  hwclock_path: "/usr/sbin/hwclock"
+  set_system_clock_from_rtc: true
+  require_plausible_after_utc: "2026-01-01T00:00:00+00:00"
+image_pipeline:
+  capture_backend: "rpicam"
+  source:
+    width: 4608
+    height: 2592
+    jpeg_quality: 95
+  camera_controls:
+    enabled: true
+    focus:
+      enabled: true
+      mode: "auto"
+      lens_position: 1.82
+    white_balance:
+      enabled: false
+    exposure:
+      enabled: false
+    image_processing:
+      enabled: false
+      sharpness: 1.0
+capture_mode: "video"
+progressive_jpeg:
+  max_run_time_min: 8
+  message_cap: 195
+  output_width: 1000
+  quality:
+    ladder: "90,80,70,60,50,40,30,25,20,15,13,11,9"
+  crop:
+    x: 1504
+    y: 846
+    w: 1600
+    h: 900
+power_halt:
+  enabled: true
+  dry_run: false
+  mode: "halt"
+  script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"
+bm_serial:
+  network_type: 0x02
+  image_buffer_size: 384
+  image_transmit_delay_seconds: 1.3
+bm_commands:
+  enabled: true
+  topic: "bmcam/cmd"
+  post_transmit_listen_s: 150.0
+  defer_acks_during_transmit: false
+  state_path: "/home/pi/BM_Devel_Pi/bm_command_state_v2.json"
+transmit_phase:
+  enabled: false
+  grid_seconds: 300.0
+  post_boundary_guard_s: 30.0
+  pre_boundary_guard_s: 20.0
+  max_wait_s: 300.0
+media_key:
+  enabled: true
+  retain_days: 14.0
+video:
+  clip_minutes: 5.0
+  fps: 15
+  bitrate_mbps: 6.0
+  session_minutes: 0
+  dir: "/home/pi/BM_Devel_Pi/videos"
+  preset: "wide_1080p_lean"
+  storage:
+    max_used_pct: 75.0
+    min_free_gb: 10.0
+    ring_dry_run: false
+  encoder:
+    profile: ""
+    level: ""
+    intra: 0
+  ui:
+    enabled: true
+    port: 8080
+video_tx:
+  enabled: true
+  duration_s: 5.0
+  lead_in_s: 2.0
+  fps: 10
+  message_cap: 190
+  keyframe_repeat_max: 30
+  output: "480x270"
+  preset: "medium"
+network:
+  default: "nereus_hq"
+  ap_fallback_s: 90
+  ap_timeout_min: 60

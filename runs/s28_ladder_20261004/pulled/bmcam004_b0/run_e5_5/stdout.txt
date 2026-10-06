@@ -1,0 +1,6 @@
+[RAW] host=bmcam004 dng=/home/pi/b0_b3a/cap.dng crop=[1504, 846, 1600, 900] cfg={'format': 'pjpg', 'distances': [3.8, 4.6, 5.95, 8.25], 'encode_max_s': 30, 'keep_crop': False, 'effort': 5, 'target_fill': 0.97, 'd_max': 10.4, 'layout': 'rgb', 'source': 'default'}
+[RAW] rgb (B3a) written to /home/pi/b0_b3a/run_e5_5/work; supervisor VmRSS=29248 KiB (cjxl runs on top of this)
+[RAW] search1 d=2.573: 49099 B, 171 msgs, over_cap=False, budget_fit=True, 9.2 s, peak_rss=98232 KiB
+[RAW] search2 d=2.277: 57103 B, 199 msgs, over_cap=True, budget_fit=True, 9.5 s, peak_rss=98240 KiB
+[RAW] search3 d=2.365: 54407 B, 189 msgs, over_cap=False, budget_fit=True, 9.4 s, peak_rss=98236 KiB
+[RAW] wrote /home/pi/b0_b3a/run_e5_5/image_compressed.nrjxl (54407 B, d=2.365, att=3, 28.036 s)

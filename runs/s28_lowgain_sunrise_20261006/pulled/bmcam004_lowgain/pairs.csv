@@ -1,0 +1,5 @@
+utc,pair,profile,ok,why,exposure_us,analogue_gain,digital_gain,lux,colour_gain_r,colour_gain_b,colour_temperature,tuning_file_logged,exposure_profile_applied,exposure_tuning_file_used,capture_s,dir
+2026-10-06T03:00:55Z,1,auto,True,,66645,15.515152,1.011357,0.697069,1.452589,3.059497,3139,/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json,,,5.49,001_auto
+2026-10-06T03:01:01Z,1,low_gain,True,,29997,16.0,2.000183,0.971779,1.360983,3.46051,2865,/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json,True,True,4.51,001_low_gain
+2026-10-06T03:01:53Z,2,auto,True,,66645,15.515152,1.011357,0.689685,1.500208,2.868204,3279,/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json,,,4.28,002_auto
+2026-10-06T03:01:58Z,2,low_gain,True,,29997,16.0,2.000183,0.943168,1.350772,3.492496,2833,/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json,True,True,4.38,002_low_gain

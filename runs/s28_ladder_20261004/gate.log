@@ -219,3 +219,30 @@ e44dde54e26f
 2026-10-06T02:02:32Z [deploy-b3a bmcam004] snapshot after_b3a
 halt-issued
 2026-10-06T02:03:00Z [deploy-b3a bmcam004] bmcam004 dark (DEPLOYED)
+2026-10-06T03:00:45Z [w03 bmcam004] disarmed TS=20261006T030044Z (restore: crontab ~/hil_backup/20261006T030044Z/crontab_ARMED.txt)
+2026-10-06T03:00:47Z [bmcam004] low-gain sunrise detach: /home/pi/s28lg/run_20261006T030045Z (--out /home/pi/s28lg/run_20261006T030045Z --interval-s 60 --max-shutter-us 30000 --max-gain 16 --max-pairs 2); loop b5ab4317d09c15cd
+bash: line 1: /home/pi/s28lg/run_20261006T030045Z/loop.pid: No such file or directory
+cat: /home/pi/s28lg/run_20261006T030045Z/loop.pid: No such file or directory
+2026-10-06T03:00:48Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 60 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab edbd37aa0c6e16e5
+2026-10-06T03:00:55Z [lowgain] pair 1 auto: ok=True  exp=66645 again=15.515152 lux=0.697069 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T03:01:01Z [lowgain] pair 1 low_gain: ok=True  exp=29997 again=16.0 lux=0.971779 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+2026-10-06T03:01:53Z [lowgain] pair 2 auto: ok=True  exp=66645 again=15.515152 lux=0.689685 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T03:01:58Z [lowgain] pair 2 low_gain: ok=True  exp=29997 again=16.0 lux=0.943168 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+2026-10-06T03:02:50Z [lowgain] end (limit): 2 pair(s), 0 skipped; crontab unchanged; processes left: none
+5
+/dev/mmcblk0p2  115G   87G   24G  79% /
+2026-10-06T03:02:59Z [bmcam004] pulled /home/pi/s28lg/run_20261006T030045Z -> runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+2026-10-06T03:02:59Z [w03 bmcam004] smoke done; pulled to runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+[b0] deadline: e5 #9 not started
+[b0] deadline: e5 #10 not started
+[b0] deadline: e4 #1 not started
+[b0] deadline: e4 #2 not started
+[b0] e5: n=6 kills/fallbacks=0 median_encode_s=28.012500000000003 max_encode_s=29.004 max_vmpeak_kb=129468 max_vmhwm_kb=98284 median_cpu_s=31.36 median_wall_s=31.275
+[b0] dmesg kill/oom lines: 0
+n/a
+MemAvailable: 226128 kB CmaFree: 127572 kB 
+2026-10-06T03:06:15Z [w03 bmcam004] B0 partial pulled (resume at 04:00Z if runs remain)
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T03:06:16Z [w03 bmcam004] RE-ARMED
+halt-issued
+2026-10-06T03:06:45Z [w03 bmcam004] bmcam004 dark
