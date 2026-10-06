@@ -38,6 +38,8 @@ expect "change refuses rig mismatch" 5 0 "$T/hil_change.sh" X BMCAM_003 SPOT-315
 expect "sofar refuses BMCAM_001"   5 0 "$T/hil_sofar_change.sh" X BMCAM_001 '{"set":{}}'
 expect "sofar refuses empty"       1 0 "$T/hil_sofar_change.sh" X "" '{"set":{}}'
 expect "pistate refuses bmcam001"  5 0 "$T/hil_pistate.sh" X bmcam001
+expect "lowgain refuses bmcam001"  5 0 "$T/hil_s28_lowgain_sunrise.sh" bmcam001 "$W/run" run
+expect "lowgain refuses empty"     1 0 "$T/hil_s28_lowgain_sunrise.sh" "" "$W/run" run
 expect "snapshot refuses bmcam002" 5 0 "$T/hil_unit_snapshot.sh" bmcam002 x
 expect "ip probe refuses bmcam002"  5 0 "$T/hil_ip_range_probe.sh" bmcam002 "$W/ipp"
 expect "deploy refuses bmcam001"   5 0 "$T/hil_deploy_unit.sh" bmcam001 x
