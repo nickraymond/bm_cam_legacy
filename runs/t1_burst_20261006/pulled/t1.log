@@ -1,0 +1,3 @@
+[t1] host=bmcam003 bursts=18 count=120 size=384 gap=1.3s
+[t1] t1bsettl00 b-settle steady start=2026-10-06T16:05:03+00:00 sent=120 wall=154.7s
+[t1] t1aoverl01 a-overlap steady start=2026-10-06T16:09:30+00:00 sent=120 wall=154.7s
