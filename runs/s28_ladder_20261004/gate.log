@@ -322,3 +322,10 @@ halt-issued
 2026-10-06T19:16:24Z B1 19:00Z wake: START fmt=nrjxl q=435 att=2 cmp=1 len 186 key=0eca52 cfg=9e346071 sha=104ee3cdbab0; END sent 186, burst 246.7 s; wake->halt 501 s; queue_full 5; daylight et_us 3023 ag 1.12 lux 5085. No fallback.
 2026-10-06T19:47:06Z B1 backend 19:46Z: media 57901 nrjxl 181/186 (missing 178-182 = :05 report overlap), placeholder; awaiting heal
 2026-10-06T20:16:33Z B1 sample 2 (20:00Z): nrjxl q=402 att=2 len 187 key 0eccx2, halt 502 s, queue_full 49 (20:05:01-20:06:06, :05 report), no 57901 heal yet
+0eca52 2026-10-06T19:00:38Z_image_compressed.sent.json
+0eccx2 2026-10-06T20:00:38Z_image_compressed.sent.json
+2026-10-06T22:00:47Z [b1pull] 0eca52: 2026-10-06T19:00:38Z_image_compressed.sent.json + 2026-10-06T19:00:38Z_image_compressed.nrjxl (53506 B)
+2026-10-06T22:00:48Z [b1pull] 0eccx2: 2026-10-06T20:00:38Z_image_compressed.sent.json + 2026-10-06T20:00:38Z_image_compressed.nrjxl (53656 B)
+0eca52 2026-10-06T19:00:38Z_image_compressed.nrjxl sha256 MATCH (f23771ac8b963ae91f2450da7feb8977dfed0fddea2f6b57eba510fa87abc7c0) msgs=186 fmt=nrjxl
+0eccx2 2026-10-06T20:00:38Z_image_compressed.nrjxl sha256 MATCH (7f3e624c1c235863293cf5e6ba5df85352d836646af2f601326c41ce6d49c8ba) msgs=187 fmt=nrjxl
+2026-10-06T22:00:48Z [b1pull] B1 container pull done (read-only)

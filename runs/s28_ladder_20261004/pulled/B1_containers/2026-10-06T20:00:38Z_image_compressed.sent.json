@@ -1,0 +1,11 @@
+{
+ "key": "0eccx2",
+ "fmt": "nrjxl",
+ "filename": "2026-10-06T20:00:38Z_image_compressed.nrjxl",
+ "chunk_b64_chars": 384,
+ "msgs": 187,
+ "sha256": "7f3e624c1c235863293cf5e6ba5df85352d836646af2f601326c41ce6d49c8ba",
+ "payload": "/home/pi/BM_Devel_Pi/images/2026-10-06T20:00:38Z_image_compressed.nrjxl",
+ "sent_utc": "2026-10-06T20:01:06Z",
+ "chunk_total": true
+}
