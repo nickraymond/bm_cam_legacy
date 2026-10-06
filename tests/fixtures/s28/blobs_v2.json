@@ -22,5 +22,55 @@
    "encoder": "rc_raw_jxl B3a production steps, cjxl v0.11.1 0.11.1 [NEON], e5",
    "builder": "tests/fixtures/s28/make_v2_fixture.py"
   }
+ },
+ "v1_pair": {
+  "blob_v1_bmcam004_57521.nrjxl": {
+   "sha256": "df1f632702d8584e6c26b2946c355453fa3dbff161696bfc99031e5f5e71030a",
+   "bytes": 56136,
+   "what": "the v1 (bayer4) blob bmcam004 SENT for media 57521 (SPOT-31593C 2026-10-05T16:00:29Z); the v2 fixture is built from its decoded mosaic + this header",
+   "header": {
+    "method": 14,
+    "flags": 4,
+    "cfa": "BGGR",
+    "b": 12,
+    "w": 1600,
+    "h": 900,
+    "black": 64,
+    "white": 1023,
+    "pedestal": 0,
+    "lengths": [
+     12994,
+     15518,
+     15541,
+     12005
+    ]
+   },
+   "params": [
+    1,
+    1504,
+    846,
+    4608,
+    2592,
+    1702219290,
+    2418,
+    1123,
+    18926,
+    21805,
+    15730,
+    -3753,
+    -1977,
+    -3342,
+    17810,
+    -4468,
+    -72,
+    -5577,
+    15649,
+    240,
+    970,
+    5,
+    1001,
+    4340
+   ]
+  }
  }
 }
