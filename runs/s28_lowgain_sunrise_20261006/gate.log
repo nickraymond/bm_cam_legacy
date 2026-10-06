@@ -75,3 +75,4 @@ halt-issued
 bus_on_watch: False
 2026-10-06T15:04:35Z [sunriseB] phase B done
 2026-10-06T15:05:08Z [verdict] sunrise run 13:11-15:00Z: 37 pairs (36 complete), analyzer PASS: LG1 36/36, LG2 36/36, LG3 daylight 11/11, LG4 36/36; median noise ratio G 0.961 R 0.952, R SNR 0.875. Restored 15:04Z (1/3600000/600000, armed, halted). Minor: stop still printed loop.pid missing (9efc3b4) - SIGINT fallback worked.
+2026-10-06T15:09:40Z [note] camera session: day DNG sha256 verified; stop loop.pid message fixed in 0671ef8 (tools only); B3a@1600 on the daylight pair ≈ today's JPEG (runs/s28_b3a_daylight_20261006, 104ee3c, camera session).
