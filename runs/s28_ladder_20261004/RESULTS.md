@@ -182,3 +182,9 @@ day +5 s → ~488–510 s; night +13 s → ~496–518 s (EM's estimate 490–510
 | console reassembly | 181/186 (the 5 rejected chunks never reached the console); full-container check waits for the heal |
 Status: OPEN — B1 completes when the heal fills 178–182 (REASK 5400 s → expected at the 21:00Z or 22:00Z wake); then
 render + LinearRaw DNG check (QC gets 57901).
+
+Second sample, 20:00Z wake: START fmt=nrjxl q=402 att=2 cmp=1 length 187, key 0eccx2 (no rfb); END sent 187, burst
+248.0 s, wake→halt 502 s. **queue_full 49**, all between 20:05:01 and 20:06:06Z, i.e. from the Spotter's :05 report
+sync (`Attempting to Sync` 20:05:00) on (≈ chunks 138–186 by send time; START 20:01:59). Health check 20:02:34 caused
+none. No heal chunks for 57901 (0eca52) in this wake (REASK 5400 s → its heal is due later). B3a encode + send are
+consistent (2 attempts, ~187 msgs, ~500 s halt); delivery loss is the :05 overlap, not B3a.
