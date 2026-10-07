@@ -27,3 +27,4 @@ HDR) → no stop, no move to R2-L1; keep ABBA running until Nick is up (~07:00 P
 
 First block done (2 A + 2 B; EM: no rule stop, continue): A 12.75 % (Notecard stall, no HDR) and 0 %; B 7.27 % and
 5.71 %, both entirely at the :05 HDR (the 230 s hold puts START at ~:03:57, so every B burst crosses :04:59–:05:01).
+| 11:00 | 04:00 | A (heal 0, budget_left 469 s) | **10.38** (11/106) | 30×10, 49×1 (11:01:08–11:01:28) | 10 | 11 (11:01:11.2–11:01:30.6) | 9 / 50.3 s / 11 of 11 | no HDR crossed → HDR 0 / other 11 | 11:00:38 | 11:02:27 | 308 s | **no** |
