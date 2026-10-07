@@ -44,3 +44,4 @@ climbs 5 → 12 % through the burst in all three (the stall wakes are not fuller
   updating"; first reject 11:01:11.222.
 - 08Z (clean): same 08:01:05.453 topology sample, same CRC lines, no stall.
 The stall onset is a Notecard-side hand-off delay with no visible Spotter trigger in the console.
+| 12:00 | 05:00 | A (heal 0, budget_left 470 s) | **12.62** (13/103) | 33×1, 39×2, 44×10 (12:01:11–12:01:34) | 10 | 13 (12:01:13.7–12:01:34.0) | 12 / 47.0 s / 13 of 13 | no HDR → HDR 0 / other 13 | 12:00:37 | 12:02:23 | 308 s | **no** |
