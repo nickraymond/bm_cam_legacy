@@ -32,10 +32,10 @@
   "B"
  ],
  "b_value": "1.5",
- "pointer": 6,
+ "pointer": 7,
  "counts": {
   "A": 3,
-  "B": 3
+  "B": 4
  },
  "history": [
   {
@@ -79,14 +79,21 @@
    "arm": "B",
    "delay_s": 1.5,
    "line": "(recorded by hand 21:16Z: switch launchers did not fire; YAML msg_interval_s 1.5 written 20:04:03Z rc 0; Pi halted when checked; confirm 1.5 s spacing on the console)"
+  },
+  {
+   "wake_utc_hour": 22,
+   "day": "2026-10-07",
+   "arm": "B",
+   "delay_s": 1.5,
+   "line": "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.5"
   }
  ],
  "stopped": null,
  "next": {
-  "wake_utc_hour": 22,
-  "arm": "B",
-  "written": "msg_interval_s: 1.5  # R3-PACE arm B (unchanged since 20Z write)",
+  "wake_utc_hour": 23,
+  "arm": "A",
+  "written": "msg_interval_s: 1.0  # R3-PACE arm A",
   "rc": 0,
-  "set_at_wake": 21
+  "set_at_wake": 22
  }
 }
