@@ -2,3 +2,4 @@
 2026-10-07T15:20:37Z R3-PACE set up (gate hil/gates/R3_PACE.md, rules fixed before the first counted wake). bmcam003 pacing currently 1.0 s (A), r2_start_delay_s 0. First counted wake 16:00Z = A; switch at 16:01:30Z writes 1.3 for 17Z.
 2026-10-07T15:21:58Z B = 1.5 s (Nick 08:20 PDT): schedule.json created with b_value 1.5 before the 16:01:30Z write; gate amended (expected B ~6 % vs A ~11.5 %; flag B bursts crossing :05:00; ~170 msgs at 1.5 s reach the HDR).
 2026-10-07T16:01:37Z [r3switch] wake 16Z arm A (delay_s 1.0) | seq 1/30 counts={'A': 1, 'B': 0} | next 17Z = B (yaml: 'msg_interval_s: 1.5  # R3-PACE arm B', rc 0) (rc 0)
+2026-10-07T16:23:16Z WAKE 16Z A (1.0 s): 170 msgs, loss 18.82 % (32/170) in 3 non-HDR stall clusters (16:01:23 / 16:02:41 / 16:03:16), queue_full 33 incl. END; START 16:00:35, halt 376 s, not clean
