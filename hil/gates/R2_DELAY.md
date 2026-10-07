@@ -60,4 +60,7 @@ and is not counted as B; heals per wake are logged. **EM 2026-10-07:** run an ex
 Record budget_left on every B wake (patch 80c3662 logs `budget_left`, `heal_msgs`, `burst_est` on every wake; EM's
 expected arithmetic: 570 s − ~232 s wait ≈ 338 s left vs 195 s + heals). Arm switching: `hil/tools/hil_r2_switch.py`
 (state `runs/r2_delay_20261006/schedule.json`).
+**EM 2026-10-07 ~09:4xZ:** both arms showed holes from different causes (A: a Notecard hand-off stall at :01:45;
+B: the Spotter's :05 HDR) — not covered by rules 1–3 → no stop, no R2-L1; ABBA continues until Nick decides (~07 PDT);
+per wake also log whether the burst crosses a 5-min HDR mark and rejects in HDR-start stalls vs other stalls.
 **Safety stop:** any wake whose burst ends after :09:00 or whose wake→halt > 570 s.

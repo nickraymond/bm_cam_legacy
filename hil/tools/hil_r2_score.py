@@ -77,7 +77,18 @@ def main():
     stalls = sorted((added[i], queued[i]) for i in added if i in queued and (queued[i] - added[i]).total_seconds() > 1.0)
     qf_t = [_t(x) for x in qf]
     in_stall = sum(any(a0 <= x <= b0 for a0, b0 in stalls) for x in qf_t)
+    # HDR marks (EM 2026-10-07): the Spotter's own HDR message every 5 min (:x4:59/:x9:59 on SPOT-33507C). A reject is
+    # attributed to an HDR if it falls inside a hand-off stall AND within 60 s after an HDR was added.
+    hdr_t = [_t(t) for t in re.findall(r"(\d{4}-\d\d-\d\dT[\d:.]+Z) \[HDR\] \[INFO\] HDR Message \d+ added", raw)]
+    st_t = _t(start.group(1)) if start else None
+    en = re.search(r"CELL (\S+) [^\n]*?<END IMG>", dec)
+    en_t = _t(en.group(1)) if en else None
+    crossed = [h.strftime("%H:%M:%S") for h in hdr_t if st_t and en_t and st_t <= h <= en_t]
+    rej_hdr = sum(1 for x in qf_t if any(a0 <= x <= b0 for a0, b0 in stalls)
+                  and any(0 <= (x - h).total_seconds() <= 60 for h in hdr_t))
     stall_stats = {"n_gt_1s": len(stalls),
+                   "hdr_marks_crossed": crossed, "rejects_hdr_stalls": rej_hdr,
+                   "rejects_other_stalls": in_stall - rej_hdr,
                    "longest_s": round(max(((b0 - a0).total_seconds() for a0, b0 in stalls), default=0.0), 2),
                    "rejects_in_stalls": in_stall, "rejects_outside": len(qf_t) - in_stall,
                    "first_stall": stalls[0][0].strftime("%H:%M:%S") if stalls else None}

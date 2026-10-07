@@ -18,3 +18,8 @@ framing is ~390 B (EM 10/7). Kept for both arms.
 `[R2DELAY]` lines (from schedule.json): 07Z `start_delay_s=0 uptime=35.36s wait=0.0s burst_est=105s heal_msgs=0 budget_left=464s skipped=False`;
 08Z `start_delay_s=0 uptime=35.8s wait=0.0s burst_est=113s heal_msgs=0 budget_left=464s skipped=False`.
 | 09:00 | 02:00 | B (applied; heal_msgs 0, budget_left 468 s) | **7.27** (8/110) | 63×7, 91×1 (09:05:01–09:05:31) | 7 | 8 (09:05:04.1–09:05:32.7) | 8 / 43.5 s / 8 of 8 — starts at the **09:05:01 HDR** | 09:03:57 | 09:05:50 | 498 s | **no** |
+
+HDR attribution (EM 10/7 ~09:4xZ; scorer: rejects inside a hand-off stall within 60 s after an HDR = HDR):
+07Z A: crossed none; rejects HDR 0 / other stalls 13. 08Z A: none; 0/0. 09Z B: crossed 09:05:01; HDR 8 / other 0.
+**EM decision 10/7:** the rules do not cover "both arms have holes from different causes" (A: Notecard stall, B: :05
+HDR) → no stop, no move to R2-L1; keep ABBA running until Nick is up (~07:00 PDT); delay value unchanged.
