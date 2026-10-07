@@ -7,3 +7,4 @@
 2026-10-07T17:23:14Z WAKE 17Z B (1.5 s): 188 msgs, loss 12.77 % (24/188), gaps of 7/7/7/3 (non-HDR stalls 21 + :05 HDR 3), END 17:05:22 -> CROSSED HDR flag; halt 486 s
 2026-10-07T18:01:37Z [r3switch] wake 18Z arm B (delay_s 1.5) | seq 3/30 counts={'A': 1, 'B': 2} | next 19Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
 2026-10-07T18:23:10Z WAKE 18Z B (1.5 s): 189 msgs, loss 16.93 % (32/189), five 7/7/7/7/4 gaps, END 18:05:33 -> CROSSED HDR; halt 496 s
+2026-10-07T19:01:36Z [r3switch] wake 19Z arm A (delay_s 1.0) | seq 4/30 counts={'A': 2, 'B': 2} | next 20Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
