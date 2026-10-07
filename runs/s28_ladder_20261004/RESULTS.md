@@ -202,3 +202,7 @@ capture → D1 3 h missed by 10 min), render_state renderable, display JPEG pres
 57914 178/187 (healing). Later stills 57928/57942/57955 lost 38–50 chunks each to the :05 overlap → the lane +
 re-phase (Nick GO 10/6 22:50Z) is the fix under test. **B1 overall: PASS for format/decode/render; delivery OK via
 heal.**
+QC prod check of 57901 (frontend QC session, 22:26Z): **PASS** — size line "Linear RGB 1600×900 · 3×16-bit · 8.6 MB
+unpacked · Sent (compressed) 53.5 kB (34:1 vs RAW) · 186 msgs"; Linear DNG = LinearRaw 34892 3×16-bit (rawpy opens);
+/hq 1600×900, 0 % magenta, 17 % clipped highlights; prod original 53,506 B, sha256 f23771ac8b963ae9… = the unit's
+sent record → the heal is byte-exact end to end.
