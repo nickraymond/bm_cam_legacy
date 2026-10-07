@@ -52,3 +52,11 @@ The stall onset is a Notecard-side hand-off delay with no visible Spotter trigge
 13:03:19 → `Waiting for TX` → `All messages sent successfully!` 13:04:06.9 (47.6 s). The B burst started 13:03:58,
 inside that sync; the hand-off stalls run 13:03:59 → 13:05:07. So B's hold (START ~:03:57) sits on two Spotter events:
 the boot-anchored health-check sync (:03:19–:04:07 today; :03:22–:03:33 on other wakes) and the :05 HDR when present.
+| 14:00 | 07:00 | B (applied; heal 0, budget_left 472 s) | **11.36** (15/132) | 62×4, 86×10, 105×1 (14:05:01–14:05:45) | 10 | 15 (14:05:03.9–14:05:47.7) | 13 / 48.3 s / 15 of 15 | HDR crossed 14:05:01 (4045 B) → HDR 15 / other 0; health-check sync 14:03:18 → sent 14:04:00.2 (START 14:03:58 just before its end, no rejects there) | 14:03:58 | 14:06:13 | 497 s | **no** |
+
+**Tally after 2 ABBA blocks (8 counted wakes; EM: no rule stop, continue until Nick decides):**
+| arm | n | loss % per wake | median | cause of every hole |
+|---|---|---|---|---|
+| A (0 s) | 4 | 12.75, 0.00, 10.38, 12.62 | 11.50 | early non-HDR Notecard hand-off stall at ~:01:10–:01:45 (3/4) |
+| B (230 s) | 4 | 7.27, 5.71, 30.19, 11.36 | 9.32 | Spotter events at START ~:03:58–:06:13: the :05 HDR (3/4) and the health-check sync (:03:18–:04:07; 1/4) |
+Neither arm is clean on this Spotter; the hold moves the burst from one hazard window to another.
