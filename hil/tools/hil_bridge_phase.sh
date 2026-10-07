@@ -37,15 +37,19 @@ case "$MODE" in
   *)     echo "[phase] mode must be 'ticks MM' or 'utc'"; exit 2;;
 esac
 LEAD="${HIL_PHASE_LEAD_S:-8}"
+DRY="${HIL_PHASE_DRY:-0}"     # 1 = rehearsal: read-backs run, the set/commit console lines are ECHOED, not sent
+# every ssh is bounded (perl alarm: macOS has no `timeout`) so a dying Pi cannot hang the tool (2026-10-07 lesson)
+B() { perl -e 'alarm shift; exec @ARGV' "$@"; }
 RUN="$HIL_RUN_DIR"; mkdir -p "$RUN/console"
 CON="$HIL_TOOLS_DIR/hil_console.sh"
 log() { echo "$(date -u +%FT%TZ) [phase $SPOT/$H] $*" | tee -a "$RUN/gate.log"; }
-up() { ssh -o BatchMode=yes -o ConnectTimeout=3 "pi@$H" true < /dev/null 2>/dev/null; }
+up() { B 8 ssh -o BatchMode=yes -o ConnectTimeout=3 -o ServerAliveInterval=2 -o ServerAliveCountMax=2 "pi@$H" true < /dev/null 2>/dev/null; }
+send() { if [ "$DRY" = 1 ]; then echo "[DRY] would send to $SPOT: $1"; else B 30 "$CON" "$SPOT" "$1" 4; fi; }
 readback() { for k in ticksSamplingEnabled bridgePowerControllerEnabled sampleIntervalMs sampleDurationMs alignmentInterval5Min; do
-  v=$("$CON" "$SPOT" "bridge cfg get $BR s $k" 3 2>/dev/null | grep -oE "Value: *[0-9]+" | grep -oE "[0-9]+" | tail -1); echo "$k=$v"; done; }
+  v=$(B 30 "$CON" "$SPOT" "bridge cfg get $BR s $k" 3 2>/dev/null | grep -oE "Value: *[0-9]+" | grep -oE "[0-9]+" | tail -1); echo "$k=$v"; done; }
 if up; then log "REFUSED: $H is UP (a commit cuts a running Pi)"; exit 2; fi
 log "before: $(readback | tr '\n' ' ')"
-"$CON" "$SPOT" "bridge cfg set $BR s u ticksSamplingEnabled $TICKS" 4 | grep -E "Value|Succes" | tee -a "$RUN/gate.log"
+send "bridge cfg set $BR s u ticksSamplingEnabled $TICKS" | grep -E "Value|Succes|DRY" | tee -a "$RUN/gate.log"
 if [ "$TICKS" = 1 ]; then
   # next hh:MM:00 at least 120 s away, minus the lead
   T=$(python3 -c "
@@ -57,12 +61,13 @@ print(int(t.timestamp()) - $LEAD)")
   while [ "$(date -u +%s)" -lt "$T" ]; do sleep 1; done
   up && { log "REFUSED at commit time: $H came UP"; exit 2; }
 fi
-"$CON" "$SPOT" "bridge cfg commit $BR s" 4 | grep -E "Reboot info|bus power|power on for" | tee -a "$RUN/gate.log"
+send "bridge cfg commit $BR s" | grep -E "Reboot info|bus power|power on for|DRY" | tee -a "$RUN/gate.log"
+[ "$DRY" = 1 ] && { log "DRY run complete (nothing sent); read-back unchanged: $(readback | tr '\n' ' ')"; exit 0; }
 log "COMMITTED ticksSamplingEnabled=$TICKS (phase anchor = this time + bridge reset); waiting for the stub-window boot"
 T0=$(date -u +%s)
 until up; do sleep 2; [ $(( $(date -u +%s) - T0 )) -gt 110 ] && { log "Pi not up in the stub window"; break; }; done
 if up; then
-  ssh -o BatchMode=yes "pi@$H" 'nohup sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh >/dev/null 2>&1 </dev/null & echo "[phase] stub boot halted $(date -u +%T)"' < /dev/null 2>&1 | tee -a "$RUN/gate.log"
+  B 15 ssh -o BatchMode=yes -o ConnectTimeout=3 -o ServerAliveInterval=2 -o ServerAliveCountMax=2 "pi@$H" 'nohup sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh >/dev/null 2>&1 </dev/null & echo "[phase] stub boot halted $(date -u +%T)"' < /dev/null 2>&1 | tee -a "$RUN/gate.log"
   sleep 20; up && log "WARNING $H still up after halt" || log "$H dark"
 fi
 AFTER=$(readback); log "after: $(echo "$AFTER" | tr '\n' ' ')"

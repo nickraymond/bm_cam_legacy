@@ -354,3 +354,24 @@ effective lane: True 3600 375 20 180 dropped []
 2026-10-07T00:00:44Z [w00 lane+phase] RE-ARMED
 halt-issued
 2026-10-07T00:20:44Z B1 57901 COMPLETE (healed 22:10:34Z), renderable; sent to QC. 57914 178/187
+2026-10-07T01:02:03Z [w01 phase] ABORT: still up after halt -> no re-phase
+2026-10-07T01:05:34Z [phase SPOT-31593C/bmcam004] before: ticksSamplingEnabled=0 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+[DRY] would send to SPOT-31593C: bridge cfg set 0e582dd12c1e1480 s u ticksSamplingEnabled 1
+2026-10-07T01:05:34Z [phase SPOT-31593C/bmcam004] commit scheduled at 01:07:32 (= :08:00 − 28s); windows will open at :08 from one hour after
+[DRY] would send to SPOT-31593C: bridge cfg commit 0e582dd12c1e1480 s
+2026-10-07T01:07:58Z [phase SPOT-31593C/bmcam004] DRY run complete (nothing sent); read-back unchanged: ticksSamplingEnabled=0 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+2026-10-07T01:08:34Z [w02 phase DRY=1] caught boot in 2 s
+86632 bash -c pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 1; pgrep -af '[r]c_run_capture_cycle|[r]c_progressive_jpeg' || echo no-cycle; crontab -l | grep -cE '^@reboot.*rc_run_capture_cycle' | sed 's/^/armed_lines=/'
+no crontab for pi
+armed_lines=0
+2026-10-07T01:08:36Z [w02 phase DRY=1] stop-cycle step returned in 2 s (rc 0)
+[DRY] would halt 192.168.1.45
+2026-10-07T01:08:36Z [w02 phase DRY=1] DRY: halt step returned in 0 s; stopping before the commit (Pi left up, cron armed)
+2026-10-07T01:08:50Z [w02 phase DRY=1] caught boot in 3 s
+no-cycle
+no crontab for pi
+armed_lines=0
+2026-10-07T01:08:52Z [w02 phase DRY=1] stop-cycle step returned in 2 s (rc 0)
+[DRY] would halt 192.168.1.45
+2026-10-07T01:08:52Z [w02 phase DRY=1] DRY: halt step returned in 0 s; stopping before the commit (Pi left up, cron armed)
+2026-10-07T01:09:08Z re-phase rehearsal PASS: hil_bridge_phase DRY (read-back 26 s each, commit fired on schedule, echoed only, bridge unchanged); w02 script DRY on nereus000 (catch 2 s, stop-cycle 2 s, halt echoed; self-match in the crontab grep found + fixed); every ssh bounded (perl alarm 8-30 s, ServerAlive 2x2); deadline 02:02:20 dark else no commit
