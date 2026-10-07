@@ -43,3 +43,4 @@ sed: -e expression #1, char 0: unmatched `{' (rc 4)
 2026-10-07T11:01:35Z [r2switch] wake 11Z arm A applied=True  | seq 4/12 counts={'A': 3, 'B': 2} | next 12Z = A (wrote '0') (rc 0)
 2026-10-07T11:31:43Z WAKE 11Z A: loss 10.38 % (11/106) gaps 30x10 + 49x1, queue_full 11 11:01:11-11:01:30, all in non-HDR hand-off stalls (first 11:01:10, longest 50.3 s); START 11:00:38 END 11:02:27, halt 308 s, NOT clean
 2026-10-07T11:32:43Z desk check early stalls: topology/network hypothesis NOT supported (topology sampler at ~:01:05 every wake incl. clean 08Z, CRC unchanged -> no message, no sync before :02); Notecard-side delay, no visible trigger
+2026-10-07T12:01:37Z [r2switch] wake 12Z arm A applied=True  | seq 5/12 counts={'A': 4, 'B': 2} | next 13Z = B (wrote '230') (rc 0)
