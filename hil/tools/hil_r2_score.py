@@ -9,6 +9,7 @@ lines inside the burst (times), so the holes can be put next to the report/sync.
 Inputs:  --console wake_<SPOT>_<ts>.txt (hil_wake_report.sh excerpt), [--key 6-char START key; default = the
          first START in the excerpt], --arm A|B, --out-json
 Outputs: one JSON line (and --out-json file): key, M, accepted, missing, loss_pct, gaps [[start_idx, len, t_first]],
+         handoff_stalls {n_gt_1s, longest_s, rejects_in_stalls, rejects_outside},
          max_gap, queue_full [times], start_t, end_t, spotter_events [[t, what]], clean (loss <= 2 % and max_gap < 5)
 Example: python3 hil/tools/hil_r2_score.py --console runs/r2_delay_20261006/console/wake_SPOT-33507C_2026-10-07T0700.txt --arm A
 Limits:  relies on the console capture being complete (a capture gap counts as a loss: cross-check with the
@@ -65,11 +66,27 @@ def main():
                               r"\[MS\] \[DEBUG\] Waiting for TX|\[MS\] \[INFO\] All messages sent successfully|"
                               r"\[HDR\] \[INFO\] HDR Message \d+ added|\[MS\] \[INFO\] Added message\(id: \d+ len: \d+\) to queue MS_Q_LEGACY)", raw):
         ev.append([t, re.sub(r"^\[\w+\] \[\w+\] ", "", what)])
+    # Hand-off stalls (EM 2026-10-07): per cellular message, Spotter time `Added message(id N …) MS_Q_CELLULAR_ONLY`
+    # → `Queuing message N` (handed to the Notecard). A stall = drain > 1 s; rejects inside a stall interval are
+    # attributed to the Notecard hand-off, the rest to other causes (Spotter syncs / HDR / unknown).
+    import datetime as _dt
+    def _t(x):
+        return _dt.datetime.fromisoformat(x.replace("Z", "+00:00"))
+    added = {i: _t(t) for t, i in re.findall(r"(\d{4}-\d\d-\d\dT[\d:.]+Z) \[MS\] \[INFO\] Added message\(id: (\d+) len: \d+\) to queue MS_Q_CELLULAR_ONLY", raw)}
+    queued = {i: _t(t) for t, i in re.findall(r"(\d{4}-\d\d-\d\dT[\d:.]+Z) \[MS\] \[INFO\] Queuing message (\d+) ", raw)}
+    stalls = sorted((added[i], queued[i]) for i in added if i in queued and (queued[i] - added[i]).total_seconds() > 1.0)
+    qf_t = [_t(x) for x in qf]
+    in_stall = sum(any(a0 <= x <= b0 for a0, b0 in stalls) for x in qf_t)
+    stall_stats = {"n_gt_1s": len(stalls),
+                   "longest_s": round(max(((b0 - a0).total_seconds() for a0, b0 in stalls), default=0.0), 2),
+                   "rejects_in_stalls": in_stall, "rejects_outside": len(qf_t) - in_stall,
+                   "first_stall": stalls[0][0].strftime("%H:%M:%S") if stalls else None}
     loss = 100.0 * len(missing) / m_total if m_total else None
     out = {"arm": a.arm, "key": key, "M": m_total, "accepted": len(acc), "missing": len(missing),
            "loss_pct": round(loss, 2) if loss is not None else None,
            "gaps": [[g[0], len(g), acc.get(g[0] - 1, "")] for g in gaps], "max_gap": max((len(g) for g in gaps), default=0),
            "queue_full_n": len(qf), "queue_full_first_last": [qf[0], qf[-1]] if qf else [],
+           "handoff_stalls": stall_stats,
            "start_t": start_t if m_total else None, "end_t": end.group(1) if end else None, "spotter_events": ev,
            "clean": bool(loss is not None and loss <= 2.0 and max((len(g) for g in gaps), default=0) < 5)}
     s = json.dumps(out)
