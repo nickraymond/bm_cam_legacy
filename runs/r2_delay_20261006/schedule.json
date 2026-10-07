@@ -13,7 +13,7 @@
   "B",
   "A"
  ],
- "pointer": 5,
+ "pointer": 6,
  "history": [
   {
    "wake_utc_hour": 7,
@@ -81,16 +81,27 @@
    "burst_est": "106s",
    "heal_msgs": "0",
    "budget_left": "470s"
+  },
+  {
+   "wake_utc_hour": 13,
+   "arm": "B",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=230 uptime=28.76s wait=201.2s burst_est=109s heal_msgs=0 budget_left=472s skipped=False",
+   "uptime": "28.76s",
+   "wait": "201.2s",
+   "burst_est": "109s",
+   "heal_msgs": "0",
+   "budget_left": "472s"
   }
  ],
  "consecutive_b_skips": 0,
  "stopped": null,
  "counts": {
   "A": 4,
-  "B": 2
+  "B": 3
  },
  "next": {
-  "wake_utc_hour": 13,
+  "wake_utc_hour": 14,
   "arm": "B",
   "written": "230",
   "rc": 0
