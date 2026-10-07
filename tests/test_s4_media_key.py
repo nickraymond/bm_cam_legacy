@@ -259,18 +259,95 @@ class TestSentRecord(unittest.TestCase):
                                     chunk_b64_chars=384))
         self.assertFalse(os.path.exists(self.cfg["sent_dir"]))
 
-    def test_prune(self):
+    def keyed(self, stem, days_before_key, video=False):
+        """A sent record whose KEY is `days_before_key` before KEY; its mtime is NOW
+        (the Pi clock must not matter). video: also the <stem>.sent payload."""
         sd = self.cfg["sent_dir"]
-        os.makedirs(sd)
-        now = time.time()
-        for name, age_d in (("old.sent", 4), ("old.sent.json", 4), ("new.sent.json", 1), ("keep.txt", 99)):
-            p = os.path.join(sd, name)
-            open(p, "w").close()
-            os.utime(p, (now - age_d * 86400, now - age_d * 86400))
-        with contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(mk.prune_sent(sd, 3, now_ts=now), 2)
-            self.assertEqual(mk.prune_sent(sd, 999, now_ts=now + 40 * 86400), 1, "hard cap 30 d")
-        self.assertEqual(sorted(os.listdir(sd)), ["keep.txt"])
+        os.makedirs(sd, exist_ok=True)
+        key = mk.encode_key(mk.decode_key(KEY) - int(days_before_key * 86400))
+        with open(os.path.join(sd, stem + ".sent.json"), "w") as fh:
+            json.dump({"key": key, "payload": os.path.join(sd, stem + ".sent")}, fh)
+        if video:
+            open(os.path.join(sd, stem + ".sent"), "w").close()
+
+    def prune(self, now_key, retain=3):
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            n = mk.prune_sent(self.cfg["sent_dir"], retain, now_key)
+        return n, out.getvalue()
+
+    def test_prune_ages_by_key_time(self):
+        """Normal aging: hourly-ish history, the records > retain before this wake's
+        key go (json + video payload), the rest and foreign files stay."""
+        for i, d in enumerate((5, 4, 3.5, 2, 1, 0.5)):
+            self.keyed(f"r{i}", d, video=(i == 0))
+        open(os.path.join(self.cfg["sent_dir"], "keep.txt"), "w").close()
+        n, log = self.prune(KEY)
+        self.assertEqual(n, 4, "r0 json + .sent, r1 json, r2 json")
+        self.assertEqual(sorted(os.listdir(self.cfg["sent_dir"])),
+                         ["keep.txt", "r3.sent.json", "r4.sent.json", "r5.sent.json"])
+        self.assertIn("by key time", log)
+
+    def test_prune_hard_cap_30_d(self):
+        for i, d in enumerate((31, 25, 20, 15, 10, 5)):
+            self.keyed(f"r{i}", d)
+        self.assertEqual(self.prune(KEY, retain=999)[0], 1, "hard cap 30 d")
+
+    def test_prune_without_a_key_deletes_nothing(self):
+        """Rule a: no trusted Spotter UTC this wake -> no prune, whatever the Pi clock."""
+        for i, d in enumerate((40, 20, 10)):
+            self.keyed(f"r{i}", d)
+        self.assertEqual(self.prune(None), (0, ""))
+        self.assertEqual(len(os.listdir(self.cfg["sent_dir"])), 3)
+
+    def test_prune_forward_jump_deletes_nothing(self):
+        """Rule c: the Spotter UTC jumps 30 d ahead of the newest record -> nothing is
+        aged across the gap; a loud WARN instead of an empty sent/."""
+        for i, d in enumerate((2, 1, 0.5, 0)):
+            self.keyed(f"r{i}", d)
+        jumped = mk.encode_key(mk.decode_key(KEY) + 30 * 86400)
+        n, log = self.prune(jumped)
+        self.assertEqual(n, 0)
+        self.assertEqual(len(os.listdir(self.cfg["sent_dir"])), 4)
+        self.assertIn("[KEY][WARN] 4 sent record(s) behind a gap", log)
+
+    def test_prune_keeps_records_behind_a_gap_on_later_wakes(self):
+        """The wake after a jump: its own record is new, the old history stays."""
+        for i, d in enumerate((2, 1, 0)):
+            self.keyed(f"old{i}", d)
+        later = mk.decode_key(KEY) + 30 * 86400
+        self.keyed("jumped", -30)                        # written by the jumped wake
+        n, log = self.prune(mk.encode_key(later + 3600))
+        self.assertEqual(n, 0)
+        self.assertIn("3 sent record(s) behind a gap", log)
+
+    def test_prune_keeps_undatable_records(self):
+        self.keyed("old", 3.5)
+        with open(os.path.join(self.cfg["sent_dir"], "bad.sent.json"), "w") as fh:
+            fh.write("{not json")
+        self.keyed("mid", 2)
+        self.keyed("new", 1)
+        self.assertEqual(self.prune(KEY)[0], 1)
+        self.assertEqual(sorted(os.listdir(self.cfg["sent_dir"])),
+                         ["bad.sent.json", "mid.sent.json", "new.sent.json"])
+
+    def test_prepare_prunes_only_after_a_key(self):
+        """prepare_keyed_send: no Spotter time -> no key AND no prune; a key -> prune."""
+        self.keyed("aged", 3.5)
+        self.prep({"source_time": "system"}, stem="s", fmt="h264", filename="s.h264",
+                  payload=PAYLOAD, chunk_b64_chars=384)
+        self.assertTrue(os.path.exists(os.path.join(self.cfg["sent_dir"], "aged.sent.json")))
+        self.keyed("recent", 1.5)
+        self.prep(self.gate, stem="s", fmt="h264", filename="s.h264", payload=PAYLOAD,
+                  chunk_b64_chars=384)
+        self.assertEqual(sorted(n for n in os.listdir(self.cfg["sent_dir"]) if n.endswith(".json")),
+                         ["recent.sent.json", "s.sent.json"])
+
+    def test_expired_times(self):
+        self.assertEqual(mk.expired_times([], 10), (set(), 0))
+        self.assertEqual(mk.expired_times([100, 95, 85, 80], 10), ({85, 80}, 0))
+        self.assertEqual(mk.expired_times([100, 95, 85, 80], 10, now_s=105), ({85, 80}, 0))
+        self.assertEqual(mk.expired_times([100, 95, 85], 10, now_s=200), (set(), 3), "jump guard")
+        self.assertEqual(mk.expired_times([100, 95, 50, 45], 10), (set(), 2), "behind a gap")
 
 
 class TestVideoCycleKeyed(unittest.TestCase):
