@@ -43,6 +43,10 @@ def main():
         "seq": list("ABBA" * 7 + "AB"), "b_value": "1.3", "pointer": 0, "counts": {"A": 0, "B": 0}, "history": [], "stopped": None}
     if st.get("stopped"):
         print(f"[r3switch] stopped earlier ({st['stopped']}); nothing written"); return 3
+    if any(h.get("wake_utc_hour") == a.wake and h.get("day", "") == __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d")
+           for h in st["history"]) or (st.get("next", {}).get("wake_utc_hour") == (a.wake + 1) % 24
+                                       and st.get("next", {}).get("rc") == 0 and st.get("next", {}).get("set_at_wake") == a.wake):
+        print(f"[r3switch] wake {a.wake:02d}Z already handled; nothing to do"); return 0
     rc, out = ssh(a.host, "cd /home/pi/BM_Devel_Pi && grep -h '\\[RC\\] pacing' $(ls -t cron_logs/rc_cycle_*.log | head -1) | tail -1")
     m = re.search(r"delay_s=([0-9.]+)", out)
     if rc != 0 or not m:
@@ -50,7 +54,8 @@ def main():
     d = float(m.group(1))
     VAL["B"] = str(st.get("b_value", "1.3"))
     arm = "A" if abs(d - 1.0) < 0.05 else ("B" if abs(d - float(VAL["B"])) < 0.05 else "?")   # "?" = excluded
-    rec = {"wake_utc_hour": a.wake, "arm": arm, "delay_s": d, "line": out.strip()}
+    rec = {"wake_utc_hour": a.wake, "day": __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d"),
+           "arm": arm, "delay_s": d, "line": out.strip()}
     if arm in ("A", "B"):
         st["counts"][arm] += 1
         if st["pointer"] < len(st["seq"]) and arm == st["seq"][st["pointer"]]:
@@ -68,7 +73,7 @@ def main():
           f"s2=re.sub(r'(?m)^(  msg_interval_s:)\\s*[0-9.]+.*$', r'\\1 {VAL[nxt]}  # R3-PACE arm {nxt}', s, count=1); "
           "assert s2 != s or 'msg_interval_s: " + VAL[nxt] + "' in s, 'no msg_interval_s line'; open(p,'w').write(s2)")
     rc2, out2 = ssh(a.host, f"cd /home/pi/BM_Devel_Pi && python3 -c \"{py}\" && grep -E '^  msg_interval_s:' camera_config.yaml")
-    st["next"] = {"wake_utc_hour": (a.wake + 1) % 24, "arm": nxt, "written": out2.strip(), "rc": rc2}
+    st["next"] = {"wake_utc_hour": (a.wake + 1) % 24, "arm": nxt, "written": out2.strip(), "rc": rc2, "set_at_wake": a.wake}
     json.dump(st, open(a.state, "w"), indent=1)
     print(f"[r3switch] wake {a.wake:02d}Z arm {arm} (delay_s {d}) | seq {st['pointer']}/{len(st['seq'])} counts={st['counts']}"
           f" | next {(a.wake + 1) % 24:02d}Z = {nxt} (yaml: {out2.strip()!r}, rc {rc2})"
