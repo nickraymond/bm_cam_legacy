@@ -145,3 +145,9 @@ Crons (session-only): a11e210d 20:05 PDT bmcam004 health check after the hard cu
 1a076de6 :24 PDT 20/21/22 lane wake reports (power-on, [PHASE], queue_full, burst-end margin, heal-vs-health-check,
 first-send completion; (B) re-phase decision data after 2–3 wakes — do NOT re-phase); 6aa75fe3 57914 → QC.
 RC deploy (Wed ~22:00Z per R1RC) ON HOLD until the EM confirms the development tip + config (B3a layout, lane, low-gain).
+- New EM = "Bristlemouth camera program EM handover" (local_7c78dab7…; also "EM: Bristlemouth program (new)"). Report there now.
+  Cards running: HEALTH-0302, LANE-W1..3 (flag early if it answers itself or clearly fails), B1-57914. RC deploy ON HOLD:
+  the EM sends the development tip sha + RC config (layout, lane, exposure profile) by Wed 11 AM PDT after Nick confirms.
+  OPEN MISMATCH: R1RC gate doc says low-gain ON both units; the EM handover says "exposure auto" — the EM settles it with
+  Nick; update hil/gates/R1RC_release_candidate.md (unit config table + RC.6) to match before deploying. Before the RC
+  deploy, rewrite this STATE so a fresh TE can take over mid-gate.
