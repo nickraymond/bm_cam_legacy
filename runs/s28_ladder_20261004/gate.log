@@ -394,3 +394,4 @@ halt-issued
 2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] phase mode confirmed (ticks=1)
 2026-10-07T02:10:32Z [w02 phase DRY=0] hil_bridge_phase rc=0 (windows expected ~:03:40 from 03:03:40Z)
 2026-10-07T03:05:38Z HEALTH-0302 PASS: bmcam004 up ~03:03Z after the 02:04:25Z hard cut; ext4 orphan cleanup (normal journal recovery) + clean r/w remount, no fs/mmc/I-O errors (no persistent journal for boot -1); df 24 GB free; sha 104ee3cdbab0; cron armed; effective nrjxl rgb 45 + lane True 3600/375/20/180, dropped []; transmit_phase ON fits. Cycle left running.
+2026-10-07T03:28:06Z LANE-W1 FAIL: queue_full 141/195; :05 sync 'Waiting for TX' 03:05:06 -> drain ~03:10:20 held slot 1 (Spotter HDR 6129 B) through the whole lane-held burst; halt 498 s; margin ~112 s

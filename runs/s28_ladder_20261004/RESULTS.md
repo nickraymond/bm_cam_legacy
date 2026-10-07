@@ -222,3 +222,16 @@ sent record → the heal is byte-exact end to end.
 - Fixed in hil_bridge_phase.sh: `int('$MM')`, an abort if the commit time is not computed, and a process-group kill
   bound (tested: a hung pipeline returns rc 124 in 3 s).
 - Captures skipped tonight: 00:00, 01:00, 02:00Z.
+
+### LANE-W1 — 03:02Z wake (lane ON, windows ~:02:25) — **FAIL (clear)**
+| item | value |
+|---|---|
+| bus / Pi | bus on 03:02:22 (power 03:02:25) → off 03:12:22; Pi 03:02:34 → halt 03:10:40 (wake→halt 498 s) |
+| lane | START 03:06:12 (held by the lane as designed; capture 03:03:03), fmt=nrjxl q=239 att=2 cmp=1, length 195 |
+| burst | 03:06:15 → ~03:10:30 (258.6 s); margin to the window end ≈ 112 s |
+| queue_full | **141 / 195**, continuous 03:06:16 → 03:10:07 |
+| cause (console) | 03:05:03 the Spotter queued its own HDR message (6129 B) into MS_Q_CELLULAR_ONLY slot 1 + the :05 LEGACY report; 03:05:06 "Attempting to Sync" → "Waiting for TX" with no completion until the Notecard drain at ~03:10:20. With slot 1 held, every 2nd message of the burst finds the queue full for the whole burst. |
+| health check | `Running health check!` 03:02:31 (= the bus power-on); no burst traffic in it (boot heal/ack not separately analysed) |
+Reading: the 375 s post-guard assumes the :05 sync is over by :06:15. On SPOT-31593C it is not: its syncs wait on
+cellular TX for minutes (X1: 20:05:14 → 20:13:11 = 478 s; tonight ~5 min), while SPOT-33507C's take 32–46 s.
+A fixed-time guard cannot clear a sync of variable length; re-phasing to :03:40 (option B) would not change this.
