@@ -1,0 +1,1 @@
+{"change":{"detail":{"reason":"too_big","ok":false,"verb":"reset","kv":null,"refusals":[{"reason":"too_big","key":null,"why":"a reset carries at most 4 keys (send two changes)"}],"warnings":[],"key_bytes":{},"json_bytes":null,"max_json_bytes":234}}}

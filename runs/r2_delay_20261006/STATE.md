@@ -68,3 +68,4 @@ HIL_PHASE_DRY=1 first).
 - `:35` PDT each hour 01–10: launch `r2_switch_at.sh NEXT_HH` (NEXT_HH = PDT hour + 8) in the background, timeout 1 h.
 - `:16` PDT each hour 03–11: score the HH = PDT hour + 7 wake (wake report + scorer + RESULTS row + one line to the EM).
 - 57914 → QC watch (19:50/21:50/23:50 PDT rhythm or as the EM likes).
+- 10/7 ~20:30Z: COLD-START handover = hil/HANDOVER_TE_2026-10-07.md (supersedes this file for running jobs).

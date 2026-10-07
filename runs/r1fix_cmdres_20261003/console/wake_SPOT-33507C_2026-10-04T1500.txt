@@ -9272,3 +9272,43 @@
 2026-10-04T15:11:03Z 
 2026-10-04T15:11:04Z 1791126667.105 c3c564b91856226c, power | tick: 140800272, rtc: 2026-10-04T15:11:07.093, addr: 65, voltage: 0.843200, current: 0.000000
 2026-10-04T15:11:14Z 1791126677.105 c3c564b91856226c, power | tick: 140810272, rtc: 2026-10-04T15:11:17.093, addr: 65, voltage: 0.801600, current: -0.000250
+2026-10-04T15:11:24Z 1791126687.105 c3c564b91856226c, power | tick: 140820273, rtc: 2026-10-04T15:11:27.093, addr: 65, voltage: 0.763200, current: -0.000250
+2026-10-04T15:11:34Z 1791126697.105 c3c564b91856226c, power | tick: 140830273, rtc: 2026-10-04T15:11:37.093, addr: 65, voltage: 0.728000, current: -0.000250
+2026-10-04T15:11:44Z 1791126707.105 c3c564b91856226c, power | tick: 140840272, rtc: 2026-10-04T15:11:47.089, addr: 65, voltage: 0.694400, current: -0.000250
+2026-10-04T15:11:50Z 2026-10-04T15:11:52.703Z [SYS] [INFO] Remote message received(61)! "bm pub bmcam/cmd {"id":1000059,"c":"trg","v":2} 1 1
+2026-10-04T15:11:50Z id:38822
+2026-10-04T15:11:50Z "
+2026-10-04T15:11:50Z 2026-10-04T15:11:52.703Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":1000059,"c":"trg","v":2} 1 1
+2026-10-04T15:11:50Z Command not recognised.  Enter 'help' to view a list of available commands.
+2026-10-04T15:11:50Z 
+2026-10-04T15:11:50Z Command not recognised.  Enter 'help' to view a list of available commands.
+2026-10-04T15:11:50Z 
+2026-10-04T15:11:54Z 1791126717.101 c3c564b91856226c, power | tick: 140850273, rtc: 2026-10-04T15:11:57.093, addr: 65, voltage: 0.662400, current: -0.000250
+2026-10-04T15:12:04Z 1791126727.101 c3c564b91856226c, power | tick: 140860273, rtc: 2026-10-04T15:12:07.089, addr: 65, voltage: 0.632000, current: -0.000250
+2026-10-04T15:12:14Z 1791126737.101 c3c564b91856226c, power | tick: 140870272, rtc: 2026-10-04T15:12:17.089, addr: 65, voltage: 0.601600, current: -0.000250
+2026-10-04T15:12:24Z 1791126747.101 c3c564b91856226c, power | tick: 140880273, rtc: 2026-10-04T15:12:27.089, addr: 65, voltage: 0.574400, current: -0.000250
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.441Z [SYS] [INFO] Remote message received(141)! "bm pub bmcam/cmd {"id":100161,"c":"rsd","h":[["0e874c","50-57,112-119,122-129,134-136"],["0e86wu","40-47"],["0e81hl","69-70"]]} 1 1
+2026-10-04T15:12:34Z id:38823
+2026-10-04T15:12:34Z "
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.441Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":100161,"c":"rsd","h":[["0e874c","50-57,112-119,122-129,134-136"],["0e86wu","40-47"],["0e81hl","69-70"]]} 1 1
+2026-10-04T15:12:34Z Command not recognised.  Enter 'help' to view a list of available commands.
+2026-10-04T15:12:34Z 
+2026-10-04T15:12:34Z Command not recognised.  Enter 'help' to view a list of available commands.
+2026-10-04T15:12:34Z 
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.468Z [MS] [DEBUG] Messages sent/received successfully.
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.488Z [SYS] [INFO] Returning 0 from sdMsgQueue::size, queue 0
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.488Z [MS] [DEBUG] Have 0 messages on the SD card queue that we will try to send
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.488Z [MS] [INFO] Number of SD messages we attempted to send: 0
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.511Z [MS] [DEBUG] Notecard is 2.000000 pct full.
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.515Z [MS] [DEBUG] Has message 8393 expired? queuedTime: 140757865, now64: 140911775, remaining: 86246090
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.515Z [MS] [INFO] Sending Cellular message to Notecard.
+2026-10-04T15:12:34Z 2026-10-04T15:12:36.515Z [MS] [INFO] Queuing message 8393 20023718
+2026-10-04T15:12:34Z 1791126757.101 c3c564b91856226c, power | tick: 140890273, rtc: 2026-10-04T15:12:37.089, addr: 65, voltage: 0.547200, current: -0.000250
+2026-10-04T15:12:44Z 1791126767.101 c3c564b91856226c, power | tick: 140900272, rtc: 2026-10-04T15:12:47.089, addr: 65, voltage: 0.521600, current: -0.000250
+2026-10-04T15:12:54Z 1791126777.101 c3c564b91856226c, power | tick: 140910273, rtc: 2026-10-04T15:12:57.089, addr: 65, voltage: 0.497600, current: -0.000250
+2026-10-04T15:13:04Z 1791126787.097 c3c564b91856226c, power | tick: 140920273, rtc: 2026-10-04T15:13:07.089, addr: 65, voltage: 0.475200, current: -0.000250
+2026-10-04T15:13:14Z 1791126797.097 c3c564b91856226c, power | tick: 140930272, rtc: 2026-10-04T15:13:17.085, addr: 65, voltage: 0.452800, current: -0.000250
+2026-10-04T15:13:24Z 1791126807.097 c3c564b91856226c, power | tick: 140940273, rtc: 2026-10-04T15:13:27.089, addr: 65, voltage: 0.432000, current: -0.000250
+2026-10-04T15:13:34Z 1791126817.097 c3c564b91856226c, power | tick: 140950272, rtc: 2026-10-04T15:13:37.085, addr: 65, voltage: 0.412800, current: 0.000000
+2026-10-04T15:13:44Z 1791126827.097 c3c564b91856226c, power | tick: 140960272, rtc: 2026-10-04T15:13:47.085, addr: 65, voltage: 0.393600, current: -0.000250
+2026-10-04T15:13:54Z 1791126837.097 c3c564b91856226c, power | tick: 140970273, rtc: 2026-10-04T15:13:57.082, addr: 65, voltage: 0.376000, current: -0.000250

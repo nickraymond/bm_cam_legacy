@@ -26,6 +26,30 @@ Also from the same night: rewriting a script file in place (`cat > script.sh`) w
 running corrupts what bash reads next (it died with a syntax error at its wake-up). Never edit a running script; copy
 it to a new path.
 
+## 2026-10-07 day — R2-DELAY / R3-PACE / remote reset
+
+4. **Session crons fire late when the session is busy** (seen: 6 min and 28 min late). A switch that must act inside a
+   wake (an A wake halts at ~:05) cannot hang on an hourly cron: launch a background job ~25 min early that waits for
+   the exact second, keep a second launcher, and make the tool idempotent (a wake already handled = no-op).
+5. **The budget check silently drops a wait.** The C2 lane wait (and the R2 start-delay patch) skip their wait when
+   wait + burst (incl. heals sent before START) > the per_boot budget left (`[PHASE][WARN] skipping … skipped_no_budget`).
+   It hits exactly the wakes after a lossy one (they carry heals). Log budget_left/heal_msgs every wake.
+6. **Before a Spotter reset (cloud `reset`, `debug reset`, bridge commit): put the Pi in safe mode** — back up the ARMED
+   crontab, comment the cycle, `@reboot sleep 45 && sudo -n tuned_halt.sh` — so any bus drop (stub window, reset at the
+   :05 sync) finds it halted. Restore the ARMED crontab after.
+7. **Spotter console `cfg get <key>` / `cfg list` return `ERR`** on the bench firmware; plain `cfg` prints the whole
+   config read-only (e.g. `smrr = 1 - "" (0,1)`, `onsp = 30 - "" (1,2048)`).
+8. **The Spotter queues its own HDR message (≈ 6129 B; 4045–6070 B seen) about every 5 min (:x4:59 / :x9:59 / :x0:01
+   at bus-on)**, plus the hourly report (:05 on 31593C, :10 on 33507C) and a boot-anchored health check (:03:18–:03:33
+   on 33507C, :02:31–:02:55 on 31593C). Their syncs block the cellular queue's hand-off to the Notecard for their whole
+   TX wait (≥ ~45–60 s, up to 196 s).
+9. **Attribute rejects by hand-off stalls, not by queue_full alone:** per message, `Added message(id N)` → `Queuing
+   message N` > 1 s = a stall; rejects inside a stall within 60 s after an HDR = HDR, else "other" (Notecard-side
+   stalls ~70–105 s after boot happen with no Spotter trigger in the console). `hil/tools/hil_r2_score.py`.
+10. **zsh does not word-split `$var`** in `for x in …; set -- $x` — run such loops under `bash <<'EOF'`.
+11. **Background jobs hit the 30-min/2-h tool limit**; an `ssh … nohup … &` that keeps the channel open dies with it
+    (the remote job survives if fully detached: `setsid nohup … < /dev/null > log 2>&1 &`).
+
 ## Rules that follow
 
 - Bench script = dry-run mode first, with the exact production arguments, then the real run.
