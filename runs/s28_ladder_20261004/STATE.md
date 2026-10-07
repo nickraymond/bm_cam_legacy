@@ -151,3 +151,4 @@ RC deploy (Wed ~22:00Z per R1RC) ON HOLD until the EM confirms the development t
   OPEN MISMATCH: R1RC gate doc says low-gain ON both units; the EM handover says "exposure auto" — the EM settles it with
   Nick; update hil/gates/R1RC_release_candidate.md (unit config table + RC.6) to match before deploying. Before the RC
   deploy, rewrite this STATE so a fresh TE can take over mid-gate.
+- 10/7 ~03:5xZ HOLD (Nick via EM): no new testing until two desk analyses land (NOAA reef buoy field data; SD-log re-mine). No bridge changes, no Spotter resets, no re-phase, no new cards. Passive only: LANE-W2/W3 logging (cron 98e1ef7f), 57914 -> QC (6aa75fe3). RC deploy on hold. Any rig action tonight -> tell the EM first.
