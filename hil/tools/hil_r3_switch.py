@@ -17,7 +17,7 @@ import signal
 import subprocess
 import sys
 
-VAL = {"A": "1.0", "B": "1.3"}
+VAL = {"A": "1.0", "B": "1.3"}       # B is overridden by state["b_value"] (EM: 1.3 default or 1.5, Nick decides)
 
 
 def ssh(host, cmd, t=25):
@@ -40,7 +40,7 @@ def main():
     ap.add_argument("--no-write", action="store_true")
     a = ap.parse_args()
     st = json.load(open(a.state)) if os.path.exists(a.state) else {
-        "seq": list("ABBA" * 6), "pointer": 0, "counts": {"A": 0, "B": 0}, "history": [], "stopped": None}
+        "seq": list("ABBA" * 7 + "AB"), "b_value": "1.3", "pointer": 0, "counts": {"A": 0, "B": 0}, "history": [], "stopped": None}
     if st.get("stopped"):
         print(f"[r3switch] stopped earlier ({st['stopped']}); nothing written"); return 3
     rc, out = ssh(a.host, "cd /home/pi/BM_Devel_Pi && grep -h '\\[RC\\] pacing' $(ls -t cron_logs/rc_cycle_*.log | head -1) | tail -1")
@@ -48,7 +48,8 @@ def main():
     if rc != 0 or not m:
         print(f"[r3switch] wake {a.wake:02d}Z: Pi unreachable or no pacing line (rc {rc}): {out.strip()[:200]}"); return 4
     d = float(m.group(1))
-    arm = "A" if abs(d - 1.0) < 0.05 else ("B" if abs(d - 1.3) < 0.05 else "?")
+    VAL["B"] = str(st.get("b_value", "1.3"))
+    arm = "A" if abs(d - 1.0) < 0.05 else ("B" if abs(d - float(VAL["B"])) < 0.05 else "?")   # "?" = excluded
     rec = {"wake_utc_hour": a.wake, "arm": arm, "delay_s": d, "line": out.strip()}
     if arm in ("A", "B"):
         st["counts"][arm] += 1

@@ -18,7 +18,11 @@ A = 1.0 s, B = 1.3 s per message (base YAML `uplink:` → `msg_interval_s:`; bac
 Switched by `hil/tools/hil_r3_switch.py` (state `runs/r3_pace_20261007/schedule.json`) via
 `runs/r3_pace_20261007/scripts/r3_switch_at.sh HH` at HH:01:30Z: reads the wake's `[RC] pacing … delay_s=` line,
 counts the wake for the arm it actually ran (off-sequence wakes count without advancing the sequence), writes the next
-wake's pacing (the YAML is read at boot). Interim look at **6 per arm**, decision at **12 per arm** (24 counted wakes).
+wake's pacing (the YAML is read at boot). Interim look at **6 per arm**, decision at **15 per arm** (EM amendment 2026-10-07 before the first B wake: simulation
+on the A-arm spread gives ≈ 83 % power at 12/arm, ≈ 90 % at 15; sequence ABBA × 7 + AB = 30 counted wakes).
+**B value pending Nick: 1.3 s (default) or 1.5 s**, confirmed by the EM by 09:30 PDT; no word = 1.3. The 17Z wake's
+pacing is written at 16:01:30Z (default 1.3); if Nick picks 1.5 after that, the 17Z wake ran 1.3 and is excluded
+(arm "?"), and B = 1.5 from the next B wake (state `b_value`).
 
 ## Expected effect (stated up front, EM)
 Stall loss ≈ D / txd − 2 rejects per stall of duration D, so ~25–30 % fewer rejects in the same stalls at 1.3 s, e.g.
@@ -29,7 +33,7 @@ first-send loss %, gaps, max gap, queue_full times, hand-off stalls (n / longest
 rejects HDR-stall vs other, START / END, wake→halt, **message count (START length) and END time**.
 
 ## Rules
-- **PASS:** B median < A median AND one-sided Mann-Whitney (B < A) p < 0.10 at 12 per arm.
+- **PASS:** B median < A median AND one-sided Mann-Whitney (B < A) p < 0.10 at 15 per arm.
 - **STOP early:** at the 6-per-arm look, if B median ≥ A median → stop (no benefit).
 - **Safety / flag:** B bursts should END before :04:55 (at 1.3 s × 195 a large daytime image reaches the :05 HDR). If a
   B burst crosses :05:00, flag the wake "crossed HDR" — it counts, and is reported separately.
