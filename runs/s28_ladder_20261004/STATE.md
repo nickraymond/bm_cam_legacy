@@ -156,3 +156,4 @@ RC deploy (Wed ~22:00Z per R1RC) ON HOLD until the EM confirms the development t
   hil/r2-delay-prototype f1dfe38 installed as a single-file copy (backup ~/hil_backup/r2_20261007T050052Z incl. YAML);
   r2_start_delay_s file = the arm (0/230); pacing 1.0 s; cmdres timer OFF; setup cmd 1000159. Counted wakes 07–18Z ABBA.
   Crons: 9462c68d switch, 1abf574f score, 71a8bc77 setup check. bmcam004: W3 passive then leave as is.
+- 10/7 ~09:50Z: newest STATE = runs/r2_delay_20261006/STATE.md (handover-ready).
