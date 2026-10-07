@@ -273,3 +273,20 @@ Cause: **the budget check, not the clock.** The burst estimate includes the 40 h
 (by design: never wait into a truncated send). The clock was fine (Pi = nereus000 to the second). W1 had no heals.
 Implication: a fixed post-boundary wait only holds on wakes without (many) heals — i.e. exactly the wakes after a
 lossy one skip it. Same budget logic in the R2-DELAY patch.
+
+### LANE-W3 — 05:02Z wake (passive) + the n = 3 answer
+W3: bus 05:02:21→05:12:21, Pi 05:02:30→05:10:40 (499 s); START 05:04:20 (lane skipped: `[PHASE]` skipping_no_budget,
+40 heals); burst → 05:08:37; queue_full **61/194**, 05:05:03 → 05:06:34; :05 report: HDR 6129 B (id 17004) added
+05:04:59.7 → to the Notecard 05:05:00.0 (hold 0.4 s); sync 05:05:19 "Waiting for TX" → done after **62.1 s**; Notecard
+14 % → 6 %. Loss gaps: 5 chunks @32 + 56 contiguous @46 (05:05:20Z).
+
+| wake | sync TX wait | HDR slot hold | queue_full | Notecard before→after | lane held? |
+|---|---|---|---|---|---|
+| W1 03:02Z | 195.9 s | 244 s | 141 / 195 | 7 → 4 % | yes (no heals) |
+| W2 04:02Z | 65.9 s | 0.5 s | 61 / 194 | 13 → 6 % | no (40 heals → budget skip) |
+| W3 05:02Z | 62.1 s | 0.4 s | 61 / 194 | 14 → 6 % | no (40 heals → budget skip) |
+**n = 3 answer:** the multi-minute TX wait is NOT repeatable (1/3: 196 s; the other two ~62–66 s, like the profile's
+median 44 s); the long HDR hold is NOT repeatable either (1/3). What IS repeatable: **every :05 report sync on
+SPOT-31593C blocks the cellular queue for its whole TX wait (≥ ~60 s)**, and a burst overlapping it loses ~60 messages
+(W2/W3) — more when the wait is long (W1). The lane did not avoid it: W1 waited into the long sync; W2/W3 skipped the
+wait (budget) and ran through it.
