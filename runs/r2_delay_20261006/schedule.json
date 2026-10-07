@@ -13,7 +13,7 @@
   "B",
   "A"
  ],
- "pointer": 1,
+ "pointer": 2,
  "history": [
   {
    "wake_utc_hour": 7,
@@ -37,16 +37,27 @@
    "heal_msgs": "0",
    "budget_left": "464s",
    "note": "arm A ran where the sequence expected B (extra A)"
+  },
+  {
+   "wake_utc_hour": 9,
+   "arm": "B",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=230 uptime=31.98s wait=198.0s burst_est=113s heal_msgs=0 budget_left=468s skipped=False",
+   "uptime": "31.98s",
+   "wait": "198.0s",
+   "burst_est": "113s",
+   "heal_msgs": "0",
+   "budget_left": "468s"
   }
  ],
  "consecutive_b_skips": 0,
  "stopped": null,
  "counts": {
   "A": 2,
-  "B": 0
+  "B": 1
  },
  "next": {
-  "wake_utc_hour": 9,
+  "wake_utc_hour": 10,
   "arm": "B",
   "written": "230",
   "rc": 0
