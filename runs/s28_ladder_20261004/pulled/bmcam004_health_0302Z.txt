@@ -1,0 +1,27 @@
+== uptime
+ 03:05:14 up 2 min,  1 user,  load average: 0.19, 0.23, 0.10
+== prev boot errors
+Specifying boot ID or boot offset has no effect, no persistent journal was found.
+== this boot fs warnings
+Oct 07 02:03:48 bmcam004 kernel: mmc0: host does not support reading read-only switch, assuming write-enable
+== dmesg
+[    0.000000] Kernel command line: coherent_pool=1M 8250.nr_uarts=1 snd_bcm2835.enable_headphones=0 cgroup_disable=memory snd_bcm2835.enable_hdmi=1 snd_bcm2835.enable_hdmi=0  smsc95xx.macaddr=B8:27:EB:1C:00:5C vc_mem.mem_base=0x1ec00000 vc_mem.mem_size=0x20000000  console=tty1 root=PARTUUID=93258cee-02 rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US
+[    5.251227] EXT4-fs (mmcblk0p2): orphan cleanup on readonly fs
+[    5.253091] EXT4-fs (mmcblk0p2): mounted filesystem 15f4c6be-1102-4331-9904-f78e78afd1fd ro with ordered data mode. Quota mode: none.
+[    8.937315] systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+[    9.157215] systemd[1]: systemd-fsck-root.service - File System Check on Root Device skipped, unmet condition check ConditionPathExists=!/run/initramfs/fsck-root
+[    9.478936] EXT4-fs (mmcblk0p2): re-mounted 15f4c6be-1102-4331-9904-f78e78afd1fd r/w.
+== df
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/mmcblk0p2  115G   87G   24G  79% /
+== sha
+104ee3cdbab0
+== cron
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+== print-config
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+effective: nrjxl rgb 45 overlay ['mode.media', 'still.format', 'video.send.message_cap'] dropped []
+still path reads: nrjxl rgb 45
+effective lane: True 3600 375 20 180 dropped []
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s

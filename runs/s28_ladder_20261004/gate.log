@@ -393,3 +393,4 @@ halt-issued
 2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] after: ticksSamplingEnabled=1 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
 2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] phase mode confirmed (ticks=1)
 2026-10-07T02:10:32Z [w02 phase DRY=0] hil_bridge_phase rc=0 (windows expected ~:03:40 from 03:03:40Z)
+2026-10-07T03:05:38Z HEALTH-0302 PASS: bmcam004 up ~03:03Z after the 02:04:25Z hard cut; ext4 orphan cleanup (normal journal recovery) + clean r/w remount, no fs/mmc/I-O errors (no persistent journal for boot -1); df 24 GB free; sha 104ee3cdbab0; cron armed; effective nrjxl rgb 45 + lane True 3600/375/20/180, dropped []; transmit_phase ON fits. Cycle left running.
