@@ -1,1 +1,6 @@
 2026-10-07T19:42:23Z Nick (typed in the TE chat): "OK to restore SPOT-31593C bridge to utc after the reset" -> hil_bridge_phase.sh SPOT-31593C utc after the REMOTE-RESET card's resets (rehearse with HIL_PHASE_DRY=1 first; Pi halted; outside a window).
+# DISARMED_FOR_REMOTE_RESET @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot sleep 45 && sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh # REMOTE_RESET_SAFE_MODE
+2026-10-07T20:03:02Z [reset-prep] safe mode installed (backup ~/hil_backup/20261007T200300Z/crontab_ARMED.txt). RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261007T200300Z/crontab_ARMED.txt'
+halt-issued
+2026-10-07T20:03:22Z [reset-prep] bmcam004 dark 20:03:22; from the next window it boots and halts ~45 s after boot
