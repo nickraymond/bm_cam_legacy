@@ -966,6 +966,44 @@ def still_action(
         # adding it there would change every stills golden).
         supervised.media_key = media_key
     tx = bm_open_fn(settings["config_path"])
+    # --- R2-L1 bench knob (HIL Test Engineer, 2026-10-07; NOT for production) ------------------
+    # Forced heals: <app dir>/r2_force_skip_n = N (absent file or 0 = no-op, no output). When this wake's START goes
+    # out, its key + length M arm a skip of N consecutive chunk indices starting at M // 3; those chunk messages are
+    # NOT written to the UART (their pacing slot is still spent by the caller), so the backend sees exactly N missing
+    # and its self-heal asks for them. Heal chunks (other keys, sent before START) are never touched.
+    _l1_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "r2_force_skip_n")
+    if os.path.exists(_l1_path):
+        try:
+            _l1_n = max(0, int(float(open(_l1_path).read().strip() or 0)))
+        except (OSError, ValueError) as exc:
+            print(f"[R2FORCE][WARN] unreadable {_l1_path} ({exc}); no forced skips")
+            _l1_n = 0
+        if _l1_n > 0:
+            import re as _l1_re
+            _l1_out = {"n": _l1_n, "key": None, "m": None, "skip_first": None, "skip_last": None, "dropped": []}
+            _l1_inner, _l1_state = tx, {"key": None, "skip": frozenset(), "out": _l1_out}
+
+            def tx(msg, _inner=_l1_inner, _st=_l1_state, _n=_l1_n):
+                text = msg.decode("ascii", "replace") if isinstance(msg, (bytes, bytearray)) else str(msg)
+                if "<START IMG>" in text and _st["key"] is None:
+                    mk = _l1_re.search(r"key=([0-9a-z]{6})", text)
+                    ml = _l1_re.search(r"length: (\d+)", text)
+                    if mk and ml:
+                        m_total = int(ml.group(1))
+                        first = m_total // 3
+                        _st["key"] = mk.group(1)
+                        _st["skip"] = frozenset(range(first, min(m_total, first + _n)))
+                        _st["out"].update(key=_st["key"], m=m_total, skip_first=first,
+                                          skip_last=first + len(_st["skip"]) - 1)
+                        print(f"[R2FORCE] key={_st['key']} M={m_total} skipping {len(_st['skip'])} chunk(s): "
+                              f"{first}-{first + len(_st['skip']) - 1} (pacing slots kept)")
+                elif _st["key"]:
+                    mc = _l1_re.match(r"<I" + _st["key"] + r"\.(\d+)", text)
+                    if mc and int(mc.group(1)) in _st["skip"]:
+                        _st["out"]["dropped"].append(int(mc.group(1)))
+                        return None
+                return _inner(msg)
+            summary["r2_force"] = _l1_out              # JSON-safe (lists / ints only)
     cmd_hooks.boot_mark("transmit_start")
     if heals is not None and heal_msgs:
         # Reserve the image's whole burst: START + chunks + END (+ a=inc).
