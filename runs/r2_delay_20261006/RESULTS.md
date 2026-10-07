@@ -45,3 +45,10 @@ climbs 5 → 12 % through the burst in all three (the stall wakes are not fuller
 - 08Z (clean): same 08:01:05.453 topology sample, same CRC lines, no stall.
 The stall onset is a Notecard-side hand-off delay with no visible Spotter trigger in the console.
 | 12:00 | 05:00 | A (heal 0, budget_left 470 s) | **12.62** (13/103) | 33×1, 39×2, 44×10 (12:01:11–12:01:34) | 10 | 13 (12:01:13.7–12:01:34.0) | 12 / 47.0 s / 13 of 13 | no HDR → HDR 0 / other 13 | 12:00:37 | 12:02:23 | 308 s | **no** |
+| 13:00 | 06:00 | B (applied; heal 0, budget_left 472 s) | **30.19** (32/106) | 1×6, 21×1, 26×2, 31×12, 50×1, 57×10 (13:03:59–13:04:56) | 12 | 33 (13:04:01.7–13:05:08.0) | 21 / 48.6 s / 33 of 33 | no HDR at :05 this hour → stalls start at the **health-check sync** (see note) | 13:03:58 | 13:05:47 | 497 s | **no** |
+
+13Z note: no 5-min HDR at 13:05 this hour (HDRs at 13:00:01 and 13:10:01 only). The Spotter's health check ran at
+**13:03:19** (`Running health check!` + `Reboot limit reached, ignoring. (source 7)` + LEGACY 37 B) → `Attempting to Sync`
+13:03:19 → `Waiting for TX` → `All messages sent successfully!` 13:04:06.9 (47.6 s). The B burst started 13:03:58,
+inside that sync; the hand-off stalls run 13:03:59 → 13:05:07. So B's hold (START ~:03:57) sits on two Spotter events:
+the boot-anchored health-check sync (:03:19–:04:07 today; :03:22–:03:33 on other wakes) and the :05 HDR when present.
