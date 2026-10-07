@@ -30,8 +30,14 @@ Sent record (what a heal re-sends, S5)
   sent/<stem>.sent           video only: the fitted payload (it lives in tmpfs otherwise)
   Images keep NO copy: the compressed JPEG on disk IS the wire bytes; the sidecar
   points at it. Written atomically (tmp + fsync + rename) BEFORE START.
-  Prune: before START in both modes, records older than `retain_days` (hard cap 30 d)
+  Prune: before START in both modes, ONLY on a wake that allocated a key, records
+  whose KEY time is older than `retain_days` (hard cap 30 d) before this wake's key
   are deleted (video_ring only prunes .mp4 triples; images had no retention at all).
+  Ages come from keys (= Spotter UTC), never from file mtime vs the Pi clock: the Pi
+  has no RTC, and the gate steps its clock to any 2020-2035 Spotter UTC with no jump
+  limit, so a fast clock used to prune every record at once. Nothing is aged across
+  a gap > retain_days between records (a clock jump or a long power-off): the older
+  side is kept and logged (see expired_times).
 
 `media_key:` island (camera_schedule.yaml) — ABSENT = DISABLED = wire byte-identical:
 
@@ -48,7 +54,6 @@ import base64
 import hashlib
 import json
 import os
-import time
 from datetime import datetime, timedelta, timezone
 
 KEY_WIDTH = 6
@@ -283,28 +288,85 @@ def write_sent_record(sent_dir, stem, *, key, fmt, filename, chunk_b64_chars, ms
     return sidecar
 
 
-def prune_sent(sent_dir, retain_days, now_ts=None):
-    """Delete sent records (and their .sent payloads) older than retain_days (hard cap
-    30 d). Never raises; returns the number of files removed."""
-    retain = min(float(retain_days), HARD_CAP_RETAIN_DAYS) * 86400.0
-    cutoff = (now_ts if now_ts is not None else time.time()) - retain
-    removed = 0
+def retain_seconds(retain_days):
+    """retain_days -> seconds, with the 30 d hard cap."""
+    return min(float(retain_days), HARD_CAP_RETAIN_DAYS) * 86400.0
+
+
+def record_key_s(sidecar_path):
+    """Key time of a sent record (s since EPOCH = the Spotter UTC of the wake that sent
+    it), or None when the sidecar is unreadable or its key malformed (undatable)."""
     try:
-        names = os.listdir(sent_dir)
-    except OSError:
+        with open(sidecar_path, "r", encoding="utf-8") as f:
+            return decode_key((json.load(f) or {}).get("key"))
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def expired_times(times, retain_s, now_s=None):
+    """Which record times have aged out -> (expired set, n_behind_gap).
+
+    The reference is now_s (this wake's key time) when given, else the newest record:
+    never the Pi clock. Walking back from the reference, a time older than reference -
+    retain_s expires, but a gap > retain_s between two neighbouring times stops the
+    walk: everything older than that gap is kept (n_behind_gap). A gap that long is a
+    clock jump or a long power-off, and the device cannot tell which; keeping costs a
+    few MB, deleting could cost every heal record. With now_s, a newest record more
+    than retain_s before now_s is such a gap, so nothing expires (the jump guard)."""
+    points = sorted(set(times), reverse=True)
+    if now_s is not None:
+        points = sorted(set(points) | {now_s}, reverse=True)
+    if not points:
+        return set(), 0
+    cutoff = points[0] - float(retain_s)
+    expired = set()
+    for i in range(1, len(points)):
+        if points[i - 1] - points[i] > retain_s:
+            behind = set(points[i:]) - ({now_s} if now_s is not None else set())
+            return expired, len(behind)
+        if points[i] < cutoff:
+            expired.add(points[i])
+    return expired, 0
+
+
+def prune_sent(sent_dir, retain_days, now_key):
+    """Delete sent records (<stem>.sent.json + its <stem>.sent payload) whose key time
+    is older than retain_days (hard cap 30 d) before now_key, this wake's freshly
+    allocated key. now_key None (no trusted Spotter UTC this wake) -> nothing is
+    pruned. Undatable records and records behind a gap > retain_days are kept (loud).
+    Never raises; returns the number of files removed."""
+    if now_key is None:
         return 0
+    retain = retain_seconds(retain_days)
+    try:
+        now_s = decode_key(now_key)
+        names = os.listdir(sent_dir)
+    except (OSError, ValueError):
+        return 0
+    stems = {}
     for name in names:
-        if not (name.endswith(".sent") or name.endswith(".sent.json")):
+        if name.endswith(".sent.json"):
+            t = record_key_s(os.path.join(sent_dir, name))
+            if t is not None:
+                stems[name[: -len(".sent.json")]] = t
+    expired, behind = expired_times(stems.values(), retain, now_s=now_s)
+    if behind:
+        print(f"[KEY][WARN] {behind} sent record(s) behind a gap > {retain / 86400:g} d kept "
+              f"(clock jump or long power-off; never aged across it)")
+    removed = 0
+    for stem, t in sorted(stems.items()):
+        if t not in expired:
             continue
-        path = os.path.join(sent_dir, name)
-        try:
-            if os.path.getmtime(path) < cutoff:
+        for path in (os.path.join(sent_dir, stem + ".sent.json"),
+                     os.path.join(sent_dir, stem + ".sent")):
+            try:
                 os.remove(path)
                 removed += 1
-        except OSError:
-            continue
+            except OSError:          # absent (images keep no .sent) or vanished
+                continue
     if removed:
-        print(f"[KEY] pruned {removed} sent file(s) older than {retain / 86400:g} d from {sent_dir}")
+        print(f"[KEY] pruned {removed} sent file(s) older than {retain / 86400:g} d "
+              f"(by key time) from {sent_dir}")
     return removed
 
 
@@ -329,9 +391,10 @@ def find_sent_record(sent_dir, key):
 def prepare_keyed_send(settings, *, gate_info, daemon, stem, fmt, filename, payload,
                        chunk_b64_chars, payload_path=None, sent_dir=None, state_path=None,
                        chunk_total=False):
-    """Once per wake, right before START (both cycles): prune old sent records,
-    allocate this wake's key from the Spotter UTC (None -> legacy wire), persist what
-    is about to be chunked. chunk_total (W9): the caller's once-per-send decision,
+    """Once per wake, right before START (both cycles): allocate this wake's key from
+    the Spotter UTC (None -> legacy wire), then prune old sent records against that key
+    (no key -> no prune: never on the Pi clock), then persist what is about to be
+    chunked. chunk_total (W9): the caller's once-per-send decision,
     the same value it passes to the transmit function. Never raises: a failure here
     costs the key (legacy wire), never the capture or the send."""
     cfg = settings.get("media_key_cfg") or {}
@@ -339,11 +402,11 @@ def prepare_keyed_send(settings, *, gate_info, daemon, stem, fmt, filename, payl
         return None
     sent_dir = sent_dir or cfg.get("sent_dir") or DEFAULT_SENT_DIR
     try:
-        prune_sent(sent_dir, cfg["retain_days"])
         key = key_for_this_wake(cfg, gate_info=gate_info, daemon=daemon,
                                 state_path=state_path or cfg.get("state_path") or DEFAULT_STATE_PATH)
         if key is None:
             return None
+        prune_sent(sent_dir, cfg["retain_days"], key)
         msgs = -(-len(base64.b64encode(payload)) // int(chunk_b64_chars))
         sidecar = write_sent_record(
             sent_dir, stem, key=key, fmt=fmt, filename=filename,
