@@ -28,3 +28,19 @@ HDR) → no stop, no move to R2-L1; keep ABBA running until Nick is up (~07:00 P
 First block done (2 A + 2 B; EM: no rule stop, continue): A 12.75 % (Notecard stall, no HDR) and 0 %; B 7.27 % and
 5.71 %, both entirely at the :05 HDR (the 230 s hold puts START at ~:03:57, so every B burst crosses :04:59–:05:01).
 | 11:00 | 04:00 | A (heal 0, budget_left 469 s) | **10.38** (11/106) | 30×10, 49×1 (11:01:08–11:01:28) | 10 | 11 (11:01:11.2–11:01:30.6) | 9 / 50.3 s / 11 of 11 | no HDR crossed → HDR 0 / other 11 | 11:00:38 | 11:02:27 | 308 s | **no** |
+
+### Desk check: the early non-HDR stalls (07:01:45Z, 11:01:10Z) vs the clean 08Z wake (console only, read-only)
+**Answer: hypothesis NOT supported.** No Spotter-own LEGACY/network/topology message is queued and no sync starts
+before either stall. The only Spotter-own activity in the 60 s before both stalls is the bridge's topology sampler at
+~:01:05 (`Bridge topology in topology sampler: c3c564b91856226c, 53171fa3d81a8e6f` → `Got CRC a73850dc OLD CRC
+a73850dc` → `CRCs match, not updating`), which also runs at 08:01:05 in the clean wake and sends nothing (CRC
+unchanged). No `Attempting to Sync` before :02 in any of the three wakes; no connected/modem lines; Notecard fill
+climbs 5 → 12 % through the burst in all three (the stall wakes are not fuller). At bus-on (08:00:01) the 5-min HDR
+(6129 B) + `Neighbor 53171fa3d81a8e6f added` + a topology sample at 08:00:05 appear, then the camera's own boot messages
+(168 / 259 / 408 B: WS, ack/heartbeat, <CF>). Evidence (verbatim, Spotter times):
+- 07Z: 07:01:05.613 topology sampler … 07:01:05.625 "CRCs match, not updating"; GPS "Dropped gps sentence" 07:01:10 /
+  :21 / :32; first reject 07:01:47.761 — no other non-camera line.
+- 11Z: 11:00:33.593 / 11:00:39.656 camera boot messages (259 / 408 B); 11:01:05.937 topology sampler → "CRCs match, not
+  updating"; first reject 11:01:11.222.
+- 08Z (clean): same 08:01:05.453 topology sample, same CRC lines, no stall.
+The stall onset is a Notecard-side hand-off delay with no visible Spotter trigger in the console.
