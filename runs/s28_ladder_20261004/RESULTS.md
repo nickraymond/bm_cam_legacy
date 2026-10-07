@@ -235,3 +235,16 @@ sent record → the heal is byte-exact end to end.
 Reading: the 375 s post-guard assumes the :05 sync is over by :06:15. On SPOT-31593C it is not: its syncs wait on
 cellular TX for minutes (X1: 20:05:14 → 20:13:11 = 478 s; tonight ~5 min), while SPOT-33507C's take 32–46 s.
 A fixed-time guard cannot clear a sync of variable length; re-phasing to :03:40 (option B) would not change this.
+
+### Spotter sync profile (EM ask 10/7 03:4xZ; existing console only, no commands) — `hil/tools/hil_sync_profile.py`
+`analysis/sync_profile_SPOT-31593C.csv`, `…_SPOT-33507C.csv` (10/6 12:00Z → 10/7 03:3xZ). At each hourly report both
+Spotters queue LEGACY:50 + their own **HDR message (6129 B; 6062–6070 B twice) into MS_Q_CELLULAR_ONLY**, which holds
+1 of the 2 cellular slots until it is handed to the Notecard.
+
+| Spotter | report at | n | sync TX wait (s) | HDR slot hold (s) | overlap with the camera burst |
+|---|---|---|---|---|---|
+| SPOT-31593C (bmcam004) | :05 | 8 | 34–196 (median 44) | 34–244 (median 71) | yes: the burst runs :01–:05 (production) or :06:15–:10:30 (lane) → inside the hold |
+| SPOT-33507C (bmcam003) | :10 | 10 | 32–49 (median 43) | 44–308 (median 115) | no: its burst ends ~:05, before :10 → queue_full 0 at every report |
+Reading: the HDR hold is long on BOTH Spotters; what differs is where the report falls relative to the burst. bmcam003's
+:10 report is after its burst; bmcam004's :05 report is inside it, and the lane's 375 s guard puts the burst straight
+into the HDR hold (03:05:03 + 244 s). A burst that ends before :05 on SPOT-31593C (option 1) mirrors bmcam003.
