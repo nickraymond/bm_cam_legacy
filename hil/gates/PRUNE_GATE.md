@@ -19,7 +19,8 @@ whole-ref deploy would remove the B3a code that bmcam004's `layout: rgb` YAML us
 by the test itself. The deploy ref is therefore **`hil/prune143-on-104ee3c` @ 0a6e411** = 104ee3c + #143's
 `BM_Devel_Pi/rc_media_key.py`, `BM_Devel_Pi/rc_still_storage.py` and their tests. Its runtime diff vs 104ee3c is exactly #143's
 (rc_media_key +83/−20, rc_still_storage +19/−11). Desk: 1843 passed / 3 skipped / 0 failed (104ee3c alone: 1833). The
-branch is bench-only and never merged.
+branch is bench-only and never merged. **EM OK 2026-10-08 ~00:00Z:** the merge candidate is #143's development-based head
+c8bea4de; the bench proof is on 104ee3c + #143 (same runtime diff). One variable (#143) vs bmcam004's current runtime.
 
 Deploy = `hil/tools/hil_deploy_window.sh bmcam004 hil/prune143-on-104ee3c 0a6e411 <profile> <window> prune143`:
 one window, snapshot before/after, **print-config diff must be empty** (no `ACCEPT_DIFF`). Rollback = the same tool
