@@ -47,3 +47,4 @@ sed: -e expression #1, char 0: unmatched `{' (rc 4)
 2026-10-07T12:31:42Z WAKE 12Z A: loss 12.62 % (13/103), gaps 33x1 39x2 44x10, queue_full 13 12:01:13-12:01:34 all in non-HDR stalls (first 12:01:11, longest 47 s); START 12:00:37 END 12:02:23, halt 308 s, NOT clean
 2026-10-07T13:01:37Z [r2switch] wake 13Z arm B applied=True budget_left=472s heal_msgs=0 | seq 6/12 counts={'A': 4, 'B': 3} | next 14Z = B (wrote '230') (rc 0)
 2026-10-07T13:32:06Z WAKE 13Z B applied (472 s, heal 0): loss 30.19 % (32/106), queue_full 33 13:04:01-13:05:08, stalls start at START inside the health-check sync (13:03:19 -> sent 13:04:06.9; 'Reboot limit reached, ignoring (source 7)'); no :05 HDR this hour; halt 497 s, NOT clean
+2026-10-07T14:01:34Z [r2switch] wake 14Z arm B applied=True budget_left=472s heal_msgs=0 | seq 7/12 counts={'A': 4, 'B': 4} | next 15Z = A (wrote '0') (rc 0)
