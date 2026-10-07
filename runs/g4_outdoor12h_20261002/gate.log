@@ -1,0 +1,48 @@
+2026-10-03T02:16:29Z run created for G4 units: bmcam003 bmcam004
+2026-10-03T02:16:29Z G4 per Nick (via EM): 12 h from the 03:00Z wake to 15:00Z, outdoors, production, nereus000 on consoles. D1 on complete cycles only; power events = observed events (G4.10).
+uptime up 6 minutes
+active
+yes:Ford:58
+1
+wifi.powersave = 2
+throttled=0x0
+temp=46.2'C
+/dev/mmcblk0p2  115G  2.9G  108G   3% /
+SPOT-33507C: last 2026-10-03T02:17:03Z; errors since 01:00Z: 1; rebootctl since 01:00: 0; charge-mode: 0
+SPOT-31593C: last 2026-10-03T02:17:02Z; errors since 01:00Z: 0; rebootctl since 01:00: 0; charge-mode: 0
+2026-10-03T02:18:35Z nereus000 journald Storage=persistent drop-in /etc/systemd/journald.conf.d/90-hil-persistent.conf (SystemMaxUse=200M). RESTORE: sudo rm that file && sudo systemctl restart systemd-journald
+2026-10-03T02:20:15Z G4 alternator installed on nereus000: /etc/systemd/system/hil-g4-alternator.{service,timer} (hourly :20 UTC, until 15:00Z, trg hours 5,9,13). RESTORE: sudo systemctl disable --now hil-g4-alternator.timer && sudo rm /etc/systemd/system/hil-g4-alternator.* && sudo systemctl daemon-reload
+2026-10-03T02:22:12Z nereus000 reboot to prove the Wi-Fi power-save drop-in persists (off-window)
+back 02:23:25 up 61.77s
+[   34.787430] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save enabled
+[   35.767034] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+active
+active
+yes:Ford:72
+ -1 d0312fc947d849e993343adffbb1d24b Sat 2026-10-03 02:10:00 UTC Sat 2026-10-03 02:22:17 UTC
+  0 504e4b2ea3c84fac82898e72614503b3 Sat 2026-10-03 02:22:20 UTC Sat 2026-10-03 02:23:25 UTC
+/dev/ttyACM0
+/dev/ttyACM1
+2026-10-03T02:23:23Z 1790994204.476 c3c5
+2026-10-03T02:23:22Z 1790994204.167 0e58
+2026-10-03T03:50:25Z Nick in Test Engineer chat: 'OK: bridge cfg set/commit on SPOT-33507C and SPOT-31593C to change the bus schedule to every 30 min (1800000/600000) for G4 phase 3'
+2026-10-03T03:54:41Z RED alternator 03:20Z run REFUSED 403 remote_config_disabled (BM_REMOTE_CONFIG off on staging web service) for BMCAM_003+004; plan endpoint 200. 04:00Z wake stays on the current media (video). Reported to EM; Render env not Test Engineer's to change.
+2026-10-03T03:56:24Z EM: BM_REMOTE_CONFIG=1 restored by Nick, Render redeploy running; HOLD all sends until EM confirms writable+send_enabled. Alternator timer STOPPED (still enabled; resume: sudo systemctl start hil-g4-alternator.timer)
+2026-10-03T04:04:21Z EM: BM_REMOTE_CONFIG live (writable=True 03:57Z); send_enabled False (BM_COMMAND_SEND missing, Nick setting it). Still HOLDING.
+2026-10-03T04:14:32Z G4 T0 = 04:00Z wake: both units normal (003 Pi 04:00:14→04:08:24 505 s, START len 183 video, qfull 21; 004 Pi 04:00:14→04:08:24 505 s, START len 182 video, qfull 52; 1 heal cmd each). Watcher RED 04:14 = the known 03:20Z refusal; watcher restarted for 05–15.
+2026-10-03T04:27:00Z OBSERVED INFRASTRUCTURE EVENT: backend remote-config/command sends unavailable 03:20–04:25Z (BM_REMOTE_CONFIG + BM_COMMAND_SEND kill switches removed from the staging web service in an env cleanup; restored by Nick; EM verified writable=True + send_enabled=True 04:25Z). Lost: the 03:20Z alternator run (04:00Z wake stayed video instead of still). Heal auto-send unaffected (SPOT-33507C heal at 03:36Z).
+2026-10-03T04:25:19Z alternator run BY HAND (EM go): BMCAM_003 video for 05:00Z cid 1000016 send 200; BMCAM_004 cid 1000045 send 200.
+2026-10-03T04:25:22Z starting the timer fired the service once more immediately (systemd, Persistent=false): BMCAM_003 cid 1000017 (409 rate_limited, retried, send 200 04:26:29), BMCAM_004 cid 1000046 send 200 — same value (video), supersede → 1000016/1000045 superseded after send. Harmless duplicate; G4.12 analysis: count the superseded pair separately. Timer NEXT 05:20Z (trg hour). Lesson: start the timer first, or let it be the hand run.
+2026-10-03T05:55:29Z G4 phase 2: video.send.message_cap 184 → 126 via backend Sofar lane (hil_sofar_change.sh): BMCAM_003 cid 1000020 sent, BMCAM_004 cid 1000049 sent (05:55:16Z). Basis: heals not clearly improving (analysis/d1_heal_2250PDT.md). Expected delivery ~06:30–06:45 (after the 06:00 window) → first video wake on 126 = 07:00Z (T). Measure ≥2 video wakes/unit (07:00, 09:00).
+2026-10-03T06:12:00Z 06:00 wake (console): BMCAM_004 got 1000047 still at 06:06:14 → "video -> still (next boot)" = effect 07:00 (lag 1 wake CONFIRMED); trg 1000048 at 06:06:52 → "armed: capture + output per mode (next decision point)" = 07:00; rsd 100105 at 06:07:28 acked; phase-2 cap 1000049 at 06:08:08 (13 min after send) → "video.send.message_cap: 190 -> 126 (next action)" (baseline cap was 190, not 184: 184 = msgs used). BMCAM_003: only rsd 100131 ack; 1000018 still / 1000019 trg / 1000020 cap NOT yet delivered by Sofar (will arrive at the 07:00 wake at the earliest → still for 003 lands at 08:00 at best, and the 06:20 video set queued behind it may override it).
+2026-10-03T06:12:00Z phase-2 T revised: first VIDEO wake on cap 126 = 08:00Z (004: still at 07:00; 003: cap arrives ≥ 07:00); second = 10:00Z → phase 3 after the 10:00 wake (~10:20Z), not 09:20Z.
+2026-10-03T07:05:00Z 06:00 cycle logs (pulled/bmcam00x_rc_cycle_wake0600Z.log): BMCAM_004 trg 1000048 heard in the listen tail → "W10: fires THIS boot" (window gate bypassed): 2nd clip 06:06:56Z captured as VIDEO (mode at that boot), sent 25/25 msgs in 51 s (budget-limited), halt at uptime 487 s (wake→halt 505 s). D3 trg #1 for 004 = clip key 0e5qbm (25 chunks). Console queue_full 114 that wake (heal 34 + 184 + 25). Correction: trg takes effect the SAME wake (if heard with budget left), media set = next boot. BMCAM_003 06:00: video 190/190 (cap 190), resent the 0e5c4w 154-181 duplicate (28 chunks, backend already held them) + 0e5hov 137-144; 1000016/17 "no change"; still/trg/cap for 003 not yet delivered.
+2026-10-03T08:05:00Z 07:00 cycle logs: BMCAM_004 STILL (rpicam-still, 115/115 msgs, 153 s; commanded 1000047 → lag 1 wake ✓), heal 36 sent (0e5n8t 33 + 0e5hou 3), 1000050 video applied "(next boot)" → 08:00 video on cap 126; wake→halt 505 s; qfull 1. BMCAM_003 VIDEO 188/188, then Sofar finally delivered 1000018 (still, next boot → 08:00), 1000019 trg → W10 fired THIS boot: 2nd clip 07:06:48Z 34/34 msgs; cap 1000020 190→126 (next action); heal "budget stop: 70s left must hold the capture's 53 msgs" → only 6 of 21 heal chunks sent, 0e5n8u 7 + 0e5hov 8 pending; cycle elapsed 489.5 s of 480 (overrun 9.5 s), wake→halt 524 s (bus window 600: OK). D3 trg #1 for 003 = 07:06:48Z clip.
+2026-10-03T08:05:00Z G4.11 lag differs per unit: 004 = 1 wake (rsd/sets delivered inside the window), 003 = 2 wakes (Sofar delivered 05:21/05:55 sends only in the 07:00 wake). Phase-2 video wakes therefore: 004 08:00 + 10:00; 003 expected 09:00 + 11:00. → phase 3 per unit: SPOT-31593C after its 10:00 wake (~10:20Z), SPOT-33507C after 11:00 (~11:20Z).
+2026-10-03T08:15:19Z 08:00 wake: SPOT-33507C STILL as commanded (START 134, 178 s burst, qfull 16, wake→halt 504 s). SPOT-31593C first VIDEO on cap 126: START len 123 (was 182–190), qfull 10 (was 48–114 on video), END line not captured on console (as at 05:00), wake→halt 505 s.
+2026-10-03T09:06:00Z 08:00 cycle logs + heal-candidates 09:03Z (pulled/*_wake0800Z.log, heal_candidates_*_0903Z.json): BMCAM_004 video on cap 126 = 123/123 msgs, 203 s uart (incl. 40 heal chunks before START), qfull 10 → clip 0e5vl1 ALREADY COMPLETE at 09:03 (first send, no heal). 004 04:00/05:00/07:00(still) clips complete. 004 trg clip 0e5qbm (06:06Z) 1/25 (24 lost in the qfull-114 wake) → newest-first heal next. 004 0e5c4v (01:00Z, 43 missing) still LEFT OUT (starving). BMCAM_003 still 134/134; 003 04:00 (0e5kgv) + 05:00 (0e5n8u) + 03:00 now complete; 06:00 −5, 07:00 −5, 08:00 still −16. rsd 100133 re-asks 0e5kgv 21 chunks that are already complete → 3rd in-flight re-ask (wasted cap).
+2026-10-03T09:05:23Z D1 table (analysis/media_0910Z.csv, hil_media_table.py on nereus000, completion = media timestamp_utc): healed clips SPOT-33507C 185–195 min (FAIL by ~10–15 min: rsd arrives after the :08 halt → +1 wake); SPOT-31593C 130–131 min (PASS); 004 03:00Z 250 min (truncated heal); first-send-complete clips 9–11 min (004 07:00 still, 004 08:00 cap-126 video, 003 07:06 trg). Open/failing: 003 06:00 −5, 004 06:00 −3 (truncated tail), 004 01:00Z −43 starving, 004 trg 0e5qbm 1/25 (typed image: START lost).
+2026-10-03T09:16:16Z 09:00 wake: SPOT-33507C first VIDEO on cap 126: START 124, burst 204.5 s, qfull 17 (was 5–21 on 003 video), wake→halt 504 s. SPOT-31593C STILL 132, qfull 1, 505 s. 09:20 alternator = trg #2 hour.
+2026-10-03T10:22:30Z 10:00 wake: SPOT-31593C second VIDEO on cap 126 (START 120, qfull 15, 505 s); SPOT-33507C still 131 (qfull 16). trg #2 for 004 (1000054) arrived 10:06:40 = 'armed (next decision point)', no 2nd START in the 10:00 window → pending for the NEXT boot. Phase 3 on SPOT-31593C POSTPONED to after its 11:00 wake: a commit now makes the stub-window boot the next boot, which would fire the trg and be halted by hil_restore_schedule.sh (self-inflicted trg loss).
+2026-10-03T18:37:50Z G4 alternator timer STOPPED + REMOVED on nereus000 (EM). Log copied to pulled/alternator_g4_final.jsonl.
+2026-10-03T19:12:44Z OBSERVED PHYSICAL EVENT: Nick moving the rig into the shade (~12:10 PDT / 19:10Z, EM relay) because of heat + SPOT-33507C charger THERMAL_FAULT. Watching consoles, Spotter resets, nereus000 power through the move.

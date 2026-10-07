@@ -4,7 +4,6 @@ __pycache__/
 
 cron_logs/
 *.log
-!tests/fixtures/**/*.log
 
 buffer/
 buffers/
@@ -66,3 +65,4 @@ runs/sprint25_pacing13_*/SPOT-*/
 
 # Sprint26: local dev venv for golden vectors (tests/golden/README.md)
 .venv-dev/
+hil/.current_run

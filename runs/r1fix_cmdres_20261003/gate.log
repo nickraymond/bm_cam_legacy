@@ -1,0 +1,51 @@
+2026-10-03T18:39:14Z run created for R1F-CMD units: bmcam003
+2026-10-03T18:42:00Z R1F-CMD baseline (EM, Nick's ruling: bmcam003 = repair rig, command resilience first). Spec hil/gates/R1F_cmd_resilience.md. bmcam003 unchanged: development 34a6222, production hourly, cap 126, cron armed.
+2026-10-03T18:42:00Z G4 alternator timer removed. Installed on nereus000: /etc/systemd/system/hil-r1-cmdres.{service,timer} = hil_g4_alternator.py --devices BMCAM_003 --trg-hours 20,23,2,5,8,11,14,17 --until 2026-10-10T00:00 --log /home/pi/hil_r1/cmdres.jsonl; hourly :20 UTC; first run 19:20Z; dry run plan 200. RESTORE: sudo systemctl disable --now hil-r1-cmdres.timer && sudo rm /etc/systemd/system/hil-r1-cmdres.* && sudo systemctl daemon-reload
+2026-10-03T18:42:00Z hub.sync hypothesis CONFIRMED on the G4 data (32/32 commands): every command reached the Spotter 56–209 s after that Spotter's hourly LEGACY report (SPOT-33507C :10 → rx :11 after the :08 halt → reply next wake, lag 2; SPOT-31593C :05 → rx :06 → same wake, lag 1). runs/g4_outdoor12h_20261002/analysis/cmd_ledger_*.csv (hil/tools/hil_cmd_ledger.py).
+2026-10-03T19:12:00Z RIG HEALTH monitor installed on nereus000 (EM / Nick: heat + nereus000 battery): /etc/systemd/system/hil-rig-health.{service,timer}, every 5 min, read-only; /home/pi/hil_health/{alerts.json,health.csv,ALERTS.log,summary.log}. RESTORE: sudo systemctl disable --now hil-rig-health.timer && sudo rm /etc/systemd/system/hil-rig-health.* && sudo systemctl daemon-reload
+2026-10-03T19:12:00Z First pass CRIT: SPOT-33507C ChargerErrorState THERMAL_FAULT since 17:21:55Z (flapped 8x from 17:20:58, no OK since). nereus000 69.8 C, LiFePO4 external power VIN 4684 / VBAT 3355 mV. Both units woke at 19:00Z.
+2026-10-03T19:12:44Z OBSERVED PHYSICAL EVENT: Nick moving the rig into the shade (~12:10 PDT / 19:10Z, EM relay) because of heat + SPOT-33507C charger THERMAL_FAULT. Watching consoles, Spotter resets, nereus000 power through the move.
+2026-10-03T19:14:52Z rig health: + charger-fault >15 min = CRIT rule; + Spotter battery from /systems/{spot}/spotter-telemetry (both 4.10 V, 0 W, input 4.67 V; 33507C not draining despite THERMAL_FAULT).
+2026-10-03T19:18:39Z rig move: nereus000 ON BATTERY (VIN lost 19:18Z, expected during the move): 19:18:39
+2026-10-03T19:18:58Z rig move: nereus000 back on EXTERNAL power at ~19:18:54Z (on battery ~1 min, 19:18:0x–19:18:54).
+2026-10-04T04:32:17Z EM GO (~13:20 PDT) for the bm #121 gate on bmcam003 (fix/trg-budget-reserve @ a50636e); nvd #84 live on staging (6fae2c5). Deploy scripted for the 05:00Z window (catch at boot, disarm, rc_field_update --leave-disarmed, re-arm, halt); first gate wake 06:00Z.
+2026-10-04T04:35:59Z EM GO (#121 gate as written: 12 wakes, trg every 2 h). hil-r1-cmdres.service --trg-hours 20,23,2,5,8,11,14,17 -> 0,2,...,22 (trg at every even-hour :20 run). RESTORE: same sed back. Dashboard/monitor: camera temp from <END> cpu_temp_c + stemp (EM: END always carries it).
+2026-10-04T04:59:51Z [deploy121 bmcam003] waiting for the 05:00Z boot
+2026-10-04T05:00:56Z [deploy121 bmcam003] backup+disarm+stop TS=20261004T050055Z; RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261004T050055Z/crontab_ARMED.txt' (then halt; next window runs the old/new runtime as deployed); runtime rollback = the runtime tar in /home/pi/backups (rc_field_update prints it) or --ref development
+2026-10-04T05:01:01Z [deploy121 bmcam003] snapshot before_121: bmcam003_before_121_20261004T050056Z.txt
+2026-10-04T05:01:46Z [deploy121 bmcam003] rc_field_update rc=0 (log pulled/bmcam003_field_update_121_20261004T050055Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+20:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+30:[PARITY] print-config text OK (26 lines)
+31:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+100:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+134:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+138:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+145:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+147:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+179:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-04T05:01:47Z [deploy121 bmcam003] runtime sha now: a50636e8c4f8
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-04T05:01:47Z [deploy121 bmcam003] RE-ARMED from the ARMED backup
+2026-10-04T05:01:51Z [deploy121 bmcam003] snapshot after_121 taken
+halt-issued
+2026-10-04T05:02:20Z [deploy121 bmcam003] bmcam003 dark (DEPLOYED); next wake 06:00Z runs it
+2026-10-04T15:00:00Z bm #121 GATE (a50636e on bmcam003 since 05:01Z; 9 wakes 06–14Z, R1F load: hourly set + trg every 2 h). Evidence: analysis/cmd_ledger_BMCAM_003.csv, pulled/commands_BMCAM_003_1500Z.json, console decode.
+  (1) trg in the listen tail: 4/4 (1000047/50/53/56) fired the same boot, START carries tg=<id>, backend `triggered` 4/4; 0 silent, 0 `clip NOT sent — budget` (tr=:budget not needed in this window). PASS.
+  (2) lost ack -> d:1 with ORIGINAL h: the unit re-sent EVERY ack as d:1 with the original h (console, 23 re-sends incl. 1000041/42 acked by the old runtime). But 0 of 13 original acks were lost (backend ack d:false for all 13), so the backend recovery/upgrade path was NOT EXERCISED. (Old runtime 19:20–04:20Z: 6/12 acks lost.)
+  (3) lost-ack set -> in_effect via heartbeat: NOT EXERCISED (0 lost acks).
+  (4) no media regression: 9/9 wakes, START+END every wake, wake->halt 499–519 s (G4 band 494–524), heals 1/wake, queue-full 0–35, D1 pattern unchanged (healed video 195–196 min = the known 2-wake path). PASS.
+  Deploy side effect: 1000043 (still for 05:00) never executed (the deploy SIGTERMed the 05:00 cycle before its listen tail); backend shows it superseded. Expected, logged.
+2026-10-04T15:02:00Z JPEG-XL readiness (read-only, EM): bmcam003 + bmcam004: cjxl MISSING, numpy 2.2.4, / 25G free of 115G (79% used). R0.4 will need apt-get install libjxl-tools (restore: apt-get remove libjxl-tools).
+2026-10-04T15:04:20Z R1G ack-loss stress armed on nereus000 (transient unit hil-r1-ackloss, /home/pi/hil_r1/ackloss.sh, log ackloss.log): get as 3rd command at 16:22:40Z, check 18:45Z; repeat 20:22/22:45, 00:22/02:45 until an original ack is missing. EM GO; deliberate, not counted against R1G.1; recovery must PASS. STOP: sudo systemctl stop hil-r1-ackloss
+2026-10-04T15:12:00Z 1000057 (sent 13:20) replied OK at 15:04 (lag 2, the known SPOT-33507C limit).
+2026-10-04T19:40:00Z ack-loss slot 16:20Z: 1000061 set / 1000062 trg / 1000063 get all reached the backend with ORIGINAL acks (d:false) → no loss; loop continues to the 20:20Z slot (check 22:45Z).
+2026-10-05T00:35:00Z ack-loss slot 20:20Z: 1000068 set / 1000069 trg / 1000070 get all reached the backend with ORIGINAL acks (d:false) → no loss in 2 of 3 slots; loop continues (00:20Z slot, check 02:45Z).
+2026-10-05T00:35:00Z R1G.2 note: trg 1000069 (sent 20:21Z) acked 22:04:35Z and FIRED (clip media 57270, 22:04:52Z, 149/154 at 00:35Z, healing), but the backend status is `answered`, not `triggered` (earlier trgs 47/50/53/56/62 linked fine). Recheck when the clip completes; if it stays `answered`, it is a backend trg→media linkage gap (the clip is not silent: it exists).
+2026-10-05T03:20:00Z ACK-LOSS STRESS slot 00:20Z (3rd of 3): ORIGINAL ACKS LOST for 1000076 (trg) and 1000077 (get); 1000075 (set) original arrived. Console: at 02:05:00Z the unit printed OK for 75/76/77, but only 1000075's ack was transmitted (CELL); 76/77 dropped at the Spotter. At 03:00:30–32Z (next wake) the unit re-sent all three as d:1 with the ORIGINAL h 51d1c26d ({"id":1000076,"ok":1,"h":"51d1c26d","d":1}, …77…). Backend at 02:45Z: 1000076 triggered (via media) NO-ACK, 1000077 late NO-ACK → watching for the d:1 upgrade (Sofar lag).
+2026-10-05T03:20:30Z ACK-LOSS RECOVERY PASS (#121 item 2): backend now 1000077 get 'answered' (was late/NO-ACK) and 1000076 trg 'triggered', both with ack d=True, h=51d1c26d (the ORIGINAL h), at 03:00:34–35Z = the next wake after the loss. Item 3 (a SET whose ack is lost → in_effect via heartbeat) still NOT exercised: the lost acks were trg + get. Stress loop exited (hil-r1-ackloss inactive).
+2026-10-05T03:18:14Z R1G item 3 (lost SET ack -> in_effect via heartbeat hash): per EM, recorded as COVERED by nvd #84 DB tests + the d:1 path proven live (03:00Z); the heartbeat path itself was NOT exercised on hardware. Known limit kept: the hash cannot prove a toggle to an equal value. No more stress slots.
+2026-10-05T05:27:08Z R1G 24 wakes reached (06:00Z 10/4 → 05:00Z 10/5). 05:00 wake: WAKE SPOT-33507C 2026-10-05T05:00: bus 04:59:57→05:09:57 | Pi 05:00:14→05:08:24 (wake→halt 507 s) | START len 120 END sent 120 burst 199.2 s | queue_full 0 | heal cmds 1 | nereus000 wifi yes:Ford:75. Ledger analysis/cmd_ledger_R1G.csv, media analysis/media_R1G.csv refreshed; verdict after the +6 h completion tail (11:17Z cron).
+2026-10-05T12:02:49Z R1G VERDICT: PASS (R1G.1 38/38 confirmed; R1G.2 11/11 trg delivered, 1000069 linkage note; R1G.3 0 SSH writes; R1G.4 35/35 complete, 0 redundant heals; R1G.5 24/24 wakes, 496–519 s). RESULTS.md R1G section.

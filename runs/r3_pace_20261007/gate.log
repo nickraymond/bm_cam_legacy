@@ -1,0 +1,14 @@
+2026-10-07T15:20:00Z run created for R3 units: bmcam003
+2026-10-07T15:20:37Z R3-PACE set up (gate hil/gates/R3_PACE.md, rules fixed before the first counted wake). bmcam003 pacing currently 1.0 s (A), r2_start_delay_s 0. First counted wake 16:00Z = A; switch at 16:01:30Z writes 1.3 for 17Z.
+2026-10-07T15:21:58Z B = 1.5 s (Nick 08:20 PDT): schedule.json created with b_value 1.5 before the 16:01:30Z write; gate amended (expected B ~6 % vs A ~11.5 %; flag B bursts crossing :05:00; ~170 msgs at 1.5 s reach the HDR).
+2026-10-07T16:01:37Z [r3switch] wake 16Z arm A (delay_s 1.0) | seq 1/30 counts={'A': 1, 'B': 0} | next 17Z = B (yaml: 'msg_interval_s: 1.5  # R3-PACE arm B', rc 0) (rc 0)
+2026-10-07T16:23:16Z WAKE 16Z A (1.0 s): 170 msgs, loss 18.82 % (32/170) in 3 non-HDR stall clusters (16:01:23 / 16:02:41 / 16:03:16), queue_full 33 incl. END; START 16:00:35, halt 376 s, not clean
+2026-10-07T17:01:37Z [r3switch] wake 17Z arm B (delay_s 1.5) | seq 2/30 counts={'A': 1, 'B': 1} | next 18Z = B (yaml: 'msg_interval_s: 1.5  # R3-PACE arm B', rc 0) (rc 0)
+2026-10-07T17:23:14Z WAKE 17Z B (1.5 s): 188 msgs, loss 12.77 % (24/188), gaps of 7/7/7/3 (non-HDR stalls 21 + :05 HDR 3), END 17:05:22 -> CROSSED HDR flag; halt 486 s
+2026-10-07T18:01:37Z [r3switch] wake 18Z arm B (delay_s 1.5) | seq 3/30 counts={'A': 1, 'B': 2} | next 19Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
+2026-10-07T18:23:10Z WAKE 18Z B (1.5 s): 189 msgs, loss 16.93 % (32/189), five 7/7/7/7/4 gaps, END 18:05:33 -> CROSSED HDR; halt 496 s
+2026-10-07T19:01:36Z [r3switch] wake 19Z arm A (delay_s 1.0) | seq 4/30 counts={'A': 2, 'B': 2} | next 20Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
+2026-10-07T19:23:11Z WAKE 19Z A (1.0 s): 185 msgs, loss 11.35 % (21/185), gaps 10/1/10; halt 397 s. Block 1: A 18.82/11.35, B 12.77/16.93.
+2026-10-07T20:04:19Z 20Z switch run by hand 20:04:03Z (launcher cron fired late 20:03Z): wake 20Z A, 21Z = B (1.5). Switch made idempotent; second launcher at :50.
+2026-10-07T21:13:34Z 21Z switch launchers did not fire (session busy). 21Z ran B (1.5 written 20:04Z); recorded by hand in schedule.json (pointer 6). 22Z = B per ABBA, YAML already 1.5 -> no write needed. 22Z launcher started by hand.
+2026-10-07T21:14:09Z WAKE 20Z A (1.0 s): 168 msgs, loss 6.55 % (11/168), gaps 10/1. WAKE 21Z B (1.5 s, 1.52 s spacing): 186 msgs, loss 5.91 % (11/186), gaps 7/4, END 21:05:27 -> CROSSED HDR. Counts A3 B3; medians A 11.35 / B 12.77.

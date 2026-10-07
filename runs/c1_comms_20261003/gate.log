@@ -1,0 +1,32 @@
+2026-10-04T04:26:49Z run created for C1 units: bmcam004
+2026-10-04T04:26:49Z Nick in the Test Engineer chat (2026-10-03 21:2x PDT), answering my scoped question: "Yes, full scope" = OK for bridge cfg set/commit on SPOT-31593C for the comms A/B: ticksSamplingEnabled 1 with a timed commit for a :15 bus start, re-commits if a Spotter reset re-phases it, and ticksSamplingEnabled 0 + commit to return to :00 after arm B. (His typed message: "the bmcam004 :15 bus OK in the test engineer's chat".)
+2026-10-04T04:26:49Z C1 phase 1 arm B start: hil_bridge_phase.sh SPOT-31593C ticks 15, commit at 05:14:52Z (lead 8 s) with the Pi halted; first :15 window expected 06:15Z. Fixed config: video (last set 1000060), cap 126, chunk 384, no test commands to BMCAM_004 (hil-r1-cmdres targets BMCAM_003 only), heal auto-send on. Health monitor window_minute for SPOT-31593C → 15 right after the commit.
+2026-10-04T04:32:17Z Also recorded: Nick via EM chat, 2026-10-03 ~13:40 PDT: GO on C1 phase 1 incl. its bridge changes on SPOT-31593C only (ticks 1 + timed commit, re-commits after a reset, restore ticks 0 + commit).
+2026-10-04T14:53:07Z Nick in the TE chat (answer to my scoped question): 'Yes, 90-min :00/:30' = OK to set SPOT-31593C sampleIntervalMs 5400000 (UTC, 10-min window) for C1 alternating arms (:00 report-colliding vs :30 report-clear), one commit now, restore to 3600000 after 10 wakes. Design per EM/Nick: alternate arms 5+5, significance bar in the spec.
+2026-10-04T14:53:24Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-04T14:53:38Z Succesfully sent config set msg
+2026-10-04T14:53:38Z 2026-10-04T14:53:38.906Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 5400000
+2026-10-04T14:53:44Z Succesfully sent config set msg
+2026-10-04T14:53:44Z 2026-10-04T14:53:44.335Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-04T14:53:50Z 2026-10-04T14:53:50.925Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-04T14:53:50Z 2026-10-04T14:53:50.933Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-04T14:53:50Z 2026-10-04T14:53:50.988Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-04T14:53:53Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+34a6222ea94c
+[restore] halt issued 14:54:33
+2026-10-04T14:54:56Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-04T14:55:10Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=5400000 sampleDurationMs=600000 
+2026-10-04T14:55:10Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-04T15:02:00Z JPEG-XL readiness (read-only, EM): bmcam003 + bmcam004: cjxl MISSING, numpy 2.2.4, / 25G free of 115G (79% used). R0.4 will need apt-get install libjxl-tools (restore: apt-get remove libjxl-tools).
+2026-10-04T15:12:00Z C1 wake A1 (:00 arm, 90-min UTC interval) VERIFIED: bus 15:00:00–15:10:00, Pi 15:00:10–15:07:10 (wake->halt 430 s), START 123 / END sent 123, burst 203.2 s, queue_full 36, heal cmds 0. Next: B1 at 16:30Z.
+2026-10-04T15:46:58Z Nick in the TE chat: 'Yes approved.' (answering: 'For JPEG-XL on bmcam004 Monday, I still need your OK for the bus-always-on change on SPOT-31593C'). Scope recorded: bridge cfg set/commit on SPOT-31593C bridgePowerControllerEnabled 0 (bus always on) for Sprint28 JPEG-XL R0–R3 on bmcam004 (bench), and the restore (bridgePowerControllerEnabled 1, 3600000/600000, commit via hil_restore_schedule.sh). Applied only AFTER C1's 10th wake (04:30Z Mon window ends ~04:40Z).
+2026-10-04T19:40:00Z C1 catch-up (the session had idled): B1 16:30Z (:30) bus 16:30:00–16:40:00, Pi 450 s, 121/121, queue_full 0, heal 0. A2 18:00Z (:00) bus 18:00:00–18:10:00, Pi 420 s, 121/121, queue_full 0, heal 0. B2 19:30Z (:30) in progress at 19:37: Pi 19:30:10–19:37:10 (430 s), 126/126, queue_full 8 (final at the 19:46Z checkpoint).
+2026-10-04T19:40:00Z Session checkpoints scheduled (session-only CronCreate, PDT): C1 window+15 min to 04:46Z; ack-loss reads 22:49Z/03:17Z; C1 end + JPEG-XL start 04:47Z; R1G 24th wake 05:17Z; R1G verdict 11:17Z.
+2026-10-04T19:46:09Z C1 wake B2 (:30 arm, wake 2): WAKE SPOT-31593C 2026-10-04T19:30: bus 19:30:00→19:40:00 | Pi 19:30:10→19:37:10 (wake→halt 430 s) | START len 126 END sent 126 burst 207.1 s | queue_full 8 | heal cmds 0 | nereus000 wifi yes:Ford:70
+2026-10-04T21:16:12Z C1 wake A3 (:00 arm, wake 3): WAKE SPOT-31593C 2026-10-04T21:00: bus 20:59:59→21:09:59 | Pi 21:00:10→21:08:20 (wake→halt 501 s) | START len 124 END sent 124 burst 204.5 s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
+2026-10-04T23:28:17Z C1 wake B3 (:30 arm, wake 3): WAKE SPOT-31593C 2026-10-04T22:30: bus 22:29:59→22:39:59 | Pi 22:30:10→22:38:20 (wake→halt 501 s) | START len 125 END sent 125 burst 205.8 s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:77
+2026-10-05T00:34:06Z C1 wake A4 (:00 arm, wake 4): WAKE SPOT-31593C 2026-10-05T00:00: bus 23:59:59→00:09:59 | Pi 00:00:09→00:07:19 (wake→halt 440 s) | START len 125 END sent 125 burst 205.8 s | queue_full 24 | heal cmds 0 | nereus000 wifi yes:Ford:75
+2026-10-05T01:46:15Z C1 wake B4 (:30 arm, wake 4): WAKE SPOT-31593C 2026-10-05T01:30: bus 01:29:59→01:39:58 | Pi 01:30:09→01:38:19 (wake→halt 500 s) | START len 122 END sent - burst - s | queue_full 21 | heal cmds 0 | nereus000 wifi yes:Ford:75
+2026-10-05T03:17:12Z C1 wake A5 (:00 arm, wake 5): WAKE SPOT-31593C 2026-10-05T03:00: bus 02:59:58→03:09:58 | Pi 03:00:09→03:08:19 (wake→halt 501 s) | START len 119 END sent 119 burst 197.9 s | queue_full 0 | heal cmds 1 | nereus000 wifi yes:Ford:75
+2026-10-05T04:47:13Z C1 wake B5 (:30 arm, wake 5, LAST): WAKE SPOT-31593C 2026-10-05T04:30: bus 04:29:58→04:39:58 | Pi 04:30:09→04:38:19 (wake→halt 501 s) | START len 119 END sent 119 burst 197.9 s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:73

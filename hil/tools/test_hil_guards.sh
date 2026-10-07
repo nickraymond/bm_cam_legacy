@@ -43,10 +43,10 @@ expect "ip probe refuses bmcam002"  5 0 "$T/hil_ip_range_probe.sh" bmcam002 "$W/
 expect "deploy refuses bmcam001"   5 0 "$T/hil_deploy_unit.sh" bmcam001 x
 expect "refresh refuses SPOT-33361C" 5 0 "$T/hil_refresh.sh" BMCAM_003 SPOT-33361C
 expect "restore_schedule refuses SPOT-33361C" 5 0 "$T/hil_restore_schedule.sh" SPOT-33361C
+expect "bridge_phase refuses SPOT-33361C" 5 0 "$T/hil_bridge_phase.sh" SPOT-33361C utc
+expect "bus_always_on refuses SPOT-33361C" 5 0 "$T/hil_bus_always_on.sh" SPOT-33361C
 expect "wake_report refuses SPOT-33361C" 5 0 "$T/hil_wake_report.sh" SPOT-33361C 2026-10-02T22:00
 expect "p0 refuses bmcam001"       5 0 "$T/hil_p0_probe.sh" bmcam001 "$W/p0"
-expect "s28 r0 refuses bmcam001"   5 0 "$T/hil_s28_r0_probe.sh" bmcam001 "$W/s28"
-expect "s28 r0 refuses bmcam002"   5 0 "$T/hil_s28_r0_probe.sh" bmcam002 "$W/s28"
 # positive controls: a real rig passes the guard and reaches the (fake) network
 expect "control: console rig SPOT-31593C reaches ssh" 4 1 "$T/hil_console.sh" SPOT-31593C post 1
 expect "control: sofar rig BMCAM_004 reaches ssh"     3 1 "$T/hil_sofar_change.sh" X BMCAM_004 '{"set":{}}'

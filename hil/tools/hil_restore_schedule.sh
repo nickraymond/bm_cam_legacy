@@ -4,7 +4,8 @@
 # field-normal per_boot cycle. Adapted copy of runs/s5_console_20260928/restore_schedule.sh (original
 # left in place). Rig-guarded (SPOT + host + bridge come from HIL_RIG_A / HIL_RIG_B).
 #
-# Inputs:   $1 SPOT-ID (SPOT-33507C | SPOT-31593C); env INTERVAL_MS (3600000), DURATION_MS (600000)
+# Inputs:   $1 SPOT-ID (SPOT-33507C | SPOT-31593C); $2 interval ms (default 3600000), $3 window ms
+#           (default 600000). G4 phase 3 (Nick 2026-10-03): 1800000 600000 = every 30 min.
 # Preconditions (REFUSES otherwise): the unit is HALTED (ssh fails). Its crontab must already be ARMED
 #           (the stub-window boot runs cron; this script halts that boot cleanly). Nick's OK for bridge
 #           config changes (2026-10-02, in the Test Engineer chat).
@@ -12,7 +13,8 @@
 #           commit (the bridge resets; the bus gives a ~2 min stub window) -> catch the Pi, confirm the
 #           crontab is armed, halt it via tuned_halt.sh before the stub ends -> read back.
 # Outputs:  gate.log + console/ lines in $HIL_RUN_DIR; exit 0 when the read-back is 1 / INTERVAL / DURATION.
-# Example:  hil/tools/hil_restore_schedule.sh SPOT-31593C
+# Example:  hil/tools/hil_restore_schedule.sh SPOT-31593C            # production 1 h / 10 min
+#           hil/tools/hil_restore_schedule.sh SPOT-31593C 1800000 600000   # every 30 min
 # Limits:   the commit power-cycles the bus: NEVER with the Pi running (checked). If the Pi does not come
 #           up in the stub window, it boots at the next aligned window (:00) and runs a normal cycle.
 set -u
@@ -23,7 +25,8 @@ LINE=$(_hil_rigs | awk -F= -v s="$SPOT" '$1 == s')
 H=$(echo "$LINE" | cut -d= -f3); BR=$(echo "$LINE" | cut -d= -f4)
 [ -n "$H" ] && [ -n "$BR" ] || { echo "[restore] rig line for $SPOT lacks host/bridge"; exit 2; }
 hil_require_host "$H"
-IV="${INTERVAL_MS:-3600000}"; DU="${DURATION_MS:-600000}"
+IV="${2:-3600000}"; DU="${3:-600000}"
+case "$IV$DU" in *[!0-9]*) echo "[restore] interval/duration must be integers (ms)"; exit 2;; esac
 RUN="$HIL_RUN_DIR"; mkdir -p "$RUN/console"
 CON="$HIL_TOOLS_DIR/hil_console.sh"
 log() { echo "$(date -u +%FT%TZ) [restore $SPOT/$H] $*" | tee -a "$RUN/gate.log"; }

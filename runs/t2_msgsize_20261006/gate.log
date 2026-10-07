@@ -1,0 +1,39 @@
+2026-10-06T20:58:44Z run created for T2 units: bmcam003
+2026-10-06T20:59:13Z T2 registered (gate hil/gates/T2_message_size_bmcam003.md + t2_plan.csv) before the first burst; hil-r1-cmdres.timer stopped for T2
+bus_on_watch True ['SPOT-33507C']
+2026-10-06T21:10:45Z [busOn SPOT-33507C/bmcam003] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261006T211041Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-06T21:10:46Z Succesfully sent config set msg
+2026-10-06T21:10:46Z 2026-10-06T21:10:46.964Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-06T21:10:53Z 2026-10-06T21:10:53.910Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-06T21:10:53Z 2026-10-06T21:10:53.917Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-06T21:10:53Z 2026-10-06T21:10:53.976Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-06T21:10:56Z [busOn SPOT-33507C/bmcam003] committed (bus held on); catching the boot
+2026-10-06T21:11:51Z [busOn SPOT-33507C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-06T21:11:51Z [busOn SPOT-33507C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261006T211041Z)
+2026-10-06T21:11:56Z [t2start] snapshot before_t2
+1367 bash -c pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg|rpicam|hil_t1_burst' || echo clean; crontab -l | grep @reboot; mkdir -p /home/pi/t2
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+[t1] host=bmcam003 bursts=27 count=120 size=384 gap=1.3s
+1393 bash -c cd /home/pi/t2 && setsid nohup python3 /tmp/hil_t1_burst.py --plan /tmp/t2_plan.csv --out /home/pi/t2/sends.csv > /home/pi/t2/t2.log 2>&1 < /dev/null & disown; sleep 3; cat /home/pi/t2/t2.log; pgrep -af hil_t1_burst
+1395 python3 /tmp/hil_t1_burst.py --plan /tmp/t2_plan.csv --out /home/pi/t2/sends.csv
+2026-10-06T22:01:38Z [power] vbat 3630 stable 21:35-21:55Z (iout ~770); 22:00Z 3427 @1110 mA = bmcam004 wake dip (expected); no stop
+2026-10-06T22:02:02Z fail-fast (7 bursts): counting OK (2 bursts off by 1: A900 40/39, A160 218/219); <=288 B: acc 95.9-98.6 %, drain p50 0.03-0.06 s; 600-1000 B: acc 43-64 %, drain p90 10.6-10.9 s (slow path, Len 1001 accepted)
+2026-10-06T22:05:40Z [power] vbat 3427 (22:00) -> 3286 (22:05) at iout 1110-1132 = inside the :00-:12 wake minutes (bmcam004 wake): exempt; must recover by the 22:13 check
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+halt-issued
+bmcam003 dark
+2026-10-07T00:17:07Z [restore SPOT-33507C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-07T00:17:21Z Succesfully sent config set msg
+2026-10-07T00:17:21Z 2026-10-07T00:17:22.039Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T00:17:28Z 2026-10-07T00:17:28.789Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-07T00:17:28Z 2026-10-07T00:17:28.796Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-07T00:17:28Z 2026-10-07T00:17:28.855Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-07T00:17:30Z [restore SPOT-33507C/bmcam003] committed; waiting for the stub-window boot
+[restore] cron ARMED
+a50636e8c4f8
+[restore] halt issued 00:18:25
+2026-10-07T00:18:48Z [restore SPOT-33507C/bmcam003] bmcam003 dark
+2026-10-07T00:19:02Z [restore SPOT-33507C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-07T00:19:02Z [restore SPOT-33507C/bmcam003] PRODUCTION schedule confirmed
+bus_on_watch False
+-       - Wed 2026-10-07 00:19:09 UTC 54ms ago hil-r1-cmdres.timer hil-r1-cmdres.service
