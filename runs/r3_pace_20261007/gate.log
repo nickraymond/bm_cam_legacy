@@ -1,2 +1,3 @@
 2026-10-07T15:20:00Z run created for R3 units: bmcam003
 2026-10-07T15:20:37Z R3-PACE set up (gate hil/gates/R3_PACE.md, rules fixed before the first counted wake). bmcam003 pacing currently 1.0 s (A), r2_start_delay_s 0. First counted wake 16:00Z = A; switch at 16:01:30Z writes 1.3 for 17Z.
+2026-10-07T15:21:58Z B = 1.5 s (Nick 08:20 PDT): schedule.json created with b_value 1.5 before the 16:01:30Z write; gate amended (expected B ~6 % vs A ~11.5 %; flag B bursts crossing :05:00; ~170 msgs at 1.5 s reach the HDR).

@@ -13,20 +13,18 @@ backend self_heal OFF for SPOT-33507C (since 05:15:04Z; Nick restores it after t
 `PATCH /admin/gateways/SPOT-33507C/rollout {"self_heal": true}`); no commands (cmdres timer stopped).
 
 ## Arms, switching, n
-A = 1.0 s, B = 1.3 s per message (base YAML `uplink:` → `msg_interval_s:`; backup of the YAML before R2:
+A = 1.0 s, **B = 1.5 s** per message (Nick 2026-10-07 08:20 PDT, before the first B write) (base YAML `uplink:` → `msg_interval_s:`; backup of the YAML before R2:
 `~/hil_backup/r2_20261007T050052Z/camera_config.yaml`). ABBA from 16Z (A 16, B 17, B 18, A 19, …).
 Switched by `hil/tools/hil_r3_switch.py` (state `runs/r3_pace_20261007/schedule.json`) via
 `runs/r3_pace_20261007/scripts/r3_switch_at.sh HH` at HH:01:30Z: reads the wake's `[RC] pacing … delay_s=` line,
 counts the wake for the arm it actually ran (off-sequence wakes count without advancing the sequence), writes the next
 wake's pacing (the YAML is read at boot). Interim look at **6 per arm**, decision at **15 per arm** (EM amendment 2026-10-07 before the first B wake: simulation
 on the A-arm spread gives ≈ 83 % power at 12/arm, ≈ 90 % at 15; sequence ABBA × 7 + AB = 30 counted wakes).
-**B value pending Nick: 1.3 s (default) or 1.5 s**, confirmed by the EM by 09:30 PDT; no word = 1.3. The 17Z wake's
-pacing is written at 16:01:30Z (default 1.3); if Nick picks 1.5 after that, the 17Z wake ran 1.3 and is excluded
-(arm "?"), and B = 1.5 from the next B wake (state `b_value`).
+**B = 1.5 s** (Nick 08:20 PDT; state `b_value` = 1.5 set 15:2xZ, before the 16:01:30Z write → the 17Z wake runs 1.5 and
+counts as B).
 
 ## Expected effect (stated up front, EM)
-Stall loss ≈ D / txd − 2 rejects per stall of duration D, so ~25–30 % fewer rejects in the same stalls at 1.3 s, e.g.
-11.5 % → ~8 %. With the observed spread (A in R2: 0–12.75 %) that needs ~12+ per arm.
+Stall loss ≈ D / txd − 2 rejects per stall of duration D. At 1.5 s: **expected B median ~6 % vs A ~11.5 %** (EM).
 
 ## Measures per wake (as R2; `hil/tools/hil_r2_score.py` + `hil_wake_report.sh`)
 first-send loss %, gaps, max gap, queue_full times, hand-off stalls (n / longest / rejects in), HDR marks crossed and
@@ -35,8 +33,9 @@ rejects HDR-stall vs other, START / END, wake→halt, **message count (START len
 ## Rules
 - **PASS:** B median < A median AND one-sided Mann-Whitney (B < A) p < 0.10 at 15 per arm.
 - **STOP early:** at the 6-per-arm look, if B median ≥ A median → stop (no benefit).
-- **Safety / flag:** B bursts should END before :04:55 (at 1.3 s × 195 a large daytime image reaches the :05 HDR). If a
-  B burst crosses :05:00, flag the wake "crossed HDR" — it counts, and is reported separately.
+- **Safety / flag:** at 1.5 s a burst over ~170 messages reaches the :05 HDR (START ~:00:40 + n × 1.5 s). **Flag every B
+  wake whose burst crosses :05:00** ("crossed HDR") — it counts, and those wakes are also reported separately. The
+  message count (START length) is logged for every wake.
 - Any wake with wake→halt > 570 s → report to the EM.
 
 ## Restore (after the card)
