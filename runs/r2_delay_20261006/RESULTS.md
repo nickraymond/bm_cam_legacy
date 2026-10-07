@@ -23,3 +23,7 @@ HDR attribution (EM 10/7 ~09:4xZ; scorer: rejects inside a hand-off stall within
 07Z A: crossed none; rejects HDR 0 / other stalls 13. 08Z A: none; 0/0. 09Z B: crossed 09:05:01; HDR 8 / other 0.
 **EM decision 10/7:** the rules do not cover "both arms have holes from different causes" (A: Notecard stall, B: :05
 HDR) → no stop, no move to R2-L1; keep ABBA running until Nick is up (~07:00 PDT); delay value unchanged.
+| 10:00 | 03:00 | B (applied; heal 0, budget_left 469 s) | **5.71** (6/105) | 63×6 (10:05:01) | 6 | 6 (10:05:04.1–10:05:09.2) | 4 / 44.1 s / 6 of 6 | HDR crossed 10:05:01 → HDR 6 / other 0 | 10:03:57 | 10:05:45 | 498 s | **no** |
+
+First block done (2 A + 2 B; EM: no rule stop, continue): A 12.75 % (Notecard stall, no HDR) and 0 %; B 7.27 % and
+5.71 %, both entirely at the :05 HDR (the 230 s hold puts START at ~:03:57, so every B burst crosses :04:59–:05:01).
