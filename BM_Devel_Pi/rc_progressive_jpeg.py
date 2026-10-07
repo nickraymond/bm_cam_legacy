@@ -919,6 +919,38 @@ def still_action(
         summary["transmit_phase"]["burst_s"] = burst_s
         summary["transmit_phase"]["clock_source"] = plan.get("clock_source")
 
+    # --- R2-DELAY bench prototype (HIL Test Engineer, 2026-10-07; NOT for production) ---------
+    # Hold the FIRST uplink send of this still (heals before START, then START) until the Pi's
+    # uptime reaches START_DELAY_S, read from <app dir>/r2_start_delay_s (absent file = no-op, no
+    # output: production + goldens unchanged). Capture/encode already happened above, inside the
+    # wait. Budget-checked like the C2 lane wait: never waits into a truncated send.
+    _r2_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "r2_start_delay_s")
+    if os.path.exists(_r2_path):
+        try:
+            _r2_target = float(open(_r2_path).read().strip() or 0)
+        except (OSError, ValueError) as exc:
+            print(f"[R2DELAY][WARN] unreadable {_r2_path} ({exc}); no delay")
+            _r2_target = 0.0
+        try:
+            _r2_up = float(open("/proc/uptime").read().split()[0])
+        except (OSError, ValueError, IndexError):
+            _r2_up = None
+        _r2_wait = max(0.0, _r2_target - _r2_up) if (_r2_target > 0 and _r2_up is not None) else 0.0
+        _r2_burst = rc_transmit_phase.burst_seconds_for(
+            encode["message_count"] + heal_msgs, settings["pacing_delay_seconds"],
+            incomplete=not selection["fits"])
+        _r2_skipped = False
+        if _r2_wait > 0 and not budget.has_time_for(_r2_wait + _r2_burst):
+            print(f"[R2DELAY][WARN] skipping the {_r2_wait:.0f}s hold: only {budget.remaining_s():.0f}s "
+                  f"of budget left, burst needs {_r2_burst:.0f}s")
+            _r2_wait, _r2_skipped = 0.0, True
+        print(f"[R2DELAY] start_delay_s={_r2_target:.0f} uptime={_r2_up}s wait={_r2_wait:.1f}s "
+              f"burst_est={_r2_burst:.0f}s skipped={_r2_skipped}")
+        if _r2_wait > 0:
+            sleep_fn(_r2_wait)
+        summary["r2_delay"] = {"start_delay_s": _r2_target, "uptime_at_check_s": _r2_up,
+                               "wait_s": _r2_wait, "skipped_no_budget": _r2_skipped}
+
     # W9 (S4w): decided ONCE per send, so the sent record and the wire agree.
     chunk_total = rc_media_key.CHUNK_TOTAL
     media_key = rc_media_key.prepare_keyed_send(
