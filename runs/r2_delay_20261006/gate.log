@@ -34,3 +34,4 @@ de34a3f160ff1119
 2026-10-07T08:03:52Z [r2switch] wake 08Z: Pi unreachable or no [R2DELAY] line (rc 0): 0
 sed: -e expression #1, char 0: unmatched `{' (rc 4)
 2026-10-07T08:04:25Z switch at 08Z: first attempt failed (my f-string bug, sed got a literal {a.nth}; launcher cron also fired late 08:02:47Z); fixed + run by hand 08:04:05Z: recorded 07Z A, 08Z A (extra), wrote 230 -> 09Z = B. Launcher moved to :35 the hour before (timeout 1 h).
+2026-10-07T08:36:24Z WAKE 08Z A(extra): loss 0 % (0/110), queue_full 0, START 08:00:43 END 08:02:36, halt 318 s, clean; heal_msgs 0, budget_left 464 s; 07Z back-fill: heal_msgs 0, budget_left 464 s

@@ -14,3 +14,6 @@ slow (≥ 600 B) path sizes. heal_msgs / budget_left of this wake: from its cycl
 
 Chunk framing: bench 528 B = R1 keyed framing (what the reef would send after an R1 update); the reef's current legacy
 framing is ~390 B (EM 10/7). Kept for both arms.
+| 08:00 | 01:00 | A (extra) | 0.00 (0/110) | – | 0 | 0 | 1 / 46.8 s (08:10, after END; the :10 report HDR) / 0 | 08:00:43 | 08:02:36 | 318 s | **yes** |
+`[R2DELAY]` lines (from schedule.json): 07Z `start_delay_s=0 uptime=35.36s wait=0.0s burst_est=105s heal_msgs=0 budget_left=464s skipped=False`;
+08Z `start_delay_s=0 uptime=35.8s wait=0.0s burst_est=113s heal_msgs=0 budget_left=464s skipped=False`.
