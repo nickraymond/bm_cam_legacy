@@ -10,3 +10,5 @@
 2026-10-07T19:01:36Z [r3switch] wake 19Z arm A (delay_s 1.0) | seq 4/30 counts={'A': 2, 'B': 2} | next 20Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
 2026-10-07T19:23:11Z WAKE 19Z A (1.0 s): 185 msgs, loss 11.35 % (21/185), gaps 10/1/10; halt 397 s. Block 1: A 18.82/11.35, B 12.77/16.93.
 2026-10-07T20:04:19Z 20Z switch run by hand 20:04:03Z (launcher cron fired late 20:03Z): wake 20Z A, 21Z = B (1.5). Switch made idempotent; second launcher at :50.
+2026-10-07T21:13:34Z 21Z switch launchers did not fire (session busy). 21Z ran B (1.5 written 20:04Z); recorded by hand in schedule.json (pointer 6). 22Z = B per ABBA, YAML already 1.5 -> no write needed. 22Z launcher started by hand.
+2026-10-07T21:14:09Z WAKE 20Z A (1.0 s): 168 msgs, loss 6.55 % (11/168), gaps 10/1. WAKE 21Z B (1.5 s, 1.52 s spacing): 186 msgs, loss 5.91 % (11/186), gaps 7/4, END 21:05:27 -> CROSSED HDR. Counts A3 B3; medians A 11.35 / B 12.77.

@@ -17,7 +17,7 @@ step; Nick decides via the EM; permission prompts are never relayed.
 Pacing A = 1.0 s vs B = 1.5 s per message, delay 0, reef config, ABBA × 7 + AB (15 per arm), interim at 6/arm
 (B median ≥ A median → STOP), decision at 15/arm (PASS = B median < A median AND one-sided Mann-Whitney p < 0.10).
 B bursts crossing :05:00 are flagged "crossed HDR". State: `runs/r3_pace_20261007/schedule.json` (b_value 1.5).
-Results so far: RESULTS.md (A 18.82 / 11.35 / 20Z pending; B 12.77 / 16.93).
+Results so far (RESULTS.md): A 18.82 / 11.35 / 6.55, B 12.77 / 16.93 / 5.91 (3 per arm after 21Z; 22Z = B, 23Z = A).
 - **Switch launcher** (every hour, twice for safety; the tool is idempotent): at :35 and :50 PDT launch in the
   background (timeout 1 h) `bash runs/r3_pace_20261007/scripts/r3_switch_at.sh NEXT_HH` (NEXT_HH = PDT hour + 8,
   mod 24). It waits for NEXT_HH:01:30Z (inside the wake, after its boot config read, before an A wake halts ~:05), reads
@@ -34,9 +34,9 @@ Results so far: RESULTS.md (A 18.82 / 11.35 / 20Z pending; B 12.77 / 16.93).
 Q: does a cloud `reset` (Sofar Command API, sent by the EM) reboot the Spotter, and when? n = 1, then 2 more ≥ 1 h
 apart. PASS = console `Remote message received … reset` → boot banner → uptime ≈ 0; log send → execute time.
 STOP = no execution after 2 syncs (~2 h) → ask Sofar; any repeat reboot → --clear-queue + stop.
-- Reset #1 sent by the EM 20:08:15Z (HTTP 202, clear-queue). Expected execution at the ~21:05–21:06Z sync.
+- Reset #1 sent by the EM 20:08:15Z → **EXECUTED 21:05:47Z** (Debug reset, at the :05 sync, 57.5 min after send); the bridge rebooted with it → 120 s stub window 21:05:49–21:07:49 and the ticks windows are now re-phased to ~:05:49 each hour. Next: resets #2/#3 (EM sends, ≥ 1 h apart).
 - **Watcher**: `bash runs/remote_reset_20261007/watch_reset.sh <sinceZ> <deadlineZ> <tag>` (background; polls the
-  nereus000 console every 20 s; saves `console_reset_<tag>.txt`; exit 0 SEEN / 2 NO EXECUTION). Running for #1 until
+  nereus000 console every 20 s; saves `console_reset_<tag>.txt`; exit 0 SEEN / 2 NO EXECUTION). (#1 done, SEEN.) Re-run per reset until
   21:20Z. Send the EM the confirmation lines + execute time, or "no execution" at 14:20 PDT.
 - **bmcam004 safe mode** (installed 20:03:02Z): crontab = cycle commented (`# DISARMED_FOR_REMOTE_RESET …`) +
   `@reboot sleep 45 && sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh # REMOTE_RESET_SAFE_MODE` → every power-up
