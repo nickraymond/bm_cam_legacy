@@ -20,3 +20,8 @@ KeyError: 'still.format'
 2026-10-07T05:01:56Z setup verified: effective per_boot/still, crop 1504,846,1600,900 -> 1000, cap 195, 384 chars, 1.0 s, net 2, lane off, dropped []; patch sha 544f48b3 matches; r2_start_delay_s=0. Counted wakes from 07:00Z (A). Crons: switch 9462c68d (HH:03Z of 07/09/11/13/15/17), scoring 1abf574f (:16 each hour), setup check 71a8bc77.
 2026-10-07T05:15:24Z Nick: backend self_heal OFF for SPOT-33507C at 05:15:04Z (clean R2 baseline; no heal commands during the test; remote_commands stays on, nobody sends). RESTORE after the test (Nick runs it): PATCH /admin/gateways/SPOT-33507C/rollout {"self_heal": true}
 2026-10-07T05:16:22Z pre-check (1): rsd 100219 0ecwl4 29-36 received on SPOT-33507C 05:11:10Z (before self_heal OFF 05:15:04Z), queued at the bridge with 1000157/158/159 -> mote at the 06:00Z boot; no newer rsd; backend command list does not show rsd. (2) unit pending heals: read-only check at 06:06Z (cron 1e610ddb).
+2026-10-07T06:01:29Z [r2 setup2] uptime 81 s
+de34a3f160ff1119
+0
+[R2DELAY] start_delay_s=0 uptime=34.29s wait=0.0s burst_est=107s skipped=False
+2026-10-07T06:01:31Z [r2 setup2] expected sha de34a3f160ff1119 (80c3662); r2_start_delay_s=0 for the 07:00Z A wake
