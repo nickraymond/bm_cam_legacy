@@ -25,3 +25,4 @@ de34a3f160ff1119
 0
 [R2DELAY] start_delay_s=0 uptime=34.29s wait=0.0s burst_est=107s skipped=False
 2026-10-07T06:01:31Z [r2 setup2] expected sha de34a3f160ff1119 (80c3662); r2_start_delay_s=0 for the 07:00Z A wake
+2026-10-07T06:07:48Z pre-check (2) ANSWER: NO pending heals for counted wakes. 06:00Z cycle: rsd 100219 accepted, 8 heal chunks 0ecwl4 29-36 sent before START, 'pending after this wake: none'; state file has no heal keys, pending_trigger_v9 null; 1000157 (video) then 1000159 (still, acked h=532404da) applied -> still from 07Z; trg 1000158 fired THIS (setup) boot (W10). No queued serial commands on SPOT-33507C after 05:13:27Z. Nothing cleared.

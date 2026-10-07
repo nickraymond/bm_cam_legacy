@@ -1,0 +1,41 @@
+state: /home/pi/BM_Devel_Pi/bm_command_state_v2.json
+keys: ['boot_counter', 'guarded', 'high_water', 'migrated_from', 'overlay', 'overlay_ids', 'pending_trigger_v9', 'result_cache', 'schema', 'tables_version', 'v8', 'v8_fold_values', 'v8_folded']
+heal-ish: {}
+== [HEAL] lines
+-- cron_logs/rc_cycle_20261007T050833Z.log
+[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+[CMD] rsd id=100219 key=0ecwl4 n=8: accepted
+[CMD] applied id=100219 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+[HEAL] status: <HL v=1 key=0ecwl4 a=requested n=8 r=ok id=100219 w=0ed4p0>
+[HEAL] wake plan: 1 pending heal(s), 8 chunk(s) this wake (cap 40)
+[HEAL] sent 8 heal chunk(s) before START: 0ecwl4:[29, 30, 31, 32, 33, 34, 35, 36]
+[HEAL] pending after this wake: none
+[HEAL] status: <HL v=1 key=0ecwl4 a=sent n=8 r=ok id=100219 w=0ed4sc>
+-- cron_logs/rc_cycle_20261007T040834Z.log
+[HEAL] wake plan: 3 pending heal(s), 26 chunk(s) this wake (cap 40)
+[HEAL] sent 26 heal chunk(s) before START: 0ectsb:[54, 55, 56, 57, 58, 59, 60, 61], 0ectl3:[6, 7, 8, 9, 10, 11, 12, 13, 43, 44, 45, 46, 47, 48, 49, 50], 0eccww:[81, 82]
+[HEAL] pending after this wake: none
+[HEAL] status: <HL v=1 key=0ectsb a=sent n=8 r=ok id=100218 w=0ed1x1>
+[HEAL] status: <HL v=1 key=0ectl3 a=sent n=16 r=ok id=100218 w=0ed1x1>
+[HEAL] status: <HL v=1 key=0eccww a=sent n=2 r=ok id=100218 w=0ed1x1>
+pending_trigger_v9: null
+overlay: {"mode.media": "still", "video.send.message_cap": 126}
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-07T06:00:36.554000+00:00
+[CMD] ack re-send: 1 answer(s) from the last boots as d:1 (ids [1000156]; 1 paced msg(s) from the wake budget)
+[CMD] ack re-sent: {"id":1000156,"ok":1,"h":"e17613ea","d":1}
+[CMD] rsd id=100219 key=0ecwl4 n=8: accepted
+[CMD] applied id=100219 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+[CMD] applied id=1000157 set: mode.media: still -> video (next boot)
+[CMD] applied id=1000158 trg: trg 2 armed: capture + output per mode (next decision point)
+[CMD] applied id=1000158 trg: trg 2 armed: capture + output per mode (next decision point)
+[CMD] applied id=1000159 set: mode.media: video -> still (next boot)
+[CMD] ack sent: {"id":1000159,"ok":1,"h":"532404da"}
+[CMD] ack sent: <CF v=1 h=532404da mode.media=still@c1000159>
+[CMD] post-transmit listen window ended early after 0s: a trg fires this boot
+[SUP] W10: trg id=1000158 heard in the listen tail fires this boot (action 2; 353s of budget left)
+[CMD] one-shot trigger id=1000158 trg=2 (capture + send): window gate BYPASSED for this boot only
