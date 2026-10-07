@@ -34,7 +34,7 @@ log "before: bridgePowerControllerEnabled=$(rb). RESTORE: ssh pi@$H 'crontab ~/h
 log "committed (bus held on); catching the boot"
 T0=$(date -u +%s)
 until up; do sleep 2; [ $(( $(date -u +%s) - T0 )) -gt 120 ] && { log "FAIL: Pi not reachable in 120 s (its armed cycle will run and halt it)"; exit 1; }; done
-ssh -o BatchMode=yes "pi@$H" "mkdir -p ~/hil_backup/$TS && crontab -l > ~/hil_backup/$TS/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f 'rc_run_capture_cycle.sh|rc_progressive_jpeg.py|main_pi_camera.py'; sleep 2; echo up=\$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'" < /dev/null 2>&1 | tee -a "$RUN/gate.log"
+ssh -o BatchMode=yes "pi@$H" "mkdir -p ~/hil_backup/$TS && crontab -l > ~/hil_backup/$TS/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=\$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'" < /dev/null 2>&1 | tee -a "$RUN/gate.log"
 A=$(rb); log "after: bridgePowerControllerEnabled=$A"
 [ "$A" = 0 ] && up && { log "bus held ON, $H up + disarmed (backup ~/hil_backup/$TS)"; exit 0; }
 log "read-back/ssh check failed (controller=$A)"; exit 1

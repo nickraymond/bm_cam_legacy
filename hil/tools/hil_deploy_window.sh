@@ -29,7 +29,7 @@ until [ "$(date +%s)" -ge "$T" ]; do sleep 5; done
 for i in $(seq 1 120); do S true 2>/dev/null && break; sleep 2; done
 S true 2>/dev/null || { log "ABORT: $H not reachable within 4 min of the window"; exit 1; }
 TS=$(date -u +%Y%m%dT%H%M%SZ)
-S "mkdir -p ~/hil_backup/$TS && crontab -l > ~/hil_backup/$TS/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_${LBL} \1|' | crontab - && pkill -TERM -f 'rc_run_capture_cycle.sh|rc_progressive_jpeg.py|main_pi_camera.py'; sleep 2; echo up=\$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'" 2>&1 | tee -a "$G"
+S "mkdir -p ~/hil_backup/$TS && crontab -l > ~/hil_backup/$TS/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_${LBL} \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=\$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'" 2>&1 | tee -a "$G"
 log "backup+disarm+stop TS=$TS; RESTORE crontab: ssh pi@$H 'crontab ~/hil_backup/$TS/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update"
 hil/tools/hil_unit_snapshot.sh "$H" "before_$LBL" >/dev/null 2>&1; log "snapshot before_$LBL"
 FL="$HIL_RUN_DIR/pulled/${H}_field_update_${LBL}_$TS.log"
