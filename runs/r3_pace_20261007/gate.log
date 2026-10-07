@@ -17,3 +17,4 @@
   rec = {"wake_utc_hour": a.wake, "day": __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d"),
 [r3switch] wake 22Z arm B (delay_s 1.5) | seq 7/30 counts={'A': 3, 'B': 4} | next 23Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
 2026-10-07T22:06:39Z [TE2] live read-only: bmcam003 22:02:32Z YAML 'msg_interval_s: 1.0  # R3-PACE arm A' (23Z arm written by the 22Z switch), up 2 min.
+2026-10-07T22:25:05Z WAKE 22Z B (1.5 s): 169 msgs, loss 4.14 % (7/169), one 7-gap at 22:02:51 (non-HDR stall 37.6 s), END 22:05:00 (2 s before the :05 HDR, not crossed); halt 466 s. Counts A3 B4; medians A 11.35 / B 9.34.
