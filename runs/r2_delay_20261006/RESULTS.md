@@ -60,3 +60,12 @@ the boot-anchored health-check sync (:03:19–:04:07 today; :03:22–:03:33 on o
 | A (0 s) | 4 | 12.75, 0.00, 10.38, 12.62 | 11.50 | early non-HDR Notecard hand-off stall at ~:01:10–:01:45 (3/4) |
 | B (230 s) | 4 | 7.27, 5.71, 30.19, 11.36 | 9.32 | Spotter events at START ~:03:58–:06:13: the :05 HDR (3/4) and the health-check sync (:03:18–:04:07; 1/4) |
 Neither arm is clean on this Spotter; the hold moves the burst from one hazard window to another.
+| 15:00 | 08:00 | A (heal 0) | 0.58 (1/173) | 33×1 | 1 | 1 (15:01:12.2) | 4 / 2.7 s / 1 of 1 | no HDR → other 1 | 15:00:36 | 15:03:33 | 376 s | yes |
+
+## VERDICT (Nick 2026-10-07 08:05 PDT, via the EM): STOPPED after the 15Z wake
+**Inconclusive at n = 4–5 per arm; the 230 s hold moves the burst between hazards.**
+A (0 s, n = 5): 12.75, 0.00, 10.38, 12.62, 0.58 % (median 10.38) — holes from an early non-HDR Notecard hand-off stall
+(~:01:10–:01:45). B (230 s, n = 4, all applied, heal 0, budget_left 468–472 s): 7.27, 5.71, 30.19, 11.36 % (median
+9.32) — holes from the Spotter's :05 HDR (3/4) and its health-check sync (:03:18–:04:07, 1/4). No B wake skipped
+(budget never the blocker without heals). `r2_start_delay_s` = 0 from 16Z (written 15:01:37Z); the patch stays installed
+as a no-op. Backend self_heal stays OFF (next card R3-PACE needs it OFF too).

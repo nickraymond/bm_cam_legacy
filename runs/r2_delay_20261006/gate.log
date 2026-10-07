@@ -50,3 +50,4 @@ sed: -e expression #1, char 0: unmatched `{' (rc 4)
 2026-10-07T14:01:34Z [r2switch] wake 14Z arm B applied=True budget_left=472s heal_msgs=0 | seq 7/12 counts={'A': 4, 'B': 4} | next 15Z = A (wrote '0') (rc 0)
 2026-10-07T14:31:49Z WAKE 14Z B applied (472 s, heal 0): loss 11.36 % (15/132), queue_full 15 14:05:03-14:05:47, all at the 14:05:01 HDR; halt 497 s, NOT clean. Tally A median 11.50 (n4), B median 9.32 (n4).
 2026-10-07T15:01:37Z [r2switch] wake 15Z arm A applied=True  | seq 8/12 counts={'A': 5, 'B': 4} | next 16Z = A (wrote '0') (rc 0)
+2026-10-07T15:19:14Z R2-DELAY STOPPED by Nick after 15Z (A 0.58 %, clean). Verdict: inconclusive at n=4-5/arm; hold moves the burst between hazards. r2_start_delay_s=0 from 16Z. Next card R3-PACE.
