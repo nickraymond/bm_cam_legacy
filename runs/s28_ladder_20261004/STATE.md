@@ -123,3 +123,25 @@ C1 phase 1 no significant effect; S28 R0 bmcam004 PASS (`runs/s28_ladder_2026100
 - 04:03Z: B0 baseline 12/12 done (RESULTS "B3a B0"). Tue crons (PDT): e3e7bc73 05:45 sunrise (KEEP_DNG, pull 2 daylight DNGs to day_dng/);
   ee0006ee 08:40 T1 on 003; 17adaade 09:46 B0 re-run 4584436 (day + night); 8bb292ea 10:46 B1 pull-forward (deploy 4584436 at 18:00Z,
   layout=rgb LOCAL, B1 still at 19:00Z; needs the camera session's YAML form + Render on nvd #102 23a4324).
+
+## 10. STATE 2026-10-07 ~02:40Z (READ FIRST after a compaction; supersedes §§1–9 for bench state)
+
+EM handover: a NEW EM session takes over soon (docs/em/, af059d7); report to the old "Engineering Manager coordination"
+until the new one messages; expect 3-line status (task, blockers, context fill) + tests defined up front.
+
+| unit | state | restore |
+|---|---|---|
+| bmcam004 / SPOT-31593C | runtime **104ee3c** (= 4584436 B3a fix; #120+#133+#134); local camera_config.yaml: `still: raw: layout: rgb` (backup camera_config.yaml.bak_b1_20261006T180142Z) + `uplink: lane:` ON 3600/375/20/180 (backup …bak_lane_20261007T0000*Z); cron ARMED; bridge **ticks mode, windows ~:02:25–:02:33** (commit 02:02:22Z, early: leading-zero bug); hard power cut 02:04:25Z mid-cycle → health check at the 03:02Z wake | layout: `hil/tools/hil_b3a_layout.sh bmcam004 bayer4`; lane: copy the lane backup back or `hil_lane_block.sh bmcam004 off`; phase: `hil_bridge_phase.sh SPOT-31593C utc` (only with EM OK: no more resets tonight) |
+| bmcam003 / SPOT-33507C | development a50636e; production hourly bus (restored 00:19Z 10/7); cron armed; hil-r1-cmdres.timer RUNNING | — |
+| nereus000 | bus_on_watch off; spotter-monitor, rig health, dashboard | — |
+
+Results today: R4 STOPPED (verdict); sunrise low-gain PASS (runs/s28_lowgain_sunrise_20261006); B0 baseline + fix
+(RESULTS "B3a B0"); B1 PASS format/decode/render, 57901 complete via heal + QC PASS, 57914 healing (send to QC
+[a53739] when complete: cron 6aa75fe3); T1 (runs/t1_burst_20261006) a/b SUPPORTED, c NOT; T2 (runs/t2_msgsize_20261006)
+best 288 B @ 0.6 s (464 B/s, +55 %), 0.6 s region needs repeats; X1 forensic (runs/s28_ladder_20261004 RESULTS).
+Gotchas: hil/procedures/BENCH_GOTCHAS.md.
+
+Crons (session-only): a11e210d 20:05 PDT bmcam004 health check after the hard cut (STOP + tell EM if off);
+1a076de6 :24 PDT 20/21/22 lane wake reports (power-on, [PHASE], queue_full, burst-end margin, heal-vs-health-check,
+first-send completion; (B) re-phase decision data after 2–3 wakes — do NOT re-phase); 6aa75fe3 57914 → QC.
+RC deploy (Wed ~22:00Z per R1RC) ON HOLD until the EM confirms the development tip + config (B3a layout, lane, low-gain).
