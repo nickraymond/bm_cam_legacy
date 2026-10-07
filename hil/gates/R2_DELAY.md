@@ -55,5 +55,9 @@ Clean wake = first-send loss ≤ 2 % AND no contiguous gap ≥ 5 chunks.
 **Applied check (added 2026-10-07 05:1xZ, before the first counted wake, EM informed):** the patch drops the hold
 when wait + burst (incl. heals sent before START) exceeds the per_boot budget left (`[R2DELAY] … skipped=True`, the
 same rule that made bmcam004's C2 lane skip on heal wakes). A B wake with skipped=True is reported as **B not applied**
-and is not counted as B unless the EM decides otherwise; heals per wake are logged.
+and is not counted as B; heals per wake are logged. **EM 2026-10-07:** run an extra B wake in that block to keep n
+(the switch tool repeats B); **2 B wakes in a row not applied → STOP** and report (the budget rule is the blocker).
+Record budget_left on every B wake (patch 80c3662 logs `budget_left`, `heal_msgs`, `burst_est` on every wake; EM's
+expected arithmetic: 570 s − ~232 s wait ≈ 338 s left vs 195 s + heals). Arm switching: `hil/tools/hil_r2_switch.py`
+(state `runs/r2_delay_20261006/schedule.json`).
 **Safety stop:** any wake whose burst ends after :09:00 or whose wake→halt > 570 s.
