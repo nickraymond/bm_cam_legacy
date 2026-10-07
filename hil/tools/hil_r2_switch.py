@@ -39,20 +39,22 @@ def main():
     ap.add_argument("--state", required=True)
     ap.add_argument("--host", default="bmcam003")
     ap.add_argument("--wake", type=int, required=True)
+    ap.add_argument("--nth", type=int, default=1, help="read the Nth newest cycle log (2 = the previous wake)")
+    ap.add_argument("--no-write", action="store_true", help="record the wake only; do not write the next arm")
     a = ap.parse_args()
     st = json.load(open(a.state)) if os.path.exists(a.state) else {
         "seq": list("ABBAABBAABBA"), "pointer": 0, "history": [], "consecutive_b_skips": 0, "stopped": None}
     if st.get("stopped"):
         print(f"[r2switch] stopped earlier ({st['stopped']}); nothing written"); return 3
-    rc, out = ssh(a.host, "cd /home/pi/BM_Devel_Pi && cat r2_start_delay_s; "
-                          "grep -h '\\[R2DELAY\\]' $(ls -t cron_logs/rc_cycle_*.log | head -1) | tail -1")
+    rc, out = ssh(a.host, f"cd /home/pi/BM_Devel_Pi && cat r2_start_delay_s; "
+                          "grep -h '\\[R2DELAY\\]' $(ls -t cron_logs/rc_cycle_*.log | sed -n {a.nth}p) | tail -1")
     lines = out.strip().splitlines()
     if rc != 0 or len(lines) < 2 or "[R2DELAY]" not in lines[-1]:
         print(f"[r2switch] wake {a.wake:02d}Z: Pi unreachable or no [R2DELAY] line (rc {rc}): {out.strip()[:200]}")
         return 4
-    cur_val, line = lines[0].strip(), lines[-1]
-    arm = "B" if float(cur_val or 0) > 0 else "A"
+    line = lines[-1]
     f = dict(re.findall(r"(\w+)=([^\s]+)", line))
+    arm = "B" if float(f.get("start_delay_s", "0")) > 0 else "A"     # the arm THAT wake ran (its own log line)
     skipped = f.get("skipped") == "True"
     counted = not (arm == "B" and skipped)
     rec = {"wake_utc_hour": a.wake, "arm": arm, "applied": counted, "line": line}
@@ -60,10 +62,14 @@ def main():
         if k in f:
             rec[k] = f[k]
     if counted:
-        if arm != st["seq"][st["pointer"]]:
-            rec["note"] = f"arm {arm} ran where the sequence expected {st['seq'][st['pointer']]}"
-        st["pointer"] += 1
-        st["consecutive_b_skips"] = 0
+        st.setdefault("counts", {"A": 0, "B": 0})
+        st["counts"][arm] += 1
+        if arm == st["seq"][st["pointer"]]:
+            st["pointer"] += 1
+        else:                                     # off-sequence wake: counted for its arm, sequence not advanced
+            rec["note"] = f"arm {arm} ran where the sequence expected {st['seq'][st['pointer']]} (extra {arm})"
+        if arm == "B":
+            st["consecutive_b_skips"] = 0
     else:
         st["consecutive_b_skips"] += 1
     st["history"].append(rec)
@@ -71,12 +77,16 @@ def main():
         st["stopped"] = "2 B wakes in a row not applied (budget rule is the blocker)"
     elif st["pointer"] >= len(st["seq"]):
         st["stopped"] = "sequence complete"
+    if a.no_write:
+        json.dump(st, open(a.state, "w"), indent=1)
+        print(f"[r2switch] recorded wake {a.wake:02d}Z arm {arm} applied={counted} (no write) counts={st.get('counts')}")
+        return 0
     nxt = "A" if st["stopped"] else st["seq"][st["pointer"]]
     rc2, out2 = ssh(a.host, f"echo {VAL[nxt]} > /home/pi/BM_Devel_Pi/r2_start_delay_s && cat /home/pi/BM_Devel_Pi/r2_start_delay_s")
     st["next"] = {"wake_utc_hour": (a.wake + 1) % 24, "arm": nxt, "written": out2.strip(), "rc": rc2}
     json.dump(st, open(a.state, "w"), indent=1)
     print(f"[r2switch] wake {a.wake:02d}Z arm {arm} applied={counted} {('budget_left=' + rec.get('budget_left', '?') + ' heal_msgs=' + rec.get('heal_msgs', '?')) if arm == 'B' else ''}"
-          f" | counted {st['pointer']}/{len(st['seq'])} | next {(a.wake + 1) % 24:02d}Z = {nxt} (wrote {out2.strip()!r})"
+          f" | seq {st['pointer']}/{len(st['seq'])} counts={st.get('counts')} | next {(a.wake + 1) % 24:02d}Z = {nxt} (wrote {out2.strip()!r})"
           + (f" | STOPPED: {st['stopped']}" if st["stopped"] else ""))
     return 3 if st["stopped"] and "2 B" in st["stopped"] else 0
 
