@@ -1,0 +1,24 @@
+pi_date 2026-10-07T05:04:11Z
+== rc_cycle_20261007T041056Z.log
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+[PHASE] phase=206.4s burst=308s lane=3205s -> wait_post_guard wait=168.6s (start@+375s end@+682s)
+[PHASE][WARN] skipping the 169s lane wait: only 443s of budget left, burst needs 308s. Transmitting now, unscheduled.
+== rc_cycle_20261007T031100Z.log
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+[PHASE] phase=207.6s burst=308s lane=3205s -> wait_post_guard wait=167.4s (start@+375s end@+682s)
+[PHASE][WARN] skipping the 167s lane wait: only 442s of budget left, burst needs 308s. Transmitting now, unscheduled.
+[HEAL] sent 40 heal chunk(s) before START: 0ecih0:[144, 145, 146, 147, 148, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186], 0ecl90:[139, 140]
+== rc_cycle_20261007T020358Z.log
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+[PHASE] phase=211.8s burst=257s lane=3205s -> wait_post_guard wait=163.2s (start@+375s end@+632s)
+== rc_cycle_20261007T020111Z.log
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+[PHASE] phase=203.9s burst=248s lane=3205s -> wait_post_guard wait=171.1s (start@+375s end@+623s)
+== rc_cycle_20261007T010313Z.log
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+host_date 2026-10-07T05:04:11Z

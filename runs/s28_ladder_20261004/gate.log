@@ -397,3 +397,4 @@ halt-issued
 2026-10-07T03:28:06Z LANE-W1 FAIL: queue_full 141/195; :05 sync 'Waiting for TX' 03:05:06 -> drain ~03:10:20 held slot 1 (Spotter HDR 6129 B) through the whole lane-held burst; halt 498 s; margin ~112 s
 2026-10-07T03:30:13Z sync profile: both Spotters queue HDR 6129 B at their report; 31593C :05 tx 34-196 s hold 34-244 s; 33507C :10 tx 32-49 s hold 44-308 s, no overlap (burst ends ~:05)
 2026-10-07T04:42:43Z LANE-W2: START 04:04:21 (lane NOT held), queue_full 61/194 during the :05 sync TX wait (65.9 s); HDR hold 0.5 s; halt 499 s
+2026-10-07T05:04:39Z lane hold explained: W2/W3 skipped_no_budget (burst 308 s incl. 40 heals + wait ~168 s > ~442 s budget); W1 no heals -> waited. Clock OK.

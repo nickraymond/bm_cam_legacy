@@ -260,3 +260,16 @@ into the HDR hold (03:05:03 + 244 s). A burst that ends before :05 on SPOT-31593
 Reading: the loss window is the sync's TX wait (the cellular queue does not drain while the Spotter waits for TX),
 not only the HDR hold (0.5 s here vs 244 s at W1). Why the lane did not hold START needs the cycle log `[PHASE]` line
 (Pi off; read in the 05:02Z window, read-only).
+
+### Why the lane held W1 but not W2 (read-only cycle-log pull 05:04Z, `pulled/bmcam004_phase_lines_0505Z.txt`)
+Log names use the Pi clock BEFORE the Spotter time step (no RTC) — newest = the running 05:02Z wake (W3):
+| wake | `[PHASE]` (verbatim, abridged) | result |
+|---|---|---|
+| W1 03:02Z (log …020358Z) | phase=211.8 s burst=257 s → wait_post_guard wait=163.2 s | waited → START 03:06:12 |
+| W2 04:02Z (log …031100Z) | phase=207.6 s burst=**308 s** → wait 167.4 s; `[PHASE][WARN] skipping the 167s lane wait: only 442s of budget left, burst needs 308s` + `[HEAL] sent 40 heal chunk(s) before START` | **skipped_no_budget** → START 04:04:21 |
+| W3 05:02Z (log …041056Z) | phase=206.4 s burst=308 s → wait 168.6 s; skipping: only 443 s left | **skipped_no_budget** |
+Cause: **the budget check, not the clock.** The burst estimate includes the 40 heal chunks sent before START
+(195 + 40 msgs × 1.3 s ≈ 308 s); wait + burst (≈ 475 s) > the per_boot budget left (≈ 442 s) → the wait is dropped
+(by design: never wait into a truncated send). The clock was fine (Pi = nereus000 to the second). W1 had no heals.
+Implication: a fixed post-boundary wait only holds on wakes without (many) heals — i.e. exactly the wakes after a
+lossy one skip it. Same budget logic in the R2-DELAY patch.
