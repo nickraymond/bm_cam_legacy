@@ -1,0 +1,1 @@
+2026-10-07T19:42:23Z Nick (typed in the TE chat): "OK to restore SPOT-31593C bridge to utc after the reset" -> hil_bridge_phase.sh SPOT-31593C utc after the REMOTE-RESET card's resets (rehearse with HIL_PHASE_DRY=1 first; Pi halted; outside a window).
