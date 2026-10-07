@@ -248,3 +248,15 @@ Spotters queue LEGACY:50 + their own **HDR message (6129 B; 6062–6070 B twice)
 Reading: the HDR hold is long on BOTH Spotters; what differs is where the report falls relative to the burst. bmcam003's
 :10 report is after its burst; bmcam004's :05 report is inside it, and the lane's 375 s guard puts the burst straight
 into the HDR hold (03:05:03 + 244 s). A burst that ends before :05 on SPOT-31593C (option 1) mirrors bmcam003.
+
+### LANE-W2 — 04:02Z wake (passive data, no change)
+| item | value |
+|---|---|
+| bus / Pi | 04:02:21 → 04:12:21; Pi 04:02:30 → halt 04:10:40 (499 s) |
+| START | **04:04:21Z — NOT held to :06:15** (capture 04:02:58); fmt nrjxl q=239 att=2, length 194; burst 257.3 s → ends ~04:08:38, margin ~3.7 min |
+| :05 report | LEGACY:50 + HDR 6129 B (id 16752) added 04:04:59.5 → handed to the Notecard 04:05:00.0 (**hold 0.5 s**); sync 04:05:12 "Waiting for TX" → done after **65.9 s** |
+| queue_full | **61 / 194**, all 04:05:03 → 04:06:28 (= the sync's TX wait) |
+| Notecard | 6 % (04:00) → 13 % before the sync → 6 % after; 10 % at 04:10 |
+Reading: the loss window is the sync's TX wait (the cellular queue does not drain while the Spotter waits for TX),
+not only the HDR hold (0.5 s here vs 244 s at W1). Why the lane did not hold START needs the cycle log `[PHASE]` line
+(Pi off; read in the 05:02Z window, read-only).
