@@ -1,1 +1,20 @@
 2026-10-07T04:56:04Z run created for R2 units: bmcam003
+a50636e8c4f8
+f8d555ba75defb5058d6f901d537307f04c7567eb85f2b265a81253dbbc63da8  /home/pi/hil_backup/r2_20261007T050052Z/rc_progressive_jpeg.py
+2026-10-07T05:00:53Z [r2 setup] backup ~/hil_backup/r2_20261007T050052Z (rc_progressive_jpeg.py + camera_config.yaml). RESTORE: cp ~/hil_backup/r2_20261007T050052Z/rc_progressive_jpeg.py ~/hil_backup/r2_20261007T050052Z/camera_config.yaml /home/pi/BM_Devel_Pi/ && rm -f /home/pi/BM_Devel_Pi/r2_start_delay_s
+544f48b3d0cace3616b9ae1dbf0c66feb5439e5b4d34c8e4745781d95e94fc58  rc_progressive_jpeg.py
+3
+0
+2026-10-07T05:00:55Z [r2 setup] local sha256 of the patch: 544f48b3d0cace3616b9ae1dbf0c66feb5439e5b4d34c8e4745781d95e94fc58
+set uplink.msg_interval_s 1.0
+119c119
+<   msg_interval_s: 1.3  # Seconds between uplink messages.
+---
+>   msg_interval_s: 1.0  # R2-DELAY reef pacing (was: 1.3  # Seconds between uplink messages.)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import config_v2 as c, supervisor_config as S; b = c.load_config('camera_config.yaml').base; e = S.resolve(b, c.read_state(S.state_path_for(b))); v = e.values; print('effective:', {k: v[k] for k in ('mode.media','mode.run','still.format','still.crop','still.output_width','still.message_cap','uplink.chunk_chars','uplink.msg_interval_s','uplink.network_type','uplink.lane.enabled')}, 'overlay', sorted(e.overlay), 'dropped', e.dropped)
+                                                                                                                                                                                            ~^^^
+KeyError: 'still.format'
+2026-10-07T05:00:57Z [r2 setup] setup done (applies from the next boot; 06:00Z wake = setup, not counted)
+2026-10-07T05:01:56Z setup verified: effective per_boot/still, crop 1504,846,1600,900 -> 1000, cap 195, 384 chars, 1.0 s, net 2, lane off, dropped []; patch sha 544f48b3 matches; r2_start_delay_s=0. Counted wakes from 07:00Z (A). Crons: switch 9462c68d (HH:03Z of 07/09/11/13/15/17), scoring 1abf574f (:16 each hour), setup check 71a8bc77.

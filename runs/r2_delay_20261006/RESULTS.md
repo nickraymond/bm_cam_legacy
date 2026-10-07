@@ -1,39 +1,7 @@
-# R2 — RESULTS (`runs/r2_delay_20261006`)
+# R2-DELAY — RESULTS (bmcam003 / SPOT-33507C)
 
-**R2: PENDING** — one sentence: what was proven or what failed.
+Gate: `hil/gates/R2_DELAY.md`. Setup 2026-10-07 05:00Z (patch f1dfe38 installed, sha 544f48b3; pacing 1.0 s; effective
+config in `pulled/bmcam003_effective_setup.txt`). 06:00Z wake = setup (driver trg + setup command), not counted.
 
-Spec: `hil/gates/R2_*.md` · Manifest: `run_manifest.json` · Timeline: `gate.log` ·
-Commands: `commands.log` / `steps.log`. Times PDT (UTC in the logs).
-
-## Setup
-
-| unit | Spotter | runtime sha | config hash | bus | cron | snapshot |
-|---|---|---|---|---|---|---|
-| | | | | | | `snapshots/…` |
-
-Bench owner: Test Engineer session. Other sessions on the hardware during the run: none / …
-
-## Criteria
-
-| id | criterion | PASS when | measured | verdict | evidence |
-|---|---|---|---|---|---|
-| | | | | PENDING | |
-
-## Steps
-
-| step | sent (PDT) | command / action | answer / ack (PDT) | result | evidence |
-|---|---|---|---|---|---|
-
-## Findings
-
-| id | seen | effect | owner | link |
-|---|---|---|---|---|
-
-## Restore
-
-| unit | restored | read-back | matches baseline |
-|---|---|---|---|
-
-## Not tested
-
-- …
+| wake (Z) | PDT | arm | loss % | gaps (start idx × len) | max gap | queue_full (first–last) | START | burst end | wake→halt | clean |
+|---|---|---|---|---|---|---|---|---|---|---|

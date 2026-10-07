@@ -1,0 +1,1 @@
+effective: {'mode.media': 'still', 'mode.run': 'per_boot', 'still.crop': [1504, 846, 1600, 900], 'still.output_width': 1000, 'still.message_cap': 195, 'uplink.chunk_chars': 384, 'uplink.msg_interval_s': 1.0, 'uplink.network_type': 2, 'uplink.lane.enabled': False} overlay {'mode.media': 'still', 'video.send.message_cap': 126} dropped []
