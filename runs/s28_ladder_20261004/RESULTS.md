@@ -206,3 +206,19 @@ QC prod check of 57901 (frontend QC session, 22:26Z): **PASS** — size line "Li
 unpacked · Sent (compressed) 53.5 kB (34:1 vs RAW) · 186 msgs"; Linear DNG = LinearRaw 34892 3×16-bit (rawpy opens);
 /hq 1600×900, 0 % magenta, 17 % clipped highlights; prod original 53,506 B, sha256 f23771ac8b963ae9… = the unit's
 sent record → the heal is byte-exact end to end.
+
+## bmcam004 wake shift (Nick GO 2026-10-06 22:50Z): lane block + re-phase — as run
+
+- Lane block ON since 00:00:43Z 10/7 (`hil_lane_block.sh`): effective uplink.lane True 3600/375/20/180, dropped [];
+  print-config "transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s … fits".
+- Re-phase: attempt 1 (00:00Z) never reached the commit (script hung on ssh to a halting Pi); attempt 2 (01:00Z)
+  aborted (pkill self-match killed the remote shell before the halt; unit halted by hand 01:03:15Z); attempt 3
+  (02:00Z, rehearsed) committed — but **at 02:02:22Z instead of 02:03:32Z**: `ticks 04` → the tool's embedded Python
+  rejected the leading zero (`minute=04`), the commit time came back empty and the wait was skipped. Bridge read-back:
+  ticksSamplingEnabled=1, controller 1, 3600000/600000 → **windows at ~:02:25–:02:33**, not ~:03:40.
+- The commit's console call hung ~6 min (the perl-alarm bound killed only the wrapper, not the ssh child holding the
+  pipe), so the stub-window boot (Pi on 02:02:32Z, `<WS` 02:02:52Z, cron armed) was not caught: **the bus cut it at
+  02:04:25Z, ~112 s into a cycle** (hard power-off). Next window ~03:02:33Z.
+- Fixed in hil_bridge_phase.sh: `int('$MM')`, an abort if the commit time is not computed, and a process-group kill
+  bound (tested: a hung pipeline returns rc 124 in 3 s).
+- Captures skipped tonight: 00:00, 01:00, 02:00Z.

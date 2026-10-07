@@ -1,0 +1,16 @@
+2026-10-07T02:01:31Z [phase SPOT-31593C/bmcam004] before: ticksSamplingEnabled=0 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+2026-10-07T02:02:10Z Succesfully sent config set msg
+2026-10-07T02:02:10Z 2026-10-07T02:02:12.824Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+  File "<string>", line 3
+    n=d.datetime.now(d.timezone.utc); t=n.replace(minute=04, second=0, microsecond=0)
+                                                         ^
+SyntaxError: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers
+2026-10-07T02:02:16Z [phase SPOT-31593C/bmcam004] commit scheduled at 00:00:00 (= :04:00 − 28s); windows will open at :04 from one hour after
+hil/tools/hil_bridge_phase.sh: line 61: [: : integer expression expected
+2026-10-07T02:02:22Z 2026-10-07T02:02:25.035Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-07T02:02:22Z 2026-10-07T02:02:25.042Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-07T02:02:22Z 2026-10-07T02:02:25.097Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-07T02:08:15Z [phase SPOT-31593C/bmcam004] COMMITTED ticksSamplingEnabled=1 (phase anchor = this time + bridge reset); waiting for the stub-window boot
+2026-10-07T02:10:06Z [phase SPOT-31593C/bmcam004] Pi not up in the stub window
+2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] after: ticksSamplingEnabled=1 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] phase mode confirmed (ticks=1)

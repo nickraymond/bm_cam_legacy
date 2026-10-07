@@ -39,7 +39,9 @@ esac
 LEAD="${HIL_PHASE_LEAD_S:-8}"
 DRY="${HIL_PHASE_DRY:-0}"     # 1 = rehearsal: read-backs run, the set/commit console lines are ECHOED, not sent
 # every ssh is bounded (perl alarm: macOS has no `timeout`) so a dying Pi cannot hang the tool (2026-10-07 lesson)
-B() { perl -e 'alarm shift; exec @ARGV' "$@"; }
+# B <s> cmd…: run cmd in its own process group and kill the WHOLE group after <s> s (a plain perl alarm+exec left
+# the console tool's ssh child holding the pipe open: 6 min hang at the 2026-10-07 02:02Z commit)
+B() { perl -e '$t=shift; $p=fork; if(!$p){setpgrp(0,0); exec @ARGV or exit 127} $SIG{ALRM}=sub{kill "TERM", -$p; sleep 1; kill "KILL", -$p; exit 124}; alarm $t; waitpid($p,0); exit($? >> 8)' "$@"; }
 RUN="$HIL_RUN_DIR"; mkdir -p "$RUN/console"
 CON="$HIL_TOOLS_DIR/hil_console.sh"
 log() { echo "$(date -u +%FT%TZ) [phase $SPOT/$H] $*" | tee -a "$RUN/gate.log"; }
@@ -54,9 +56,10 @@ if [ "$TICKS" = 1 ]; then
   # next hh:MM:00 at least 120 s away, minus the lead
   T=$(python3 -c "
 import datetime as d
-n=d.datetime.now(d.timezone.utc); t=n.replace(minute=$MM, second=0, microsecond=0)
+n=d.datetime.now(d.timezone.utc); t=n.replace(minute=int('$MM'), second=0, microsecond=0)
 while (t-n).total_seconds() < 120: t += d.timedelta(hours=1)
-print(int(t.timestamp()) - $LEAD)")
+print(int(t.timestamp()) - $LEAD)") || T=""
+  case "$T" in ''|*[!0-9]*) log "ABORT: commit time not computed (MM=$MM) -> nothing committed"; exit 2;; esac
   log "commit scheduled at $(date -u -r "$T" +%T 2>/dev/null || date -u -d "@$T" +%T) (= :$(printf %02d "$MM"):00 − ${LEAD}s); windows will open at :$(printf %02d "$MM") from one hour after"
   while [ "$(date -u +%s)" -lt "$T" ]; do sleep 1; done
   up && { log "REFUSED at commit time: $H came UP"; exit 2; }
