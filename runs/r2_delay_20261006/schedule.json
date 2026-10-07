@@ -1,0 +1,54 @@
+{
+ "seq": [
+  "A",
+  "B",
+  "B",
+  "A",
+  "A",
+  "B",
+  "B",
+  "A",
+  "A",
+  "B",
+  "B",
+  "A"
+ ],
+ "pointer": 1,
+ "history": [
+  {
+   "wake_utc_hour": 7,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=35.36s wait=0.0s burst_est=105s heal_msgs=0 budget_left=464s skipped=False",
+   "uptime": "35.36s",
+   "wait": "0.0s",
+   "burst_est": "105s",
+   "heal_msgs": "0",
+   "budget_left": "464s"
+  },
+  {
+   "wake_utc_hour": 8,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=35.8s wait=0.0s burst_est=113s heal_msgs=0 budget_left=464s skipped=False",
+   "uptime": "35.8s",
+   "wait": "0.0s",
+   "burst_est": "113s",
+   "heal_msgs": "0",
+   "budget_left": "464s",
+   "note": "arm A ran where the sequence expected B (extra A)"
+  }
+ ],
+ "consecutive_b_skips": 0,
+ "stopped": null,
+ "counts": {
+  "A": 2,
+  "B": 0
+ },
+ "next": {
+  "wake_utc_hour": 9,
+  "arm": "B",
+  "written": "230",
+  "rc": 0
+ }
+}

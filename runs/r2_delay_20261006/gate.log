@@ -29,3 +29,8 @@ de34a3f160ff1119
 2026-10-07T06:16:26Z setup-wake check 06:00Z: bus 05:59:59-06:09:59, Pi 06:00:07-06:07:37 (458 s), START len 104, queue_full 22 (setup, not counted); backend: 1000159 in_effect, 1000158 trg answered (fired this boot), 1000157 saved; pending_unsent []; in_flight only stale keys from cid 1000003 (old, not re-sent by anyone) -> counted wakes command-free. [R2DELAY] line for 06Z seen (start_delay_s=0).
 2026-10-07T07:07:59Z switch MISSED at 07Z (session cron fired 07:06:53, A wake already halted) -> 08Z runs A (file 0); sequence becomes A07 A08(extra) B09 B10 | ABBA...; switch now runs from a background job at HH:01:30Z (r2_switch_at.sh) launched at :50 the hour before; tool records off-sequence wakes as extras.
 2026-10-07T07:08:58Z WAKE 07Z A: loss 12.75 % (13/102), gaps 61x1 + 65x12, queue_full 13 07:01:47.8-07:02:03.0, START 07:00:43 END 07:02:28, halt 308 s, NOT clean; cause = Spotter->Notecard hand-off stall 07:01:45-07:02:08 (drain up to 13.3 s), no Spotter-own event in the window
+2026-10-07T08:02:47Z [r2switch] wake 07Z: Pi unreachable or no [R2DELAY] line (rc 0): 0
+2026-10-07T08:02:47Z sed: -e expression #1, char 0: unmatched `{'
+2026-10-07T08:03:52Z [r2switch] wake 08Z: Pi unreachable or no [R2DELAY] line (rc 0): 0
+sed: -e expression #1, char 0: unmatched `{' (rc 4)
+2026-10-07T08:04:25Z switch at 08Z: first attempt failed (my f-string bug, sed got a literal {a.nth}; launcher cron also fired late 08:02:47Z); fixed + run by hand 08:04:05Z: recorded 07Z A, 08Z A (extra), wrote 230 -> 09Z = B. Launcher moved to :35 the hour before (timeout 1 h).

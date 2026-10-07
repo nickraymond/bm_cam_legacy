@@ -47,7 +47,7 @@ def main():
     if st.get("stopped"):
         print(f"[r2switch] stopped earlier ({st['stopped']}); nothing written"); return 3
     rc, out = ssh(a.host, f"cd /home/pi/BM_Devel_Pi && cat r2_start_delay_s; "
-                          "grep -h '\\[R2DELAY\\]' $(ls -t cron_logs/rc_cycle_*.log | sed -n {a.nth}p) | tail -1")
+                          f"grep -h '\\[R2DELAY\\]' $(ls -t cron_logs/rc_cycle_*.log | sed -n {a.nth}p) | tail -1")
     lines = out.strip().splitlines()
     if rc != 0 or len(lines) < 2 or "[R2DELAY]" not in lines[-1]:
         print(f"[r2switch] wake {a.wake:02d}Z: Pi unreachable or no [R2DELAY] line (rc {rc}): {out.strip()[:200]}")
