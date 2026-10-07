@@ -331,3 +331,26 @@ halt-issued
 2026-10-06T22:00:48Z [b1pull] B1 container pull done (read-only)
 2026-10-06T22:02:26Z B1 heal check after 21Z: 57901 still 181/186 (no heal yet), 57914 138/187, 57928 143/185 (all :05 overlap); decode path = pulled containers (camera session). Re-check after 22Z.
 2026-10-06T22:04:17Z B1 decode PASS (camera session, nvd v2 decoder, 2272f87); delivery open pending heals
+2026-10-07T00:00:40Z [w00 lane+phase] disarmed TS=20261007T000038Z
+backup: /home/pi/BM_Devel_Pi/camera_config.yaml.bak_lane_20261007T000043Z
+set uplink.lane: {'enabled': 'true', 'grid_s': '3600', 'post_guard_s': '375', 'pre_guard_s': '20', 'max_wait_s': '180'}
+123,127c123,127
+<     enabled: false  # Keep sends out of the 5-min boundary blackout.
+<     grid_s: 300.0  # Boundary grid (s).
+<     pre_guard_s: 20.0  # Quiet before a boundary (s).
+<     post_guard_s: 30.0  # Quiet after a boundary (s).
+<     max_wait_s: 300.0  # Longest wait for a clear slot (s).
+---
+>     enabled: true
+>     grid_s: 3600
+>     post_guard_s: 375
+>     pre_guard_s: 20
+>     max_wait_s: 180
+effective lane: True 3600 375 20 180 dropped []
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+2026-10-07T00:00:43Z [w00 lane+phase] hil_lane_block rc=0
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-07T00:00:44Z [w00 lane+phase] RE-ARMED
+halt-issued
+2026-10-07T00:20:44Z B1 57901 COMPLETE (healed 22:10:34Z), renderable; sent to QC. 57914 178/187

@@ -195,3 +195,10 @@ with the backend's v2 decoder (nvd 23a4324): method 20 / profile 2, geometry 150
 bit-identical to djxl, render OK by eye, LinearRaw DNG opens in LibRaw (record: runs/s28_b3a_b1_decode_20261006/ on
 feature/sprint28-b3a 2272f87). **Delivery is OPEN**: backend rows 57901 181/186, 57914 138/187, 57928 143/185 —
 chunks lost to the :05 report overlap (T1/X1), heals pending. QC prod check (size line, Linear DNG, hq) once a row is complete.
+
+**B1 delivery (2026-10-07 00:2xZ):** 57901 COMPLETE 186/186 at 22:10:34Z (healed at the 22:00Z wake; 190 min after
+capture → D1 3 h missed by 10 min), render_state renderable, display JPEG present, size 53506 B = the sent container
+(`api/B1_media_complete.json`, URLs + GPS stripped). Sent to frontend QC for the prod size line / Linear DNG / hq.
+57914 178/187 (healing). Later stills 57928/57942/57955 lost 38–50 chunks each to the :05 overlap → the lane +
+re-phase (Nick GO 10/6 22:50Z) is the fix under test. **B1 overall: PASS for format/decode/render; delivery OK via
+heal.**

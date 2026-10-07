@@ -1,0 +1,66 @@
+{
+ "media": {
+  "id": 57901,
+  "system_id": "SPOT-31593C",
+  "device_id": "BMCAM_004",
+  "timestamp_utc": "2026-10-06T22:10:34.271972+00:00",
+  "captured_at_utc": "2026-10-06T19:00:38+00:00",
+  "received_at_utc": "2026-10-06T19:10:25.452122+00:00",
+  "type": "image",
+  "format": "nrjxl",
+  "r2_key": "BMCAM_004/bm_sofar/2026/10/06/SPOT-31593C_BMCAM_004_20261006T190038Z_f23771ac8b963ae9.nrjxl",
+  "display_key": "BMCAM_004/bm_sofar/2026/10/06/display/SPOT-31593C_BMCAM_004_20261006T190038Z_f23771ac8b963ae9.jpg",
+  "video_key": null,
+  "processing_status": "pending",
+  "size_bytes": 53506,
+  "duration_seconds": null,
+  "expected_chunks": 186,
+  "received_chunks": 186,
+  "missing_chunk_count": 0,
+  "percent_received": 100,
+  "is_complete": true,
+  "is_sealed": true,
+  "is_partial": false,
+  "render_state": "renderable",
+  "has_start_metadata": true,
+  "has_end_metadata": true,
+  "capture_metadata_state": "complete",
+  "default_variant": "original",
+  "variants": [
+   {
+    "variant_id": "original",
+    "label": "Original",
+    "kind": "original",
+    "is_default": true
+   }
+  ],
+  "processing": [],
+  "display_rotation_deg": 180,
+  "detections_image": null
+ },
+ "telemetry": {
+  "id": 174903,
+  "system_id": "SPOT-31593C",
+  "device_id": "BMCAM_004",
+  "media_id": 57901,
+  "timestamp_utc": "2026-10-06T22:01:13+00:00",
+  "created_at": "2026-10-06T22:10:22.731248+00:00",
+  "metrics": {
+   "source_type": "sofar_spotter",
+   "image_format": "nrjxl",
+   "message_type": "media_capture",
+   "config_source": "bm_cam_legacy",
+   "expected_chunks": 186,
+   "received_chunks": 186,
+   "external_node_id": "0xe6fe83ea6b4a2b7f",
+   "image_size_bytes": 53506,
+   "bm_start_filename": "2026-10-06T19:00:38Z_image_compressed.nrjxl",
+   "external_system_id": "SPOT-31593C",
+   "missing_chunk_count": 0,
+   "camera_image_width_px": 1600,
+   "bm_start_timestamp_utc": "2026-10-06T22:01:13.000Z",
+   "camera_image_height_px": 900
+  }
+ },
+ "annotation": null
+}
