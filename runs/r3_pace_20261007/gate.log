@@ -18,3 +18,4 @@
 [r3switch] wake 22Z arm B (delay_s 1.5) | seq 7/30 counts={'A': 3, 'B': 4} | next 23Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
 2026-10-07T22:06:39Z [TE2] live read-only: bmcam003 22:02:32Z YAML 'msg_interval_s: 1.0  # R3-PACE arm A' (23Z arm written by the 22Z switch), up 2 min.
 2026-10-07T22:25:05Z WAKE 22Z B (1.5 s): 169 msgs, loss 4.14 % (7/169), one 7-gap at 22:02:51 (non-HDR stall 37.6 s), END 22:05:00 (2 s before the :05 HDR, not crossed); halt 466 s. Counts A3 B4; medians A 11.35 / B 9.34.
+2026-10-07T23:08:57Z [TE2] 23Z switch launchers did not fire (session crons never fired). 23Z ran A (1.0 read back 22:02Z); recorded by hand in schedule.json (pointer 8, A4 B4). 00Z = A per ABBA, YAML already 1.0 -> no write. Switches move to a detached driver.
