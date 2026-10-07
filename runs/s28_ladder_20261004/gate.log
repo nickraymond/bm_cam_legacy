@@ -1,0 +1,401 @@
+2026-10-05T04:48:04Z run created for S28-R0 units: bmcam004
+2026-10-05T04:48:04Z Sprint28 JPEG-XL on bmcam004 (EM plan; Nick: bus-always-on OK in the TE chat 2026-10-04T15:46Z; libjxl install/remove covered by his JPEG-XL bench approval, bench units only). Code ref for R0: origin/feature/sprint28-camera e44dde5 (review-fixed). RESTORES: (a) bus: re-arm crontab backup, halt, hil/tools/hil_restore_schedule.sh SPOT-31593C (1/3600000/600000); (b) tools: ssh pi@bmcam004 'sudo apt-get remove -y libjxl-tools'.
+2026-10-05T04:48:12Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261005T044807Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-05T04:48:13Z Succesfully sent config set msg
+2026-10-05T04:48:13Z 2026-10-05T04:48:16.332Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-05T04:48:20Z 2026-10-05T04:48:22.917Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-05T04:48:20Z 2026-10-05T04:48:22.921Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-05T04:48:20Z 2026-10-05T04:48:22.980Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-05T04:48:23Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+2026-10-05T04:49:07Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-05T04:49:07Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261005T044807Z)
+Setting up libgif7:arm64 (5.2.2-1+deb13u1) ...
+Setting up libjxl-tools (0.11.2-0.1~deb13u2) ...
+Processing triggers for man-db (2.13.1-1) ...
+Processing triggers for libc-bin (2.41-12+rpt1+deb13u3) ...
+cjxl: /usr/bin/cjxl cjxl v0.11.2 [NEON_WITHOUT_AES]
+numpy: 2.2.4
+/dev/mmcblk0p2  115G   86G   25G  79% /
+2026-10-05T04:50:01Z R0.4 tools on bmcam004: cjxl v0.11.2 (libjxl-tools 0.11.2-0.1~deb13u2, + dep libgif7), numpy 2.2.4, / 25G free. RESTORE (updated): ssh pi@bmcam004 'sudo apt-get remove -y libjxl-tools && sudo apt-get autoremove -y'
+2026-10-05T04:50:13Z [bmcam004] R0 probe start: N=10 ENC_N=10 presets=1600x900 2000x1124 2400x1350 remote=/tmp/s28r0_20261005T045013Z
+2026-10-05T04:50:17Z [bmcam004] encoder copied: e44dde5 rc_raw_jxl.py sha256=f3bfa3f739a2625b
+[r0][pi] 2026-10-05T04:50:18Z
+[r0][pi] bmcam004
+[r0][pi] Linux bmcam004 6.18.34+rpt-rpi-v8 #1 SMP PREEMPT Debian 1:6.18.34-1+rpt1 (2026-06-09) aarch64 GNU/Linux
+[r0][pi] PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+[r0][pi] NAME="Debian GNU/Linux"
+[r0][pi] VERSION_ID="13"
+[r0][pi] rpicam-apps build: v1.12.0 12-05-2026 (11:49:26)
+[r0][pi] rpicam-apps capabilites: egl:0 qt:0 drm:1 libav:0
+[r0][pi] cjxl: /usr/bin/cjxl cjxl v0.11.2 [NEON_WITHOUT_AES]
+[r0][pi] numpy 2.2.4
+[r0][pi] MemTotal:         425172 kB
+[r0][pi] MemAvailable:     264820 kB
+[r0][pi] CmaTotal:         262144 kB
+[r0][pi] CmaFree:          156192 kB
+[r0][pi] cmdline: coherent_pool=1M 8250.nr_uarts=1 snd_bcm2835.enable_headphones=0 cgroup_disable=memory snd_bcm2835.enable_hdmi=1 snd_bcm2835.enable_hdmi=0  smsc95xx.macaddr=B8:27:EB:1C:00:5C vc_mem.mem_base=0x1ec00000 vc_mem.mem_size=0x20000000  console=tty1 root=PARTUUID=93258cee-02 rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US
+[r0][pi] /dev/mmcblk0p2  115G   86G   25G  79% /
+[r0][pi] tmpfs           208M  124K  208M   1% /tmp
+[r0][pi] guard {"rc": 1, "kind": "mem", "seconds": 0.265, "peak_rss_kb": 15132}
+[r0][pi] CMA sampler running: pid 1244, 10 rows in the first second
+[r0][pi] capture plain #1 rc=0 jpeg=1992038 dng=0
+[r0][pi] capture plain #2 rc=0 jpeg=1891138 dng=0
+[r0][pi] capture plain #3 rc=0 jpeg=1967185 dng=0
+[r0][pi] capture plain #4 rc=0 jpeg=1873369 dng=0
+[r0][pi] capture plain #5 rc=0 jpeg=1956956 dng=0
+[r0][pi] capture plain #6 rc=0 jpeg=1950564 dng=0
+[r0][pi] capture plain #7 rc=0 jpeg=1987979 dng=0
+[r0][pi] capture plain #8 rc=0 jpeg=1885050 dng=0
+[r0][pi] capture plain #9 rc=0 jpeg=1969495 dng=0
+[r0][pi] capture plain #10 rc=0 jpeg=1871448 dng=0
+[r0][pi] capture raw #1 rc=0 jpeg=1923864 dng=24029068
+[r0][pi] capture raw #2 rc=0 jpeg=1913945 dng=24029068
+[r0][pi] capture raw #3 rc=0 jpeg=1992295 dng=24029068
+[r0][pi] capture raw #4 rc=0 jpeg=2003211 dng=24029068
+[r0][pi] capture raw #5 rc=0 jpeg=1973746 dng=24029068
+[r0][pi] capture raw #6 rc=0 jpeg=1855734 dng=24029068
+[r0][pi] capture raw #7 rc=0 jpeg=1909175 dng=24029068
+[r0][pi] capture raw #8 rc=0 jpeg=1908361 dng=24029068
+[r0][pi] capture raw #9 rc=0 jpeg=1918411 dng=24029068
+[r0][pi] capture raw #10 rc=0 jpeg=1882807 dng=24029068
+[r0][pi] 1600x900,1,0,7.84065,58686,3.8,6.481,38872,
+[r0][pi] 1600x900,2,0,7.52314,58686,3.8,6.379,38856,
+[r0][pi] 1600x900,3,0,7.5235,58686,3.8,6.378,38860,
+[r0][pi] 1600x900,4,0,7.52175,58686,3.8,6.38,38864,
+[r0][pi] 1600x900,5,0,7.57441,58686,3.8,6.429,38864,
+[r0][pi] 1600x900,6,0,7.47097,58686,3.8,6.328,38860,
+[r0][pi] 1600x900,7,0,7.4935,58686,3.8,6.329,38872,
+[r0][pi] 1600x900,8,0,7.47251,58686,3.8,6.327,38856,
+[r0][pi] 1600x900,9,0,7.49291,58686,3.8,6.33,38864,
+[r0][pi] 1600x900,10,0,7.52537,58686,3.8,6.381,38840,
+[r0][pi] 2000x1124,1,0,11.106,38727,7.3,9.896,45124,
+[r0][pi] 2000x1124,2,0,11.1081,38727,7.3,9.895,45120,
+[r0][pi] 2000x1124,3,0,11.1518,38727,7.3,9.944,45124,
+[r0][pi] 2000x1124,4,0,11.1506,38727,7.3,9.943,45124,
+[r0][pi] 2000x1124,5,0,11.1536,38727,7.3,9.944,45128,
+[r0][pi] 2000x1124,6,0,11.1704,38727,7.3,9.943,45120,
+[r0][pi] 2000x1124,7,0,11.2137,38727,7.3,9.994,45116,
+[r0][pi] 2000x1124,8,0,11.1491,38727,7.3,9.943,45056,
+[r0][pi] 2000x1124,9,0,11.1512,38727,7.3,9.944,45128,
+[r0][pi] 2000x1124,10,0,11.1036,38727,7.3,9.892,45120,
+[r0][pi] 2400x1350,1,0,15.3081,43934,9.0,14.012,70296,
+[r0][pi] 2400x1350,2,0,15.4571,43934,9.0,14.157,70296,
+[r0][pi] 2400x1350,3,0,15.3562,43934,9.0,14.055,70292,
+[r0][pi] 2400x1350,4,0,15.454,43934,9.0,14.157,70292,
+[r0][pi] 2400x1350,5,0,15.3551,43934,9.0,14.056,70292,
+[r0][pi] 2400x1350,6,0,15.3598,43934,9.0,14.062,70292,
+[r0][pi] 2400x1350,7,0,15.4439,43934,9.0,14.109,70288,
+[r0][pi] 2400x1350,8,0,15.4638,43934,9.0,14.16,70292,
+[r0][pi] 2400x1350,9,0,15.3599,43934,9.0,14.059,70280,
+[r0][pi] 2400x1350,10,0,15.4079,43934,9.0,14.109,70292,
+2026-10-05T04:59:35Z [bmcam004] R0 probe done: pulled to /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_ladder_20261004/pulled/bmcam004_r0 (66 entries); next: hil/tools/hil_s28_r0_analyze.py /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c/runs/s28_ladder_20261004 bmcam004
+2026-10-05T05:01:47Z Power check with SPOT-31593C bus held on (EM/Nick): SPOT-31593C battery 4.10 V, +0.01..+0.18 W (charging), input 4.55–4.67 V (unchanged). nereus000 external, VBAT 3612–3631 between windows, 3388 in the 05:00 window; IOUT ~0.9 A between windows since bus-on (was ~0.5 A) → possible shared supply via nereus000's USB hub; quiet sample 05:25Z to confirm. Temporary monitor rules ON (config bus_on_watch=true, bus_on_spots=[SPOT-31593C]); remove at restore. Monitor interval_min for SPOT-31593C set back to 60.
+2026-10-05T05:04:26Z RIG FACT (Nick via EM): both Spotters charge from nereus000's USB hub; bus-on camera load flows through nereus000's adapter. Power watch stays on; sustained VBAT decline outside :00–:12 = STOP long bus-on runs.
+2026-10-05T05:18:42Z EM: #83 LIVE (nvd aaeeece, libjxl 0.12.0, render_enabled) → GO R1 on bmcam004. Deploying e44dde5 (feature/sprint28-camera) via hil_deploy_unit.sh --ref feature/sprint28-camera --accept-print-config-diff (registry v8 +5 keys expected).
+2026-10-05T05:18:42Z [bmcam004] deploy: backup+disarm TS=20261005T051842Z; restore: crontab /home/pi/hil_backup/20261005T051842Z/crontab_ARMED.txt && sudo reboot
+1:# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+STOPPED
+rc=0
+CRON_MATCHES_BACKUP
+2026-10-05T05:19:36Z [bmcam004] re-armed + reboot
+2026-10-05T05:19:49Z R1 deploy DONE: bmcam004 e44dde54e26f, cfg hash 7a9ed97b, FIELD-UPDATE PASS; runtime tar /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20261005T051901Z.tgz. NOTE: the wrapper's backup 20261005T051842Z holds the DISARMED crontab; the real ARMED one is ~/hil_backup/20261005T044807Z/crontab_ARMED.txt.
+2026-10-05T05:23:49Z R1 setup: bench YAML edit on bmcam004 mode.run per_boot -> stay_on (LADDER R1: 'unit runs stay_on'; interval_s 0 = trigger-only, heartbeat 300 s). Reason: --bench-commands ends its cycle in a REAL halt (power_halt enabled) — the 05:20Z run was SIGTERMed inside its listen window (unit stayed up, verified). RESTORE: ssh pi@bmcam004 'cp /home/pi/hil_backup/s28_20261005T052349Z/camera_config.yaml /home/pi/BM_Devel_Pi/camera_config.yaml'. Then re-arm cron (~/hil_backup/20261005T044807Z/crontab_ARMED.txt) + reboot.
+8:  run: "stay_on"  # per_boot: one action per power-on then halt; stay_on: keep running (needs commands.enabled and the supervisor runtime).
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[VID] storage ring: max_used_pct=75.0 min_free_gb=10.0 dry_run=False dir=/home/pi/BM_Devel_Pi/videos
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+CID 1000061 outcome=sent
+2026-10-05T05:25:57Z R1.trg (still) via backend Sofar lane: CID 1000062 send 200. Expected: the set (1000061) + trg arrive at SPOT-31593C's 06:05 report sync; stay_on runtime applies the set, then fires the trg → first nrjxl START.
+2026-10-05T05:26:41Z Bus-on watch false alarm 05:15Z (VBAT 3631->3408 = the 05:00 window dip still recovering at :15; 05:25Z quiet sample VBAT 3620–3630, VIN 4712–4759, IOUT 747–865 mA). Rule fixed: quiet = minutes 28–59 only (window + 15 min recovery excluded).
+2026-10-05T06:12:34Z R1 FIRST nrjxl ON AIR (bmcam004): applied id=1000061 still.format pjpg->nrjxl (+crop) and <CF h=42c14d76 still.format=nrjxl still.crop=1504,846,1600,900>; trg 1000062 fired 06:07:40Z (one still on a video unit); [RAW] nrjxl ready 54569 B, 190 msgs at d=4.342 att=3, encode 19.4 s; console START 06:08:15Z: <START IMG> 2026-10-05T06:07:47Z_image_compressed.nrjxl length 190 key=0e9fp2 cfg=42c14d76 tg=1000062 r=1600x900+1504+846 m=195 fmt=nrjxl q=434 att=3 sha=e44dde54e26f sf=24588 sp=75. Burst ends ~06:12:30Z; backend media row pending (Sofar lag).
+2026-10-05T06:34:10Z R1 backend lag: at 06:33Z nothing from SPOT-31593C after ~06:05 was ingested (newest WS 06:04:55; acks 1000061/62 waiting; START 06:08:15 missing). EM hypothesis (9/22 findings): Notecard periodic outbound 30 min + hub.sync only at the :05 LEGACY report → expect upload ~06:35 periodic or the 07:05 sync; abnormal only if nothing post-06:05 by ~07:20Z. Logging the actual upload time.
+2026-10-05T06:43:43Z R1 nrjxl at the backend: media 57389 (key 0e9fp2, captured 06:07:47Z) 186/190, placeholder render (by design until complete). Upload timing: first post-06:05 SPOT-31593C data seen 06:42Z (WS 06:37:31), last chunk received 06:40:36Z → ~28 min after the 06:12:30 burst end (Notecard periodic upload, not the :05 sync). heal-candidates at 06:43Z: skipped 'still_arriving' (received_age 170 s) → rsd expected on a later autosend pass, delivered at the 07:05 sync.
+2026-10-05T06:56:30Z nrjxl HEAL: rsd 100131 created 06:55:37Z for 0e9fp2 ranges 81-84 (4 contiguous chunks, media 57389) = 15 min after the last chunk landed (still_arriving guard). Delivery expected at SPOT-31593C's 07:05Z sync → stay_on unit service; checkpoint 07:14Z.
+2026-10-05T07:32:00Z nrjxl HEAL serviced by stay_on: rsd 100131 rx 07:06:22Z (SPOT-31593C hub.sync), unit 'rsd id=100131 key=0e9fp2 n=4: accepted' → '[SUP] action 3 (heal)' → '[HEAL] sent 4 heal chunk(s): 0e9fp2:[81,82,83,84]' + <HL a=sent n=4>. On air (console CELL): 81 @07:06:23, 82 @07:06:24; then 'Queue MS_Q_CELLULAR_ONLY is full' x3 at 07:06:25–32 → 83, 84 and the <HL> report DROPPED at the Spotter. FINDING: stay_on fires the heal burst immediately after the rsd + its (duplicate) acks during the hub.sync, into a full 2-slot queue. Expected: row 188/190 → new rsd for 83–84 at a later pass → 08:05 sync.
+2026-10-05T07:47:37Z nrjxl media 57389 at 07:47Z: 188/190 (81, 82 landed ~07:40Z via the periodic upload), format nrjxl, render_state placeholder, 53,993 B. 83-84 missing → heal-candidates 'still_arriving' (396 s) → 2nd rsd expected ~07:50–08:00, delivered at the 08:05Z sync, upload ~08:35–08:40 → complete ≈ 08:40Z (D1 ≈ 2 h 33 m). heal-events has no <HL> for 100131 (dropped at the Spotter, #126).
+2026-10-05T08:47:35Z nrjxl media 57389 still 188/190 (placeholder). 2nd rsd 100132 (83-84) created 08:31:21Z = 100131 (06:55:37) + REASK_S 5400 s + the next autosend pass → missed the 08:05 sync; delivery at the 09:05Z sync, upload ~09:35–09:40 → complete ≈ 09:40Z (D1 ≈ 3 h 32 m). D1 lesson: a partial heal (issue #126) costs a full 90-min re-ask + an hour of sync alignment.
+2026-10-05T09:48:57Z R1/R2 FIRST nrjxl COMPLETE + RENDERABLE: media 57389 190/190 at 09:40:30Z, format nrjxl, render_state renderable, display_key …/display/SPOT-31593C_BMCAM_004_20261005T060750Z_b061dee3c7b80587.jpg (1600x900 JPEG, 170 kB), size_bytes 54569 = the unit's encoded file. D1 = 3 h 32 m 43 s (capture 06:07:47). rsd 2 (100132) rx 09:05:36 at the sync, serviced at once, 83 @09:05:37 + 84 @09:05:38 on air (2 chunks fit the 2-slot queue; 1 'is full' after, likely the <HL>). Display image saved: api/nrjxl_first_57389_display.jpg (night scene, decodes).
+CID 1000063 outcome=sent
+2026-10-05T09:50:36Z R3.1 (forced time fallback): set still.raw.encode_max_s=5 + trg still → CID 1000064 send 200. Expected at the 10:05Z sync: START fmt=pjpg rfb=time, and that pjpg arrives complete.
+2026-10-05T09:51:05Z EM: R3 over the Sofar lane APPROVED (bench bmcam004, inside Nick's JPEG-XL testing approval). After R3: restore bmcam004 (bus hourly, stay_on YAML, crontab) unless R4 starts right after; power watch stays on meanwhile.
+2026-10-05T09:55:19Z R2.1 PASS on 57389 (nvd session via EM): header/CRC ok, libjxl 0.12 == djxl 0.11.1 bit-exact, jxl-oxide ≤1 code after clamp, rig mosaic equal, staging render == local render, DNG ok in LibRaw.
+2026-10-05T10:13:24Z R3.1 PASS on the wire: applied 1000063 (encode_max_s 30->5), trg 1000064 action 5 @10:06:33; '[RAW] FALLBACK rfb=time: cjxl plane B d=3.499: time rc=-9 (5.2 s); sending today's JPEG'; START 10:06:47 '<START IMG> …jpg length 162 key=0e9qqx cfg=46022f8f tg=1000064 fmt=pjpg q=90 att=1 rfb=time'; transmit 162/162 (215 s); console is-full 16. pjpg completion at the backend: pending. NOTE for the camera session: R1's runtime rung search logged peak_rss=139384 KiB (136 MB) > R0.3's 120 MB criterion (R0 encode alone 39 MB).
+REFUSED {"detail":{"reason":"in_flight","ok":false,"verb":"set","kv":{"still.raw.distances":[0.3],"still.raw.target_fill":0.0,"still.raw.encode_max_s":60},"refusals":[{"reason":"in_flight","key":"still.raw.en
+2026-10-05T11:02:27Z R3.2 still in_flight after 48 min: 1000063's ack not ingested
+2026-10-05T11:03:20Z FINDING (stay_on ack): 1000063's ack was dropped at the Spotter (console OK x4 at 10:06:28, no CELL for it; 1000064's ack did go out). In stay_on the unit sends NO d:1 re-send (0 d:1 lines on the console since 10:06; re-sends run at boot only) → backend 1000063 stays 'waiting' and refuses further sets on still.raw.encode_max_s as in_flight. Not an R1 (per_boot) issue; a stay_on gap for R1.1/Sprint28. R3.2 sent with supersede:true to proceed.
+2026-10-05T11:03:24Z R3.2 set (supersede): CID 1000065 outcome=sent
+2026-10-05T11:04:38Z R3.2 trg still: CID 1000066 send 200 → expect START fmt=pjpg rfb=fit at the 12:05Z sync.
+2026-10-05T11:13:51Z R3.2 PASS on the wire: 1000065 applied 11:07:00 (distances 0.3, target_fill 0, encode_max_s 60), trg 1000066 action 7 @11:07:42, '[RAW] FALLBACK rfb=fit: nothing fits (cap 195, reserve 0, 1 encode) (7.8 s); sending today's JPEG'; START 11:07:56 key=0e9tkv cfg=726783e6 tg=1000066 fmt=pjpg rfb=fit, 154/154. R3.1 pjpg media 57443 at 11:13: 149/162 (13 missing → heal path).
+2026-10-05T11:58:42Z R3.5 set (supersede: 1000065 ack not ingested by 11:58): CID 1000067 outcome=sent
+2026-10-05T11:59:55Z R3.5 trg still: CID 1000068 send 200 → expect START fmt=pjpg rfb=floor at the 12:05Z sync.
+2026-10-05T12:00:20Z stay_on lost-ack #2: 1000065 (R3.2 set) ack not at the backend by 11:58 (51 min after apply) → R3.5 needed supersede too.
+2026-10-05T12:15:36Z R3.5 PASS on the wire: 1000067 applied (target_fill 0.97, distances default, d_max 0.5), trg 1000068 action 9 @12:07:13, '[RAW] search1 d=0.5: 420529 B, 1461 msgs, over_cap … FALLBACK rfb=floor: the room needs d>=6.434 > still.raw.d_max 0.5'; START 12:07:34 key=0e9wca fmt=pjpg rfb=floor, 157/157. stay_on HEALS (#126, severe): rsd 100133 (0e9qqx, 13 chunks) rx 11:06:23, sent at once, 0/13 on air (queue full 11:06:24…); rsd 100134 (0e9tkv, 13) rx 12:05:51, 2/13 on air (23, 24). Totals in stay_on: 4/30 heal chunks reached the air → fallback pjpgs cannot complete in stay_on in reasonable time; plan: R3.3 now, then reset still.raw.* + restore per_boot (heals before START at boot) so they complete.
+2026-10-05T12:16:07Z R3.3 set (no trg): backend plan ok (defers the crop check to the unit) → CID 1000069 outcome=sent. Expect at the 13:05Z sync: unit ERR e:xk (config_validate _rule_raw_crop), get hash unchanged.
+2026-10-05T13:14:56Z R3.3 FAIL: unit ACCEPTED crop 1505,846,1600,900 with still.format=nrjxl ('applied id=1000069 set: still.crop … -> 1505,… (next action)', ack ok:1 h=315ea3dd on air, WS cfg=315ea3dd) — no e:xk. Neither layer refused (backend plan defers to the unit). Root cause (e44dde5 config_validate): _nrjxl_still() requires mode.media == 'still'; bmcam004 is a VIDEO unit (overlay mode.media=video from C1) taking stills via trg kv med:still, so _rule_raw_crop/_rule_raw_keyed/_rule_raw_cellular never run. Risk: the next nrjxl trg still would use an odd crop (CFA phase flip). Mitigation: the reset now also resets still.crop. Also: rsd 100135 (0e9qqx) rx 13:06:20 (stay_on heal again).
+2026-10-05T13:14:58Z R3 reset (still.crop + still.raw.*): REFUSED {"detail":{"reason":"too_big","ok":false,"verb":"reset","kv":null,"refusals":[{"reason":"too_big","key":null,"why":"a reset carries at most 4 keys (send two changes)"}],"warnings":[],"key_bytes":{},"j → lands at the 14:05Z sync.
+2026-10-05T13:15:14Z R3.resetA {"reset":["still.crop"]} → (supersede) CID 1000070 outcome=sent
+2026-10-05T13:16:29Z R3.resetB {"reset":["still.raw.distances","still.raw.target_fill","still.raw.encode_max_s","still.raw.d_max"]} → (supersede) CID 1000071 outcome=sent
+2026-10-05T14:16:34Z R3 resets APPLIED at the 14:05 sync (1000070 still.crop -> YAML, cfg ef0bff75; 1000071 still.raw.* -> YAML). No R4 answer from the EM yet → partial restore now (EM rule: restore after R3 unless R4 starts): per_boot YAML + armed cron + hourly bus (ends the bus-on load on nereus000; fallback pjpgs heal before START at the boots). KEPT pending the R4 decision: e44dde5 runtime, still.format=nrjxl, libjxl-tools (harmless while mode.media=video).
+ls: cannot access '/home/pi/hil_backup/s28_20261005T0524*Z': No such file or directory
+backup=
+cp: cannot stat '/camera_config.yaml': No such file or directory
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+cron-ARMED
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=42c14d76 hv=1 registry=v8 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+halt issued 14:16:38
+2026-10-05T14:16:53Z MISTAKE: YAML backup path guessed wrong (no ~/hil_backup/s28_20261005T0524*Z); the copy failed, YAML still stay_on, and the halt was already issued (14:16:38) → bmcam004 halted on the held bus. NOT restoring the schedule yet (a stay_on YAML would never halt → hard bus cuts each hour). Recovery: hil_bus_always_on.sh again (commit cycles the bus, Pi caught + disarmed), then fix the YAML from the real backup, re-arm, halt, restore schedule.
+2026-10-05T14:17:05Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261005T141659Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-05T14:17:06Z Succesfully sent config set msg
+2026-10-05T14:17:06Z 2026-10-05T14:17:06.496Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-05T14:17:12Z 2026-10-05T14:17:13.078Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-05T14:17:12Z 2026-10-05T14:17:13.085Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-05T14:17:12Z 2026-10-05T14:17:13.140Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-05T14:17:15Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+2026-10-05T14:17:59Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-05T14:17:59Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261005T141659Z)
+8:  run: "per_boot"  # per_boot: one action per power-on then halt; stay_on: keep running (needs commands.enabled and the supervisor runtime).
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+cron-ARMED
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=5ac06d1f hv=1 registry=v8 overlay=3 key(s)
+halt issued 14:18:18
+dark at 14:18:32
+2026-10-05T14:18:57Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=5400000 sampleDurationMs=600000 
+2026-10-05T14:19:11Z Succesfully sent config set msg
+2026-10-05T14:19:11Z 2026-10-05T14:19:12.093Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-05T14:19:17Z Succesfully sent config set msg
+2026-10-05T14:19:17Z 2026-10-05T14:19:17.320Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-05T14:19:23Z 2026-10-05T14:19:23.906Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-05T14:19:23Z 2026-10-05T14:19:23.914Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-05T14:19:23Z 2026-10-05T14:19:23.968Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-05T14:19:26Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+e44dde54e26f
+[restore] halt issued 14:20:05
+2026-10-05T14:20:28Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-05T14:20:42Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-05T14:20:42Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-05T14:21:01Z bmcam004 RESTORED to production (partial, pending R4): per_boot YAML from ~/hil_backup/s28_20261005T052349Z (cfg 5ac06d1f), cron ARMED (from ~/hil_backup/20261005T141659Z/crontab_ARMED.txt), SPOT-31593C 1/3600000/600000 confirmed 14:20:42 (stub boot halted), monitor bus_on_watch OFF, interval 60. KEPT: e44dde5 runtime, still.format=nrjxl overlay, libjxl-tools (pending the EM's R4 decision; remove/redeploy per STATE §1 if no R4). First hourly wake 15:00Z: fallback pjpgs heal before START.
+2026-10-05T14:21:37Z EM: R4 hand-over YES (keep nrjxl + default crop + still.raw defaults + libjxl; per_boot + hourly bus; power watch off — all already in place since 14:20). R4 needs mode.media=still: sent via backend → CID 1000072 outcome=sent. Lands at the 15:05Z sync (in-window for SPOT-31593C), applies at the next boot → R4 = 12 wakes 16:00Z → 03:00Z. DO NOT change still.crop during R4 (R3.3 defect).
+2026-10-05T15:10:00Z read-only checks (15:00Z video wake, bmcam004): (a) /sys/kernel/mm/cma/*/ does NOT exist on this kernel (no per-area CMA sysfs); 16:00 check will use /proc/meminfo CmaFree + debugfs/dmesg. (b) sub-frame count incomplete (glob missed rc_cycle_20261005T* files); bench_commands log: 1 subscription. (c) 1000072 (mode.media still) applied in the 15:00 wake with 0 duplicate answers and 1 'subscribed' line — vs 4 answers per command during the 04:48–14:17 bus-on epoch: consistent with duplicates = subscriptions since the mote reset − 1 (the 14:20 restore commit reset the mote). Full per-epoch count at the 16:00 wake.
+2026-10-05T15:47:41Z R3 fallback pjpgs: R3.1 57443 (0e9qqx) COMPLETE 14:20:25 (254 min; stay_on heals 100135/100136); R3.5 57472 (0e9wca) COMPLETE on first send 12:40:46 (33 min); R3.2 57457 (0e9tkv) 151/154 — rsd 100137 (26-28) created 14:55:58, rx at the 15:05 sync, per_boot sends it before START at the 16:00 wake. 15:00Z wake normal per_boot: 503 s, video 120/120 complete, queue_full 1.
+2026-10-05T16:06:00Z R4 wake 1 (16:00Z, first R4 nrjxl capture, bmcam004) read-only checks:
+  CMA: CmaTotal 262144 kB; CmaFree 72220 kB at uptime 40 s (before/around capture) → 96404 kB at uptime 177 s (after); 0 CMA/alloc_contig errors in dmesg. Per-area alloc_pages_fail is NOT available on this kernel (/sys/kernel/mm/cma absent; /sys/kernel/debug/cma has no entries even with sudo).
+  nrjxl: search1 d=3.499 123170 B 428 msgs over cap → search2 d=9.701 56136 B 195 msgs fits → 'nrjxl ready 56136 B, 195 msgs at d=9.701 att=2 (encode 15.4 s)'; peak_rss 138524 KiB (again > R0.3's 120 MB). R3.2's heal (0e9tkv 26-28) sent before START.
+  Sub frames vs duplicates: bus-on epoch 04:48→14:17 had 3 logged runtime subscriptions (04:49 boot, 05:20 bench daemon, 05:24 stay_on; the 05:19 deploy's UART gate may add one) and every command was answered 4x (rc_cycle_…052408Z: 51 duplicate lines); after the 14:17/14:20 commits (mote resets): 14:20:33 stub boot + 15:00 wake = 2 subscriptions and 1000072 had 0 duplicates. So 'duplicates = subs − 1' fits loosely (bus-on epoch) but not exactly (post-reset). What holds: duplicates accumulate only while the bus is held on across several runtime starts; production per_boot power-cycles the bus (and mote) every hour → 1 subscription per epoch → no duplicates.
+2026-10-05T16:47:42Z R3.2 COMPLETE: 57457 154/154 at 16:10:15 (303 min; 26-28 sent before START at the 16:00 per_boot boot). R3 FINAL: R3.1/R3.2/R3.5 PASS (fallback on the wire + arrives complete), R3.3 FAIL (nrjxl rules skipped on a video unit). R4 wake 1 (16:00Z): nrjxl media 57521 190/195 (5 to heal), START len 195, wake→halt 483 s (≤ 570), queue_full 7.
+2026-10-05T18:07:10Z RC-prep G2 refresh BMCAM_003 (EM request): baseline reported 2/61; backend refresh lane=sofar, 9 gets, sent in id order by hil_backend_cmd.py --refresh on nereus000 (log /home/pi/hil_r1/refresh_BMCAM_003.jsonl). BMCAM_004 (0/61) deferred until after the R4 verdict (keeps <CF> answers out of R4 wakes).
+2026-10-05T18:07:18Z G2 refresh BMCAM_003: 9/9 gets sent (200), last at ~18:07Z; count check 20:47Z (cron 8d9bce79).
+2026-10-05T18:42:53Z R4 mid-check: wakes 1-3 done; 57521 nrjxl complete (126 min); 57534 pjpg rfb=floor complete; 57549 pjpg rfb=floor 150/193 healing (queue_full 45). R4.3 FAIL locked (2/3 fallbacks > 1/12). Halt 483-504 s.
+2026-10-05T19:01:36Z bmcam003 19:00Z window (read-only): copied /usr/share/libcamera/ipa/rpi/vc4/imx708*.json -> pulled/bmcam003_tuning/; in use = vc4/imx708_wide.json (167 'tuning file' lines in cron_logs); libcamera 0.7.1+rpt20260609-1, rpicam-apps 1.12.0-1. For the camera session (low-gain).
+2026-10-05T20:47:48Z G2 refresh BMCAM_003 check: reported_known 54/61 (from 2); 9/9 gets 1000103-1000111 'answered'; answers rode the 19:00Z wake (17 <CF> msgs on the console). Missing 7 = still.format + still.raw.{distances,encode_max_s,keep_crop,effort,target_fill,d_max}: the Sprint28 keys bmcam003's runtime (development a50636e, pre-#120) does not have -> 61/61 only once it runs #120 (R5 deploy Tue 15:00Z / RC). queue_full 18:00/19:00/20:00Z = 10/21/20 (the 19:00 wake carried the 17 answers; 20:00 had none and still 20: not attributable).
+2026-10-05T22:18:29Z R4 mid-check 19-22Z: wake->halt 504-505 s; START every wake; fallbacks 5/7 rfb=floor (22:00 nrjxl). SPOT-31593C upload STALL since ~20:16Z: no backend rows for 21:00/22:00, 57549/57563/57580 stuck; Notecard 5->19% (21Z) 26->34% (22Z); bmcam003 ingest normal to 22:16Z -> Spotter-side cellular/Notecard, not backend.
+2026-10-05T22:19:35Z External event X1 recorded (EM): SPOT-31593C upload stall from ~20:16Z; Notecard % logged per wake; Spotter untouched.
+2026-10-05T23:37:08Z X1 update (EM): SPOT-31593C uplink resumed ~22:20Z but lossy (57610 21Z 177/178, 57611 22Z 51/195 at 22:20Z; 57621 23Z 149/194 at 23:05Z); no complete image since 17Z. Reset rule now: only if no 00Z rows after 23:05Z OR Notecard backlog still rising; else NO reset, X1 = degraded.
+2026-10-05T23:51:48Z X1 forensic verdict received (rig-study session): delay Notecard->cell 20:13:52-22:16:54Z (Iridium fallback 21:15:02); loss only at Pi->Spotter queue; burst overlaps 31593C health check/report. 01:00Z re-slice cancelled (not needed).
+2026-10-05T23:55:46Z R4 STOPPED (Nick via EM) at 8/12 wakes: R4.1 NOT ASSESSABLE (X1), R4.2 PASS 8/8, R4.3 FAIL 5/8 rfb=floor (product), R4.4 PASS so far.
+2026-10-06T00:55:32Z X1 decision: NO RESET (degraded). Evidence: 00Z wake delivered (57635 137/193, last chunk 00:10:18Z, row present); Notecard 00Z 6 -> peak 20 % -> 3 % at 00:15Z, 3-6 % since (sawtooth, drains each sync); 00:05:23 sync -> 'All messages sent successfully' 00:06:00 (35 s, normal); 23Z also drained to 3 %. Backlog falling, not rising -> rule (a)/(b) not met. Loss continues only at the Pi->Spotter queue (queue_full 46 @23Z, 59 @00Z): the burst/report overlap cause, not the uplink.
+2026-10-06T01:46:09Z [deploy-b3a bmcam004] ref=feature/sprint28-b3a want=1d0ff4f profile=bmcam004/live_20260925 window=2026-10-06T02:00:00Z accept_diff=1; waiting
+2026-10-06T02:00:43Z [deploy-b3a bmcam004] backup+disarm+stop TS=20261006T020042Z; RESTORE crontab: ssh pi@bmcam004 'crontab ~/hil_backup/20261006T020042Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-06T02:00:47Z [deploy-b3a bmcam004] snapshot before_b3a
+2026-10-06T02:02:26Z [deploy-b3a bmcam004] rc_field_update rc=0 (log runs/s28_ladder_20261004/pulled/bmcam004_field_update_b3a_20261006T020042Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+18:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+30:[PARITY] print-config text OK (26 lines)
+31:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+102:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+136:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+140:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+147:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+149:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+181:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-06T02:02:27Z [deploy-b3a bmcam004] runtime sha now: 1d0ff4f581af
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T02:02:28Z [deploy-b3a bmcam004] RE-ARMED from the ARMED backup
+2026-10-06T02:02:32Z [deploy-b3a bmcam004] snapshot after_b3a
+halt-issued
+2026-10-06T02:03:00Z [deploy-b3a bmcam004] bmcam004 dark (DEPLOYED)
+2026-10-06T03:00:45Z [w03 bmcam004] disarmed TS=20261006T030044Z (restore: crontab ~/hil_backup/20261006T030044Z/crontab_ARMED.txt)
+2026-10-06T03:00:47Z [bmcam004] low-gain sunrise detach: /home/pi/s28lg/run_20261006T030045Z (--out /home/pi/s28lg/run_20261006T030045Z --interval-s 60 --max-shutter-us 30000 --max-gain 16 --max-pairs 2); loop b5ab4317d09c15cd
+bash: line 1: /home/pi/s28lg/run_20261006T030045Z/loop.pid: No such file or directory
+cat: /home/pi/s28lg/run_20261006T030045Z/loop.pid: No such file or directory
+2026-10-06T03:00:48Z [lowgain] start: v2 /home/pi/BM_Devel_Pi/camera_config.yaml (hash a4f6409e), rendered in memory; crop [1504, 846, 1600, 900]; every 60 s; low_gain {'profile': 'low_gain', 'max_shutter_us': 30000, 'max_gain': 16.0}; crontab edbd37aa0c6e16e5
+2026-10-06T03:00:55Z [lowgain] pair 1 auto: ok=True  exp=66645 again=15.515152 lux=0.697069 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T03:01:01Z [lowgain] pair 1 low_gain: ok=True  exp=29997 again=16.0 lux=0.971779 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+2026-10-06T03:01:53Z [lowgain] pair 2 auto: ok=True  exp=66645 again=15.515152 lux=0.689685 tuning=/usr/share/libcamera/ipa/rpi/vc4/imx708_wide.json
+2026-10-06T03:01:58Z [lowgain] pair 2 low_gain: ok=True  exp=29997 again=16.0 lux=0.943168 tuning=/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s30000_g16.json
+2026-10-06T03:02:50Z [lowgain] end (limit): 2 pair(s), 0 skipped; crontab unchanged; processes left: none
+5
+/dev/mmcblk0p2  115G   87G   24G  79% /
+2026-10-06T03:02:59Z [bmcam004] pulled /home/pi/s28lg/run_20261006T030045Z -> runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+2026-10-06T03:02:59Z [w03 bmcam004] smoke done; pulled to runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+[b0] deadline: e5 #9 not started
+[b0] deadline: e5 #10 not started
+[b0] deadline: e4 #1 not started
+[b0] deadline: e4 #2 not started
+[b0] e5: n=6 kills/fallbacks=0 median_encode_s=28.012500000000003 max_encode_s=29.004 max_vmpeak_kb=129468 max_vmhwm_kb=98284 median_cpu_s=31.36 median_wall_s=31.275
+[b0] dmesg kill/oom lines: 0
+n/a
+MemAvailable: 226128 kB CmaFree: 127572 kB 
+2026-10-06T03:06:15Z [w03 bmcam004] B0 partial pulled (resume at 04:00Z if runs remain)
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T03:06:16Z [w03 bmcam004] RE-ARMED
+halt-issued
+2026-10-06T03:06:45Z [w03 bmcam004] bmcam004 dark
+2026-10-06T04:00:43Z [w04 bmcam004] disarmed TS=20261006T040042Z
+[b0] e5 #7 rc=0 wall=21.48 s vm(peak,hwm kB)=127012 98200 [RAW] wrote /home/pi/b0_b3a/run_e5_7/image_compressed.nrjxl (49099 B, d=2.573, att=2, 20.367 s)
+[b0] e5 #8 rc=0 wall=31.74 s vm(peak,hwm kB)=129324 98236 [RAW] wrote /home/pi/b0_b3a/run_e5_8/image_compressed.nrjxl (54407 B, d=2.365, att=3, 28.116 s)
+[b0] e5 #9 rc=0 wall=30.96 s vm(peak,hwm kB)=128936 98272 [RAW] wrote /home/pi/b0_b3a/run_e5_9/image_compressed.nrjxl (54407 B, d=2.365, att=3, 27.977 s)
+[b0] e5 #10 rc=0 wall=30.90 s vm(peak,hwm kB)=129324 98240 [RAW] wrote /home/pi/b0_b3a/run_e5_10/image_compressed.nrjxl (54407 B, d=2.365, att=3, 27.987 s)
+[b0] e4 #1 rc=0 wall=6.37 s vm(peak,hwm kB)=121884 87116 [RAW] wrote /home/pi/b0_b3a/run_e4_1/image_compressed.nrjxl (54644 B, d=3.047, att=3, 3.457 s)
+[b0] e4 #2 rc=0 wall=6.31 s vm(peak,hwm kB)=121884 86972 [RAW] wrote /home/pi/b0_b3a/run_e4_2/image_compressed.nrjxl (54644 B, d=3.047, att=3, 3.406 s)
+[b0] e4: n=2 kills/fallbacks=0 median_encode_s=3.4314999999999998 max_encode_s=3.457 max_vmpeak_kb=121884 max_vmhwm_kb=87116 median_cpu_s=6.34 median_wall_s=6.34
+[b0] e5: n=10 kills/fallbacks=0 median_encode_s=27.988500000000002 max_encode_s=29.004 max_vmpeak_kb=129468 max_vmhwm_kb=98284 median_cpu_s=31.305 median_wall_s=31.045
+[b0] dmesg kill/oom lines: 0
+total 23472
+-rw-rw-r-- 1 pi pi 24029068 Oct  6 03:03 cap.dng
+-rw-rw-r-- 1 pi pi      689 Oct  6 03:03 cap.json
+2026-10-06T04:03:00Z [w04 bmcam004] B0 12/12 done; /home/pi/b0_b3a removed, DNG kept in /home/pi/b0_dng
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T04:03:01Z [w04 bmcam004] RE-ARMED
+halt-issued
+2026-10-06T04:03:30Z [w04 bmcam004] bmcam004 dark
+2026-10-06T04:04:04Z B0 baseline 1d0ff4f complete 12/12: e5 VmPeak 126 MiB, 3 att (run 7: 2, time-bound), search 28 s/30; e4 3.4 s; 0 kills. DNG kept /home/pi/b0_dng.
+2026-10-06T17:00:45Z [w17 bmcam004] disarmed TS=20261006T170044Z
+4
+[b0_fix_day_auto] [b0] e5 #1 rc=0 wall=23.20 s vm(peak,hwm kB)=127956 98136 [RAW] wrote /home/pi/b0_fix_day_auto/run_e5_1/image_compressed.nrjxl (53287 B, d=3.613, att=2, 19.791 s)
+[b0_fix_day_auto] [b0] e5 #2 rc=0 wall=23.38 s vm(peak,hwm kB)=129236 98236 [RAW] wrote /home/pi/b0_fix_day_auto/run_e5_2/image_compressed.nrjxl (53287 B, d=3.613, att=2, 19.955 s)
+[b0_fix_day_auto] [b0] e5: n=2 kills/fallbacks=0 median_encode_s=19.872999999999998 max_encode_s=19.955 max_vmpeak_kb=129236 max_vmhwm_kb=98236 median_cpu_s=23.145 median_wall_s=23.29
+[b0_fix_day_lg] [b0] e5 #1 rc=0 wall=23.13 s vm(peak,hwm kB)=127948 98128 [RAW] wrote /home/pi/b0_fix_day_lg/run_e5_1/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.759 s)
+[b0_fix_day_lg] [b0] e5 #2 rc=0 wall=23.44 s vm(peak,hwm kB)=127956 98236 [RAW] wrote /home/pi/b0_fix_day_lg/run_e5_2/image_compressed.nrjxl (53509 B, d=3.508, att=2, 19.851 s)
+[b0_fix_day_lg] [b0] e5: n=2 kills/fallbacks=0 median_encode_s=19.805 max_encode_s=19.851 max_vmpeak_kb=127956 max_vmhwm_kb=98236 median_cpu_s=23.075 median_wall_s=23.285
+[b0_fix_night] [b0] e5 #1 rc=0 wall=31.60 s vm(peak,hwm kB)=129204 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_1/image_compressed.nrjxl (54357 B, d=2.366, att=3, 28.006 s)
+[b0_fix_night] [b0] e5 #2 rc=0 wall=31.01 s vm(peak,hwm kB)=128256 98224 [RAW] wrote /home/pi/b0_fix_night/run_e5_2/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.985 s)
+[b0_fix_night] [b0] e5 #3 rc=0 wall=31.50 s vm(peak,hwm kB)=129316 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_3/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.932 s)
+[b0_fix_night] [b0] e5 #4 rc=0 wall=30.85 s vm(peak,hwm kB)=128964 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_4/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.869 s)
+[b0_fix_night] [b0] e5 #5 rc=0 wall=30.81 s vm(peak,hwm kB)=129444 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_5/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.883 s)
+[b0_fix_night] [b0] e5 #6 rc=0 wall=30.85 s vm(peak,hwm kB)=127764 98236 [RAW] wrote /home/pi/b0_fix_night/run_e5_6/image_compressed.nrjxl (54357 B, d=2.366, att=3, 27.931 s)
+[b0_fix_night] [b0] e5: n=6 kills/fallbacks=0 median_encode_s=27.9315 max_encode_s=28.006 max_vmpeak_kb=129444 max_vmhwm_kb=98236 median_cpu_s=31.23 median_wall_s=30.93
+2026-10-06T17:05:45Z [w17 bmcam004] 1d0ff4f daylight runs skipped (time)
+b0-clean
+2026-10-06T17:05:45Z [w17 bmcam004] B0 fix re-run done; pulled to runs/s28_ladder_20261004/pulled/bmcam004_b0_fix
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T17:05:46Z [w17 bmcam004] RE-ARMED
+halt-issued
+2026-10-06T17:06:15Z [w17 bmcam004] bmcam004 dark
+2026-10-06T17:06:48Z B0 fix 4584436: day auto/lg 2 att ~19.9 s, night 3 att 28.0 s deterministic, VmPeak <=126.4 MiB, 0 kills/rfb; 1d0ff4f day skipped (time); unit clean, re-armed, halted 17:06Z
+2026-10-06T17:46:24Z B1 deploy: branch head 104ee3c = 4584436 runtime (git diff 4584436..104ee3c touches no BM_Devel_Pi/ or tools/: tests, fixtures, docs, sunrise wrapper only) -> deploy 104ee3c
+2026-10-06T17:46:24Z [deploy-b3afix bmcam004] ref=feature/sprint28-b3a want=104ee3c profile=bmcam004/live_20260925 window=2026-10-06T18:00:00Z accept_diff=1; waiting
+2026-10-06T18:00:41Z [deploy-b3afix bmcam004] backup+disarm+stop TS=20261006T180040Z; RESTORE crontab: ssh pi@bmcam004 'crontab ~/hil_backup/20261006T180040Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-06T18:00:46Z [deploy-b3afix bmcam004] snapshot before_b3afix
+2026-10-06T18:01:34Z [deploy-b3afix bmcam004] rc_field_update rc=0 (log runs/s28_ladder_20261004/pulled/bmcam004_field_update_b3afix_20261006T180040Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+204:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+216:[PARITY] print-config text OK (26 lines)
+217:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+288:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+322:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+326:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+333:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+335:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+367:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-06T18:01:35Z [deploy-b3afix bmcam004] runtime sha now: 104ee3cdbab0
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-06T18:01:37Z [deploy-b3afix bmcam004] RE-ARMED from the ARMED backup
+2026-10-06T18:01:41Z [deploy-b3afix bmcam004] snapshot after_b3afix
+2026-10-06T18:01:41Z [deploy-b3afix bmcam004] POST hook: hil/tools/hil_b3a_layout.sh bmcam004 rgb
+backup: /home/pi/BM_Devel_Pi/camera_config.yaml.bak_b1_20261006T180142Z
+set still.raw.layout=rgb (base only; still.format comes from base ⊕ overlay)
+77a78,79
+>   raw:
+>     layout: rgb
+effective: nrjxl rgb 45 overlay ['mode.media', 'still.format', 'video.send.message_cap'] dropped []
+still path reads: nrjxl rgb 45
+halt-issued
+2026-10-06T18:02:11Z [deploy-b3afix bmcam004] bmcam004 dark (DEPLOYED)
+2026-10-06T19:16:24Z B1 19:00Z wake: START fmt=nrjxl q=435 att=2 cmp=1 len 186 key=0eca52 cfg=9e346071 sha=104ee3cdbab0; END sent 186, burst 246.7 s; wake->halt 501 s; queue_full 5; daylight et_us 3023 ag 1.12 lux 5085. No fallback.
+2026-10-06T19:47:06Z B1 backend 19:46Z: media 57901 nrjxl 181/186 (missing 178-182 = :05 report overlap), placeholder; awaiting heal
+2026-10-06T20:16:33Z B1 sample 2 (20:00Z): nrjxl q=402 att=2 len 187 key 0eccx2, halt 502 s, queue_full 49 (20:05:01-20:06:06, :05 report), no 57901 heal yet
+0eca52 2026-10-06T19:00:38Z_image_compressed.sent.json
+0eccx2 2026-10-06T20:00:38Z_image_compressed.sent.json
+2026-10-06T22:00:47Z [b1pull] 0eca52: 2026-10-06T19:00:38Z_image_compressed.sent.json + 2026-10-06T19:00:38Z_image_compressed.nrjxl (53506 B)
+2026-10-06T22:00:48Z [b1pull] 0eccx2: 2026-10-06T20:00:38Z_image_compressed.sent.json + 2026-10-06T20:00:38Z_image_compressed.nrjxl (53656 B)
+0eca52 2026-10-06T19:00:38Z_image_compressed.nrjxl sha256 MATCH (f23771ac8b963ae91f2450da7feb8977dfed0fddea2f6b57eba510fa87abc7c0) msgs=186 fmt=nrjxl
+0eccx2 2026-10-06T20:00:38Z_image_compressed.nrjxl sha256 MATCH (7f3e624c1c235863293cf5e6ba5df85352d836646af2f601326c41ce6d49c8ba) msgs=187 fmt=nrjxl
+2026-10-06T22:00:48Z [b1pull] B1 container pull done (read-only)
+2026-10-06T22:02:26Z B1 heal check after 21Z: 57901 still 181/186 (no heal yet), 57914 138/187, 57928 143/185 (all :05 overlap); decode path = pulled containers (camera session). Re-check after 22Z.
+2026-10-06T22:04:17Z B1 decode PASS (camera session, nvd v2 decoder, 2272f87); delivery open pending heals
+2026-10-07T00:00:40Z [w00 lane+phase] disarmed TS=20261007T000038Z
+backup: /home/pi/BM_Devel_Pi/camera_config.yaml.bak_lane_20261007T000043Z
+set uplink.lane: {'enabled': 'true', 'grid_s': '3600', 'post_guard_s': '375', 'pre_guard_s': '20', 'max_wait_s': '180'}
+123,127c123,127
+<     enabled: false  # Keep sends out of the 5-min boundary blackout.
+<     grid_s: 300.0  # Boundary grid (s).
+<     pre_guard_s: 20.0  # Quiet before a boundary (s).
+<     post_guard_s: 30.0  # Quiet after a boundary (s).
+<     max_wait_s: 300.0  # Longest wait for a clear slot (s).
+---
+>     enabled: true
+>     grid_s: 3600
+>     post_guard_s: 375
+>     pre_guard_s: 20
+>     max_wait_s: 180
+effective lane: True 3600 375 20 180 dropped []
+[RC] transmit_phase (C2): ON grid=3600s guards=375/20s lane=3205s
+[RC] transmit_phase rule: cap 195 x 1.3s = 254s vs lane 3205s -> fits
+2026-10-07T00:00:43Z [w00 lane+phase] hil_lane_block rc=0
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-07T00:00:44Z [w00 lane+phase] RE-ARMED
+halt-issued
+2026-10-07T00:20:44Z B1 57901 COMPLETE (healed 22:10:34Z), renderable; sent to QC. 57914 178/187
+2026-10-07T01:02:03Z [w01 phase] ABORT: still up after halt -> no re-phase
+2026-10-07T01:05:34Z [phase SPOT-31593C/bmcam004] before: ticksSamplingEnabled=0 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+[DRY] would send to SPOT-31593C: bridge cfg set 0e582dd12c1e1480 s u ticksSamplingEnabled 1
+2026-10-07T01:05:34Z [phase SPOT-31593C/bmcam004] commit scheduled at 01:07:32 (= :08:00 − 28s); windows will open at :08 from one hour after
+[DRY] would send to SPOT-31593C: bridge cfg commit 0e582dd12c1e1480 s
+2026-10-07T01:07:58Z [phase SPOT-31593C/bmcam004] DRY run complete (nothing sent); read-back unchanged: ticksSamplingEnabled=0 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+2026-10-07T01:08:34Z [w02 phase DRY=1] caught boot in 2 s
+86632 bash -c pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 1; pgrep -af '[r]c_run_capture_cycle|[r]c_progressive_jpeg' || echo no-cycle; crontab -l | grep -cE '^@reboot.*rc_run_capture_cycle' | sed 's/^/armed_lines=/'
+no crontab for pi
+armed_lines=0
+2026-10-07T01:08:36Z [w02 phase DRY=1] stop-cycle step returned in 2 s (rc 0)
+[DRY] would halt 192.168.1.45
+2026-10-07T01:08:36Z [w02 phase DRY=1] DRY: halt step returned in 0 s; stopping before the commit (Pi left up, cron armed)
+2026-10-07T01:08:50Z [w02 phase DRY=1] caught boot in 3 s
+no-cycle
+no crontab for pi
+armed_lines=0
+2026-10-07T01:08:52Z [w02 phase DRY=1] stop-cycle step returned in 2 s (rc 0)
+[DRY] would halt 192.168.1.45
+2026-10-07T01:08:52Z [w02 phase DRY=1] DRY: halt step returned in 0 s; stopping before the commit (Pi left up, cron armed)
+2026-10-07T01:09:08Z re-phase rehearsal PASS: hil_bridge_phase DRY (read-back 26 s each, commit fired on schedule, echoed only, bridge unchanged); w02 script DRY on nereus000 (catch 2 s, stop-cycle 2 s, halt echoed; self-match in the crontab grep found + fixed); every ssh bounded (perl alarm 8-30 s, ServerAlive 2x2); deadline 02:02:20 dark else no commit
+2026-10-07T02:00:41Z [w02 phase DRY=0] caught boot in 50 s
+no-cycle
+armed_lines=1
+2026-10-07T02:00:44Z [w02 phase DRY=0] stop-cycle step returned in 3 s (rc 0)
+halt-issued
+2026-10-07T02:01:05Z [w02 phase DRY=0] bmcam004 dark at 02:01:05 (cron armed); handing over to hil_bridge_phase (commit 02:03:32)
+2026-10-07T02:01:31Z [phase SPOT-31593C/bmcam004] before: ticksSamplingEnabled=0 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+2026-10-07T02:02:10Z Succesfully sent config set msg
+2026-10-07T02:02:10Z 2026-10-07T02:02:12.824Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T02:02:16Z [phase SPOT-31593C/bmcam004] commit scheduled at 00:00:00 (= :04:00 − 28s); windows will open at :04 from one hour after
+2026-10-07T02:02:22Z 2026-10-07T02:02:25.035Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-07T02:02:22Z 2026-10-07T02:02:25.042Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-07T02:02:22Z 2026-10-07T02:02:25.097Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-07T02:08:15Z [phase SPOT-31593C/bmcam004] COMMITTED ticksSamplingEnabled=1 (phase anchor = this time + bridge reset); waiting for the stub-window boot
+2026-10-07T02:10:06Z [phase SPOT-31593C/bmcam004] Pi not up in the stub window
+2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] after: ticksSamplingEnabled=1 bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 alignmentInterval5Min=1 
+2026-10-07T02:10:32Z [phase SPOT-31593C/bmcam004] phase mode confirmed (ticks=1)
+2026-10-07T02:10:32Z [w02 phase DRY=0] hil_bridge_phase rc=0 (windows expected ~:03:40 from 03:03:40Z)
+2026-10-07T03:05:38Z HEALTH-0302 PASS: bmcam004 up ~03:03Z after the 02:04:25Z hard cut; ext4 orphan cleanup (normal journal recovery) + clean r/w remount, no fs/mmc/I-O errors (no persistent journal for boot -1); df 24 GB free; sha 104ee3cdbab0; cron armed; effective nrjxl rgb 45 + lane True 3600/375/20/180, dropped []; transmit_phase ON fits. Cycle left running.
+2026-10-07T03:28:06Z LANE-W1 FAIL: queue_full 141/195; :05 sync 'Waiting for TX' 03:05:06 -> drain ~03:10:20 held slot 1 (Spotter HDR 6129 B) through the whole lane-held burst; halt 498 s; margin ~112 s
+2026-10-07T03:30:13Z sync profile: both Spotters queue HDR 6129 B at their report; 31593C :05 tx 34-196 s hold 34-244 s; 33507C :10 tx 32-49 s hold 44-308 s, no overlap (burst ends ~:05)
+2026-10-07T04:42:43Z LANE-W2: START 04:04:21 (lane NOT held), queue_full 61/194 during the :05 sync TX wait (65.9 s); HDR hold 0.5 s; halt 499 s
+2026-10-07T05:04:39Z lane hold explained: W2/W3 skipped_no_budget (burst 308 s incl. 40 heals + wait ~168 s > ~442 s budget); W1 no heals -> waited. Clock OK.
+2026-10-07T06:02:38Z LANE-W3: START 05:04:20 (skip, heals), queue_full 61 (05:05:03-06:34), sync TX 62.1 s, HDR hold 0.4 s. n=3: multi-minute TX wait 1/3 (not repeatable); every :05 sync blocks the queue >= ~60 s.

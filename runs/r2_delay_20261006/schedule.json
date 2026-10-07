@@ -1,0 +1,131 @@
+{
+ "seq": [
+  "A",
+  "B",
+  "B",
+  "A",
+  "A",
+  "B",
+  "B",
+  "A",
+  "A",
+  "B",
+  "B",
+  "A"
+ ],
+ "pointer": 8,
+ "history": [
+  {
+   "wake_utc_hour": 7,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=35.36s wait=0.0s burst_est=105s heal_msgs=0 budget_left=464s skipped=False",
+   "uptime": "35.36s",
+   "wait": "0.0s",
+   "burst_est": "105s",
+   "heal_msgs": "0",
+   "budget_left": "464s"
+  },
+  {
+   "wake_utc_hour": 8,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=35.8s wait=0.0s burst_est=113s heal_msgs=0 budget_left=464s skipped=False",
+   "uptime": "35.8s",
+   "wait": "0.0s",
+   "burst_est": "113s",
+   "heal_msgs": "0",
+   "budget_left": "464s",
+   "note": "arm A ran where the sequence expected B (extra A)"
+  },
+  {
+   "wake_utc_hour": 9,
+   "arm": "B",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=230 uptime=31.98s wait=198.0s burst_est=113s heal_msgs=0 budget_left=468s skipped=False",
+   "uptime": "31.98s",
+   "wait": "198.0s",
+   "burst_est": "113s",
+   "heal_msgs": "0",
+   "budget_left": "468s"
+  },
+  {
+   "wake_utc_hour": 10,
+   "arm": "B",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=230 uptime=31.54s wait=198.5s burst_est=108s heal_msgs=0 budget_left=469s skipped=False",
+   "uptime": "31.54s",
+   "wait": "198.5s",
+   "burst_est": "108s",
+   "heal_msgs": "0",
+   "budget_left": "469s"
+  },
+  {
+   "wake_utc_hour": 11,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=30.92s wait=0.0s burst_est=109s heal_msgs=0 budget_left=469s skipped=False",
+   "uptime": "30.92s",
+   "wait": "0.0s",
+   "burst_est": "109s",
+   "heal_msgs": "0",
+   "budget_left": "469s"
+  },
+  {
+   "wake_utc_hour": 12,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=30.32s wait=0.0s burst_est=106s heal_msgs=0 budget_left=470s skipped=False",
+   "uptime": "30.32s",
+   "wait": "0.0s",
+   "burst_est": "106s",
+   "heal_msgs": "0",
+   "budget_left": "470s"
+  },
+  {
+   "wake_utc_hour": 13,
+   "arm": "B",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=230 uptime=28.76s wait=201.2s burst_est=109s heal_msgs=0 budget_left=472s skipped=False",
+   "uptime": "28.76s",
+   "wait": "201.2s",
+   "burst_est": "109s",
+   "heal_msgs": "0",
+   "budget_left": "472s"
+  },
+  {
+   "wake_utc_hour": 14,
+   "arm": "B",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=230 uptime=28.38s wait=201.6s burst_est=135s heal_msgs=0 budget_left=472s skipped=False",
+   "uptime": "28.38s",
+   "wait": "201.6s",
+   "burst_est": "135s",
+   "heal_msgs": "0",
+   "budget_left": "472s"
+  },
+  {
+   "wake_utc_hour": 15,
+   "arm": "A",
+   "applied": true,
+   "line": "[R2DELAY] start_delay_s=0 uptime=28.02s wait=0.0s burst_est=176s heal_msgs=0 budget_left=472s skipped=False",
+   "uptime": "28.02s",
+   "wait": "0.0s",
+   "burst_est": "176s",
+   "heal_msgs": "0",
+   "budget_left": "472s"
+  }
+ ],
+ "consecutive_b_skips": 0,
+ "stopped": "Nick 2026-10-07 08:05 PDT: verdict inconclusive, card ended after 15Z",
+ "counts": {
+  "A": 5,
+  "B": 4
+ },
+ "next": {
+  "wake_utc_hour": 16,
+  "arm": "A",
+  "written": "0",
+  "rc": 0
+ }
+}

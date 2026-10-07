@@ -1,0 +1,89 @@
+{
+  "schema": "hil_run_manifest/1",
+  "gate": "R3",
+  "run_dir": "runs/r3_pace_20261007",
+  "start_utc": "2026-10-07T15:20:00+00:00",
+  "start_pdt": "2026-10-07T08:20:00-07:00",
+  "end_utc": null,
+  "end_pdt": null,
+  "operator": "Test Engineer",
+  "repo": {
+    "branch": "feature/r1-hil-test-engineer",
+    "sha": "99ed3ccc33930265eaa44f517daa67d13fd3b57a",
+    "dirty": true
+  },
+  "units": [
+    {
+      "host": "bmcam003",
+      "before": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      },
+      "after": {
+        "runtime_sha": null,
+        "cfg_hash": null,
+        "cron_armed": null
+      }
+    }
+  ],
+  "env": {
+    "HIL_RIG_A": "SPOT-33507C=BMCAM_003=bmcam003=c3c564b91856226c",
+    "HIL_UNIT_REPO": "/home/pi/repos/bm_cam_legacy",
+    "HIL_RIG_B": "SPOT-31593C=BMCAM_004=bmcam004=0e582dd12c1e1480",
+    "HIL_MONITOR_LOG_ROOT": "/home/pi/spotter_logs",
+    "HIL_UNIT_APP": "/home/pi/BM_Devel_Pi",
+    "HIL_MONITOR_ENV_FILE": "/home/pi/.config/nereus/heal_driver.env",
+    "HIL_API": "https://nereus-vision-staging.onrender.com",
+    "HIL_RUNS": "runs",
+    "HIL_RUN_DIR": "runs/r2_delay_20261006",
+    "HIL_UNIT_USER": "pi",
+    "HIL_MONITOR": "pi@192.168.1.45"
+  },
+  "tools_sha256_16": {
+    "hil/tools/hil_b0_b3a_run.sh": "5e46ae5d51daadbb",
+    "hil/tools/hil_b0_cjxl_guard.sh": "4188a609d839ab9e",
+    "hil/tools/hil_b3a_layout.sh": "b37acbd957b0c759",
+    "hil/tools/hil_backend_cmd.py": "a0301a19520cb750",
+    "hil/tools/hil_bridge_phase.sh": "5d46f28bffc22447",
+    "hil/tools/hil_bus_always_on.sh": "dcdfc487e58e8cbc",
+    "hil/tools/hil_change.sh": "834bd15f1a32d303",
+    "hil/tools/hil_cmd.sh": "4e7f862ef2def1d9",
+    "hil/tools/hil_cmd_ledger.py": "5cbf61d131985be3",
+    "hil/tools/hil_common.sh": "1b05bfb04ac122e0",
+    "hil/tools/hil_con_decode.py": "edeb85d2d873a899",
+    "hil/tools/hil_console.sh": "fef83dda979919e8",
+    "hil/tools/hil_deploy_unit.sh": "b8e54ab4cab6f5d0",
+    "hil/tools/hil_deploy_window.sh": "bd70f02a5710d80a",
+    "hil/tools/hil_g4_alternator.py": "7c5a656c5b753313",
+    "hil/tools/hil_hardmode_cases.py": "dbe5109965a26fa2",
+    "hil/tools/hil_ip_range_probe.sh": "daec20b439eefcca",
+    "hil/tools/hil_lane_block.sh": "be56a5b33837f9f5",
+    "hil/tools/hil_media_table.py": "f660f3f8d4dc2f5c",
+    "hil/tools/hil_new_run.sh": "3b750f55a0a02d05",
+    "hil/tools/hil_p0_probe.sh": "87ce22966f1ebb70",
+    "hil/tools/hil_pistate.sh": "c92adb56ad8ea6b4",
+    "hil/tools/hil_plan_check.py": "8f9ae2be8feecb74",
+    "hil/tools/hil_r2_score.py": "b4d4753a09a7f0f6",
+    "hil/tools/hil_r2_switch.py": "e33fcbcef05351b1",
+    "hil/tools/hil_r3_switch.py": "db17bbc413ad9f6d",
+    "hil/tools/hil_refresh.sh": "eda838357abe8092",
+    "hil/tools/hil_restore_schedule.sh": "6d0c340d01efd7eb",
+    "hil/tools/hil_rig_dashboard.py": "6e6c7ed6b0e65b84",
+    "hil/tools/hil_rig_events.py": "93e6f0adf3152090",
+    "hil/tools/hil_rig_health.py": "f60a6052374792e4",
+    "hil/tools/hil_rig_timeline.py": "f91eb65fdb71fc6a",
+    "hil/tools/hil_sofar_change.sh": "871fb2a184ab0f03",
+    "hil/tools/hil_step.sh": "c8fd44d7d19c766f",
+    "hil/tools/hil_sync_profile.py": "4cb8dfb8ef288173",
+    "hil/tools/hil_t1_burst.py": "e41af8800166c927",
+    "hil/tools/hil_t1_score.py": "d769e147f19c5baf",
+    "hil/tools/hil_unit_snapshot.sh": "483c9da90a296974",
+    "hil/tools/hil_use_run.sh": "f31aae46683d21da",
+    "hil/tools/hil_wake_report.sh": "298555637a457eed",
+    "hil/tools/test_hil_guards.sh": "19dbe29151335631"
+  },
+  "media": [],
+  "verdict": null,
+  "notes": []
+}

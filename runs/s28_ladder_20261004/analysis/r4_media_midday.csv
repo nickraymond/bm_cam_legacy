@@ -1,0 +1,4 @@
+device,media_id,type,captured_at,last_chunk_at,expected,received,missing,complete,latency_min,d1
+BMCAM_004,57549,image,2026-10-05T18:00:38+00:00,2026-10-05T18:06:09+00:00,193,150,43,False,,OPEN
+BMCAM_004,57534,image,2026-10-05T17:00:39+00:00,2026-10-05T17:10:40+00:00,180,180,0,True,10,PASS
+BMCAM_004,57521,image,2026-10-05T16:00:29+00:00,2026-10-05T18:06:05+00:00,195,195,0,True,126,PASS
