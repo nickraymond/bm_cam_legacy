@@ -52,4 +52,8 @@ Clean wake = first-send loss ≤ 2 % AND no contiguous gap ≥ 5 chunks.
    Mann-Whitney (B < A) p < 0.10.
 3. If B shows holes that A does not → **STOP** (the delay hurts).
 (Mixed outcomes not covered above → report to the EM after the block, no unilateral continuation.)
+**Applied check (added 2026-10-07 05:1xZ, before the first counted wake, EM informed):** the patch drops the hold
+when wait + burst (incl. heals sent before START) exceeds the per_boot budget left (`[R2DELAY] … skipped=True`, the
+same rule that made bmcam004's C2 lane skip on heal wakes). A B wake with skipped=True is reported as **B not applied**
+and is not counted as B unless the EM decides otherwise; heals per wake are logged.
 **Safety stop:** any wake whose burst ends after :09:00 or whose wake→halt > 570 s.
