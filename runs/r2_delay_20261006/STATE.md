@@ -1,4 +1,11 @@
-# Test Engineer STATE — READ FIRST (handover-ready, written 2026-10-07 ~09:50Z / 02:50 PDT)
+# Test Engineer STATE — READ FIRST (handover-ready; updated 2026-10-07 ~15:30Z / 08:30 PDT)
+
+**UPDATE 15:30Z: R2-DELAY STOPPED by Nick (verdict in RESULTS: inconclusive, n=4–5/arm). ACTIVE CARD NOW = R3-PACE**
+(`hil/gates/R3_PACE.md`, `runs/r3_pace_20261007/`): pacing A 1.0 s vs B 1.3 s, delay 0 (r2_start_delay_s=0, patch
+no-op), ABBA from 16Z, switch `runs/r3_pace_20261007/scripts/r3_switch_at.sh HH` at HH:01:30Z (`hil/tools/hil_r3_switch.py`,
+edits base YAML `uplink.msg_interval_s`), score with `hil/tools/hil_r2_score.py`; interim at 6/arm, decision at 12/arm
+(~24 h). Everything else below (bmcam003 restore, self_heal OFF + restore, bmcam004 as is, R2-L1 staged) still holds.
+
 
 Worktree `bm_cam_legacy/.claude/worktrees/vigilant-proskuriakova-a3337c`, branch `feature/r1-hil-test-engineer`. Times UTC
 (PDT = UTC − 7). EM = "Bristlemouth camera program EM handover" (local_7c78dab7…): one line per step, Nick via the EM.
