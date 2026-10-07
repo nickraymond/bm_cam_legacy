@@ -50,6 +50,17 @@ it to a new path.
 11. **Background jobs hit the 30-min/2-h tool limit**; an `ssh … nohup … &` that keeps the channel open dies with it
     (the remote job survives if fully detached: `setsid nohup … < /dev/null > log 2>&1 &`).
 
+12. **Session crons may not fire at all** (TE2 2026-10-07: CronCreate jobs at :16/:35/:50 never fired in 2 h). Drive
+    must-hit steps with a detached `nohup bash driver.sh > log 2>&1 < /dev/null &` (e.g.
+    `runs/r3_pace_20261007/scripts/r3_driver_te2.sh`). For steps the session must finish, chain run_in_background jobs that
+    exit at the step time, so their completion notice wakes the session. Run-folder scripts that `cd` into a worktree path
+    break when the TE changes: copy them, never edit a running one.
+13. **A cloud `reset` lands ~80 s after bus-on** (3 of 3 at the first hourly sync after send, 43–58 min later; 2 of 3
+    logged NO `Remote message received … reset` line, only the banner + `Reset Reason: Debug reset`). The safe-mode
+    `@reboot sleep 45 && tuned_halt` reaches the halted current only at ~88 s, so reset #3 hard-cut bmcam004 at ~78 s.
+    Safe mode must halt in < 60 s (e.g. `sleep 15`), or the Pi must stay dark through the sync. Watchers must match
+    `Reset Reason:` too, not only the receipt line.
+
 ## Rules that follow
 
 - Bench script = dry-run mode first, with the exact production arguments, then the real run.
