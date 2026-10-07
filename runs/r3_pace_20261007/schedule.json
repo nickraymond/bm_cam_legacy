@@ -32,10 +32,10 @@
   "B"
  ],
  "b_value": "1.5",
- "pointer": 1,
+ "pointer": 2,
  "counts": {
   "A": 1,
-  "B": 0
+  "B": 1
  },
  "history": [
   {
@@ -43,11 +43,17 @@
    "arm": "A",
    "delay_s": 1.0,
    "line": "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0"
+  },
+  {
+   "wake_utc_hour": 17,
+   "arm": "B",
+   "delay_s": 1.5,
+   "line": "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.5"
   }
  ],
  "stopped": null,
  "next": {
-  "wake_utc_hour": 17,
+  "wake_utc_hour": 18,
   "arm": "B",
   "written": "msg_interval_s: 1.5  # R3-PACE arm B",
   "rc": 0
