@@ -4,3 +4,5 @@
 2026-10-07T20:03:02Z [reset-prep] safe mode installed (backup ~/hil_backup/20261007T200300Z/crontab_ARMED.txt). RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261007T200300Z/crontab_ARMED.txt'
 halt-issued
 2026-10-07T20:03:22Z [reset-prep] bmcam004 dark 20:03:22; from the next window it boots and halts ~45 s after boot
+2026-10-07T20:08:42Z RESET #1 sent by the EM 20:08:15Z (HTTP 202, clear-queue + 'reset' over cellular for SPOT-31593C; runs/sofar_command_sends.jsonl). Watching the console until 21:20Z.
+2026-10-07T20:16:36Z READ-ONLY cfg read (Nick approved in the EM chat 13:15 PDT): 'cfg get <key>' -> ERR on both; 'cfg' (full dump, read-only) -> SPOT-33507C smrr = 1, onsp = 30; SPOT-31593C smrr = 1, onsp = 30 (ranges smrr 0-1, onsp 1-2048). Full dumps cfg_SPOT-*.txt. No set, no save.
