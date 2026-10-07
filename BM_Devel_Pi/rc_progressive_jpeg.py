@@ -940,16 +940,19 @@ def still_action(
             encode["message_count"] + heal_msgs, settings["pacing_delay_seconds"],
             incomplete=not selection["fits"])
         _r2_skipped = False
+        _r2_budget_left = budget.remaining_s()
         if _r2_wait > 0 and not budget.has_time_for(_r2_wait + _r2_burst):
             print(f"[R2DELAY][WARN] skipping the {_r2_wait:.0f}s hold: only {budget.remaining_s():.0f}s "
                   f"of budget left, burst needs {_r2_burst:.0f}s")
             _r2_wait, _r2_skipped = 0.0, True
         print(f"[R2DELAY] start_delay_s={_r2_target:.0f} uptime={_r2_up}s wait={_r2_wait:.1f}s "
-              f"burst_est={_r2_burst:.0f}s skipped={_r2_skipped}")
+              f"burst_est={_r2_burst:.0f}s heal_msgs={heal_msgs} budget_left={_r2_budget_left:.0f}s "
+              f"skipped={_r2_skipped}")
         if _r2_wait > 0:
             sleep_fn(_r2_wait)
         summary["r2_delay"] = {"start_delay_s": _r2_target, "uptime_at_check_s": _r2_up,
-                               "wait_s": _r2_wait, "skipped_no_budget": _r2_skipped}
+                               "wait_s": _r2_wait, "skipped_no_budget": _r2_skipped,
+                               "budget_left_s": _r2_budget_left, "heal_msgs": heal_msgs, "burst_est_s": _r2_burst}
 
     # W9 (S4w): decided ONCE per send, so the sent record and the wire agree.
     chunk_total = rc_media_key.CHUNK_TOTAL
