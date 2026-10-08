@@ -1,0 +1,14 @@
+BACKUP /home/pi/hil_backup/reefrc_20261008T050051Z
+EDIT camera_schedule.yaml: '^(\\s*image_transmit_delay_seconds:\\s*)[0-9.]+' -> '\\g<1>1.0'
+EDIT camera_schedule.yaml: '^capture_mode:\\s*"?[a-z_]+"?' -> 'capture_mode: "progressive_jpeg"'
+EDIT camera_config.yaml: '^(  media:\\s*)"video"' -> '\\g<1>"still"'
+REMOVED r2_start_delay_s
+STRICT LOAD OK base_hash 75853d52
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=532404da hv=1 registry=v7 overlay=2 key(s)
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+r2 file gone

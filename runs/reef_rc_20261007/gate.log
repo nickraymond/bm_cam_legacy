@@ -2,3 +2,25 @@
 2026-10-08T03:35:45Z [TE2] 03Z read-only inspection missed (Mac asleep). Re-armed for 04Z (inspect_003_04z.sh). REEF-RC deploy + config edits -> 05Z window, wake 1 = 06Z (11 PM PDT).
 2026-10-08T04:05:30Z [TE2] bmcam003 inspection 04Z (read-only, pulled/bmcam003_04z_*): sha a50636e + R2 patch; r2_start_delay_s = 0; base v2 mode.media "video" with overlay mode.media still (cid 1000159) + video.send.message_cap 126 (cid 1000020); window 00:00-00:00 (all day); pacing v2 1.0 / v1 1.3 (v1-vs-v2 parity would fail the deploy); lane off; cap 195; crop 1504,846,1600,900 -> 1000; 384 chars; 0x02; per_boot + real halt; image_processing disabled.
 2026-10-08T04:05:45Z [TE2] armed setup_then_deploy_05z.sh (Nick's OK 02:25Z): backup -> v1 bm_serial delay 1.3->1.0 + capture_mode -> progressive_jpeg; v2 mode.media video->still; rm r2_start_delay_s; strict-load verify (revert all on failure) -> deploy #143 head c8bea4d (ACCEPT_DIFF=1: runtime a50636e+R2 -> dev+#143, diff recorded) -> POST post_05z.sh: overlay clear + effective verify + BUILD_RECORD inputs. Wake 1 = 06Z (11 PM PDT).
+2026-10-08T05:00:53Z [TE2] REEF-RC setup on bmcam003 rc=0: BACKUP /home/pi/hil_backup/reefrc_20261008T050051Z EDIT camera_schedule.yaml: '^(\\s*image_transmit_delay_seconds:\\s*)[0-9.]+' -> '\\g<1>1.0' EDIT camera_schedule.yaml: '^capture_mode:\\s*"?[a-z_]+"?' -> 'capture_mode: "progressive_jpeg"' EDIT camera_config.yaml: '^(  media:\\s*)"video"' -> '\\g<1>"still"' REMOVED r2_start_delay_s STRICT LOAD OK base_hash 75853d52 
+2026-10-08T05:00:53Z [deploy-reefrc bmcam003] ref=fix/sent-prune-spotter-time want=c8bea4d profile=bmcam003/live_20260925 window=2026-10-08T05:00:00Z accept_diff=1; waiting
+up=50s
+1292 bash -c mkdir -p ~/hil_backup/20261008T050055Z && crontab -l > ~/hil_backup/20261008T050055Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_reefrc \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_FOR_reefrc @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T05:00:58Z [deploy-reefrc bmcam003] backup+disarm+stop TS=20261008T050055Z; RESTORE crontab: ssh pi@bmcam003 'crontab ~/hil_backup/20261008T050055Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-08T05:01:02Z [deploy-reefrc bmcam003] snapshot before_reefrc
+2026-10-08T05:03:40Z [deploy-reefrc bmcam003] rc_field_update rc=1 (log runs/reef_rc_20261007/pulled/bmcam003_field_update_reefrc_20261008T050055Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+23:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+35:[PARITY] print-config text OK (14 lines)
+36:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+38:[PARITY][DIFF] config json differs in: video_tx
+42:[RC-DEPLOY][ERROR] camera_config.yaml does not resolve like camera_schedule.yaml (above); nothing installed
+43:[FIELD-UPDATE][FAIL] deploy_rc_runtime.sh failed — runtime backup + restore command are in its output above
+2026-10-08T05:03:41Z [deploy-reefrc bmcam003] runtime sha now: a50636e8c4f8
+2026-10-08T05:03:41Z [deploy-reefrc bmcam003] DEPLOY FAILED or sha mismatch: re-arming the ARMED backup anyway (see runs/reef_rc_20261007/pulled/bmcam003_field_update_reefrc_20261008T050055Z.log)
+halt-issued
+2026-10-08T05:04:10Z [deploy-reefrc bmcam003] bmcam003 dark (FAILED)
+2026-10-08T05:05:14Z [TE2] REEF-RC 05Z: setup OK (backup /home/pi/hil_backup/reefrc_20261008T050051Z; v1 delay 1.3->1.0, v1 capture_mode video->progressive_jpeg, v2 mode.media video->still, r2_start_delay_s removed; strict load OK; print-config: media=still, progressive_jpeg, 1.0 s, cap 195, window all day, lane OFF, crop 1504,846,1600,900 -> 1000x562). DEPLOY FAILED SAFE: v1-vs-v2 parity differs in video_tx (v1 enabled true vs v2 false with media still); sha still a50636e (R2 patch present, no-op without the r2 file), re-armed, dark 05:04:10Z; POST (overlay clear) did not run -> overlay still mode.media still + video.send.message_cap 126. Retry armed for 06Z (setup_then_deploy_06z.sh: v1 video_tx.enabled -> false, then deploy). Wake 1 -> 07Z (midnight PDT).

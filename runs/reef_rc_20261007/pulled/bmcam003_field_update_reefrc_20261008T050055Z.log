@@ -1,0 +1,44 @@
+[FIELD-UPDATE] === stage 0: preflight ===
+[FIELD-UPDATE] repo=/home/pi/repos/bm_cam_legacy ref=fix/sent-prune-spotter-time profile=bmcam003/live_20260925 dry_run=false
+[FIELD-UPDATE] preflight OK (24688MB free, no cycle running)
+[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+[FIELD-UPDATE] crontab backed up -> /home/pi/crontab_before_field_update_20261008T050152Z.txt; RC @reboot line disabled
+[FIELD-UPDATE] === stage 2: repo sync ===
+From https://github.com/nickraymond/bm_cam_legacy
+   e519c50f..b0982b28  development             -> origin/development
+ * [new branch]        docs/cmd-burst-isolation -> origin/docs/cmd-burst-isolation
+   0d387298..706eca46  feature/r1-hil-test-engineer -> origin/feature/r1-hil-test-engineer
+ * [new branch]        feature/sprint28-b3a    -> origin/feature/sprint28-b3a
+ * [new branch]        feature/sprint28-low-gain -> origin/feature/sprint28-low-gain
+ * [new branch]        fix/sync-settle-126     -> origin/fix/sync-settle-126
+ * [new branch]        hil/prune143-on-104ee3c -> origin/hil/prune143-on-104ee3c
+ * [new branch]        hil/r2-delay-prototype  -> origin/hil/r2-delay-prototype
+ * [new branch]        hil/r2-l1-forced-heals  -> origin/hil/r2-l1-forced-heals
+branch 'fix/sent-prune-spotter-time' set up to track 'origin/fix/sent-prune-spotter-time'.
+Switched to a new branch 'fix/sent-prune-spotter-time'
+From https://github.com/nickraymond/bm_cam_legacy
+ * branch              fix/sent-prune-spotter-time -> FETCH_HEAD
+Already up to date.
+[FIELD-UPDATE] repo: a50636e8c4f8 -> c8bea4de50a8 (fix/sent-prune-spotter-time)
+[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+[RC-DEPLOY] repo=/home/pi/repos/bm_cam_legacy
+[RC-DEPLOY] manifest=/home/pi/repos/bm_cam_legacy/tools/rc_runtime_manifest.txt
+[RC-DEPLOY] destination=/home/pi/BM_Devel_Pi (staging in /home/pi/BM_Devel_Pi.next)
+[RC-DEPLOY] mode=field-update profile=none cron=false
+[RC-DEPLOY] timestamp=20261008T050325Z hostname=bmcam003 python=/usr/bin/python3
+[RC-DEPLOY] preflight: PyYAML present
+[RC-DEPLOY] preflight: numpy present (nrjxl ok)
+[RC-DEPLOY] preflight: WARN cjxl missing (nrjxl refused / pjpg rfb=enc; sudo apt-get install -y libjxl-tools)
+[RC-DEPLOY] preflight: boot cycle not armed
+[RC-DEPLOY] staged 59 files in /home/pi/BM_Devel_Pi.next
+[RC-DEPLOY] syntax check (py_compile 54 files, staged)
+[PARITY] print-config text OK (14 lines)
+[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+[RC-DEPLOY] camera_config.yaml strict load OK, base hash 4977d70a
+[PARITY][DIFF] config json differs in: video_tx
+  video_tx:
+    A: {"duration_s": 5.0, "enabled": true, "fps": 10, "keyframe_repeat_max": 30, "lead_in_s": 2.0, "message_cap": 190, "output": "480x270", "output_wh": [480, 270], "preset": "medium"}
+    B: {"duration_s": 5.0, "enabled": false, "fps": 10, "keyframe_repeat_max": 30, "lead_in_s": 2.0, "message_cap": 190, "output": "480x270", "output_wh": [480, 270], "preset": "medium"}
+[RC-DEPLOY][ERROR] camera_config.yaml does not resolve like camera_schedule.yaml (above); nothing installed
+[FIELD-UPDATE][FAIL] deploy_rc_runtime.sh failed — runtime backup + restore command are in its output above
+[FIELD-UPDATE] unit left DISARMED — fix and re-run
