@@ -1,0 +1,3 @@
+BACKUP /home/pi/hil_backup/rc2_20261008T210120Z/camera_config.yaml
+EDIT inserted still.format nrjxl at line 71
+STRICT OK base_hash 167b327b effective format nrjxl dropped []

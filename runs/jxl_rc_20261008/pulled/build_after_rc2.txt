@@ -1,0 +1,14 @@
+== sha
+9ec4cb7ae7c1
+
+== sha256
+ee69a9b1a5d2dc378cd66f4d6663e699d950d2826ac381ed745fc7945cd4b621  camera_config.yaml
+6f419ebb131d1eba98aaca5ef5a0c8cf92ed74d3d9f71b0ab2ea71925e6d621d  camera_schedule.yaml
+b15a153d149a36bcf974dbb4c76c31889c4b2eb459c8d2171f5fba9399f40ad2  bm_command_state_v2.json
+== cjxl
+cjxl v0.11.2 [NEON_WITHOUT_AES]
+EFFECTIVE {'mode.media': 'still', 'mode.run': 'per_boot', 'still.format': 'nrjxl', 'still.raw.layout': 'rgb', 'camera.exposure.profile': 'auto', 'uplink.msg_interval_s': 1.0, 'uplink.chunk_chars': 384, 'uplink.network_type': 2, 'uplink.lane.enabled': False, 'still.message_cap': 195, 'still.crop': [1504, 846, 1600, 900], 'still.output_width': 1000, 'camera.image_processing.contrast': 1.0, 'schedule.window.start': '00:00', 'schedule.window.end': '00:00', 'power.halt.enabled': True, 'power.halt.dry_run': False} overlay {'camera.image_processing.contrast': 1.0} dropped [] base_hash 8fded2ea
+== crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+== print-config
+Timeout, server bmcam003 not responding.

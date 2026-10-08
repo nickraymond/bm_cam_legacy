@@ -1,0 +1,7 @@
+backup: /home/pi/BM_Devel_Pi/camera_config.yaml.bak_b1_20261008T210122Z
+set still.raw.layout=rgb (base only; still.format comes from base ⊕ overlay)
+78a79,80
+>   raw:
+>     layout: rgb
+effective: nrjxl rgb 45 overlay ['camera.image_processing.contrast'] dropped []
+still path reads: nrjxl rgb 45
