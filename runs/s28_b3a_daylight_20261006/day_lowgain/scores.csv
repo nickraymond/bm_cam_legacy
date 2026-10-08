@@ -1,0 +1,10 @@
+row,width,height,distance,quality,bytes,msgs,fits,ssimulacra2,butteraugli_3norm,d_s2,b3_ratio,pass,sig,prod_distance,prod_bytes,prod_msgs,prod_attempts,prod_rfb,clip_pct,headroom_scale
+jpeg,1000,562,,60,55969,195,,55.008,1.884,,,,,,,,,,,
+bayer,1600,900,9.18,,54425,189,True,18.03,3.933,-36.978,2.088,False,False,9.218,54242,189,3,,,
+rgbwa,1600,900,3.431,,54468,190,True,53.147,2.416,-1.861,1.282,False,False,,,,,,,2.0635
+rgbwa,1440,810,2.872,,54309,189,True,53.042,2.69,-1.966,1.428,False,False,,,,,,,2.0635
+rgbwa,1360,764,2.604,,54470,190,True,53.47,2.373,-1.538,1.26,False,False,,,,,,,2.0635
+rgbwa,1280,720,2.325,,54438,190,True,54.068,2.46,-0.94,1.306,False,False,,,,,,,2.0635
+rgbwa,1200,674,2.131,,54413,189,True,54.573,2.664,-0.435,1.414,False,False,,,,,,,2.0635
+rgbwa,1120,630,1.875,,54239,189,True,54.933,2.333,-0.075,1.238,False,False,,,,,,,2.0635
+rgbwa,1000,562,1.51,,54375,189,True,55.602,2.43,0.594,1.29,False,False,,,,,,,2.0635

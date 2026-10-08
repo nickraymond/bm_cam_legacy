@@ -359,6 +359,8 @@ def read_v1(config_path):
         v["still.raw.effort"] = int(sr["effort"])
         v["still.raw.target_fill"] = float(sr["target_fill"])
         v["still.raw.d_max"] = float(sr["d_max"])
+        v["still.raw.layout"] = sr["layout"]
+        v["still.raw.rgb_encode_max_s"] = int(sr["rgb_encode_max_s"])
 
     # ---- exposure_profile (Sprint28 low gain; absent = auto + registry caps) --
     ep = attempt("load_profile_config", rc_exposure_profile.load_profile_config, config_path)

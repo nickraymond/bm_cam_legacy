@@ -152,7 +152,43 @@ Read ExposureTime / AnalogueGain back from each still's `--metadata` sidecar (th
 | R5.4 | `{"set":{"camera.exposure.profile":"low_gain","camera.controls_enabled":true,"camera.exposure.enabled":true,"camera.exposure.shutter_us":8000}}` | ack `e:xk` (config_validate `_rule_low_gain_fixed`); `get` hash unchanged |
 
 Restore: `{"reset":["camera.exposure.profile","camera.exposure.max_shutter_us","camera.exposure.max_gain"]}`.
+
+**R5 sunrise run (Nick GO 2026-10-05; bmcam004, bus held on, Tue 13:15–15:00Z, Wi-Fi offload).**
+Needs #120 + #133 deployed. Stop the runtime and disarm cron first, as for R0 (the loop refuses
+while a camera or runtime process runs, and never edits cron).
+
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 detach
+```
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 status
+```
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 stop
+```
+```bash
+hil/tools/hil_s28_lowgain_sunrise.sh bmcam004 runs/s28_lowgain_sunrise_20261006 pull
+```
+```bash
+.venv-dev/bin/python hil/tools/hil_s28_lowgain_analyze.py runs/s28_lowgain_sunrise_20261006/pulled/bmcam004_lowgain
+```
+`run` instead of `detach` keeps it in the foreground, where Ctrl-C stops it cleanly. The analysis
+PASSes when every low_gain capture keeps the shutter ≤ the cap (LG1), raises gain only at the cap
+(LG2), sits at the gain floor whenever auto needed no more than cap × floor (LG3), and loaded the
+patched tuning file (LG4). It also reports the RAW flat-patch noise ratios low_gain / auto (G and
+R) and writes `analysis/lowgain_cutsheet.png`. Afterwards: re-arm cron and restart the runtime as
+found (the manifest records the crontab hash at start and end).
 The generated copies stay in `<app>/exposure_profile/` (a few 27 kB files; delete freely).
+
+### B3a bench: B0–B2 (DESIGN_B3a.md §6; bmcam004, after the TE hand-over)
+
+| Step | What | PASS |
+|---|---|---|
+| B0 | 10× `python3 rc_raw_jxl.py --dng <a 004 DNG> --metadata <its JSON> --layout rgb --out /tmp/b0_<n>` on the unit (the production guard: `ulimit -v 250 MB`, `oom_score_adj 1000`). Read `attempt_log` (`peak_rss_kb` = cjxl's VmHWM), and sample `VmPeak` of cjxl from `/proc/<pid>/status` in a second shell | 0 kills (`rfb=mem`), VmPeak < 250 MB, median encode ≤ 10 s, search (≤ 3 encodes) ≤ 45 s (`still.raw.rgb_encode_max_s`, since 2026-10-06; the calibrated search needs ≤ 2 encodes on 29/31 replayed frames, DESIGN_B3a §3.1), `rgb_prep_s` + supervisor RSS recorded, predicted wake (capture + search + 195 × 1.3 s + tail) ≤ 480 s. If VmPeak > 250 MB, try `--effort 4` before touching the guard. Desk reference (Linux arm64 container, `runs/s28_b3a_vmpeak_20261005/`): e5 VmPeak ≤ 125.3 MiB, VmHWM ~99 MiB. **Also time `--effort 4`** (the time-fallback lever only: on 30 TG-7 frames at equal bytes e4 is −4.1 SSIMULACRA2 at P50 vs e5, `runs/s28_b3a_effort_20261005/effort_tg7.md`; e5 stays the default) |
+| B1 | `{"set":{"still.format":"nrjxl","still.raw.layout":"rgb"}}` on the console lane, ONLY after the backend's v2 decode is live | START `fmt=nrjxl cmp=1`; the reassembled sha256 matches; the backend shows method 20 decoded, the render, and the LinearRaw DNG opens in RawTherapee |
+| B2 | the R3 forced fallbacks (time / fit / floor) with `layout rgb` | pjpg with `rfb=` complete each time |
+
+Restore: `{"reset":["still.raw.layout"]}` (back to bayer4).
 
 ## 2. Criteria
 

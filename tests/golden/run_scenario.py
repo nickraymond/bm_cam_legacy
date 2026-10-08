@@ -418,6 +418,8 @@ def fake_cjxl_runner(raw_sc, clock):
         dist = float(cmd[cmd.index("-d") + 1])
         mode = raw_sc.get("cjxl", "ok")
         plane_s = float(raw_sc.get("plane_s", 1.6))
+        if src.endswith(".ppm"):
+            plane_s *= 4                   # B3a: ONE RGB encode ~ the 4 planes' time
         W.WORLD.trace.add("JXL", f"{os.path.basename(src)} d={dist:.4f} mode={mode}")
         if plane_s > timeout_s:
             clock.sleep(timeout_s)
@@ -428,7 +430,7 @@ def fake_cjxl_runner(raw_sc, clock):
                     "peak_rss_kb": 31000}
         with open(src, "rb") as fh:
             pgm = fh.read()
-        _magic, wh, _maxval, _rest = pgm.split(b"\n", 3)
+        _magic, wh, _maxval, _rest = pgm.split(b"\n", 3)   # P5 plane or P6 RGB
         w, h = (int(v) for v in wh.split())
         size = int(w * h * 2 / dist) + 16
         seed = hashlib.sha256(pgm + f"{dist:.4f}".encode()).digest()

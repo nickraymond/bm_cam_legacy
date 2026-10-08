@@ -1,0 +1,73 @@
+{
+ "dng": "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/SPOT-31593C_BMCAM_004_2026-10-05T16-00-29Z__unpacked.dng",
+ "params_from": "/private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-xenodochial-cohen-a475a9/31e5b386-7d7a-437d-b3e1-4a9aa5d10b6e/scratchpad/SPOT-31593C_BMCAM_004_2026-10-05T16-00-29Z.nrjxl",
+ "metadata": null,
+ "crop": [
+  0,
+  0,
+  1600,
+  900
+ ],
+ "distance": 2.926,
+ "bytes": 55088,
+ "msgs": 192,
+ "attempts": 2,
+ "attempt_log": [
+  {
+   "step": "search1",
+   "distance": 2.573,
+   "bytes": 60769,
+   "message_count": 212,
+   "plane_bytes": [
+    60691
+   ],
+   "over_cap": true,
+   "budget_fit": true,
+   "seconds": 0.111,
+   "cjxl_seconds": [
+    0.11
+   ],
+   "peak_rss_kb": null,
+   "maxrss_incl_parent_kb": 89520
+  },
+  {
+   "step": "search2",
+   "distance": 2.926,
+   "bytes": 55088,
+   "message_count": 192,
+   "plane_bytes": [
+    55010
+   ],
+   "over_cap": false,
+   "budget_fit": true,
+   "seconds": 0.058,
+   "cjxl_seconds": [
+    0.057
+   ],
+   "peak_rss_kb": null,
+   "maxrss_incl_parent_kb": 88432
+  }
+ ],
+ "timings": {
+  "dng_read_s": 0.003,
+  "rgb_prep_s": 0.061,
+  "headroom_x10000": 21827
+ },
+ "headroom_x10000": 21827,
+ "mean_abs_err_vs_cv2_bilinear": 0.00563,
+ "ssimulacra2_vs_reference": 47.21642617,
+ "butteraugli_3norm": 2.45978,
+ "cjxl_peak_rss_mb_this_host": 91.6,
+ "host": "darwin",
+ "guard_note": "ulimit -v 250 MB caps VIRTUAL memory; RSS is a lower bound. VmPeak under the guard = Pi bench B0.",
+ "checks": {
+  "method_20": true,
+  "flags_0x06": true,
+  "profile_2": true,
+  "one_payload": true,
+  "fits_195": true,
+  "no_clip": true,
+  "decode_close_to_cv2_bilinear": true
+ },
+ "pass": true
+}

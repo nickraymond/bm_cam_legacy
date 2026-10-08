@@ -1,0 +1,40 @@
+Unable to find image 'debian:trixie' locally
+trixie: Pulling from library/debian
+ccd9dba13ae3: Pulling fs layer
+ccd9dba13ae3: Download complete
+89cbbdacf715: Download complete
+ccd9dba13ae3: Pull complete
+Digest: sha256:9cc080028c43b27d2074d63a5f9caf7166d731494965616c1a6d2827a004585c
+Status: Downloaded newer image for debian:trixie
+cjxl v0.11.2 [NEON,NEON_WITHOUT_AES]
+aarch64
+v1_plane_R_e5_d5.3 guard=none rc=0 VmPeak_kB=52888 VmHWM_kB=37568 wall_s=.133476417 stderr=ar, d5.300, effort: 5] Compressed to 13510 bytes (0.300 bpp). 800 x 450,  3.005 MP/s [3.01, 3.01], , 1 reps, 0 threads. 
+v1_plane_R_e5_d5.3 guard=256000 rc=0 VmPeak_kB=52888 VmHWM_kB=39860 wall_s=.133506709 stderr=ar, d5.300, effort: 5] Compressed to 13510 bytes (0.300 bpp). 800 x 450,  3.037 MP/s [3.04, 3.04], , 1 reps, 0 threads. 
+rgb_vardct_e5_d3.42 guard=none rc=0 VmPeak_kB=126804 VmHWM_kB=100580 wall_s=.801194167 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.836 MP/s [1.84, 1.84], , 1 reps, 0 threads. 
+rgb_vardct_e5_d3.42 guard=256000 rc=0 VmPeak_kB=126804 VmHWM_kB=101268 wall_s=.810951083 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.806 MP/s [1.81, 1.81], , 1 reps, 0 threads. 
+rgb_vardct_e4_d3.42 guard=none rc=0 VmPeak_kB=116172 VmHWM_kB=89912 wall_s=.112278500 stderr=d3.420, effort: 4] Compressed to 52496 bytes (0.292 bpp). 1600 x 900,  14.645 MP/s [14.65, 14.65], , 1 reps, 0 threads. 
+rgb_vardct_e4_d3.42 guard=256000 rc=0 VmPeak_kB=114972 VmHWM_kB=91312 wall_s=.110407209 stderr=d3.420, effort: 4] Compressed to 52496 bytes (0.292 bpp). 1600 x 900,  14.615 MP/s [14.62, 14.62], , 1 reps, 0 threads. 
+rgb_vardct_e3_d3.42 guard=none rc=0 VmPeak_kB=123052 VmHWM_kB=89936 wall_s=.110007584 stderr=d3.420, effort: 3] Compressed to 48564 bytes (0.270 bpp). 1600 x 900,  15.868 MP/s [15.87, 15.87], , 1 reps, 0 threads. 
+rgb_vardct_e3_d3.42 guard=256000 rc=0 VmPeak_kB=123052 VmHWM_kB=90236 wall_s=.110846042 stderr=d3.420, effort: 3] Compressed to 48564 bytes (0.270 bpp). 1600 x 900,  15.693 MP/s [15.69, 15.69], , 1 reps, 0 threads. 
+rgb_vardct_e5_d2.6 guard=256000 rc=0 VmPeak_kB=126804 VmHWM_kB=101240 wall_s=.813183500 stderr=T, d2.600, effort: 5] Compressed to 68481 bytes (0.380 bpp). 1600 x 900,  1.798 MP/s [1.80, 1.80], , 1 reps, 0 threads. 
+v1_plane_R_e5_d5.3 guard=none rc=0 VmPeak_kB=52888 VmHWM_kB=38840 wall_s=.132533959 stderr=ar, d5.300, effort: 5] Compressed to 13510 bytes (0.300 bpp). 800 x 450,  3.080 MP/s [3.08, 3.08], , 1 reps, 0 threads. 
+v1_plane_R_e5_d5.3 guard=256000 rc=0 VmPeak_kB=52888 VmHWM_kB=41028 wall_s=.132219208 stderr=ar, d5.300, effort: 5] Compressed to 13510 bytes (0.300 bpp). 800 x 450,  3.002 MP/s [3.00, 3.00], , 1 reps, 0 threads. 
+rgb_vardct_e5_d3.42 guard=none rc=0 VmPeak_kB=112440 VmHWM_kB=101572 wall_s=.820883501 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.784 MP/s [1.78, 1.78], , 1 reps, 0 threads. 
+rgb_vardct_e5_d3.42 guard=256000 rc=0 VmPeak_kB=128296 VmHWM_kB=100684 wall_s=.832831834 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.774 MP/s [1.77, 1.77], , 1 reps, 0 threads. 
+rgb_vardct_e4_d3.42 guard=none rc=0 VmPeak_kB=110364 VmHWM_kB=91432 wall_s=.122236667 stderr=d3.420, effort: 4] Compressed to 52496 bytes (0.292 bpp). 1600 x 900,  13.293 MP/s [13.29, 13.29], , 1 reps, 0 threads. 
+rgb_vardct_e4_d3.42 guard=256000 rc=0 VmPeak_kB=120984 VmHWM_kB=91312 wall_s=.118353583 stderr=d3.420, effort: 4] Compressed to 52496 bytes (0.292 bpp). 1600 x 900,  14.156 MP/s [14.16, 14.16], , 1 reps, 0 threads. 
+rgb_vardct_e3_d3.42 guard=none rc=0 VmPeak_kB=123052 VmHWM_kB=90116 wall_s=.114035833 stderr=d3.420, effort: 3] Compressed to 48564 bytes (0.270 bpp). 1600 x 900,  15.594 MP/s [15.59, 15.59], , 1 reps, 0 threads. 
+rgb_vardct_e3_d3.42 guard=256000 rc=0 VmPeak_kB=120984 VmHWM_kB=91512 wall_s=.108780750 stderr=d3.420, effort: 3] Compressed to 48564 bytes (0.270 bpp). 1600 x 900,  15.558 MP/s [15.56, 15.56], , 1 reps, 0 threads. 
+rgb_vardct_e5_d2.6 guard=256000 rc=0 VmPeak_kB=127036 VmHWM_kB=100708 wall_s=.808000584 stderr=T, d2.600, effort: 5] Compressed to 68481 bytes (0.380 bpp). 1600 x 900,  1.816 MP/s [1.82, 1.82], , 1 reps, 0 threads. 
+v1_plane_R_e5_d5.3 guard=none rc=0 VmPeak_kB=52888 VmHWM_kB=38348 wall_s=.122775917 stderr=ar, d5.300, effort: 5] Compressed to 13510 bytes (0.300 bpp). 800 x 450,  3.184 MP/s [3.18, 3.18], , 1 reps, 0 threads. 
+v1_plane_R_e5_d5.3 guard=256000 rc=0 VmPeak_kB=52888 VmHWM_kB=40380 wall_s=.147079750 stderr=ar, d5.300, effort: 5] Compressed to 13510 bytes (0.300 bpp). 800 x 450,  2.731 MP/s [2.73, 2.73], , 1 reps, 0 threads. 
+rgb_vardct_e5_d3.42 guard=none rc=0 VmPeak_kB=112440 VmHWM_kB=101372 wall_s=.828891292 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.763 MP/s [1.76, 1.76], , 1 reps, 0 threads. 
+rgb_vardct_e5_d3.42 guard=256000 rc=0 VmPeak_kB=127952 VmHWM_kB=100664 wall_s=.862816792 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.705 MP/s [1.71, 1.71], , 1 reps, 0 threads. 
+rgb_vardct_e4_d3.42 guard=none rc=0 VmPeak_kB=121876 VmHWM_kB=91496 wall_s=.124646417 stderr=d3.420, effort: 4] Compressed to 52496 bytes (0.292 bpp). 1600 x 900,  13.669 MP/s [13.67, 13.67], , 1 reps, 0 threads. 
+rgb_vardct_e4_d3.42 guard=256000 rc=0 VmPeak_kB=120984 VmHWM_kB=89780 wall_s=.112113917 stderr=d3.420, effort: 4] Compressed to 52496 bytes (0.292 bpp). 1600 x 900,  14.493 MP/s [14.49, 14.49], , 1 reps, 0 threads. 
+rgb_vardct_e3_d3.42 guard=none rc=0 VmPeak_kB=122448 VmHWM_kB=89896 wall_s=.115518459 stderr=d3.420, effort: 3] Compressed to 48564 bytes (0.270 bpp). 1600 x 900,  15.122 MP/s [15.12, 15.12], , 1 reps, 0 threads. 
+rgb_vardct_e3_d3.42 guard=256000 rc=0 VmPeak_kB=123052 VmHWM_kB=91960 wall_s=.120341667 stderr=d3.420, effort: 3] Compressed to 48564 bytes (0.270 bpp). 1600 x 900,  14.811 MP/s [14.81, 14.81], , 1 reps, 0 threads. 
+rgb_vardct_e5_d2.6 guard=256000 rc=0 VmPeak_kB=126804 VmHWM_kB=101064 wall_s=.815176917 stderr=T, d2.600, effort: 5] Compressed to 68481 bytes (0.380 bpp). 1600 x 900,  1.802 MP/s [1.80, 1.80], , 1 reps, 0 threads. 
+guard_teeth_80MB guard=80000 rc=1 VmPeak_kB=78324 VmHWM_kB=50952 wall_s=.056136792 stderr=odes, aux_out) ./lib/jxl/encode.cc:998: Failed to encode frame JxlEncoderProcessOutput failed. EncodeImageJXL() failed. 
+guard_teeth_110MB guard=110000 rc=1 VmPeak_kB=90912 VmHWM_kB=80836 wall_s=.723468334 stderr=odes, aux_out) ./lib/jxl/encode.cc:998: Failed to encode frame JxlEncoderProcessOutput failed. EncodeImageJXL() failed. 
+guard_150MB guard=150000 rc=0 VmPeak_kB=128296 VmHWM_kB=100660 wall_s=.788722292 stderr=T, d3.420, effort: 5] Compressed to 52907 bytes (0.294 bpp). 1600 x 900,  1.877 MP/s [1.88, 1.88], , 1 reps, 0 threads. 

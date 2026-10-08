@@ -1,0 +1,13 @@
+JPEG XL encoder v0.11.2 [NEON,NEON_WITHOUT_AES]
+Encoding [VarDCT, d3.420, effort: 5]
+./lib/jxl/memory_manager_internal.cc:103: JXL_FAILURE: Allocation failed
+./lib/jxl/enc_group.cc:399: JXL_RETURN_IF_ERROR code=1: assign_or_return_temporary_variable399.status()
+./lib/jxl/enc_cache.cc:97: JXL_RETURN_IF_ERROR code=1: ComputeCoefficients(group_idx, enc_state, opsin, rect, &dc)
+./lib/jxl/base/data_parallel.h:74: JXL_FAILURE: [Compute coeffs] failed
+./lib/jxl/enc_cache.cc:101: JXL_RETURN_IF_ERROR code=1: RunOnPool(pool, 0, shared.frame_dim.num_groups, ThreadPool::NoInit, process_group, "Compute coeffs")
+./lib/jxl/enc_frame.cc:1082: JXL_RETURN_IF_ERROR code=1: InitializePassesEncoder( frame_header, *opsin, rect, cms, pool, enc_state, enc_modular, aux_out)
+./lib/jxl/enc_frame.cc:1595: JXL_RETURN_IF_ERROR code=1: ComputeVarDCTEncodingData( frame_header, linear, &color, group_rect, cms, pool, &enc_modular, &enc_state, aux_out)
+./lib/jxl/enc_frame.cc:2122: JXL_RETURN_IF_ERROR code=1: ComputeEncodingData( cparams, frame_info, metadata, frame_data, jpeg_data.get(), 0, 0, frame_data.xsize, frame_data.ysize, cms, pool, frame_header, enc_modular, enc_state, &group_codes, aux_out)
+./lib/jxl/encode.cc:998: Failed to encode frame
+JxlEncoderProcessOutput failed.
+EncodeImageJXL() failed.

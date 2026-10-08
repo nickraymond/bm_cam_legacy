@@ -6,32 +6,32 @@ SETCLOCK sudo -n date -u -s 2026-09-24 15:00:00
 W sub spotter/utc-time
 RX utc 2026-09-24T15:00:00+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg
-W tx.02 <WS v=1 a=idle cfg=49609dea up=300 tz=America/New_York lt=1105 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=a9aa1ae7 up=300 tz=America/New_York lt=1105 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 W sub spotter/utc-time
 RX utc 2026-09-24T15:10:00+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:10:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:10:00Z_image_native_full.jpg
-W tx.02 <WS v=1 a=idle cfg=49609dea up=600 tz=America/New_York lt=1110 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=a9aa1ae7 up=600 tz=America/New_York lt=1110 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 RX cmd {"id":731,"c":"set","kv":{"uplink.msg_interval_s":1.5}}
-W printf [bmcam-golden] OK id=731 uplink.msg_interval_s: 1.3 -> 1.5 (next action) cfg=ad5d3aac
+W printf [bmcam-golden] OK id=731 uplink.msg_interval_s: 1.3 -> 1.5 (next action) cfg=4bc749e5
 RX cmd {"id":732,"c":"trg","v":2}
-W printf [bmcam-golden] OK id=732 trg 2 armed: capture + output per mode (next decision point) cfg=ad5d3aac
+W printf [bmcam-golden] OK id=732 trg 2 armed: capture + output per mode (next decision point) cfg=4bc749e5
 W sub spotter/utc-time
 RX utc 2026-09-24T15:15:00+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:15:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:15:00Z_image_native_full.jpg
-W tx.02 <WS v=1 a=idle cfg=ad5d3aac up=900 tz=America/New_York lt=1115 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=4bc749e5 up=900 tz=America/New_York lt=1115 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 RX cmd {"id":733,"c":"trg","v":1}
-W printf [bmcam-golden] OK id=733 trg 1 armed: capture, save only (next decision point) cfg=ad5d3aac
+W printf [bmcam-golden] OK id=733 trg 1 armed: capture, save only (next decision point) cfg=4bc749e5
 W sub spotter/utc-time
 RX utc 2026-09-24T15:16:40+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:16:40Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:16:40Z_image_native_full.jpg
 W sub spotter/utc-time
 RX utc 2026-09-24T15:20:00.200000+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:20:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:20:00Z_image_native_full.jpg
-W tx.02 <WS v=1 a=idle cfg=ad5d3aac up=1200 tz=America/New_York lt=1120 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=ad5d3aac up=1500 tz=America/New_York lt=1125 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=4bc749e5 up=1200 tz=America/New_York lt=1120 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=4bc749e5 up=1500 tz=America/New_York lt=1125 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 W sub spotter/utc-time
 RX utc 2026-09-24T15:30:00.400000+00:00
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:30:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:30:00Z_image_native_full.jpg
-W tx.02 <WS v=1 a=idle cfg=ad5d3aac up=1800 tz=America/New_York lt=1130 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=4bc749e5 up=1800 tz=America/New_York lt=1130 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 NOTE SIGTERM to the runtime
 CLOSE port=/dev/ttyAMA0

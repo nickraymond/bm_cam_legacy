@@ -7,8 +7,8 @@ Input:  stdin = hil_con_decode.py output (CELL lines carry the cellular payloads
         --sent the unit's sent record (pulled app/sent/<stem>.sent.json) for the sha256.
 Output: --out <path> the reassembled payload; prints START fields, chunks seen / expected,
         missing chunk indices, sha256, whether it matches the sent record, and for an nrjxl
-        the NR header check (magic, method 14, flags 0x04, 4 plane lengths summing to the
-        blob). Exit 0 only when complete AND (no --sent, or sha256 matches).
+        the NR header check (magic; v1 = method 14, flags 0x04, 4 plane lengths; v2 / B3a =
+        method 20, flags 0x06, 1 RGB payload, >= 27 params; lengths summing to the blob). Exit 0 only when complete AND (no --sent, or sha256 matches).
 Example:
   hil/tools/hil_console.sh SPOT-33507C - 0 600 | python3 hil/tools/hil_con_decode.py \\
       | hil/tools/hil_s28_reassemble.py --sent pulled/R1/sent.json --out analysis/r1.nrjxl
@@ -52,7 +52,12 @@ def nr_check(blob):
     for _ in range(n_len):
         v, pos = uvarint(blob, pos)
         lens.append(v)
-    ok = blob[2] == 14 and blob[3] == 4 and n_len == 4 and pos + sum(lens) == len(blob)
+    # v1 (CONTAINER.md §1): method 14, flags 0x04, 4 planes; v2 (DESIGN_B3a.md §2): method 20,
+    # flags 0x06, 1 RGB payload, >= 27 params, b 12
+    shapes = {14: (0x04, 4, 24), 20: (0x06, 1, 27)}
+    want = shapes.get(blob[2])
+    ok = (want is not None and blob[3] == want[0] and n_len == want[1] and vals[5] >= want[2]
+          and blob[5] == 12 and pos + sum(lens) == len(blob))
     return (f"NR method={blob[2]} flags=0x{blob[3]:02x} w={vals[0]} h={vals[1]} "
             f"black={vals[2]} white={vals[3]} params={vals[5]} planes={lens} -> "
             + ("OK" if ok else "BAD SHAPE"))

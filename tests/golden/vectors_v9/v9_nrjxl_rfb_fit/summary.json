@@ -31,6 +31,7 @@
       1.6
      ],
      "distance": 0.1,
+     "effort": 5,
      "message_count": 1068,
      "over_cap": true,
      "peak_rss_kb": 31000,
@@ -96,12 +97,12 @@
    "sha256": "dc98097edc93bbc5"
   },
   "camera_config.lkg.json": {
-   "bytes": 3464,
+   "bytes": 3525,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2639,
-   "sha256": "36a28de887140956"
+   "bytes": 2683,
+   "sha256": "fedc8f16b28a7fe1"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,

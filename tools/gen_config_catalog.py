@@ -73,7 +73,7 @@ CONTROL_KEYS = (
     "still.budget_min",
     # Sprint28 (SPEC r4 §3.7): control, so the bench ladder can force fallbacks and restore
     "still.format", "still.raw.distances", "still.raw.encode_max_s", "still.raw.keep_crop",
-    "still.raw.target_fill", "still.raw.d_max",
+    "still.raw.target_fill", "still.raw.d_max", "still.raw.layout", "still.raw.rgb_encode_max_s",
     "video.record.framing", "video.record.crop", "video.record.output", "video.record.sensor_mode",
     "video.record.fps", "video.record.bitrate_mbps", "video.record.encoder.profile",
     "video.record.encoder.level", "video.record.encoder.intra",
@@ -161,7 +161,7 @@ UNITS = {
     "still.crop": "native px [x, y, w, h]", "still.output_width": "px",
     "still.quality_ladder": "JPEG q, best first", "still.save.quality": "JPEG q",
     "still.message_cap": "messages", "still.budget_min": "min",
-    "still.raw.distances": "JPEG XL distance, best first", "still.raw.encode_max_s": "s",
+    "still.raw.distances": "JPEG XL distance, best first", "still.raw.encode_max_s": "s", "still.raw.rgb_encode_max_s": "s",
     "still.raw.target_fill": "share of the wake's message room (0 = fixed distances)",
     "still.raw.d_max": "JPEG XL distance (higher = worse)",
     "video.record.crop": "native px [x, y, w, h]", "video.record.output": "px WxH",
@@ -348,7 +348,9 @@ def _geometry_vectors():
 REFRESH_MAX_PARTS = 2
 REFRESH_GROUPS = ("mode", "schedule", "time", "power", "camera.backend", "camera.native",
                   "camera.controls_enabled", "camera.focus", "camera.white_balance",
-                  "camera.exposure", "camera.image_processing", "still", "video.record",
+                  "camera.exposure", "camera.image_processing", "still.raw",
+                  "still.crop", "still.output_width", "still.quality_ladder", "still.save",
+                  "still.message_cap", "still.budget_min", "still.format", "video.record",
                   "video.send", "video.logger", "video.ui", "storage", "uplink.uart",
                   "uplink.network_type", "uplink.chunk_chars", "uplink.msg_interval_s",
                   "uplink.lane", "uplink.media_key", "commands", "network")
