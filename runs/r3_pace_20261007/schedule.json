@@ -116,7 +116,12 @@
    "line": "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.5"
   }
  ],
- "stopped": null,
+ "stopped": {
+  "at": "2026-10-08T02:2xZ",
+  "by": "EM per Nick's rule ('switch unless the difference is meaningful')",
+  "verdict": "1.0 s final; no meaningful difference at A5/B6 (medians 6.55 vs 6.01 %, one-sided MW p = 0.33); 1.5 s bursts crossed the :05 HDR in 4/6",
+  "unit_state": "bmcam003 base YAML msg_interval_s 1.0 (written at the 02Z switch for 03Z)"
+ },
  "next": {
   "wake_utc_hour": 3,
   "arm": "A",

@@ -1,5 +1,5 @@
 # R3-PACE — RESULTS (bmcam003 / SPOT-33507C)
-Gate: `hil/gates/R3_PACE.md`. Arms A = 1.0 s, B = 1.3 s; delay 0; reef config; self_heal OFF; no commands.
+Gate: `hil/gates/R3_PACE.md`. Arms A = 1.0 s, B = 1.5 s (header said 1.3 until 10/8; B was 1.5 throughout); delay 0; reef config; self_heal OFF; no commands.
 
 | wake (Z) | PDT | arm (delay_s) | msgs | loss % | gaps | max gap | queue_full | stalls n/longest/rejects | HDR crossed → HDR/other | START | END | wake→halt | clean | flag |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -14,3 +14,20 @@ Gate: `hil/gates/R3_PACE.md`. Arms A = 1.0 s, B = 1.3 s; delay 0; reef config; s
 | 00:00 (10/8) | 17:00 | A (1.0; pacing line delay_s=1.0 via the driver; 189 msgs / 193.6 s = 1.02 s) | 189 | **6.35** (12/189) | 33×1, 133×10, 153×1 | 10 | 12 (00:01:17.1–00:03:19.4) | 13 / 49.5 s / 12 of 12 | none crossed → HDR 0 / other 12 | 00:00:40 | 00:03:54 | 396 s | no | – |
 | 01:00 (10/8) | 18:00 | B (1.5; pacing line delay_s=1.5; 189 msgs / 288.6 s = 1.53 s) | 189 | **3.70** (7/189) | 168×7 | 7 | 8 (01:04:58.5–01:05:07.6) | 3 / 42.7 s / 8 of 8 | none crossed (END 01:05:28; no :05 HDR logged this hour) → HDR 0 / other 8 | 01:00:39 | 01:05:28 | 495 s | no | – |
 | 02:00 (10/8) | 19:00 | B (1.5; pacing line delay_s=1.5; 180 msgs / 275.0 s = 1.53 s) | 180 | **6.11** (11/180) | 77×7, 174×4 | 7 | 11 (02:02:39.2–02:05:11.2) | 5 / 45.2 s / 11 of 11 | crossed 02:05:02 → HDR 4 / other 7 | 02:00:38 | 02:05:13 | 475 s | no | **crossed HDR** |
+
+## VERDICT (2026-10-08 ~02:25Z / 7:25 PM PDT): STOPPED at the interim, **1.0 s final**
+
+The EM stopped the run per Nick's rule ("switch unless the difference is meaningful").
+
+- Data at A5/B6:
+  - median first-send loss: A 6.55 % vs B 6.01 % (B −0.54 pp);
+  - mean: 8.73 % vs 8.26 %;
+  - exact one-sided Mann-Whitney p = 0.33 (U 18/30).
+- No meaningful difference. The pre-registered STOP rule (B median ≥ A median) was technically not met; the EM/Nick
+  decided on effect size.
+- 1.5 s bursts run ~275–290 s and crossed the :05 HDR in 4 of 6 B wakes (17Z, 18Z, 21Z, 02Z).
+- bmcam003 stays on 1.0 s (base YAML `uplink.msg_interval_s: 1.0`, written at the 02Z switch).
+- Switch driver and scoring stopped at ~02:25Z. 03Z (8 PM) was not scored.
+- Still pending from TE1's restore list:
+  - self_heal is still OFF for SPOT-33507C. REEF-RC turns it ON (the EM flips it at REEF-RC wake 1).
+  - The R2 single-file patch stays until the REEF-RC deploy replaces the runtime.
