@@ -29,3 +29,5 @@ up=52s
 halt-issued
 2026-10-08T20:02:59Z [deploy-rc2 bmcam003] bmcam003 dark (FAILED)
 2026-10-08T20:03:31Z [TE2] RC2 deploy 20Z: rc_field_update rc=0 (print-config parity OK 14 lines, validation PASS) but runtime sha = 9ec4cb7 (development tip) != 786b100 -> tool flagged 'sha mismatch', re-armed from ~/hil_backup/20261008T200054Z/crontab_ARMED.txt, POST NOT run, dark 20:02:59Z. 9ec4cb7 = 786b100 + #145 (docs-only skill); git diff 786b100 9ec4cb7 -- BM_Devel_Pi tools = empty -> runtime identical. POST (nrjxl + rgb + BUILD_RECORD) -> 21Z window; JXL-RC wake 1 = 22Z.
+2026-10-08T20:03:58Z [TE2] EM: RC2 sha recorded = 9ec4cb7 (runtime == 786b100; the EM holds development merges while a TE deploy is armed). EM plans a low-gain exposure command (camera.exposure.profile low_gain, max_shutter_us 60000, max_gain 1.0) via the backend.
+2026-10-08T20:04:44Z [TE2] EM: low-gain = COMMAND UNDER TEST (overlay), sent 21:50Z -> console 22:10Z -> applied at the 23Z boot; wake 1 (22Z) = nrjxl+rgb+auto. Into the flashed BASE only if tonight is clean (Nick decides Fri AM). Gate card hil/gates/JXL_RC.md written before wake 1.
