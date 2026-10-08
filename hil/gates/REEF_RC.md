@@ -58,12 +58,16 @@ other); heal chunks sent + rsd served; command landing time vs the report minute
   - 0 SSH writes and 0 hard cuts (bus-off with the Pi still running) during wakes 1–12.
 - **STOP:** answered at 12 wakes; any command lost twice, or SSH needed → stop and report.
 
-## Open questions for the EM (before the start)
+## EM answers (2026-10-07 ~5:15 PM PDT; Q1/Q3 from Nick)
 
-1. The bmcam001 profile (`device_profiles/bmcam001/camera_schedule.yaml`) is the July legacy-format file:
-   `time_source: rtc`, `America/New_York`, `enforce_time_window` 10:00–15:00. Its pjpg/crop/cap/384/0x02/1.0 values match the
-   reef config above. Does the NOAA unit get that transmit window and time source? This card runs every hour on the bench's
-   spotter_utc and NO window. If the NOAA build has a window, its provisioning must set it and this card does not test it.
-2. Command key and value pair per send (e.g. `image_processing.contrast 1.0 → 1.1 → 1.0`): EM to pick, and to confirm the
-   key is in the current registry.
-3. Confirm self_heal 24/day is the NOAA production setting (vs R1's 48/day phase).
+1. Test AROUND THE CLOCK: every hourly wake, no transmit window. The window/time-source choice for the shipped unit is
+   set at provisioning. BUILD_RECORD.md notes it as "not tested by REEF-RC".
+2. Command key `camera.image_processing.contrast`, 1.0 → 1.1 → 1.0 alternating, one `set` every ~2 h (backend product
+   path). If contrast is not in the control tier of the live catalog, use the closest image_processing key that is.
+   **TE note:** the unit registry has the key (FLOAT 0.5–2.0, nullable). It reaches rpicam only while
+   `camera.controls_enabled` AND `camera.image_processing.enabled` are true (config_registry.py, rc_capture.py:486).
+   The reef config has image_processing disabled, so with this key "in effect" = the applied config value
+   (print-config / config hash in the cycle log), not a change in the image. Raised with the EM.
+3. self_heal ON, 24/day. The EM flips the backend for SPOT-33507C when the TE reports wake 1.
+
+Start: when R3-PACE stops after the 02Z (7 PM) interim. The interim verdict goes to the EM first.
