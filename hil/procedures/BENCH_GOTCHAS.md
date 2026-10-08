@@ -61,6 +61,11 @@ it to a new path.
     Safe mode must halt in < 60 s (e.g. `sleep 15`), or the Pi must stay dark through the sync. Watchers must match
     `Reset Reason:` too, not only the receipt line.
 
+14. **The Mac idle-sleeps on battery and freezes every timed job** (2026-10-07 18:59→20:34 PDT: the 03Z restore,
+    deploy and inspection never ran, and they were killed at their time limit with no output). Before arming any
+    window job, hold `nohup caffeinate -i -t 36000 >/dev/null 2>&1 </dev/null &` and check it with `pmset -g assertions`.
+    A closed lid still sleeps. After a gap, check `pmset -g log | grep -E ' (Sleep|Wake) '`.
+
 ## Rules that follow
 
 - Bench script = dry-run mode first, with the exact production arguments, then the real run.
