@@ -22,3 +22,4 @@ up=35s
 halt-issued
 2026-10-08T01:03:32Z [deploy-prune143 bmcam004] bmcam004 dark (FAILED)
 2026-10-08T01:05:11Z [TE2] DEPLOY 01Z FAILED SAFE (RESULT=FAILED, sha still 104ee3c, re-armed from ~/hil_backup/20261008T010039Z/crontab_ARMED.txt, halted 01:03:32Z). print-config parity old-vs-staged OK (27 lines). FAIL = deploy_rc_runtime.sh v1-vs-v2 config parity (no override flag): transmit_phase differs, because the lane (hil_lane_block.sh, 10/7 00:00Z) is only in camera_config.yaml (v2), not in camera_schedule.yaml (v1). Not #143. Proposed to the EM: lane OFF at 02Z, deploy 03Z, counted 04/05/06Z; halt baseline = 10/6 19-23Z wakes (104ee3c + rgb, lane off).
+2026-10-08T01:05:47Z [TE2] halt baseline candidates (104ee3c + rgb, lane off, bridge utc): 10/6 19Z 501 s, 20Z 502, 21Z 502, 22Z 502, 23Z 503 (Pi off at :08:20 every time = 480 s budget-bound). Last 3 = 502/502/503 -> baseline 502 s, band 452-552 s. Applies if the EM OKs lane off.
