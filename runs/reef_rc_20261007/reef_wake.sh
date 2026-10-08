@@ -12,6 +12,7 @@ end=$(( $(date +%s) + 540 )); ok=0
 while [ "$(date +%s)" -lt "$end" ]; do
   if ssh "${O[@]}" pi@bmcam003 'cd /home/pi/BM_Devel_Pi; f=$(ls -t cron_logs/rc_cycle_*.log | head -1); echo "LOG $f"; head -c 40 software_sha.txt; echo; cat "$f"' </dev/null > $R/pulled/.cyc 2>/dev/null && [ -s $R/pulled/.cyc ]; then
     mv $R/pulled/.cyc $R/pulled/cycle_${HH}Z.log; ok=$((ok+1))
+    mkdir -p $R/sent_lists; ssh "${O[@]}" pi@bmcam003 'cd /home/pi/BM_Devel_Pi && python3 -' < /private/tmp/claude-501/-Users-nickbuemond-Documents-GitHub-bm-cam-legacy--claude-worktrees-sprint26-s3a-runtime-parity-092958/3cd7e446-c576-4dd7-8494-833abcb29a17/scratchpad/sent_list.py > $R/sent_lists/.tmp 2>/dev/null && [ -s $R/sent_lists/.tmp ] && mv $R/sent_lists/.tmp $R/sent_lists/${HH}Z_end.tsv
     [ -f $R/pulled/build_camera_schedule_v1.yaml ] || ssh "${O[@]}" pi@bmcam003 'cd /home/pi/BM_Devel_Pi; sha256sum camera_schedule.yaml; cat camera_schedule.yaml' </dev/null > $R/pulled/build_camera_schedule_v1.yaml 2>/dev/null
   fi
   sleep 15
