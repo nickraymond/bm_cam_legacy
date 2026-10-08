@@ -1,0 +1,21 @@
+== fs created (tune2fs, read-only)
+Filesystem created:       Thu Jun 18 00:26:23 2026
+Last mount time:          Thu Oct  8 07:08:24 2026
+Mount count:              557
+Maximum mount count:      -1
+== birth times
+2026-06-18 00:26:23.000000000 +0000 | 2026-10-08 08:01:36.442682259 +0000 | /
+2026-06-18 00:26:23.393411057 +0000 | 2026-10-08 04:01:46.777694863 +0000 | /home/pi
+2026-08-02 05:05:31.406738474 +0000 | 2026-10-08 08:01:09.140436869 +0000 | /home/pi/BM_Devel_Pi
+2026-09-24 02:59:13.977766965 +0000 | 2026-10-08 08:01:09.052436869 +0000 | /home/pi/BM_Devel_Pi/sent
+2026-08-02 05:02:33.930807300 +0000 | 2026-10-05 05:18:59.836089761 +0000 | /home/pi/repos/bm_cam_legacy
+2026-06-18 00:26:23.378410993 +0000 | 2026-06-18 00:27:20.621609995 +0000 | /etc/machine-id
+2026-06-18 00:26:23.378410993 +0000 | 2026-06-18 00:27:35.620983412 +0000 | /etc/hostname
+== oldest sent files by mtime
+total 16528
+-rw-rw-r-- 1 pi pi 35422 2026-09-24 08:10:56.222361336 +0000 2026-09-24T08-10-34Z_video_5s.sent
+-rw-rw-r-- 1 pi pi   319 2026-09-24 08:10:56.233060711 +0000 2026-09-24T08-10-34Z_video_5s.sent.json
+-rw-rw-r-- 1 pi pi 35691 2026-09-24 08:25:56.132469036 +0000 2026-09-24T08-25-34Z_video_5s.sent
+== pi image
+Raspberry Pi reference 2026-06-18
+Generated using pi-gen, https://github.com/RPi-Distro/pi-gen, ca8aeed0ae300c2a89f55ce9617d5f96a27e99e5, stage2
