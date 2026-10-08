@@ -32,9 +32,9 @@
   "B"
  ],
  "b_value": "1.5",
- "pointer": 8,
+ "pointer": 9,
  "counts": {
-  "A": 4,
+  "A": 5,
   "B": 4
  },
  "history": [
@@ -93,14 +93,21 @@
    "arm": "A",
    "delay_s": 1.0,
    "line": "(recorded by hand 23:10Z by TE2: session crons did not fire; YAML msg_interval_s 1.0 read back live 22:02:32Z; Pi halted when checked; confirm 1.0 s spacing on the console at scoring)"
+  },
+  {
+   "wake_utc_hour": 0,
+   "day": "2026-10-08",
+   "arm": "A",
+   "delay_s": 1.0,
+   "line": "[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0"
   }
  ],
  "stopped": null,
  "next": {
-  "wake_utc_hour": 0,
-  "arm": "A",
-  "written": "msg_interval_s: 1.0  # R3-PACE arm A (unchanged since the 22Z write)",
+  "wake_utc_hour": 1,
+  "arm": "B",
+  "written": "msg_interval_s: 1.5  # R3-PACE arm B",
   "rc": 0,
-  "set_at_wake": 23
+  "set_at_wake": 0
  }
 }

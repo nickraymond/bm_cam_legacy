@@ -20,3 +20,6 @@
 2026-10-07T22:25:05Z WAKE 22Z B (1.5 s): 169 msgs, loss 4.14 % (7/169), one 7-gap at 22:02:51 (non-HDR stall 37.6 s), END 22:05:00 (2 s before the :05 HDR, not crossed); halt 466 s. Counts A3 B4; medians A 11.35 / B 9.34.
 2026-10-07T23:08:57Z [TE2] 23Z switch launchers did not fire (session crons never fired). 23Z ran A (1.0 read back 22:02Z); recorded by hand in schedule.json (pointer 8, A4 B4). 00Z = A per ABBA, YAML already 1.0 -> no write. Switches move to a detached driver.
 2026-10-07T23:16:24Z WAKE 23Z A (1.0 s, spacing 1.03 s from the burst): 179 msgs, loss 0.56 % (1/179), one 1-gap; clean; halt 386 s. Counts A4 B4; medians A 8.95 / B 9.34. Interim at 6/arm after 02Z.
+2026-10-08T00:01:36Z /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint26-s3a-runtime-parity-092958/hil/tools/hil_r3_switch.py:57: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  rec = {"wake_utc_hour": a.wake, "day": __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d"),
+[r3switch] wake 00Z arm A (delay_s 1.0) | seq 9/30 counts={'A': 5, 'B': 4} | next 01Z = B (yaml: 'msg_interval_s: 1.5  # R3-PACE arm B', rc 0) (rc 0)
