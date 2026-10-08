@@ -3,3 +3,29 @@
 2026-10-08T18:22:59Z [TE2] Fri pre-check (b) answered OFFLINE: development 786b100 runtime (scratch worktree) on bmcam003's v1 camera_schedule.yaml (REEF-RC record) + its v2 base with still.format nrjxl AND still.raw.layout rgb: strict load OK (nrjxl rgb, exposure.profile auto, dropped []), deploy_rc_runtime's json parity (tools/config_parity.py) = 'config json OK (13 loader outputs equal)'. Neither key is in the 13 parity outputs -> nrjxl/rgb in the base will NOT trip the guard. (Hardware confirmation at the next real deploy.)
 2026-10-08T18:22:59Z [TE2] armed: install_cjxl_19z.sh (19:01:30Z) and deploy_rc2_20z.sh (20Z: development 786b100, ACCEPT_DIFF=1, POST post_20z.sh = still.format nrjxl base edit + hil_b3a_layout.sh rgb + BUILD_RECORD inputs). Format-insert + strict load rehearsed offline on the REEF-RC base YAML copy with the 786b100 loader.
 2026-10-08T19:02:01Z [TE2] libjxl-tools install on bmcam003: rc=0 end 19:02:00 cjxl: /usr/bin/cjxl cjxl v0.11.2 [NEON_WITHOUT_AES] dpkg audit clean  RESTORE: ssh pi@bmcam003 'sudo apt-get remove -y libjxl-tools'
+2026-10-08T19:53:15Z [TE2] deploy_rc2_20z.sh (armed 18:22Z) was killed by the 90-min background limit at 19:53Z while still WAITING (nothing ran on bmcam003). Relaunched 19:53Z for the 20Z window.
+2026-10-08T19:53:15Z [deploy-rc2 bmcam003] ref=development want=786b100 profile=bmcam003/live_20260925 window=2026-10-08T20:00:00Z accept_diff=1; waiting
+up=52s
+1260 bash -c mkdir -p ~/hil_backup/20261008T200054Z && crontab -l > ~/hil_backup/20261008T200054Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_rc2 \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_FOR_rc2 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T20:00:57Z [deploy-rc2 bmcam003] backup+disarm+stop TS=20261008T200054Z; RESTORE crontab: ssh pi@bmcam003 'crontab ~/hil_backup/20261008T200054Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-08T20:01:07Z [deploy-rc2 bmcam003] snapshot before_rc2
+2026-10-08T20:02:28Z [deploy-rc2 bmcam003] rc_field_update rc=0 (log runs/jxl_rc_20261008/pulled/bmcam003_field_update_rc2_20261008T200054Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+1766:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+1778:[PARITY] print-config text OK (14 lines)
+1779:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+1850:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+1872:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+1876:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+1879:[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.0 profile=1.3   <-- DIFFERS
+1883:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+1885:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+1905:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-08T20:02:29Z [deploy-rc2 bmcam003] runtime sha now: 9ec4cb7ae7c1
+2026-10-08T20:02:29Z [deploy-rc2 bmcam003] DEPLOY FAILED or sha mismatch: re-arming the ARMED backup anyway (see runs/jxl_rc_20261008/pulled/bmcam003_field_update_rc2_20261008T200054Z.log)
+halt-issued
+2026-10-08T20:02:59Z [deploy-rc2 bmcam003] bmcam003 dark (FAILED)
+2026-10-08T20:03:31Z [TE2] RC2 deploy 20Z: rc_field_update rc=0 (print-config parity OK 14 lines, validation PASS) but runtime sha = 9ec4cb7 (development tip) != 786b100 -> tool flagged 'sha mismatch', re-armed from ~/hil_backup/20261008T200054Z/crontab_ARMED.txt, POST NOT run, dark 20:02:59Z. 9ec4cb7 = 786b100 + #145 (docs-only skill); git diff 786b100 9ec4cb7 -- BM_Devel_Pi tools = empty -> runtime identical. POST (nrjxl + rgb + BUILD_RECORD) -> 21Z window; JXL-RC wake 1 = 22Z.

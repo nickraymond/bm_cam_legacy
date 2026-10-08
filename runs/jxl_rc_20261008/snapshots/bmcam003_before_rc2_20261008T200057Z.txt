@@ -1,0 +1,53 @@
+== bmcam003 2026-10-08T20:00:58Z up 52.91s
+-- /dev/shm
+total 8
+drwxrwxrwt  3 root root  100 Oct  8 20:00 .
+drwxr-xr-x 16 root root 4040 Oct  8 19:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct  8 19:08 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  8 20:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  8 20:00 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  8 19:08 .
+drwxrwxrwt 3 root root  100 Oct  8 20:00 ..
+-rw-r--r-- 1 pi   pi   2318 Oct  8 19:08 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha c8bea4de50a8
+KEY repo fix/sent-prune-spotter-time c8bea4de Sent-record aging by key time, never the Pi clock (latent defect)
+KEY cfg_hash hash=28527962
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=28527962 hv=1 registry=v8 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.pPRLKb/camera_schedule.yaml (level=v2)
+file c626bf014654e7bc camera_config.yaml 143L
+file 6f419ebb131d1eba camera_schedule.yaml 214L
+file 391933a5aad77585 bm_command_state_v2.json 0L
+file c1352a766e0dad1b config_journal.jsonl 91L
+state overlay {"camera.image_processing.contrast": 1.0}
+state guarded {}
+state boot 173 hw {"remote": 1000163, "service": 100000021}
+-- crontab
+# DISARMED_FOR_rc2 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:34 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+3 1000 pi - 1206 manager - no -
+6 1000 pi - 1278 user    - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     240204 kB
+CmaTotal:         262144 kB
+CmaFree:           90896 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261008T190832Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[HEAL] pending after this wake: none
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-08T20:00:55+00:00
+============================================================
