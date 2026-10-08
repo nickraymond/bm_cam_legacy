@@ -36,7 +36,7 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 8          # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 9         # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
@@ -44,7 +44,9 @@ REGISTRY_VERSION = 8          # bump when a key is added/removed/retyped (2: com
                               # 6: camera.image_processing.* measured ranges / enums, Sprint27;
                               # 7: video.record.encoder.denoise/sharpness retired (RETIRED), F-G3-4;
                               # 8: still.format + still.raw.* (nrjxl RAW stills; incl. the
-                              #    byte-target search keys target_fill / d_max), Sprint28 S1)
+                              #    byte-target search keys target_fill / d_max), Sprint28 S1;
+                              # 9: camera.exposure.profile / max_shutter_us / max_gain
+                              #    (low-gain stills), Sprint28)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -230,6 +232,25 @@ KEYS = (
         range=(1, 120_000_000), v1_sources=(_V1_EXP + ".shutter_us",), wire_visible=True),
     Key("camera.exposure.analogue_gain", FLOAT, None, "Fixed analogue gain.", nullable=True,
         range=(0.0, 64.0), v1_sources=(_V1_EXP + ".analogue_gain",), wire_visible=True),
+    # Sprint28 low-gain exposure (Nick 2026-10-05, RELEASE_PLAN §2c, via the EM): stills only,
+    # rc_exposure_profile.py. NOT gated by camera.controls_enabled / camera.exposure.enabled and
+    # not touched by the v8 `exp` command: it renders to its own `exposure_profile:` island.
+    Key("camera.exposure.profile", ENUM, "auto", "Stills: auto = today's auto exposure; "
+        "low_gain = gain held at the sensor floor until the shutter reaches max_shutter_us, "
+        "then gain up to max_gain (less red-channel noise for colour correction).",
+        enum=("auto", "low_gain"), v1_sources=("exposure_profile.profile",),
+        presets=(("auto", "auto"), ("low gain", "low_gain"))),
+    # default 30000 (Nick 2026-10-05): the stock IMX708 AGC already holds gain 1.0 up to 30 ms,
+    # so low_gain adds no gain anywhere stock does not; it only stops the gain stages past 30 ms.
+    Key("camera.exposure.max_shutter_us", INT, 30000, "low_gain: longest shutter (us) before "
+        "gain rises (30000 = where the stock AGC starts adding gain; 66666 = the IMX708 limit).",
+        range=(100, 66666),
+        v1_sources=("exposure_profile.max_shutter_us",),
+        presets=(("1/60 s", 16667), ("30 ms (stock gain floor)", 30000), ("1/15 s", 66666))),
+    Key("camera.exposure.max_gain", FLOAT, 16.0, "low_gain: highest analogue gain once the "
+        "shutter is capped (past it the ISP adds digital gain; the RAW gets darker).",
+        range=(1.0, 16.0), v1_sources=("exposure_profile.max_gain",),
+        presets=(("1x (no gain)", 1.0), ("4x", 4.0), ("16x", 16.0))),
     Key("camera.image_processing.enabled", BOOL, False, "Pass image-processing controls.",
         v1_sources=(_V1_IP + ".enabled",)),
     # Sprint27 (Nick Q2): ranges / names MEASURED on bmcam004 (rpicam-apps v1.12.0, libcamera

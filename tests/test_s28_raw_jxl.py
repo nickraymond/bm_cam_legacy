@@ -975,7 +975,7 @@ def _still(**kv):
 
 class Config(unittest.TestCase):
     def test_registry_v8_keys(self):
-        self.assertEqual(R.REGISTRY_VERSION, 8)
+        self.assertGreaterEqual(R.REGISTRY_VERSION, 8)      # 9 = low-gain exposure keys
         self.assertEqual(R.BY_PATH["still.format"].default, "pjpg")
         self.assertEqual(R.BY_PATH["still.format"].enum, ("pjpg", "nrjxl"))
         self.assertEqual(R.BY_PATH["still.raw.distances"].type, R.DLADDER)

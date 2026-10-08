@@ -98,6 +98,11 @@ RAW_FIXTURE_DNG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(_
 FIXED_RAW_CCM = [1.6077, -0.416, -0.1918, -0.3678, 1.7546, -0.3868, 0.0051, -0.5874, 1.5823]
 
 
+# `rpicam-hello --list-cameras` on bmcam003 (IMX708 wide module; rpicam-apps 1.12).
+CAMERA_LIST = ("Available cameras\n-----------------\n0 : imx708_wide [4608x2592 10-bit RGGB] "
+               "(/base/soc/i2c0mux/i2c@1/imx708@1a)\n")
+
+
 def esc(data):
     """Bytes -> one-line readable text (printable ASCII kept, rest \\xNN)."""
     out = []
@@ -478,6 +483,10 @@ class World:
                     shutil.copyfile(RAW_FIXTURE_DNG, dng)
             self.trace.add("CAM", f"rc=0 {shown}")
             return self._result(kind, argv, 0)
+        if name == "rpicam-hello" and "--list-cameras" in core:
+            # Sprint28 low gain: the sensor model (bmcam003's module), read once and cached.
+            self.trace.add("CAMLIST", shown)
+            return self._result(kind, argv, 0, stdout=CAMERA_LIST)
         if name == "vcgencmd":
             return self._result(kind, argv, 0, stdout="temp=45.0'C\n")
         if name == "hwclock":
@@ -529,7 +538,8 @@ def install_process_fakes():
     subprocess.Popen = lambda cmd, *a, **k: WORLD.subprocess(cmd, "popen", **k)
 
     real_which = shutil.which
-    fake_bins = {"rpicam-still", "libcamera-still", "rpicam-vid", "ffmpeg", "vcgencmd",
+    fake_bins = {"rpicam-still", "libcamera-still", "rpicam-vid", "rpicam-hello", "ffmpeg",
+                 "vcgencmd",
                  "cjxl"}   # Sprint28: cjxl only via the injected raw_runner (never spawned)
     shutil.which = lambda name, *a, **k: (f"/usr/bin/{name}" if name in fake_bins
                                           else real_which(name, *a, **k))

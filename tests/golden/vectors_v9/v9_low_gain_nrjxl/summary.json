@@ -135,17 +135,25 @@
    "bytes": 6,
    "sha256": "5fa8e69e461e3634"
   },
+  "app/exposure_profile/sensor_model.txt": {
+   "bytes": 12,
+   "sha256": "06843cbf396f3caa"
+  },
+  "app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json": {
+   "bytes": 26827,
+   "sha256": "f2aa77d56605d018"
+  },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "bytes": 347,
    "sha256": "f3516aa777abc9d5"
   },
   "camera_config.lkg.json": {
-   "bytes": 3479,
+   "bytes": 3482,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2672,
-   "sha256": "3b21acab1ae26db2"
+   "bytes": 2675,
+   "sha256": "94f041edcb42d4a2"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -156,16 +164,16 @@
    "sha256": "4a6b67539f0bec6a"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2162,
-   "sha256": "1317314344adc493"
+   "bytes": 2637,
+   "sha256": "795711dd3058ed61"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.nrjxl": {
    "bytes": 54418,
    "sha256": "291259c2330b0c44"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.nrjxl.capture_metadata.json": {
-   "bytes": 3096,
-   "sha256": "3f8eb60669948ac4"
+   "bytes": 3571,
+   "sha256": "66641e2864f68c1e"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
@@ -188,8 +196,8 @@
    "sha256": "d0b65fc0f55ddbb3"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2371,
-   "sha256": "562a995e01090f23"
+   "bytes": 2451,
+   "sha256": "9374fef40f35af27"
   },
   "state/bm_command_state_v2.json": {
    "bytes": 203,
@@ -205,8 +213,8 @@
   "numpy",
   "yaml"
  ],
- "notes": "nrjxl sent: one --raw capture, the byte-target search fills 97 % of the 195-chunk room in 3 encodes (prior clamped at d 0.1, one-point correction, secant), START fmt=nrjxl cmp=1, keyed chunks of <stem>_compressed.nrjxl",
- "scenario": "v9_nrjxl",
+ "notes": "low_gain with nrjxl (the recommended pair): the --raw capture carries --tuning-file (s33333_g4); the rest is v9_nrjxl",
+ "scenario": "v9_low_gain_nrjxl",
  "sent_records": {
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
@@ -272,7 +280,9 @@
     "--autofocus-speed",
     "normal",
     "--awb",
-    "auto"
+    "auto",
+    "--tuning-file",
+    "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json"
    ],
    "camera_control_args_used": true,
    "camera_controls_fallback_used": false,
@@ -299,6 +309,8 @@
     "normal",
     "--awb",
     "auto",
+    "--tuning-file",
+    "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json",
     "--raw",
     "-o",
     "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
@@ -312,6 +324,13 @@
     96
    ],
    "enc_attempts": 1,
+   "exposure_max_gain": 4.0,
+   "exposure_max_shutter_us": 33333,
+   "exposure_profile": "low_gain",
+   "exposure_profile_applied": true,
+   "exposure_sensor_model": "imx708_wide",
+   "exposure_tuning_file": "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json",
+   "exposure_tuning_file_used": true,
    "fits": true,
    "hostname": "bmcam-golden",
    "images_dir_bytes": 123456789,
@@ -379,7 +398,9 @@
     "--autofocus-speed",
     "normal",
     "--awb",
-    "auto"
+    "auto",
+    "--tuning-file",
+    "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json"
    ],
    "camera_control_args_used": true,
    "camera_controls_fallback_used": false,
@@ -406,6 +427,8 @@
     "normal",
     "--awb",
     "auto",
+    "--tuning-file",
+    "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json",
     "--raw",
     "-o",
     "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
@@ -418,6 +441,13 @@
     160,
     96
    ],
+   "exposure_max_gain": 4.0,
+   "exposure_max_shutter_us": 33333,
+   "exposure_profile": "low_gain",
+   "exposure_profile_applied": true,
+   "exposure_sensor_model": "imx708_wide",
+   "exposure_tuning_file": "{TMP}/app/exposure_profile/tuning/imx708_wide_lowgain_s33333_g4.json",
+   "exposure_tuning_file_used": true,
    "hostname": "bmcam-golden",
    "images_dir_bytes": 123456789,
    "img_format": "nrjxl",

@@ -134,6 +134,26 @@ Use the G5 cadence and bus values with nrjxl on and the default rungs. Make the 
 the unit alone for 12 h. Evidence: `api/media_*.json`, the Spotter SD cycle logs in `pulled/`,
 and the START `rfb` count.
 
+### R5: low-gain exposure (one bench unit, console lane; after R1)
+
+`camera.exposure.profile low_gain` (registry v9): the still capture gets `--tuning-file`, a
+copy of the unit's own `/usr/share/libcamera/ipa/rpi/vc4/<model>.json` whose AGC `normal`
+mode is `shutter [100, max_shutter_us]`, `gain [1.0, max_gain]` (BM_Devel_Pi/rc_exposure_profile.py).
+What the desk CANNOT prove: that libcamera's AGC honours the patched mode. R5 is that proof.
+Read ExposureTime / AnalogueGain back from each still's `--metadata` sidecar (the
+`<stem>_native_full.metadata.json` next to the image, or the capture sidecar's fields).
+
+| Step | Command | Expect |
+|---|---|---|
+| R5.0 | none: one auto still of a DIM scene (indoor, lights low, or the lens shaded) | baseline: record ExposureTime / AnalogueGain (stock: gain 1.0 until 30 ms, then gain up to 2 by 60 ms, ...) |
+| R5.1 | `{"set":{"camera.exposure.profile":"low_gain"}}`, same dim scene | cycle log has `[EXP] low_gain: shutter up to 30000 us ...` and libcamera's `tuning file <app>/exposure_profile/tuning/<model>_lowgain_s30000_g16.json` (NOT the system path); the capture sidecar has `exposure_profile_applied: true`, `exposure_tuning_file_used: true`; ExposureTime ≤ 30000 and, if the scene needs more light than 30 ms at the gain floor, AnalogueGain > 1.2 |
+| R5.2 | `{"set":{"camera.exposure.max_shutter_us":66666,"camera.exposure.max_gain":1.0}}`, same scene | ExposureTime > 30000 (up to 66666) and AnalogueGain at the floor (≈ 1.12 on the IMX708) |
+| R5.3 | daylight / bright scene, profile still low_gain | ExposureTime ≪ cap and AnalogueGain at the floor: same as auto (57534 ran at gain 1.12 / 2.1 ms in daylight) |
+| R5.4 | `{"set":{"camera.exposure.profile":"low_gain","camera.controls_enabled":true,"camera.exposure.enabled":true,"camera.exposure.shutter_us":8000}}` | ack `e:xk` (config_validate `_rule_low_gain_fixed`); `get` hash unchanged |
+
+Restore: `{"reset":["camera.exposure.profile","camera.exposure.max_shutter_us","camera.exposure.max_gain"]}`.
+The generated copies stay in `<app>/exposure_profile/` (a few 27 kB files; delete freely).
+
 ## 2. Criteria
 
 | id | criterion | PASS when | evidence |
@@ -149,6 +169,9 @@ and the START `rfb` count.
 | R3.3 | refused config | ack `e:xk`; `get` hash unchanged | `commands.log` |
 | R3.5 | forced `floor` | START `fmt=pjpg rfb=floor`, and that pjpg arrives complete | `commands.log`, `console/`, `api/` |
 | R3.4 | other `rfb` codes | `cap`, `dng`, `enc`, `mem`, `err` are **N/A on hardware** (forcing them needs edits on the unit). They are covered by the golden vectors `tests/golden/vectors_v9/v9_nrjxl_rfb_*` and `tests/test_s28_raw_jxl.py` | test log |
+| R5.1 | low_gain honoured | the patched tuning file is the one libcamera loads (cycle log), and the dim-scene still has ExposureTime ≤ max_shutter_us | cycle log, `<stem>_native_full.metadata.json` |
+| R5.2 | the caps move the AGC | ExposureTime > 30000 at max_shutter_us 66666 with AnalogueGain at the floor | same |
+| R5.4 | refused config | ack `e:xk`; `get` hash unchanged | `commands.log` |
 | R4.1 | production wakes | 12/12 wakes deliver an image (nrjxl or pjpg) complete ≤ 3 h, with 0 redundant heals | `api/media_*.json` |
 | R4.2 | wake fits the window | halt uptime ≤ 570 s on 12/12 | `pulled/` cycle logs |
 | R4.3 | fallback rate | ≤ 1/12 wakes fall back | START `rfb` count |

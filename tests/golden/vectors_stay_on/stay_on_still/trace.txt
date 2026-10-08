@@ -5,9 +5,9 @@ RX utc 2026-09-24T15:00:00+00:00
 SETCLOCK sudo -n date -u -s 2026-09-24 15:00:00
 W sub spotter/utc-time
 RX utc 2026-09-24T15:00:00+00:00
-W tx.02 <WS v=1 a=cap cfg=5f0be15c up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=280b94c0 up=0 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg
-W tx.02 <START IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T15:00:00Z, length: 192, key=0dpr00, cfg=5f0be15c, fmt=pjpg, q=60, att=4, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T15:00:00Z, length: 192, key=0dpr00, cfg=280b94c0, fmt=pjpg, q=60, att=4, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
 W tx.02 <I0dpr00.0/192>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAIyA+gDASIAAhEBAxEB/8QAGgAAAwEBAQEAAAAAAAAAAAAAAAECAwQFBv/EABcBAQEBAQAAAAAAAAAAAAAAAAABAgP/2gAMAwEAAhADEAAAAeCjRMVrmJNAAAMGqJdyq7Hvk+O8M7quatZ6enj0zenj6heU1xuWG9cU9mdY\x0a
 W tx.02 <I0dpr00.1/192>u6TGejMzW+hyG2JanUBSbEUsRtNmVaapzT0kuehmOsw1M6GNEOdyAcs57TZkaxUaxZptj0ZuXF6nlWKq1smtcFq8evNWbyjTXkK35XVkbToZrWTKN8qgYiAoBD0yqXpl1Lle1SZc/bVnnbOaguRRUhoUQkWVIAMAbE0xpoQBrL7sXzdvZqXwsfpcpfnj0vP3EqLJdwq7eTrisMVnWmuXTZmdWmbyz0c63vybmkbRLlOqsgeVmiNAZMRJjWuJpZy7PPUcG0XV88ur40dpxI7zh2OshKTbTIrGqnO07defLN6Mcsa63y6rpmixKoTsvAl25dGRs6jlnoVc3VWZlntCZjjUshLq8gtTrC6b2l4ef1fPMUzeUMEAbdWM41rz5qyy\x0a
 W tx.02 <I0dpr00.2/192>Cuk56hkFlCo2yrMQFg01Gdkc3Xvjm6cvRBppxqXpOYs2vFZ10c+uQac9mnPcWZJxqFadJGNZZsK3ZfTyKXr28xy9vNGhPoYdpWG6zvljU1MNN8UU441vGM3Osw6HLS3n1mXQ1nWWEFOaVzLroOdb5C1wa9VZOXWKyRb52PHSCMt8bFTVDSL7/O1l78Hz5vRfMHXXEL6BydOT498rMsdMd5SasQFNyyry6JdTnvOunnbMM+zjuQVaiVqXSbiMxrRAI2mDdECBoBgxUOD2+PvxrznvzVU5KzUyooCOq+Ixrsy5YXpwzrWUQ6z6MqsseebM6ZUEVYhqyrrOXac3izULU9COTVrp6POzl7+bCU1nN6jQkd53Tdb5q0ZLHNCqdNhO\x0a
@@ -201,19 +201,19 @@ W tx.02 <I0dpr00.189/192>/wDk4g04hv4oz/iKmIpYfG4AFEXG4M7mSKH8yoDUAqh43PF3F1rc/J+
 W tx.02 <I0dpr00.190/192>3M4gk5qfWvj1Oqh4+HXM/wC18ErErOYKo/uU3Rtjh9T3Pv4zH3Hmszx8BZ8BaBMhWZSnfuFDJPf7iK+IE3EBwXCvEMD11KKzKIq4oDUWU4mNftFo6YaB7TTARDY+ooYB6hbR1EwAaM7YZf8AsGs73plb2PCpkrlLzGuSxtuWEpA63EWoswYh4KxtUxxxQxLLte3MbjbTl5i0tdxKXXBP1ImsncQxDoYlDVwuJ3u5+1NJjRN/uOz2QBQGRvzABAAUHETudRWCQKWJSmtpFZPcdezMBrqbIQdvxnl5mpMKmDxByI8/BO/qdTr38E4Q1P8Ac5JyT+3w8TiMdTn8Q1NE5YbJtP7Qms0TWOvgYfwmtdTj4deo6+o7Yw+Dqcw0eycT\x0a
 W tx.02 <I0dpr00.191/192>/wBi/wAzlnE5J/aaQanM4+OIxy9M0+pm+kITSENkTynM1Ibhm30T9lN3wf15h9039JyhuGvhtAK0Z8+J/9k=\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:00:00Z_image_compressed.jpg, uart_duration_sec: 250.9, sent_buffers: 192, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=550 tz=America/New_York lt=1109 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=850 tz=America/New_York lt=1114 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=550 tz=America/New_York lt=1109 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=850 tz=America/New_York lt=1114 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 RX cmd {"id":701,"c":"ping"}
-W printf [bmcam-golden] OK id=701 ping cfg=5f0be15c
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=1151 tz=America/New_York lt=1119 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=1451 tz=America/New_York lt=1124 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W printf [bmcam-golden] OK id=701 ping cfg=280b94c0
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=1151 tz=America/New_York lt=1119 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=1451 tz=America/New_York lt=1124 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 RX cmd {"id":702,"c":"trg","v":2}
-W printf [bmcam-golden] OK id=702 trg 2 armed: capture + output per mode (next decision point) cfg=5f0be15c
+W printf [bmcam-golden] OK id=702 trg 2 armed: capture + output per mode (next decision point) cfg=280b94c0
 W sub spotter/utc-time
 RX utc 2026-09-24T15:25:00.100000+00:00
-W tx.02 <WS v=1 a=cap cfg=5f0be15c up=1500 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=280b94c0 up=1500 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T15:25:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T15:25:00Z_image_native_full.jpg
-W tx.02 <START IMG> filename: 2026-09-24T15:25:00Z_image_compressed.jpg, timestamp: 2026-09-24T15:25:00Z, length: 192, key=0dps5o, cfg=5f0be15c, tg=702, r=1600x900+1504+846, m=195, fmt=pjpg, q=60, att=4, cmp=1, rk=1000x562, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T15:25:00Z_image_compressed.jpg, timestamp: 2026-09-24T15:25:00Z, length: 192, key=0dps5o, cfg=280b94c0, tg=702, r=1600x900+1504+846, m=195, fmt=pjpg, q=60, att=4, cmp=1, rk=1000x562, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, sf=20981, sp=29\x0a
 W tx.02 <I0dps5o.0/192>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAIyA+gDASIAAhEBAxEB/8QAGgAAAwEBAQEAAAAAAAAAAAAAAAECAwQFBv/EABcBAQEBAQAAAAAAAAAAAAAAAAABAgP/2gAMAwEAAhADEAAAAeCjRMVrmJNAAAMGqJdyq7Hvk+O8M7quatZ6enj0zenj6heU1xuWG9cU9mdY\x0a
 W tx.02 <I0dps5o.1/192>u6TGejMzW+hyG2JanUBSbEUsRtNmVaapzT0kuehmOsw1M6GNEOdyAcs57TZkaxUaxZptj0ZuXF6nlWKq1smtcFq8evNWbyjTXkK35XVkbToZrWTKN8qgYiAoBD0yqXpl1Lle1SZc/bVnnbOaguRRUhoUQkWVIAMAbE0xpoQBrL7sXzdvZqXwsfpcpfnj0vP3EqLJdwq7eTrisMVnWmuXTZmdWmbyz0c63vybmkbRLlOqsgeVmiNAZMRJjWuJpZy7PPUcG0XV88ur40dpxI7zh2OshKTbTIrGqnO07defLN6Mcsa63y6rpmixKoTsvAl25dGRs6jlnoVc3VWZlntCZjjUshLq8gtTrC6b2l4ef1fPMUzeUMEAbdWM41rz5qyy\x0a
 W tx.02 <I0dps5o.2/192>Cuk56hkFlCo2yrMQFg01Gdkc3Xvjm6cvRBppxqXpOYs2vFZ10c+uQac9mnPcWZJxqFadJGNZZsK3ZfTyKXr28xy9vNGhPoYdpWG6zvljU1MNN8UU441vGM3Osw6HLS3n1mXQ1nWWEFOaVzLroOdb5C1wa9VZOXWKyRb52PHSCMt8bFTVDSL7/O1l78Hz5vRfMHXXEL6BydOT498rMsdMd5SasQFNyyry6JdTnvOunnbMM+zjuQVaiVqXSbiMxrRAI2mDdECBoBgxUOD2+PvxrznvzVU5KzUyooCOq+Ixrsy5YXpwzrWUQ6z6MqsseebM6ZUEVYhqyrrOXac3izULU9COTVrp6POzl7+bCU1nN6jQkd53Tdb5q0ZLHNCqdNhO\x0a
@@ -407,17 +407,17 @@ W tx.02 <I0dps5o.189/192>/wDk4g04hv4oz/iKmIpYfG4AFEXG4M7mSKH8yoDUAqh43PF3F1rc/J+
 W tx.02 <I0dps5o.190/192>3M4gk5qfWvj1Oqh4+HXM/wC18ErErOYKo/uU3Rtjh9T3Pv4zH3Hmszx8BZ8BaBMhWZSnfuFDJPf7iK+IE3EBwXCvEMD11KKzKIq4oDUWU4mNftFo6YaB7TTARDY+ooYB6hbR1EwAaM7YZf8AsGs73plb2PCpkrlLzGuSxtuWEpA63EWoswYh4KxtUxxxQxLLte3MbjbTl5i0tdxKXXBP1ImsncQxDoYlDVwuJ3u5+1NJjRN/uOz2QBQGRvzABAAUHETudRWCQKWJSmtpFZPcdezMBrqbIQdvxnl5mpMKmDxByI8/BO/qdTr38E4Q1P8Ac5JyT+3w8TiMdTn8Q1NE5YbJtP7Qms0TWOvgYfwmtdTj4deo6+o7Yw+Dqcw0eycT\x0a
 W tx.02 <I0dps5o.191/192>/wBi/wAzlnE5J/aaQanM4+OIxy9M0+pm+kITSENkTynM1Ibhm30T9lN3wf15h9039JyhuGvhtAK0Z8+J/9k=\x0a
 W tx.02 <END IMG> filename: 2026-09-24T15:25:00Z_image_compressed.jpg, uart_duration_sec: 250.9, sent_buffers: 192, cpu_temp_c: 45.0, et_us: 12000, ag: 1.5, dg: 1, cg: 1.8:1.6, cct: 5200, lp: 1.82, afs: 0, ffom: 900, lux: 350, stemp: 41\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=2051 tz=America/New_York lt=1134 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=2351 tz=America/New_York lt=1139 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=2651 tz=America/New_York lt=1144 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=2951 tz=America/New_York lt=1149 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=3251 tz=America/New_York lt=1154 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
-W tx.02 <WS v=1 a=idle cfg=5f0be15c up=3552 tz=America/New_York lt=1159 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=2051 tz=America/New_York lt=1134 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=2351 tz=America/New_York lt=1139 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=2651 tz=America/New_York lt=1144 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=2951 tz=America/New_York lt=1149 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=3251 tz=America/New_York lt=1154 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=idle cfg=280b94c0 up=3552 tz=America/New_York lt=1159 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 W sub spotter/utc-time
 RX utc 2026-09-24T16:00:00.200000+00:00
-W tx.02 <WS v=1 a=cap cfg=5f0be15c up=3600 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
+W tx.02 <WS v=1 a=cap cfg=280b94c0 up=3600 tz=America/New_York lt=na ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden>\x0a
 CAM rc=0 /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata {TMP}/images/2026-09-24T16:00:00Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 1.82 --autofocus-range normal --autofocus-speed normal --awb auto -o {TMP}/images/2026-09-24T16:00:00Z_image_native_full.jpg
-W tx.02 <START IMG> filename: 2026-09-24T16:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T16:00:00Z, length: 192, key=0dpts0, cfg=5f0be15c, fmt=pjpg, q=60, att=4, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
+W tx.02 <START IMG> filename: 2026-09-24T16:00:00Z_image_compressed.jpg, timestamp: 2026-09-24T16:00:00Z, length: 192, key=0dpts0, cfg=280b94c0, fmt=pjpg, q=60, att=4, cmp=1, rk=1000x562, tz=America/New_York, ws=1000, we=1500, sha=golden0, hn=bmcam-golden, st=29564, su=8583, sf=20981, sp=29\x0a
 W tx.02 <I0dpts0.0/192>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wgARCAIyA+gDASIAAhEBAxEB/8QAGgAAAwEBAQEAAAAAAAAAAAAAAAECAwQFBv/EABcBAQEBAQAAAAAAAAAAAAAAAAABAgP/2gAMAwEAAhADEAAAAeCjRMVrmJNAAAMGqJdyq7Hvk+O8M7quatZ6enj0zenj6heU1xuWG9cU9mdY\x0a
 W tx.02 <I0dpts0.1/192>u6TGejMzW+hyG2JanUBSbEUsRtNmVaapzT0kuehmOsw1M6GNEOdyAcs57TZkaxUaxZptj0ZuXF6nlWKq1smtcFq8evNWbyjTXkK35XVkbToZrWTKN8qgYiAoBD0yqXpl1Lle1SZc/bVnnbOaguRRUhoUQkWVIAMAbE0xpoQBrL7sXzdvZqXwsfpcpfnj0vP3EqLJdwq7eTrisMVnWmuXTZmdWmbyz0c63vybmkbRLlOqsgeVmiNAZMRJjWuJpZy7PPUcG0XV88ur40dpxI7zh2OshKTbTIrGqnO07defLN6Mcsa63y6rpmixKoTsvAl25dGRs6jlnoVc3VWZlntCZjjUshLq8gtTrC6b2l4ef1fPMUzeUMEAbdWM41rz5qyy\x0a
 W tx.02 <I0dpts0.2/192>Cuk56hkFlCo2yrMQFg01Gdkc3Xvjm6cvRBppxqXpOYs2vFZ10c+uQac9mnPcWZJxqFadJGNZZsK3ZfTyKXr28xy9vNGhPoYdpWG6zvljU1MNN8UU441vGM3Osw6HLS3n1mXQ1nWWEFOaVzLroOdb5C1wa9VZOXWKyRb52PHSCMt8bFTVDSL7/O1l78Hz5vRfMHXXEL6BydOT498rMsdMd5SasQFNyyry6JdTnvOunnbMM+zjuQVaiVqXSbiMxrRAI2mDdECBoBgxUOD2+PvxrznvzVU5KzUyooCOq+Ixrsy5YXpwzrWUQ6z6MqsseebM6ZUEVYhqyrrOXac3izULU9COTVrp6POzl7+bCU1nN6jQkd53Tdb5q0ZLHNCqdNhO\x0a

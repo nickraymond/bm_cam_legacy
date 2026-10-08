@@ -345,8 +345,27 @@ def _rule_raw_cellular(values):
     return []
 
 
+def _rule_low_gain_fixed(values):
+    """low_gain caps what the AGC may choose; a fixed shutter_us / analogue_gain (applied when
+    both camera switches are on) takes the AGC out, so the two together mean nothing."""
+    if values.get("camera.exposure.profile") != "low_gain":
+        return []
+    if values.get("camera.controls_enabled") is not True or \
+            values.get("camera.exposure.enabled") is not True:
+        return []
+    fixed = [p for p in ("camera.exposure.shutter_us", "camera.exposure.analogue_gain")
+             if values.get(p) is not None]
+    if fixed:
+        return [Violation("xk", ("camera.exposure.profile", *fixed),
+                          "low_gain needs auto exposure: clear the fixed "
+                          + " / ".join(p.rsplit(".", 1)[1] for p in fixed)
+                          + " or set camera.exposure.profile auto")]
+    return []
+
+
 def s28_rules(values):
-    return _rule_raw_crop(values) + _rule_raw_keyed(values) + _rule_raw_cellular(values)
+    return (_rule_raw_crop(values) + _rule_raw_keyed(values) + _rule_raw_cellular(values)
+            + _rule_low_gain_fixed(values))
 
 
 def s4_rules(values):
