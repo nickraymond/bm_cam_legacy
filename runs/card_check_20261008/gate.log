@@ -1,1 +1,2 @@
 2026-10-08T18:05:05Z [TE2] Card check: bmcam004 18Z capture pulled read-only (images/2026-10-08T18:00:34Z_image_compressed.jpg, 53 KB, 1000x562) -> v3 card fully in frame, 4/4 AprilTags visible. Sent to Nick + path and procedure to the EM (skill bmcam-latest-image).
+2026-10-08T19:02:28Z [TE2] Card check: bmcam003 19Z capture pulled read-only (2026-10-08T19:00:34Z_image_compressed.jpg): v3 card in frame, 4/4 AprilTags; card in direct sun, light patches near-clipped on the pjpg render. Sent to Nick + EM.
