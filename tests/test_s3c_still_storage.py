@@ -35,6 +35,7 @@ import unittest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
 
+import rc_media_key  # noqa: E402
 import rc_still_storage as S  # noqa: E402
 
 GIB = S.GIB
@@ -79,12 +80,25 @@ class Tree(unittest.TestCase):
             meta = {"output": output} if output else {"capture_mode": "progressive_jpeg"}
             self.file(f"{stem}_compressed.jpg.capture_metadata.json", text=json.dumps(meta))
 
-    def sent_record(self, stem, age_days=1.0):
+    BASE_KEY_S = 24 * 86400 * 30                     # some wake in 2026 (key seconds)
+
+    def sent_record(self, stem, age_days=1.0, mtime_age_days=None):
+        """A keyed sent record whose KEY is age_days before BASE_KEY_S. Its file mtime
+        (the Pi clock) is now, or mtime_age_days ago: the guard must ignore it."""
         rec = os.path.join(self.sent, f"{stem}_compressed.sent.json")
+        key = rc_media_key.encode_key(self.BASE_KEY_S - int(age_days * 86400))
         with open(rec, "w", encoding="utf-8") as fh:
-            json.dump({"payload": os.path.join(self.images, f"{stem}_compressed.jpg")}, fh)
-        t = time.time() - age_days * 86400
-        os.utime(rec, (t, t))
+            json.dump({"key": key,
+                       "payload": os.path.join(self.images, f"{stem}_compressed.jpg")}, fh)
+        if mtime_age_days is not None:
+            t = time.time() - mtime_age_days * 86400
+            os.utime(rec, (t, t))
+
+    def history(self, newest_age_days=0.0, span_days=40):
+        """A continuous daily sent history (no gap) from newest_age_days back span_days:
+        the reference the guard ages against (the newest record, not the Pi clock)."""
+        for d in range(span_days + 1):
+            self.sent_record(f"h{d:03d}", age_days=newest_age_days + d)
 
     def run_guard(self, used_gib, limits=LIMITS, retain_days=14):
         def remove(path):
@@ -161,14 +175,45 @@ class Guard(Tree):
     def test_an_aged_record_frees_its_pair(self):
         self.stem("2026-09-01T00:00:00Z_image")
         self.sent_record("2026-09-01T00:00:00Z_image", age_days=20)
+        self.history()
         self.run_guard(used_gib=90, retain_days=14)
         self.assertIn("2026-09-01T00:00:00Z_image_compressed.jpg", self.removed)
 
     def test_retain_days_is_capped_at_30(self):
         self.stem("2026-09-01T00:00:00Z_image")
         self.sent_record("2026-09-01T00:00:00Z_image", age_days=31)
+        self.history()
         self.run_guard(used_gib=90, retain_days=365)
         self.assertIn("2026-09-01T00:00:00Z_image_compressed.jpg", self.removed)
+
+    def test_a_record_inside_retain_of_the_newest_stays_protected(self):
+        self.stem("2026-09-01T00:00:00Z_image")
+        self.sent_record("2026-09-01T00:00:00Z_image", age_days=10)
+        self.history()
+        self.run_guard(used_gib=90, retain_days=14)
+        self.assertNotIn("2026-09-01T00:00:00Z_image_compressed.jpg", self.removed)
+
+    def test_a_fast_pi_clock_unprotects_nothing(self):
+        """The defect: payload liveness was record mtime vs the Pi clock, so a clock
+        >= retain_days fast un-protected every heal payload. Now the Pi clock (mtime
+        and now) is ignored: the newest record is the reference."""
+        self.stem("2026-09-01T00:00:00Z_image")
+        self.sent_record("2026-09-01T00:00:00Z_image", age_days=1, mtime_age_days=60)
+        self.sent_record("newest", age_days=0, mtime_age_days=60)
+        with contextlib.redirect_stdout(io.StringIO()):
+            S.ensure_room(self.images, LIMITS, sent_dir=self.sent, retain_days=14,
+                          disk_usage_fn=disk(90), remove_fn=self.removed.append,
+                          now_fn=lambda: time.time() + 60 * 86400)
+        self.assertNotIn("2026-09-01T00:00:00Z_image_compressed.jpg",
+                         [os.path.basename(p) for p in self.removed])
+
+    def test_a_record_behind_a_gap_stays_protected(self):
+        """A jump (or a long power-off) leaves a gap > retain_days: never aged across it."""
+        self.stem("2026-09-01T00:00:00Z_image")
+        self.sent_record("2026-09-01T00:00:00Z_image", age_days=31)
+        self.sent_record("after_the_jump", age_days=0)
+        self.run_guard(used_gib=90, retain_days=14)
+        self.assertNotIn("2026-09-01T00:00:00Z_image_compressed.jpg", self.removed)
 
     def test_dry_run_deletes_nothing_and_is_full(self):
         self.stem("2026-09-01T00:00:00Z_image")
