@@ -1,0 +1,33 @@
+BACKUP /home/pi/hil_backup/bm_command_state_v2.json.reefrc_20261008T060147Z
+OVERLAY before: {'mode.media': 'still', 'video.send.message_cap': 126} {'mode.media': 1000159, 'video.send.message_cap': 1000020}
+OVERLAY cleared
+EFFECTIVE {'mode.media': 'still', 'mode.run': 'per_boot', 'uplink.msg_interval_s': 1.0, 'uplink.chunk_chars': 384, 'uplink.network_type': 2, 'uplink.lane.enabled': False, 'still.message_cap': 195, 'still.crop': [1504, 846, 1600, 900], 'still.output_width': 1000, 'camera.image_processing.enabled': False, 'camera.image_processing.contrast': None, 'schedule.window.enabled': True, 'schedule.window.start': '00:00', 'schedule.window.end': '00:00', 'power.halt.enabled': True, 'power.halt.dry_run': False} dropped [] base_hash 4977d70a
+== sha
+c8bea4de50a8
+
+== sha256
+c626bf014654e7bcfdbc460724b727a913827adb04eb5d0b79d22047e6bc36bd  camera_config.yaml
+6f419ebb131d1eba98aaca5ef5a0c8cf92ed74d3d9f71b0ab2ea71925e6d621d  camera_schedule.yaml
+860dd662814f9be3ac311ba191b9f5d04ece5e959945b13f07387e3745214083  bm_command_state_v2.json
+== r2 file
+ls: cannot access 'r2_start_delay_s': No such file or directory
+== crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+== print-config
+[BOOT] main_entry uptime_s=101.98
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=4977d70a hv=1 registry=v8 overlay=0 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[CMD] overlay active: settings={'roi': 0, 'foc': 0, 'awb': 0, 'exp': 0, 'win': 0, 'txd': 0, 'cap': 0, 'src': 0, 'hlt': 0, 'twn': 0, 'tmz': 0} touched=['twn']
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0
+[RC] derived (informational): transmit-only budget holds 480 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam

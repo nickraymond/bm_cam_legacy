@@ -24,3 +24,37 @@ up=50s
 halt-issued
 2026-10-08T05:04:10Z [deploy-reefrc bmcam003] bmcam003 dark (FAILED)
 2026-10-08T05:05:14Z [TE2] REEF-RC 05Z: setup OK (backup /home/pi/hil_backup/reefrc_20261008T050051Z; v1 delay 1.3->1.0, v1 capture_mode video->progressive_jpeg, v2 mode.media video->still, r2_start_delay_s removed; strict load OK; print-config: media=still, progressive_jpeg, 1.0 s, cap 195, window all day, lane OFF, crop 1504,846,1600,900 -> 1000x562). DEPLOY FAILED SAFE: v1-vs-v2 parity differs in video_tx (v1 enabled true vs v2 false with media still); sha still a50636e (R2 patch present, no-op without the r2 file), re-armed, dark 05:04:10Z; POST (overlay clear) did not run -> overlay still mode.media still + video.send.message_cap 126. Retry armed for 06Z (setup_then_deploy_06z.sh: v1 video_tx.enabled -> false, then deploy). Wake 1 -> 07Z (midnight PDT).
+2026-10-08T06:00:54Z [TE2] REEF-RC setup retry on bmcam003 rc=0: BACKUP /home/pi/hil_backup/reefrc_20261008T060050Z EDIT camera_schedule.yaml: video_tx.enabled true -> false PARITY DRY RUN (approx, config_path ignored): DIFF ['bm_commands', 'camera_controls_island', 'config_path', 'env', 'loader_output', 'overlaid', 'wap_network'] 
+2026-10-08T06:00:54Z [deploy-reefrc2 bmcam003] ref=fix/sent-prune-spotter-time want=c8bea4d profile=bmcam003/live_20260925 window=2026-10-08T06:00:00Z accept_diff=1; waiting
+up=51s
+1292 bash -c mkdir -p ~/hil_backup/20261008T060055Z && crontab -l > ~/hil_backup/20261008T060055Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_reefrc2 \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_FOR_reefrc2 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T06:00:58Z [deploy-reefrc2 bmcam003] backup+disarm+stop TS=20261008T060055Z; RESTORE crontab: ssh pi@bmcam003 'crontab ~/hil_backup/20261008T060055Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-08T06:01:02Z [deploy-reefrc2 bmcam003] snapshot before_reefrc2
+2026-10-08T06:01:41Z [deploy-reefrc2 bmcam003] rc_field_update rc=0 (log runs/reef_rc_20261007/pulled/bmcam003_field_update_reefrc2_20261008T060055Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+15:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+27:[PARITY] print-config text OK (14 lines)
+28:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+98:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+120:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+124:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+127:[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.0 profile=1.3   <-- DIFFERS
+131:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+133:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+153:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-08T06:01:41Z [deploy-reefrc2 bmcam003] runtime sha now: c8bea4de50a8
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T06:01:42Z [deploy-reefrc2 bmcam003] RE-ARMED from the ARMED backup
+2026-10-08T06:01:46Z [deploy-reefrc2 bmcam003] snapshot after_reefrc2
+2026-10-08T06:01:46Z [deploy-reefrc2 bmcam003] POST hook: bash runs/reef_rc_20261007/post_05z.sh
+BACKUP /home/pi/hil_backup/bm_command_state_v2.json.reefrc_20261008T060147Z
+OVERLAY before: {'mode.media': 'still', 'video.send.message_cap': 126} {'mode.media': 1000159, 'video.send.message_cap': 1000020}
+OVERLAY cleared
+EFFECTIVE {'mode.media': 'still', 'mode.run': 'per_boot', 'uplink.msg_interval_s': 1.0, 'uplink.chunk_chars': 384, 'uplink.network_type': 2, 'uplink.lane.enabled': False, 'still.message_cap': 195, 'still.crop': [1504, 846, 1600, 900], 'still.output_width': 1000, 'camera.image_processing.enabled': False, 'camera.image_processing.contrast': None, 'schedule.window.enabled': True, 'schedule.window.start': '00:00', 'schedule.window.end': '00:00', 'power.halt.enabled': True, 'power.halt.dry_run': False} dropped [] base_hash 4977d70a
+POST done
+halt-issued
+2026-10-08T06:02:19Z [deploy-reefrc2 bmcam003] bmcam003 dark (DEPLOYED)
+2026-10-08T06:03:30Z [TE2] REEF-RC 06Z: v1 video_tx.enabled true->false (backup /home/pi/hil_backup/reefrc_20261008T060050Z); DEPLOYED c8bea4de (#143 head): print-config parity OK (14 lines), config json OK (13 loader outputs), config v2 parity OK, validation PASS, re-armed; POST: overlay {mode.media still, video.send.message_cap 126} cleared (backup bm_command_state_v2.json.reefrc_20261008T060147Z); effective = reef config (media still, 1.0 s, 384, 0x02, cap 195, crop -> 1000, lane off, all-day window, real halt, dropped []); print-config overlay=0 key(s); dark 06:02:19Z. BUILD_RECORD.md written. Wake 1 = 07Z (12 AM PDT); per-wake job reef_wake.sh armed.
