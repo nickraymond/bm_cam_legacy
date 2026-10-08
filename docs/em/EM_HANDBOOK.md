@@ -112,3 +112,26 @@ Keep it current through its database (`ArtifactData`), not republishing. Old boa
    fix settings (e.g. white balance) without a dive.
 5. Vet Spotter + cameras in a pool (~8 ft) with the v3 card to prove the above.
 6. Bonus: cloud colour correction with the v3 reference card.
+
+## 10. Lessons from 10/6–10/7 (second EM)
+
+**Worked:**
+- Desk research agents before hardware: SD-log re-mine, NOAA field forensics, open-source reading of the bridge/SAMI code, Sofar docs. Each answered in about an hour what a rig test would have needed a day for.
+- Size n from the real variance: a power simulation on Phase A data. Nick asked for this explicitly.
+- Pre-registered stop rules, with a fail-fast stop the moment the answer is clear (R2-DELAY, R3-PACE interim).
+- Rotating sessions at a natural break: write a handoff + lessons PR, start a fresh chip, the successor confirms "taken over", then archive.
+- The visual board (goal bars, rig progress rings, context rings, "needs Nick" chips), kept live through ArtifactData.
+
+**Didn't work / watch for:**
+- **Jargon and long messages.** Nick asked "what is Goal 3?". Name things plainly: "remote control: change camera settings without a dive".
+- **Too many relay pings.** Batch session results; message Nick only for a decision, a verdict he asked for, or a blocker.
+- **Aligning too late.** Before a sprint or test, get Nick's expected *outcome* in his words (a card), then run it without small questions.
+- **A test the Spotter doesn't reproduce:** the bench has no SAMI node. Say up front what the bench can and can't prove.
+- **The approval chain:** the classifier blocks backend writes and bench config edits, and only Nick's approval *in the executing session* clears them. Prepare paste-ready approval text early, ideally one blanket line per test card.
+- **The host Mac sleeping** freezes every session job. Keep it on power and caffeinated overnight.
+- **Session messaging pauses** after 10 sends without Nick typing. Batch.
+
+**Process facts:**
+- Archiving a parent session can sweep idle children; so can sharing a worktree. Check parentSessionId and cwd before archiving.
+- Chip sessions can't be detached, and the model is chosen by Nick at start.
+- Keep raw run data (DNG/PGM/consoles) out of merged PRs. Merge slim PRs and leave raw data on the branch.
