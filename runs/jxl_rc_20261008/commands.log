@@ -1,3 +1,3 @@
 # JXL-RC command ledger (sent by the EM via the backend; TE logs send -> console -> applied -> ack -> in effect)
 # n | sent (UTC / PDT) | command_id | command | console | applied | ack | in effect
-1 | 2026-10-08T21:50:34Z / 2:50:34 PM | 1000164 | set camera.exposure.profile=low_gain, max_shutter_us=60000, max_gain=1.0 | ? | ? | ? | ? (+ sidecar exposure_* fields, AnalogueGain/ExposureTime)
+1 | 2026-10-08T21:50:34Z / 2:50:34 PM | 1000164 | set camera.exposure.profile=low_gain, max_shutter_us=60000, max_gain=1.0 | ? | ? | NOT at the 22:10Z sync (no Rx at all that sync) | ? (+ sidecar exposure_* fields, AnalogueGain/ExposureTime)
