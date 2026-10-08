@@ -260,12 +260,12 @@
    "sha256": "02a47e3ba5c1f32d"
   },
   "camera_config.lkg.json": {
-   "bytes": 3549,
+   "bytes": 3588,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2725,
-   "sha256": "889af1c6d83eb52d"
+   "bytes": 2748,
+   "sha256": "df1b8e43cc0da477"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -353,7 +353,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 352,
-   "sha256": "62f77f6374a5c311"
+   "sha256": "15a0b92f81e632a9"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -804,13 +804,13 @@
   "result_cache": {
    "701": {
     "b": 1,
-    "h": "ce5ee760",
+    "h": "dfacafd3",
     "ok": 1,
     "t": "ping"
    },
    "702": {
     "b": 1,
-    "h": "ce5ee760",
+    "h": "dfacafd3",
     "ok": 1,
     "t": "trg 2 armed: capture + output per mode (next decision point)"
    }

@@ -35,11 +35,30 @@ Rules
 MVP simplification (state it in the PR): no post-END heals (the spec's +240 s
 boundary rule). Anything left over waits for the next wake.
 
+Heal order (`media_key.heal_order`, registry v12 `uplink.media_key.heal_order`,
+Nick 2026-10-08, EPIC_transmission_reliability):
+  before  (default = today's wire) the heal chunks go BEFORE this wake's START,
+          reserving the new media's whole burst.
+  after   START + the new media's burst go FIRST; the heal chunks follow END (and
+          the deferred ack flush), each still paced and pump-only, each still
+          giving way when the budget left will not hold it + the <HL> lines.
+          Measured 10/8 on the bench (REEF-RC 7 + 8 AM wakes): 40 heal chunks
+          ahead of START fill the Spotter's 2-slot hand-off queue, the stall lands
+          on START and the NEW image loses START + its first 6-8 chunks, so the
+          freshest image then needs its own heal. `after` gives the newest media
+          the clean part of the window; heals (old chunks that already waited
+          hours) take what is left. <HL> stays after the heal chunks either way.
+  The idle heal pass and a save_local action have no new media: their heals go
+  out as before whatever the order (rc_supervisor.send_pending_heals).
+
 Example (inside a cycle, see rc_video_tx / rc_progressive_jpeg):
   heals = rc_heal.begin_wake(daemon, settings, summary)     # None without a daemon
   ...lane plan with heals.planned_msgs extra messages...
-  heals.send_before_start(tx, budget, reserve_msgs=..., delay_seconds=..., sleep_fn=...)
+  if heals.order == "before":
+      heals.send_before_start(tx, budget, reserve_msgs=..., delay_seconds=..., sleep_fn=...)
   ...START / chunks / END, ack flush...
+  if heals.order == "after":
+      heals.send_after_end(tx, budget, delay_seconds=..., sleep_fn=...)
   heals.send_status_after_end(tx, budget, wake_key=media_key, delay_seconds=..., sleep_fn=...)
 """
 
@@ -52,6 +71,16 @@ import rc_media_key
 
 HEAL_CAP_PER_WAKE = 40
 HL_PRIORITY = {"sent": 3, "dropped": 2, "refused": 1, "requested": 0}
+HEAL_ORDERS = rc_media_key.HEAL_ORDERS            # ("before", "after")
+DEFAULT_HEAL_ORDER = rc_media_key.DEFAULT_HEAL_ORDER
+
+
+def heal_order_for(settings):
+    """`before` | `after` from the media_key island (settings["media_key_cfg"]);
+    anything missing or unknown is `before` (today's wire), never an error."""
+    cfg = settings.get("media_key_cfg") or {}
+    order = cfg.get("heal_order", DEFAULT_HEAL_ORDER)
+    return order if order in HEAL_ORDERS else DEFAULT_HEAL_ORDER
 
 
 class HealRefused(Exception):
@@ -118,15 +147,18 @@ def build_hl_message(key, action, n, reason, command_id, wake_key=None):
 # --- one wake ----------------------------------------------------------------------------
 
 class WakeHeals:
-    """The pending heals of one wake: plan -> send before START -> <HL> after END."""
+    """The pending heals of one wake: plan -> send (before START, or after END when
+    `order` is after) -> <HL> after END."""
 
-    def __init__(self, daemon, sent_dir, summary, cap=HEAL_CAP_PER_WAKE, pump_fn=None):
+    def __init__(self, daemon, sent_dir, summary, cap=HEAL_CAP_PER_WAKE, pump_fn=None,
+                 order=DEFAULT_HEAL_ORDER):
         self.daemon = daemon
         self.state = daemon.state
         self.sent_dir = sent_dir
         self.summary = summary
         self.cap = int(cap)
         self.pump_fn = pump_fn
+        self.order = order if order in HEAL_ORDERS else DEFAULT_HEAL_ORDER
         # Snapshot at wake start: only these heals age this wake.
         self.snapshot = {h["key"]: dict(h) for h in self.state.pending_heals}
         self.items = []          # [{key, id, lines:[(n, bytes)], refused}]
@@ -150,8 +182,11 @@ class WakeHeals:
                 item["lines"] = lines[:max(room, 0)]
                 room -= len(item["lines"])
             self.items.append(item)
+        # The order tag is printed only when it is not the default (a `before` log
+        # line is byte-identical to before the key existed).
         print(f"[HEAL] wake plan: {len(self.items)} pending heal(s), "
               f"{self.planned_msgs} chunk(s) this wake (cap {self.cap})"
+              + ("" if self.order == DEFAULT_HEAL_ORDER else f", order {self.order}")
               + "".join(f"; {i['key']} REFUSED {i['refused']}" for i in self.items if i["refused"]))
 
     @property
@@ -160,16 +195,40 @@ class WakeHeals:
 
     def send_before_start(self, tx, budget, *, reserve_msgs, delay_seconds,
                           sleep_fn=time.sleep):
-        """Send the planned heal chunks, paced, pump-only; then update + persist the
-        pending list. Never raises (a heal must not cost the new capture)."""
+        """Send the planned heal chunks BEFORE the new START, paced (tx, pump, sleep),
+        pump-only; then update + persist the pending list. Before each chunk the budget
+        must still hold it + the new media's whole burst (`reserve_msgs`). Never raises
+        (a heal must not cost the new capture). Also the idle / save_local heal pass
+        (reserve 0: nothing follows but the <HL>)."""
+        return self._send_chunks(tx, budget, reserve_msgs=reserve_msgs, delay_seconds=delay_seconds,
+                                 sleep_fn=sleep_fn, where="before START", lead_sleep=False)
+
+    def send_after_end(self, tx, budget, *, delay_seconds, sleep_fn=time.sleep,
+                       reserve_msgs=None):
+        """`heal_order: after`: send the planned heal chunks AFTER the new media's END
+        (and the deferred ack flush). END is not followed by a sleep, so the pacing
+        sleep comes BEFORE each chunk (as the <HL> lines do). Before each chunk the
+        budget must hold it + `reserve_msgs` (default: one <HL> per key planned, so
+        the status still gets out); the image's own cost has already been spent, so
+        this is where a short budget makes the heals give way. Never raises."""
+        if reserve_msgs is None:
+            reserve_msgs = len(self.items)
+        return self._send_chunks(tx, budget, reserve_msgs=reserve_msgs, delay_seconds=delay_seconds,
+                                 sleep_fn=sleep_fn, where="after END", lead_sleep=True)
+
+    def _send_chunks(self, tx, budget, *, reserve_msgs, delay_seconds, sleep_fn, where,
+                     lead_sleep):
         sent = 0
         lines = [(item["key"], n, line) for item in self.items for n, line in item["lines"]]
         try:
             for key, n, line in lines:
                 if not budget.messages_fit(1 + int(reserve_msgs)):
                     print(f"[HEAL] budget stop: {budget.remaining_s():.0f}s left must hold "
-                          f"the capture's {reserve_msgs} msgs")
+                          + (f"the capture's {reserve_msgs} msgs" if not lead_sleep else
+                             f"the {reserve_msgs} <HL> line(s)"))
                     break
+                if lead_sleep:
+                    sleep_fn(float(delay_seconds))
                 tx(line)
                 self.sent_ns.setdefault(key, []).append(n)
                 sent += 1
@@ -178,12 +237,15 @@ class WakeHeals:
                         self.pump_fn()
                     except Exception as exc:
                         print(f"[CMD][WARN] heal-slot command pump failed: {exc}")
-                sleep_fn(float(delay_seconds))
+                if not lead_sleep:
+                    sleep_fn(float(delay_seconds))
         except Exception as exc:
             print(f"[HEAL][WARN] heal send failed after {sent} chunk(s): {exc}")
-        print(f"[HEAL] sent {sent} heal chunk(s) before START: "
+        print(f"[HEAL] sent {sent} heal chunk(s) {where}: "
               + (", ".join(f"{k}:{v}" for k, v in self.sent_ns.items()) or "none"))
         self.summary["heal"] = {"planned": self.planned_msgs, "sent": sent}
+        if self.order != DEFAULT_HEAL_ORDER:
+            self.summary["heal"]["order"] = self.order      # default: summary unchanged
         self._finish()
         return sent
 
@@ -193,8 +255,20 @@ class WakeHeals:
         kept = []
         for heal in self.state.pending_heals:
             snap = self.snapshot.get(heal["key"])
-            if snap is None or snap["id"] != heal["id"] or heal["key"] not in by_key:
+            if snap is None or heal["key"] not in by_key:
                 kept.append(heal)       # arrived during this wake: next wake's job
+                continue
+            if snap["id"] != heal["id"]:
+                # A newer rsd for this key replaced the planned one while the wake ran
+                # (likely once the heal slot follows the burst, heal_order after). The
+                # new one stays whole for the next wake; what this wake DID send is
+                # still reported under the planned command's id (sent > requested).
+                kept.append(heal)
+                done = self.sent_ns.get(heal["key"], [])
+                if done:
+                    left = [n for n in snap["n"] if n not in done]
+                    self._outcome(heal["key"], "sent", len(done), "partial" if left else "ok",
+                                  snap["id"])
                 continue
             item = by_key[heal["key"]]
             if item["refused"]:
@@ -296,7 +370,8 @@ def begin_wake(daemon, settings, summary, pump_fn=None, cap=HEAL_CAP_PER_WAKE):
             summary.setdefault("command_events", []).extend(e["action"] for e in drain())  # S4 b.7
         if pump_fn is not None:
             pump_fn()
-        return WakeHeals(daemon, _sent_dir(settings), summary, cap=cap, pump_fn=pump_fn)
+        return WakeHeals(daemon, _sent_dir(settings), summary, cap=cap, pump_fn=pump_fn,
+                         order=heal_order_for(settings))
     except Exception as exc:
         print(f"[HEAL][WARN] heal planning failed ({exc}); no heals this wake")
         return None

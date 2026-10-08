@@ -45,6 +45,10 @@ Sent record (what a heal re-sends, S5)
     enabled: false      # true only once the backend M0+ is live (it is, 2026-09-23)
     retain_days: 14     # sent/ records kept this long = the heal window (hard cap 30)
                         # (Nick 2026-09-24: 14 d; healing 2-week-old data is valuable)
+    heal_order: before  # before (default = today's wire): rsd heal chunks go BEFORE this
+                        # wake's START; after: START + the new media's burst first, then
+                        # the heal chunks (Nick 2026-10-08: the freshest image gets the
+                        # clean part of the window). Absent = before. Read by rc_heal.
 
 The retired Sprint10 `media_gid` island (3-char gid) is ignored with a loud
 warning if a YAML still enables it (warn_retired_media_gid).
@@ -66,7 +70,10 @@ SPOTTER_TIME_SOURCES = ("spotter", "spotter_explicit")
 _HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_STATE_PATH = os.path.join(_HERE, "bm_media_key_last.txt")
 DEFAULT_SENT_DIR = os.path.join(_HERE, "sent")
-DEFAULT_CONFIG = {"enabled": False, "retain_days": 14.0, "source": "defaults",
+HEAL_ORDERS = ("before", "after")        # media_key.heal_order (Nick 2026-10-08)
+DEFAULT_HEAL_ORDER = "before"
+DEFAULT_CONFIG = {"enabled": False, "retain_days": 14.0, "heal_order": DEFAULT_HEAL_ORDER,
+                  "source": "defaults",
                   "sent_dir": DEFAULT_SENT_DIR, "state_path": DEFAULT_STATE_PATH}
 
 
@@ -240,13 +247,22 @@ def load_media_key_config(config_path):
                         raise ValueError(f"media_key.retain_days must be a number, got {v!r}")
                     if not 0 < cfg["retain_days"] <= HARD_CAP_RETAIN_DAYS:
                         raise ValueError(f"media_key.retain_days must be in (0, {HARD_CAP_RETAIN_DAYS}]")
+                elif k == "heal_order":
+                    v = v.strip("'\"").lower()
+                    if v not in HEAL_ORDERS:
+                        raise ValueError("media_key.heal_order must be "
+                                         f"{'|'.join(HEAL_ORDERS)}, got {v!r}")
+                    cfg["heal_order"] = v
     except OSError:
         pass
     return cfg
 
 
 def print_media_key_settings(cfg):
-    print(f"[KEY] media_key: enabled={cfg['enabled']} retain_days={cfg['retain_days']:g} source={cfg['source']}")
+    order = cfg.get("heal_order", DEFAULT_HEAL_ORDER)
+    tag = "" if order == DEFAULT_HEAL_ORDER else f" heal_order={order}"   # default: line unchanged
+    print(f"[KEY] media_key: enabled={cfg['enabled']} retain_days={cfg['retain_days']:g} "
+          f"source={cfg['source']}{tag}")
 
 
 def key_for_this_wake(cfg, gate_info=None, daemon=None, state_path=DEFAULT_STATE_PATH):

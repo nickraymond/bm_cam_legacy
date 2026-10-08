@@ -94,12 +94,12 @@
    "sha256": "e6c7fa453e55e0e5"
   },
   "camera_config.lkg.json": {
-   "bytes": 3547,
+   "bytes": 3586,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2723,
-   "sha256": "65a9fedaad8f8be1"
+   "bytes": 2746,
+   "sha256": "b24f463767b80a5f"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -139,7 +139,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 764,
-   "sha256": "02bcf0fb3eff1dbd"
+   "sha256": "e37477b5260dc9b9"
   },
   "state/config_journal.jsonl": {
    "bytes": 598,
@@ -330,33 +330,33 @@
   "result_cache": {
    "1000501": {
     "b": 1,
-    "h": "809d8ec1",
+    "h": "45d19387",
     "ok": 1,
     "t": "still.crop: 1504,846,1600,900 -> 768,432,3072,1728 (next action)"
    },
    "1000502": {
     "b": 1,
-    "h": "809d8ec1",
+    "h": "45d19387",
     "ok": 1,
     "t": "ping"
    },
    "1000503": {
     "b": 1,
-    "h": "809d8ec1",
+    "h": "45d19387",
     "ok": 1,
     "t": "help (reference follows)"
    },
    "1000505": {
     "b": 1,
     "e": "xk",
-    "h": "809d8ec1",
+    "h": "45d19387",
     "k": "camera.white_balance.mode",
     "ok": 0
    },
    "1000506": {
     "b": 1,
     "e": "cmd",
-    "h": "809d8ec1",
+    "h": "45d19387",
     "ok": 0
    },
    "1000507": {
@@ -365,13 +365,13 @@
      "mode",
      "r"
     ],
-    "h": "809d8ec1",
+    "h": "45d19387",
     "ok": 1,
     "t": "get mode, r: 6 key(s)"
    },
    "7": {
     "b": 1,
-    "h": "809d8ec1",
+    "h": "45d19387",
     "ok": 1,
     "t": "ping"
    }
