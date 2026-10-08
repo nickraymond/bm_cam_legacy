@@ -54,4 +54,4 @@ Full `--print-config`: `pulled/post_05z.txt` (`== print-config`). Key lines: `me
   runs all day (00:00–00:00) on spotter_utc.
 - Bridge (SPOT-33507C): production hourly bus, 10 min on from :00 (seen on the console every wake: bus HH:59:58 → HH+1:09:58).
   Not re-read with `bridge cfg get` (that needs console writes).
-- Backend: self_heal ON for SPOT-33507C at 24/day, flipped by the EM before wake 1. Record the time here.
+- Backend: self_heal ON for SPOT-33507C at 24/day: flipped by the EM 2026-10-08T06:03:51Z (11:03:51 PM PDT), PATCH 200, self_heal_active true.
