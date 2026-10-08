@@ -1,0 +1,156 @@
+== sha
+a50636e8c4f8
+
+== r2 file
+-rw-rw-r-- 1 pi pi 2 Oct  7 15:01 r2_start_delay_s
+0
+== crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+== camera_config.yaml
+# camera_config.yaml — config v2 (schema 2, registry v7). Rewritten by tools/config_v2_upgrade.py; values unchanged
+# Every setting is spelled out. Remote changes live in the command state overlay, never here;
+# this file changes only by deploy or migrate (DESIGN_supervisor.md §5).
+schema: 2
+
+mode:
+  media: "video"  # What one action captures: a still, a sent video clip, or the continuous SD recorder (interim).
+  run: "per_boot"  # per_boot: one action per power-on then halt; stay_on: keep running (needs commands.enabled and the supervisor runtime).
+  interval_s: 0  # stay_on: seconds between scheduled actions (start to start); 0 = trigger-only. Scheduled repeats obey the window, trg bypasses it. 0 or 60..86400.
+  heartbeat_s: 300  # stay_on: an idle <WS a=idle> this long after the last uplink; 0 = off. 0 or 60..86400.
+  output: "transmit"  # transmit over the BM uplink, or save_local to SD (needs the supervisor runtime; SD bounded by storage.*).
+
+schedule:
+  timezone: "America/Los_Angeles"  # Time zone of the transmit window.
+  window:
+    enabled: true  # Only act inside the daily window.
+    start: "00:00"  # Window start (local). start == end = all day.
+    end: "00:00"  # Window end (local).
+
+time:
+  source: "spotter_utc"  # Where UTC comes from.
+  set_system_clock: true  # Step the Pi clock from Spotter UTC.
+  timeout_s: 60  # Seconds to wait for Spotter UTC.
+  allow_system_fallback: true  # Use the Pi clock if Spotter UTC times out.
+  rtc:
+    hwclock_path: "/usr/sbin/hwclock"  # hwclock binary (time.source rtc).
+    set_system_clock: true  # Step the Pi clock from the RTC.
+    plausible_after_utc: "2026-01-01T00:00:00+00:00"  # An RTC time before this is rejected.
+
+power:
+  halt:
+    enabled: true  # Halt the Pi after the action (per_boot).
+    dry_run: false  # Log the halt instead of halting.
+    mode: "halt"  # halt or poweroff.
+    script_path: "/home/pi/BM_Devel_Pi/tuned_halt.sh"  # Halt script.
+  bus_always_on: false  # The Spotter keeps BM bus power on (wall power or a held bus): keep-alive and hld may outlast the per_boot budget.
+
+camera:
+  backend: "rpicam"  # Capture backend.
+  native:
+    width: 4608  # Native capture width (px).
+    height: 2592  # Native capture height (px).
+    jpeg_quality: 95  # Native JPEG quality.
+  controls_enabled: true  # Pass any camera controls at all.
+  focus:
+    enabled: true  # Pass focus controls.
+    mode: "auto"  # Autofocus mode.
+    lens_position: 1.82  # Manual lens position (dioptres).
+    range: null  # Autofocus range.
+    speed: null  # Autofocus speed.
+  white_balance:
+    enabled: false  # Pass white-balance controls.
+    mode: null  # AWB mode (manual = use gains).
+    gains: null  # Manual [red, blue] gains (each 0..8).
+  exposure:
+    enabled: false  # Pass exposure controls.
+    mode: null  # Reported as END rem only; builds no flag (W7).
+    ev: null  # Exposure bias (EV).
+    shutter_us: null  # Fixed shutter (us).
+    analogue_gain: null  # Fixed analogue gain.
+  image_processing:
+    enabled: false  # Pass image-processing controls.
+    sharpness: 1.0  # Sharpness 0..16 (1 = normal).
+    contrast: null  # Contrast 0.5..2 (1 = normal).
+    saturation: null  # Saturation 0..2 (1 = normal, 0 = greyscale).
+    brightness: null  # Brightness -0.25..0.25 (0 = normal).
+    denoise: null  # Denoise mode (rpicam --denoise).
+    hdr: null  # HDR: off / auto / sensor (Camera Module 3 sensor HDR) / single-exp; true = auto.
+
+still:
+  crop: [1504, 846, 1600, 900]  # Still crop [x, y, w, h], native px.
+  output_width: 1000  # Sent still width (px); height follows the crop.
+  quality_ladder: [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]  # JPEG qualities tried, best first.
+  save:
+    quality: 85  # save_local: JPEG quality of the saved crop (the native is kept too). 1..95.
+  message_cap: 195  # Most messages one still may use.
+  budget_min: 8  # Cycle budget for a still action (min).
+
+video:
+  record:
+    framing: "wide_1080p_lean"  # Named geometry preset (video_geometry.PRESETS); null + no crop/output = stills_roi_1000p.
+    crop: null  # Recording crop [x, y, w, h], native px.
+    output: null  # Recording output size.
+    sensor_mode: null  # Explicit sensor readout mode.
+    fps: 15  # Recording frame rate.
+    bitrate_mbps: 6.0  # Recording bitrate.
+    dir: "/home/pi/BM_Devel_Pi/videos"  # Clip folder.
+    encoder:
+      profile: ""  # H.264 profile ('' = encoder default).
+      level: ""  # H.264 level ('' = default).
+      intra: 0  # GOP length (0 = default).
+  send:
+    duration_s: 5.0  # Clip length sent (s).
+    lead_in_s: 2.0  # Recorded and discarded before the clip (s).
+    fps: 10  # Sent frame rate.
+    message_cap: 190  # Most messages one clip may use.
+    keyframe_repeat_max: 30  # Keyframe repeats after the clip.
+    size: "480x270"  # Sent clip size.
+    x264_preset: "medium"  # x264 speed preset for the fit.
+    budget_min: 8  # Cycle budget for a video action (min).
+  logger:
+    clip_minutes: 5.0  # Recorder clip length (min).
+    session_minutes: 0  # Recorder session (min); 0 = until power loss.
+  ui:
+    enabled: true  # Recorder web UI.
+    port: 8080  # Recorder web UI port.
+
+storage:
+  max_used_pct: 75.0  # SD cap: most SD used (%), video ring and stills guard.
+  min_free_gb: 10.0  # SD floor: least SD free (GB).
+  ring_dry_run: false  # Log storage deletions only.
+
+uplink:
+  uart:
+    port: "/dev/ttyAMA0"  # BM UART device.
+    baudrate: 115200  # BM UART baud rate.
+  network_type: 0x02  # 0x02 cellular only; 0x01 adds Iridium fallback (satellite credits). Stills only; video is always cellular.
+  chunk_chars: 384  # Base64 characters per chunk message (the backend decoder assumes it).
+  msg_interval_s: 1.0  # R3-PACE arm A
+  lane:
+    enabled: false  # Keep sends out of the 5-min boundary blackout.
+    grid_s: 300.0  # Boundary grid (s).
+    pre_guard_s: 20.0  # Quiet before a boundary (s).
+    post_guard_s: 30.0  # Quiet after a boundary (s).
+    max_wait_s: 300.0  # Longest wait for a clear slot (s).
+  media_key:
+    enabled: true  # Keyed media wire (rev 5); off = legacy.
+    retain_days: 14.0  # Keep sent records this long (days).
+
+commands:
+  enabled: true  # Listen for commands on the BM bus.
+  runtime: "supervisor"  # Which runtime runs the boot: legacy (the S2 cycle scripts) or supervisor (Sprint26 S3). Legacy stays selectable until S5.
+  topic: "bmcam/cmd"  # Command topic.
+  listen_tail_s: 150.0  # Listen after the action (s).
+  keepalive_s: 300  # per_boot: each command received pushes the halt back this long (s); 0 = off.
+  keepalive_max_s: 1800  # per_boot: most keep-alive per boot (s).
+  hold_max_min: 120  # Longest hld granted (min); a hold is never persisted.
+  state_path: "/home/pi/BM_Devel_Pi/bm_command_state_v2.json"  # Command state file (v2).
+
+network:
+  default: "nereus_hq"  # WiFi at boot: none (leave as is), ap (open hotspot named after the unit) or nereus_hq.
+  ap_fallback_s: 90  # Raise the AP if HQ WiFi is not up after (s).
+  ap_timeout_min: 60  # AP turns itself off after (min).
+== state files
+-rw-rw-r-- 1 pi pi   279 Sep 25 23:01 bm_command_state.json
+-rw-r--r-- 1 pi pi 24351 Oct  8 03:06 bm_command_state_v2.json
+-rw-r--r-- 1 pi pi  3218 Oct  8 02:08 camera_config.lkg.json

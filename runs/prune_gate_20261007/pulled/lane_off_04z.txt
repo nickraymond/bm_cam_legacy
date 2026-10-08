@@ -1,0 +1,19 @@
+== diff camera_config.yaml.bak_lane_20261007T000043Z camera_config.yaml
+123,127c123,127
+<     enabled: false  # Keep sends out of the 5-min boundary blackout.
+<     grid_s: 300.0  # Boundary grid (s).
+<     pre_guard_s: 20.0  # Quiet before a boundary (s).
+<     post_guard_s: 30.0  # Quiet after a boundary (s).
+<     max_wait_s: 300.0  # Longest wait for a clear slot (s).
+---
+>     enabled: true
+>     grid_s: 3600
+>     post_guard_s: 375
+>     pre_guard_s: 20
+>     max_wait_s: 180
+UNEXPECTED DIFF -> not touching:
+<     enabled: false  # Keep sends out of the 5-min boundary blackout.
+<     grid_s: 300.0  # Boundary grid (s).
+<     pre_guard_s: 20.0  # Quiet before a boundary (s).
+<     post_guard_s: 30.0  # Quiet after a boundary (s).
+<     max_wait_s: 300.0  # Longest wait for a clear slot (s).

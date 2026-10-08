@@ -27,3 +27,33 @@ halt-issued
 2026-10-08T02:25:36Z Nick (typed in the TE2 chat): "OK for bench config edits on bmcam004 and bmcam003 (never field units) needed for PRUNE-GATE and REEF-RC: restore bmcam004's camera_config.yaml from the pre-lane backup (after a diff showing only lane lines differ), and on bmcam003 set the reef values in the base YAML, clear the remote overlay, and remove r2_start_delay_s. Back up first, verify after, log every change in gate.log."
 2026-10-08T02:26:14Z [TE2] armed runs/prune_gate_20261007/lane_off_then_deploy_03z.sh: 03:00:30Z diff-guarded restore of camera_config.yaml.bak_lane_20261007T000043Z (current saved as .bak_prelaneoff_<TS>; strict-load verify, revert on failure) -> sent/ listing -> hil_deploy_window.sh prune143b (only if restored + effective lane False + before :03). Counted wakes then 04/05/06Z (9/10/11 PM PDT).
 2026-10-08T03:35:45Z [TE2] 03Z MISSED: the Mac idle-slept on battery 18:59:57 PDT -> 20:34:43 PDT (pmset log); both 03Z jobs froze and were killed at their limit with no output; NOTHING ran on bmcam004 (no restore, no deploy). caffeinate -i -t 36000 now held. Re-armed for 04Z: lane_off_then_deploy_04z.sh (prune143c). Counted wakes 05/06/07Z, verdict ~07:20Z (12:20 AM PDT).
+2026-10-08T04:00:45Z [TE2] bmcam004 lane off via pre-lane backup rc=5: UNEXPECTED DIFF -> not touching: 
+2026-10-08T04:00:45Z [TE2] deploy NOT started in 04Z (restore/parity not OK or too late) -> next window
+2026-10-08T04:01:08Z [TE2] bmcam004 lane off via pre-lane backup rc=0: RESTORED camera_config.yaml.bak_lane_20261007T000043Z (current saved as camera_config.yaml.bak_prelaneoff_20261008T040102Z) effective lane: False dropped [] base hash 4827a0a2 [PARITY][DIFF] config json differs in: config_path, resolved PARITY DRY RUN FAILED 
+2026-10-08T04:01:09Z [TE2] sent/ listing before deploy:      450 records
+2026-10-08T04:01:09Z [deploy-prune143d bmcam004] ref=hil/prune143-on-104ee3c want=0a6e411 profile=bmcam004/live_20260925 window=2026-10-08T04:00:00Z accept_diff=0; waiting
+up=66s
+1112 bash -c mkdir -p ~/hil_backup/20261008T040110Z && crontab -l > ~/hil_backup/20261008T040110Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_prune143d \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_FOR_prune143d @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T04:01:13Z [deploy-prune143d bmcam004] backup+disarm+stop TS=20261008T040110Z; RESTORE crontab: ssh pi@bmcam004 'crontab ~/hil_backup/20261008T040110Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-08T04:01:18Z [deploy-prune143d bmcam004] snapshot before_prune143d
+2026-10-08T04:01:55Z [deploy-prune143d bmcam004] rc_field_update rc=0 (log runs/prune_gate_20261007/pulled/bmcam004_field_update_prune143d_20261008T040110Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+16:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+28:[PARITY] print-config text OK (26 lines)
+29:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+100:[RC-DEPLOY] config smoke test: rc_progressive_jpeg.py --print-config
+134:[RC-DEPLOY]   cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config
+138:[FIELD-UPDATE] === stage 4: bm_serial value patch (from device profile) ===
+145:[FIELD-UPDATE] === stage 5: UART hygiene gate ===
+147:[FIELD-UPDATE] === stage 6: validation ladder (no quota) ===
+179:[FIELD-UPDATE] === stage 7: re-arm ===
+2026-10-08T04:01:56Z [deploy-prune143d bmcam004] runtime sha now: 0a6e411d1e64
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T04:01:57Z [deploy-prune143d bmcam004] RE-ARMED from the ARMED backup
+2026-10-08T04:02:01Z [deploy-prune143d bmcam004] snapshot after_prune143d
+halt-issued
+2026-10-08T04:02:29Z [deploy-prune143d bmcam004] bmcam004 dark (DEPLOYED)
+2026-10-08T04:06:03Z [TE2] PRUNE 04Z: first restore attempt refused by my own diff guard (it rejected the backup-side '<' lane lines; nothing touched). Fixed filter, re-run 04:00:59Z: RESTORED camera_config.yaml.bak_lane_20261007T000043Z (current saved as camera_config.yaml.bak_prelaneoff_20261008T040102Z), effective lane False, dropped [], base hash 4827a0a2. DEPLOYED 0a6e411 (prune143d): print-config parity OK (26 lines), config v2 parity OK (13 loader outputs equal), validation PASS, re-armed, dark 04:02:29Z. Runtime rollback tar /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20261008T040125Z.tgz. Counted wakes 05/06/07Z.

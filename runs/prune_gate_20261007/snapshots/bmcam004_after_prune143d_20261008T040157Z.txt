@@ -1,0 +1,53 @@
+== bmcam004 2026-10-08T04:01:57Z up 111.13s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct  8 04:00 .
+drwxr-xr-x 16 root root 4040 Oct  8 03:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct  8 04:01 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  8 04:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  8 04:00 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  8 04:01 .
+drwxrwxrwt 3 root root  100 Oct  8 04:00 ..
+-rw-r--r-- 1 pi   pi   2447 Oct  8 04:01 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 0a6e411d1e64
+KEY repo hil/prune143-on-104ee3c 0a6e411d HIL test ref: bmcam004 runtime 104ee3c (B3a) + bm #143 c8bea4de (rc_media_key.py, rc_still_storage.py + tests)
+KEY cfg_hash hash=9e346071
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=video hash=9e346071 hv=1 registry=v11 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.Ak4dmJ/camera_schedule.yaml (level=v2)
+file fb6994aaa2c5b11e camera_config.yaml 145L
+file 18d6dbe227ae15e0 camera_schedule.yaml 214L
+file 080de389b76aae8e bm_command_state_v2.json 0L
+file 81abb781b3341214 config_journal.jsonl 34L
+state overlay {"mode.media": "still", "still.format": "nrjxl", "video.send.message_cap": 126}
+state guarded {}
+state boot 153 hw {"remote": 1000072, "service": 100000032}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+17 1000 pi - 2157 user    - no -
+ 7 1000 pi - 1016 manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     226544 kB
+CmaTotal:         262144 kB
+CmaFree:           50644 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261008T030834Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[BOOT] transmit_start uptime_s=56.55
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-08T04:01:11+00:00
+============================================================
