@@ -1,0 +1,5 @@
+cjxl:  bash: line 1: cjxl: command not found
+numpy 2.2.4
+/dev/mmcblk0p2  115G   87G   24G  79% /
+               total        used        free      shared  buff/cache   available
+Mem:             415         193         105           2         172         221
