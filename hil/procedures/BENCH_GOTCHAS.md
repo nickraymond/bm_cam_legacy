@@ -66,6 +66,14 @@ it to a new path.
     window job, hold `nohup caffeinate -i -t 36000 >/dev/null 2>&1 </dev/null &` and check it with `pmset -g assertions`.
     A closed lid still sleeps. After a gap, check `pmset -g log | grep -E ' (Sleep|Wake) '`.
 
+15. **A background job's time limit counts from launch, not from the window.** The RC2 deploy armed 98 min ahead with a
+    90 min limit was killed at 12:53 PM while still waiting for the 1 PM window. Set the limit to wait + run + margin
+    (max 2 h), or launch closer to the window.
+16. **Deploying a branch name pins nothing.** `hil_deploy_window.sh … development 786b100` deployed the development
+    TIP (9ec4cb7, a docs-only merge newer than 786b100). The sha check then failed and the POST hook was skipped.
+    Before arming, check `git log --oneline <want>..origin/<ref>` and pass the tip sha (or a pinned branch) when the
+    extra commits are docs-only.
+
 ## Rules that follow
 
 - Bench script = dry-run mode first, with the exact production arguments, then the real run.
