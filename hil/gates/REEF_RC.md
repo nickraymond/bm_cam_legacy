@@ -67,7 +67,17 @@ other); heal chunks sent + rsd served; command landing time vs the report minute
    **TE note:** the unit registry has the key (FLOAT 0.5–2.0, nullable). It reaches rpicam only while
    `camera.controls_enabled` AND `camera.image_processing.enabled` are true (config_registry.py, rc_capture.py:486).
    The reef config has image_processing disabled, so with this key "in effect" = the applied config value
-   (print-config / config hash in the cycle log), not a change in the image. Raised with the EM.
+   (print-config / config hash in the cycle log), not a change in the image.
+   **EM decision (A):** keep contrast, with config-level proof = the applied value + config hash in the cycle log / `<CF>`
+   at the next wake. Reasoning: REEF-RC asks whether commands land, are confirmed and applied, and whether they hurt
+   message delivery. A no-op on the image keeps image size and message count identical between command and no-command
+   wakes, so the loss comparison is not confounded. A "capture really changes" check (e.g. a WB fix with controls
+   enabled) is a later card. Pre-check: the backend catalog must let `set camera.image_processing.contrast` through (not "blocked").
+   **Pre-check DONE (TE2, nereus-vision-dev origin/staging 9a9c3f6, vendor catalog registry v11):** `tier: control`,
+   `blocked_values: []`, range 0.5–2.0, `apply: next_action`. The `requires` (controls_enabled, image_processing.enabled)
+   produce only a plan WARNING ("saved but not applied until … true", services/remote_config.py `_warnings`), not a
+   refusal. `one_shot: true` = the key may also be used in a one-shot capture command (command_v9.one_shot); it does not
+   affect a persistent `set`.
 3. self_heal ON, 24/day. The EM flips the backend for SPOT-33507C when the TE reports wake 1.
 
 Start: when R3-PACE stops after the 02Z (7 PM) interim. The interim verdict goes to the EM first.
