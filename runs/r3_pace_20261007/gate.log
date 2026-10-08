@@ -28,3 +28,6 @@
   rec = {"wake_utc_hour": a.wake, "day": __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d"),
 [r3switch] wake 01Z arm B (delay_s 1.5) | seq 10/30 counts={'A': 5, 'B': 5} | next 02Z = B (yaml: 'msg_interval_s: 1.5  # R3-PACE arm B', rc 0) (rc 0)
 2026-10-08T01:16:28Z WAKE 01Z B (1.5 s): 189 msgs, loss 3.70 % (7/189), one 7-gap (non-HDR stall); END 01:05:28 (no :05 HDR logged); halt 495 s. Counts A5 B5; medians A 6.55 / B 5.91. Interim after 02Z (B).
+2026-10-08T02:01:33Z /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint26-s3a-runtime-parity-092958/hil/tools/hil_r3_switch.py:57: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  rec = {"wake_utc_hour": a.wake, "day": __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d"),
+[r3switch] wake 02Z arm B (delay_s 1.5) | seq 11/30 counts={'A': 5, 'B': 6} | next 03Z = A (yaml: 'msg_interval_s: 1.0  # R3-PACE arm A', rc 0) (rc 0)
