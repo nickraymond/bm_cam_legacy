@@ -1,3 +1,4 @@
 2026-10-07T23:57:12Z run created for PRUNE units: bmcam004
 2026-10-07T23:57:17Z [TE2] PRUNE card received from the EM (Nick approved in the EM chat). Gate hil/gates/PRUNE_GATE.md written BEFORE any deploy. Deploy-ref correction proposed to the EM: hil/prune143-on-104ee3c @ 0a6e411 (= 104ee3c + #143's 2 runtime files + tests; desk 1843 passed / 0 failed; 104ee3c alone 1833). Waiting for the EM's OK; baseline census at the 00Z window.
 2026-10-07T23:58:35Z [TE2] EM OK for the deploy ref hil/prune143-on-104ee3c @ 0a6e411 (merge candidate = #143 head c8bea4de; bench proof on 104ee3c+#143, same runtime diff). Deploy in the 01Z window.
+2026-10-07T23:58:54Z [deploy-prune143 bmcam004] ref=hil/prune143-on-104ee3c want=0a6e411 profile=bmcam004/live_20260925 window=2026-10-08T01:00:00Z accept_diff=0; waiting
