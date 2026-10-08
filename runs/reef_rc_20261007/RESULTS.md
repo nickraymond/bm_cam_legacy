@@ -16,3 +16,20 @@ Command wake = a wake whose cycle log shows `[CMD] applied … camera.image_proc
 | 9 | 15:00 | 8 AM | no (cmd 3 in effect: `[CFG] … hash=bc8c7591 overlay=1`; ack 1000162 re-sent d:1) | 188 | **3.19** (6/188; console count) | 0×6 | 6 | 10 | – | – | 36 before START | **START not on the console** (queue_full 15:01:19.2–28.4 at START; START + chunks 0–5 rejected) / END 15:04:34.8 | 504 s | `pruned 8 … (by key time)` | 16.97 V rig WARN = bus-off edge sample |
 | 10 | 16:00 | 9 AM | no | 170 | **11.76** (20/170) | 76×10, 143×10 | 10 | 30 | 13 / 108.9 s / 30 | 10 / 20 | 31 before START | 16:01:17 / 16:04:11 | 503 s | `pruned 8 … (by key time)` | cmd 4 (1000163) on the console at the 16:10 sync; rsd 100229 asks wake 8 holes (0-7,75-84,147,155-164) |
 | 11 | 17:00 | 10 AM | **yes**: cmd 4 applied (post-transmit) | 173 | **6.94** (12/173) | 26×10, 69×1, 130×1 | 10 | 12 | 13 / 64.8 s / 12 | 0 / 12 | 34 before START | 17:01:17 / 17:04:15 | 503 s | `pruned 8 … (by key time)` | `applied id=1000163 contrast: 1.1 -> 1.0`; ack + `<CF>` ON the console 17:04:15.4 / 17:04:16.4 |
+| 12 | 18:00 | 11 AM | no (cmd 4 in effect: `[CFG] … hash=28527962 overlay=1`; ack 1000163 re-sent d:1) | 174 | **0.57** (1/174) | 93×1 | 1 | 1 | 5 / 64.3 s / 1 | 0 / 1 | 29 (wake-8 holes) before START | 18:01:12 / 18:04:10 | 503 s | `pruned 8 … (by key time)` | clean |
+
+## VERDICT (2026-10-08 18:25Z / 11:25 AM PDT): **FAIL on 1 criterion (6 h completion), PASS on the other 3**
+
+| criterion | n | result |
+|---|---|---|
+| Commands confirmed (ack or hash) AND in effect at the next wake | 4 / 4 | **PASS**. Cmds 1, 3, 4: acked at the apply wake. Cmd 2: its ack + `<CF>` were rejected at the Spotter post-burst queue stall (11:03:12–21Z), recovered by the unit's `d:1` ack re-send at the next boot (12:00:38Z) = confirmed 1 wake late. All 4 in effect at the next wake (hashes bc8c7591 / 28527962 / bc8c7591 / 28527962). The 4:33 AM slot was refused by the backend while cmd 2 was unanswered. The card closed at 4 commands (EM). |
+| Median first-send loss, command wakes ≤ no-command wakes + 2 pp | 4 vs 8 wakes | **PASS**: 4.41 % (1.82, 1.87, 6.94, 16.76) vs 8.22 % (0.00, 0.57, 3.19, 7.27, 9.17, 10.09, 11.76, 19.23). Commands apply in the post-transmit listen, so they never touch the burst. |
+| Every image complete within 6 h | 6 images aged ≥ 6 h at 18:20Z | **FAIL (5 / 6)**: wakes 1–5 complete at 255 min each (one heal round). **Wake 6 (58113, 12:00:38Z)** was 94/104 at 6 h 20 min: its 16Z heal (20 chunks) lost 10 in that wake's queue stall (30 rejects); re-asked (rsd 100230) → second round at 19Z (expected ≈ 7 h 15 min). Wakes 7–12: deadlines to 00:00Z; final check ~00:20Z (5:20 PM PDT). |
+| 0 SSH writes and 0 hard cuts during wakes 1–12 | 12 wakes | **PASS**: TE ssh was read-only (cycle log cat, sent/ listing via stdin script, ls). Halts 374–504 s, all before bus-off (:09:57). |
+
+Findings (design inputs, not criteria):
+- **Every loss is a Spotter hand-off stall** (queue_full rejects; HDR-caused only at wakes 4 and 10).
+- **START was lost twice** (wakes 8 and 9), right after 36–40 heal chunks sent before START. The heal burst feeds the stall at START.
+- **Acks sent right after the burst** can hit the same stall. The `d:1` re-send recovers them at the cost of one wake.
+- **The heal round trip is 255 min** (4 wakes) when nothing is lost. A heal hit by a stall adds about 3 h. The JXL-RC card already uses a 48 h bar for this reason (heal budget binds).
+- **#143 on the reef config:** prune at every wake (8 files each), always after the key line.
