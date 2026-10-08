@@ -68,3 +68,27 @@ Thu  8 Oct 17:00:34 UTC 2026
 [NET] 2026-10-08T17:00:44Z client WiFi UP: profile=nereus-hq
 [HEAL] sent 34 heal chunk(s) before START: 0efd92:[105, 106], 0ee7l1:[7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 87], 0ee4t2:[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 24, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124]
 [HEAL] pending after this wake: none
+[RC] transmit done: sent=173/173 complete=True incomplete_emitted=False uart=177.2s
+[DEBUG] Raw image size: 2831963 bytes
+[DEBUG] Image quality: 50
+[DEBUG] Compressed image size: 49645 bytes
+[DEBUG] Buffers: 173
+[DEBUG] Execution Time: 3.77 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 28.40°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[CMD] rsd id=100229 key=0efll0 n=29: accepted
+[CMD] applied id=100229 rsd: rsd: 1 heal(s) queued (<HL> reports each)
+[CMD] applied id=1000163 set: camera.image_processing.contrast: 1.1 -> 1.0 (next action)
+[CMD] console: 2 line(s) sent, 0 queued
+[CMD] ack sent: {"id":1000163,"ok":1,"h":"28527962"}
+[CMD] ack sent: <CF v=1 h=28527962 camera.image_processing.contrast=1.0@c1000163>
+[HEAL] status: <HL v=1 key=0efd92 a=sent n=2 r=ok id=100228 w=0eftwy>
+[HEAL] status: <HL v=1 key=0ee7l1 a=sent n=11 r=ok id=100228 w=0eftwy>
+[HEAL] status: <HL v=1 key=0ee4t2 a=sent n=21 r=ok id=100228 w=0eftwy>
+[HEAL] status: <HL v=1 key=0efll0 a=requested n=29 r=ok id=100229 w=0eftwy>
+[CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[SUP] staying awake 79s (hld=False, keep-alive after a command)
