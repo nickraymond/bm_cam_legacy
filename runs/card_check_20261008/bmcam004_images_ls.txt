@@ -1,0 +1,12 @@
+total 10100
+-rw-r--r-- 1 pi pi    2752 2026-10-08T18:00:54Z 2026-10-08T18:00:34Z_image_compressed.nrjxl.capture_metadata.json
+-rw-r--r-- 1 pi pi   54284 2026-10-08T18:00:54Z 2026-10-08T18:00:34Z_image_compressed.nrjxl
+-rw-rw-r-- 1 pi pi    2654 2026-10-08T18:00:41Z 2026-10-08T18:00:34Z_image_compressed.jpg.capture_metadata.json
+-rw-rw-r-- 1 pi pi   52940 2026-10-08T18:00:41Z 2026-10-08T18:00:34Z_image_compressed.jpg
+-rw-rw-r-- 1 pi pi     691 2026-10-08T18:00:38Z 2026-10-08T18:00:34Z_image_native_full.metadata.json
+-rw-rw-r-- 1 pi pi 2722166 2026-10-08T18:00:38Z 2026-10-08T18:00:34Z_image_native_full.jpg
+-rw-rw-r-- 1 pi pi    2133 2026-10-08T18:00:38Z 2026-10-08T18:00:34Z_image_native_full.stderr.log
+-rw-rw-r-- 1 pi pi       0 2026-10-08T18:00:34Z 2026-10-08T18:00:34Z_image_native_full.stdout.log
+-rw-r--r-- 1 pi pi    2856 2026-10-08T17:04:52Z 2026-10-08T17:00:33Z_image_compressed.nrjxl.capture_metadata.json
+-rw-r--r-- 1 pi pi   51627 2026-10-08T17:00:52Z 2026-10-08T17:00:33Z_image_compressed.nrjxl
+-rw-rw-r-- 1 pi pi    2546 2026-10-08T17:00:40Z 2026-10-08T17:00:33Z_image_compressed.jpg.capture_metadata.json
