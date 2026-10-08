@@ -38,6 +38,8 @@ Heals (Sprint25 S5, rc_heal): with the daemon on and an `rsd` heal pending, the
 requested chunks of an earlier keyed media are re-sent right BEFORE this clip's
 START (paced, pump-only, never eating the clip's room) and one `<HL>` status line
 per key goes out after END. No daemon or nothing pending = the wire is unchanged.
+`media_key.heal_order: after` (2026-10-08) moves the heal chunks to right after
+END + the ack flush (the clip first; the heals give way to a short budget).
 
 NOT in this module: scheduled transmit windows beyond the existing gate, and
 one-shot `trg` servicing (stills only).
@@ -491,12 +493,15 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
         summary["stage"] = "done_no_transmit"
         return summary
 
-    # 4. S5: plan this wake's heals (they go right before START, so the
-    #    lane plan counts them), then keep the burst inside one cellular lane.
+    # 4. S5: plan this wake's heals (they go right before START, or right after
+    #    END with media_key.heal_order after; the lane plan counts them either
+    #    way), then keep the burst inside one cellular lane.
     summary["stage"] = "lane_wait"
     pump = cmd_hooks.make_pending_pump_fn(daemon, summary)
     heals = rc_heal.begin_wake(daemon, settings, summary, pump_fn=pump)
     heal_msgs = heals.planned_msgs if heals is not None else 0
+    heals_first = heals is not None and heal_msgs and heals.order == "before"
+    heals_last = heals is not None and heal_msgs and heals.order == "after"
     phase_cfg = settings.get("transmit_phase_cfg") or {}
     if phase_cfg.get("enabled"):
         burst_s = rc_transmit_phase.burst_seconds_for(
@@ -533,8 +538,8 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
             send_args["chunk_total"] = True
     tx = tx_open_fn(settings["config_path"])
     cmd_hooks.boot_mark("transmit_start")
-    # S5: heals first, never eating the clip's own room.
-    if heals is not None and heal_msgs:
+    # S5: heals first (heal_order before), never eating the clip's own room.
+    if heals_first:
         heals.send_before_start(
             tx, budget, reserve_msgs=fit["msgs"] + keyframe_chunks + VIDEO_ENVELOPE_MSGS,
             delay_seconds=settings["pacing_delay_seconds"], sleep_fn=sleep_fn)
@@ -582,6 +587,11 @@ def video_action(settings, vtx, summary, daemon, budget, port_state, *, transmit
     if daemon is not None:
         cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
                              label="post-transmit ack flush")
+        if heals_last:
+            # media_key.heal_order after (Nick 2026-10-08): the heal chunks follow
+            # the clip, its trg <WS> and the ack flush; they give way to a short budget.
+            heals.send_after_end(tx, budget, delay_seconds=settings["pacing_delay_seconds"],
+                                 sleep_fn=sleep_fn)
         # S5: one <HL> per key after END, paced, on the clip's own tx.
         if heals is not None:
             heals.send_status_after_end(tx, budget, wake_key=media_key,

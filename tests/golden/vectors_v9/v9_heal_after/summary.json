@@ -1,7 +1,10 @@
 {
  "cycle": {
   "budget_seconds": 720,
-  "command_events": [],
+  "command_events": [
+   "applied",
+   "applied"
+  ],
   "final_path": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
   "halt_result": {
    "action": "halt_initiated",
@@ -15,157 +18,137 @@
    "script_exists": true
   },
   "heal": {
-   "hl": []
+   "hl": [
+    "<HL v=1 key=0dnwc0 a=sent n=1 r=ok id=100002 w=0dpr00>"
+   ],
+   "order": "after",
+   "planned": 1,
+   "sent": 1
   },
   "listen_tail_s": 150.0,
   "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
-  "raw": {
-   "attempt_log": [
-    {
-     "budget_fit": false,
-     "bytes": 307350,
-     "cjxl_seconds": [
-      1.6,
-      1.6,
-      1.6,
-      1.6
-     ],
-     "distance": 0.1,
-     "effort": 5,
-     "message_count": 1068,
-     "over_cap": true,
-     "peak_rss_kb": 31000,
-     "plane_bytes": [
-      76818,
-      76818,
-      76818,
-      76818
-     ],
-     "seconds": 6.4,
-     "step": "search1"
-    },
-    {
-     "budget_fit": true,
-     "bytes": 102550,
-     "cjxl_seconds": [
-      1.6,
-      1.6,
-      1.6,
-      1.6
-     ],
-     "distance": 0.3,
-     "effort": 5,
-     "message_count": 357,
-     "over_cap": true,
-     "peak_rss_kb": 31000,
-     "plane_bytes": [
-      25618,
-      25618,
-      25618,
-      25618
-     ],
-     "seconds": 6.4,
-     "step": "search2"
-    }
-   ],
-   "bytes": 3300,
-   "detail": "the room needs d>=0.565 > still.raw.d_max 0.3 (crop 160x96, 195 msgs, 2 encode(s))",
-   "distance": null,
-   "fmt": "pjpg",
-   "kept_crop": null,
-   "message_count": 12,
-   "reserve_msgs": 0,
-   "rfb": "floor",
-   "timings": {
-    "dng_read_s": 0.0,
-    "planes_s": 0.0
-   }
-  },
   "schedule_allowed": true,
   "selection": {
    "attempt_log": [
     {
      "budget_fit": true,
-     "jpeg_bytes": 3300,
-     "message_count": 12,
-     "over_cap": false,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
      "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
     }
    ],
-   "attempts": 1,
+   "attempts": 4,
    "fits": true,
-   "quality": 90,
+   "quality": 60,
    "reason": "fit"
   },
   "transmit": true,
   "transmit_result": {
    "complete_send": true,
    "incomplete_emitted": false,
-   "planned": 12,
-   "send_target": 12,
-   "sent": 12,
+   "planned": 192,
+   "send_target": 192,
+   "sent": 192,
    "started": true,
-   "uart_duration_sec": 16.89999999999941
+   "uart_duration_sec": 250.89999999999122
   }
  },
  "exit_code": 0,
- "fake_clock_elapsed_s": 179.7,
+ "fake_clock_elapsed_s": 550.9,
  "files": {
   "app/bm_media_key_last.txt": {
    "bytes": 6,
    "sha256": "5fa8e69e461e3634"
   },
+  "app/sent/2026-09-23T15:00:00Z_image_compressed.sent.json": {
+   "bytes": 316,
+   "sha256": "4120d9334b7c0f1f"
+  },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
-   "bytes": 341,
-   "sha256": "634fdb96f8e89e70"
+   "bytes": 342,
+   "sha256": "495ae8493af789b1"
   },
   "camera_config.lkg.json": {
-   "bytes": 3578,
+   "bytes": 3585,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2738,
-   "sha256": "0f23d2cb3a55c57b"
+   "bytes": 2745,
+   "sha256": "3b457d4f010c8650"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
    "sha256": "676b414910d2df13"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg": {
-   "bytes": 3300,
-   "sha256": "4a6b67539f0bec6a"
+   "bytes": 55070,
+   "sha256": "12db91e1030d4f9a"
   },
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
-   "bytes": 2395,
-   "sha256": "a38f85351bca4bb8"
+   "bytes": 2474,
+   "sha256": "1ad82333027b9950"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.jpg": {
    "bytes": 4178802,
    "sha256": "eb364d9cdb375bd0"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.metadata.json": {
-   "bytes": 350,
-   "sha256": "0dfc804982d17312"
+   "bytes": 246,
+   "sha256": "bec2860ed6d72147"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.stderr.log": {
-   "bytes": 0,
-   "sha256": "e3b0c44298fc1c14"
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
   },
   "images/2026-09-24T15:00:00Z_image_native_full.stdout.log": {
-   "bytes": 0,
-   "sha256": "e3b0c44298fc1c14"
+   "bytes": 21,
+   "sha256": "49401993375a0f77"
   },
   "logs/camera_log.csv": {
-   "bytes": 288,
-   "sha256": "8b9891491cedfe6d"
+   "bytes": 290,
+   "sha256": "7f553f534eb2a5dd"
+  },
+  "old/2026-09-23T15:00:00Z_image_compressed.jpg": {
+   "bytes": 3000,
+   "sha256": "d3859081b6ebe8d1"
+  },
+  "old/key.txt": {
+   "bytes": 6,
+   "sha256": "ccc3acb96f4f11df"
   },
   "render/camera_schedule.yaml": {
-   "bytes": 2370,
-   "sha256": "cd966a4d78624f4e"
+   "bytes": 2255,
+   "sha256": "77d8dcf92dd7e1ce"
+  },
+  "state/bm_command_state.json": {
+   "bytes": 283,
+   "sha256": "4d164957abb53518"
   },
   "state/bm_command_state_v2.json": {
-   "bytes": 203,
-   "sha256": "a48c6bbf3d54bcc5"
+   "bytes": 761,
+   "sha256": "d17289fa674a893c"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -174,39 +157,37 @@
  },
  "heavy_modules_loaded": [
   "PIL",
-  "numpy",
   "yaml"
  ],
- "notes": "quality floor d_max 0.3: d 0.1 overshoots, the plan passes d_max, d_max itself is measured and overshoots too: pjpg rfb=floor after 2 encodes",
- "scenario": "v9_nrjxl_rfb_floor",
+ "notes": "v9_heal with heal_order after: START + the image's chunks + END first, the heal chunk <I{KEY}.2> after END (sleep before it), then the <HL>; the mid-burst rsd still waits for the next wake",
+ "scenario": "v9_heal_after",
  "sent_records": {
+  "app/sent/2026-09-23T15:00:00Z_image_compressed.sent.json": {
+   "chunk_b64_chars": 384,
+   "filename": "2026-09-23T15:00:00Z_image_compressed.jpg",
+   "fmt": "pjpg",
+   "key": "0dnwc0",
+   "msgs": 11,
+   "payload": "{TMP}/old/2026-09-23T15:00:00Z_image_compressed.jpg",
+   "sent_utc": "2026-09-23T15:00:05Z",
+   "sha256": "d3859081b6ebe8d1e0ff6387a734eeb63afe2142343e77be4f836b961e7b141f"
+  },
   "app/sent/2026-09-24T15:00:00Z_image_compressed.sent.json": {
    "chunk_b64_chars": 384,
    "chunk_total": true,
    "filename": "2026-09-24T15:00:00Z_image_compressed.jpg",
    "fmt": "pjpg",
    "key": "0dpr00",
-   "msgs": 12,
+   "msgs": 192,
    "payload": "{TMP}/images/2026-09-24T15:00:00Z_image_compressed.jpg",
-   "sent_utc": "2026-09-24T15:00:12Z",
-   "sha256": "4a6b67539f0bec6a66e40a84f79ba95feb6e689b544fc11c72f4d2ffde669756"
+   "sent_utc": "2026-09-24T15:00:00Z",
+   "sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f"
   }
  },
  "sidecars": {
   "images/2026-09-24T15:00:00Z_image_compressed.jpg.capture_metadata.json": {
    "AfState": 0,
    "AnalogueGain": 1.5,
-   "ColourCorrectionMatrix": [
-    1.6077,
-    -0.416,
-    -0.1918,
-    -0.3678,
-    1.7546,
-    -0.3868,
-    0.0051,
-    -0.5874,
-    1.5823
-   ],
    "ColourGains": [
     1.8,
     1.6
@@ -227,13 +208,34 @@
    "attempt_log": [
     {
      "budget_fit": true,
-     "jpeg_bytes": 3300,
-     "message_count": 12,
-     "over_cap": false,
+     "jpeg_bytes": 137623,
+     "message_count": 478,
+     "over_cap": true,
      "quality": 90
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 88579,
+     "message_count": 308,
+     "over_cap": true,
+     "quality": 80
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 68061,
+     "message_count": 237,
+     "over_cap": true,
+     "quality": 70
+    },
+    {
+     "budget_fit": true,
+     "jpeg_bytes": 55070,
+     "message_count": 192,
+     "over_cap": false,
+     "quality": 60
     }
    ],
-   "base64_chars": 4400,
+   "base64_chars": 73428,
    "camera_control_args": [
     "--autofocus-mode",
     "manual",
@@ -271,65 +273,141 @@
     "normal",
     "--awb",
     "auto",
-    "--raw",
     "-o",
     "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg"
    ],
    "capture_mode": "progressive_jpeg",
    "cron_logs_dir_bytes": 4567890,
    "crop_native_xywh": [
-    0,
-    0,
-    160,
-    96
+    1504,
+    846,
+    1600,
+    900
    ],
-   "enc_attempts": 1,
+   "enc_attempts": 4,
    "fits": true,
    "hostname": "bmcam-golden",
    "images_dir_bytes": 123456789,
    "img_format": "pjpg",
-   "jpeg_bytes": 3300,
-   "jpeg_quality_used": 90,
-   "jpeg_sha256": "4a6b67539f0bec6a66e40a84f79ba95feb6e689b544fc11c72f4d2ffde669756",
-   "message_count": 12,
+   "jpeg_bytes": 55070,
+   "jpeg_quality_used": 60,
+   "jpeg_sha256": "12db91e1030d4f9acb61210f197730807effbefde5d3b251ff7fae938a39348f",
+   "message_count": 192,
    "metadata_json": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.metadata.json",
    "metadata_schema": "bmcam_runtime_sidecar_v1",
    "metadata_source": "rc_progressive_jpeg",
    "native_path": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.jpg",
    "output_size": [
-    160,
-    96
+    1000,
+    562
    ],
-   "planned_buffers": 12,
-   "raw_detail": "the room needs d>=0.565 > still.raw.d_max 0.3 (crop 160x96, 195 msgs, 2 encode(s))",
-   "raw_rfb": "floor",
+   "planned_buffers": 192,
    "sd_free_bytes": 22000000000,
    "sd_total_bytes": 31000000000,
    "sd_used_bytes": 9000000000,
    "sd_used_pct": 29.03,
    "selector_reason": "fit",
-   "sent_buffers": 12,
+   "sent_buffers": 192,
    "software_sha": "golden0",
    "stderr_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stderr.log",
    "stdout_log": "{TMP}/images/2026-09-24T15:00:00Z_image_native_full.stdout.log",
-   "transmit_duration_sec": 16.89999999999941,
+   "transmit_duration_sec": 250.89999999999122,
    "transmit_success": true,
    "utc_capture_timestamp": "2026-09-24T15:00:00Z"
   }
  },
- "state_file": null,
+ "state_file": {
+  "applied_ids": [
+   100001
+  ],
+  "pending_heals": [
+   {
+    "id": 100001,
+    "key": "0dnwc0",
+    "n": [
+     1,
+     3
+    ],
+    "wakes_left": 3
+   }
+  ],
+  "pending_trigger": null,
+  "schema": "bm_command_state_v1",
+  "settings": {
+   "awb": 0,
+   "cap": 0,
+   "exp": 0,
+   "foc": 0,
+   "hlt": 0,
+   "roi": 0,
+   "src": 0,
+   "tmz": 0,
+   "twn": 0,
+   "txd": 0,
+   "win": 0
+  },
+  "tables_version": 8,
+  "touched": []
+ },
  "state_file_v2": {
   "boot_counter": 1,
   "guarded": {},
   "high_water": {},
+  "migrated_from": {
+   "path": "{TMP}/state/bm_command_state.json",
+   "sha256": "4d164957abb53518868115f34d25de6fed9f2d1a0fa4cca506fd43e860091b40"
+  },
   "overlay": {},
   "overlay_ids": {},
   "pending_trigger_v9": null,
-  "result_cache": {},
+  "result_cache": {
+   "100002": {
+    "b": 1,
+    "h": "f96307e3",
+    "ok": 1,
+    "t": "rsd: 1 heal(s) queued (<HL> reports each)"
+   },
+   "100004": {
+    "b": 1,
+    "h": "f96307e3",
+    "ok": 1,
+    "t": "rsd: 1 heal(s) queued (<HL> reports each)"
+   }
+  },
   "schema": "bm_command_state_v2",
-  "v8": {},
+  "tables_version": 8,
+  "v8": {
+   "applied_ids": [
+    100001
+   ],
+   "pending_heals": [
+    {
+     "id": 100004,
+     "key": "0dnwc0",
+     "n": [
+      1
+     ],
+     "wakes_left": 3
+    }
+   ],
+   "pending_trigger": null,
+   "settings": {
+    "awb": 0,
+    "cap": 0,
+    "exp": 0,
+    "foc": 0,
+    "hlt": 0,
+    "roi": 0,
+    "src": 0,
+    "tmz": 0,
+    "twn": 0,
+    "txd": 0,
+    "win": 0
+   },
+   "touched": []
+  },
   "v8_fold_values": {},
-  "v8_folded": "a4a94855"
+  "v8_folded": "5a175a67"
  },
  "unfired_rules": []
 }

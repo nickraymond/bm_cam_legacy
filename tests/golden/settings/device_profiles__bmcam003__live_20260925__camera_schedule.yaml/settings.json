@@ -21,6 +21,7 @@
  },
  "media_key": {
   "enabled": true,
+  "heal_order": "before",
   "retain_days": 14.0,
   "sent_dir": "{TMP}/app/sent",
   "source": "yaml",
@@ -79,6 +80,7 @@
   "max_run_time_min": 8,
   "media_key_cfg": {
    "enabled": true,
+   "heal_order": "before",
    "retain_days": 14.0,
    "sent_dir": "{TMP}/app/sent",
    "source": "yaml",
