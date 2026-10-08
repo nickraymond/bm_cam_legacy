@@ -25,8 +25,11 @@ What it does (run by every supervisor stills action, before the capture):
          names as its payload (media_key off, or the record aged out)
   - NEVER deletes a file a live sent record's `payload` names: for images the
     compressed JPEG on disk IS the heal payload (rc_media_key.py:24). "Live" =
-    record mtime within media_key.retain_days (hard cap 30 d), computed here,
-    because prune_sent only runs on a transmitting action;
+    record KEY time within media_key.retain_days (hard cap 30 d) of the NEWEST sent
+    record, computed here because prune_sent only runs on a transmitting action.
+    Never file mtime vs the Pi clock (no RTC: a fast clock used to un-protect every
+    payload). Undatable records and records behind a gap > retain_days stay live
+    (rc_media_key.expired_times);
   - reports `full` when the limits still cannot be met (the caller decides:
     a transmit action only WARNs, a save_local action refuses the capture).
 
@@ -52,6 +55,8 @@ import json
 import os
 import shutil
 import time
+
+import rc_media_key
 
 GIB = 1024 ** 3
 HARD_CAP_RETAIN_DAYS = 30.0          # rc_media_key.HARD_CAP_RETAIN_DAYS
@@ -123,21 +128,24 @@ def is_save_local(images_dir, stem):
         return False
 
 
-def live_payloads(sent_dir, retain_days, now_ts):
-    """Real paths of every payload a live sent record names (heal payloads)."""
-    retain_s = min(float(retain_days), HARD_CAP_RETAIN_DAYS) * 86400.0
-    live = set()
+def live_payloads(sent_dir, retain_days):
+    """Real paths of every payload a live sent record names (heal payloads).
+
+    Aged by KEY time against the newest record (rc_media_key.expired_times), never
+    by mtime vs the Pi clock. A record whose key cannot be read stays live."""
+    recs = {}
     for rec in glob.glob(os.path.join(sent_dir or "", "*.sent.json")):
         try:
-            if now_ts - os.path.getmtime(rec) > retain_s:
-                continue
             with open(rec, "r", encoding="utf-8") as fh:
                 payload = (json.load(fh) or {}).get("payload")
         except (OSError, ValueError, AttributeError):
             continue
         if payload:
-            live.add(os.path.realpath(payload))
-    return live
+            recs[rec] = (rc_media_key.record_key_s(rec), payload)
+    expired, _behind = rc_media_key.expired_times(
+        [t for t, _p in recs.values() if t is not None],
+        rc_media_key.retain_seconds(retain_days))
+    return {os.path.realpath(p) for t, p in recs.values() if t is None or t not in expired}
 
 
 def _debris(images_dir, now_ts):
@@ -155,7 +163,7 @@ def plan_candidates(images_dir, sent_dir, retain_days, now_ts):
     """Deletion groups in prune order: [(tier, label, [files])]. Heal payloads
     (live sent records) are never in a group."""
     groups = [(0, os.path.basename(p), [p]) for p in _debris(images_dir, now_ts)]
-    live = live_payloads(sent_dir, retain_days, now_ts)
+    live = live_payloads(sent_dir, retain_days)
     by_stem = stems(images_dir)
     saved = {s for s in by_stem if is_save_local(images_dir, s)}
 
