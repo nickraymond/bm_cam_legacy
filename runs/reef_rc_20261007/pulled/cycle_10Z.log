@@ -1,0 +1,103 @@
+LOG cron_logs/rc_cycle_20261008T090833Z.log
+c8bea4de50a8
+
+============================================================
+[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+[RC-CRON] start_utc=2026-10-08T09:08:33+00:00
+[RC-CRON] uptime_s=17.65
+[RC-CRON] user=pi
+[RC-CRON] hostname=bmcam003
+[RC-CRON] app_dir=/home/pi/BM_Devel_Pi
+[RC-CRON] log_file=/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261008T090833Z.log
+[RC-CRON] disk: /dev/mmcblk0p2  115G   87G   24G  79% /
+[RC-CRON] images_dir: 656M
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[BOOT] main_entry uptime_s=19.42
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=bc8c7591 hv=1 registry=v8 overlay=1 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] supervisor runs the effective config: base ⊕ 1 overlay key(s) hash=bc8c7591 (render /dev/shm/bmcam/camera_schedule.yaml)
+[GUARD] boot 163: 0 guarded key(s) pending
+[RUNTIME] supervisor (source=config (v2))
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+[NET] applying boot default: sudo -n /home/pi/BM_Devel_Pi/network_ap.sh default nereus_hq 90
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0
+[RC] derived (informational): transmit-only budget holds 480 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[SUP] per_boot: media=still transmit=True
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[BOOT] cmd_subscribed uptime_s=20.28
+[RC] cycle start: budget=480s pacing=1.0s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-08T10:00:39.042000+00:00
+Thu  8 Oct 10:00:39 UTC 2026
+[BOOT] spotter_utc_read uptime_s=30.07
+[CMD] ack re-send: 1 answer(s) from the last boots as d:1 (ids [1000160]; 1 paced msg(s) from the wake budget)
+[CMD] ack re-sent: {"id":1000160,"ok":1,"h":"bc8c7591","d":1}
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-08T03:00:39.042000-07:00
+[STORE] over limit: used=75.0% (cap 75%) free=23.98GiB (floor 10GiB) — pruning old stills
+[STORE] pruned {'natives': 1}, freed 1.6 MB; used 75.0% -> 75.0%
+[DEBUG] Sent compact telemetry message (133 bytes): <WS v=1 a=cap cfg=bc8c7591 up=10 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=1000x562 q=90 ct=26.8 sha=c8bea4de50a8 hn=bmcam003>
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode auto --lens-position 1.82; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'auto', 'requested_lens_position': 1.82, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False}
+[DEBUG] Running native capture command attempt 1/4: /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-10-08T10:00:40Z_image_native_full.metadata.json --autofocus-mode auto --lens-position 1.82 -o /home/pi/BM_Devel_Pi/images/2026-10-08T10:00:40Z_image_native_full.jpg
+[NET] 2026-10-08T10:00:44Z client WiFi UP: profile=nereus-hq
+[DEBUG] Native capture completed: output=/home/pi/BM_Devel_Pi/images/2026-10-08T10:00:40Z_image_native_full.jpg, bytes=1712781, duration_sec=5.57, attempt=1/4
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-10-08T10:00:40Z_image_native_full.jpg (1712781 B, elapsed=16.8s)
+[RC] source prepared: 1000x562 (elapsed=17.9s)
+[RC] attempt q90: 31209 B, 109 msgs, over_cap=False, budget_fit=True
+[RC] selection: quality=90 attempts=1 fits=True reason=fit
+[RC] final JPEG: /home/pi/BM_Devel_Pi/images/2026-10-08T10:00:40Z_image_compressed.jpg (31209 B, 109 msgs, sha256=2ebb0b4735d510cb...)
+[HEAL] wake plan: 1 pending heal(s), 40 chunk(s) this wake (cap 40)
+[KEY] media key 0efah3 from Spotter UTC 2026-10-08T10:00:39.042000+00:00 (spotter)
+[KEY] pruned 8 sent file(s) older than 14 d (by key time) from /home/pi/BM_Devel_Pi/sent
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-08T10:00:40Z_image_compressed.sent.json (109 msgs, chunks <I0efah3.n/109>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.0
+[BOOT] transmit_start uptime_s=38.77
+[HEAL] sent 40 heal chunk(s) before START: 0eewkw:[19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
+[HEAL] pending after this wake: none
+[RC] transmit done: sent=109/109 complete=True incomplete_emitted=False uart=112.0s
+[DEBUG] Raw image size: 1712781 bytes
+[DEBUG] Image quality: 90
+[DEBUG] Compressed image size: 31209 bytes
+[DEBUG] Buffers: 109
+[DEBUG] Execution Time: 2.86 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 24.60°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[CMD] rsd id=100222 key=0ef24u n=12: accepted
+[CMD] rsd id=100222 key=0eetsw n=1: accepted
+[CMD] rsd id=100222 key=0eer0x n=3: accepted
+[CMD] rsd id=100222 key=0eeo8y n=11: accepted
+[CMD] rsd id=100222 key=0eelgy n=7: accepted
+[CMD] rsd id=100222 key=0eefx0 n=1: accepted
+[CMD] rsd id=100222 key=0edtou n=1: accepted
+[CMD] applied id=100222 rsd: rsd: 7 heal(s) queued (<HL> reports each)
+[CMD] console: 1 line(s) sent, 0 queued
+[HEAL] status: <HL v=1 key=0eewkw a=sent n=40 r=ok id=100220 w=0efah3>
+[HEAL] status: <HL v=1 key=0ef24u a=requested n=12 r=ok id=100222 w=0efah3>
+[HEAL] status: <HL v=1 key=0eetsw a=requested n=1 r=ok id=100222 w=0efah3>
+[HEAL] status: <HL v=1 key=0eer0x a=requested n=3 r=ok id=100222 w=0efah3>
+[HEAL] status: <HL v=1 key=0eeo8y a=requested n=11 r=ok id=100222 w=0efah3>
+[HEAL] status: <HL v=1 key=0eelgy a=requested n=7 r=ok id=100222 w=0efah3>
+[HEAL] status: <HL v=1 key=0eefx0 a=requested n=1 r=ok id=100222 w=0efah3>
+[HEAL] status: <HL v=1 key=0edtou a=requested n=1 r=ok id=100222 w=0efah3>
+[CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[SUP] staying awake 130s (hld=False, keep-alive after a command)
+[SUP] action: media=still stage=None sent=109/109 elapsed=460.1s
+[CMD] stopped: applied=1 dup=0 rejected=0 unackable=0 acks=0 frames=1 sig_hits=2 crc_scan_fail=0 bad_start=0 read_err=0
+[BOOT] halt uptime_s=480.32
+[RC][halt] executing: sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh (SSH/process death after this is SUCCESS)
