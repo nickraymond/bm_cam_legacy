@@ -79,3 +79,18 @@ Thu  8 Oct 00:00:38 UTC 2026
 [BOOT] transmit_start uptime_s=61.00
 [HEAL] sent 40 heal chunk(s) before START: 0ee24p:[38, 39, 40, 41, 42, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85]
 [HEAL] pending after this wake: none
+[RC] transmit done: sent=188/188 complete=True incomplete_emitted=False uart=249.2s
+[DEBUG] Raw image size: 2733816 bytes
+[DEBUG] Image quality: 311
+[DEBUG] Compressed image size: 53971 bytes
+[DEBUG] Buffers: 188
+[DEBUG] Execution Time: 5.71 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 31.60°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[HEAL] <HL> waits 4s for the boundary guard
+[HEAL] status: <HL v=1 key=0ee24p a=sent n=40 r=ok id=100185 w=0eeip2>
+[CMD] post-transmit tail TRIMMED 150s -> 112s by the cycle budget
+[CMD] post-transmit listen window: 112s

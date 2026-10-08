@@ -2,3 +2,23 @@
 2026-10-07T23:57:17Z [TE2] PRUNE card received from the EM (Nick approved in the EM chat). Gate hil/gates/PRUNE_GATE.md written BEFORE any deploy. Deploy-ref correction proposed to the EM: hil/prune143-on-104ee3c @ 0a6e411 (= 104ee3c + #143's 2 runtime files + tests; desk 1843 passed / 0 failed; 104ee3c alone 1833). Waiting for the EM's OK; baseline census at the 00Z window.
 2026-10-07T23:58:35Z [TE2] EM OK for the deploy ref hil/prune143-on-104ee3c @ 0a6e411 (merge candidate = #143 head c8bea4de; bench proof on 104ee3c+#143, same runtime diff). Deploy in the 01Z window.
 2026-10-07T23:58:54Z [deploy-prune143 bmcam004] ref=hil/prune143-on-104ee3c want=0a6e411 profile=bmcam004/live_20260925 window=2026-10-08T01:00:00Z accept_diff=0; waiting
+up=35s
+988 bash -c mkdir -p ~/hil_backup/20261008T010039Z && crontab -l > ~/hil_backup/20261008T010039Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_FOR_prune143 \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_FOR_prune143 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-08T01:00:43Z [deploy-prune143 bmcam004] backup+disarm+stop TS=20261008T010039Z; RESTORE crontab: ssh pi@bmcam004 'crontab ~/hil_backup/20261008T010039Z/crontab_ARMED.txt'; runtime rollback = /home/pi/backups tar printed by rc_field_update
+2026-10-08T01:00:47Z [deploy-prune143 bmcam004] snapshot before_prune143
+2026-10-08T01:02:54Z [deploy-prune143 bmcam004] rc_field_update rc=1 (log runs/prune_gate_20261007/pulled/bmcam004_field_update_prune143_20261008T010039Z.log)
+1:[FIELD-UPDATE] === stage 0: preflight ===
+4:[FIELD-UPDATE] === stage 1: disarm (crontab backup + disable @reboot RC line) ===
+6:[FIELD-UPDATE] === stage 2: repo sync ===
+21:[FIELD-UPDATE] === stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ===
+33:[PARITY] print-config text OK (27 lines)
+34:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+36:[PARITY][DIFF] config json differs in: resolved, transmit_phase
+43:[RC-DEPLOY][ERROR] camera_config.yaml does not resolve like camera_schedule.yaml (above); nothing installed
+44:[FIELD-UPDATE][FAIL] deploy_rc_runtime.sh failed — runtime backup + restore command are in its output above
+2026-10-08T01:02:59Z [deploy-prune143 bmcam004] runtime sha now: 104ee3cdbab0
+2026-10-08T01:02:59Z [deploy-prune143 bmcam004] DEPLOY FAILED or sha mismatch: re-arming the ARMED backup anyway (see runs/prune_gate_20261007/pulled/bmcam004_field_update_prune143_20261008T010039Z.log)
+halt-issued
+2026-10-08T01:03:32Z [deploy-prune143 bmcam004] bmcam004 dark (FAILED)
+2026-10-08T01:05:11Z [TE2] DEPLOY 01Z FAILED SAFE (RESULT=FAILED, sha still 104ee3c, re-armed from ~/hil_backup/20261008T010039Z/crontab_ARMED.txt, halted 01:03:32Z). print-config parity old-vs-staged OK (27 lines). FAIL = deploy_rc_runtime.sh v1-vs-v2 config parity (no override flag): transmit_phase differs, because the lane (hil_lane_block.sh, 10/7 00:00Z) is only in camera_config.yaml (v2), not in camera_schedule.yaml (v1). Not #143. Proposed to the EM: lane OFF at 02Z, deploy 03Z, counted 04/05/06Z; halt baseline = 10/6 19-23Z wakes (104ee3c + rgb, lane off).
