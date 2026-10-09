@@ -1,0 +1,53 @@
+== bmcam004 2026-10-09T21:02:13Z up 126.63s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct  9 21:00 .
+drwxr-xr-x 16 root root 4040 Oct  9 20:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct  9 21:02 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  9 21:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  9 21:00 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  9 21:02 .
+drwxrwxrwt 3 root root  100 Oct  9 21:00 ..
+-rw-r--r-- 1 pi   pi   2460 Oct  9 21:02 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 9ec4cb7ae7c1
+KEY repo development 9ec4cb7a Merge pull request #145: skill bmcam-latest-image (docs-only)
+KEY cfg_hash hash=b3d96cb1
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=b3d96cb1 hv=1 registry=v11 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.Rofzf9/camera_schedule.yaml (level=v2)
+file 29d8f0997ed00a6e camera_config.yaml 146L
+file e8f060568184555c camera_schedule.yaml 214L
+file 9a663ef44793b547 bm_command_state_v2.json 0L
+file 5c20a294d7a2b683 config_journal.jsonl 35L
+state overlay {"mode.media": "still", "still.format": "nrjxl", "video.send.message_cap": 126}
+state guarded {}
+state boot 194 hw {"remote": 1000072, "service": 100000032}
+-- crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed yes
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+12 1000 pi - 2079 user    - no -
+ 3 1000 pi - 940  manager - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     250104 kB
+CmaTotal:         262144 kB
+CmaFree:           73396 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261009T200825Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[RAW] rgb (B3a) written to /home/pi/BM_Devel_Pi/images/.nrjxl_work_2026-10-09T21:00:34Z_image; supervisor VmRSS=76228 KiB (cjxl runs on top of this)
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-09T21:00:52+00:00
+============================================================

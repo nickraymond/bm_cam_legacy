@@ -1,0 +1,53 @@
+== bmcam004 2026-10-09T21:00:55Z up 46.48s
+-- /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct  9 21:00 .
+drwxr-xr-x 16 root root 4040 Oct  9 20:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct  9 20:08 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct  9 21:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct  9 21:00 lttng-ust-wait-8-1000
+total 4
+drwxrwxr-x 2 pi   pi     60 Oct  9 20:08 .
+drwxrwxrwt 3 root root  100 Oct  9 21:00 ..
+-rw-r--r-- 1 pi   pi   2460 Oct  9 20:08 camera_schedule.yaml
+KEY shm_render present
+KEY shm_stay_on missing
+KEY sha 0a6e411d1e64
+KEY repo hil/prune143-on-104ee3c 0a6e411d HIL test ref: bmcam004 runtime 104ee3c (B3a) + bm #143 c8bea4de (rc_media_key.py, rc_still_storage.py + tests)
+KEY cfg_hash hash=b3d96cb1
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=b3d96cb1 hv=1 registry=v11 overlay=3 key(s)
+[CFG] legacy runtime reads the v1 render /tmp/hil_snapshot_render.eEoPDE/camera_schedule.yaml (level=v2)
+file 29d8f0997ed00a6e camera_config.yaml 146L
+file e8f060568184555c camera_schedule.yaml 214L
+file 9a663ef44793b547 bm_command_state_v2.json 0L
+file 81abb781b3341214 config_journal.jsonl 34L
+state overlay {"mode.media": "still", "still.format": "nrjxl", "video.send.message_cap": 126}
+state guarded {}
+state boot 194 hw {"remote": 1000072, "service": 100000032}
+-- crontab
+# DISARMED_FOR_rc2 @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+KEY cron_armed no
+KEY procs 0
+
+KEY removeipc #RemoveIPC=yes RemoveIPC=no 
+logind.d total 4
+logind.d -rw-r--r-- 1 root root 21 Oct  2 05:47 90-bmcam-removeipc.conf
+KEY linger Linger=no
+-- sessions
+3 1000 pi - 940  manager - no -
+8 1000 pi - 1035 user    - no -
+KEY fix97 yes
+KEY rule98 yes
+MemAvailable:     273484 kB
+CmaTotal:         262144 kB
+CmaFree:          136420 kB
+disk /dev/mmcblk0p2  115G   87G   24G  79% /
+KEY log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261009T200825Z.log
+KEY err_count 0
+KEY reresolve_fail 0
+-- tail
+[RAW] rgb (B3a) written to /home/pi/BM_Devel_Pi/images/.nrjxl_work_2026-10-09T21:00:34Z_image; supervisor VmRSS=76228 KiB (cjxl runs on top of this)
+[RC-CRON] SIGTERM: passing it to the runtime; no restart
+[RC-CRON] rc_progressive_jpeg.py exit_code=143
+[RC-CRON] end_utc=2026-10-09T21:00:52+00:00
+============================================================

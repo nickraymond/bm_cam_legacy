@@ -1,0 +1,15 @@
+BACKUP /home/pi/hil_backup/bm_command_state_v2.json.rc2_004_20261009T210217Z
+OVERLAY before: {'mode.media': 'still', 'video.send.message_cap': 126, 'still.format': 'nrjxl'} {'mode.media': 1000072, 'video.send.message_cap': 1000049, 'still.format': 1000061}
+OVERLAY cleared
+EFFECTIVE {'mode.media': 'still', 'mode.run': 'per_boot', 'still.format': 'nrjxl', 'still.raw.layout': 'rgb', 'camera.exposure.profile': 'auto', 'uplink.msg_interval_s': 1.0, 'uplink.chunk_chars': 384, 'uplink.network_type': 2, 'uplink.lane.enabled': False, 'still.message_cap': 195, 'still.crop': [1504, 846, 1600, 900], 'still.output_width': 1000, 'camera.image_processing.contrast': None, 'schedule.window.start': '00:00', 'schedule.window.end': '00:00', 'power.halt.enabled': True, 'power.halt.dry_run': False} overlay {} dropped [] base_hash 8fded2ea
+== sha
+9ec4cb7ae7c1
+
+== sha256
+29d8f0997ed00a6e96b694696ad19f901de0af90f924caad69e78835d100d0d7  camera_config.yaml
+e8f060568184555c3a85c3063c91125b73758f1ffcc720735a8264272936b5b1  camera_schedule.yaml
+791e89f683776aa0fb1d34a28e1c1f8918a49ffd4c5c317f74bf2c5282fb6116  bm_command_state_v2.json
+== cjxl
+cjxl v0.11.2 [NEON_WITHOUT_AES]
+== crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh

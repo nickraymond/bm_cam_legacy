@@ -1,0 +1,8 @@
+BACKUP /home/pi/hil_backup/rc2_004_20261009T210048Z
+EDIT camera_schedule.yaml: '^(\\s*image_transmit_delay_seconds:\\s*)[0-9.]+' -> '\\g<1>1.0'
+EDIT camera_schedule.yaml: '^capture_mode:\\s*"?[a-z_]+"?' -> 'capture_mode: "progressive_jpeg"'
+EDIT camera_schedule.yaml: '^(video_tx:\\s*\\n\\s+enabled:\\s*)(true|false)' -> '\\g<1>false'
+EDIT camera_config.yaml: '^(  media:\\s*)"video"' -> '\\g<1>"still"'
+EDIT camera_config.yaml: '^(  msg_interval_s:\\s*)1\\.3\\b' -> '\\g<1>1.0'
+EDIT camera_config.yaml: inserted still.format nrjxl
+STRICT LOAD OK base_hash 8fded2ea

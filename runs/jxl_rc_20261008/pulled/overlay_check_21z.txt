@@ -1,0 +1,11 @@
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=9c980489 hv=1 registry=v11 overlay=4 key(s)
+[DEBUG] [EXP] low_gain: shutter up to 60000 us at the gain floor, then gain up to 1 (imx708_wide_lowgain_s60000_g1.json)
+OVERLAY {'camera.image_processing.contrast': 1.0, 'camera.exposure.profile': 'low_gain', 'camera.exposure.max_shutter_us': 60000, 'camera.exposure.max_gain': 1.0} {'camera.image_processing.contrast': 1000168, 'camera.exposure.profile': 1000164, 'camera.exposure.max_shutter_us': 1000164, 'camera.exposure.max_gain': 1000164}
+SIDECAR images/2026-10-09T21:00:34Z_image_compressed.nrjxl.capture_metadata.json
+"AnalogueGain": 1.122807
+"ExposureTime": 3233
+"Lux": 6008.648438
+"exposure_max_gain": 1.0
+"exposure_max_shutter_us": 60000
+"exposure_profile": "low_gain"
+"exposure_profile_applied": true
