@@ -3,3 +3,4 @@
 2026-10-09T23:13:59Z [TE2] mirror loop launched (hil/tools/hil_weekend_mirror.sh, nohup + caffeinate, rsync -a every 30 min -> nereus000:/home/pi/weekend_20261010, until 2026-10-12T16:30Z; first copy 864K landed). nereus000 free 107G.
 2026-10-09T23:21:25Z [TE2] 4 PM (23Z) wakes CLEAN unit-side: bmcam003 nrjxl 192, loss 23.44 % (Spotter stalls, queue_full 45), halt 500 s, 29 heals, low_gain applied; bmcam004 nrjxl 188, loss 1.06 %, halt 498 s, cmd 1000073 APPLIED + ack/<CF> on the console 23:04:16Z (confirmed within 2 of 3 syncs).
 2026-10-09T23:21:35Z [TE2] Mac on AC power (98 %, charging); lid open; caffeinate held by the collector + mirror. All TE go/no-go inputs green.
+2026-10-09T23:22:00Z [TE2] trial cmd 1000074 (contrast 1.1) to BMCAM_004 sent 23:21:41Z -> console ~00:16, applied 01Z, in effect 02Z.
