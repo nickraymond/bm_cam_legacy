@@ -1,0 +1,10 @@
+3c3
+<   media: "still"
+---
+>   media: "video"
+62d61
+<   format: "nrjxl"
+110c109
+<   msg_interval_s: 1.0
+---
+>   msg_interval_s: 1.3

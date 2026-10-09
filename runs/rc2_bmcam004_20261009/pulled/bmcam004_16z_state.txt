@@ -1,0 +1,13 @@
+== sha
+0a6e411d1e64
+
+== cjxl
+cjxl v0.11.2 [NEON_WITHOUT_AES]
+== crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+== sha256
+fb6994aaa2c5b11e7ff28902f06aa400ea28796c6bd839ad4646d4b280921854  camera_config.yaml
+18d6dbe227ae15e0879d3d14ebd30eb8bdb420dd0f3a91f5e6fddb228b175954  camera_schedule.yaml
+b1def32cb88fbce9b185b7f480bb4dd3b3e59b160d72174c35e29e9449ae9380  bm_command_state_v2.json
+OVERLAY {'mode.media': 'still', 'video.send.message_cap': 126, 'still.format': 'nrjxl'} {'mode.media': 1000072, 'video.send.message_cap': 1000049, 'still.format': 1000061}
+EFFECTIVE {'mode.media': 'still', 'mode.run': 'per_boot', 'still.format': 'nrjxl', 'still.raw.layout': 'rgb', 'camera.exposure.profile': 'auto', 'uplink.msg_interval_s': 1.3, 'uplink.chunk_chars': 384, 'uplink.network_type': 2, 'uplink.lane.enabled': False, 'still.message_cap': 195, 'still.crop': [1504, 846, 1600, 900], 'still.output_width': 1000, 'camera.image_processing.enabled': False, 'camera.image_processing.contrast': None, 'schedule.window.enabled': True, 'schedule.window.start': '00:00', 'schedule.window.end': '00:00', 'power.halt.enabled': True, 'power.halt.dry_run': False, 'media_key.enabled': None} dropped [] base_hash 4827a0a2
