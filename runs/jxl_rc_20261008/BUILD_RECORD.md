@@ -34,7 +34,14 @@ Effective values: same as REEF-RC (still, per_boot, 1.0 s, 384, 0x02, lane off, 
 ## Under test tonight (NOT in the base)
 
 - Low-gain lock command (overlay): `camera.exposure.profile low_gain`, `max_shutter_us 60000`, `max_gain 1.0`, sent by the EM at
-  21:50Z → applied at the 23Z boot. It goes into the BASE of the flashed build only if the soak is clean (Nick decides Fri AM).
+  21:50Z → reached the console at the 23:10Z sync → applied at the 00Z boot → **in effect from the 01Z wake**:
+  - cfg hash 9c980489;
+  - sidecar `exposure_profile=low_gain`, `exposure_profile_applied=true`, tuning `imx708_wide_lowgain_s60000_g1.json` used;
+  - first locked frame: AnalogueGain 1.12, ExposureTime 26.8 ms at Lux 825.
+  It goes into the BASE of the flashed build only if the soak is clean (Nick decides Fri AM).
+- **Reading AnalogueGain on this sensor:** `max_gain 1.0` means "stay at the IMX708 floor". The sensor's minimum analogue gain is
+  **1.122807**, so locked frames report AnalogueGain 1.12. That is the floor, not a leak above the cap. Under the lock, exposure
+  grows by shutter (up to 60 ms) instead of gain.
 
 ## Provisioning notes
 
