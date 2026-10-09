@@ -2,4 +2,4 @@
 # n | sent (UTC / PDT) | command_id | command | console | applied | ack | in effect
 1 | 2026-10-08T21:50:34Z / 2:50:34 PM | 1000164 | set camera.exposure.profile=low_gain, max_shutter_us=60000, max_gain=1.0 | ? | ? | NOT at the 22:10Z sync (no Rx at all that sync); console 23:11:54.7Z (23:10 sync) | ? (+ sidecar exposure_* fields, AnalogueGain/ExposureTime)
 2 | 2026-10-08T23:58Z / 4:58 PM | 1000165 | set camera.image_processing.contrast 1.1 | 00:11:55.9Z console | 01Z wake (contrast 1.0 -> 1.1, next action) | ok h=c013f614: JSON ack rejected at the 01:04:36 queue stall, <CF h=c013f614> ON the console 01:04:37.5Z; backend counts the CF as the answer (EM 01:17Z) | YES 02Z: [CFG] hash=c013f614
-3 | 2026-10-09T03:40Z / 8:40 PM | 1000166 | set camera.image_processing.contrast 1.0 | ? | ? | ? | ?
+3 | 2026-10-09T03:40Z / 8:40 PM | 1000166 | set camera.image_processing.contrast 1.0 | 04:03:53.4Z console (MID-WAKE, via the health-check sync) | 04Z wake, same wake (contrast 1.1 -> 1.0, next action) | ok h=9c980489 + <CF> | check 05Z
