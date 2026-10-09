@@ -56,3 +56,4 @@ halt-issued
 2026-10-09T10:16:24Z [TE2] JXL wake 13 (10Z): loss 2.97 % (3/101, console count; START rejected at the queue), 21 heal chunks (06Z image), halt 503 s; cmd 4 in effect (c013f614). Backlog JXL 7 open / 109; total 248.
 2026-10-09T11:16:27Z [TE2] JXL wake 14 (11Z): loss 19.17 % (37/193; four 10/7-chunk gaps), 39 heal chunks, halt 503 s. Backlog JXL 6 open / 109; total 248; 9/16 images complete.
 2026-10-09T11:58:40Z [TE2] CMD 5 (last of the soak) sent by the EM ~11:58Z (4:58 AM PDT): contrast 1.0, 1000168 -> console 12:10Z, applied at the 13Z boot, in effect at 14Z. No more sends until the Friday rehearsal.
+2026-10-09T12:16:26Z [TE2] JXL wake 15 (12Z): loss 10.99 % (21/191), 25 heal chunks, halt 502 s. Backlog JXL 6 open / 105; total 244; 10/17 complete.
