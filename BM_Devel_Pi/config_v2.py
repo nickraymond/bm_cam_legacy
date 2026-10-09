@@ -276,7 +276,8 @@ def _n(value):
 
 STILL_RAW_KEYS = ("still.format", "still.raw.distances", "still.raw.encode_max_s",
                   "still.raw.keep_crop", "still.raw.effort", "still.raw.target_fill",
-                  "still.raw.d_max", "still.raw.layout", "still.raw.rgb_encode_max_s")
+                  "still.raw.d_max", "still.raw.layout", "still.raw.rgb_encode_max_s",
+                  "still.raw.progressive")
 
 
 def _still_raw_lines(v):
@@ -297,7 +298,9 @@ def _still_raw_lines(v):
             *([f"  layout: {_q(v['still.raw.layout'])}"]
               if v.get("still.raw.layout", "bayer4") != "bayer4" else []),
             *([f"  rgb_encode_max_s: {_n(v['still.raw.rgb_encode_max_s'])}"]
-              if v.get("still.raw.rgb_encode_max_s", 45) != 45 else [])]
+              if v.get("still.raw.rgb_encode_max_s", 45) != 45 else []),
+            *([f"  progressive: {_n(v['still.raw.progressive'])}"]
+              if v.get("still.raw.progressive", True) is not True else [])]
 
 
 EXPOSURE_PROFILE_KEYS = ("camera.exposure.profile", "camera.exposure.max_shutter_us",
