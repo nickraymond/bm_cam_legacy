@@ -1,0 +1,2 @@
+spot,window,bus_on,bus_off,pi_on,pi_off,wake_to_halt_s,start_len,end_sent,burst_s,queue_full,heal_cmds,wifi
+SPOT-31593C,2026-10-09T04:00,2026-10-09T03:59:58Z,2026-10-09T04:09:58Z,2026-10-09T04:00:11,2026-10-09T04:08:21,503,194,194,257.3,13,0,yes:Ford:63

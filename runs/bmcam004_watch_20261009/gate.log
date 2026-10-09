@@ -1,0 +1,1 @@
+2026-10-09T04:13:34Z [TE2] bmcam004 check (rig WARN 04:10:31Z 7.55 V): 04Z wake normal (bus 03:59:58-04:09:58, Pi 04:00:11-04:08:21 = 503 s, START/END 194, queue_full 13); 7.5456 V is the only 2-23 V sample (04:09:59 = bus-off edge). Reach-back heals landing: rsd 100213/100214 (01:16Z), 100215 (02:16Z) on the console.
