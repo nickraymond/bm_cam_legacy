@@ -36,3 +36,5 @@ POST done
 halt-issued
 2026-10-09T21:02:48Z [deploy-rc2 bmcam004] bmcam004 dark (DEPLOYED)
 2026-10-09T21:03:40Z [TE2] bmcam004 RC2 DEPLOYED 21:02:12Z: 9ec4cb7; setup 6 edits + strict load OK (base hash 8fded2ea = bmcam003 RC2); print-config parity OK, config json OK (13), config v2 parity OK (pre-check b confirmed on hardware), validation PASS, re-armed, POST overlay cleared, effective = RC2 with exposure auto; dark 21:02:48Z. BUILD_RECORD.md written. First RC2 image 22Z.
+2026-10-09T21:05:29Z [TE2] EM: low-gain command to BMCAM_004 sent 21:04:02Z, command_id 1000073 (profile low_gain, max_shutter_us 60000, max_gain 1.0), Sofar 202. Expect console at the ~21:16 sync -> applied in the 22Z wake (post-transmit) -> in effect 23Z (EM estimate one wake later); verify sidecars 22/23/00Z. Rehearsal heal item = (a) natural heals (no bench patch on an RC unit).
+2026-10-09T21:05:29Z [TE2] Mac check: lid open (AppleClamshellState No), caffeinate held by the collector (pid 95059 for 95054), BUT on BATTERY (100 %, ~7 h) -> flagged to the EM: AC needed before the weekend.
