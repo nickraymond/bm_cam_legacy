@@ -18,13 +18,13 @@ Command wake = a wake whose cycle log shows `[CMD] applied … camera.image_proc
 | 11 | 17:00 | 10 AM | **yes**: cmd 4 applied (post-transmit) | 173 | **6.94** (12/173) | 26×10, 69×1, 130×1 | 10 | 12 | 13 / 64.8 s / 12 | 0 / 12 | 34 before START | 17:01:17 / 17:04:15 | 503 s | `pruned 8 … (by key time)` | `applied id=1000163 contrast: 1.1 -> 1.0`; ack + `<CF>` ON the console 17:04:15.4 / 17:04:16.4 |
 | 12 | 18:00 | 11 AM | no (cmd 4 in effect: `[CFG] … hash=28527962 overlay=1`; ack 1000163 re-sent d:1) | 174 | **0.57** (1/174) | 93×1 | 1 | 1 | 5 / 64.3 s / 1 | 0 / 1 | 29 (wake-8 holes) before START | 18:01:12 / 18:04:10 | 503 s | `pruned 8 … (by key time)` | clean |
 
-## VERDICT (2026-10-08 18:25Z / 11:25 AM PDT): **FAIL on 1 criterion (6 h completion), PASS on the other 3**
+## VERDICT (2026-10-08 18:25Z / 11:25 AM PDT; completion final 2026-10-09 00:20Z): **FAIL on 1 criterion (6 h completion: 9/12), PASS on the other 3**
 
 | criterion | n | result |
 |---|---|---|
 | Commands confirmed (ack or hash) AND in effect at the next wake | 4 / 4 | **PASS**. Cmds 1, 3, 4: acked at the apply wake. Cmd 2: its ack + `<CF>` were rejected at the Spotter post-burst queue stall (11:03:12–21Z), recovered by the unit's `d:1` ack re-send at the next boot (12:00:38Z) = confirmed 1 wake late. All 4 in effect at the next wake (hashes bc8c7591 / 28527962 / bc8c7591 / 28527962). The 4:33 AM slot was refused by the backend while cmd 2 was unanswered. The card closed at 4 commands (EM). |
 | Median first-send loss, command wakes ≤ no-command wakes + 2 pp | 4 vs 8 wakes | **PASS**: 4.41 % (1.82, 1.87, 6.94, 16.76) vs 8.22 % (0.00, 0.57, 3.19, 7.27, 9.17, 10.09, 11.76, 19.23). Commands apply in the post-transmit listen, so they never touch the burst. |
-| Every image complete within 6 h | 6 images aged ≥ 6 h at 18:20Z | **FAIL (5 / 6)**: wakes 1–5 complete at 255 min each (one heal round). **Wake 6 (58113, 12:00:38Z)** was 94/104 at 6 h 20 min: its 16Z heal (20 chunks) lost 10 in that wake's queue stall (30 rejects); re-asked (rsd 100230) → second round at 19Z (expected ≈ 7 h 15 min). Wakes 7–12: deadlines to 00:00Z; final check ~00:20Z (5:20 PM PDT). |
+| Every image complete within 6 h | 12 images (final check 2026-10-09 00:20Z, `analysis/media_table_final_0020Z.csv`) | **FAIL (9 / 12)**: ≤ 6 h = wakes 1–5 (255 min each), 7 (15), 8 (255), 9 (250), 11 (195); > 6 h = wake 6 (58113, 430 min: its 16Z heal lost 10 of 20 chunks in a queue stall); still OPEN past 6 h = wake 10 (58125, 169/170) and wake 12 (58131, 173/174), 1 chunk each. bmcam003 moved to RC2 at 20Z; their heals continue under the RC2 build. |
 | 0 SSH writes and 0 hard cuts during wakes 1–12 | 12 wakes | **PASS**: TE ssh was read-only (cycle log cat, sent/ listing via stdin script, ls). Halts 374–504 s, all before bus-off (:09:57). |
 
 Findings (design inputs, not criteria):
