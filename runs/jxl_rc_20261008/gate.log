@@ -51,3 +51,4 @@ halt-issued
 2026-10-09T06:16:26Z [TE2] JXL wake 9 (06Z): loss 10.77 % (21/195), health check 06:02:48, nrjxl 55985 B / 195 (encode 31.0 s), halt 503 s, 0 heals (rsd 100241/100242 applied post-transmit -> sent 07Z). Backlog JXL 4 open / 147 chunks; total 286.
 2026-10-09T07:16:26Z [TE2] JXL wake 10 (07Z): loss 9.23 % (18/195), 40 heal chunks (cap) for the 04Z image (now 171/190), halt 472 s, health check 07:02:47. Backlog JXL 5 open / 125 chunks (down from 147 + 18 new); total 264.
 2026-10-09T07:58:34Z [TE2] CMD 4 sent by the EM ~07:58Z (12:58 AM PDT): contrast 1.1, 1000167 -> console 08:10Z, applied at the 09Z boot. Last slot ~11:50Z (1.0).
+2026-10-09T08:16:24Z [TE2] JXL wake 11 (08Z): loss 12.95 % (25/193), 40 heal chunks (cap) for the 03Z image, halt 502 s, health check 08:02:47. Backlog JXL 6 open / 120 chunks; total 259.
