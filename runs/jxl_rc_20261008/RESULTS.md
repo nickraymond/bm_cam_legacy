@@ -19,3 +19,28 @@
 | 15 | 12:00 | 5 AM | – | low_gain (Lux 0.3, ET cap) | 54 996 B / 191 / d=1.745 (att 3) / 28.3 s / – | **10.99** (21/191) | 37×10, 77×1, 139×10 | 23 | 25 (08Z image) | 12:01:43 / 12:04:59 | 502 s | no | backlog: JXL 6 open / 105 chunks (total 244); 10/17 complete | health check 12:02:44 |
 | 16 | 13:00 | 6 AM | **1000168 contrast 1.0** (post-transmit) | low_gain (dawn) | 55 779 B / 194 / d=1.742 (att 3) / 28.1 s / – | **38.66** (75/194) | 19×10, **48×51**, 109×10, 141×1, 181×3 | 76 | 38 | 13:01:57 / 13:05:15 | 502 s | no | backlog: JXL 6 open / **179** chunks (total 318); 11/18 complete | health check 13:02:43 → long sync → 51-chunk gap; cmd 5 ack + `<CF>` ON the console 13:05:18 |
 | 17 | 14:00 | 7 AM | – (cmd 5 in effect: hash 9c980489; ack re-sent d:1) | low_gain (morning) | 51 883 B / 181 / d=1.208 (att 2) / 17.5 s / – | **33.15** (60/181; console count) | 0×9, 18×1, **53×48**, 148×1, 180×1 | 68 | 40 (cap) | **START + END not on the console** | 501 s | no | backlog: JXL 5 open / **215** chunks (total 354); 13/19 complete | health check 14:02:43 |
+| 18 | 15:00 | 8 AM | – | low_gain (day) | 50 721 B / 177 / d=1.873 (att 2) / 18.5 s / – | **12.99** (23/177) | 28×10, 107×1, 118×10, 134×2 | 23 | 40 (cap) | 15:01:50 / 15:04:51 | 451 s | no | backlog: JXL 6 open / 198 chunks (total 337) | health check 15:02:42 |
+
+## SOAK VERDICT (2026-10-09 15:20Z / 8:20 AM PDT): 18 wakes (22Z 10/8 → 15Z 10/9)
+
+| criterion | n | result |
+|---|---|---|
+| B3a nrjxl decodes at the backend (Linear DNG) | 1 confirmed so far | **PASS so far**: wake 1 (58143) decoded at 1600×900 by the EM (card crisp, no clipped patches). The other completed images are for the EM to confirm. |
+| Every image complete ≤ 48 h | 18 JXL-RC images | **OPEN, judged Sat 2026-10-10 15:00Z** (48 h after the last image). At 15Z: 12/18 complete, 6 open with 198 chunks outstanding (backlog curve `backlog.csv`). |
+| Commands 100 % confirmed (ack, `<CF>` or hash) and in effect at the next wake | 5/5 (low-gain + 4 contrast) | **PASS**. 1000164 low-gain: confirmed 00Z, in effect 01Z (sidecar applied=true). 1000165–1000168: each `<CF>`/hash confirmed, in effect at the next wake. 1000164 missed its first sync (empty mailbox, 22:10Z). 1000165's JSON ack was rejected at a stall but its `<CF>` counted. |
+| No budget skips; no wake overruns | 18 wakes | **PASS**: 0 `skipped_no_budget` / `[PHASE][WARN] skipping`, 0 `[CFG][ERR]`/LKG; halts 423–504 s, all before bus-off (:10:00–:10:01). |
+| 0 SSH writes (wake 1 on) | 18 wakes | **PASS**: TE reads only (cycle log cat, sidecar cat, sent/ listing via stdin, ls). |
+
+### Delivery and encoder (18 wakes)
+
+- **First-send loss:** median 10.88 %, mean 13.01 %, range 0.53–38.66 %. 4 wakes were above 30 % (03Z, 04Z, 13Z, 14Z), every one a long Spotter health-check sync at ~:02:45 (TX wait 42–46 s).
+- **nrjxl:** 29.0–56.0 KB, 101–195 msgs (night frames as low as 101); encode 10.6–31.0 s; peak RSS ≈ 98 MB (search attempts; supervisor 76 MB).
+- **Low-gain lock** in effect from 01Z: AnalogueGain 1.12 (IMX708 floor; max_gain 1.0 < floor), ExposureTime 26.8 ms by day, at the 60 ms cap at night (Lux 0.3–4.3 → dark frames by design).
+
+### Findings / product items
+
+1. **Spotter health check now fires at ~:02:45 every hour on SPOT-33507C, mid-burst.** That sync also drains the mailbox (cmd 1000166 landed mid-wake).
+2. **START + END lost together → the backend labels the media "heic"** (14Z, key 0ehg91), because only START/END carry the filename/format. The image may not decode even when all chunks heal. Backend fix: take the format from the key / sent-record / rsd.
+3. **"1 missing chunk = no picture"** on nrjxl until the heal lands (wake 1: ~2 h). Heal rounds land ~3 h after the image (rsd at the :10 sync after the halt → applied post-transmit → sent the wake after).
+4. **Heal throughput is set by what each hourly rsd asks** (2–40 chunks, mostly one image per rsd), not by the 40 cap. The backlog grew from 0 to ~200 chunks overnight and was not converging at 15Z.
+5. Media 58137 (20Z, the RC2 deploy wake, REEF build pjpg) is 45/184 because the deploy SIGTERMed its send. It sits inside heal_since and uses the same heal capacity.
