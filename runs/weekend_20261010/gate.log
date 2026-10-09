@@ -1,1 +1,2 @@
 2026-10-09T21:04:52Z [TE2] weekend collector (hil/tools/hil_weekend_collector.sh, read-only, nohup + caffeinate, both units, until 2026-10-12T16:00Z; STOP file = runs/weekend_20261010/STOP) launched; parser tested offline on the bmcam003 15Z data (matches manual scoring).
+2026-10-09T23:10:18Z [TE2] weekend ledger runs/weekend_20261010/commands.log started (1000073 bmcam004, 1000169 bmcam003).

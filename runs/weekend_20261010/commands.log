@@ -1,0 +1,4 @@
+# Weekend command ledger (EM sends via plan/changes/send; TE scores: confirmed within 3 Spotter syncs of the send = OK, else "lost")
+# n | unit | sent (UTC / PDT) | command_id | command | console (sync) | applied | ack/<CF> | in effect | syncs to confirm
+1 | bmcam004 | 2026-10-09T21:04:02Z / 2:04 PM | 1000073 | set exposure.profile low_gain, max_shutter_us 60000, max_gain 1.0 | 22:16:43.9Z (missed 21:16: empty mailbox) | ? | ? | ? | ?
+2 | bmcam003 | 2026-10-09T23:09:41Z / 4:09 PM | 1000169 | set contrast 1.1 (weekend command-path trial, Nick present) | ? | ? | ? | ? | ?
