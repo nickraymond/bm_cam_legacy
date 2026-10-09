@@ -160,6 +160,21 @@ def charger_timeline(log_root, spot, t):
 RE_PWR = re.compile(r"([0-9a-f]{16}), power \| .*voltage: ([-\d.]+), current: ([-\d.]+)")
 RE_CHG = re.compile(r"ChargerErrorState changed from (\w+) to (\w+)")
 RE_BUSV = re.compile(r"BusVErrorState changed from (\w+) to (\w+)")
+RE_BUSOFF = re.compile(r"Bridge bus power: 0")
+
+
+def bus_level(pts, offs, edge_s=11):
+    """Bus voltage while ON, ignoring the bus-off ramp-down. pts = [(iso_ts, volts)] for the bridge; offs = [iso_ts] of
+    'Bridge bus power: 0' lines. A sample > 5 V followed within edge_s (one 10 s sample interval) by a < 5 V sample or a bus-off line is the
+    ramp-down edge (13.5 / 16.97 / 7.55 V WARNs at :10:30, 2026-10-08/09), not the bus level. Returns the last level or None."""
+    def ts(x):
+        return datetime.datetime.fromisoformat(x.replace("Z", "+00:00"))
+    lows = [ts(t) for t, v in pts if v < 5] + [ts(t) for t in offs]
+    level = None
+    for t, v in pts:
+        if v > 5 and not any(0 <= (lo - ts(t)).total_seconds() <= edge_s for lo in lows):
+            level = v
+    return level
 RE_BAD = re.compile(r"rebootctl|Charge mode|CHARGE MODE|reset N\. Source", re.I)
 
 
@@ -281,8 +296,10 @@ def main():
             if m:
                 ss["charger"], ss["charger_at"] = m.group(2), last[:20]
             ss["charger_seeded"] = True
-        mote_i, bus_v = [], None
+        mote_i, bus_v, pts, offs = [], None, [], []
         for ln in lines:
+            if RE_BUSOFF.search(ln):
+                offs.append(ln[:20])
             m = RE_CHG.search(ln)
             if m:
                 ss["charger"], ss["charger_at"] = m.group(2), ln[:20]
@@ -296,8 +313,8 @@ def main():
                 # the bridge reports the bus it powers: V ~24 when on, ~0 when off; I > 0.025 A = the Pi is up
                 v, i = float(m.group(2)), float(m.group(3))
                 mote_i.append((ln[:20], i))
-                if v > 5:
-                    bus_v = v
+                pts.append((ln[:20], v))
+        bus_v = bus_level(pts, offs)
         for ts_, i in mote_i:  # remember Pi-on evidence per hour for the wake check
             if i > TH["pi_on_a"]:
                 ss.setdefault("pi_on_hours", [])
