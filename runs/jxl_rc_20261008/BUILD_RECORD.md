@@ -49,3 +49,13 @@ Effective values: same as REEF-RC (still, per_boot, 1.0 s, 384, 0x02, lane off, 
   unit needs `libjxl-tools` (cjxl), `still.format: "nrjxl"` and `still.raw.layout: rgb` in the base.
 - v1/v2 parity with nrjxl + rgb in the base: passes (offline, 786b100 runtime, "13 loader outputs equal"); these keys are not in
   the parity set.
+
+## Weekend exposure decision (Nick, 2026-10-09 1:30 PM PDT, relayed by the EM)
+
+- **Both units, weekend 10/10–10/12:** `camera.exposure.profile low_gain`, `max_shutter_us 60000`, `max_gain 1.0` (= stay at the
+  IMX708 analogue-gain floor 1.12; auto-exposure otherwise free).
+- **Carried as a COMMAND OVERLAY, not in the base:**
+  - bmcam003: since cmd 1000164 (applied 2026-10-09 00Z, in effect 01Z; cfg hash 9c980489 with contrast 1.0, overlay 4 keys).
+  - bmcam004: the EM sends the same set after its RC2 deploy (~2:20 PM) → applied at the next boot after its :16 sync.
+- **Base stays exposure auto.** A flashed NOAA unit = base only. If low_gain becomes the shipped intent, it must move into the
+  base (Nick's OK) and into this record. An overlay is also lost on a reflash or a state-file reset.
