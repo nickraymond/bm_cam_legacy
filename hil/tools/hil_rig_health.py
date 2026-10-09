@@ -163,15 +163,15 @@ RE_BUSV = re.compile(r"BusVErrorState changed from (\w+) to (\w+)")
 RE_BUSOFF = re.compile(r"Bridge bus power: 0")
 
 
-def bus_level(pts, offs, edge_s=11):
-    """Bus voltage while ON, ignoring the bus-off ramp-down. pts = [(iso_ts, volts)] for the bridge; offs = [iso_ts] of
+def bus_level(samples, off_ts, edge_s=11):
+    """Bus voltage while ON, ignoring the bus-off ramp-down. samples = [(iso_ts, volts)] for the bridge; off_ts = [iso_ts] of
     'Bridge bus power: 0' lines. A sample > 5 V followed within edge_s (one 10 s sample interval) by a < 5 V sample or a bus-off line is the
     ramp-down edge (13.5 / 16.97 / 7.55 V WARNs at :10:30, 2026-10-08/09), not the bus level. Returns the last level or None."""
     def ts(x):
         return datetime.datetime.fromisoformat(x.replace("Z", "+00:00"))
-    lows = [ts(t) for t, v in pts if v < 5] + [ts(t) for t in offs]
+    lows = [ts(t) for t, v in samples if v < 5] + [ts(t) for t in off_ts]
     level = None
-    for t, v in pts:
+    for t, v in samples:
         if v > 5 and not any(0 <= (lo - ts(t)).total_seconds() <= edge_s for lo in lows):
             level = v
     return level
@@ -296,10 +296,10 @@ def main():
             if m:
                 ss["charger"], ss["charger_at"] = m.group(2), last[:20]
             ss["charger_seeded"] = True
-        mote_i, bus_v, pts, offs = [], None, [], []
+        mote_i, bus_v, bus_pts, bus_off_ts = [], None, [], []  # NB: `offs` = the console-offset dict above
         for ln in lines:
             if RE_BUSOFF.search(ln):
-                offs.append(ln[:20])
+                bus_off_ts.append(ln[:20])
             m = RE_CHG.search(ln)
             if m:
                 ss["charger"], ss["charger_at"] = m.group(2), ln[:20]
@@ -313,8 +313,8 @@ def main():
                 # the bridge reports the bus it powers: V ~24 when on, ~0 when off; I > 0.025 A = the Pi is up
                 v, i = float(m.group(2)), float(m.group(3))
                 mote_i.append((ln[:20], i))
-                pts.append((ln[:20], v))
-        bus_v = bus_level(pts, offs)
+                bus_pts.append((ln[:20], v))
+        bus_v = bus_level(bus_pts, bus_off_ts)
         for ts_, i in mote_i:  # remember Pi-on evidence per hour for the wake check
             if i > TH["pi_on_a"]:
                 ss.setdefault("pi_on_hours", [])
