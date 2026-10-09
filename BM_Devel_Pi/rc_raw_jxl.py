@@ -152,6 +152,7 @@ DEFAULT_CONFIG = {
     "distances": _registry_default("still.raw.distances"),
     "encode_max_s": _registry_default("still.raw.encode_max_s"),
     "rgb_encode_max_s": _registry_default("still.raw.rgb_encode_max_s"),
+    "progressive": _registry_default("still.raw.progressive"),
     "keep_crop": _registry_default("still.raw.keep_crop"),
     "effort": _registry_default("still.raw.effort"),
     "target_fill": _registry_default("still.raw.target_fill"),
@@ -228,10 +229,10 @@ def load_raw_config(config_path):
                     if not v.isdigit() or not 5 <= int(v) <= 120:
                         raise ValueError(f"still_raw.{k} must be 5..120, got {v!r}")
                     cfg[k] = int(v)
-                elif k == "keep_crop":
+                elif k in ("keep_crop", "progressive"):
                     if v.lower() not in ("true", "false"):
-                        raise ValueError(f"still_raw.keep_crop must be true|false, got {v!r}")
-                    cfg["keep_crop"] = v.lower() == "true"
+                        raise ValueError(f"still_raw.{k} must be true|false, got {v!r}")
+                    cfg[k] = v.lower() == "true"
                 elif k == "effort":
                     if not v.isdigit() or not 1 <= int(v) <= 7:
                         raise ValueError(f"still_raw.effort must be 1..7, got {v!r}")
@@ -910,10 +911,14 @@ def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
             "maxrss_incl_parent_kb": incl_parent_kb}
 
 
-def cjxl_rgb_command(cjxl, src, dst, distance, effort):
-    """B3a (DESIGN_B3a.md §1 step 5): VarDCT, one thread."""
+def cjxl_rgb_command(cjxl, src, dst, distance, effort, progressive=False):
+    """B3a (DESIGN_B3a.md §1 step 5): VarDCT, one thread. progressive (still.raw.progressive)
+    adds -p (= --qprogressive_ac): the AC arrives in quantised passes, so a chunk prefix past
+    the DC point flush-decodes to a picture that refines toward the final (desk study
+    2026-10-09: +1.6 % bytes at equal d, the 75 % prefix 40.7 dB vs 34.7 dB without). The DC
+    sections are first either way; no flag moves the first preview (~42 % of the chunks)."""
     return [cjxl, str(src), str(dst), "-m", "0", "-e", str(int(effort)),
-            "-d", f"{float(distance):.4f}", "--num_threads=0"]
+            "-d", f"{float(distance):.4f}", *(["-p"] if progressive else []), "--num_threads=0"]
 
 
 def cjxl_command(cjxl, src, dst, distance, effort):
@@ -936,7 +941,7 @@ def message_count(n_bytes, chunk_b64_chars):
 RGB_PPM = "rgb.ppm"
 
 
-def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s):
+def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s, progressive=False):
     """B3a: the ONE RGB payload at one distance from <work>/rgb.ppm. -> ([payload], [run]).
     Raises RawFallback for a child failure (enc / mem / time), as encode_rung."""
     src, dst = os.path.join(work_dir, RGB_PPM), os.path.join(work_dir, "rgb.jxl")
@@ -945,7 +950,8 @@ def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s):
     if os.path.exists(dst):
         os.remove(dst)
     try:
-        r = runner(cjxl_rgb_command(cjxl, src, dst, distance, effort), timeout_s=timeout_s,
+        r = runner(cjxl_rgb_command(cjxl, src, dst, distance, effort, progressive),
+                   timeout_s=timeout_s,
                    stdout_path=os.path.join(work_dir, "rgb.cjxl.out"),
                    stderr_path=os.path.join(work_dir, "rgb.cjxl.err"))
     except OSError as exc:
@@ -1072,7 +1078,8 @@ class _Walk:
             if rgb:
                 payloads, runs = encode_rgb(distance, effort, self.work,
                                             cjxl=self.cjxl, runner=self.runner,
-                                            timeout_s=timeout_s)
+                                            timeout_s=timeout_s,
+                                            progressive=bool(self.cfg.get("progressive")))
             else:
                 payloads, runs = encode_rung(self.codes, distance, self.cfg["effort"],
                                              self.work, cjxl=self.cjxl, runner=self.runner,
@@ -1473,6 +1480,8 @@ def main(argv=None):
     ap.add_argument("--d-max", type=float, default=DEFAULT_CONFIG["d_max"])
     ap.add_argument("--layout", choices=LAYOUTS, default=DEFAULT_CONFIG["layout"],
                     help="bayer4 = 4 Bayer planes (v1); rgb = B3a linear RGB VarDCT (v2)")
+    ap.add_argument("--no-progressive", action="store_true",
+                    help="rgb only: drop cjxl -p (still.raw.progressive false)")
     ap.add_argument("--encode-max-s", type=int, default=120)
     ap.add_argument("--message-cap", type=int, default=195)
     ap.add_argument("--chunk-chars", type=int, default=384)
@@ -1486,7 +1495,7 @@ def main(argv=None):
     crop = [int(v) for v in args.crop.split(",")]
     cfg = dict(DEFAULT_CONFIG, distances=parse_distances(args.distances), effort=args.effort,
                encode_max_s=args.encode_max_s, target_fill=args.target_fill, d_max=args.d_max,
-               layout=args.layout)
+               layout=args.layout, progressive=not args.no_progressive)
     with open(args.metadata, "r", encoding="utf-8") as fh:
         meta = json.load(fh)
     os.makedirs(args.out, exist_ok=True)
