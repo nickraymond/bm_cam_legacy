@@ -25,7 +25,7 @@
 
 | criterion | n | result |
 |---|---|---|
-| B3a nrjxl decodes at the backend (Linear DNG) | 1 confirmed so far | **PASS so far**: wake 1 (58143) decoded at 1600×900 by the EM (card crisp, no clipped patches). The other completed images are for the EM to confirm. |
+| B3a nrjxl decodes at the backend (Linear DNG) | 12/12 completed images | **PASS**. Wake 1 (58143) decoded at 1600×900 (card crisp, no clipped patches). The EM pulled the backend decode status 2026-10-09 ~16Z: all 12 completed JXL-RC images decode OK (valid renders, 18–176 KB). |
 | Every image complete ≤ 48 h | 18 JXL-RC images | **OPEN, judged Sat 2026-10-10 15:00Z** (48 h after the last image). At 15Z: 12/18 complete, 6 open with 198 chunks outstanding (backlog curve `backlog.csv`). |
 | Commands 100 % confirmed (ack, `<CF>` or hash) and in effect at the next wake | 5/5 (low-gain + 4 contrast) | **PASS**. 1000164 low-gain: confirmed 00Z, in effect 01Z (sidecar applied=true). 1000165–1000168: each `<CF>`/hash confirmed, in effect at the next wake. 1000164 missed its first sync (empty mailbox, 22:10Z). 1000165's JSON ack was rejected at a stall but its `<CF>` counted. |
 | No budget skips; no wake overruns | 18 wakes | **PASS**: 0 `skipped_no_budget` / `[PHASE][WARN] skipping`, 0 `[CFG][ERR]`/LKG; halts 423–504 s, all before bus-off (:10:00–:10:01). |
