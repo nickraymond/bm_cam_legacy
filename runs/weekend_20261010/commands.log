@@ -1,5 +1,5 @@
 # Weekend command ledger (EM sends via plan/changes/send; TE scores: confirmed within 3 Spotter syncs of the send = OK, else "lost")
 # n | unit | sent (UTC / PDT) | command_id | command | console (sync) | applied | ack/<CF> | in effect | syncs to confirm
-1 | bmcam004 | 2026-10-09T21:04:02Z / 2:04 PM | 1000073 | set exposure.profile low_gain, max_shutter_us 60000, max_gain 1.0 | 22:16:43.9Z (missed 21:16: empty mailbox) | 23Z wake (auto -> low_gain, 30000 -> 60000 us, gain 16.0 -> 1.0; next action) | ok h=2e63b5b5 + <CF> ON the console 23:04:16-17Z | check 00Z sidecar | CONFIRMED at sync 2 of 3 (OK)
-2 | bmcam003 | 2026-10-09T23:09:41Z / 4:09 PM | 1000169 | set contrast 1.1 (weekend command-path trial, Nick present) | ? | ? | ? | ? | ?
-3 | bmcam004 | 2026-10-09T23:21:41Z / 4:21 PM | 1000074 | set contrast 1.1 (weekend command-path trial) | ? | ? | ? | ? | ?
+1 | bmcam004 | 2026-10-09T21:04:02Z / 2:04 PM | 1000073 | set exposure.profile low_gain, max_shutter_us 60000, max_gain 1.0 | 22:16:43.9Z (missed 21:16: empty mailbox) | 23Z wake (auto -> low_gain, 30000 -> 60000 us, gain 16.0 -> 1.0; next action) | ok h=2e63b5b5 + <CF> ON the console 23:04:16-17Z | YES 00Z: [CFG] hash=2e63b5b5 overlay 3; sidecar low_gain applied=true, AG 1.12, ET 13960 us | CONFIRMED at sync 2 of 3 (OK)
+2 | bmcam003 | 2026-10-09T23:09:41Z / 4:09 PM | 1000169 | set contrast 1.1 (weekend command-path trial, Nick present) | NOT delivered: 23:10 (19 s after send), 00:03:30 health-check sync (delivered rsd 100260, issued later, but not 1000169), 00:10 (Rx empty); flagged to the EM 00:5xZ | ? | ? | ? | ?
+3 | bmcam004 | 2026-10-09T23:21:41Z / 4:21 PM | 1000074 | set contrast 1.1 (weekend command-path trial) | 00:16:54.7Z console | ? | ? | ? | ?
