@@ -80,3 +80,10 @@ WAKE SPOT-33507C 2026-10-10T17:00: bus 16:59:59→17:09:59 | Pi 17:00:07→17:08
 WAKE SPOT-31593C 2026-10-10T17:00: bus 16:59:58→17:09:59 | Pi 17:00:10→17:08:20 (wake→halt 502 s) | START len 189 END sent 189 burst 193.6 s | queue_full 24 | heal cmds 0 | nereus000 wifi yes:Ford:67
 2026-10-10T17:20:10Z wake 2026-10-10 17: done (2026-10-10T17:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2234,191,14.66,yes,,26,,10,332 2026-10-10T17:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2445,189,12.70,yes,,1,,3,14 )
 2026-10-10T18:01:33Z wake 2026-10-10 18: pulling
+WAKE SPOT-33507C 2026-10-10T18:00: bus 17:59:59→18:09:59 | Pi 18:00:06→18:08:16 (wake→halt 497 s) | START len - END sent 189 burst 193.6 s | queue_full 13 | heal cmds 1 | nereus000 wifi yes:Ford:60
+WAKE SPOT-31593C 2026-10-10T18:00: bus 17:59:58→18:09:58 | Pi 18:00:10→18:08:20 (wake→halt 502 s) | START len 192 END sent 192 burst 196.6 s | queue_full 8 | heal cmds 0 | nereus000 wifi yes:Ford:63
+2026-10-10T18:20:12Z wake 2026-10-10 18: done (2026-10-10T18:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,1892,189,3.17,no,,40,,10,304 2026-10-10T18:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2155,192,3.65,yes,,6,,4,38 )
+2026-10-10T19:01:35Z wake 2026-10-10 19: pulling
+WAKE SPOT-33507C 2026-10-10T19:00: bus 18:59:59→19:09:59 | Pi 19:00:06→19:08:16 (wake→halt 497 s) | START len 191 END sent 191 burst 195.6 s | queue_full 12 | heal cmds 1 | nereus000 wifi yes:Ford:63
+WAKE SPOT-31593C 2026-10-10T19:00: bus 18:59:58→19:09:58 | Pi 19:00:10→19:08:20 (wake→halt 502 s) | START len 184 END sent 184 burst 188.5 s | queue_full 4 | heal cmds 0 | nereus000 wifi yes:Ford:69
+2026-10-10T19:20:13Z wake 2026-10-10 19: done (2026-10-10T19:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2366,191,6.28,yes,,24,1000172,9,294 2026-10-10T19:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2497,184,2.17,yes,,11,1000077,4,42 )

@@ -7,5 +7,5 @@
 5 | bmcam004 | 2026-10-10T01:43Z / 6:43 PM | 1000075 | set contrast 1.0 (weekend slot 1) | (receipt not required) | 03Z wake (contrast 1.1 -> 1.0, next action) | unit console OK line 03:04:2xZ cfg=9c980489 | YES 04Z: [CFG] hash=9c980489 (both) | CONFIRMED (OK)
 6 | bmcam003 | 2026-10-10T09:43Z / 2:43 AM | 1000171 | set contrast 1.1 (weekend slot 2) | (receipt not required) | 11Z wake (contrast 1.0 -> 1.1, next action) | unit console OK line 11:0xZ cfg=c013f614 | YES 12Z: [CFG] hash=c013f614 (both) | CONFIRMED (OK)
 7 | bmcam004 | 2026-10-10T09:43Z / 2:43 AM | 1000076 | set contrast 1.1 (weekend slot 2) | (receipt not required) | 11Z wake (contrast 1.0 -> 1.1, next action) | unit console OK line 11:0xZ cfg=c013f614 | YES 12Z: [CFG] hash=c013f614 (both) | CONFIRMED (OK)
-8 | bmcam003 | 2026-10-10T18:03Z / 11:03 AM | 1000172 | set contrast 1.0 (weekend slot 3) | ? | ? | ? | ? | ?
-9 | bmcam004 | 2026-10-10T18:03Z / 11:03 AM | 1000077 | set contrast 1.0 (weekend slot 3) | ? | ? | ? | ? | ?
+8 | bmcam003 | 2026-10-10T18:03Z / 11:03 AM | 1000172 | set contrast 1.0 (weekend slot 3) | (receipt not required) | 19Z wake (contrast 1.1 -> 1.0, next action) | unit console OK line 19:04Z cfg=9c980489 | check 20Z | CONFIRMED (OK)
+9 | bmcam004 | 2026-10-10T18:03Z / 11:03 AM | 1000077 | set contrast 1.0 (weekend slot 3) | (receipt not required) | 19Z wake (contrast 1.1 -> 1.0, next action) | unit console OK line 19:04Z cfg=9c980489 | check 20Z | CONFIRMED (OK)
