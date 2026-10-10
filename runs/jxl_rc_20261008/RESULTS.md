@@ -26,7 +26,7 @@
 | criterion | n | result |
 |---|---|---|
 | B3a nrjxl decodes at the backend (Linear DNG) | 12/12 completed images | **PASS**. Wake 1 (58143) decoded at 1600×900 (card crisp, no clipped patches). The EM pulled the backend decode status 2026-10-09 ~16Z: all 12 completed JXL-RC images decode OK (valid renders, 18–176 KB). |
-| Every image complete ≤ 48 h | 18 JXL-RC images | **OPEN, judged Sat 2026-10-10 15:00Z** (48 h after the last image). At 15Z: 12/18 complete, 6 open with 198 chunks outstanding (backlog curve `backlog.csv`). |
+| Every image complete ≤ 48 h (each image: capture + 48 h) | 18 JXL-RC images | **OPEN until Sun 2026-10-11 15:00Z** (the last image + 48 h; the earlier "Sat 15Z" was a date error, corrected 2026-10-10 15:15Z). At Sat 15:12Z: **14/18 complete** (2.1–12.2 h); 4 OPEN and barely moving for 24–36 h: 58158 175/191 (deadline Sun 03Z = Sat 8 PM PDT), 58183 156/193 (Sun 11Z), 58188 159/194 (Sun 13Z), 58191 160/181 (Sun 14Z). They look starved by newest-first heal ordering → at risk. `analysis/media_table_48h_final.csv` |
 | Commands 100 % confirmed (ack, `<CF>` or hash) and in effect at the next wake | 5/5 (low-gain + 4 contrast) | **PASS**. 1000164 low-gain: confirmed 00Z, in effect 01Z (sidecar applied=true). 1000165–1000168: each `<CF>`/hash confirmed, in effect at the next wake. 1000164 missed its first sync (empty mailbox, 22:10Z). 1000165's JSON ack was rejected at a stall but its `<CF>` counted. |
 | No budget skips; no wake overruns | 18 wakes | **PASS**: 0 `skipped_no_budget` / `[PHASE][WARN] skipping`, 0 `[CFG][ERR]`/LKG; halts 423–504 s, all before bus-off (:10:00–:10:01). |
 | 0 SSH writes (wake 1 on) | 18 wakes | **PASS**: TE reads only (cycle log cat, sidecar cat, sent/ listing via stdin, ls). |
