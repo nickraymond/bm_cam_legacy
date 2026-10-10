@@ -13,3 +13,4 @@
 2026-10-10T05:12:44Z [TE2] stop check 02-04Z: no triggers; slot 1 IN EFFECT 04Z on both (cfg 9c980489); backlog bmcam003 14 open / 447, bmcam004 4 open / 29; mirror 9.3 MB; Mac AC.
 2026-10-10T07:08:01Z [TE2] stop check 04-06Z: no triggers; backlog bmcam003 15 open / 415 (down from 447), bmcam004 4 / 51; mirror 12 MB; Mac AC.
 2026-10-10T09:03:19Z [TE2] stop check 06-08Z: no triggers (halts 381-501 s); backlog bmcam003 15 open / 440, bmcam004 4 / 63; mirror 14 MB; Mac AC. Slot 2 (09:33Z) not sent yet.
+2026-10-10T09:43:28Z [TE2] slot 2 sent ~09:43Z: 1000171 (003) + 1000076 (004), contrast 1.1; expect unit OK lines at the 11Z boot.

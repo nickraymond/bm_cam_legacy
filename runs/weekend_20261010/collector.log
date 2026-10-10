@@ -28,3 +28,22 @@ WAKE SPOT-33507C 2026-10-10T04:00: bus 03:59:59→04:09:59 | Pi 04:00:09→04:08
 WAKE SPOT-31593C 2026-10-10T04:00: bus 04:00:01→04:10:01 | Pi 04:00:11→04:07:31 (wake→halt 450 s) | START len 191 END sent 191 burst 195.6 s | queue_full 15 | heal cmds 0 | nereus000 wifi yes:Ford:63
 2026-10-10T04:20:05Z wake 2026-10-10 04: done (2026-10-10T04:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,190,4.21,yes,,40,,14,447 2026-10-10T04:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,191,7.85,yes,,16,,4,29 )
 2026-10-10T05:01:39Z wake 2026-10-10 05: pulling
+WAKE SPOT-33507C 2026-10-10T05:00: bus 04:59:59→05:09:59 | Pi 05:00:09→05:08:19 (wake→halt 500 s) | START len 189 END sent 189 burst 193.5 s | queue_full 31 | heal cmds 0 | nereus000 wifi yes:Ford:63
+WAKE SPOT-31593C 2026-10-10T05:00: bus 05:00:01→05:10:01 | Pi 05:00:11→05:08:21 (wake→halt 500 s) | START len 189 END sent 189 burst 193.6 s | queue_full 17 | heal cmds 0 | nereus000 wifi yes:Ford:63
+2026-10-10T05:20:12Z wake 2026-10-10 05: done (2026-10-10T05:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,189,10.05,yes,480.57,40,,15,438 2026-10-10T05:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,189,8.99,yes,,0,,3,34 )
+2026-10-10T06:01:36Z wake 2026-10-10 06: pulling
+WAKE SPOT-33507C 2026-10-10T06:00: bus 05:59:59→06:09:59 | Pi 06:00:09→06:07:59 (wake→halt 480 s) | START len 191 END sent 191 burst 195.6 s | queue_full 17 | heal cmds 2 | nereus000 wifi yes:Ford:69
+WAKE SPOT-31593C 2026-10-10T06:00: bus 06:00:01→06:10:01 | Pi 06:00:11→06:07:41 (wake→halt 460 s) | START len 190 END sent 190 burst 194.6 s | queue_full 17 | heal cmds 0 | nereus000 wifi yes:Ford:69
+2026-10-10T06:20:06Z wake 2026-10-10 06: done (2026-10-10T06:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,191,8.90,yes,,40,,15,415 2026-10-10T06:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,190,8.95,yes,442.43,29,,4,51 )
+2026-10-10T07:01:30Z wake 2026-10-10 07: pulling
+WAKE SPOT-33507C 2026-10-10T07:00: bus 07:00:00→07:10:00 | Pi 07:00:09→07:08:19 (wake→halt 499 s) | START len 194 END sent 194 burst 198.7 s | queue_full 12 | heal cmds 0 | nereus000 wifi yes:Ford:70
+WAKE SPOT-31593C 2026-10-10T07:00: bus 07:00:00→07:10:00 | Pi 07:00:11→07:08:21 (wake→halt 501 s) | START len 192 END sent 192 burst 196.6 s | queue_full 23 | heal cmds 0 | nereus000 wifi yes:Ford:66
+2026-10-10T07:20:12Z wake 2026-10-10 07: done (2026-10-10T07:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,194,6.19,yes,,0,,16,427 2026-10-10T07:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,192,11.98,yes,,0,,3,49 )
+2026-10-10T08:01:36Z wake 2026-10-10 08: pulling
+WAKE SPOT-33507C 2026-10-10T08:00: bus 08:00:00→08:10:00 | Pi 08:00:08→08:08:18 (wake→halt 498 s) | START len 192 END sent 192 burst 196.6 s | queue_full 53 | heal cmds 2 | nereus000 wifi yes:Ford:70
+WAKE SPOT-31593C 2026-10-10T08:00: bus 08:00:00→08:10:00 | Pi 08:00:11→08:06:21 (wake→halt 381 s) | START len 102 END sent 102 burst 104.9 s | queue_full 14 | heal cmds 0 | nereus000 wifi yes:Ford:66
+2026-10-10T08:20:08Z wake 2026-10-10 08: done (2026-10-10T08:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,192,27.60,yes,,40,,15,440 2026-10-10T08:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,102,3.92,yes,,40,,4,63 )
+2026-10-10T09:01:31Z wake 2026-10-10 09: pulling
+WAKE SPOT-33507C 2026-10-10T09:00: bus 09:00:00→09:10:00 | Pi 09:00:08→09:08:18 (wake→halt 498 s) | START len 193 END sent 193 burst 197.6 s | queue_full 64 | heal cmds 0 | nereus000 wifi yes:Ford:67
+WAKE SPOT-31593C 2026-10-10T09:00: bus 09:00:00→09:10:00 | Pi 09:00:11→09:08:01 (wake→halt 481 s) | START len 89 END sent 89 burst 91.7 s | queue_full 1 | heal cmds 0 | nereus000 wifi yes:Ford:65
+2026-10-10T09:20:10Z wake 2026-10-10 09: done (2026-10-10T09:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,193,27.98,yes,,40,,14,464 2026-10-10T09:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,89,1.12,yes,466.54,11,,5,95 )
