@@ -91,3 +91,5 @@ Sat 10 Oct 23:00:36 UTC 2026
 [HEAL] status: <HL v=1 key=0ehdh2 a=sent n=13 r=ok id=100278 w=0ejzx0>
 [HEAL] status: <HL v=1 key=0ehg91 a=sent n=3 r=ok id=100278 w=0ejzx0>
 [CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[SUP] staying awake 62s (hld=False, keep-alive after a command)
