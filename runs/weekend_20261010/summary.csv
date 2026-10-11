@@ -55,3 +55,7 @@ wake_utc,host,spot,sha,cfg_hash,format,exposure_profile,applied,AG,ET_us,M,loss_
 2026-10-11T00:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,21610,181,2.21,yes,,0,,5,149
 2026-10-11T01:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,29865,187,11.23,yes,,6,,9,365
 2026-10-11T01:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,34282,179,13.41,yes,,40,,4,40
+2026-10-11T02:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,189,5.29,yes,,22,,9,363
+2026-10-11T02:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,190,7.89,yes,,40,,5,54
+2026-10-11T03:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,190,14.74,yes,,40,1000173,10,351
+2026-10-11T03:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,191,5.76,yes,,1,1000078,4,44

@@ -73,3 +73,18 @@ Sun 11 Oct 02:00:35 UTC 2026
 [BOOT] transmit_start uptime_s=65.86
 [HEAL] sent 40 heal chunk(s) before START: 0ejzwv:[2, 26, 35, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162], 0ejucx:[30, 39, 62, 71, 110, 156, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178], 0ejosy:[126]
 [HEAL] pending after this wake: 0ejosy(1 left, 1 wakes)
+[RC] transmit done: sent=190/190 complete=True incomplete_emitted=False uart=194.6s
+[DEBUG] Raw image size: 1074961 bytes
+[DEBUG] Image quality: 185
+[DEBUG] Compressed image size: 54464 bytes
+[DEBUG] Buffers: 190
+[DEBUG] Execution Time: 4.68 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 25.70°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[HEAL] status: <HL v=1 key=0ejzwv a=sent n=23 r=ok id=100259 w=0ek88z>
+[HEAL] status: <HL v=1 key=0ejucx a=sent n=16 r=ok id=100259 w=0ek88z>
+[HEAL] status: <HL v=1 key=0ejosy a=sent n=1 r=partial id=100257 w=0ek88z>
+[CMD] post-transmit listen window: 150s

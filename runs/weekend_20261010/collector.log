@@ -112,3 +112,10 @@ WAKE SPOT-33507C 2026-10-11T01:00: bus 00:59:59→01:09:59 | Pi 01:00:05→01:08
 WAKE SPOT-31593C 2026-10-11T01:00: bus 01:00:01→01:10:01 | Pi 01:00:05→01:08:25 (wake→halt 504 s) | START len 179 END sent 179 burst 183.4 s | queue_full 25 | heal cmds 0 | nereus000 wifi yes:Ford:65
 2026-10-11T01:20:04Z wake 2026-10-11 01: done (2026-10-11T01:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,29865,187,11.23,yes,,6,,9,365 2026-10-11T01:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,34282,179,13.41,yes,,40,,4,40 )
 2026-10-11T02:01:38Z wake 2026-10-11 02: pulling
+WAKE SPOT-33507C 2026-10-11T02:00: bus 01:59:59→02:09:59 | Pi 02:00:05→02:08:15 (wake→halt 496 s) | START len 189 END sent 189 burst 193.6 s | queue_full 10 | heal cmds 1 | nereus000 wifi yes:Ford:69
+WAKE SPOT-31593C 2026-10-11T02:00: bus 02:00:01→02:10:01 | Pi 02:00:05→02:07:55 (wake→halt 474 s) | START len 190 END sent 190 burst 194.6 s | queue_full 16 | heal cmds 0 | nereus000 wifi yes:Ford:69
+2026-10-11T02:20:11Z wake 2026-10-11 02: done (2026-10-11T02:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,189,5.29,yes,,22,,9,363 2026-10-11T02:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,190,7.89,yes,,40,,5,54 )
+2026-10-11T03:01:35Z wake 2026-10-11 03: pulling
+WAKE SPOT-33507C 2026-10-11T03:00: bus 02:59:59→03:09:59 | Pi 03:00:05→03:08:15 (wake→halt 496 s) | START len 190 END sent 190 burst 194.6 s | queue_full 28 | heal cmds 0 | nereus000 wifi yes:Ford:68
+WAKE SPOT-31593C 2026-10-11T03:00: bus 03:00:01→03:10:01 | Pi 03:00:05→03:08:15 (wake→halt 494 s) | START len 191 END sent 191 burst 195.6 s | queue_full 12 | heal cmds 0 | nereus000 wifi yes:Ford:68
+2026-10-11T03:20:05Z wake 2026-10-11 03: done (2026-10-11T03:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,190,14.74,yes,,40,1000173,10,351 2026-10-11T03:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,191,5.76,yes,,1,1000078,4,44 )
