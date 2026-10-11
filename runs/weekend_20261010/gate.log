@@ -23,3 +23,4 @@
 2026-10-10T19:21:16Z [TE2] slot 3 CONFIRMED: [bmcam003] OK id=1000172 19:04:52Z, [bmcam004] OK id=1000077 19:04:13Z (contrast 1.1 -> 1.0, cfg 9c980489). Weekend commands so far 9/9 confirmed.
 2026-10-10T21:11:38Z [TE2] stop check 18-20Z: no triggers (halts 497-502 s); 20Z bmcam003 loss 36.65 % (Spotter, qfull 70); backlog bmcam003 9 open / 336, bmcam004 3 / 27; mirror 28.6 MB.
 2026-10-10T23:07:03Z [TE2] stop check 20-22Z: no triggers (halts 442-502 s); backlog bmcam003 9 open / 332, bmcam004 3 / 36; mirror 31 MB; Mac AC. Slot 3 in effect 20Z (9c980489).
+2026-10-11T01:02:30Z [TE2] stop check 22-00Z: no triggers (halts 441-502 s); bmcam004 backlog 5 / 149 at 00:20Z is ingest lag (58292 81/181 at the pull vs console loss 2.21 %), not loss; bmcam003 9 / 350; mirror 33 MB; Mac AC.
