@@ -27,3 +27,4 @@
 2026-10-11T02:03:24Z [TE2] slot 4 sent ~02:03Z: 1000173 (003) + 1000078 (004), contrast 1.1; expect unit OK lines at the 03Z boot.
 2026-10-11T02:57:47Z [TE2] stop check 23-02Z: no triggers (halts 441-504 s); backlog bmcam003 9 / 363, bmcam004 5 / 54 (the 00Z jump was ingest lag); mirror 36 MB; Mac AC.
 2026-10-11T03:21:14Z [TE2] slot 4 CONFIRMED: [bmcam003] OK id=1000173 03:05:09Z, [bmcam004] OK id=1000078 03:04:32Z (contrast 1.0 -> 1.1, cfg c013f614). Weekend commands 11/11 confirmed.
+2026-10-11T05:11:44Z [TE2] stop check 02-04Z: no triggers (halts 465-496 s); slot 4 in effect 04Z (c013f614); backlog bmcam003 10 / 342, bmcam004 4 / 54; mirror 38.9 MB; Mac AC.

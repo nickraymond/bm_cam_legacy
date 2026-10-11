@@ -21,12 +21,12 @@
 | 17 | 14:00 | 7 AM | – (cmd 5 in effect: hash 9c980489; ack re-sent d:1) | low_gain (morning) | 51 883 B / 181 / d=1.208 (att 2) / 17.5 s / – | **33.15** (60/181; console count) | 0×9, 18×1, **53×48**, 148×1, 180×1 | 68 | 40 (cap) | **START + END not on the console** | 501 s | no | backlog: JXL 5 open / **215** chunks (total 354); 13/19 complete | health check 14:02:43 |
 | 18 | 15:00 | 8 AM | – | low_gain (day) | 50 721 B / 177 / d=1.873 (att 2) / 18.5 s / – | **12.99** (23/177) | 28×10, 107×1, 118×10, 134×2 | 23 | 40 (cap) | 15:01:50 / 15:04:51 | 451 s | no | backlog: JXL 6 open / 198 chunks (total 337) | health check 15:02:42 |
 
-## SOAK VERDICT (2026-10-09 15:20Z / 8:20 AM PDT): 18 wakes (22Z 10/8 → 15Z 10/9)
+## SOAK VERDICT (2026-10-09 15:20Z / 8:20 AM PDT; completion final 2026-10-11 05:12Z): 18 wakes (22Z 10/8 → 15Z 10/9): **PASS on all 5 criteria**
 
 | criterion | n | result |
 |---|---|---|
 | B3a nrjxl decodes at the backend (Linear DNG) | 12/12 completed images | **PASS**. Wake 1 (58143) decoded at 1600×900 (card crisp, no clipped patches). The EM pulled the backend decode status 2026-10-09 ~16Z: all 12 completed JXL-RC images decode OK (valid renders, 18–176 KB). |
-| Every image complete ≤ 48 h (each image: capture + 48 h) | 18 JXL-RC images | **OPEN until Sun 2026-10-11 15:00Z** (the last image + 48 h; the earlier "Sat 15Z" was a date error, corrected 2026-10-10 15:15Z). At Sat 15:12Z: **14/18 complete** (2.1–12.2 h); 4 OPEN and barely moving for 24–36 h: 58158 175/191 (deadline Sun 03Z = Sat 8 PM PDT), 58183 156/193 (Sun 11Z), 58188 159/194 (Sun 13Z), 58191 160/181 (Sun 14Z). They look starved by newest-first heal ordering → at risk. `analysis/media_table_48h_final.csv` |
+| Every image complete ≤ 48 h (each image: capture + 48 h) | 18/18 | **PASS**: all 18 JXL-RC images complete within 48 h. 14 completed in 2.1–12.2 h; the 4 slow ones were 58183 28.3 h, 58191 33.2 h, 58188 35.3 h, 58158 39.3 h (rsd lane audit: backfill lane fired, but the pre-RC2 leftover 58137 took half of it and heal chunks were lost in queue stalls). Final check 2026-10-11 05:12Z (`runs/weekend_20261010/analysis/media_BMCAM_003_2026-10-11T04.csv`). |
 | Commands 100 % confirmed (ack, `<CF>` or hash) and in effect at the next wake | 5/5 (low-gain + 4 contrast) | **PASS**. 1000164 low-gain: confirmed 00Z, in effect 01Z (sidecar applied=true). 1000165–1000168: each `<CF>`/hash confirmed, in effect at the next wake. 1000164 missed its first sync (empty mailbox, 22:10Z). 1000165's JSON ack was rejected at a stall but its `<CF>` counted. |
 | No budget skips; no wake overruns | 18 wakes | **PASS**: 0 `skipped_no_budget` / `[PHASE][WARN] skipping`, 0 `[CFG][ERR]`/LKG; halts 423–504 s, all before bus-off (:10:00–:10:01). |
 | 0 SSH writes (wake 1 on) | 18 wakes | **PASS**: TE reads only (cycle log cat, sidecar cat, sent/ listing via stdin, ls). |
