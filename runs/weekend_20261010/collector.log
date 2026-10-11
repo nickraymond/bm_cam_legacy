@@ -176,3 +176,10 @@ WAKE SPOT-33507C 2026-10-11T17:00: bus 16:59:57→17:09:57 | Pi 17:00:12→17:08
 WAKE SPOT-31593C 2026-10-11T17:00: bus 16:59:58→17:09:58 | Pi 17:00:04→17:07:14 (wake→halt 436 s) | START len 191 END sent 191 burst 195.6 s | queue_full 15 | heal cmds 2 | nereus000 wifi yes:Ford:63
 2026-10-11T17:20:13Z wake 2026-10-11 17: done (2026-10-11T17:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,1866,194,14.95,no,,40,,10,337 2026-10-11T17:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2497,191,7.85,yes,,21,,4,42 )
 2026-10-11T18:01:38Z wake 2026-10-11 18: pulling
+WAKE SPOT-33507C 2026-10-11T18:00: bus 17:59:57→18:09:57 | Pi 18:00:12→18:07:42 (wake→halt 465 s) | START len 189 END sent 189 burst 193.6 s | queue_full 13 | heal cmds 2 | nereus000 wifi yes:Ford:65
+WAKE SPOT-31593C 2026-10-11T18:00: bus 17:59:58→18:09:58 | Pi 18:00:14→18:08:24 (wake→halt 506 s) | START len 192 END sent 192 burst 196.6 s | queue_full 4 | heal cmds 0 | nereus000 wifi yes:Ford:69
+2026-10-11T18:20:12Z wake 2026-10-11 18: done (2026-10-11T18:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,1787,189,6.88,yes,444.55,37,,9,318 2026-10-11T18:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,2182,192,2.08,yes,480.65,0,1000079,5,46 )
+2026-10-11T19:01:36Z wake 2026-10-11 19: pulling
+WAKE SPOT-33507C 2026-10-11T19:00: bus 18:59:58→19:09:58 | Pi 19:00:12→19:08:22 (wake→halt 504 s) | START len 190 END sent 190 burst 194.6 s | queue_full 13 | heal cmds 0 | nereus000 wifi yes:Ford:65
+WAKE SPOT-31593C 2026-10-11T19:00: bus 18:59:58→19:09:58 | Pi 19:00:13→19:08:23 (wake→halt 505 s) | START len 185 END sent 185 burst 189.5 s | queue_full 6 | heal cmds 0 | nereus000 wifi yes:Ford:65
+2026-10-11T19:20:16Z wake 2026-10-11 19: done (2026-10-11T19:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,2339,190,6.84,yes,,0,1000175,10,331 2026-10-11T19:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,2471,185,3.24,yes,,0,,6,158 )
