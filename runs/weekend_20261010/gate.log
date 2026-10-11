@@ -40,3 +40,4 @@
 2026-10-11T15:12:05Z [TE2] stop check 12-14Z: no triggers (halts 435-505 s); bmcam003 loss 31.6 % at 14Z (Spotter, qfull 61), backlog 8 / 356; bmcam004 4 / 47 (still c013f614 = contrast 1.1: 1000079 lost); mirror 48.8 MB; Mac AC.
 2026-10-11T17:07:30Z [TE2] stop check 14-16Z: no triggers (halts 455-506 s); backlog bmcam003 9 / 345, bmcam004 5 / 46; SPOT-31593C rsd 100273 received 15:16:02Z (good :15 sync); mirror 51.5 MB; Mac AC. No new commands since slot 5.
 2026-10-11T17:09:01Z [TE2] EM timed sends: 1000079 re-sent (same id) to 004 at 17:08:30Z for the ~17:15 report sync; 1000175 (contrast 1.1) to 003 at 17:08:31Z. Watching the 31593C console for the 1000079 receipt + OK lines at 18Z.
+2026-10-11T17:09:36Z [TE2] SPOT-31593C 17:07 health-check sync delivered rsd 100274 (17:08:14) + rsd 100275 (17:08:49) into the dead zone (bus on, Pi halted) -> expected dropped; backend rsd issue timing also hits the dead zone.
