@@ -31,3 +31,4 @@
 2026-10-11T07:07:00Z [TE2] stop check 04-06Z: no triggers (halts 465-506 s); backlog bmcam003 11 / 363, bmcam004 4 / 50; mirror 40.9 MB; Mac AC.
 2026-10-11T09:02:16Z [TE2] stop check 06-08Z: no triggers (halts 344-506 s); backlog bmcam003 10 / 335, bmcam004 4 / 34; mirror 42.9 MB; Mac AC.
 2026-10-11T10:03:28Z [TE2] slot 5 sent ~10:03Z: 1000174 (003) + 1000079 (004), contrast 1.0; expect unit OK lines at the 11Z boot.
+2026-10-11T10:57:34Z [TE2] stop check 07-10Z: no triggers (halts 335-506 s); backlog bmcam003 10 / 289, bmcam004 5 / 54; mirror 44.5 MB; Mac AC. Slot 5 OK lines due 11Z.
