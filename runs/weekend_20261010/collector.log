@@ -144,3 +144,10 @@ WAKE SPOT-33507C 2026-10-11T09:00: bus 08:59:58→09:09:58 | Pi 09:00:14→09:08
 WAKE SPOT-31593C 2026-10-11T09:00: bus 08:59:59→09:09:59 | Pi 09:00:04→09:05:34 (wake→halt 335 s) | START len 98 END sent 98 burst 100.9 s | queue_full 20 | heal cmds 1 | nereus000 wifi yes:Ford:63
 2026-10-11T09:20:11Z wake 2026-10-11 09: done (2026-10-11T09:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,102,9.80,yes,,39,,9,306 2026-10-11T09:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,98,20.41,yes,,0,,5,54 )
 2026-10-11T10:01:35Z wake 2026-10-11 10: pulling
+WAKE SPOT-33507C 2026-10-11T10:00: bus 09:59:58→10:09:58 | Pi 10:00:13→10:08:23 (wake→halt 505 s) | START len 102 END sent 102 burst 104.9 s | queue_full 23 | heal cmds 1 | nereus000 wifi yes:Ford:65
+WAKE SPOT-31593C 2026-10-11T10:00: bus 09:59:59→10:09:59 | Pi 10:00:04→10:08:04 (wake→halt 485 s) | START len 98 END sent 98 burst 100.9 s | queue_full 0 | heal cmds 1 | nereus000 wifi yes:Ford:65
+2026-10-11T10:20:05Z wake 2026-10-11 10: done (2026-10-11T10:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,102,12.75,yes,,40,,10,289 2026-10-11T10:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,98,0.00,yes,464.06,0,,5,54 )
+2026-10-11T11:01:30Z wake 2026-10-11 11: pulling
+WAKE SPOT-33507C 2026-10-11T11:00: bus 10:59:58→11:09:58 | Pi 11:00:13→11:08:23 (wake→halt 505 s) | START len 103 END sent 103 burst 105.9 s | queue_full 0 | heal cmds 1 | nereus000 wifi yes:Ford:67
+WAKE SPOT-31593C 2026-10-11T11:00: bus 10:59:59→11:09:59 | Pi 11:00:04→11:06:04 (wake→halt 365 s) | START len 99 END sent 99 burst 101.9 s | queue_full 0 | heal cmds 1 | nereus000 wifi yes:Ford:65
+2026-10-11T11:20:07Z wake 2026-10-11 11: done (2026-10-11T11:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,103,0.00,yes,,37,1000174,8,263 2026-10-11T11:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,99,0.00,yes,,22,,2,32 )

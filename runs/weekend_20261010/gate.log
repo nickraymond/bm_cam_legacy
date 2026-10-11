@@ -32,3 +32,4 @@
 2026-10-11T09:02:16Z [TE2] stop check 06-08Z: no triggers (halts 344-506 s); backlog bmcam003 10 / 335, bmcam004 4 / 34; mirror 42.9 MB; Mac AC.
 2026-10-11T10:03:28Z [TE2] slot 5 sent ~10:03Z: 1000174 (003) + 1000079 (004), contrast 1.0; expect unit OK lines at the 11Z boot.
 2026-10-11T10:57:34Z [TE2] stop check 07-10Z: no triggers (halts 335-506 s); backlog bmcam003 10 / 289, bmcam004 5 / 54; mirror 44.5 MB; Mac AC. Slot 5 OK lines due 11Z.
+2026-10-11T11:21:52Z [TE2] slot 5: 003 CONFIRMED (OK id=1000174 11:03:41Z). 004 1000079 AT RISK: landed on the SPOT-31593C console 10:08:55Z after the 10Z halt (~10:08:05; bus on to 10:10) -> no listener; not applied at 11Z; rsd 100268 (10:08:15) lost the same way. SPOT-31593C mailbox sync moved ~:16 -> ~:08. Flagged to the EM (2-lost-commands stop rule).

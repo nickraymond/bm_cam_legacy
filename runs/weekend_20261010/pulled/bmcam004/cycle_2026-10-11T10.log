@@ -91,3 +91,9 @@ Sun 11 Oct 10:00:30 UTC 2026
 [HEAL] status: <HL v=1 key=0ekjcx a=requested n=15 r=ok id=100267 w=0ekugu>
 [HEAL] status: <HL v=1 key=0ekgky a=requested n=5 r=ok id=100267 w=0ekugu>
 [CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[SUP] staying awake 147s (hld=False, keep-alive after a command)
+[SUP] action: media=still stage=None sent=98/98 elapsed=443.7s
+[CMD] stopped: applied=1 dup=0 rejected=0 unackable=0 acks=0 frames=1 sig_hits=1 crc_scan_fail=0 bad_start=0 read_err=0
+[BOOT] halt uptime_s=464.06
+[RC][halt] executing: sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh (SSH/process death after this is SUCCESS)

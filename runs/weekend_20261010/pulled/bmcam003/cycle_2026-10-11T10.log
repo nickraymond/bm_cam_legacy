@@ -69,3 +69,26 @@ Sun 11 Oct 10:00:29 UTC 2026
 [BOOT] transmit_start uptime_s=62.62
 [HEAL] sent 40 heal chunk(s) before START: 0ei58v:[18, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111]
 [HEAL] pending after this wake: none
+[RC] transmit done: sent=102/102 complete=True incomplete_emitted=False uart=104.9s
+[DEBUG] Raw image size: 490868 bytes
+[DEBUG] Image quality: 260
+[DEBUG] Compressed image size: 29111 bytes
+[DEBUG] Buffers: 102
+[DEBUG] Execution Time: 3.13 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 22.00°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[CMD] rsd id=100291 key=0ekowv n=14: accepted
+[CMD] rsd id=100291 key=0ekm4v n=12: accepted
+[CMD] rsd id=100291 key=0ekjcw n=11: accepted
+[CMD] applied id=100291 rsd: rsd: 3 heal(s) queued (<HL> reports each)
+[CMD] console: 1 line(s) sent, 0 queued
+[HEAL] status: <HL v=1 key=0ei58v a=sent n=40 r=ok id=100290 w=0ekugt>
+[HEAL] status: <HL v=1 key=0ekowv a=requested n=14 r=ok id=100291 w=0ekugt>
+[HEAL] status: <HL v=1 key=0ekm4v a=requested n=12 r=ok id=100291 w=0ekugt>
+[HEAL] status: <HL v=1 key=0ekjcw a=requested n=11 r=ok id=100291 w=0ekugt>
+[CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[SUP] staying awake 118s (hld=False, keep-alive after a command)
