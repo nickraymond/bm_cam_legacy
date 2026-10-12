@@ -48,3 +48,4 @@
 2026-10-12T01:02:13Z [TE2] stop check 22-00Z: no triggers (halts 448-503 s); backlog 003 11 / 250 (falling), 004 5 / 104; mirror 62.3 MB; Mac AC. No slot-7 commands seen yet (EM: 003 ~01:33Z, 004 ~02:08Z).
 2026-10-12T02:03:29Z [TE2] slot 7 (003) sent 02:03:11Z: 1000176 contrast 1.0; expect OK at the 03Z boot (held from 02:10) or live at the 03:02 health check.
 2026-10-12T02:57:40Z [TE2] stop check 23-02Z: no triggers (halts 448-503 s); backlog 003 12 / 258, 004 6 / 50; mirror 65 MB. 1000176 on SPOT-33507C 02:12:07Z (held) -> OK expected 03Z. No new 004 command on SPOT-31593C yet (EM's ~02:08:30Z send not seen).
+2026-10-12T03:08:50Z [TE2] slot 7 (004) sent 03:08:31Z: 1000080 contrast 1.1, carrier = the 03:15 report sync -> OK expected at 04Z. Remaining weekend slots: 003 09:33Z, 004 10:08Z; read-out Mon 14:35Z.
