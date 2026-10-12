@@ -17,7 +17,7 @@ Sources:
 | Sent | 9: 1 trial + 8 contrast slots | 9: 1 low-gain + 1 trial + 7 contrast slots |
 | Confirmed (unit OK / ack within 3 syncs) | **9 / 9** | **8 / 9** on first send; 9 / 9 after the re-send |
 | Lost | 0 | **1** (1000079, Sun 3:03 AM) |
-| In effect at the next wake (cfg hash = ack hash) | all checked so far ✔ | all checked so far ✔ |
+| In effect at the next wake (cfg hash = ack hash) | all ✔ (last: 1000177 at 5 AM) | all ✔ (last: 1000081 at 5 AM) |
 
 - **The loss (1000079) came from the SPOT-31593C dead zone.** The command reached the Spotter between bmcam004's halt and bus-off (:08–:10). Nothing was listening, so it was dropped rather than held.
   - Recovery: the same id was re-sent at 10:08 AM, timed to ride the :15 report sync after bus-off. The Spotter held it, and the unit applied it at the next boot.

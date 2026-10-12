@@ -61,3 +61,4 @@
 2026-10-12T11:12:15Z [TE2] 1000177 (003) + 1000081 (004) CONFIRMED from the 11Z cycle logs: [CMD] applied + ack sent (003 h=c013f614, 004 h=9c980489). In-effect hash check at 12Z. All weekend sends now answered.
 2026-10-12T11:16:55Z [TE2] heal starvation attributed (EM backend read): 58313 = 004 dead zone (asks issued, dropped); 58331 = greedy whole-image packer skips >remaining-budget images (heal_commands.py:325); 58283 = packer + lane order. Fix queued for d28 (EM). SCORING.md updated.
 2026-10-12T11:17:23Z [TE2] EM: rig-health WARN 11:15Z SPOT-31593C battery 4.10 -> 4.04 V (Sofar telemetry, real); read as pre-dawn sag; watch the 12-13Z trend. Units fine (003 11Z image 189/193, 004 10Z 98/98).
+2026-10-12T12:12:12Z [TE2] 12Z: 1000177 IN EFFECT on 003 (cfg c013f614), 1000081 IN EFFECT on 004 (cfg 9c980489). All 18 weekend commands applied + in effect. 0 skips / CFG ERR. Backlog 11Z: 003 5 / 95, 004 2 / 18.
