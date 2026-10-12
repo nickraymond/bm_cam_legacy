@@ -61,6 +61,7 @@ For a new run: `bash /home/pi/pool_mode.sh stop`, then `start` (or reboot). `sta
 - The image is the production 1600×900 crop, downscaled to 640×360 and saved as a progressive JPEG. Quality starts at q60 and steps down by 10 until the file is ≤ 30 KB.
 - Lines are paced 0.031 s apart (Sprint09 DEV_LOG.md:179). Acks go out ahead of queued PV lines.
 - Cross-checked against `tools/pool_preview.py` from #151: OK 85/85, sha256 matches, resend included.
+- Resend `lines` length: the host (#151) sends at most **186 chars** per resend; #151 enforces and tests this, and the bound comes from the 256 B console line. The Pi accepts up to **200** (`rc_preview.RE_LINES`; the 248 B JSON cap is the hard bound), so every host resend fits. Longer lists go out as several resend commands.
 - Expected time per preview (**assumed**, measure on the bench):
   - capture ~3.6 s (measured median with `--raw`, runs/s28_ladder_20261004/RESULTS.md:15)
   - crop + encode ~2–3 s (assumed)
