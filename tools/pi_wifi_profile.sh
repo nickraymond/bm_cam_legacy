@@ -2,8 +2,9 @@
 # pi_wifi_profile.sh — save a NetworkManager Wi-Fi profile on one or more Pis WITHOUT the password
 # ever being in the Mac's shell history, in an ssh argv, or in any process list on the Pi.
 #
-# Purpose:  pool day 2026-10-13: the phone hotspot (Mon evening) and the pool Wi-Fi (Tue AM) on
-#           bmcam003, bmcam004 and nereus000 (EM rev-2 ask: no plaintext password in argv/history).
+# Purpose:  pool day 2026-10-13: the optional pool Wi-Fi (Tue AM) on bmcam003, bmcam004 and nereus000,
+#           or a home-Wi-Fi profile on a host that lacks one (the phone hotspot clones the home
+#           SSID + password, so the units need nothing). EM rule: no plaintext password in argv/history.
 # How:      prompts once on the Mac (SSID visible, password silent), sends both over ssh STDIN;
 #           on the Pi a root shell reads them and writes the keyfile with bash's BUILTIN printf
 #           (no exec, so nothing in ps), umask 077, chmod 600, then `nmcli connection reload`.
@@ -14,7 +15,7 @@
 #           --priority N (before the con-name): connection.autoconnect-priority (default 0;
 #           e.g. -10 for pool-wifi so a reboot prefers the hotspot)
 # Outputs:  per host: "OK <host> <con-name> autoconnect=yes" or a FAILED line; exit 0 only if all OK.
-# Example:  tools/pi_wifi_profile.sh phone-hotspot pi@bmcam003 pi@bmcam004 pi@nereus000.local
+# Example:  tools/pi_wifi_profile.sh home-wifi pi@nereus000.local
 #           tools/pi_wifi_profile.sh --priority -10 pool-wifi pi@172.20.10.4 pi@172.20.10.5 pi@172.20.10.3
 # Limits:   WPA-PSK only (8..63 chars); refuses a backslash or a leading/trailing space in the SSID or
 #           password (keyfile escaping); needs key ssh + passwordless sudo for pi (as on the units).

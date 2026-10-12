@@ -1,13 +1,13 @@
 # Pool day runbook, Tue 10/13 (for Nick, poolside)
 
-Rev 2, Mon 10/12 (EM edits: pool-day card, no Wi-Fi password in argv). T-LAND numbers come in rev 3.
+Rev 2.1, Mon 10/12 (EM edits: pool-day card, no Wi-Fi password in argv; hotspot clones the home Wi-Fi). T-LAND numbers come in rev 3.
 Times are Pacific, AM/PM. Plan: `docs/em/POOL_PLAN_2026-10-13.md`.
 
 ## Pool-day card (one screen; details in §0–§10 below)
 
 Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = pool command on both consoles.
 
-1. **10:00 AM** arrive. Phone hotspot ON (**Maximize Compatibility**). Mac + nereus000 join. `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
+1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
 2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0`. Write down `run=` and `ip=`. Battery: §2.4
 3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
 4. **10:55** card at **1 m**. `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
@@ -55,13 +55,15 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    - Do NOT restore the hourly schedule. With pool mode on, every hourly window would boot the Pi into pool mode and the bus would cut it 10 min later.
    - See: `pool_cmd.py both status` shows `phase=idle cal=0/0 loop=0/0` for both units.
 
-3. **Phone-hotspot Wi-Fi profile on both units AND nereus000** (Nick). The Pi Zero 2 W is 2.4 GHz only.
-   - The script asks once for the SSID and password. The password prompt is silent, and the password travels over ssh stdin, so it never lands in shell history or in any process list. On each Pi it is stored only in the root-0600 NetworkManager keyfile.
-   - The SSID is the phone's name, byte for byte. iOS turns a typed `'` into a curly quote, so a name like "Nick's iPhone" is easy to mistype. Rename the phone without an apostrophe first (Settings → General → About → Name).
+3. **Hotspot = home Wi-Fi: verify only** (Nick + TE). Nick's phone hotspot uses the SAME SSID and password as the home Wi-Fi the units, nereus000 and the Mac already know. Nothing needs to be added to the units.
+   - On the phone: the hotspot name (Settings → General → About → Name) matches the home Wi-Fi SSID byte for byte, including case and punctuation. iOS turns a typed `'` into a curly quote. Hotspot password = home Wi-Fi password. **Maximize Compatibility ON**.
+   - On each host, check there is a saved profile for the home SSID with autoconnect on. Pool mode has no boot Wi-Fi apply; NetworkManager autoconnect alone decides what a rebooted unit joins.
    ```bash
-   tools/pi_wifi_profile.sh phone-hotspot pi@bmcam003 pi@bmcam004 pi@nereus000.local
+   for h in bmcam003 bmcam004 nereus000.local; do echo "== $h"; ssh pi@$h 'nmcli -g NAME,TYPE connection show | grep wireless | cut -d: -f1 | while IFS= read -r c; do echo "$c | ssid=$(nmcli -g 802-11-wireless.ssid connection show "$c") | autoconnect=$(nmcli -g connection.autoconnect connection show "$c")"; done'; done
    ```
-   See: `OK pi@<host> phone-hotspot autoconnect=yes priority=0` three times. A `WARN: 2 profiles named phone-hotspot` means an older one exists; tell the TE.
+   See: on every host, at least one line with `ssid=<home Wi-Fi>` and `autoconnect=yes`. `bmcam-ap ... autoconnect=no` is normal.
+   No such line on a host (most likely nereus000): the TE adds one with `tools/pi_wifi_profile.sh home-wifi pi@<host>`. It asks for the SSID and password with a silent prompt, so the password stays out of argv and shell history.
+   - Side effect: the hotspot looks like HQ. During a poolside restore (§9), the production boot Wi-Fi apply treats it as HQ and joins it, so there is no open-AP fallback.
 
 4. **Pack:**
    - Mac with the repo on the merged `development`, plus `pip install opencv-contrib-python-headless rawpy` for step 8.5
@@ -74,8 +76,8 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 
 ## 1. Arrive, about 10:00 AM: network + viewer (about 15 min)
 
-1. **Phone hotspot ON.** Settings → Personal Hotspot → **Maximize Compatibility ON** (2.4 GHz). Stay on that screen, phone awake, near the units.
-   See: the phone's connection count rises as the Mac, nereus000, bmcam003 and bmcam004 join. Keep other devices off the hotspot.
+1. **Phone hotspot ON** (same name and password as the home Wi-Fi, step 0.3). Settings → Personal Hotspot → **Maximize Compatibility ON** (2.4 GHz). Stay on that screen, phone awake, near the units.
+   See: the phone's connection count rises as the Mac, nereus000, bmcam003 and bmcam004 join on their own. Keep other devices off the hotspot.
 
 2. **Mac joins the hotspot.** Then find nereus000's IP:
    ```bash
@@ -125,7 +127,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    ```
    See, for each unit:
    ```
-   [bmcam003] OK id=9xxxx pool status phase=idle cal=0/0 loop=0/0 run=<YYYYMMDD_HHMMSS>_bmcam003 free=<MB> marks=0 err=none ip=172.20.10.y ssid=<your phone> up=<s>
+   [bmcam003] OK id=9xxxx pool status phase=idle cal=0/0 loop=0/0 run=<YYYYMMDD_HHMMSS>_bmcam003 free=<MB> marks=0 err=none ip=172.20.10.y ssid=<home Wi-Fi name> up=<s>
    ```
    Write `ip=` and `run=` for both units into §11; step 8 needs them.
 
@@ -227,7 +229,7 @@ See: `OK id=N pool stop phase=loop stopping after the current step`.
 The Pis stay up in pool mode (bus held) until the restore, so the data is safe on the SD card. Wi-Fi only works once the units are out of the water.
 
 1. **Units out of the water, near the phone.** Run `pc both status`.
-   See: `ssid=<your phone> ip=172.20.10.y` for both units. Use these IPs below.
+   See: `ip=172.20.10.y ssid=<home Wi-Fi name>` for both units. Use these IPs below. A `172.20.10.x` address confirms it's the hotspot, not a real home network.
 
 2. **Run folder per unit** = the `run=` in that status line, the same one you wrote down in step 2.2. Cross-check that no second Tuesday folder exists (a reset mid-session):
    ```bash
@@ -325,7 +327,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 | `ERR id=N pool ...` | The unit refused: busy, out of space, or bad lines | Read the reason after the verb. `busy phase=...`: wait or `stop`. `space ...`: tell the EM, don't delete anything. |
 | Preview **PARTIAL** | Console lines dropped | Run the resend command shown on the card (`pc <unit> preview --lines ...`). Twice PARTIAL: send a fresh `pc <unit> preview`. |
 | Preview never appears | Camera busy (a loop clip), or the viewer is down | Wait 35 s. Then check that `http://<nereus000-ip>:8090/previews.json` loads; if not, restart the viewer (step 1.4). |
-| Unit not on the hotspot (`ssid=none` in status) | 5 GHz hotspot, phone asleep, or the unit is still in the water | Maximize Compatibility ON; stay on the hotspot screen; unit out of the water and close to the phone. Still nothing: **leave it**. The data is safe on the SD card and the Pi stays up; pull at HQ on the bench Wi-Fi. |
+| Unit not on the hotspot (`ssid=none` in status) | 5 GHz hotspot, phone asleep, hotspot name/password not exactly the home Wi-Fi's, or the unit is still in the water | Maximize Compatibility ON; stay on the hotspot screen; check the phone name against the home SSID (curly `'`?); unit out of the water and close to the phone. Still nothing: **leave it**. The data is safe on the SD card and the Pi stays up; pull at HQ on the bench Wi-Fi. |
 | Spotter battery low (< 3.7 V, assumed) | about 6 h on battery | Plug the Spotter into deck power or the battery pack. If it can't be charged and the loop is near the end, `pc both stop` gives a clean finish rather than a power cut mid-file. |
 | Pull slow (dry run > 1 h) | Hotspot or Wi-Fi throughput | `--classes 1,2` now and the rest at HQ (re-run without `--classes`; it resumes). Or move everyone to `pool-wifi` (step 1.5): `ssh pi@<ip> 'nohup sudo nmcli connection up pool-wifi &'` per unit, then the Mac. The new IP shows in `pc both status`; nereus000 must move too. Pool networks may block device-to-device traffic. |
 | `pool_pull` REFUSED: dest holds a different run | A second run folder for the same unit and date | Pull it with its own `--date`, e.g. `--date 20261013_run2 --run bmcam003=<folder>`. |
