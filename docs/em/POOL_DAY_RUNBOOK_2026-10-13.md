@@ -1,12 +1,13 @@
 # Pool day runbook, Tue 10/13 (for Nick, poolside)
 
-Rev 2.2, Mon 10/12 (EM edits: pool-day card, no Wi-Fi password in argv; hotspot clones the home Wi-Fi; QE fixes: §9.3 re-arm command, pull classes). T-LAND numbers come in rev 3.
+Rev 3, Mon 10/12 PM. EM decision **(E)** replaces (A): units go back to production Mon night and into pool mode Tue 8:00–8:30 AM at the bench (the held bus drains the Spotters). Also: §9.3 re-arms from the path `off` prints. T-LAND numbers are still placeholders, marked **[T-LAND]**.
 Times are Pacific, AM/PM. Plan: `docs/em/POOL_PLAN_2026-10-13.md`.
 
 ## Pool-day card (one screen; details in §0–§10 below)
 
 Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = pool command on both consoles.
 
+0. **8:00–8:30 AM, bench (TE2, §0B)**: after the 8 AM wake halts, run the bus hold and then `pool_mode.sh on` + `start` on both units. `status` must show `cal=0/0 loop=0/0`. Then transport with the bus held.
 1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
 2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0`. Write down `run=` and `ip=`. Battery: §2.4
 3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
@@ -34,28 +35,23 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 | nereus000 tools | `/home/pi/pool_tools/pool_cmd.py` and `pool_preview.py` |
 | Session defaults | calibration 20 min, one frame every 10 s (120 frames). Loop 18 iterations, one every 10 min (3 h). Loop auto-starts 30 min after calibration ends. |
 
-> **No hourly production images from Mon evening until the restore on Tue PM.** Both units sit in pool mode the whole time, so the dashboard gap is expected.
+> **Hourly images:** normal Mon night (production). They stop Tue ~8:30 AM, when the bus hold starts, and resume after the restore (~3:30 PM).
 
-> **Battery.** The Spotters run on their own battery from the moment they leave the hub (Tue AM) until the download ends: about 6 h, Pi idle and then busy. T-LAND measures the drain rate (number added here Mon evening). **If the pool deck has power, bring a USB charger or battery pack for the Spotters.** Check the level with step 2.4.
+> **Battery.** With the bus held, each Spotter measured **net −0.7 W even on the hub charger** (TE2, Mon 1:12 PM); off the charger it drains faster. The hold runs from Tue ~8:30 AM to the restore at ~3:30 PM, about 7 h.
+> - Off-charger drain and BATT_V at the start and end of T-LAND: **[T-LAND]**
+> - **If the pool deck has power, bring a USB charger or battery pack for the Spotters.** It slows the drain; it won't stop it.
+> - Check BATT_V with step 2.4 at every phase.
 
 ---
 
-## 0. Monday evening (TE, after T-LAND)
+## 0A. Monday evening (TE, after T-LAND): back to production
 
-1. **Download T-LAND first**, then restart the pool process on both units. This gives Tuesday a fresh, empty run folder; without the restart, Tuesday's frames are added to T-LAND's folder.
-   ```bash
-   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh start'
-   ```
-   ```bash
-   ssh pi@bmcam004 'bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh start'
-   ```
-   See: `SIGTERM sent ...`, then `[POOL-MODE] started pid ...` on each unit. `stop` returns at once, but the process finishes its current step first (up to ~2 min); the loop waits up to 3 min for it to exit.
+1. **Download T-LAND first** (§8 commands, T-LAND's `run=` names).
+2. **Restore both units to production** with §9 steps 1–6. If T-LAND's bus hold ran before `pool_mode.sh on`, `off` exits 4 (DISARMED) and §9.3 re-arms; exit 0 needs no re-arm. §9.3's check runs either way.
+   See: `PRODUCTION schedule confirmed` for both Spotters. At the next :00, a new image from each unit (§9.7).
+3. Leave the units on the normal hourly schedule overnight, Spotters on the nereus000 hub charger; they net-charge. Do NOT hold the bus overnight: −0.7 W net even on the charger.
 
-2. **Leave the bus held ON overnight** (EM decision A). Both Pis idle in pool mode; the Spotters stay on the nereus000 hub charger.
-   - Do NOT restore the hourly schedule. With pool mode on, every hourly window would boot the Pi into pool mode and the bus would cut it 10 min later.
-   - See: `pool_cmd.py both status` shows `phase=idle cal=0/0 loop=0/0` for both units.
-
-3. **Hotspot = home Wi-Fi: verify only** (Nick + TE). Nick's phone hotspot uses the SAME SSID and password as the home Wi-Fi the units, nereus000 and the Mac already know. Nothing needs to be added to the units.
+4. **Hotspot = home Wi-Fi: verify only** (Nick + TE). Nick's phone hotspot uses the SAME SSID and password as the home Wi-Fi the units, nereus000 and the Mac already know. Nothing needs to be added to the units.
    - On the phone: the hotspot name (Settings → General → About → Name) matches the home Wi-Fi SSID byte for byte, including case and punctuation. iOS turns a typed `'` into a curly quote. Hotspot password = home Wi-Fi password. **Maximize Compatibility ON**.
    - On each host, check there is a saved profile for the home SSID with autoconnect on. Pool mode has no boot Wi-Fi apply; NetworkManager autoconnect alone decides what a rebooted unit joins.
    ```bash
@@ -65,18 +61,52 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    No such line on a host (most likely nereus000): the TE adds one with `tools/pi_wifi_profile.sh home-wifi pi@<host>`. It asks for the SSID and password with a silent prompt, so the password stays out of argv and shell history.
    - Side effect: the hotspot looks like HQ. During a poolside restore (§9), the production boot Wi-Fi apply treats it as HQ and joins it, so there is no open-AP fallback.
 
-4. **Pack:**
+5. **Pack:**
    - Mac with the repo on the merged `development`, plus `pip install opencv-contrib-python-headless rawpy` for step 8.5
    - phone
    - USB charger / battery pack for the Spotters
    - power for nereus000 and its hub
    - the ChArUco board and the v3 card
 
+## 0B. Tuesday 8:00–8:30 AM, bench (TE2): into pool mode
+
+Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.168.1.45`). One unit at a time: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
+
+1. **Wait for the 8 AM wake to finish.** The unit halts itself, usually by ~8:10 AM.
+   ```bash
+   ssh -o ConnectTimeout=5 pi@bmcam003 true; echo rc=$?
+   ```
+   See: `rc=255` (halted). The dashboard shows its 8 AM image.
+
+2. **Bus hold** (Nick's OK for bridge config is part of this plan). This catches the boot, backs up the ARMED crontab to `~/hil_backup/<TS>/`, disarms the RC line and stops the cycle.
+   ```bash
+   hil/tools/hil_bus_always_on.sh SPOT-33507C
+   ```
+   See: `bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/<TS>)`, exit 0. Exit 1 `Pi not reachable in 120 s`: the unit runs its cycle and halts; restore the schedule (`hil/tools/hil_restore_schedule.sh SPOT-33507C`) and retry at the next wake.
+
+3. **Pool mode on + start:**
+   ```bash
+   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh on && bash /home/pi/pool_mode.sh start'
+   ```
+   See: `crontab backed up`, then three `[WARN]` lines saying the backed-up crontab has no armed line (expected under (E); §9.3 re-arms at the end), `effective config hash`, `started pid ...`.
+
+4. Repeat 1–3 for **bmcam004 / SPOT-31593C**.
+
+5. **Status, both units** (on nereus000):
+   ```bash
+   ssh pi@192.168.1.45 'python3 /home/pi/pool_tools/pool_cmd.py both status'
+   ```
+   See: both `phase=idle cal=0/0 loop=0/0 run=<new folder>`. Then unplug the Spotters from the hub and transport (bus held, about 1–2 h at −0.7 W or worse).
+   Need a fresh run folder later (§10)? This restarts the pool process:
+   ```bash
+   ssh pi@<ip> 'bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh start'
+   ```
+
 ---
 
 ## 1. Arrive, about 10:00 AM: network + viewer (about 15 min)
 
-1. **Phone hotspot ON** (same name and password as the home Wi-Fi, step 0.3). Settings → Personal Hotspot → **Maximize Compatibility ON** (2.4 GHz). Stay on that screen, phone awake, near the units.
+1. **Phone hotspot ON** (same name and password as the home Wi-Fi, §0A.4). Settings → Personal Hotspot → **Maximize Compatibility ON** (2.4 GHz). Stay on that screen, phone awake, near the units.
    See: the phone's connection count rises as the Mac, nereus000, bmcam003 and bmcam004 join on their own. Keep other devices off the hotspot.
 
 2. **Mac joins the hotspot.** Then find nereus000's IP:
@@ -133,7 +163,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 
 3. **Read the status line:**
    - **Bus held:** `up=` (pool process uptime) is bigger than 600 s while the clock is NOT between :00 and :10. A small `up=` means the Spotter or Pi reset in transit. That is expected and gives a new, empty run folder (new `run=`).
-   - **Fresh run:** `cal=0/0 loop=0/0`. Any other count: restart that unit's pool process (step 0.1 command, using the unit's IP).
+   - **Fresh run:** `cal=0/0 loop=0/0`. Any other count: restart that unit's pool process (the restart command at the end of §0B.5, using the unit's IP).
    - **Space:** `free=` is at least 6000 MB. Calibration ≈ 3.8 GB, loop ≈ 0.7 GB, plus a 1 GB margin. The `pool ready ... need~<MB>` console line has the exact figure.
 
 4. **Spotter battery:**
@@ -295,7 +325,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
    - exit 0
 
    Other exit codes (#152 @ a23f4d6):
-   - **Exit 4**, `[ERROR] restored crontab is DISARMED ... re-arm with: crontab /home/pi/hil_backup/<TS>/crontab_ARMED.txt`. The bus hold ran before pool mode went on; re-arm in step 3, which uses exactly that path (saved in `~/pool_mode_off.txt` on the Pi).
+   - **Exit 4**, `[ERROR] restored crontab is DISARMED ... re-arm with: crontab /home/pi/hil_backup/<TS>/crontab_ARMED.txt`. **This is the normal outcome under (E)**: the bus hold (§0B.2) always runs before `pool_mode.sh on`. Re-arm in step 3, which uses exactly that path (saved in `~/pool_mode_off.txt` on the Pi).
    - **Exit 5**, `[ERROR] a config/state file changed`: stop and tell the EM.
 
 3. **Check the crontab is ARMED** (always; required after exit 4):
@@ -345,7 +375,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 | Spotter battery low (< 3.7 V, assumed) | about 6 h on battery | Plug the Spotter into deck power or the battery pack. If it can't be charged and the loop is near the end, `pc both stop` gives a clean finish rather than a power cut mid-file. |
 | Pull slow (dry run > 1 h) | Hotspot or Wi-Fi throughput | `--classes 1,2` (the nrjxl + pjpg, a few MB) now and the rest at HQ (re-run without `--classes`; it resumes). Or move everyone to `pool-wifi` (step 1.5): `ssh pi@<ip> 'nohup sudo nmcli connection up pool-wifi &'` per unit, then the Mac. The new IP shows in `pc both status`; nereus000 must move too. Pool networks may block device-to-device traffic. |
 | `pool_pull` REFUSED: dest holds a different run | A second run folder for the same unit and date | Pull it with its own `--date`, e.g. `--date 20261013_run2 --run bmcam003=<folder>`. |
-| `cal=` / `loop=` not 0 at step 2.3, or `ERR id=N pool cal refused: run already has calibration frames, restart pool mode ...` (same for `loop`; an auto-start that hits it prints `pool loop AUTOSTART FAILED refused: ...`) | This run folder already holds a session (pool process not restarted after T-LAND, or a second `cal`) | **Before calibration:** step 0.1 command using the unit's IP (`pool_mode.sh stop`, then `start`), then `pc both status` shows a new `run=` and `cal=0/0`. **Mid-session:** `cal` or `loop` was sent twice. The first one is running or done; nothing to do, don't restart. |
+| `cal=` / `loop=` not 0 at step 2.3, or `ERR id=N pool cal refused: run already has calibration frames, restart pool mode ...` (same for `loop`; an auto-start that hits it prints `pool loop AUTOSTART FAILED refused: ...`) | This run folder already holds a session (not a fresh `start` on Tue AM, or a second `cal`) | **Before calibration:** the restart command at the end of §0B.5, using the unit's IP (`pool_mode.sh stop`, wait, `start`). Then `pc both status` shows a new `run=` and `cal=0/0`. **Mid-session:** `cal` or `loop` was sent twice. The first one is running or done; nothing to do, don't restart. |
 
 ---
 
