@@ -1,0 +1,21 @@
+== PRE-POOL SNAPSHOT (armed production) 2026-10-12T19:03:35Z
+9ec4cb7ae7c1
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+29d8f0997ed00a6e96b694696ad19f901de0af90f924caad69e78835d100d0d7  camera_config.yaml
+e8f060568184555c3a85c3063c91125b73758f1ffcc720735a8264272936b5b1  camera_schedule.yaml
+c392942ee2044ea354d5d040ac3201ae705b303594c437460c384a620fedb3f5  bm_command_state_v2.json
+4eee6295957956dde10a3d6a770ba219ff7d5f3f6de2b1aeaf02ee95b4d7949d  bm_command_state.json
+ls: cannot access 'pool_sequence.py': No such file or directory
+ls: cannot access 'rc_preview.py': No such file or directory
+ls: cannot access '/home/pi/pool_mode.sh': No such file or directory
+/dev/mmcblk0p2   117468M 88607M    24054M  79% /
+== DEPLOY 2026-10-12T19:03:36Z
+scp rc=0
+88bf3e706d60  pool_sequence.py
+027fd06e0359  rc_preview.py
+87d9e549ed26  /home/pi/pool_mode.sh
+== PRINT-CONFIG
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=bbbd992a hv=1 registry=v11 overlay=6 key(s)
+{"capture_settings": {"camera_controls": {"enabled": true, "exposure": {"enabled": false}, "focus": {"enabled": true, "lens_position": 1.82, "mode": "manual"}, "image_processing": {"contrast": 1.0, "enabled": false, "sharpness": 1.0}, "white_balance": {"enabled": false}}, "exposure_profile": {"max_gain": 1.0, "max_shutter_us": 60000, "profile": "low_gain"}}, "crop_native_xywh": [1504, 846, 1600, 900], "hash": "bbbd992a", "level": "v2", "overlay": {"camera.exposure.max_gain": 1.0, "camera.exposure.max_shutter_us": 60000, "camera.exposure.profile": "low_gain", "camera.focus.lens_position": 1.82, "camera.focus.mode": "manual", "camera.image_processing.contrast": 1.0}, "raw_layout": "rgb", "still_format": "nrjxl"}
+POOL_CONFIG_HASH=bbbd992a
+== expected sha: 88bf3e706d60 pool_sequence.py, 027fd06e0359 rc_preview.py, 87d9e549ed26 pool_mode.sh

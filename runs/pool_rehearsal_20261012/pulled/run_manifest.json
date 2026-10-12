@@ -1,0 +1,1200 @@
+{
+ "args": {
+  "cal_duration_s": 1200,
+  "cal_interval_s": 10,
+  "config_dir": "/home/pi/BM_Devel_Pi",
+  "exit_when_done": false,
+  "fake": false,
+  "fake_script": null,
+  "force": false,
+  "loop_autostart_min": 30,
+  "loop_iterations": 18,
+  "loop_keep_dng": true,
+  "loop_period_s": 600,
+  "max_runtime_s": null,
+  "min_free_mb": 1024,
+  "nrjxl_layout": "rgb",
+  "preview_chunk": 160,
+  "preview_h": 360,
+  "preview_line_s": 0.031,
+  "preview_max_bytes": 30000,
+  "preview_q": 60,
+  "preview_w": 640,
+  "preview_wh": [
+   640,
+   360
+  ],
+  "print_config": false,
+  "run_root": "/home/pi/pool_runs",
+  "video_bitrate_mbps": 2.0,
+  "video_fps": 10,
+  "video_preset": "wide_720p",
+  "video_s": 30
+ },
+ "argv": [
+  "/home/pi/BM_Devel_Pi/pool_sequence.py",
+  "--run-root",
+  "/home/pi/pool_runs"
+ ],
+ "calibration": [
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.025507,
+     1.9669
+    ],
+    "ColourTemperature": 4880,
+    "DigitalGain": 1.005494,
+    "ExposureTime": 3154,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5858.402344,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 101404763000
+   },
+   "capture_s": 4.34,
+   "dng": "20261012T191246Z_cal_0001.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.34,
+   "free_mb": 24001,
+   "jpg": "20261012T191246Z_cal_0001.jpg",
+   "jpg_bytes": 3074730,
+   "k": 1,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:12:46.485Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.02041,
+     1.965093
+    ],
+    "ColourTemperature": 4875,
+    "DigitalGain": 1.000194,
+    "ExposureTime": 3154,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5846.270508,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 111195855000
+   },
+   "capture_s": 5.74,
+   "dng": "20261012T191256Z_cal_0002.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 5.74,
+   "free_mb": 23975,
+   "jpg": "20261012T191256Z_cal_0002.jpg",
+   "jpg_bytes": 3063594,
+   "k": 2,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:12:56.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.022253,
+     1.974771
+    ],
+    "ColourTemperature": 4857,
+    "DigitalGain": 1.002477,
+    "ExposureTime": 3154,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5833.116699,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 121544975000
+   },
+   "capture_s": 4.71,
+   "dng": "20261012T191306Z_cal_0003.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.72,
+   "free_mb": 23949,
+   "jpg": "20261012T191306Z_cal_0003.jpg",
+   "jpg_bytes": 3063164,
+   "k": 3,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:13:06.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.02859,
+     1.97306
+    ],
+    "ColourTemperature": 4873,
+    "DigitalGain": 1.005738,
+    "ExposureTime": 3154,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5806.508301,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 131280871000
+   },
+   "capture_s": 4.63,
+   "dng": "20261012T191316Z_cal_0004.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.63,
+   "free_mb": 23923,
+   "jpg": "20261012T191316Z_cal_0004.jpg",
+   "jpg_bytes": 3071340,
+   "k": 4,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:13:16.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.025002,
+     1.972437
+    ],
+    "ColourTemperature": 4867,
+    "DigitalGain": 1.002825,
+    "ExposureTime": 3207,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5764.708496,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 141169765000
+   },
+   "capture_s": 4.94,
+   "dng": "20261012T191326Z_cal_0005.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.94,
+   "free_mb": 23898,
+   "jpg": "20261012T191326Z_cal_0005.jpg",
+   "jpg_bytes": 3078794,
+   "k": 5,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:13:26.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.025234,
+     1.973515
+    ],
+    "ColourTemperature": 4865,
+    "DigitalGain": 1.005097,
+    "ExposureTime": 3207,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5748.404297,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 151183977000
+   },
+   "capture_s": 4.69,
+   "dng": "20261012T191336Z_cal_0006.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.69,
+   "free_mb": 23872,
+   "jpg": "20261012T191336Z_cal_0006.jpg",
+   "jpg_bytes": 3088460,
+   "k": 6,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:13:36.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.022803,
+     1.968393
+    ],
+    "ColourTemperature": 4872,
+    "DigitalGain": 1.00664,
+    "ExposureTime": 3233,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5717.177246,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 161197839000
+   },
+   "capture_s": 5.4,
+   "dng": "20261012T191346Z_cal_0007.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 5.41,
+   "free_mb": 23846,
+   "jpg": "20261012T191346Z_cal_0007.jpg",
+   "jpg_bytes": 3102786,
+   "k": 7,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:13:46.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.020814,
+     1.968309
+    ],
+    "ColourTemperature": 4868,
+    "DigitalGain": 1.007068,
+    "ExposureTime": 3233,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5715.829102,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 171477476000
+   },
+   "capture_s": 5.4,
+   "dng": "20261012T191356Z_cal_0008.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 5.4,
+   "free_mb": 23820,
+   "jpg": "20261012T191356Z_cal_0008.jpg",
+   "jpg_bytes": 3114230,
+   "k": 8,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:13:56.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.025198,
+     1.979831
+    ],
+    "ColourTemperature": 4852,
+    "DigitalGain": 1.000354,
+    "ExposureTime": 3233,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5707.88916,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 181192064000
+   },
+   "capture_s": 4.19,
+   "dng": "20261012T191406Z_cal_0009.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.19,
+   "free_mb": 23794,
+   "jpg": "20261012T191406Z_cal_0009.jpg",
+   "jpg_bytes": 3119443,
+   "k": 9,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:14:06.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.023876,
+     1.967507
+    ],
+    "ColourTemperature": 4876,
+    "DigitalGain": 1.007865,
+    "ExposureTime": 3233,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5702.633789,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 191170384000
+   },
+   "capture_s": 5.7,
+   "dng": "20261012T191416Z_cal_0010.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 5.7,
+   "free_mb": 23768,
+   "jpg": "20261012T191416Z_cal_0010.jpg",
+   "jpg_bytes": 3119931,
+   "k": 10,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:14:16.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.025662,
+     1.967889
+    ],
+    "ColourTemperature": 4879,
+    "DigitalGain": 1.004103,
+    "ExposureTime": 3233,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5690.004395,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 201137080000
+   },
+   "capture_s": 4.27,
+   "dng": "20261012T191426Z_cal_0011.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.28,
+   "free_mb": 23742,
+   "jpg": "20261012T191426Z_cal_0011.jpg",
+   "jpg_bytes": 3131527,
+   "k": 11,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:14:26.483Z"
+  },
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.021429,
+     1.97813
+    ],
+    "ColourTemperature": 4848,
+    "DigitalGain": 1.005679,
+    "ExposureTime": 3233,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5677.087402,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 211146433000
+   },
+   "capture_s": 4.96,
+   "dng": "20261012T191436Z_cal_0012.dng",
+   "dng_bytes": 24029068,
+   "frame_s": 4.96,
+   "free_mb": 23716,
+   "jpg": "20261012T191436Z_cal_0012.jpg",
+   "jpg_bytes": 3136622,
+   "k": 12,
+   "slot_late_s": 0.0,
+   "t_utc": "2026-10-12T19:14:36.483Z"
+  }
+ ],
+ "camera": {
+  "backend": "rpicam",
+  "capture_settings": {
+   "camera_controls": {
+    "enabled": true,
+    "exposure": {
+     "enabled": false
+    },
+    "focus": {
+     "enabled": true,
+     "lens_position": 1.82,
+     "mode": "manual"
+    },
+    "image_processing": {
+     "contrast": 1.0,
+     "enabled": false,
+     "sharpness": 1.0
+    },
+    "white_balance": {
+     "enabled": false
+    }
+   },
+   "exposure_profile": {
+    "max_gain": 1.0,
+    "max_shutter_us": 60000,
+    "profile": "low_gain"
+   }
+  },
+  "still_command": "/usr/bin/rpicam-still",
+  "video": {
+   "bitrate_mbps": 2.0,
+   "crop_native_xywh": [
+    0,
+    0,
+    4608,
+    2592
+   ],
+   "encoder": {
+    "intra": 0,
+    "level": "",
+    "profile": ""
+   },
+   "exposure_profile_args": [
+    "--tuning-file",
+    "/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json"
+   ],
+   "fps": 10,
+   "output_wh": [
+    1280,
+    720
+   ],
+   "preset": "wide_720p",
+   "roi": "0.000000,0.000000,1.000000,1.000000",
+   "seconds": 30.0,
+   "sensor_mode": "2304x1296"
+  }
+ },
+ "capture_settings": {
+  "camera_controls": {
+   "enabled": true,
+   "exposure": {
+    "enabled": false
+   },
+   "focus": {
+    "enabled": true,
+    "lens_position": 1.82,
+    "mode": "manual"
+   },
+   "image_processing": {
+    "contrast": 1.0,
+    "enabled": false,
+    "sharpness": 1.0
+   },
+   "white_balance": {
+    "enabled": false
+   }
+  },
+  "exposure_profile": {
+   "max_gain": 1.0,
+   "max_shutter_us": 60000,
+   "profile": "low_gain"
+  }
+ },
+ "clock_note": "Pi clock (no Spotter time read); t_run_s/monotonic timings are exact",
+ "commands": [
+  {
+   "ack": "[bmcam004] OK id=90001 pool status phase=idle cal=0/0 loop=0/0 free=24030MB marks=0 err=none up=27s ssid=Ford ip=192.168.1.143",
+   "dup": false,
+   "fields": {},
+   "id": 90001,
+   "t_utc": "2026-10-12T19:12:23.748Z",
+   "verb": "status"
+  },
+  {
+   "ack": "[bmcam004] OK id=90001 pool status phase=idle cal=0/0 loop=0/0 free=24030MB marks=0 err=none up=27s ssid=Ford ip=192.168.1.143",
+   "dup": true,
+   "id": 90001,
+   "t_utc": "2026-10-12T19:12:23.766Z"
+  },
+  {
+   "ack": "pending",
+   "dup": false,
+   "fields": {},
+   "id": 90002,
+   "t_utc": "2026-10-12T19:12:28.243Z",
+   "verb": "preview"
+  },
+  {
+   "ack": "[bmcam004] OK id=90002 pool preview in_progress",
+   "dup": true,
+   "id": 90002,
+   "t_utc": "2026-10-12T19:12:28.270Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90002 pool preview img=191228 n=232 bytes=27823 q=40 eta=7.3s",
+   "dup": false,
+   "id": 90002,
+   "late_answer": true,
+   "t_utc": "2026-10-12T19:12:34.224Z",
+   "verb": "preview"
+  },
+  {
+   "ack": "[bmcam004] OK id=90003 pool cal start frames=12 every=10s dur=120s free=24027MB",
+   "dup": false,
+   "fields": {
+    "duration_s": 120,
+    "interval_s": 10
+   },
+   "id": 90003,
+   "t_utc": "2026-10-12T19:12:46.482Z",
+   "verb": "cal"
+  },
+  {
+   "ack": "[bmcam004] OK id=90003 pool cal start frames=12 every=10s dur=120s free=24027MB",
+   "dup": true,
+   "id": 90003,
+   "t_utc": "2026-10-12T19:12:46.520Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90004 pool status phase=idle cal=12/12 loop=0/0 free=23716MB marks=0 err=none up=197s ssid=Ford ip=192.168.1.143 autostart_in=1768s",
+   "dup": false,
+   "fields": {},
+   "id": 90004,
+   "t_utc": "2026-10-12T19:15:13.199Z",
+   "verb": "status"
+  },
+  {
+   "ack": "[bmcam004] OK id=90004 pool status phase=idle cal=12/12 loop=0/0 free=23716MB marks=0 err=none up=197s ssid=Ford ip=192.168.1.143 autostart_in=1768s",
+   "dup": true,
+   "id": 90004,
+   "t_utc": "2026-10-12T19:15:13.219Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90005 pool mark #1 card_1m phase=idle t=2026-10-12T19:15:17.582Z",
+   "dup": false,
+   "fields": {
+    "note": "card_1m"
+   },
+   "id": 90005,
+   "t_utc": "2026-10-12T19:15:17.601Z",
+   "verb": "mark"
+  },
+  {
+   "ack": "[bmcam004] OK id=90005 pool mark #1 card_1m phase=idle t=2026-10-12T19:15:17.582Z",
+   "dup": true,
+   "id": 90005,
+   "t_utc": "2026-10-12T19:15:17.618Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90006 pool loop start iterations=3 every=120s free=23716MB",
+   "dup": false,
+   "fields": {
+    "iterations": 3,
+    "period_s": 120
+   },
+   "id": 90006,
+   "t_utc": "2026-10-12T19:15:22.202Z",
+   "verb": "loop"
+  },
+  {
+   "ack": "[bmcam004] OK id=90006 pool loop start iterations=3 every=120s free=23716MB",
+   "dup": true,
+   "id": 90006,
+   "t_utc": "2026-10-12T19:15:22.245Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90007 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=612s ssid=Ford ip=192.168.1.143",
+   "dup": false,
+   "fields": {},
+   "id": 90007,
+   "t_utc": "2026-10-12T19:22:08.816Z",
+   "verb": "status"
+  },
+  {
+   "ack": "[bmcam004] OK id=90007 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=612s ssid=Ford ip=192.168.1.143",
+   "dup": true,
+   "id": 90007,
+   "t_utc": "2026-10-12T19:22:08.835Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90008 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=618s ssid=Ford ip=192.168.1.143",
+   "dup": false,
+   "fields": {},
+   "id": 90008,
+   "t_utc": "2026-10-12T19:22:14.252Z",
+   "verb": "status"
+  },
+  {
+   "ack": "[bmcam004] OK id=90008 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=618s ssid=Ford ip=192.168.1.143",
+   "dup": true,
+   "id": 90008,
+   "t_utc": "2026-10-12T19:22:14.271Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90009 pool preview resend img=191228 lines=4 eta=0.2s",
+   "dup": false,
+   "fields": {
+    "lines": "2-4,9"
+   },
+   "id": 90009,
+   "t_utc": "2026-10-12T19:22:18.611Z",
+   "verb": "preview"
+  },
+  {
+   "ack": "[bmcam004] OK id=90009 pool preview resend img=191228 lines=4 eta=0.2s",
+   "dup": true,
+   "id": 90009,
+   "t_utc": "2026-10-12T19:22:18.631Z"
+  },
+  {
+   "ack": "[bmcam004] OK id=90010 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=749s ssid=Ford ip=192.168.1.143",
+   "dup": false,
+   "fields": {},
+   "id": 90010,
+   "t_utc": "2026-10-12T19:24:25.533Z",
+   "verb": "status"
+  },
+  {
+   "ack": "[bmcam004] OK id=90010 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=749s ssid=Ford ip=192.168.1.143",
+   "dup": true,
+   "id": 90010,
+   "t_utc": "2026-10-12T19:24:25.555Z"
+  }
+ ],
+ "config": {
+  "base_hash": "8fded2ea",
+  "dropped": [],
+  "effective_values": {
+   "camera.backend": "rpicam",
+   "camera.controls_enabled": true,
+   "camera.exposure.analogue_gain": null,
+   "camera.exposure.enabled": false,
+   "camera.exposure.ev": null,
+   "camera.exposure.max_gain": 1.0,
+   "camera.exposure.max_shutter_us": 60000,
+   "camera.exposure.mode": null,
+   "camera.exposure.profile": "low_gain",
+   "camera.exposure.shutter_us": null,
+   "camera.focus.enabled": true,
+   "camera.focus.lens_position": 1.82,
+   "camera.focus.mode": "manual",
+   "camera.focus.range": null,
+   "camera.focus.speed": null,
+   "camera.image_processing.brightness": null,
+   "camera.image_processing.contrast": 1.0,
+   "camera.image_processing.denoise": null,
+   "camera.image_processing.enabled": false,
+   "camera.image_processing.hdr": null,
+   "camera.image_processing.saturation": null,
+   "camera.image_processing.sharpness": 1.0,
+   "camera.native.height": 2592,
+   "camera.native.jpeg_quality": 95,
+   "camera.native.width": 4608,
+   "camera.white_balance.enabled": false,
+   "camera.white_balance.gains": null,
+   "camera.white_balance.mode": null,
+   "still.budget_min": 8,
+   "still.crop": [
+    1504,
+    846,
+    1600,
+    900
+   ],
+   "still.format": "nrjxl",
+   "still.message_cap": 195,
+   "still.output_width": 1000,
+   "still.quality_ladder": [
+    90,
+    80,
+    70,
+    60,
+    50,
+    40,
+    30,
+    25,
+    20,
+    15,
+    13,
+    11,
+    9
+   ],
+   "still.raw.d_max": 10.4,
+   "still.raw.distances": [
+    3.8,
+    4.6,
+    5.95,
+    8.25
+   ],
+   "still.raw.effort": 5,
+   "still.raw.encode_max_s": 30,
+   "still.raw.keep_crop": false,
+   "still.raw.layout": "rgb",
+   "still.raw.rgb_encode_max_s": 45,
+   "still.raw.target_fill": 0.97,
+   "still.save.quality": 85,
+   "video.logger.clip_minutes": 5.0,
+   "video.logger.session_minutes": 0,
+   "video.record.bitrate_mbps": 6.0,
+   "video.record.crop": null,
+   "video.record.dir": "/home/pi/BM_Devel_Pi/videos",
+   "video.record.encoder.intra": 0,
+   "video.record.encoder.level": "",
+   "video.record.encoder.profile": "",
+   "video.record.fps": 15,
+   "video.record.framing": "wide_1080p_lean",
+   "video.record.output": null,
+   "video.record.sensor_mode": null,
+   "video.send.budget_min": 8,
+   "video.send.duration_s": 5.0,
+   "video.send.fps": 10,
+   "video.send.keyframe_repeat_max": 30,
+   "video.send.lead_in_s": 2.0,
+   "video.send.message_cap": 190,
+   "video.send.size": "480x270",
+   "video.send.x264_preset": "medium",
+   "video.ui.enabled": true,
+   "video.ui.port": 8080
+  },
+  "hash": "bbbd992a",
+  "level": "v2",
+  "overlay": {
+   "camera.exposure.max_gain": 1.0,
+   "camera.exposure.max_shutter_us": 60000,
+   "camera.exposure.profile": "low_gain",
+   "camera.focus.lens_position": 1.82,
+   "camera.focus.mode": "manual",
+   "camera.image_processing.contrast": 1.0
+  },
+  "render": "/home/pi/pool_runs/20261012_191155_bmcam004/effective_camera_schedule.yaml",
+  "state_path": "/home/pi/BM_Devel_Pi/bm_command_state_v2.json"
+ },
+ "events": [
+  {
+   "auto": false,
+   "count": 12,
+   "duration_s": 120,
+   "free_mb": 24027,
+   "id": 90003,
+   "kind": "cal_start",
+   "period_s": 10,
+   "t_utc": "2026-10-12T19:12:46.456Z"
+  },
+  {
+   "done": 12,
+   "free_mb": 23716,
+   "kind": "cal_end",
+   "skipped": 0,
+   "stopped": false,
+   "t_utc": "2026-10-12T19:14:41.667Z",
+   "target": 12,
+   "wall_s": 115.2
+  },
+  {
+   "auto": false,
+   "count": 3,
+   "duration_s": 360,
+   "free_mb": 23716,
+   "id": 90006,
+   "kind": "loop_start",
+   "period_s": 120,
+   "t_utc": "2026-10-12T19:15:22.181Z"
+  },
+  {
+   "done": 3,
+   "free_mb": 23617,
+   "kind": "loop_end",
+   "skipped": 0,
+   "stopped": false,
+   "t_utc": "2026-10-12T19:20:30.187Z",
+   "target": 3,
+   "wall_s": 308.0
+  },
+  {
+   "id": 90009,
+   "img_id": "191228",
+   "kind": "preview_resend",
+   "seqs": [
+    2,
+    3,
+    4,
+    9
+   ],
+   "t_utc": "2026-10-12T19:22:18.590Z"
+  }
+ ],
+ "fake": false,
+ "host": "bmcam004",
+ "loop": [
+  {
+   "encode_s": 24.68,
+   "free_mb": 23683,
+   "i": 1,
+   "iteration_s": 64.7,
+   "nrjxl": {
+    "attempts": 2,
+    "bytes": 53756,
+    "distance": 3.435,
+    "effort": 5,
+    "encode_s": 20.009,
+    "layout": "rgb",
+    "msgs": 187,
+    "path": "20261012T191522Z_loop_01_still_compressed.nrjxl",
+    "s": 22.93
+   },
+   "pjpg": {
+    "bytes": 48660,
+    "fits": true,
+    "msgs": 169,
+    "path": "20261012T191522Z_loop_01_still_compressed.jpg",
+    "q": 30,
+    "reason": "fit",
+    "s": 1.71,
+    "wh": [
+     1000,
+     562
+    ]
+   },
+   "slot_late_s": 0.0,
+   "still": {
+    "applied": {
+     "AfState": 0,
+     "AnalogueGain": 1.122807,
+     "ColourGains": [
+      2.025065,
+      1.966316
+     ],
+     "ColourTemperature": 4881,
+     "DigitalGain": 1.007256,
+     "ExposureTime": 3286,
+     "FrameDuration": 69669,
+     "LensPosition": 1.82,
+     "Lux": 5635.209961,
+     "ScalerCrop": "(0, 0)/4608x2592",
+     "SensorTimestamp": 257106380000
+    },
+    "capture_s": 4.34,
+    "dng_bytes": 24029068,
+    "jpg": "20261012T191522Z_loop_01_still.jpg",
+    "jpg_bytes": 3175733
+   },
+   "t_utc": "2026-10-12T19:15:22.206Z",
+   "video": {
+    "argv": [
+     "/usr/bin/rpicam-vid",
+     "-n",
+     "-t",
+     "30000",
+     "--codec",
+     "h264",
+     "--inline",
+     "--mode",
+     "2304:1296:10:P",
+     "--width",
+     "1280",
+     "--height",
+     "720",
+     "--framerate",
+     "10",
+     "--bitrate",
+     "2000000",
+     "--roi",
+     "0.000000,0.000000,1.000000,1.000000",
+     "-o",
+     "/home/pi/pool_runs/20261012_191155_bmcam004/loop/20261012T191522Z_loop_01_video.h264.part",
+     "--autofocus-mode",
+     "manual",
+     "--lens-position",
+     "1.82",
+     "--tuning-file",
+     "/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json"
+    ],
+    "bytes": 7316812,
+    "fallback": null,
+    "mux_s": 5.04,
+    "path": "20261012T191522Z_loop_01_video.mp4",
+    "record_s": 30.62,
+    "requested": {
+     "camera_control_source": "image_pipeline.camera_controls",
+     "camera_controls_enabled": true,
+     "requested_exposure_enabled": false,
+     "requested_focus_enabled": true,
+     "requested_focus_mode": "manual",
+     "requested_image_processing_enabled": false,
+     "requested_lens_position": 1.82,
+     "requested_white_balance_enabled": false
+    }
+   },
+   "video_s": 35.68
+  },
+  {
+   "encode_s": 27.14,
+   "free_mb": 23650,
+   "i": 2,
+   "iteration_s": 73.22,
+   "nrjxl": {
+    "attempts": 2,
+    "bytes": 53899,
+    "distance": 3.333,
+    "effort": 5,
+    "encode_s": 21.205,
+    "layout": "rgb",
+    "msgs": 188,
+    "path": "20261012T191722Z_loop_02_still_compressed.nrjxl",
+    "s": 23.26
+   },
+   "pjpg": {
+    "bytes": 47959,
+    "fits": true,
+    "msgs": 167,
+    "path": "20261012T191722Z_loop_02_still_compressed.jpg",
+    "q": 30,
+    "reason": "fit",
+    "s": 3.81,
+    "wh": [
+     1000,
+     562
+    ]
+   },
+   "slot_late_s": 0.0,
+   "still": {
+    "applied": {
+     "AfState": 0,
+     "AnalogueGain": 1.122807,
+     "ColourGains": [
+      2.027574,
+      1.967597
+     ],
+     "ColourTemperature": 4883,
+     "DigitalGain": 1.004666,
+     "ExposureTime": 3312,
+     "FrameDuration": 69669,
+     "LensPosition": 1.82,
+     "Lux": 5582.459961,
+     "ScalerCrop": "(0, 0)/4608x2592",
+     "SensorTimestamp": 377852084000
+    },
+    "capture_s": 9.51,
+    "dng_bytes": 24029068,
+    "jpg": "20261012T191722Z_loop_02_still.jpg",
+    "jpg_bytes": 3178973
+   },
+   "t_utc": "2026-10-12T19:17:22.203Z",
+   "video": {
+    "argv": [
+     "/usr/bin/rpicam-vid",
+     "-n",
+     "-t",
+     "30000",
+     "--codec",
+     "h264",
+     "--inline",
+     "--mode",
+     "2304:1296:10:P",
+     "--width",
+     "1280",
+     "--height",
+     "720",
+     "--framerate",
+     "10",
+     "--bitrate",
+     "2000000",
+     "--roi",
+     "0.000000,0.000000,1.000000,1.000000",
+     "-o",
+     "/home/pi/pool_runs/20261012_191155_bmcam004/loop/20261012T191722Z_loop_02_video.h264.part",
+     "--autofocus-mode",
+     "manual",
+     "--lens-position",
+     "1.82",
+     "--tuning-file",
+     "/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json"
+    ],
+    "bytes": 7319141,
+    "fallback": null,
+    "mux_s": 5.29,
+    "path": "20261012T191722Z_loop_02_video.mp4",
+    "record_s": 31.16,
+    "requested": {
+     "camera_control_source": "image_pipeline.camera_controls",
+     "camera_controls_enabled": true,
+     "requested_exposure_enabled": false,
+     "requested_focus_enabled": true,
+     "requested_focus_mode": "manual",
+     "requested_image_processing_enabled": false,
+     "requested_lens_position": 1.82,
+     "requested_white_balance_enabled": false
+    }
+   },
+   "video_s": 36.51
+  },
+  {
+   "encode_s": 26.65,
+   "free_mb": 23617,
+   "i": 3,
+   "iteration_s": 67.93,
+   "nrjxl": {
+    "attempts": 2,
+    "bytes": 53979,
+    "distance": 3.288,
+    "effort": 5,
+    "encode_s": 20.835,
+    "layout": "rgb",
+    "msgs": 188,
+    "path": "20261012T191922Z_loop_03_still_compressed.nrjxl",
+    "s": 22.9
+   },
+   "pjpg": {
+    "bytes": 47318,
+    "fits": true,
+    "msgs": 165,
+    "path": "20261012T191922Z_loop_03_still_compressed.jpg",
+    "q": 30,
+    "reason": "fit",
+    "s": 3.7,
+    "wh": [
+     1000,
+     562
+    ]
+   },
+   "slot_late_s": 0.0,
+   "still": {
+    "applied": {
+     "AfState": 0,
+     "AnalogueGain": 1.122807,
+     "ColourGains": [
+      2.024564,
+      1.969859
+     ],
+     "ColourTemperature": 4872,
+     "DigitalGain": 1.006468,
+     "ExposureTime": 3286,
+     "FrameDuration": 69669,
+     "LensPosition": 1.82,
+     "Lux": 5600.278809,
+     "ScalerCrop": "(0, 0)/4608x2592",
+     "SensorTimestamp": 497989915000
+    },
+    "capture_s": 5.14,
+    "dng_bytes": 24029068,
+    "jpg": "20261012T191922Z_loop_03_still.jpg",
+    "jpg_bytes": 3198329
+   },
+   "t_utc": "2026-10-12T19:19:22.203Z",
+   "video": {
+    "argv": [
+     "/usr/bin/rpicam-vid",
+     "-n",
+     "-t",
+     "30000",
+     "--codec",
+     "h264",
+     "--inline",
+     "--mode",
+     "2304:1296:10:P",
+     "--width",
+     "1280",
+     "--height",
+     "720",
+     "--framerate",
+     "10",
+     "--bitrate",
+     "2000000",
+     "--roi",
+     "0.000000,0.000000,1.000000,1.000000",
+     "-o",
+     "/home/pi/pool_runs/20261012_191155_bmcam004/loop/20261012T191922Z_loop_03_video.h264.part",
+     "--autofocus-mode",
+     "manual",
+     "--lens-position",
+     "1.82",
+     "--tuning-file",
+     "/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json"
+    ],
+    "bytes": 7327580,
+    "fallback": null,
+    "mux_s": 5.54,
+    "path": "20261012T191922Z_loop_03_video.mp4",
+    "record_s": 30.58,
+    "requested": {
+     "camera_control_source": "image_pipeline.camera_controls",
+     "camera_controls_enabled": true,
+     "requested_exposure_enabled": false,
+     "requested_focus_enabled": true,
+     "requested_focus_mode": "manual",
+     "requested_image_processing_enabled": false,
+     "requested_lens_position": 1.82,
+     "requested_white_balance_enabled": false
+    }
+   },
+   "video_s": 36.13
+  }
+ ],
+ "marks": [
+  {
+   "cal_frame": 12,
+   "id": 90005,
+   "loop_iteration": 0,
+   "note": "card_1m",
+   "phase": "idle",
+   "t_run_s": 201.4,
+   "t_utc": "2026-10-12T19:15:17.582Z"
+  }
+ ],
+ "previews": [
+  {
+   "applied": {
+    "AfState": 0,
+    "AnalogueGain": 1.122807,
+    "ColourGains": [
+     2.026869,
+     1.977712
+    ],
+    "ColourTemperature": 4859,
+    "DigitalGain": 1.008378,
+    "ExposureTime": 3128,
+    "FrameDuration": 69669,
+    "LensPosition": 1.82,
+    "Lux": 5890.265137,
+    "ScalerCrop": "(0, 0)/4608x2592",
+    "SensorTimestamp": 83061632000
+   },
+   "attempts": [
+    {
+     "bytes": 36290,
+     "q": 60
+    },
+    {
+     "bytes": 32019,
+     "q": 50
+    },
+    {
+     "bytes": 27823,
+     "q": 40
+    }
+   ],
+   "bytes": 27823,
+   "capture_s": 4.39,
+   "console_eta_s": 7.3,
+   "id": 90002,
+   "img_id": "191228",
+   "lines": 232,
+   "native": "/home/pi/pool_runs/20261012_191155_bmcam004/preview/20261012T191228Z_preview_191228.jpg",
+   "prepare_s": 5.96,
+   "q": 40,
+   "t_utc": "2026-10-12T19:12:34.205Z",
+   "wh": [
+    640,
+    360
+   ]
+  }
+ ],
+ "run_dir": "/home/pi/pool_runs/20261012_191155_bmcam004",
+ "schema": "bmcam_pool_run_v1",
+ "software_sha": "9ec4cb7ae7c1",
+ "started_utc": "2026-10-12T19:11:56.177Z",
+ "still": {
+  "crop_native_xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "message_cap": 195,
+  "output_width": 1000,
+  "quality_ladder": [
+   90,
+   80,
+   70,
+   60,
+   50,
+   40,
+   30,
+   25,
+   20,
+   15,
+   13,
+   11,
+   9
+  ],
+  "raw_cfg": {
+   "d_max": 10.4,
+   "distances": [
+    3.8,
+    4.6,
+    5.95,
+    8.25
+   ],
+   "effort": 5,
+   "encode_max_s": 30,
+   "format": "nrjxl",
+   "keep_crop": false,
+   "layout": "rgb",
+   "rgb_encode_max_s": 45,
+   "source": "yaml",
+   "target_fill": 0.97
+  }
+ },
+ "storage": {
+  "est_dng_b": 24029068,
+  "est_native_jpg_b_assumed": 8000000,
+  "free_mb_at_start": 24030,
+  "min_free_mb": 1024
+ }
+}

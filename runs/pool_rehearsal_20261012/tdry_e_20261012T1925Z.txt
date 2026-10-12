@@ -1,0 +1,21 @@
+== 2026-10-12T19:25:21Z E: re-arm crontab from ~/hil_backup/20261012T191046Z, halt
+armed:
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+crontab == pre-pool snapshot (armed): OK
+halt-issued
+19:25:39 Pi down
+== 2026-10-12T19:25:54Z E: restore schedule
+2026-10-12T19:26:11Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-12T19:26:25Z Succesfully sent config set msg
+2026-10-12T19:26:25Z 2026-10-12T19:26:27.832Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-12T19:26:31Z 2026-10-12T19:26:34.425Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-12T19:26:31Z 2026-10-12T19:26:34.433Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-12T19:26:31Z 2026-10-12T19:26:34.488Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-12T19:26:34Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 19:27:16
+2026-10-12T19:27:36Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-12T19:27:50Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-12T19:27:50Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+hil_restore_schedule rc=0

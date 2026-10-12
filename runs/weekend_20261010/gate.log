@@ -78,3 +78,7 @@
 2026-10-12T18:06:25Z [TE2] focus lock C3 via console (Nick OK a): 66002 bmcam004 OK 18:04:20Z cfg=bbbd992a; 66001 bmcam003 OK 18:05:28Z cfg=09ebbe7e (auto -> manual; lens 1.82 = base). In-effect check at 19Z.
 2026-10-12T18:13:30Z [TE2] DEPLOY nereus000 pool host tools from bm #151 @ 037bb4ae (tests 30/30 local): /home/pi/pool_tools/pool_preview.py (7a28ff64) + pool_cmd.py (8db53469), hashes match; viewer = transient unit pool-preview (systemd-run, Restart=always), serving :8090, HTTP 200, previews []. Stop/undo: sudo systemctl stop pool-preview; rm -r /home/pi/pool_tools /home/pi/pool_preview. pool_cmd not run (Pi-side PR pending).
 2026-10-12T18:31:56Z [TE2] Spotter charging confirmed: SPOT-31593C 18:15Z 4.07 V +1.25 W in_v 4.11; SPOT-33507C 18:10Z 4.04 V +0.21 W in_v 3.89. No pool blocker.
+2026-10-12T19:02:22Z [TE2] NICK OK (typed, verbatim): "OK set contrast 1.0 on bmcam003 via console."
+2026-10-12T19:02:48Z [TE2] focus lock IN EFFECT at 19Z on both (cfg 09ebbe7e / bbbd992a = OK hashes; --autofocus-mode manual --lens-position 1.82; sidecar LensPosition 1.82).
+2026-10-12T19:05:30Z [TE2] 66003 contrast 1.0 bmcam003 OK 19:05:10Z cfg=bbbd992a (= bmcam004's hash: both units now identical config). NB image_processing.enabled=false: contrast is not passed to rpicam.
+2026-10-12T19:28:51Z [TE2] T-DRY PASS (all bars; known QE defect: off prints PRODUCTION MODE on disarmed crontab, fixed a23f4d6). T-RESTORE 004: crontab byte-identical to pre-pool, config identical, schedule 1/3600000/600000; 1 PM wake pending. Results: TDRY_RESULTS.md
