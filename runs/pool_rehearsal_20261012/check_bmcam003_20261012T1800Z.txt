@@ -1,0 +1,91 @@
+== host bmcam003 utc 2026-10-12T18:00:55Z uptime 45s
+== sha
+9ec4cb7ae7c1
+
+== df
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/mmcblk0p2  115G   87G   24G  79% /
+/dev/mmcblk0p2  115G   87G   24G  79% /
+tmpfs           208M   12K  208M   1% /dev/shm
+== du top-level (MB)
+82126	/home/pi/BM_Devel_Pi/videos
+664	/home/pi/BM_Devel_Pi/images
+10	/home/pi/BM_Devel_Pi/sent
+6	/home/pi/BM_Devel_Pi/reference_images
+6	/home/pi/BM_Devel_Pi/cron_logs
+2	/home/pi/BM_Devel_Pi/__pycache__
+1	/home/pi/BM_Devel_Pi/videoui_server.py.before_years_20260819T054053Z
+1	/home/pi/BM_Devel_Pi/videoui_server.py.before_stillsfix_20260819T050921Z
+1	/home/pi/BM_Devel_Pi/videoui_server.py.before_sprint18_20260819T032951Z
+1	/home/pi/BM_Devel_Pi/videoui_server.py.before_responsive_20260819T043318Z
+1	/home/pi/BM_Devel_Pi/videoui_server.py.before_modenote_20260819T050143Z
+1	/home/pi/BM_Devel_Pi/videoui_server.py.before_cleanup_20260819T053526Z
+== biggest media by type
+[*.jxl] count 0
+[*nrjxl*] 56032 2026-10-12 /home/pi/BM_Devel_Pi/images/2026-10-12T16:00:37Z_image_compressed.nrjxl
+[*nrjxl*] 55985 2026-10-09 /home/pi/BM_Devel_Pi/images/2026-10-09T06:00:32Z_image_compressed.nrjxl
+[*nrjxl*] count 184
+[*.jpg] 4178802 2026-10-08 /home/pi/BM_Devel_Pi/reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg
+[*.jpg] 4178802 2026-08-01 /home/pi/BM_Devel_Pi/images/refsrc_20260801T075116Z_native_full.jpg
+[*.jpg] count 1530
+[*.jpeg] count 0
+[*.h264] count 0
+[*.mp4] 348293695 2026-09-02 /home/pi/BM_Devel_Pi/videos/2026-09-02T13-32-01Z_video_1920x1080_15fps.mp4
+[*.mp4] 348291369 2026-09-02 /home/pi/BM_Devel_Pi/videos/2026-09-02T03-07-17Z_video_1920x1080_15fps.mp4
+[*.mp4] count 875
+[*.dng] 24029068 2026-10-12 /home/pi/BM_Devel_Pi/images/2026-10-12T18:00:36Z_image_native_full.dng
+[*.dng] count 1
+[*.heic] count 0
+== #97 fix (write_render in supervisor_config.py)
+1
+== RemoveIPC
+RemoveIPC=no
+== /dev/shm
+total 0
+drwxrwxrwt  3 root root  100 Oct 12 18:00 .
+drwxr-xr-x 16 root root 4040 Oct 12 17:08 ..
+drwxrwxr-x  2 pi   pi     60 Oct 12 17:08 bmcam
+-rw-rw-rw-  1 pi   pi   4096 Oct 12 18:00 lttng-ust-wait-8
+-rw-r-----  1 pi   pi   4096 Oct 12 18:00 lttng-ust-wait-8-1000
+== wifi power_save
+Power save: off
+== nmcli connections
+nereus-hq:802-11-wireless:yes:0:wlan0
+tailscale0:tun:no:0:tailscale0
+lo:loopback:no:0:lo
+netplan-eth0:802-3-ethernet:yes:0:
+netplan-wlan0-Ford:802-11-wireless:yes:0:
+-- nereus-hq: infrastructure Ford auto default 
+-- netplan-wlan0-Ford: infrastructure Ford auto default 
+== network island config (camera_config.yaml)
+120:  network_type: 0x02  # 0x02 cellular only; 0x01 adds Iridium fallback (satellite credits). Stills only; video is always cellular.
+121-  chunk_chars: 384  # Base64 characters per chunk message (the backend decoder assumes it).
+122-  msg_interval_s: 1.0  # R3-PACE arm A
+123-  lane:
+124-    enabled: false  # Keep sends out of the 5-min boundary blackout.
+125-    grid_s: 300.0  # Boundary grid (s).
+126-    pre_guard_s: 20.0  # Quiet before a boundary (s).
+127-    post_guard_s: 30.0  # Quiet after a boundary (s).
+128-    max_wait_s: 300.0  # Longest wait for a clear slot (s).
+129-  media_key:
+130-    enabled: true  # Keyed media wire (rev 5); off = legacy.
+--
+143:network:
+144-  default: "nereus_hq"  # WiFi at boot: none (leave as is), ap (open hotspot named after the unit) or nereus_hq.
+145:  ap_fallback_s: 90  # Raise the AP if HQ WiFi is not up after (s).
+146-  ap_timeout_min: 60  # AP turns itself off after (min).
+== island/hotspot units
+== crontab
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+== config
+ee69a9b1  camera_config.yaml
+6f419ebb  camera_schedule.yaml
+latest log cron_logs/rc_cycle_20261012T170836Z.log
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=c013f614 hv=1 registry=v11 overlay=4 key(s)
+BASE_HASH 8fded2ea OVERLAY {'camera.image_processing.contrast': 1.1, 'camera.exposure.profile': 'low_gain', 'camera.exposure.max_shutter_us': 60000, 'camera.exposure.max_gain': 1.0}
+EFFECTIVE {'mode.media': 'still', 'mode.run': 'per_boot', 'still.format': 'nrjxl', 'camera.exposure.profile': 'low_gain', 'camera.image_processing.contrast': 1.1, 'schedule.window.start': '00:00', 'schedule.window.end': '00:00', 'power.halt.enabled': True}
+== mem
+MemAvailable:     105708 kB
+CmaTotal:         262144 kB
+CmaFree:           18652 kB
+== done

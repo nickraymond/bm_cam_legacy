@@ -1,0 +1,4 @@
+# Console-lane command ledger (pool rehearsal / pool), TE2. Ids from the console range (1-99,999): no high-water, console reply only.
+# n | unit / Spotter | sent (UTC / PDT) | id | command | console answer | in effect
+1 | bmcam004 / SPOT-31593C | 2026-10-12T18:04:18Z / 11:04 AM (listen window open) | 66002 | set camera.focus.mode manual + lens_position 1.82 | 18:04:20Z "[bmcam004] OK id=66002 camera.focus.mode: auto -> manual (next action) cfg=bbbd992a" (2 s) | check 12 PM wake: [CFG] hash=bbbd992a + sidecar AfMode/LensPosition
+2 | bmcam003 / SPOT-33507C | 2026-10-12T18:05:26Z / 11:05 AM (listen window open) | 66001 | same | 18:05:28Z "[bmcam003] OK id=66001 camera.focus.mode: auto -> manual (next action) cfg=09ebbe7e" (2 s) | check 12 PM wake: [CFG] hash=09ebbe7e + sidecar

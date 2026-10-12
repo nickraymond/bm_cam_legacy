@@ -1,0 +1,5 @@
+2026-10-12T18:04:17Z bmcam004 listen-window state: '1 0 '
+===== 2026-10-12T18:04:18Z FOCUS.bmcam004 SPOT-31593C  bm pub bmcam/cmd {"id":66002,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":1.82}} 1 1  (114 B line)
+CON  2026-10-12T18:04:20Z bm pub bmcam/cmd {"id":66002,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":1.82}} 1 1
+CON  2026-10-12T18:04:20Z 1791828263.218 e6fe83ea6b4a2b7f, [bmcam004] OK id=66002 camera.focus.mode: auto -> manual (next action) cfg=bbbd992a
+SUMMARY cell=0 con=2
