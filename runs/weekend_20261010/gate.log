@@ -71,3 +71,4 @@
 2026-10-12T16:22:12Z [TE2] battery 9 AM: SPOT-31593C 4.01 V -0.34 W (8:15 idle), 3.98 V -1.23 W (9:04, wake); SPOT-33507C 4.04 V -0.30 W (9:10 idle). Still discharging, as expected until the hub is reseated.
 2026-10-12T16:33:10Z [TE2] collector exited 16:20:07Z at its until-time (last wake 16Z: 003 cfg c013f614 backlog 5/190, 004 cfg 9c980489 4/26). Mirror still in its last sleep; exits after one more rsync ~16:52Z.
 2026-10-12T16:57:47Z [TE2] EM spun down (Nick). Hub reseat ~9:45 AM did NOT restore the hub (no USB event; in_v 0.11 V both); Nick checking hub power / upstream cable / reboot. New EM from docs/em/KICKOFF_EM_2026-10-12.md + HANDOVER_2026-10-12.md; board d30 (battery) / d31 (dead zone). TE2 stays bench owner.
+2026-10-12T16:59:38Z [TE2] new EM ('EM kickoff 10/12') took over 10 AM; status sent. Hub still down 16:59Z; batt SPOT-31593C 4.01 V idle (16:15Z), SPOT-33507C 4.04 V (16:10Z). No deploys until the EM confirms bm #146 order with Nick.
