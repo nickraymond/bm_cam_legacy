@@ -138,13 +138,18 @@ class TestDropAndResend(Base):
         self.assertEqual(r["passes"], 2)
         self.assertEqual(self.jpg(key), jpeg)
 
-    def test_resend_command_fits_248_bytes(self):
-        missing = list(range(1, 400, 2))       # 200 single gaps: worst case
-        parts = pp.resend_lines_args(missing)
-        self.assertGreater(len(parts), 1)
-        for p in parts:
-            cmd = json.dumps({"id": 99999, "c": "pool", "v": "preview", "lines": p}, separators=(",", ":"))
-            self.assertLessEqual(len(cmd), 248)
+    def test_resend_command_fits_pi_limits(self):
+        # Pi side (#152 rc_preview.py:58): RE_LINES = [0-9,-]{1,64}; JSON <= 248 B
+        pi_re = re.compile(r"[0-9,-]{1,64}\Z")
+        self.assertEqual(pp.RE_PI_LINES.pattern, pi_re.pattern)
+        for missing in (list(range(1, 400, 2)),            # 200 single gaps: worst case
+                        list(range(100, 260)),             # one long run
+                        [5, 6, 7, 120, 121, 240, 241, 242, 243, 250]):
+            parts = pp.resend_lines_args(missing)
+            for p in parts:
+                self.assertTrue(pi_re.match(p), (len(p), p))
+                cmd = json.dumps({"id": 99999, "c": "pool", "v": "preview", "lines": p}, separators=(",", ":"))
+                self.assertLessEqual(len(cmd), 248)
         rebuilt = []
         for p in parts:
             for r in p.split(","):

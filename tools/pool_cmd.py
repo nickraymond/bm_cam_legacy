@@ -70,6 +70,7 @@ MAX_CONSOLE_LINE = 256       # hil_console.sh refuses > 256 B incl. newline (Spo
 VERBS = ("status", "cal", "loop", "mark", "stop", "preview")
 RE_NOTE = re.compile(r"[A-Za-z0-9_:./+,-]{1,40}\Z")
 RE_LINES = re.compile(r"\d+(-\d+)?(,\d+(-\d+)?)*\Z")
+MAX_LINES_CHARS = 64          # the Pi's rc_preview.RE_LINES = [0-9,-]{1,64}
 RE_PV = re.compile(r"(?<![A-Za-z0-9])PV[HE]?\s")
 
 
@@ -157,6 +158,9 @@ def build_json(cid, verb, a):
     if verb == "preview" and a.lines:
         if not RE_LINES.match(a.lines):
             die(f"[pool_cmd] --lines {a.lines!r}: use e.g. 3-7,12 (1-based, inclusive)")
+        if len(a.lines) > MAX_LINES_CHARS:
+            die(f"[pool_cmd] --lines is {len(a.lines)} chars; the Pi accepts <= {MAX_LINES_CHARS} "
+                f"(rc_preview.RE_LINES): split it into several preview --lines commands")
         body["lines"] = a.lines
     if verb == "cal":
         if a.duration_s is not None:

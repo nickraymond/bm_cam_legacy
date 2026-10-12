@@ -10,10 +10,12 @@ Purpose
   (calibration/, loop/, preview/, run_manifest.json, pool.log). Wi-Fi time at the pool is
   short, so per unit the pull goes in STRICT priority order, one class after another:
       1 manifest+logs   top-level files (run_manifest.json, pool.log, ...) and every *.log
-      2 loop stills     loop/ (pjpg *.jpg, *.nrjxl / *.jxl, sidecars) and preview/
-      3 calibration     calibration/ (DNG + JPEG, ~3 GB)
-      4 videos          *.mp4 / *.h264 anywhere
-      5 other           anything else in the run folder (so nothing is silently left)
+      2 loop products   loop/ + preview/: *_compressed.* (nrjxl + pjpg), *_preview.jpg and the
+                        small sidecars (*.json/.txt/.csv) ONLY (a few MB)
+      3 calibration     calibration/ (DNG + JPEG, ~3.8 GB)
+      4 loop natives    loop/ + preview/ native stills: *_still.jpg / *_still.dng (~0.6 GB)
+      5 videos          *.mp4 / *.h264 anywhere
+      6 other           anything else in the run folder (so nothing is silently left)
   Units run in parallel (one thread each); classes within a unit run in order.
 
 How
@@ -47,7 +49,7 @@ Exit     0 every requested file present + sha256 match; 1 anything missing / mis
 Examples (on the Mac, repo root)
   python3 tools/pool_pull.py --dry-run                         # sizes per class + projected time
   python3 tools/pool_pull.py                                   # pull both, all classes
-  python3 tools/pool_pull.py --classes 1,2                     # manifest/logs + loop stills only
+  python3 tools/pool_pull.py --classes 1,2                     # manifest/logs + nrjxl/pjpg only
   python3 tools/pool_pull.py --host bmcam004=192.168.4.31 --run 20261013_181500_bmcam004
   python3 tools/pool_pull.py --host bmcam003=172.20.10.4 --host bmcam004=172.20.10.5 \\
       --run bmcam003=20261013_170512_bmcam003 --run bmcam004=20261013_170530_bmcam004
@@ -74,7 +76,8 @@ import threading
 import time
 from datetime import datetime
 
-CLASSES = {1: "manifest+logs", 2: "loop stills", 3: "calibration", 4: "videos", 5: "other"}
+CLASSES = {1: "manifest+logs", 2: "loop products", 3: "calibration", 4: "loop natives", 5: "videos",
+           6: "other"}
 DEFAULT_HOSTS = ["bmcam003.local", "bmcam004.local"]
 STATE_DIR = ".pool_pull"
 
@@ -118,17 +121,25 @@ sys.exit(rc)
 
 
 def classify(rel):
+    """Strict pull priority (Nick: JPEG XL + JPEG first; QE #151 nit 2026-10-12):
+    1 top-level files + every *.log; 2 loop/preview PRODUCTS = *_compressed.* (nrjxl, pjpg),
+    *_preview.jpg and the small sidecars (*.json/.txt/.csv); 3 calibration/; 4 loop/preview
+    NATIVE stills (*_still.jpg/.dng, the preview's native capture); 5 videos; 6 anything else."""
     low = rel.lower()
+    name = low.rsplit("/", 1)[-1]
     if low.endswith((".mp4", ".h264")):
-        return 4
+        return 5
     if "/" not in rel or low.endswith(".log"):
         return 1
     top = rel.split("/", 1)[0]
     if top == "calibration":
         return 3
     if top in ("loop", "preview"):
-        return 2
-    return 5
+        if "_compressed" in name or name.endswith("_preview.jpg") or name.endswith((".json", ".txt", ".csv")):
+            return 2
+        if name.endswith((".jpg", ".jpeg", ".dng")):
+            return 4
+    return 6
 
 
 def human(n):
@@ -457,7 +468,7 @@ def main(argv=None):
                     "per unit (repeatable), e.g. --run bmcam003=20261013_181500_bmcam003")
     ap.add_argument("--dest-root", default=os.path.expanduser("~/NereusPool"))
     ap.add_argument("--date", help="override the <date> folder (default: the run folder's date)")
-    ap.add_argument("--classes", default="1,2,3,4,5", help="classes to pull, in this order (default 1,2,3,4,5)")
+    ap.add_argument("--classes", default="1,2,3,4,5,6", help="classes to pull, in this order (default 1,2,3,4,5,6)")
     ap.add_argument("--dry-run", action="store_true", help="list sizes per class + projected time; copy nothing")
     ap.add_argument("--probe-mb", type=float, default=16.0, help="dry-run rate probe size per unit")
     ap.add_argument("--rate-mbps", type=float, help="dry-run: use this MB/s instead of probing")

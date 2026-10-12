@@ -46,16 +46,22 @@ cd "$FAKE_HOMES/$H" && exec /bin/sh -c "$*"
 def make_run(home, unit, run="20261013_181500"):
     """A small pool run folder in every class."""
     d = os.path.join(home, "pool_runs", f"{run}_{unit}")
-    files = {
+    t = "20261013T181500Z"
+    files = {   # names as BM_Devel_Pi/pool_sequence.py (#152) writes them
         "run_manifest.json": b'{"unit": "%s"}' % unit.encode(),
         "pool.log": b"start\nstop\n",
-        "loop/0001.jpg": os.urandom(30000),
-        "loop/0001.nrjxl": os.urandom(12000),
-        "loop/0001.json": b"{}",
-        "preview/p1.jpg": os.urandom(4000),
-        "calibration/cal_0001.dng": os.urandom(200000),
-        "calibration/cal_0001.jpg": os.urandom(50000),
-        "loop/clip_0001.mp4": os.urandom(80000),
+        f"loop/{t}_loop_01_still_compressed.nrjxl": os.urandom(12000),
+        f"loop/{t}_loop_01_still_compressed.nrjxl.capture_metadata.json": b"{}",
+        f"loop/{t}_loop_01_still_compressed.jpg": os.urandom(9000),
+        f"loop/{t}_loop_01_still.metadata.json": b"{}",
+        f"loop/{t}_loop_01_still.stdout.log": b"ok",
+        f"loop/{t}_loop_01_still.jpg": os.urandom(30000),
+        f"loop/{t}_loop_01_still.dng": os.urandom(60000),
+        f"preview/{t}_preview_181500_preview.jpg": os.urandom(4000),
+        f"preview/{t}_preview_181500.jpg": os.urandom(20000),
+        f"calibration/{t}_cal_0001.dng": os.urandom(200000),
+        f"calibration/{t}_cal_0001.jpg": os.urandom(50000),
+        f"loop/{t}_loop_01_video.mp4": os.urandom(80000),
         "notes/extra.txt": b"x",
     }
     for rel, data in files.items():
@@ -109,18 +115,25 @@ class Base(unittest.TestCase):
 
 class TestClassify(unittest.TestCase):
     def test_classes(self):
-        c = pp.classify
+        c, t = pp.classify, "20261013T181500Z"
         self.assertEqual(c("run_manifest.json"), 1)
         self.assertEqual(c("pool.log"), 1)
-        self.assertEqual(c("loop/sub/cycle.log"), 1)
-        self.assertEqual(c("loop/0001.jpg"), 2)
-        self.assertEqual(c("loop/0001.nrjxl"), 2)
-        self.assertEqual(c("preview/a.jpg"), 2)
-        self.assertEqual(c("calibration/x.dng"), 3)
-        self.assertEqual(c("calibration/x.jpg"), 3)
-        self.assertEqual(c("loop/clip.mp4"), 4)
-        self.assertEqual(c("calibration/clip.h264"), 4)
-        self.assertEqual(c("notes/extra.txt"), 5)
+        self.assertEqual(c(f"loop/{t}_loop_01_still.stdout.log"), 1)
+        # 2 = loop products ONLY (QE #151): nrjxl + pjpg + sidecars, the small preview
+        self.assertEqual(c(f"loop/{t}_loop_01_still_compressed.nrjxl"), 2)
+        self.assertEqual(c(f"loop/{t}_loop_01_still_compressed.jpg"), 2)
+        self.assertEqual(c(f"loop/{t}_loop_01_still_compressed.nrjxl.capture_metadata.json"), 2)
+        self.assertEqual(c(f"loop/{t}_loop_01_still.metadata.json"), 2)
+        self.assertEqual(c(f"preview/{t}_preview_181500_preview.jpg"), 2)
+        self.assertEqual(c(f"calibration/{t}_cal_0001.dng"), 3)
+        self.assertEqual(c(f"calibration/{t}_cal_0001.jpg"), 3)
+        # 4 = the loop's native JPEG/DNG (after calibration)
+        self.assertEqual(c(f"loop/{t}_loop_01_still.jpg"), 4)
+        self.assertEqual(c(f"loop/{t}_loop_01_still.dng"), 4)
+        self.assertEqual(c(f"preview/{t}_preview_181500.jpg"), 4)
+        self.assertEqual(c(f"loop/{t}_loop_01_video.mp4"), 5)
+        self.assertEqual(c("calibration/clip.h264"), 5)
+        self.assertEqual(c("notes/extra.txt"), 6)
 
 
 class TestPull(Base):
@@ -139,30 +152,34 @@ class TestPull(Base):
                 self.assertEqual(ur["files"][rel]["sha256_pi"], ur["files"][rel]["sha256_mac"])
             starts = [int(l.split(" class ")[1].split()[0]) for l in out.splitlines()
                       if f"[{u}] class " in l and "-> start" in l]
-            self.assertEqual(starts, [1, 2, 3, 4, 5])
+            self.assertEqual(starts, [1, 2, 3, 4, 5, 6])
         self.assertTrue(os.path.exists(os.path.join(self.dest, "20261013", "pull.log")))
 
     def test_resume_and_sha_mismatch_repulled(self):
         src, files = self.runs["bmcam003"]
-        local = os.path.join(self.dest, "20261013", "bmcam003", "calibration", "cal_0001.dng")
+        rel = "calibration/20261013T181500Z_cal_0001.dng"
+        local = os.path.join(self.dest, "20261013", "bmcam003", rel)
         os.makedirs(os.path.dirname(local))
         with open(local, "wb") as f:
-            f.write(b"\0" * len(files["calibration/cal_0001.dng"]))
-        st = os.stat(os.path.join(src, "calibration", "cal_0001.dng"))
+            f.write(b"\0" * len(files[rel]))
+        st = os.stat(os.path.join(src, rel))
         os.utime(local, (st.st_atime, st.st_mtime))      # quick-check would skip it
         rc, out = self.pull()
         self.assertEqual(rc, 0, out)
         self.assertIn("sha256 mismatch", out)
         with open(local, "rb") as f:
-            self.assertEqual(f.read(), files["calibration/cal_0001.dng"])
-        self.assertEqual(self.report()["units"]["bmcam003"]["files"]["calibration/cal_0001.dng"]["status"], "ok")
+            self.assertEqual(f.read(), files[rel])
+        self.assertEqual(self.report()["units"]["bmcam003"]["files"][rel]["status"], "ok")
 
     def test_classes_subset_skips(self):
         rc, out = self.pull("--classes", "1,2")
         self.assertEqual(rc, 0, out)
         ur = self.report()["units"]["bmcam004"]
-        self.assertEqual(ur["files"]["calibration/cal_0001.dng"]["status"], "skipped")
-        self.assertEqual(ur["files"]["loop/0001.jpg"]["status"], "ok")
+        t = "20261013T181500Z"
+        self.assertEqual(ur["files"][f"calibration/{t}_cal_0001.dng"]["status"], "skipped")
+        self.assertEqual(ur["files"][f"loop/{t}_loop_01_still.dng"]["status"], "skipped")    # natives later
+        self.assertEqual(ur["files"][f"loop/{t}_loop_01_still_compressed.nrjxl"]["status"], "ok")
+        self.assertEqual(ur["files"][f"loop/{t}_loop_01_still_compressed.jpg"]["status"], "ok")
         self.assertFalse(os.path.exists(os.path.join(self.dest, "20261013", "bmcam004", "calibration")))
         self.assertIn("SKIPPED by --classes", out)
 
@@ -199,6 +216,7 @@ class TestPull(Base):
         rc, out = self.pull("--dry-run", "--probe-mb", "1")
         self.assertEqual(rc, 0, out)
         self.assertIn("3 calibration", out)
+        self.assertIn("4 loop natives", out)
         self.assertIn("projected wall time", out)
         self.assertIn("MB/s (measured)", out)
         self.assertFalse(os.path.exists(os.path.join(self.dest, "20261013", "bmcam003")))

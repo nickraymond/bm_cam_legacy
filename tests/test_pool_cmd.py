@@ -169,7 +169,8 @@ class TestRefusals(Base):
     def test_refusals_write_nothing(self):
         for args in (["bmcam001", "status"], ["SPOT-33361C", "status"],
                      ["bmcam003", "mark", "bad;note"], ["bmcam003", "preview", "--lines", "3-x"],
-                     ["bmcam003", "status", "--arg", "x=" + "a" * 300], ["bmcam003", "launch"]):
+                     ["bmcam003", "status", "--arg", "x=" + "a" * 300], ["bmcam003", "launch"],
+                     ["bmcam003", "preview", "--lines", ",".join(str(i) for i in range(1, 60, 2))]):
             rc, out = self.run_cmd(*args)
             self.assertEqual(rc, 2, (args, out))
         for s in SPOTS.values():

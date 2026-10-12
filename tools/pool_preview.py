@@ -36,7 +36,8 @@ Outputs (in --out, default /home/pi/pool_preview):
 
 On PARTIAL it prints the missing seq ranges and the exact resend command, e.g.
     python3 pool_cmd.py bmcam003 preview --lines 3-7,12
-  which sends {"id":N,"c":"pool","v":"preview","lines":"3-7,12"} (<= 248 B; split if longer).
+  which sends {"id":N,"c":"pool","v":"preview","lines":"3-7,12"}. Each `lines` value is <= 64
+  chars (the Pi's rc_preview.RE_LINES); more gaps -> several RESEND commands, run them in turn.
   Resent lines merge into the same <unit>_<img_id>.jpg.
 
 Example (on nereus000)
@@ -70,6 +71,8 @@ import zlib
 from datetime import datetime, timezone
 
 MAX_JSON_BYTES = 248     # command_wire.MAX_JSON_BYTES (whole command JSON)
+MAX_LINES_CHARS = 64     # the Pi's rc_preview.RE_LINES = [0-9,-]{1,64} (QE #151 BLOCK, 2026-10-12)
+RE_PI_LINES = re.compile(r"[0-9,-]{1,64}\Z")   # copy of the Pi regex; tests check every split against it
 EOI = b"\xff\xd9"
 
 # Tokens, matched anywhere in the line (see the docstring: junk prefixes are real).
@@ -124,11 +127,12 @@ def ranges_str(seqs):
     return ",".join(out)
 
 
-def resend_lines_args(missing, budget=MAX_JSON_BYTES):
-    """Split missing seqs into 'lines' strings whose command JSON fits the 248 B limit
-    (id budgeted at 5 digits, the console id range 1..99999)."""
+def resend_lines_args(missing, budget=MAX_JSON_BYTES, max_chars=MAX_LINES_CHARS):
+    """Split missing seqs into 'lines' strings the Pi accepts: each <= 64 chars (its
+    rc_preview.RE_LINES) and the whole command JSON <= 248 B (id budgeted at 5 digits).
+    More gaps than fit -> several resend commands, sent one after the other."""
     template = '{"id":99999,"c":"pool","v":"preview","lines":""}'
-    room = budget - len(template)
+    room = min(max_chars, budget - len(template))
     parts, cur = [], ""
     for r in ranges_str(missing).split(","):
         if not r:
