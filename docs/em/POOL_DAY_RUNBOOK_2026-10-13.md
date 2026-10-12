@@ -1,7 +1,26 @@
 # Pool day runbook, Tue 10/13 (for Nick, poolside)
 
-Rev 1, Mon 10/12 (draft before T-LAND; updated after the ~3:30 PM land rehearsal).
+Rev 2, Mon 10/12 (EM edits: pool-day card, no Wi-Fi password in argv). T-LAND numbers come in rev 3.
 Times are Pacific, AM/PM. Plan: `docs/em/POOL_PLAN_2026-10-13.md`.
+
+## Pool-day card (one screen; details in §0–§10 below)
+
+Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = pool command on both consoles.
+
+1. **10:00 AM** arrive. Phone hotspot ON (**Maximize Compatibility**). Mac + nereus000 join. `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
+2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0`. Write down `run=` and `ip=`. Battery: §2.4
+3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
+4. **10:55** card at **1 m**. `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
+5. **11:00** `pc both mark card_1m`, then `pc both loop` → `OK ... iterations=18` (auto-starts ~11:20 if not sent)
+6. **12:30 PM** after `loop=9/18`: card to **2 m**, then `pc both mark card_2m`
+7. **2:00 PM** loop ends (`loop=18/18`). To end early: `pc both stop`
+8. **2:05** units out of the water. `pc both status` → new `ip=`; `run=` as noted
+9. Pull dry run: `python3 tools/pool_pull.py --host bmcam003=<ip> --host bmcam004=<ip> --run bmcam003=<run> --run bmcam004=<run> --dry-run`
+10. **2:15** the same command without `--dry-run` → `[pool_pull] OK` (re-run to resume). Report: `~/NereusPool/<date>/pull_report.json`
+11. **~3:30 PM** restore (TE, §9): `pool_mode.sh stop` → `off` → check ARMED → halt → `hil/tools/hil_restore_schedule.sh <SPOT>`
+12. Next :00 → a new image from each unit on the dashboard. Trouble at any step: §10
+
+---
 
 Run every command on the **Mac**, in Terminal, from the repo root.
 Each step has a **See:** line. If you don't see it, go to the table in §10.
@@ -10,7 +29,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 |---|---|
 | Units | bmcam003 (SPOT-33507C) and bmcam004 (SPOT-31593C) |
 | Console host | nereus000. Viewer at `:8090`, rig dashboard at `:8095` |
-| Code | `development` with #151 (host tools), #152 (Pi pool sequence) and #153 (calib check) merged. TE confirms Mon evening. |
+| Code | `development` with #151 (host tools), #152 (Pi pool sequence), #153 (calib check) and #154 (this runbook + `tools/pi_wifi_profile.sh`) merged. TE confirms Mon evening. |
 | Pi tools | `/home/pi/pool_mode.sh`, `/home/pi/BM_Devel_Pi/pool_sequence.py` |
 | nereus000 tools | `/home/pi/pool_tools/pool_cmd.py` and `pool_preview.py` |
 | Session defaults | calibration 20 min, one frame every 10 s (120 frames). Loop 18 iterations, one every 10 min (3 h). Loop auto-starts 30 min after calibration ends. |
@@ -36,13 +55,13 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    - Do NOT restore the hourly schedule. With pool mode on, every hourly window would boot the Pi into pool mode and the bus would cut it 10 min later.
    - See: `pool_cmd.py both status` shows `phase=idle cal=0/0 loop=0/0` for both units.
 
-3. **Phone-hotspot Wi-Fi profile on both units AND nereus000** (Nick). The Pi Zero 2 W is 2.4 GHz only. Fill in your phone's name and password; do NOT commit them anywhere.
-   - The SSID is the phone's name, byte for byte. A name with an apostrophe ("Nick's iPhone") breaks this command, and iOS turns `'` into a curly quote. Rename the phone without one first (Settings → General → About → Name).
+3. **Phone-hotspot Wi-Fi profile on both units AND nereus000** (Nick). The Pi Zero 2 W is 2.4 GHz only.
+   - The script asks once for the SSID and password. The password prompt is silent, and the password travels over ssh stdin, so it never lands in shell history or in any process list. On each Pi it is stored only in the root-0600 NetworkManager keyfile.
+   - The SSID is the phone's name, byte for byte. iOS turns a typed `'` into a curly quote, so a name like "Nick's iPhone" is easy to mistype. Rename the phone without an apostrophe first (Settings → General → About → Name).
    ```bash
-   for h in bmcam003 bmcam004 nereus000.local; do ssh pi@$h "sudo nmcli connection add type wifi ifname wlan0 con-name phone-hotspot ssid '<iPhone name>' wifi-sec.key-mgmt wpa-psk wifi-sec.psk '<hotspot password>' connection.autoconnect yes"; done
+   tools/pi_wifi_profile.sh phone-hotspot pi@bmcam003 pi@bmcam004 pi@nereus000.local
    ```
-   See: `Connection 'phone-hotspot' (...) successfully added.` three times.
-   Check any host with `ssh pi@bmcam003 'nmcli -f NAME,AUTOCONNECT connection show'`.
+   See: `OK pi@<host> phone-hotspot autoconnect=yes priority=0` three times. A `WARN: 2 profiles named phone-hotspot` means an older one exists; tell the TE.
 
 4. **Pack:**
    - Mac with the repo on the merged `development`, plus `pip install opencv-contrib-python-headless rawpy` for step 8.5
@@ -84,7 +103,11 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    ```
    See: `Running as unit: pool-preview.service`. "already exists" means it is already running.
 
-5. **Pool Wi-Fi profile** (optional, fallback for the download only). Same command as step 0.3 with `con-name pool-wifi` and the pool's SSID and password. Run it per host over the hotspot, using the IPs from step 2.2. Adding a profile does NOT switch networks; everything stays on the hotspot.
+5. **Pool Wi-Fi profile** (optional, fallback for the download only). Run it over the hotspot with the IPs from step 2.2, nereus000 included. Priority -10 means a reboot still prefers the hotspot. Adding a profile does NOT switch networks; everything stays on the hotspot.
+   ```bash
+   tools/pi_wifi_profile.sh --priority -10 pool-wifi pi@<bmcam003 ip> pi@<bmcam004 ip> pi@<nereus000 ip>
+   ```
+   See: `OK pi@<ip> pool-wifi autoconnect=yes priority=-10` three times.
 
 ---
 
@@ -131,7 +154,7 @@ See:
 
 ---
 
-## 4. Calibration, about 11:00 AM (20 min, auto-stop)
+## 4. Calibration, about 10:30 AM (20 min, auto-stop)
 
 1. Cameras mounted in the water; Nick ready with the board and a 20 min timer.
 2. Start both units:
@@ -145,9 +168,9 @@ See:
 
 ---
 
-## 5. Card at 1 m → preview → loop, about 11:25 AM
+## 5. Card at 1 m → preview → loop, about 10:55 AM
 
-The loop **auto-starts 30 min after calibration ends**, about 11:50 AM, with the default 18 × 10 min. Need more time? Send `pc both stop` while idle. That only cancels the auto-start; then send `loop` yourself when ready.
+The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the default 18 × 10 min. Need more time? Send `pc both stop` while idle. That only cancels the auto-start; then send `loop` yourself when ready.
 
 1. Place the v3 card at **1 m** in front of both cameras.
 2. Preview both:
@@ -172,7 +195,7 @@ The loop **auto-starts 30 min after calibration ends**, about 11:50 AM, with the
 
 ---
 
-## 6. At 1.5 h: move the card to 2 m, about 1:15 PM
+## 6. At 1.5 h: move the card to 2 m, about 12:30 PM
 
 1. Wait for the console line `pool loop 9/18 ...`, or for `pc both status` to show `loop=9/18`. Each iteration's capture and 30 s clip take about the first 70 s of its 10 min slot. Move the card in the quiet minutes after a `pool loop n/18` line.
 2. Move the card to **2 m**, then:
@@ -187,7 +210,7 @@ The loop **auto-starts 30 min after calibration ends**, about 11:50 AM, with the
 
 ---
 
-## 7. Loop ends, about 2:45 PM (3 h after loop start)
+## 7. Loop ends, about 2:00 PM (3 h after loop start)
 
 See: the console shows `pool loop done 18/18 ...`, and `pc both status` shows `phase=idle loop=18/18`.
 
@@ -199,7 +222,7 @@ See: `OK id=N pool stop phase=loop stopping after the current step`.
 
 ---
 
-## 8. Units on land → download (≤ 1 h)
+## 8. Units on land → download, about 2:05 PM (≤ 1 h)
 
 The Pis stay up in pool mode (bus held) until the restore, so the data is safe on the SD card. Wi-Fi only works once the units are out of the water.
 
@@ -242,9 +265,10 @@ The Pis stay up in pool mode (bus held) until the restore, so the data is safe o
 
 ---
 
-## 9. Restore to production (TE, back at HQ on the bench network, Tue PM)
+## 9. Restore to production, by about 3:30 PM (TE)
 
-Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C. Uses `hil/hil.env` with `HIL_MONITOR` = nereus000's bench IP.
+Poolside or back at HQ. The hil tools reach the units by name (`pi@bmcam003`, via Tailscale), and `hil/hil.env` `HIL_MONITOR` must be nereus000's **current** IP: the hotspot IP poolside, 192.168.1.45 on the bench. If the units don't resolve by name poolside, do this at HQ; they stay safe in pool mode on the held bus until then.
+Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 
 1. **Stop pool:**
    ```bash
