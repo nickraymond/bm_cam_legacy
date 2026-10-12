@@ -51,3 +51,4 @@
 2026-10-12T03:08:50Z [TE2] slot 7 (004) sent 03:08:31Z: 1000080 contrast 1.1, carrier = the 03:15 report sync -> OK expected at 04Z. Remaining weekend slots: 003 09:33Z, 004 10:08Z; read-out Mon 14:35Z.
 2026-10-12T03:21:15Z [TE2] 1000176 CONFIRMED ([bmcam003] OK 03:04:58Z). 1000080 received on SPOT-31593C 03:16:47Z via the :15 report sync after bus-off (held) -> OK expected 04Z. No triggers.
 2026-10-12T04:21:19Z [TE2] 1000080 CONFIRMED ([bmcam004] OK id=1000080 04:03:21Z, cfg c013f614) - 2nd success of the timed send via the :15 report sync. No triggers.
+2026-10-12T06:16:40Z [TE2] stop check 03-06Z: no triggers (halts 494-503 s); slot 7 in effect on both; backlog 003 9 / 210 (falling), 004 4 / 206 (likely ingest lag on 05Z image); mirror 68.7 MB; Mac AC.
