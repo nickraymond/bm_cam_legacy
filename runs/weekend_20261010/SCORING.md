@@ -105,7 +105,7 @@ Every halt landed well before bus-off at 600 s.
     - SPOT-31593C min **4.04 V** at 3:15 AM (−0.36 W);
     - SPOT-33507C min **4.02 V** at 6:01 AM (−1.27 W).
   - Rig health WARN at 4:15 and 6:15 AM, no CRIT.
-  - So this is not the same as the earlier weekend nights. The cause is unknown (solar on Sunday? the console-dark Spotters?). Re-check after sunrise (~7:05 AM).
+  - So this is not the same as the earlier weekend nights. The cause is unknown (solar on Sunday? the console-dark Spotters?). By 6:10–6:15 AM: SPOT-33507C back to 4.04 V, SPOT-31593C flat at 4.04 V; no post-sunrise point yet at 7:09 AM.
 
 ## 5. Monday follow-ups (TE)
 

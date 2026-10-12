@@ -254,3 +254,5 @@ WAKE SPOT-31593C 2026-10-12T12:00: bus → | Pi → (wake→halt  s) | START len
 2026-10-12T13:01:34Z wake 2026-10-12 13: pulling
 WAKE SPOT-33507C 2026-10-12T13:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
 WAKE SPOT-31593C 2026-10-12T13:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
+2026-10-12T13:20:08Z wake 2026-10-12 13: done (2026-10-12T13:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,,,yes,480.35,6,,5,159 2026-10-12T13:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,,,yes,,6,,2,42 )
+2026-10-12T14:01:33Z wake 2026-10-12 14: pulling
