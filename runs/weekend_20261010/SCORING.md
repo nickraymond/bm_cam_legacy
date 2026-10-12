@@ -66,7 +66,7 @@ Every halt landed well before bus-off at 600 s.
 
 | Media | Unit | Captured | Age at 5 AM | Missing | Asks seen in the unit logs |
 |---|---|---|---|---|---|
-| 58283 (0ejud1) | 003 | Sat 2 PM | 39 h | 55 → 15? | 1 ask (40 chunks), first at 3 AM Mon, 37 h after capture |
+| 58283 (0ejud1) | 003 | Sat 2 PM | 39 h | 55 (40 asked 3 AM; up to 15 after) | 1 ask (40 chunks), first at 3 AM Mon, 37 h after capture |
 | 58331 (0el2t1) | 003 | Sun 6 AM | 23 h | 66 | none* |
 | 58313 (0ekm4w) | 004 | Sun 12 AM | 29 h | 12 | none |
 
@@ -80,7 +80,12 @@ Every halt landed well before bus-off at 600 s.
 - Two causes are possible, and the unit logs can't tell them apart:
   - the backend did not pick these keys under the 24 asks/day cap;
   - its asks went to SPOT-31593C and were dropped in the dead zone.
-- **Ask to the EM:** check the backend rsd log for keys 0ekm4w and 0el2t1 since Sun 12 AM. Sent and dropped means it is the dead zone; never sent means it is the lane policy.
+- **Cause (EM backend read, Mon ~4:30 AM; source /admin/ingest/devices/{dev}/heal-candidates):**
+  - **58313 is the dead zone.** Key 0ekm4w is in bmcam004's packed ask (31 chunks), so the asks were issued but died in SPOT-31593C's :07–:10 dead zone. This is the same fix as §1.
+  - **58331 is the packer.** `pack_command` (heal_commands.py:325) is greedy, whole-image-only and newest first. It adds an image only if all its missing chunks fit in what's left of the 40-chunk budget. So any small fresh partial ahead of a 40-missing image makes the packer skip that image and send the ask under-filled. Today's bmcam003 preview: 12 chunks for 4 small images, with 58331 skipped as "chunks > 40".
+  - **58283 is the packer plus lane order.** It only got its 40 chunks at 3 AM, when the soonest-to-expire backfill lane put it first.
+  - This explains the under-filled asks in the JXL-RC lane audit (26–40 of 40).
+  - **Fix (EM, for d28):** give the next image whatever budget is left (slice its ranges) instead of skipping it, plus the ordering change.
 
 ## 4. Events
 
@@ -98,5 +103,5 @@ Every halt landed well before bus-off at 600 s.
 
 1. Backfill the truncated bmcam003 cycle logs from `cron_logs/` (read-only).
 2. Write up the dead-zone fix proposal: listen to bus-off, or mote replay at the next boot.
-3. Heal-starvation check once the EM has the backend rsd log; re-score 58283 at 2 PM.
+3. Re-score 58283 at its 2 PM deadline, and 58313 / 58331 on Tue. Bench-test the d28 packer fix (slice instead of skip) when it lands.
 4. Collector stops Mon 9 AM and the mirror at 9:30 AM (their until-times); after that, a final summary commit.
