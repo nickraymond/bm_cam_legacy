@@ -36,8 +36,9 @@ Outputs (in --out, default /home/pi/pool_preview):
 
 On PARTIAL it prints the missing seq ranges and the exact resend command, e.g.
     python3 pool_cmd.py bmcam003 preview --lines 3-7,12
-  which sends {"id":N,"c":"pool","v":"preview","lines":"3-7,12"}. Each `lines` value is <= 64
-  chars (the Pi's rc_preview.RE_LINES); more gaps -> several RESEND commands, run them in turn.
+  which sends {"id":N,"c":"pool","v":"preview","lines":"3-7,12"}. Each `lines` value is <= 186
+  chars (max_lines_chars(): the 256 B console line binds; JSON 248 B, Pi RE_LINES 200); more
+  gaps -> several RESEND commands, run them in turn.
   Resent lines merge into the same <unit>_<img_id>.jpg.
 
 Example (on nereus000)
@@ -71,8 +72,20 @@ import zlib
 from datetime import datetime, timezone
 
 MAX_JSON_BYTES = 248     # command_wire.MAX_JSON_BYTES (whole command JSON)
-MAX_LINES_CHARS = 64     # the Pi's rc_preview.RE_LINES = [0-9,-]{1,64} (QE #151 BLOCK, 2026-10-12)
-RE_PI_LINES = re.compile(r"[0-9,-]{1,64}\Z")   # copy of the Pi regex; tests check every split against it
+MAX_CONSOLE_LINE = 256   # hil/tools/hil_console.sh: Spotter RX limit incl. newline (pool_cmd enforces it)
+PI_LINES_MAX = 200       # the Pi's rc_preview.RE_LINES = [0-9,-]{1,200} (#152 @ a23f4d6)
+RE_PI_LINES = re.compile(r"[0-9,-]{1,200}\Z")  # copy of the Pi regex; tests check every split against it
+
+
+def max_lines_chars():
+    """Same formula as tools/pool_cmd.max_lines_chars() (tested equal): the longest `lines`
+    value whose command passes JSON <= 248 B, console line <= 256 B and the Pi's 200. = 186."""
+    tpl = '{"id":99999,"c":"pool","v":"preview","lines":""}'
+    by_console = MAX_CONSOLE_LINE - len("bm pub bmcam/cmd ") - len(" 1 1") - 1 - len(tpl)
+    return min(PI_LINES_MAX, MAX_JSON_BYTES - len(tpl), by_console)
+
+
+MAX_LINES_CHARS = max_lines_chars()
 EOI = b"\xff\xd9"
 
 # Tokens, matched anywhere in the line (see the docstring: junk prefixes are real).
@@ -128,8 +141,8 @@ def ranges_str(seqs):
 
 
 def resend_lines_args(missing, budget=MAX_JSON_BYTES, max_chars=MAX_LINES_CHARS):
-    """Split missing seqs into 'lines' strings the Pi accepts: each <= 64 chars (its
-    rc_preview.RE_LINES) and the whole command JSON <= 248 B (id budgeted at 5 digits).
+    """Split missing seqs into 'lines' strings of <= MAX_LINES_CHARS (186) each, so every
+    resend command passes JSON 248 B, the 256 B console line and the Pi's RE_LINES (200).
     More gaps than fit -> several resend commands, sent one after the other."""
     template = '{"id":99999,"c":"pool","v":"preview","lines":""}'
     room = min(max_chars, budget - len(template))

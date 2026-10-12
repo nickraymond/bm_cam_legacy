@@ -18,7 +18,8 @@ Wire (agreed with the Pi-side pool session 2026-10-12; console range ids 1..9999
                  | mark <note> | stop | preview [--lines 3-7,12]
   mark note      spaces -> "_", charset [A-Za-z0-9_:./+,-], <= 40 chars ("card 2m" -> "card_2m")
   preview        without --lines: new capture, new img_id; with --lines: resend of the latest
-                 preview's lines (inclusive, 1-based). PV lines are counted, not printed
+                 preview's lines (inclusive, 1-based), <= 186 chars (max_lines_chars(): the 256 B
+                 console line binds; JSON 248 B and the Pi's 200 are looser). PV lines are counted, not printed
                  (tools/pool_preview.py rebuilds the image).
   ids            persisted in --id-file (default <log-root>/pool_cmd_id), +1 per command, start
                  90001, flock'd; "both" uses ONE id for both units. A repeated id is a "dup" on
@@ -70,7 +71,21 @@ MAX_CONSOLE_LINE = 256       # hil_console.sh refuses > 256 B incl. newline (Spo
 VERBS = ("status", "cal", "loop", "mark", "stop", "preview")
 RE_NOTE = re.compile(r"[A-Za-z0-9_:./+,-]{1,40}\Z")
 RE_LINES = re.compile(r"\d+(-\d+)?(,\d+(-\d+)?)*\Z")
-MAX_LINES_CHARS = 64          # the Pi's rc_preview.RE_LINES = [0-9,-]{1,64}
+CONSOLE_PREFIX, CONSOLE_SUFFIX = "bm pub bmcam/cmd ", " 1 1"   # same line as hil/tools/hil_cmd.sh
+PI_LINES_MAX = 200            # the Pi's rc_preview.RE_LINES = [0-9,-]{1,200} (#152 @ a23f4d6)
+
+
+def max_lines_chars():
+    """Longest preview `lines` value that passes EVERY limit with the worst-case 5-digit id:
+    JSON <= 248 B, console line (+ newline) <= 256 B, the Pi's RE_LINES <= 200. = 186 (the
+    256 B console line binds). tools/pool_preview.py computes the same number (tested)."""
+    tpl = json.dumps({"id": ID_MAX, "c": "pool", "v": "preview", "lines": ""}, separators=(",", ":"))
+    by_json = MAX_JSON_BYTES - len(tpl)
+    by_console = MAX_CONSOLE_LINE - len(CONSOLE_PREFIX) - len(CONSOLE_SUFFIX) - 1 - len(tpl)
+    return min(PI_LINES_MAX, by_json, by_console)
+
+
+MAX_LINES_CHARS = max_lines_chars()
 RE_PV = re.compile(r"(?<![A-Za-z0-9])PV[HE]?\s")
 
 
@@ -159,8 +174,8 @@ def build_json(cid, verb, a):
         if not RE_LINES.match(a.lines):
             die(f"[pool_cmd] --lines {a.lines!r}: use e.g. 3-7,12 (1-based, inclusive)")
         if len(a.lines) > MAX_LINES_CHARS:
-            die(f"[pool_cmd] --lines is {len(a.lines)} chars; the Pi accepts <= {MAX_LINES_CHARS} "
-                f"(rc_preview.RE_LINES): split it into several preview --lines commands")
+            die(f"[pool_cmd] --lines is {len(a.lines)} chars; max {MAX_LINES_CHARS} (JSON 248 B, console "
+                f"line 256 B, Pi RE_LINES 200): split it into several preview --lines commands")
         body["lines"] = a.lines
     if verb == "cal":
         if a.duration_s is not None:
@@ -182,7 +197,7 @@ def build_json(cid, verb, a):
         die("[pool_cmd] single quote in the JSON (breaks the console line)")
     if len(js.encode()) > MAX_JSON_BYTES:
         die(f"[pool_cmd] JSON {len(js)} B > {MAX_JSON_BYTES} B limit: {js}")
-    line = f"bm pub bmcam/cmd {js} 1 1"
+    line = f"{CONSOLE_PREFIX}{js}{CONSOLE_SUFFIX}"
     if len(line) + 1 > MAX_CONSOLE_LINE:
         die(f"[pool_cmd] console line {len(line) + 1} B > {MAX_CONSOLE_LINE} B")
     return js, line

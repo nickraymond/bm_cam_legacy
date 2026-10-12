@@ -53,7 +53,7 @@ ssh pi@192.168.1.45 'python3 /home/pi/pool_tools/pool_cmd.py bmcam003 preview --
 ssh pi@192.168.1.45 'python3 /home/pi/pool_tools/pool_cmd.py both mark "card 2m"'
 ```
 
-The viewer prints the exact `--lines` resend command for every PARTIAL preview (also on the page).
+The viewer prints the exact `--lines` resend command for every PARTIAL preview (also on the page). A `lines` value is at most **186 chars**, the one number both tools enforce (`max_lines_chars()`). It is set by the 256 B console line; the 248 B JSON and the Pi's 200-char `RE_LINES` are looser. More gaps produce several resend commands.
 Exit codes: 0 OK, 1 ERR, 3 cmd.txt not consumed (spotter-monitor down), 4 no answer in `--wait` (20 s).
 
 Bus hold (Mac repo checkout only; it ssh's to the monitor AND the camera; unit must be HALTED; Nick's OK):

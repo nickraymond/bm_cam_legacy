@@ -165,12 +165,39 @@ class TestSend(Base):
         self.assertNotIn("AAAA", out)
 
 
+def lines_of_len(n):
+    """A valid 'a,b,c' spec of exactly n chars."""
+    out, i = "", 1
+    while len(out) < n:
+        out += ("," if out else "") + str(i)
+        i += 2
+    out = out[:n].rstrip(",")
+    while len(out) < n:
+        out += "1"
+    return out
+
+
+class TestLinesLimit(Base):
+    def test_max_lines_is_186_and_exactly_fits(self):
+        self.assertEqual(pc.MAX_LINES_CHARS, 186)
+        spec = lines_of_len(186)
+        self.assertEqual(len(spec), 186)
+        with FakeMonitor(self.root, {}) as mon:
+            rc, out = self.run_cmd("bmcam003", "preview", "--lines", spec)
+        self.assertEqual(rc, 0, out)
+        sent = mon.sent["bmcam003"][0]
+        self.assertEqual(len(sent) + 1, 256)              # the console line limit is what binds
+        rc, out = self.run_cmd("bmcam003", "preview", "--lines", lines_of_len(187))
+        self.assertEqual(rc, 2)
+        self.assertIn("max 186", out)
+
+
 class TestRefusals(Base):
     def test_refusals_write_nothing(self):
         for args in (["bmcam001", "status"], ["SPOT-33361C", "status"],
                      ["bmcam003", "mark", "bad;note"], ["bmcam003", "preview", "--lines", "3-x"],
                      ["bmcam003", "status", "--arg", "x=" + "a" * 300], ["bmcam003", "launch"],
-                     ["bmcam003", "preview", "--lines", ",".join(str(i) for i in range(1, 60, 2))]):
+                     ["bmcam003", "preview", "--lines", lines_of_len(pc.MAX_LINES_CHARS + 1)]):
             rc, out = self.run_cmd(*args)
             self.assertEqual(rc, 2, (args, out))
         for s in SPOTS.values():
