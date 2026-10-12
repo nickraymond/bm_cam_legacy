@@ -45,6 +45,13 @@ Example (on nereus000)
   python3 /home/pi/pool_tools/pool_preview.py                      # tail + serve on :8090
   python3 pool_preview.py --port 8091 --bind 192.168.1.45           # other port / interface
   python3 pool_preview.py --file console_20261013.log --once --no-serve   # offline rebuild
+  echo '{"bmcam004": 90}' > /home/pi/pool_preview/display_rotation.json    # turn bmcam004's card, live
+
+Display rotation (per unit, CSS only; the JPEG, its file and sha256 are never changed)
+  --rotate bmcam004=90 and/or <out>/display_rotation.json ({"bmcam004": 90}; file wins per unit;
+  re-read on change, no restart). Degrees COUNTER-CLOCKWISE, the backend gallery's convention
+  (nvd #86 display_rotation_deg): the number that fixes a unit on the dashboard fixes it here.
+  The /img/ link still opens the stored, unrotated JPEG.
 
 Assumptions / limits
   - stdlib only (no Pillow on nereus000 needed); the browser decodes the JPEG.
@@ -464,6 +471,12 @@ body{{font:14px -apple-system,Helvetica,Arial,sans-serif;margin:16px;background:
 h1{{font-size:18px;margin:0 0 4px}} .sub{{color:#999;margin-bottom:12px}}
 .row{{display:flex;gap:16px;flex-wrap:wrap}} .card{{flex:1 1 420px;background:#1c1c1c;border-radius:8px;padding:10px}}
 .card img{{width:100%;height:auto;display:block;background:#000;image-rendering:auto}}
+.frame{{position:relative;width:100%;overflow:hidden;background:#000}}
+.frame.r90 img,.frame.r270 img{{position:absolute;left:50%;top:50%;width:var(--iw);height:auto}}
+.frame.r90 img{{transform:translate(-50%,-50%) rotate(-90deg)}}
+.frame.r180 img{{transform:rotate(-180deg)}}
+.frame.r270 img{{transform:translate(-50%,-50%) rotate(-270deg)}}
+.rot{{color:#8cf}}
 .OK{{color:#5c5}} .PARTIAL,.BAD_SHA{{color:#fb3}} .none{{color:#888}}
 table{{border-collapse:collapse;margin-top:16px;width:100%}} td,th{{padding:3px 8px;border-bottom:1px solid #333;text-align:left}}
 code{{background:#000;padding:1px 4px;border-radius:3px;word-break:break-all}} a{{color:#8cf}}
@@ -471,7 +484,7 @@ code{{background:#000;padding:1px 4px;border-radius:3px;word-break:break-all}} a
 <h1>Pool previews</h1><div class="sub">page {now} &middot; refresh {refresh} s &middot; image shown at browser width (scaled, not 1:1)</div>
 <div class="row">{cards}</div>
 <h2 style="font-size:15px;margin-top:20px">All previews ({count})</h2>
-<table><tr><th>unit</th><th>img_id</th><th>status</th><th>lines</th><th>bytes</th><th>received</th><th>missing</th></tr>{rows}</table>
+<div style="overflow-x:auto"><table><tr><th>unit</th><th>img_id</th><th>status</th><th>lines</th><th>bytes</th><th>received</th><th>missing</th></tr>{rows}</table></div>
 <script>
 for (const el of document.querySelectorAll(".t")) {{
   el.textContent = new Date(1000 * +el.dataset.e).toLocaleTimeString([], {{hour: "numeric", minute: "2-digit", second: "2-digit", timeZoneName: "short"}});
@@ -485,7 +498,82 @@ def _local(ts_epoch):
     return f'<span class="t" data-e="{ts_epoch:.0f}">{utc}</span>'
 
 
-def render_page(snapshot, units=None, refresh=5):
+# ----------------------------------------------------------------------------- display rotation
+
+# Per-unit DISPLAY rotation, CSS only: the JPEG bytes, the file and its sha256 are never touched.
+# Same convention as the backend gallery (nereus-vision-dev staging, nvd #86:
+# backend/app/display_rotation.py, dashboard/gallery.html): rotation_deg in {0, 90, 180, 270},
+# degrees COUNTER-CLOCKWISE (each +90 moves the top of the image to the LEFT; Nick 2026-10-05);
+# CSS rotate() is clockwise, hence rotate(-deg). So the number that fixes a unit on the
+# dashboard fixes it here too.
+ROTATIONS = (0, 90, 180, 270)
+
+
+def parse_rotation_args(values, log=print):
+    """['bmcam004=90', ...] -> {'bmcam004': 90}; bad entries are logged and skipped."""
+    out = {}
+    for v in values or []:
+        unit, _, deg = v.partition("=")
+        try:
+            d = int(deg)
+        except ValueError:
+            d = None
+        if unit and d in ROTATIONS:
+            out[unit] = d
+        else:
+            log(f"[preview] WARN ignoring --rotate {v!r} (use UNIT=0|90|180|270)")
+    return out
+
+
+class RotationConfig:
+    """--rotate flags, overridden per unit by the JSON file {"bmcam004": 90}. The file is
+    re-read when its mtime changes (checked on every page load), so a change needs no
+    restart; a bad file keeps the last good values and says why on the page."""
+
+    def __init__(self, path, flags, log=print):
+        self.path, self.flags, self.log = path, dict(flags), log
+        self.mtime, self.file_vals, self.error = None, {}, ""
+
+    def get(self):
+        try:
+            m = os.path.getmtime(self.path) if self.path else None
+        except OSError:
+            m = None
+        if m is None:
+            self.mtime, self.file_vals, self.error = None, {}, ""
+        elif m != self.mtime:
+            self.mtime = m
+            try:
+                with open(self.path) as f:
+                    raw = json.load(f)
+                if not isinstance(raw, dict):
+                    raise ValueError("not a JSON object")
+                vals = {}
+                for unit, deg in raw.items():
+                    # exact ints only: 90.0 == 90 in Python and true == 1, but "r90.0" is no CSS class
+                    if type(deg) is not int or deg not in ROTATIONS:
+                        raise ValueError(f"{unit}: {deg!r} is not the integer 0, 90, 180 or 270")
+                    vals[str(unit)] = deg
+                self.file_vals, self.error = vals, ""
+                self.log(f"[preview] display rotation from {self.path}: {vals}")
+            except (OSError, ValueError) as exc:
+                self.error = f"{self.path}: {exc} (kept the previous values)"
+                self.log(f"[preview] WARN rotation file {self.error}")
+        return {**self.flags, **self.file_vals}
+
+
+def frame_html(img_tag, deg, w, h):
+    """Wrap an <img> so a 90/270 turn keeps the card's layout (the frame takes the turned
+    aspect; the image is sized to the frame's height and rotated about its centre)."""
+    w, h = (w or 16), (h or 9)
+    if deg in (90, 270):
+        style = f'aspect-ratio:{h} / {w};--iw:calc(100% * {w} / {h})'
+        return f'<div class="frame r{deg}" style="{style}">{img_tag}</div>'
+    return f'<div class="frame r{deg}">{img_tag}</div>' if deg else img_tag
+
+
+def render_page(snapshot, units=None, refresh=5, rotations=None, rotation_error=""):
+    rotations = rotations or {}
     latest = {}
     for r in snapshot:
         u = r["unit"]
@@ -498,8 +586,11 @@ def render_page(snapshot, units=None, refresh=5):
         if not r:
             cards.append(f'<div class="card"><b>{html.escape(u)}</b> <span class="none">no preview yet</span></div>')
             continue
-        img = (f'<a href="/img/{html.escape(r["file"])}"><img src="/img/{html.escape(r["file"])}?t={int(r["updated_epoch"])}"></a>'
-               if r.get("file") else '<div class="none">no decodable bytes yet</div>')
+        deg = rotations.get(u, 0)
+        img = (f'<a href="/img/{html.escape(r["file"])}">'
+               + frame_html(f'<img src="/img/{html.escape(r["file"])}?t={int(r["updated_epoch"])}">', deg, r["w"], r["h"])
+               + '</a>' if r.get("file") else '<div class="none">no decodable bytes yet</div>')
+        rot_note = (f' &middot; <span class="rot">shown rotated {deg}&deg; CCW (display only)</span>' if deg else "")
         resend = "".join(f'<div>resend: <code>pool_cmd.py {html.escape(u)} preview --lines {html.escape(x)}</code></div>'
                          for x in r["resend_lines"])
         cards.append(
@@ -508,17 +599,20 @@ def render_page(snapshot, units=None, refresh=5):
             f'received {_local(r["received_epoch"])} &middot; lines {r["lines_received"]}/{r["lines_total"]}'
             f' &middot; {r["file_bytes"]} B'
             f'{" &middot; " + str(r["w"]) + "x" + str(r["h"]) + " q" + str(r["q"]) if r["w"] else ""}'
-            f'{"<br>missing: " + html.escape(r["missing"]) if r["missing"] else ""}{resend}{img}</div>')
+            f'{rot_note}{"<br>missing: " + html.escape(r["missing"]) if r["missing"] else ""}{resend}{img}</div>')
     rows = "".join(
         f'<tr><td>{html.escape(r["unit"])}</td><td>{html.escape(r["img_id"])}</td><td class="{r["status"]}">{r["status"]}</td>'
         f'<td>{r["lines_received"]}/{r["lines_total"]}</td><td>{r["file_bytes"]}</td><td>{_local(r["received_epoch"])}</td>'
         f'<td>{html.escape(r["missing"] or "")}</td></tr>'
         for r in sorted(snapshot, key=lambda r: -r["received_epoch"]))
+    if rotation_error:
+        cards.insert(0, f'<div class="card" style="flex-basis:100%"><span class="PARTIAL">rotation file: '
+                        f'{html.escape(rotation_error)}</span></div>')
     return PAGE.format(refresh=refresh, now=_local(time.time()), cards="".join(cards),
                        count=len(snapshot), rows=rows)
 
 
-def make_handler(store, units):
+def make_handler(store, units, rotation=None):
     class Handler(http.server.BaseHTTPRequestHandler):
         def log_message(self, fmt, *args):   # keep the console for preview events
             pass
@@ -534,7 +628,10 @@ def make_handler(store, units):
         def do_GET(self):
             path = self.path.split("?", 1)[0]
             if path in ("/", "/index.html"):
-                self._send(200, "text/html; charset=utf-8", render_page(store.snapshot(), units).encode())
+                rots = rotation.get() if rotation else {}
+                page = render_page(store.snapshot(), units, rotations=rots,
+                                   rotation_error=rotation.error if rotation else "")
+                self._send(200, "text/html; charset=utf-8", page.encode())
             elif path == "/previews.json":
                 self._send(200, "application/json", json.dumps(store.snapshot(), indent=1).encode())
             elif path.startswith("/img/"):
@@ -583,6 +680,12 @@ def main(argv=None):
                     help="web page port (default 8090; 8095 is the rig dashboard on nereus000)")
     ap.add_argument("--no-serve", action="store_true", help="do not start the web page")
     ap.add_argument("--units", default="bmcam003,bmcam004", help="units always shown on the page")
+    ap.add_argument("--rotate", action="append", default=[],
+                    help="display rotation UNIT=0|90|180|270, degrees counter-clockwise like the dashboard "
+                         "(repeatable; CSS only, image bytes untouched)")
+    ap.add_argument("--rotation-file", default=None,
+                    help="JSON {\"bmcam004\": 90}; overrides --rotate per unit; re-read on change, no restart "
+                         "(default <out>/display_rotation.json)")
     ap.add_argument("--idle-s", type=float, default=20.0, help="finalise a preview with no PVE after this silence")
     ap.add_argument("--backfill-mb", type=float, default=4.0, help="re-read this much of each log at start")
     ap.add_argument("--cmd-hint", default="python3 /home/pi/pool_tools/pool_cmd.py",
@@ -623,7 +726,11 @@ def main(argv=None):
     if a.no_serve:
         while True:
             time.sleep(3600)
-    srv = http.server.ThreadingHTTPServer((a.bind, a.port), make_handler(store, units))
+    rotation = RotationConfig(a.rotation_file or os.path.join(a.out, "display_rotation.json"),
+                              parse_rotation_args(a.rotate, log), log=log)
+    log(f"[preview] display rotation (CCW, CSS only): flags {rotation.flags or 'none'}; file {rotation.path} "
+        f"-> now {rotation.get() or 'all 0'}")
+    srv = http.server.ThreadingHTTPServer((a.bind, a.port), make_handler(store, units, rotation))
     log(f"[preview] serving http://{a.bind}:{a.port}/  (from the laptop: http://<nereus000 IP>:{a.port}/)")
     try:
         srv.serve_forever()

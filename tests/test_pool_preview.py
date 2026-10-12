@@ -283,6 +283,98 @@ class TestTailer(Base):
         self.assertEqual(snap[0]["status"], "OK")
 
 
+class TestDisplayRotation(Base):
+    """Per-unit display rotation: CSS only, the backend's CCW convention, live file re-read."""
+
+    def feed_two(self):
+        a, b = make_pjpeg(seed=20, size=(640, 360)), make_pjpeg(seed=21, size=(640, 360))
+        self.feed(pp.encode_preview_lines("bmcam003", "200000", a, 640, 360, 40))
+        self.feed(pp.encode_preview_lines("bmcam004", "200001", b, 640, 360, 40))
+        return a, b
+
+    def card(self, page, unit):
+        start = page.index(f"<b>{unit}</b>")
+        return page[start:page.index("</div>", page.index("<a href", start)) + 6]
+
+    def test_args_parse(self):
+        self.assertEqual(pp.parse_rotation_args(["bmcam004=90", "bmcam003=270"]), {"bmcam004": 90, "bmcam003": 270})
+        self.assertEqual(pp.parse_rotation_args(["bmcam004=45", "x", "bmcam003=abc"], log=self.logs.append), {})
+        self.assertEqual(sum("ignoring --rotate" in m for m in self.logs), 3)
+
+    def test_css_only_bytes_and_sha_untouched(self):
+        a, b = self.feed_two()
+        before = {k: open(os.path.join(self.out, k + ".jpg"), "rb").read() for k in ("bmcam003_200000", "bmcam004_200001")}
+        page = pp.render_page(self.store.snapshot(), ["bmcam003", "bmcam004"], rotations={"bmcam004": 90})
+        c4, c3 = self.card(page, "bmcam004"), self.card(page, "bmcam003")
+        self.assertIn('class="frame r90"', c4)
+        self.assertIn("aspect-ratio:360 / 640", c4)            # the turned card is portrait
+        self.assertIn("shown rotated 90&deg; CCW", c4)
+        self.assertNotIn("frame r", c3)                        # default 0: unchanged markup
+        self.assertIn(".frame.r90 img{transform:translate(-50%,-50%) rotate(-90deg)}", page)   # CCW, like gallery.html
+        self.assertEqual(before["bmcam004_200001"], b)
+        self.assertEqual(open(os.path.join(self.out, "bmcam004_200001.jpg"), "rb").read(), b)
+        self.assertEqual(self.result("bmcam004_200001")["sha256"], hashlib.sha256(b).hexdigest())
+        for deg in (180, 270):
+            page = pp.render_page(self.store.snapshot(), ["bmcam004"], rotations={"bmcam004": deg})
+            self.assertIn(f'class="frame r{deg}"', page)
+
+    def test_file_overrides_flags_live_and_bad_file_kept(self):
+        path = os.path.join(self.out, "display_rotation.json")
+        cfg = pp.RotationConfig(path, {"bmcam004": 180, "bmcam003": 90}, log=self.logs.append)
+        self.assertEqual(cfg.get(), {"bmcam004": 180, "bmcam003": 90})          # no file: flags
+        with open(path, "w") as f:
+            f.write('{"bmcam004": 90}')
+        self.assertEqual(cfg.get(), {"bmcam004": 90, "bmcam003": 90})           # file wins per unit
+        with open(path, "w") as f:
+            f.write('{"bmcam004": 45}')
+        os.utime(path, (time.time() + 5, time.time() + 5))
+        self.assertEqual(cfg.get(), {"bmcam004": 90, "bmcam003": 90})           # bad file: keep last good
+        self.assertIn("not the integer 0, 90, 180 or 270", cfg.error)
+        with open(path, "w") as f:
+            f.write('{"bmcam004": 270}')
+        os.utime(path, (time.time() + 10, time.time() + 10))
+        self.assertEqual(cfg.get()["bmcam004"], 270)
+        self.assertEqual(cfg.error, "")
+
+    def test_non_int_rotations_rejected(self):
+        """QE #156 nit: 90.0 (== 90 in Python), true, "90" and 45 are all refused; last good kept."""
+        path = os.path.join(self.out, "display_rotation.json")
+        cfg = pp.RotationConfig(path, {}, log=self.logs.append)
+        with open(path, "w") as f:
+            f.write('{"bmcam004": 90}')
+        self.assertEqual(cfg.get(), {"bmcam004": 90})
+        for i, bad in enumerate(('{"bmcam004": 90.0}', '{"bmcam004": true}', '{"bmcam004": "90"}',
+                                 '{"bmcam004": 45}', '[90]'), 1):
+            with open(path, "w") as f:
+                f.write(bad)
+            os.utime(path, (time.time() + 10 * i, time.time() + 10 * i))
+            got = cfg.get()
+            self.assertEqual(got, {"bmcam004": 90}, bad)
+            self.assertIs(type(got["bmcam004"]), int)
+            self.assertTrue(cfg.error, bad)
+        self.assertEqual(pp.parse_rotation_args(["bmcam004=90.0"], log=self.logs.append), {})
+
+    def test_http_page_follows_file_without_restart(self):
+        import threading
+        import urllib.request
+        self.feed_two()
+        path = os.path.join(self.out, "display_rotation.json")
+        cfg = pp.RotationConfig(path, {}, log=self.logs.append)
+        srv = pp.http.server.ThreadingHTTPServer(("127.0.0.1", 0), pp.make_handler(self.store, ["bmcam003", "bmcam004"], cfg))
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        url = f"http://127.0.0.1:{srv.server_address[1]}/"
+        try:
+            self.assertNotIn("frame r", urllib.request.urlopen(url, timeout=5).read().decode())
+            with open(path, "w") as f:
+                f.write('{"bmcam004": 90}')
+            page = urllib.request.urlopen(url, timeout=5).read().decode()
+            self.assertIn('class="frame r90"', self.card(page, "bmcam004"))
+            img = urllib.request.urlopen(url + "img/bmcam004_200001.jpg", timeout=5).read()
+            self.assertEqual(hashlib.sha256(img).hexdigest(), self.result("bmcam004_200001")["sha256"])
+        finally:
+            srv.shutdown()
+
+
 class TestCli(unittest.TestCase):
     def test_file_once(self):
         import subprocess
