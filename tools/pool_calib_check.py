@@ -25,7 +25,9 @@ Inputs
   --layout auto|modern|legacy  with an EVEN row count (14) OpenCV >= 4.6's ChArUco layout differs
                            from the legacy one some calib.io boards use (setLegacyPattern). auto
                            (default) tries modern + legacy, each as 9x14 and 14x9, on a sample of
-                           frames and keeps the clear winner (all four counts go in the report);
+                           frames and keeps the clear winner (all counts go in the report; a layout
+                           that draws the identical board, e.g. legacy at an odd row count, is
+                           tried once);
                            no clear winner -> FAIL, nothing is calibrated on a guessed layout.
   --source auto|dng|jpeg   auto = DNG via rawpy if installed, else the JPEG (default auto)
   --crop x,y,w,h           production crop, native px (default 1504,846,1600,900 =
@@ -172,19 +174,35 @@ def layout_candidates(a):
     return [(sx, sy, lg) for lg in legs for (sx, sy) in dims]
 
 
+def board_signature(board, sx, sy):
+    """Identical drawn boards are the same layout (e.g. legacy == modern when squares_y is odd:
+    14x9 modern and legacy render byte-identical, which made auto tie; QE #153 BLOCK 2026-10-12)."""
+    import hashlib
+    img = board.generateImage((sx * 40, sy * 40), marginSize=0, borderBits=1)
+    return f"{sx}x{sy}:" + hashlib.sha1(img.tobytes()).hexdigest()
+
+
 def choose_layout(grays, a, cv2):
-    """Run every candidate layout on sample frames -> (winner or None, trials, why).
-    Winner = most ChArUco corners in total, and clearly ahead (>= 1.5x the runner-up)."""
-    trials = []
+    """Run every DISTINCT candidate layout on sample frames -> (winner or None, trials, why).
+    Winner = most ChArUco corners in total, and clearly ahead (>= 1.5x the runner-up).
+    A candidate that draws the same board as an earlier one is recorded as `same_as` and skipped."""
+    trials, seen = [], {}
     for sx, sy, lg in layout_candidates(a):
-        det = cv2.aruco.CharucoDetector(make_board(sx, sy, a, cv2, lg))
+        board = make_board(sx, sy, a, cv2, lg)
+        sig = board_signature(board, sx, sy)
+        name = f"{sx}x{sy} {'legacy' if lg else 'modern'}"
+        if sig in seen:
+            trials.append({"squares_x": sx, "squares_y": sy, "legacy": lg, "same_as": seen[sig]})
+            continue
+        seen[sig] = name
+        det = cv2.aruco.CharucoDetector(board)
         corners = markers = 0
         for g in grays:
             cc, ci, mc, mi = det.detectBoard(g)
             corners += 0 if ci is None else len(ci)
             markers += 0 if mi is None else len(mi)
         trials.append({"squares_x": sx, "squares_y": sy, "legacy": lg, "corners": corners, "markers": markers})
-    ranked = sorted(trials, key=lambda t: -t["corners"])
+    ranked = sorted((t for t in trials if "same_as" not in t), key=lambda t: -t["corners"])
     best = ranked[0]
     if best["corners"] == 0:
         return None, trials, "no layout found any ChArUco corner in the sample"
@@ -420,8 +438,12 @@ def main(argv=None):
                 log(f"[calib] WARN layout sample {os.path.basename(path)} unreadable: {exc}")
         layout, trials, why = choose_layout(sample, a, cv2)
         for t in trials:
-            log(f"[calib] layout try {t['squares_x']}x{t['squares_y']} {'legacy' if t['legacy'] else 'modern'}: "
-                f"{t['corners']} corners, {t['markers']} markers on {len(sample)} sample frames")
+            name = f"{t['squares_x']}x{t['squares_y']} {'legacy' if t['legacy'] else 'modern'}"
+            if "same_as" in t:
+                log(f"[calib] layout try {name}: identical to {t['same_as']} (odd row count), not tried twice")
+            else:
+                log(f"[calib] layout try {name}: {t['corners']} corners, {t['markers']} markers "
+                    f"on {len(sample)} sample frames")
     if layout is None:
         log(f"[calib] FAIL: {why}")
         with open(os.path.join(out, "calib_report.json"), "w") as f:

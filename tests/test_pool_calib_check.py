@@ -53,19 +53,20 @@ def rot(ax, ay, az):
     return Rz @ Ry @ Rx
 
 
-def render(pose, ppm=8.0, seed=0, legacy=False):
+def render(pose, ppm=8.0, seed=0, legacy=False, sx=None, sy=None):
     """One synthetic native frame: the board (top-left origin, mm) seen at pose (ax, ay, az, cx_frac,
     cy_frac, dist_mm) through K_TRUE. cx/cy_frac place the board centre in the image."""
     ax, ay, az, fx_, fy_, dist = pose
+    sx, sy = sx or BOARD["sx"], sy or BOARD["sy"]
     d = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, BOARD["dict_name"]))
-    board = cv2.aruco.CharucoBoard((BOARD["sx"], BOARD["sy"]), BOARD["sq"], BOARD["mk"], d)
+    board = cv2.aruco.CharucoBoard((sx, sy), BOARD["sq"], BOARD["mk"], d)
     board.setLegacyPattern(legacy)
-    bw, bh = int(BOARD["sx"] * BOARD["sq"] * ppm), int(BOARD["sy"] * BOARD["sq"] * ppm)
+    bw, bh = int(sx * BOARD["sq"] * ppm), int(sy * BOARD["sq"] * ppm)
     img = board.generateImage((bw, bh), marginSize=0, borderBits=1)
     K = np.array(K_TRUE)
     R = rot(ax, ay, az)
     # board centre in mm -> put it on the ray through the requested image point at `dist`
-    centre = np.array([BOARD["sx"] * BOARD["sq"] / 2, BOARD["sy"] * BOARD["sq"] / 2, 0.0])
+    centre = np.array([sx * BOARD["sq"] / 2, sy * BOARD["sq"] / 2, 0.0])
     ray = np.linalg.inv(K) @ np.array([fx_ * W, fy_ * H, 1.0])
     t = ray / np.linalg.norm(ray) * dist - R @ centre
     S = np.diag([1 / ppm, 1 / ppm, 1.0])                      # board pixels -> board mm
@@ -196,12 +197,59 @@ class TestLayout(unittest.TestCase):
         self.assertIsNone(why, trials)
         self.assertEqual((best["squares_x"], best["squares_y"], best["legacy"]), (9, 14, True))
         self.assertEqual(len(trials), 4)            # modern/legacy x 9x14/14x9
+        self.assertEqual(sum("same_as" in t for t in trials), 1)    # 14x9 legacy == 14x9 modern
 
     def test_auto_picks_modern_print(self):
         grays = [render(POSES[i], seed=i) for i in (0, 13)]
         best, trials, why = pcc.choose_layout(grays, self.args(), cv2)
         self.assertIsNone(why, trials)
         self.assertEqual((best["squares_x"], best["squares_y"], best["legacy"]), (9, 14, False))
+
+    # QE #153 BLOCK: at an odd row count (14x9) legacy == modern, which used to tie -> FAIL.
+    def test_14x9_spec_on_14x9_print_no_tie(self):
+        grays = [render(POSES[i], seed=i, sx=14, sy=9) for i in (0, 13)]
+        best, trials, why = pcc.choose_layout(grays, self.args(squares_x=14, squares_y=9), cv2)
+        self.assertIsNone(why, trials)
+        self.assertEqual((best["squares_x"], best["squares_y"], best["legacy"]), (14, 9, False))
+        same = [t for t in trials if "same_as" in t]
+        self.assertEqual([(t["squares_x"], t["squares_y"], t["legacy"]) for t in same], [(14, 9, True)])
+
+    def test_default_spec_on_14x9_print(self):
+        grays = [render(POSES[i], seed=i, sx=14, sy=9) for i in (0, 13)]
+        best, trials, why = pcc.choose_layout(grays, self.args(), cv2)
+        self.assertIsNone(why, trials)
+        self.assertEqual((best["squares_x"], best["squares_y"]), (14, 9))
+
+    def test_14x9_spec_on_9x14_legacy_print(self):
+        grays = [render(POSES[i], seed=i, legacy=True) for i in (0, 13)]
+        best, trials, why = pcc.choose_layout(grays, self.args(squares_x=14, squares_y=9), cv2)
+        self.assertIsNone(why, trials)
+        self.assertEqual((best["squares_x"], best["squares_y"], best["legacy"]), (9, 14, True))
+
+    def test_14x9_spec_on_9x14_modern_print(self):
+        grays = [render(POSES[i], seed=i) for i in (0, 13)]
+        best, trials, why = pcc.choose_layout(grays, self.args(squares_x=14, squares_y=9), cv2)
+        self.assertIsNone(why, trials)
+        self.assertEqual((best["squares_x"], best["squares_y"], best["legacy"]), (9, 14, False))
+
+    def test_cli_pass_with_transposed_spec(self):
+        """End to end: Nick's legacy 9x14 board, spec given the other way round (14x9) -> PASS."""
+        with tempfile.TemporaryDirectory() as d:
+            cal = os.path.join(d, "calibration")
+            os.makedirs(cal)
+            for i, pose in enumerate(POSES, 1):
+                cv2.imwrite(os.path.join(cal, f"c{i:02d}.jpg"), render(pose, seed=i, legacy=True))
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = pcc.main([cal, "--out", os.path.join(d, "o"), "--no-sheet", "--squares-x", "14",
+                               "--squares-y", "9"])
+            with open(os.path.join(d, "o", "calib_report.json")) as f:
+                rep = json.load(f)
+        self.assertEqual(rc, 0, buf.getvalue())
+        self.assertEqual(rep["layout"]["chosen"], {"squares_x": 9, "squares_y": 14, "legacy": True,
+                                                   "corners": rep["layout"]["chosen"]["corners"],
+                                                   "markers": rep["layout"]["chosen"]["markers"]})
+        self.assertEqual(rep["calibration"]["distinct_poses"], len(POSES))
 
     def test_no_board_no_layout(self):
         best, trials, why = pcc.choose_layout([np.full((H, W), 90, np.uint8)], self.args(), cv2)
