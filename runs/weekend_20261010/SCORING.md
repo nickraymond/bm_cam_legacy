@@ -99,7 +99,13 @@ Every halt landed well before bus-off at 600 s.
 - **SPOT-31593C's report sync re-anchored** at Sat 11:03 PM PDT (10/11 06:03Z) with a corrupted RTC stamp "2072-00-07T06:03:07". It drifted +2 min/h for a few hours, then settled back to :15:01.
 - **Collector:** bmcam003 cycle-log tails are truncated on some wakes (ssh reads failed after ~:03). Backfill from the units' `cron_logs/` on Monday.
 
-- **SPOT-31593C battery WARN at 4:15 AM:** 4.10 → 4.04 V (Sofar telemetry, rig health). Likely the pre-dawn sag after an hourly-bus weekend; watching the 5–6 AM trend.
+- **Spotter battery (Sofar telemetry via rig health, `health.csv` on nereus000, ~hourly points):**
+  - Fri, Sat and Sun nights both Spotters bottomed at **4.07 V**.
+  - Mon pre-dawn was lower:
+    - SPOT-31593C min **4.04 V** at 3:15 AM (−0.36 W);
+    - SPOT-33507C min **4.02 V** at 6:01 AM (−1.27 W).
+  - Rig health WARN at 4:15 and 6:15 AM, no CRIT.
+  - So this is not the same as the earlier weekend nights. The cause is unknown (solar on Sunday? the console-dark Spotters?). Re-check after sunrise (~7:05 AM).
 
 ## 5. Monday follow-ups (TE)
 

@@ -248,3 +248,9 @@ WAKE SPOT-33507C 2026-10-12T11:00: bus → | Pi → (wake→halt  s) | START len
 WAKE SPOT-31593C 2026-10-12T11:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:69
 2026-10-12T11:20:11Z wake 2026-10-12 11: done (2026-10-12T11:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,,,yes,,40,1000177,5,95 2026-10-12T11:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,,,yes,,13,1000081,2,18 )
 2026-10-12T12:01:35Z wake 2026-10-12 12: pulling
+WAKE SPOT-33507C 2026-10-12T12:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:70
+WAKE SPOT-31593C 2026-10-12T12:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
+2026-10-12T12:20:09Z wake 2026-10-12 12: done (2026-10-12T12:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,59994,,,yes,,7,,5,92 2026-10-12T12:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,59994,,,yes,,26,,2,18 )
+2026-10-12T13:01:34Z wake 2026-10-12 13: pulling
+WAKE SPOT-33507C 2026-10-12T13:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
+WAKE SPOT-31593C 2026-10-12T13:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:71
