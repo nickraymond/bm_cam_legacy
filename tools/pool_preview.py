@@ -550,8 +550,9 @@ class RotationConfig:
                     raise ValueError("not a JSON object")
                 vals = {}
                 for unit, deg in raw.items():
-                    if deg not in ROTATIONS or isinstance(deg, bool):
-                        raise ValueError(f"{unit}: {deg!r} is not 0/90/180/270")
+                    # exact ints only: 90.0 == 90 in Python and true == 1, but "r90.0" is no CSS class
+                    if type(deg) is not int or deg not in ROTATIONS:
+                        raise ValueError(f"{unit}: {deg!r} is not the integer 0, 90, 180 or 270")
                     vals[str(unit)] = deg
                 self.file_vals, self.error = vals, ""
                 self.log(f"[preview] display rotation from {self.path}: {vals}")

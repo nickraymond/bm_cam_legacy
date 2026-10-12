@@ -336,6 +336,24 @@ class TestDisplayRotation(Base):
         self.assertEqual(cfg.get()["bmcam004"], 270)
         self.assertEqual(cfg.error, "")
 
+    def test_non_int_rotations_rejected(self):
+        """QE #156 nit: 90.0 (== 90 in Python), true, "90" and 45 are all refused; last good kept."""
+        path = os.path.join(self.out, "display_rotation.json")
+        cfg = pp.RotationConfig(path, {}, log=self.logs.append)
+        with open(path, "w") as f:
+            f.write('{"bmcam004": 90}')
+        self.assertEqual(cfg.get(), {"bmcam004": 90})
+        for i, bad in enumerate(('{"bmcam004": 90.0}', '{"bmcam004": true}', '{"bmcam004": "90"}',
+                                 '{"bmcam004": 45}', '[90]'), 1):
+            with open(path, "w") as f:
+                f.write(bad)
+            os.utime(path, (time.time() + 10 * i, time.time() + 10 * i))
+            got = cfg.get()
+            self.assertEqual(got, {"bmcam004": 90}, bad)
+            self.assertIs(type(got["bmcam004"]), int)
+            self.assertTrue(cfg.error, bad)
+        self.assertEqual(pp.parse_rotation_args(["bmcam004=90.0"], log=self.logs.append), {})
+
     def test_http_page_follows_file_without_restart(self):
         import threading
         import urllib.request
