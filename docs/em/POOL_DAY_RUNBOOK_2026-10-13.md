@@ -286,7 +286,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 
 2. **Pool mode off** (crontab + config sha check):
    ```bash
-   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh off'
+   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh off 2>&1 | tee ~/pool_mode_off.txt; exit ${PIPESTATUS[0]}'
    ```
    See:
    - `crontab restored and verified byte-identical`
@@ -295,7 +295,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
    - exit 0
 
    Other exit codes (#152 @ a23f4d6):
-   - **Exit 4**, `[ERROR] restored crontab is DISARMED ... re-arm with: crontab ~/hil_backup/<TS>/crontab_ARMED.txt`. The bus hold ran before pool mode went on; re-arm in step 3.
+   - **Exit 4**, `[ERROR] restored crontab is DISARMED ... re-arm with: crontab /home/pi/hil_backup/<TS>/crontab_ARMED.txt`. The bus hold ran before pool mode went on; re-arm in step 3, which uses exactly that path (saved in `~/pool_mode_off.txt` on the Pi).
    - **Exit 5**, `[ERROR] a config/state file changed`: stop and tell the EM.
 
 3. **Check the crontab is ARMED** (always; required after exit 4):
@@ -303,11 +303,15 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
    ssh pi@bmcam003 "crontab -l | grep -E '^@reboot.*rc_run_capture_cycle'"
    ```
    See: exactly one uncommented `@reboot ... rc_run_capture_cycle.sh` line.
-   Nothing printed (for example a `# DISARMED_BUS_ON` line, if the bus hold ran before pool mode went on): re-arm from the newest bus-hold backup. The command below uses `~/hil_backup/<TS>/crontab_ARMED.txt` only if it has the uncommented RC line and no `POOL_MODE_LINE`. It saves the current crontab to `~/crontab_before_rearm_<UTC>.txt` (restore: `crontab <that file>`), installs the backup, and checks again. If any check fails, nothing is installed.
+   Nothing printed (`off` exited 4): re-arm from the path `off` printed on its `re-arm with:` line. `pool_mode.sh` lists only backups that hold an armed line.
+   - The command takes that path from `~/pool_mode_off.txt`.
+   - It installs the file only if it has the uncommented RC line and no `POOL_MODE_LINE`.
+   - It first saves the current crontab to `~/crontab_before_rearm_<UTC>.txt` (restore: `crontab <that file>`).
+   - After installing, it checks again. If any check fails, nothing is installed.
    ```bash
-   ssh pi@bmcam003 'set -e; B=$(ls -t ~/hil_backup/*/crontab_ARMED.txt | head -1); echo "using $B"; grep -E "^@reboot.*rc_run_capture_cycle" "$B"; if grep -q POOL_MODE_LINE "$B"; then echo "REFUSED: $B has the pool line"; exit 1; fi; crontab -l > ~/crontab_before_rearm_$(date -u +%Y%m%dT%H%M%SZ).txt; crontab "$B"; echo installed; crontab -l | grep -E "^@reboot.*rc_run_capture_cycle"'
+   ssh pi@bmcam003 'set -e; B=$(sed -n "s/.*re-arm with: crontab //p" ~/pool_mode_off.txt | head -1); [ -n "$B" ] || { echo "NO re-arm path in ~/pool_mode_off.txt"; exit 1; }; echo "using $B"; grep -E "^@reboot.*rc_run_capture_cycle" "$B"; if grep -q POOL_MODE_LINE "$B"; then echo "REFUSED: $B has the pool line"; exit 1; fi; crontab -l > ~/crontab_before_rearm_$(date -u +%Y%m%dT%H%M%SZ).txt; crontab "$B"; echo installed; crontab -l | grep -E "^@reboot.*rc_run_capture_cycle"'
    ```
-   See: `using /home/pi/hil_backup/<TS>/crontab_ARMED.txt` (TS from Monday's bus hold), the RC line, `installed`, then the RC line again from the live crontab. `REFUSED` or no RC line: stop and tell the EM.
+   See: `using /home/pi/hil_backup/<TS>/crontab_ARMED.txt` (the same path `off` printed), the RC line, `installed`, then the RC line again from the live crontab. `NO re-arm path`, `REFUSED` or no RC line: stop and tell the EM; `off` found no armed backup.
 
 4. **Halt the Pi** (the bus stays held, so it just goes dark):
    ```bash
