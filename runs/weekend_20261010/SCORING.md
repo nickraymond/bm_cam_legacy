@@ -27,6 +27,7 @@ Sources:
   - keep the Pi listening until bus-off; or
   - have the mote replay the command at the next boot.
   - Either one removes the need to time sends.
+  - **Measured over the weekend:** 8 items reached SPOT-31593C in the dead zone (7 rsd heal asks + 1000079), and all 8 were lost. SPOT-33507C had 0. See `DEAD_ZONE_FIX_PROPOSAL.md`.
 - **The last two commands confirmed from the cycle logs only, at the 4 AM wake:**
   - 1000177: bmcam003 contrast to 1.1, ack hash c013f614;
   - 1000081: bmcam004 contrast to 1.0, ack hash 9c980489.
