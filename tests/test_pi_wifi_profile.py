@@ -30,9 +30,13 @@ H="$1"; shift
 exec bash -c "$*"
 """
 FAKE_NMCLI = """#!/bin/bash
+# profiles = keyfiles in NM_DIR + any in FAKE_EXTRA (e.g. a netplan profile under /run)
+files() { for f in "$NM_DIR"/*.nmconnection ${FAKE_EXTRA:-}; do [ -f "$f" ] && echo "$f"; done; }
 case "$*" in
   "connection reload") exit 0;;
-  *"connection show"*) for f in "$NM_DIR"/*.nmconnection; do [ -f "$f" ] && echo "$(sed -n 's/^id=//p' "$f"):yes"; done;;
+  "-g NAME,UUID,FILENAME connection show") files | while IFS= read -r f; do
+      echo "$(sed -n 's/^id=//p' "$f"):$(sed -n 's/^uuid=//p' "$f"):$f"; done;;
+  *"connection show"*) files | while IFS= read -r f; do echo "$(sed -n 's/^id=//p' "$f"):yes"; done;;
 esac
 """
 
@@ -73,7 +77,8 @@ class TestWifiProfile(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(os.stat(kf).st_mode), 0o600)
         text = open(kf).read()
         for want in ("id=phone-hotspot", "ssid=Nick iPhone", f"psk={PSK}", "key-mgmt=wpa-psk",
-                     "autoconnect=true", "autoconnect-priority=0", "interface-name=wlan0", "uuid="):
+                     "autoconnect=true", "autoconnect-priority=0", "interface-name=wlan0", "uuid=",
+                     "powersave=2"):                  # Nick's rule: Wi-Fi power save always off
             self.assertIn(want, text)
         argv = open(self.argv_log).read()
         self.assertEqual(argv.count("ARGV:"), 2)
@@ -90,6 +95,45 @@ class TestWifiProfile(unittest.TestCase):
         self.assertEqual(len(backups), 1, os.listdir(self.bk))
         self.assertEqual(stat.S_IMODE(os.stat(os.path.join(self.bk, backups[0])).st_mode), 0o600)
         self.assertIn(f"psk={PSK}", open(os.path.join(self.bk, backups[0])).read())
+
+    def uuid_of(self, path):
+        return [l.split("=", 1)[1] for l in open(path).read().splitlines() if l.startswith("uuid=")][0]
+
+    def test_rerun_keeps_uuid(self):
+        """QE #154: a re-run must update the profile in place (same UUID), not replace it."""
+        self.run_script(["pool-wifi", "pi@bmcam003"], f"PoolNet\n{PSK}\n")
+        u1 = self.uuid_of(self.keyfile("pool-wifi"))
+        r = self.run_script(["pool-wifi", "pi@bmcam003"], "PoolNet\nnew-pass-456\n")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(self.uuid_of(self.keyfile("pool-wifi")), u1)
+        self.assertIn(f"uuid={u1}", r.stdout)
+        self.assertEqual([f for f in os.listdir(self.nm) if f.endswith(".nmconnection")], ["pool-wifi.nmconnection"])
+
+    def test_existing_profile_other_file_updated_in_place(self):
+        os.makedirs(self.nm)
+        other = os.path.join(self.nm, "Home WiFi.nmconnection")
+        with open(other, "w") as f:
+            f.write("[connection]\nid=home-wifi\nuuid=11111111-2222-3333-4444-555555555555\ntype=wifi\n")
+        r = self.run_script(["home-wifi", "pi@nereus000"], f"HomeNet\n{PSK}\n")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(self.keyfile("home-wifi")))          # no second file
+        text = open(other).read()
+        self.assertIn("uuid=11111111-2222-3333-4444-555555555555", text)
+        self.assertIn("ssid=HomeNet", text)
+        self.assertEqual(stat.S_IMODE(os.stat(other).st_mode), 0o600)
+
+    def test_profile_outside_keyfile_dir_refused(self):
+        run_dir = os.path.join(self.tmp.name, "run")
+        os.makedirs(run_dir)
+        netplan = os.path.join(run_dir, "netplan-wlan0-HomeNet.nmconnection")
+        with open(netplan, "w") as f:
+            f.write("[connection]\nid=home-wifi\nuuid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\n")
+        self.env["FAKE_EXTRA"] = netplan
+        r = self.run_script(["home-wifi", "pi@nereus000"], f"HomeNet\n{PSK}\n")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("FAILED pi@nereus000", r.stdout)
+        self.assertIn("REFUSED", r.stdout)
+        self.assertFalse(os.path.exists(self.keyfile("home-wifi")))
 
     def test_unreachable_host_fails_loud(self):
         r = self.run_script(["phone-hotspot", "pi@bmcam003", "pi@deadhost"], f"Nick iPhone\n{PSK}\n")

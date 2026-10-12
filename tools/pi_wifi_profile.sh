@@ -9,8 +9,11 @@
 #           on the Pi a root shell reads them and writes the keyfile with bash's BUILTIN printf
 #           (no exec, so nothing in ps), umask 077, chmod 600, then `nmcli connection reload`.
 #           Keyfile: /etc/NetworkManager/system-connections/<con-name>.nmconnection (Bookworm NM).
-#           A previous file of that name is backed up to /var/backups/nm-<con-name>.<UTC>.nmconnection
-#           (root 0600) before it is replaced. Adding a profile does NOT switch the current network.
+#           An existing profile of that NAME keeps its UUID and keyfile (updated in place, so a host
+#           connected through it is not dropped); the old file is backed up to
+#           /var/backups/nm-<con-name>.<UTC>.nmconnection (root 0600) first. A same-name profile
+#           outside the keyfile dir (e.g. netplan, /run/...) is refused. wifi.powersave=2 (off,
+#           Nick's standing rule). Adding a profile does NOT switch the current network.
 # Inputs:   $1 con-name (e.g. phone-hotspot | pool-wifi), $2.. ssh targets (pi@bmcam003 ...)
 #           --priority N (before the con-name): connection.autoconnect-priority (default 0;
 #           e.g. -10 for pool-wifi so a reboot prefers the hotspot)
@@ -42,18 +45,28 @@ done
 # (sudo resets the environment, so the non-secret settings ride in env's argv).
 REMOTE='set -u; umask 077
 IFS= read -r S; IFS= read -r P
+NM=${NMCLI:-nmcli}
 D="${NM_DIR:-/etc/NetworkManager/system-connections}"; B="${NM_BACKUP_DIR:-/var/backups}"
-F="$D/$CON.nmconnection"; mkdir -p "$D" "$B"
+F="$D/$CON.nmconnection"; U=""; mkdir -p "$D" "$B"
+# STABLE UUID (QE #154): an existing profile of this name keeps its UUID and its keyfile, so a
+# re-run updates it in place and never drops a host that is connected through it.
+EX=$($NM -g NAME,UUID,FILENAME connection show 2>/dev/null | awk -F: -v n="$CON" "\$1 == n" | head -1)
+if [ -n "$EX" ]; then
+  U=$(echo "$EX" | cut -d: -f2); EF=$(echo "$EX" | cut -d: -f3-)
+  case "$EF" in "$D"/*) F="$EF" ;; *) echo "REFUSED: profile $CON lives in $EF (not a keyfile under $D); pick another con-name"; exit 3 ;; esac
+fi
+[ -n "$U" ] || { [ -f "$F" ] && U=$(sed -n "s/^uuid=//p" "$F" | head -1); }
+[ -n "$U" ] || U=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || uuidgen)
 [ -f "$F" ] && cp -p "$F" "$B/nm-$CON.$(date -u +%Y%m%dT%H%M%SZ).nmconnection" && echo "backup: $B/nm-$CON.*"
-U=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || uuidgen)
 T=$(mktemp "$B/.nm-$CON.XXXXXX")
-printf "[connection]\nid=%s\nuuid=%s\ntype=wifi\ninterface-name=wlan0\nautoconnect=true\nautoconnect-priority=%s\n\n[wifi]\nmode=infrastructure\nssid=%s\n\n[wifi-security]\nkey-mgmt=wpa-psk\npsk=%s\n\n[ipv4]\nmethod=auto\n\n[ipv6]\nmethod=auto\n" "$CON" "$U" "$PRIO" "$S" "$P" > "$T"
+# powersave=2 = disable: Nick standing rule, Wi-Fi power save is ALWAYS off on Nereus Pis
+printf "[connection]\nid=%s\nuuid=%s\ntype=wifi\ninterface-name=wlan0\nautoconnect=true\nautoconnect-priority=%s\n\n[wifi]\nmode=infrastructure\nssid=%s\npowersave=2\n\n[wifi-security]\nkey-mgmt=wpa-psk\npsk=%s\n\n[ipv4]\nmethod=auto\n\n[ipv6]\nmethod=auto\n" "$CON" "$U" "$PRIO" "$S" "$P" > "$T"
 unset P; chmod 600 "$T"; mv -f "$T" "$F"
-${NMCLI:-nmcli} connection reload || { echo "nmcli reload failed"; exit 1; }
-N=$(${NMCLI:-nmcli} -g NAME,AUTOCONNECT connection show | grep -c "^$CON:")
+$NM connection reload || { echo "nmcli reload failed"; exit 1; }
+N=$($NM -g NAME,AUTOCONNECT connection show | grep -c "^$CON:")
 [ "$N" -ge 1 ] || { echo "profile $CON not loaded by NetworkManager"; exit 1; }
 [ "$N" -eq 1 ] || echo "WARN: $N profiles named $CON (an older one from nmcli add?); delete the extra by UUID"
-echo "loaded"'
+echo "loaded uuid=$U"'
 
 SUDO="${PI_WIFI_SUDO-sudo -n}"
 RC=0
@@ -61,7 +74,7 @@ for H in "$@"; do
   OUT=$(printf '%s\n%s\n' "$SSID" "$PSK" | ssh -o BatchMode=yes -o ConnectTimeout=10 "$H" \
         "$SUDO env CON=$CON PRIO=$PRIO ${NM_DIR:+NM_DIR=$NM_DIR} ${NM_BACKUP_DIR:+NM_BACKUP_DIR=$NM_BACKUP_DIR} ${NMCLI:+NMCLI=$NMCLI} bash -c $(printf %q "$REMOTE")" 2>&1)
   if [ $? -eq 0 ] && printf '%s' "$OUT" | grep -q "^loaded"; then
-    echo "OK $H $CON autoconnect=yes priority=$PRIO$(printf '%s' "$OUT" | grep -E '^(WARN|backup)' | sed 's/^/ | /' | tr '\n' ' ')"
+    echo "OK $H $CON autoconnect=yes priority=$PRIO powersave=off $(printf '%s' "$OUT" | grep -o 'uuid=[0-9A-Fa-f-]*')$(printf '%s' "$OUT" | grep -E '^(WARN|backup)' | sed 's/^/ | /' | tr '\n' ' ')"
   else
     echo "FAILED $H $CON: $(printf '%s' "$OUT" | tail -3 | tr '\n' ' ')"; RC=1
   fi
