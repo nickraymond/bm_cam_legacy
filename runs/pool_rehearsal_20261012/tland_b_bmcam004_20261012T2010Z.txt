@@ -1,0 +1,39 @@
+== 2026-10-12T20:10:20Z bmcam004 halted; bus hold on SPOT-31593C
+2026-10-12T20:10:28Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261012T201023Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-12T20:10:29Z Succesfully sent config set msg
+2026-10-12T20:10:29Z 2026-10-12T20:10:32.625Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-12T20:10:36Z 2026-10-12T20:10:39.023Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-12T20:10:36Z 2026-10-12T20:10:39.031Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-12T20:10:36Z 2026-10-12T20:10:39.089Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-12T20:10:39Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+up=35s
+979 bash -c mkdir -p ~/hil_backup/20261012T201023Z && crontab -l > ~/hil_backup/20261012T201023Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-12T20:11:25Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-12T20:11:26Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261012T201023Z)
+hil_bus_always_on rc=0
+== BEFORE-POOL-ON
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+29d8f0997ed00a6e96b694696ad19f901de0af90f924caad69e78835d100d0d7  camera_config.yaml
+e8f060568184555c3a85c3063c91125b73758f1ffcc720735a8264272936b5b1  camera_schedule.yaml
+93919e145c4a6cd0d70865afbb9c520b14145cd5b82a1b535c37d4a686bd6baa  bm_command_state_v2.json
+5fe40e143442  pool_sequence.py
+571b6b4564f8  rc_preview.py
+031dc0caa7e2  /home/pi/pool_mode.sh
+== pool_mode on
+[POOL-MODE]   # DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+[POOL-MODE]   @reboot mkdir -p /home/pi/pool_runs && { /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /usr/bin/python3 /home/pi/BM_Devel_Pi/pool_sequence.py --run-root /home/pi/pool_runs >> /home/pi/pool_runs/launch.log 2>&1 || echo "pool launch exited rc=$? (lock /tmp/bmcam_rc_capture.lock held?)" >> /home/pi/pool_runs/launch.log; } # POOL_MODE_LINE
+[POOL-MODE] mode        : POOL (pool line installed)
+[POOL-MODE] backup      : /home/pi/pool_mode_backups/crontab_20261012T201127Z.txt (restored by off)
+[POOL-MODE] pool process: not running
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261012_191155_bmcam004
+[POOL-MODE]   cfg=bbbd992a cal=12 loop=3 marks=1 final=phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=772s ssid=Ford ip=192.168.1.143
+[POOL-MODE] disk        : 106968 MB free, 6% used
+== start
+[POOL-MODE] started pid 1077; log: /home/pi/pool_runs/launch.log + the newest run folder's pool.log
+[POOL-MODE] mode        : POOL (pool line installed)
+[POOL-MODE] backup      : /home/pi/pool_mode_backups/crontab_20261012T201127Z.txt (restored by off)
+[POOL-MODE] pool process: 1077
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261012_201130_bmcam004
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=(running)
+[POOL-MODE] disk        : 106968 MB free, 6% used

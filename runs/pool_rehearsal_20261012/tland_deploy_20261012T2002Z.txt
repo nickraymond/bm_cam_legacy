@@ -1,0 +1,17 @@
+== bmcam003 2026-10-12T20:02:42Z
+scp rc=0
+5fe40e143442  pool_sequence.py
+571b6b4564f8  rc_preview.py
+031dc0caa7e2  /home/pi/pool_mode.sh
+"focus": {"enabled": true, "lens_position": 1.82, "mode": "manual"}
+hash=bbbd992a
+POOL_CONFIG_HASH=bbbd992a
+== bmcam004 2026-10-12T20:02:50Z
+scp rc=0
+5fe40e143442  pool_sequence.py
+571b6b4564f8  rc_preview.py
+031dc0caa7e2  /home/pi/pool_mode.sh
+"focus": {"enabled": true, "lens_position": 1.82, "mode": "manual"}
+hash=bbbd992a
+POOL_CONFIG_HASH=bbbd992a
+== expected: 5fe40e143442 pool_sequence.py, 571b6b4564f8 rc_preview.py, 031dc0caa7e2 pool_mode.sh

@@ -1,0 +1,9 @@
+[pool_cmd] host=nereus000 id=90011 verb=status targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=30s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90011,"c":"pool","v":"status"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90011,"c":"pool","v":"status"} 1 1
+  [bmcam003] OK  [bmcam003] OK id=90011 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201138_bmcam003 free=107271MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=12s
+  [bmcam003] .. 2026-10-12T20:11:51Z 1791835911.308 53171fa3d81a8e6f, [bmcam003] OK id=90011 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201138_bmcam003 free=107271MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=12s dup
+  [bmcam004] OK  [bmcam004] OK id=90011 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201130_bmcam004 free=106967MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=21s
+  [bmcam004] .. 2026-10-12T20:11:52Z 1791835915.253 e6fe83ea6b4a2b7f, [bmcam004] OK id=90011 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201130_bmcam004 free=106967MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=21s dup
+[pool_cmd] id=90011 bmcam003: OK
+[pool_cmd] id=90011 bmcam004: OK

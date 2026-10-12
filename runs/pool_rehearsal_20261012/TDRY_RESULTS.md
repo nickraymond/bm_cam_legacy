@@ -50,8 +50,8 @@ Approvals: Nick 10:59 AM (b, c, d) + 11:03 AM (console / always-on), APPROVALS.m
 |---|---|---|
 | Crontab identical to the pre-pool snapshot | re-armed from ~/hil_backup/20261012T191046Z; `crontab -l` byte-identical to the 12:03 PM snapshot (the single active @reboot rc_run_capture_cycle.sh line); `hil_restore_schedule` re-confirmed ARMED in the stub boot | PASS |
 | Config hash identical (+ focus manual 1.82) | camera_config.yaml 29d8f099 = pre-pool; effective cfg bbbd992a (focus manual 1.82). state_v2 changed c392942e → a07c37b1 during the 12 PM production wake itself, before pool mode, which is expected (acks / boot counter) | PASS |
-| Bus schedule restored | read-back controller 1 / 3600000 / 600000, stub boot halted at 12:27:16 | PASS (read-back); bus-off at 1:10 PM to be observed |
-| Next hourly wake delivers a JPEG XL with the expected cfg hash | 1 PM wake | PENDING |
+| Bus schedule restored | read-back controller 1 / 3600000 / 600000, stub boot halted at 12:27:16 | PASS: bus on 1:00:00, off 1:10:00 PM (console) |
+| Next hourly wake delivers a JPEG XL with the expected cfg hash | 1 PM wake: [CFG] hash=bbbd992a, nrjxl 54,531 B / 190 msgs, transmit + listen window ran, no errors; backend arrival = EM | PASS (unit side) |
 
 ## Spotter battery (SPOT-31593C, Sofar via rig health)
 
