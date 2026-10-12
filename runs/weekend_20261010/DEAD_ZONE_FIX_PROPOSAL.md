@@ -21,8 +21,8 @@ mailbox item at once rather than holding it, but no Pi is listening, so the item
 
   - Lost on SPOT-31593C: rsd 100255, 100265, 100266, 100268, 100269, 100274 and 100275, plus 1000079.
   - 1000079 was recovered only by the timed re-send.
-  - All held receipts (after bus-off) on both Spotters were applied at the next boot. Three bmcam003 receipts from the first evening (100259,
-    1000169, 100260) aren't in the pulled logs because of truncation; 1000169 is known applied from the console OK line. They'll be re-checked after the backfill.
+  - All held receipts (after bus-off) on both Spotters were applied at the next boot. 100259, 1000169 and 100260 are confirmed applied in the backfilled full logs.
+  - Re-checked against the complete cycle logs: every wake on both units has a full log with the halt line (`pulled/<host>/backfill/`). The 7 rsds are absent from all of them, so they were really lost.
 - **This dead zone is also why media 58313 starved** (bmcam004, 12 missing for 29 h). The backend did ask for its heals, and the asks were lost here.
 
 ## Options

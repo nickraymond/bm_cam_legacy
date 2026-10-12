@@ -99,7 +99,10 @@ Every halt landed well before bus-off at 600 s.
     - and no :15-carrier observation for 1000081.
   - Imaging, heals and commands were unaffected, and the mirror to nereus000 still works over Wi-Fi.
 - **SPOT-31593C's report sync re-anchored** at Sat 11:03 PM PDT (10/11 06:03Z) with a corrupted RTC stamp "2072-00-07T06:03:07". It drifted +2 min/h for a few hours, then settled back to :15:01.
-- **Collector:** bmcam003 cycle-log tails are truncated on some wakes (ssh reads failed after ~:03). Backfill from the units' `cron_logs/` on Monday.
+- **Collector:** the collector's cycle-log copies lacked the halt line on 57 bmcam003 and 46 bmcam004 wakes, because its last read lands before the halt.
+  - **Backfilled Mon 8:01 AM** (`backfill_cycle_logs.sh`, read-only) into `pulled/<host>/backfill/`. All 65 + 65 wakes now have a complete log.
+  - Full-log re-score: 0 budget skips, 0 CFG ERR/LKG and 0 tail trims on both units.
+  - Halt uptime: 003 425–481 s; 004 315–481 s (bus window 600 s). That includes the console-dark 1–8 AM wakes.
 
 - **Spotter battery (Sofar telemetry via rig health, `health.csv` on nereus000, ~hourly points):**
   - Fri, Sat and Sun nights both Spotters bottomed at **4.07 V**.
@@ -111,7 +114,7 @@ Every halt landed well before bus-off at 600 s.
 
 ## 5. Monday follow-ups (TE)
 
-1. Backfill the truncated bmcam003 cycle logs from `cron_logs/` (read-only).
-2. Write up the dead-zone fix proposal: listen to bus-off, or mote replay at the next boot.
+1. ~~Backfill the truncated cycle logs~~ DONE Mon 8:01 AM (both units, 103 logs).
+2. ~~Dead-zone fix proposal~~ DONE: `DEAD_ZONE_FIX_PROPOSAL.md`.
 3. Re-score 58283 at its 2 PM deadline, and 58313 / 58331 on Tue. Bench-test the d28 packer fix (slice instead of skip) when it lands.
 4. Collector stops Mon 9 AM and the mirror at 9:30 AM (their until-times); after that, a final summary commit.
