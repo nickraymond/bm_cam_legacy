@@ -71,7 +71,7 @@ python3 tools/pool_pull.py --dry-run
 python3 tools/pool_pull.py
 ```
 
-`--host bmcam003=192.168.4.23` pins a unit to an IP; `--classes 1,2` pulls only manifest/logs + loop stills; re-running resumes.
+`--host bmcam003=192.168.4.23` pins a unit to an IP; `--run bmcam003=<folder>` pins a unit's run folder (default `latest`); `--classes 1,2` pulls only manifest/logs + loop stills; re-running resumes. A second run of the same unit on the same date needs `--date <name>` (the dest folder is pinned to one run).
 
 ## Tests
 

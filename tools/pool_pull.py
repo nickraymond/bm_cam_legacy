@@ -31,7 +31,10 @@ Inputs
   --host  bmcam003.local  (repeatable; default bmcam003.local + bmcam004.local).
           "name=address" pins the unit name, e.g. --host bmcam003=192.168.4.23; a bare IP
           takes the unit name from the Pi's hostname.
-  --run latest (default: newest <remote-root>/*_<hostname>/, else newest folder) or a folder name
+  --run latest (default: newest <remote-root>/*_<hostname>/, else newest folder), a folder name,
+          or per unit: --run bmcam003=<folder> --run bmcam004=<folder> (names come from --host
+          name= or the .local name). A second run of the same unit + date needs its own --date
+          (e.g. --date 20261013_run2): the dest folder is pinned to one run.
   --remote-root /home/pi/pool_runs     --user pi     --dest-root ~/NereusPool
 Outputs
   <dest-root>/<date>/<unit>/...            mirror of the run folder (date = run folder date)
@@ -46,6 +49,8 @@ Examples (on the Mac, repo root)
   python3 tools/pool_pull.py                                   # pull both, all classes
   python3 tools/pool_pull.py --classes 1,2                     # manifest/logs + loop stills only
   python3 tools/pool_pull.py --host bmcam004=192.168.4.31 --run 20261013_181500_bmcam004
+  python3 tools/pool_pull.py --host bmcam003=172.20.10.4 --host bmcam004=172.20.10.5 \\
+      --run bmcam003=20261013_170512_bmcam003 --run bmcam004=20261013_170530_bmcam004
 
 Known limits
   - Needs key ssh to pi@<host> (BatchMode: a password prompt fails fast, it does not hang).
@@ -194,15 +199,27 @@ class Unit:
         return subprocess.run(["ssh"] + self.ssh_opts + [self.target, cmd], input=stdin,
                               capture_output=True, text=True, timeout=timeout)
 
+    def run_spec(self):
+        """--run values: 'latest' | NAME (all units) | unit=NAME (this unit). unit= wins."""
+        bare = "latest"
+        for v in self.a.run or ["latest"]:
+            unit, sep, name = v.partition("=")
+            if sep and unit == self.name:
+                return name
+            if not sep:
+                bare = v
+        return bare
+
     def list_remote(self):
+        self.run_req = self.run_spec()
         cmd = "python3 -c " + shlex.quote(REMOTE_LIST) + " " + shlex.quote(self.a.remote_root) + " " + \
-            shlex.quote(self.a.run)
+            shlex.quote(self.run_req)
         try:
             r = self.ssh(cmd, timeout=self.a.connect_timeout + 60)
         except subprocess.TimeoutExpired:
             raise RuntimeError("listing timed out")
         if "NORUN" in r.stdout:
-            raise RuntimeError(f"no run folder under {self.a.remote_root} (run={self.a.run})")
+            raise RuntimeError(f"no run folder under {self.a.remote_root} (run={self.run_req})")
         if r.returncode != 0:
             raise RuntimeError(f"ssh {self.target} failed rc={r.returncode}: {r.stderr.strip()[:300]}")
         for line in r.stdout.splitlines():
@@ -436,7 +453,8 @@ def main(argv=None):
                     f"default {' '.join(DEFAULT_HOSTS)})")
     ap.add_argument("--user", default="pi")
     ap.add_argument("--remote-root", default="/home/pi/pool_runs")
-    ap.add_argument("--run", default="latest", help="run folder name, or 'latest' (default)")
+    ap.add_argument("--run", action="append", help="'latest' (default), a run folder name, or unit=NAME "
+                    "per unit (repeatable), e.g. --run bmcam003=20261013_181500_bmcam003")
     ap.add_argument("--dest-root", default=os.path.expanduser("~/NereusPool"))
     ap.add_argument("--date", help="override the <date> folder (default: the run folder's date)")
     ap.add_argument("--classes", default="1,2,3,4,5", help="classes to pull, in this order (default 1,2,3,4,5)")
@@ -459,7 +477,7 @@ def main(argv=None):
     log = Log()
     units = [Unit(h, a, log) for h in (a.host or DEFAULT_HOSTS)]
     log(f"[pool_pull] mac={socket.gethostname()} units={','.join(u.target for u in units)} "
-        f"run={a.run} classes={a.class_list} {'DRY-RUN' if a.dry_run else ''}")
+        f"run={','.join(a.run or ['latest'])} classes={a.class_list} {'DRY-RUN' if a.dry_run else ''}")
 
     # listing (parallel; one ssh each)
     def lst(u):

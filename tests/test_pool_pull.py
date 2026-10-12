@@ -184,6 +184,17 @@ class TestPull(Base):
         self.assertIn("REFUSED", out)
         self.assertFalse(os.path.exists(os.path.join(self.dest, "20261013", "bmcam003", "pool.log")))
 
+    def test_per_unit_run_pick(self):
+        # an older run per unit; pin each unit to it explicitly (latest would pick 20261013)
+        rc, out = self.pull("--run", "bmcam003=20261012_090000_bmcam003",
+                            "--run", "bmcam004=20261012_090000_bmcam004", "--date", "old")
+        self.assertEqual(rc, 0, out)
+        with open(os.path.join(self.dest, "old", "pull_report.json")) as f:
+            rep = json.load(f)
+        self.assertEqual(rep["units"]["bmcam003"]["run"], "20261012_090000_bmcam003")
+        self.assertEqual(rep["units"]["bmcam004"]["run"], "20261012_090000_bmcam004")
+        self.assertEqual(rep["units"]["bmcam004"]["counts"], {"ok": 1})
+
     def test_dry_run(self):
         rc, out = self.pull("--dry-run", "--probe-mb", "1")
         self.assertEqual(rc, 0, out)
