@@ -16,8 +16,11 @@
 #          running).
 #   off    restores the EXACT crontab backup `on` made (LATEST pointer),
 #          verifies it byte for byte, and checks the config/state files are
-#          bit-identical to what `on` recorded. Does not stop a running pool
-#          process (use `stop`, or reboot).
+#          bit-identical to what `on` recorded. Exit 4 (ERROR, no PRODUCTION
+#          line) when the restored crontab has no ARMED rc_run_capture_cycle
+#          line (bus hold ran before `on`: re-arm from ~/hil_backup/<TS>/
+#          crontab_ARMED.txt, printed); exit 5 when a config/state sha changed.
+#          Does not stop a running pool process (use `stop`, or reboot).
 #   status shows crontab, backups, pool processes, the newest run folder.
 #   start  launches pool_sequence.py now (nohup, same command as the cron
 #          line) — bench use; it refuses itself while an RC cycle runs.
@@ -30,14 +33,17 @@
 # range and the boot apply would fall back to the open AP after 90 s, blocking
 # ssh; EM 2026-10-12).
 #
-# Test hooks: BMCAM_DST, POOL_BACKUP_DIR, POOL_RUN_ROOT, CRONTAB (a fake
-# crontab binary), POOL_MODE_NO_HASH=1 (skip the python config hash).
+# Test hooks: BMCAM_DST, POOL_BACKUP_DIR, POOL_RUN_ROOT, HIL_BACKUP_DIR, CRONTAB
+# (a fake crontab binary), POOL_MODE_NO_HASH=1 (skip the python config hash).
 
 set -uo pipefail
 
 DST="${BMCAM_DST:-/home/pi/BM_Devel_Pi}"
 BACKUP_DIR="${POOL_BACKUP_DIR:-/home/pi/pool_mode_backups}"
 RUN_ROOT="${POOL_RUN_ROOT:-/home/pi/pool_runs}"
+HIL_BACKUP="${HIL_BACKUP_DIR:-/home/pi/hil_backup}"
+# An ARMED production line: @reboot ... rc_run_capture_cycle.sh, not commented.
+ARMED_RE='^[[:space:]]*@reboot[^#]*rc_run_capture_cycle\.sh'
 CRONTAB="${CRONTAB:-crontab}"
 PY="${POOL_PYTHON:-/usr/bin/python3}"
 LOCK="${BMCAM_CYCLE_LOCK:-/tmp/bmcam_rc_capture.lock}"
@@ -62,6 +68,15 @@ cron_line() {
 config_files() {
     for f in camera_config.yaml bm_command_state_v2.json bm_command_state.json camera_schedule.yaml; do
         [[ -f "$DST/$f" ]] && echo "$DST/$f"
+    done
+}
+
+armed_candidates() {
+    # hil_bus_always_on.sh keeps the pre-disarm crontab here; newest first, and
+    # only files that really hold an armed line.
+    local f
+    for f in $(ls -1t "$HIL_BACKUP"/*/crontab_ARMED.txt 2>/dev/null); do
+        grep -qE "$ARMED_RE" "$f" && echo "$f"
     done
 }
 
@@ -125,6 +140,11 @@ case "$MODE" in
         say "[WARN] no crontab before pool mode (empty backup $BK; off will remove the crontab)"
     fi
     echo "$BK" > "$BACKUP_DIR/LATEST"
+    if ! grep -qE "$ARMED_RE" "$BK"; then
+        say "[WARN] the crontab being backed up has NO armed rc_run_capture_cycle line"
+        say "[WARN] (bus hold ran first? # DISARMED_BUS_ON): off will restore it DISARMED and"
+        say "[WARN] say so; re-arm from $HIL_BACKUP/<TS>/crontab_ARMED.txt after the session"
+    fi
     SUMS="$BACKUP_DIR/config_sha256_$TS.txt"
     FILES="$(config_files)"
     if [[ -n "$FILES" ]]; then
@@ -173,26 +193,49 @@ case "$MODE" in
         "$CRONTAB" -r 2>/dev/null || true
         say "crontab removed (there was none before pool mode)"
     fi
+    RC=0
     TS="$(basename "$BK" .txt)"; TS="${TS#crontab_}"
     SUMS="$BACKUP_DIR/config_sha256_$TS.txt"
     if [[ -f "$SUMS" ]]; then
         if (sha256sum -c "$SUMS" 2>/dev/null || shasum -a 256 -c "$SUMS") | sed 's/^/[POOL-MODE]   /'; then
             say "config/state files bit-identical to pool-mode entry"
         else
-            say "[WARN] a config/state file changed since pool mode went on (see above)"
+            echo "[POOL-MODE][ERROR] a config/state file changed since pool mode went on (see above)" >&2
+            RC=5
         fi
     fi
     PIDS="$(pool_pids)"
     [[ -n "$PIDS" ]] && say "[WARN] pool_sequence.py still running (pid $PIDS): 'pool_mode.sh stop' or reboot"
     mv "$BACKUP_DIR/LATEST" "$BACKUP_DIR/LATEST.restored_$(date -u +%Y%m%dT%H%M%SZ)"
-    say "PRODUCTION MODE: the RC cycle runs at the next boot"
+    if "$CRONTAB" -l 2>/dev/null | grep -qE "$ARMED_RE"; then
+        [[ $RC -eq 0 ]] && say "PRODUCTION MODE: the RC cycle runs at the next boot"
+    else
+        # QE B1 (#152): the pre-pool crontab is usually the bus-hold DISARMED one; the
+        # exact restore is right, but it is NOT production. Say so and fail.
+        echo "[POOL-MODE][ERROR] restored crontab is DISARMED (bus-hold before pool on?):" \
+             "no active @reboot rc_run_capture_cycle.sh line; the unit will NOT capture" >&2
+        CANDS="$(armed_candidates)"
+        if [[ -n "$CANDS" ]]; then
+            echo "[POOL-MODE][ERROR] re-arm with: $CRONTAB $(echo "$CANDS" | head -1)" >&2
+            echo "$CANDS" | sed 's/^/[POOL-MODE][ERROR]   candidate (newest first): /' >&2
+        else
+            echo "[POOL-MODE][ERROR] no $HIL_BACKUP/*/crontab_ARMED.txt with an armed line:" \
+                 "re-arm by hand (the line: @reboot /usr/bin/flock -n $LOCK" \
+                 "/home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh)" >&2
+        fi
+        RC=4
+    fi
     show_status
+    exit $RC
     ;;
   start)
     PIDS="$(pool_pids)"
     [[ -z "$PIDS" ]] || die "pool_sequence.py already running (pid $PIDS)"
     mkdir -p "$RUN_ROOT"
-    nohup /usr/bin/flock -n "$LOCK" $(pool_cmd) >> "$RUN_ROOT/launch.log" 2>&1 &
+    # </dev/null + setsid: `ssh host 'pool_mode.sh start'` must not hang on the
+    # child holding ssh's stdin, and the process must outlive the ssh session.
+    SETSID="$(command -v setsid || true)"
+    nohup $SETSID /usr/bin/flock -n "$LOCK" $(pool_cmd) </dev/null >> "$RUN_ROOT/launch.log" 2>&1 &
     sleep 3
     PIDS="$(pool_pids)"
     [[ -n "$PIDS" ]] || die "pool_sequence.py exited at once: tail $RUN_ROOT/launch.log (RC cycle running? lock $LOCK held?)"
@@ -201,7 +244,7 @@ case "$MODE" in
   stop)
     PIDS="$(pool_pids)"
     [[ -n "$PIDS" ]] || { say "no pool_sequence.py running"; exit 0; }
-    kill -TERM $PIDS && say "SIGTERM sent to $PIDS (finishes the current frame, then exits)"
+    kill -TERM $PIDS && say "SIGTERM sent to $PIDS (finishes the current frame / loop iteration, up to ~2 min, then exits)"
     ;;
   status)
     show_status

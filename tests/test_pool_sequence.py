@@ -141,6 +141,12 @@ class ParseCommand(unittest.TestCase):
             self.assertEqual(cm.exception.cid, 1)
             self.assertIn(why, cm.exception.reason)
 
+    def test_long_resend_spec_fits_the_248_byte_cap(self):
+        spec = ",".join(str(n) for n in range(1, 200, 2))[:199].rstrip(",")
+        cid, verb, fields = self.p({"id": 90001, "c": "pool", "v": "preview", "lines": spec})
+        self.assertEqual(fields["lines"], spec)
+        self.assertEqual(len(V.parse_line_spec(spec, 250)), spec.count(",") + 1)
+
     def test_unanswerable(self):
         for raw in (b"{nope", b'{"c":"pool"}', b'{"id":true,"c":"pool"}', b'{"id":1,"id":2}'):
             with self.assertRaises(P.CmdError) as cm:
@@ -358,6 +364,22 @@ class Controller(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(h.dir, "preview", os.path.basename(rec["native"]))))
         self.assertFalse([f for f in os.listdir(os.path.join(h.dir, "preview")) if f.endswith(".dng")])
 
+    def test_sigterm_lets_the_loop_iteration_finish(self):
+        import threading
+        cam = P.FakeCamera(capture_s=0.01, video_s=1.0)
+        h = Harness(self, [(0, cmd(1, "loop", iterations=3, period_s=30))], camera=cam)
+        stop_flag = threading.Event()
+        threading.Timer(0.5, stop_flag.set).start()       # lands mid-clip
+        rc = h.ctl.run(stop_flag=stop_flag)
+        self.assertEqual(rc, 0)
+        m = h.manifest_json()
+        self.assertEqual(len(m["loop"]), 1, "the iteration in progress completed")
+        self.assertTrue(m["loop"][0]["nrjxl"]["path"].endswith(".nrjxl"))
+        ev = [e for e in m["events"] if e["kind"] == "sigterm"][0]
+        self.assertFalse(ev["step_cut"])
+        self.assertFalse([f for f in os.listdir(os.path.join(h.dir, "loop"))
+                          if f.endswith(".part") or f.startswith(".nrjxl_work_")])
+
     def test_acks_jump_the_preview_queue(self):
         h = Harness(self, [(0, cmd(1, "preview"))], argv=["--preview-line-s", "0.01"])
         h.run(10, until=lambda h: h.ctl.last_preview is not None)
@@ -554,6 +576,7 @@ esac
     def tool(self, *args):
         env = dict(os.environ, BMCAM_DST=self.dst, POOL_BACKUP_DIR=os.path.join(self.d, "bk"),
                    POOL_RUN_ROOT=os.path.join(self.d, "runs"), CRONTAB=self.fake,
+                   HIL_BACKUP_DIR=os.path.join(self.d, "hil_backup"),
                    POOL_MODE_NO_HASH="1", POOL_PYTHON=sys.executable)
         r = subprocess.run(["bash", self.TOOL, *args], env=env, capture_output=True, text=True,
                            timeout=60)
@@ -579,14 +602,53 @@ esac
         self.assertIn("byte-identical", out)
         self.assertIn("bit-identical", out)
 
-    def test_off_warns_on_changed_config(self):
+    def test_off_fails_on_changed_config(self):
         self.assertEqual(self.tool("on")[0], 0)
         with open(os.path.join(self.dst, "camera_config.yaml"), "a") as fh:
             fh.write("changed: true\n")
         rc, out = self.tool("off")
+        self.assertEqual(rc, 5, out)
+        self.assertIn("[ERROR] a config/state file changed since pool mode went on", out)
+        self.assertNotIn("PRODUCTION MODE", out)
+        self.assertEqual(open(self.tab).read(), self.prod, "the crontab restore still happens")
+
+    def _hil_backup(self, ts, text, mtime):
+        d = os.path.join(self.d, "hil_backup", ts)
+        os.makedirs(d)
+        path = os.path.join(d, "crontab_ARMED.txt")
+        with open(path, "w") as fh:
+            fh.write(text)
+        os.utime(path, (mtime, mtime))
+        return path
+
+    def test_off_restoring_a_bus_hold_disarmed_crontab_fails_loudly(self):
+        # QE B1 (#152): the bus hold disarms the RC line BEFORE pool on, so the exact
+        # restore brings back a DISARMED crontab. That must not read as production.
+        disarmed = "# DISARMED_BUS_ON " + self.prod
+        with open(self.tab, "w") as fh:
+            fh.write(disarmed)
+        old = self._hil_backup("20261012T150000Z", self.prod, 1_000_000)
+        new = self._hil_backup("20261012T170000Z", self.prod, 2_000_000)
+        self._hil_backup("20261012T180000Z", disarmed, 3_000_000)   # not armed: no candidate
+        rc, out = self.tool("on")
         self.assertEqual(rc, 0, out)
-        self.assertIn("changed since pool mode went on", out)
-        self.assertEqual(open(self.tab).read(), self.prod)
+        self.assertIn("NO armed rc_run_capture_cycle line", out)
+        rc, out = self.tool("off")
+        self.assertEqual(rc, 4, out)
+        self.assertEqual(open(self.tab).read(), disarmed, "restore stays byte-exact")
+        self.assertIn("restored crontab is DISARMED", out)
+        self.assertIn(f"re-arm with: {self.fake} {new}", out)
+        self.assertIn(old, out)
+        self.assertNotIn("20261012T180000Z", out)
+        self.assertNotIn("PRODUCTION MODE", out)
+
+    def test_off_disarmed_without_backups_says_rearm_by_hand(self):
+        with open(self.tab, "w") as fh:
+            fh.write("# DISARMED_BUS_ON " + self.prod)
+        self.assertEqual(self.tool("on")[0], 0)
+        rc, out = self.tool("off")
+        self.assertEqual(rc, 4, out)
+        self.assertIn("re-arm by hand", out)
 
 
 if __name__ == "__main__":

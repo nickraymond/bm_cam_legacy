@@ -133,6 +133,16 @@ sudo reboot
 
 `off` restores the exact timestamped crontab backup and verifies it byte for byte. It also checks that camera_config.yaml and the state files are bit-identical to the moment pool mode went on.
 
+`stop` lets the current step finish before the process exits. A loop iteration can take ~70 s; the wait is capped at 150 s, and a cut step is logged.
+
+`off` exit codes:
+
+| exit | meaning | do |
+|---|---|---|
+| 0 | crontab restored, ARMED, config unchanged: `PRODUCTION MODE` | reboot |
+| 4 | the restored crontab is **DISARMED**: the bus hold ran before `on`, leaving `# DISARMED_BUS_ON`. No `PRODUCTION MODE` line is printed | run the printed `crontab ~/hil_backup/<TS>/crontab_ARMED.txt` (newest armed candidate), then check `crontab -l` shows an active `@reboot ... rc_run_capture_cycle.sh` |
+| 5 | a config/state file's sha256 changed since `on` | FAIL: stop and report; the pool never writes these |
+
 ### Pass checks
 
 - An `OK id=` line for every id. Replayed ids show ` dup`.

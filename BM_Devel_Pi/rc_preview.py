@@ -55,7 +55,9 @@ QUALITY_STEP = 10
 DEFAULT_MAX_BYTES = 30_000
 DEFAULT_CHUNK_CHARS = 160
 DEFAULT_LINE_S = 0.031          # Sprint09 DEV_LOG.md:179, see module doc
-RE_LINES = re.compile(r"[0-9,-]{1,64}\Z")
+# Up to 200 chars: #151's viewer splits resend lists at ~199 chars; the 248 B JSON
+# cap on the command (command_wire.MAX_JSON_BYTES) is the real bound.
+RE_LINES = re.compile(r"[0-9,-]{1,200}\Z")
 
 
 def render_preview_jpeg(source_img, out_wh=DEFAULT_PREVIEW_WH, quality=DEFAULT_QUALITY,

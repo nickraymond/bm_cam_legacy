@@ -118,6 +118,7 @@ DEFAULT_VIDEO_PRESET = "wide_720p"
 DEFAULT_VIDEO_BITRATE_MBPS = 2.0      # V1 720p rehearsal, see module doc
 DEFAULT_MIN_FREE_MB = 1024            # margin kept free after a phase's estimate
 DEFAULT_AUTOSTART_MIN = 30
+SIGTERM_JOIN_S = 150                  # > one loop iteration (~70 s assumed) with margin
 
 EST_DNG_B = 24_029_068                # MEASURED, runs/s28_ladder_20261004/gate.log:51-60
 EST_NATIVE_JPG_B = 8_000_000          # ASSUMPTION (q95 4608x2592), upper-ish bound
@@ -1178,10 +1179,21 @@ class PoolController:
         while True:
             self.tick()
             if stop_flag is not None and stop_flag.is_set():
-                log("SIGTERM: stopping the phase, then exiting")
+                # QE nit (#152): let the current step finish -- a loop iteration is
+                # ~70 s (clip + nrjxl) -- so it lands in the manifest with no
+                # .h264.part / nrjxl work dir left behind. A cut is logged loudly.
+                log(f"SIGTERM: phase={self.phase}: finishing the current step "
+                    f"(up to {SIGTERM_JOIN_S} s), then exiting")
                 self.stop_evt.set()
-                if self.worker:
-                    self.worker.join(timeout=60)
+                cut = False
+                if self.worker and self.worker.is_alive():
+                    self.worker.join(timeout=SIGTERM_JOIN_S)
+                    cut = self.worker.is_alive()
+                if cut:
+                    log(f"[ERR] SIGTERM: the {self.phase} step did not finish in {SIGTERM_JOIN_S} s;"
+                        " exiting anyway: partial files (.h264.part, .nrjxl_work_*) may remain "
+                        "and that step is missing from the manifest")
+                self.manifest.event("sigterm", phase=self.phase, step_cut=cut)
                 while self.pump_console() or self.prio:
                     self.sleep_fn(self.args.preview_line_s)
                 return 0
