@@ -50,3 +50,4 @@
 2026-10-12T02:57:40Z [TE2] stop check 23-02Z: no triggers (halts 448-503 s); backlog 003 12 / 258, 004 6 / 50; mirror 65 MB. 1000176 on SPOT-33507C 02:12:07Z (held) -> OK expected 03Z. No new 004 command on SPOT-31593C yet (EM's ~02:08:30Z send not seen).
 2026-10-12T03:08:50Z [TE2] slot 7 (004) sent 03:08:31Z: 1000080 contrast 1.1, carrier = the 03:15 report sync -> OK expected at 04Z. Remaining weekend slots: 003 09:33Z, 004 10:08Z; read-out Mon 14:35Z.
 2026-10-12T03:21:15Z [TE2] 1000176 CONFIRMED ([bmcam003] OK 03:04:58Z). 1000080 received on SPOT-31593C 03:16:47Z via the :15 report sync after bus-off (held) -> OK expected 04Z. No triggers.
+2026-10-12T04:21:19Z [TE2] 1000080 CONFIRMED ([bmcam004] OK id=1000080 04:03:21Z, cfg c013f614) - 2nd success of the timed send via the :15 report sync. No triggers.
