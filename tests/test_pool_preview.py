@@ -329,7 +329,7 @@ class TestDisplayRotation(Base):
             f.write('{"bmcam004": 45}')
         os.utime(path, (time.time() + 5, time.time() + 5))
         self.assertEqual(cfg.get(), {"bmcam004": 90, "bmcam003": 90})           # bad file: keep last good
-        self.assertIn("not 0/90/180/270", cfg.error)
+        self.assertIn("not the integer 0, 90, 180 or 270", cfg.error)
         with open(path, "w") as f:
             f.write('{"bmcam004": 270}')
         os.utime(path, (time.time() + 10, time.time() + 10))
