@@ -1,4 +1,4 @@
-# Weekend soak scoring (TE2), Fri 10/9 4 PM → Mon 10/12 3 AM PDT
+# Weekend soak scoring (TE2) — used for the Mon 7:40 AM read-out (EM: pool GO on the worst-unit bar), Fri 10/9 4 PM → Mon 10/12 3 AM PDT
 
 For the Monday read-out at 7:35 AM PDT. Units: bmcam003 / SPOT-33507C and bmcam004 / SPOT-31593C.
 Build: RC2 runtime 9ec4cb7 on both, nrjxl B3a stills, low-gain overlay. Times are PDT unless marked Z.
@@ -30,7 +30,7 @@ Sources:
 - **The last two commands confirmed from the cycle logs only, at the 4 AM wake:**
   - 1000177: bmcam003 contrast to 1.1, ack hash c013f614;
   - 1000081: bmcam004 contrast to 1.0, ack hash 9c980489.
-  - Backend acks were not checked by the TE.
+  - Backend acks (EM, 7:40 AM): 1000177 at 4:05:09 AM h=c013f614 and 1000081 at 4:03:04 AM h=9c980489, both in_effect. **18/18 are confirmed at the backend too.**
 
 ## 2. Stop rules: no triggers on either unit, all weekend
 
@@ -73,7 +73,8 @@ Every halt landed well before bus-off at 600 s.
 \* bmcam003's cycle-log tails are truncated on some wakes, so post-transmit asks can be missing from its list. bmcam004's logs are complete.
 
 - The other open images are the 2 AM and 3 AM captures on each unit, which are inside the normal 2–3-wake heal pipeline.
-- **JXL-RC bar 1 (every image complete within 48 h) is at risk for these three.** Their 48-h deadlines:
+- **Update 7:35 AM: 58283 is COMPLETE at the backend, inside its 48 h.** Still open: 58331 (126/192, due Tue 6 AM) and 58313 (88/100, due Tue 12 AM).
+- **JXL-RC bar 1 (every image complete within 48 h) was at risk for these three.** Their 48-h deadlines:
   - 58283: **today 2 PM**;
   - 58313: Tue 12 AM;
   - 58331: Tue 6 AM.
