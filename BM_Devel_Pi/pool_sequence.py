@@ -1289,7 +1289,6 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
             return 3
 
     if args.fake:
-        from types import SimpleNamespace
         settings = {"crop_native_xywh": (1504, 846, 1600, 900), "output_width": 1600,
                     "quality_ladder": [85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30],
                     "message_cap": 195, "pacing_chunk_b64_chars": 384,
@@ -1297,20 +1296,10 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
         cfg = {"hash": "fake0000", "level": "fake", "overlay": {}, "lines": [],
                "settings": settings, "capture_settings": None,
                "raw_cfg": {"layout": "rgb", "format": "nrjxl"}, "render": None}
-        _ = SimpleNamespace
     else:
         cfg = load_effective(args.config_dir, run_dir)
     for line in cfg["lines"]:
         log(line)
-    if args.nrjxl_layout != "effective" and cfg["raw_cfg"].get("layout") != args.nrjxl_layout:
-        log(f"[WARN] nrjxl layout: effective config says {cfg['raw_cfg'].get('layout')!r}; "
-            f"pool forces {args.nrjxl_layout!r} (--nrjxl-layout)")
-        cfg["raw_cfg"] = dict(cfg["raw_cfg"], layout=args.nrjxl_layout)
-    if camera is None:
-        camera = FakeCamera() if args.fake else RealCamera(
-            cfg, args.video_s, args.video_fps, args.video_preset, args.video_bitrate_mbps)
-    if nrjxl_fn is None:
-        nrjxl_fn = fake_nrjxl if args.fake else real_nrjxl
     if link is None:
         if args.fake:
             script = default_fake_script()
@@ -1320,6 +1309,18 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
             link = FakeLink(script)
         else:
             link = SerialLink(cfg["render"])
+    # Subscribe BEFORE the slower camera setup: the mote replays held commands
+    # ~60 s after the Pi boots; payloads queue in the reader until the loop runs.
+    link.start()
+    if args.nrjxl_layout != "effective" and cfg["raw_cfg"].get("layout") != args.nrjxl_layout:
+        log(f"[WARN] nrjxl layout: effective config says {cfg['raw_cfg'].get('layout')!r}; "
+            f"pool forces {args.nrjxl_layout!r} (--nrjxl-layout)")
+        cfg["raw_cfg"] = dict(cfg["raw_cfg"], layout=args.nrjxl_layout)
+    if camera is None:
+        camera = FakeCamera() if args.fake else RealCamera(
+            cfg, args.video_s, args.video_fps, args.video_preset, args.video_bitrate_mbps)
+    if nrjxl_fn is None:
+        nrjxl_fn = fake_nrjxl if args.fake else real_nrjxl
     free0 = free_mb(run_dir)
     manifest = Manifest(os.path.join(run_dir, "run_manifest.json"), {
         "schema": SCHEMA, "host": host, "run_dir": run_dir, "started_utc": iso(),
@@ -1353,7 +1354,6 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
         signal.signal(signal.SIGTERM, lambda *_: stop_flag.set())
     except ValueError:
         pass                       # not the main thread (tests)
-    link.start()
     ctl.say(f"pool ready run={os.path.basename(run_dir)} cfg={cfg['hash']} free={free0}MB "
             f"need~{full_mb}MB verbs={'|'.join(VERBS)}")
     try:

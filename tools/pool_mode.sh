@@ -55,7 +55,8 @@ pool_cmd() {
 }
 
 cron_line() {
-    echo "@reboot sleep 10 && mkdir -p $RUN_ROOT && /usr/bin/flock -n $LOCK $(pool_cmd) >> $RUN_ROOT/launch.log 2>&1 $TAG"
+    # A held lock (an RC cycle?) or a crash at import is logged, not silent.
+    echo "@reboot mkdir -p $RUN_ROOT && { /usr/bin/flock -n $LOCK $(pool_cmd) >> $RUN_ROOT/launch.log 2>&1 || echo \"pool launch exited rc=\$? (lock $LOCK held?)\" >> $RUN_ROOT/launch.log; } $TAG"
 }
 
 config_files() {
