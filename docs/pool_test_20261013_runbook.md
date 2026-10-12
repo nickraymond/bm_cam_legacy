@@ -32,14 +32,23 @@ bm pub bmcam/cmd {"id":90107,"c":"pool","v":"stop"} 1 1
 
 | Verb | Fields | Notes |
 |---|---|---|
-| status | (none) | phase, cal n/N, loop n/N, free MB, marks, last error, uptime, ssid, ip, autostart countdown |
-| cal | duration_s 10..7200, interval_s 2..600 | refuses with ERR when busy or when the phase won't fit free space + `--min-free-mb` |
+| status | (none) | phase, cal n/N, loop n/N, `run=<folder name>`, free MB, marks, last error, ip, ssid, uptime, autostart countdown |
+| cal | duration_s 10..7200, interval_s 2..600 | refuses with ERR when busy, when the phase won't fit free space + `--min-free-mb`, or when this run's `calibration/` already has frames (see below) |
 | loop | iterations 1..100, period_s 30..7200 | same guards (`loop/` already has frames → refused; the auto-start too) |
 | mark | note `[A-Za-z0-9_:./+,-]{1,40}` | use `_` for spaces; the marker goes into run_manifest.json `marks` |
 | stop | (none) | ends the phase after the current step. Sent while idle with an auto-start pending, it cancels the auto-start |
 | preview | lines `a-b,c` (optional) | no lines = a new capture. With lines = resend from the LAST preview |
 
 Unrecognised `c` values (any production verb) get `ERR ... pool_mode: only c=pool runs`.
+
+**One run folder = one session (EM 10/12).** A second `cal` or `loop` in the same process is refused, so in-air rehearsal frames never mix with the pool's:
+
+```text
+[bmcamNNN] ERR id=<N> pool cal refused: run already has calibration frames, restart pool mode (pool_mode.sh stop/start) for a new run
+[bmcamNNN] ERR id=<N> pool loop refused: run already has loop frames, restart pool mode (pool_mode.sh stop/start) for a new run
+```
+
+For a new run: `bash /home/pi/pool_mode.sh stop`, then `start` (or reboot). `status` then shows `cal=0/0 loop=0/0` and a new `run=`.
 
 ## Preview wire (frozen with the nereus000 reassembler, PR #151)
 
