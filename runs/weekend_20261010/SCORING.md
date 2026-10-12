@@ -104,13 +104,13 @@ Every halt landed well before bus-off at 600 s.
   - Full-log re-score: 0 budget skips, 0 CFG ERR/LKG and 0 tail trims on both units.
   - Halt uptime: 003 425–481 s; 004 315–481 s (bus window 600 s). That includes the console-dark 1–8 AM wakes.
 
-- **Spotter battery (Sofar telemetry via rig health, `health.csv` on nereus000, ~hourly points):**
-  - Fri, Sat and Sun nights both Spotters bottomed at **4.07 V**.
-  - Mon pre-dawn was lower:
-    - SPOT-31593C min **4.04 V** at 3:15 AM (−0.36 W);
-    - SPOT-33507C min **4.02 V** at 6:01 AM (−1.27 W).
-  - Rig health WARN at 4:15 and 6:15 AM, no CRIT.
-  - So this is not the same as the earlier weekend nights. The cause is unknown (solar on Sunday? the console-dark Spotters?). By 6:10–6:15 AM: SPOT-33507C back to 4.04 V, SPOT-31593C flat at 4.04 V; no post-sunrise point yet at 7:09 AM.
+- **Spotter battery sag. CAUSE: the hub dropout removed the Spotters' USB power.** Sofar telemetry in rig health (`health.csv` on nereus000):
+  - Spotter input voltage (in_v) was **4.67 V** on both all weekend. It fell to **0.1–0.6 V** after the 12:14 AM hub dropout.
+  - Idle battery power (post-bus-off points) was **0.00 W** at 4.07 V Fri–Sun, including Sat/Sun mornings through noon.
+  - From the Mon 1:10–1:15 AM points it was **−0.30 to −0.36 W** on both Spotters. The −1.2 to −2.4 W points are wake-time readings (camera load).
+  - Battery: SPOT-31593C 4.07 → 4.04 (3:15 AM) → 4.01 (7:15) → **3.99 V (8:03 AM)**. SPOT-33507C 4.07 → 4.04 V, flat at 4.04 V by 8:10 AM.
+  - Not solar or daylight-related. The fix is re-seating the hub (Nick on site), which restores the consoles and the charging input together.
+  - Battery capacity and time to cutoff: unknown.
 
 ## 5. Monday follow-ups (TE)
 
