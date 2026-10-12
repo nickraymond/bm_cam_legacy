@@ -262,3 +262,9 @@ WAKE SPOT-31593C 2026-10-12T14:00: bus → | Pi → (wake→halt  s) | START len
 2026-10-12T15:01:38Z wake 2026-10-12 15: pulling
 WAKE SPOT-33507C 2026-10-12T15:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:65
 WAKE SPOT-31593C 2026-10-12T15:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:65
+2026-10-12T15:20:11Z wake 2026-10-12 15: done (2026-10-12T15:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,7650,,,yes,,7,,4,228 2026-10-12T15:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,12303,,,yes,367.29,0,,3,18 )
+2026-10-12T16:01:36Z wake 2026-10-12 16: pulling
+WAKE SPOT-33507C 2026-10-12T16:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:69
+WAKE SPOT-31593C 2026-10-12T16:00: bus → | Pi → (wake→halt  s) | START len - END sent - burst - s | queue_full 0 | heal cmds 0 | nereus000 wifi yes:Ford:69
+2026-10-12T16:20:07Z wake 2026-10-12 16: done (2026-10-12T16:00Z,bmcam003,SPOT-33507C,9ec4cb7ae7c1,c013f614,nrjxl,low_gain,true,1.122807,1130,,,yes,,40,,5,190 2026-10-12T16:00Z,bmcam004,SPOT-31593C,9ec4cb7ae7c1,9c980489,nrjxl,low_gain,true,1.122807,1340,,,yes,,0,,4,26 )
+2026-10-12T16:20:07Z collector exit (STOP file or until reached)

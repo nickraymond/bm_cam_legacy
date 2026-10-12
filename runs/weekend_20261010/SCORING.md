@@ -108,7 +108,7 @@ Every halt landed well before bus-off at 600 s.
   - Spotter input voltage (in_v) was **4.67 V** on both all weekend. It fell to **0.1–0.6 V** after the 12:14 AM hub dropout.
   - Idle battery power (post-bus-off points) was **0.00 W** at 4.07 V Fri–Sun, including Sat/Sun mornings through noon.
   - From the Mon 1:10–1:15 AM points it was **−0.30 to −0.36 W** on both Spotters. The −1.2 to −2.4 W points are wake-time readings (camera load).
-  - Battery: SPOT-31593C 4.07 → 4.04 (3:15 AM) → 4.01 (7:15) → **3.99 V (8:03 AM)**. SPOT-33507C 4.07 → 4.04 V, flat at 4.04 V by 8:10 AM.
+  - Battery: SPOT-31593C 4.07 → 4.04 (3:15 AM) → 4.01 (7:15) → 3.99 V (8:03 AM, wake) → 4.01 V idle (8:15) → **3.98 V (9:04 AM, wake)**. SPOT-33507C 4.07 → 4.04 V, flat at 4.04 V, −0.30 W idle at 9:10 AM.
   - Not solar or daylight-related. The fix is re-seating the hub (Nick on site), which restores the consoles and the charging input together.
   - Battery capacity and time to cutoff: unknown.
 
