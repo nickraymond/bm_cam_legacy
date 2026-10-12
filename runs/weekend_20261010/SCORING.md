@@ -99,6 +99,8 @@ Every halt landed well before bus-off at 600 s.
 - **SPOT-31593C's report sync re-anchored** at Sat 11:03 PM PDT (10/11 06:03Z) with a corrupted RTC stamp "2072-00-07T06:03:07". It drifted +2 min/h for a few hours, then settled back to :15:01.
 - **Collector:** bmcam003 cycle-log tails are truncated on some wakes (ssh reads failed after ~:03). Backfill from the units' `cron_logs/` on Monday.
 
+- **SPOT-31593C battery WARN at 4:15 AM:** 4.10 → 4.04 V (Sofar telemetry, rig health). Likely the pre-dawn sag after an hourly-bus weekend; watching the 5–6 AM trend.
+
 ## 5. Monday follow-ups (TE)
 
 1. Backfill the truncated bmcam003 cycle logs from `cron_logs/` (read-only).
