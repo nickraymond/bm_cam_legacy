@@ -256,6 +256,37 @@ class Controller(unittest.TestCase):
         self.assertEqual(cal["applied"]["AnalogueGain"], 1.12)
         self.assertIn("free_mb", cal)
 
+    def test_second_cal_or_loop_in_one_run_is_refused(self):
+        # EM 10/12: in-air rehearsal frames must never mix with the pool's.
+        h = Harness(self, [(0, cmd(1, "cal", duration_s=10, interval_s=10))],
+                    argv=["--loop-autostart-min", "0"])
+        h.run(5, until=lambda h: h.ctl.cal_done)
+        h.link.script.append((0, cmd(2, "cal", duration_s=10, interval_s=10)))
+        h.link.script.append((0, cmd(3, "loop", iterations=1, period_s=30)))
+        h.run(5, until=lambda h: h.ctl.loop_done)
+        h.link.script.append((0, cmd(4, "loop", iterations=1, period_s=30)))
+        h.link.script.append((0, cmd(5, "status")))
+        h.run(1)
+        self.assertEqual(h.acks(2)[0], f"[{HOST}] ERR id=2 pool cal refused: run already has "
+                         "calibration frames, restart pool mode (pool_mode.sh stop/start) "
+                         "for a new run")
+        self.assertIn("OK id=3 pool loop start", h.acks(3)[0])
+        self.assertEqual(h.acks(4)[0], f"[{HOST}] ERR id=4 pool loop refused: run already has "
+                         "loop frames, restart pool mode (pool_mode.sh stop/start) for a new run")
+        self.assertEqual(h.ctl.cal_count, 1, "the refused cal captured nothing")
+        self.assertEqual(len(h.manifest_json()["calibration"]), 1)
+        self.assertIn(f"run={os.path.basename(h.dir)} ", h.acks(5)[0])
+
+    def test_loop_autostart_refused_when_loop_folder_has_frames(self):
+        h = Harness(self, [(0, cmd(1, "cal", duration_s=10, interval_s=10))],
+                    argv=["--loop-autostart-min", "0.002"])
+        open(os.path.join(h.dir, "loop", "old_loop_01_video.mp4"), "wb").close()
+        h.run(5, until=lambda h: h.ctl.cal_done and h.ctl.autostart_at is None)
+        h.run(0.5)
+        self.assertFalse(h.ctl.loop_started)
+        self.assertTrue(any("AUTOSTART FAILED refused: run already has loop frames" in ln
+                            for ln in h.link.lines))
+
     def test_stop_while_idle_cancels_autostart(self):
         h = Harness(self, [(0, cmd(1, "cal", duration_s=10, interval_s=10))],
                     argv=["--loop-autostart-min", "0.02"])

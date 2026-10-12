@@ -795,11 +795,13 @@ class PoolController:
         return free_mb(self.run_dir)
 
     def status_text(self):
+        # Most useful first: console_line cuts anything past 240 chars.
         ssid, ip = wifi_info()
         return (f"phase={self.phase} cal={self.cal_count}/{self.cal_target} "
-                f"loop={self.loop_count}/{self.loop_target} free={self.free()}MB "
-                f"marks={self.marks} err={(self.last_error or 'none')[:40].replace(' ', '_')} "
-                f"up={int(self.clock() - self.t_start)}s ssid={ssid} ip={ip}"
+                f"loop={self.loop_count}/{self.loop_target} run={os.path.basename(self.run_dir)} "
+                f"free={self.free()}MB marks={self.marks} "
+                f"err={(self.last_error or 'none')[:30].replace(' ', '_')} ip={ip} ssid={ssid} "
+                f"up={int(self.clock() - self.t_start)}s"
                 + (f" autostart_in={int(self.autostart_at - self.clock())}s"
                    if self.autostart_at else ""))
 
@@ -883,9 +885,30 @@ class PoolController:
         need_mb = int(math.ceil(need_b / 1048576)) + self.args.min_free_mb
         return free >= need_mb, need_mb, free
 
+    FRAME_EXT = (".jpg", ".dng", ".mp4", ".h264", ".nrjxl")
+
+    def frames_in(self, sub):
+        """Frames already on disk in <run>/<sub> (logs/sidecars don't count)."""
+        try:
+            return sum(1 for n in os.listdir(os.path.join(self.run_dir, sub))
+                       if n.endswith(self.FRAME_EXT))
+        except OSError:
+            return 0
+
+    def refused_reuse(self, sub, what):
+        """EM 10/12: one run folder = one session. Never mix in-air rehearsal frames
+        with the pool's; a new run needs a process restart (pool_mode.sh stop/start)."""
+        if self.frames_in(sub):
+            return (f"refused: run already has {what} frames, restart pool mode "
+                    "(pool_mode.sh stop/start) for a new run")
+        return None
+
     def cmd_cal(self, cid, f):
         if self.phase != "idle":
             return False, f"busy phase={self.phase}"
+        why = self.refused_reuse("calibration", "calibration")
+        if why:
+            return False, why
         dur = f.get("duration_s", self.args.cal_duration_s)
         every = f.get("interval_s", self.args.cal_interval_s)
         frames = max(1, dur // every)
@@ -903,6 +926,9 @@ class PoolController:
     def cmd_loop(self, cid, f, auto=False):
         if self.phase != "idle":
             return False, f"busy phase={self.phase}"
+        why = self.refused_reuse("loop", "loop")
+        if why:
+            return False, why
         n = f.get("iterations", self.args.loop_iterations)
         period = f.get("period_s", self.args.loop_period_s)
         ok, need, free = self._space_check(self.loop_estimate_b(n))

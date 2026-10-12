@@ -34,7 +34,7 @@ bm pub bmcam/cmd {"id":90107,"c":"pool","v":"stop"} 1 1
 |---|---|---|
 | status | (none) | phase, cal n/N, loop n/N, free MB, marks, last error, uptime, ssid, ip, autostart countdown |
 | cal | duration_s 10..7200, interval_s 2..600 | refuses with ERR when busy or when the phase won't fit free space + `--min-free-mb` |
-| loop | iterations 1..100, period_s 30..7200 | same guards |
+| loop | iterations 1..100, period_s 30..7200 | same guards (`loop/` already has frames → refused; the auto-start too) |
 | mark | note `[A-Za-z0-9_:./+,-]{1,40}` | use `_` for spaces; the marker goes into run_manifest.json `marks` |
 | stop | (none) | ends the phase after the current step. Sent while idle with an auto-start pending, it cancels the auto-start |
 | preview | lines `a-b,c` (optional) | no lines = a new capture. With lines = resend from the LAST preview |
