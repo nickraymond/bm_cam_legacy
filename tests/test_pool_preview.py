@@ -318,6 +318,19 @@ class TestDisplayRotation(Base):
             page = pp.render_page(self.store.snapshot(), ["bmcam004"], rotations={"bmcam004": deg})
             self.assertIn(f'class="frame r{deg}"', page)
 
+    def test_layout_side_by_side_or_stacked(self):
+        """Nick 10/12: cards side by side when they fit, stacked at 375 px. One flex basis (320 px)
+        for every card; a portrait (90/270) frame is capped by the screen height so a turned
+        image fits a laptop screen. (Pixel checks were done in a browser: see the PR.)"""
+        self.feed_two()
+        page = pp.render_page(self.store.snapshot(), ["bmcam003", "bmcam004"],
+                              rotations={"bmcam003": 90, "bmcam004": 180})
+        self.assertIn(".card{flex:1 1 320px;", page)
+        c3, c4 = self.card(page, "bmcam003"), self.card(page, "bmcam004")
+        self.assertIn(f"width:min(100%, max({pp.PORTRAIT_MIN_W_PX}px, calc((100vh - {pp.PORTRAIT_RESERVE_PX}px) * 360 / 640)))", c3)
+        self.assertNotIn("100vh", c4)                       # landscape (180) frames are not height-capped
+        self.assertIn('class="frame r180"', c4)
+
     def test_file_overrides_flags_live_and_bad_file_kept(self):
         path = os.path.join(self.out, "display_rotation.json")
         cfg = pp.RotationConfig(path, {"bmcam004": 180, "bmcam003": 90}, log=self.logs.append)

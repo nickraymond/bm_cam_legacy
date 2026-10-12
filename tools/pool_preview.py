@@ -469,9 +469,10 @@ PAGE = """<!doctype html><html><head><meta charset="utf-8">
 <style>
 body{{font:14px -apple-system,Helvetica,Arial,sans-serif;margin:16px;background:#111;color:#eee}}
 h1{{font-size:18px;margin:0 0 4px}} .sub{{color:#999;margin-bottom:12px}}
-.row{{display:flex;gap:16px;flex-wrap:wrap}} .card{{flex:1 1 420px;background:#1c1c1c;border-radius:8px;padding:10px}}
+.row{{display:flex;gap:16px;flex-wrap:wrap}} .card{{flex:1 1 320px;background:#1c1c1c;border-radius:8px;padding:10px}}
 .card img{{width:100%;height:auto;display:block;background:#000;image-rendering:auto}}
-.frame{{position:relative;width:100%;overflow:hidden;background:#000}}
+.frame{{position:relative;width:100%;overflow:hidden;background:#000;margin:0 auto}}
+.card > a{{display:block}}
 .frame.r90 img,.frame.r270 img{{position:absolute;left:50%;top:50%;width:var(--iw);height:auto}}
 .frame.r90 img{{transform:translate(-50%,-50%) rotate(-90deg)}}
 .frame.r180 img{{transform:rotate(-180deg)}}
@@ -562,12 +563,23 @@ class RotationConfig:
         return {**self.flags, **self.file_vals}
 
 
+# Vertical space kept for the page header + a card's text lines when a portrait (90/270) frame
+# is sized to the screen, so the whole turned image is visible without scrolling on a laptop.
+PORTRAIT_RESERVE_PX = 190
+PORTRAIT_MIN_W_PX = 220      # never shrink a turned image below this width (short landscape screens)
+
+
 def frame_html(img_tag, deg, w, h):
     """Wrap an <img> so a 90/270 turn keeps the card's layout (the frame takes the turned
-    aspect; the image is sized to the frame's height and rotated about its centre)."""
+    aspect; the image is sized to the frame's height and rotated about its centre).
+    A portrait frame is as wide as its card, but never taller than the screen minus
+    PORTRAIT_RESERVE_PX (Nick 10/12: two turned cards side by side on a laptop, stacked on a
+    375 px phone, no horizontal scroll)."""
     w, h = (w or 16), (h or 9)
     if deg in (90, 270):
-        style = f'aspect-ratio:{h} / {w};--iw:calc(100% * {w} / {h})'
+        style = (f'aspect-ratio:{h} / {w};'
+                 f'width:min(100%, max({PORTRAIT_MIN_W_PX}px, calc((100vh - {PORTRAIT_RESERVE_PX}px) * {h} / {w})));'
+                 f'--iw:calc(100% * {w} / {h})')
         return f'<div class="frame r{deg}" style="{style}">{img_tag}</div>'
     return f'<div class="frame r{deg}">{img_tag}</div>' if deg else img_tag
 
