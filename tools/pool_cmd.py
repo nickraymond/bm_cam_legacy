@@ -38,7 +38,10 @@ Bus hold (pass-through, NOT reimplemented):
   Wi-Fi) and ssh to the CAMERA, so run bus-hold from the Mac repo checkout, not on nereus000
   (nereus000 has no camera ssh key). Preconditions are printed before anything runs.
 
-Inputs   target: bmcam003 | bmcam004 | both | SPOT-ID (only the --map Spotters; anything
+Rig map  Tue 2026-10-13 Nick swapped the cameras (intentional): bmcam003 <-> SPOT-31593C,
+         bmcam004 <-> SPOT-33507C. From --map, else --map-file (default rig_map.json next to this
+         script), else that built-in pairing; printed at the top of every run.
+Inputs   target: bmcam003 | bmcam004 | both | SPOT-ID (only the rig-map Spotters; anything
          else is refused before a byte is written - the field-unit guard)
 Outputs  stdout: what was sent, the unit answers; <log-root>/pool_cmd.log (append, UTC)
 Exit     0 every target answered OK; 1 an ERR; 3 a cmd.txt not consumed (spotter-monitor down?);
@@ -75,7 +78,14 @@ import subprocess
 import sys
 import time
 
-DEFAULT_MAP = "bmcam003=SPOT-33507C,bmcam004=SPOT-31593C"   # hil/hil.env.example HIL_RIG_A/B
+# Unit <-> Spotter pairing. Nick swapped the cameras between the Spotters on Tue 2026-10-13
+# (INTENTIONAL): bmcam003 <-> SPOT-31593C, bmcam004 <-> SPOT-33507C. Source order: --map, else the
+# map file (default rig_map.json next to this script = nereus000 /home/pi/pool_tools/rig_map.json),
+# else this built-in default. The map in use is printed at the top of every run.
+DEFAULT_MAP = "bmcam003=SPOT-31593C,bmcam004=SPOT-33507C"
+MAP_FILE_DEFAULT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rig_map.json")
+RE_UNIT = re.compile(r"bmcam\d{3}\Z")
+RE_SPOT = re.compile(r"SPOT-[0-9A-Fa-f]{4,}\Z")
 ID_START, ID_MAX = 90001, 99999                                # console id range (command_wire.RANGES)
 MAX_JSON_BYTES = 248
 MAX_CONSOLE_LINE = 256       # hil_console.sh refuses > 256 B incl. newline (Spotter RX)
@@ -139,6 +149,36 @@ def parse_map(text):
         if unit and spot:
             m[unit.strip()] = spot.strip()
     return m
+
+
+def load_map(a):
+    """-> ({unit: SPOT}, {unit: extra-info str}, source). Dies (exit 2) on a bad map."""
+    info = {}
+    if a.map:
+        m, src = parse_map(a.map), "--map"
+    elif a.map_file and os.path.exists(a.map_file):
+        try:
+            with open(a.map_file) as f:
+                raw = json.load(f)
+            m = {}
+            for unit, v in raw.items():
+                if unit.startswith("_"):
+                    continue
+                spot = v.get("spot") if isinstance(v, dict) else v
+                m[unit] = spot
+                if isinstance(v, dict):
+                    info[unit] = " ".join(f"{k} {v[k]}" for k in ("mote", "bridge") if v.get(k))
+        except (OSError, ValueError, AttributeError) as exc:
+            die(f"[pool_cmd] REFUSED: rig map {a.map_file} unreadable ({exc}); nothing sent")
+        src = a.map_file
+    else:
+        m, src = parse_map(DEFAULT_MAP), "built-in default (pairing of Tue 10/13)"
+    bad = [f"{u}={s}" for u, s in m.items() if not RE_UNIT.match(str(u)) or not RE_SPOT.match(str(s))]
+    if not m or bad:
+        die(f"[pool_cmd] REFUSED: rig map from {src} is empty or has bad entries {bad}; nothing sent")
+    if len(set(m.values())) != len(m):
+        die(f"[pool_cmd] REFUSED: rig map from {src} uses a Spotter twice {m}; nothing sent")
+    return m, info, src
 
 
 def resolve_targets(target, unit_map):
@@ -414,7 +454,9 @@ def build_parser():
     ap.add_argument("--linger", type=float, default=3.0, help="seconds to keep printing after the last answer")
     ap.add_argument("--log-root", default="/home/pi/spotter_logs", help="spotter-monitor log root")
     ap.add_argument("--id-file", default=None, help="persisted id counter (default <log-root>/pool_cmd_id)")
-    ap.add_argument("--map", default=DEFAULT_MAP, help=f"unit=SPOT pairs (default {DEFAULT_MAP})")
+    ap.add_argument("--map", default=None, help="unit=SPOT pairs, overrides the map file (e.g. bmcam003=SPOT-31593C,...)")
+    ap.add_argument("--map-file", default=MAP_FILE_DEFAULT,
+                    help=f"rig map JSON (default {MAP_FILE_DEFAULT}); built-in {DEFAULT_MAP} if absent")
     ap.add_argument("--show-all", action="store_true", help="print every console line during the wait")
     ap.add_argument("--dry-run", action="store_true", help="print the console line(s); send nothing, no id used")
     return ap
@@ -424,10 +466,13 @@ def main(argv=None):
     a = build_parser().parse_args(argv)
     if a.wait is None:
         a.wait = VERB_WAIT_S.get(a.verb, DEFAULT_WAIT_S)
-    unit_map = parse_map(a.map)
-    targets = resolve_targets(a.target, unit_map)
+    unit_map, map_info, map_src = load_map(a)
     log = Logger(os.path.join(a.log_root, "pool_cmd.log") if os.path.isdir(a.log_root)
                  else os.path.expanduser("~/pool_cmd.log"))
+    header = f"[pool_cmd] rig map ({map_src}): " + ", ".join(
+        f"{u} -> {s}" + (f" ({map_info[u]})" if map_info.get(u) else "") for u, s in sorted(unit_map.items()))
+    print(header, flush=True) if a.dry_run else log(header)          # a dry run writes nothing
+    targets = resolve_targets(a.target, unit_map)
 
     if a.verb == "bus-hold":
         if not a.rest or a.rest[0] not in ("on", "off"):

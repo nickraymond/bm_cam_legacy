@@ -30,7 +30,8 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
 
 import pool_cmd as pc  # noqa: E402
 
-SPOTS = {"bmcam003": "SPOT-33507C", "bmcam004": "SPOT-31593C"}
+# Pairing since Tue 2026-10-13 (Nick swapped the cameras, intentional) = tools/rig_map.json
+SPOTS = {"bmcam003": "SPOT-31593C", "bmcam004": "SPOT-33507C"}
 
 
 class FakeMonitor:
@@ -133,7 +134,7 @@ class TestSend(Base):
         with FakeMonitor(self.root, {}) as mon:
             self.assertEqual(self.run_cmd("bmcam003", "mark", "card 2m")[0], 0)
             self.assertEqual(self.run_cmd("bmcam003", "cal", "--duration-s", "600", "--interval-s", "10")[0], 0)
-            self.assertEqual(self.run_cmd("SPOT-33507C", "loop", "--iterations", "5", "--period-s", "60")[0], 0)
+            self.assertEqual(self.run_cmd("SPOT-31593C", "loop", "--iterations", "5", "--period-s", "60")[0], 0)
         ids = [int(re.search(r'"id":(\d+)', l).group(1)) for l in mon.sent["bmcam003"]]
         self.assertEqual(ids, [90001, 90002, 90003])
         self.assertIn('"note":"card_2m"', mon.sent["bmcam003"][0])
@@ -277,6 +278,65 @@ class TestSweep(Base):
             with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
                 pc.main(["--log-root", self.root, "--linger", "0.3", "bmcam003", "status"])
         self.assertIn("wait=20s", out.getvalue())
+
+
+class TestRigMap(Base):
+    """Tue 10/13 swap: the map comes from rig_map.json (or --map), defaults to the NEW pairing,
+    and is printed at the top of every run."""
+
+    def test_repo_map_file_is_the_new_pairing(self):
+        with open(os.path.join(REPO_ROOT, "tools", "rig_map.json")) as f:
+            raw = json.load(f)
+        self.assertEqual({u: v["spot"] for u, v in raw.items() if not u.startswith("_")}, SPOTS)
+        self.assertEqual(pc.parse_map(pc.DEFAULT_MAP), SPOTS)
+
+    def test_header_and_routing_from_the_default_file(self):
+        with FakeMonitor(self.root, {}) as mon:
+            rc, out = self.run_cmd("bmcam003", "status")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("rig map (", out)
+        self.assertIn("bmcam003 -> SPOT-31593C (mote 53171fa3d81a8e6f bridge 0e582dd12c1e1480)", out)
+        self.assertEqual(len(mon.sent["bmcam003"]), 1)                # went to SPOT-31593C's cmd.txt
+        self.assertTrue(os.path.exists(os.path.join(self.root, "SPOT-31593C", "cmd.txt")))
+        with open(os.path.join(self.root, "pool_cmd.log")) as f:
+            self.assertIn("rig map", f.read())                          # header is in the log too
+
+    def test_builtin_default_when_no_file(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = pc.main(["--log-root", self.root, "--map-file", os.path.join(self.root, "none.json"),
+                          "bmcam004", "status", "--dry-run"])
+        self.assertEqual(rc, 0)
+        self.assertIn("rig map (built-in default", out.getvalue())
+        self.assertIn("DRY-RUN bmcam004 (SPOT-33507C)", out.getvalue())
+
+    def test_custom_file_and_map_override(self):
+        mf = os.path.join(self.root, "map.json")
+        with open(mf, "w") as f:
+            json.dump({"bmcam003": "SPOT-AAAA01", "bmcam004": {"spot": "SPOT-BBBB02"}}, f)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            pc.main(["--log-root", self.root, "--map-file", mf, "both", "status", "--dry-run"])
+            pc.main(["--log-root", self.root, "--map-file", mf, "--map", "bmcam003=SPOT-CCCC03",
+                     "bmcam003", "status", "--dry-run"])
+        text = out.getvalue()
+        self.assertIn(f"rig map ({mf})", text)
+        self.assertIn("DRY-RUN bmcam003 (SPOT-AAAA01)", text)
+        self.assertIn("DRY-RUN bmcam004 (SPOT-BBBB02)", text)
+        self.assertIn("rig map (--map): bmcam003 -> SPOT-CCCC03", text)
+        self.assertIn("DRY-RUN bmcam003 (SPOT-CCCC03)", text)
+        self.assertFalse(os.path.exists(os.path.join(self.root, "pool_cmd.log")))   # dry runs write nothing
+
+    def test_bad_maps_refused_nothing_sent(self):
+        mf = os.path.join(self.root, "bad.json")
+        for content in ('{"bmcam003": "SPOT-AAAA01", "bmcam004": "SPOT-AAAA01"}',      # same Spotter twice
+                        '{"bmcam003": "not-a-spot"}', '{"bmcam003": ', '{}'):
+            with open(mf, "w") as f:
+                f.write(content)
+            rc, out = self.run_cmd("--map-file", mf, "bmcam003", "status")
+            self.assertEqual(rc, 2, (content, out))
+            self.assertIn("REFUSED", out)
+        self.assertFalse(os.path.exists(os.path.join(self.root, "pool_cmd_id")))
 
 
 class TestLinesLimit(Base):
