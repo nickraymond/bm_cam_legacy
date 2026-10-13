@@ -11,7 +11,7 @@ Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = poo
 1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. Mac on power, lid open, `caffeinate -dims` in a spare tab (§1.2). `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
 2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0 lp=0.8`. **lp must be 0.8**, otherwise the pool runs at the config focus 1.82 (§10). Write down `run=` and `ip=`. Battery: §2.4
 3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
-4. **10:55** card at **1 m**. `pc both sweep` (focus check: `OK ... n=5/5` after ~20–40 s), then `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
+4. **10:55** card at **1 m**. `pc both sweep` (focus check: `OK id=N pool sweep ... n=...` when done; `pool_cmd` waits up to 180 s), then `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
 5. **11:00** `pc both mark card_1m`, then `pc both loop` → `OK ... iterations=18` (auto-starts ~11:20 if not sent)
 6. **12:30 PM** after `loop=9/18`: card to **2 m**, then `pc both mark card_2m` (no sweep now: it is refused during the loop)
 7. **2:00 PM** loop ends (`loop=18/18`; to end early: `pc both stop`). Card still at 2 m: `pc both sweep` (the 2 m focus check)
@@ -243,7 +243,11 @@ The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the
    ```bash
    pc both sweep
    ```
-   See, per unit: `OK id=N pool sweep dir=sweep/<HHMMSS> n=5/5 req=0.6,0.7,0.8,0.9,1 got=<5 lens values> t=<s>s back_to_lp=<lens>`, after ~20–40 s.
+   See, per unit: `OK id=N pool sweep ... dir=sweep/<HHMMSS> ...` once all frames are done. `pool_cmd` waits up to 180 s. The format depends on the Pi build on the units:
+   - **#160 build:** `n=5/5 req=0.6,...,1 got=<lens values> t=<s>s back_to_lp=<lens>`, after ~20–40 s.
+   - **Extended sweep build** (Pi focus-sweep PR): `n=11 dt=<s>s dir=sweep/<HHMMSS> best_lp=<x> best_lp_ten=<x> back_to_lp=0.8`, after ~60–70 s.
+     - Another lens list: `pc both sweep --lp 0,0.2,...,1.82` or `--lo 0 --hi 1.8 --step 0.2`, ≤ 12 positions, each 0–15.
+     - `pool_cmd` refuses a bad list before sending it.
    - `n` below 5/5 or an `x` in `got=`: a frame failed; run `sweep` again.
    - `ERR ... busy phase=...`: it only runs while idle (not during `cal` or `loop`).
    The sweep frames are pulled with the rest (DNGs stay on the unit).
@@ -295,7 +299,7 @@ See: the console shows `pool loop done 18/18 ...`, and `pc both status` shows `p
 ```bash
 pc both sweep
 ```
-See: `OK id=N pool sweep dir=sweep/<HHMMSS> n=5/5 ...` per unit (~20–40 s).
+See: `OK id=N pool sweep ... dir=sweep/<HHMMSS> ...` per unit, when done (`pool_cmd` waits up to 180 s).
 
 To end early:
 ```bash
@@ -368,6 +372,24 @@ The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes 
      python3 tools/pool_calib_check.py ~/NereusPool/<run date>/bmcam003/calibration
      ```
      See: `VERDICT PASS` (≥ 15 distinct poses, RMS < 1 px) and a `contact_sheet.jpg` next to the folder. Underwater frames go through a flat port, so treat it as an engineering check. **Detection is proven on real frames**: the rig session ran `pool_calib_check.py` (development 2d822c1) on 5 full-res nereus002 IMX708 frames of Nick's board at ~1 m, DNG and JPEG. Every frame had 104/104 corners and 63/63 markers. Auto layout picked **14×9 modern**. The verdict was FAIL, as expected for a single pose; a full calibration needs ≥ 15 distinct poses.
+
+---
+
+6. **Focus sweep review** (Mac, after the pull). Pull only the sweep folders, if the main pull skipped them or for a quick look first:
+   ```bash
+   python3 tools/pool_pull.py --sweep --host bmcam003=172.20.10.A --host bmcam004=172.20.10.B --run bmcam003=<folder3> --run bmcam004=<folder4>
+   ```
+   See: `sweep mode: <n> files under sweep/` per unit and `[pool_pull] OK`. DNGs stay on the unit. The report is `pull_report_sweep.json`.
+
+   Then the cut sheet + plot. Pass the board distance and the medium (underwater at the pool):
+   ```bash
+   python3 tools/focus_sweep_sheet.py --unit bmcam003=~/NereusPool/<run date>/bmcam003 --unit bmcam004=~/NereusPool/<run date>/bmcam004 --board-distance-m 1.0 --medium underwater
+   ```
+   See:
+   - `VERDICT bmcam00N: PASS|WARN best lp <x>` per unit
+   - `runs/focus_sweep_<UTC>/` holding `focus_sheet_<unit>.jpg` (scaled full frame + 1:1 board crop per lens), `focus_plot.png` (both units overlaid, best marked), `focus_sweep.csv` and `focus_sweep.json`
+
+   A WARN that says "peak at the sweep edge" means the true focus may lie outside the swept range.
 
 ---
 

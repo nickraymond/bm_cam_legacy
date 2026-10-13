@@ -182,16 +182,68 @@ def lines_of_len(n):
 
 
 class TestSweep(Base):
-    def test_sweep_waits_for_late_ok_with_90s_default(self):
+    def test_sweep_waits_for_late_ok_with_180s_default(self):
         with FakeMonitor(self.root, {"bmcam003": "slow_ok", "bmcam004": "slow_ok"}) as mon:
             out = io.StringIO()
             with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
                 rc = pc.main(["--log-root", self.root, "--linger", "0.3", "both", "sweep"])   # no --wait
         self.assertEqual(rc, 0, out.getvalue())
-        self.assertIn("wait=90s", out.getvalue())
+        self.assertIn("wait=180s", out.getvalue())
         for u in SPOTS:
             self.assertEqual(mon.sent[u], ['bm pub bmcam/cmd {"id":90001,"c":"pool","v":"sweep"} 1 1'])
             self.assertIn(f"id=90001 {u}: OK", out.getvalue())
+
+    def test_sweep_lens_fields_passthrough(self):
+        """Extended sweep (Pi contract 10/13): --lp list or --lo/--hi/--step, exact short JSON."""
+        with FakeMonitor(self.root, {"bmcam003": "slow_ok"}) as mon:
+            rc, out = self.run_cmd("bmcam003", "sweep", "--lp", "0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,1.82", wait="5")
+            self.assertEqual(rc, 0, out)
+            rc, out = self.run_cmd("bmcam003", "sweep", "--lo", "0", "--hi", "1.8", "--step", "0.2", wait="5")
+            self.assertEqual(rc, 0, out)
+        self.assertEqual(mon.sent["bmcam003"], [
+            'bm pub bmcam/cmd {"id":90001,"c":"pool","v":"sweep","lp":[0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,1.82]} 1 1',
+            'bm pub bmcam/cmd {"id":90002,"c":"pool","v":"sweep","lo":0,"hi":1.8,"step":0.2} 1 1'])
+
+    def test_sweep_lens_refusals_mirror_the_pi(self):
+        for args, msg in ((["--lp", "16"], "outside 0.0..15.0"),
+                          (["--lp", ",".join(["0.1"] * 13)], "1..12"),
+                          (["--lp", "0.6", "--lo", "0"], "not both"),
+                          (["--lo", "0", "--hi", "1"], "all required"),
+                          (["--lo", "1", "--hi", "0", "--step", "0.2"], "--step > 0 and --hi >= --lo"),
+                          (["--lo", "0", "--hi", "2.4", "--step", "0.2"], "13 positions > 12"),
+                          (["--lp", "a,b"], "comma list")):
+            rc, out = self.run_cmd("bmcam003", "sweep", *args)
+            self.assertEqual(rc, 2, (args, out))
+            self.assertIn(msg, out, args)
+        rc, out = self.run_cmd("bmcam003", "status", "--lp", "1")
+        self.assertEqual(rc, 2)
+        self.assertFalse(os.path.exists(os.path.join(self.root, "pool_cmd_id")))   # nothing sent, no id used
+
+    @unittest.skipUnless(os.path.exists(os.path.join(REPO_ROOT, "BM_Devel_Pi", "rc_focus_sweep.py")),
+                         "Pi focus-sweep parser not in this checkout yet (feature/focus-sweep-20261013)")
+    def test_sweep_json_parsed_by_the_pi(self):
+        """Every sweep command pool_cmd builds is accepted by the Pi's own parse_command and gives the
+        lens list we meant (runs once the Pi PR is merged; checked by hand against 032c7d5)."""
+        sys.path.insert(0, os.path.join(REPO_ROOT, "BM_Devel_Pi"))
+        import pool_sequence as ps
+        import rc_focus_sweep as fs
+        import argparse
+
+        def args(**kw):
+            a = argparse.Namespace(note=None, lines=None, duration_s=None, interval_s=None, iterations=None,
+                                   period_s=None, arg=[], lp=None, lo=None, hi=None, step=None)
+            a.__dict__.update(kw)
+            return a
+        for kw, want in ((dict(), [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 1.82]),
+                         (dict(lp="0.6,0.7,0.8,0.9,1"), [0.6, 0.7, 0.8, 0.9, 1.0]),
+                         (dict(lo=0.0, hi=1.8, step=0.2), [round(0.2 * i, 2) for i in range(10)]),
+                         (dict(lp=",".join(f"{14.88 + i * 0.01:.2f}" for i in range(12))), None)):
+            js, line = pc.build_json(99999, "sweep", args(**kw))
+            self.assertLessEqual(len(line) + 1, pc.MAX_CONSOLE_LINE)
+            cid, verb, fields = ps.parse_command(js.encode())
+            got = fs.lens_list_from(fields.get("lp"), fields.get("lo"), fields.get("hi"), fields.get("step"))
+            if want is not None:
+                self.assertEqual([round(x, 2) for x in got], want, kw)
 
     def test_sweep_refused_during_loop(self):
         with FakeMonitor(self.root, {"bmcam003": "busy_loop"}):
