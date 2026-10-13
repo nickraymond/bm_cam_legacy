@@ -24,9 +24,13 @@ Wi-Fi: pool mode never calls `network_ap.sh` or the network boot apply (that cal
 - The manifest records `lens` (value + source). Every frame records `lens_requested` next to the metadata `applied.LensPosition`.
 - A bad `~/pool_args` never stops the pool. It is ignored, and you see `pool ARGS FILE REJECTED ...` on the console plus `args_file_error` in the manifest. `pool_mode.sh args` refuses bad values before writing them.
 - If rpicam-vid refuses a control, the clip falls back to focus only first, then to no controls; that is logged as `fallback`.
-- `sweep` (verb, no fields) takes one full-res JPEG + DNG at lens 0.6/0.7/0.8/0.9/1.0 into `sweep/<HHMMSS>/`, then later captures go back to the run's lens.
-  - It is refused while cal/loop runs (and cal/loop are refused while it runs: `busy phase=sweep`).
-  - It answers when done (~5 × 3.6 s ≈ 20–40 s): `OK id=N pool sweep dir=sweep/HHMMSS n=5/5 req=0.6,0.7,0.8,0.9,1 got=<metadata LensPosition> t=..s back_to_lp=0.8`.
+- `sweep` (focus sweep, `BM_Devel_Pi/rc_focus_sweep.py`) takes one full-native JPEG + DNG per lens position into `sweep/<HHMMSS>/`, then scores every frame on the Pi. Later captures go back to the run's lens.
+  - **Lens list:** default `0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,1.82` (Nick 10/13 11 AM). Or `"lp":[...]` (≤12 values, each 0–15; the old sweep is `"lp":[0.6,0.7,0.8,0.9,1]`). Or `"lo","hi","step"` (all three, inclusive, ≤12 positions). 1.82 is only in the default.
+  - **Metric:** centred 1024×1024 crop of each JPEG (native px (1792,784) on 4608×2592), luma. lapvar = variance of the Laplacian; tenengrad = mean squared Sobel gradient. Both are relative within one sweep only.
+  - **Output:** `sweep/<HHMMSS>/sweep_manifest.json` holds per-frame requested lens vs metadata LensPosition, exposure, AG, timestamps and metrics, plus `best_lp`.
+  - **Refusals:** a sweep is refused while cal/loop runs, and cal/loop are refused while it runs (`busy phase=sweep`). A bad list gets `ERR ... pool sweep lens position 16 outside 0.0..15.0` (and similar).
+  - **Answer, when done:** `OK id=N pool sweep n=11 dt=..s dir=sweep/HHMMSS best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8`, plus ` failed=K` / ` stopped` when relevant.
+  - **Time (assumed):** ~11 × 3.6 s capture (measured) + ~1–2 s per frame metric ≈ 60–70 s.
   - The one-run rule does not apply to sweeps; each sweep gets its own folder.
 
 ## Commands (nereus000 console, console id range)
@@ -50,7 +54,7 @@ bm pub bmcam/cmd {"id":90107,"c":"pool","v":"stop"} 1 1
 | loop | iterations 1..100, period_s 30..7200 | same guards (`loop/` already has frames → refused; the auto-start too) |
 | mark | note `[A-Za-z0-9_:./+,-]{1,40}` | use `_` for spaces; the marker goes into run_manifest.json `marks` |
 | stop | (none) | ends the phase after the current step. Sent while idle with an auto-start pending, it cancels the auto-start |
-| sweep | (none) | focus check: 5 stills at lens 0.6–1.0 into `sweep/<HHMMSS>/`, answered when done |
+| sweep | `lp` [≤12 × 0–15] or `lo`,`hi`,`step` (optional) | focus sweep: one full-native still per lens (default 0–1.82, 11 positions) into `sweep/<HHMMSS>/`, on-Pi metric, answered with `best_lp` when done |
 | preview | lines `a-b,c` (optional) | no lines = a new capture. With lines = resend from the LAST preview |
 
 Unrecognised `c` values (any production verb) get `ERR ... pool_mode: only c=pool runs`.

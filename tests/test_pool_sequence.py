@@ -147,6 +147,31 @@ class ParseCommand(unittest.TestCase):
         self.assertEqual(fields["lines"], spec)
         self.assertEqual(len(V.parse_line_spec(spec, 250)), spec.count(",") + 1)
 
+    def test_sweep_fields(self):
+        self.assertEqual(self.p({"id": 1, "c": "pool", "v": "sweep"})[2], {})
+        self.assertEqual(self.p({"id": 1, "c": "pool", "v": "sweep", "lp": [0, 0.5, 15]})[2],
+                         {"lp": [0, 0.5, 15]})
+        self.p({"id": 1, "c": "pool", "v": "sweep", "lo": 0, "hi": 1.8, "step": 0.2})
+        bad = [({"lp": [16]}, "lens position 16 outside 0.0..15.0"),
+               ({"lp": []}, "lp is a list of 1..12 numbers"),
+               ({"lp": list(range(13))}, "lp is a list of 1..12 numbers"),
+               ({"lp": ["0.8"]}, "outside 0.0..15.0"),
+               ({"lp": [0.8], "lo": 0}, "give lp OR lo/hi/step, not both"),
+               ({"lo": 0, "hi": 1}, "lo, hi and step are all required numbers"),
+               ({"lo": 0, "hi": 1, "step": 0}, "need step > 0 and hi >= lo"),
+               ({"lo": 1, "hi": 0, "step": 0.1}, "need step > 0 and hi >= lo"),
+               ({"lo": 0, "hi": 1.2, "step": 0.1}, "lo..hi/step gives 13 positions > 12"),
+               ({"x": 1}, "key x not taken by sweep")]
+        for extra, why in bad:
+            with self.assertRaises(P.CmdError, msg=extra) as cm:
+                self.p(dict({"id": 1, "c": "pool", "v": "sweep"}, **extra))
+            self.assertEqual(cm.exception.cid, 1)
+            self.assertIn(why, cm.exception.reason)
+        full = json.dumps({"id": 99999, "c": "pool", "v": "sweep",
+                           "lp": [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 1.82, 2]},
+                          separators=(",", ":"))
+        self.assertLessEqual(len(full), 186, "a full 12-value list fits the host's console cap")
+
     def test_unanswerable(self):
         for raw in (b"{nope", b'{"c":"pool"}', b'{"id":true,"c":"pool"}', b'{"id":1,"id":2}'):
             with self.assertRaises(P.CmdError) as cm:
@@ -498,23 +523,45 @@ class LensController(unittest.TestCase):
         self.assertEqual(m["loop"][0]["still"]["applied"]["LensPosition"], 0.8)
         self.assertEqual(set(h.camera.lenses), {0.8})
 
-    def test_sweep(self):
+    def test_sweep_default_list_with_focus_metric(self):
         h = self.harness([(0, cmd(1, "sweep")), (0.01, cmd(1, "sweep"))])
-        h.wait_idle()
+        h.wait_idle(60)
         ok = h.acks(1)
         self.assertIn("OK id=1 pool sweep in_progress dup", ok[0])
-        self.assertRegex(ok[1], r"OK id=1 pool sweep dir=sweep/\d{6} n=5/5 "
-                         r"req=0\.6,0\.7,0\.8,0\.9,1 got=0\.60,0\.70,0\.80,0\.90,1\.00 "
-                         r"t=[\d.]+s back_to_lp=0\.8")
+        self.assertRegex(ok[1], r"OK id=1 pool sweep n=11 dt=[\d.]+s dir=sweep/\d{6} "
+                         r"best_lp=[\d.]+ best_lp_ten=[\d.]+ back_to_lp=0\.8$")
         sw = h.manifest_json()["sweeps"][0]
-        files = os.listdir(os.path.join(h.dir, sw["dir"]))
-        self.assertEqual(len([f for f in files if f.endswith(".jpg")]), 5)
-        self.assertEqual(len([f for f in files if f.endswith(".dng")]), 5)
-        self.assertEqual([f["lens_requested"] for f in sw["frames"]], list(P.SWEEP_LENS))
+        self.assertEqual(sw["lens_list"], [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 1.82])
+        d = os.path.join(h.dir, sw["dir"])
+        files = os.listdir(d)
+        self.assertEqual(len([f for f in files if f.endswith(".jpg")]), 11)
+        self.assertEqual(len([f for f in files if f.endswith(".dng")]), 11)
+        self.assertTrue(any(f.endswith("_sweep_lp0.00.jpg") for f in files))
+        self.assertTrue(any(f.endswith("_sweep_lp1.82.jpg") for f in files))
+        sm = json.load(open(os.path.join(d, "sweep_manifest.json")))
+        self.assertEqual(sm["schema"], "bmcam_focus_sweep_v1")
+        self.assertEqual(sm["n_ok"], 11)
+        self.assertEqual([f["metadata"]["LensPosition"] for f in sm["frames"]], sm["lens_list"])
+        self.assertTrue(all(f["focus"]["lapvar"] > 0 for f in sm["frames"]))
+        self.assertEqual(sm["frames"][0]["focus"]["crop_xywh"], [1792, 784, 1024, 1024])
+        self.assertEqual(sm["context"]["run_lens"], 0.8)
         self.assertEqual(h.ctl.phase, "idle")
         h.link.script.append((0, cmd(2, "preview")))
         h.wait_idle()
         self.assertEqual(h.camera.lenses[-1], 0.8, "back to the run's lens after the sweep")
+
+    def test_sweep_legacy_list_and_range(self):
+        h = self.harness([(0, cmd(1, "sweep", lp=[0.6, 0.7, 0.8, 0.9, 1]))])
+        h.wait_idle(30)
+        self.assertRegex(h.acks(1)[0], r"OK id=1 pool sweep n=5 ")
+        h.link.script.append((0, cmd(2, "sweep", lo=0, hi=0.4, step=0.2)))
+        h.wait_idle(30)
+        h.run(1, until=lambda h: h.acks(2))
+        self.assertRegex(h.acks(2)[0], r"OK id=2 pool sweep n=3 ")
+        sweeps = h.manifest_json()["sweeps"]
+        self.assertEqual(sweeps[0]["lens_list"], [0.6, 0.7, 0.8, 0.9, 1.0])
+        self.assertEqual(sweeps[1]["lens_list"], [0.0, 0.2, 0.4])
+        self.assertNotEqual(sweeps[0]["dir"], sweeps[1]["dir"])
 
     def test_sweep_crash_answers_once_and_frees_the_phase(self):
         # QE nit (#160): a disk-full crash must never leave phase=sweep (cal/loop blocked).
