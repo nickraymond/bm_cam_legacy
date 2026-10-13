@@ -7,7 +7,7 @@ Pi-side pool sequence + PREVIEW printer is a separate PR (`feature/pool-sequence
 |---|---|---|
 | `tools/pool_preview.py` | nereus000 | tails `/home/pi/spotter_logs/<SPOT>/console_*.log`, rebuilds `PVH/PV/PVE` preview JPEGs into `/home/pi/pool_preview/`, serves `http://<nereus000>:8090/` |
 | `tools/pool_cmd.py` | nereus000 | `pool_cmd.py <bmcam003\|bmcam004\|both> <status\|cal\|loop\|mark\|stop\|preview>`: writes `bm pub bmcam/cmd {...} 1 1` to `cmd.txt` with a persisted id (from 90001), waits for `[bmcamNNN] OK/ERR id=N` |
-| `tools/pool_pull.py` | Nick's Mac | pulls `/home/pi/pool_runs/<latest>/` from both units in parallel: manifest+logs → loop products (nrjxl + pjpg + sidecars) → calibration → loop natives (JPEG + DNG) → videos → other, rsync `--partial`, sha256 Pi vs Mac, `~/NereusPool/<date>/<unit>/` + `pull_report.json` |
+| `tools/pool_pull.py` | Nick's Mac | pulls `/home/pi/pool_runs/<latest>/` from both units in parallel: manifest+logs → loop products (nrjxl + pjpg + sidecars) → calibration JPEGs → videos → loop native JPEGs → other. **DNGs stay on the units** unless `--include-dng` (Friday pickup); `pull_report.json` lists every DNG left behind with its Pi sha256. rsync `--partial`, sha256 Pi vs Mac, `~/NereusPool/<date>/<unit>/` + `pull_report.json` |
 
 Ports on nereus000: 8095 = rig dashboard (taken), **8090 = pool viewer**.
 Mapping (hil/hil.env.example): SPOT-33507C ↔ bmcam003, SPOT-31593C ↔ bmcam004. `pool_cmd.py` refuses any other unit/Spotter.
@@ -71,7 +71,7 @@ python3 tools/pool_pull.py --dry-run
 python3 tools/pool_pull.py
 ```
 
-`--host bmcam003=192.168.4.23` pins a unit to an IP; `--run bmcam003=<folder>` pins a unit's run folder (default `latest`); `--classes 1,2` pulls only manifest/logs + the loop products (nrjxl + pjpg + sidecars); re-running resumes. A second run of the same unit on the same date needs `--date <name>` (the dest folder is pinned to one run).
+`--host bmcam003=192.168.4.23` pins a unit to an IP; `--run bmcam003=<folder>` pins a unit's run folder (default `latest`); `--classes 1,2` pulls only manifest/logs + the loop products (nrjxl + pjpg + sidecars); re-running resumes. `--include-dng` adds every DNG as the last class. Speed knobs (defaults unchanged until `tools/pool_link_ab.py` data says otherwise): `--cipher`, `--streams N`, `--whole-file`. A second run of the same unit on the same date needs `--date <name>` (the dest folder is pinned to one run).
 
 ## Tests
 

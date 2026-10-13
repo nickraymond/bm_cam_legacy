@@ -9,13 +9,18 @@ Purpose
   The pool sequence writes /home/pi/pool_runs/<YYYYMMDD_HHMMSS>_<host>/ on each Pi
   (calibration/, loop/, preview/, run_manifest.json, pool.log). Wi-Fi time at the pool is
   short, so per unit the pull goes in STRICT priority order, one class after another:
-      1 manifest+logs   top-level files (run_manifest.json, pool.log, ...) and every *.log
-      2 loop products   loop/ + preview/: *_compressed.* (nrjxl + pjpg), *_preview.jpg and the
-                        small sidecars (*.json/.txt/.csv) ONLY (a few MB)
-      3 calibration     calibration/ (DNG + JPEG, ~3.8 GB)
-      4 loop natives    loop/ + preview/ native stills: *_still.jpg / *_still.dng (~0.6 GB)
-      5 videos          *.mp4 / *.h264 anywhere
-      6 other           anything else in the run folder (so nothing is silently left)
+      1 manifest+logs      top-level files (run_manifest.json, pool.log, ...) and every *.log
+      2 loop products      loop/ + preview/: *_compressed.* (nrjxl + pjpg), *_preview.jpg and the
+                           small sidecars (*.json/.txt/.csv) ONLY (a few MB)
+      3 calibration JPEGs  calibration/*.jpg + json (T-ENDURE: ~2.4-2.8 MB each, ~0.3 GB / 120)
+      4 videos             *.mp4 / *.h264 anywhere
+      5 loop native JPEGs  loop/ + preview/ native stills *_still.jpg (no DNG)
+      6 other              anything else that is not a DNG (so nothing is silently left)
+      7 DNGs               every *.dng (calibration + loop + preview, ~23 MB each, ~3.3 GB / unit):
+                           ONLY with --include-dng (Nick 2026-10-12: DNGs stay on the units at the
+                           pool, pulled at the Friday pickup). Without it, ONE remote sha256 call
+                           inventories them: pull_report.json lists each as left_on_unit with its
+                           size + Pi sha256 (--no-dng-sha: count + bytes only).
   Units run in parallel (one thread each); classes within a unit run in order.
 
 How
@@ -76,8 +81,10 @@ import threading
 import time
 from datetime import datetime
 
-CLASSES = {1: "manifest+logs", 2: "loop products", 3: "calibration", 4: "loop natives", 5: "videos",
-           6: "other"}
+CLASSES = {1: "manifest+logs", 2: "loop products", 3: "calibration JPEGs", 4: "videos",
+           5: "loop native JPEGs", 6: "other", 7: "DNGs"}
+DNG_CLASS = 7          # pulled only with --include-dng (Nick 2026-10-12 8:20 PM: DNGs stay on the units
+                       # at the pool; they come home at the Friday pickup)
 DEFAULT_HOSTS = ["bmcam003.local", "bmcam004.local"]
 STATE_DIR = ".pool_pull"
 
@@ -121,24 +128,29 @@ sys.exit(rc)
 
 
 def classify(rel):
-    """Strict pull priority (Nick: JPEG XL + JPEG first; QE #151 nit 2026-10-12):
+    """Strict pull priority (Nick 2026-10-12 8:20 PM; DNGs stay on the units at the pool):
     1 top-level files + every *.log; 2 loop/preview PRODUCTS = *_compressed.* (nrjxl, pjpg),
-    *_preview.jpg and the small sidecars (*.json/.txt/.csv); 3 calibration/; 4 loop/preview
-    NATIVE stills (*_still.jpg/.dng, the preview's native capture); 5 videos; 6 anything else."""
+    *_preview.jpg and the small sidecars (*.json/.txt/.csv); 3 calibration JPEGs (+ json);
+    4 videos; 5 loop/preview native JPEGs; 6 anything else; 7 every *.dng (only with
+    --include-dng; otherwise inventoried as left_on_unit with its Pi sha256)."""
     low = rel.lower()
     name = low.rsplit("/", 1)[-1]
+    if low.endswith(".dng"):
+        return DNG_CLASS
     if low.endswith((".mp4", ".h264")):
-        return 5
+        return 4
     if "/" not in rel or low.endswith(".log"):
         return 1
     top = rel.split("/", 1)[0]
     if top == "calibration":
-        return 3
+        if name.endswith((".jpg", ".jpeg", ".json", ".txt", ".csv")):
+            return 3
+        return 6
     if top in ("loop", "preview"):
         if "_compressed" in name or name.endswith("_preview.jpg") or name.endswith((".json", ".txt", ".csv")):
             return 2
-        if name.endswith((".jpg", ".jpeg", ".dng")):
-            return 4
+        if name.endswith((".jpg", ".jpeg")):
+            return 5
     return 6
 
 
@@ -194,6 +206,8 @@ class Unit:
         self.ssh_opts = ["-o", "BatchMode=yes", "-o", f"ConnectTimeout={a.connect_timeout}",
                          "-o", "ServerAliveInterval=10", "-o", "ServerAliveCountMax=3",
                          "-o", "StrictHostKeyChecking=accept-new", "-o", "Compression=no"]
+        if a.cipher:                     # ssh -c: the Mac's default order already starts with chacha20
+            self.ssh_opts += ["-c", a.cipher]
         self.run_dir = None
         self.files = {}          # rel -> {"size", "class"}
         self.results = {}        # rel -> per-file report
@@ -298,15 +312,45 @@ class Unit:
     # --- pull
 
     def rsync(self, rels, tag):
+        """Pull `rels` with --streams parallel rsync processes (size-balanced split; 1 = one
+        rsync, the original behaviour). Each stream retries on its own. -> worst exit code."""
+        n = max(1, min(self.a.streams, len(rels)))
+        for d in {os.path.dirname(r) for r in rels if os.path.dirname(r)}:
+            os.makedirs(os.path.join(self.dest, d), exist_ok=True)   # no mkdir race between streams
+        if n == 1:
+            return self._rsync_stream(rels, f"{tag}")
+        buckets = [[] for _ in range(n)]
+        loads = [0] * n
+        for rel in sorted(rels, key=lambda r: -self.files.get(r, {}).get("size", 0)):
+            i = loads.index(min(loads))          # largest file first into the lightest stream
+            buckets[i].append(rel)
+            loads[i] += self.files.get(rel, {}).get("size", 0)
+        rcs = ["stream error: did not finish"] * n
+
+        def run(i):
+            try:
+                rcs[i] = self._rsync_stream(sorted(buckets[i]), f"{tag}s{i + 1}")
+            except Exception as exc:     # e.g. the list file could not be written (QE #158 nit 3)
+                rcs[i] = f"stream {i + 1} error: {type(exc).__name__}: {exc}"
+                self.log(f"[{self.name}] class {tag} {rcs[i]} (its files fail verification and are reported)")
+        ts = [threading.Thread(target=run, args=(i,)) for i in range(n)]
+        [t.start() for t in ts]
+        [t.join() for t in ts]
+        bad = [r for r in rcs if r != 0]
+        return bad[0] if bad else 0
+
+    def _rsync_stream(self, rels, tag):
         state = os.path.join(self.dest, STATE_DIR)
         lst = os.path.join(state, f"class{tag}.list")
         with open(lst, "w") as f:
             f.write("\n".join(rels) + "\n")
         ssh_cmd = "ssh " + " ".join(self.ssh_opts)
-        cmd = ["rsync", "-a", "--partial", f"--timeout={self.a.io_timeout}", f"--files-from={lst}",
-               "-e", ssh_cmd, f"{self.target}:{self.run_dir}", self.dest.rstrip("/") + "/"]
+        cmd = ["rsync", "-a", "--partial", f"--timeout={self.a.io_timeout}", f"--files-from={lst}"]
+        if self.a.whole_file:
+            cmd.append("-W")        # no delta algorithm (only matters when resuming a partial file)
+        cmd += ["-e", ssh_cmd, f"{self.target}:{self.run_dir}", self.dest.rstrip("/") + "/"]
         rc = None
-        for attempt in range(1, self.a.retries + 1):
+        for attempt in range(1, max(1, self.a.retries) + 1):
             with open(os.path.join(state, f"rsync_class{tag}.log"), "a") as lf:
                 lf.write(f"\n# {datetime.now().isoformat()} attempt {attempt}: {' '.join(cmd)}\n")
                 lf.flush()
@@ -375,16 +419,38 @@ class Unit:
         ok = len(rels) - len(bad)
         self.log(f"[{self.name}] class {cls} {CLASSES[cls]}: {'DONE' if not bad else 'INCOMPLETE'} "
                  f"{ok}/{len(rels)} ok, {human(self.class_bytes(cls))} in {hms(dt)} "
-                 f"({self.class_bytes(cls) / dt / 1e6:.2f} MB/s){'' if rc == 0 else f', rsync exit {rc}'}")
+                 f"({self.class_bytes(cls) / dt / 1e6:.2f} MB/s)"
+                 f"{'' if rc == 0 else (f', rsync exit {rc}' if isinstance(rc, int) else f', {rc}')}")
         for rel in bad[:10]:
             self.log(f"[{self.name}]   {self.results[rel]['status']}: {rel}")
         if len(bad) > 10:
             self.log(f"[{self.name}]   ... and {len(bad) - 10} more (pull_report.json)")
 
+    def inventory_left(self):
+        """DNGs NOT pulled: one remote sha256 call so the report says exactly what stays on the
+        unit (count, bytes, Pi sha256 per file)."""
+        rels = self.class_files(DNG_CLASS)
+        if not rels:
+            return
+        b = self.class_bytes(DNG_CLASS)
+        if self.a.no_dng_sha:
+            self.log(f"[{self.name}] DNGs left on unit: {len(rels)} files, {human(b)} (sha256 skipped: --no-dng-sha)")
+            rsha = {}
+        else:
+            self.log(f"[{self.name}] DNGs left on unit: {len(rels)} files, {human(b)}; sha256 on the Pi (one call) ...")
+            t0 = time.time()
+            rsha = self.remote_sha(rels)
+            self.log(f"[{self.name}] DNG inventory: {len(rsha)}/{len(rels)} sha256 in {hms(time.time() - t0)}")
+        for rel in rels:
+            self.results[rel] = {"class": DNG_CLASS, "size_pi": self.files[rel]["size"],
+                                 "sha256_pi": rsha.get(rel), "status": "left_on_unit"}
+
     def run(self, classes):
         try:
             for cls in classes:
                 self.pull_class(cls)
+            if DNG_CLASS not in classes:
+                self.inventory_left()
         except Exception as exc:          # loud, per unit; the other unit keeps going
             self.error = f"{type(exc).__name__}: {exc}"
             self.log(f"[{self.name}] FAILED: {self.error}")
@@ -444,7 +510,8 @@ def dry_run(units, a, log):
             n, b = len(u.class_files(cls)), u.class_bytes(cls)
             if not n:
                 continue
-            skip = "" if cls in a.class_list else "   (SKIPPED by --classes)"
+            skip = ("" if cls in a.class_list else
+                    "   (LEFT ON UNIT: --include-dng to pull)" if cls == DNG_CLASS else "   (SKIPPED by --classes)")
             t = b / rate if rate else float("nan")
             if cls in a.class_list:
                 cum += t
@@ -468,7 +535,13 @@ def main(argv=None):
                     "per unit (repeatable), e.g. --run bmcam003=20261013_181500_bmcam003")
     ap.add_argument("--dest-root", default=os.path.expanduser("~/NereusPool"))
     ap.add_argument("--date", help="override the <date> folder (default: the run folder's date)")
-    ap.add_argument("--classes", default="1,2,3,4,5,6", help="classes to pull, in this order (default 1,2,3,4,5,6)")
+    ap.add_argument("--classes", default="1,2,3,4,5,6", help="classes to pull, in this order (default 1,2,3,4,5,6; "
+                    "7 = DNGs, only with --include-dng)")
+    ap.add_argument("--include-dng", action="store_true",
+                    help="also pull every *.dng as the LAST class (Friday pickup). Without it the DNGs stay "
+                         "on the unit and pull_report.json lists them (count, bytes, Pi sha256)")
+    ap.add_argument("--no-dng-sha", action="store_true",
+                    help="skip the remote sha256 of the DNGs left on the unit (count + bytes only)")
     ap.add_argument("--dry-run", action="store_true", help="list sizes per class + projected time; copy nothing")
     ap.add_argument("--probe-mb", type=float, default=16.0, help="dry-run rate probe size per unit")
     ap.add_argument("--rate-mbps", type=float, help="dry-run: use this MB/s instead of probing")
@@ -477,10 +550,27 @@ def main(argv=None):
     ap.add_argument("--io-timeout", type=int, default=60, help="rsync --timeout (stalled I/O) seconds")
     ap.add_argument("--sha-timeout", type=int, default=1800, help="remote sha256sum call timeout seconds")
     ap.add_argument("--progress-s", type=float, default=5.0, help="progress line interval")
+    # Speed knobs (2026-10-12 pull-rate finding: ~0.8-1.0 MB/s per unit in parallel over home Wi-Fi).
+    # Defaults unchanged until tools/pool_link_ab.sh data says which one helps (see its header).
+    ap.add_argument("--cipher", default=None,
+                    help="ssh cipher (ssh -c), e.g. chacha20-poly1305@openssh.com or aes128-gcm@openssh.com "
+                         "(default: ssh's own order, which already starts with chacha20)")
+    ap.add_argument("--streams", type=int, default=1,
+                    help="parallel rsync streams per unit per class (size-balanced; helps only if one "
+                         "ssh stream is CPU-bound on the Pi, not if Wi-Fi is the limit)")
+    ap.add_argument("--whole-file", action="store_true", help="rsync -W (no delta; only matters on resume)")
     a = ap.parse_args(argv)
+    if a.streams < 1 or a.streams > 8:
+        print("[pool_pull] --streams must be 1..8", file=sys.stderr)
+        return 2
     try:
         a.class_list = [int(c) for c in a.classes.split(",") if c]
         assert a.class_list and all(c in CLASSES for c in a.class_list)
+        if DNG_CLASS in a.class_list and not a.include_dng:
+            print("[pool_pull] class 7 (DNGs) needs --include-dng", file=sys.stderr)
+            return 2
+        if a.include_dng and DNG_CLASS not in a.class_list:
+            a.class_list.append(DNG_CLASS)          # always last
     except (ValueError, AssertionError):
         print(f"[pool_pull] --classes {a.classes!r}: comma list from {sorted(CLASSES)}", file=sys.stderr)
         return 2
@@ -488,7 +578,9 @@ def main(argv=None):
     log = Log()
     units = [Unit(h, a, log) for h in (a.host or DEFAULT_HOSTS)]
     log(f"[pool_pull] mac={socket.gethostname()} units={','.join(u.target for u in units)} "
-        f"run={','.join(a.run or ['latest'])} classes={a.class_list} {'DRY-RUN' if a.dry_run else ''}")
+        f"run={','.join(a.run or ['latest'])} classes={a.class_list} streams={a.streams} "
+        f"cipher={a.cipher or 'ssh-default'}{' whole-file' if a.whole_file else ''} "
+        f"dng={'PULL' if a.include_dng else 'left on unit'} {'DRY-RUN' if a.dry_run else ''}")
 
     # listing (parallel; one ssh each)
     def lst(u):
@@ -557,27 +649,37 @@ def main(argv=None):
             report["units"][u.name or u.addr] = {"target": u.target, "error": u.error}
             failed = True
             continue
-        counts = {}
+        files = {}
         for rel, f in u.files.items():
-            st = u.results.get(rel, {}).get("status") or ("skipped" if f["class"] not in a.class_list else "missing")
-            counts[st] = counts.get(st, 0) + 1
-        skipped = {rel: {"class": f["class"], "size_pi": f["size"], "status": "skipped"}
-                   for rel, f in u.files.items() if f["class"] not in a.class_list}
-        files = dict(skipped)
-        for rel, f in u.files.items():
-            if f["class"] in a.class_list:
+            if f["class"] in a.class_list or (f["class"] == DNG_CLASS and rel in u.results):
                 files[rel] = u.results.get(rel, {"class": f["class"], "size_pi": f["size"], "status": "missing"})
-        unit_ok = not u.error and all(v["status"] == "ok" for v in files.values() if v["status"] != "skipped")
+            elif f["class"] == DNG_CLASS:            # inventory never ran (unit failed earlier)
+                files[rel] = {"class": f["class"], "size_pi": f["size"], "sha256_pi": None, "status": "left_on_unit"}
+            else:
+                files[rel] = {"class": f["class"], "size_pi": f["size"], "status": "skipped"}
+        counts = {}
+        for v in files.values():
+            counts[v["status"]] = counts.get(v["status"], 0) + 1
+        unit_ok = not u.error and all(v["status"] == "ok" for v in files.values()
+                                      if v["status"] not in ("skipped", "left_on_unit"))
+        left = [v for v in files.values() if v["status"] == "left_on_unit"]
         failed = failed or not unit_ok
         report["units"][u.name] = {
             "target": u.target, "run_dir": u.run_dir, "run": u.run_name(), "dest": u.dest,
             "complete": unit_ok, "error": u.error, "counts": counts,
             "bytes_pi": sum(f["size"] for f in u.files.values()),
+            "left_on_unit": {"count": len(left), "bytes": sum(v["size_pi"] for v in left),
+                             "sha256_recorded": sum(1 for v in left if v.get("sha256_pi")),
+                             "note": "DNGs stay on the unit until the Friday pickup: pool_pull.py --include-dng"},
             "files": dict(sorted(files.items()))}
         log(f"[{u.name}] SUMMARY {'COMPLETE' if unit_ok else 'INCOMPLETE'}: "
             + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())))
         if counts.get("skipped"):
             log(f"[{u.name}] SKIPPED by --classes: {counts['skipped']} files (re-run with --classes to fetch)")
+        if left:
+            log(f"[{u.name}] LEFT ON UNIT: {len(left)} DNGs, {human(sum(v['size_pi'] for v in left))}, "
+                f"{sum(1 for v in left if v.get('sha256_pi'))} with a Pi sha256 in pull_report.json "
+                f"(pull at pickup with --include-dng)")
     with open(rpath + ".tmp", "w") as f:
         json.dump(report, f, indent=1)
     os.replace(rpath + ".tmp", rpath)

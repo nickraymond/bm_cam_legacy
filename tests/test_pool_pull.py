@@ -36,7 +36,7 @@ import pool_pull as pp  # noqa: E402
 
 FAKE_SSH = """#!/bin/bash
 # fake ssh for tests: skip options, host -> $FAKE_HOMES/<host minus user@>, run the command there
-while [ $# -gt 0 ]; do case "$1" in -o|-l|-p|-i) shift 2;; -*) shift;; *) break;; esac; done
+while [ $# -gt 0 ]; do case "$1" in -o|-l|-p|-i|-c) shift 2;; -*) shift;; *) break;; esac; done
 H="${1#*@}"; shift
 [ -d "$FAKE_HOMES/$H" ] || { echo "ssh: connect to host $H: Connection refused" >&2; exit 255; }
 cd "$FAKE_HOMES/$H" && exec /bin/sh -c "$*"
@@ -119,45 +119,88 @@ class TestClassify(unittest.TestCase):
         self.assertEqual(c("run_manifest.json"), 1)
         self.assertEqual(c("pool.log"), 1)
         self.assertEqual(c(f"loop/{t}_loop_01_still.stdout.log"), 1)
-        # 2 = loop products ONLY (QE #151): nrjxl + pjpg + sidecars, the small preview
+        # 2 = loop products ONLY: nrjxl + pjpg + sidecars, the small preview
         self.assertEqual(c(f"loop/{t}_loop_01_still_compressed.nrjxl"), 2)
         self.assertEqual(c(f"loop/{t}_loop_01_still_compressed.jpg"), 2)
         self.assertEqual(c(f"loop/{t}_loop_01_still_compressed.nrjxl.capture_metadata.json"), 2)
         self.assertEqual(c(f"loop/{t}_loop_01_still.metadata.json"), 2)
         self.assertEqual(c(f"preview/{t}_preview_181500_preview.jpg"), 2)
-        self.assertEqual(c(f"calibration/{t}_cal_0001.dng"), 3)
+        # 3 = calibration JPEGs (+ json) only; 4 videos; 5 loop native JPEGs (no DNG)
         self.assertEqual(c(f"calibration/{t}_cal_0001.jpg"), 3)
-        # 4 = the loop's native JPEG/DNG (after calibration)
-        self.assertEqual(c(f"loop/{t}_loop_01_still.jpg"), 4)
-        self.assertEqual(c(f"loop/{t}_loop_01_still.dng"), 4)
-        self.assertEqual(c(f"preview/{t}_preview_181500.jpg"), 4)
-        self.assertEqual(c(f"loop/{t}_loop_01_video.mp4"), 5)
-        self.assertEqual(c("calibration/clip.h264"), 5)
+        self.assertEqual(c(f"calibration/{t}_cal_0001.metadata.json"), 3)
+        self.assertEqual(c(f"loop/{t}_loop_01_video.mp4"), 4)
+        self.assertEqual(c("calibration/clip.h264"), 4)
+        self.assertEqual(c(f"loop/{t}_loop_01_still.jpg"), 5)
+        self.assertEqual(c(f"preview/{t}_preview_181500.jpg"), 5)
         self.assertEqual(c("notes/extra.txt"), 6)
+        # 7 = every DNG (Nick 10/12: stays on the unit unless --include-dng)
+        for rel in (f"calibration/{t}_cal_0001.dng", f"loop/{t}_loop_01_still.dng", f"preview/{t}_preview_181500.dng"):
+            self.assertEqual(c(rel), pp.DNG_CLASS)
 
 
 class TestPull(Base):
-    def test_parallel_pull_all_classes(self):
+    def test_parallel_pull_dngs_left_on_unit(self):
+        """Default (pool day): everything but the DNGs; the DNGs are inventoried with the Pi sha256."""
+        import hashlib
         rc, out = self.pull()
         self.assertEqual(rc, 0, out)
         rep = self.report()
         for u, (src, files) in self.runs.items():
             ur = rep["units"][u]
+            dngs = {r: d for r, d in files.items() if r.endswith(".dng")}
+            self.assertEqual(len(dngs), 2)
             self.assertTrue(ur["complete"], ur)
             self.assertEqual(ur["run"], f"20261013_181500_{u}")
-            self.assertEqual(ur["counts"], {"ok": len(files)})
+            self.assertEqual(ur["counts"], {"ok": len(files) - 2, "left_on_unit": 2})
+            self.assertEqual(ur["left_on_unit"]["count"], 2)
+            self.assertEqual(ur["left_on_unit"]["bytes"], sum(len(d) for d in dngs.values()))
+            self.assertEqual(ur["left_on_unit"]["sha256_recorded"], 2)
             for rel, data in files.items():
-                with open(os.path.join(self.dest, "20261013", u, rel), "rb") as f:
-                    self.assertEqual(f.read(), data, rel)
-                self.assertEqual(ur["files"][rel]["sha256_pi"], ur["files"][rel]["sha256_mac"])
+                local = os.path.join(self.dest, "20261013", u, rel)
+                if rel in dngs:
+                    self.assertFalse(os.path.exists(local), rel)                 # never copied
+                    self.assertEqual(ur["files"][rel]["status"], "left_on_unit")
+                    self.assertEqual(ur["files"][rel]["sha256_pi"], hashlib.sha256(data).hexdigest())
+                else:
+                    with open(local, "rb") as f:
+                        self.assertEqual(f.read(), data, rel)
+                    self.assertEqual(ur["files"][rel]["sha256_pi"], ur["files"][rel]["sha256_mac"])
             starts = [int(l.split(" class ")[1].split()[0]) for l in out.splitlines()
                       if f"[{u}] class " in l and "-> start" in l]
             self.assertEqual(starts, [1, 2, 3, 4, 5, 6])
+        self.assertIn("LEFT ON UNIT: 2 DNGs", out)
         self.assertTrue(os.path.exists(os.path.join(self.dest, "20261013", "pull.log")))
+
+    def test_include_dng_pulls_them_last(self):
+        """Friday pickup: --include-dng adds the DNGs as the last class; a re-run resumes."""
+        self.pull()                                               # pool day first
+        rc, out = self.pull("--include-dng")
+        self.assertEqual(rc, 0, out)
+        for u, (src, files) in self.runs.items():
+            ur = self.report()["units"][u]
+            self.assertEqual(ur["counts"], {"ok": len(files)})
+            self.assertEqual(ur["left_on_unit"]["count"], 0)
+            for rel, data in files.items():
+                with open(os.path.join(self.dest, "20261013", u, rel), "rb") as f:
+                    self.assertEqual(f.read(), data, rel)
+            starts = [int(l.split(" class ")[1].split()[0]) for l in out.splitlines()
+                      if f"[{u}] class " in l and "-> start" in l]
+            self.assertEqual(starts, [1, 2, 3, 4, 5, 6, 7])
+
+    def test_dng_class_needs_flag(self):
+        rc, out = self.pull("--classes", "7")
+        self.assertEqual(rc, 2)
+
+    def test_no_dng_sha(self):
+        rc, out = self.pull("--no-dng-sha")
+        self.assertEqual(rc, 0, out)
+        ur = self.report()["units"]["bmcam003"]
+        self.assertEqual(ur["left_on_unit"]["count"], 2)
+        self.assertEqual(ur["left_on_unit"]["sha256_recorded"], 0)
 
     def test_resume_and_sha_mismatch_repulled(self):
         src, files = self.runs["bmcam003"]
-        rel = "calibration/20261013T181500Z_cal_0001.dng"
+        rel = "calibration/20261013T181500Z_cal_0001.jpg"
         local = os.path.join(self.dest, "20261013", "bmcam003", rel)
         os.makedirs(os.path.dirname(local))
         with open(local, "wb") as f:
@@ -176,8 +219,8 @@ class TestPull(Base):
         self.assertEqual(rc, 0, out)
         ur = self.report()["units"]["bmcam004"]
         t = "20261013T181500Z"
-        self.assertEqual(ur["files"][f"calibration/{t}_cal_0001.dng"]["status"], "skipped")
-        self.assertEqual(ur["files"][f"loop/{t}_loop_01_still.dng"]["status"], "skipped")    # natives later
+        self.assertEqual(ur["files"][f"calibration/{t}_cal_0001.jpg"]["status"], "skipped")
+        self.assertEqual(ur["files"][f"loop/{t}_loop_01_still.dng"]["status"], "left_on_unit")
         self.assertEqual(ur["files"][f"loop/{t}_loop_01_still_compressed.nrjxl"]["status"], "ok")
         self.assertEqual(ur["files"][f"loop/{t}_loop_01_still_compressed.jpg"]["status"], "ok")
         self.assertFalse(os.path.exists(os.path.join(self.dest, "20261013", "bmcam004", "calibration")))
@@ -212,11 +255,50 @@ class TestPull(Base):
         self.assertEqual(rep["units"]["bmcam004"]["run"], "20261012_090000_bmcam004")
         self.assertEqual(rep["units"]["bmcam004"]["counts"], {"ok": 1})
 
+    def test_streams_cipher_whole_file(self):
+        """Speed knobs (10/12 pull-rate finding): 3 parallel streams per class, ssh -c, rsync -W."""
+        rc, out = self.pull("--streams", "3", "--cipher", "aes128-gcm@openssh.com", "--whole-file", "--include-dng")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("streams=3 cipher=aes128-gcm@openssh.com whole-file dng=PULL", out)
+        rep = self.report()
+        for u, (src, files) in self.runs.items():
+            self.assertEqual(rep["units"][u]["counts"], {"ok": len(files)})
+            for rel, data in files.items():
+                with open(os.path.join(self.dest, "20261013", u, rel), "rb") as f:
+                    self.assertEqual(f.read(), data, rel)
+        state = os.path.join(self.dest, "20261013", "bmcam003", pp.STATE_DIR)
+        logs = sorted(f for f in os.listdir(state) if f.startswith("rsync_class1s"))
+        self.assertEqual(logs, ["rsync_class1s1.log", "rsync_class1s2.log", "rsync_class1s3.log"])  # 3 log files -> 3 streams
+        text = open(os.path.join(state, logs[0])).read()
+        self.assertIn("-c aes128-gcm@openssh.com", text)
+        self.assertIn(" -W ", text)
+
+    def test_stream_error_reads_clearly(self):
+        """QE #158 nit 3: a stream that raises is logged by name (not 'rsync exit None') and its
+        files still fail verification (exit 1)."""
+        real = pp.Unit._rsync_stream
+
+        def flaky(self, rels, tag):
+            if tag.endswith("s2"):
+                raise OSError("disk full (test)")
+            return real(self, rels, tag)
+        with mock.patch.object(pp.Unit, "_rsync_stream", flaky):
+            rc, out = self.pull("--streams", "2", hosts=("bmcam003=bmcam003",))
+        self.assertEqual(rc, 1, out)
+        self.assertIn("stream 2 error: OSError: disk full (test)", out)
+        self.assertNotIn("exit None", out)
+        self.assertIn("missing", json.dumps(self.report()["units"]["bmcam003"]["counts"]))
+
+    def test_streams_bounds(self):
+        rc, out = self.pull("--streams", "9")
+        self.assertEqual(rc, 2)
+
     def test_dry_run(self):
         rc, out = self.pull("--dry-run", "--probe-mb", "1")
         self.assertEqual(rc, 0, out)
-        self.assertIn("3 calibration", out)
-        self.assertIn("4 loop natives", out)
+        self.assertIn("3 calibration JPEGs", out)
+        self.assertIn("5 loop native JPEGs", out)
+        self.assertIn("LEFT ON UNIT: --include-dng to pull", out)
         self.assertIn("projected wall time", out)
         self.assertIn("MB/s (measured)", out)
         self.assertFalse(os.path.exists(os.path.join(self.dest, "20261013", "bmcam003")))
