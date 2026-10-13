@@ -83,10 +83,12 @@ KNOWN LIMITATIONS
 
 import argparse
 import collections
+import copy
 import json
 import math
 import os
 import queue
+import shlex
 import shutil
 import signal
 import subprocess
@@ -118,14 +120,17 @@ DEFAULT_VIDEO_PRESET = "wide_720p"
 DEFAULT_VIDEO_BITRATE_MBPS = 2.0      # V1 720p rehearsal, see module doc
 DEFAULT_MIN_FREE_MB = 1024            # margin kept free after a phase's estimate
 DEFAULT_AUTOSTART_MIN = 30
+LENS_MIN, LENS_MAX = 0.6, 1.0         # Nick 10/13: flat port, hyperfocal ~0.8 (dioptres)
+SWEEP_LENS = (0.6, 0.7, 0.8, 0.9, 1.0)
+DEFAULT_ARGS_FILE = "/home/pi/pool_args"   # extra CLI args, one place for cron + start
 SIGTERM_JOIN_S = 150                  # > one loop iteration (~70 s assumed) with margin
 
 EST_DNG_B = 24_029_068                # MEASURED, runs/s28_ladder_20261004/gate.log:51-60
 EST_NATIVE_JPG_B = 8_000_000          # ASSUMPTION (q95 4608x2592), upper-ish bound
 EST_SMALL_B = 400_000                 # pjpg + nrjxl + sidecars + logs per still (assumed)
 
-VERBS = ("status", "cal", "loop", "mark", "stop", "preview")
-FIELDS = {"status": {}, "stop": {},
+VERBS = ("status", "cal", "loop", "mark", "stop", "preview", "sweep")
+FIELDS = {"status": {}, "stop": {}, "sweep": {},
           "cal": {"duration_s": (10, 7200), "interval_s": (2, 600)},
           "loop": {"iterations": (1, 100), "period_s": (30, 7200)},
           "mark": {"note": "str"}, "preview": {"lines": "lines"}}
@@ -176,6 +181,50 @@ def file_bytes(path):
         return os.path.getsize(path) if path else None
     except OSError:
         return None
+
+
+def lens_arg(text):
+    """argparse type for --lens-position: a float in LENS_MIN..LENS_MAX."""
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{text!r} is not a number")
+    if not (LENS_MIN <= value <= LENS_MAX) or value != value:
+        raise argparse.ArgumentTypeError(f"{value} outside {LENS_MIN}..{LENS_MAX}")
+    return value
+
+
+def with_lens(capture_settings, lens_position):
+    """Copy of the capture settings with MANUAL focus at lens_position (dioptres):
+    camera_controls on, focus = {manual, lens_position}; every other control block
+    untouched (each keeps its own enabled flag). None -> unchanged."""
+    if lens_position is None:
+        return capture_settings
+    cs = copy.deepcopy(capture_settings or {})
+    controls = dict(cs.get("camera_controls") or {})
+    controls["enabled"] = True
+    controls["focus"] = {"enabled": True, "mode": "manual",
+                         "lens_position": round(float(lens_position), 4)}
+    cs["camera_controls"] = controls
+    return cs
+
+
+def lens_of(capture_settings):
+    """The manual lens position these settings will request, else None (AF/none)."""
+    controls = (capture_settings or {}).get("camera_controls") or {}
+    focus = controls.get("focus") or {}
+    if not controls.get("enabled") or focus.get("enabled") is False:
+        return None
+    if str(focus.get("mode") or "").lower() != "manual":
+        return None
+    try:
+        return round(float(focus.get("lens_position")), 4)
+    except (TypeError, ValueError):
+        return None
+
+
+def fmt_lens(value):
+    return "auto" if value is None else f"{value:g}"
 
 
 # ---------------------------------------------------------------------------
@@ -344,13 +393,16 @@ class RealCamera:
                           "encoder": self.vcfg["encoder"],
                           "exposure_profile_args": self.profile_args}}
 
-    def capture_still(self, out_dir, stem):
+    def capture_still(self, out_dir, stem, lens_position=None):
+        """lens_position: a one-capture override (sweep); None = the run's settings."""
         native = os.path.join(out_dir, stem + ".jpg")
         t0 = time.monotonic()
+        settings = (with_lens(self.capture_settings, lens_position)
+                    if lens_position is not None else self.capture_settings)
         info, dng, why = self.rc_capture.run_raw_capture_once(
             self.still_cmd, native, self.s["source_width"], self.s["source_height"],
             self.s["source_jpeg_quality"], os.path.join(out_dir, stem),
-            settings=self.capture_settings)
+            settings=settings)
         dt = time.monotonic() - t0
         if info is None:
             raise CaptureError(f"capture failed: {why} ({dt:.1f} s)")
@@ -379,22 +431,30 @@ class RealCamera:
         mp4 = os.path.join(out_dir, stem + ".mp4")
         log_path = os.path.join(out_dir, stem + ".video.log")
         controls = (self.capture_settings or {}).get("camera_controls")
-        argv, requested = video_recorder.build_encoder_command(
-            self.s, self.vcfg, part, binary=vid_cmd, controls=controls)
-        argv = list(argv) + list(self.profile_args)
-        rc, rec_s = self._run(argv, log_path, self.video_s + 30)
-        fallback = None
-        if (rc != 0 or not file_bytes(part)) and (self.profile_args or controls):
-            # Same doctrine as rc_capture / record_one_clip: a control the camera app
-            # refuses must not cost the clip. Once more with geometry + bitrate only.
-            fallback = f"rc={rc}: retried without camera controls / tuning file"
-            log(f"[VID][WARN] clip {stem}: {fallback}")
-            if os.path.exists(part):
-                os.remove(part)
+        # Same doctrine as rc_capture / record_one_clip: a control the camera app
+        # refuses must not cost the clip. Ladder: everything -> focus only (the pool's
+        # lens position matters most) -> geometry + bitrate only.
+        ladder = [(controls, list(self.profile_args), None)]
+        focus = (controls or {}).get("focus")
+        if focus and (self.profile_args or set(controls) - {"enabled", "focus"}):
+            ladder.append(({"enabled": True, "focus": focus}, [],
+                           "retried with focus only (no tuning file / other controls)"))
+        if controls or self.profile_args:
+            ladder.append((None, [], "retried without camera controls / tuning file"))
+        rec_s, fallback, rc = 0.0, None, None
+        for i, (ctl, extra, why) in enumerate(ladder):
+            if i:
+                fallback = f"rc={rc}: {why}"
+                log(f"[VID][WARN] clip {stem}: {fallback}")
+                if os.path.exists(part):
+                    os.remove(part)
             argv, requested = video_recorder.build_encoder_command(
-                self.s, self.vcfg, part, binary=vid_cmd, controls=None)
+                self.s, self.vcfg, part, binary=vid_cmd, controls=ctl)
+            argv = list(argv) + extra
             rc, more = self._run(argv, log_path, self.video_s + 30)
             rec_s += more
+            if rc == 0 and file_bytes(part):
+                break
         if rc != 0 or not file_bytes(part):
             raise CaptureError(f"video encode failed rc={rc} part_bytes={file_bytes(part)}")
         ffmpeg = shutil.which("ffmpeg")
@@ -428,12 +488,13 @@ class FakeCamera:
         self.video_s = video_s
         self.fail_on = set(fail_on)
         self.calls = 0
-        self.lock_seen_held = []
+        self.lens = None                     # main() sets the run's lens position
+        self.lenses = []                     # what each capture requested (tests)
 
     def describe(self):
-        return {"fake": True}
+        return {"fake": True, "lens": self.lens}
 
-    def capture_still(self, out_dir, stem):
+    def capture_still(self, out_dir, stem, lens_position=None):
         from PIL import Image, ImageDraw
         self.calls += 1
         if self.calls in self.fail_on:
@@ -448,8 +509,10 @@ class FakeCamera:
         dng = os.path.join(out_dir, stem + ".dng")
         with open(dng, "wb") as fh:
             fh.write(b"FAKE-DNG" * 128)
+        lens = lens_position if lens_position is not None else self.lens
+        self.lenses.append(lens)
         meta = {"ScalerCrop": [0, 0, 4608, 2592], "AnalogueGain": 1.12, "ExposureTime": 20000,
-                "LensPosition": 1.82, "DigitalGain": 1.0}
+                "LensPosition": 1.82 if lens is None else lens, "DigitalGain": 1.0}
         meta_path = os.path.join(out_dir, stem + ".metadata.json")
         with open(meta_path, "w") as fh:
             json.dump(meta, fh)
@@ -762,8 +825,12 @@ class PoolController:
         self.preview_busy = False
         self.preview_ids = set()
         self.last_preview = None             # {"img_id", "lines"}
+        self.pending = {}                    # cid -> verb answered later (preview, sweep)
+        # The manual lens position every capture of this run requests (None = AF /
+        # no focus control); --lens-position overrides the effective config.
+        self.lens = lens_of(cfg.get("capture_settings"))
         self.console_log = open(os.path.join(run_dir, "console.log"), "a", encoding="utf-8")
-        for sub in ("calibration", "loop", "preview"):
+        for sub in ("calibration", "loop", "preview", "sweep"):
             os.makedirs(os.path.join(run_dir, sub), exist_ok=True)
 
     # ---- console ---------------------------------------------------------
@@ -799,7 +866,8 @@ class PoolController:
         # Most useful first: console_line cuts anything past 240 chars.
         ssid, ip = wifi_info()
         return (f"phase={self.phase} cal={self.cal_count}/{self.cal_target} "
-                f"loop={self.loop_count}/{self.loop_target} run={os.path.basename(self.run_dir)} "
+                f"loop={self.loop_count}/{self.loop_target} lp={fmt_lens(self.lens)} "
+                f"run={os.path.basename(self.run_dir)} "
                 f"free={self.free()}MB marks={self.marks} "
                 f"err={(self.last_error or 'none')[:30].replace(' ', '_')} ip={ip} ssid={ssid} "
                 f"up={int(self.clock() - self.t_start)}s"
@@ -842,8 +910,9 @@ class PoolController:
             ok, text = False, f"internal {type(exc).__name__}: {exc}"
             log(f"[ERR] command id={cid} raised: {traceback.format_exc()}")
         if ok is None:
-            # preview: answered later by the preview thread; reserve the id now
+            # preview / sweep: answered later by their thread; reserve the id now
             self.acks[cid] = None
+            self.pending[cid] = verb
             self.manifest.append("commands", {"t_utc": iso(), "id": cid, "verb": verb,
                                               "fields": fields, "ack": "pending", "dup": False})
             return
@@ -854,7 +923,8 @@ class PoolController:
     def _dup(self, cid):
         line = self.acks.get(cid)
         if line is None:
-            line = command_wire.console_line(self.host, f"OK id={cid} pool preview in_progress")
+            line = command_wire.console_line(
+                self.host, f"OK id={cid} pool {self.pending.get(cid, 'preview')} in_progress")
         self.prio.append(line + " dup")
         log(f"command id={cid} duplicate (replay): re-printed its answer, not re-run")
         self.manifest.append("commands", {"t_utc": iso(), "id": cid, "dup": True, "ack": line})
@@ -872,7 +942,7 @@ class PoolController:
         return True, f"#{self.marks} {f['note']} phase={self.phase} t={mark['t_utc']}"
 
     def cmd_stop(self, cid, f):
-        if self.phase in ("cal", "loop"):
+        if self.phase in ("cal", "loop", "sweep"):
             self.stop_evt.set()
             return True, f"phase={self.phase} stopping after the current step"
         if self.autostart_at is not None:
@@ -962,6 +1032,76 @@ class PoolController:
                          daemon=True).start()
         return None, None
 
+    # ---- sweep (focus check) -------------------------------------------------
+    def cmd_sweep(self, cid, f):
+        """One full-res still (JPEG + DNG) at each SWEEP_LENS into sweep/<HHMMSS>/;
+        later captures use the run's lens again (each rpicam-still sets it)."""
+        if self.phase != "idle":
+            return False, f"busy phase={self.phase}"
+        if self.preview_busy:
+            return False, "busy preview_in_progress"
+        ok, need, free = self._space_check(
+            len(SWEEP_LENS) * (EST_DNG_B + EST_NATIVE_JPG_B + EST_SMALL_B))
+        if not ok:
+            return False, f"space need={need}MB free={free}MB (min_free_mb={self.args.min_free_mb})"
+        with self.state_lock:
+            self.phase = "sweep"
+        self.stop_evt.clear()
+        self.worker = threading.Thread(target=self._sweep_worker, args=(cid,),
+                                       name="pool-sweep", daemon=True)
+        self.worker.start()
+        return None, None
+
+    def _sweep_worker(self, cid):
+        t0 = self.clock()
+        name = utc_now().strftime("%H%M%S")
+        out_dir = os.path.join(self.run_dir, "sweep", name)
+        n = 2
+        while os.path.exists(out_dir):
+            out_dir = os.path.join(self.run_dir, "sweep", f"{name}_{n}")
+            n += 1
+        os.makedirs(out_dir)
+        frames, got = [], []
+        log(f"SWEEP id={cid}: lens {','.join(f'{x:g}' for x in SWEEP_LENS)} -> {out_dir}")
+        for lp in SWEEP_LENS:
+            if self.stop_evt.is_set():
+                break
+            rec = {"lens_requested": lp, "t_utc": iso()}
+            try:
+                with self.camera_lock:
+                    cap = self.camera.capture_still(out_dir, f"{ts_name()}_sweep_lp{lp:.2f}",
+                                                    lens_position=lp)
+                applied = applied_from_metadata(cap["metadata"])
+                rec.update(jpg=os.path.basename(cap["jpg"]),
+                           dng=os.path.basename(cap["dng"]) if cap.get("dng") else None,
+                           jpg_bytes=file_bytes(cap["jpg"]), dng_bytes=file_bytes(cap["dng"]),
+                           capture_s=cap["capture_s"], applied=applied)
+                got.append(applied.get("LensPosition"))
+            except Exception as exc:
+                rec["error"] = f"{type(exc).__name__}: {exc}"
+                self.last_error = f"sweep lp={lp}: {rec['error']}"
+                log(f"[ERR] {self.last_error}")
+                got.append(None)
+            frames.append(rec)
+        ok_n = sum(1 for r in frames if "error" not in r)
+        dt = round(self.clock() - t0, 1)
+        rel = os.path.relpath(out_dir, self.run_dir)
+        self.manifest.append("sweeps", {"id": cid, "dir": rel, "frames": frames, "wall_s": dt,
+                                        "run_lens": self.lens})
+        got_txt = ",".join("x" if g is None else f"{float(g):.2f}" for g in got)
+        if ok_n:
+            line = self.ack(cid, "sweep", True,
+                            f"dir={rel} n={ok_n}/{len(SWEEP_LENS)} "
+                            f"req={','.join(f'{x:g}' for x in SWEEP_LENS)} got={got_txt} "
+                            f"t={dt}s back_to_lp={fmt_lens(self.lens)}")
+        else:
+            line = self.ack(cid, "sweep", False, f"no frames ({(self.last_error or '')[:80]})")
+        log(f"SWEEP id={cid} done: {ok_n}/{len(SWEEP_LENS)} in {dt} s, metadata lens {got_txt}")
+        with self.state_lock:
+            self.phase = "idle"
+        self.manifest.append("commands", {"t_utc": iso(), "id": cid, "verb": "sweep",
+                                          "ack": line, "dup": False, "late_answer": True})
+
     # ---- preview -------------------------------------------------------------
     def _preview_worker(self, cid):
         t0 = self.clock()
@@ -996,6 +1136,7 @@ class PoolController:
                    "bytes": len(jpeg), "q": q, "attempts": attempts, "wh": list(wh),
                    "lines": len(lines) - 2, "console_eta_s": eta,
                    "prepare_s": round(self.clock() - t0, 2), "capture_s": cap["capture_s"],
+                   "lens_requested": self.lens,
                    "applied": applied_from_metadata(cap["metadata"])}
             self.manifest.append("previews", rec)
             log(f"preview {img_id}: {len(jpeg)} B q{q} {len(lines) - 2} lines, "
@@ -1076,7 +1217,7 @@ class PoolController:
     def _cal_frame(self, k, late_s):
         out_dir = os.path.join(self.run_dir, "calibration")
         stem = f"{ts_name()}_cal_{k + 1:04d}"
-        rec = {"k": k + 1, "t_utc": iso(), "slot_late_s": late_s}
+        rec = {"k": k + 1, "t_utc": iso(), "slot_late_s": late_s, "lens_requested": self.lens}
         t0 = self.clock()
         try:
             with self.camera_lock:
@@ -1098,13 +1239,13 @@ class PoolController:
             f"{rec['frame_s']} s late={late_s}s free={rec['free_mb']}MB "
             f"AG={rec.get('applied', {}).get('AnalogueGain')} "
             f"exp={rec.get('applied', {}).get('ExposureTime')} "
-            f"lens={rec.get('applied', {}).get('LensPosition')}"
+            f"lens req={fmt_lens(self.lens)} got={rec.get('applied', {}).get('LensPosition')}"
             + (f" ERROR {rec['error']}" if "error" in rec else ""))
 
     def _loop_iteration(self, i, late_s):
         out_dir = os.path.join(self.run_dir, "loop")
         base = f"{ts_name()}_loop_{i + 1:02d}"
-        rec = {"i": i + 1, "t_utc": iso(), "slot_late_s": late_s}
+        rec = {"i": i + 1, "t_utc": iso(), "slot_late_s": late_s, "lens_requested": self.lens}
         t0 = self.clock()
         cap = None
         try:
@@ -1280,7 +1421,44 @@ def build_parser():
     p.add_argument("--max-runtime-s", type=float, default=None)
     p.add_argument("--force", action="store_true",
                    help="start even if an RC cycle process is running (it may own the UART)")
+    p.add_argument("--lens-position", type=lens_arg, default=None,
+                   help=f"manual focus (dioptres, {LENS_MIN}..{LENS_MAX}) for EVERY capture "
+                        "(cal, loop still + clip, preview); default = the effective config")
+    p.add_argument("--args-file", default=os.environ.get("POOL_ARGS_FILE", DEFAULT_ARGS_FILE),
+                   help="extra args read first (CLI wins); written by pool_mode.sh args")
+    p.add_argument("--check-args", action="store_true",
+                   help="validate the args (incl. the args file), print them, exit 0/2")
     return p
+
+
+def resolve_argv(argv):
+    """-> (args, file_argv, file_error). The args file's tokens go FIRST so the
+    command line wins. A bad args file never stops the pool: it is ignored and
+    reported loudly (console + manifest), the command line still applies."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    parser = build_parser()
+    pre, _ = parser.parse_known_args(argv)
+    file_argv, file_error = [], None
+    path = pre.args_file
+    if path and os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                file_argv = shlex.split(fh.read(), comments=True)
+            parse_or_raise(file_argv)
+        except Exception as exc:
+            file_error = f"{path}: {exc}"
+            file_argv = []
+    return parser.parse_args(file_argv + argv), file_argv, file_error
+
+
+def parse_or_raise(argv):
+    """parse_args that raises ValueError instead of exiting."""
+    class _P(argparse.ArgumentParser):
+        def error(self, message):
+            raise ValueError(message)
+    p = build_parser()
+    p.__class__ = _P
+    return p.parse_args(argv)
 
 
 def make_run_dir(run_root, host):
@@ -1295,15 +1473,34 @@ def make_run_dir(run_root, host):
     return path
 
 
+def apply_lens(cfg, lens_position):
+    """--lens-position over the effective config (in place). -> (lens, source)."""
+    if lens_position is not None:
+        cfg["capture_settings"] = with_lens(cfg.get("capture_settings"), lens_position)
+        return lens_of(cfg["capture_settings"]), "cli --lens-position"
+    return lens_of(cfg.get("capture_settings")), "effective config"
+
+
 def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
-    args = build_parser().parse_args(argv)
+    args, file_argv, file_error = resolve_argv(argv)
     args.preview_wh = (args.preview_w, args.preview_h)
+    if args.check_args:
+        print(json.dumps({"args_file": args.args_file, "args_file_argv": file_argv,
+                          "args_file_error": file_error, "lens_position": args.lens_position},
+                         sort_keys=True))
+        if file_error:
+            print(f"ARGS_FILE_REJECTED {file_error}")
+            return 2
+        print("ARGS_OK")
+        return 0
     from rc_telemetry import get_hostname
     host = host or get_hostname()
     if args.print_config:
         import tempfile
         tmp = tempfile.mkdtemp(prefix="pool_cfg_")
         cfg = load_effective(args.config_dir, tmp)
+        lens, lens_source = apply_lens(cfg, args.lens_position)
+        print(f"POOL_LENS_POSITION={fmt_lens(lens)} ({lens_source})")
         for line in cfg["lines"]:
             print(line)
         print(json.dumps({"hash": cfg["hash"], "level": cfg["level"], "overlay": cfg["overlay"],
@@ -1338,6 +1535,13 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
         cfg = load_effective(args.config_dir, run_dir)
     for line in cfg["lines"]:
         log(line)
+    if file_argv:
+        log(f"args file {args.args_file}: {' '.join(file_argv)}")
+    if file_error:
+        log(f"[ERR] ARGS FILE REJECTED (ignored; command-line args still apply): {file_error}")
+    lens, lens_source = apply_lens(cfg, args.lens_position)
+    cfg["lens"] = {"value": lens, "source": lens_source}
+    log(f"LENS: every capture requests lens_position={fmt_lens(lens)} ({lens_source})")
     if link is None:
         if args.fake:
             script = default_fake_script()
@@ -1357,6 +1561,8 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
     if camera is None:
         camera = FakeCamera() if args.fake else RealCamera(
             cfg, args.video_s, args.video_fps, args.video_preset, args.video_bitrate_mbps)
+    if isinstance(camera, FakeCamera):
+        camera.lens = lens
     if nrjxl_fn is None:
         nrjxl_fn = fake_nrjxl if args.fake else real_nrjxl
     free0 = free_mb(run_dir)
@@ -1368,6 +1574,8 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
         "config": {k: cfg.get(k) for k in ("hash", "base_hash", "level", "overlay", "dropped",
                                            "state_path", "render", "effective_values")},
         "capture_settings": cfg.get("capture_settings"),
+        "lens": cfg.get("lens"), "args_file": args.args_file, "args_file_argv": file_argv,
+        "args_file_error": file_error,
         "still": {"crop_native_xywh": cfg["settings"]["crop_native_xywh"],
                   "output_width": cfg["settings"]["output_width"],
                   "quality_ladder": cfg["settings"]["quality_ladder"],
@@ -1375,7 +1583,8 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
         "camera": camera.describe(),
         "storage": {"free_mb_at_start": free0, "min_free_mb": args.min_free_mb,
                     "est_dng_b": EST_DNG_B, "est_native_jpg_b_assumed": EST_NATIVE_JPG_B},
-        "events": [], "commands": [], "marks": [], "calibration": [], "loop": [], "previews": []})
+        "events": [], "commands": [], "marks": [], "calibration": [], "loop": [], "previews": [],
+        "sweeps": []})
     full_need = (args.cal_duration_s // args.cal_interval_s) * (EST_DNG_B + EST_NATIVE_JPG_B
                                                                  + EST_SMALL_B)
     ctl = PoolController(args, link, camera, cfg, run_dir, manifest, host, nrjxl_fn=nrjxl_fn)
@@ -1392,7 +1601,9 @@ def main(argv=None, link=None, camera=None, nrjxl_fn=None, host=None):
         signal.signal(signal.SIGTERM, lambda *_: stop_flag.set())
     except ValueError:
         pass                       # not the main thread (tests)
-    ctl.say(f"pool ready run={os.path.basename(run_dir)} cfg={cfg['hash']} free={free0}MB "
+    if file_error:
+        ctl.say(f"pool ARGS FILE REJECTED (ignored) {file_error[:150]}")
+    ctl.say(f"pool ready run={os.path.basename(run_dir)} cfg={cfg['hash']} lp={fmt_lens(lens)} free={free0}MB "
             f"need~{full_mb}MB verbs={'|'.join(VERBS)}")
     try:
         rc = ctl.run(exit_when_done=args.exit_when_done, max_runtime_s=args.max_runtime_s,

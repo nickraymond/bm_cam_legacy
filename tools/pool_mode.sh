@@ -26,6 +26,12 @@
 #          line) — bench use; it refuses itself while an RC cycle runs.
 #   stop   SIGTERM to running pool_sequence.py processes (it finishes the
 #          current frame, writes its manifest, exits).
+#   args   show / set / clear the extra pool_sequence args in ~/pool_args, which
+#          pool_sequence.py reads ITSELF at every start (cron @reboot, `start`,
+#          by hand), so no crontab change is needed. Validated before it is
+#          written, e.g.:  pool_mode.sh args --lens-position 0.8
+#          pool_mode.sh args --clear. Takes effect at the next start (stop +
+#          start, or reboot).
 #
 # NOT touched: camera_config.yaml, bm_command_state*.json, images/, sent/,
 # /dev/shm, Wi-Fi. Pool mode never calls network_ap.sh / the network boot
@@ -42,6 +48,7 @@ DST="${BMCAM_DST:-/home/pi/BM_Devel_Pi}"
 BACKUP_DIR="${POOL_BACKUP_DIR:-/home/pi/pool_mode_backups}"
 RUN_ROOT="${POOL_RUN_ROOT:-/home/pi/pool_runs}"
 HIL_BACKUP="${HIL_BACKUP_DIR:-/home/pi/hil_backup}"
+ARGS_FILE="${POOL_ARGS_FILE:-/home/pi/pool_args}"
 # An ARMED production line: @reboot ... rc_run_capture_cycle.sh, not commented.
 ARMED_RE='^[[:space:]]*@reboot[^#]*rc_run_capture_cycle\.sh'
 CRONTAB="${CRONTAB:-crontab}"
@@ -103,6 +110,11 @@ show_status() {
         say "backup      : $(cat "$BACKUP_DIR/LATEST") (restored by off)"
     else
         say "backup      : none (pool mode was never turned on here)"
+    fi
+    if [[ -s "$ARGS_FILE" ]]; then
+        say "pool args   : $(tr '\n' ' ' < "$ARGS_FILE")($ARGS_FILE, read at each start)"
+    else
+        say "pool args   : none ($ARGS_FILE absent: lens etc. from the effective config)"
     fi
     local pids
     pids="$(pool_pids)"
@@ -246,11 +258,37 @@ case "$MODE" in
     [[ -n "$PIDS" ]] || { say "no pool_sequence.py running"; exit 0; }
     kill -TERM $PIDS && say "SIGTERM sent to $PIDS (finishes the current frame / loop iteration, up to ~2 min, then exits)"
     ;;
+  args)
+    if [[ -z "$EXTRA" ]]; then
+        if [[ -s "$ARGS_FILE" ]]; then say "$ARGS_FILE: $(cat "$ARGS_FILE")"; else say "no $ARGS_FILE"; fi
+        exit 0
+    fi
+    if [[ "$EXTRA" == "--clear" ]]; then
+        rm -f "$ARGS_FILE"
+        say "cleared $ARGS_FILE: the next start uses the effective config (stop + start to apply)"
+        exit 0
+    fi
+    # Validate with the pool script itself (ignoring any current file) BEFORE writing:
+    # a bad file must never meet a 7 AM cron start.
+    OUT="$("$PY" "$DST/pool_sequence.py" --check-args --args-file /dev/null $EXTRA 2>&1)"
+    if ! echo "$OUT" | grep -q "^ARGS_OK"; then
+        echo "$OUT" | sed 's/^/[POOL-MODE]   /'
+        die "args rejected; $ARGS_FILE unchanged"
+    fi
+    TMP="$ARGS_FILE.tmp.$$"
+    echo "$EXTRA" > "$TMP" && mv "$TMP" "$ARGS_FILE"
+    say "wrote $ARGS_FILE: $EXTRA"
+    if [[ -n "$(pool_pids)" ]]; then
+        say "[WARN] pool_sequence.py is running with its OLD args: pool_mode.sh stop, then start"
+    else
+        say "applies at the next start (pool_mode.sh start, or reboot)"
+    fi
+    ;;
   status)
     show_status
     ;;
   *)
-    echo "usage: pool_mode.sh on [pool args] | off | status | start | stop" >&2
+    echo "usage: pool_mode.sh on [pool args] | off | status | start | stop | args [...|--clear]" >&2
     exit 2
     ;;
 esac
