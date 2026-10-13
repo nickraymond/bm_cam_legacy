@@ -216,7 +216,11 @@ See:
    pc both cal
    ```
    See: `[bmcam003] OK id=N pool cal start frames=120 every=10s dur=1200s free=...MB`, and the same for bmcam004. (T-ENDURE: 120/120 frames, each ≤ 6.15 s.) Then `pool_cmd` prints `OK` for both and exits 0.
-3. Nick dives and moves the board through 15–20 poses: hands on the edge, tilt it, cover the corners of the frame.
+3. Nick dives and moves the board through 15–20 poses: hands on the edge.
+   - **Dive tip** (rig test, Mon): at ~1 m the board covered only ~4 % of the frame. Underwater, hold it **~0.5–0.8 m** from the port.
+   - **Tilt it 30–45°**, in different directions.
+   - Cover the **centre** (the production 1600×900 crop), then **each corner** of the frame.
+   - Hold each pose still for one 10 s frame.
 4. About 20 min later, both units stop by themselves.
    See (console): `pool cal done 120/120 skipped=0 stopped=0 free=...MB`. Or run `pc both status` and look for `phase=idle cal=120/120 ... autostart_in=<s>`.
 
@@ -340,7 +344,7 @@ The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes 
      ```bash
      python3 tools/pool_calib_check.py ~/NereusPool/<run date>/bmcam003/calibration
      ```
-     See: `VERDICT PASS` (≥ 15 distinct poses, RMS < 1 px) and a `contact_sheet.jpg` next to the folder. Underwater frames go through a flat port, so treat it as an engineering check. Not yet run on real frames: T-ENDURE had no board, and the in-air ChArUco check comes on a fresh run with Nick.
+     See: `VERDICT PASS` (≥ 15 distinct poses, RMS < 1 px) and a `contact_sheet.jpg` next to the folder. Underwater frames go through a flat port, so treat it as an engineering check. **Detection is proven on real frames**: the rig session ran `pool_calib_check.py` (development 2d822c1) on 5 full-res nereus002 IMX708 frames of Nick's board at ~1 m, DNG and JPEG. Every frame had 104/104 corners and 63/63 markers. Auto layout picked **14×9 modern**. The verdict was FAIL, as expected for a single pose; a full calibration needs ≥ 15 distinct poses.
 
 ---
 
