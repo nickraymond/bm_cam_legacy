@@ -80,6 +80,8 @@ class FakeMonitor:
                     threading.Timer(2.0, self.log, (spot, f"[{unit}] OK id={cid} pool {verb} n=11 dt=58.2s dir=sweep/113005 best_lp=0.8")).start()
                 elif b == "dup_only":      # still running past the wait
                     self.log(spot, f"[{unit}] OK id={cid} pool {verb} in_progress dup")
+                elif b == "note_in_progress":  # a mark whose NOTE says in_progress: still the final answer
+                    self.log(spot, f"[{unit}] OK id={cid} pool {verb} #1 in_progress phase=loop t=2026-10-13T18:00:00Z")
                 elif b == "busy_loop":     # sweep refused while the loop phase is active
                     self.log(spot, f"[{unit}] ERR id={cid} pool {verb} busy phase=loop")
                 elif b == "preview":
@@ -258,6 +260,13 @@ class TestSweep(Base):
         self.assertIn("still running (replay ack, not final)", out)
         self.assertIn("best_lp=0.8", out)                                   # waited for the FINAL OK
         self.assertIn("id=90001 bmcam003: OK", out)
+
+    def test_mark_note_cannot_fake_in_progress(self):
+        with FakeMonitor(self.root, {"bmcam003": "note_in_progress"}):
+            rc, out = self.run_cmd("bmcam003", "mark", "in_progress", wait="3")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("id=90001 bmcam003: OK", out)
+        self.assertNotIn("not final", out)
 
     def test_in_progress_only_times_out(self):
         with FakeMonitor(self.root, {"bmcam003": "dup_only"}):
