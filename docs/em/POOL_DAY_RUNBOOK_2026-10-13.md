@@ -1,6 +1,6 @@
 # Pool day runbook, Tue 10/13 (for Nick, poolside)
 
-Rev 3.2, Mon 10/12 PM: **DNGs stay on the units until Fri** (Nick 8:20 PM; pool pull ~0.5 GB / ~13 min per unit at the measured 0.9 MB/s, incl. ~3 min DNG hashing). EM decision **(E)** replaces (A): units go back to production Mon night and into pool mode Tue 8:00–8:30 AM at the bench (the held bus drains the Spotters). Also: §9.3 re-arms from the path `off` prints. T-LAND numbers are still placeholders, marked **[T-LAND]**.
+Rev 4, Mon 10/12 PM: **T-ENDURE numbers filled in** (TE2: both units, full session on the bench; write-up `runs/pool_rehearsal_20261012/tendure/TENDURE_RESULTS.md` on `feature/r1-hil-test-engineer`). **DNGs stay on the units until Fri** (Nick 8:20 PM). The pool pull **measured 12 m 02 s for both units** at pool_pull 66a9f2e. EM decision **(E)**: units in production Mon night, into pool mode Tue 8:00–8:30 AM at the bench. §9.3 re-arms from the path `off` prints.
 Times are Pacific, AM/PM. Plan: `docs/em/POOL_PLAN_2026-10-13.md`.
 
 ## Pool-day card (one screen; details in §0–§10 below)
@@ -8,7 +8,7 @@ Times are Pacific, AM/PM. Plan: `docs/em/POOL_PLAN_2026-10-13.md`.
 Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = pool command on both consoles.
 
 0. **8:00–8:30 AM, bench (TE2, §0B)**: after the 8 AM wake halts, bus hold → `tools/pool_sha_check.sh` (ALL MATCH, or STOP) → `pool_mode.sh on` + `start` on both units. `status` must show `cal=0/0 loop=0/0`. Then transport with the bus held.
-1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
+1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. Mac on power, lid open, `caffeinate -dims` in a spare tab (§1.2). `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
 2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0`. Write down `run=` and `ip=`. Battery: §2.4
 3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
 4. **10:55** card at **1 m**. `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
@@ -16,7 +16,7 @@ Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = poo
 6. **12:30 PM** after `loop=9/18`: card to **2 m**, then `pc both mark card_2m`
 7. **2:00 PM** loop ends (`loop=18/18`). To end early: `pc both stop`
 8. **2:05** units out of the water. `pc both status` → new `ip=`; `run=` as noted
-9. Pull dry run: `python3 tools/pool_pull.py --host bmcam003=<ip> --host bmcam004=<ip> --run bmcam003=<run> --run bmcam004=<run> --dry-run`. **DNGs stay on the units until Fri** (Nick 10/12); the pull is ~0.5 GB per unit, ~13 min (incl. ~3 min of DNG hashing).
+9. Pull dry run: `python3 tools/pool_pull.py --host bmcam003=<ip> --host bmcam004=<ip> --run bmcam003=<run> --run bmcam004=<run> --dry-run`. **DNGs stay on the units until Fri** (Nick 10/12); the pull is ~0.5 GB per unit, **~12 min measured** (incl. ~2.5 min of DNG hashing on the Pi).
 10. **2:15** the same command without `--dry-run` → `LEFT ON UNIT: <n> DNGs` + `[pool_pull] OK` (re-run to resume). Report: `~/NereusPool/<date>/pull_report.json`. Friday pickup: same command + `--include-dng`.
 11. **~3:30 PM** restore (TE, §9): `pool_mode.sh stop` → `off` → check ARMED → halt → `hil/tools/hil_restore_schedule.sh <SPOT>`
 12. Next :00 → a new image from each unit on the dashboard. Trouble at any step: §10
@@ -37,8 +37,10 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 
 > **Hourly images:** normal Mon night (production). They stop Tue ~8:30 AM, when the bus hold starts, and resume after the restore (~3:30 PM).
 
-> **Battery.** With the bus held, each Spotter measured **net −0.7 W even on the hub charger** (TE2, Mon 1:12 PM); off the charger it drains faster. The hold runs from Tue ~8:30 AM to the restore at ~3:30 PM, about 7 h.
-> - Off-charger drain and BATT_V at the start and end of T-LAND: **[T-LAND]**
+> **Battery.** The hold runs from Tue ~8:30 AM to the restore at ~3:30 PM, about 7 h. Measured so far (TE2, Mon), all **on the nereus000 hub charger**:
+> - 1:12 PM spot reading: net **−0.7 W** per Spotter. This is what decision (E) rests on.
+> - T-ENDURE, 1:15–3:56 PM: BATT_V **4.03–4.04 V → 4.07 V**, net **+0.41 W** on both, i.e. charging. There were no readings after 3:56 PM (nereus000 went offline).
+> - **Off the charger** (transport + pool deck): **not measured**.
 > - **If the pool deck has power, bring a USB charger or battery pack for the Spotters.** It slows the drain; it won't stop it.
 > - Check BATT_V with step 2.4 at every phase.
 
@@ -54,7 +56,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    See: 8 `MATCH` lines and `ALL MATCH origin/development <sha>`. Any `DIFF` or `MISSING` → **STOP**: redeploy that file from `development`, then re-run. A stale `pool_mode.sh` (e.g. a T-DRY copy) prints `PRODUCTION MODE` even when the restored crontab is DISARMED; §9.3's ARMED check is the backstop.
 3. **Restore both units to production** with §9 steps 1–6. If T-LAND's bus hold ran before `pool_mode.sh on`, `off` exits 4 (DISARMED) and §9.3 re-arms; exit 0 needs no re-arm. §9.3's check runs either way.
    See: `PRODUCTION schedule confirmed` for both Spotters. At the next :00, a new image from each unit (§9.7).
-4. Leave the units on the normal hourly schedule overnight, Spotters on the nereus000 hub charger; they net-charge. Do NOT hold the bus overnight: −0.7 W net even on the charger.
+4. Leave the units on the normal hourly schedule overnight, Spotters on the nereus000 hub charger; they net-charge. Do NOT hold the bus overnight (decision E; the 1:12 PM reading was −0.7 W net on the charger).
 
 5. **Hotspot = home Wi-Fi: verify only** (Nick + TE). Nick's phone hotspot uses the SAME SSID and password as the home Wi-Fi the units, nereus000 and the Mac already know. Nothing needs to be added to the units.
    - On the phone: the hotspot name (Settings → General → About → Name) matches the home Wi-Fi SSID byte for byte, including case and punctuation. iOS turns a typed `'` into a curly quote. Hotspot password = home Wi-Fi password. **Maximize Compatibility ON**.
@@ -67,7 +69,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    - Side effect: the hotspot looks like HQ. During a poolside restore (§9), the production boot Wi-Fi apply treats it as HQ and joins it, so there is no open-AP fallback.
 
 6. **Pack:**
-   - Mac with the repo on the merged `development`, plus `pip install opencv-contrib-python-headless rawpy` for step 8.5
+   - Mac with the repo on the merged `development`, plus `pip install opencv-contrib-python-headless rawpy` for step 8.5, and **its charger** (it must stay awake all session)
    - phone
    - USB charger / battery pack for the Spotters
    - power for nereus000 and its hub
@@ -111,7 +113,7 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
    ```bash
    ssh pi@192.168.1.45 'python3 /home/pi/pool_tools/pool_cmd.py both status'
    ```
-   See: both `phase=idle cal=0/0 loop=0/0 run=<new folder>`. Then unplug the Spotters from the hub and transport (bus held, about 1–2 h at −0.7 W or worse).
+   See: both `phase=idle cal=0/0 loop=0/0 run=<new folder>`. Then unplug the Spotters from the hub and transport (bus held, about 1–2 h; the off-charger drain is not measured, so read BATT_V at §2.4 on arrival).
    Need a fresh run folder later (§10)? This restarts the pool process (§0B.6 restart):
    ```bash
    ssh pi@<ip> 'bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh start'
@@ -131,6 +133,11 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
    See: an address like `172.20.10.x`. If `.local` fails, scan the hotspot subnet (172.20.10.1–14):
    ```bash
    for i in $(seq 2 14); do ping -c1 -W300 172.20.10.$i >/dev/null & done; wait; arp -a | grep 172.20.10
+   ```
+
+   **Keep the Mac awake for the whole session**: lid open, on power. (T-ENDURE: the Mac slept with the lid closed.) Run this in a spare Terminal tab and leave it until the restore; Ctrl-C ends it:
+   ```bash
+   caffeinate -dims
    ```
 
 3. **Set two shortcuts in this Terminal window.** Redo this after opening a new window.
@@ -185,7 +192,7 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
    ```bash
    for s in SPOT-33507C SPOT-31593C; do ssh $N "echo sensors > /home/pi/spotter_logs/$s/cmd.txt; sleep 4; tail -n 80 /home/pi/spotter_logs/$s/console_\$(date -u +%Y%m%d).log | grep -E 'BATT_(V|I)' | tail -2" | sed "s/^/$s /"; done
    ```
-   See: `BATT_V` about 4.0–4.2 V (healthy bench reading). Repeat at each step. "Low" is set from T-LAND's measured drain; until then, treat **< 3.7 V (assumed)** as plug-in-now.
+   See: `BATT_V` about 4.0–4.2 V (T-ENDURE on the charger: 4.03–4.07 V). Repeat at each step. No discharge has been measured yet, so treat **< 3.7 V (assumed)** as plug-in-now and note every reading in §11.
 
 ---
 
@@ -208,7 +215,7 @@ See:
    ```bash
    pc both cal
    ```
-   See: `[bmcam003] OK id=N pool cal start frames=120 every=10s dur=1200s free=...MB`, and the same for bmcam004. Then `pool_cmd` prints `OK` for both and exits 0.
+   See: `[bmcam003] OK id=N pool cal start frames=120 every=10s dur=1200s free=...MB`, and the same for bmcam004. (T-ENDURE: 120/120 frames, each ≤ 6.15 s.) Then `pool_cmd` prints `OK` for both and exits 0.
 3. Nick dives and moves the board through 15–20 poses: hands on the edge, tilt it, cover the corners of the frame.
 4. About 20 min later, both units stop by themselves.
    See (console): `pool cal done 120/120 skipped=0 stopped=0 free=...MB`. Or run `pc both status` and look for `phase=idle cal=120/120 ... autostart_in=<s>`.
@@ -217,7 +224,7 @@ See:
 
 ## 5. Card at 1 m → preview → loop, about 10:55 AM
 
-The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the default 18 × 10 min. Need more time? Send `pc both stop` while idle. That only cancels the auto-start; then send `loop` yourself when ready.
+The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the default 18 × 10 min. (In T-ENDURE the loop came from this auto-start, and it worked.) Need more time? Send `pc both stop` while idle. That only cancels the auto-start; then send `loop` yourself when ready.
 
 1. Place the v3 card at **1 m** in front of both cameras.
 2. Preview both:
@@ -259,6 +266,8 @@ The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the
 
 ## 7. Loop ends, about 2:00 PM (3 h after loop start)
 
+T-ENDURE: 18/18 iterations at 54–71 s each, mp4 ~7.3 MB, pool_sequence peak memory 135.8 MiB with no growth, 0 ERR / OOM.
+
 See: the console shows `pool loop done 18/18 ...`, and `pc both status` shows `phase=idle loop=18/18`.
 
 To end early:
@@ -273,7 +282,18 @@ See: `OK id=N pool stop phase=loop stopping after the current step`.
 
 The Pis stay up in pool mode (bus held) until the restore, so the data is safe on the SD card. Wi-Fi only works once the units are out of the water.
 
-**DNGs stay on the units until the Friday pickup** (Nick, Mon 8:20 PM). The pool pull copies everything else, ~0.5 GB per unit. At the measured **~0.9 MB/s per unit** (T-ENDURE, Mon 8:05 PM, both units in parallel over home Wi-Fi), that is about **10 min, plus ~3 min** while each Pi hashes its DNGs for the report. The hashing is SD-read bound (~20 MB/s assumed), is repeated on every resume, and `--no-dng-sha` skips it (count + bytes only). All DNGs, ~3.3 GB per unit, would take ~1 h more at that rate. At pickup: the same command + `--include-dng`.
+**DNGs stay on the units until the Friday pickup** (Nick, Mon 8:20 PM). The pool pull copies everything else, ~0.5 GB per unit.
+
+**Measured** in T-ENDURE (both units in parallel over bench Wi-Fi, pool_pull 66a9f2e): **12 m 02 s total**.
+- ~9.5 min of data:
+  - bmcam003: 515.6 MB at 0.92–0.96 MB/s
+  - bmcam004: 469.2 MB at 0.83–0.88 MB/s
+  - ~1.75 MB/s combined
+- then **2 m 22 s** of on-Pi DNG sha256 inventory
+- left on each unit: **138 DNGs, 3.32 GB**
+- the old plan, with DNGs (7.1 GB at ~1.67 MB/s combined), would have taken ~71 min
+
+The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes only). At pickup: the same command + `--include-dng`.
 
 1. **Units out of the water, near the phone.** Run `pc both status`.
    See: `ip=172.20.10.y ssid=<home Wi-Fi name>` for both units. Use these IPs below. A `172.20.10.x` address confirms it's the hotspot, not a real home network.
@@ -289,16 +309,16 @@ The Pis stay up in pool mode (bus held) until the restore, so the data is safe o
    python3 tools/pool_pull.py --host bmcam003=172.20.10.A --host bmcam004=172.20.10.B --run bmcam003=<folder3> --run bmcam004=<folder4> --dry-run
    ```
    See, per unit:
-   - the classes with sizes, pulled in this order. Sizes are rough, from T-ENDURE: native JPEG ~2.4–2.8 MB, DNG ~23 MB.
+   - the classes with sizes, pulled in this order. T-ENDURE measured sizes and times per unit, at ~0.9 MB/s:
      1. manifest+logs: under 1 MB
-     2. loop products, i.e. nrjxl + pjpg + sidecars: a few MB
-     3. calibration JPEGs: ~0.33 GB
-     4. videos: ~0.14 GB
-     5. loop native JPEGs: ~0.05 GB
+     2. loop products, i.e. nrjxl + pjpg + sidecars: a few MB, seconds
+     3. calibration JPEGs: 289–330 MB, ~6 min
+     4. videos: ~126 MB (mp4 ~7.3 MB each), ~2.5 min
+     5. loop native JPEGs: 51–57 MB, ~1 min
      6. other: ~0
-     7. DNGs: ~3.3 GB, marked `(LEFT ON UNIT: --include-dng to pull)`
+     7. DNGs: 138 files, ~3.3 GB, marked `(LEFT ON UNIT: --include-dng to pull)`
    - a measured MB/s
-   - `projected wall time`, about 10–15 min
+   - `projected wall time`, about 10 min, plus ~2.5 min of DNG hashing
 
    Projected time > 30 min? Something's off with the link (§10). Pull classes 1–2 now (`--classes 1,2`: every nrjxl + pjpg, a few MB) and the rest later.
 
@@ -320,7 +340,7 @@ The Pis stay up in pool mode (bus held) until the restore, so the data is safe o
      ```bash
      python3 tools/pool_calib_check.py ~/NereusPool/<run date>/bmcam003/calibration
      ```
-     See: `VERDICT PASS` (≥ 15 distinct poses, RMS < 1 px) and a `contact_sheet.jpg` next to the folder. Underwater frames go through a flat port, so treat it as an engineering check.
+     See: `VERDICT PASS` (≥ 15 distinct poses, RMS < 1 px) and a `contact_sheet.jpg` next to the folder. Underwater frames go through a flat port, so treat it as an engineering check. Not yet run on real frames: T-ENDURE had no board, and the in-air ChArUco check comes on a fresh run with Nick.
 
 ---
 
@@ -393,8 +413,10 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 | Preview **PARTIAL** | Console lines dropped | Run the resend command shown on the card (`pc <unit> preview --lines ...`). Twice PARTIAL: send a fresh `pc <unit> preview`. |
 | Preview never appears | Camera busy (a loop clip), or the viewer is down | Wait 35 s. Then check that `http://<nereus000-ip>:8090/previews.json` loads; if not, restart the viewer (step 1.4). |
 | Unit not on the hotspot (`ssid=none` in status) | 5 GHz hotspot, phone asleep, hotspot name/password not exactly the home Wi-Fi's, or the unit is still in the water | Maximize Compatibility ON; stay on the hotspot screen; check the phone name against the home SSID (curly `'`?); unit out of the water and close to the phone. Still nothing: **leave it**. The data is safe on the SD card and the Pi stays up; pull at HQ on the bench Wi-Fi. |
-| Spotter battery low (< 3.7 V, assumed) | ~7 h on a held bus under (E): Tue ~8:30 AM → restore ~3:30 PM, net −0.7 W even on a charger (more off it) | Plug the Spotter into deck power or the battery pack. If it can't be charged and the loop is near the end, `pc both stop` gives a clean finish rather than a power cut mid-file. |
-| Pull slow (dry run > 30 min without DNGs), or in a hurry | Hotspot / Wi-Fi throughput (measured ~0.9 MB/s per unit on home Wi-Fi). Two units share one access point. | Units closer to the phone; check `wlan0` power save is off. Add **`--no-dng-sha`** to skip the ~3 min DNG hashing (the report then has count + bytes only; re-run without it later to record the sha256s). `--classes 1,2` (the nrjxl + pjpg, a few MB) now and the rest later (re-run without `--classes`; it resumes). Diagnose afterwards with `tools/pool_link_ab.py pi@<ip>` (one unit, never during a pull). Or move everyone to `pool-wifi` (step 1.5): `ssh pi@<ip> 'nohup sudo nmcli connection up pool-wifi &'` per unit, then the Mac. The new IP shows in `pc both status`; nereus000 must move too. Pool networks may block device-to-device traffic. |
+| Spotter battery low (< 3.7 V, assumed) | ~7 h on a held bus under (E): Tue ~8:30 AM → restore ~3:30 PM. Off-charger drain not measured (on the charger: −0.7 W at 1:12 PM, +0.41 W in T-ENDURE) | Plug the Spotter into deck power or the battery pack. If it can't be charged and the loop is near the end, `pc both stop` gives a clean finish rather than a power cut mid-file. |
+| nereus000 offline: `ssh $N` times out, viewer down, no `pc` (T-ENDURE: ~4 PM) | nereus000 or its USB hub lost power, or it left the hotspot | **The units keep running on their own**: calibration auto-stops, and the loop auto-starts 30 min after calibration (verified in T-ENDURE). Check nereus000's power and hub, and the phone's connection count. Until it is back: no preview, no `mark` (write the time of the card move in §11 instead), no battery reading. After it returns, `pc both status` shows where the loop is. |
+| Mac asleep / lid closed (T-ENDURE) | macOS sleep stops Terminal sessions and the pull | Lid open, on power, `caffeinate -dims` running (§1.2). A pull that stopped resumes with the same command. |
+| Pull slow (dry run > 30 min without DNGs), or in a hurry | Hotspot / Wi-Fi throughput (T-ENDURE: 0.83–0.96 MB/s per unit, 12 min total). Two units share one access point. | Units closer to the phone; check `wlan0` power save is off. Add **`--no-dng-sha`** to skip the ~2.5 min DNG hashing (the report then has count + bytes only; re-run without it later to record the sha256s). `--classes 1,2` (the nrjxl + pjpg, a few MB) now and the rest later (re-run without `--classes`; it resumes). Diagnose afterwards with `tools/pool_link_ab.py pi@<ip>` (one unit, never during a pull). Or move everyone to `pool-wifi` (step 1.5): `ssh pi@<ip> 'nohup sudo nmcli connection up pool-wifi &'` per unit, then the Mac. The new IP shows in `pc both status`; nereus000 must move too. Pool networks may block device-to-device traffic. |
 | `pool_pull` REFUSED: dest holds a different run | A second run folder for the same unit and date | Pull it with its own `--date`, e.g. `--date 20261013_run2 --run bmcam003=<folder>`. |
 | `cal=` / `loop=` not 0 at step 2.3, or `ERR id=N pool cal refused: run already has calibration frames, restart pool mode ...` (same for `loop`; an auto-start that hits it prints `pool loop AUTOSTART FAILED refused: ...`) | This run folder already holds a session (not a fresh `start` on Tue AM, or a second `cal`) | **Before calibration:** the restart command at the end of §0B.6, using the unit's IP (`pool_mode.sh stop`, wait, `start`). Then `pc both status` shows a new `run=` and `cal=0/0`. **Mid-session:** `cal` or `loop` was sent twice. The first one is running or done; nothing to do, don't restart. |
 
