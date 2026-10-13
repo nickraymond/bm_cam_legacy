@@ -323,7 +323,8 @@ def wait_answers(followers, cid, wait_s, linger_s, log, show_all):
     re_ack = re.compile(rf"\[(bmcam\d+)\]\s+(OK|ERR)\s+id={cid}(?!\d)")
     # NOT final: the Pi re-prints `OK id=N pool <verb> in_progress dup` when the mote's ~60 s replay
     # arrives while a long verb (sweep, preview) is still running (TE2 live run 2026-10-13).
-    re_in_progress = re.compile(r"\bin_progress\b")
+    # Anchored right after the id (QE #167): a `mark` note containing "in_progress" can't fake it.
+    re_in_progress = re.compile(rf"\]\s+OK\s+id={cid}\s+pool\s+\w+\s+in_progress\s+dup\b")
     got = {u: (None, None) for u in followers}
     pv_count = {u: 0 for u in followers}
     t0 = time.time()
