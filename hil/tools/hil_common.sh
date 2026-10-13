@@ -12,6 +12,7 @@
 #
 #      hil_require_spot SPOT-ID     hil_require_device BMCAM_00x     hil_require_host bmcam00x
 #
+# 3. The pairing check: HIL_RIG_* must agree with tools/rig_map.json (else exit 5, see below).
 # Limits: the guard is as good as hil.env; never add a field unit to HIL_RIG_*. The monitor host
 # (HIL_MONITOR) is not a rig and is not guarded here.
 
@@ -22,6 +23,37 @@ if [ -z "${HIL_RUN_DIR:-}" ]; then
   if [ -s "$HIL_DIR/.current_run" ]; then HIL_RUN_DIR="$(cat "$HIL_DIR/.current_run")"; else HIL_RUN_DIR="."; fi
 fi
 export HIL_RUN_DIR
+
+# 3. Pairing check (QE #169, after Nick swapped the cameras between the Spotters on Tue 2026-10-13):
+#    every HIL_RIG_* SPOT=DEVICE=HOST must agree with tools/rig_map.json (the pool_cmd map), both
+#    ways (host -> its Spotter, Spotter -> its host). A stale hil/hil.env would otherwise send a
+#    bridge commit to the Spotter of a RUNNING Pi (hard cut). Refuses (exit 5) before any network
+#    call. No rig_map.json in this checkout (an older branch) -> nothing to compare.
+#    HIL_RIG_MAP overrides the map path (tests).
+HIL_RIG_MAP="${HIL_RIG_MAP:-$(dirname "$HIL_DIR")/tools/rig_map.json}"
+if [ -f "$HIL_RIG_MAP" ]; then
+  _hil_map_bad=$(python3 - "$HIL_RIG_MAP" "${HIL_RIG_A:-}" "${HIL_RIG_B:-}" 2>&1 <<'PY'
+import json, sys
+raw = json.load(open(sys.argv[1]))
+m = {u: (v.get("spot") if isinstance(v, dict) else v) for u, v in raw.items() if not u.startswith("_")}
+by_spot = {s: u for u, s in m.items()}
+for rig in sys.argv[2:]:
+    p = rig.split("=")
+    if len(p) < 3:
+        continue
+    spot, host = p[0], p[2]
+    if host in m and m[host] != spot:
+        print(f"{host} is on {spot} in hil.env but on {m[host]} in rig_map.json;")
+    elif spot in by_spot and by_spot[spot] != host:
+        print(f"{spot} carries {host} in hil.env but {by_spot[spot]} in rig_map.json;")
+PY
+  ) || _hil_map_bad="cannot read $HIL_RIG_MAP (${_hil_map_bad})"
+  if [ -n "$_hil_map_bad" ]; then
+    echo "[hil-guard] REFUSED: hil/hil.env disagrees with $HIL_RIG_MAP: $(echo $_hil_map_bad) Fix hil/hil.env" \
+         "(cameras swapped Tue 2026-10-13: see hil/hil.env.example); nothing sent" >&2
+    exit 5
+  fi
+fi
 
 _hil_rigs() { printf '%s\n' "${HIL_RIG_A:-}" "${HIL_RIG_B:-}" | grep -E '^[^=]+=[^=]+=[^=]+'; }
 _hil_refuse() { echo "[hil-guard] REFUSED: $1 is not a bench rig (HIL_RIG_A / HIL_RIG_B); nothing sent" >&2; exit 5; }
