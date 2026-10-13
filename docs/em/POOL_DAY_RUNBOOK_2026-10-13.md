@@ -381,12 +381,19 @@ The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes 
    ```
    See: `sweep mode: <n> files under sweep/` per unit and `[pool_pull] OK`. DNGs stay on the unit. The report is `pull_report_sweep.json`.
 
-   Then the cut sheet + plot. Pass the board distance and the medium (underwater at the pool):
+   Then the cut sheet + plot. Pass the board distance and the medium (underwater at the pool).
+   - **Every** sweep folder of each unit is analysed, side by side. Each sweep is scored on its own board region, from its best-detected frame.
+   - `--unit` treats all of a unit's sweeps as **repeats at `--board-distance-m`**: one group, with a best-lens median and spread.
+   - **Sweeps at different distances** (the pool's 1 m and 2 m sweeps) need explicit tags, so they're never averaged together:
+     ```bash
+     python3 tools/focus_sweep_sheet.py --sweep-dir bmcam003=1.0:~/NereusPool/<run date>/bmcam003/sweep/<HHMMSS 1 m> --sweep-dir bmcam003=2.0:~/NereusPool/<run date>/bmcam003/sweep/<HHMMSS 2 m> --sweep-dir bmcam004=1.0:<...> --sweep-dir bmcam004=2.0:<...> --medium underwater
+     ```
+   - A group whose sweeps show the board in different places warns "not true repeats?".
    ```bash
    python3 tools/focus_sweep_sheet.py --unit bmcam003=~/NereusPool/<run date>/bmcam003 --unit bmcam004=~/NereusPool/<run date>/bmcam004 --board-distance-m 1.0 --medium underwater
    ```
    See:
-   - `VERDICT bmcam00N: PASS|WARN best lp <x>` per unit
+   - `VERDICT bmcam00N: PASS|WARN  [1 m] best lp <x>, <y> (median <m>, spread <d>)` per unit, one `[group]` per distance
    - `runs/focus_sweep_<UTC>/` holding `focus_sheet_<unit>.jpg` (scaled full frame + 1:1 board crop per lens), `focus_plot.png` (both units overlaid, best marked), `focus_sweep.csv` and `focus_sweep.json`
 
    A WARN that says "peak at the sweep edge" means the true focus may lie outside the swept range.
