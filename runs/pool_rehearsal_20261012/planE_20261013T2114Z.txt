@@ -1,0 +1,66 @@
+== 2026-10-13T21:14:18Z battery (rig health)
+SPOT-31593C 2026-10-13T19:40:00+00:00 3.67 V -0.06 W in_v 2.67 | SPOT-33507C 2026-10-13T19:21:54+00:00 3.72 V -0.5 W in_v 4.51
+== 2026-10-13T21:14:20Z bmcam003: stop + off
+[POOL-MODE] SIGTERM sent to 1333 (finishes the current frame / loop iteration, up to ~2 min, then exits)
+1767 bash -c bash /home/pi/pool_mode.sh stop 2>&1 | tail -2; for i in $(seq 1 40); do pgrep -f "^[^ ]*python3? [^ ]*pool_sequence[.]py" >/dev/null || break; sleep 5; done; pgrep -af "[p]ool_sequence" || echo "no pool process"; bash /home/pi/pool_mode.sh off > /tmp/pool_off.log 2>&1; echo "pool_mode off exit=$?"; tail -6 /tmp/pool_off.log
+pool_mode off exit=4
+[POOL-MODE] backup      : none (pool mode was never turned on here)
+[POOL-MODE] pool args   : --lens-position 0.8 (/home/pi/pool_args, read at each start)
+[POOL-MODE] pool process: not running
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_210909_bmcam003
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=phase=idle cal=0/0 loop=0/0 lp=0.8 run=20261013_210909_bmcam003 free=101907MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=311s
+[POOL-MODE] disk        : 101908 MB free, 10% used
+== bmcam003: re-arm from ~/hil_backup/20261012T201023Z
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+bmcam003 crontab == production (armed): OK
+ee69a9b1  camera_config.yaml
+6f419ebb  camera_schedule.yaml
+halt-issued
+21:14:46 bmcam003 down
+== 2026-10-13T21:15:01Z bmcam003: restore schedule SPOT-31593C
+2026-10-13T21:15:18Z [restore SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:15:31Z Succesfully sent config set msg
+2026-10-13T21:15:31Z 1673021t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:15:38Z 1679613t [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:15:38Z 1679620t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:15:38Z 1679661t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:15:41Z [restore SPOT-31593C/bmcam003] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 21:15:19
+2026-10-13T21:16:50Z [restore SPOT-31593C/bmcam003] bmcam003 dark
+2026-10-13T21:17:04Z [restore SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:17:04Z [restore SPOT-31593C/bmcam003] PRODUCTION schedule confirmed
+hil_restore_schedule rc=0
+== 2026-10-13T21:17:04Z bmcam004: stop + off
+[POOL-MODE] SIGTERM sent to 1055 (finishes the current frame / loop iteration, up to ~2 min, then exits)
+1497 bash -c bash /home/pi/pool_mode.sh stop 2>&1 | tail -2; for i in $(seq 1 40); do pgrep -f "^[^ ]*python3? [^ ]*pool_sequence[.]py" >/dev/null || break; sleep 5; done; pgrep -af "[p]ool_sequence" || echo "no pool process"; bash /home/pi/pool_mode.sh off > /tmp/pool_off.log 2>&1; echo "pool_mode off exit=$?"; tail -6 /tmp/pool_off.log
+pool_mode off exit=4
+[POOL-MODE] backup      : none (pool mode was never turned on here)
+[POOL-MODE] pool args   : --lens-position 0.8 (/home/pi/pool_args, read at each start)
+[POOL-MODE] pool process: not running
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_210855_bmcam004
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=phase=idle cal=0/0 loop=0/0 lp=0.8 run=20261013_210855_bmcam004 free=101614MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=489s
+[POOL-MODE] disk        : 101615 MB free, 10% used
+== bmcam004: re-arm from ~/hil_backup/20261012T201023Z
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+bmcam004 crontab == production (armed): OK
+29d8f099  camera_config.yaml
+e8f06056  camera_schedule.yaml
+halt-issued
+21:17:29 bmcam004 down
+== 2026-10-13T21:17:44Z bmcam004: restore schedule SPOT-33507C
+2026-10-13T21:18:02Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:18:16Z Succesfully sent config set msg
+2026-10-13T21:18:16Z 1800269t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:18:22Z 1806816t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:18:22Z 1806823t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:18:22Z 1806864t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:18:25Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 21:17:55
+2026-10-13T21:19:27Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-13T21:19:41Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:19:41Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed
+hil_restore_schedule rc=0

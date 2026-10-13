@@ -87,3 +87,28 @@ ssh: connect to host 192.168.1.45 port 22: Operation timed out
 12:16:17 PM [focus] wrote runs/focus_sweep_20261013T191606Z/: focus_plot.png, focus_sheet_bmcam003.jpg, focus_sheet_bmcam004.jpg, focus_sweep.csv, focus_sweep.json, focus_sweep.log
 12:16:17 PM [focus] VERDICT bmcam003: WARN  [0.7 m] best lp 0.8, 1.2 (median 1, spread 0.4)  (sweep 191041: peak not distinct (best 0.1261 < 1.15 x median 0.1191); sweep 191041: lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step
 12:16:17 PM [focus] VERDICT bmcam004: WARN  [0.7 m] best lp 0.8  (sweep 191148: peak not distinct (best 0.1511 < 1.15 x median 0.1395); sweep 191148: lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step)
+2026-10-13T21:10:19Z == sweep 1 (tag 0.97)
+[pool_cmd] host=nereus000 id=90027 verb=sweep targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=180s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90027,"c":"pool","v":"sweep"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90027,"c":"pool","v":"sweep"} 1 1
+  [bmcam003] .. still running (replay ack, not final): [bmcam004] OK id=90027 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam003] OK id=90027 pool sweep in_progress dup
+  [bmcam003] OK  [bmcam004] OK id=90027 pool sweep n=11 dt=60.7s dir=sweep/211022 best_lp=0.6 best_lp_ten=0.6 back_to_lp=0.8
+  [bmcam004] OK  [bmcam003] OK id=90027 pool sweep n=11 dt=60.5s dir=sweep/211022 best_lp=1 best_lp_ten=0.8 back_to_lp=0.8
+[pool_cmd] id=90027 bmcam003: OK
+[pool_cmd] id=90027 bmcam004: OK
+2026-10-13T21:11:22Z 1423878t 53171fa3d81a8e6f, [bmcam003] OK id=90027 pool sweep n=11 dt=60.5s dir=sweep/211022 best_lp=1 best_lp_ten=0.8 back_to_lp=0.8
+2026-10-13T21:11:23Z 1386875t e6fe83ea6b4a2b7f, [bmcam004] OK id=90027 pool sweep n=11 dt=60.7s dir=sweep/211022 best_lp=0.6 best_lp_ten=0.6 back_to_lp=0.8
+2026-10-13T21:11:27Z == sweep 2 (tag 0.97)
+[pool_cmd] host=nereus000 id=90028 verb=sweep targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=180s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90028,"c":"pool","v":"sweep"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90028,"c":"pool","v":"sweep"} 1 1
+  [bmcam003] .. still running (replay ack, not final): [bmcam004] OK id=90028 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam003] OK id=90028 pool sweep in_progress dup
+  [bmcam004] OK  [bmcam003] OK id=90028 pool sweep n=11 dt=54.8s dir=sweep/211129 best_lp=1.2 best_lp_ten=1.2 back_to_lp=0.8
+  [bmcam003] OK  [bmcam004] OK id=90028 pool sweep n=11 dt=55.1s dir=sweep/211129 best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8
+[pool_cmd] id=90028 bmcam003: OK
+[pool_cmd] id=90028 bmcam004: OK
+2026-10-13T21:12:24Z 1448474t e6fe83ea6b4a2b7f, [bmcam004] OK id=90028 pool sweep n=11 dt=55.1s dir=sweep/211129 best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8
+2026-10-13T21:12:24Z 1485478t 53171fa3d81a8e6f, [bmcam003] OK id=90028 pool sweep n=11 dt=54.8s dir=sweep/211129 best_lp=1.2 best_lp_ten=1.2 back_to_lp=0.8
+2026-10-13T21:12:29Z sweep dirs: 211022 211129

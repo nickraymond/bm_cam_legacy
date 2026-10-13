@@ -1,0 +1,1974 @@
+{
+ "check": "focus sweep, in-air",
+ "created": "2026-10-13T14:20:12",
+ "run_tag": "tfocus_0p97m_indoor",
+ "board_distance_m": 0.97,
+ "medium": "in-air",
+ "command": "focus_sweep_sheet.py --sweep-dir bmcam003=0.97:/Users/nickbuemond/NereusPool/20261013_TFOCUS_097/bmcam003/sweep/211022 --sweep-dir bmcam003=0.97:/Users/nickbuemond/NereusPool/20261013_TFOCUS_097/bmcam003/sweep/211129 --sweep-dir bmcam004=0.97:/Users/nickbuemond/NereusPool/20261013_TFOCUS_097/bmcam004/sweep/211022 --sweep-dir bmcam004=0.97:/Users/nickbuemond/NereusPool/20261013_TFOCUS_097/bmcam004/sweep/211129 --board-distance-m 0.97 --medium in-air --run-tag tfocus_0p97m_indoor",
+ "software": {
+  "opencv": "5.0.0",
+  "numpy": "2.5.1",
+  "python": "3.13.5"
+ },
+ "board": {
+  "squares_x": 9,
+  "squares_y": 14,
+  "square_mm": 40.0,
+  "marker_mm": 30.0,
+  "dictionary": "DICT_5X5_100",
+  "layout_mode": "auto"
+ },
+ "metrics": {
+  "region": "ONE box per SWEEP = that sweep's best-detected frame's ChArUco box, for all its lens positions",
+  "groups": "repeats = sweeps with the same tag (--board-distance-m, or --sweep-dir NAME=TAG:PATH); median + spread only within a group",
+  "lapvar_norm": "var(Laplacian 3x3) / mean(I)^2 on the region",
+  "tenengrad_norm": "mean(Sobel Gx^2 + Gy^2) / mean(I)^2 on the region",
+  "best": "per sweep: argmax lapvar_norm (+ 3-point parabola when interior)",
+  "spread": "within a group: best lp max - min; lens_spread = (max - min) / mean of lapvar_norm per lens"
+ },
+ "units": [
+  {
+   "unit": "bmcam003",
+   "sweeps": [
+    {
+     "sweep": "211022",
+     "verdict": "WARN",
+     "reasons": [
+      "peak not distinct (best 2.21 < 1.15 x median 2.106)"
+     ],
+     "step": 0.19999999999999996,
+     "best": {
+      "lp": 1.0,
+      "lp_requested": 1.0,
+      "lp_applied": 1.0,
+      "lp_parabola": 1.063903204359031,
+      "lapvar_norm": 2.209820737366925,
+      "tenengrad_best_lp": 1.0,
+      "corners_detected": 104,
+      "file": "20261013T211047Z_sweep_lp1.00.jpg"
+     },
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "box": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "box_source": "sweep board box (lp 0, 104 corners)",
+     "board_found": true,
+     "pi": {
+      "best_lp": 1.0,
+      "best_lp_tenengrad": 0.8
+     }
+    },
+    {
+     "sweep": "211129",
+     "verdict": "WARN",
+     "reasons": [
+      "peak not distinct (best 2.234 < 1.15 x median 2.148)"
+     ],
+     "step": 0.19999999999999996,
+     "best": {
+      "lp": 1.4,
+      "lp_requested": 1.4,
+      "lp_applied": 1.4,
+      "lp_parabola": 1.3107758413693444,
+      "lapvar_norm": 2.233814292737256,
+      "tenengrad_best_lp": 1.2,
+      "corners_detected": 104,
+      "file": "20261013T211200Z_sweep_lp1.40.jpg"
+     },
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "box": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "box_source": "sweep board box (lp 0, 104 corners)",
+     "board_found": true,
+     "pi": {
+      "best_lp": 1.2,
+      "best_lp_tenengrad": 1.2
+     },
+     "box_iou_vs_first": 0.996
+    }
+   ],
+   "groups": [
+    {
+     "group": "0.97 m",
+     "sweeps": [
+      "211022",
+      "211129"
+     ],
+     "best_lp_per_sweep": [
+      1.0,
+      1.4
+     ],
+     "best_lp": 1.2,
+     "best_lp_spread": 0.3999999999999999,
+     "reasons": [
+      "repeats disagree: best lp 1, 1.4 (spread 0.4 > one step 0.2)"
+     ],
+     "lens_spread": [
+      {
+       "lp": 0.0,
+       "n": 2,
+       "rel_spread": 0.063
+      },
+      {
+       "lp": 0.2,
+       "n": 2,
+       "rel_spread": 0.0725
+      },
+      {
+       "lp": 0.4,
+       "n": 2,
+       "rel_spread": 0.0672
+      },
+      {
+       "lp": 0.6,
+       "n": 2,
+       "rel_spread": 0.0411
+      },
+      {
+       "lp": 0.8,
+       "n": 2,
+       "rel_spread": 0.0304
+      },
+      {
+       "lp": 1.0,
+       "n": 2,
+       "rel_spread": 0.0042
+      },
+      {
+       "lp": 1.2,
+       "n": 2,
+       "rel_spread": 0.0135
+      },
+      {
+       "lp": 1.4,
+       "n": 2,
+       "rel_spread": 0.0258
+      },
+      {
+       "lp": 1.6,
+       "n": 2,
+       "rel_spread": 0.0379
+      },
+      {
+       "lp": 1.8,
+       "n": 2,
+       "rel_spread": 0.0623
+      },
+      {
+       "lp": 1.82,
+       "n": 2,
+       "rel_spread": 0.068
+      }
+     ]
+    }
+   ],
+   "pi_best": {
+    "211022": {
+     "best_lp": 1.0,
+     "best_lp_tenengrad": 0.8
+    },
+    "211129": {
+     "best_lp": 1.2,
+     "best_lp_tenengrad": 1.2
+    }
+   },
+   "layout": {
+    "chosen": {
+     "squares_x": 14,
+     "squares_y": 9,
+     "legacy": false,
+     "corners": 1144,
+     "markers": 693
+    },
+    "trials": [
+     {
+      "squares_x": 9,
+      "squares_y": 14,
+      "legacy": false,
+      "corners": 0,
+      "markers": 693
+     },
+     {
+      "squares_x": 14,
+      "squares_y": 9,
+      "legacy": false,
+      "corners": 1144,
+      "markers": 693
+     },
+     {
+      "squares_x": 9,
+      "squares_y": 14,
+      "legacy": true,
+      "corners": 0,
+      "markers": 693
+     },
+     {
+      "squares_x": 14,
+      "squares_y": 9,
+      "legacy": true,
+      "same_as": "14x9 modern"
+     }
+    ],
+    "why_none": null
+   },
+   "total_corners": 104,
+   "reasons": [
+    "sweep 211022: peak not distinct (best 2.21 < 1.15 x median 2.106)",
+    "sweep 211129: peak not distinct (best 2.234 < 1.15 x median 2.148)",
+    "group 0.97 m: repeats disagree: best lp 1, 1.4 (spread 0.4 > one step 0.2)"
+   ],
+   "verdict": "WARN",
+   "frames": [
+    {
+     "file": "20261013T211022Z_sweep_lp0.00.jpg",
+     "lp_req": 0.0,
+     "lp_applied": 0.0,
+     "lp": 0.0,
+     "pi_metric": 103.663,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.48836767802285,
+     "lapvar": 2148.8439645477442,
+     "lapvar_norm": 1.6139720516923481,
+     "tenengrad": 9255.159946780637,
+     "tenengrad_norm": 6.951444467113841,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211026Z_sweep_lp0.20.jpg",
+     "lp_req": 0.2,
+     "lp_applied": 0.2,
+     "lp": 0.2,
+     "pi_metric": 115.081,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1643,
+      1022,
+      1074,
+      594
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.386152610290544,
+     "lapvar": 2398.83462376987,
+     "lapvar_norm": 1.8118741762227695,
+     "tenengrad": 9888.648356820771,
+     "tenengrad_norm": 7.469037847767086,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211031Z_sweep_lp0.40.jpg",
+     "lp_req": 0.4,
+     "lp_applied": 0.4,
+     "lp": 0.4,
+     "pi_metric": 124.782,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1643,
+      1022,
+      1075,
+      594
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.25343839136943,
+     "lapvar": 2624.4158721736417,
+     "lapvar_norm": 1.9967985387977394,
+     "tenengrad": 10394.583276066034,
+     "tenengrad_norm": 7.908765114985094,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211037Z_sweep_lp0.60.jpg",
+     "lp_req": 0.6,
+     "lp_applied": 0.6,
+     "lp": 0.6,
+     "pi_metric": 130.209,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1021,
+      1078,
+      595
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.19911761291072,
+     "lapvar": 2759.8525586313176,
+     "lapvar_norm": 2.1061529777833528,
+     "tenengrad": 10673.191479881136,
+     "tenengrad_norm": 8.145135850645467,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211042Z_sweep_lp0.80.jpg",
+     "lp_req": 0.8,
+     "lp_applied": 0.8,
+     "lp": 0.8,
+     "pi_metric": 134.261,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1021,
+      1078,
+      595
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.17674571122847,
+     "lapvar": 2849.1446186770754,
+     "lapvar_norm": 2.1769853154643384,
+     "tenengrad": 10826.474785129958,
+     "tenengrad_norm": 8.272334254628507,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211047Z_sweep_lp1.00.jpg",
+     "lp_req": 1.0,
+     "lp_applied": 1.0,
+     "lp": 1.0,
+     "pi_metric": 135.366,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1021,
+      1078,
+      595
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.08904515801068,
+     "lapvar": 2878.112913629775,
+     "lapvar_norm": 2.209820737366925,
+     "tenengrad": 10819.464417395451,
+     "tenengrad_norm": 8.307205990264897,
+     "status": "PASS",
+     "best": true
+    },
+    {
+     "file": "20261013T211051Z_sweep_lp1.20.jpg",
+     "lp_req": 1.2,
+     "lp_applied": 1.2,
+     "lp": 1.2,
+     "pi_metric": 134.136,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1021,
+      1080,
+      595
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.0365867434833,
+     "lapvar": 2860.360859949895,
+     "lapvar_norm": 2.2025893136809893,
+     "tenengrad": 10703.016546326891,
+     "tenengrad_norm": 8.241739774576336,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211056Z_sweep_lp1.40.jpg",
+     "lp_req": 1.4,
+     "lp_applied": 1.4,
+     "lp": 1.4,
+     "pi_metric": 132.833,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1021,
+      1080,
+      595
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.01514837721734,
+     "lapvar": 2823.6404982097256,
+     "lapvar_norm": 2.1769025368298838,
+     "tenengrad": 10569.467781260884,
+     "tenengrad_norm": 8.14859442643522,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211102Z_sweep_lp1.60.jpg",
+     "lp_req": 1.6,
+     "lp_applied": 1.6,
+     "lp": 1.6,
+     "pi_metric": 129.965,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1020,
+      1080,
+      596
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.971350661005836,
+     "lapvar": 2754.908261382115,
+     "lapvar_norm": 2.129088191089029,
+     "tenengrad": 10324.62479407307,
+     "tenengrad_norm": 7.979226399160661,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211106Z_sweep_lp1.80.jpg",
+     "lp_req": 1.8,
+     "lp_applied": 1.8,
+     "lp": 1.8,
+     "pi_metric": 125.067,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1020,
+      1080,
+      596
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.956484697864006,
+     "lapvar": 2637.7074020070595,
+     "lapvar_norm": 2.040197287365977,
+     "tenengrad": 9949.353541629403,
+     "tenengrad_norm": 7.695563234660497,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211111Z_sweep_lp1.82.jpg",
+     "lp_req": 1.82,
+     "lp_applied": 1.82,
+     "lp": 1.82,
+     "pi_metric": 123.332,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1020,
+      1080,
+      596
+     ],
+     "roi": [
+      1644,
+      1022,
+      1073,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.981864309450515,
+     "lapvar": 2598.706987327297,
+     "lapvar_norm": 2.007196963093561,
+     "tenengrad": 9835.860104618725,
+     "tenengrad_norm": 7.5970506208198865,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211129Z_sweep_lp0.00.jpg",
+     "lp_req": 0.0,
+     "lp_applied": 0.0,
+     "lp": 0.0,
+     "pi_metric": 96.417,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.2942585382064,
+     "lapvar": 1996.2499307494134,
+     "lapvar_norm": 1.515441084240032,
+     "tenengrad": 8781.182125413037,
+     "tenengrad_norm": 6.666181401468802,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211133Z_sweep_lp0.20.jpg",
+     "lp_req": 0.2,
+     "lp_applied": 0.2,
+     "lp": 0.2,
+     "pi_metric": 107.541,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1643,
+      1021,
+      1075,
+      595
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.273029801428315,
+     "lapvar": 2217.250127245221,
+     "lapvar_norm": 1.6851828205329844,
+     "tenengrad": 9367.496943362865,
+     "tenengrad_norm": 7.119604922500684,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211137Z_sweep_lp0.40.jpg",
+     "lp_req": 0.4,
+     "lp_applied": 0.4,
+     "lp": 0.4,
+     "pi_metric": 116.221,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1021,
+      1078,
+      595
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.097945626344135,
+     "lapvar": 2432.7517725605567,
+     "lapvar_norm": 1.866950592444969,
+     "tenengrad": 9877.936099041313,
+     "tenengrad_norm": 7.580559126601016,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211142Z_sweep_lp0.60.jpg",
+     "lp_req": 0.6,
+     "lp_applied": 0.6,
+     "lp": 0.6,
+     "pi_metric": 124.323,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1021,
+      1078,
+      595
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.970645310961885,
+     "lapvar": 2615.495972943379,
+     "lapvar_norm": 2.0214248368101844,
+     "tenengrad": 10304.156158104948,
+     "tenengrad_norm": 7.963719843515456,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211147Z_sweep_lp0.80.jpg",
+     "lp_req": 0.8,
+     "lp_applied": 0.8,
+     "lp": 0.8,
+     "pi_metric": 129.732,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1021,
+      1078,
+      595
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.005443949112475,
+     "lapvar": 2737.8202888216892,
+     "lapvar_norm": 2.111876887199741,
+     "tenengrad": 10550.25203305557,
+     "tenengrad_norm": 8.138165062810396,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211151Z_sweep_lp1.00.jpg",
+     "lp_req": 1.0,
+     "lp_applied": 1.0,
+     "lp": 1.0,
+     "pi_metric": 134.002,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1641,
+      1020,
+      1078,
+      596
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.88607364771238,
+     "lapvar": 2833.980059295073,
+     "lapvar_norm": 2.200619221043993,
+     "tenengrad": 10698.337521709962,
+     "tenengrad_norm": 8.30738632273482,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211156Z_sweep_lp1.20.jpg",
+     "lp_req": 1.2,
+     "lp_applied": 1.2,
+     "lp": 1.2,
+     "pi_metric": 135.115,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1020,
+      1079,
+      596
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.838169090031286,
+     "lapvar": 2867.4114959378326,
+     "lapvar_norm": 2.232535604043149,
+     "tenengrad": 10721.49694963289,
+     "tenengrad_norm": 8.347641663083573,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211200Z_sweep_lp1.40.jpg",
+     "lp_req": 1.4,
+     "lp_applied": 1.4,
+     "lp": 1.4,
+     "pi_metric": 134.643,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1020,
+      1080,
+      596
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.748122127544846,
+     "lapvar": 2854.6543578782293,
+     "lapvar_norm": 2.233814292737256,
+     "tenengrad": 10661.775476678642,
+     "tenengrad_norm": 8.3430158120657,
+     "status": "PASS",
+     "best": true
+    },
+    {
+     "file": "20261013T211205Z_sweep_lp1.60.jpg",
+     "lp_req": 1.6,
+     "lp_applied": 1.6,
+     "lp": 1.6,
+     "pi_metric": 133.332,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1640,
+      1020,
+      1080,
+      596
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.782781257641595,
+     "lapvar": 2831.442390931064,
+     "lapvar_norm": 2.2113604736803794,
+     "tenengrad": 10550.594777696268,
+     "tenengrad_norm": 8.240029300947267,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211210Z_sweep_lp1.80.jpg",
+     "lp_req": 1.8,
+     "lp_applied": 1.8,
+     "lp": 1.8,
+     "pi_metric": 130.814,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1639,
+      1020,
+      1081,
+      596
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.66511953802456,
+     "lapvar": 2762.0137438557217,
+     "lapvar_norm": 2.1713931695777497,
+     "tenengrad": 10318.18260193493,
+     "tenengrad_norm": 8.11177398162427,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211215Z_sweep_lp1.82.jpg",
+     "lp_req": 1.82,
+     "lp_applied": 1.82,
+     "lp": 1.82,
+     "pi_metric": 130.176,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1639,
+      1020,
+      1081,
+      596
+     ],
+     "roi": [
+      1643,
+      1021,
+      1074,
+      594
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.77683570653775,
+     "lapvar": 2749.9211187761944,
+     "lapvar_norm": 2.148406131033371,
+     "tenengrad": 10290.08382082777,
+     "tenengrad_norm": 8.039241205344881,
+     "status": "PASS",
+     "best": false
+    }
+   ]
+  },
+  {
+   "unit": "bmcam004",
+   "sweeps": [
+    {
+     "sweep": "211022",
+     "verdict": "WARN",
+     "reasons": [
+      "peak not distinct (best 2.425 < 1.15 x median 2.213)"
+     ],
+     "step": 0.19999999999999996,
+     "best": {
+      "lp": 0.6,
+      "lp_requested": 0.6,
+      "lp_applied": 0.6,
+      "lp_parabola": 0.6614499827979882,
+      "lapvar_norm": 2.424707310977058,
+      "tenengrad_best_lp": 0.6,
+      "corners_detected": 104,
+      "file": "20261013T211037Z_sweep_lp0.60.jpg"
+     },
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "box": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "box_source": "sweep board box (lp 0, 104 corners)",
+     "board_found": true,
+     "pi": {
+      "best_lp": 0.6,
+      "best_lp_tenengrad": 0.6
+     }
+    },
+    {
+     "sweep": "211129",
+     "verdict": "WARN",
+     "reasons": [
+      "peak not distinct (best 2.456 < 1.15 x median 2.287)"
+     ],
+     "step": 0.19999999999999996,
+     "best": {
+      "lp": 0.8,
+      "lp_requested": 0.8,
+      "lp_applied": 0.8,
+      "lp_parabola": 0.8561652449983197,
+      "lapvar_norm": 2.4564335159609154,
+      "tenengrad_best_lp": 0.8,
+      "corners_detected": 104,
+      "file": "20261013T211147Z_sweep_lp0.80.jpg"
+     },
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "box": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "box_source": "sweep board box (lp 0, 104 corners)",
+     "board_found": true,
+     "pi": {
+      "best_lp": 0.8,
+      "best_lp_tenengrad": 0.8
+     },
+     "box_iou_vs_first": 0.997
+    }
+   ],
+   "groups": [
+    {
+     "group": "0.97 m",
+     "sweeps": [
+      "211022",
+      "211129"
+     ],
+     "best_lp_per_sweep": [
+      0.6,
+      0.8
+     ],
+     "best_lp": 0.7,
+     "best_lp_spread": 0.20000000000000007,
+     "reasons": [],
+     "lens_spread": [
+      {
+       "lp": 0.0,
+       "n": 2,
+       "rel_spread": 0.0348
+      },
+      {
+       "lp": 0.2,
+       "n": 2,
+       "rel_spread": 0.0464
+      },
+      {
+       "lp": 0.4,
+       "n": 2,
+       "rel_spread": 0.0348
+      },
+      {
+       "lp": 0.6,
+       "n": 2,
+       "rel_spread": 0.0068
+      },
+      {
+       "lp": 0.8,
+       "n": 2,
+       "rel_spread": 0.0186
+      },
+      {
+       "lp": 1.0,
+       "n": 2,
+       "rel_spread": 0.048
+      },
+      {
+       "lp": 1.2,
+       "n": 2,
+       "rel_spread": 0.0723
+      },
+      {
+       "lp": 1.4,
+       "n": 2,
+       "rel_spread": 0.0969
+      },
+      {
+       "lp": 1.6,
+       "n": 2,
+       "rel_spread": 0.1193
+      },
+      {
+       "lp": 1.8,
+       "n": 2,
+       "rel_spread": 0.1376
+      },
+      {
+       "lp": 1.82,
+       "n": 2,
+       "rel_spread": 0.1346
+      }
+     ]
+    }
+   ],
+   "pi_best": {
+    "211022": {
+     "best_lp": 0.6,
+     "best_lp_tenengrad": 0.6
+    },
+    "211129": {
+     "best_lp": 0.8,
+     "best_lp_tenengrad": 0.8
+    }
+   },
+   "layout": {
+    "chosen": {
+     "squares_x": 14,
+     "squares_y": 9,
+     "legacy": false,
+     "corners": 1144,
+     "markers": 693
+    },
+    "trials": [
+     {
+      "squares_x": 9,
+      "squares_y": 14,
+      "legacy": false,
+      "corners": 0,
+      "markers": 693
+     },
+     {
+      "squares_x": 14,
+      "squares_y": 9,
+      "legacy": false,
+      "corners": 1144,
+      "markers": 693
+     },
+     {
+      "squares_x": 9,
+      "squares_y": 14,
+      "legacy": true,
+      "corners": 0,
+      "markers": 693
+     },
+     {
+      "squares_x": 14,
+      "squares_y": 9,
+      "legacy": true,
+      "same_as": "14x9 modern"
+     }
+    ],
+    "why_none": null
+   },
+   "total_corners": 104,
+   "reasons": [
+    "sweep 211022: peak not distinct (best 2.425 < 1.15 x median 2.213)",
+    "sweep 211129: peak not distinct (best 2.456 < 1.15 x median 2.287)"
+   ],
+   "verdict": "WARN",
+   "frames": [
+    {
+     "file": "20261013T211022Z_sweep_lp0.00.jpg",
+     "lp_req": 0.0,
+     "lp_applied": 0.0,
+     "lp": 0.0,
+     "pi_metric": 137.44,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.124683963561864,
+     "lapvar": 2602.7774969369666,
+     "lapvar_norm": 1.994476531943616,
+     "tenengrad": 10365.855135813057,
+     "tenengrad_norm": 7.943227888759879,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211026Z_sweep_lp0.20.jpg",
+     "lp_req": 0.2,
+     "lp_applied": 0.2,
+     "lp": 0.2,
+     "pi_metric": 151.279,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1779,
+      1002,
+      1080,
+      603
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 36.03723735354737,
+     "lapvar": 2873.9332259554817,
+     "lapvar_norm": 2.2129606573574003,
+     "tenengrad": 10829.057917087408,
+     "tenengrad_norm": 8.338495449486942,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211031Z_sweep_lp0.40.jpg",
+     "lp_req": 0.4,
+     "lp_applied": 0.4,
+     "lp": 0.4,
+     "pi_metric": 160.404,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1778,
+      1001,
+      1081,
+      603
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.958912573370405,
+     "lapvar": 3061.556218042721,
+     "lapvar_norm": 2.367713437560745,
+     "tenengrad": 11069.774753049704,
+     "tenengrad_norm": 8.561023403425455,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211037Z_sweep_lp0.60.jpg",
+     "lp_req": 0.6,
+     "lp_applied": 0.6,
+     "lp": 0.6,
+     "pi_metric": 163.256,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1778,
+      1001,
+      1081,
+      603
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.8964829851361,
+     "lapvar": 3124.374768319794,
+     "lapvar_norm": 2.424707310977058,
+     "tenengrad": 11079.913183541668,
+     "tenengrad_norm": 8.59869525689844,
+     "status": "PASS",
+     "best": true
+    },
+    {
+     "file": "20261013T211042Z_sweep_lp0.80.jpg",
+     "lp_req": 0.8,
+     "lp_applied": 0.8,
+     "lp": 0.8,
+     "pi_metric": 161.824,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1778,
+      1000,
+      1081,
+      604
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.91400120189906,
+     "lapvar": 3109.8723943990594,
+     "lapvar_norm": 2.4110986703161466,
+     "tenengrad": 10947.14959954629,
+     "tenengrad_norm": 8.487376488744454,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211047Z_sweep_lp1.00.jpg",
+     "lp_req": 1.0,
+     "lp_applied": 1.0,
+     "lp": 1.0,
+     "pi_metric": 154.536,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      1000,
+      1083,
+      604
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.870682116141566,
+     "lapvar": 2996.0973812363923,
+     "lapvar_norm": 2.328502209772794,
+     "tenengrad": 10631.064464517081,
+     "tenengrad_norm": 8.262233815527614,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211052Z_sweep_lp1.20.jpg",
+     "lp_req": 1.2,
+     "lp_applied": 1.2,
+     "lp": 1.2,
+     "pi_metric": 146.866,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      999,
+      1083,
+      605
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.8784083905465,
+     "lapvar": 2848.9027271945265,
+     "lapvar_norm": 2.2131522067865603,
+     "tenengrad": 10283.787245422564,
+     "tenengrad_norm": 7.988895590950227,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211056Z_sweep_lp1.40.jpg",
+     "lp_req": 1.4,
+     "lp_applied": 1.4,
+     "lp": 1.4,
+     "pi_metric": 139.592,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      999,
+      1083,
+      606
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.91538138777844,
+     "lapvar": 2716.1329298440646,
+     "lapvar_norm": 2.105668768496198,
+     "tenengrad": 9943.684527624466,
+     "tenengrad_norm": 7.708792792700238,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211101Z_sweep_lp1.60.jpg",
+     "lp_req": 1.6,
+     "lp_applied": 1.6,
+     "lp": 1.6,
+     "pi_metric": 128.582,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      999,
+      1084,
+      605
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.876086051054585,
+     "lapvar": 2504.791596914343,
+     "lapvar_norm": 1.9460835587649956,
+     "tenengrad": 9397.358099831396,
+     "tenengrad_norm": 7.301223828935714,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211106Z_sweep_lp1.80.jpg",
+     "lp_req": 1.8,
+     "lp_applied": 1.8,
+     "lp": 1.8,
+     "pi_metric": 117.967,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1776,
+      999,
+      1085,
+      606
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.92894040763129,
+     "lapvar": 2298.0432653680823,
+     "lapvar_norm": 1.780202399064508,
+     "tenengrad": 8840.16559771424,
+     "tenengrad_norm": 6.848123463270718,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211111Z_sweep_lp1.82.jpg",
+     "lp_req": 1.82,
+     "lp_applied": 1.82,
+     "lp": 1.82,
+     "pi_metric": 115.174,
+     "pi_error": null,
+     "sweep": "211022",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1776,
+      999,
+      1085,
+      606
+     ],
+     "roi": [
+      1779,
+      1002,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.92184274795316,
+     "lapvar": 2243.80889264798,
+     "lapvar_norm": 1.7388761472845113,
+     "tenengrad": 8696.892288634062,
+     "tenengrad_norm": 6.739797941687238,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211129Z_sweep_lp0.00.jpg",
+     "lp_req": 0.0,
+     "lp_applied": 0.0,
+     "lp": 0.0,
+     "pi_metric": 130.726,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.82888922701906,
+     "lapvar": 2472.850578588772,
+     "lapvar_norm": 1.9263322095926219,
+     "tenengrad": 10012.457305686581,
+     "tenengrad_norm": 7.7996297763054,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211133Z_sweep_lp0.20.jpg",
+     "lp_req": 0.2,
+     "lp_applied": 0.2,
+     "lp": 0.2,
+     "pi_metric": 142.721,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1779,
+      1000,
+      1080,
+      604
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.809314564034935,
+     "lapvar": 2709.0397602336852,
+     "lapvar_norm": 2.112629612149441,
+     "tenengrad": 10486.33568333802,
+     "tenengrad_norm": 8.177710645947935,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211138Z_sweep_lp0.40.jpg",
+     "lp_req": 0.4,
+     "lp_applied": 0.4,
+     "lp": 0.4,
+     "pi_metric": 153.508,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1778,
+      1000,
+      1081,
+      604
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.718956960640114,
+     "lapvar": 2917.6265770963882,
+     "lapvar_norm": 2.28682098828676,
+     "tenengrad": 10813.300611554523,
+     "tenengrad_norm": 8.475410453577046,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211142Z_sweep_lp0.60.jpg",
+     "lp_req": 0.6,
+     "lp_applied": 0.6,
+     "lp": 0.6,
+     "pi_metric": 161.192,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1778,
+      999,
+      1081,
+      605
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.67479562336602,
+     "lapvar": 3064.9809701887702,
+     "lapvar_norm": 2.4082678884267397,
+     "tenengrad": 10979.987307822948,
+     "tenengrad_norm": 8.627378475088733,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211147Z_sweep_lp0.80.jpg",
+     "lp_req": 0.8,
+     "lp_applied": 0.8,
+     "lp": 0.8,
+     "pi_metric": 163.926,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1778,
+      999,
+      1082,
+      605
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.68279393886299,
+     "lapvar": 3127.682919049403,
+     "lapvar_norm": 2.4564335159609154,
+     "tenengrad": 11028.780899334037,
+     "tenengrad_norm": 8.661832974279761,
+     "status": "PASS",
+     "best": true
+    },
+    {
+     "file": "20261013T211152Z_sweep_lp1.00.jpg",
+     "lp_req": 1.0,
+     "lp_applied": 1.0,
+     "lp": 1.0,
+     "pi_metric": 162.146,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      999,
+      1083,
+      605
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.655668214380675,
+     "lapvar": 3105.7413281984136,
+     "lapvar_norm": 2.4429136800813924,
+     "tenengrad": 10890.98623349118,
+     "tenengrad_norm": 8.566630780808538,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211156Z_sweep_lp1.20.jpg",
+     "lp_req": 1.2,
+     "lp_applied": 1.2,
+     "lp": 1.2,
+     "pi_metric": 156.927,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      999,
+      1083,
+      605
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.63940569011599,
+     "lapvar": 3022.063961095615,
+     "lapvar_norm": 2.3792646124188996,
+     "tenengrad": 10642.882436750446,
+     "tenengrad_norm": 8.37911900008717,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211201Z_sweep_lp1.40.jpg",
+     "lp_req": 1.4,
+     "lp_applied": 1.4,
+     "lp": 1.4,
+     "pi_metric": 152.076,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      999,
+      1083,
+      605
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.580452694820615,
+     "lapvar": 2937.161474212059,
+     "lapvar_norm": 2.3200902785457598,
+     "tenengrad": 10443.037294220894,
+     "tenengrad_norm": 8.249049130440632,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211205Z_sweep_lp1.60.jpg",
+     "lp_req": 1.6,
+     "lp_applied": 1.6,
+     "lp": 1.6,
+     "pi_metric": 143.015,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1777,
+      998,
+      1084,
+      606
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.577263512526955,
+     "lapvar": 2775.8596379506735,
+     "lapvar_norm": 2.193069631756536,
+     "tenengrad": 10029.629762832425,
+     "tenengrad_norm": 7.923915226083977,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211210Z_sweep_lp1.80.jpg",
+     "lp_req": 1.8,
+     "lp_applied": 1.8,
+     "lp": 1.8,
+     "pi_metric": 132.708,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1776,
+      998,
+      1085,
+      606
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.60671772432247,
+     "lapvar": 2590.5817401401273,
+     "lapvar_norm": 2.043306030352034,
+     "tenengrad": 9568.589056570714,
+     "tenengrad_norm": 7.547168042724588,
+     "status": "PASS",
+     "best": false
+    },
+    {
+     "file": "20261013T211215Z_sweep_lp1.82.jpg",
+     "lp_req": 1.82,
+     "lp_applied": 1.82,
+     "lp": 1.82,
+     "pi_metric": 129.029,
+     "pi_error": null,
+     "sweep": "211129",
+     "group": "0.97 m",
+     "distance_m": 0.97,
+     "w": 4608,
+     "h": 2592,
+     "corners_detected": 104,
+     "markers": 63,
+     "roi_detected": [
+      1776,
+      998,
+      1085,
+      606
+     ],
+     "roi": [
+      1779,
+      1001,
+      1079,
+      603
+     ],
+     "roi_source": "sweep board box (lp 0, 104 corners)",
+     "mean_intensity": 35.612378330774305,
+     "lapvar": 2523.531728792239,
+     "lapvar_norm": 1.9897880237679764,
+     "tenengrad": 9393.334098737083,
+     "tenengrad_norm": 7.406581609284456,
+     "status": "PASS",
+     "best": false
+    }
+   ]
+  }
+ ]
+}

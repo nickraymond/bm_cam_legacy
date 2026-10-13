@@ -521,3 +521,353 @@
 2026-10-13T19:24:49Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
 2026-10-13T19:24:49Z Succesfully sent config get msg
 2026-10-13T19:24:49Z 2026-10-13T19:24:52.820Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:07:14Z SPOT-33507C > sensors
+2026-10-13T21:07:17Z sensors
+2026-10-13T21:07:17Z                    BATT_V: +3.800 V
+2026-10-13T21:07:17Z                    BATT_I: +0.430 A
+2026-10-13T21:07:17Z                    BATT_T: +23.746 C
+2026-10-13T21:07:17Z                   SOLAR_V: +4.488 V
+2026-10-13T21:07:17Z                   SOLAR_I: +0.457 A
+2026-10-13T21:07:17Z                     BUS_V: +3.816 V
+2026-10-13T21:07:17Z                     BUS_I: +0.068 A
+2026-10-13T21:07:17Z                       SST: N/A
+2026-10-13T21:07:17Z      Internal Temperature: +24.440 C
+2026-10-13T21:07:17Z         Internal Humidity: +25.281 %RH
+2026-10-13T21:07:17Z                  Pressure: N/A
+2026-10-13T21:07:17Z sensors end
+2026-10-13T21:07:23Z SPOT-31593C > sensors
+2026-10-13T21:07:24Z sensors
+2026-10-13T21:07:24Z                    BATT_V: +3.736 V
+2026-10-13T21:07:24Z                    BATT_I: +0.433 A
+2026-10-13T21:07:24Z                    BATT_T: +15.919 C
+2026-10-13T21:07:24Z                   SOLAR_V: +4.480 V
+2026-10-13T21:07:24Z                   SOLAR_I: +0.461 A
+2026-10-13T21:07:24Z                     BUS_V: +3.760 V
+2026-10-13T21:07:24Z                     BUS_I: +0.076 A
+2026-10-13T21:07:24Z                       SST: N/A
+2026-10-13T21:07:24Z      Internal Temperature: +25.115 C
+2026-10-13T21:07:24Z         Internal Humidity: +28.698 %RH
+2026-10-13T21:07:24Z                  Pressure: N/A
+2026-10-13T21:07:24Z sensors end
+2026-10-13T21:07:51Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:07:51Z SPOT-33507C > bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:07:52Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:07:52Z Succesfully sent config get msg
+2026-10-13T21:07:52Z 1175997t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:07:52Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:07:52Z Succesfully sent config get msg
+2026-10-13T21:07:52Z 1213132t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:07:55Z SPOT-33507C > bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 0
+2026-10-13T21:07:55Z SPOT-31593C > bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 0
+2026-10-13T21:07:56Z bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 0
+2026-10-13T21:07:56Z Succesfully sent config set msg
+2026-10-13T21:07:56Z 1217356t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:07:56Z bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 0
+2026-10-13T21:07:56Z Succesfully sent config set msg
+2026-10-13T21:07:56Z 1180222t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:00Z SPOT-33507C > bridge cfg commit c3c564b91856226c s
+2026-10-13T21:08:00Z SPOT-31593C > bridge cfg commit 0e582dd12c1e1480 s
+2026-10-13T21:08:02Z bridge cfg commit c3c564b91856226c s
+2026-10-13T21:08:02Z Succesfull config commit send
+2026-10-13T21:08:03Z 1187378t [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-13T21:08:03Z 1187380t [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 1000000
+2026-10-13T21:08:03Z 1187386t [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-13T21:08:03Z 1187387t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:08:03Z 1187393t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:08:03Z 1187422t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-13T21:08:03Z 1187423t [BRIDGE_CFG] [INFO] Num Keys: 18
+2026-10-13T21:08:03Z 1187423t [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-13T21:08:03Z 1187423t [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-13T21:08:03Z 1187423t [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-13T21:08:03Z 1187423t [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-13T21:08:03Z 1187423t [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-13T21:08:03Z 1187424t [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-13T21:08:03Z 1187424t [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-13T21:08:03Z 1187424t [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-13T21:08:03Z 1187424t [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-13T21:08:03Z 1187425t [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-13T21:08:03Z 1187425t [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-13T21:08:03Z 1187425t [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-13T21:08:03Z 1187425t [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-13T21:08:03Z 1187425t [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-13T21:08:03Z 1187426t [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-13T21:08:03Z 1187426t [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-13T21:08:03Z 1187426t [BRIDGE_CFG] [INFO] Key 16: sensorsCheckIntervalS
+2026-10-13T21:08:03Z 1187426t [BRIDGE_CFG] [INFO] Key 17: sensorsPollIntervalMs
+2026-10-13T21:08:03Z 1187426t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-13T21:08:03Z 1187426t [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-13T21:08:03Z 1187431t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-13T21:08:03Z 1187431t [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-13T21:08:03Z 1187431t [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-13T21:08:03Z 1187434t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-13T21:08:03Z 1187440t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:08:03Z 1187445t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:08:03Z 1187450t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-13T21:08:03Z 1187455t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-13T21:08:03Z 1187460t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1187465t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1187470t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:08:03Z 1187475t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1187480t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:08:03Z 1187485t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1187490t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-13T21:08:03Z 1187495t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:08:03Z 1187500t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:08:03Z 1187505t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-13T21:08:03Z 1187510t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1187515t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-13T21:08:03Z 1187520t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60
+2026-10-13T21:08:03Z 1187525t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 10000
+2026-10-13T21:08:03Z 1187530t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-13T21:08:02Z bridge cfg commit 0e582dd12c1e1480 s
+2026-10-13T21:08:02Z Succesfull config commit send
+2026-10-13T21:08:03Z 1224537t [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-13T21:08:03Z 1224539t [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 1000000
+2026-10-13T21:08:03Z 1224543t [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-13T21:08:03Z 1224545t [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:08:03Z 1224552t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:08:03Z 1224579t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-13T21:08:03Z 1224580t [BRIDGE_CFG] [INFO] Num Keys: 16
+2026-10-13T21:08:03Z 1224580t [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-13T21:08:03Z 1224580t [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-13T21:08:03Z 1224580t [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-13T21:08:03Z 1224580t [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-13T21:08:03Z 1224581t [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-13T21:08:03Z 1224581t [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-13T21:08:03Z 1224581t [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-13T21:08:03Z 1224581t [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-13T21:08:03Z 1224581t [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-13T21:08:03Z 1224582t [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-13T21:08:03Z 1224582t [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-13T21:08:03Z 1224582t [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-13T21:08:03Z 1224582t [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-13T21:08:03Z 1224582t [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-13T21:08:03Z 1224583t [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-13T21:08:03Z 1224583t [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-13T21:08:03Z 1224583t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-13T21:08:03Z 1224583t [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-13T21:08:03Z 1224587t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-13T21:08:03Z 1224587t [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-13T21:08:03Z 1224587t [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-13T21:08:03Z 1224592t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-13T21:08:03Z 1224596t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:08:03Z 1224601t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:08:03Z 1224606t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-13T21:08:03Z 1224611t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-13T21:08:03Z 1224616t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1224621t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1224626t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:08:03Z 1224631t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1224636t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:08:03Z 1224641t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:08:03Z 1224646t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-13T21:08:03Z 1224651t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:08:03Z 1224656t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:08:03Z 1224661t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-13T21:08:03Z 1224666t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:08:03Z 1224671t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-13T21:08:03Z 1224676t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-13T21:08:04Z 1225583t [BRIDGE_SYS] [INFO] Neighbor 53171fa3d81a8e6f added
+2026-10-13T21:08:46Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:08:48Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:08:48Z Succesfully sent config get msg
+2026-10-13T21:08:48Z 1269713t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:09:01Z SPOT-33507C > bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:09:02Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:09:02Z Succesfully sent config get msg
+2026-10-13T21:09:02Z 1246443t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:15:04Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:15:06Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:15:06Z Succesfully sent config get msg
+2026-10-13T21:15:06Z 1647904t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:15:08Z 1649860t [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-10-13T21:15:08Z 1649864t [BRIDGE_CFG] [INFO] 0e582dd12c1e1480
+2026-10-13T21:15:08Z 1649867t [BRIDGE_CFG] [INFO] 53171fa3d81a8e6f
+2026-10-13T21:15:08Z 1649869t [BRIDGE_SYS] [INFO] Checking CRC in report builder!
+2026-10-13T21:15:08Z 1649871t [BRIDGE_SYS] [INFO] Got CRC 63ed3dbf OLD CRC 63ed3dbf
+2026-10-13T21:15:08Z 1649873t [BRIDGE_SYS] [INFO] CRCs match, not updating
+2026-10-13T21:15:10Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-13T21:15:11Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-13T21:15:11Z Succesfully sent config get msg
+2026-10-13T21:15:11Z 1652129t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:15:14Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-13T21:15:15Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-13T21:15:15Z Succesfully sent config get msg
+2026-10-13T21:15:15Z 1656346t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:15:18Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:15:19Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:15:19Z Succesfully sent config get msg
+2026-10-13T21:15:19Z 1660570t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:15:22Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-13T21:15:23Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-13T21:15:23Z Succesfully sent config get msg
+2026-10-13T21:15:23Z 1664784t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:15:26Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-13T21:15:27Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-13T21:15:27Z Succesfully sent config get msg
+2026-10-13T21:15:27Z 1669004t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:15:31Z SPOT-31593C > bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 1
+2026-10-13T21:15:31Z bridge cfg set 0e582dd12c1e1480 s u bridgePowerControllerEnabled 1
+2026-10-13T21:15:31Z Succesfully sent config set msg
+2026-10-13T21:15:31Z 1673021t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:15:36Z SPOT-31593C > bridge cfg commit 0e582dd12c1e1480 s
+2026-10-13T21:15:37Z bridge cfg commit 0e582dd12c1e1480 s
+2026-10-13T21:15:37Z Succesfull config commit send
+2026-10-13T21:15:38Z 1679605t [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-13T21:15:38Z 1679607t [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 1000000
+2026-10-13T21:15:38Z 1679611t [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-13T21:15:38Z 1679613t [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:15:38Z 1679620t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:15:38Z 1679649t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-13T21:15:38Z 1679649t [BRIDGE_CFG] [INFO] Num Keys: 16
+2026-10-13T21:15:38Z 1679649t [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-13T21:15:38Z 1679649t [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-13T21:15:38Z 1679649t [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-13T21:15:38Z 1679649t [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-13T21:15:38Z 1679650t [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-13T21:15:38Z 1679650t [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-13T21:15:38Z 1679650t [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-13T21:15:38Z 1679650t [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-13T21:15:38Z 1679650t [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-13T21:15:38Z 1679651t [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-13T21:15:38Z 1679651t [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-13T21:15:38Z 1679651t [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-13T21:15:38Z 1679651t [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-13T21:15:38Z 1679651t [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-13T21:15:38Z 1679652t [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-13T21:15:38Z 1679652t [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-13T21:15:38Z 1679652t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-13T21:15:38Z 1679652t [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-13T21:15:38Z 1679656t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-13T21:15:38Z 1679656t [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-13T21:15:38Z 1679657t [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-13T21:15:38Z 1679661t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:15:38Z 1679666t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:15:38Z 1679671t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:15:38Z 1679676t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-13T21:15:38Z 1679681t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-13T21:15:38Z 1679686t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:15:38Z 1679691t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:15:38Z 1679696t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:15:38Z 1679701t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:15:38Z 1679706t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:15:38Z 1679711t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:15:38Z 1679716t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-13T21:15:38Z 1679721t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:15:38Z 1679726t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:15:38Z 1679730t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-13T21:15:38Z 1679735t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:15:38Z 1679741t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-13T21:15:38Z 1679746t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-13T21:15:39Z 1680630t [BRIDGE_SYS] [INFO] Neighbor 53171fa3d81a8e6f added
+2026-10-13T21:16:50Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:16:53Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-13T21:16:53Z Succesfully sent config get msg
+2026-10-13T21:16:53Z 1754221t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:16:56Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-13T21:16:57Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-13T21:16:57Z Succesfully sent config get msg
+2026-10-13T21:16:57Z 1758441t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:17:00Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-13T21:17:01Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-13T21:17:01Z Succesfully sent config get msg
+2026-10-13T21:17:01Z 1762458t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:17:48Z SPOT-33507C > bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:17:50Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:17:50Z Succesfully sent config get msg
+2026-10-13T21:17:50Z 1774354t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:17:53Z SPOT-33507C > bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-13T21:17:54Z bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-13T21:17:54Z Succesfully sent config get msg
+2026-10-13T21:17:54Z 1778372t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:17:57Z SPOT-33507C > bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-13T21:17:58Z bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-13T21:17:58Z Succesfully sent config get msg
+2026-10-13T21:17:58Z 1782591t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:18:02Z SPOT-33507C > bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:18:03Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:18:03Z Succesfully sent config get msg
+2026-10-13T21:18:03Z 1787215t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:18:06Z SPOT-33507C > bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-13T21:18:07Z bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-13T21:18:07Z Succesfully sent config get msg
+2026-10-13T21:18:07Z 1791830t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:18:08Z 1792671t [BRIDGE_CFG] [INFO] Bridge topology in topology sampler:
+2026-10-13T21:18:08Z 1792678t [BRIDGE_CFG] [INFO] c3c564b91856226c
+2026-10-13T21:18:08Z 1792680t [BRIDGE_CFG] [INFO] e6fe83ea6b4a2b7f
+2026-10-13T21:18:08Z 1792682t [BRIDGE_SYS] [INFO] Checking CRC in report builder!
+2026-10-13T21:18:08Z 1792684t [BRIDGE_SYS] [INFO] Got CRC 2ad6b98d OLD CRC 2ad6b98d
+2026-10-13T21:18:08Z 1792686t [BRIDGE_SYS] [INFO] CRCs match, not updating
+2026-10-13T21:18:11Z SPOT-33507C > bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-13T21:18:12Z bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-13T21:18:12Z Succesfully sent config get msg
+2026-10-13T21:18:12Z 1796043t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:18:15Z SPOT-33507C > bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 1
+2026-10-13T21:18:16Z bridge cfg set c3c564b91856226c s u bridgePowerControllerEnabled 1
+2026-10-13T21:18:16Z Succesfully sent config set msg
+2026-10-13T21:18:16Z 1800269t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:18:20Z SPOT-33507C > bridge cfg commit c3c564b91856226c s
+2026-10-13T21:18:21Z bridge cfg commit c3c564b91856226c s
+2026-10-13T21:18:21Z Succesfull config commit send
+2026-10-13T21:18:22Z 1806808t [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-13T21:18:22Z 1806810t [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 1000000
+2026-10-13T21:18:22Z 1806815t [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-13T21:18:22Z 1806816t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:18:22Z 1806823t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:18:22Z 1806852t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-13T21:18:22Z 1806852t [BRIDGE_CFG] [INFO] Num Keys: 18
+2026-10-13T21:18:22Z 1806852t [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-13T21:18:22Z 1806853t [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-13T21:18:22Z 1806853t [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-13T21:18:22Z 1806853t [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-13T21:18:22Z 1806853t [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-13T21:18:22Z 1806853t [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-13T21:18:22Z 1806854t [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-13T21:18:22Z 1806854t [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-13T21:18:22Z 1806854t [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-13T21:18:22Z 1806854t [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-13T21:18:22Z 1806854t [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-13T21:18:22Z 1806855t [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-13T21:18:22Z 1806855t [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-13T21:18:22Z 1806855t [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-13T21:18:22Z 1806855t [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-13T21:18:22Z 1806855t [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-13T21:18:22Z 1806856t [BRIDGE_CFG] [INFO] Key 16: sensorsCheckIntervalS
+2026-10-13T21:18:22Z 1806856t [BRIDGE_CFG] [INFO] Key 17: sensorsPollIntervalMs
+2026-10-13T21:18:22Z 1806856t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-13T21:18:22Z 1806856t [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-13T21:18:22Z 1806860t [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-13T21:18:22Z 1806860t [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-13T21:18:22Z 1806861t [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-13T21:18:22Z 1806864t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:18:22Z 1806869t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:18:22Z 1806874t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-13T21:18:22Z 1806879t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-13T21:18:22Z 1806884t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-13T21:18:22Z 1806889t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:18:22Z 1806894t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:18:22Z 1806899t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:18:22Z 1806904t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:18:22Z 1806909t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:18:22Z 1806914t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:18:22Z 1806919t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-13T21:18:22Z 1806924t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:18:22Z 1806929t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-13T21:18:22Z 1806934t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-13T21:18:22Z 1806939t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:18:22Z 1806944t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-13T21:18:22Z 1806949t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60
+2026-10-13T21:18:22Z 1806954t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 10000
+2026-10-13T21:18:22Z 1806959t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-13T21:19:27Z SPOT-33507C > bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:19:29Z bridge cfg get c3c564b91856226c s bridgePowerControllerEnabled
+2026-10-13T21:19:29Z Succesfully sent config get msg
+2026-10-13T21:19:29Z 1873401t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:19:32Z SPOT-33507C > bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-13T21:19:33Z bridge cfg get c3c564b91856226c s sampleIntervalMs
+2026-10-13T21:19:33Z Succesfully sent config get msg
+2026-10-13T21:19:33Z 1877619t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-13T21:19:36Z SPOT-33507C > bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-13T21:19:37Z bridge cfg get c3c564b91856226c s sampleDurationMs
+2026-10-13T21:19:37Z Succesfully sent config get msg
+2026-10-13T21:19:37Z 1881837t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
