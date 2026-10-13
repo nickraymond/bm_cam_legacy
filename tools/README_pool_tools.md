@@ -10,7 +10,7 @@ Pi-side pool sequence + PREVIEW printer is a separate PR (`feature/pool-sequence
 | `tools/pool_pull.py` | Nick's Mac | pulls `/home/pi/pool_runs/<latest>/` from both units in parallel: manifest+logs → loop products (nrjxl + pjpg + sidecars) → calibration JPEGs → videos → loop native JPEGs → other. **DNGs stay on the units** unless `--include-dng` (Friday pickup); `pull_report.json` lists every DNG left behind with its Pi sha256. rsync `--partial`, sha256 Pi vs Mac, `~/NereusPool/<date>/<unit>/` + `pull_report.json` |
 
 Ports on nereus000: 8095 = rig dashboard (taken), **8090 = pool viewer**.
-Mapping (hil/hil.env.example): SPOT-33507C ↔ bmcam003, SPOT-31593C ↔ bmcam004. `pool_cmd.py` refuses any other unit/Spotter.
+Mapping since **Tue 10/13** (Nick swapped the cameras, intentional): **bmcam003 ↔ SPOT-31593C, bmcam004 ↔ SPOT-33507C**. It lives in `tools/rig_map.json`, deployed next to `pool_cmd.py` on nereus000; `--map` overrides it, and the map in use is printed at the top of every run. `pool_cmd.py` refuses any other unit/Spotter.
 
 ## Wire format (agreed with the Pi-side session 2026-10-12)
 

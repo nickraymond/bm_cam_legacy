@@ -1,0 +1,5 @@
+{
+ "_note": "Unit <-> Spotter pairing for tools/pool_cmd.py (deployed next to it: nereus000 /home/pi/pool_tools/rig_map.json). Nick swapped the cameras between the Spotters on Tue 2026-10-13 (INTENTIONAL). Bridge ids stay with the Spotters; mote ids move with the cameras.",
+ "bmcam003": {"spot": "SPOT-31593C", "mote": "53171fa3d81a8e6f", "bridge": "0e582dd12c1e1480"},
+ "bmcam004": {"spot": "SPOT-33507C", "mote": "e6fe83ea6b4a2b7f", "bridge": "c3c564b91856226c"}
+}

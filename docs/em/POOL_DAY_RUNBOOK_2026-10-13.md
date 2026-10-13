@@ -28,7 +28,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 
 | | |
 |---|---|
-| Units | bmcam003 (SPOT-33507C) and bmcam004 (SPOT-31593C) |
+| Units | **bmcam003 (SPOT-31593C)** and **bmcam004 (SPOT-33507C)**. The pairing changed **Tue 10/13, intentionally**: Nick swapped the cameras between the Spotters. Bridge ids stay with the Spotters (SPOT-33507C `c3c564b91856226c`, SPOT-31593C `0e582dd12c1e1480`); mote ids move with the cameras (bmcam003 `53171fa3d81a8e6f`, bmcam004 `e6fe83ea6b4a2b7f`). `pool_cmd` reads it from `pool_tools/rig_map.json` and prints it at the top of every run. |
 | Console host | nereus000. Viewer at `:8090`, rig dashboard at `:8095` |
 | Code | `development` with #151 (host tools), #152 (Pi pool sequence), #153 (calib check), #154 (this runbook + `tools/pi_wifi_profile.sh`), #155 (rev 3 + `tools/pool_sha_check.sh`), #156/#157 (viewer), **#158 (DNGs stay on the units, `--include-dng`)**, **#160 (Pi: `sweep`, `--lens-position`, `pool_mode.sh args`)** and **#161 (`pool_cmd` sweep)** merged. TE confirms Mon evening. |
 | Pi tools | `/home/pi/pool_mode.sh`, `/home/pi/BM_Devel_Pi/pool_sequence.py` |
@@ -53,7 +53,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
    ```bash
    tools/pool_sha_check.sh
    ```
-   See: 8 `MATCH` lines and `ALL MATCH origin/development <sha>`. Any `DIFF` or `MISSING` → **STOP**: redeploy that file from `development`, then re-run. A stale `pool_mode.sh` (e.g. a T-DRY copy) prints `PRODUCTION MODE` even when the restored crontab is DISARMED; §9.3's ARMED check is the backstop.
+   See: 9 `MATCH` lines and `ALL MATCH origin/development <sha>`. Any `DIFF` or `MISSING` → **STOP**: redeploy that file from `development`, then re-run. A stale `pool_mode.sh` (e.g. a T-DRY copy) prints `PRODUCTION MODE` even when the restored crontab is DISARMED; §9.3's ARMED check is the backstop.
 3. **Restore both units to production** with §9 steps 1–6. If T-LAND's bus hold ran before `pool_mode.sh on`, `off` exits 4 (DISARMED) and §9.3 re-arms; exit 0 needs no re-arm. §9.3's check runs either way.
    See: `PRODUCTION schedule confirmed` for both Spotters. At the next :00, a new image from each unit (§9.7).
 4. Leave the units on the normal hourly schedule overnight, Spotters on the nereus000 hub charger; they net-charge. Do NOT hold the bus overnight (decision E; the 1:12 PM reading was −0.7 W net on the charger).
@@ -77,7 +77,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 
 ## 0B. Tuesday 8:00–8:30 AM, bench (TE2): into pool mode
 
-Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.168.1.45`). Steps 1–2 one unit at a time: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
+Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.168.1.45`). Steps 1–2 one unit at a time: bmcam003 / **SPOT-31593C**, then bmcam004 / **SPOT-33507C** (pairing since Tue 10/13). Your `hil/hil.env` must have the swapped `HIL_RIG_A/B`, as in `hil/hil.env.example`; the hil tools take the unit for each Spotter from it.
 
 1. **Wait for the 8 AM wake to finish.** The unit halts itself, usually by ~8:10 AM.
    ```bash
@@ -87,17 +87,17 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
 
 2. **Bus hold** (Nick's OK for bridge config is part of this plan). This catches the boot, backs up the ARMED crontab to `~/hil_backup/<TS>/`, disarms the RC line and stops the cycle.
    ```bash
-   hil/tools/hil_bus_always_on.sh SPOT-33507C
+   hil/tools/hil_bus_always_on.sh SPOT-31593C
    ```
-   See: `bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/<TS>)`, exit 0. Exit 1 `Pi not reachable in 120 s`: the unit runs its cycle and halts; restore the schedule (`hil/tools/hil_restore_schedule.sh SPOT-33507C`) and retry at the next wake.
+   See: `bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/<TS>)`, exit 0. Exit 1 `Pi not reachable in 120 s`: the unit runs its cycle and halts; restore the schedule (`hil/tools/hil_restore_schedule.sh SPOT-31593C`) and retry at the next wake.
 
-3. Repeat 1–2 for **bmcam004 / SPOT-31593C**. Both Pis are now up on a held bus.
+3. Repeat 1–2 for **bmcam004 / SPOT-33507C**. Both Pis are now up on a held bus.
 
 4. **Deployed files = `development`, STOP if not** (QE: an old T-DRY copy would fake `PRODUCTION MODE` at the restore):
    ```bash
    tools/pool_sha_check.sh
    ```
-   See: 8 `MATCH` lines (3 per unit + 2 on nereus000), `ALL MATCH origin/development <sha>`, exit 0.
+   See: 9 `MATCH` lines (3 per unit + 3 on nereus000, incl. `rig_map.json`), `ALL MATCH origin/development <sha>`, exit 0.
    Any `DIFF` / `MISSING` / `UNREACHABLE` → **STOP**. Redeploy that file from `development`, restart the viewer if it was `pool_preview.py` (`sudo systemctl restart pool-preview`), then re-run until ALL MATCH. Pool mode is not on yet, so nothing runs stale code.
 
 5. **Pool lens 0.8 + pool mode on + start**, per unit. `args` writes `~/pool_args`, which `pool_sequence` reads at every start, including a reboot. Without it the pool runs at the config focus, 1.82 (#160).
@@ -403,7 +403,7 @@ The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes 
 ## 9. Restore to production, by about 3:30 PM (TE)
 
 Poolside or back at HQ. The hil tools reach the units by name (`pi@bmcam003`, via Tailscale), and `hil/hil.env` `HIL_MONITOR` must be nereus000's **current** IP: the hotspot IP poolside, 192.168.1.45 on the bench. If the units don't resolve by name poolside, do this at HQ; they stay safe in pool mode on the held bus until then.
-Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
+Per unit, in this order: bmcam003 / **SPOT-31593C**, then bmcam004 / **SPOT-33507C** (pairing since Tue 10/13).
 
 1. **Stop pool** (and clear the pool lens args, so a later pool start uses the config again):
    ```bash
@@ -448,11 +448,11 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 
 5. **Production bus schedule** (1 h / 10 min):
    ```bash
-   hil/tools/hil_restore_schedule.sh SPOT-33507C
+   hil/tools/hil_restore_schedule.sh SPOT-31593C
    ```
    See: `[restore] cron ARMED`, `bmcam003 dark`, `PRODUCTION schedule confirmed`, exit 0.
 
-6. Repeat steps 1–5 for **bmcam004 / SPOT-31593C**.
+6. Repeat steps 1–5 for **bmcam004 / SPOT-33507C**.
 
 7. **One production wake:** at the next :00, open https://nereus-vision-staging.onrender.com/devices/.
    See: a new JPEG XL from each unit around :05–:10, with the RC2 cfg hash. Hourly images resume.

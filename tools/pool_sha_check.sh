@@ -8,6 +8,7 @@
 #                   /home/pi/BM_Devel_Pi/rc_preview.py    = BM_Devel_Pi/rc_preview.py
 #           monitor /home/pi/pool_tools/pool_cmd.py       = tools/pool_cmd.py
 #                   /home/pi/pool_tools/pool_preview.py   = tools/pool_preview.py
+#                   /home/pi/pool_tools/rig_map.json      = tools/rig_map.json  (unit <-> Spotter, 10/13 swap)
 #           Expected sha256 = `git show <ref>:<path>` from this checkout (after `git fetch origin`
 #           when the ref is origin/...). ONE ssh per host (read-only: sha256sum).
 # Inputs:   --ref REF (default origin/development), --unit pi@HOST (repeatable; default pi@bmcam003
@@ -33,7 +34,7 @@ done
 [ ${#UNITS[@]} -gt 0 ] || UNITS=(pi@bmcam003 pi@bmcam004)
 H="${POOL_PI_HOME:-/home/pi}"
 UNIT_FILES="$H/pool_mode.sh=tools/pool_mode.sh $H/BM_Devel_Pi/pool_sequence.py=BM_Devel_Pi/pool_sequence.py $H/BM_Devel_Pi/rc_preview.py=BM_Devel_Pi/rc_preview.py"
-MON_FILES="$H/pool_tools/pool_cmd.py=tools/pool_cmd.py $H/pool_tools/pool_preview.py=tools/pool_preview.py"
+MON_FILES="$H/pool_tools/pool_cmd.py=tools/pool_cmd.py $H/pool_tools/pool_preview.py=tools/pool_preview.py $H/pool_tools/rig_map.json=tools/rig_map.json"
 
 case "$REF" in origin/*) git fetch -q origin || { echo "[sha] git fetch failed" >&2; exit 2; } ;; esac
 COMMIT=$(git rev-parse --short "$REF" 2>/dev/null) || { echo "[sha] unknown ref $REF" >&2; exit 2; }

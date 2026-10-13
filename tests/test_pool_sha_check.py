@@ -22,7 +22,8 @@ FILES = {"pool_mode.sh": "tools/pool_mode.sh",
          "BM_Devel_Pi/pool_sequence.py": "BM_Devel_Pi/pool_sequence.py",
          "BM_Devel_Pi/rc_preview.py": "BM_Devel_Pi/rc_preview.py",
          "pool_tools/pool_cmd.py": "tools/pool_cmd.py",
-         "pool_tools/pool_preview.py": "tools/pool_preview.py"}
+         "pool_tools/pool_preview.py": "tools/pool_preview.py",
+         "pool_tools/rig_map.json": "tools/rig_map.json"}
 FAKE_SSH = """#!/bin/bash
 while [ $# -gt 0 ]; do case "$1" in -o|-l|-p|-i) shift 2;; -*) shift;; *) break;; esac; done
 H="$1"; shift
@@ -60,7 +61,7 @@ class TestShaCheck(unittest.TestCase):
     def test_all_match(self):
         r = self.run_check()
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertEqual(r.stdout.count("MATCH    "), 3 * 2 + 2)
+        self.assertEqual(r.stdout.count("MATCH    "), 3 * 2 + 3)
         self.assertIn("ALL MATCH HEAD", r.stdout)
 
     def test_stale_copy_is_a_stop(self):
