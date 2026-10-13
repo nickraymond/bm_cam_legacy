@@ -31,3 +31,59 @@
 == sweep 2 2026-10-13T18:25:09Z
 2026-10-13T18:26:09Z 1791915972.000 e6fe83ea6b4a2b7f, [bmcam004] OK id=90022 pool sweep n=11 dt=57.0s dir=sweep/182511 best_lp=0 best_lp_ten=0 back_to_lp=0.8
 2026-10-13T18:26:10Z 1791915971.003 53171fa3d81a8e6f, [bmcam003] OK id=90022 pool sweep n=11 dt=58.3s dir=sweep/182511 best_lp=0 best_lp_ten=0 back_to_lp=0.8
+2026-10-13T18:58:03Z == sweep 1 (tag 0.7)
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-13T18:58:08Z no id from pool_cmd; STOP
+2026-10-13T19:10:40Z == sweep 1 (tag 0.7)
+[pool_cmd] host=nereus000 id=90023 verb=sweep targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=180s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90023,"c":"pool","v":"sweep"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90023,"c":"pool","v":"sweep"} 1 1
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90023 pool sweep in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90023 pool sweep in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90023 pool sweep in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90023 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam004] OK id=90023 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam004] OK id=90023 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam004] OK id=90023 pool sweep in_progress dup
+  [bmcam003] OK  [bmcam003] OK id=90023 pool sweep n=11 dt=57.5s dir=sweep/191041 best_lp=0 best_lp_ten=0 back_to_lp=0.8
+  [bmcam004] OK  [bmcam004] OK id=90023 pool sweep n=11 dt=59.3s dir=sweep/191042 best_lp=0.2 best_lp_ten=0 back_to_lp=0.8
+[pool_cmd] id=90023 bmcam003: OK
+[pool_cmd] id=90023 bmcam004: OK
+2026-10-13T19:11:39Z 1791918700.242 53171fa3d81a8e6f, [bmcam003] OK id=90023 pool sweep n=11 dt=57.5s dir=sweep/191041 best_lp=0 best_lp_ten=0 back_to_lp=0.8
+2026-10-13T19:11:41Z 1791918704.789 e6fe83ea6b4a2b7f, [bmcam004] OK id=90023 pool sweep n=11 dt=59.3s dir=sweep/191042 best_lp=0.2 best_lp_ten=0 back_to_lp=0.8
+2026-10-13T19:11:47Z == sweep 2 (tag 0.7)
+[pool_cmd] host=nereus000 id=90024 verb=sweep targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=180s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90024,"c":"pool","v":"sweep"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90024,"c":"pool","v":"sweep"} 1 1
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90024 pool sweep in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90024 pool sweep in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90024 pool sweep in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90024 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam004] OK id=90024 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam004] OK id=90024 pool sweep in_progress dup
+  [bmcam004] .. still running (replay ack, not final): [bmcam004] OK id=90024 pool sweep in_progress dup
+  [bmcam004] OK  [bmcam004] OK id=90024 pool sweep n=11 dt=56.3s dir=sweep/191148 best_lp=0.4 best_lp_ten=0.2 back_to_lp=0.8
+  [bmcam003] OK  [bmcam003] OK id=90024 pool sweep n=11 dt=58.4s dir=sweep/191148 best_lp=0.2 best_lp_ten=0.2 back_to_lp=0.8
+[pool_cmd] id=90024 bmcam003: OK
+[pool_cmd] id=90024 bmcam004: OK
+2026-10-13T19:12:44Z 1791918767.816 e6fe83ea6b4a2b7f, [bmcam004] OK id=90024 pool sweep n=11 dt=56.3s dir=sweep/191148 best_lp=0.4 best_lp_ten=0.2 back_to_lp=0.8
+2026-10-13T19:12:46Z 1791918767.527 53171fa3d81a8e6f, [bmcam003] OK id=90024 pool sweep n=11 dt=58.4s dir=sweep/191148 best_lp=0.2 best_lp_ten=0.2 back_to_lp=0.8
+2026-10-13T19:12:52Z sweep dirs: 191041 191148
+2026-10-13 12:12:57 PM [bmcam004] class 1 manifest+logs: DONE 88/88 ok, 93.5 KB in 0m01s (0.06 MB/s)
+2026-10-13 12:12:57 PM [bmcam003] class 1 manifest+logs: DONE 88/88 ok, 94.5 KB in 0m01s (0.06 MB/s)
+2026-10-13 12:15:15 PM [bmcam003] class 6 other: DONE 92/92 ok, 153.3 MB in 2m17s (1.17 MB/s)
+2026-10-13 12:15:20 PM [bmcam004] class 6 other: DONE 92/92 ok, 147.7 MB in 2m22s (1.09 MB/s)
+2026-10-13 12:16:06 PM [bmcam003] SUMMARY COMPLETE: left_on_unit=44, ok=180
+2026-10-13 12:16:06 PM [bmcam004] SUMMARY COMPLETE: left_on_unit=44, ok=180
+2026-10-13 12:16:06 PM [pool_pull] OK in 3m10s; report /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/pull_report_sweep.json
+2026-10-13T19:16:06Z sheet args: --sweep-dir bmcam003=0.7:/Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam003/sweep/191041 --sweep-dir bmcam003=0.7:/Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam003/sweep/191148 --sweep-dir bmcam004=0.7:/Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam004/sweep/191148
+12:16:06 PM [focus] bmcam003 sweep 191041 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam003/sweep/191041 (manifest yes)
+12:16:06 PM [focus] bmcam003 sweep 191148 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam003/sweep/191148 (manifest yes)
+12:16:11 PM [focus] bmcam003 sweep 191041: metric region = sweep board box (lp 0.6, 96 corners): x1484 y732 w1271 h773
+12:16:11 PM [focus] bmcam003 sweep 191148: metric region = sweep board box (lp 0.4, 86 corners): x1484 y732 w1271 h773
+12:16:11 PM [focus] bmcam003 group 0.7 m: repeats 191041, 191148: best lp 0.8, 1.2 -> median 1, spread 0.4; repeats disagree: best lp 0.8, 1.2 (spread 0.4 > one step 0.2)
+12:16:11 PM [focus] bmcam004 sweep 191148 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam004/sweep/191148 (manifest yes)
+12:16:14 PM [focus] bmcam004 sweep 191148: metric region = sweep board box (lp 0, 92 corners): x1620 y768 w1287 h776
+12:16:17 PM [focus] wrote runs/focus_sweep_20261013T191606Z/: focus_plot.png, focus_sheet_bmcam003.jpg, focus_sheet_bmcam004.jpg, focus_sweep.csv, focus_sweep.json, focus_sweep.log
+12:16:17 PM [focus] VERDICT bmcam003: WARN  [0.7 m] best lp 0.8, 1.2 (median 1, spread 0.4)  (sweep 191041: peak not distinct (best 0.1261 < 1.15 x median 0.1191); sweep 191041: lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step
+12:16:17 PM [focus] VERDICT bmcam004: WARN  [0.7 m] best lp 0.8  (sweep 191148: peak not distinct (best 0.1511 < 1.15 x median 0.1395); sweep 191148: lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step)

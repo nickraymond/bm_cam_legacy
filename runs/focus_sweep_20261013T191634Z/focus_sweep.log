@@ -1,0 +1,20 @@
+12:16:34 PM [focus] IN-AIR focus sweep tfocus_0p7m: bmcam003: 2 sweep(s); bmcam004: 2 sweep(s); board distance 0.7 m (default tag; per sweep via --sweep-dir NAME=TAG:PATH); OpenCV 5.0.0; out runs/focus_sweep_20261013T191634Z
+12:16:34 PM [focus] bmcam003 sweep 191041 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam003/sweep/191041 (manifest yes)
+12:16:34 PM [focus] bmcam003 sweep 191148 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam003/sweep/191148 (manifest yes)
+12:16:39 PM [focus] bmcam003 sweep 191041: WARN best lp 0.8 (parabola 0.882); tenengrad best 0.4; corners 89; peak not distinct (best 0.1261 < 1.15 x median 0.1191); lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step
+12:16:39 PM [focus] bmcam003 sweep 191041: metric region = sweep board box (lp 0.6, 96 corners): x1484 y732 w1271 h773
+12:16:39 PM [focus] bmcam003 sweep 191148: WARN best lp 1.2 (parabola 1.228); tenengrad best 1; corners 82; peak not distinct (best 0.1215 < 1.15 x median 0.1158)
+12:16:39 PM [focus] bmcam003 sweep 191148: metric region = sweep board box (lp 0.4, 86 corners): x1484 y732 w1271 h773
+12:16:39 PM [focus] bmcam003 group 0.7 m: repeats 191041, 191148: best lp 0.8, 1.2 -> median 1, spread 0.4; repeats disagree: best lp 0.8, 1.2 (spread 0.4 > one step 0.2)
+12:16:39 PM [focus] bmcam003: WARN  [0.7 m] best lp 1
+12:16:39 PM [focus] bmcam004 sweep 191042 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam004/sweep/191042 (manifest yes)
+12:16:39 PM [focus] bmcam004 sweep 191148 [group 0.7 m]: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS_pull/bmcam004/sweep/191148 (manifest yes)
+12:16:43 PM [focus] bmcam004 sweep 191042: WARN best lp 0.4 (parabola 0.402); tenengrad best 0; corners 96; peak not distinct (best 0.1533 < 1.15 x median 0.1348); lapvar best lp 0.4 vs tenengrad best lp 0 differ by > 1 step
+12:16:43 PM [focus] bmcam004 sweep 191042: metric region = sweep board box (lp 0.2, 96 corners): x1620 y767 w1287 h779
+12:16:43 PM [focus] bmcam004 sweep 191148: WARN best lp 0.8 (parabola 0.761); tenengrad best 0.4; corners 92; peak not distinct (best 0.1511 < 1.15 x median 0.1395); lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step
+12:16:43 PM [focus] bmcam004 sweep 191148: metric region = sweep board box (lp 0, 92 corners): x1620 y768 w1287 h776
+12:16:43 PM [focus] bmcam004 group 0.7 m: repeats 191042, 191148: best lp 0.4, 0.8 -> median 0.6, spread 0.4; repeats disagree: best lp 0.4, 0.8 (spread 0.4 > one step 0.2)
+12:16:43 PM [focus] bmcam004: WARN  [0.7 m] best lp 0.6
+12:16:48 PM [focus] wrote runs/focus_sweep_20261013T191634Z/: focus_plot.png, focus_sheet_bmcam003.jpg, focus_sheet_bmcam004.jpg, focus_sweep.csv, focus_sweep.json, focus_sweep.log
+12:16:48 PM [focus] VERDICT bmcam003: WARN  [0.7 m] best lp 0.8, 1.2 (median 1, spread 0.4)  (sweep 191041: peak not distinct (best 0.1261 < 1.15 x median 0.1191); sweep 191041: lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step; sweep 191148: peak not distinct (best 0.1215 < 1.15 x median 0.1158); group 0.7 m: repeats disagree: best lp 0.8, 1.2 (spread 0.4 > one step 0.2))
+12:16:48 PM [focus] VERDICT bmcam004: WARN  [0.7 m] best lp 0.4, 0.8 (median 0.6, spread 0.4)  (sweep 191042: peak not distinct (best 0.1533 < 1.15 x median 0.1348); sweep 191042: lapvar best lp 0.4 vs tenengrad best lp 0 differ by > 1 step; sweep 191148: peak not distinct (best 0.1511 < 1.15 x median 0.1395); sweep 191148: lapvar best lp 0.8 vs tenengrad best lp 0.4 differ by > 1 step; group 0.7 m: repeats disagree: best lp 0.4, 0.8 (spread 0.4 > one step 0.2))

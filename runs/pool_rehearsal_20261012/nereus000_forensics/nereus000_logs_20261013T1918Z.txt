@@ -1,0 +1,137 @@
+== now 2026-10-13T19:18:49Z up 2026-10-13 19:09:00
+throttled=0x0
+ -5 247df18a74d54b62b07a68bf78669c3c Mon 2026-10-12 23:14:36 UTC Mon 2026-10-12 23:22:00 UTC
+ -4 9714ccc96dc94500bd2e949dededdbf3 Mon 2026-10-12 23:14:41 UTC Tue 2026-10-13 18:49:58 UTC
+ -3 d6a1d6ffe4834c8cbbfc9e55d701c73b Tue 2026-10-13 18:50:01 UTC Tue 2026-10-13 18:51:01 UTC
+ -2 360160e08ae7486baeb7ce4bab8ebda8 Tue 2026-10-13 18:50:06 UTC Tue 2026-10-13 18:52:18 UTC
+ -1 372c7557502249e5974ad6965d0246ab Tue 2026-10-13 18:50:11 UTC Tue 2026-10-13 18:50:11 UTC
+  0 a51cda802fe7430dbc7a563de93dd1d9 Tue 2026-10-13 18:50:11 UTC Tue 2026-10-13 19:18:49 UTC
+== prev boot tail
+Oct 13 18:50:11 nereus000 systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+Oct 13 18:50:11 nereus000 kernel: fuse: init (API version 7.45)
+Oct 13 18:50:11 nereus000 systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+Oct 13 18:50:11 nereus000 kernel: zram: Added device: zram0
+Oct 13 18:50:11 nereus000 kernel: i2c_dev: i2c /dev entries driver
+Oct 13 18:50:11 nereus000 systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+Oct 13 18:50:11 nereus000 systemd[1]: Mounted run-lock.mount - Legacy Locks Directory /run/lock.
+Oct 13 18:50:11 nereus000 systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+Oct 13 18:50:11 nereus000 kernel: EXT4-fs (mmcblk0p2): re-mounted 15f4c6be-1102-4331-9904-f78e78afd1fd r/w.
+Oct 13 18:50:11 nereus000 systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+Oct 13 18:50:11 nereus000 systemd[1]: modprobe@configfs.service: Deactivated successfully.
+Oct 13 18:50:11 nereus000 systemd-journald[274]: Collecting audit messages is disabled.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished modprobe@configfs.service - Load Kernel Module configfs.
+Oct 13 18:50:11 nereus000 systemd[1]: modprobe@drm.service: Deactivated successfully.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished modprobe@drm.service - Load Kernel Module drm.
+Oct 13 18:50:11 nereus000 systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+Oct 13 18:50:11 nereus000 systemd[1]: modprobe@fuse.service: Deactivated successfully.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished modprobe@fuse.service - Load Kernel Module fuse.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished systemd-remount-fs.service - Remount Root and Kernel File Systems.
+Oct 13 18:50:11 nereus000 systemd-journald[274]: Journal started
+Oct 13 18:50:11 nereus000 systemd-journald[274]: Runtime Journal (/run/log/journal/5b06cc4a549341b18de80235f35e011d) is 1M, max 8.3M, 7.2M free.
+Oct 13 18:50:10 nereus000 systemd-modules-load[277]: Inserted module 'zram'
+Oct 13 18:50:10 nereus000 systemd-modules-load[277]: Inserted module 'i2c_dev'
+Oct 13 18:50:11 nereus000 systemd[1]: Started systemd-journald.service - Journal Service.
+Oct 13 18:50:11 nereus000 systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+Oct 13 18:50:11 nereus000 systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+Oct 13 18:50:11 nereus000 systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+Oct 13 18:50:11 nereus000 systemd[1]: regenerate_ssh_host_keys.service - Regenerate SSH host keys skipped, unmet condition check ConditionFirstBoot=yes
+Oct 13 18:50:11 nereus000 systemd[1]: Starting rpi-resize-swap-file.service - rpi-resize-var-swap-service - resize swapfile...
+Oct 13 18:50:11 nereus000 systemd[1]: systemd-hwdb-update.service - Rebuild Hardware Database skipped, unmet condition check ConditionNeedsUpdate=/etc
+Oct 13 18:50:11 nereus000 systemd[1]: Starting systemd-journal-flush.service - Flush Journal to Persistent Storage...
+Oct 13 18:50:11 nereus000 systemd[1]: systemd-pstore.service - Platform Persistent Storage Archival skipped, unmet condition check ConditionDirectoryNotEmpty=/sys/fs/pstore
+Oct 13 18:50:11 nereus000 systemd[1]: Starting systemd-random-seed.service - Load/Save OS Random Seed...
+Oct 13 18:50:11 nereus000 systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+Oct 13 18:50:11 nereus000 systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+Oct 13 18:50:11 nereus000 systemd[1]: systemd-tpm2-setup.service - TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-uki
+Oct 13 18:50:11 nereus000 systemd-journald[274]: Time spent on flushing to /var/log/journal/5b06cc4a549341b18de80235f35e011d is 215.082ms for 392 entries.
+== prev-prev boot tail
+Oct 13 18:52:17 nereus000 systemd[1]: systemd-fsck@dev-disk-by\x2dpartuuid-273e3d7a\x2d01.service: Deactivated successfully.
+Oct 13 18:52:17 nereus000 systemd[1]: Stopped systemd-fsck@dev-disk-by\x2dpartuuid-273e3d7a\x2d01.service - File System Check on /dev/disk/by-partuuid/273e3d7a-01.
+Oct 13 18:52:17 nereus000 systemd[1]: Removed slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+Oct 13 18:52:17 nereus000 systemd[1]: Stopped target local-fs-pre.target - Preparation for Local File Systems.
+Oct 13 18:52:17 nereus000 systemd[1]: systemd-remount-fs.service: Deactivated successfully.
+Oct 13 18:52:17 nereus000 systemd[1]: Stopped systemd-remount-fs.service - Remount Root and Kernel File Systems.
+Oct 13 18:52:17 nereus000 systemd[1]: systemd-tmpfiles-setup-dev.service: Deactivated successfully.
+Oct 13 18:52:17 nereus000 systemd[1]: Stopped systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
+Oct 13 18:52:17 nereus000 systemd[1]: systemd-tmpfiles-setup-dev-early.service: Deactivated successfully.
+Oct 13 18:52:17 nereus000 systemd[1]: Stopped systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+Oct 13 18:52:17 nereus000 systemd[1]: Reached target shutdown.target - System Shutdown.
+Oct 13 18:52:17 nereus000 systemd[1]: Reached target final.target - Late Shutdown Services.
+Oct 13 18:52:17 nereus000 systemd[1]: systemd-poweroff.service: Deactivated successfully.
+Oct 13 18:52:17 nereus000 systemd[1]: Finished systemd-poweroff.service - System Power Off.
+Oct 13 18:52:17 nereus000 systemd[1]: Reached target poweroff.target - System Power Off.
+Oct 13 18:52:17 nereus000 systemd[1]: Shutting down.
+Oct 13 18:52:18 nereus000 systemd-shutdown[1]: Syncing filesystems and block devices.
+Oct 13 18:52:18 nereus000 systemd-shutdown[1]: Sending SIGTERM to remaining processes...
+Oct 13 18:52:18 nereus000 systemd-journald[277]: Received SIGTERM from PID 1 (systemd-shutdow).
+Oct 13 18:52:18 nereus000 systemd-journald[277]: Journal stopped
+== this boot power/usb
+Oct 13 18:50:11 nereus000 kernel: usbcore: registered new interface driver hub
+Oct 13 18:50:11 nereus000 kernel: hub 1-0:1.0: USB hub found
+Oct 13 18:50:11 nereus000 kernel: hub 1-0:1.0: 1 port detected
+Oct 13 18:50:11 nereus000 kernel: usb 1-1: new high-speed USB device number 2 using dwc_otg
+Oct 13 18:50:11 nereus000 kernel: usb 1-1: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
+Oct 13 18:50:11 nereus000 kernel: usb 1-1: New USB device strings: Mfr=0, Product=1, SerialNumber=0
+Oct 13 18:50:11 nereus000 kernel: usb 1-1: Product: USB 2.0 Hub
+Oct 13 18:50:11 nereus000 kernel: hub 1-1:1.0: USB hub found
+Oct 13 18:50:11 nereus000 kernel: hub 1-1:1.0: 4 ports detected
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.2: new full-speed USB device number 3 using dwc_otg
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.2: New USB device found, idVendor=0483, idProduct=5740, bcdDevice= 1.00
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.2: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.2: Product: Spotter
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.2: Manufacturer: Sofar Ocean Technologies
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.2: SerialNumber: SPOT-33507C
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.3: new full-speed USB device number 4 using dwc_otg
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.3: New USB device found, idVendor=0483, idProduct=5740, bcdDevice= 1.00
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.3: Product: Spotter
+Oct 13 18:50:11 nereus000 kernel: usb 1-1.3: Manufacturer: Sofar Ocean Technologies
+== ALERTS tail
+2026-10-12T23:16:03+00:00 RIG-HEALTH CRIT: nereus000 VBAT 2966 mV (< 3100); nereus000 VBAT 2966 mV on external power (input not covering the load)
+2026-10-12T23:17:12+00:00 RIG-HEALTH CRIT: nereus000 VBAT 2956 mV (< 3100); nereus000 VBAT 2956 mV on external power (input not covering the load)
+2026-10-12T23:18:21+00:00 RIG-HEALTH CRIT: nereus000 VBAT 2950 mV (< 3100); nereus000 VBAT 2950 mV on external power (input not covering the load)
+2026-10-12T23:19:59+00:00 RIG-HEALTH CRIT: nereus000 VBAT 2896 mV (< 3100); nereus000 VBAT 2896 mV on external power (input not covering the load)
+2026-10-12T23:21:48+00:00 RIG-HEALTH CRIT: nereus000 VBAT 2934 mV (< 3100); nereus000 VBAT 2934 mV on external power (input not covering the load)
+2026-10-13T16:15:00+00:00 RIG-HEALTH OK (cleared)
+2026-10-13T16:15:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3248 mV on external power (input not covering the load)
+2026-10-13T16:20:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3217 mV on external power (input not covering the load)
+2026-10-13T16:25:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3226 mV on external power (input not covering the load)
+2026-10-13T16:30:30+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3233 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W; SPOT-315
+2026-10-13T16:35:30+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3239 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W; SPOT-315
+2026-10-13T16:40:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3240 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W; SPOT-315
+2026-10-13T16:45:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.62 V; nereus000 VBAT 3240 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W; SPOT-315
+2026-10-13T16:50:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.62 V; nereus000 VBAT 3242 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W; SPOT-315
+2026-10-13T16:55:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.62 V; nereus000 VBAT 3242 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W; SPOT-315
+2026-10-13T17:00:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3239 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W
+2026-10-13T17:05:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3234 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W
+2026-10-13T17:10:31+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3228 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W
+2026-10-13T17:15:30+00:00 RIG-HEALTH CRIT: SPOT-33507C battery 3.67 V; SPOT-31593C battery 3.64 V; nereus000 VBAT 3227 mV on external power (input not covering the load); SPOT-33507C battery discharging -1.09 W
+2026-10-13T17:20:30+00:00 RIG-HEALTH CRIT: SPOT-31593C battery 3.64 V; nereus000 VBAT 3224 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V
+2026-10-13T17:25:30+00:00 RIG-HEALTH CRIT: SPOT-31593C battery 3.64 V; nereus000 VBAT 3222 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V
+2026-10-13T17:30:30+00:00 RIG-HEALTH CRIT: SPOT-31593C battery 3.64 V; nereus000 VBAT 3219 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V
+2026-10-13T17:35:30+00:00 RIG-HEALTH CRIT: SPOT-31593C battery 3.64 V; nereus000 VBAT 3218 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V
+2026-10-13T17:40:30+00:00 RIG-HEALTH CRIT: SPOT-31593C battery 3.64 V; nereus000 VBAT 3214 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V
+2026-10-13T17:45:30+00:00 RIG-HEALTH CRIT: SPOT-31593C battery 3.64 V; nereus000 VBAT 3212 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V
+2026-10-13T17:50:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3208 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T17:55:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3207 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:00:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3204 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:05:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3196 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:10:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3190 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:15:31+00:00 RIG-HEALTH WARN: nereus000 VBAT 3183 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.73 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:20:31+00:00 RIG-HEALTH WARN: nereus000 VBAT 3174 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:25:31+00:00 RIG-HEALTH WARN: nereus000 VBAT 3159 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:30:31+00:00 RIG-HEALTH WARN: nereus000 VBAT 3145 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:35:31+00:00 RIG-HEALTH WARN: nereus000 VBAT 3123 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:40:31+00:00 RIG-HEALTH WARN: nereus000 VBAT 3110 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T18:45:31+00:00 RIG-HEALTH CRIT: nereus000 VBAT 3079 mV (< 3100); nereus000 VBAT 3079 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4
+2026-10-13T19:09:54+00:00 RIG-HEALTH CRIT: bmcam003 did not wake at 19:00Z (no bus current on SPOT-33507C); bmcam004 did not wake at 19:00Z (no bus current on SPOT-31593C); nereus000 VBAT 3173 mV on external power (input
+2026-10-13T19:10:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3178 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+2026-10-13T19:15:30+00:00 RIG-HEALTH WARN: nereus000 VBAT 3136 mV on external power (input not covering the load); SPOT-33507C battery dropped 4.1 -> 3.76 V; SPOT-31593C battery dropped 4.1 -> 3.7 V
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 1a40:0101 Terminus Technology Inc. Hub
+Bus 001 Device 003: ID 0483:5740 STMicroelectronics Virtual COM Port
+Bus 001 Device 004: ID 0483:5740 STMicroelectronics Virtual COM Port
+Bus 001 Device 005: ID 0bda:8152 Realtek Semiconductor Corp. RTL8152 Fast Ethernet Adapter
