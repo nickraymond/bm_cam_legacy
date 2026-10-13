@@ -16,3 +16,4 @@
 - 2026-10-13 ~2:10 PM PDT, Nick (typed in TE2 chat), verbatim: "OK sensors on SPOT-33507C and SPOT-31593C"
   Scope as read by TE2: the read-only Spotter `sensors` console command via nereus000 on the two bench Spotters.
 - 2026-10-13 ~2:45 PM PDT, Nick (typed in TE2 chat), verbatim: "Approved: update nereus000 /home/pi/hil_health/config.json to the new pairing (bmcam003 ↔ SPOT-31593C, bmcam004 ↔ SPOT-33507C)."
+- 2026-10-13 ~2:55 PM PDT, Nick (typed in TE2 chat), verbatim: "Approved: console set camera.focus.mode manual + camera.focus.lens_position 0.8 on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C), with a short bus hold."

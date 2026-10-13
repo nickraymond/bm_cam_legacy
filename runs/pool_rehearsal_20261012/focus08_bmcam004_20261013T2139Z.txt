@@ -1,0 +1,37 @@
+== 2026-10-13T21:39:07Z bmcam004 on SPOT-33507C (bridge c3c564b91856226c)
+2026-10-13T21:39:11Z Succesfully sent config set msg
+2026-10-13T21:39:11Z 3055784t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T21:39:18Z 3062352t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:39:18Z 3062358t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:39:18Z 3062400t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+boot 1: waiting for the listen window
+listen window open in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261013T211929Z.log
+===== 2026-10-13T21:44:47Z FOCUS08.bmcam004 SPOT-33507C  bm pub bmcam/cmd {"id":66005,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":0.8}} 1 1  (113 B line)
+CON  2026-10-13T21:44:49Z bm pub bmcam/cmd {"id":66005,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":0.8}} 1 1
+CON  2026-10-13T21:44:49Z 3394347t e6fe83ea6b4a2b7f, [bmcam004] OK id=66005 camera.focus.lens_position: 1.82 -> 0.8 (next action) cfg=44b81292
+SUMMARY cell=0 con=2
+21:47:44 bmcam004 halted after boot 1
+boot 2 (verify)
+2026-10-13T21:47:57Z 3582054t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:47:57Z 3582096t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+hash=44b81292 hv=1 registry=v11 overlay=6 key(s)
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode manual --lens-position 0.8 --tuning-file /home/pi/BM_Devel_Pi/exposure_profile/tuning/im
+/home/pi/BM_Devel_Pi/images/2026-10-13T21:49:55Z_image_compressed.jpg.capture_metadata.json
+"AfState": 0
+"LensPosition": 0.8
+21:56:49 bmcam004 halted after boot 2
+== restore schedule SPOT-33507C
+2026-10-13T21:57:06Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:57:19Z Succesfully sent config set msg
+2026-10-13T21:57:19Z 539356t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:57:26Z 545907t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:57:26Z 545915t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:57:26Z 545953t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:57:29Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 21:57:01
+2026-10-13T21:58:35Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-13T21:58:49Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:58:49Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed
+hil_restore_schedule rc=0

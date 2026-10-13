@@ -169,3 +169,84 @@ up=49s
 2026-10-13T21:20:31Z [TE2] 0.97 m indoor T-FOCUS: 003 best 1.0/1.4 median 1.2 spread 0.4; 004 0.6/0.8 median 0.7 spread 0.2; corners 104/104; sheet runs/focus_sweep_20261013T212000Z. Hold 21:08-21:19Z: n000 VIN 4.955 V @ 1.3 A, VBAT 3465->3484 (3 A supply verified). SPOTTER SWAP since re-mount: SPOT-33507C<->bmcam004, SPOT-31593C<->bmcam003; hil.env mapping swapped (backup hil.env.bak_*); swapped restore rc=0 both, dark 21:19Z.
 2026-10-13T21:32:05Z [TE2] NICK OK (typed, verbatim): "Approved: update nereus000 /home/pi/hil_health/config.json to the new pairing (bmcam003 <-> SPOT-31593C, bmcam004 <-> SPOT-33507C)."
 2026-10-13T21:36:31Z [TE2] nereus000 /home/pi/hil_health/config.json swapped per Nick OK: SPOT-33507C -> host bmcam004 / mote e6fe83ea6b4a2b7f; SPOT-31593C -> host bmcam003 / mote 53171fa3d81a8e6f (bridges unchanged). Backup config.json.bak_20261013T213207Z. Next rig-health run 21:35:30Z OK (no errors; CRIT = stale Sofar Spotter battery values from 19:21-19:40Z).
+2026-10-13T21:36:39Z [TE2] #169 (pool_cmd rig_map.json for the swap) noted: deploy pool_cmd.py + rig_map.json to nereus000 after merge, check dry-run map line + sha (9 MATCH). Local hil.env already swapped. Until then: 'both' or --map bmcam003=SPOT-31593C,bmcam004=SPOT-33507C.
+2026-10-13T21:37:07Z [TE2] viewer display_rotation -> {bmcam003: 0, bmcam004: 0} (frames upright after re-mount; verified on 0.97 m sweep frames). Backup .bak_*.
+2026-10-13T21:38:47Z [TE2] NICK OK (typed, verbatim): "Approved: console set camera.focus.mode manual + camera.focus.lens_position 0.8 on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C), with a short bus hold."
+2026-10-13T21:56:04Z [restore SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:56:18Z Succesfully sent config set msg
+2026-10-13T21:56:18Z 4119688t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:56:24Z 4126078t [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:56:24Z 4126085t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:56:24Z 4126124t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:56:26Z [restore SPOT-31593C/bmcam003] committed; waiting for the stub-window boot
+2026-10-13T21:57:06Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 21:57:15
+2026-10-13T21:57:19Z Succesfully sent config set msg
+2026-10-13T21:57:19Z 539356t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T21:57:26Z 545907t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T21:57:26Z 545915t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T21:57:26Z 545953t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T21:57:29Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+2026-10-13T21:57:38Z [restore SPOT-31593C/bmcam003] bmcam003 dark
+2026-10-13T21:57:51Z [restore SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:57:51Z [restore SPOT-31593C/bmcam003] PRODUCTION schedule confirmed
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 21:57:01
+2026-10-13T21:58:35Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-13T21:58:49Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T21:58:49Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed
+2026-10-13T22:01:11Z [busOn SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261013T220107Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-13T22:01:12Z [busOn SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261013T220107Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-13T22:01:12Z Succesfully sent config set msg
+2026-10-13T22:01:12Z 772543t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T22:01:13Z Succesfully sent config set msg
+2026-10-13T22:01:13Z 4414761t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-13T22:01:19Z 779108t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T22:01:19Z 779115t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T22:01:19Z 779156t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-13T22:01:22Z [busOn SPOT-33507C/bmcam004] committed (bus held on); catching the boot
+2026-10-13T22:01:19Z 4421357t [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T22:01:19Z 4421364t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T22:01:19Z 4421404t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-13T22:01:22Z [busOn SPOT-31593C/bmcam003] committed (bus held on); catching the boot
+up=34s
+957 bash -c mkdir -p ~/hil_backup/20261013T220107Z && crontab -l > ~/hil_backup/20261013T220107Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-13T22:02:08Z [busOn SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-13T22:02:09Z [busOn SPOT-33507C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261013T220107Z)
+up=45s
+1228 bash -c mkdir -p ~/hil_backup/20261013T220107Z && crontab -l > ~/hil_backup/20261013T220107Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-13T22:02:17Z [busOn SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-13T22:02:17Z [busOn SPOT-31593C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261013T220107Z)
+2026-10-13T22:04:30Z [restore SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T22:04:43Z Succesfully sent config set msg
+2026-10-13T22:04:43Z 4625530t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T22:04:50Z 4632119t [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T22:04:50Z 4632126t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T22:04:50Z 4632167t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T22:04:53Z [restore SPOT-31593C/bmcam003] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 22:04:29
+2026-10-13T22:06:01Z [restore SPOT-31593C/bmcam003] bmcam003 dark
+2026-10-13T22:06:15Z [restore SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T22:06:15Z [restore SPOT-31593C/bmcam003] PRODUCTION schedule confirmed
+2026-10-13T22:07:12Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T22:07:25Z Succesfully sent config set msg
+2026-10-13T22:07:25Z 1145504t [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-13T22:07:32Z 1152055t [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-13T22:07:32Z 1152062t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T22:07:32Z 1152104t [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-13T22:07:35Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 22:07:09
+2026-10-13T22:08:41Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-13T22:08:55Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-13T22:08:55Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed
+2026-10-13T22:09:17Z [TE2] Production focus 0.8 VERIFIED both (ids 66004/66005, cfg 44b81292; boot-2 sidecar LensPosition 0.8, rpicam --lens-position 0.8); restored 21:57/21:58Z. #170 guard files taken from development (merge conflicted on an old evidence log); pool_cmd b36995cb + rig_map eb5e27a2 on nereus000 (MATCH 3/3; units halted at check). 1.22 m card: sensors 3.752/3.808 V; bus hold 22:01-22:08Z; pool runs 20261013_220221_bmcam003 / 20261013_220212_bmcam004; sweep --lp 0.8 id 90031 OK; pulled to ~/NereusPool/20261013_CARD_122 (DNG on units); swapped restore rc=0 both, halted 22:09Z.
+2026-10-13T22:09:17Z [TE2] TODO (EM/backend): on the first OUTDOOR wake (GPS, real uploads) after the swap, message session local_d0b36a70-ac39-4a8c-acfd-7ea28c71d6d5 so it can verify the backend moved each camera to its new Spotter; add this to the post-pool restore step. <HL a=refused r=no_record> in today's cycle logs = wrong-camera rsd (harmless).
