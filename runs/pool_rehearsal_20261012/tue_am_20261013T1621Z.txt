@@ -1,0 +1,40 @@
+== 2026-10-13T16:21:55Z 192.168.1.230
+[POOL-MODE] SIGTERM sent to 1347 (finishes the current frame / loop iteration, up to ~2 min, then exits)
+[POOL-MODE] started pid 28913; log: /home/pi/pool_runs/launch.log + the newest run folder's pool.log
+[POOL-MODE] backup      : /home/pi/pool_mode_backups/crontab_20261012T201135Z.txt (restored by off)
+[POOL-MODE] pool process: 28913
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_162202_bmcam003
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=(running)
+[POOL-MODE] disk        : 103594 MB free, 9% used
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot mkdir -p /home/pi/pool_runs && { /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /usr/bin/python3 /home/pi/BM_Devel_Pi/pool_sequence.py --run-root /home/pi/pool_runs >> /home/pi/pool_runs/launch.log 2>&1 || echo "pool launch exited rc=$? (lock /tmp/bmcam_rc_capture.lock held?)" >> /home/pi/pool_runs/launch.log; } # POOL_MODE_LINE
+== 2026-10-13T16:22:15Z 192.168.1.143
+[POOL-MODE] SIGTERM sent to 599 (finishes the current frame / loop iteration, up to ~2 min, then exits)
+[POOL-MODE] started pid 1386; log: /home/pi/pool_runs/launch.log + the newest run folder's pool.log
+[POOL-MODE] backup      : /home/pi/pool_mode_backups/crontab_20261012T201127Z.txt (restored by off)
+[POOL-MODE] pool process: 1386
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_162222_bmcam004
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=(running)
+[POOL-MODE] disk        : 103336 MB free, 9% used
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+@reboot mkdir -p /home/pi/pool_runs && { /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /usr/bin/python3 /home/pi/BM_Devel_Pi/pool_sequence.py --run-root /home/pi/pool_runs >> /home/pi/pool_runs/launch.log 2>&1 || echo "pool launch exited rc=$? (lock /tmp/bmcam_rc_capture.lock held?)" >> /home/pi/pool_runs/launch.log; } # POOL_MODE_LINE
+[sha] reference origin/development = 09508fb
+MATCH    pi@192.168.1.230 /home/pi/pool_mode.sh 031dc0caa7e2
+MATCH    pi@192.168.1.230 /home/pi/BM_Devel_Pi/pool_sequence.py 5fe40e143442
+MATCH    pi@192.168.1.230 /home/pi/BM_Devel_Pi/rc_preview.py 571b6b4564f8
+MATCH    pi@192.168.1.143 /home/pi/pool_mode.sh 031dc0caa7e2
+MATCH    pi@192.168.1.143 /home/pi/BM_Devel_Pi/pool_sequence.py 5fe40e143442
+MATCH    pi@192.168.1.143 /home/pi/BM_Devel_Pi/rc_preview.py 571b6b4564f8
+MATCH    pi@192.168.1.45 /home/pi/pool_tools/pool_cmd.py a042fa613e88
+MATCH    pi@192.168.1.45 /home/pi/pool_tools/pool_preview.py 6245e474289d
+ALL MATCH origin/development 09508fb
+[pool_cmd] host=nereus000 id=90015 verb=status targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=30s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90015,"c":"pool","v":"status"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90015,"c":"pool","v":"status"} 1 1
+  [bmcam003] OK  [bmcam003] OK id=90015 pool status phase=idle cal=0/0 loop=0/0 run=20261013_162202_bmcam003 free=103593MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=37s
+  [bmcam003] .. 2026-10-13T16:22:41Z 1791908562.253 53171fa3d81a8e6f, [bmcam003] OK id=90015 pool status phase=idle cal=0/0 loop=0/0 run=20261013_162202_bmcam003 free=103593MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=37s dup
+  [bmcam003] .. 2026-10-13T16:22:41Z 1791908562.285 53171fa3d81a8e6f, [bmcam003] OK id=90015 pool status phase=idle cal=0/0 loop=0/0 run=20261013_162202_bmcam003 free=103593MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=37s dup
+  [bmcam004] OK  [bmcam004] OK id=90015 pool status phase=idle cal=0/0 loop=0/0 run=20261013_162222_bmcam004 free=103335MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=18s
+  [bmcam004] .. 2026-10-13T16:22:41Z 1791908564.332 e6fe83ea6b4a2b7f, [bmcam004] OK id=90015 pool status phase=idle cal=0/0 loop=0/0 run=20261013_162222_bmcam004 free=103335MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=18s dup
+[pool_cmd] id=90015 bmcam003: OK
+[pool_cmd] id=90015 bmcam004: OK
