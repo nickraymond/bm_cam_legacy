@@ -81,6 +81,9 @@ class FakeMonitor:
                     threading.Timer(2.0, self.log, (spot, f"[{unit}] OK id={cid} pool {verb} n=11 dt=58.2s dir=sweep/113005 best_lp=0.8")).start()
                 elif b == "dup_only":      # still running past the wait
                     self.log(spot, f"[{unit}] OK id={cid} pool {verb} in_progress dup")
+                elif b == "wrong_unit":    # the OTHER camera sits on this Spotter (stale map after a swap)
+                    other = [u for u in SPOTS if u != unit][0]
+                    self.log(spot, f"[{other}] OK id={cid} pool {verb} state=idle")
                 elif b == "busy_loop":     # sweep refused while the loop phase is active
                     self.log(spot, f"[{unit}] ERR id={cid} pool {verb} busy phase=loop")
                 elif b == "preview":
@@ -300,6 +303,16 @@ class TestRigMap(Base):
         self.assertTrue(os.path.exists(os.path.join(self.root, "SPOT-31593C", "cmd.txt")))
         with open(os.path.join(self.root, "pool_cmd.log")) as f:
             self.assertIn("rig map", f.read())                          # header is in the log too
+
+    def test_answer_from_the_wrong_camera_is_a_pairing_mismatch(self):
+        """QE #169: a free pairing check on every command: the answering [bmcamNNN] must be the
+        unit we addressed, else exit 5 loudly."""
+        with FakeMonitor(self.root, {"bmcam003": "wrong_unit"}):
+            rc, out = self.run_cmd("both", "status")
+        self.assertEqual(rc, 5, out)
+        self.assertIn("PAIRING MISMATCH: sent to bmcam003", out)
+        self.assertIn("answered by [bmcam004]", out)
+        self.assertIn("id=90001 bmcam004: OK", out)                     # the other unit is unaffected
 
     def test_builtin_default_when_no_file(self):
         out = io.StringIO()

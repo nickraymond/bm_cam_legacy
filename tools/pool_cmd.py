@@ -45,7 +45,9 @@ Inputs   target: bmcam003 | bmcam004 | both | SPOT-ID (only the rig-map Spotters
          else is refused before a byte is written - the field-unit guard)
 Outputs  stdout: what was sent, the unit answers; <log-root>/pool_cmd.log (append, UTC)
 Exit     0 every target answered OK; 1 an ERR; 3 a cmd.txt not consumed (spotter-monitor down?);
-         4 a target gave no answer within --wait; 2 usage / refused. Worst wins: 3 > 4 > 1.
+         4 a target gave no answer within --wait; 5 PAIRING MISMATCH: the answer came from a different
+         [bmcamNNN] than the unit addressed (the rig map is wrong for that Spotter); 2 usage /
+         refused. Worst wins: 5 > 3 > 4 > 1.
          An `OK id=N ... in_progress dup` line (the mote replay arriving while a sweep/preview
          still runs) is NOT the answer: pool_cmd keeps waiting for the final OK/ERR.
 
@@ -380,6 +382,12 @@ def wait_answers(followers, cid, wait_s, linger_s, log, show_all):
                 if m and got[unit][0] is None and m.group(2) == "OK" and re_in_progress.search(line):
                     log(f"  [{unit}] .. still running (replay ack, not final): "
                         f"{line[line.find('[' + m.group(1)):][:200]}")
+                elif m and got[unit][0] is None and m.group(1) != unit:
+                    # free pairing check (QE #169): the Pi on this Spotter is not the unit the map says
+                    got[unit] = ("MISMATCH", line)
+                    log(f"  [{unit}] PAIRING MISMATCH: sent to {unit} via its Spotter, answered by "
+                        f"[{m.group(1)}] -> the rig map is wrong for this Spotter (cameras swapped?): "
+                        f"{line[line.find('[' + m.group(1)):][:160]}")
                 elif m and got[unit][0] is None:
                     got[unit] = (m.group(2), line)
                     log(f"  [{unit}] {m.group(2)}  {line[line.find('[' + m.group(1)):][:220]}")
@@ -525,12 +533,16 @@ def main(argv=None):
             log(f"[pool_cmd] id={cid} {unit}: OK")
         elif status == "ERR":
             log(f"[pool_cmd] id={cid} {unit}: ERR (see the line above)")
+        elif status == "MISMATCH":
+            log(f"[pool_cmd] id={cid} {unit}: PAIRING MISMATCH (exit 5): fix rig_map.json / --map before sending more")
         else:
             log(f"[pool_cmd] id={cid} {unit}: NO ANSWER within {a.wait:.0f}s (unit halted/booting, or the "
                 f"answer comes later: grep 'id={cid}' {console_log(a.log_root, spot_of[unit])})")
     for unit in unsent:
         log(f"[pool_cmd] id={cid} {unit}: NOT SENT (cmd.txt, see above)")
     statuses = [s for s, _ in got.values()]
+    if "MISMATCH" in statuses:
+        return 5
     if unsent:
         return 3
     if None in statuses:
