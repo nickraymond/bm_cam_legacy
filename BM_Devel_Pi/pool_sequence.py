@@ -1053,6 +1053,28 @@ class PoolController:
         return None, None
 
     def _sweep_worker(self, cid):
+        """QE nit (#160): whatever happens (ENOSPC on makedirs / the manifest, a camera
+        surprise), the id gets ONE answer and the phase returns to idle, so cal/loop
+        are never blocked behind a dead sweep."""
+        line = None
+        try:
+            line = self._sweep_body(cid)
+        except Exception as exc:
+            self.last_error = f"sweep {type(exc).__name__}: {exc}"
+            log(f"[ERR] sweep id={cid} crashed: {traceback.format_exc()}")
+            if self.acks.get(cid) is None:
+                line = self.ack(cid, "sweep", False, f"crashed {type(exc).__name__}: {exc}"[:120])
+        finally:
+            with self.state_lock:
+                self.phase = "idle"
+        try:
+            self.manifest.append("commands", {"t_utc": iso(), "id": cid, "verb": "sweep",
+                                              "ack": line, "dup": False, "late_answer": True})
+        except Exception as exc:
+            log(f"[ERR] manifest write failed after sweep id={cid}: {exc}")
+
+    def _sweep_body(self, cid):
+        """The sweep itself. -> the answer line (already queued)."""
         t0 = self.clock()
         name = utc_now().strftime("%H%M%S")
         out_dir = os.path.join(self.run_dir, "sweep", name)
@@ -1097,10 +1119,7 @@ class PoolController:
         else:
             line = self.ack(cid, "sweep", False, f"no frames ({(self.last_error or '')[:80]})")
         log(f"SWEEP id={cid} done: {ok_n}/{len(SWEEP_LENS)} in {dt} s, metadata lens {got_txt}")
-        with self.state_lock:
-            self.phase = "idle"
-        self.manifest.append("commands", {"t_utc": iso(), "id": cid, "verb": "sweep",
-                                          "ack": line, "dup": False, "late_answer": True})
+        return line
 
     # ---- preview -------------------------------------------------------------
     def _preview_worker(self, cid):

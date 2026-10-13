@@ -516,6 +516,34 @@ class LensController(unittest.TestCase):
         h.wait_idle()
         self.assertEqual(h.camera.lenses[-1], 0.8, "back to the run's lens after the sweep")
 
+    def test_sweep_crash_answers_once_and_frees_the_phase(self):
+        # QE nit (#160): a disk-full crash must never leave phase=sweep (cal/loop blocked).
+        from unittest import mock
+        h = self.harness([(0, cmd(1, "sweep"))])
+        with mock.patch.object(P.os, "makedirs",
+                               side_effect=OSError(28, "No space left on device")):
+            h.run(3, until=lambda h: h.acks(1))
+            h.wait_idle()
+        self.assertEqual(len(h.acks(1)), 1)
+        self.assertIn("ERR id=1 pool sweep crashed OSError: [Errno 28] No space left", h.acks(1)[0])
+        self.assertEqual(h.ctl.phase, "idle")
+        h.link.script.append((0, cmd(2, "cal", duration_s=10, interval_s=10)))
+        h.run(3, until=lambda h: h.ctl.cal_done)
+        self.assertIn("OK id=2 pool cal start", h.acks(2)[0])
+
+    def test_sweep_manifest_failure_still_frees_the_phase(self):
+        h = self.harness([(0, cmd(1, "sweep"))])
+        real = h.manifest.append
+
+        def boom(key, item):
+            if key == "sweeps":
+                raise OSError(28, "No space left on device")
+            return real(key, item)
+        h.manifest.append = boom
+        h.wait_idle()
+        self.assertEqual(h.ctl.phase, "idle")
+        self.assertIn("ERR id=1 pool sweep", h.acks(1)[0])
+
     def test_sweep_refused_while_cal_runs_and_cal_refused_during_sweep(self):
         h = self.harness([(0, cmd(1, "cal", duration_s=600, interval_s=10)), (0.05, cmd(2, "sweep")),
                           (0.1, cmd(3, "stop"))])
