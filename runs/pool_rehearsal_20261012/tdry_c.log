@@ -1,0 +1,76 @@
+BATTERY BEFORE (ts 2026-10-12T19:10:31+00:00 ) 31593C at 2026-10-12T18:15:00+00:00 4.07 V 1.25 W | 33507C at 2026-10-12T18:10:00+00:00 4.04 V 0.21 W
+2026-10-12T19:12:21Z == T-DRY step C start
+2026-10-12T19:12:21Z >> pool_cmd bmcam004 status
+[pool_cmd] host=nereus000 id=90001 verb=status targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90001,"c":"pool","v":"status"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90001 pool status phase=idle cal=0/0 loop=0/0 free=24030MB marks=0 err=none up=27s ssid=Ford ip=192.168.1.143
+  [bmcam004] .. 2026-10-12T19:12:24Z 1791832346.636 e6fe83ea6b4a2b7f, [bmcam004] OK id=90001 pool status phase=idle cal=0/0 loop=0/0 free=24030MB marks=0 err=none up=27s ssid=Ford ip=192.168.1.143 dup
+[pool_cmd] id=90001 bmcam004: OK
+2026-10-12T19:12:27Z << rc=0
+2026-10-12T19:12:27Z >> pool_cmd bmcam004 preview
+[pool_cmd] host=nereus000 id=90002 verb=preview targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90002,"c":"pool","v":"preview"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90002 pool preview in_progress dup
+[pool_cmd] id=90002 bmcam004: OK
+2026-10-12T19:12:31Z << rc=0
+2026-10-12T19:12:43Z preview: viewer has a new bmcam004 entry after 12 s
+{"unit": "bmcam004", "img_id": "191228", "status": "OK", "lines_received": 232, "lines_total": 232, "contiguous_prefix": 232, "missing": "", "corrupt_seen": "", "duplicate_lines": 0, "bytes_decoded": 27823, "bytes_expected": 27823, "file_bytes": 27823, "eoi_appended": false, "sha256": "db6a9708dbdc7d282674f2ecfb257392e49084c68e284ad6eb2094ded166a430", "sha256_expected": "db6a9708dbdc7d282674f2ecfb257392e49084c68e284ad6eb2094ded166a430", "w": 640, "h": 360, "q": 40, "header_seen": true, "end_seen": true, "passes": 1, "first_seen_epoch": 1791832354.0, "received_epoch": 1791832361.0, "first_seen_
+2026-10-12T19:12:43Z >> pool_cmd bmcam004 cal --duration-s 120 --interval-s 10
+[pool_cmd] host=nereus000 id=90003 verb=cal targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90003,"c":"pool","v":"cal","duration_s":120,"interval_s":10} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90003 pool cal start frames=12 every=10s dur=120s free=24027MB
+  [bmcam004] .. 2026-10-12T19:12:46Z 1791832369.371 e6fe83ea6b4a2b7f, [bmcam004] OK id=90003 pool cal start frames=12 every=10s dur=120s free=24027MB dup
+[pool_cmd] id=90003 bmcam004: OK
+2026-10-12T19:12:50Z << rc=0
+2026-10-12T19:15:10Z >> pool_cmd bmcam004 status
+[pool_cmd] host=nereus000 id=90004 verb=status targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90004,"c":"pool","v":"status"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90004 pool status phase=idle cal=12/12 loop=0/0 free=23716MB marks=0 err=none up=197s ssid=Ford ip=192.168.1.143 autostart_in=1768s
+  [bmcam004] .. 2026-10-12T19:15:13Z 1791832516.113 e6fe83ea6b4a2b7f, [bmcam004] OK id=90004 pool status phase=idle cal=12/12 loop=0/0 free=23716MB marks=0 err=none up=197s ssid=Ford ip=192.168.1.143 autostart_in=1768s dup
+[pool_cmd] id=90004 bmcam004: OK
+2026-10-12T19:15:16Z << rc=0
+2026-10-12T19:15:16Z >> pool_cmd bmcam004 mark card_1m
+[pool_cmd] host=nereus000 id=90005 verb=mark targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90005,"c":"pool","v":"mark","note":"card_1m"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90005 pool mark #1 card_1m phase=idle t=2026-10-12T19:15:17.582Z
+  [bmcam004] .. 2026-10-12T19:15:17Z 1791832520.503 e6fe83ea6b4a2b7f, [bmcam004] OK id=90005 pool mark #1 card_1m phase=idle t=2026-10-12T19:15:17.582Z dup
+[pool_cmd] id=90005 bmcam004: OK
+2026-10-12T19:15:21Z << rc=0
+2026-10-12T19:15:21Z >> pool_cmd bmcam004 loop --iterations 3 --period-s 120
+[pool_cmd] host=nereus000 id=90006 verb=loop targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90006,"c":"pool","v":"loop","iterations":3,"period_s":120} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90006 pool loop start iterations=3 every=120s free=23716MB
+  [bmcam004] .. 2026-10-12T19:15:22Z 1791832525.183 e6fe83ea6b4a2b7f, [bmcam004] OK id=90006 pool loop start iterations=3 every=120s free=23716MB dup
+[pool_cmd] id=90006 bmcam004: OK
+2026-10-12T19:15:25Z << rc=0
+2026-10-12T19:22:05Z >> pool_cmd bmcam004 status
+[pool_cmd] host=nereus000 id=90007 verb=status targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90007,"c":"pool","v":"status"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90007 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=612s ssid=Ford ip=192.168.1.143
+  [bmcam004] .. 2026-10-12T19:22:09Z 1791832931.750 e6fe83ea6b4a2b7f, [bmcam004] OK id=90007 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=612s ssid=Ford ip=192.168.1.143 dup
+[pool_cmd] id=90007 bmcam004: OK
+2026-10-12T19:22:12Z << rc=0
+2026-10-12T19:22:13Z >> pool_cmd bmcam004 status
+[pool_cmd] host=nereus000 id=90008 verb=status targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90008,"c":"pool","v":"status"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90008 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=618s ssid=Ford ip=192.168.1.143
+  [bmcam004] .. 2026-10-12T19:22:14Z 1791832937.187 e6fe83ea6b4a2b7f, [bmcam004] OK id=90008 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=618s ssid=Ford ip=192.168.1.143 dup
+[pool_cmd] id=90008 bmcam004: OK
+2026-10-12T19:22:17Z << rc=0
+2026-10-12T19:22:17Z >> pool_cmd bmcam004 preview --lines 2-4,9
+[pool_cmd] host=nereus000 id=90009 verb=preview targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90009,"c":"pool","v":"preview","lines":"2-4,9"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90009 pool preview resend img=191228 lines=4 eta=0.2s
+  [bmcam004] .. 2026-10-12T19:22:18Z 1791832941.546 e6fe83ea6b4a2b7f, [bmcam004] OK id=90009 pool preview resend img=191228 lines=4 eta=0.2s dup
+  [bmcam004] 6 preview line(s) (PVH/PV/PVE) seen - pool_preview.py rebuilds them
+[pool_cmd] id=90009 bmcam004: OK
+2026-10-12T19:22:21Z << rc=0
+2026-10-12T19:24:22Z preview: NO new viewer entry within 120 s
+2026-10-12T19:24:22Z >> pool_cmd bmcam004 status
+[pool_cmd] host=nereus000 id=90010 verb=status targets=bmcam004/SPOT-31593C wait=30s
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90010,"c":"pool","v":"status"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90010 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=749s ssid=Ford ip=192.168.1.143
+  [bmcam004] .. 2026-10-12T19:24:25Z 1791833068.484 e6fe83ea6b4a2b7f, [bmcam004] OK id=90010 pool status phase=idle cal=12/12 loop=3/3 free=23617MB marks=1 err=none up=749s ssid=Ford ip=192.168.1.143 dup
+[pool_cmd] id=90010 bmcam004: OK
+2026-10-12T19:24:29Z << rc=0
+2026-10-12T19:24:29Z == T-DRY step C end

@@ -1,0 +1,12 @@
+===== 2026-10-12T18:04:18Z FOCUS.bmcam004 SPOT-31593C  bm pub bmcam/cmd {"id":66002,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":1.82}} 1 1  (114 B line)
+CON  2026-10-12T18:04:20Z bm pub bmcam/cmd {"id":66002,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":1.82}} 1 1
+CON  2026-10-12T18:04:20Z 1791828263.218 e6fe83ea6b4a2b7f, [bmcam004] OK id=66002 camera.focus.mode: auto -> manual (next action) cfg=bbbd992a
+SUMMARY cell=0 con=2
+===== 2026-10-12T18:05:26Z FOCUS.bmcam003 SPOT-33507C  bm pub bmcam/cmd {"id":66001,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":1.82}} 1 1  (114 B line)
+CON  2026-10-12T18:05:28Z bm pub bmcam/cmd {"id":66001,"c":"set","kv":{"camera.focus.mode":"manual","camera.focus.lens_position":1.82}} 1 1
+CON  2026-10-12T18:05:28Z 1791828328.480 53171fa3d81a8e6f, [bmcam003] OK id=66001 camera.focus.mode: auto -> manual (next action) cfg=09ebbe7e
+SUMMARY cell=0 con=2
+===== 2026-10-12T19:05:07Z CONTRAST.bmcam003 SPOT-33507C  bm pub bmcam/cmd {"id":66003,"c":"set","kv":{"camera.image_processing.contrast":1.0}} 1 1  (90 B line)
+CON  2026-10-12T19:05:09Z bm pub bmcam/cmd {"id":66003,"c":"set","kv":{"camera.image_processing.contrast":1.0}} 1 1
+CON  2026-10-12T19:05:10Z Message: Message: 1791831909.742 53171fa3d81a8e6f, [bmcam003] OK id=66003 camera.image_processing.contrast: 1.1 -> 1.0 (next action) cfg=bbbd992a
+SUMMARY cell=0 con=2

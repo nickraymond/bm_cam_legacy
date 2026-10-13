@@ -1,0 +1,9 @@
+2026-10-12T20:38:01Z >> pool_cmd both preview
+[pool_cmd] host=nereus000 id=90012 verb=preview targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=30s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90012,"c":"pool","v":"preview"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90012,"c":"pool","v":"preview"} 1 1
+  [bmcam003] OK  [bmcam003] OK id=90012 pool preview in_progress dup
+  [bmcam004] OK  [bmcam004] OK id=90012 pool preview in_progress dup
+[pool_cmd] id=90012 bmcam003: OK
+[pool_cmd] id=90012 bmcam004: OK
+20:38:20 2 bmcam004:OK:226/226:17s bmcam003:OK:242/242:18s

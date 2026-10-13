@@ -1,0 +1,320 @@
+2026-10-12 08:26:54 PM [pool_pull] mac=Nicks-MBP.localdomain units=pi@192.168.1.230,pi@192.168.1.143 run=bmcam003=20261012_201138_bmcam003,bmcam004=20261012_201130_bmcam004 classes=[1, 2, 3, 4, 5, 6] streams=1 cipher=ssh-default dng=left on unit 
+2026-10-12 08:26:55 PM [bmcam003] run /home/pi/pool_runs/20261012_201138_bmcam003/ : 807 files, 3.6 GB
+2026-10-12 08:26:55 PM [bmcam004] run /home/pi/pool_runs/20261012_201130_bmcam004/ : 807 files, 3.5 GB
+2026-10-12 08:26:55 PM [bmcam003] -> /Users/nickbuemond/NereusPool/20261012_TENDURE_v2/bmcam003/
+2026-10-12 08:26:55 PM [bmcam004] -> /Users/nickbuemond/NereusPool/20261012_TENDURE_v2/bmcam004/
+2026-10-12 08:26:55 PM [bmcam003] class 1 manifest+logs: 300 files, 784.2 KB -> start
+2026-10-12 08:26:55 PM [bmcam004] class 1 manifest+logs: 300 files, 781.9 KB -> start
+2026-10-12 08:26:58 PM [bmcam004] class 1 manifest+logs: DONE 300/300 ok, 781.9 KB in 0m02s (0.29 MB/s)
+2026-10-12 08:26:58 PM [bmcam004] class 2 loop products: 92 files, 1.9 MB -> start
+2026-10-12 08:26:58 PM [bmcam003] class 1 manifest+logs: DONE 300/300 ok, 784.2 KB in 0m02s (0.27 MB/s)
+2026-10-12 08:26:58 PM [bmcam003] class 2 loop products: 92 files, 1.9 MB -> start
+2026-10-12 08:27:00 PM [bmcam003] class 2 loop products: 1.1 MB/1.9 MB files 53/92 | 0.00 MB/s | unit 1.8 MB/515.6 MB
+2026-10-12 08:27:00 PM [bmcam004] class 2 loop products: 1.4 MB/1.9 MB files 66/92 | 0.00 MB/s | unit 2.1 MB/469.2 MB
+2026-10-12 08:27:02 PM [bmcam004] class 2 loop products: DONE 92/92 ok, 1.9 MB in 0m03s (0.53 MB/s)
+2026-10-12 08:27:02 PM [bmcam004] class 3 calibration JPEGs: 240 files, 289.2 MB -> start
+2026-10-12 08:27:02 PM [bmcam003] class 2 loop products: DONE 92/92 ok, 1.9 MB in 0m03s (0.54 MB/s)
+2026-10-12 08:27:02 PM [bmcam003] class 3 calibration JPEGs: 240 files, 330.3 MB -> start
+2026-10-12 08:27:05 PM [bmcam003] class 3 calibration JPEGs: 0 B/330.3 MB files 0/240 | 0.59 MB/s | unit 4.7 MB/515.6 MB
+2026-10-12 08:27:05 PM [bmcam004] class 3 calibration JPEGs: 0 B/289.2 MB files 0/240 | 0.54 MB/s | unit 4.7 MB/469.2 MB
+2026-10-12 08:27:10 PM [bmcam003] class 3 calibration JPEGs: 5.2 MB/330.3 MB files 4/240 | 0.78 MB/s | unit 8.4 MB/515.6 MB
+2026-10-12 08:27:10 PM [bmcam004] class 3 calibration JPEGs: 4.6 MB/289.2 MB files 4/240 | 0.76 MB/s | unit 8.3 MB/469.2 MB
+2026-10-12 08:27:15 PM [bmcam003] class 3 calibration JPEGs: 7.8 MB/330.3 MB files 6/240 | 0.80 MB/s | unit 12.2 MB/515.6 MB
+2026-10-12 08:27:15 PM [bmcam004] class 3 calibration JPEGs: 9.3 MB/289.2 MB files 8/240 | 0.97 MB/s | unit 13.0 MB/469.2 MB
+2026-10-12 08:27:20 PM [bmcam003] class 3 calibration JPEGs: 13.0 MB/330.3 MB files 10/240 | 1.03 MB/s | unit 17.2 MB/515.6 MB
+2026-10-12 08:27:20 PM [bmcam004] class 3 calibration JPEGs: 13.9 MB/289.2 MB files 12/240 | 0.92 MB/s | unit 17.4 MB/469.2 MB
+2026-10-12 08:27:25 PM [bmcam003] class 3 calibration JPEGs: 18.2 MB/330.3 MB files 14/240 | 0.78 MB/s | unit 20.9 MB/515.6 MB
+2026-10-12 08:27:25 PM [bmcam004] class 3 calibration JPEGs: 18.6 MB/289.2 MB files 16/240 | 0.87 MB/s | unit 21.5 MB/469.2 MB
+2026-10-12 08:27:30 PM [bmcam003] class 3 calibration JPEGs: 20.9 MB/330.3 MB files 16/240 | 0.86 MB/s | unit 25.0 MB/515.6 MB
+2026-10-12 08:27:30 PM [bmcam004] class 3 calibration JPEGs: 23.2 MB/289.2 MB files 20/240 | 0.93 MB/s | unit 25.9 MB/469.2 MB
+2026-10-12 08:27:36 PM [bmcam003] class 3 calibration JPEGs: 26.1 MB/330.3 MB files 20/240 | 1.16 MB/s | unit 30.6 MB/515.6 MB
+2026-10-12 08:27:36 PM [bmcam004] class 3 calibration JPEGs: 25.6 MB/289.2 MB files 22/240 | 0.75 MB/s | unit 29.5 MB/469.2 MB
+2026-10-12 08:27:41 PM [bmcam003] class 3 calibration JPEGs: 31.4 MB/330.3 MB files 24/240 | 1.11 MB/s | unit 35.9 MB/515.6 MB
+2026-10-12 08:27:41 PM [bmcam004] class 3 calibration JPEGs: 30.3 MB/289.2 MB files 26/240 | 0.88 MB/s | unit 33.7 MB/469.2 MB
+2026-10-12 08:27:46 PM [bmcam003] class 3 calibration JPEGs: 36.8 MB/330.3 MB files 28/240 | 1.22 MB/s | unit 41.7 MB/515.6 MB
+2026-10-12 08:27:46 PM [bmcam004] class 3 calibration JPEGs: 35.0 MB/289.2 MB files 30/240 | 0.98 MB/s | unit 38.4 MB/469.2 MB
+2026-10-12 08:27:51 PM [bmcam003] class 3 calibration JPEGs: 42.1 MB/330.3 MB files 32/240 | 1.12 MB/s | unit 47.0 MB/515.6 MB
+2026-10-12 08:27:51 PM [bmcam004] class 3 calibration JPEGs: 39.7 MB/289.2 MB files 34/240 | 0.94 MB/s | unit 42.9 MB/469.2 MB
+2026-10-12 08:27:56 PM [bmcam003] class 3 calibration JPEGs: 47.5 MB/330.3 MB files 36/240 | 0.97 MB/s | unit 51.7 MB/515.6 MB
+2026-10-12 08:27:56 PM [bmcam004] class 3 calibration JPEGs: 42.1 MB/289.2 MB files 36/240 | 0.76 MB/s | unit 46.5 MB/469.2 MB
+2026-10-12 08:28:01 PM [bmcam003] class 3 calibration JPEGs: 52.9 MB/330.3 MB files 40/240 | 1.08 MB/s | unit 56.8 MB/515.6 MB
+2026-10-12 08:28:01 PM [bmcam004] class 3 calibration JPEGs: 46.8 MB/289.2 MB files 40/240 | 0.83 MB/s | unit 50.5 MB/469.2 MB
+2026-10-12 08:28:06 PM [bmcam003] class 3 calibration JPEGs: 58.3 MB/330.3 MB files 44/240 | 1.13 MB/s | unit 62.2 MB/515.6 MB
+2026-10-12 08:28:06 PM [bmcam004] class 3 calibration JPEGs: 51.6 MB/289.2 MB files 44/240 | 0.89 MB/s | unit 54.8 MB/469.2 MB
+2026-10-12 08:28:11 PM [bmcam003] class 3 calibration JPEGs: 63.7 MB/330.3 MB files 48/240 | 0.98 MB/s | unit 66.9 MB/515.6 MB
+2026-10-12 08:28:11 PM [bmcam004] class 3 calibration JPEGs: 56.3 MB/289.2 MB files 48/240 | 0.89 MB/s | unit 59.0 MB/469.2 MB
+2026-10-12 08:28:16 PM [bmcam003] class 3 calibration JPEGs: 66.4 MB/330.3 MB files 50/240 | 0.88 MB/s | unit 71.1 MB/515.6 MB
+2026-10-12 08:28:16 PM [bmcam004] class 3 calibration JPEGs: 58.7 MB/289.2 MB files 50/240 | 0.91 MB/s | unit 63.4 MB/469.2 MB
+2026-10-12 08:28:21 PM [bmcam003] class 3 calibration JPEGs: 71.8 MB/330.3 MB files 54/240 | 0.98 MB/s | unit 75.8 MB/515.6 MB
+2026-10-12 08:28:21 PM [bmcam004] class 3 calibration JPEGs: 63.5 MB/289.2 MB files 54/240 | 0.94 MB/s | unit 67.9 MB/469.2 MB
+2026-10-12 08:28:26 PM [bmcam003] class 3 calibration JPEGs: 77.3 MB/330.3 MB files 58/240 | 0.98 MB/s | unit 80.4 MB/515.6 MB
+2026-10-12 08:28:26 PM [bmcam004] class 3 calibration JPEGs: 68.2 MB/289.2 MB files 58/240 | 0.95 MB/s | unit 72.4 MB/469.2 MB
+2026-10-12 08:28:31 PM [bmcam003] class 3 calibration JPEGs: 82.7 MB/330.3 MB files 62/240 | 1.02 MB/s | unit 85.3 MB/515.6 MB
+2026-10-12 08:28:31 PM [bmcam004] class 3 calibration JPEGs: 72.9 MB/289.2 MB files 62/240 | 0.98 MB/s | unit 77.1 MB/469.2 MB
+2026-10-12 08:28:36 PM [bmcam003] class 3 calibration JPEGs: 85.4 MB/330.3 MB files 64/240 | 1.09 MB/s | unit 90.5 MB/515.6 MB
+2026-10-12 08:28:36 PM [bmcam004] class 3 calibration JPEGs: 77.7 MB/289.2 MB files 66/240 | 0.79 MB/s | unit 80.9 MB/469.2 MB
+2026-10-12 08:28:41 PM [bmcam003] class 3 calibration JPEGs: 90.8 MB/330.3 MB files 68/240 | 1.03 MB/s | unit 95.5 MB/515.6 MB
+2026-10-12 08:28:41 PM [bmcam004] class 3 calibration JPEGs: 82.5 MB/289.2 MB files 70/240 | 1.00 MB/s | unit 85.7 MB/469.2 MB
+2026-10-12 08:28:46 PM [bmcam003] class 3 calibration JPEGs: 96.3 MB/330.3 MB files 72/240 | 1.09 MB/s | unit 100.7 MB/515.6 MB
+2026-10-12 08:28:46 PM [bmcam004] class 3 calibration JPEGs: 87.2 MB/289.2 MB files 74/240 | 0.95 MB/s | unit 90.2 MB/469.2 MB
+2026-10-12 08:28:51 PM [bmcam003] class 3 calibration JPEGs: 101.9 MB/330.3 MB files 76/240 | 1.07 MB/s | unit 105.8 MB/515.6 MB
+2026-10-12 08:28:51 PM [bmcam004] class 3 calibration JPEGs: 92.1 MB/289.2 MB files 78/240 | 0.97 MB/s | unit 94.8 MB/469.2 MB
+2026-10-12 08:28:56 PM [bmcam003] class 3 calibration JPEGs: 107.3 MB/330.3 MB files 80/240 | 1.09 MB/s | unit 111.0 MB/515.6 MB
+2026-10-12 08:28:56 PM [bmcam004] class 3 calibration JPEGs: 94.5 MB/289.2 MB files 80/240 | 0.92 MB/s | unit 99.2 MB/469.2 MB
+2026-10-12 08:29:01 PM [bmcam003] class 3 calibration JPEGs: 113.0 MB/330.3 MB files 84/240 | 0.97 MB/s | unit 115.6 MB/515.6 MB
+2026-10-12 08:29:01 PM [bmcam004] class 3 calibration JPEGs: 99.5 MB/289.2 MB files 84/240 | 1.03 MB/s | unit 104.2 MB/469.2 MB
+2026-10-12 08:29:06 PM [bmcam003] class 3 calibration JPEGs: 115.7 MB/330.3 MB files 86/240 | 0.94 MB/s | unit 120.1 MB/515.6 MB
+2026-10-12 08:29:06 PM [bmcam004] class 3 calibration JPEGs: 104.3 MB/289.2 MB files 88/240 | 0.79 MB/s | unit 108.0 MB/469.2 MB
+2026-10-12 08:29:11 PM [bmcam003] class 3 calibration JPEGs: 121.2 MB/330.3 MB files 90/240 | 0.94 MB/s | unit 124.6 MB/515.6 MB
+2026-10-12 08:29:11 PM [bmcam004] class 3 calibration JPEGs: 109.1 MB/289.2 MB files 92/240 | 0.85 MB/s | unit 112.0 MB/469.2 MB
+2026-10-12 08:29:16 PM [bmcam003] class 3 calibration JPEGs: 123.9 MB/330.3 MB files 92/240 | 0.68 MB/s | unit 127.8 MB/515.6 MB
+2026-10-12 08:29:16 PM [bmcam004] class 3 calibration JPEGs: 113.8 MB/289.2 MB files 96/240 | 1.05 MB/s | unit 117.0 MB/469.2 MB
+2026-10-12 08:29:21 PM [bmcam003] class 3 calibration JPEGs: 129.4 MB/330.3 MB files 96/240 | 0.99 MB/s | unit 132.5 MB/515.6 MB
+2026-10-12 08:29:21 PM [bmcam004] class 3 calibration JPEGs: 116.2 MB/289.2 MB files 98/240 | 0.60 MB/s | unit 119.9 MB/469.2 MB
+2026-10-12 08:29:26 PM [bmcam003] class 3 calibration JPEGs: 132.1 MB/330.3 MB files 98/240 | 0.73 MB/s | unit 136.0 MB/515.6 MB
+2026-10-12 08:29:26 PM [bmcam004] class 3 calibration JPEGs: 121.0 MB/289.2 MB files 102/240 | 0.79 MB/s | unit 123.7 MB/469.2 MB
+2026-10-12 08:29:31 PM [bmcam003] class 3 calibration JPEGs: 134.9 MB/330.3 MB files 100/240 | 0.84 MB/s | unit 140.0 MB/515.6 MB
+2026-10-12 08:29:31 PM [bmcam004] class 3 calibration JPEGs: 123.4 MB/289.2 MB files 104/240 | 0.87 MB/s | unit 127.9 MB/469.2 MB
+2026-10-12 08:29:36 PM [bmcam003] class 3 calibration JPEGs: 140.3 MB/330.3 MB files 104/240 | 0.89 MB/s | unit 144.2 MB/515.6 MB
+2026-10-12 08:29:36 PM [bmcam004] class 3 calibration JPEGs: 128.2 MB/289.2 MB files 108/240 | 0.74 MB/s | unit 131.4 MB/469.2 MB
+2026-10-12 08:29:41 PM [bmcam003] class 3 calibration JPEGs: 143.1 MB/330.3 MB files 106/240 | 0.73 MB/s | unit 147.7 MB/515.6 MB
+2026-10-12 08:29:41 PM [bmcam004] class 3 calibration JPEGs: 133.0 MB/289.2 MB files 112/240 | 0.90 MB/s | unit 135.7 MB/469.2 MB
+2026-10-12 08:29:46 PM [bmcam003] class 3 calibration JPEGs: 148.6 MB/330.3 MB files 110/240 | 0.78 MB/s | unit 151.5 MB/515.6 MB
+2026-10-12 08:29:46 PM [bmcam004] class 3 calibration JPEGs: 135.4 MB/289.2 MB files 114/240 | 0.82 MB/s | unit 139.6 MB/469.2 MB
+2026-10-12 08:29:51 PM [bmcam003] class 3 calibration JPEGs: 151.3 MB/330.3 MB files 112/240 | 0.99 MB/s | unit 156.2 MB/515.6 MB
+2026-10-12 08:29:51 PM [bmcam004] class 3 calibration JPEGs: 140.2 MB/289.2 MB files 118/240 | 0.90 MB/s | unit 143.9 MB/469.2 MB
+2026-10-12 08:29:56 PM [bmcam003] class 3 calibration JPEGs: 156.8 MB/330.3 MB files 116/240 | 0.89 MB/s | unit 160.5 MB/515.6 MB
+2026-10-12 08:29:56 PM [bmcam004] class 3 calibration JPEGs: 145.0 MB/289.2 MB files 122/240 | 1.00 MB/s | unit 148.7 MB/469.2 MB
+2026-10-12 08:30:01 PM [bmcam003] class 3 calibration JPEGs: 162.3 MB/330.3 MB files 120/240 | 0.99 MB/s | unit 165.2 MB/515.6 MB
+2026-10-12 08:30:01 PM [bmcam004] class 3 calibration JPEGs: 149.8 MB/289.2 MB files 126/240 | 0.85 MB/s | unit 152.8 MB/469.2 MB
+2026-10-12 08:30:06 PM [bmcam003] class 3 calibration JPEGs: 165.1 MB/330.3 MB files 122/240 | 0.84 MB/s | unit 169.2 MB/515.6 MB
+2026-10-12 08:30:06 PM [bmcam004] class 3 calibration JPEGs: 154.6 MB/289.2 MB files 130/240 | 0.95 MB/s | unit 157.3 MB/469.2 MB
+2026-10-12 08:30:11 PM [bmcam003] class 3 calibration JPEGs: 170.6 MB/330.3 MB files 126/240 | 0.84 MB/s | unit 173.2 MB/515.6 MB
+2026-10-12 08:30:11 PM [bmcam004] class 3 calibration JPEGs: 157.0 MB/289.2 MB files 132/240 | 0.92 MB/s | unit 161.7 MB/469.2 MB
+2026-10-12 08:30:16 PM [bmcam003] class 3 calibration JPEGs: 173.3 MB/330.3 MB files 128/240 | 1.00 MB/s | unit 178.0 MB/515.6 MB
+2026-10-12 08:30:16 PM [bmcam004] class 3 calibration JPEGs: 161.9 MB/289.2 MB files 136/240 | 1.06 MB/s | unit 166.8 MB/469.2 MB
+2026-10-12 08:30:21 PM [bmcam003] class 3 calibration JPEGs: 178.8 MB/330.3 MB files 132/240 | 1.05 MB/s | unit 183.0 MB/515.6 MB
+2026-10-12 08:30:21 PM [bmcam004] class 3 calibration JPEGs: 166.7 MB/289.2 MB files 140/240 | 0.96 MB/s | unit 171.4 MB/469.2 MB
+2026-10-12 08:30:26 PM [bmcam003] class 3 calibration JPEGs: 184.3 MB/330.3 MB files 136/240 | 0.94 MB/s | unit 187.5 MB/515.6 MB
+2026-10-12 08:30:26 PM [bmcam004] class 3 calibration JPEGs: 171.5 MB/289.2 MB files 144/240 | 0.85 MB/s | unit 175.5 MB/469.2 MB
+2026-10-12 08:30:31 PM [bmcam003] class 3 calibration JPEGs: 187.1 MB/330.3 MB files 138/240 | 0.89 MB/s | unit 191.7 MB/515.6 MB
+2026-10-12 08:30:31 PM [bmcam004] class 3 calibration JPEGs: 176.4 MB/289.2 MB files 148/240 | 0.96 MB/s | unit 180.1 MB/469.2 MB
+2026-10-12 08:30:36 PM [bmcam003] class 3 calibration JPEGs: 192.6 MB/330.3 MB files 142/240 | 1.00 MB/s | unit 196.5 MB/515.6 MB
+2026-10-12 08:30:36 PM [bmcam004] class 3 calibration JPEGs: 181.2 MB/289.2 MB files 152/240 | 0.91 MB/s | unit 184.4 MB/469.2 MB
+2026-10-12 08:30:41 PM [bmcam003] class 3 calibration JPEGs: 198.2 MB/330.3 MB files 146/240 | 1.00 MB/s | unit 201.3 MB/515.6 MB
+2026-10-12 08:30:41 PM [bmcam004] class 3 calibration JPEGs: 183.6 MB/289.2 MB files 154/240 | 0.87 MB/s | unit 188.6 MB/469.2 MB
+2026-10-12 08:30:46 PM [bmcam003] class 3 calibration JPEGs: 200.9 MB/330.3 MB files 148/240 | 0.89 MB/s | unit 205.6 MB/515.6 MB
+2026-10-12 08:30:46 PM [bmcam004] class 3 calibration JPEGs: 188.5 MB/289.2 MB files 158/240 | 0.96 MB/s | unit 193.2 MB/469.2 MB
+2026-10-12 08:30:51 PM [bmcam003] class 3 calibration JPEGs: 206.5 MB/330.3 MB files 152/240 | 0.90 MB/s | unit 209.9 MB/515.6 MB
+2026-10-12 08:30:51 PM [bmcam004] class 3 calibration JPEGs: 193.3 MB/289.2 MB files 162/240 | 0.91 MB/s | unit 197.5 MB/469.2 MB
+2026-10-12 08:30:56 PM [bmcam003] class 3 calibration JPEGs: 209.2 MB/330.3 MB files 154/240 | 0.89 MB/s | unit 214.2 MB/515.6 MB
+2026-10-12 08:30:56 PM [bmcam004] class 3 calibration JPEGs: 198.2 MB/289.2 MB files 166/240 | 0.91 MB/s | unit 201.9 MB/469.2 MB
+2026-10-12 08:31:01 PM [bmcam003] class 3 calibration JPEGs: 214.8 MB/330.3 MB files 158/240 | 0.90 MB/s | unit 218.5 MB/515.6 MB
+2026-10-12 08:31:01 PM [bmcam004] class 3 calibration JPEGs: 203.1 MB/289.2 MB files 170/240 | 0.92 MB/s | unit 206.3 MB/469.2 MB
+2026-10-12 08:31:06 PM [bmcam003] class 3 calibration JPEGs: 217.6 MB/330.3 MB files 160/240 | 0.84 MB/s | unit 222.5 MB/515.6 MB
+2026-10-12 08:31:06 PM [bmcam004] class 3 calibration JPEGs: 208.0 MB/289.2 MB files 174/240 | 0.91 MB/s | unit 210.6 MB/469.2 MB
+2026-10-12 08:31:11 PM [bmcam003] class 3 calibration JPEGs: 223.1 MB/330.3 MB files 164/240 | 0.90 MB/s | unit 226.8 MB/515.6 MB
+2026-10-12 08:31:11 PM [bmcam004] class 3 calibration JPEGs: 210.4 MB/289.2 MB files 176/240 | 0.88 MB/s | unit 214.8 MB/469.2 MB
+2026-10-12 08:31:16 PM [bmcam003] class 3 calibration JPEGs: 225.9 MB/330.3 MB files 166/240 | 0.90 MB/s | unit 231.1 MB/515.6 MB
+2026-10-12 08:31:16 PM [bmcam004] class 3 calibration JPEGs: 215.3 MB/289.2 MB files 180/240 | 1.08 MB/s | unit 220.0 MB/469.2 MB
+2026-10-12 08:31:21 PM [bmcam003] class 3 calibration JPEGs: 231.5 MB/330.3 MB files 170/240 | 1.06 MB/s | unit 236.2 MB/515.6 MB
+2026-10-12 08:31:21 PM [bmcam004] class 3 calibration JPEGs: 220.2 MB/289.2 MB files 184/240 | 0.97 MB/s | unit 224.6 MB/469.2 MB
+2026-10-12 08:31:26 PM [bmcam003] class 3 calibration JPEGs: 237.1 MB/330.3 MB files 174/240 | 1.12 MB/s | unit 241.5 MB/515.6 MB
+2026-10-12 08:31:26 PM [bmcam004] class 3 calibration JPEGs: 225.1 MB/289.2 MB files 188/240 | 0.97 MB/s | unit 229.3 MB/469.2 MB
+2026-10-12 08:31:31 PM [bmcam003] class 3 calibration JPEGs: 242.7 MB/330.3 MB files 178/240 | 1.07 MB/s | unit 246.6 MB/515.6 MB
+2026-10-12 08:31:31 PM [bmcam004] class 3 calibration JPEGs: 230.0 MB/289.2 MB files 192/240 | 1.08 MB/s | unit 234.4 MB/469.2 MB
+2026-10-12 08:31:36 PM [bmcam003] class 3 calibration JPEGs: 248.3 MB/330.3 MB files 182/240 | 1.12 MB/s | unit 252.0 MB/515.6 MB
+2026-10-12 08:31:36 PM [bmcam004] class 3 calibration JPEGs: 234.9 MB/289.2 MB files 196/240 | 1.03 MB/s | unit 239.3 MB/469.2 MB
+2026-10-12 08:31:41 PM [bmcam003] class 3 calibration JPEGs: 253.9 MB/330.3 MB files 186/240 | 1.12 MB/s | unit 257.3 MB/515.6 MB
+2026-10-12 08:31:41 PM [bmcam004] class 3 calibration JPEGs: 239.8 MB/289.2 MB files 200/240 | 1.03 MB/s | unit 244.3 MB/469.2 MB
+2026-10-12 08:31:46 PM [bmcam003] class 3 calibration JPEGs: 259.5 MB/330.3 MB files 190/240 | 1.07 MB/s | unit 262.5 MB/515.6 MB
+2026-10-12 08:31:46 PM [bmcam004] class 3 calibration JPEGs: 244.7 MB/289.2 MB files 204/240 | 0.98 MB/s | unit 248.9 MB/469.2 MB
+2026-10-12 08:31:51 PM [bmcam003] class 3 calibration JPEGs: 262.4 MB/330.3 MB files 192/240 | 1.01 MB/s | unit 267.3 MB/515.6 MB
+2026-10-12 08:31:51 PM [bmcam004] class 3 calibration JPEGs: 249.7 MB/289.2 MB files 208/240 | 0.77 MB/s | unit 252.6 MB/469.2 MB
+2026-10-12 08:31:56 PM [bmcam003] class 3 calibration JPEGs: 268.0 MB/330.3 MB files 196/240 | 0.81 MB/s | unit 271.1 MB/515.6 MB
+2026-10-12 08:31:56 PM [bmcam004] class 3 calibration JPEGs: 252.1 MB/289.2 MB files 210/240 | 0.94 MB/s | unit 257.1 MB/469.2 MB
+2026-10-12 08:32:01 PM [bmcam003] class 3 calibration JPEGs: 270.8 MB/330.3 MB files 198/240 | 0.85 MB/s | unit 275.2 MB/515.6 MB
+2026-10-12 08:32:01 PM [bmcam004] class 3 calibration JPEGs: 257.1 MB/289.2 MB files 214/240 | 0.93 MB/s | unit 261.5 MB/469.2 MB
+2026-10-12 08:32:06 PM [bmcam003] class 3 calibration JPEGs: 273.6 MB/330.3 MB files 200/240 | 0.80 MB/s | unit 279.0 MB/515.6 MB
+2026-10-12 08:32:06 PM [bmcam004] class 3 calibration JPEGs: 262.0 MB/289.2 MB files 218/240 | 0.93 MB/s | unit 266.0 MB/469.2 MB
+2026-10-12 08:32:11 PM [bmcam003] class 3 calibration JPEGs: 279.3 MB/330.3 MB files 204/240 | 0.92 MB/s | unit 283.4 MB/515.6 MB
+2026-10-12 08:32:11 PM [bmcam004] class 3 calibration JPEGs: 267.0 MB/289.2 MB files 222/240 | 0.93 MB/s | unit 270.4 MB/469.2 MB
+2026-10-12 08:32:16 PM [bmcam003] class 3 calibration JPEGs: 284.9 MB/330.3 MB files 208/240 | 0.97 MB/s | unit 288.1 MB/515.6 MB
+2026-10-12 08:32:16 PM [bmcam004] class 3 calibration JPEGs: 271.9 MB/289.2 MB files 226/240 | 0.88 MB/s | unit 274.6 MB/469.2 MB
+2026-10-12 08:32:21 PM [bmcam003] class 3 calibration JPEGs: 290.6 MB/330.3 MB files 212/240 | 1.19 MB/s | unit 293.8 MB/515.6 MB
+2026-10-12 08:32:21 PM [bmcam004] class 3 calibration JPEGs: 274.4 MB/289.2 MB files 228/240 | 0.99 MB/s | unit 279.3 MB/469.2 MB
+2026-10-12 08:32:26 PM [bmcam003] class 3 calibration JPEGs: 293.4 MB/330.3 MB files 214/240 | 0.65 MB/s | unit 296.8 MB/515.6 MB
+2026-10-12 08:32:26 PM [bmcam004] class 3 calibration JPEGs: 281.8 MB/289.2 MB files 234/240 | 1.24 MB/s | unit 285.2 MB/469.2 MB
+2026-10-12 08:32:31 PM [bmcam003] class 3 calibration JPEGs: 293.4 MB/330.3 MB files 214/240 | 0.37 MB/s | unit 298.6 MB/515.6 MB
+2026-10-12 08:32:31 PM [bmcam004] class 3 calibration JPEGs: 289.2 MB/289.2 MB files 240/240 | 1.40 MB/s | unit 291.9 MB/469.2 MB
+2026-10-12 08:32:36 PM [bmcam003] class 3 calibration JPEGs: 301.9 MB/330.3 MB files 220/240 | 1.68 MB/s | unit 306.6 MB/515.6 MB
+2026-10-12 08:32:36 PM [bmcam004] class 3 calibration JPEGs: 289.2 MB/289.2 MB files 240/240 | 0.00 MB/s | unit 291.9 MB/469.2 MB
+2026-10-12 08:32:41 PM [bmcam003] class 3 calibration JPEGs: 310.4 MB/330.3 MB files 226/240 | 1.73 MB/s | unit 314.8 MB/515.6 MB
+2026-10-12 08:32:41 PM [bmcam004] class 3 calibration JPEGs: 289.2 MB/289.2 MB files 240/240 | 0.00 MB/s | unit 291.9 MB/469.2 MB
+2026-10-12 08:32:46 PM [bmcam004] class 3 calibration JPEGs: DONE 240/240 ok, 289.2 MB in 5m44s (0.88 MB/s)
+2026-10-12 08:32:46 PM [bmcam004] class 4 videos: 18 files, 125.8 MB -> start
+2026-10-12 08:32:46 PM [bmcam003] class 3 calibration JPEGs: 318.9 MB/330.3 MB files 232/240 | 1.83 MB/s | unit 323.6 MB/515.6 MB
+2026-10-12 08:32:46 PM [bmcam004] class 4 videos: 0 B/125.8 MB files 0/18 | 0.00 MB/s | unit 291.9 MB/469.2 MB
+2026-10-12 08:32:51 PM [bmcam003] class 3 calibration JPEGs: 324.6 MB/330.3 MB files 236/240 | 1.08 MB/s | unit 328.8 MB/515.6 MB
+2026-10-12 08:32:51 PM [bmcam004] class 4 videos: 0 B/125.8 MB files 0/18 | 0.73 MB/s | unit 295.4 MB/469.2 MB
+2026-10-12 08:32:56 PM [bmcam003] class 3 calibration JPEGs: 330.3 MB/330.3 MB files 240/240 | 0.87 MB/s | unit 332.9 MB/515.6 MB
+2026-10-12 08:32:56 PM [bmcam004] class 4 videos: 7.0 MB/125.8 MB files 1/18 | 0.94 MB/s | unit 299.9 MB/469.2 MB
+2026-10-12 08:33:01 PM [bmcam003] class 3 calibration JPEGs: 330.3 MB/330.3 MB files 240/240 | 0.00 MB/s | unit 332.9 MB/515.6 MB
+2026-10-12 08:33:01 PM [bmcam004] class 4 videos: 14.0 MB/125.8 MB files 2/18 | 1.46 MB/s | unit 306.9 MB/469.2 MB
+2026-10-12 08:33:06 PM [bmcam003] class 3 calibration JPEGs: 330.3 MB/330.3 MB files 240/240 | 0.00 MB/s | unit 332.9 MB/515.6 MB
+2026-10-12 08:33:06 PM [bmcam004] class 4 videos: 21.0 MB/125.8 MB files 3/18 | 1.31 MB/s | unit 313.1 MB/469.2 MB
+2026-10-12 08:33:11 PM [bmcam003] class 3 calibration JPEGs: 330.3 MB/330.3 MB files 240/240 | 0.00 MB/s | unit 332.9 MB/515.6 MB
+2026-10-12 08:33:11 PM [bmcam004] class 4 videos: 28.0 MB/125.8 MB files 4/18 | 1.41 MB/s | unit 319.9 MB/469.2 MB
+2026-10-12 08:33:13 PM [bmcam003] class 3 calibration JPEGs: DONE 240/240 ok, 330.3 MB in 6m10s (0.93 MB/s)
+2026-10-12 08:33:13 PM [bmcam003] class 4 videos: 18 files, 125.8 MB -> start
+2026-10-12 08:33:16 PM [bmcam003] class 4 videos: 0 B/125.8 MB files 0/18 | 0.42 MB/s | unit 334.9 MB/515.6 MB
+2026-10-12 08:33:16 PM [bmcam004] class 4 videos: 28.0 MB/125.8 MB files 4/18 | 1.10 MB/s | unit 325.1 MB/469.2 MB
+2026-10-12 08:33:21 PM [bmcam003] class 4 videos: 7.0 MB/125.8 MB files 1/18 | 1.10 MB/s | unit 340.2 MB/515.6 MB
+2026-10-12 08:33:21 PM [bmcam004] class 4 videos: 34.9 MB/125.8 MB files 5/18 | 0.83 MB/s | unit 329.1 MB/469.2 MB
+2026-10-12 08:33:26 PM [bmcam003] class 4 videos: 7.0 MB/125.8 MB files 1/18 | 0.94 MB/s | unit 344.7 MB/515.6 MB
+2026-10-12 08:33:26 PM [bmcam004] class 4 videos: 34.9 MB/125.8 MB files 5/18 | 0.73 MB/s | unit 332.6 MB/469.2 MB
+2026-10-12 08:33:31 PM [bmcam003] class 4 videos: 14.0 MB/125.8 MB files 2/18 | 0.99 MB/s | unit 349.4 MB/515.6 MB
+2026-10-12 08:33:31 PM [bmcam004] class 4 videos: 41.9 MB/125.8 MB files 6/18 | 0.82 MB/s | unit 336.5 MB/469.2 MB
+2026-10-12 08:33:36 PM [bmcam003] class 4 videos: 20.9 MB/125.8 MB files 3/18 | 1.04 MB/s | unit 354.4 MB/515.6 MB
+2026-10-12 08:33:36 PM [bmcam004] class 4 videos: 48.9 MB/125.8 MB files 7/18 | 0.89 MB/s | unit 340.8 MB/469.2 MB
+2026-10-12 08:33:41 PM [bmcam003] class 4 videos: 20.9 MB/125.8 MB files 3/18 | 1.10 MB/s | unit 359.6 MB/515.6 MB
+2026-10-12 08:33:41 PM [bmcam004] class 4 videos: 48.9 MB/125.8 MB files 7/18 | 0.84 MB/s | unit 344.8 MB/469.2 MB
+2026-10-12 08:33:46 PM [bmcam003] class 4 videos: 27.9 MB/125.8 MB files 4/18 | 1.09 MB/s | unit 364.8 MB/515.6 MB
+2026-10-12 08:33:46 PM [bmcam004] class 4 videos: 55.9 MB/125.8 MB files 8/18 | 0.78 MB/s | unit 348.5 MB/469.2 MB
+2026-10-12 08:33:51 PM [bmcam003] class 4 videos: 34.9 MB/125.8 MB files 5/18 | 0.78 MB/s | unit 368.6 MB/515.6 MB
+2026-10-12 08:33:51 PM [bmcam004] class 4 videos: 55.9 MB/125.8 MB files 8/18 | 0.78 MB/s | unit 352.3 MB/469.2 MB
+2026-10-12 08:33:56 PM [bmcam003] class 4 videos: 34.9 MB/125.8 MB files 5/18 | 0.94 MB/s | unit 373.1 MB/515.6 MB
+2026-10-12 08:33:56 PM [bmcam004] class 4 videos: 62.8 MB/125.8 MB files 9/18 | 0.84 MB/s | unit 356.3 MB/469.2 MB
+2026-10-12 08:34:01 PM [bmcam003] class 4 videos: 41.9 MB/125.8 MB files 6/18 | 0.94 MB/s | unit 377.6 MB/515.6 MB
+2026-10-12 08:34:01 PM [bmcam004] class 4 videos: 62.8 MB/125.8 MB files 9/18 | 0.84 MB/s | unit 360.3 MB/469.2 MB
+2026-10-12 08:34:07 PM [bmcam003] class 4 videos: 48.9 MB/125.8 MB files 7/18 | 0.94 MB/s | unit 382.1 MB/515.6 MB
+2026-10-12 08:34:07 PM [bmcam004] class 4 videos: 69.8 MB/125.8 MB files 10/18 | 0.83 MB/s | unit 364.2 MB/469.2 MB
+2026-10-12 08:34:12 PM [bmcam003] class 4 videos: 48.9 MB/125.8 MB files 7/18 | 0.89 MB/s | unit 386.3 MB/515.6 MB
+2026-10-12 08:34:12 PM [bmcam004] class 4 videos: 69.8 MB/125.8 MB files 10/18 | 0.84 MB/s | unit 368.2 MB/469.2 MB
+2026-10-12 08:34:17 PM [bmcam003] class 4 videos: 55.9 MB/125.8 MB files 8/18 | 0.89 MB/s | unit 390.6 MB/515.6 MB
+2026-10-12 08:34:17 PM [bmcam004] class 4 videos: 76.8 MB/125.8 MB files 11/18 | 0.84 MB/s | unit 372.2 MB/469.2 MB
+2026-10-12 08:34:22 PM [bmcam003] class 4 videos: 62.9 MB/125.8 MB files 9/18 | 1.36 MB/s | unit 397.1 MB/515.6 MB
+2026-10-12 08:34:22 PM [bmcam004] class 4 videos: 76.8 MB/125.8 MB files 11/18 | 0.26 MB/s | unit 373.5 MB/469.2 MB
+2026-10-12 08:34:27 PM [bmcam003] class 4 videos: 69.9 MB/125.8 MB files 10/18 | 1.31 MB/s | unit 403.3 MB/515.6 MB
+2026-10-12 08:34:27 PM [bmcam004] class 4 videos: 76.8 MB/125.8 MB files 11/18 | 0.31 MB/s | unit 375.0 MB/469.2 MB
+2026-10-12 08:34:32 PM [bmcam003] class 4 videos: 69.9 MB/125.8 MB files 10/18 | 0.94 MB/s | unit 407.8 MB/515.6 MB
+2026-10-12 08:34:32 PM [bmcam004] class 4 videos: 83.8 MB/125.8 MB files 12/18 | 0.79 MB/s | unit 378.7 MB/469.2 MB
+2026-10-12 08:34:37 PM [bmcam003] class 4 videos: 76.9 MB/125.8 MB files 11/18 | 0.89 MB/s | unit 412.1 MB/515.6 MB
+2026-10-12 08:34:37 PM [bmcam004] class 4 videos: 90.8 MB/125.8 MB files 13/18 | 0.89 MB/s | unit 383.0 MB/469.2 MB
+2026-10-12 08:34:42 PM [bmcam003] class 4 videos: 76.9 MB/125.8 MB files 11/18 | 0.94 MB/s | unit 416.6 MB/515.6 MB
+2026-10-12 08:34:42 PM [bmcam004] class 4 videos: 90.8 MB/125.8 MB files 13/18 | 0.78 MB/s | unit 386.7 MB/469.2 MB
+2026-10-12 08:34:47 PM [bmcam003] class 4 videos: 83.9 MB/125.8 MB files 12/18 | 0.83 MB/s | unit 420.6 MB/515.6 MB
+2026-10-12 08:34:47 PM [bmcam004] class 4 videos: 97.8 MB/125.8 MB files 14/18 | 0.84 MB/s | unit 390.7 MB/469.2 MB
+2026-10-12 08:34:52 PM [bmcam003] class 4 videos: 90.9 MB/125.8 MB files 13/18 | 0.79 MB/s | unit 424.3 MB/515.6 MB
+2026-10-12 08:34:52 PM [bmcam004] class 4 videos: 97.8 MB/125.8 MB files 14/18 | 0.79 MB/s | unit 394.5 MB/469.2 MB
+2026-10-12 08:34:57 PM [bmcam003] class 4 videos: 90.9 MB/125.8 MB files 13/18 | 0.89 MB/s | unit 428.6 MB/515.6 MB
+2026-10-12 08:34:57 PM [bmcam004] class 4 videos: 104.8 MB/125.8 MB files 15/18 | 0.73 MB/s | unit 398.0 MB/469.2 MB
+2026-10-12 08:35:02 PM [bmcam003] class 4 videos: 97.9 MB/125.8 MB files 14/18 | 0.99 MB/s | unit 433.3 MB/515.6 MB
+2026-10-12 08:35:02 PM [bmcam004] class 4 videos: 104.8 MB/125.8 MB files 15/18 | 0.73 MB/s | unit 401.5 MB/469.2 MB
+2026-10-12 08:35:07 PM [bmcam003] class 4 videos: 104.9 MB/125.8 MB files 15/18 | 0.94 MB/s | unit 437.8 MB/515.6 MB
+2026-10-12 08:35:07 PM [bmcam004] class 4 videos: 111.8 MB/125.8 MB files 16/18 | 0.83 MB/s | unit 405.5 MB/469.2 MB
+2026-10-12 08:35:12 PM [bmcam003] class 4 videos: 104.9 MB/125.8 MB files 15/18 | 1.10 MB/s | unit 443.0 MB/515.6 MB
+2026-10-12 08:35:12 PM [bmcam004] class 4 videos: 111.8 MB/125.8 MB files 16/18 | 0.78 MB/s | unit 409.2 MB/469.2 MB
+2026-10-12 08:35:17 PM [bmcam003] class 4 videos: 111.9 MB/125.8 MB files 16/18 | 0.78 MB/s | unit 446.8 MB/515.6 MB
+2026-10-12 08:35:17 PM [bmcam004] class 4 videos: 118.8 MB/125.8 MB files 17/18 | 0.94 MB/s | unit 413.7 MB/469.2 MB
+2026-10-12 08:35:22 PM [bmcam003] class 4 videos: 111.9 MB/125.8 MB files 16/18 | 0.94 MB/s | unit 451.3 MB/515.6 MB
+2026-10-12 08:35:22 PM [bmcam004] class 4 videos: 125.8 MB/125.8 MB files 18/18 | 0.84 MB/s | unit 417.7 MB/469.2 MB
+2026-10-12 08:35:25 PM [bmcam004] class 4 videos: DONE 18/18 ok, 125.8 MB in 2m39s (0.83 MB/s)
+2026-10-12 08:35:25 PM [bmcam004] class 5 loop native JPEGs: 19 files, 51.5 MB -> start
+2026-10-12 08:35:27 PM [bmcam003] class 4 videos: 118.8 MB/125.8 MB files 17/18 | 1.51 MB/s | unit 458.5 MB/515.6 MB
+2026-10-12 08:35:27 PM [bmcam004] class 5 loop native JPEGs: 0 B/51.5 MB files 0/19 | 0.05 MB/s | unit 418.0 MB/469.2 MB
+2026-10-12 08:35:31 PM [bmcam003] class 4 videos: DONE 18/18 ok, 125.8 MB in 2m17s (0.96 MB/s)
+2026-10-12 08:35:31 PM [bmcam003] class 5 loop native JPEGs: 19 files, 56.8 MB -> start
+2026-10-12 08:35:32 PM [bmcam003] class 5 loop native JPEGs: 0 B/56.8 MB files 0/19 | 0.05 MB/s | unit 458.8 MB/515.6 MB
+2026-10-12 08:35:32 PM [bmcam004] class 5 loop native JPEGs: 5.1 MB/51.5 MB files 2/19 | 1.28 MB/s | unit 424.1 MB/469.2 MB
+2026-10-12 08:35:37 PM [bmcam003] class 5 loop native JPEGs: 2.8 MB/56.8 MB files 1/19 | 0.90 MB/s | unit 463.1 MB/515.6 MB
+2026-10-12 08:35:37 PM [bmcam004] class 5 loop native JPEGs: 10.2 MB/51.5 MB files 4/19 | 0.85 MB/s | unit 428.2 MB/469.2 MB
+2026-10-12 08:35:42 PM [bmcam003] class 5 loop native JPEGs: 8.5 MB/56.8 MB files 3/19 | 0.87 MB/s | unit 467.2 MB/515.6 MB
+2026-10-12 08:35:42 PM [bmcam004] class 5 loop native JPEGs: 12.9 MB/51.5 MB files 5/19 | 0.78 MB/s | unit 431.9 MB/469.2 MB
+2026-10-12 08:35:47 PM [bmcam003] class 5 loop native JPEGs: 11.2 MB/56.8 MB files 4/19 | 0.90 MB/s | unit 471.5 MB/515.6 MB
+2026-10-12 08:35:47 PM [bmcam004] class 5 loop native JPEGs: 18.1 MB/51.5 MB files 7/19 | 0.83 MB/s | unit 435.9 MB/469.2 MB
+2026-10-12 08:35:52 PM [bmcam003] class 5 loop native JPEGs: 14.2 MB/56.8 MB files 5/19 | 0.84 MB/s | unit 475.5 MB/515.6 MB
+2026-10-12 08:35:52 PM [bmcam004] class 5 loop native JPEGs: 20.8 MB/51.5 MB files 8/19 | 0.93 MB/s | unit 440.3 MB/469.2 MB
+2026-10-12 08:35:57 PM [bmcam003] class 5 loop native JPEGs: 20.0 MB/56.8 MB files 7/19 | 0.85 MB/s | unit 479.5 MB/515.6 MB
+2026-10-12 08:35:57 PM [bmcam004] class 5 loop native JPEGs: 26.4 MB/51.5 MB files 10/19 | 0.85 MB/s | unit 444.4 MB/469.2 MB
+2026-10-12 08:36:02 PM [bmcam003] class 5 loop native JPEGs: 23.0 MB/56.8 MB files 8/19 | 0.99 MB/s | unit 484.3 MB/515.6 MB
+2026-10-12 08:36:02 PM [bmcam004] class 5 loop native JPEGs: 29.2 MB/51.5 MB files 11/19 | 0.90 MB/s | unit 448.7 MB/469.2 MB
+2026-10-12 08:36:07 PM [bmcam003] class 5 loop native JPEGs: 29.2 MB/56.8 MB files 10/19 | 0.97 MB/s | unit 488.9 MB/515.6 MB
+2026-10-12 08:36:07 PM [bmcam004] class 5 loop native JPEGs: 34.9 MB/51.5 MB files 13/19 | 0.92 MB/s | unit 453.1 MB/469.2 MB
+2026-10-12 08:36:12 PM [bmcam003] class 5 loop native JPEGs: 32.2 MB/56.8 MB files 11/19 | 0.80 MB/s | unit 492.7 MB/515.6 MB
+2026-10-12 08:36:12 PM [bmcam004] class 5 loop native JPEGs: 37.7 MB/51.5 MB files 14/19 | 0.86 MB/s | unit 457.2 MB/469.2 MB
+2026-10-12 08:36:17 PM [bmcam003] class 5 loop native JPEGs: 35.4 MB/56.8 MB files 12/19 | 0.91 MB/s | unit 497.1 MB/515.6 MB
+2026-10-12 08:36:17 PM [bmcam004] class 5 loop native JPEGs: 40.5 MB/51.5 MB files 15/19 | 0.80 MB/s | unit 461.0 MB/469.2 MB
+2026-10-12 08:36:22 PM [bmcam003] class 5 loop native JPEGs: 41.6 MB/56.8 MB files 14/19 | 0.89 MB/s | unit 501.4 MB/515.6 MB
+2026-10-12 08:36:22 PM [bmcam004] class 5 loop native JPEGs: 46.3 MB/51.5 MB files 17/19 | 0.83 MB/s | unit 465.0 MB/469.2 MB
+2026-10-12 08:36:27 PM [bmcam003] class 5 loop native JPEGs: 44.8 MB/56.8 MB files 15/19 | 0.92 MB/s | unit 505.8 MB/515.6 MB
+2026-10-12 08:36:27 PM [bmcam004] class 5 loop native JPEGs: 49.1 MB/51.5 MB files 18/19 | 0.75 MB/s | unit 468.6 MB/469.2 MB
+2026-10-12 08:36:29 PM [bmcam004] class 5 loop native JPEGs: DONE 19/19 ok, 51.5 MB in 1m03s (0.84 MB/s)
+2026-10-12 08:36:29 PM [bmcam004] DNGs left on unit: 138 files, 3.1 GB; sha256 on the Pi (one call) ...
+2026-10-12 08:36:32 PM [bmcam003] class 5 loop native JPEGs: 54.2 MB/56.8 MB files 18/19 | 1.50 MB/s | unit 512.9 MB/515.6 MB
+2026-10-12 08:36:32 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.14 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:36:35 PM [bmcam003] class 5 loop native JPEGs: DONE 19/19 ok, 56.8 MB in 1m04s (0.92 MB/s)
+2026-10-12 08:36:35 PM [bmcam003] DNGs left on unit: 138 files, 3.1 GB; sha256 on the Pi (one call) ...
+2026-10-12 08:36:37 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.56 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:36:37 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:36:42 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:36:42 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:36:47 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:36:47 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:36:52 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:36:52 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:36:57 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:36:57 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:02 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:02 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:07 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:07 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:12 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:12 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:17 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:17 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:22 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:22 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:27 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:27 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:32 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:32 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:37 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:37 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:42 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:42 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:47 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:47 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:52 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:52 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:37:57 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:37:57 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:02 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:02 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:07 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:07 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:12 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:12 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:17 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:17 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:22 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:22 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:27 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:27 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:32 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:32 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:37 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:37 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:42 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:42 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:47 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:47 PM [bmcam004] class 5 loop native JPEGs: 51.5 MB/51.5 MB files 19/19 | 0.00 MB/s | unit 469.2 MB/469.2 MB
+2026-10-12 08:38:52 PM [bmcam004] DNG inventory: 138/138 sha256 in 2m22s
+2026-10-12 08:38:52 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:57 PM [bmcam003] class 5 loop native JPEGs: 56.8 MB/56.8 MB files 19/19 | 0.00 MB/s | unit 515.6 MB/515.6 MB
+2026-10-12 08:38:58 PM [bmcam003] DNG inventory: 138/138 sha256 in 2m22s
+2026-10-12 08:38:58 PM [bmcam003] SUMMARY COMPLETE: left_on_unit=138, ok=669
+2026-10-12 08:38:58 PM [bmcam003] LEFT ON UNIT: 138 DNGs, 3.1 GB, 138 with a Pi sha256 in pull_report.json (pull at pickup with --include-dng)
+2026-10-12 08:38:58 PM [bmcam004] SUMMARY COMPLETE: left_on_unit=138, ok=669
+2026-10-12 08:38:58 PM [bmcam004] LEFT ON UNIT: 138 DNGs, 3.1 GB, 138 with a Pi sha256 in pull_report.json (pull at pickup with --include-dng)
+2026-10-12 08:38:58 PM [pool_pull] OK in 12m02s; report /Users/nickbuemond/NereusPool/20261012_TENDURE_v2/pull_report.json

@@ -1,0 +1,61 @@
+2026-10-12T20:52:13Z == T-ENDURE driver start pid 83134
+2026-10-12T20:52:13Z >> pool_cmd both status
+[pool_cmd] host=nereus000 id=90013 verb=status targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=40s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90013,"c":"pool","v":"status"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90013,"c":"pool","v":"status"} 1 1
+  [bmcam004] OK  [bmcam004] OK id=90013 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201130_bmcam004 free=106964MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=2445s
+  [bmcam004] .. 2026-10-12T20:52:16Z 1791838339.320 e6fe83ea6b4a2b7f, [bmcam004] OK id=90013 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201130_bmcam004 free=106964MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=2445s dup
+  [bmcam003] OK  [bmcam003] OK id=90013 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201138_bmcam003 free=107269MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=2437s
+  [bmcam003] .. 2026-10-12T20:52:16Z 1791838336.289 53171fa3d81a8e6f, [bmcam003] OK id=90013 pool status phase=idle cal=0/0 loop=0/0 run=20261012_201138_bmcam003 free=107269MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=2437s dup
+[pool_cmd] id=90013 bmcam003: OK
+[pool_cmd] id=90013 bmcam004: OK
+2026-10-12T20:52:19Z << rc=0
+2026-10-12T20:52:19Z >> pool_cmd both cal --duration-s 1200 --interval-s 10
+[pool_cmd] host=nereus000 id=90014 verb=cal targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=40s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90014,"c":"pool","v":"cal","duration_s":1200,"interval_s":10} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90014,"c":"pool","v":"cal","duration_s":1200,"interval_s":10} 1 1
+  [bmcam003] OK  [bmcam003] OK id=90014 pool cal start frames=120 every=10s dur=1200s free=107269MB
+  [bmcam003] .. 2026-10-12T20:52:20Z 1791838340.679 53171fa3d81a8e6f, [bmcam003] OK id=90014 pool cal start frames=120 every=10s dur=1200s free=107269MB dup
+  [bmcam004] OK  [bmcam004] OK id=90014 pool cal start frames=120 every=10s dur=1200s free=106964MB
+  [bmcam004] .. 2026-10-12T20:52:21Z 1791838344.187 e6fe83ea6b4a2b7f, [bmcam004] OK id=90014 pool cal start frames=120 every=10s dur=1200s free=106964MB dup
+[pool_cmd] id=90014 bmcam003: OK
+[pool_cmd] id=90014 bmcam004: OK
+2026-10-12T20:52:24Z << rc=0
+2026-10-12T20:52:25Z cal progress 003=1 004=1
+2026-10-12T20:53:28Z cal progress 003=7 004=7
+2026-10-12T20:54:31Z cal progress 003=13 004=13
+2026-10-12T20:55:33Z cal progress 003=19 004=19
+2026-10-12T20:56:36Z cal progress 003=26 004=26
+2026-10-12T20:57:38Z cal progress 003=32 004=32
+2026-10-12T20:58:42Z cal progress 003=38 004=38
+2026-10-12T20:59:44Z cal progress 003=44 004=44
+2026-10-12T21:00:47Z cal progress 003=51 004=51
+2026-10-12T21:01:49Z cal progress 003=57 004=57
+2026-10-12T21:02:51Z cal progress 003=63 004=63
+2026-10-12T21:03:54Z cal progress 003=69 004=69
+2026-10-12T21:04:57Z cal progress 003=76 004=76
+2026-10-12T21:05:59Z cal progress 003=82 004=82
+2026-10-12T21:07:02Z cal progress 003=88 004=88
+2026-10-12T21:08:06Z cal progress 003=94 004=95
+2026-10-12T21:09:09Z cal progress 003=101 004=101
+2026-10-12T21:10:11Z cal progress 003=107 004=107
+2026-10-12T21:11:15Z cal progress 003=113 004=114
+2026-10-12T21:51:58Z cal progress 003= 004=
+2026-10-12T21:52:58Z >> pool_cmd both status
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-12T21:53:03Z << rc=255
+2026-10-12T21:53:03Z >> pool_cmd both loop --iterations 18 --period-s 600
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-12T21:53:08Z << rc=255
+2026-10-12T22:40:09Z mid-loop preview (expect wait behind a clip)
+2026-10-12T22:40:09Z >> pool_cmd both preview
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-12T22:54:33Z << rc=255
+2026-10-12T23:26:03Z >> pool_cmd both mark endure_1p5h
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-12T23:26:19Z << rc=255
+2026-10-13T01:26:06Z loop did not finish in 3.5 h
+2026-10-13T01:26:06Z >> pool_cmd both status
+ssh: connect to host 192.168.1.45 port 22: Operation timed out
+2026-10-13T01:26:12Z << rc=255
+2026-10-13T01:26:12Z == T-ENDURE driver end (loop phase); pull + restore by the TE session

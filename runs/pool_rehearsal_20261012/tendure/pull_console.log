@@ -1,0 +1,173 @@
+2026-10-12 08:04:40 PM [pool_pull] mac=Nicks-MBP.localdomain units=pi@192.168.1.230,pi@192.168.1.143 run=bmcam003=20261012_201138_bmcam003,bmcam004=20261012_201130_bmcam004 classes=[1, 2, 3, 4, 5, 6] 
+2026-10-12 08:04:42 PM [bmcam003] run /home/pi/pool_runs/20261012_201138_bmcam003/ : 807 files, 3.6 GB
+2026-10-12 08:04:42 PM [bmcam004] run /home/pi/pool_runs/20261012_201130_bmcam004/ : 807 files, 3.5 GB
+2026-10-12 08:04:42 PM [bmcam003] -> /Users/nickbuemond/NereusPool/20261012_TENDURE/bmcam003/
+2026-10-12 08:04:42 PM [bmcam004] -> /Users/nickbuemond/NereusPool/20261012_TENDURE/bmcam004/
+2026-10-12 08:04:42 PM [bmcam003] class 1 manifest+logs: 300 files, 783.2 KB -> start
+2026-10-12 08:04:42 PM [bmcam004] class 1 manifest+logs: 300 files, 781.9 KB -> start
+2026-10-12 08:04:44 PM [bmcam004] class 1 manifest+logs: DONE 300/300 ok, 781.9 KB in 0m02s (0.30 MB/s)
+2026-10-12 08:04:44 PM [bmcam004] class 2 loop products: 92 files, 1.9 MB -> start
+2026-10-12 08:04:45 PM [bmcam003] class 1 manifest+logs: DONE 300/300 ok, 783.2 KB in 0m02s (0.27 MB/s)
+2026-10-12 08:04:45 PM [bmcam003] class 2 loop products: 92 files, 1.9 MB -> start
+2026-10-12 08:04:47 PM [bmcam003] class 2 loop products: 1.2 MB/1.9 MB files 58/92 | 0.00 MB/s | unit 1.9 MB/3.6 GB
+2026-10-12 08:04:47 PM [bmcam004] class 2 loop products: 1.4 MB/1.9 MB files 68/92 | 0.00 MB/s | unit 2.2 MB/3.5 GB
+2026-10-12 08:04:48 PM [bmcam004] class 2 loop products: DONE 92/92 ok, 1.9 MB in 0m03s (0.55 MB/s)
+2026-10-12 08:04:48 PM [bmcam004] class 3 calibration: 360 files, 3.0 GB -> start
+2026-10-12 08:04:48 PM [bmcam003] class 2 loop products: DONE 92/92 ok, 1.9 MB in 0m03s (0.56 MB/s)
+2026-10-12 08:04:48 PM [bmcam003] class 3 calibration: 360 files, 3.0 GB -> start
+2026-10-12 08:04:52 PM [bmcam003] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.62 MB/s | unit 4.9 MB/3.6 GB
+2026-10-12 08:04:52 PM [bmcam004] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.47 MB/s | unit 4.4 MB/3.5 GB
+2026-10-12 08:04:57 PM [bmcam003] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.89 MB/s | unit 9.2 MB/3.6 GB
+2026-10-12 08:04:57 PM [bmcam004] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.99 MB/s | unit 9.2 MB/3.5 GB
+2026-10-12 08:05:02 PM [bmcam003] class 3 calibration: 0 B/3.0 GB files 0/360 | 1.05 MB/s | unit 14.2 MB/3.6 GB
+2026-10-12 08:05:02 PM [bmcam004] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.73 MB/s | unit 12.7 MB/3.5 GB
+2026-10-12 08:05:07 PM [bmcam003] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.94 MB/s | unit 18.7 MB/3.6 GB
+2026-10-12 08:05:07 PM [bmcam004] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.78 MB/s | unit 16.4 MB/3.5 GB
+2026-10-12 08:05:12 PM [bmcam003] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.99 MB/s | unit 23.4 MB/3.6 GB
+2026-10-12 08:05:12 PM [bmcam004] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.78 MB/s | unit 20.2 MB/3.5 GB
+2026-10-12 08:05:17 PM [bmcam003] class 3 calibration: 22.9 MB/3.0 GB files 1/360 | 0.72 MB/s | unit 26.8 MB/3.6 GB
+2026-10-12 08:05:17 PM [bmcam004] class 3 calibration: 0 B/3.0 GB files 0/360 | 0.84 MB/s | unit 24.2 MB/3.5 GB
+2026-10-12 08:05:22 PM [bmcam003] class 3 calibration: 25.5 MB/3.0 GB files 3/360 | 1.02 MB/s | unit 31.7 MB/3.6 GB
+2026-10-12 08:05:22 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.78 MB/s | unit 27.9 MB/3.5 GB
+2026-10-12 08:05:27 PM [bmcam003] class 3 calibration: 25.5 MB/3.0 GB files 3/360 | 0.94 MB/s | unit 36.2 MB/3.6 GB
+2026-10-12 08:05:27 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.68 MB/s | unit 31.2 MB/3.5 GB
+2026-10-12 08:05:32 PM [bmcam003] class 3 calibration: 25.5 MB/3.0 GB files 3/360 | 0.94 MB/s | unit 40.7 MB/3.6 GB
+2026-10-12 08:05:32 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.89 MB/s | unit 35.4 MB/3.5 GB
+2026-10-12 08:05:37 PM [bmcam003] class 3 calibration: 25.5 MB/3.0 GB files 3/360 | 0.78 MB/s | unit 44.4 MB/3.6 GB
+2026-10-12 08:05:37 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.58 MB/s | unit 38.2 MB/3.5 GB
+2026-10-12 08:05:42 PM [bmcam003] class 3 calibration: 25.5 MB/3.0 GB files 3/360 | 0.84 MB/s | unit 48.4 MB/3.6 GB
+2026-10-12 08:05:42 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.68 MB/s | unit 41.4 MB/3.5 GB
+2026-10-12 08:05:47 PM [bmcam003] class 3 calibration: 48.5 MB/3.0 GB files 4/360 | 0.92 MB/s | unit 52.9 MB/3.6 GB
+2026-10-12 08:05:47 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.94 MB/s | unit 45.9 MB/3.5 GB
+2026-10-12 08:05:52 PM [bmcam003] class 3 calibration: 51.0 MB/3.0 GB files 6/360 | 0.91 MB/s | unit 57.2 MB/3.6 GB
+2026-10-12 08:05:52 PM [bmcam004] class 3 calibration: 25.2 MB/3.0 GB files 3/360 | 0.78 MB/s | unit 49.7 MB/3.5 GB
+2026-10-12 08:05:57 PM [bmcam003] class 3 calibration: 51.0 MB/3.0 GB files 6/360 | 1.05 MB/s | unit 62.2 MB/3.6 GB
+2026-10-12 08:05:57 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.83 MB/s | unit 53.7 MB/3.5 GB
+2026-10-12 08:06:02 PM [bmcam003] class 3 calibration: 51.0 MB/3.0 GB files 6/360 | 1.05 MB/s | unit 67.2 MB/3.6 GB
+2026-10-12 08:06:02 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.84 MB/s | unit 57.7 MB/3.5 GB
+2026-10-12 08:06:07 PM [bmcam003] class 3 calibration: 51.0 MB/3.0 GB files 6/360 | 0.99 MB/s | unit 72.0 MB/3.6 GB
+2026-10-12 08:06:07 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.89 MB/s | unit 61.9 MB/3.5 GB
+2026-10-12 08:06:12 PM [bmcam003] class 3 calibration: 74.0 MB/3.0 GB files 7/360 | 1.08 MB/s | unit 77.1 MB/3.6 GB
+2026-10-12 08:06:12 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.84 MB/s | unit 65.9 MB/3.5 GB
+2026-10-12 08:06:17 PM [bmcam003] class 3 calibration: 76.6 MB/3.0 GB files 9/360 | 0.91 MB/s | unit 81.5 MB/3.6 GB
+2026-10-12 08:06:17 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.63 MB/s | unit 68.9 MB/3.5 GB
+2026-10-12 08:06:22 PM [bmcam003] class 3 calibration: 76.6 MB/3.0 GB files 9/360 | 0.89 MB/s | unit 85.7 MB/3.6 GB
+2026-10-12 08:06:22 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.68 MB/s | unit 72.2 MB/3.5 GB
+2026-10-12 08:06:27 PM [bmcam003] class 3 calibration: 76.6 MB/3.0 GB files 9/360 | 0.89 MB/s | unit 90.0 MB/3.6 GB
+2026-10-12 08:06:27 PM [bmcam004] class 3 calibration: 50.5 MB/3.0 GB files 6/360 | 0.68 MB/s | unit 75.4 MB/3.5 GB
+2026-10-12 08:06:32 PM [bmcam003] class 3 calibration: 76.6 MB/3.0 GB files 9/360 | 0.94 MB/s | unit 94.5 MB/3.6 GB
+2026-10-12 08:06:32 PM [bmcam004] class 3 calibration: 75.7 MB/3.0 GB files 9/360 | 0.68 MB/s | unit 78.6 MB/3.5 GB
+2026-10-12 08:06:37 PM [bmcam003] class 3 calibration: 76.6 MB/3.0 GB files 9/360 | 0.89 MB/s | unit 98.7 MB/3.6 GB
+2026-10-12 08:06:37 PM [bmcam004] class 3 calibration: 75.7 MB/3.0 GB files 9/360 | 0.58 MB/s | unit 81.4 MB/3.5 GB
+2026-10-12 08:06:42 PM [bmcam003] class 3 calibration: 99.5 MB/3.0 GB files 10/360 | 1.08 MB/s | unit 103.9 MB/3.6 GB
+2026-10-12 08:06:42 PM [bmcam004] class 3 calibration: 75.7 MB/3.0 GB files 9/360 | 0.84 MB/s | unit 85.4 MB/3.5 GB
+2026-10-12 08:06:47 PM [bmcam003] class 3 calibration: 102.1 MB/3.0 GB files 12/360 | 1.12 MB/s | unit 109.2 MB/3.6 GB
+2026-10-12 08:06:47 PM [bmcam004] class 3 calibration: 75.7 MB/3.0 GB files 9/360 | 0.78 MB/s | unit 89.1 MB/3.5 GB
+2026-10-12 08:06:52 PM [bmcam003] class 3 calibration: 102.1 MB/3.0 GB files 12/360 | 1.05 MB/s | unit 114.2 MB/3.6 GB
+2026-10-12 08:06:52 PM [bmcam004] class 3 calibration: 75.7 MB/3.0 GB files 9/360 | 0.79 MB/s | unit 92.9 MB/3.5 GB
+2026-10-12 08:06:57 PM [bmcam003] class 3 calibration: 102.1 MB/3.0 GB files 12/360 | 1.05 MB/s | unit 119.2 MB/3.6 GB
+2026-10-12 08:06:57 PM [bmcam004] class 3 calibration: 75.7 MB/3.0 GB files 9/360 | 0.89 MB/s | unit 97.1 MB/3.5 GB
+2026-10-12 08:07:02 PM [bmcam003] class 3 calibration: 102.1 MB/3.0 GB files 12/360 | 1.15 MB/s | unit 124.7 MB/3.6 GB
+2026-10-12 08:07:02 PM [bmcam004] class 3 calibration: 98.6 MB/3.0 GB files 10/360 | 0.92 MB/s | unit 101.6 MB/3.5 GB
+2026-10-12 08:07:07 PM [bmcam003] class 3 calibration: 125.0 MB/3.0 GB files 13/360 | 1.08 MB/s | unit 129.9 MB/3.6 GB
+2026-10-12 08:07:07 PM [bmcam004] class 3 calibration: 100.9 MB/3.0 GB files 12/360 | 0.85 MB/s | unit 105.6 MB/3.5 GB
+2026-10-12 08:07:12 PM [bmcam003] class 3 calibration: 127.6 MB/3.0 GB files 15/360 | 1.07 MB/s | unit 135.0 MB/3.6 GB
+2026-10-12 08:07:12 PM [bmcam004] class 3 calibration: 100.9 MB/3.0 GB files 12/360 | 0.84 MB/s | unit 109.6 MB/3.5 GB
+2026-10-12 08:07:17 PM [bmcam003] class 3 calibration: 127.6 MB/3.0 GB files 15/360 | 0.89 MB/s | unit 139.2 MB/3.6 GB
+2026-10-12 08:07:17 PM [bmcam004] class 3 calibration: 100.9 MB/3.0 GB files 12/360 | 0.94 MB/s | unit 114.1 MB/3.5 GB
+2026-10-12 08:07:22 PM [bmcam003] class 3 calibration: 127.6 MB/3.0 GB files 15/360 | 0.68 MB/s | unit 142.5 MB/3.6 GB
+2026-10-12 08:07:22 PM [bmcam004] class 3 calibration: 100.9 MB/3.0 GB files 12/360 | 0.99 MB/s | unit 118.9 MB/3.5 GB
+2026-10-12 08:07:27 PM [bmcam003] class 3 calibration: 127.6 MB/3.0 GB files 15/360 | 0.05 MB/s | unit 142.7 MB/3.6 GB
+2026-10-12 08:07:27 PM [bmcam004] class 3 calibration: 100.9 MB/3.0 GB files 12/360 | 1.47 MB/s | unit 125.9 MB/3.5 GB
+2026-10-12 08:07:32 PM [bmcam003] class 3 calibration: 127.6 MB/3.0 GB files 15/360 | 0.89 MB/s | unit 147.0 MB/3.6 GB
+2026-10-12 08:07:32 PM [bmcam004] class 3 calibration: 126.2 MB/3.0 GB files 15/360 | 0.94 MB/s | unit 130.4 MB/3.5 GB
+2026-10-12 08:07:37 PM [bmcam003] class 3 calibration: 127.6 MB/3.0 GB files 15/360 | 0.94 MB/s | unit 151.5 MB/3.6 GB
+2026-10-12 08:07:37 PM [bmcam004] class 3 calibration: 126.2 MB/3.0 GB files 15/360 | 0.84 MB/s | unit 134.4 MB/3.5 GB
+2026-10-12 08:07:42 PM [bmcam003] class 3 calibration: 153.1 MB/3.0 GB files 18/360 | 1.05 MB/s | unit 156.5 MB/3.6 GB
+2026-10-12 08:07:42 PM [bmcam004] class 3 calibration: 126.2 MB/3.0 GB files 15/360 | 0.84 MB/s | unit 138.4 MB/3.5 GB
+2026-10-12 08:07:47 PM [bmcam003] class 3 calibration: 153.1 MB/3.0 GB files 18/360 | 1.05 MB/s | unit 161.5 MB/3.6 GB
+2026-10-12 08:07:47 PM [bmcam004] class 3 calibration: 126.2 MB/3.0 GB files 15/360 | 0.89 MB/s | unit 142.6 MB/3.5 GB
+2026-10-12 08:07:52 PM [bmcam003] class 3 calibration: 153.1 MB/3.0 GB files 18/360 | 0.99 MB/s | unit 166.3 MB/3.6 GB
+2026-10-12 08:07:52 PM [bmcam004] class 3 calibration: 126.2 MB/3.0 GB files 15/360 | 0.89 MB/s | unit 146.9 MB/3.5 GB
+2026-10-12 08:07:57 PM [bmcam003] class 3 calibration: 153.1 MB/3.0 GB files 18/360 | 0.99 MB/s | unit 171.0 MB/3.6 GB
+2026-10-12 08:07:57 PM [bmcam004] class 3 calibration: 126.2 MB/3.0 GB files 15/360 | 0.89 MB/s | unit 151.1 MB/3.5 GB
+2026-10-12 08:08:02 PM [bmcam003] class 3 calibration: 153.1 MB/3.0 GB files 18/360 | 1.05 MB/s | unit 176.0 MB/3.6 GB
+2026-10-12 08:08:02 PM [bmcam004] class 3 calibration: 151.4 MB/3.0 GB files 18/360 | 0.89 MB/s | unit 155.3 MB/3.5 GB
+2026-10-12 08:08:07 PM [bmcam003] class 3 calibration: 176.0 MB/3.0 GB files 19/360 | 1.03 MB/s | unit 180.9 MB/3.6 GB
+2026-10-12 08:08:07 PM [bmcam004] class 3 calibration: 151.4 MB/3.0 GB files 18/360 | 0.84 MB/s | unit 159.3 MB/3.5 GB
+2026-10-12 08:08:12 PM [bmcam003] class 3 calibration: 178.6 MB/3.0 GB files 21/360 | 0.76 MB/s | unit 184.6 MB/3.6 GB
+2026-10-12 08:08:12 PM [bmcam004] class 3 calibration: 151.4 MB/3.0 GB files 18/360 | 0.79 MB/s | unit 163.1 MB/3.5 GB
+2026-10-12 08:08:17 PM [bmcam003] class 3 calibration: 178.6 MB/3.0 GB files 21/360 | 0.42 MB/s | unit 186.6 MB/3.6 GB
+2026-10-12 08:08:17 PM [bmcam004] class 3 calibration: 151.4 MB/3.0 GB files 18/360 | 0.58 MB/s | unit 165.8 MB/3.5 GB
+2026-10-12 08:08:22 PM [bmcam003] class 3 calibration: 178.6 MB/3.0 GB files 21/360 | 0.99 MB/s | unit 191.3 MB/3.6 GB
+2026-10-12 08:08:22 PM [bmcam004] class 3 calibration: 151.4 MB/3.0 GB files 18/360 | 0.89 MB/s | unit 170.1 MB/3.5 GB
+2026-10-12 08:08:27 PM [bmcam003] class 3 calibration: 178.6 MB/3.0 GB files 21/360 | 0.99 MB/s | unit 196.1 MB/3.6 GB
+2026-10-12 08:08:27 PM [bmcam004] class 3 calibration: 151.4 MB/3.0 GB files 18/360 | 0.84 MB/s | unit 174.1 MB/3.5 GB
+2026-10-12 08:08:32 PM [bmcam003] class 3 calibration: 178.6 MB/3.0 GB files 21/360 | 1.05 MB/s | unit 201.1 MB/3.6 GB
+2026-10-12 08:08:32 PM [bmcam004] class 3 calibration: 174.3 MB/3.0 GB files 19/360 | 0.87 MB/s | unit 178.3 MB/3.5 GB
+2026-10-12 08:08:37 PM [bmcam003] class 3 calibration: 201.6 MB/3.0 GB files 22/360 | 0.98 MB/s | unit 205.7 MB/3.6 GB
+2026-10-12 08:08:37 PM [bmcam004] class 3 calibration: 176.6 MB/3.0 GB files 21/360 | 0.91 MB/s | unit 182.6 MB/3.5 GB
+2026-10-12 08:08:42 PM [bmcam003] class 3 calibration: 204.2 MB/3.0 GB files 24/360 | 1.02 MB/s | unit 210.6 MB/3.6 GB
+2026-10-12 08:08:42 PM [bmcam004] class 3 calibration: 176.6 MB/3.0 GB files 21/360 | 0.89 MB/s | unit 186.8 MB/3.5 GB
+2026-10-12 08:08:47 PM [bmcam003] class 3 calibration: 204.2 MB/3.0 GB files 24/360 | 1.05 MB/s | unit 215.6 MB/3.6 GB
+2026-10-12 08:08:47 PM [bmcam004] class 3 calibration: 176.6 MB/3.0 GB files 21/360 | 0.89 MB/s | unit 191.1 MB/3.5 GB
+2026-10-12 08:08:52 PM [bmcam003] class 3 calibration: 204.2 MB/3.0 GB files 24/360 | 0.99 MB/s | unit 220.3 MB/3.6 GB
+2026-10-12 08:08:52 PM [bmcam004] class 3 calibration: 176.6 MB/3.0 GB files 21/360 | 0.89 MB/s | unit 195.3 MB/3.5 GB
+2026-10-12 08:08:57 PM [bmcam003] class 3 calibration: 204.2 MB/3.0 GB files 24/360 | 0.89 MB/s | unit 224.6 MB/3.6 GB
+2026-10-12 08:08:57 PM [bmcam004] class 3 calibration: 176.6 MB/3.0 GB files 21/360 | 0.84 MB/s | unit 199.3 MB/3.5 GB
+2026-10-12 08:09:02 PM [bmcam003] class 3 calibration: 227.1 MB/3.0 GB files 25/360 | 1.08 MB/s | unit 229.8 MB/3.6 GB
+2026-10-12 08:09:02 PM [bmcam004] class 3 calibration: 199.6 MB/3.0 GB files 22/360 | 0.82 MB/s | unit 203.3 MB/3.5 GB
+2026-10-12 08:09:07 PM [bmcam003] class 3 calibration: 229.7 MB/3.0 GB files 27/360 | 0.92 MB/s | unit 234.1 MB/3.6 GB
+2026-10-12 08:09:07 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.91 MB/s | unit 207.6 MB/3.5 GB
+2026-10-12 08:09:12 PM [bmcam003] class 3 calibration: 229.7 MB/3.0 GB files 27/360 | 1.15 MB/s | unit 239.6 MB/3.6 GB
+2026-10-12 08:09:12 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.63 MB/s | unit 210.6 MB/3.5 GB
+2026-10-12 08:09:17 PM [bmcam003] class 3 calibration: 229.7 MB/3.0 GB files 27/360 | 1.41 MB/s | unit 246.4 MB/3.6 GB
+2026-10-12 08:09:17 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.16 MB/s | unit 211.3 MB/3.5 GB
+2026-10-12 08:09:22 PM [bmcam003] class 3 calibration: 229.7 MB/3.0 GB files 27/360 | 1.05 MB/s | unit 251.4 MB/3.6 GB
+2026-10-12 08:09:22 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.73 MB/s | unit 214.8 MB/3.5 GB
+2026-10-12 08:09:27 PM [bmcam003] class 3 calibration: 252.6 MB/3.0 GB files 28/360 | 0.98 MB/s | unit 256.1 MB/3.6 GB
+2026-10-12 08:09:27 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.84 MB/s | unit 218.8 MB/3.5 GB
+2026-10-12 08:09:32 PM [bmcam003] class 3 calibration: 255.3 MB/3.0 GB files 30/360 | 1.03 MB/s | unit 261.0 MB/3.6 GB
+2026-10-12 08:09:32 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.84 MB/s | unit 222.8 MB/3.5 GB
+2026-10-12 08:09:37 PM [bmcam003] class 3 calibration: 255.3 MB/3.0 GB files 30/360 | 0.94 MB/s | unit 265.5 MB/3.6 GB
+2026-10-12 08:09:37 PM [bmcam004] class 3 calibration: 201.9 MB/3.0 GB files 24/360 | 0.84 MB/s | unit 226.8 MB/3.5 GB
+2026-10-12 08:09:42 PM [bmcam003] class 3 calibration: 255.3 MB/3.0 GB files 30/360 | 1.10 MB/s | unit 270.7 MB/3.6 GB
+2026-10-12 08:09:42 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.78 MB/s | unit 230.6 MB/3.5 GB
+2026-10-12 08:09:47 PM [bmcam003] class 3 calibration: 255.3 MB/3.0 GB files 30/360 | 1.10 MB/s | unit 276.0 MB/3.6 GB
+2026-10-12 08:09:47 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.68 MB/s | unit 233.8 MB/3.5 GB
+2026-10-12 08:09:52 PM [bmcam003] class 3 calibration: 255.3 MB/3.0 GB files 30/360 | 0.94 MB/s | unit 280.5 MB/3.6 GB
+2026-10-12 08:09:52 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.63 MB/s | unit 236.8 MB/3.5 GB
+2026-10-12 08:09:57 PM [bmcam003] class 3 calibration: 280.9 MB/3.0 GB files 33/360 | 1.16 MB/s | unit 286.0 MB/3.6 GB
+2026-10-12 08:09:57 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.68 MB/s | unit 240.1 MB/3.5 GB
+2026-10-12 08:10:02 PM [bmcam003] class 3 calibration: 280.9 MB/3.0 GB files 33/360 | 1.05 MB/s | unit 291.0 MB/3.6 GB
+2026-10-12 08:10:02 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.78 MB/s | unit 243.8 MB/3.5 GB
+2026-10-12 08:10:07 PM [bmcam003] class 3 calibration: 280.9 MB/3.0 GB files 33/360 | 1.10 MB/s | unit 296.3 MB/3.6 GB
+2026-10-12 08:10:07 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.73 MB/s | unit 247.3 MB/3.5 GB
+2026-10-12 08:10:12 PM [bmcam003] class 3 calibration: 280.9 MB/3.0 GB files 33/360 | 0.94 MB/s | unit 300.8 MB/3.6 GB
+2026-10-12 08:10:12 PM [bmcam004] class 3 calibration: 227.1 MB/3.0 GB files 27/360 | 0.63 MB/s | unit 250.3 MB/3.5 GB
+2026-10-12 08:10:17 PM [bmcam003] class 3 calibration: 280.9 MB/3.0 GB files 33/360 | 0.99 MB/s | unit 305.5 MB/3.6 GB
+2026-10-12 08:10:17 PM [bmcam004] class 3 calibration: 250.1 MB/3.0 GB files 28/360 | 0.66 MB/s | unit 253.5 MB/3.5 GB
+2026-10-12 08:10:22 PM [bmcam003] class 3 calibration: 306.4 MB/3.0 GB files 36/360 | 0.96 MB/s | unit 310.1 MB/3.6 GB
+2026-10-12 08:10:22 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.65 MB/s | unit 256.6 MB/3.5 GB
+2026-10-12 08:10:27 PM [bmcam003] class 3 calibration: 306.4 MB/3.0 GB files 36/360 | 0.94 MB/s | unit 314.6 MB/3.6 GB
+2026-10-12 08:10:27 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.63 MB/s | unit 259.6 MB/3.5 GB
+2026-10-12 08:10:32 PM [bmcam003] class 3 calibration: 306.4 MB/3.0 GB files 36/360 | 0.99 MB/s | unit 319.3 MB/3.6 GB
+2026-10-12 08:10:32 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.63 MB/s | unit 262.6 MB/3.5 GB
+2026-10-12 08:10:37 PM [bmcam003] class 3 calibration: 306.4 MB/3.0 GB files 36/360 | 0.94 MB/s | unit 323.8 MB/3.6 GB
+2026-10-12 08:10:37 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.73 MB/s | unit 266.1 MB/3.5 GB
+2026-10-12 08:10:42 PM [bmcam003] class 3 calibration: 306.4 MB/3.0 GB files 36/360 | 0.94 MB/s | unit 328.3 MB/3.6 GB
+2026-10-12 08:10:42 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.68 MB/s | unit 269.4 MB/3.5 GB
+2026-10-12 08:10:47 PM [bmcam003] class 3 calibration: 329.4 MB/3.0 GB files 37/360 | 0.92 MB/s | unit 332.8 MB/3.6 GB
+2026-10-12 08:10:47 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.63 MB/s | unit 272.4 MB/3.5 GB
+2026-10-12 08:10:52 PM [bmcam003] class 3 calibration: 332.0 MB/3.0 GB files 39/360 | 0.98 MB/s | unit 337.4 MB/3.6 GB
+2026-10-12 08:10:52 PM [bmcam004] class 3 calibration: 252.4 MB/3.0 GB files 30/360 | 0.73 MB/s | unit 275.9 MB/3.5 GB
+2026-10-12 08:10:57 PM [bmcam003] class 3 calibration: 332.0 MB/3.0 GB files 39/360 | 1.04 MB/s | unit 342.4 MB/3.6 GB
+2026-10-12 08:10:57 PM [bmcam004] class 3 calibration: 275.3 MB/3.0 GB files 31/360 | 0.61 MB/s | unit 278.8 MB/3.5 GB
+2026-10-12 08:11:02 PM [bmcam003] class 3 calibration: 332.0 MB/3.0 GB files 39/360 | 1.10 MB/s | unit 347.7 MB/3.6 GB
+2026-10-12 08:11:02 PM [bmcam004] class 3 calibration: 277.7 MB/3.0 GB files 33/360 | 0.33 MB/s | unit 280.4 MB/3.5 GB
+2026-10-12 08:11:08 PM [bmcam003] class 3 calibration: 332.0 MB/3.0 GB files 39/360 | 1.04 MB/s | unit 352.7 MB/3.6 GB
+2026-10-12 08:11:08 PM [bmcam004] class 3 calibration: 277.7 MB/3.0 GB files 33/360 | 0.73 MB/s | unit 283.9 MB/3.5 GB
+2026-10-12 08:11:13 PM [bmcam003] class 3 calibration: 354.9 MB/3.0 GB files 40/360 | 1.03 MB/s | unit 357.6 MB/3.6 GB
+2026-10-12 08:11:13 PM [bmcam004] class 3 calibration: 277.7 MB/3.0 GB files 33/360 | 0.68 MB/s | unit 287.1 MB/3.5 GB
+2026-10-12 08:11:18 PM [bmcam003] class 3 calibration: 357.6 MB/3.0 GB files 42/360 | 0.77 MB/s | unit 361.3 MB/3.6 GB
+2026-10-12 08:11:18 PM [bmcam004] class 3 calibration: 277.7 MB/3.0 GB files 33/360 | 0.63 MB/s | unit 290.1 MB/3.5 GB

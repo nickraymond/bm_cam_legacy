@@ -1,0 +1,75 @@
+2026-10-12T18:13:30Z [TE2] DEPLOY nereus000 pool host tools from bm #151 @ 037bb4ae (tests 30/30 local): /home/pi/pool_tools/pool_preview.py (7a28ff64) + pool_cmd.py (8db53469), hashes match; viewer = transient unit pool-preview (systemd-run, Restart=always), serving :8090, HTTP 200, previews []. Stop/undo: sudo systemctl stop pool-preview; rm -r /home/pi/pool_tools /home/pi/pool_preview. pool_cmd not run (Pi-side PR pending).
+2026-10-12T18:25:26Z [TE2] Pi builder: for T-LAND deploy #152 @ 850afb1 (code fix 85d6768: second cal/loop in one run REFUSED; status adds run=). Only pool_sequence.py changes. T-DRY stays on 36a4e67. Fresh run = pool_mode.sh stop + start.
+2026-10-12T18:31:56Z [TE2] Spotter charging confirmed: SPOT-31593C 18:15Z 4.07 V +1.25 W in_v 4.11; SPOT-33507C 18:10Z 4.04 V +0.21 W in_v 3.89. No pool blocker.
+2026-10-12T18:56:23Z [TE2] T-LAND close-out add (EM, runbook #154 step 0.3 rev 2.1): Wi-Fi profile list ssid+autoconnect on bmcam003/004/nereus000, pass = Ford profile autoconnect=yes on all three. Pre-check 11 AM: PASS on all three.
+2026-10-12T19:02:22Z [TE2] NICK OK (typed, verbatim): "OK set contrast 1.0 on bmcam003 via console."
+2026-10-12T19:02:48Z [TE2] focus lock IN EFFECT at 19Z on both (cfg 09ebbe7e / bbbd992a = OK hashes; --autofocus-mode manual --lens-position 1.82; sidecar LensPosition 1.82).
+2026-10-12T19:05:30Z [TE2] 66003 contrast 1.0 bmcam003 OK 19:05:10Z cfg=bbbd992a (= bmcam004's hash: both units now identical config). NB image_processing.enabled=false: contrast is not passed to rpicam.
+2026-10-12T19:10:52Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261012T191046Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-12T19:10:53Z Succesfully sent config set msg
+2026-10-12T19:10:53Z 2026-10-12T19:10:55.605Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-12T19:10:59Z 2026-10-12T19:11:02.191Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-12T19:10:59Z 2026-10-12T19:11:02.195Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-12T19:10:59Z 2026-10-12T19:11:02.253Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-12T19:11:02Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+up=37s
+977 bash -c mkdir -p ~/hil_backup/20261012T191046Z && crontab -l > ~/hil_backup/20261012T191046Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-12T19:11:50Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-12T19:11:51Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261012T191046Z)
+2026-10-12T19:12:18Z [TE2] T-DRY B: bus held on SPOT-31593C (ARMED backup ~/hil_backup/20261012T191046Z), pool_mode on (backup crontab_20261012T191152Z), started pid 1081, run 20261012_191155_bmcam004, cfg bbbd992a
+2026-10-12T19:18:33Z [TE2] Pi builder: #152 now a23f4d6 (supersedes 850afb1): copy pool_sequence.py + rc_preview.py + pool_mode.sh; off exits 4 on DISARMED crontab (prints re-arm cmd), 5 on config/state sha change = FAIL; stop waits for current step (<=150 s). Deploy before T-LAND after QE re-review.
+2026-10-12T19:26:11Z [restore SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-12T19:26:25Z Succesfully sent config set msg
+2026-10-12T19:26:25Z 2026-10-12T19:26:27.832Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-12T19:26:31Z 2026-10-12T19:26:34.425Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-12T19:26:31Z 2026-10-12T19:26:34.433Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-12T19:26:31Z 2026-10-12T19:26:34.488Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-12T19:26:34Z [restore SPOT-31593C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+9ec4cb7ae7c1
+[restore] halt issued 19:27:16
+2026-10-12T19:27:36Z [restore SPOT-31593C/bmcam004] bmcam004 dark
+2026-10-12T19:27:50Z [restore SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-12T19:27:50Z [restore SPOT-31593C/bmcam004] PRODUCTION schedule confirmed
+2026-10-12T19:28:51Z [TE2] T-DRY PASS (all bars; known QE defect: off prints PRODUCTION MODE on disarmed crontab, fixed a23f4d6). T-RESTORE 004: crontab byte-identical to pre-pool, config identical, schedule 1/3600000/600000; 1 PM wake pending. Results: TDRY_RESULTS.md
+2026-10-12T19:31:21Z [TE2] nereus000 host tools updated to development f8caaa1 (pool_preview 067ad0b1, pool_cmd a042fa61; old copies *.037bb4ae), pool-preview restarted (active, HTTP 200). Dev tests 66/66. T-LAND Pi deploy (f8caaa1 pool files) armed for the 1 PM wake.
+2026-10-12T19:37:37Z [TE2] calib check ready: tools/pool_calib_check.py (f8caaa1) runs with the main repo .venv (OpenCV 5.0.0 contrib, aruco) --source jpeg; rawpy not installed (optional, DNG). Smoke on a no-board frame: runs, FAIL as expected.
+2026-10-12T20:03:03Z [TE2] T-LAND deploy f8caaa1 pool files on both (sha 5fe40e14/571b6b45/031dc0ca = dev); print-config both: focus manual 1.82, cfg bbbd992a (both units identical; 003 contrast 1.0 in effect).
+2026-10-12T20:10:28Z [busOn SPOT-33507C/bmcam003] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261012T201023Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-12T20:10:28Z [busOn SPOT-31593C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261012T201023Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-12T20:10:29Z Succesfully sent config set msg
+2026-10-12T20:10:29Z 2026-10-12T20:10:32.625Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-12T20:10:29Z Succesfully sent config set msg
+2026-10-12T20:10:29Z 2026-10-12T20:10:29.433Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-12T20:10:36Z 2026-10-12T20:10:39.023Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-12T20:10:36Z 2026-10-12T20:10:39.031Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-12T20:10:36Z 2026-10-12T20:10:39.089Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-12T20:10:39Z [busOn SPOT-31593C/bmcam004] committed (bus held on); catching the boot
+2026-10-12T20:10:36Z 2026-10-12T20:10:35.789Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-12T20:10:36Z 2026-10-12T20:10:35.796Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-12T20:10:36Z 2026-10-12T20:10:35.851Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-12T20:10:39Z [busOn SPOT-33507C/bmcam003] committed (bus held on); catching the boot
+up=35s
+979 bash -c mkdir -p ~/hil_backup/20261012T201023Z && crontab -l > ~/hil_backup/20261012T201023Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-12T20:11:25Z [busOn SPOT-31593C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-12T20:11:26Z [busOn SPOT-31593C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261012T201023Z)
+up=45s
+1246 bash -c mkdir -p ~/hil_backup/20261012T201023Z && crontab -l > ~/hil_backup/20261012T201023Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-12T20:11:34Z [busOn SPOT-33507C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-12T20:11:34Z [busOn SPOT-33507C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261012T201023Z)
+2026-10-12T20:11:44Z [TE2] 1 PM wake: 004 (post-restore) cfg bbbd992a nrjxl 54531 B/190 msgs, transmit+listen, no errors, bus off 20:09:57/20:10:00 -> T-RESTORE PASS unit side. 003 (post-cleanup, contrast 1.0) cfg bbbd992a nrjxl 54775 B/191 msgs, no errors, disk 5% (105 GB free).
+2026-10-12T20:13:06Z [TE2] T-LAND ready 20:12Z both (status 90011 OK, cal=0/0, runs 20261012_201138_bmcam003 / 20261012_201130_bmcam004; ARMED backups ~/hil_backup/20261012T201023Z). 1 PM Spotter side: 003 M191 got 141 (26.2 %, qfull 50), 004 M190 got 186 (2.1 %). EM plan E: restore both tonight after T-LAND; TE2 re-enters pool mode Tue ~8:07 AM on EM ping.
+2026-10-12T20:41:45Z [TE2] nereus000 viewer -> draft #156 @ 2af832b (display rotation, CSS only; tests 18/18; sha 86a0d226; rollback pool_preview.py.f8caaa1); display_rotation.json {bmcam004: 90}. Preview 90012 both OK (004 226/226 ~17 s, 003 242/242 ~18 s).
+2026-10-12T20:47:40Z [TE2] nereus000 viewer -> development 48e08df (#156 merged; sha 5107b1a6; tests 19/19; rollback pool_preview.py.2af832b); rotation kept {bmcam004: 90}; active, rebuilt previews OK.
+2026-10-12T20:52:42Z [TE2] T-ENDURE started (EM card ~1:50 PM): detached driver runs/pool_rehearsal_20261012/tendure/tendure_driver.sh (pid 83134); cal 90014 OK both 20:52Z. Mac disk 15 GB free flagged to EM for the pull step.
+2026-10-12T20:56:48Z [TE2] viewer display rotation set to {bmcam003: 180, bmcam004: 180} (both raw previews are upside down, same orientation; checked by eye: pavers/ground at the bottom, bucket upright, pipe label at 180). Backup display_rotation.json.bak_*. Page shows 'shown rotated 180° CCW' on both.
+2026-10-12T21:00:42Z [TE2] nereus000 viewer -> development 206f617 (#157 layout; sha 6245e474; tests 20/20; rollback .48e08df); rotation kept 180/180.
+2026-10-12T21:53:52Z [TE2] T-ENDURE: Mac slept 21:11-21:51Z (lid closed for Nick's review), now on battery + other Wi-Fi (192.168.0.x): units via Tailscale OK, nereus000 unreachable (console/battery/stop rule blind). Pi side: cal 120/120 both (~21:12Z), loop AUTO-STARTED 21:42:15Z both (18x600 s), iterations ~55 s, 0 ERR. Driver's loop cmd failed harmlessly (would have been refused + tripped the ERR stop rule if delivered: driver bug, not edited while running).
+2026-10-12T23:56:32Z [TE2] nereus000 OFFLINE (no ping/ARP/mDNS) since between 22:56Z and 23:31Z; Mac back on Ford 192.168.1.15 (battery 97 %, maintenance sleeps). Units OK: loop 14/18 at 23:53Z, 0 ERR. Missed: mid-loop preview 22:40Z, mark 23:26Z (nereus000 unreachable / Mac asleep). Battery blind since 22:56Z (last 4.07 V +0.41 W both). Plan-E restore blocked on nereus000 (console). Reported to EM.
+2026-10-13T03:06:22Z [TE2] T-ENDURE capture PASS both: cal 120/120 (frame_s max 6.15/6.00), loop 18/18 (auto-start, ended 00:33Z), applied 138/138, VmHWM 135.7/135.8 MiB whole session (no growth), 0 ERR/OOM, 3.65 GB/unit. Gaps: preview/mark not sent, battery blind from 22:56Z, RSS samples iter 10-18 missing (Mac sleep). Pull started 03:04Z (lid open, battery). nereus000 still down.
+2026-10-13T03:39:57Z [TE2] T-ENDURE results: PASS capture/memory/errors/space + new-plan pull 12m02s (66a9f2e; 669 ok/unit sha-verified; 138 DNGs 3.3 GB left on each unit). Old-plan pull stopped (1.67 MB/s, ~71 min projected). Full-frame JXL experiment on 004: NOT viable (VmPeak >300 MiB; streaming 12-bit PPM bug). nereus000 still down -> plan-E restore pending.
+2026-10-13T03:41:32Z [TE2] prepared planE_restore_both.sh (runs when nereus000 is back) + tue_am_fresh_runs.sh (EM contingency). pool_sha_check vs development 66a9f2e: both units MATCH (6/6), monitor UNREACHABLE.
+2026-10-13T05:14:22Z [TE2] 10:14 PM PDT: nereus000 still down; per EM, units hold in pool mode overnight (bus held; last battery +0.41 W net-charge 3:56 PM). Next: EM ping 7:57 AM Tue -> planE_restore_both.sh is moot; run tue_am_fresh_runs.sh (or the console path if nereus000 is back).

@@ -1,0 +1,2098 @@
+19:12:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28032 kB VmRSS:	 28032 kB 
+19:12:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3352 kB VmRSS:	 3352 kB 
+19:12:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28036 kB VmRSS:	 28036 kB 
+19:12:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28040 kB VmRSS:	 28040 kB 
+19:12:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28040 kB VmRSS:	 28040 kB 
+19:12:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28040 kB VmRSS:	 28040 kB 
+19:12:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28144 kB VmRSS:	 28144 kB 
+19:12:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:29 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28100 kB VmRSS:	 28100 kB 
+19:12:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:29 1271 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19888 kB VmRSS:	 19888 kB 
+19:12:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28100 kB VmRSS:	 28100 kB 
+19:12:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:30 1271 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19900 kB VmRSS:	 19900 kB 
+19:12:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 28100 kB VmRSS:	 28100 kB 
+19:12:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:31 1271 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 44156 kB VmRSS:	 44156 kB 
+19:12:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 32596 kB VmRSS:	 32596 kB 
+19:12:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 41044 kB 
+19:12:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39092 kB 
+19:12:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 39108 kB 
+19:12:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38632 kB 
+19:12:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:47 1724 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19932 kB VmRSS:	 19932 kB 
+19:12:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38632 kB 
+19:12:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:48 1724 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19988 kB VmRSS:	 19988 kB 
+19:12:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38632 kB 
+19:12:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:50 1724 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 24124 kB VmRSS:	 22836 kB 
+19:12:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:56 1993 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 16956 kB VmRSS:	 16956 kB 
+19:12:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:57 1993 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19964 kB VmRSS:	 19964 kB 
+19:12:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:12:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38636 kB 
+19:12:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:12:59 1993 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 20044 kB VmRSS:	 20044 kB 
+19:13:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:06 2211 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 14104 kB VmRSS:	 14104 kB 
+19:13:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:08 2211 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19972 kB VmRSS:	 19972 kB 
+19:13:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:09 2211 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19992 kB VmRSS:	 19992 kB 
+19:13:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:10 2211 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67640 kB VmRSS:	 67640 kB 
+19:13:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:17 2489 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19824 kB VmRSS:	 19824 kB 
+19:13:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:18 2489 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19976 kB VmRSS:	 19976 kB 
+19:13:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:19 2489 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 20688 kB VmRSS:	 20688 kB 
+19:13:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:20 2489 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67628 kB VmRSS:	 67628 kB 
+19:13:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:27 2767 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19948 kB VmRSS:	 19948 kB 
+19:13:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:28 2767 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:13:29 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:29 2767 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 35208 kB VmRSS:	 35208 kB 
+19:13:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:30 2767 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67188 kB VmRSS:	 20988 kB 
+19:13:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:36 3019 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 14104 kB VmRSS:	 14104 kB 
+19:13:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:37 3019 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19968 kB VmRSS:	 19968 kB 
+19:13:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:38 3019 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 20044 kB VmRSS:	 20044 kB 
+19:13:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38176 kB 
+19:13:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:40 3019 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67632 kB VmRSS:	 67632 kB 
+19:13:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:46 3297 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19576 kB VmRSS:	 19576 kB 
+19:13:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:48 3297 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19968 kB VmRSS:	 19968 kB 
+19:13:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1672 kB VmRSS:	 1672 kB 
+19:13:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 38180 kB 
+19:13:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3356 kB VmRSS:	 3356 kB 
+19:13:49 3297 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 20064 kB VmRSS:	 20064 kB 
+19:13:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37292 kB 
+19:13:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37292 kB 
+19:13:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37292 kB 
+19:13:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37292 kB 
+19:13:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37312 kB 
+19:13:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37312 kB 
+19:13:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:57 3528 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19924 kB VmRSS:	 19924 kB 
+19:13:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:13:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37312 kB 
+19:13:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:13:58 3528 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:13:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 37312 kB 
+19:14:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:00 3528 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 24420 kB VmRSS:	 23304 kB 
+19:14:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36828 kB 
+19:14:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:01 3528 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67168 kB VmRSS:	 21068 kB 
+19:14:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36944 kB 
+19:14:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36944 kB 
+19:14:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36944 kB 
+19:14:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36944 kB 
+19:14:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36952 kB 
+19:14:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:06 3793 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19576 kB VmRSS:	 19576 kB 
+19:14:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36952 kB 
+19:14:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:08 3793 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19964 kB VmRSS:	 19964 kB 
+19:14:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36952 kB 
+19:14:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:09 3793 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 20060 kB VmRSS:	 20060 kB 
+19:14:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36344 kB 
+19:14:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:10 3793 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67188 kB VmRSS:	 20984 kB 
+19:14:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36416 kB 
+19:14:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36416 kB 
+19:14:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36416 kB 
+19:14:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36416 kB 
+19:14:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36416 kB 
+19:14:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36424 kB 
+19:14:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:17 4071 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19816 kB VmRSS:	 19816 kB 
+19:14:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36424 kB 
+19:14:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:18 4071 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19960 kB VmRSS:	 19960 kB 
+19:14:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1652 kB VmRSS:	 1652 kB 
+19:14:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 36424 kB 
+19:14:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3168 kB 
+19:14:19 4071 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 20784 kB VmRSS:	 20784 kB 
+19:14:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29408 kB 
+19:14:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:20 4071 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67620 kB VmRSS:	 67620 kB 
+19:14:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28904 kB 
+19:14:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:21 4071 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 67164 kB VmRSS:	 21336 kB 
+19:14:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29500 kB 
+19:14:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29500 kB 
+19:14:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29500 kB 
+19:14:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29500 kB 
+19:14:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29732 kB 
+19:14:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:27 4357 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19940 kB VmRSS:	 19940 kB 
+19:14:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29732 kB 
+19:14:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:28 4357 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:14:29 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 29732 kB 
+19:14:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:29 4357 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 24440 kB VmRSS:	 23684 kB 
+19:14:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28576 kB 
+19:14:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28576 kB 
+19:14:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28576 kB 
+19:14:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28576 kB 
+19:14:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28576 kB 
+19:14:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28592 kB 
+19:14:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28592 kB 
+19:14:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:37 4602 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19972 kB VmRSS:	 19972 kB 
+19:14:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 28592 kB 
+19:14:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3156 kB 
+19:14:38 4602 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19980 kB VmRSS:	 19980 kB 
+19:14:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1648 kB VmRSS:	 1648 kB 
+19:14:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 25368 kB 
+19:14:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:41 4602 /usr/bin/rpicam-still-n--timeout2000--wi 
+19:14:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:14:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:14:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:14:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23096 kB 
+19:15:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23712 kB 
+19:15:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23788 kB 
+19:15:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23788 kB 
+19:15:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23788 kB 
+19:15:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23788 kB 
+19:15:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23812 kB 
+19:15:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23812 kB 
+19:15:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23812 kB 
+19:15:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23812 kB 
+19:15:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23904 kB 
+19:15:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:23 5686 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19872 kB VmRSS:	 19872 kB 
+19:15:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23904 kB 
+19:15:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:24 5686 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19988 kB VmRSS:	 19988 kB 
+19:15:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 23904 kB 
+19:15:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:25 5686 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 22332 kB VmRSS:	 22036 kB 
+19:15:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:27 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19920 kB VmRSS:	 19920 kB 
+19:15:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:28 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20008 kB VmRSS:	 20008 kB 
+19:15:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:30 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20008 kB VmRSS:	 20008 kB 
+19:15:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:31 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20020 kB VmRSS:	 20020 kB 
+19:15:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:32 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20024 kB VmRSS:	 20024 kB 
+19:15:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:33 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20028 kB VmRSS:	 20028 kB 
+19:15:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:34 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20028 kB VmRSS:	 20028 kB 
+19:15:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:35 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20028 kB VmRSS:	 20028 kB 
+19:15:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:37 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20028 kB VmRSS:	 20028 kB 
+19:15:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:38 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20028 kB VmRSS:	 20028 kB 
+19:15:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:39 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20028 kB VmRSS:	 20028 kB 
+19:15:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:40 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:41 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:42 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:43 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:45 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:46 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:47 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:48 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:49 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:50 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:52 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:53 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:54 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:55 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24060 kB 
+19:15:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:56 5801 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 20032 kB VmRSS:	 20032 kB 
+19:15:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24072 kB 
+19:15:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:57 6721 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 5836 kB VmRSS:	 5836 kB 
+19:15:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:15:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24072 kB 
+19:15:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:15:58 6721 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 15276 kB VmRSS:	 15276 kB 
+19:16:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:16:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24072 kB 
+19:16:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:16:00 6721 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 29128 kB VmRSS:	 29128 kB 
+19:16:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:16:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 24072 kB 
+19:16:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:16:01 6721 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 57004 kB VmRSS:	 53884 kB 
+19:16:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1632 kB VmRSS:	 1632 kB 
+19:16:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 31276 kB 
+19:16:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3152 kB 
+19:16:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1612 kB VmRSS:	 1612 kB 
+19:16:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 123424 kB 
+19:16:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3072 kB 
+19:16:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1612 kB VmRSS:	 1612 kB 
+19:16:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 134536 kB 
+19:16:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3072 kB 
+19:16:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1612 kB VmRSS:	 1612 kB 
+19:16:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 136360 kB 
+19:16:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3072 kB 
+19:16:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1612 kB VmRSS:	 1612 kB 
+19:16:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 136124 kB 
+19:16:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 3072 kB 
+19:16:07 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 12968 kB VmRSS:	 12968 kB 
+19:16:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130164 kB 
+19:16:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:08 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80204 kB VmRSS:	 80204 kB 
+19:16:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130164 kB 
+19:16:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:09 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80548 kB VmRSS:	 80548 kB 
+19:16:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130164 kB 
+19:16:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:10 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80568 kB VmRSS:	 80568 kB 
+19:16:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130164 kB 
+19:16:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:11 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80592 kB VmRSS:	 80592 kB 
+19:16:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130180 kB 
+19:16:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:12 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80612 kB VmRSS:	 80612 kB 
+19:16:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130180 kB 
+19:16:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:14 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80628 kB VmRSS:	 80628 kB 
+19:16:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130180 kB 
+19:16:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:15 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80648 kB VmRSS:	 80648 kB 
+19:16:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130184 kB 
+19:16:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2904 kB 
+19:16:16 6964 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 87000 kB VmRSS:	 87000 kB 
+19:16:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130360 kB 
+19:16:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:17 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 50876 kB VmRSS:	 50876 kB 
+19:16:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130200 kB 
+19:16:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:18 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80644 kB VmRSS:	 80644 kB 
+19:16:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130188 kB 
+19:16:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:19 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80660 kB VmRSS:	 80660 kB 
+19:16:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130188 kB 
+19:16:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:20 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80680 kB VmRSS:	 80680 kB 
+19:16:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 130188 kB 
+19:16:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:22 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80608 kB VmRSS:	 80608 kB 
+19:16:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 119616 kB 
+19:16:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:23 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80624 kB VmRSS:	 80624 kB 
+19:16:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 119616 kB 
+19:16:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:24 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80644 kB VmRSS:	 80644 kB 
+19:16:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 119616 kB 
+19:16:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:25 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80660 kB VmRSS:	 80660 kB 
+19:16:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112600 kB 
+19:16:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:26 7271 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 97928 kB VmRSS:	 54932 kB 
+19:16:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:16:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:16:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:16:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:17:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:17:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:17:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:17:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:17:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2908 kB 
+19:17:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112520 kB 
+19:17:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112604 kB 
+19:17:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:23 8863 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 13956 kB VmRSS:	 13956 kB 
+19:17:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112560 kB 
+19:17:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:24 8863 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19736 kB VmRSS:	 19736 kB 
+19:17:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112560 kB 
+19:17:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:25 8863 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19792 kB VmRSS:	 19792 kB 
+19:17:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1544 kB VmRSS:	 1544 kB 
+19:17:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 112536 kB 
+19:17:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 2912 kB 
+19:17:26 8863 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 23528 kB VmRSS:	 22704 kB 
+19:17:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 6788 kB 
+19:17:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1968 kB 
+19:17:30 8863 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 57600 kB VmRSS:	 43832 kB 
+19:17:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9496 kB 
+19:17:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:32 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 12972 kB VmRSS:	 12972 kB 
+19:17:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:33 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19288 kB VmRSS:	 19288 kB 
+19:17:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:34 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19456 kB VmRSS:	 19456 kB 
+19:17:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:35 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19476 kB VmRSS:	 19476 kB 
+19:17:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:36 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19488 kB VmRSS:	 19488 kB 
+19:17:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:37 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19488 kB VmRSS:	 19488 kB 
+19:17:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:39 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:40 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:41 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:42 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:43 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:44 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:45 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:47 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:48 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:49 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:50 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:51 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:52 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:54 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:55 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1984 kB 
+19:17:56 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:17:57 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:17:58 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:17:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:17:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:17:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:17:59 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:18:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:18:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:00 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:18:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9400 kB 
+19:18:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:02 9046 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19492 kB VmRSS:	 19492 kB 
+19:18:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9428 kB 
+19:18:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:03 9975 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 3272 kB VmRSS:	 3272 kB 
+19:18:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9428 kB 
+19:18:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:04 9975 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 13152 kB VmRSS:	 13152 kB 
+19:18:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9428 kB 
+19:18:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:05 9975 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 23096 kB VmRSS:	 23096 kB 
+19:18:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 9428 kB 
+19:18:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:06 9975 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 49792 kB VmRSS:	 49792 kB 
+19:18:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 8620 kB 
+19:18:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:07 9975 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 56476 kB VmRSS:	 55012 kB 
+19:18:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 41444 kB 
+19:18:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 73660 kB 
+19:18:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 115896 kB 
+19:18:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 119492 kB 
+19:18:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 121616 kB 
+19:18:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1112 kB 
+19:18:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 121628 kB 
+19:18:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1988 kB 
+19:18:14 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 2100 kB VmRSS:	 2100 kB 
+19:18:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 114016 kB 
+19:18:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:16 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78008 kB VmRSS:	 78008 kB 
+19:18:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 101116 kB 
+19:18:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:17 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78360 kB VmRSS:	 78360 kB 
+19:18:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 87032 kB 
+19:18:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:18 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78384 kB VmRSS:	 78384 kB 
+19:18:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 75528 kB 
+19:18:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:19 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78400 kB VmRSS:	 78400 kB 
+19:18:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 63620 kB 
+19:18:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:20 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78420 kB VmRSS:	 78420 kB 
+19:18:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 58576 kB 
+19:18:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:22 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78436 kB VmRSS:	 78436 kB 
+19:18:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 58600 kB 
+19:18:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:23 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 78456 kB VmRSS:	 78456 kB 
+19:18:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 58600 kB 
+19:18:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:24 10278 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 86708 kB VmRSS:	 86708 kB 
+19:18:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 59360 kB 
+19:18:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:25 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 13628 kB VmRSS:	 13628 kB 
+19:18:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 57768 kB 
+19:18:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:26 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80096 kB VmRSS:	 80096 kB 
+19:18:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44868 kB 
+19:18:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:27 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80448 kB VmRSS:	 80448 kB 
+19:18:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 30832 kB 
+19:18:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:29 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80472 kB VmRSS:	 80472 kB 
+19:18:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 25040 kB 
+19:18:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:30 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80488 kB VmRSS:	 80488 kB 
+19:18:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 25040 kB 
+19:18:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:31 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80508 kB VmRSS:	 80508 kB 
+19:18:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 25040 kB 
+19:18:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:32 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80524 kB VmRSS:	 80524 kB 
+19:18:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 25040 kB 
+19:18:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:33 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80544 kB VmRSS:	 80544 kB 
+19:18:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 22140 kB 
+19:18:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:34 10585 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 95168 kB VmRSS:	 95168 kB 
+19:18:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:18:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:18:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:18:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:18:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21224 kB 
+19:19:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21552 kB 
+19:19:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21552 kB 
+19:19:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:23 11963 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 15860 kB VmRSS:	 15860 kB 
+19:19:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21268 kB 
+19:19:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:24 11963 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19576 kB VmRSS:	 19576 kB 
+19:19:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 21268 kB 
+19:19:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:25 11963 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 19664 kB VmRSS:	 19664 kB 
+19:19:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 17192 kB 
+19:19:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:27 11963 /usr/bin/rpicam-still-n--timeout2000--wi VmHWM:	 66596 kB VmRSS:	 20432 kB 
+19:19:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11616 kB 
+19:19:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:28 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19804 kB VmRSS:	 19804 kB 
+19:19:29 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11196 kB 
+19:19:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:29 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19948 kB VmRSS:	 19948 kB 
+19:19:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11196 kB 
+19:19:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:30 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19960 kB VmRSS:	 19960 kB 
+19:19:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11196 kB 
+19:19:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:31 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19968 kB VmRSS:	 19968 kB 
+19:19:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:32 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19980 kB VmRSS:	 19980 kB 
+19:19:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:33 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:19:35 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:36 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:37 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:38 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:39 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:40 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:42 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:43 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:44 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:45 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:46 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:47 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:48 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:50 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:51 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:52 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:53 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:54 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:55 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11208 kB 
+19:19:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:57 12132 /usr/bin/rpicam-vid-n-t30000--codech264- VmHWM:	 19984 kB VmRSS:	 19984 kB 
+19:19:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11228 kB 
+19:19:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:58 13027 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 2524 kB VmRSS:	 2524 kB 
+19:19:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:19:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11228 kB 
+19:19:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:19:59 13027 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 12880 kB VmRSS:	 12880 kB 
+19:20:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 11228 kB 
+19:20:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1948 kB 
+19:20:00 13027 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 21856 kB VmRSS:	 21856 kB 
+19:20:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 8868 kB 
+19:20:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1944 kB 
+19:20:02 13027 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 40760 kB VmRSS:	 40760 kB 
+19:20:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 8200 kB 
+19:20:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:20:03 13027 /usr/bin/ffmpeg-hide_banner-loglevelerro VmHWM:	 51404 kB VmRSS:	 51316 kB 
+19:20:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 51948 kB 
+19:20:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:20:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 83388 kB 
+19:20:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:20:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 116380 kB 
+19:20:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:20:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 120556 kB 
+19:20:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:20:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 120744 kB 
+19:20:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1940 kB 
+19:20:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 117620 kB 
+19:20:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:10 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 69244 kB VmRSS:	 69244 kB 
+19:20:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 117500 kB 
+19:20:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:11 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79664 kB VmRSS:	 79664 kB 
+19:20:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 114492 kB 
+19:20:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:12 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79680 kB VmRSS:	 79680 kB 
+19:20:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 114492 kB 
+19:20:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:13 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79704 kB VmRSS:	 79704 kB 
+19:20:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 114492 kB 
+19:20:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:14 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79724 kB VmRSS:	 79724 kB 
+19:20:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 114492 kB 
+19:20:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:16 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79740 kB VmRSS:	 79740 kB 
+19:20:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 102228 kB 
+19:20:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:17 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79760 kB VmRSS:	 79760 kB 
+19:20:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 88128 kB 
+19:20:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:18 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 79776 kB VmRSS:	 79776 kB 
+19:20:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 87060 kB 
+19:20:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:19 13330 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 96972 kB VmRSS:	 33084 kB 
+19:20:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 87420 kB 
+19:20:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:20 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 69820 kB VmRSS:	 69820 kB 
+19:20:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 87420 kB 
+19:20:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:21 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80612 kB VmRSS:	 80612 kB 
+19:20:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 87420 kB 
+19:20:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:23 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80636 kB VmRSS:	 80636 kB 
+19:20:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 74428 kB 
+19:20:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1908 kB 
+19:20:24 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80652 kB VmRSS:	 80652 kB 
+19:20:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 69928 kB 
+19:20:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:25 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80672 kB VmRSS:	 80672 kB 
+19:20:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 69932 kB 
+19:20:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:26 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80688 kB VmRSS:	 80688 kB 
+19:20:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 69932 kB 
+19:20:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:27 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80708 kB VmRSS:	 80708 kB 
+19:20:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 69932 kB 
+19:20:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:28 13637 /usr/bin/cjxl/home/pi/pool_runs/20261012 VmHWM:	 80724 kB VmRSS:	 80724 kB 
+19:20:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 61900 kB 
+19:20:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:20:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:20:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:20:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1912 kB 
+19:21:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:29 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:21:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:21:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:21:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:22:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:22:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1916 kB 
+19:22:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 43364 kB 
+19:22:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44464 kB 
+19:22:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44464 kB 
+19:22:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44464 kB 
+19:22:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44464 kB 
+19:22:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44464 kB 
+19:22:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44492 kB 
+19:22:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44492 kB 
+19:22:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44492 kB 
+19:22:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44492 kB 
+19:22:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:29 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:29 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:29 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:38 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:38 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:38 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:47 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:47 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:47 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1920 kB 
+19:22:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:56 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:56 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:56 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:22:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:22:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:22:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:04 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:05 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:05 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:14 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:14 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:14 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:23 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:23 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:23 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:30 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:30 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:30 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:31 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:31 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:31 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:32 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:32 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:32 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:33 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:33 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:33 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:34 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:34 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:34 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:35 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:35 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:35 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:36 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:36 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:36 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1924 kB 
+19:23:37 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:37 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:37 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:39 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:39 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:39 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:40 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:40 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:40 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:41 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:41 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:41 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:42 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:42 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:42 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:43 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:43 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:43 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:44 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:44 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:44 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:45 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:45 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:45 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:46 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:46 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:46 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:48 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:48 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:48 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:49 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:49 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:49 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:50 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:50 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:50 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:51 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:51 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:51 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:52 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:52 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:52 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:53 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:53 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:53 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:54 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:54 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:54 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:55 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:55 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:55 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:57 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:57 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:57 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:58 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:58 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:58 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:23:59 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:23:59 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:23:59 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:00 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:00 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:00 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:01 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:01 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:01 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:02 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:02 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:02 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:03 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:03 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:03 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:04 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:04 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:05 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:06 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:06 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:06 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:07 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:07 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:07 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:08 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:08 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:08 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:09 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:09 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:09 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:10 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:10 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:10 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:11 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:11 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:11 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:12 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:12 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:12 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:13 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:13 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:13 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:15 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:15 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:15 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:16 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:16 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:16 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:17 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:17 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:17 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:18 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:18 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:18 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:19 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:19 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:19 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:20 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:20 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:20 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:21 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:21 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:21 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:22 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:22 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:22 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:24 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:24 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:24 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:25 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:25 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44576 kB 
+19:24:25 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1928 kB 
+19:24:26 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:26 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44588 kB 
+19:24:26 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1932 kB 
+19:24:27 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:27 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44588 kB 
+19:24:27 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1932 kB 
+19:24:28 1078 /usr/bin/flock-n/tmp/bmcam_rc_capture.lo VmHWM:	 1512 kB VmRSS:	 1064 kB 
+19:24:28 1081 /usr/bin/python3/home/pi/BM_Devel_Pi/poo VmHWM:	 138792 kB VmRSS:	 44588 kB 
+19:24:28 1119 bash-cfor i in $(seq 1 1800); do for p i VmHWM:	 3296 kB VmRSS:	 1932 kB 
