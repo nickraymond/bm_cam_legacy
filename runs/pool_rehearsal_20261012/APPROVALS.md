@@ -11,3 +11,5 @@
   you perform your tasks". Scope as read by TE2: bench Spotters SPOT-33507C / SPOT-31593C, hil_bus_always_on.sh + hil_restore_schedule.sh
   via the nereus000 console whenever a task needs the units up; restore the hourly schedule after each use.
 - 2026-10-12 ~11:58 AM PDT, Nick (typed in TE2 chat), verbatim: "OK set contrast 1.0 on bmcam003 via console."
+- 2026-10-13 ~11:15 AM PDT, Nick (typed in TE2 chat), verbatim: "OK sweep on SPOT-33507C and SPOT-31593C"
+  Scope as read by TE2: the pool `sweep` verb via the nereus000 console on the two bench Spotters (T-FOCUS and the pool).
