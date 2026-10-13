@@ -34,7 +34,11 @@ expect "step refuses $F"           5 0 "$T/hil_step.sh" X bmcam004 $F - -
 expect "step refuses host bmcam001" 5 0 "$T/hil_step.sh" X bmcam001 SPOT-31593C - -
 expect "change refuses $F"         5 0 "$T/hil_change.sh" X BMCAM_004 $F '{"set":{}}'
 expect "change refuses BMCAM_001"  5 0 "$T/hil_change.sh" X BMCAM_001 SPOT-31593C '{"set":{}}'
-expect "change refuses rig mismatch" 5 0 "$T/hil_change.sh" X BMCAM_003 SPOT-31593C '{"set":{}}'
+# rig mismatch = rig A's device on rig B's Spotter, read from the env in use (pairing-agnostic:
+# Nick swapped the cameras between the Spotters on Tue 2026-10-13)
+ENVF="$T/../hil.env"; [ -f "$ENVF" ] || ENVF="$T/../hil.env.example"
+RIG_A=$(sed -n 's/^export HIL_RIG_A="\(.*\)"/\1/p' "$ENVF"); RIG_B=$(sed -n 's/^export HIL_RIG_B="\(.*\)"/\1/p' "$ENVF")
+expect "change refuses rig mismatch" 5 0 "$T/hil_change.sh" X "$(echo "$RIG_A" | cut -d= -f2)" "$(echo "$RIG_B" | cut -d= -f1)" '{"set":{}}'
 expect "sofar refuses BMCAM_001"   5 0 "$T/hil_sofar_change.sh" X BMCAM_001 '{"set":{}}'
 expect "sofar refuses empty"       1 0 "$T/hil_sofar_change.sh" X "" '{"set":{}}'
 expect "pistate refuses bmcam001"  5 0 "$T/hil_pistate.sh" X bmcam001
