@@ -1,0 +1,8 @@
+11:29:23 AM [focus] IN-AIR focus sweep sweep1_182356: units bmcam003, bmcam004; board distance 1.1 m; OpenCV 5.0.0; out runs/focus_sweep_20261013T182923Z
+11:29:23 AM [focus] bmcam003: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS/bmcam003/sweep/182356 (manifest yes)
+11:29:26 AM [focus] bmcam003: PASS best lp 0.2 (parabola 0.228) lapvar_norm 0.08268; tenengrad best 0.2; corners 21/104
+11:29:26 AM [focus] bmcam004: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS/bmcam004/sweep/182356 (manifest yes)
+11:29:29 AM [focus] bmcam004: PASS best lp 1.4 (parabola 1.472) lapvar_norm 0.08294; tenengrad best 1.4; corners 5/104
+11:29:31 AM [focus] wrote runs/focus_sweep_20261013T182923Z/: focus_plot.png, focus_sheet_bmcam003.jpg, focus_sheet_bmcam004.jpg, focus_sweep.csv, focus_sweep.json, focus_sweep.log
+11:29:31 AM [focus] VERDICT bmcam003: PASS  best lp 0.2
+11:29:31 AM [focus] VERDICT bmcam004: PASS  best lp 1.4

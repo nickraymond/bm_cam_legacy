@@ -1,0 +1,8 @@
+11:29:01 AM [focus] IN-AIR focus sweep 182511: units bmcam003, bmcam004; board distance 1.1 m; OpenCV 5.0.0; out runs/focus_sweep_20261013T182901Z
+11:29:01 AM [focus] bmcam003: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS/bmcam003/sweep/182511 (manifest yes)
+11:29:05 AM [focus] bmcam003: WARN best lp 1.82 lapvar_norm 0.07166; tenengrad best 1.82; corners 34/104; peak at the sweep edge (lp 1.82): true focus may lie outside 0..1.82
+11:29:05 AM [focus] bmcam004: 11 frames in /Users/nickbuemond/NereusPool/20261013_TFOCUS/bmcam004/sweep/182511 (manifest yes)
+11:29:08 AM [focus] bmcam004: WARN best lp 0.8 (parabola 0.760) lapvar_norm 0.0809; tenengrad best 0; corners 36/104; peak not distinct (best 0.0809 < 1.15 x median 0.07206); lapvar best lp 0.8 vs tenengrad best lp 0 differ by > 1 step
+11:29:10 AM [focus] wrote runs/focus_sweep_20261013T182901Z/: focus_plot.png, focus_sheet_bmcam003.jpg, focus_sheet_bmcam004.jpg, focus_sweep.csv, focus_sweep.json, focus_sweep.log
+11:29:10 AM [focus] VERDICT bmcam003: WARN  best lp 1.82  (peak at the sweep edge (lp 1.82): true focus may lie outside 0..1.82)
+11:29:10 AM [focus] VERDICT bmcam004: WARN  best lp 0.8  (peak not distinct (best 0.0809 < 1.15 x median 0.07206); lapvar best lp 0.8 vs tenengrad best lp 0 differ by > 1 step)

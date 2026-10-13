@@ -1,0 +1,33 @@
+== sweep 1 2026-10-13T18:23:54Z
+[pool_cmd] host=nereus000 id=90020 verb=sweep targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=180s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90020,"c":"pool","v":"sweep"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90020,"c":"pool","v":"sweep"} 1 1
+  [bmcam003] OK  [bmcam003] OK id=90020 pool sweep in_progress dup
+  [bmcam003] .. 2026-10-13T18:23:56Z 1791915837.382 53171fa3d81a8e6f, [bmcam003] OK id=90020 pool sweep in_progress dup
+  [bmcam003] .. 2026-10-13T18:23:56Z 1791915837.410 53171fa3d81a8e6f, [bmcam003] OK id=90020 pool sweep in_progress dup
+  [bmcam003] .. 2026-10-13T18:23:56Z 1791915837.441 53171fa3d81a8e6f, [bmcam003] OK id=90020 pool sweep in_progress dup
+  [bmcam004] OK  [bmcam004] OK id=90020 pool sweep in_progress dup
+  [bmcam004] .. 2026-10-13T18:23:56Z 1791915839.703 e6fe83ea6b4a2b7f, [bmcam004] OK id=90020 pool sweep in_progress dup
+  [bmcam004] .. 2026-10-13T18:23:56Z 1791915839.734 e6fe83ea6b4a2b7f, [bmcam004] OK id=90020 pool sweep in_progress dup
+[pool_cmd] id=90020 bmcam003: OK
+[pool_cmd] id=90020 bmcam004: OK
+== sweep 2 2026-10-13T18:23:59Z
+[pool_cmd] host=nereus000 id=90021 verb=sweep targets=bmcam003/SPOT-33507C,bmcam004/SPOT-31593C wait=180s
+[bmcam003] SEND via SPOT-33507C/cmd.txt: bm pub bmcam/cmd {"id":90021,"c":"pool","v":"sweep"} 1 1
+[bmcam004] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90021,"c":"pool","v":"sweep"} 1 1
+  [bmcam003] ERR  [bmcam003] ERR id=90021 pool sweep busy phase=sweep
+  [bmcam003] .. 2026-10-13T18:24:01Z 1791915842.261 53171fa3d81a8e6f, [bmcam003] ERR id=90021 pool sweep busy phase=sweep dup
+  [bmcam003] .. 2026-10-13T18:24:01Z 1791915842.289 53171fa3d81a8e6f, [bmcam003] ERR id=90021 pool sweep busy phase=sweep dup
+  [bmcam003] .. 2026-10-13T18:24:01Z 1791915842.320 53171fa3d81a8e6f, [bmcam003] ERR id=90021 pool sweep busy phase=sweep dup
+  [bmcam003] .. 2026-10-13T18:24:01Z 1791915842.351 53171fa3d81a8e6f, [bmcam003] ERR id=90021 pool sweep busy phase=sweep dup
+  [bmcam004] ERR  [bmcam004] ERR id=90021 pool sweep busy phase=sweep
+  [bmcam004] .. 2026-10-13T18:24:01Z 1791915844.476 e6fe83ea6b4a2b7f, [bmcam004] ERR id=90021 pool sweep busy phase=sweep dup
+  [bmcam004] .. 2026-10-13T18:24:01Z 1791915844.503 e6fe83ea6b4a2b7f, [bmcam004] ERR id=90021 pool sweep busy phase=sweep dup
+  [bmcam004] .. 2026-10-13T18:24:01Z 1791915844.535 e6fe83ea6b4a2b7f, [bmcam004] ERR id=90021 pool sweep busy phase=sweep dup
+[pool_cmd] id=90021 bmcam003: ERR (see the line above)
+[pool_cmd] id=90021 bmcam004: ERR (see the line above)
+2026-10-13T18:24:56Z [bmcam004] OK id=90020 pool sweep n=11 dt=59.2s dir=sweep/182356 best_lp=0 best_lp_ten=0 back_to_lp=0.8
+2026-10-13T18:24:57Z [bmcam003] OK id=90020 pool sweep n=11 dt=60.5s dir=sweep/182356 best_lp=0 best_lp_ten=0 back_to_lp=0.8
+== sweep 2 2026-10-13T18:25:09Z
+2026-10-13T18:26:09Z 1791915972.000 e6fe83ea6b4a2b7f, [bmcam004] OK id=90022 pool sweep n=11 dt=57.0s dir=sweep/182511 best_lp=0 best_lp_ten=0 back_to_lp=0.8
+2026-10-13T18:26:10Z 1791915971.003 53171fa3d81a8e6f, [bmcam003] OK id=90022 pool sweep n=11 dt=58.3s dir=sweep/182511 best_lp=0 best_lp_ten=0 back_to_lp=0.8
