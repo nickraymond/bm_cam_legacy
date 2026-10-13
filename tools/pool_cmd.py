@@ -43,6 +43,8 @@ Inputs   target: bmcam003 | bmcam004 | both | SPOT-ID (only the --map Spotters; 
 Outputs  stdout: what was sent, the unit answers; <log-root>/pool_cmd.log (append, UTC)
 Exit     0 every target answered OK; 1 an ERR; 3 a cmd.txt not consumed (spotter-monitor down?);
          4 a target gave no answer within --wait; 2 usage / refused. Worst wins: 3 > 4 > 1.
+         An `OK id=N ... in_progress dup` line (the mote replay arriving while a sweep/preview
+         still runs) is NOT the answer: pool_cmd keeps waiting for the final OK/ERR.
 
 Example (on nereus000)
   python3 /home/pi/pool_tools/pool_cmd.py both status
@@ -319,6 +321,9 @@ class LogFollower:
 def wait_answers(followers, cid, wait_s, linger_s, log, show_all):
     """followers: {unit: LogFollower}. -> {unit: (status, line)} status OK/ERR/None."""
     re_ack = re.compile(rf"\[(bmcam\d+)\]\s+(OK|ERR)\s+id={cid}(?!\d)")
+    # NOT final: the Pi re-prints `OK id=N pool <verb> in_progress dup` when the mote's ~60 s replay
+    # arrives while a long verb (sweep, preview) is still running (TE2 live run 2026-10-13).
+    re_in_progress = re.compile(r"\bin_progress\b")
     got = {u: (None, None) for u in followers}
     pv_count = {u: 0 for u in followers}
     t0 = time.time()
@@ -332,7 +337,10 @@ def wait_answers(followers, cid, wait_s, linger_s, log, show_all):
                 if ", power |" in line:
                     continue
                 m = re_ack.search(line)
-                if m and got[unit][0] is None:
+                if m and got[unit][0] is None and m.group(2) == "OK" and re_in_progress.search(line):
+                    log(f"  [{unit}] .. still running (replay ack, not final): "
+                        f"{line[line.find('[' + m.group(1)):][:200]}")
+                elif m and got[unit][0] is None:
                     got[unit] = (m.group(2), line)
                     log(f"  [{unit}] {m.group(2)}  {line[line.find('[' + m.group(1)):][:220]}")
                 elif re.search(r"\[bmcam\d+\]", line) or show_all:

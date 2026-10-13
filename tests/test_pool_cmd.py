@@ -75,6 +75,11 @@ class FakeMonitor:
                     self.log(spot, f"[{unit}] ERR id={cid} pool {verb} busy")
                 elif b == "slow_ok":       # sweep: answered only when done (#160), here after 2 s
                     threading.Timer(2.0, self.log, (spot, f"[{unit}] OK id={cid} pool {verb} dir=sweep/x n=5/5")).start()
+                elif b == "dup_then_ok":   # replay answered while running (TE2 10/13), final OK 2 s later
+                    self.log(spot, f"[{unit}] OK id={cid} pool {verb} in_progress dup")
+                    threading.Timer(2.0, self.log, (spot, f"[{unit}] OK id={cid} pool {verb} n=11 dt=58.2s dir=sweep/113005 best_lp=0.8")).start()
+                elif b == "dup_only":      # still running past the wait
+                    self.log(spot, f"[{unit}] OK id={cid} pool {verb} in_progress dup")
                 elif b == "busy_loop":     # sweep refused while the loop phase is active
                     self.log(spot, f"[{unit}] ERR id={cid} pool {verb} busy phase=loop")
                 elif b == "preview":
@@ -244,6 +249,21 @@ class TestSweep(Base):
             got = fs.lens_list_from(fields.get("lp"), fields.get("lo"), fields.get("hi"), fields.get("step"))
             if want is not None:
                 self.assertEqual([round(x, 2) for x in got], want, kw)
+
+    def test_in_progress_dup_is_not_the_answer(self):
+        """TE2 live run 10/13: the replay's 'in_progress dup' line must not end the wait."""
+        with FakeMonitor(self.root, {"bmcam003": "dup_then_ok"}):
+            rc, out = self.run_cmd("bmcam003", "sweep", wait="10")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("still running (replay ack, not final)", out)
+        self.assertIn("best_lp=0.8", out)                                   # waited for the FINAL OK
+        self.assertIn("id=90001 bmcam003: OK", out)
+
+    def test_in_progress_only_times_out(self):
+        with FakeMonitor(self.root, {"bmcam003": "dup_only"}):
+            rc, out = self.run_cmd("bmcam003", "sweep", wait="1.5")
+        self.assertEqual(rc, 4, out)
+        self.assertIn("NO ANSWER", out)
 
     def test_sweep_refused_during_loop(self):
         with FakeMonitor(self.root, {"bmcam003": "busy_loop"}):
