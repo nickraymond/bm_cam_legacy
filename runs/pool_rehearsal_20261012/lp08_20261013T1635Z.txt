@@ -1,0 +1,31 @@
+== src 177f07ff5b15 BM_Devel_Pi/pool_sequence.py
+4966d46f5637 tools/pool_mode.sh
+== 2026-10-13T16:35:58Z 192.168.1.230
+scp rc=0
+177f07ff5b15  /home/pi/BM_Devel_Pi/pool_sequence.py
+4966d46f5637  /home/pi/pool_mode.sh
+[POOL-MODE] wrote /home/pi/pool_args: --lens-position 0.8
+[POOL-MODE] [WARN] pool_sequence.py is running with its OLD args: pool_mode.sh stop, then start
+--lens-position 0.8
+[POOL-MODE] SIGTERM sent to 28913 (finishes the current frame / loop iteration, up to ~2 min, then exits)
+[POOL-MODE] started pid 29116; log: /home/pi/pool_runs/launch.log + the newest run folder's pool.log
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_163608_bmcam003
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=(running)
+[POOL-MODE] disk        : 103591 MB free, 9% used
+== 2026-10-13T16:36:23Z 192.168.1.143
+scp rc=0
+177f07ff5b15  /home/pi/BM_Devel_Pi/pool_sequence.py
+4966d46f5637  /home/pi/pool_mode.sh
+[POOL-MODE] wrote /home/pi/pool_args: --lens-position 0.8
+[POOL-MODE] [WARN] pool_sequence.py is running with its OLD args: pool_mode.sh stop, then start
+--lens-position 0.8
+[POOL-MODE] SIGTERM sent to 1386 (finishes the current frame / loop iteration, up to ~2 min, then exits)
+[POOL-MODE] started pid 1592; log: /home/pi/pool_runs/launch.log + the newest run folder's pool.log
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_163634_bmcam004
+[POOL-MODE]   cfg=bbbd992a cal=0 loop=0 marks=0 final=(running)
+[POOL-MODE] disk        : 103333 MB free, 9% used
+== console status + preview
+  [bmcam003] OK  [bmcam003] OK id=90017 pool status phase=idle cal=0/0 loop=0/0 lp=0.8 run=20261013_163608_bmcam003 free=103590MB marks=0 err=none ip=192.168.1.230 ssid=Ford up=41s
+  [bmcam004] OK  [bmcam004] OK id=90017 pool status phase=idle cal=0/0 loop=0/0 lp=0.8 run=20261013_163634_bmcam004 free=103332MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=16s
+  [bmcam003] OK  [bmcam003] OK id=90018 pool preview in_progress dup
+  [bmcam004] OK  [bmcam004] OK id=90018 pool preview in_progress dup
