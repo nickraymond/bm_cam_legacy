@@ -289,6 +289,36 @@ class TestPull(Base):
         self.assertNotIn("exit None", out)
         self.assertIn("missing", json.dumps(self.report()["units"]["bmcam003"]["counts"]))
 
+    def test_sweep_mode_pulls_only_sweep(self):
+        """Focus sweep (Nick 10/13): --sweep pulls only sweep/** (no DNG unless --include-dng) and
+        writes pull_report_sweep.json, leaving pull_report.json alone."""
+        for u, (src, files) in self.runs.items():
+            sd = os.path.join(src, "sweep", "113005")
+            os.makedirs(sd)
+            for name, data in (("20261013T183005Z_sweep_lp0.80.jpg", b"J" * 3000), ("20261013T183005Z_sweep_lp0.80.dng", b"D" * 9000),
+                               ("sweep_manifest.json", b'{"schema": "bmcam_focus_sweep_v1"}'),
+                               ("20261013T183005Z_sweep_lp0.80.stdout.log", b"ok")):
+                with open(os.path.join(sd, name), "wb") as f:
+                    f.write(data)
+        rc, out = self.pull("--sweep")
+        self.assertEqual(rc, 0, out)
+        day = os.path.join(self.dest, "20261013")
+        self.assertFalse(os.path.exists(os.path.join(day, "pull_report.json")))
+        with open(os.path.join(day, "pull_report_sweep.json")) as f:
+            rep = json.load(f)
+        for u in self.runs:
+            ur = rep["units"][u]
+            self.assertEqual(sorted(ur["files"]), sorted(f"sweep/113005/{n}" for n in (
+                "20261013T183005Z_sweep_lp0.80.jpg", "20261013T183005Z_sweep_lp0.80.dng",
+                "sweep_manifest.json", "20261013T183005Z_sweep_lp0.80.stdout.log")))
+            self.assertEqual(ur["counts"], {"ok": 3, "left_on_unit": 1})
+            self.assertTrue(os.path.exists(os.path.join(day, u, "sweep", "113005", "sweep_manifest.json")))
+            self.assertFalse(os.path.exists(os.path.join(day, u, "pool.log")))          # nothing else pulled
+            self.assertFalse(os.path.exists(os.path.join(day, u, "sweep", "113005", "20261013T183005Z_sweep_lp0.80.dng")))
+        rc, out = self.pull("--sweep", "--sweep-name", "999999")
+        self.assertEqual(rc, 1)
+        self.assertIn("NO SWEEP", out)
+
     def test_streams_bounds(self):
         rc, out = self.pull("--streams", "9")
         self.assertEqual(rc, 2)

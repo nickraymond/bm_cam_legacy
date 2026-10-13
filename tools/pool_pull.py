@@ -16,6 +16,8 @@ Purpose
       4 videos             *.mp4 / *.h264 anywhere
       5 loop native JPEGs  loop/ + preview/ native stills *_still.jpg (no DNG)
       6 other              anything else that is not a DNG (so nothing is silently left)
+      (sweep/** frames: JPEG + manifest = class 6 "other", logs = 1, DNG = 7. `--sweep` pulls ONLY
+       sweep/** (focus sweep, Nick 2026-10-13) and writes pull_report_sweep.json instead.)
       7 DNGs               every *.dng (calibration + loop + preview, ~23 MB each, ~3.3 GB / unit):
                            ONLY with --include-dng (Nick 2026-10-12: DNGs stay on the units at the
                            pool, pulled at the Friday pickup). Without it, ONE remote sha256 call
@@ -55,6 +57,8 @@ Examples (on the Mac, repo root)
   python3 tools/pool_pull.py --dry-run                         # sizes per class + projected time
   python3 tools/pool_pull.py                                   # pull both, all classes
   python3 tools/pool_pull.py --classes 1,2                     # manifest/logs + nrjxl/pjpg only
+  python3 tools/pool_pull.py --sweep --host bmcam003=172.20.10.4 --host bmcam004=172.20.10.5 \\
+      --run bmcam003=<run3> --run bmcam004=<run4>            # focus-sweep frames only (no DNG)
   python3 tools/pool_pull.py --host bmcam004=192.168.4.31 --run 20261013_181500_bmcam004
   python3 tools/pool_pull.py --host bmcam003=172.20.10.4 --host bmcam004=172.20.10.5 \\
       --run bmcam003=20261013_170512_bmcam003 --run bmcam004=20261013_170530_bmcam004
@@ -540,6 +544,11 @@ def main(argv=None):
     ap.add_argument("--include-dng", action="store_true",
                     help="also pull every *.dng as the LAST class (Friday pickup). Without it the DNGs stay "
                          "on the unit and pull_report.json lists them (count, bytes, Pi sha256)")
+    ap.add_argument("--sweep", action="store_true",
+                    help="focus-sweep mode: pull ONLY <run>/sweep/** (JPEG + sweep_manifest.json + logs; DNG only "
+                         "with --include-dng) from all units in parallel; report -> pull_report_sweep.json")
+    ap.add_argument("--sweep-name", default=None,
+                    help="with --sweep: only sweep/<NAME>/ (e.g. 113005); default every sweep folder of the run")
     ap.add_argument("--no-dng-sha", action="store_true",
                     help="skip the remote sha256 of the DNGs left on the unit (count + bytes only)")
     ap.add_argument("--dry-run", action="store_true", help="list sizes per class + projected time; copy nothing")
@@ -596,6 +605,18 @@ def main(argv=None):
             log(f"[{u.name or u.addr}] UNREACHABLE / NO RUN: {u.error}")
         else:
             log(f"[{u.name}] run {u.run_dir} : {len(u.files)} files, {human(sum(f['size'] for f in u.files.values()))}")
+    if a.sweep:      # focus-sweep mode (Nick 2026-10-13): only the sweep folders of the chosen run
+        pre = f"sweep/{a.sweep_name.strip('/')}/" if a.sweep_name else "sweep/"
+        for u in units:
+            if u.error:
+                continue
+            u.files = {r: f for r, f in u.files.items() if r.startswith(pre)}
+            if not u.files:
+                u.error = f"no {pre} in {u.run_dir} (run `pool_cmd.py <unit> sweep` first, or check --run)"
+                log(f"[{u.name}] NO SWEEP: {u.error}")
+            else:
+                n_jpg = sum(1 for r in u.files if r.lower().endswith(".jpg"))
+                log(f"[{u.name}] sweep mode: {len(u.files)} files under {pre} ({n_jpg} JPEG)")
     live = [u for u in units if not u.error]
     if not live:
         log("[pool_pull] no unit listed: nothing to do (exit 1)")
@@ -633,7 +654,7 @@ def main(argv=None):
     stop.set()
 
     # report (merged with an earlier report for units not pulled this time)
-    rpath = os.path.join(day_dir, "pull_report.json")
+    rpath = os.path.join(day_dir, "pull_report_sweep.json" if a.sweep else "pull_report.json")
     report = {}
     if os.path.exists(rpath):
         try:

@@ -16,9 +16,12 @@ Wire (agreed with the Pi-side pool session 2026-10-12; console range ids 1..9999
   json           {"id":N,"c":"pool","v":"<verb>", ...}  <= 248 B (command_wire.MAX_JSON_BYTES)
   verbs          status | cal [--duration-s S --interval-s S] | loop [--iterations N --period-s S]
                  | mark <note> | stop | preview [--lines 3-7,12]
-                 | sweep  (focus sweep, lens 0.6..1.0, #160: answers OK when DONE after ~20-40 s, so
-                           the default wait is 90 s; refused unless the unit is idle, i.e. not
-                           during cal or the whole 3 h loop)
+                 | sweep [--lp 0,0.2,...,1.82 | --lo 0 --hi 1.8 --step 0.2]
+                          focus sweep: full-native JPEG + DNG per lens position into
+                          <run>/sweep/<HHMMSS>/ + sweep_manifest.json (Pi contract 2026-10-13:
+                          lp = 1..12 numbers 0..15, or lo/hi/step <= 12 positions; neither = the
+                          Pi default 0,0.2,...,1.8,1.82). Answers OK when DONE (~60-70 s for 11),
+                          so the default wait is 180 s; refused unless idle (not during cal/loop).
   mark note      spaces -> "_", charset [A-Za-z0-9_:./+,-], <= 40 chars ("card 2m" -> "card_2m")
   preview        without --lines: new capture, new img_id; with --lines: resend of the latest
                  preview's lines (inclusive, 1-based), <= 186 chars (max_lines_chars(): the 256 B
@@ -47,7 +50,8 @@ Example (on nereus000)
   python3 pool_cmd.py bmcam003 mark "card 2m"
   python3 pool_cmd.py bmcam004 preview --lines 3-7,12
   python3 pool_cmd.py both stop --wait 30
-  python3 pool_cmd.py both sweep                     # waits up to 90 s for each unit's OK
+  python3 pool_cmd.py both sweep                     # Pi default 11 positions; waits up to 180 s
+  python3 pool_cmd.py both sweep --lo 0 --hi 1.8 --step 0.2
   python3 pool_cmd.py both loop --dry-run            # print the line + JSON, send nothing
 
 Known limits
@@ -61,6 +65,7 @@ Known limits
 import argparse
 import fcntl
 import json
+import math
 import os
 import re
 import socket
@@ -76,7 +81,10 @@ VERBS = ("status", "cal", "loop", "mark", "stop", "preview", "sweep")
 # The unit answers `sweep` only when it is DONE (5 full-res stills at lens 0.6..1.0, ~20-40 s on the
 # Pi, #160), so its default answer wait is longer. Every other verb answers at once.
 DEFAULT_WAIT_S = 20.0
-VERB_WAIT_S = {"sweep": 90.0}
+VERB_WAIT_S = {"sweep": 180.0}     # extended sweep (Pi builder 10/13): up to 12 full-res frames, ~60-70 s
+# sweep lens fields, mirroring the Pi parser (bmcam_focus_sweep_v1 contract, 2026-10-13):
+# "lp":[1..12 numbers, each 0.0..15.0]  OR  "lo","hi","step" (all three, inclusive grid, <= 12 positions)
+SWEEP_LP_MIN, SWEEP_LP_MAX, SWEEP_MAX_N = 0.0, 15.0, 12
 RE_NOTE = re.compile(r"[A-Za-z0-9_:./+,-]{1,40}\Z")
 RE_LINES = re.compile(r"\d+(-\d+)?(,\d+(-\d+)?)*\Z")
 CONSOLE_PREFIX, CONSOLE_SUFFIX = "bm pub bmcam/cmd ", " 1 1"   # same line as hil/tools/hil_cmd.sh
@@ -172,8 +180,47 @@ def clean_note(text):
     return note
 
 
+def _jnum(x):
+    """0.0 -> 0, 0.20000000000000001 -> 0.2: short, exact console JSON."""
+    x = round(float(x), 4)
+    return int(x) if x == int(x) else x
+
+
+def sweep_fields(a):
+    """--lp a,b,c | --lo/--hi/--step -> the JSON fields (validated like the Pi; dies on a bad value)."""
+    rng = [v is not None for v in (a.lo, a.hi, a.step)]
+    if a.lp and any(rng):
+        die("[pool_cmd] give --lp OR --lo/--hi/--step, not both")
+    if a.lp:
+        try:
+            vals = [float(v) for v in a.lp.split(",") if v.strip() != ""]
+        except ValueError:
+            die(f"[pool_cmd] --lp {a.lp!r}: comma list of numbers, e.g. 0,0.2,0.4")
+        if not 1 <= len(vals) <= SWEEP_MAX_N:
+            die(f"[pool_cmd] --lp has {len(vals)} positions; 1..{SWEEP_MAX_N}")
+        bad = [v for v in vals if not SWEEP_LP_MIN <= v <= SWEEP_LP_MAX]
+        if bad:
+            die(f"[pool_cmd] lens position {bad[0]:g} outside {SWEEP_LP_MIN}..{SWEEP_LP_MAX}")
+        return {"lp": [_jnum(v) for v in vals]}
+    if any(rng):
+        if not all(rng):
+            die("[pool_cmd] --lo, --hi and --step are all required together")
+        if a.step <= 0 or a.hi < a.lo:
+            die("[pool_cmd] need --step > 0 and --hi >= --lo")
+        n = int(math.floor((a.hi - a.lo) / a.step + 1e-9)) + 1
+        if n > SWEEP_MAX_N:
+            die(f"[pool_cmd] --lo..--hi/--step gives {n} positions > {SWEEP_MAX_N}")
+        for v in (a.lo, a.hi):
+            if not SWEEP_LP_MIN <= v <= SWEEP_LP_MAX:
+                die(f"[pool_cmd] lens position {v:g} outside {SWEEP_LP_MIN}..{SWEEP_LP_MAX}")
+        return {"lo": _jnum(a.lo), "hi": _jnum(a.hi), "step": _jnum(a.step)}
+    return {}        # Pi default list: 0,0.2,...,1.8,1.82 (11 positions)
+
+
 def build_json(cid, verb, a):
     body = {"id": cid, "c": "pool", "v": verb}
+    if verb == "sweep":
+        body.update(sweep_fields(a))
     if verb == "mark":
         if not a.note:
             die('[pool_cmd] mark needs a note, e.g. mark "card 2m"')
@@ -349,6 +396,10 @@ def build_parser():
     ap.add_argument("--interval-s", type=int, help="cal: seconds between captures")
     ap.add_argument("--iterations", type=int, help="loop: number of iterations")
     ap.add_argument("--period-s", type=int, help="loop: seconds per iteration")
+    ap.add_argument("--lp", help="sweep: lens positions, comma list (1..12, each 0..15), e.g. 0,0.2,0.4,...,1.8,1.82")
+    ap.add_argument("--lo", type=float, help="sweep: first lens position (with --hi --step)")
+    ap.add_argument("--hi", type=float, help="sweep: last lens position, inclusive")
+    ap.add_argument("--step", type=float, help="sweep: lens step (grid <= 12 positions)")
     ap.add_argument("--arg", action="append", help="extra JSON field key=value (int if numeric); repeatable")
     ap.add_argument("--wait", type=float, default=None,
                     help=f"seconds to wait for OK/ERR (default {DEFAULT_WAIT_S:.0f}; sweep {VERB_WAIT_S['sweep']:.0f})")
@@ -381,6 +432,9 @@ def main(argv=None):
         return 2
     if a.lines and a.verb != "preview":
         print("[pool_cmd] --lines only goes with preview")
+        return 2
+    if a.verb != "sweep" and (a.lp or any(v is not None for v in (a.lo, a.hi, a.step))):
+        print("[pool_cmd] --lp / --lo / --hi / --step only go with sweep")
         return 2
     a.note = a.rest if a.verb == "mark" else None
     if a.rest and a.verb != "mark":

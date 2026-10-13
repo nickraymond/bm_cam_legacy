@@ -88,3 +88,10 @@ python3 tools/pool_pull.py
 - A preview without PVE is finalised after 20 s of silence; a re-used img_id with a new sha256 restarts that image.
 - `pool_pull.py` assumes no spaces in filenames and that the sequence has stopped (a growing file fails sha256; re-run).
 - The `--dry-run` rate is a 16 MB `/dev/zero` probe over ssh (both units at once); real JPEG/DNG rsync is usually a little slower.
+
+## Focus sweep (2026-10-13)
+
+- `pool_cmd.py <unit|both> sweep [--lp 0,0.2,...,1.82 | --lo 0 --hi 1.8 --step 0.2]` sends the lens list. It allows ≤ 12 positions, each 0–15, and validates them like the Pi. The default answer wait is 180 s.
+- `pool_pull.py --sweep [--sweep-name HHMMSS]` pulls only `<run>/sweep/**`: JPEG, `sweep_manifest.json` and logs. DNGs are pulled only with `--include-dng`. The report goes to `pull_report_sweep.json`.
+- `focus_sweep_sheet.py --unit NAME=PATH ... --board-distance-m D --medium in-air|underwater` writes a per-unit cut sheet (a scaled full frame and a 1:1 board crop per lens position), a metric-vs-LensPosition plot with both units overlaid, a CSV and a JSON. Board metrics: `lapvar_norm`, `tenengrad_norm` and ChArUco corners. PASS/WARN/FAIL per frame and per unit.
+
