@@ -114,3 +114,5 @@ ssh: connect to host 192.168.1.45 port 22: Operation timed out
 2026-10-13T21:12:29Z sweep dirs: 211022 211129
   [bmcam004] OK  [bmcam004] OK id=90031 pool sweep n=1 dt=5.3s dir=sweep/220305 best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8
   [bmcam003] OK  [bmcam003] OK id=90031 pool sweep n=1 dt=6.3s dir=sweep/220304 best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8
+  [bmcam003] OK  [bmcam003] OK id=90034 pool sweep n=1 dt=5.3s dir=sweep/221830 best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8
+  [bmcam004] OK  [bmcam004] OK id=90034 pool sweep n=1 dt=5.4s dir=sweep/221830 best_lp=0.8 best_lp_ten=0.8 back_to_lp=0.8

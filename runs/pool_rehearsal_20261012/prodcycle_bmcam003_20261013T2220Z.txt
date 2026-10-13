@@ -1,0 +1,6 @@
+== 2026-10-13T22:20:44Z bmcam003 on SPOT-31593C: commit (bus power-cycle -> production boot)
+2026-10-13T22:20:47Z 5589738t [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-13T22:20:47Z 5589777t [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+22:21:40 bmcam003 up
+2026-10-13T22:28:33Z bmcam003 halted
+T0=2026-10-13T22:20:44Z T1=2026-10-13T22:28:33Z
