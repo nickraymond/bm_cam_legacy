@@ -7,9 +7,9 @@ Times are Pacific, AM/PM. Plan: `docs/em/POOL_PLAN_2026-10-13.md`.
 
 Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = pool command on both consoles.
 
-0. **8:00–8:30 AM, bench (TE2, §0B)**: after the 8 AM wake halts, bus hold → `tools/pool_sha_check.sh` (ALL MATCH, or STOP) → `pool_mode.sh on` + `start` on both units. `status` must show `cal=0/0 loop=0/0`. Then transport with the bus held.
+0. **8:00–8:30 AM, bench (TE2, §0B)**: after the 8 AM wake halts, bus hold → `tools/pool_sha_check.sh` (ALL MATCH, or STOP) → `pool_mode.sh args --lens-position 0.8` + `on` + `start` on both units. `status` must show `cal=0/0 loop=0/0 lp=0.8`. Then transport with the bus held.
 1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. Mac on power, lid open, `caffeinate -dims` in a spare tab (§1.2). `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
-2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0`. Write down `run=` and `ip=`. Battery: §2.4
+2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0 lp=0.8`. **lp must be 0.8**, otherwise the pool runs at the config focus 1.82 (§10). Write down `run=` and `ip=`. Battery: §2.4
 3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
 4. **10:55** card at **1 m**. `pc both sweep` (focus check: `OK ... n=5/5` after ~20–40 s), then `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
 5. **11:00** `pc both mark card_1m`, then `pc both loop` → `OK ... iterations=18` (auto-starts ~11:20 if not sent)
@@ -30,7 +30,7 @@ Each step has a **See:** line. If you don't see it, go to the table in §10.
 |---|---|
 | Units | bmcam003 (SPOT-33507C) and bmcam004 (SPOT-31593C) |
 | Console host | nereus000. Viewer at `:8090`, rig dashboard at `:8095` |
-| Code | `development` with #151 (host tools), #152 (Pi pool sequence), #153 (calib check), #154 (this runbook + `tools/pi_wifi_profile.sh`), #155 (rev 3 + `tools/pool_sha_check.sh`), #156/#157 (viewer) and **#158 (DNGs stay on the units, `--include-dng`)** merged. TE confirms Mon evening. |
+| Code | `development` with #151 (host tools), #152 (Pi pool sequence), #153 (calib check), #154 (this runbook + `tools/pi_wifi_profile.sh`), #155 (rev 3 + `tools/pool_sha_check.sh`), #156/#157 (viewer), **#158 (DNGs stay on the units, `--include-dng`)**, **#160 (Pi: `sweep`, `--lens-position`, `pool_mode.sh args`)** and **#161 (`pool_cmd` sweep)** merged. TE confirms Mon evening. |
 | Pi tools | `/home/pi/pool_mode.sh`, `/home/pi/BM_Devel_Pi/pool_sequence.py` |
 | nereus000 tools | `/home/pi/pool_tools/pool_cmd.py` and `pool_preview.py` |
 | Session defaults | calibration 20 min, one frame every 10 s (120 frames). Loop 18 iterations, one every 10 min (3 h). Loop auto-starts 30 min after calibration ends. |
@@ -100,20 +100,27 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
    See: 8 `MATCH` lines (3 per unit + 2 on nereus000), `ALL MATCH origin/development <sha>`, exit 0.
    Any `DIFF` / `MISSING` / `UNREACHABLE` → **STOP**. Redeploy that file from `development`, restart the viewer if it was `pool_preview.py` (`sudo systemctl restart pool-preview`), then re-run until ALL MATCH. Pool mode is not on yet, so nothing runs stale code.
 
-5. **Pool mode on + start**, per unit:
+5. **Pool lens 0.8 + pool mode on + start**, per unit. `args` writes `~/pool_args`, which `pool_sequence` reads at every start, including a reboot. Without it the pool runs at the config focus, 1.82 (#160).
    ```bash
-   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh on && bash /home/pi/pool_mode.sh start'
+   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh args --lens-position 0.8 && bash /home/pi/pool_mode.sh on && bash /home/pi/pool_mode.sh start'
    ```
    ```bash
-   ssh pi@bmcam004 'bash /home/pi/pool_mode.sh on && bash /home/pi/pool_mode.sh start'
+   ssh pi@bmcam004 'bash /home/pi/pool_mode.sh args --lens-position 0.8 && bash /home/pi/pool_mode.sh on && bash /home/pi/pool_mode.sh start'
    ```
-   See: `crontab backed up`, then three `[WARN]` lines saying the backed-up crontab has no armed line (expected under (E); §9.3 re-arms at the end), `effective config hash`, `started pid ...`.
+   See:
+   - `wrote /home/pi/pool_args: --lens-position 0.8`
+   - `crontab backed up`
+   - three `[WARN]` lines saying the backed-up crontab has no armed line (expected under (E); §9.3 re-arms at the end)
+   - `effective config hash`
+   - `started pid ...`
+
+   The console then shows `[bmcamNNN] pool ready run=... lp=0.8 ...`.
 
 6. **Status, both units** (on nereus000):
    ```bash
    ssh pi@192.168.1.45 'python3 /home/pi/pool_tools/pool_cmd.py both status'
    ```
-   See: both `phase=idle cal=0/0 loop=0/0 run=<new folder>`. Then unplug the Spotters from the hub and transport (bus held, about 1–2 h; the off-charger drain is not measured, so read BATT_V at §2.4 on arrival).
+   See: both `phase=idle cal=0/0 loop=0/0 lp=0.8 run=<new folder>`. Then unplug the Spotters from the hub and transport (bus held, about 1–2 h; the off-charger drain is not measured, so read BATT_V at §2.4 on arrival).
    Need a fresh run folder later (§10)? This restarts the pool process (§0B.6 restart):
    ```bash
    ssh pi@<ip> 'bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh start'
@@ -179,12 +186,13 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
    ```
    See, for each unit:
    ```
-   [bmcam003] OK id=9xxxx pool status phase=idle cal=0/0 loop=0/0 run=<YYYYMMDD_HHMMSS>_bmcam003 free=<MB> marks=0 err=none ip=172.20.10.y ssid=<home Wi-Fi name> up=<s>
+   [bmcam003] OK id=9xxxx pool status phase=idle cal=0/0 loop=0/0 lp=0.8 run=<YYYYMMDD_HHMMSS>_bmcam003 free=<MB> marks=0 err=none ip=172.20.10.y ssid=<home Wi-Fi name> up=<s>
    ```
    Write `ip=` and `run=` for both units into §11; step 8 needs them.
 
 3. **Read the status line:**
    - **Bus held:** `up=` (pool process uptime) is bigger than 600 s while the clock is NOT between :00 and :10. A small `up=` means the Spotter or Pi reset in transit. That is expected and gives a new, empty run folder (new `run=`).
+   - **Lens:** `lp=0.8` on both. Anything else (e.g. `lp=1.82`): fix it before calibration (§10 row "lp is not 0.8").
    - **Fresh run:** `cal=0/0 loop=0/0`. Any other count: restart that unit's pool process (the restart command at the end of §0B.6, using the unit's IP).
    - **Space:** `free=` is at least 6000 MB. Calibration ≈ 3.8 GB, loop ≈ 0.7 GB, plus a 1 GB margin. The `pool ready ... need~<MB>` console line has the exact figure.
 
@@ -368,9 +376,9 @@ The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes 
 Poolside or back at HQ. The hil tools reach the units by name (`pi@bmcam003`, via Tailscale), and `hil/hil.env` `HIL_MONITOR` must be nereus000's **current** IP: the hotspot IP poolside, 192.168.1.45 on the bench. If the units don't resolve by name poolside, do this at HQ; they stay safe in pool mode on the held bus until then.
 Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 
-1. **Stop pool:**
+1. **Stop pool** (and clear the pool lens args, so a later pool start uses the config again):
    ```bash
-   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh status'
+   ssh pi@bmcam003 'bash /home/pi/pool_mode.sh args --clear; bash /home/pi/pool_mode.sh stop; for i in $(seq 1 60); do pgrep -f "[p]ool_sequence.py" >/dev/null || break; sleep 3; done; bash /home/pi/pool_mode.sh status'
    ```
    See: `SIGTERM sent`, then (within ~2 min) a status with no `pool_sequence.py` process listed.
 
@@ -437,6 +445,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 | Mac asleep / lid closed (T-ENDURE) | macOS sleep stops Terminal sessions and the pull | Lid open, on power, `caffeinate -dims` running (§1.2). A pull that stopped resumes with the same command. |
 | Pull slow (dry run > 30 min without DNGs), or in a hurry | Hotspot / Wi-Fi throughput (T-ENDURE: 0.83–0.96 MB/s per unit, 12 min total). Two units share one access point. | Units closer to the phone; check `wlan0` power save is off. Add **`--no-dng-sha`** to skip the ~2.5 min DNG hashing (the report then has count + bytes only; re-run without it later to record the sha256s). `--classes 1,2` (the nrjxl + pjpg, a few MB) now and the rest later (re-run without `--classes`; it resumes). Diagnose afterwards with `tools/pool_link_ab.py pi@<ip>` (one unit, never during a pull). Or move everyone to `pool-wifi` (step 1.5): `ssh pi@<ip> 'nohup sudo nmcli connection up pool-wifi &'` per unit, then the Mac. The new IP shows in `pc both status`; nereus000 must move too. Pool networks may block device-to-device traffic. |
 | `pool_pull` REFUSED: dest holds a different run | A second run folder for the same unit and date | Pull it with its own `--date`, e.g. `--date 20261013_run2 --run bmcam003=<folder>`. |
+| `lp=` is not 0.8 in `status` / `pool ready` | `~/pool_args` missing or wrong (a reboot reads it again, so it was never set), or an old `pool_mode.sh` without `args` | **Before calibration only:** `ssh pi@<ip> 'bash /home/pi/pool_mode.sh args --lens-position 0.8'`, then the restart command at the end of §0B.6 (stop, wait, start). Then `pc <unit> status` shows `lp=0.8` and a new `run=`. `args rejected` / unknown `args`: the unit lacks #160; tell the EM. |
 | `cal=` / `loop=` not 0 at step 2.3, or `ERR id=N pool cal refused: run already has calibration frames, restart pool mode ...` (same for `loop`; an auto-start that hits it prints `pool loop AUTOSTART FAILED refused: ...`) | This run folder already holds a session (not a fresh `start` on Tue AM, or a second `cal`) | **Before calibration:** the restart command at the end of §0B.6, using the unit's IP (`pool_mode.sh stop`, wait, `start`). Then `pc both status` shows a new `run=` and `cal=0/0`. **Mid-session:** `cal` or `loop` was sent twice. The first one is running or done; nothing to do, don't restart. |
 
 ---
