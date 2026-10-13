@@ -273,6 +273,22 @@ class TestPull(Base):
         self.assertIn("-c aes128-gcm@openssh.com", text)
         self.assertIn(" -W ", text)
 
+    def test_stream_error_reads_clearly(self):
+        """QE #158 nit 3: a stream that raises is logged by name (not 'rsync exit None') and its
+        files still fail verification (exit 1)."""
+        real = pp.Unit._rsync_stream
+
+        def flaky(self, rels, tag):
+            if tag.endswith("s2"):
+                raise OSError("disk full (test)")
+            return real(self, rels, tag)
+        with mock.patch.object(pp.Unit, "_rsync_stream", flaky):
+            rc, out = self.pull("--streams", "2", hosts=("bmcam003=bmcam003",))
+        self.assertEqual(rc, 1, out)
+        self.assertIn("stream 2 error: OSError: disk full (test)", out)
+        self.assertNotIn("exit None", out)
+        self.assertIn("missing", json.dumps(self.report()["units"]["bmcam003"]["counts"]))
+
     def test_streams_bounds(self):
         rc, out = self.pull("--streams", "9")
         self.assertEqual(rc, 2)

@@ -325,14 +325,19 @@ class Unit:
             i = loads.index(min(loads))          # largest file first into the lightest stream
             buckets[i].append(rel)
             loads[i] += self.files.get(rel, {}).get("size", 0)
-        rcs = [None] * n
+        rcs = ["stream error: did not finish"] * n
 
         def run(i):
-            rcs[i] = self._rsync_stream(sorted(buckets[i]), f"{tag}s{i + 1}")
+            try:
+                rcs[i] = self._rsync_stream(sorted(buckets[i]), f"{tag}s{i + 1}")
+            except Exception as exc:     # e.g. the list file could not be written (QE #158 nit 3)
+                rcs[i] = f"stream {i + 1} error: {type(exc).__name__}: {exc}"
+                self.log(f"[{self.name}] class {tag} {rcs[i]} (its files fail verification and are reported)")
         ts = [threading.Thread(target=run, args=(i,)) for i in range(n)]
         [t.start() for t in ts]
         [t.join() for t in ts]
-        return max(rcs, key=lambda r: (r != 0, r or 0))
+        bad = [r for r in rcs if r != 0]
+        return bad[0] if bad else 0
 
     def _rsync_stream(self, rels, tag):
         state = os.path.join(self.dest, STATE_DIR)
@@ -345,7 +350,7 @@ class Unit:
             cmd.append("-W")        # no delta algorithm (only matters when resuming a partial file)
         cmd += ["-e", ssh_cmd, f"{self.target}:{self.run_dir}", self.dest.rstrip("/") + "/"]
         rc = None
-        for attempt in range(1, self.a.retries + 1):
+        for attempt in range(1, max(1, self.a.retries) + 1):
             with open(os.path.join(state, f"rsync_class{tag}.log"), "a") as lf:
                 lf.write(f"\n# {datetime.now().isoformat()} attempt {attempt}: {' '.join(cmd)}\n")
                 lf.flush()
@@ -414,7 +419,8 @@ class Unit:
         ok = len(rels) - len(bad)
         self.log(f"[{self.name}] class {cls} {CLASSES[cls]}: {'DONE' if not bad else 'INCOMPLETE'} "
                  f"{ok}/{len(rels)} ok, {human(self.class_bytes(cls))} in {hms(dt)} "
-                 f"({self.class_bytes(cls) / dt / 1e6:.2f} MB/s){'' if rc == 0 else f', rsync exit {rc}'}")
+                 f"({self.class_bytes(cls) / dt / 1e6:.2f} MB/s)"
+                 f"{'' if rc == 0 else (f', rsync exit {rc}' if isinstance(rc, int) else f', {rc}')}")
         for rel in bad[:10]:
             self.log(f"[{self.name}]   {self.results[rel]['status']}: {rel}")
         if len(bad) > 10:

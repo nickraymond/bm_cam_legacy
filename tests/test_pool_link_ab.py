@@ -46,11 +46,13 @@ class TestLinkAB(unittest.TestCase):
             f.write(FAKE_SSH)
         os.chmod(os.path.join(b, "ssh"), 0o755)
         self.env = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"])
-        self.rdir = os.path.join(self.tmp.name, "remote_ab")
+        # must be /tmp/pool_link_ab* (QE #158 nit 1); a real dir on this Mac, removed in tearDown
+        self.rdir = f"/tmp/pool_link_ab_test_{os.getpid()}"
         self.out = os.path.join(self.tmp.name, "out")
 
     def tearDown(self):
         self.tmp.cleanup()
+        subprocess.run(["rm", "-rf", self.rdir])
 
     def run_tool(self, *extra, env=None):
         return subprocess.run([sys.executable, TOOL, "pi@127.0.0.1", "--mb", "2", "--n", "2",
@@ -78,6 +80,32 @@ class TestLinkAB(unittest.TestCase):
         self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
         self.assertIn("REFUSED", r.stdout)
         self.assertFalse(os.path.exists(self.rdir))                      # nothing created
+
+    def test_remote_dir_guard(self):
+        """The units hold the only DNG copies until Friday: anything but /tmp/pool_link_ab* is refused,
+        before any ssh."""
+        for bad in ("/home/pi/pool_runs", "/tmp", "/tmp/pool_link_ab/../x", "/tmp/pool_link_abX/sub",
+                    "/home/pi/pool_runs/20261013_181500_bmcam003", "pool_link_ab"):
+            r = subprocess.run([sys.executable, TOOL, "pi@127.0.0.1", "--remote-dir", bad, "--out", self.out],
+                               env=dict(self.env, PATH="/nonexistent"), capture_output=True, text=True, timeout=60)
+            self.assertEqual(r.returncode, 2, (bad, r.stdout, r.stderr))
+            self.assertIn("REFUSED --remote-dir", r.stderr)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("pool_link_ab", TOOL)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertEqual(mod.safe_remote_dir("/tmp/pool_link_ab/"), "/tmp/pool_link_ab")
+        self.assertEqual(mod.safe_remote_dir("/tmp/pool_link_ab_2"), "/tmp/pool_link_ab_2")
+
+    def test_cleanup_removes_only_its_own_files(self):
+        os.makedirs(self.rdir, exist_ok=True)
+        keep = os.path.join(self.rdir, "keep.txt")
+        with open(keep, "w") as f:
+            f.write("not ours")
+        r = self.run_tool("--methods", "ssh_default", "--n", "1")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertTrue(os.path.exists(keep))                           # never touched
+        self.assertFalse(os.path.exists(os.path.join(self.rdir, "ab.bin")))
 
     def test_bad_args(self):
         r = self.run_tool("--methods", "ftp")

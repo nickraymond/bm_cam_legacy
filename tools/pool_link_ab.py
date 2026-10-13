@@ -35,7 +35,9 @@ Outputs (in --out, default ./runs/pool_link_ab_<UTC>_<host>/):
   results.csv   method, run, bytes, seconds, MB_s
   facts.txt     link + CPU + cipher facts, sshd CPU sample
   summary.txt   median MB/s per method + the decision-rule verdict
-Cleanup: removes its remote test dir and stops its HTTP server (also on Ctrl-C / failure).
+Cleanup: stops its HTTP server and removes ONLY its own files (ab.bin, http.log, http.pid) and then the
+  empty scratch dir (also on Ctrl-C / failure). --remote-dir must be /tmp/pool_link_ab* (refused
+  otherwise): the units hold the only DNG copies until the Friday pickup.
 
 Example (Mac, repo root, after the pull finished):
   python3 tools/pool_link_ab.py pi@bmcam003            # 50 MB x 3 runs x 5 methods ~ 12 min @ 1 MB/s
@@ -46,6 +48,7 @@ Limits: the HTTP method briefly serves ONLY its own test dir on --http-port (def
 import argparse
 import csv
 import os
+import re
 import shlex
 import statistics
 import subprocess
@@ -56,6 +59,17 @@ import time
 from datetime import datetime, timezone
 
 METHODS = ("http", "ssh_default", "ssh_aes128gcm", "ssh_2streams", "rsync")
+# The units hold the ONLY copy of the DNGs until the Friday pickup (Nick 2026-10-12), so the scratch
+# dir is pinned to /tmp/pool_link_ab* (one level, no '..'), and cleanup removes only the files this
+# tool creates, then rmdir (QE #158 nit 1). A typo like /home/pi/pool_runs or /tmp is refused.
+RE_REMOTE_DIR = re.compile(r"/tmp/pool_link_ab[A-Za-z0-9_.-]*\Z")
+OWN_FILES = ("ab.bin", "http.log", "http.pid")
+
+
+def safe_remote_dir(path):
+    """-> the normalised path if it is /tmp/pool_link_ab*, else None."""
+    norm = os.path.normpath(path)
+    return norm if RE_REMOTE_DIR.match(norm) and ".." not in path.split("/") else None
 SSH_BASE = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-o", "ServerAliveInterval=10",
             "-o", "ServerAliveCountMax=3", "-o", "Compression=no"]
 
@@ -90,7 +104,8 @@ def main(argv=None):
     ap.add_argument("--n", type=int, default=3, help="runs per method (default 3)")
     ap.add_argument("--methods", default=",".join(METHODS), help=f"comma list from {','.join(METHODS)}")
     ap.add_argument("--http-port", type=int, default=8099)
-    ap.add_argument("--remote-dir", default="/tmp/pool_link_ab", help="Pi-side scratch dir (removed after)")
+    ap.add_argument("--remote-dir", default="/tmp/pool_link_ab",
+                    help="Pi-side scratch dir, must be /tmp/pool_link_ab* (only its own files are removed after)")
     ap.add_argument("--out", default=None)
     a = ap.parse_args(argv)
     methods = [m for m in a.methods.split(",") if m]
@@ -98,6 +113,11 @@ def main(argv=None):
     if bad or not methods or a.mb < 1 or a.n < 1:
         print(f"[ab] bad --methods {bad} / --mb / --n", file=sys.stderr)
         return 2
+    if not safe_remote_dir(a.remote_dir):
+        print(f"[ab] REFUSED --remote-dir {a.remote_dir!r}: must be /tmp/pool_link_ab* (the units hold the only "
+              f"DNG copies until Friday; nothing outside that scratch dir is ever touched)", file=sys.stderr)
+        return 2
+    a.remote_dir = safe_remote_dir(a.remote_dir)
     host = a.target.split("@")[-1]
     out = a.out or os.path.join("runs", f"pool_link_ab_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}_{host}")
     os.makedirs(out, exist_ok=True)
@@ -188,7 +208,9 @@ def main(argv=None):
     finally:
         if http_started:
             ssh(a.target, f"kill $(cat {shlex.quote(rdir)}/http.pid) 2>/dev/null", capture_output=True)
-        ssh(a.target, f"rm -rf {shlex.quote(rdir)}", capture_output=True)
+        own = " ".join(shlex.quote(f"{rdir}/{f}") for f in OWN_FILES)
+        ssh(a.target, f"rm -f {own}; rmdir {shlex.quote(rdir)} 2>/dev/null || echo 'scratch dir not empty: left in place'",
+            capture_output=True)
         log(f"[ab] cleaned up {rdir} on {a.target}")
 
     with open(os.path.join(out, "results.csv"), "w", newline="") as fh:
