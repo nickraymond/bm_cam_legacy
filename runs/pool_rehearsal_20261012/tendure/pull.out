@@ -1,1 +1,3 @@
 2026-10-13T03:04:40Z start; Mac free 13.71 GB
+tendure_pull.sh: line 21:  6744 Terminated: 15          python3 "$PP" --host bmcam003=192.168.1.230 --host bmcam004=192.168.1.143 --run bmcam003=20261012_201138_bmcam003 --run bmcam004=20261012_201130_bmcam004 --dest-root ~/NereusPool --date 20261012_TENDURE > pull_console.log 2>&1 < /dev/null
+2026-10-13T03:11:26Z pull exit rc=143 after 406 s; Mac free 13.12 GB; pulled 688M
