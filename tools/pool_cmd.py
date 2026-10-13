@@ -16,6 +16,9 @@ Wire (agreed with the Pi-side pool session 2026-10-12; console range ids 1..9999
   json           {"id":N,"c":"pool","v":"<verb>", ...}  <= 248 B (command_wire.MAX_JSON_BYTES)
   verbs          status | cal [--duration-s S --interval-s S] | loop [--iterations N --period-s S]
                  | mark <note> | stop | preview [--lines 3-7,12]
+                 | sweep  (focus sweep, lens 0.6..1.0, #160: answers OK when DONE after ~20-40 s, so
+                           the default wait is 90 s; refused unless the unit is idle, i.e. not
+                           during cal or the whole 3 h loop)
   mark note      spaces -> "_", charset [A-Za-z0-9_:./+,-], <= 40 chars ("card 2m" -> "card_2m")
   preview        without --lines: new capture, new img_id; with --lines: resend of the latest
                  preview's lines (inclusive, 1-based), <= 186 chars (max_lines_chars(): the 256 B
@@ -44,6 +47,7 @@ Example (on nereus000)
   python3 pool_cmd.py bmcam003 mark "card 2m"
   python3 pool_cmd.py bmcam004 preview --lines 3-7,12
   python3 pool_cmd.py both stop --wait 30
+  python3 pool_cmd.py both sweep                     # waits up to 90 s for each unit's OK
   python3 pool_cmd.py both loop --dry-run            # print the line + JSON, send nothing
 
 Known limits
@@ -68,7 +72,11 @@ DEFAULT_MAP = "bmcam003=SPOT-33507C,bmcam004=SPOT-31593C"   # hil/hil.env.exampl
 ID_START, ID_MAX = 90001, 99999                                # console id range (command_wire.RANGES)
 MAX_JSON_BYTES = 248
 MAX_CONSOLE_LINE = 256       # hil_console.sh refuses > 256 B incl. newline (Spotter RX)
-VERBS = ("status", "cal", "loop", "mark", "stop", "preview")
+VERBS = ("status", "cal", "loop", "mark", "stop", "preview", "sweep")
+# The unit answers `sweep` only when it is DONE (5 full-res stills at lens 0.6..1.0, ~20-40 s on the
+# Pi, #160), so its default answer wait is longer. Every other verb answers at once.
+DEFAULT_WAIT_S = 20.0
+VERB_WAIT_S = {"sweep": 90.0}
 RE_NOTE = re.compile(r"[A-Za-z0-9_:./+,-]{1,40}\Z")
 RE_LINES = re.compile(r"\d+(-\d+)?(,\d+(-\d+)?)*\Z")
 CONSOLE_PREFIX, CONSOLE_SUFFIX = "bm pub bmcam/cmd ", " 1 1"   # same line as hil/tools/hil_cmd.sh
@@ -342,7 +350,8 @@ def build_parser():
     ap.add_argument("--iterations", type=int, help="loop: number of iterations")
     ap.add_argument("--period-s", type=int, help="loop: seconds per iteration")
     ap.add_argument("--arg", action="append", help="extra JSON field key=value (int if numeric); repeatable")
-    ap.add_argument("--wait", type=float, default=20.0, help="seconds to wait for OK/ERR (default 20)")
+    ap.add_argument("--wait", type=float, default=None,
+                    help=f"seconds to wait for OK/ERR (default {DEFAULT_WAIT_S:.0f}; sweep {VERB_WAIT_S['sweep']:.0f})")
     ap.add_argument("--linger", type=float, default=3.0, help="seconds to keep printing after the last answer")
     ap.add_argument("--log-root", default="/home/pi/spotter_logs", help="spotter-monitor log root")
     ap.add_argument("--id-file", default=None, help="persisted id counter (default <log-root>/pool_cmd_id)")
@@ -354,6 +363,8 @@ def build_parser():
 
 def main(argv=None):
     a = build_parser().parse_args(argv)
+    if a.wait is None:
+        a.wait = VERB_WAIT_S.get(a.verb, DEFAULT_WAIT_S)
     unit_map = parse_map(a.map)
     targets = resolve_targets(a.target, unit_map)
     log = Logger(os.path.join(a.log_root, "pool_cmd.log") if os.path.isdir(a.log_root)

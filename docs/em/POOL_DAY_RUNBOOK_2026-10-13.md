@@ -11,10 +11,10 @@ Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = poo
 1. **10:00 AM** arrive. Phone hotspot ON (name/password = home Wi-Fi, **Maximize Compatibility**). Mac, nereus000 and the units join on their own. Mac on power, lid open, `caffeinate -dims` in a spare tab (§1.2). `export N=pi@<nereus000 IP>`, define `pc` (§1.3). Viewer: `http://<nereus000 IP>:8090`
 2. **10:15** `pc both status` → both `phase=idle cal=0/0 loop=0/0`. Write down `run=` and `ip=`. Battery: §2.4
 3. **10:30** `pc both cal` → `OK ... start frames=120`. Dive 20 min; it stops on its own (~10:50)
-4. **10:55** card at **1 m**. `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
+4. **10:55** card at **1 m**. `pc both sweep` (focus check: `OK ... n=5/5` after ~20–40 s), then `pc both preview` → both cards **OK** in the viewer (PARTIAL: run the resend shown on the card)
 5. **11:00** `pc both mark card_1m`, then `pc both loop` → `OK ... iterations=18` (auto-starts ~11:20 if not sent)
-6. **12:30 PM** after `loop=9/18`: card to **2 m**, then `pc both mark card_2m`
-7. **2:00 PM** loop ends (`loop=18/18`). To end early: `pc both stop`
+6. **12:30 PM** after `loop=9/18`: card to **2 m**, then `pc both mark card_2m` (no sweep now: it is refused during the loop)
+7. **2:00 PM** loop ends (`loop=18/18`; to end early: `pc both stop`). Card still at 2 m: `pc both sweep` (the 2 m focus check)
 8. **2:05** units out of the water. `pc both status` → new `ip=`; `run=` as noted
 9. Pull dry run: `python3 tools/pool_pull.py --host bmcam003=<ip> --host bmcam004=<ip> --run bmcam003=<run> --run bmcam004=<run> --dry-run`. **DNGs stay on the units until Fri** (Nick 10/12); the pull is ~0.5 GB per unit, **~12 min measured** (incl. ~2.5 min of DNG hashing on the Pi).
 10. **2:15** the same command without `--dry-run` → `LEFT ON UNIT: <n> DNGs` + `[pool_pull] OK` (re-run to resume). Report: `~/NereusPool/<date>/pull_report.json`. Friday pickup: same command + `--include-dng`.
@@ -226,23 +226,31 @@ See:
 
 ---
 
-## 5. Card at 1 m → preview → loop, about 10:55 AM
+## 5. Card at 1 m → sweep → preview → loop, about 10:55 AM
 
 The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the default 18 × 10 min. (In T-ENDURE the loop came from this auto-start, and it worked.) Need more time? Send `pc both stop` while idle. That only cancels the auto-start; then send `loop` yourself when ready.
 
 1. Place the v3 card at **1 m** in front of both cameras.
-2. Preview both:
+2. **Focus sweep** (Nick's focus-spec check, #160): 5 full-res stills, JPEG + DNG, at lens 0.6, 0.7, 0.8, 0.9 and 1.0, saved in the run's `sweep/<HHMMSS>/` folder. Afterwards the unit goes back to its own lens setting. The OK arrives only when it's done, so `pool_cmd` waits up to 90 s.
+   ```bash
+   pc both sweep
+   ```
+   See, per unit: `OK id=N pool sweep dir=sweep/<HHMMSS> n=5/5 req=0.6,0.7,0.8,0.9,1 got=<5 lens values> t=<s>s back_to_lp=<lens>`, after ~20–40 s.
+   - `n` below 5/5 or an `x` in `got=`: a frame failed; run `sweep` again.
+   - `ERR ... busy phase=...`: it only runs while idle (not during `cal` or `loop`).
+   The sweep frames are pulled with the rest (DNGs stay on the unit).
+3. Preview both:
    ```bash
    pc both preview
    ```
    See: `OK id=N pool preview img=<HHMMSS> n=<lines> bytes=<B> q=<q> eta=<s>s` per unit. Within about 30 s the viewer shows both images, marked **OK** with lines n/n. The image is the production 1600×900 crop, shown at 640×360.
-3. **PARTIAL** on a card? The card shows the exact resend command. Run it, for example:
+4. **PARTIAL** on a card? The card shows the exact resend command. Run it, for example:
    ```bash
    pc bmcam003 preview --lines 20-21,35
    ```
    See: the card turns **OK**. Lines lost twice? Send a fresh `pc bmcam003 preview`.
-4. Adjust the card and preview again until the framing is right on both units.
-5. Mark the position (optional), then start the loop:
+5. Adjust the card and preview again until the framing is right on both units. If you move the card, run `sweep` again before the loop.
+6. Mark the position (optional), then start the loop:
    ```bash
    pc both mark card_1m
    ```
@@ -261,6 +269,7 @@ The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the
    pc both mark card_2m
    ```
    See: `OK id=N pool mark #2 card_2m phase=loop t=<UTC>`.
+   **No sweep here.** The Pi refuses `sweep` for the whole loop phase (`ERR ... busy phase=loop`), between iterations too. The 2 m sweep runs after the loop ends (§7), with the card still at 2 m.
 3. Optional framing check. During the loop it can wait up to about 35 s for the camera (`waiting for camera` line), hence the longer wait:
    ```bash
    pc both preview --wait 60
@@ -273,6 +282,12 @@ The loop **auto-starts 30 min after calibration ends**, about 11:20 AM, with the
 T-ENDURE: 18/18 iterations at 54–71 s each, mp4 ~7.3 MB, pool_sequence peak memory 135.8 MiB with no growth, 0 ERR / OOM.
 
 See: the console shows `pool loop done 18/18 ...`, and `pc both status` shows `phase=idle loop=18/18`.
+
+**2 m focus sweep**, with the card still at 2 m, before anyone moves it or takes the units out:
+```bash
+pc both sweep
+```
+See: `OK id=N pool sweep dir=sweep/<HHMMSS> n=5/5 ...` per unit (~20–40 s).
 
 To end early:
 ```bash
@@ -413,7 +428,7 @@ Per unit, in this order: bmcam003 / SPOT-33507C, then bmcam004 / SPOT-31593C.
 |---|---|---|
 | `pool_cmd` exit 4: `NO ANSWER within 20s` | Pi rebooting (Spotter reset), the command is still queued, or the BM link is down | Run step 2.1: is the console fresh? Wait 60 s, then send `pc <unit> status` again (new id). `up=` small means it rebooted: new run folder, carry on. Still silent after 3 tries: the unit may be unpowered. Check its Spotter battery (step 2.4) and the BM cable. |
 | `pool_cmd` exit 3: `NOT-CONSUMED` | spotter-monitor down on nereus000, or a Spotter USB cable/hub is out | `ssh $N 'sudo systemctl restart spotter-monitor'`, check the hub's power, then repeat the command. |
-| `ERR id=N pool ...` | The unit refused: busy, out of space, or bad lines | Read the reason after the verb. `busy phase=...`: wait or `stop`. `space ...`: tell the EM, don't delete anything. |
+| `ERR id=N pool ...` | The unit refused: busy, out of space, or bad lines | Read the reason after the verb. `busy phase=...`: wait or `stop`. `sweep` with `busy phase=loop` is expected during the loop: run the 2 m sweep after the loop ends (§7). `space ...`: tell the EM, don't delete anything. |
 | Preview **PARTIAL** | Console lines dropped | Run the resend command shown on the card (`pc <unit> preview --lines ...`). Twice PARTIAL: send a fresh `pc <unit> preview`. |
 | Preview never appears | Camera busy (a loop clip), or the viewer is down | Wait 35 s. Then check that `http://<nereus000-ip>:8090/previews.json` loads; if not, restart the viewer (step 1.4). |
 | Unit not on the hotspot (`ssid=none` in status) | 5 GHz hotspot, phone asleep, hotspot name/password not exactly the home Wi-Fi's, or the unit is still in the water | Maximize Compatibility ON; stay on the hotspot screen; check the phone name against the home SSID (curly `'`?); unit out of the water and close to the phone. Still nothing: **leave it**. The data is safe on the SD card and the Pi stays up; pull at HQ on the bench Wi-Fi. |

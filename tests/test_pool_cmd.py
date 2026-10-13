@@ -73,6 +73,10 @@ class FakeMonitor:
                     self.log(spot, f"[{unit}] OK id={cid} pool {verb} state=idle")
                 elif b == "err":
                     self.log(spot, f"[{unit}] ERR id={cid} pool {verb} busy")
+                elif b == "slow_ok":       # sweep: answered only when done (#160), here after 2 s
+                    threading.Timer(2.0, self.log, (spot, f"[{unit}] OK id={cid} pool {verb} dir=sweep/x n=5/5")).start()
+                elif b == "busy_loop":     # sweep refused while the loop phase is active
+                    self.log(spot, f"[{unit}] ERR id={cid} pool {verb} busy phase=loop")
                 elif b == "preview":
                     self.log(spot, f"[{unit}] OK id={cid} pool preview img=181500")
                     self.log(spot, f"[{unit}] PVH {unit} 181500 n=2 bytes=10 sha256={'0' * 64} w=1 h=1 q=1")
@@ -175,6 +179,32 @@ def lines_of_len(n):
     while len(out) < n:
         out += "1"
     return out
+
+
+class TestSweep(Base):
+    def test_sweep_waits_for_late_ok_with_90s_default(self):
+        with FakeMonitor(self.root, {"bmcam003": "slow_ok", "bmcam004": "slow_ok"}) as mon:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                rc = pc.main(["--log-root", self.root, "--linger", "0.3", "both", "sweep"])   # no --wait
+        self.assertEqual(rc, 0, out.getvalue())
+        self.assertIn("wait=90s", out.getvalue())
+        for u in SPOTS:
+            self.assertEqual(mon.sent[u], ['bm pub bmcam/cmd {"id":90001,"c":"pool","v":"sweep"} 1 1'])
+            self.assertIn(f"id=90001 {u}: OK", out.getvalue())
+
+    def test_sweep_refused_during_loop(self):
+        with FakeMonitor(self.root, {"bmcam003": "busy_loop"}):
+            rc, out = self.run_cmd("bmcam003", "sweep")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("busy phase=loop", out)
+
+    def test_other_verbs_keep_20s_default(self):
+        with FakeMonitor(self.root, {}):
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                pc.main(["--log-root", self.root, "--linger", "0.3", "bmcam003", "status"])
+        self.assertIn("wait=20s", out.getvalue())
 
 
 class TestLinesLimit(Base):
