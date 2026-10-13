@@ -449,6 +449,149 @@ class EffectiveConfig(unittest.TestCase):
         self.assertEqual(before, after, "the pool never writes config or state")
 
 
+class Lens(unittest.TestCase):
+    def test_lens_arg_range(self):
+        self.assertEqual(P.lens_arg("0.8"), 0.8)
+        for bad in ("0.5", "1.01", "1.82", "x", "nan"):
+            with self.assertRaises(Exception, msg=bad):
+                P.lens_arg(bad)
+
+    def test_with_lens_and_lens_of(self):
+        base = {"camera_controls": {"enabled": False, "focus": {"mode": "auto", "range": "macro"},
+                                    "white_balance": {"enabled": False, "mode": "auto"}},
+                "exposure_profile": {"profile": "low_gain"}}
+        out = P.with_lens(base, 0.8)
+        self.assertEqual(out["camera_controls"]["focus"],
+                         {"enabled": True, "mode": "manual", "lens_position": 0.8})
+        self.assertTrue(out["camera_controls"]["enabled"])
+        self.assertEqual(out["camera_controls"]["white_balance"], base["camera_controls"]["white_balance"])
+        self.assertEqual(out["exposure_profile"], {"profile": "low_gain"})
+        self.assertEqual(base["camera_controls"]["focus"]["mode"], "auto", "input not mutated")
+        self.assertEqual(P.lens_of(out), 0.8)
+        self.assertIsNone(P.lens_of(base))
+        self.assertIsNone(P.lens_of(None))
+        self.assertEqual(P.with_lens(None, 0.6)["camera_controls"]["focus"]["lens_position"], 0.6)
+        self.assertIs(P.with_lens(base, None), base)
+
+
+class LensController(unittest.TestCase):
+    def harness(self, script, **kw):
+        cam = P.FakeCamera(capture_s=0.01, video_s=0.01)
+        cam.lens = 0.8
+        h = Harness(self, script, camera=cam, **kw)
+        h.cfg["capture_settings"] = P.with_lens(None, 0.8)
+        h.ctl.lens = P.lens_of(h.cfg["capture_settings"])
+        return h
+
+    def test_status_and_every_frame_record_the_lens(self):
+        h = self.harness([(0, cmd(1, "status")), (0, cmd(2, "cal", duration_s=10, interval_s=10)),
+                          (0.1, cmd(3, "preview"))], argv=["--loop-autostart-min", "0"])
+        h.wait_idle()
+        h.link.script.append((0, cmd(4, "loop", iterations=1, period_s=30)))
+        h.run(5, until=lambda h: h.ctl.loop_done)
+        h.wait_idle()
+        self.assertIn(" lp=0.8 ", h.acks(1)[0])
+        m = h.manifest_json()
+        for rec in m["calibration"] + m["loop"] + m["previews"]:
+            self.assertEqual(rec["lens_requested"], 0.8)
+        self.assertEqual(m["calibration"][0]["applied"]["LensPosition"], 0.8)
+        self.assertEqual(m["loop"][0]["still"]["applied"]["LensPosition"], 0.8)
+        self.assertEqual(set(h.camera.lenses), {0.8})
+
+    def test_sweep(self):
+        h = self.harness([(0, cmd(1, "sweep")), (0.01, cmd(1, "sweep"))])
+        h.wait_idle()
+        ok = h.acks(1)
+        self.assertIn("OK id=1 pool sweep in_progress dup", ok[0])
+        self.assertRegex(ok[1], r"OK id=1 pool sweep dir=sweep/\d{6} n=5/5 "
+                         r"req=0\.6,0\.7,0\.8,0\.9,1 got=0\.60,0\.70,0\.80,0\.90,1\.00 "
+                         r"t=[\d.]+s back_to_lp=0\.8")
+        sw = h.manifest_json()["sweeps"][0]
+        files = os.listdir(os.path.join(h.dir, sw["dir"]))
+        self.assertEqual(len([f for f in files if f.endswith(".jpg")]), 5)
+        self.assertEqual(len([f for f in files if f.endswith(".dng")]), 5)
+        self.assertEqual([f["lens_requested"] for f in sw["frames"]], list(P.SWEEP_LENS))
+        self.assertEqual(h.ctl.phase, "idle")
+        h.link.script.append((0, cmd(2, "preview")))
+        h.wait_idle()
+        self.assertEqual(h.camera.lenses[-1], 0.8, "back to the run's lens after the sweep")
+
+    def test_sweep_refused_while_cal_runs_and_cal_refused_during_sweep(self):
+        h = self.harness([(0, cmd(1, "cal", duration_s=600, interval_s=10)), (0.05, cmd(2, "sweep")),
+                          (0.1, cmd(3, "stop"))])
+        h.run(0.5)
+        self.assertIn("ERR id=2 pool sweep busy phase=cal", h.acks(2)[0])
+        h.wait_idle()
+        slow = P.FakeCamera(capture_s=0.2, video_s=0.01)
+        h2 = Harness(self, [(0, cmd(1, "sweep")), (0.05, cmd(2, "cal")), (0.06, cmd(3, "status"))],
+                     camera=slow)
+        h2.run(0.5)
+        self.assertIn("ERR id=2 pool cal busy phase=sweep", h2.acks(2)[0])
+        self.assertIn("phase=sweep", h2.acks(3)[0])
+        h2.wait_idle()
+
+
+class ArgsFile(unittest.TestCase):
+    def setUp(self):
+        self.d = tempfile.mkdtemp(prefix="pool_args_")
+        self.addCleanup(shutil.rmtree, self.d, True)
+        self.file = os.path.join(self.d, "pool_args")
+
+    def test_file_applies_and_cli_wins(self):
+        with open(self.file, "w") as fh:
+            fh.write("# lens for the flat port\n--lens-position 0.8\n")
+        args, fargv, err = P.resolve_argv(["--args-file", self.file])
+        self.assertEqual((args.lens_position, fargv, err), (0.8, ["--lens-position", "0.8"], None))
+        args, _, _ = P.resolve_argv(["--args-file", self.file, "--lens-position", "0.7"])
+        self.assertEqual(args.lens_position, 0.7)
+
+    def test_bad_file_is_ignored_loudly(self):
+        with open(self.file, "w") as fh:
+            fh.write("--lens-position 1.82\n")
+        args, fargv, err = P.resolve_argv(["--args-file", self.file])
+        self.assertIsNone(args.lens_position)
+        self.assertEqual(fargv, [])
+        self.assertIn("outside 0.6..1.0", err)
+
+    def test_main_fake_with_lens_from_file(self):
+        with open(self.file, "w") as fh:
+            fh.write("--lens-position 0.8\n")
+        script = os.path.join(self.d, "script.json")
+        with open(script, "w") as fh:
+            json.dump([[0.2, cmd(1, "status")], [0.3, cmd(3, "sweep")],
+                       [5, cmd(2, "cal", duration_s=10, interval_s=5)],
+                       [16, cmd(4, "loop", iterations=1, period_s=30)]], fh)
+        real_stdout = sys.stdout
+        try:
+            rc = P.main(["--fake", "--fake-script", script, "--run-root", self.d,
+                         "--args-file", self.file, "--exit-when-done", "--max-runtime-s", "60",
+                         "--preview-line-s", "0", "--min-free-mb", "10"], host=HOST)
+        finally:
+            sys.stdout = real_stdout
+        self.assertEqual(rc, 0)
+        run = [x for x in os.listdir(self.d) if x.endswith(HOST)][0]
+        m = json.load(open(os.path.join(self.d, run, "run_manifest.json")))
+        self.assertEqual(m["lens"], {"value": 0.8, "source": "cli --lens-position"})
+        self.assertEqual(m["args_file_argv"], ["--lens-position", "0.8"])
+        self.assertTrue(all(r["applied"]["LensPosition"] == 0.8 for r in m["calibration"]))
+        self.assertTrue(all(r["lens_requested"] == 0.8 for r in m["calibration"] + m["loop"]))
+        self.assertEqual(len(m["sweeps"]), 1)
+        console = open(os.path.join(self.d, run, "console.log")).read()
+        self.assertIn("pool ready", console)
+        self.assertIn(" lp=0.8 ", console)
+
+    def test_check_args(self):
+        real_stdout = sys.stdout
+        try:
+            self.assertEqual(P.main(["--check-args", "--args-file", "/dev/null",
+                                     "--lens-position", "0.9"]), 0)
+            with open(self.file, "w") as fh:
+                fh.write("--lens-position 2\n")
+            self.assertEqual(P.main(["--check-args", "--args-file", self.file]), 2)
+        finally:
+            sys.stdout = real_stdout
+
+
 class RealCameraArgv(unittest.TestCase):
     """The Pi path with subprocess faked: the still argv is the production one
     (+ --raw), the clip argv is wide_720p @10 fps 2 Mbit/s with --mode and the
@@ -486,12 +629,15 @@ class RealCameraArgv(unittest.TestCase):
             self.addCleanup(pt.stop)
         self.calls = []
         self.fail_first_video = False
+        self.fail_videos = 0
 
         def fake_run(argv, **kw):
             self.calls.append(list(argv))
             out = argv[argv.index("-o") + 1]
             rc = 0
-            if "rpicam-vid" in argv[0] and self.fail_first_video and len(self.calls) == 1:
+            n_vid = sum(1 for c in self.calls if "rpicam-vid" in c[0])
+            if "rpicam-vid" in argv[0] and (
+                    (self.fail_first_video and len(self.calls) == 1) or n_vid <= self.fail_videos):
                 rc = 255
             else:
                 with open(out, "wb") as fh:
@@ -534,14 +680,38 @@ class RealCameraArgv(unittest.TestCase):
         self.assertTrue(res["path"].endswith("v1.h264"), "no ffmpeg here: raw stream kept")
         self.assertIsNone(res["fallback"])
 
-    def test_video_retries_without_controls(self):
+    def test_video_retry_keeps_focus_first(self):
         self.fail_first_video = True
         res = self.cam.record_video(self.run_dir, "v2")
         self.assertEqual(len(self.calls), 2)
         self.assertIn("--tuning-file", self.calls[0])
         self.assertNotIn("--tuning-file", self.calls[1])
-        self.assertNotIn("--lens-position", self.calls[1])
-        self.assertIn("retried without", res["fallback"])
+        self.assertEqual(self.calls[1][self.calls[1].index("--lens-position") + 1], "1.82")
+        self.assertIn("focus only", res["fallback"])
+
+    def test_video_ladder_ends_without_controls(self):
+        self.fail_videos = 2
+        res = self.cam.record_video(self.run_dir, "v3")
+        self.assertEqual(len(self.calls), 3)
+        self.assertNotIn("--lens-position", self.calls[2])
+        self.assertIn("without camera controls", res["fallback"])
+
+    def test_lens_override_reaches_still_video_and_sweep(self):
+        P.apply_lens(self.cfg, 0.8)
+        cam = P.RealCamera(self.cfg, 30, 10, "wide_720p", 2.0)
+        cam.capture_still(self.run_dir, "s8")
+        argv = self.calls[-1]
+        self.assertEqual(argv[argv.index("--lens-position") + 1], "0.8")
+        self.assertEqual(argv[argv.index("--autofocus-mode") + 1], "manual")
+        self.assertIn("--tuning-file", argv, "exposure profile untouched")
+        cam.record_video(self.run_dir, "v8")
+        argv = self.calls[-1]
+        self.assertEqual(argv[argv.index("--lens-position") + 1], "0.8")
+        cam.capture_still(self.run_dir, "s6", lens_position=0.6)
+        self.assertEqual(self.calls[-1][self.calls[-1].index("--lens-position") + 1], "0.6")
+        cam.capture_still(self.run_dir, "s8b")
+        self.assertEqual(self.calls[-1][self.calls[-1].index("--lens-position") + 1], "0.8",
+                         "a sweep override is per capture only")
 
 
 @unittest.skipUnless(shutil.which("bash"), "bash needed")
@@ -641,6 +811,30 @@ esac
         self.assertIn(old, out)
         self.assertNotIn("20261012T180000Z", out)
         self.assertNotIn("PRODUCTION MODE", out)
+
+    def test_args_set_validate_clear(self):
+        args_file = os.path.join(self.d, "pool_args")
+        env = dict(os.environ, BMCAM_DST=os.path.join(REPO_ROOT, "BM_Devel_Pi"),
+                   POOL_ARGS_FILE=args_file, POOL_BACKUP_DIR=os.path.join(self.d, "bk"),
+                   POOL_RUN_ROOT=os.path.join(self.d, "runs"), CRONTAB=self.fake,
+                   POOL_PYTHON=sys.executable)
+
+        def tool(*a):
+            r = subprocess.run(["bash", self.TOOL, *a], env=env, capture_output=True, text=True,
+                               timeout=60)
+            return r.returncode, r.stdout + r.stderr
+        rc, out = tool("args", "--lens-position", "0.8")
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(open(args_file).read().strip(), "--lens-position 0.8")
+        rc, out = tool("args", "--lens-position", "1.82")
+        self.assertNotEqual(rc, 0, out)
+        self.assertIn("args rejected", out)
+        self.assertEqual(open(args_file).read().strip(), "--lens-position 0.8", "unchanged")
+        rc, out = tool("status")
+        self.assertIn("pool args   : --lens-position 0.8", out)
+        rc, out = tool("args", "--clear")
+        self.assertEqual(rc, 0, out)
+        self.assertFalse(os.path.exists(args_file))
 
     def test_off_disarmed_without_backups_says_rearm_by_hand(self):
         with open(self.tab, "w") as fh:

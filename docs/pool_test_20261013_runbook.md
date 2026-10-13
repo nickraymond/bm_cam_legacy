@@ -16,6 +16,19 @@ Settings come from the unit's effective config: camera_config.yaml ⊕ bm_comman
 
 Wi-Fi: pool mode never calls `network_ap.sh` or the network boot apply (that call lives in `rc_progressive_jpeg.main()`, which pool mode never runs). NetworkManager autoconnect owns wlan0. `status` reports `ssid=` and `ip=`.
 
+## Lens position (Nick 10/13 9:20 AM: flat port, hyperfocal 0.8)
+
+- `--lens-position X` (0.6–1.0) sets manual focus (`--autofocus-mode manual --lens-position X`) on EVERY pool capture: cal still/DNG, loop still, loop clip, preview. The default is the effective config, which is the old behaviour.
+- **Set it once per unit** with `bash /home/pi/pool_mode.sh args --lens-position 0.8`. That validates the value and writes `~/pool_args`, which pool_sequence.py reads itself at every start (cron @reboot, `pool_mode.sh start`, by hand). No crontab change is needed. Apply it with `pool_mode.sh stop` then `start`, or a reboot.
+- Check that the console `pool ready ... lp=0.8` and `status ... lp=0.8` lines show it.
+- The manifest records `lens` (value + source). Every frame records `lens_requested` next to the metadata `applied.LensPosition`.
+- A bad `~/pool_args` never stops the pool. It is ignored, and you see `pool ARGS FILE REJECTED ...` on the console plus `args_file_error` in the manifest. `pool_mode.sh args` refuses bad values before writing them.
+- If rpicam-vid refuses a control, the clip falls back to focus only first, then to no controls; that is logged as `fallback`.
+- `sweep` (verb, no fields) takes one full-res JPEG + DNG at lens 0.6/0.7/0.8/0.9/1.0 into `sweep/<HHMMSS>/`, then later captures go back to the run's lens.
+  - It is refused while cal/loop runs (and cal/loop are refused while it runs: `busy phase=sweep`).
+  - It answers when done (~5 × 3.6 s ≈ 20–40 s): `OK id=N pool sweep dir=sweep/HHMMSS n=5/5 req=0.6,0.7,0.8,0.9,1 got=<metadata LensPosition> t=..s back_to_lp=0.8`.
+  - The one-run rule does not apply to sweeps; each sweep gets its own folder.
+
 ## Commands (nereus000 console, console id range)
 
 Every command gets one answer line: `[bmcamNNN] OK id=N pool <verb> ...` or `ERR id=N ...`. A replayed id re-prints its first answer with ` dup` and does not run again.
@@ -37,6 +50,7 @@ bm pub bmcam/cmd {"id":90107,"c":"pool","v":"stop"} 1 1
 | loop | iterations 1..100, period_s 30..7200 | same guards (`loop/` already has frames → refused; the auto-start too) |
 | mark | note `[A-Za-z0-9_:./+,-]{1,40}` | use `_` for spaces; the marker goes into run_manifest.json `marks` |
 | stop | (none) | ends the phase after the current step. Sent while idle with an auto-start pending, it cancels the auto-start |
+| sweep | (none) | focus check: 5 stills at lens 0.6–1.0 into `sweep/<HHMMSS>/`, answered when done |
 | preview | lines `a-b,c` (optional) | no lines = a new capture. With lines = resend from the LAST preview |
 
 Unrecognised `c` values (any production verb) get `ERR ... pool_mode: only c=pool runs`.
