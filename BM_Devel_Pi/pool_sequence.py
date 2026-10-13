@@ -103,6 +103,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import command_wire  # noqa: E402
+import rc_focus_sweep  # noqa: E402
 import rc_preview  # noqa: E402
 
 SCHEMA = "bmcam_pool_run_v1"
@@ -121,7 +122,9 @@ DEFAULT_VIDEO_BITRATE_MBPS = 2.0      # V1 720p rehearsal, see module doc
 DEFAULT_MIN_FREE_MB = 1024            # margin kept free after a phase's estimate
 DEFAULT_AUTOSTART_MIN = 30
 LENS_MIN, LENS_MAX = 0.6, 1.0         # Nick 10/13: flat port, hyperfocal ~0.8 (dioptres)
-SWEEP_LENS = (0.6, 0.7, 0.8, 0.9, 1.0)
+# Default focus sweep (Nick 10/13 11 AM): lowest setting -> his previous 1.82.
+# The 10/13 AM 0.6..1.0 sweep stays available as {"lp":[0.6,0.7,0.8,0.9,1]}.
+SWEEP_LENS = rc_focus_sweep.DEFAULT_LENS_LIST
 DEFAULT_ARGS_FILE = "/home/pi/pool_args"   # extra CLI args, one place for cron + start
 SIGTERM_JOIN_S = 150                  # > one loop iteration (~70 s assumed) with margin
 
@@ -130,7 +133,8 @@ EST_NATIVE_JPG_B = 8_000_000          # ASSUMPTION (q95 4608x2592), upper-ish bo
 EST_SMALL_B = 400_000                 # pjpg + nrjxl + sidecars + logs per still (assumed)
 
 VERBS = ("status", "cal", "loop", "mark", "stop", "preview", "sweep")
-FIELDS = {"status": {}, "stop": {}, "sweep": {},
+FIELDS = {"status": {}, "stop": {},
+          "sweep": {"lp": "sweep", "lo": "sweep", "hi": "sweep", "step": "sweep"},
           "cal": {"duration_s": (10, 7200), "interval_s": (2, 600)},
           "loop": {"iterations": (1, 100), "period_s": (30, 7200)},
           "mark": {"note": "str"}, "preview": {"lines": "lines"}}
@@ -776,12 +780,20 @@ def parse_command(payload):
         elif rule == "lines":
             if not isinstance(value, str) or not rc_preview.RE_LINES.match(value):
                 raise CmdError(cid, verb, "lines is like 3-7,12")
+        elif rule == "sweep":
+            pass                             # validated together below
         else:
             lo, hi = rule
             if not isinstance(value, int) or isinstance(value, bool) or not lo <= value <= hi:
                 raise CmdError(cid, verb, f"{key} must be an integer {lo}..{hi}")
     if verb == "mark" and "note" not in fields:
         raise CmdError(cid, verb, "mark needs note")
+    if verb == "sweep":
+        try:
+            rc_focus_sweep.lens_list_from(fields.get("lp"), fields.get("lo"), fields.get("hi"),
+                                          fields.get("step"))
+        except rc_focus_sweep.SweepSpecError as exc:
+            raise CmdError(cid, verb, str(exc))
     return cid, verb, fields
 
 
@@ -1034,31 +1046,34 @@ class PoolController:
 
     # ---- sweep (focus check) -------------------------------------------------
     def cmd_sweep(self, cid, f):
-        """One full-res still (JPEG + DNG) at each SWEEP_LENS into sweep/<HHMMSS>/;
-        later captures use the run's lens again (each rpicam-still sets it)."""
+        """Focus sweep (rc_focus_sweep): one full-native still (JPEG + DNG) per lens
+        position into sweep/<HHMMSS>/, focus metric per frame, best lp in the answer.
+        Later captures use the run's lens again (each rpicam-still sets it)."""
         if self.phase != "idle":
             return False, f"busy phase={self.phase}"
         if self.preview_busy:
             return False, "busy preview_in_progress"
+        lens_list = rc_focus_sweep.lens_list_from(f.get("lp"), f.get("lo"), f.get("hi"),
+                                                  f.get("step"))
         ok, need, free = self._space_check(
-            len(SWEEP_LENS) * (EST_DNG_B + EST_NATIVE_JPG_B + EST_SMALL_B))
+            len(lens_list) * (EST_DNG_B + EST_NATIVE_JPG_B + EST_SMALL_B))
         if not ok:
             return False, f"space need={need}MB free={free}MB (min_free_mb={self.args.min_free_mb})"
         with self.state_lock:
             self.phase = "sweep"
         self.stop_evt.clear()
-        self.worker = threading.Thread(target=self._sweep_worker, args=(cid,),
+        self.worker = threading.Thread(target=self._sweep_worker, args=(cid, lens_list),
                                        name="pool-sweep", daemon=True)
         self.worker.start()
         return None, None
 
-    def _sweep_worker(self, cid):
+    def _sweep_worker(self, cid, lens_list=SWEEP_LENS):
         """QE nit (#160): whatever happens (ENOSPC on makedirs / the manifest, a camera
         surprise), the id gets ONE answer and the phase returns to idle, so cal/loop
         are never blocked behind a dead sweep."""
         line = None
         try:
-            line = self._sweep_body(cid)
+            line = self._sweep_body(cid, list(lens_list))
         except Exception as exc:
             self.last_error = f"sweep {type(exc).__name__}: {exc}"
             log(f"[ERR] sweep id={cid} crashed: {traceback.format_exc()}")
@@ -1073,9 +1088,8 @@ class PoolController:
         except Exception as exc:
             log(f"[ERR] manifest write failed after sweep id={cid}: {exc}")
 
-    def _sweep_body(self, cid):
-        """The sweep itself. -> the answer line (already queued)."""
-        t0 = self.clock()
+    def _sweep_body(self, cid, lens_list):
+        """The sweep itself (rc_focus_sweep.run_sweep). -> the answer line (queued)."""
         name = utc_now().strftime("%H%M%S")
         out_dir = os.path.join(self.run_dir, "sweep", name)
         n = 2
@@ -1083,43 +1097,38 @@ class PoolController:
             out_dir = os.path.join(self.run_dir, "sweep", f"{name}_{n}")
             n += 1
         os.makedirs(out_dir)
-        frames, got = [], []
-        log(f"SWEEP id={cid}: lens {','.join(f'{x:g}' for x in SWEEP_LENS)} -> {out_dir}")
-        for lp in SWEEP_LENS:
-            if self.stop_evt.is_set():
-                break
-            rec = {"lens_requested": lp, "t_utc": iso()}
-            try:
-                with self.camera_lock:
-                    cap = self.camera.capture_still(out_dir, f"{ts_name()}_sweep_lp{lp:.2f}",
-                                                    lens_position=lp)
-                applied = applied_from_metadata(cap["metadata"])
-                rec.update(jpg=os.path.basename(cap["jpg"]),
-                           dng=os.path.basename(cap["dng"]) if cap.get("dng") else None,
-                           jpg_bytes=file_bytes(cap["jpg"]), dng_bytes=file_bytes(cap["dng"]),
-                           capture_s=cap["capture_s"], applied=applied)
-                got.append(applied.get("LensPosition"))
-            except Exception as exc:
-                rec["error"] = f"{type(exc).__name__}: {exc}"
-                self.last_error = f"sweep lp={lp}: {rec['error']}"
-                log(f"[ERR] {self.last_error}")
-                got.append(None)
-            frames.append(rec)
-        ok_n = sum(1 for r in frames if "error" not in r)
-        dt = round(self.clock() - t0, 1)
+
+        def capture(d, stem, lp):
+            with self.camera_lock:
+                return self.camera.capture_still(d, stem, lens_position=lp)
+
+        res = rc_focus_sweep.run_sweep(capture, lens_list, out_dir, log=log,
+                                       stop_fn=self.stop_evt.is_set,
+                                       context={"id": cid, "run_lens": self.lens,
+                                                "host": self.host})
         rel = os.path.relpath(out_dir, self.run_dir)
-        self.manifest.append("sweeps", {"id": cid, "dir": rel, "frames": frames, "wall_s": dt,
-                                        "run_lens": self.lens})
-        got_txt = ",".join("x" if g is None else f"{float(g):.2f}" for g in got)
-        if ok_n:
-            line = self.ack(cid, "sweep", True,
-                            f"dir={rel} n={ok_n}/{len(SWEEP_LENS)} "
-                            f"req={','.join(f'{x:g}' for x in SWEEP_LENS)} got={got_txt} "
-                            f"t={dt}s back_to_lp={fmt_lens(self.lens)}")
-        else:
-            line = self.ack(cid, "sweep", False, f"no frames ({(self.last_error or '')[:80]})")
-        log(f"SWEEP id={cid} done: {ok_n}/{len(SWEEP_LENS)} in {dt} s, metadata lens {got_txt}")
-        return line
+        errors = [r.get("error") for r in res["frames"] if "error" in r]
+        if errors:
+            self.last_error = f"sweep: {errors[0]}"
+        self.manifest.append("sweeps", {
+            "id": cid, "dir": rel, "lens_list": res["lens_list"], "n": res["n"],
+            "n_ok": res["n_ok"], "best_lp": res["best_lp"],
+            "best_lp_tenengrad": res["best_lp_tenengrad"], "wall_s": res["wall_s"],
+            "run_lens": self.lens, "stopped": res.get("stopped", False),
+            "frames": [{k: r.get(k) for k in ("lens_requested", "jpg", "dng", "error")}
+                       | {"LensPosition": (r.get("metadata") or {}).get("LensPosition"),
+                          "lapvar": (r.get("focus") or {}).get("lapvar"),
+                          "tenengrad": (r.get("focus") or {}).get("tenengrad")}
+                       for r in res["frames"]]})
+        if res["n_ok"]:
+            failed = res["n"] - res["n_ok"]
+            text = (f"n={res['n_ok']} dt={res['wall_s']}s dir={rel} "
+                    f"best_lp={fmt_lens(res['best_lp'])} "
+                    f"best_lp_ten={fmt_lens(res['best_lp_tenengrad'])} "
+                    f"back_to_lp={fmt_lens(self.lens)}" + (f" failed={failed}" if failed else "")
+                    + (" stopped" if res.get("stopped") else ""))
+            return self.ack(cid, "sweep", True, text)
+        return self.ack(cid, "sweep", False, f"no frames ({(errors[0] if errors else '')[:80]})")
 
     # ---- preview -------------------------------------------------------------
     def _preview_worker(self, cid):
