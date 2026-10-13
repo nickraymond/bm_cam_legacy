@@ -381,12 +381,15 @@ The hashing is repeated on every resume; `--no-dng-sha` skips it (count + bytes 
    ```
    See: `sweep mode: <n> files under sweep/` per unit and `[pool_pull] OK`. DNGs stay on the unit. The report is `pull_report_sweep.json`.
 
-   Then the cut sheet + plot. Pass the board distance and the medium (underwater at the pool):
+   Then the cut sheet + plot. Pass the board distance and the medium (underwater at the pool).
+   - **Every** sweep folder of each unit is analysed, one column per sweep, side by side, with the best-lens spread between them.
+   - To pick specific sweeps, use `--sweep-dir bmcam003=<.../sweep/HHMMSS>` (repeatable) instead of `--unit`.
+   - All frames of a unit are scored on ONE common board region: the best-detected frame's box.
    ```bash
    python3 tools/focus_sweep_sheet.py --unit bmcam003=~/NereusPool/<run date>/bmcam003 --unit bmcam004=~/NereusPool/<run date>/bmcam004 --board-distance-m 1.0 --medium underwater
    ```
    See:
-   - `VERDICT bmcam00N: PASS|WARN best lp <x>` per unit
+   - `VERDICT bmcam00N: PASS|WARN best lp per sweep <x>, <y> (spread <d>)` per unit
    - `runs/focus_sweep_<UTC>/` holding `focus_sheet_<unit>.jpg` (scaled full frame + 1:1 board crop per lens), `focus_plot.png` (both units overlaid, best marked), `focus_sweep.csv` and `focus_sweep.json`
 
    A WARN that says "peak at the sweep edge" means the true focus may lie outside the swept range.

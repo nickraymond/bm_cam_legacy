@@ -2,64 +2,75 @@
 # filename: focus_sweep_sheet.py
 # description: Pool test 2026-10-13 — focus-sweep review (Mac): per-unit cut sheet + metric-vs-LensPosition plot + CSV/JSON from the Pi `sweep` frames.
 """
-focus_sweep_sheet.py — which LensPosition is sharpest on the ChArUco board, per unit?
+focus_sweep_sheet.py — which LensPosition is sharpest on the ChArUco board, per unit, and how
+repeatable is it across sweeps?
 
 Purpose (Nick 2026-10-13 11 AM): the Pi `sweep` verb captures full-native 4608x2592 JPEG (+ DNG)
 frames at a list of LensPositions into <run>/sweep/<HHMMSS>/ (with sweep_manifest.json). After
-`pool_pull.py --sweep`, this tool scores each frame ON THE BOARD and shows the evidence.
+`pool_pull.py --sweep`, this tool scores every frame ON THE BOARD and shows the evidence.
 
-Per unit:
-  - board region: ChArUco detection (tools/pool_calib_check.py detector + layout; default
-    Nick's calib.io CCT600400C 9x14 40/30 mm DICT_5X5_100, --layout auto). A frame where the board
-    is not found (defocus) uses the union region of the frames where it was found (the board does
-    not move during a sweep, only the lens does); no detection at all -> the central third of the
-    frame. The source is labelled per frame (board / board(other frames) / frame centre).
+Per unit (ALL its sweep folders by default, or the --sweep-dir ones):
+  - ONE COMMON metric region for every frame of every sweep of the unit (QE #165): the ChArUco
+    board box of the best-detected frame (most corners; tools/pool_calib_check.py detector +
+    layout; default Nick's calib.io CCT600400C 9x14 40/30 mm DICT_5X5_100, --layout auto), so
+    each lens position is scored on the SAME pixels. Each frame's own detection is kept as
+    corners_detected (it sets the frame status, not the region). No detection anywhere -> the
+    central third of the frame. A sweep whose own best box overlaps the common box by
+    IoU < 0.7 is flagged (the board moved between sweeps).
   - metrics on that region, computed here from the JPEG (grayscale, float):
       lapvar_norm    var(Laplacian 3x3) / mean(I)^2   (normalised by mean intensity, squared so
                      an exposure change k*I cancels: var scales with k^2)
       tenengrad_norm mean(Gx^2 + Gy^2) / mean(I)^2    (Sobel 3x3, same normalisation)
-      corners        ChArUco corners found (of (sx-1)*(sy-1) = 104 on Nick's board)
-    plus the on-Pi lapvar from sweep_manifest.json (schema bmcam_focus_sweep_v1: on a CENTRED
-    1024x1024 crop, not on the board; reported, not used for "best").
-  - best LensPosition = argmax lapvar_norm, with a 3-point parabola refinement when the peak is
-    interior; tenengrad's argmax and the corner count are shown next to it.
+      corners_detected  ChArUco corners found in that frame (of (sx-1)*(sy-1) = 104)
+    plus the on-Pi lapvar + best_lp from sweep_manifest.json (schema bmcam_focus_sweep_v1: on a
+    CENTRED 1024x1024 crop, not on the board; reported, not used for "best").
+  - per sweep: best LensPosition = argmax lapvar_norm (+ 3-point parabola when interior);
+    tenengrad's argmax shown next to it.
+  - run-to-run: best lp per sweep and its spread (max - min); per lens position, the relative
+    spread of lapvar_norm across sweeps ((max - min) / mean).
 
 Status legend (CLAUDE.md §13):
-  frame  PASS  board found, >= 50 % of the board's corners
+  frame  PASS  board found in this frame, >= 50 % of its corners
          WARN  board found, fewer corners
-         FAIL  board not found in this frame (metric on the fallback region)
-  unit   PASS  board found at the best LensPosition, peak interior (not the first/last lens of the
-               sweep), peak distinct (best >= 1.15 x the median), lapvar/tenengrad agree within one step
-         WARN  any of those fails (e.g. the peak sits on the sweep edge: true focus may be outside)
+         FAIL  board not found in this frame (still scored on the common region)
+  sweep  PASS  board found at the best lp, peak interior (not the first/last lens), peak distinct
+               (best >= 1.15 x the median), lapvar/tenengrad agree within one step; else WARN
+  unit   PASS  every sweep PASS, best lp spread <= one lens step, board box stable (IoU >= 0.7)
+         WARN  any of those fails
          FAIL  no frames, or the board was never found
 
 Inputs
-  --unit NAME=PATH   repeatable; PATH = a sweep folder (with *.jpg), or a run / unit folder that
-                     contains sweep/<HHMMSS>/ (the newest is used). e.g.
-                     --unit bmcam003=~/NereusPool/20261013/bmcam003
+  --unit NAME=PATH       repeatable; PATH = a sweep folder (with *.jpg), or a unit / run folder:
+                         EVERY sweep/<HHMMSS>/ under it is used (one sheet column each)
+  --sweep-dir NAME=PATH  repeatable; explicit sweep folders for NAME (replaces --unit discovery
+                         for that unit), e.g. two repeat sweeps of the same unit
   --board-distance-m D   board distance for the title (not used in maths); "not given" otherwise
   --medium in-air|underwater (default in-air; the pool sweep is underwater: say so)
-  --run-tag TAG      title + file names (default: the sweep folder name)
+  --run-tag TAG          title + file names (default: the first sweep folder name)
   board flags as pool_calib_check.py (--squares-x/-y, --square-mm, --marker-mm, --dictionary, --layout)
 Outputs (in --out, default ./runs/focus_sweep_<UTC>/)
-  focus_sheet_<unit>.jpg  one row per LensPosition: full frame (SCALED to 480 px wide, region box
-                          drawn) | 100 % crop (1:1 native pixels, 480x270, centred on the board) |
-                          metrics + status; the best row is marked
-  focus_plot.png          lapvar_norm and tenengrad_norm (each normalised to that unit's peak = 1)
-                          and corner count vs LensPosition, both units overlaid, best marked
-  focus_sweep.csv         one row per frame
-  focus_sweep.json        settings, software versions, per-unit best + verdict, per-frame records
+  focus_sheet_<unit>.jpg  one row per LensPosition: full frame (SCALED to 480 px wide, common box
+                          drawn) | per sweep, side by side: 100 % crop (1:1 native pixels, 480x270,
+                          centred on the common box) + metrics + status; best cells marked
+  focus_plot.png          lapvar_norm and tenengrad_norm (each series normalised to its peak = 1)
+                          and corners vs LensPosition; colour = unit, solid / dashed = 1st / later
+                          sweep; best marked
+  focus_sweep.csv         one row per frame (unit, sweep, ...)
+  focus_sweep.json        settings, versions, per unit: common region, per-sweep best + verdict,
+                          spread, verdict; per-frame records
   focus_sweep.log         everything printed
 Exit 0 = every unit PASS or WARN; 1 = a unit FAILs; 2 = usage.
 
 Example (Mac, repo root, after `python3 tools/pool_pull.py --sweep ...`):
   python3 tools/focus_sweep_sheet.py --unit bmcam003=~/NereusPool/20261013/bmcam003 \\
-      --unit bmcam004=~/NereusPool/20261013/bmcam004 --board-distance-m 1.0 --medium underwater
+      --unit bmcam004=~/NereusPool/20261013/bmcam004 --board-distance-m 1.0
+  python3 tools/focus_sweep_sheet.py --sweep-dir bmcam003=<.../sweep/113005> --sweep-dir bmcam003=<.../sweep/114210>
 
 Requirements: opencv-contrib-python-headless (>= 4.7; tested 5.0.0) + numpy, as pool_calib_check.py.
-Limits: JPEG (ISP-sharpened) metrics, not RAW; a single board distance per sweep; LensPosition is
-  the manifest's applied value when present, else the requested one (else parsed from _lp<x> in
-  the file name); metrics compare frames WITHIN a unit (normalised plots compare curve shapes).
+Limits: JPEG (ISP-sharpened) metrics, not RAW; a single board distance per run of the tool;
+  LensPosition is the manifest's applied value when present, else the requested one (else parsed
+  from _lp<x> in the file name); sweep rows are matched on the requested lens (2 decimals);
+  metrics compare frames WITHIN a unit (normalised plots compare curve shapes across units).
 """
 import argparse
 import csv
@@ -69,27 +80,29 @@ import math
 import os
 import platform
 import re
+import statistics
 import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pool_calib_check as pcc  # noqa: E402
 
-ROW_W, CROP_W, CROP_H, TEXT_W = 480, 480, 270, 380
+ROW_W, CROP_W, CROP_H, TEXT_W = 480, 480, 270, 300
 UNIT_COLORS = [(60, 140, 255), (80, 200, 80), (200, 120, 255), (0, 200, 220)]   # BGR
 RE_LP = re.compile(r"_lp(\d+(?:\.\d+)?)")
+IOU_MIN = 0.7
 
 
 # ----------------------------------------------------------------------------- inputs
 
-def find_sweep_dir(path):
-    """A folder with *.jpg -> itself; else the newest */sweep/<x>/ or sweep/<x>/ below it."""
+def find_sweep_dirs(path):
+    """A folder with *.jpg -> [itself]; else EVERY sweep/<x>/ (or */sweep/<x>/) below it, by name."""
     path = os.path.abspath(os.path.expanduser(path))
     if glob.glob(os.path.join(path, "*.jpg")):
-        return path
+        return [path]
     cands = [d for d in glob.glob(os.path.join(path, "sweep", "*")) + glob.glob(os.path.join(path, "*", "sweep", "*"))
              if os.path.isdir(d) and glob.glob(os.path.join(d, "*.jpg"))]
-    return sorted(cands, key=lambda d: (os.path.basename(d), d))[-1] if cands else None
+    return sorted(set(cands), key=lambda d: (os.path.basename(d), d))
 
 
 def _num(v):
@@ -183,60 +196,29 @@ def parabola_peak(xs, ys, i):
     return v if min(x0, x2) <= v <= max(x0, x2) else None
 
 
-def analyse_unit(name, sweep_dir, a, cv2, np, log):
-    frames, manifest = load_frames(sweep_dir)
-    res = {"unit": name, "sweep_dir": sweep_dir, "frames": frames, "manifest_found": manifest is not None,
-           # the Pi's own answer (centred 1024x1024 crop, not the board), shown for comparison only
-           "pi_best_lp": _num((manifest or {}).get("best_lp")) if isinstance(manifest, dict) else None,
-           "pi_best_lp_tenengrad": _num((manifest or {}).get("best_lp_tenengrad")) if isinstance(manifest, dict) else None}
-    if not frames:
-        res.update(verdict="FAIL", reasons=["no sweep JPEGs"], best=None)
-        log(f"[focus] {name}: FAIL no JPEGs in {sweep_dir}")
-        return res
-    log(f"[focus] {name}: {len(frames)} frames in {sweep_dir} (manifest {'yes' if manifest else 'NO, lens from file names'})")
-    grays = [cv2.imread(f["path"], cv2.IMREAD_GRAYSCALE) for f in frames]
-    if a.layout == "auto":
-        layout, trials, why = pcc.choose_layout([g for g in grays if g is not None], a, cv2)
-    else:
-        c = pcc.layout_candidates(a)[0]
-        layout, trials, why = {"squares_x": c[0], "squares_y": c[1], "legacy": c[2]}, [], None
-    res["layout"] = {"chosen": layout, "trials": trials, "why_none": why}
-    board = pcc.make_board(layout["squares_x"], layout["squares_y"], a, cv2, layout["legacy"]) if layout else None
-    total_corners = (layout["squares_x"] - 1) * (layout["squares_y"] - 1) if layout else 0
-    det = cv2.aruco.CharucoDetector(board) if board else None
-    rois = []
-    for f, g in zip(frames, grays):
-        f["w"], f["h"] = (g.shape[1], g.shape[0]) if g is not None else (None, None)
-        f["corners"] = f["markers"] = 0
-        f["_corners"] = None
-        if g is None:
-            f["error"] = "unreadable JPEG"
-            continue
-        if det is not None:
-            d = pcc.detect(g, board, det, a, cv2, np)
-            f["corners"], f["markers"], f["_corners"] = d["corners"], d["markers"], d["_corners"]
-            if d["corners"] >= 4:
-                f["roi"] = roi_from_corners(d["_corners"], f["w"], f["h"], cv2, np)
-                f["roi_source"] = "board"
-                rois.append(f["roi"])
-    fallback = union_roi(rois) if rois else None
-    for f, g in zip(frames, grays):
-        if g is None:
-            continue
-        if "roi" not in f:
-            if fallback:
-                f["roi"], f["roi_source"] = fallback, "board (other frames)"
-            else:
-                W, H = f["w"], f["h"]
-                f["roi"], f["roi_source"] = (W // 3, H // 3, W // 3, H // 3), "frame centre"
-        f.update(focus_metrics(g, f["roi"], cv2, np))
-        f["status"] = ("FAIL" if f["roi_source"] != "board" else
-                       "PASS" if total_corners and f["corners"] >= 0.5 * total_corners else "WARN")
-    del grays
+
+
+def iou(a, b):
+    ax0, ay0, aw, ah = a
+    bx0, by0, bw, bh = b
+    ix = max(0, min(ax0 + aw, bx0 + bw) - max(ax0, bx0))
+    iy = max(0, min(ay0 + ah, by0 + bh) - max(ay0, by0))
+    inter = ix * iy
+    union = aw * ah + bw * bh - inter
+    return inter / union if union else 0.0
+
+
+def lens_key(f):
+    """Row key across sweeps: the requested lens (else the applied one), 2 decimals."""
+    v = f["lp_req"] if f["lp_req"] is not None else f["lp"]
+    return None if v is None else round(v, 2)
+
+
+def sweep_best(frames, log, unit, sweep):
+    """Best lp of ONE sweep + its reasons -> dict (or None without usable frames)."""
     ok = [f for f in frames if "lapvar_norm" in f and f["lp"] is not None]
     if not ok:
-        res.update(verdict="FAIL", reasons=["no readable frames with a LensPosition"], best=None)
-        return res
+        return {"sweep": sweep, "verdict": "FAIL", "reasons": ["no readable frames with a LensPosition"], "best": None}
     xs = [f["lp"] for f in ok]
     lv = [f["lapvar_norm"] for f in ok]
     tv = [f["tenengrad_norm"] for f in ok]
@@ -248,28 +230,128 @@ def analyse_unit(name, sweep_dir, a, cv2, np, log):
     fit = parabola_peak(xs, lv, i)
     med = sorted(lv)[len(lv) // 2]
     reasons = []
-    if not rois:
-        verdict = "FAIL"
-        reasons.append("board never detected: metrics are on the frame centre")
+    if best["corners_detected"] < 4:
+        reasons.append("board not detected at the best LensPosition")
+    if i in (0, len(ok) - 1):
+        reasons.append(f"peak at the sweep edge (lp {xs[i]:g}): true focus may lie outside {min(xs):g}..{max(xs):g}")
+    if med > 0 and lv[i] < 1.15 * med:
+        reasons.append(f"peak not distinct (best {lv[i]:.4g} < 1.15 x median {med:.4g})")
+    if abs(i - j) > 1:
+        reasons.append(f"lapvar best lp {xs[i]:g} vs tenengrad best lp {xs[j]:g} differ by > 1 step")
+    steps = sorted(b - a for a, b in zip(xs, xs[1:]) if b > a)
+    res = {"sweep": sweep, "verdict": "WARN" if reasons else "PASS", "reasons": reasons,
+           "step": steps[len(steps) // 2] if steps else None,
+           "best": {"lp": best["lp"], "lp_requested": best["lp_req"], "lp_applied": best["lp_applied"],
+                    "lp_parabola": fit, "lapvar_norm": lv[i], "tenengrad_best_lp": xs[j],
+                    "corners_detected": best["corners_detected"], "file": best["file"]}}
+    log(f"[focus] {unit} sweep {sweep}: {res['verdict']} best lp {best['lp']:g}"
+        f"{f' (parabola {fit:.3f})' if fit is not None else ''}; tenengrad best {xs[j]:g}; "
+        f"corners {best['corners_detected']}{'; ' + '; '.join(reasons) if reasons else ''}")
+    return res
+
+
+def analyse_unit(name, sweep_dirs, a, cv2, np, log):
+    res = {"unit": name, "sweep_dirs": sweep_dirs, "frames": [], "sweeps": []}
+    frames, pi_best = [], {}
+    for sd in sweep_dirs:
+        fs, manifest = load_frames(sd)
+        sw = os.path.basename(sd.rstrip("/"))
+        for f in fs:
+            f["sweep"] = sw
+        frames += fs
+        if isinstance(manifest, dict):
+            pi_best[sw] = {"best_lp": _num(manifest.get("best_lp")),
+                           "best_lp_tenengrad": _num(manifest.get("best_lp_tenengrad"))}
+        log(f"[focus] {name} sweep {sw}: {len(fs)} frames in {sd} (manifest {'yes' if manifest else 'NO, lens from file names'})")
+    res["frames"], res["pi_best"] = frames, pi_best
+    if not frames:
+        res.update(verdict="FAIL", reasons=["no sweep JPEGs"], best_lp=None)
+        log(f"[focus] {name}: FAIL no JPEGs")
+        return res
+    grays = [cv2.imread(f["path"], cv2.IMREAD_GRAYSCALE) for f in frames]
+    readable = [g for g in grays if g is not None]
+    if a.layout == "auto":
+        step = max(1, len(readable) // 8)                    # layout from <= 8 frames spread over the sweeps
+        layout, trials, why = pcc.choose_layout(readable[::step], a, cv2)
     else:
-        if best["roi_source"] != "board":
-            reasons.append("board not detected at the best LensPosition")
-        if i in (0, len(ok) - 1):
-            reasons.append(f"peak at the sweep edge (lp {xs[i]:g}): true focus may lie outside {min(xs):g}..{max(xs):g}")
-        if med > 0 and lv[i] < 1.15 * med:
-            reasons.append(f"peak not distinct (best {lv[i]:.4g} < 1.15 x median {med:.4g})")
-        if abs(i - j) > 1:
-            reasons.append(f"lapvar best lp {xs[i]:g} vs tenengrad best lp {xs[j]:g} differ by > 1 step")
-        verdict = "WARN" if reasons else "PASS"
-    res.update(verdict=verdict, reasons=reasons, best={
-        "lp": best["lp"], "lp_requested": best["lp_req"], "lp_applied": best["lp_applied"],
-        "lp_parabola": fit, "lapvar_norm": lv[i], "tenengrad_best_lp": xs[j],
-        "corners": best["corners"], "corners_max_lp": max(ok, key=lambda f: f["corners"])["lp"],
-        "file": best["file"]}, total_corners=total_corners)
-    log(f"[focus] {name}: {verdict} best lp {best['lp']:g}"
-        f"{f' (parabola {fit:.3f})' if fit is not None else ''} lapvar_norm {lv[i]:.4g}; "
-        f"tenengrad best {xs[j]:g}; corners {best['corners']}/{total_corners}"
-        f"{'; ' + '; '.join(reasons) if reasons else ''}")
+        c = pcc.layout_candidates(a)[0]
+        layout, trials, why = {"squares_x": c[0], "squares_y": c[1], "legacy": c[2]}, [], None
+    res["layout"] = {"chosen": layout, "trials": trials, "why_none": why}
+    board = pcc.make_board(layout["squares_x"], layout["squares_y"], a, cv2, layout["legacy"]) if layout else None
+    total = (layout["squares_x"] - 1) * (layout["squares_y"] - 1) if layout else 0
+    res["total_corners"] = total
+    det = cv2.aruco.CharucoDetector(board) if board else None
+    for f, g in zip(frames, grays):
+        f["w"], f["h"] = (g.shape[1], g.shape[0]) if g is not None else (None, None)
+        f["corners_detected"] = f["markers"] = 0
+        if g is None:
+            f["error"] = "unreadable JPEG"
+            continue
+        if det is not None:
+            d = pcc.detect(g, board, det, a, cv2, np)
+            f["corners_detected"], f["markers"] = d["corners"], d["markers"]
+            if d["corners"] >= 4:
+                f["roi_detected"] = roi_from_corners(d["_corners"], f["w"], f["h"], cv2, np)
+    # ONE common region for every frame of every sweep (QE #165): the best-detected frame's box
+    found = [f for f in frames if f.get("roi_detected")]
+    if found:
+        ref = max(found, key=lambda f: (f["corners_detected"], -abs((f["lp"] or 0))))
+        common, src = ref["roi_detected"], f"common board box (from {ref['sweep']} lp {ref['lp']:g}, {ref['corners_detected']} corners)"
+    else:
+        ref = None
+        w0, h0 = next((f["w"], f["h"]) for f in frames if f["w"])
+        common, src = (w0 // 3, h0 // 3, w0 // 3, h0 // 3), "frame centre (board never detected)"
+    res["common_roi"], res["common_roi_source"] = list(common), src
+    log(f"[focus] {name}: metric region for ALL frames = {src}: x{common[0]} y{common[1]} w{common[2]} h{common[3]}")
+    for f, g in zip(frames, grays):
+        if g is None:
+            continue
+        f["roi"], f["roi_source"] = common, src
+        f.update(focus_metrics(g, common, cv2, np))
+        f["status"] = ("FAIL" if f["corners_detected"] < 4 else
+                       "PASS" if total and f["corners_detected"] >= 0.5 * total else "WARN")
+    del grays
+    if not found:
+        res.update(verdict="FAIL", reasons=["board never detected: metrics are on the frame centre"], best_lp=None)
+        for sw in dict.fromkeys(f["sweep"] for f in frames):
+            res["sweeps"].append(sweep_best([f for f in frames if f["sweep"] == sw], log, name, sw))
+        return res
+    reasons = []
+    for sw in dict.fromkeys(f["sweep"] for f in frames):
+        sf = [f for f in frames if f["sweep"] == sw]
+        sb = sweep_best(sf, log, name, sw)
+        own = [f for f in sf if f.get("roi_detected")]
+        if own:
+            mine = max(own, key=lambda f: f["corners_detected"])["roi_detected"]
+            sb["box_iou_vs_common"] = round(iou(mine, common), 3)
+            if sb["box_iou_vs_common"] < IOU_MIN:
+                reasons.append(f"sweep {sw}: board box moved (IoU {sb['box_iou_vs_common']:.2f} < {IOU_MIN} vs the common box)")
+        sb["pi"] = pi_best.get(sw)
+        res["sweeps"].append(sb)
+    bests = [s["best"]["lp"] for s in res["sweeps"] if s.get("best")]
+    steps = [s["step"] for s in res["sweeps"] if s.get("step")]
+    step = min(steps) if steps else None
+    spread = (max(bests) - min(bests)) if bests else None
+    res["best_lp_per_sweep"] = bests
+    res["best_lp_spread"] = spread
+    res["best_lp"] = statistics.median(bests) if bests else None
+    if len(bests) > 1 and step and spread > step + 1e-9:
+        reasons.append(f"sweeps disagree: best lp {', '.join(f'{b:g}' for b in bests)} (spread {spread:g} > one step {step:g})")
+    for s in res["sweeps"]:
+        if s["verdict"] != "PASS":
+            reasons += [f"sweep {s['sweep']}: {r}" for r in s["reasons"]]
+    # per-lens run-to-run spread of lapvar_norm
+    lens_spread = []
+    for key in sorted({lens_key(f) for f in frames if lens_key(f) is not None}):
+        vals = [f["lapvar_norm"] for f in frames if lens_key(f) == key and "lapvar_norm" in f]
+        if len(vals) > 1 and statistics.mean(vals) > 0:
+            lens_spread.append({"lp": key, "n": len(vals),
+                                "rel_spread": round((max(vals) - min(vals)) / statistics.mean(vals), 4)})
+    res["lens_spread"] = lens_spread
+    res["reasons"] = reasons
+    res["verdict"] = "WARN" if reasons else "PASS"
+    log(f"[focus] {name}: {res['verdict']} best lp per sweep {', '.join(f'{b:g}' for b in bests)}"
+        f" (spread {spread:g})" + (f"; {'; '.join(reasons)}" if reasons else ""))
     return res
 
 
@@ -283,58 +365,89 @@ STATUS_BGR = {"PASS": (80, 200, 80), "WARN": (0, 190, 255), "FAIL": (60, 60, 240
 
 
 def unit_sheet(res, path, header, cv2, np):
+    """Rows = lens positions (requested, 2 dp); thumbnail once; per sweep a 1:1 crop + metrics."""
+    sweeps = [s["sweep"] for s in res["sweeps"]]
+    x, y, w, h = res["common_roi"]
+    cx, cy = x + w // 2, y + h // 2
+    cell_w = CROP_W + TEXT_W + 8
+    width = 4 + ROW_W + 8 + len(sweeps) * cell_w
     rows = []
-    for f in res["frames"]:
-        img = cv2.imread(f["path"], cv2.IMREAD_COLOR)
-        if img is None:
+    for key in sorted({lens_key(f) for f in res["frames"] if lens_key(f) is not None}):
+        cells = {f["sweep"]: f for f in res["frames"] if lens_key(f) == key}
+        first = cells[next(s for s in sweeps if s in cells)]
+        img0 = cv2.imread(first["path"], cv2.IMREAD_COLOR)
+        if img0 is None:
             continue
-        H, W = img.shape[:2]
+        H, W = img0.shape[:2]
         s = ROW_W / W
-        th = cv2.resize(img, (ROW_W, int(round(H * s))), interpolation=cv2.INTER_AREA)
-        x, y, w, h = f["roi"]
-        cv2.rectangle(th, (int(x * s), int(y * s)), (int((x + w) * s), int((y + h) * s)),
-                      STATUS_BGR.get(f["status"], (200, 200, 200)), 2)
-        cx, cy = x + w // 2, y + h // 2                      # 1:1 crop centred on the region
-        x0 = min(max(0, cx - CROP_W // 2), max(0, W - CROP_W))
-        y0 = min(max(0, cy - CROP_H // 2), max(0, H - CROP_H))
-        crop = img[y0:y0 + CROP_H, x0:x0 + CROP_W].copy()
-        crop = cv2.copyMakeBorder(crop, 0, CROP_H - crop.shape[0], 0, CROP_W - crop.shape[1], cv2.BORDER_CONSTANT)
-        rh = max(th.shape[0], CROP_H)
-        row = np.full((rh + 8, ROW_W + CROP_W + TEXT_W + 16, 3), 24, np.uint8)
+        th = cv2.resize(img0, (ROW_W, int(round(H * s))), interpolation=cv2.INTER_AREA)
+        cv2.rectangle(th, (int(x * s), int(y * s)), (int((x + w) * s), int((y + h) * s)), (80, 220, 255), 2)
+        put(th, f"lp {key:g} (requested)", (6, th.shape[0] - 8), cv2, 0.6, (255, 255, 255), 2)
+        rh = max(th.shape[0], CROP_H) + 8
+        row = np.full((rh, width, 3), 24, np.uint8)
         row[4:4 + th.shape[0], 4:4 + ROW_W] = th
-        row[4:4 + CROP_H, ROW_W + 8:ROW_W + 8 + CROP_W] = crop
-        tx = ROW_W + CROP_W + 16
-        lines = [(f"lp {f['lp']:g} {'applied' if f['lp_applied'] is not None else 'requested'}" + (" BEST" if f.get("best") else ""),
-                  0.72, (255, 255, 255) if not f.get("best") else (80, 220, 255), 2),
-                 (f"req {f['lp_req']} / applied {f['lp_applied']}", 0.48, None, 1),
-                 (f"lapvar_norm {f['lapvar_norm']:.4g}", 0.55, None, 1),
-                 (f"tenengrad_norm {f['tenengrad_norm']:.4g}", 0.55, None, 1),
-                 (f"corners {f['corners']}/{res.get('total_corners', 0)}  markers {f['markers']}", 0.5, None, 1),
-                 (f"pi lapvar (centre 1024px) {f['pi_metric']:.4g}" if f["pi_metric"] is not None else "pi lapvar -", 0.45, None, 1),
-                 (f"region: {f['roi_source']}", 0.45, None, 1),
-                 (f"{f['status']}", 0.7, STATUS_BGR.get(f["status"]), 2)]
-        yy = 28
-        for text, sc, col, tk in lines:
-            put(row, text, (tx, yy), cv2, sc, col or (225, 225, 225), tk)
-            yy += 30 if sc >= 0.7 else 26
-        if f.get("best"):
-            cv2.rectangle(row, (1, 1), (row.shape[1] - 2, row.shape[0] - 2), (80, 220, 255), 3)
+        for k, sw in enumerate(sweeps):
+            x_cell = 4 + ROW_W + 8 + k * cell_w
+            f = cells.get(sw)
+            if f is None:
+                put(row, f"{sw}: no frame at lp {key:g}", (x_cell + 10, 40), cv2, 0.5, (150, 150, 150))
+                continue
+            img = img0 if f is first else cv2.imread(f["path"], cv2.IMREAD_COLOR)
+            if img is None:
+                put(row, f"{sw}: unreadable", (x_cell + 10, 40), cv2, 0.5, (60, 60, 240))
+                continue
+            x0 = min(max(0, cx - CROP_W // 2), max(0, img.shape[1] - CROP_W))
+            y0 = min(max(0, cy - CROP_H // 2), max(0, img.shape[0] - CROP_H))
+            crop = img[y0:y0 + CROP_H, x0:x0 + CROP_W].copy()
+            crop = cv2.copyMakeBorder(crop, 0, CROP_H - crop.shape[0], 0, CROP_W - crop.shape[1], cv2.BORDER_CONSTANT)
+            row[4:4 + CROP_H, x_cell:x_cell + CROP_W] = crop
+            tx = x_cell + CROP_W + 8
+            lines = [(f"{sw}" + ("  BEST" if f.get("best") else ""), 0.6, (80, 220, 255) if f.get("best") else (255, 255, 255), 2),
+                     (f"applied {f['lp_applied']}" if f["lp_applied"] is not None else "applied -", 0.45, None, 1),
+                     (f"lapvar_norm {f.get('lapvar_norm', 0):.4g}", 0.5, None, 1),
+                     (f"tenengrad_norm {f.get('tenengrad_norm', 0):.4g}", 0.5, None, 1),
+                     (f"corners detected {f['corners_detected']}/{res.get('total_corners', 0)}", 0.45, None, 1),
+                     (f"pi lapvar (centre) {f['pi_metric']:.4g}" if f["pi_metric"] is not None else "pi lapvar -", 0.42, None, 1),
+                     (f.get("status", "-"), 0.65, STATUS_BGR.get(f.get("status")), 2)]
+            yy = 26
+            for text, sc, col, tk in lines:
+                put(row, text, (tx, yy), cv2, sc, col or (225, 225, 225), tk)
+                yy += 28 if sc >= 0.6 else 25
+            if f.get("best"):
+                cv2.rectangle(row, (x_cell - 3, 2), (x_cell + cell_w - 6, rh - 3), (80, 220, 255), 3)
         rows.append(row)
-    width = ROW_W + CROP_W + TEXT_W + 16
     head = np.full((30 * (len(header) + 1) + 10, width, 3), 0, np.uint8)
     for k, (text, col) in enumerate(header):
-        put(head, text, (10, 28 + 30 * k), cv2, 0.62, col)
+        put(head, text, (10, 28 + 30 * k), cv2, 0.6, col)
     cols = np.full((26, width, 3), 40, np.uint8)
-    put(cols, "full frame (SCALED to 480 px wide; box = metric region)", (8, 18), cv2, 0.45)
-    put(cols, "100% crop: 1:1 native pixels, 480x270, centred on the region", (ROW_W + 12, 18), cv2, 0.45)
-    put(cols, "metrics (on the region)", (ROW_W + CROP_W + 20, 18), cv2, 0.45)
+    put(cols, "full frame (SCALED to 480 px; box = the COMMON metric region)", (8, 18), cv2, 0.42)
+    for k, sw in enumerate(sweeps):
+        put(cols, f"sweep {sw}: 100% crop, 1:1 native px, 480x270, centred on the common box | metrics",
+            (4 + ROW_W + 8 + k * cell_w + 4, 18), cv2, 0.42)
     cv2.imwrite(path, np.vstack([head, cols] + rows), [cv2.IMWRITE_JPEG_QUALITY, 88])
 
 
+def _dashed(img, a_, b_, col, cv2, dash=10):
+    x0, y0 = a_
+    x1, y1 = b_
+    n = max(1, int(math.hypot(x1 - x0, y1 - y0) // dash))
+    for k in range(0, n, 2):
+        p = (int(x0 + (x1 - x0) * k / n), int(y0 + (y1 - y0) * k / n))
+        q = (int(x0 + (x1 - x0) * min(k + 1, n) / n), int(y0 + (y1 - y0) * min(k + 1, n) / n))
+        cv2.line(img, p, q, col, 2, cv2.LINE_AA)
+
+
 def plot(results, path, title, cv2, np):
-    """Three panels (lapvar_norm, tenengrad_norm normalised per unit; corners), units overlaid."""
-    Wd, ph, ml, mr, mt = 1200, 300, 90, 30, 70
-    xs_all = [f["lp"] for r in results for f in r["frames"] if f.get("lp") is not None and "lapvar_norm" in f]
+    """Three panels; one series per (unit, sweep): colour = unit, solid = 1st sweep, dashed = later."""
+    Wd, ph, ml, mr, mt = 1200, 300, 90, 30, 96
+    series = []
+    for k, r in enumerate(results):
+        for m, s in enumerate(r.get("sweeps", [])):
+            fs = sorted([f for f in r["frames"] if f["sweep"] == s["sweep"] and f.get("lp") is not None and "lapvar_norm" in f],
+                        key=lambda f: f["lp"])
+            if fs:
+                series.append((r["unit"], s, fs, UNIT_COLORS[k % len(UNIT_COLORS)], m > 0))
+    xs_all = [f["lp"] for _, _, fs, _, _ in series for f in fs]
     if not xs_all:
         return
     xlo, xhi = min(xs_all), max(xs_all)
@@ -342,53 +455,49 @@ def plot(results, path, title, cv2, np):
         xlo, xhi = xlo - 0.1, xhi + 0.1
     pad = 0.04 * (xhi - xlo)
     xlo, xhi = xlo - pad, xhi + pad
-    panels = [("lapvar_norm (each unit / its peak)", "lapvar_norm", True),
-              ("tenengrad_norm (each unit / its peak)", "tenengrad_norm", True),
-              ("ChArUco corners", "corners", False)]
+    panels = [("lapvar_norm (each series / its peak)", "lapvar_norm", True),
+              ("tenengrad_norm (each series / its peak)", "tenengrad_norm", True),
+              ("ChArUco corners detected", "corners_detected", False)]
     img = np.full((mt + len(panels) * (ph + 40) + 40, Wd, 3), 255, np.uint8)
-    put(img, title, (ml, 30), cv2, 0.62, (20, 20, 20), 1)
-    legend_x = ml
-    for k, r in enumerate(results):
-        col = UNIT_COLORS[k % len(UNIT_COLORS)]
-        put(img, f"{r['unit']} ({r['verdict']}, best lp {r['best']['lp']:g})" if r.get("best") else f"{r['unit']} ({r['verdict']})",
-            (legend_x + 22, 56), cv2, 0.5, (20, 20, 20))
-        cv2.line(img, (legend_x, 51), (legend_x + 16, 51), col, 3)
-        legend_x += 330
+    put(img, title, (ml, 28), cv2, 0.6, (20, 20, 20), 1)
+    for n, (unit, s, fs, col, dashed) in enumerate(series):
+        lx, ly = ml + (n % 3) * 360, 52 + (n // 3) * 20
+        (_dashed if dashed else (lambda im, p, q, c, cv: cv.line(im, p, q, c, 3)))(img, (lx, ly - 5), (lx + 22, ly - 5), col, cv2)
+        b = s.get("best") or {}
+        put(img, f"{unit} {s['sweep']} ({s['verdict']}, best {b.get('lp', float('nan')):g})", (lx + 28, ly), cv2, 0.45, (20, 20, 20))
     for p, (label, key, norm) in enumerate(panels):
         top = mt + p * (ph + 40) + 20
         x0, x1, y0, y1 = ml, Wd - mr, top, top + ph
         cv2.rectangle(img, (x0, y0), (x1, y1), (120, 120, 120), 1)
         put(img, label, (x0 + 6, y0 - 6), cv2, 0.5, (20, 20, 20))
-        vals = [f.get(key, 0) or 0 for r in results for f in r["frames"] if "lapvar_norm" in f]
-        ymax = 1.0 if norm else max(1, max(vals or [1]))
+        ymax = 1.0 if norm else max([1] + [f.get(key, 0) or 0 for _, _, fs, _, _ in series for f in fs])
         for t in (0, 0.5, 1.0):
             yy = int(y1 - t * (y1 - y0))
             cv2.line(img, (x0, yy), (x1, yy), (225, 225, 225), 1)
-            put(img, f"{t * ymax:.0f}" if not norm else f"{t:.1f}", (x0 - 50, yy + 5), cv2, 0.45, (60, 60, 60))
+            put(img, f"{t:.1f}" if norm else f"{t * ymax:.0f}", (x0 - 50, yy + 5), cv2, 0.45, (60, 60, 60))
         for lp in sorted(set(xs_all)):
             xx = int(x0 + (lp - xlo) / (xhi - xlo) * (x1 - x0))
             cv2.line(img, (xx, y1), (xx, y1 + 5), (60, 60, 60), 1)
             if p == len(panels) - 1:
-                put(img, f"{lp:g}", (xx - 14, y1 + 22), cv2, 0.42, (60, 60, 60))
-        for k, r in enumerate(results):
-            col = UNIT_COLORS[k % len(UNIT_COLORS)]
-            fs = [f for f in r["frames"] if f.get("lp") is not None and key in f]
-            if not fs:
-                continue
-            peak = max(f[key] for f in fs) or 1
+                put(img, f"{lp:g}", (xx - 14, y1 + 22), cv2, 0.4, (60, 60, 60))
+        for n, (unit, s, fs, col, dashed) in enumerate(series):
+            peak = max(f.get(key, 0) or 0 for f in fs) or 1
             pts = [(int(x0 + (f["lp"] - xlo) / (xhi - xlo) * (x1 - x0)),
-                    int(y1 - (f[key] / peak if norm else f[key] / ymax) * (y1 - y0))) for f in fs]
+                    int(y1 - ((f.get(key, 0) or 0) / (peak if norm else ymax)) * (y1 - y0))) for f in fs]
             for a_, b_ in zip(pts, pts[1:]):
-                cv2.line(img, a_, b_, col, 2, cv2.LINE_AA)
+                if dashed:
+                    _dashed(img, a_, b_, col, cv2)
+                else:
+                    cv2.line(img, a_, b_, col, 2, cv2.LINE_AA)
             for pt in pts:
                 cv2.circle(img, pt, 4, col, -1)
-            if r.get("best"):
-                bf = [f for f in fs if f.get("best")]
-                if bf:
-                    bp = pts[fs.index(bf[0])]
-                    cv2.circle(img, bp, 10, col, 2)
-                    put(img, f"best {bf[0]['lp']:g}", (bp[0] + 12, bp[1] + 4 + 14 * k), cv2, 0.45, col, 1)
-    put(img, "LensPosition (applied when the manifest has it, else requested)", (ml, img.shape[0] - 8), cv2, 0.45, (60, 60, 60))
+            bf = [i for i, f in enumerate(fs) if f.get("best")]
+            if bf:
+                bp = pts[bf[0]]
+                cv2.circle(img, bp, 10, col, 2)
+                put(img, f"{fs[bf[0]]['lp']:g}", (bp[0] + 12, bp[1] + 4 + 14 * n), cv2, 0.42, col, 1)
+    put(img, "LensPosition (applied when the manifest has it, else requested); solid = first sweep, dashed = later sweeps",
+        (ml, img.shape[0] - 8), cv2, 0.42, (60, 60, 60))
     cv2.imwrite(path, img)
 
 
@@ -397,7 +506,8 @@ def plot(results, path, title, cv2, np):
 def build_parser():
     ap = argparse.ArgumentParser(description="Focus-sweep review: per-unit cut sheet + metric plot + CSV/JSON.",
                                  epilog=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--unit", action="append", required=True, help="NAME=PATH (sweep folder or run/unit folder)")
+    ap.add_argument("--unit", action="append", default=[], help="NAME=PATH (sweep folder, or unit/run folder: ALL its sweeps)")
+    ap.add_argument("--sweep-dir", action="append", default=[], help="NAME=PATH explicit sweep folder (repeatable)")
     ap.add_argument("--board-distance-m", type=float, default=None)
     ap.add_argument("--medium", choices=("in-air", "underwater"), default="in-air")
     ap.add_argument("--run-tag", default=None)
@@ -411,21 +521,40 @@ def build_parser():
     return ap
 
 
-def main(argv=None):
-    a = build_parser().parse_args(argv)
-    cv2, np = pcc.need_cv2()
-    units = []
+def resolve_units(a):
+    """-> ordered {name: [sweep dirs]} or an error string. --sweep-dir replaces discovery for a unit."""
+    units, explicit = {}, {}
+    for spec in a.sweep_dir:
+        name, sep, path = spec.partition("=")
+        p = os.path.abspath(os.path.expanduser(path)) if sep else ""
+        if not sep or not name or not glob.glob(os.path.join(p, "*.jpg")):
+            return f"--sweep-dir {spec!r}: use NAME=PATH to a sweep folder with *.jpg"
+        explicit.setdefault(name, []).append(p)
     for spec in a.unit:
         name, sep, path = spec.partition("=")
-        d = find_sweep_dir(path) if sep else None
         if not sep or not name:
-            print(f"[focus] --unit {spec!r}: use NAME=PATH", file=sys.stderr)
-            return 2
-        if not d:
-            print(f"[focus] --unit {spec!r}: no sweep JPEGs under {path} (pool_pull.py --sweep first?)", file=sys.stderr)
-            return 2
-        units.append((name, d))
-    tag = a.run_tag or os.path.basename(units[0][1])
+            return f"--unit {spec!r}: use NAME=PATH"
+        if name in explicit:
+            continue
+        ds = find_sweep_dirs(path)
+        if not ds:
+            return f"--unit {spec!r}: no sweep JPEGs under {path} (pool_pull.py --sweep first?)"
+        units.setdefault(name, [])
+        units[name] += [d for d in ds if d not in units[name]]
+    for name, ds in explicit.items():
+        units[name] = ds
+    return units or "give --unit NAME=PATH and/or --sweep-dir NAME=PATH"
+
+
+def main(argv=None):
+    a = build_parser().parse_args(argv)
+    units = resolve_units(a)
+    if isinstance(units, str):
+        print(f"[focus] {units}", file=sys.stderr)
+        return 2
+    cv2, np = pcc.need_cv2()
+    first_dir = next(iter(units.values()))[0]
+    tag = a.run_tag or os.path.basename(first_dir)
     out = a.out or os.path.join("runs", f"focus_sweep_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}")
     os.makedirs(out, exist_ok=True)
     logf = open(os.path.join(out, "focus_sweep.log"), "a")
@@ -437,36 +566,33 @@ def main(argv=None):
         logf.flush()
 
     dist = f"{a.board_distance_m:g} m" if a.board_distance_m is not None else "not given"
-    log(f"[focus] {a.medium.upper()} focus sweep {tag}: units {', '.join(n for n, _ in units)}; board distance {dist}; "
-        f"OpenCV {cv2.__version__}; out {out}")
-    results = [analyse_unit(n, d, a, cv2, np, log) for n, d in units]
+    log(f"[focus] {a.medium.upper()} focus sweep {tag}: " + "; ".join(f"{n}: {len(d)} sweep(s)" for n, d in units.items())
+        + f"; board distance {dist}; OpenCV {cv2.__version__}; out {out}")
+    results = [analyse_unit(n, d, a, cv2, np, log) for n, d in units.items()]
 
     title = f"FOCUS SWEEP {a.medium.upper()}  {tag}  units {', '.join(r['unit'] for r in results)}  board distance {dist}"
-    legend = ["frame: PASS = board found, >= 50% of corners | WARN = fewer corners | FAIL = board not found (metric on the fallback region)",
-              "unit: PASS = board at the best lens + peak interior + peak distinct + lapvar/tenengrad agree | WARN = any fails | FAIL = no board"]
+    legend = ["frame: PASS = board detected, >= 50% corners | WARN = fewer | FAIL = not detected (still scored on the common box)",
+              "unit: PASS = every sweep PASS (board at best, interior + distinct peak, metrics agree) + best-lp spread <= 1 step + box stable"]
     for r in results:
-        if not r["frames"]:
+        if not r["frames"] or not r.get("common_roi"):
             continue
-        b = r.get("best") or {}
-        header = [(f"{title}", (255, 255, 255)),
-                  (f"{r['unit']}: {r['verdict']}  best lp {b.get('lp', float('nan')):g}"
-                   + (f" (parabola {b['lp_parabola']:.3f})" if b.get("lp_parabola") is not None else "")
-                   + f"  tenengrad best {b.get('tenengrad_best_lp', float('nan')):g}  "
-                   f"layout {r['layout']['chosen']['squares_x']}x{r['layout']['chosen']['squares_y']}"
-                   f"{' legacy' if r['layout']['chosen'] and r['layout']['chosen']['legacy'] else ''}"
-                   if r.get("layout", {}).get("chosen") else f"{r['unit']}: {r['verdict']} (no board layout)",
+        per_sweep = ", ".join(f"{s['sweep']} {s['verdict']} best {s['best']['lp']:g}" for s in r["sweeps"] if s.get("best"))
+        lay = r["layout"]["chosen"]
+        header = [(title, (255, 255, 255)),
+                  (f"{r['unit']}: {r['verdict']}   {per_sweep}   spread {r.get('best_lp_spread') if r.get('best_lp_spread') is None else format(r['best_lp_spread'], 'g')}"
+                   + (f"   layout {lay['squares_x']}x{lay['squares_y']}{' legacy' if lay['legacy'] else ''}" if lay else ""),
                    STATUS_BGR.get(r["verdict"], (255, 255, 255))),
-                  ((("; ".join(r["reasons"]) or "no warnings")[:120]
-                    + (f"   | Pi (centre crop) best lp {r['pi_best_lp']:g}" if r.get("pi_best_lp") is not None else "")),
-                   (220, 220, 220)),
-                  (legend[0], (180, 180, 180)),
-                  (legend[1], (180, 180, 180)),
-                  (f"sweep {r['sweep_dir'][-90:]}", (150, 150, 150))]
+                  (f"metric region (all frames): {r['common_roi_source']}", (220, 220, 220)),
+                  (("; ".join(r["reasons"]) or "no warnings")[:170], (220, 220, 220)),
+                  ("Pi best lp (centre crop): " + (", ".join(f"{k} {v['best_lp']}" for k, v in r.get("pi_best", {}).items()) or "-"),
+                   (180, 180, 180)),
+                  (legend[0], (170, 170, 170)), (legend[1], (170, 170, 170))]
         unit_sheet(r, os.path.join(out, f"focus_sheet_{r['unit']}.jpg"), header, cv2, np)
     plot(results, os.path.join(out, "focus_plot.png"), title, cv2, np)
 
-    cols = ["unit", "file", "lp_req", "lp_applied", "lp", "status", "best", "roi_source", "roi", "corners", "markers",
-            "mean_intensity", "lapvar", "lapvar_norm", "tenengrad", "tenengrad_norm", "pi_metric", "pi_error", "error"]
+    cols = ["unit", "sweep", "file", "lp_req", "lp_applied", "lp", "status", "best", "corners_detected", "markers",
+            "roi_source", "roi", "mean_intensity", "lapvar", "lapvar_norm", "tenengrad", "tenengrad_norm",
+            "pi_metric", "pi_error", "error"]
     with open(os.path.join(out, "focus_sweep.csv"), "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
@@ -481,9 +607,11 @@ def main(argv=None):
         "software": {"opencv": cv2.__version__, "numpy": np.__version__, "python": platform.python_version()},
         "board": {"squares_x": a.squares_x, "squares_y": a.squares_y, "square_mm": a.square_mm,
                   "marker_mm": a.marker_mm, "dictionary": a.dictionary, "layout_mode": a.layout},
-        "metrics": {"lapvar_norm": "var(Laplacian 3x3) / mean(I)^2 on the region",
+        "metrics": {"region": "ONE common box per unit = the best-detected frame's ChArUco box, for every frame",
+                    "lapvar_norm": "var(Laplacian 3x3) / mean(I)^2 on the region",
                     "tenengrad_norm": "mean(Sobel Gx^2 + Gy^2) / mean(I)^2 on the region",
-                    "best": "argmax lapvar_norm (+ 3-point parabola when interior)"},
+                    "best": "per sweep: argmax lapvar_norm (+ 3-point parabola when interior)",
+                    "spread": "best lp max - min across sweeps; lens_spread = (max - min) / mean of lapvar_norm per lens"},
         "units": [{k: v for k, v in r.items() if k != "frames"} | {
             "frames": [{k: v for k, v in fr.items() if not k.startswith("_") and k != "path"} for fr in r["frames"]]}
             for r in results],
@@ -492,9 +620,10 @@ def main(argv=None):
         json.dump(summary, f, indent=1, default=str)
     log(f"[focus] wrote {out}/: " + ", ".join(sorted(os.listdir(out))))
     for r in results:
-        b = r.get("best") or {}
         log(f"[focus] VERDICT {r['unit']}: {r['verdict']}"
-            + (f"  best lp {b['lp']:g}" if b else "") + (f"  ({'; '.join(r['reasons'])})" if r.get("reasons") else ""))
+            + (f"  best lp per sweep {', '.join(f'{b:g}' for b in r.get('best_lp_per_sweep', []))}"
+               f" (spread {r['best_lp_spread']:g})" if r.get("best_lp_per_sweep") else "")
+            + (f"  ({'; '.join(r['reasons'])})" if r.get("reasons") else ""))
     return 1 if any(r["verdict"] == "FAIL" for r in results) else 0
 
 
