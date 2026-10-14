@@ -14,7 +14,7 @@
 | Transmit complete (sent = N/N) | yes | 10/10 | 10/10 | PASS |
 | Cycle end / halt (budget 480 s) | 470.4–470.7 s / 480.2–481.6 s | ≤ 470.7 s / ≤ 480.6 s | ≤ 470.7 s / ≤ 480.6 s | PASS |
 | Heal order | before START | 6 heal wakes, 179 chunks, all after END | 7 heal wakes, 52 chunks, all after END | PASS (works as designed) |
-| Heals landed | — | unknown on the Spotter side (no console); same chunks re-asked 2 wakes later several times | same | OPEN: the backend table decides |
+| Heals landed | — | backend 7:47 AM: every evening partial 58471–58482 COMPLETE; 22/26 overnight images complete (the 4 open are the 5–7 AM wakes, still inside the heal window) | same | PASS |
 
 ## Findings
 
@@ -26,3 +26,11 @@
 2. **Runs of exactly 10 lost chunks** = Spotter `MS_Q_CELLULAR_ONLY` full during ~10.8 s Notecard hand-off stalls. Present on both Spotters since 10/10. See `QUEUE_FULL_FINDING.md`.
    - Heal chunks sent after END cross the same queue. The repeated re-asks fit heal chunks being lost there, or a re-ask before Sofar exposed the rows.
 3. **nereus000:** the weak input since 9:00 PM (VIN 4.66 V, battery not charging) ran it down at ~12 AM. The cameras were unaffected. It needs the supply fixed before any console work.
+
+## Closed (Wed 10/14 ~8:10 AM PDT): KEEP both keys
+- **Heal chunks land.** Per the backend table (EM, 7:47 AM):
+  - every evening partial (58471–58482) is COMPLETE;
+  - 22/26 overnight images are complete;
+  - the 4 still open are the 5–7 AM wakes, inside the heal window.
+- **Re-asks:** the repeated re-asks seen in the unit logs were absorbed, because later asks filled the gaps.
+- **Next for the pool:** nereus000 needs wall power (dead since ~12 AM). Pool timing is TBD with Nick.
