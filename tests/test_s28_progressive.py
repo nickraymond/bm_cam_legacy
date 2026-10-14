@@ -32,7 +32,7 @@ META = {"ExposureTime": 103005, "AnalogueGain": 1.122807, "ColourGains": [1.6634
         "ColourCorrectionMatrix": [1.607722, -0.415966, -0.191762, -0.367844, 1.754623,
                                    -0.386781, 0.005148, -0.587414, 1.582275],
         "SensorTemperature": 31.0, "DigitalGain": 1.000063, "ColourTemperature": 3771}
-RGB_CFG = dict(X.DEFAULT_CONFIG, format="nrjxl", layout="rgb")
+RGB_CFG = dict(X.DEFAULT_CONFIG, format="nrjxl", layout="rgb", progressive=True)   # the key ON
 CAP_MSGS, CHUNK_CHARS = 195, 384            # production: 195 chunks of 384 b64 chars
 CAP_BYTES = CAP_MSGS * 3 * CHUNK_CHARS // 4  # = 56,160 B
 
@@ -77,8 +77,12 @@ class Argv(unittest.TestCase):
                               "-p", "--num_threads=0"])
         self.assertEqual([a for a in on if a != "-p"], off)
 
-    def test_default_is_on(self):
-        self.assertIs(X.DEFAULT_CONFIG["progressive"], True)
+    def test_default_is_off(self):
+        # EM / TE2 2026-10-13: a unit opts in after its on-unit RSS check
+        self.assertIs(X.DEFAULT_CONFIG["progressive"], False)
+        argv = []
+        _encode(dict(X.DEFAULT_CONFIG, format="nrjxl", layout="rgb"), _runner(1.0, argv))
+        self.assertTrue(argv and not any("-p" in a for a in argv), argv)
 
     def test_every_rgb_attempt_is_progressive(self):
         argv = []
@@ -119,22 +123,22 @@ class Config(unittest.TestCase):
     def test_registry_key(self):
         self.assertGreaterEqual(R.REGISTRY_VERSION, 13)
         k = R.BY_PATH["still.raw.progressive"]
-        self.assertEqual((k.type, k.default), (R.BOOL, True))
+        self.assertEqual((k.type, k.default), (R.BOOL, False))
 
-    def test_island_writes_progressive_only_when_off(self):
+    def test_island_writes_progressive_only_when_on(self):
         v = R.defaults()
         v.update({"mode.media": "still", "still.format": "nrjxl", "still.raw.layout": "rgb"})
         text = config_v2.render_v1_text(v)
         self.assertNotIn("  progressive:", text)
-        v["still.raw.progressive"] = False
+        v["still.raw.progressive"] = True
         text = config_v2.render_v1_text(v)
-        self.assertIn("  progressive: false\n", text)
+        self.assertIn("  progressive: true\n", text)
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "c.yaml")
             open(path, "w").write(text)
-            self.assertIs(X.load_raw_config(path)["progressive"], False)
-            open(path, "w").write('still_raw:\n  format: "nrjxl"\n')
             self.assertIs(X.load_raw_config(path)["progressive"], True)
+            open(path, "w").write('still_raw:\n  format: "nrjxl"\n')
+            self.assertIs(X.load_raw_config(path)["progressive"], False)
             open(path, "w").write('still_raw:\n  progressive: maybe\n')
             with self.assertRaises(ValueError):
                 X.load_raw_config(path)

@@ -1192,17 +1192,23 @@ def still_action(
         **storage_health,
     }
 
-    # Sprint25 S5: this wake's rsd heals go right before START; plan them
-    # now so the lane plan below counts them. None without a daemon.
+    # Sprint25 S5: this wake's rsd heals go right before START (or, with
+    # media_key.heal_order after, right after END); plan them now so the lane
+    # plan below counts them. None without a daemon.
     heals = rc_heal.begin_wake(
         daemon, settings, summary,
         pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
     heal_msgs = heals.planned_msgs if heals is not None else 0
+    heals_first = heals is not None and heal_msgs and heals.order == "before"
+    heals_last = heals is not None and heal_msgs and heals.order == "after"
     if raw is not None:
-        # Sprint28: the rung walk sees THIS wake's budget, the heal slot reserved.
+        # Sprint28: the rung walk sees THIS wake's budget, the heal slot reserved
+        # when the heals go first; with heal_order after the image is sized on its
+        # own cost and the heals take what is left (rc_heal.send_after_end).
         send, selection, encode = _raw_choose(
             raw, settings, summary, budget, send, selection=selection, encode=encode,
-            capture_metadata=capture_metadata, reserve_msgs=heal_msgs, **raw_kwargs)
+            capture_metadata=capture_metadata, reserve_msgs=heal_msgs if heals_first else 0,
+            **raw_kwargs)
 
     # --- Sprint11 C2: wait for a clean lane on the 5-minute grid -----
     # Everything above this line is cycle-relative; this is the ONE
@@ -1269,7 +1275,7 @@ def still_action(
         supervised.media_key = media_key
     tx = bm_open_fn(settings["config_path"])
     cmd_hooks.boot_mark("transmit_start")
-    if heals is not None and heal_msgs:
+    if heals_first:
         # Reserve the image's whole burst: START + chunks + END (+ a=inc).
         heals.send_before_start(
             tx, budget,
@@ -1343,6 +1349,11 @@ def still_action(
     # acks now, before the tail, so they are not delayed by it.
     cmd_hooks.flush_acks(daemon, summary, clock=clock, sleep_fn=sleep_fn,
                          label="post-transmit ack flush")
+    if heals_last:
+        # media_key.heal_order after (Nick 2026-10-08): the heal chunks follow the
+        # image and its ack flush, paced, pump-only, giving way to a short budget.
+        heals.send_after_end(tx, budget, delay_seconds=settings["pacing_delay_seconds"],
+                             sleep_fn=sleep_fn)
     # Sprint25 S5: one <HL> per key after END, paced, on the image's tx.
     if heals is not None:
         heals.send_status_after_end(

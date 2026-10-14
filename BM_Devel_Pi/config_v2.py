@@ -300,7 +300,7 @@ def _still_raw_lines(v):
             *([f"  rgb_encode_max_s: {_n(v['still.raw.rgb_encode_max_s'])}"]
               if v.get("still.raw.rgb_encode_max_s", 45) != 45 else []),
             *([f"  progressive: {_n(v['still.raw.progressive'])}"]
-              if v.get("still.raw.progressive", True) is not True else [])]
+              if v.get("still.raw.progressive", False) is not False else [])]
 
 
 EXPOSURE_PROFILE_KEYS = ("camera.exposure.profile", "camera.exposure.max_shutter_us",
@@ -317,6 +317,16 @@ def _exposure_profile_lines(v):
             f"  profile: {_q(v['camera.exposure.profile'])}",
             f"  max_shutter_us: {_n(v['camera.exposure.max_shutter_us'])}",
             f"  max_gain: {_n(float(v['camera.exposure.max_gain']))}"]
+
+
+def _heal_order_lines(v):
+    """registry v12 `uplink.media_key.heal_order` -> `media_key.heal_order`, written ONLY
+    when it is not `before` (rc_media_key reads absent as before), so a unit on the
+    default renders byte-identical to registry v11."""
+    order = v.get("uplink.media_key.heal_order")
+    if order in (None, "before"):
+        return []
+    return [f"  heal_order: {_q(order)}"]
 
 
 def render_v1_text(values):
@@ -403,6 +413,7 @@ def render_v1_text(values):
           "media_key:",
           f"  enabled: {_n(v['uplink.media_key.enabled'])}",
           f"  retain_days: {_n(v['uplink.media_key.retain_days'])}",
+          *_heal_order_lines(v),
           "video:",
           f"  clip_minutes: {_n(v['video.logger.clip_minutes'])}",
           f"  fps: {_n(v['video.record.fps'])}",

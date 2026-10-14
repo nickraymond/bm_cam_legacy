@@ -49,7 +49,8 @@ REGISTRY_VERSION = 13        # bump when a key is added/removed/retyped (2: comm
                               #    (low-gain stills), Sprint28;
                               # 10: still.raw.layout (B3a linear-RGB nrjxl), Sprint28;
                               # 11: still.raw.rgb_encode_max_s (B3a search cap), Sprint28;
-                              # 12: taken by bm #146 uplink.media_key.heal_order (HOLD);
+                              # 12: uplink.media_key.heal_order before|after (image burst
+                              #     before the rsd heal chunks), Nick 2026-10-08;
                               # 13: still.raw.progressive (cjxl -p on B3a), Sprint28 preview)
 
 # Guard classes (§6.3).
@@ -368,7 +369,10 @@ KEYS = (
     # move the first preview (all DC groups in, ~42 % of the chunks) but makes the 75 % prefix
     # near-final (40.7 dB vs 34.7 dB). bayer4 (modular planes) ignores it: -m 1 -p is the squeeze
     # transform (first flush at 76 %, -4.9 s2), not wanted.
-    Key("still.raw.progressive", BOOL, True, "nrjxl rgb (B3a): encode JPEG XL progressively "
+    # Default OFF (EM / TE2 2026-10-13): a unit opts in with `set still.raw.progressive=true` once
+    # its cjxl -p peak RSS is measured on the unit (Docker arm64: VmHWM +22 MiB, VmPeak <= 181 MiB
+    # under the 250 MiB guard).
+    Key("still.raw.progressive", BOOL, False, "nrjxl rgb (B3a): encode JPEG XL progressively "
         "(cjxl -p) so the dashboard preview refines as chunks arrive (+1.6 % bytes).",
         v1_sources=("still_raw.progressive",), validate_when=_MEDIA_STILL),
 
@@ -467,6 +471,17 @@ KEYS = (
         v1_sources=("media_key.enabled",), wire_visible=True),
     Key("uplink.media_key.retain_days", FLOAT, 14.0, "Keep sent records this long (days).",
         range=(0.001, 30.0), v1_sources=("media_key.retain_days",)),
+    # 2026-10-08 (Nick, EPIC_transmission_reliability): where this wake's rsd heal chunks go.
+    # Measured on the bench 10/8 (REEF-RC 7 + 8 AM wakes): up to 40 heal chunks BEFORE START
+    # fill the Spotter's 2-slot hand-off queue, the stall lands on START and the new image
+    # loses START + its first 6-8 chunks, so the freshest image then needs its own heal.
+    # `after` = START + the new media's burst first, heals in what is left (rc_heal).
+    Key("uplink.media_key.heal_order", ENUM, "before", "Where a wake's rsd heal chunks go: "
+        "before = ahead of the new media's START (today's wire); after = START + the new "
+        "media's burst first, then the heal chunks in the budget left (the newest media "
+        "gets the clean part of the window). No daemon or nothing pending = no change.",
+        enum=("before", "after"), v1_sources=("media_key.heal_order",),
+        presets=(("heals first (today)", "before"), ("new media first", "after"))),
 
     # ---- commands -----------------------------------------------------------
     Key("commands.enabled", BOOL, False, "Listen for commands on the BM bus.",

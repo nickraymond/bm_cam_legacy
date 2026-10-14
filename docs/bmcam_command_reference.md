@@ -204,7 +204,7 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `still.raw.d_max` | float | 10.4 | 0.1 – 15.0 | next_action |  | nrjxl: quality floor: if the room needs a JPEG XL distance above this, send today's JPEG (START rfb=floor). |  |
 | `still.raw.layout` | enum | bayer4 | bayer4 / rgb | next_action |  | nrjxl: what the JPEG XL carries: bayer4 = the 4 Bayer planes (v1); rgb = linear camera RGB (B3a, v2: more detail per byte). | bayer4 (v1): bayer4; rgb (B3a): rgb |
 | `still.raw.rgb_encode_max_s` | int | 45 | 5 – 120 | next_action |  | nrjxl rgb (B3a): most seconds the encode search may take per image; over it the unit sends the JPEG (rfb=time). |  |
-| `still.raw.progressive` | bool | true | bool | next_action |  | nrjxl rgb (B3a): encode JPEG XL progressively (cjxl -p) so the dashboard preview refines as chunks arrive (+1.6 % bytes). |  |
+| `still.raw.progressive` | bool | false | bool | next_action |  | nrjxl rgb (B3a): encode JPEG XL progressively (cjxl -p) so the dashboard preview refines as chunks arrive (+1.6 % bytes). |  |
 
 ### video
 
@@ -257,6 +257,7 @@ Only these may be overridden for one action (never saved; re-checked at action t
 | `uplink.lane.max_wait_s` | float | 300.0 | 0.0 – 3600.0 | next_action |  | Longest wait for a clear slot (s). |  |
 | `uplink.media_key.enabled` | bool | false | bool | next_action |  | Keyed media wire (rev 5); off = legacy. |  |
 | `uplink.media_key.retain_days` | float | 14.0 | 0.001 – 30.0 | next_action |  | Keep sent records this long (days). |  |
+| `uplink.media_key.heal_order` | enum | before | before / after | next_action |  | Where a wake's rsd heal chunks go: before = ahead of the new media's START (today's wire); after = START + the new media's burst first, then the heal chunks in the budget left (the newest media gets the clean part of the window). No daemon or nothing pending = no change. | heals first (today): before; new media first: after |
 
 ### commands
 

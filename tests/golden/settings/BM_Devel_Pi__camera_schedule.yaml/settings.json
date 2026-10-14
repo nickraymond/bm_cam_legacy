@@ -14,6 +14,7 @@
  "camera_controls_island": {},
  "media_key": {
   "enabled": false,
+  "heal_order": "before",
   "retain_days": 14.0,
   "sent_dir": "{TMP}/app/sent",
   "source": "defaults",
@@ -58,6 +59,7 @@
   "max_run_time_min": 12,
   "media_key_cfg": {
    "enabled": false,
+   "heal_order": "before",
    "retain_days": 14.0,
    "sent_dir": "{TMP}/app/sent",
    "source": "defaults",
