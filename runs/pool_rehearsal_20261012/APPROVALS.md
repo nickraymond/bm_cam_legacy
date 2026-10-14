@@ -19,3 +19,4 @@
 - 2026-10-13 ~2:55 PM PDT, Nick (typed in TE2 chat), verbatim: "Approved: console set camera.focus.mode manual + camera.focus.lens_position 0.8 on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C), with a short bus hold."
 - 2026-10-13 ~3:18 PM PDT, Nick (typed in TE2 chat), verbatim: "OK: console post on SPOT-33507C and SPOT-31593C, and one production capture + cellular transmit cycle on bmcam003 and bmcam004 via a short bus hold."
 - 2026-10-13 ~5:32 PM PDT, Nick (typed in TE2 chat), verbatim: "OK install pool-preview as an enabled systemd service on nereus000"
+- 2026-10-13 ~7:30 PM PDT, Nick (typed in TE2 chat), verbatim: "OK: turn off the visibility LEDs on SPOT-33507C and SPOT-31593C via the console (and revert command noted)."
