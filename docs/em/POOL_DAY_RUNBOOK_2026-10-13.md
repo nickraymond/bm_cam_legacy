@@ -21,6 +21,10 @@ Mac Terminal, repo root. Set the shortcuts first (§1.3). After that, `pc` = poo
 11. **~3:30 PM** restore (TE, §9): `pool_mode.sh stop` → `off` → check ARMED → halt → `hil/tools/hil_restore_schedule.sh <SPOT>`
 12. Next :00 → a new image from each unit on the dashboard. Trouble at any step: §10
 
+> **Moving or replugging a Spotter** (a reboot or first GPS fix) opens the bridge's ~2 min stub window.
+> - **On the hourly schedule** (bench, overnight, after the restore): the camera wakes, starts a capture + transmit and is hard-cut mid-transmit. Expect one partial image (self-heal fills it) and an SD hard-cut risk (TE2: bmcam003, Mon 4:45 PM, 25/189). If you can, move Spotters right after a wake has finished (~:12–:55), never mid-wake (:00–:10).
+> - **In pool mode (bus held):** a Spotter reboot restarts the pool process: a new run folder (§2.3).
+
 ---
 
 Run every command on the **Mac**, in Terminal, from the repo root.
@@ -463,6 +467,7 @@ Per unit, in this order: bmcam003 / **SPOT-31593C**, then bmcam004 / **SPOT-3350
 
 | Symptom | Likely cause | Do this |
 |---|---|---|
+| Partial image / camera woke right after moving or replugging a Spotter | The move rebooted the Spotter (or it got its first GPS fix), which opens the bridge's ~2 min stub window. On the hourly schedule the camera boots, starts a capture + transmit and is hard-cut mid-transmit (TE2: bmcam003, Mon 10/12 4:45 PM, partial image 25/189). | Expect that one partial image; self-heal fills it in later wakes. To avoid it, move Spotters right after a wake has finished (~:12–:55), never mid-wake (:00–:10). Each such cut is also an SD hard-cut risk, so avoid repeated moves. In pool mode (bus held) a Spotter reboot gives a new run folder instead (§2.3). |
 | `pool_cmd` exit 4: `NO ANSWER within 20s` | Pi rebooting (Spotter reset), the command is still queued, or the BM link is down | Run step 2.1: is the console fresh? Wait 60 s, then send `pc <unit> status` again (new id). `up=` small means it rebooted: new run folder, carry on. Still silent after 3 tries: the unit may be unpowered. Check its Spotter battery (step 2.4) and the BM cable. |
 | `pool_cmd` exit 5: `PAIRING MISMATCH: sent to bmcamNNN ..., answered by [bmcamMMM]` | The rig map on nereus000 doesn't match which camera is on which Spotter (since Tue 10/13: bmcam003 ↔ SPOT-31593C, bmcam004 ↔ SPOT-33507C) | Stop sending single-unit verbs. Check the map line at the top of the run's output, redeploy `tools/rig_map.json` to `pool_tools/`, and run `tools/pool_sha_check.sh`. Until then use `both`, or `--map bmcam003=SPOT-31593C,bmcam004=SPOT-33507C`. |
 | hil tool: `[hil-guard] REFUSED: hil/hil.env disagrees with .../tools/rig_map.json` | Your `hil/hil.env` still has the old pairing | Swap `HIL_RIG_A/B` as in `hil/hil.env.example`, then rerun. Nothing was sent: the refusal comes before any bridge command, so a running Pi is never hard-cut. |
