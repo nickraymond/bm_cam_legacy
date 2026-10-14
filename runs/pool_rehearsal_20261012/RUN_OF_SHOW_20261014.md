@@ -117,3 +117,22 @@ Overnight = normal production: hourly wakes, images over Spotter cellular to the
 - Doubles bus-on time: 20 min/h.
 
 **Console host at the pool:** nereus000 over Tailscale (LTE). TE2 points the hil tools' `HIL_MONITOR` at it (local hil.env edit, backed up).
+
+## Rev 5 (Nick, ~9:55 AM): cameras on the POOL Wi-Fi
+
+- **The pool Wi-Fi can't be added at the pool.** In pool mode the cameras have no network until they already know the Wi-Fi: no AP, and no console verb for Wi-Fi. Add it BEFORE transport.
+- Nick runs it himself in a Mac terminal; it prompts for the pool SSID + password silently:
+  `tools/pi_wifi_profile.sh --priority -10 pool-wifi pi@bmcam003 pi@bmcam004`
+  - When: at the 10 AM wake (10:01–10:07, units up), or at the bench 11:10–11:30 (units up on the held bus).
+  - It doesn't switch their current network.
+  - Priority -10: the home-SSID profile (0) wins when both are in range, so a home-SSID phone hotspot overrides the pool Wi-Fi.
+- **Pool Wi-Fi pitfalls:** a captive portal (login page), or client isolation (devices can't see each other).
+  - Either one stops the Mac from reaching the cameras.
+  - Fallback = phone hotspot named exactly like the home Wi-Fi (works today, zero config).
+- The Mac joins the same network. nereus000 uses LTE + Tailscale.
+- **Flow:**
+  1. On arrival: no camera Wi-Fi step.
+  2. T1 → (a) → (b) → (c).
+  3. Units out: they join on their own.
+  4. (d) download, then (e) TE2 restores production on the deck.
+  5. Units back in before 3:00.
