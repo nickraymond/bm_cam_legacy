@@ -15,6 +15,18 @@ W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 mkdir -p "$W/bin" "$W/run"
 for c in ssh scp curl; do printf '#!/bin/sh\necho "%s $*" >> "%s/calls"\nexit 99\n' "$c" "$W" > "$W/bin/$c"; chmod +x "$W/bin/$c"; done
 export PATH="$W/bin:$PATH" HIL_RUN_DIR="$W/run"
+# The env in use (hil/hil.env, else the example) and two rig maps built FROM it: a consistent one for
+# every case below (so the suite tests the guards in any checkout) and a swapped one for the
+# pairing-check case (hil_common.sh part 3; cameras swapped Tue 2026-10-13).
+ENVF="$T/../hil.env"; [ -f "$ENVF" ] || ENVF="$T/../hil.env.example"
+RIG_A=$(sed -n 's/^export HIL_RIG_A="\(.*\)"/\1/p' "$ENVF"); RIG_B=$(sed -n 's/^export HIL_RIG_B="\(.*\)"/\1/p' "$ENVF")
+python3 - "$RIG_A" "$RIG_B" "$W" <<'PY'
+import json, sys
+a, b, w = sys.argv[1].split("="), sys.argv[2].split("="), sys.argv[3]
+json.dump({a[2]: a[0], b[2]: b[0]}, open(f"{w}/rig_map_consistent.json", "w"))
+json.dump({a[2]: b[0], b[2]: a[0]}, open(f"{w}/rig_map_swapped.json", "w"))
+PY
+export HIL_RIG_MAP="$W/rig_map_consistent.json"
 fails=0
 expect() {  # $1 name, $2 expected exit, $3 want_calls (0|1), rest = command
   local name="$1" want="$2" wantcalls="$3"; shift 3
@@ -34,7 +46,9 @@ expect "step refuses $F"           5 0 "$T/hil_step.sh" X bmcam004 $F - -
 expect "step refuses host bmcam001" 5 0 "$T/hil_step.sh" X bmcam001 SPOT-31593C - -
 expect "change refuses $F"         5 0 "$T/hil_change.sh" X BMCAM_004 $F '{"set":{}}'
 expect "change refuses BMCAM_001"  5 0 "$T/hil_change.sh" X BMCAM_001 SPOT-31593C '{"set":{}}'
-expect "change refuses rig mismatch" 5 0 "$T/hil_change.sh" X BMCAM_003 SPOT-31593C '{"set":{}}'
+# rig mismatch = rig A's device on rig B's Spotter, read from the env in use (pairing-agnostic:
+# Nick swapped the cameras between the Spotters on Tue 2026-10-13)
+expect "change refuses rig mismatch" 5 0 "$T/hil_change.sh" X "$(echo "$RIG_A" | cut -d= -f2)" "$(echo "$RIG_B" | cut -d= -f1)" '{"set":{}}'
 expect "sofar refuses BMCAM_001"   5 0 "$T/hil_sofar_change.sh" X BMCAM_001 '{"set":{}}'
 expect "sofar refuses empty"       1 0 "$T/hil_sofar_change.sh" X "" '{"set":{}}'
 expect "pistate refuses bmcam001"  5 0 "$T/hil_pistate.sh" X bmcam001
@@ -49,6 +63,10 @@ expect "bridge_phase refuses SPOT-33361C" 5 0 "$T/hil_bridge_phase.sh" SPOT-3336
 expect "bus_always_on refuses SPOT-33361C" 5 0 "$T/hil_bus_always_on.sh" SPOT-33361C
 expect "wake_report refuses SPOT-33361C" 5 0 "$T/hil_wake_report.sh" SPOT-33361C 2026-10-02T22:00
 expect "p0 refuses bmcam001"       5 0 "$T/hil_p0_probe.sh" bmcam001 "$W/p0"
+expect "console refuses a stale pairing (hil.env vs rig_map.json)" 5 0 \
+       env HIL_RIG_MAP="$W/rig_map_swapped.json" "$T/hil_console.sh" "$(echo "$RIG_A" | cut -d= -f1)" post 1
+expect "bus_always_on refuses a stale pairing" 5 0 \
+       env HIL_RIG_MAP="$W/rig_map_swapped.json" "$T/hil_bus_always_on.sh" "$(echo "$RIG_A" | cut -d= -f1)"
 # positive controls: a real rig passes the guard and reaches the (fake) network
 expect "control: console rig SPOT-31593C reaches ssh" 4 1 "$T/hil_console.sh" SPOT-31593C post 1
 expect "control: sofar rig BMCAM_004 reaches ssh"     3 1 "$T/hil_sofar_change.sh" X BMCAM_004 '{"set":{}}'
