@@ -1,0 +1,8 @@
+[pool_cmd] rig map (/home/pi/pool_tools/rig_map.json): bmcam003 -> SPOT-31593C (mote 53171fa3d81a8e6f bridge 0e582dd12c1e1480), bmcam004 -> SPOT-33507C (mote e6fe83ea6b4a2b7f bridge c3c564b91856226c)
+[pool_cmd] host=nereus000 id=90042 verb=preview targets=bmcam003/SPOT-31593C wait=20s
+[bmcam003] SEND via SPOT-31593C/cmd.txt: bm pub bmcam/cmd {"id":90042,"c":"pool","v":"preview"} 1 1
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90042 pool preview in_progress dup
+  [bmcam003] .. still running (replay ack, not final): [bmcam003] OK id=90042 pool preview in_progress dup
+  [bmcam003] OK  [bmcam003] OK id=90042 pool preview img=172858 n=234 bytes=27987 q=30 eta=7.3s
+  [bmcam003] 97 preview line(s) (PVH/PV/PVE) seen - pool_preview.py rebuilds them
+[pool_cmd] id=90042 bmcam003: OK

@@ -1,0 +1,21 @@
+[POOL-MODE] wrote /home/pi/pool_args: --lens-position 0.8
+[POOL-MODE] applies at the next start (pool_mode.sh start, or reboot)
+[POOL-MODE] crontab backed up: /home/pi/pool_mode_backups/crontab_20261014T172550Z.txt (1 lines)
+[POOL-MODE] [WARN] the crontab being backed up has NO armed rc_run_capture_cycle line
+[POOL-MODE] [WARN] (bus hold ran first? # DISARMED_BUS_ON): off will restore it DISARMED and
+[POOL-MODE] [WARN] say so; re-arm from /home/pi/hil_backup/<TS>/crontab_ARMED.txt after the session
+[POOL-MODE] config/state sha256 recorded: /home/pi/pool_mode_backups/config_sha256_20261014T172550Z.txt
+[POOL-MODE] effective config hash: 0cb7ad9e (focus/exposure as the pool will run them: /home/pi/pool_mode_backups/config_print_20261014T172550Z.txt)
+[POOL-MODE] POOL MODE ON: the RC cycle is disarmed, pool_sequence.py launches at the next boot
+[POOL-MODE]   restore exactly: bash pool_mode.sh off   (or: crontab /home/pi/pool_mode_backups/crontab_20261014T172550Z.txt)
+[POOL-MODE] crontab:
+[POOL-MODE]   # DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+[POOL-MODE]   @reboot mkdir -p /home/pi/pool_runs && { /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /usr/bin/python3 /home/pi/BM_Devel_Pi/pool_sequence.py --run-root /home/pi/pool_runs >> /home/pi/pool_runs/launch.log 2>&1 || echo "pool launch exited rc=$? (lock /tmp/bmcam_rc_capture.lock held?)" >> /home/pi/pool_runs/launch.log; } # POOL_MODE_LINE
+[POOL-MODE] mode        : POOL (pool line installed)
+[POOL-MODE] backup      : /home/pi/pool_mode_backups/crontab_20261014T172550Z.txt (restored by off)
+[POOL-MODE] pool args   : --lens-position 0.8 (/home/pi/pool_args, read at each start)
+[POOL-MODE] pool process: not running
+[POOL-MODE] newest run  : /home/pi/pool_runs/20261013_221746_bmcam004
+[POOL-MODE]   cfg=44b81292 cal=0 loop=0 marks=0 final=phase=idle cal=0/0 loop=0/0 lp=0.8 run=20261013_221746_bmcam004 free=101588MB marks=0 err=none ip=192.168.1.143 ssid=Ford up=80s
+[POOL-MODE] disk        : 101508 MB free, 10% used
+[POOL-MODE] started pid 1668; log: /home/pi/pool_runs/launch.log + the newest run folder's pool.log

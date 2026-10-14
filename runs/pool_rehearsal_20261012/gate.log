@@ -474,3 +474,51 @@ fdeb01ab9a04
 2026-10-14T16:05:37Z [TE2] NICK OK (typed): "pool plan approved from above." = the 10/14 pool-day line (APPROVALS.md).
 2026-10-14T16:21:34Z [TE2] Run of show rev 2 (Nick): preview before sweep; leave pool 3 PM; (a) 1 m frame+sweep, (b) 2 m frame+sweep, (c) loop 3 x 120 s @2 m, (d) download (IPs from status; Tailscale bmcam003 100.108.182.50 / bmcam004 100.79.38.9), (e) fresh run + overnight loop 18 x 3600 s @2 m; 30-min switch needs a new run = Spotter console reset (needs Nick OK). T1 calibration optional (not on Nick's list).
 2026-10-14T16:37:23Z [TE2] Run of show rev 5: pool Wi-Fi must be added BEFORE transport (no network/AP/console Wi-Fi verb in pool mode): Nick runs tools/pi_wifi_profile.sh --priority -10 pool-wifi pi@bmcam003 pi@bmcam004 at the 10 AM wake or bench 11:10-11:30.
+2026-10-14T16:38:00Z [TE2] Backlog request sent to EM (Nick): console BM command to toggle pool<->production on device (no backend); issues today (bus mode is Spotter-side + commit power-cycles; ssh-blind bus tools underwater; no mode verb; no AP/Wi-Fi verb in pool mode; one loop per run); design + ~3 d estimate; plus related backlog items (queue-full stalls, ladder overshoot, progressive= log field).
+2026-10-14T16:48:51Z [TE2] nereus000 back (LTE session 9:48 AM): outdoors on battery, consoles live; ttyACM swapped (31593C=ACM0, 33507C=ACM1) but spotter-monitor attributes by Spotter (31593C log = bridge 0e582dd12c1e1480, 33507C = c3c564b91856226c, last 2000 lines) and TE2/pool tools hard-code no ttyACM -> no impact. nereus000 Tailscale 100.82.38.22.
+2026-10-14T17:09:08Z [TE2] Nick (typed): 'force both spotters to stay on continouslly I need to rerun the wifi setup' -> §0B hold now (covered by the 10/14 pool-day line). Power watcher on (power_watch_s147.log; ABORT VBAT<3100/VIN<4498).
+2026-10-14T17:09:08Z [TE2 pool_day] §0B.2 hold both
+2026-10-14T17:09:10Z [TE2 power] nereus000 VIN=5035 VBAT=3636 IOUT=1428
+2026-10-14T17:09:15Z [busOn SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261014T170911Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-14T17:09:15Z [busOn SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261014T170911Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-14T17:09:16Z Succesfully sent config set msg
+2026-10-14T17:09:16Z 2026-10-14T17:09:19.570Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T17:09:16Z Succesfully sent config set msg
+2026-10-14T17:09:16Z 2026-10-14T17:09:15.914Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T17:09:23Z 2026-10-14T17:09:22.472Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T17:09:23Z 2026-10-14T17:09:22.480Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T17:09:23Z 2026-10-14T17:09:22.539Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T17:09:26Z [busOn SPOT-33507C/bmcam004] committed (bus held on); catching the boot
+2026-10-14T17:09:23Z 2026-10-14T17:09:26.355Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T17:09:23Z 2026-10-14T17:09:26.363Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T17:09:23Z 2026-10-14T17:09:26.421Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T17:09:26Z [busOn SPOT-31593C/bmcam003] committed (bus held on); catching the boot
+up=36s
+978 bash -c mkdir -p ~/hil_backup/20261014T170911Z && crontab -l > ~/hil_backup/20261014T170911Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-14T17:10:14Z [busOn SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-14T17:10:15Z [busOn SPOT-33507C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261014T170911Z)
+up=45s
+1250 bash -c mkdir -p ~/hil_backup/20261014T170911Z && crontab -l > ~/hil_backup/20261014T170911Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-14T17:10:22Z [busOn SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-14T17:10:23Z [busOn SPOT-31593C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261014T170911Z)
+2026-10-14T17:10:23Z [TE2 pool_day] hold rc 003=0 004=0
+2026-10-14T17:11:03Z [TE2] nereus000 handed back by the LTE session (10:12 AM): 21-min watch VIN 5.025-5.056, IOUT 1.33-1.51 A, VBAT charging; record nereus_bm_telemetry_module PR #2. Modem GPS test deferred until after the pool restore (TE2).
+2026-10-14T17:14:20Z [TE2 power] nereus000 VIN=5060 VBAT=3637 IOUT=1432
+2026-10-14T17:19:31Z [TE2 power] nereus000 VIN=5041 VBAT=3639 IOUT=1395
+2026-10-14T17:24:43Z [TE2 power] nereus000 VIN=5060 VBAT=3641 IOUT=1422
+2026-10-14T17:25:24Z [TE2] Wi-Fi verified (no secrets): bmcam003 + bmcam004 have pool-wifi-1 (prio -10, ssid sha fc6156d9) + pool-wifi-2 (prio -11, a2730a92), autoconnect yes; still active on nereus-hq. Proceeding §0B: sha -> on -> status -> memloop -> previews.
+2026-10-14T17:25:24Z [TE2 pool_day] pool_sha_check rc=127
+2026-10-14T17:25:37Z [TE2 pool_day] pool_sha_check rc=0
+2026-10-14T17:25:48Z [TE2 pool_day] bmcam003 pool_mode args/on/start rc=0
+2026-10-14T17:25:55Z [TE2 pool_day] bmcam004 pool_mode args/on/start rc=0
+2026-10-14T17:26:29Z [TE2 pool_day] memloop: loop on bmcam003 (sampler -> memloop_bmcam003_1726Z.txt)
+2026-10-14T17:28:24Z [TE2 pool_day] memloop bmcam003: MemAvailable min=87076 KiB (bar >= 51200), pool_sequence VmHWM=131056 KiB, cjxl peak=115320 KiB (bar <= 153600), cjxl samples -p=45 no-p=0. NEXT: restart for a fresh run folder (pool_mode.sh stop; wait; start) + status
+2026-10-14T17:28:30Z [TE2 pool_day] memloop: bmcam003 pool process restarted (fresh run folder); check status lp=0.8 cal=0/0 loop=0/0
+2026-10-14T17:28:57Z [TE2 pool_day] preview bmcam003 (memory sampler -> preview_mem_bmcam003_1728Z.txt)
+2026-10-14T17:29:52Z [TE2 power] nereus000 VIN=5041 VBAT=3641 IOUT=1441
+2026-10-14T17:30:25Z [TE2 pool_day] preview bmcam003 memory: MemAvailable min=180976 KiB (bar >= 51200), pool_sequence VmHWM=139772 KiB, cjxl peak=none KiB (bar <= 153600), cjxl samples with -p=0
+2026-10-14T17:30:27Z [TE2 pool_day] preview bmcam004 (memory sampler -> preview_mem_bmcam004_1730Z.txt)
+2026-10-14T17:31:55Z [TE2 pool_day] preview bmcam004 memory: MemAvailable min=150948 KiB (bar >= 51200), pool_sequence VmHWM=139520 KiB, cjxl peak=none KiB (bar <= 153600), cjxl samples with -p=0
+2026-10-14T17:32:13Z [TE2] §0B DONE early (hold 10:10 AM): sha ALL MATCH fdeb01ab; pool mode on both (lp=0.8, cfg 0cb7ad9e; backed-up crontab DISARMED as expected -> re-arm from ~/hil_backup/20261014T170911Z at restore); B1 PASS (bmcam003 1 loop iteration: MemAvailable min 85 MiB, cjxl peak 112.6 MiB, all 45 cjxl samples -p, nrjxl 190 msgs, iteration 78.4 s, no ERR) then fresh run 20261014_172828_bmcam003; previews OK (003 img 172858 27987 B, 004 img 173030 26536 B; no cjxl in the preview path); final status both idle cal=0/0 loop=0/0 lp=0.8 (004 run 20261014_172553_bmcam004). nereus000 VIN 5029 VBAT 3641 IOUT 1503. READY for transport.

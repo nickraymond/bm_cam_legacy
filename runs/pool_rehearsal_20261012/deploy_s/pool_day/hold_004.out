@@ -1,0 +1,12 @@
+2026-10-14T17:09:15Z [busOn SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261014T170911Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-14T17:09:16Z Succesfully sent config set msg
+2026-10-14T17:09:16Z 2026-10-14T17:09:15.914Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T17:09:23Z 2026-10-14T17:09:22.472Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T17:09:23Z 2026-10-14T17:09:22.480Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T17:09:23Z 2026-10-14T17:09:22.539Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T17:09:26Z [busOn SPOT-33507C/bmcam004] committed (bus held on); catching the boot
+up=36s
+978 bash -c mkdir -p ~/hil_backup/20261014T170911Z && crontab -l > ~/hil_backup/20261014T170911Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-14T17:10:14Z [busOn SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-14T17:10:15Z [busOn SPOT-33507C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261014T170911Z)

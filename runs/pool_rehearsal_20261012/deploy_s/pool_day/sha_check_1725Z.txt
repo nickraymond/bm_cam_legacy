@@ -1,0 +1,11 @@
+[sha] reference origin/development = fdeb01ab
+MATCH    pi@bmcam003 /home/pi/pool_mode.sh 4966d46f5637
+MATCH    pi@bmcam003 /home/pi/BM_Devel_Pi/pool_sequence.py 992d3e948baa
+MATCH    pi@bmcam003 /home/pi/BM_Devel_Pi/rc_preview.py 571b6b4564f8
+MATCH    pi@bmcam004 /home/pi/pool_mode.sh 4966d46f5637
+MATCH    pi@bmcam004 /home/pi/BM_Devel_Pi/pool_sequence.py 992d3e948baa
+MATCH    pi@bmcam004 /home/pi/BM_Devel_Pi/rc_preview.py 571b6b4564f8
+MATCH    pi@192.168.1.45 /home/pi/pool_tools/pool_cmd.py b36995cbcc4e
+MATCH    pi@192.168.1.45 /home/pi/pool_tools/pool_preview.py a72907e4282f
+MATCH    pi@192.168.1.45 /home/pi/pool_tools/rig_map.json eb5e27a298d2
+ALL MATCH origin/development fdeb01ab
