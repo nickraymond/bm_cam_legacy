@@ -1,0 +1,102 @@
+============================================================
+[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+[RC-CRON] start_utc=2026-10-14T09:08:34+00:00
+[RC-CRON] uptime_s=17.72
+[RC-CRON] user=pi
+[RC-CRON] hostname=bmcam003
+[RC-CRON] app_dir=/home/pi/BM_Devel_Pi
+[RC-CRON] log_file=/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T090834Z.log
+[RC-CRON] disk: /dev/mmcblk0p2  115G   11G  100G  10% /
+[RC-CRON] images_dir: 34M
+[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+[BOOT] main_entry uptime_s=19.51
+[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=0cb7ad9e hv=1 registry=v13 overlay=8 key(s)
+[CFG] legacy runtime reads the v1 render /dev/shm/bmcam/camera_schedule.yaml (level=v2)
+[CFG] supervisor runs the effective config: base ⊕ 8 overlay key(s) hash=0cb7ad9e (render /dev/shm/bmcam/camera_schedule.yaml)
+[GUARD] boot 301: 0 guarded key(s) pending
+[RUNTIME] supervisor (source=config (v2))
+[CMD] bm_commands enabled: topic=bmcam/cmd tail=150.0s defer_acks=False state=/home/pi/BM_Devel_Pi/bm_command_state_v2.json (loaded from file)
+[NET] network island: default=nereus_hq ap_fallback_s=90 ap_timeout_min=60
+[NET] applying boot default: sudo -n /home/pi/BM_Devel_Pi/network_ap.sh default nereus_hq 90
+[RC] Sprint08 progressive-JPEG RC — resolved settings
+[RC] config_path=/dev/shm/bmcam/camera_schedule.yaml
+[RC] capture_mode=progressive_jpeg (RC path selected)
+[RC] quality ladder (explicit): q_max=90 q_min=9 -> [90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 13, 11, 9]
+[RC] cycle budget: max_run_time_min=8 (480 s)
+[RC] message cap: 195 msgs (field-tested hard cap)
+[RC] pacing (bm_serial block, source=yaml): chunk_b64_chars=384 delay_s=1.0
+[RC] derived (informational): transmit-only budget holds 480 paced msgs; M1 owns real accounting
+[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+[RC] schedule: window=00:00-00:00 tz=America/Los_Angeles source=yaml
+[RC] transmit_phase (C2): OFF (unscheduled transmit)
+[RC] geometry (native coords, frozen): crop_xywh=(1504, 846, 1600, 900) output=1000x562 backend=rpicam
+[SUP] per_boot: media=still transmit=True
+[CMD] shared UART open: /dev/ttyAMA0@115200 (single port owner)
+[CMD] subscribed topic=bmcam/cmd frame_bytes=17
+[CMD] reader thread started
+[BOOT] cmd_subscribed uptime_s=20.41
+[RC] cycle start: budget=480s pacing=1.0s/msg
+[CMD] time-sync subscribe sent; waiting up to 60s (fresh read)
+[CMD] spotter UTC decoded: 2026-10-14T10:00:34+00:00
+Wed 14 Oct 10:00:34 UTC 2026
+[BOOT] spotter_utc_read uptime_s=24.78
+[RC] schedule gate: Within transmit window 00:00-00:00 America/Los_Angeles; local_time=2026-10-14T03:00:34-07:00
+[DEBUG] Sent compact telemetry message (132 bytes): <WS v=1 a=cap cfg=0cb7ad9e up=4 tz=America/Los_Angeles lt=na ws=0000 we=0000 rk=1000x562 q=90 ct=23.6 sha=fdeb01ab9a04 hn=bmcam003>
+[RAW] still.format=nrjxl: target_fill=0.97 d_max=10.4 distances=[3.8, 4.6, 5.95, 8.25] effort=5 encode_max_s=30 keep_crop=False crop=[1504, 846, 1600, 900] (native px)
+[DEBUG] [EXP] low_gain: shutter up to 60000 us at the gain floor, then gain up to 1 (imx708_wide_lowgain_s60000_g1.json)
+[DEBUG] Applying requested focus camera controls: args=--autofocus-mode manual --lens-position 0.8 --tuning-file /home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json; requested={'camera_control_source': 'image_pipeline.camera_controls', 'camera_controls_enabled': True, 'requested_focus_enabled': True, 'requested_focus_mode': 'manual', 'requested_lens_position': 0.8, 'requested_white_balance_enabled': False, 'requested_exposure_enabled': False, 'requested_image_processing_enabled': False, 'exposure_profile': 'low_gain', 'exposure_max_shutter_us': 60000, 'exposure_max_gain': 1.0, 'exposure_profile_applied': True, 'exposure_tuning_file': '/home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json', 'exposure_sensor_model': 'imx708_wide'}
+[DEBUG] Running RAW capture (one attempt, no retries): /usr/bin/rpicam-still -n --timeout 2000 --width 4608 --height 2592 --quality 95 --metadata /home/pi/BM_Devel_Pi/images/2026-10-14T10:00:34Z_image_native_full.metadata.json --autofocus-mode manual --lens-position 0.8 --tuning-file /home/pi/BM_Devel_Pi/exposure_profile/tuning/imx708_wide_lowgain_s60000_g1.json --raw -o /home/pi/BM_Devel_Pi/images/2026-10-14T10:00:34Z_image_native_full.jpg
+[DEBUG] RAW capture completed: /home/pi/BM_Devel_Pi/images/2026-10-14T10:00:34Z_image_native_full.jpg + /home/pi/BM_Devel_Pi/images/2026-10-14T10:00:34Z_image_native_full.dng (24029068 B DNG, 4.99 s)
+[RC] native ready: /home/pi/BM_Devel_Pi/images/2026-10-14T10:00:34Z_image_native_full.jpg (500975 B, elapsed=9.6s)
+[RC] source prepared: 1000x562 (elapsed=10.9s)
+[RC] attempt q90: 4493 B, 16 msgs, over_cap=False, budget_fit=True
+[RC] selection: quality=90 attempts=1 fits=True reason=fit
+[RC] final JPEG: /home/pi/BM_Devel_Pi/images/2026-10-14T10:00:34Z_image_compressed.jpg (4493 B, 16 msgs, sha256=1eb73829139fdfd2...)
+[HEAL] wake plan: 2 pending heal(s), 35 chunk(s) this wake (cap 40), order after
+[RAW] rgb (B3a) written to /home/pi/BM_Devel_Pi/images/.nrjxl_work_2026-10-14T10:00:34Z_image; supervisor VmRSS=76248 KiB (cjxl runs on top of this)
+[NET] 2026-10-14T10:00:47Z client WiFi UP: profile=nereus-hq
+[RAW] search1 d=2.595: 29839 B, 104 msgs, over_cap=False, budget_fit=True, 12.3 s, peak_rss=97448 KiB
+[RAW] search2 d=1.527: 66395 B, 231 msgs, over_cap=True, budget_fit=True, 10.8 s, peak_rss=116724 KiB
+[RAW] search3 d=1.741: 55720 B, 194 msgs, over_cap=False, budget_fit=True, 10.2 s, peak_rss=116556 KiB
+[RAW] nrjxl ready: 55720 B, 194 msgs at d=1.741 att=3 (encode 33.3 s, elapsed=48.0s)
+[KEY] media key 0eqegy from Spotter UTC 2026-10-14T10:00:34+00:00 (spotter)
+[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-14T10:00:34Z_image_compressed.sent.json (194 msgs, chunks <I0eqegy.n/194>)
+[DEBUG] Runtime BM transfer settings: network=0x02 cellular-only; image_buffer_size=384; image_transmit_delay_seconds=1.0
+[BOOT] transmit_start uptime_s=68.88
+[RC] transmit done: sent=194/194 complete=True incomplete_emitted=False uart=198.5s
+[DEBUG] Raw image size: 500975 bytes
+[DEBUG] Image quality: 174
+[DEBUG] Compressed image size: 55720 bytes
+[DEBUG] Buffers: 194
+[DEBUG] Execution Time: 4.12 min
+[DEBUG] Within Window: True
+[DEBUG] CPU Temp: 23.60°C
+[DEBUG]  
+[DEBUG]  
+[DEBUG]  
+[CMD] rsd id=100348 key=0eq8wz n=3: accepted
+[CMD] rsd id=100348 key=0eq0l1 n=1: accepted
+[CMD] rsd id=100348 key=0eq007 n=7: accepted
+[CMD] rsd id=100348 key=0epzlr n=20: accepted
+[CMD] applied id=100348 rsd: rsd: 4 heal(s) queued (<HL> reports each)
+[CMD] console: 1 line(s) sent, 0 queued
+[HEAL] sent 35 heal chunk(s) after END: 0eq64z:[139, 148, 186], 0eq3d0:[43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 128, 174, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189]
+[HEAL] pending after this wake: 0eq8wz(3 left, 3 wakes), 0eq0l1(1 left, 3 wakes), 0eq007(7 left, 3 wakes), 0epzlr(20 left, 3 wakes)
+[HEAL] status: <HL v=1 key=0eq64z a=sent n=3 r=ok id=100347 w=0eqegy>
+[HEAL] status: <HL v=1 key=0eq3d0 a=sent n=32 r=ok id=100347 w=0eqegy>
+[HEAL] status: <HL v=1 key=0eq8wz a=requested n=3 r=ok id=100348 w=0eqegy>
+[HEAL] status: <HL v=1 key=0eq0l1 a=requested n=1 r=ok id=100348 w=0eqegy>
+[HEAL] status: <HL v=1 key=0eq007 a=requested n=7 r=ok id=100348 w=0eqegy>
+[HEAL] status: <HL v=1 key=0epzlr a=requested n=20 r=ok id=100348 w=0eqegy>
+[CMD] post-transmit listen window: 150s
+[CMD] post-transmit listen window done: 0 command(s) processed, 0 ack(s) still queued
+[SUP] staying awake 21s (hld=False, keep-alive after a command)
+[SUP] action: media=still stage=None sent=194/194 elapsed=460.1s
+[CMD] stopped: applied=1 dup=0 rejected=0 unackable=0 acks=0 frames=1 sig_hits=1 crc_scan_fail=0 bad_start=0 read_err=0
+[BOOT] halt uptime_s=480.44
+[RC][halt] executing: sudo -n /bin/bash /home/pi/BM_Devel_Pi/tuned_halt.sh (SSH/process death after this is SUCCESS)
+[RC][halt] halt command returned 0; system shutdown in progress
+[RC] cycle end: elapsed=470.6s of 480s; halt=halt_initiated
+[RC-CRON] rc_progressive_jpeg.py exit_code=0
+[RC-CRON] end_utc=2026-10-14T10:08:19+00:00
+============================================================

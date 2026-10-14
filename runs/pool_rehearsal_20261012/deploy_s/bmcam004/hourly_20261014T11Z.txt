@@ -1,0 +1,23 @@
+== bmcam004 hourly wake 20261014T11Z (log /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T100836Z.log)
+2:[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+13:[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=0cb7ad9e hv=1 registry=v13 overlay=8 key(s)
+38:[RC] cycle start: budget=480s pacing=1.0s/msg
+56:[HEAL] wake plan: 3 pending heal(s), 10 chunk(s) this wake (cap 40), order after
+58:[RAW] search1 d=2.595: 29282 B, 102 msgs, over_cap=False, budget_fit=True, 9.7 s, peak_rss=116628 KiB
+59:[RAW] search2 d=1.508: 66579 B, 232 msgs, over_cap=True, budget_fit=True, 10.6 s, peak_rss=116452 KiB
+60:[RAW] search3 d=1.722: 56362 B, 196 msgs, over_cap=True, budget_fit=True, 10.4 s, peak_rss=116388 KiB
+61:[RAW] nrjxl ready: 29282 B, 102 msgs at d=2.595 att=3 (encode 30.7 s, elapsed=42.3s)
+62:[KEY] media key 0eqh8t from Spotter UTC 2026-10-14T11:00:29.503000+00:00 (spotter)
+63:[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-14T11:00:29Z_image_compressed.sent.json (102 msgs, chunks <I0eqh8t.n/102>)
+82:[HEAL] sent 10 heal chunk(s) after END: 0eq8wv:[35, 49, 61, 126, 181], 0eq3cw:[22, 94], 0eq0kx:[108, 150, 155]
+83:[HEAL] pending after this wake: 0eqbou(1 left, 3 wakes), 0eq64v(1 left, 3 wakes), 0epzln(1 left, 3 wakes)
+84:[HEAL] status: <HL v=1 key=0eq8wv a=sent n=5 r=ok id=100314 w=0eqh8t>
+85:[HEAL] status: <HL v=1 key=0eq3cw a=sent n=2 r=ok id=100314 w=0eqh8t>
+86:[HEAL] status: <HL v=1 key=0eq0kx a=sent n=3 r=ok id=100314 w=0eqh8t>
+87:[HEAL] status: <HL v=1 key=0eqbou a=requested n=1 r=ok id=100315 w=0eqh8t>
+88:[HEAL] status: <HL v=1 key=0eq64v a=requested n=1 r=ok id=100315 w=0eqh8t>
+89:[HEAL] status: <HL v=1 key=0epzln a=requested n=1 r=ok id=100315 w=0eqh8t>
+90:[CMD] post-transmit listen window: 150s
+SAMPLER pid=1191 samples=25 max_hwm=102708 P_FLAG
+SAMPLER pid=954 samples=19 max_hwm=116628 P_FLAG
+SAMPLER pid=1444 samples=26 max_hwm=116316 P_FLAG

@@ -1,0 +1,13 @@
+2026-10-14T04:48:03Z | 55143 B, 192 msgs at d=1.786 att=3 | sent=192/192 complete=True uart=196.5s | no heal | elapsed=405.2s of 480s; halt=halt_initiated | halt uptime_s=415.27
+2026-10-14T04:56:03Z |  |  | no heal |  | 
+2026-10-14T05:00:33Z | 54593 B, 190 msgs at d=1.771 att=3 | sent=190/190 complete=True uart=194.4s | no heal | elapsed=399.9s of 480s; halt=halt_initiated | halt uptime_s=409.82
+2026-10-14T06:00:32Z | 54982 B, 191 msgs at d=1.762 att=3 | sent=191/191 complete=True uart=195.5s | no heal | elapsed=470.6s of 480s; halt=halt_initiated | halt uptime_s=480.55
+2026-10-14T07:00:31Z | 29071 B, 101 msgs at d=2.595 att=3 | sent=101/101 complete=True uart=103.8s | sent 24 heal chunk(s) after END | elapsed=340.4s of 480s; halt=halt_initiated | halt uptime_s=350.27
+2026-10-14T08:00:31Z | 56129 B, 195 msgs at d=1.734 att=3 | sent=195/195 complete=True uart=199.5s | no heal | elapsed=470.7s of 480s; halt=halt_initiated | halt uptime_s=480.57
+2026-10-14T09:00:30Z | 55426 B, 193 msgs at d=1.745 att=3 | sent=193/193 complete=True uart=197.5s | sent 6 heal chunk(s) after END | elapsed=470.5s of 480s; halt=halt_initiated | halt uptime_s=480.47
+2026-10-14T10:00:30Z | 56117 B, 195 msgs at d=1.734 att=3 | sent=195/195 complete=True uart=199.5s | sent 2 heal chunk(s) after END | elapsed=470.6s of 480s; halt=halt_initiated | halt uptime_s=480.43
+2026-10-14T11:00:29Z | 29282 B, 102 msgs at d=2.595 att=3 | sent=102/102 complete=True uart=104.9s | sent 10 heal chunk(s) after END | elapsed=458.5s of 480s; halt=halt_initiated | halt uptime_s=468.26
+2026-10-14T12:00:28Z | 29250 B, 102 msgs at d=2.595 att=3 | sent=102/102 complete=True uart=104.9s | sent 3 heal chunk(s) after END | elapsed=458.4s of 480s; halt=halt_initiated | halt uptime_s=467.63
+2026-10-14T13:00:38Z | 29225 B, 102 msgs at d=2.595 att=3 | sent=102/102 complete=True uart=104.9s | sent 5 heal chunk(s) after END | elapsed=467.4s of 480s; halt=halt_initiated | halt uptime_s=477.23
+2026-10-14T14:00:37Z | 51452 B, 179 msgs at d=1.705 att=2 | sent=179/179 complete=True uart=183.2s | sent 2 heal chunk(s) after END | elapsed=470.6s of 480s; halt=halt_initiated | halt uptime_s=480.26
+2026-10-14T15:00:37Z | 51524 B, 179 msgs at d=4.327 att=2 |  | no heal |  | 
