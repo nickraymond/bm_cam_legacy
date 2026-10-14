@@ -20,3 +20,6 @@
 - 2026-10-13 ~3:18 PM PDT, Nick (typed in TE2 chat), verbatim: "OK: console post on SPOT-33507C and SPOT-31593C, and one production capture + cellular transmit cycle on bmcam003 and bmcam004 via a short bus hold."
 - 2026-10-13 ~5:32 PM PDT, Nick (typed in TE2 chat), verbatim: "OK install pool-preview as an enabled systemd service on nereus000"
 - 2026-10-13 ~7:30 PM PDT, Nick (typed in TE2 chat), verbatim: "OK: turn off the visibility LEDs on SPOT-33507C and SPOT-31593C via the console (and revert command noted)."
+
+## 2026-10-14T03:59:30Z (Tue 10/13 8:59 PM PDT): Nick typed in TE2's chat, verbatim
+> OK: deploy the QE-passed development merge of bm #146 + #147 (sha from the EM) to bmcam003 and bmcam004 (always-on bus holds and bus power-cycles allowed to force production cycles), console set still.raw.progressive true and uplink.media_key.heal_order after on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C) after the bmcam003 memory check passes, then restore the hourly schedule; rollback = set both keys back (progressive false, heal_order before).

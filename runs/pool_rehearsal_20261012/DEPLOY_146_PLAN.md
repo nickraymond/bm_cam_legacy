@@ -1,4 +1,4 @@
-# Deploy bm #146 (uplink.media_key.heal_order) to bmcam003 + bmcam004: TE2 procedure (Tue 10/13 ~9:40 PM PDT)
+# Deploy bm #146 (uplink.media_key.heal_order) to bmcam003 + bmcam004: TE2 procedure (Tue 10/13 8:55 PM PDT)
 
 **Scope:** #146 only (EM: #147 on HOLD).
 - #146 adds `uplink.media_key.heal_order` before|after, registry v12. **Default "before" = today's behaviour.** The deploy
@@ -69,3 +69,101 @@ Expect `[bmcamNNN] OK id=… uplink.media_key.heal_order: before -> after (next 
 ## Approval line Nick pastes in TE2's chat
 
 > OK: deploy development <S> (bm #146) to bmcam003 and bmcam004 with hil_deploy_window in their hourly windows (bus holds allowed if a window can't be used), then console set uplink.media_key.heal_order after on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C); rollback = set heal_order before.
+
+---
+
+## IN FORCE (Nick 9:03 PM typed OK): #146 + #147 together (one merged sha S, registry v13; still.raw.progressive default flipped to OFF), held bus
+
+1. **Pre-checks:**
+   - pairing (hil.env + rig_map);
+   - `git diff 9ec4cb7 S -- BM_Devel_Pi` = #146 + #147 + pool files only;
+   - tests;
+   - `still.raw.progressive` default False in S's registry.
+2. **Bus hold on both** (hil_bus_always_on, swapped pairs): the Pis come up disarmed, with the ARMED backup recorded.
+3. **Runtime update on each held unit:**
+   - `tools/rc_field_update.sh --ref <S> --profile bmcam00X/live_20260925 --leave-disarmed`, the same step hil_deploy_window
+     runs (staged from the unit checkout after git fetch);
+   - print-config parity: the diff must be exactly the 2 new key lines, else stop;
+   - software_sha = S.
+   - Then: re-arm from the bus-hold ARMED backup → byte-check → halt.
+4. **Memory check on bmcam003 FIRST:**
+   - bus power-cycle (bridge commit) → production cycle → in its listen window:
+     `set {"still.raw.progressive":true}` (id 66006) → OK;
+   - halts → commit again → cycle 2 encodes with `-p`. Read the cycle log:
+     - cjxl args include `-p`;
+     - `[RAW] … peak_rss` (cjxl VmHWM);
+     - msgs vs the 195 cap;
+     - no `[RAW] FALLBACK`, no kill.
+   - **Bar:** cjxl VmHWM ≤ 150 MiB (and < the 250 guard), msgs ≤ 195. FAIL → `set still.raw.progressive false` and stop.
+5. **PASS:**
+   - bmcam003: `set {"uplink.media_key.heal_order":"after"}` (id 66007);
+   - bmcam004: one cycle → `set {"still.raw.progressive":true,"uplink.media_key.heal_order":"after"}` (id 66008) → OK.
+6. **hil_restore_schedule both** (halted + armed checks) → the hourly wakes verify 2 wakes per unit:
+   - `-p` in the cjxl args;
+   - heal chunks after END;
+   - keyed nrjxl;
+   - delivery in the media table;
+   - a dashboard preview.
+   - The backend re-asks heals dropped by the deploy wake.
+7. **Rollback:**
+   - console `set {"still.raw.progressive":false,"uplink.media_key.heal_order":"before"}` per unit;
+   - code: rc_field_update runtime tar or a 9ec4cb7 redeploy.
+
+**Approval line (revised):**
+> OK: deploy development <S> (bm #146 + #147) to bmcam003 and bmcam004 (always-on bus holds and bus power-cycles allowed to force production cycles), console set still.raw.progressive true and uplink.media_key.heal_order after on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C) after the bmcam003 memory check passes, then restore the hourly schedule; rollback = set both keys back (progressive false, heal_order before).
+
+---
+
+## DECISION 9:00 PM (Nick via EM): #146 ONLY tonight
+
+- **#147 skipped:** not yet tested on real hardware. No -p memory check, no `still.raw.progressive` set.
+- **Plan = sections 0–3 above + Rollback**; the original #146 approval line stands. S = development after the EM merges
+  #146 (QE pending). Bus holds are allowed.
+- **If S also contains #147** (its registry key present, default OFF): the print-config diff will show 2 lines, not 1.
+  Verify `still.raw.progressive` = false before accepting the diff, and leave it unset.
+
+## FINAL 9:03 PM: Nick's typed OK covers #146 + #147. The "IN FORCE" section above (steps 1–7) is the sequence; the #146-only decision just above is void
+
+### Rollback point (recorded 9:00 PM, read-only, during the 9 PM wake)
+
+| | bmcam003 | bmcam004 |
+|---|---|---|
+| runtime `software_sha.txt` | 9ec4cb7ae7c1 | 9ec4cb7ae7c1 |
+| effective cfg (cycle log `[CFG]`) | hash=44b81292, registry v11, overlay 6 keys | hash=44b81292, registry v11 |
+| crontab | production `@reboot … rc_run_capture_cycle.sh` (armed) | same |
+| pre-deploy tar | written by tonight's deploy: `/home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam003_<TS>.tgz` (path → gate.log) | same pattern, bmcam004 |
+
+- Older tars on the units (003 20261008T200147Z, 004 20261009T210139Z) are 9ec4cb7 too, but with older config.
+  Don't use them.
+- **Never `tar xzf` the whole backup to roll back.** It would restore:
+  - `bm_media_key_last.txt`: the key counter, so media keys sent after the deploy would be REUSED;
+  - `sent/` and `bm_command_state_v2.json`: command high-water + pending heals.
+  `am_rollback.sh code` restores only the runtime files the deploy overwrote.
+
+### One-command AM rollback (run on the Mac from this folder)
+
+- **Behaviour** (Nick-approved; ~1 wake; start it at ~:55, or inside a :00–:07 window):
+  `bash runs/pool_rehearsal_20261012/am_rollback.sh keys`
+  - Sends a console `reset` of both keys (ids 66009 bmcam003, 66010 bmcam004) in the next listen window. That drops the
+    keys from the overlay: progressive false, heal_order before, cfg hash back to 44b81292.
+  - S with defaults is wire-identical to 9ec4cb7 (#146 default "before" = today's wire; #147 default OFF renders
+    byte-identical to registry v11).
+  - Note: `reset` instead of `set …false/before` gives the same values and leaves no v13 key in the overlay, which a
+    9ec4cb7 code rollback needs.
+- **Code** (back to 9ec4cb7; this is a deploy, so it needs Nick's own typed OK; after `keys`):
+  `bash runs/pool_rehearsal_20261012/am_rollback.sh code`
+  - Bus hold → restore only the overwritten runtime files + software_sha.txt from tonight's tar → verify sha
+    9ec4cb7ae7c1 + `[CFG] hash=44b81292 registry=v11` → re-arm (byte-check) → halt → hil_restore_schedule.
+
+### Regression bars (set before the test; per unit: the forced verify boot(s) + the next 2 hourly wakes vs the 8 PM / 9 PM wakes)
+
+| Bar | Baseline (8 PM / 9 PM wakes, 9ec4cb7) | Pass |
+|---|---|---|
+| Delivery | complete or heal-tracked | every new image complete, or open in the media table with heals planned |
+| msgs | ≤ 195 (8 PM: 191 / 191) | ≤ 195 |
+| CFG | `[CFG] … hash=44b81292`, no `[CFG][ERR]` / dropped keys | new hash with exactly the 2 overlay keys; no ERR / dropped |
+| Fallbacks | no `[RAW][FALLBACK]`, keyed nrjxl | the same |
+| cjxl memory (-p) | peak_rss ~98 MiB (9 PM, 003) | ≤ 150 MiB, < 250 guard, no kill |
+| Cycle time / halt | from the baseline logs (deploy_s/<host>/baseline_*) | within the 480 s budget, and halt ≤ baseline + 30 s |
+| Heal order | heals BEFORE START | after the switch-on: heal chunks after END |
+| -p proof | n/a | cjxl argv contains `-p` (deploy_s sampler: the cycle log does not print it) + dashboard preview |
