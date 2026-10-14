@@ -33,7 +33,21 @@ ssh pi@192.168.1.45 'mkdir -p /home/pi/pool_tools /home/pi/pool_preview'
 scp tools/pool_preview.py tools/pool_cmd.py pi@192.168.1.45:/home/pi/pool_tools/
 ```
 
-The viewer is an **enabled systemd service** on nereus000 since Tue 10/13: `/etc/systemd/system/pool-preview.service` (User pi, Restart=always, after spotter-monitor). It starts on boot. After a redeploy of `pool_preview.py`, restart it:
+The viewer is an **enabled systemd service** on nereus000 since Tue 10/13 (TE2, Nick OK). Unit file: [`tools/systemd/pool-preview.service`](systemd/pool-preview.service), byte-identical to nereus000 `/etc/systemd/system/pool-preview.service` (sha256 `a6a92ef6ffb290269f764c48657d57dfbe046377f7322811f23e602d81924177`). It runs as User pi with Restart=always, starts after spotter-monitor, and starts on boot.
+
+Install, or re-install (from the Mac repo root):
+
+```bash
+scp tools/systemd/pool-preview.service pi@192.168.1.45:/tmp/pool-preview.service && ssh pi@192.168.1.45 'sudo install -m 644 /tmp/pool-preview.service /etc/systemd/system/pool-preview.service && sudo systemctl daemon-reload && sudo systemctl enable --now pool-preview && systemctl is-active pool-preview'
+```
+
+Check that the box matches the repo:
+
+```bash
+ssh pi@192.168.1.45 'sha256sum /etc/systemd/system/pool-preview.service; systemctl is-enabled pool-preview'
+```
+
+After a redeploy of `pool_preview.py`, restart it:
 
 ```bash
 ssh pi@192.168.1.45 'sudo systemctl restart pool-preview && sleep 2 && systemctl is-active pool-preview'
