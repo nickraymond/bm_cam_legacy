@@ -1,0 +1,6 @@
+overhead x1.0 prior x1.0: attempts {1: 6, 2: 23, 3: 2} fill min 0.906 P50 0.969 max 0.999 rfb []
+overhead x1.0 prior x1.0: attempts {1: 6, 2: 23, 3: 2} fill min 0.906 P50 0.969 max 0.999 rfb []
+overhead x1.016 prior x1.0: attempts {1: 5, 2: 23, 3: 3} fill min 0.911 P50 0.969 max 0.988 rfb []
+overhead x1.016 prior x1.016: attempts {1: 5, 2: 24, 3: 2} fill min 0.904 P50 0.966 max 0.978 rfb []
+overhead x1.027 prior x1.0: attempts {1: 5, 2: 23, 3: 3} fill min 0.905 P50 0.969 max 0.998 rfb []
+overhead x1.027 prior x1.027: attempts {1: 5, 2: 24, 3: 2} fill min 0.903 P50 0.965 max 0.978 rfb []

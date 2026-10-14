@@ -420,7 +420,9 @@ def fake_cjxl_runner(raw_sc, clock):
         plane_s = float(raw_sc.get("plane_s", 1.6))
         if src.endswith(".ppm"):
             plane_s *= 4                   # B3a: ONE RGB encode ~ the 4 planes' time
-        W.WORLD.trace.add("JXL", f"{os.path.basename(src)} d={dist:.4f} mode={mode}")
+        # "-p" (still.raw.progressive, rgb only) is traced so the goldens pin the argv flag
+        W.WORLD.trace.add("JXL", f"{os.path.basename(src)} d={dist:.4f} mode={mode}"
+                          + (" p=1" if "-p" in cmd else ""))
         if plane_s > timeout_s:
             clock.sleep(timeout_s)
             return {"rc": -9, "kind": "time", "seconds": timeout_s, "peak_rss_kb": 31000}

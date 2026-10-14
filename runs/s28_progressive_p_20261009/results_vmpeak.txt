@@ -1,0 +1,10 @@
+# docker run --rm --platform linux/arm64 -v <dir>:/w debian:trixie (apt libjxl-tools) ; measure.sh = runs/s28_b3a_vmpeak_20261005/measure.sh
+cjxl v0.11.2 [NEON,NEON_WITHOUT_AES]
+rgb_e5 guard=256000 rc=0 VmPeak_kB=126804 VmHWM_kB=100244 wall_s=.790992917 Compressed to 52292 bytes
+rgb_e5_p guard=256000 rc=0 VmPeak_kB=184928 VmHWM_kB=123116 wall_s=.781034292 Compressed to 53436 bytes
+rgb_e5 guard=256000 rc=0 VmPeak_kB=127016 VmHWM_kB=100436 wall_s=.774052417 Compressed to 52292 bytes
+rgb_e5_p guard=256000 rc=0 VmPeak_kB=140796 VmHWM_kB=122112 wall_s=.774858834 Compressed to 53436 bytes
+rgb_e5 guard=256000 rc=0 VmPeak_kB=123620 VmHWM_kB=100824 wall_s=.774657750 Compressed to 52292 bytes
+rgb_e5_p guard=256000 rc=0 VmPeak_kB=183996 VmHWM_kB=123096 wall_s=.798228042 Compressed to 53436 bytes
+rgb_e4_p guard=256000 rc=0 VmPeak_kB=177964 VmHWM_kB=113056 wall_s=.131409500 Compressed to 49639 bytes
+# Mac (cjxl 0.11.1 brew), /usr/bin/time -l, same rgb.ppm, -d 3.0: max RSS 104-109 MB plain, 124-128 MB with -p

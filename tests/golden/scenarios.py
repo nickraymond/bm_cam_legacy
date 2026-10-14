@@ -558,7 +558,8 @@ V9_SCENARIOS.update({
                            "notes": "quality floor d_max 0.3: d 0.1 overshoots, the plan passes "
                                     "d_max, d_max itself is measured and overshoots too: pjpg "
                                     "rfb=floor after 2 encodes"},
-    "v9_nrjxl_rgb": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.layout": "rgb"},
+    # still.raw.progressive on (registry v13, default off): pins the cjxl -p argv (" p=1" in JXL)
+    "v9_nrjxl_rgb": {**_NRJXL, "v2": {**NRJXL_V2, "still.raw.layout": "rgb", "still.raw.progressive": True},
                      "raw": {"cam": "ok"},
                      "notes": "B3a (still.raw.layout rgb, DESIGN_B3a.md): one --raw capture, "
                               "the bilinear strip demosaic + no-clip coding into ONE rgb.ppm, "

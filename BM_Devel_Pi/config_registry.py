@@ -36,7 +36,7 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 12        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 13        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
@@ -50,7 +50,8 @@ REGISTRY_VERSION = 12        # bump when a key is added/removed/retyped (2: comm
                               # 10: still.raw.layout (B3a linear-RGB nrjxl), Sprint28;
                               # 11: still.raw.rgb_encode_max_s (B3a search cap), Sprint28;
                               # 12: uplink.media_key.heal_order before|after (image burst
-                              #     before the rsd heal chunks), Nick 2026-10-08)
+                              #     before the rsd heal chunks), Nick 2026-10-08;
+                              # 13: still.raw.progressive (cjxl -p on B3a), Sprint28 preview)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -361,6 +362,19 @@ KEYS = (
     Key("still.raw.rgb_encode_max_s", INT, 45, "nrjxl rgb (B3a): most seconds the encode "
         "search may take per image; over it the unit sends the JPEG (rfb=time).", range=(5, 120),
         v1_sources=("still_raw.rgb_encode_max_s",), validate_when=_MEDIA_STILL),
+    # Progressive preview (Nick 2026-10-09; desk study runs/jxl_progressive_20261009 in the EM
+    # worktree, docs/wire/NOTE_progressive_jxl_preview_2026-10-09.md): cjxl -p
+    # (= --qprogressive_ac) on the B3a VarDCT encode. +1.6 % bytes at equal distance (max +2.7 %,
+    # the byte search absorbs it: -0.1 SSIMULACRA2 at equal bytes), cjxl +6 % time. It does NOT
+    # move the first preview (all DC groups in, ~42 % of the chunks) but makes the 75 % prefix
+    # near-final (40.7 dB vs 34.7 dB). bayer4 (modular planes) ignores it: -m 1 -p is the squeeze
+    # transform (first flush at 76 %, -4.9 s2), not wanted.
+    # Default OFF (EM / TE2 2026-10-13): a unit opts in with `set still.raw.progressive=true` once
+    # its cjxl -p peak RSS is measured on the unit (Docker arm64: VmHWM +22 MiB, VmPeak <= 181 MiB
+    # under the 250 MiB guard).
+    Key("still.raw.progressive", BOOL, False, "nrjxl rgb (B3a): encode JPEG XL progressively "
+        "(cjxl -p) so the dashboard preview refines as chunks arrive (+1.6 % bytes).",
+        v1_sources=("still_raw.progressive",), validate_when=_MEDIA_STILL),
 
     # ---- video: recording (clip source and the continuous recorder) ---------
     Key("video.record.framing", STR, None, "Named geometry preset (video_geometry.PRESETS); "
