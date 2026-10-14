@@ -1,0 +1,12 @@
+1:23 PM
+[bmcam003] OK id=90055 pool status phase=cal cal=30/120 loop=0/0 lp=0.8 marks=0 err=none
+[bmcam004] OK id=90055 pool status phase=cal cal=30/120 loop=0/0 lp=0.8 marks=0 err=none
+1:28 PM
+[bmcam004] OK id=90056 pool status phase=cal cal=60/120 loop=0/0 lp=0.8 marks=0 err=none
+[bmcam003] OK id=90056 pool status phase=cal cal=60/120 loop=0/0 lp=0.8 marks=0 err=none
+1:33 PM
+[bmcam003] OK id=90057 pool status phase=cal cal=90/120 loop=0/0 lp=0.8 marks=0 err=none
+[bmcam004] OK id=90057 pool status phase=cal cal=90/120 loop=0/0 lp=0.8 marks=0 err=none
+1:38 PM
+[bmcam003] OK id=90058 pool status phase=idle cal=120/120 loop=0/0 lp=0.8 marks=0 err=none
+[bmcam004] OK id=90058 pool status phase=idle cal=120/120 loop=0/0 lp=0.8 marks=0 err=none

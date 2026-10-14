@@ -522,3 +522,74 @@ up=45s
 2026-10-14T17:30:27Z [TE2 pool_day] preview bmcam004 (memory sampler -> preview_mem_bmcam004_1730Z.txt)
 2026-10-14T17:31:55Z [TE2 pool_day] preview bmcam004 memory: MemAvailable min=150948 KiB (bar >= 51200), pool_sequence VmHWM=139520 KiB, cjxl peak=none KiB (bar <= 153600), cjxl samples with -p=0
 2026-10-14T17:32:13Z [TE2] §0B DONE early (hold 10:10 AM): sha ALL MATCH fdeb01ab; pool mode on both (lp=0.8, cfg 0cb7ad9e; backed-up crontab DISARMED as expected -> re-arm from ~/hil_backup/20261014T170911Z at restore); B1 PASS (bmcam003 1 loop iteration: MemAvailable min 85 MiB, cjxl peak 112.6 MiB, all 45 cjxl samples -p, nrjxl 190 msgs, iteration 78.4 s, no ERR) then fresh run 20261014_172828_bmcam003; previews OK (003 img 172858 27987 B, 004 img 173030 26536 B; no cjxl in the preview path); final status both idle cal=0/0 loop=0/0 lp=0.8 (004 run 20261014_172553_bmcam004). nereus000 VIN 5029 VBAT 3641 IOUT 1503. READY for transport.
+2026-10-14T17:35:03Z [TE2 power] nereus000 VIN=5050 VBAT=3641 IOUT=1405
+2026-10-14T17:40:14Z [TE2 power] nereus000 VIN=5038 VBAT=3641 IOUT=1439
+2026-10-14T17:43:31Z [TE2] Nick: unplugging Spotter USB + packing for transport (bus held, pool mode idle on both). Power watcher stopped for transport (restart at the pool). Expect consoles offline until replug at the pool.
+2026-10-14T19:33:11Z [TE2] POOL DIAG 12:16-12:33 PM: nereus000 via Tailscale 100.82.38.22 (LTE only; host key verified = known nereus000 key), consoles live, VIN 5035 IOUT 1532. Both units rebooted in transit (003 10:59 AM, 004 12:08 PM; pool mode auto-restarted, fresh runs, idle lp=0.8). Pool Wi-Fi #1 (Buelow, WPA2, 2.4 GHz ch1 -64 dBm at the Mac) failed CONN_FAILED with the original profile; hotspot Ford joined at once (003 172.20.10.4, 004 172.20.10.5); Nick re-entered the Buelow password (pi_wifi_profile, in place) -> nmcli up pool-wifi-1 OK on both (003 192.168.4.152, 004 192.168.4.153). Mac on Buelow 192.168.4.23: 003 reachable (host key verified), download test 7,319,878 B video in 68 s = 0.11 MB/s + preview jpg, sha MATCH; 004 dropped off Buelow (ssid=none, no ping) -> weak signal at its spot. Previews OK both (003 img 193250, 004 img 193251), viewer http://100.82.38.22:8090.
+2026-10-14T19:55:18Z [TE2] In-water previews OK 12:54 PM (img 195443 both, 003 8169 B, 004 7225 B, q60, 640x360): green water, pool ledge visible; bright snaking cable in front of both lenses; bmcam004 has a dark vertical obstruction (pole/strap) right-center. No card yet.
+2026-10-14T20:06:18Z [TE2] Preview 1:06 PM OK both (img 200551, 003 8729 B, 004 8246 B): bmcam004 obstruction gone; both nearly identical framing on the ledge; bright snaking line still top-left + right in both.
+2026-10-14T20:14:45Z [TE2] Preview 1:14 PM (003 img 201411 27344 B q40, 004 img 201412 28658 B q50): ChArUco board in view on both, markers crisp; 003 board fills frame (clipped right/bottom), 004 board right 80% + rig/mount at bottom-left. Suggested backing off so the full board fits.
+2026-10-14T20:18:00Z [TE2] Preview 1:17 PM board @1.5 m (img 201737 both, ~25 KB q60): 003 board nearly whole (bottom row edge), 004 board clipped on right; markers crisp in both; striped stand bottom-left in both.
+2026-10-14T20:18:32Z [TE2] T1 calibration started (Nick 'Board ready', board ~1.5 m): pool_cmd both cal (default 1200 s / 10 s).
+2026-10-14T20:38:40Z [TE2] T1 DONE 1:38 PM: cal=120/120 both, phase idle, err=none (30/60/90/120 at 1:23/1:28/1:33/1:38). NOTE loop auto-start 30 min after cal end (~2:08 PM, 18 x 600 s) unless (c) starts first or 'stop' cancels it.
+2026-10-14T20:41:35Z [TE2] (b) focus sweep @2 m DONE 1:41 PM (mark #1 card_2m_sweep): both n=11 dt=58 s, best_lp=0.4, best_lp_ten=0.2, back to lp=0.8 (sweep/204022 003, sweep/204023 004). Metric region/scene to be checked visually later.
+2026-10-14T20:44:04Z [TE2] Preview 1:43 PM @2 m (003 img 204333, 004 img 204334, ~20 KB): target in frame = ChArUco board (not the v3 card), fully in frame on both, markers readable; drain grates + striped stand visible.
+2026-10-14T20:49:14Z [TE2] Preview 1:48-1:49 PM: v3 card in frame on both (003 img 204809, 004 img 204848 after a retry: 004 never answered id 90062 = one console command lost; 90063 OK). Card whole, corner tags readable, patches distinct.
+2026-10-14T20:59:32Z [TE2] (c) 3 x still+video @2 m v3 card (mark #2) ran 1:50-~1:56 PM. Preview 1:58 PM card ~1 m (img 205855 both): 004 card fully in frame, tags + patches crisp; 003 card clipped on the left column.
+2026-10-14T21:06:26Z [TE2] Preview 2:06 PM card ~1 m (003 img 210559, 004 img 210600): whole card in frame on both, tags + patches crisp.
+2026-10-14T21:08:35Z [TE2] (a) focus sweep @1 m DONE 2:08 PM (mark #3 card_v3_1m_sweep, sweep/210724 both): bmcam003 best_lp=1.2 (ten 1.2), bmcam004 best_lp=0.4 (ten 0.4); back to 0.8. 2 m: both 0.4 (ten 0.2). 004 = 0.4 at both distances -> suspicious (flat metric or unit offset; 10/13 air sweeps had 004 ~0.4-0.5 dpt below 003); visual review of the sweep frames needed.
+2026-10-14T21:13:34Z [TE2 deploy_s bmcam003] RE-ARMED from /home/pi/hil_backup/20261014T170911Z (byte-identical production @reboot line)
+2026-10-14T21:14:11Z [TE2 deploy_s bmcam003] dark after halt
+2026-10-14T21:14:46Z [busOn SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261014T211440Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-14T21:14:49Z Succesfully sent config set msg
+2026-10-14T21:14:49Z 2026-10-14T21:14:52.292Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T21:14:56Z 2026-10-14T21:14:59.488Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T21:14:56Z 2026-10-14T21:14:59.496Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T21:14:56Z 2026-10-14T21:14:59.550Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T21:14:59Z [busOn SPOT-31593C/bmcam003] committed (bus held on); catching the boot
+2026-10-14T21:17:00Z [busOn SPOT-31593C/bmcam003] FAIL: Pi not reachable in 120 s (its armed cycle will run and halt it)
+2026-10-14T21:19:23Z [TE2] Restore: bmcam003 pool_mode off + re-armed (20261014T170911Z, byte-identical) + halted 2:14; Nick asked to download -> hil_bus_always_on catch FAILED (no Wi-Fi in 120 s) -> armed production cycle running on the held bus (halts ~2:23). Samples pulled earlier: loop_03 compressed jpg + nrjxl. bmcam004: pool mode idle, no Wi-Fi -> cannot exit pool mode without ssh. Nick lesson (typed): 'don't switch to production until we download all the files' (memory saved). Asked Nick: hotspot near bmcam004 vs leave.
+2026-10-14T21:24:08Z [busOn SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261014T212401Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-14T21:24:10Z Succesfully sent config set msg
+2026-10-14T21:24:10Z 2026-10-14T21:24:13.117Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T21:24:18Z 2026-10-14T21:24:21.710Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T21:24:18Z 2026-10-14T21:24:21.718Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T21:24:18Z 2026-10-14T21:24:21.773Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T21:24:21Z [busOn SPOT-31593C/bmcam003] committed (bus held on); catching the boot
+up=47s
+1252 bash -c mkdir -p ~/hil_backup/20261014T212401Z && crontab -l > ~/hil_backup/20261014T212401Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-14T21:25:21Z [busOn SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-14T21:25:22Z [busOn SPOT-31593C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261014T212401Z)
+2026-10-14T21:36:15Z [TE2 deploy_s bmcam003] RE-ARMED from /home/pi/hil_backup/20261014T212401Z (byte-identical production @reboot line)
+2026-10-14T21:36:32Z [TE2 deploy_s bmcam003] dark after halt
+2026-10-14T21:37:06Z [restore SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T21:37:53Z Succesfully sent config set msg
+2026-10-14T21:37:53Z 2026-10-14T21:37:56.828Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-14T21:38:17Z 2026-10-14T21:38:20.503Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T21:38:17Z 2026-10-14T21:38:20.511Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T21:38:17Z 2026-10-14T21:38:20.566Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-14T21:38:20Z [restore SPOT-31593C/bmcam003] committed; waiting for the stub-window boot
+[restore] cron ARMED
+fdeb01ab9a04
+[restore] halt issued 21:39:21
+2026-10-14T21:39:44Z [restore SPOT-31593C/bmcam003] bmcam003 dark
+2026-10-14T21:40:24Z [restore SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T21:40:24Z [restore SPOT-31593C/bmcam003] PRODUCTION schedule confirmed
+2026-10-14T21:40:50Z [TE2] bmcam003: full non-DNG pull 649 files 393 MB (95 s via Tailscale on the hotspot) -> re-armed (20261014T212401Z) -> halted -> hil_restore_schedule SPOT-31593C PRODUCTION confirmed 2:40 PM (stub boot caught+halted). bmcam004: pull stopped by Nick at ~322M partial (rest Friday); still in pool mode.
+2026-10-14T21:42:16Z [TE2 deploy_s bmcam004] RE-ARMED from /home/pi/hil_backup/20261014T170911Z (byte-identical production @reboot line)
+2026-10-14T21:42:36Z [TE2 deploy_s bmcam004] dark after halt
+2026-10-14T21:43:00Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T21:43:16Z Succesfully sent config set msg
+2026-10-14T21:43:16Z 2026-10-14T21:43:15.371Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-14T21:43:24Z 2026-10-14T21:43:22.734Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T21:43:24Z 2026-10-14T21:43:22.742Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T21:43:24Z 2026-10-14T21:43:22.796Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-14T21:43:27Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+fdeb01ab9a04
+[restore] halt issued 21:44:13
+2026-10-14T21:44:37Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-14T21:44:54Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T21:44:54Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed
+2026-10-14T21:45:03Z [TE2] bmcam004 restored: args --clear, pool stop, off rc=4 (DISARMED, expected), re-armed from 20261014T170911Z (byte-identical), halted, hil_restore_schedule SPOT-33507C PRODUCTION confirmed 2:44 PM. BOTH units now production (fdeb01a, cfg 0cb7ad9e, keys ON). hil.env HIL_MONITOR left at Tailscale 100.82.38.22 (backup hil.env.bak_pool_*).
