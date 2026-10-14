@@ -23,3 +23,9 @@
 
 ## 2026-10-14T03:59:30Z (Tue 10/13 8:59 PM PDT): Nick typed in TE2's chat, verbatim
 > OK: deploy the QE-passed development merge of bm #146 + #147 (sha from the EM) to bmcam003 and bmcam004 (always-on bus holds and bus power-cycles allowed to force production cycles), console set still.raw.progressive true and uplink.media_key.heal_order after on bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C) after the bmcam003 memory check passes, then restore the hourly schedule; rollback = set both keys back (progressive false, heal_order before).
+
+## 2026-10-14T16:05:37Z (Wed 10/14 9:05 AM PDT): Nick typed in TE2 chat, verbatim
+> pool plan approved from above.
+
+Refers to the pool-day line TE2 posted in this chat at ~9:00 AM:
+> OK for Wed 10/14 (pool day), bench Spotters SPOT-31593C and SPOT-33507C only (never field units): hil_bus_always_on.sh and hil_restore_schedule.sh on both; pool_mode.sh args --lens-position 0.8 / on / start / stop / off on bmcam003 and bmcam004 and the §9 restore; console cmd.txt / bm pub writes for pool commands status/cal/loop/mark/stop/preview; a nereus000 LiFePO4 power cycle if the Spotter consoles don't come back; and console set still.raw.progressive false if the pool preview memory check fails.
