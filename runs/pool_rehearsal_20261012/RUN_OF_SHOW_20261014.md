@@ -93,3 +93,27 @@ Nothing to set:
   - It prompts for the SSID and password silently (Nick types them, not TE2).
   - It doesn't switch the current network.
   - nereus000 rides LTE + Tailscale and needs no hotspot.
+
+## Rev 4 (Nick, ~9:45 AM): (e) = back to PRODUCTION at the pool, not a pool loop
+
+Overnight = normal production: hourly wakes, images over Spotter cellular to the backend, card at 2 m. The "30 min" option is a bridge schedule change, not a pool loop.
+
+| Time | Step | Budget |
+|---|---|---|
+| 1:45–2:05 | **(c)** 3 × still + video @ 2 m | 20 min |
+| 2:05 | units out on the deck → they join the hotspot (path 1: auto) | 5 min |
+| 2:10–2:40 | **(d)** pull to the Mac. CAN BE DEFERRED: production never touches `pool_runs/`; pull later on a bench bus hold | 30 min |
+| 2:40–2:55 | **(e)** §9 restore, both units, ON THE DECK (needs ssh over Wi-Fi): `pool_mode.sh args --clear` + `stop` → `off` → ARMED check → halt → `hil_restore_schedule.sh <SPOT>` (stub boot caught + halted) | 15 min |
+| 2:55 | units back in the water, card at 2 m | 5 min |
+| **3:00 PM** | first production wake underwater → images over cell → backend ~3:05–3:30. Nick leaves | — |
+
+- **Must:** the restore commits before 3:00, or waits until 3:10 (never inside :00–:10).
+- **If behind at 2:05:** defer (d), restore at 2:10, units in by 2:30.
+
+**Evening 30-min cadence (Nick's call)** = `hil_restore_schedule.sh <SPOT> 1800000 600000` per Spotter, over the console (nereus000 on LTE + Tailscale).
+- Covered by today's line (hil_restore_schedule.sh on both).
+- Run it only at :15–:50. Underwater the tool's "unit halted?" ssh check is blind: the Pi is unreachable even when up.
+- Cost: the commit's 2-min stub boot can't be caught (no ssh). One partial image per unit (self-heal fills it) + an SD hard-cut risk.
+- Doubles bus-on time: 20 min/h.
+
+**Console host at the pool:** nereus000 over Tailscale (LTE). TE2 points the hil tools' `HIL_MONITOR` at it (local hil.env edit, backed up).
