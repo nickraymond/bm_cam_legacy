@@ -161,12 +161,19 @@ Run on the Mac, repo root, with `hil/hil.env` on the bench (`HIL_MONITOR=pi@192.
    See: no output. `pc both status` (step 2.2) now works.
 
 4. **Viewer.** Open `http://172.20.10.X:8090/` in a browser on the Mac or phone.
-   See: two cards, **bmcam003** and **bmcam004**. They say "no preview yet", or show last night's preview.
-   Page doesn't load (nereus000 rebooted in transit)? Restart the viewer:
+   See: two cards, **bmcam003** and **bmcam004**, showing the newest preview each, or "no preview yet".
+   - The viewer is an **enabled systemd service** on nereus000 (`/etc/systemd/system/pool-preview.service`: User pi, Restart=always, after spotter-monitor). It starts by itself after a reboot.
+   - On start it shows the previews already rebuilt in `/home/pi/pool_preview/`, then reads the previous and the current UTC-day console log. A page that comes up after a reboot, or after 5 PM PDT (00:00 UTC), is no longer blank.
+
+   Page doesn't load, or the viewer was just redeployed? Restart it:
    ```bash
-   ssh $N 'sudo systemctl reset-failed pool-preview 2>/dev/null; sudo systemd-run --unit pool-preview -p Restart=always -p User=pi /usr/bin/python3 /home/pi/pool_tools/pool_preview.py'
+   ssh $N 'sudo systemctl restart pool-preview && sleep 2 && systemctl is-active pool-preview'
    ```
-   See: `Running as unit: pool-preview.service`. "already exists" means it is already running.
+   See: `active`. Logs: `ssh $N 'journalctl -u pool-preview -n 20 --no-pager'`.
+   Undo the service (back to no viewer at boot):
+   ```bash
+   ssh $N 'sudo systemctl disable --now pool-preview && sudo rm /etc/systemd/system/pool-preview.service && sudo systemctl daemon-reload'
+   ```
 
 5. **Pool Wi-Fi profile** (optional, fallback for the download only). Run it over the hotspot with the IPs from step 2.2, nereus000 included. Priority -10 means a reboot still prefers the hotspot. Adding a profile does NOT switch networks; everything stays on the hotspot.
    ```bash
@@ -474,7 +481,8 @@ Per unit, in this order: bmcam003 / **SPOT-31593C**, then bmcam004 / **SPOT-3350
 | `pool_cmd` exit 3: `NOT-CONSUMED` | spotter-monitor down on nereus000, or a Spotter USB cable/hub is out | `ssh $N 'sudo systemctl restart spotter-monitor'`, check the hub's power, then repeat the command. |
 | `ERR id=N pool ...` | The unit refused: busy, out of space, or bad lines | Read the reason after the verb. `busy phase=...`: wait or `stop`. `sweep` with `busy phase=loop` is expected during the loop: run the 2 m sweep after the loop ends (§7). `space ...`: tell the EM, don't delete anything. |
 | Preview **PARTIAL** | Console lines dropped | Run the resend command shown on the card (`pc <unit> preview --lines ...`). Twice PARTIAL: send a fresh `pc <unit> preview`. |
-| Preview never appears | Camera busy (a loop clip), or the viewer is down | Wait 35 s. Then check that `http://<nereus000-ip>:8090/previews.json` loads; if not, restart the viewer (step 1.4). |
+| Preview never appears | Camera busy (a loop clip), or the viewer is down | Wait 35 s. Then check that `http://<nereus000-ip>:8090/previews.json` loads; if not, `sudo systemctl restart pool-preview` (step 1.4). |
+| Viewer page blank after a nereus000 reboot or after 5 PM PDT (00:00 UTC) | Fixed in the viewer: it now loads the previews already in `/home/pi/pool_preview/` and reads the previous + current UTC-day logs. The service starts on boot. | Still blank: `ssh $N 'sudo systemctl restart pool-preview'` and check `journalctl -u pool-preview -n 20`. It should say `loaded <n> preview(s)` and `read previous-day ...`. nereus000 rebooted 4× on Tue 10/13; the service comes back by itself. |
 | Unit not on the hotspot (`ssid=none` in status) | 5 GHz hotspot, phone asleep, hotspot name/password not exactly the home Wi-Fi's, or the unit is still in the water | Maximize Compatibility ON; stay on the hotspot screen; check the phone name against the home SSID (curly `'`?); unit out of the water and close to the phone. Still nothing: **leave it**. The data is safe on the SD card and the Pi stays up; pull at HQ on the bench Wi-Fi. |
 | Spotter battery low (< 3.7 V, assumed) | ~7 h on a held bus under (E): Tue ~8:30 AM → restore ~3:30 PM. Off-charger drain not measured (on the charger: −0.7 W at 1:12 PM, +0.41 W in T-ENDURE) | Plug the Spotter into deck power or the battery pack. If it can't be charged and the loop is near the end, `pc both stop` gives a clean finish rather than a power cut mid-file. |
 | nereus000 offline: `ssh $N` times out, viewer down, no `pc` (T-ENDURE: ~4 PM) | nereus000 or its USB hub lost power, or it left the hotspot | **The units keep running on their own**: calibration auto-stops, and the loop auto-starts 30 min after calibration (verified in T-ENDURE). Check nereus000's power and hub, and the phone's connection count. Until it is back: no preview, no `mark` (write the time of the card move in §11 instead), no battery reading. After it returns, `pc both status` shows where the loop is. |

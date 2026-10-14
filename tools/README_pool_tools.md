@@ -33,10 +33,16 @@ ssh pi@192.168.1.45 'mkdir -p /home/pi/pool_tools /home/pi/pool_preview'
 scp tools/pool_preview.py tools/pool_cmd.py pi@192.168.1.45:/home/pi/pool_tools/
 ```
 
-Start the viewer as a transient service (survives ssh logout; stop = `sudo systemctl stop pool-preview`):
+The viewer is an **enabled systemd service** on nereus000 since Tue 10/13: `/etc/systemd/system/pool-preview.service` (User pi, Restart=always, after spotter-monitor). It starts on boot. After a redeploy of `pool_preview.py`, restart it:
 
 ```bash
-ssh pi@192.168.1.45 'sudo systemd-run --unit pool-preview -p Restart=always -p User=pi /usr/bin/python3 /home/pi/pool_tools/pool_preview.py'
+ssh pi@192.168.1.45 'sudo systemctl restart pool-preview && sleep 2 && systemctl is-active pool-preview'
+```
+
+On start it shows the previews already in `/home/pi/pool_preview/`, then reads the previous and the current UTC-day console log, and it follows the 00:00 UTC (5 PM PDT) rollover. Undo the service:
+
+```bash
+ssh pi@192.168.1.45 'sudo systemctl disable --now pool-preview && sudo rm /etc/systemd/system/pool-preview.service && sudo systemctl daemon-reload'
 ```
 
 Check it: `ssh pi@192.168.1.45 'journalctl -u pool-preview -n 20 --no-pager'`; Nick opens `http://192.168.1.45:8090/`.

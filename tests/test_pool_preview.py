@@ -388,6 +388,76 @@ class TestDisplayRotation(Base):
             srv.shutdown()
 
 
+class TestRestartAndRollover(Base):
+    """EM 2026-10-13: a restart at 00:29 UTC showed a blank page (only the new, empty UTC-day log
+    was read). Previews must survive restarts and the 00:00 UTC (5 PM PDT) rollover."""
+
+    def spot_dir(self):
+        d = os.path.join(self.out, "logs", "SPOT-31593C")
+        os.makedirs(d, exist_ok=True)
+        return d
+
+    def test_restart_after_utc_rollover_reads_the_previous_day(self):
+        d = self.spot_dir()
+        jpeg = make_pjpeg(seed=31)
+        with open(os.path.join(d, "console_20261013.log"), "w") as f:
+            f.write("\n".join(as_log(pp.encode_preview_lines("bmcam003", "235000", jpeg, 320, 180, 40))) + "\n")
+        with open(os.path.join(d, "console_20261014.log"), "w") as f:
+            f.write("2026-10-14T00:29:00Z 1791.1 abc, power | 12.1V\n")              # new day, no previews
+        store = pp.Store(os.path.join(self.out, "pv"), log=self.logs.append)
+        pp.Tailer(store, os.path.join(self.out, "logs"), log=self.logs.append).poll_once()
+        snap = store.snapshot()
+        self.assertEqual([(r["unit"], r["img_id"], r["status"]) for r in snap], [("bmcam003", "235000", "OK")])
+        self.assertTrue(any("previous-day" in m for m in self.logs))
+
+    def test_load_existing_shows_previews_without_any_log(self):
+        jpeg = make_pjpeg(seed=32)
+        self.feed(pp.encode_preview_lines("bmcam004", "120000", jpeg, 320, 180, 40))   # first viewer run
+        with open(os.path.join(self.out, "display_rotation.json"), "w") as f:
+            f.write('{"bmcam004": 180}')                                            # not a sidecar: skipped
+        fresh = pp.Store(self.out, log=self.logs.append)                              # restart
+        self.assertEqual(fresh.load_existing(), 1)
+        snap = fresh.snapshot()
+        self.assertEqual(snap[0]["status"], "OK")
+        page = pp.render_page(snap, ["bmcam003", "bmcam004"])
+        self.assertIn("/img/bmcam004_120000.jpg", page)
+
+    def test_partial_backfill_never_replaces_an_ok_image(self):
+        jpeg = make_pjpeg(seed=33)
+        lines = pp.encode_preview_lines("bmcam003", "130000", jpeg, 320, 180, 40)
+        self.feed(lines)                                                               # OK on disk
+        with open(os.path.join(self.out, "bmcam003_130000.jpg"), "rb") as f:
+            before = f.read()
+        fresh = pp.Store(self.out, log=self.logs.append)
+        fresh.load_existing()
+        half = len(lines) // 2
+        for line in as_log(lines[half:]):                                              # backfill cut mid-preview
+            fresh.feed(line)
+        self.assertEqual(fresh.snapshot()[0]["status"], "OK")
+        with open(os.path.join(self.out, "bmcam003_130000.jpg"), "rb") as f:
+            self.assertEqual(f.read(), before)
+        self.assertTrue(any("kept the OK image from disk" in m for m in self.logs))
+
+    def test_rollover_while_running_preview_split_across_days(self):
+        d = self.spot_dir()
+        jpeg = make_pjpeg(seed=34)
+        lines = as_log(pp.encode_preview_lines("bmcam003", "235958", jpeg, 320, 180, 40))
+        half = len(lines) // 2
+        old, new = os.path.join(d, "console_20261013.log"), os.path.join(d, "console_20261014.log")
+        with open(old, "w") as f:
+            f.write("\n".join(lines[:half]) + "\n")
+        store = pp.Store(os.path.join(self.out, "pv"), log=self.logs.append)
+        t = pp.Tailer(store, os.path.join(self.out, "logs"), log=self.logs.append)
+        t.poll_once()
+        self.assertEqual(store.snapshot(), [])                                         # not finished yet
+        with open(new, "w") as f:                                                      # 00:00 UTC: new file
+            f.write("\n".join(lines[half:]) + "\n")
+        t.poll_once()
+        snap = store.snapshot()
+        self.assertEqual(len(snap), 1)
+        self.assertEqual(snap[0]["status"], "OK")
+
+
 class TestCli(unittest.TestCase):
     def test_file_once(self):
         import subprocess
