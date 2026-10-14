@@ -57,8 +57,11 @@ Assumptions / limits
   - stdlib only (no Pillow on nereus000 needed); the browser decodes the JPEG.
   - A preview with no PVE is finalised after --idle-s (default 20 s) of silence.
   - A new PVH with the same img_id but a different sha256 starts a fresh image (old lines dropped).
-  - Starts by re-reading the last --backfill-mb (default 4 MB) of each console log, so a
-    restart rebuilds recent previews; older previews need --file.
+  - At start it shows the previews already rebuilt in --out (newest per unit + history), then
+    re-reads the last --backfill-mb (default 4 MB) of the PREVIOUS and the current UTC-day console
+    log (a session can cross 00:00 UTC = 5 PM PDT); a rollover while running is followed. A
+    backfill that sees only part of a preview never replaces an OK image already on disk.
+    Older previews need --file.
   - The best-effort prefix is only as good as the first missing line: a progressive JPEG
     shows the whole frame at lower quality, a gap early in the file shows little.
 """
@@ -196,6 +199,7 @@ class Preview:
         self.dirty = False        # lines changed since the last write
         self.written = None       # last result dict
         self.passes = 0           # PVH count (1 = first send, >1 = resends)
+        self.loaded = None        # the result read back from <out>/<key>.json at startup (if any)
         self.first_rx = None      # monitor log timestamps (epoch): when the unit SENT, not when we parsed
         self.last_rx = None
 
@@ -308,6 +312,38 @@ class Store:
         self.lock = threading.Lock()
         os.makedirs(out_dir, exist_ok=True)
 
+    # keys a sidecar needs to be shown again after a restart (older or foreign *.json are skipped)
+    SIDECAR_KEYS = {"unit", "img_id", "status", "lines_received", "lines_total", "file_bytes", "missing",
+                    "resend_lines", "w", "h", "q", "first_seen_epoch", "received_epoch", "updated_epoch"}
+
+    def load_existing(self):
+        """Show the previews already rebuilt in out_dir (newest per unit + history) right after a
+        restart, before any log line is read (EM 2026-10-13: a restart after 00:00 UTC showed a
+        blank page). -> number loaded."""
+        n = 0
+        with self.lock:
+            for path in sorted(glob.glob(os.path.join(self.out_dir, "*.json"))):
+                try:
+                    with open(path) as f:
+                        res = json.load(f)
+                except (OSError, ValueError):
+                    continue
+                if not isinstance(res, dict) or not self.SIDECAR_KEYS <= set(res):
+                    continue                              # e.g. display_rotation.json
+                key = f"{res['unit']}_{res['img_id']}"
+                if os.path.basename(path) != key + ".json" or key in self.previews:
+                    continue
+                p = Preview(res["unit"], res["img_id"])
+                p.written = p.loaded = res
+                p.first_seen = p.first_rx = res["first_seen_epoch"]
+                p.last_rx = res["received_epoch"]
+                p.dirty = False
+                p.ended = True
+                self.previews[key] = p
+                n += 1
+        self.log(f"[preview] loaded {n} preview(s) already rebuilt in {self.out_dir}")
+        return n
+
     def _get(self, unit, img_id):
         k = f"{unit}_{img_id}"
         if k not in self.previews:
@@ -361,6 +397,14 @@ class Store:
     def _finalise(self, p, why):
         data, res = p.build()
         res["finalised_by"] = why
+        if (p.loaded and p.loaded.get("status") == "OK" and res["status"] != "OK"
+                and res.get("sha256_expected") in (None, p.loaded.get("sha256_expected"))):
+            # A restart's backfill window can start in the middle of a preview: never replace the
+            # OK image on disk with a worse rebuild of the same image.
+            p.written, p.dirty = p.loaded, False
+            self.log(f"[preview] {p.key} kept the OK image from disk (this rebuild saw only "
+                     f"{res['lines_received']}/{res['lines_total']} lines: {why})")
+            return
         base = os.path.join(self.out_dir, p.key)
         if data:
             tmp = base + ".jpg.tmp"
@@ -395,7 +439,9 @@ class Store:
 # ----------------------------------------------------------------------------- tailing
 
 class Tailer:
-    """Follow the newest console_*.log in each <log-root>/<SPOT>/ dir (UTC-daily rotation)."""
+    """Follow the newest console_*.log in each <log-root>/<SPOT>/ dir (UTC-daily rotation). At start
+    it also reads the tail of the previous UTC-day log; a rollover while running finishes the old
+    file, then follows the new one from its first byte."""
 
     def __init__(self, store, log_root, spots=None, backfill_mb=4.0, poll_s=0.5, log=print):
         self.store, self.log_root, self.spots = store, log_root, spots
@@ -422,6 +468,22 @@ class Tailer:
             fh.readline()  # drop the cut first line
         self.log(f"[preview] following {path} (from byte {fh.tell()} of {size})")
 
+    def _read_tail_once(self, path):
+        """Startup: the last --backfill-mb of the PREVIOUS UTC-day log (a session can cross
+        00:00 UTC = 5 PM PDT, and a restart after it would otherwise start on an empty new file)."""
+        size = os.path.getsize(path)
+        with open(path, "rb") as fh:
+            if size > self.backfill:
+                fh.seek(size - self.backfill)
+                fh.readline()                              # drop the cut first line
+            start = fh.tell()
+            data = fh.read()
+        src = os.path.basename(os.path.dirname(path))
+        for raw in data.split(b"\n"):
+            if raw:
+                self.store.feed(raw.decode("utf-8", "replace"), source=src)
+        self.log(f"[preview] read previous-day {path} (from byte {start} of {size})")
+
     def _drain(self, d):
         path, fh, partial = self.files[d]
         data = fh.read()
@@ -442,6 +504,8 @@ class Tailer:
             newest = logs[-1]
             cur = self.files.get(d)
             if cur is None:
+                if len(logs) >= 2:
+                    self._read_tail_once(logs[-2])         # yesterday (UTC) first, then today
                 self._open(d, newest, backfill=True)
             elif cur[0] != newest:
                 self._drain(d)              # finish yesterday's file, then switch
@@ -732,6 +796,7 @@ def main(argv=None):
             return 0 if store.snapshot() and not bad else 1
     else:
         spots = [s for s in a.spots.split(",") if s] or None
+        store.load_existing()
         tailer = Tailer(store, a.log_root, spots=spots, backfill_mb=a.backfill_mb, log=log)
         threading.Thread(target=tailer.run_forever, daemon=True).start()
 
