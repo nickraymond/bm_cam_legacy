@@ -36,7 +36,7 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 11        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 12        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
@@ -48,7 +48,9 @@ REGISTRY_VERSION = 11        # bump when a key is added/removed/retyped (2: comm
                               # 9: camera.exposure.profile / max_shutter_us / max_gain
                               #    (low-gain stills), Sprint28;
                               # 10: still.raw.layout (B3a linear-RGB nrjxl), Sprint28;
-                              # 11: still.raw.rgb_encode_max_s (B3a search cap), Sprint28)
+                              # 11: still.raw.rgb_encode_max_s (B3a search cap), Sprint28;
+                              # 12: uplink.media_key.heal_order before|after (image burst
+                              #     before the rsd heal chunks), Nick 2026-10-08)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -455,6 +457,17 @@ KEYS = (
         v1_sources=("media_key.enabled",), wire_visible=True),
     Key("uplink.media_key.retain_days", FLOAT, 14.0, "Keep sent records this long (days).",
         range=(0.001, 30.0), v1_sources=("media_key.retain_days",)),
+    # 2026-10-08 (Nick, EPIC_transmission_reliability): where this wake's rsd heal chunks go.
+    # Measured on the bench 10/8 (REEF-RC 7 + 8 AM wakes): up to 40 heal chunks BEFORE START
+    # fill the Spotter's 2-slot hand-off queue, the stall lands on START and the new image
+    # loses START + its first 6-8 chunks, so the freshest image then needs its own heal.
+    # `after` = START + the new media's burst first, heals in what is left (rc_heal).
+    Key("uplink.media_key.heal_order", ENUM, "before", "Where a wake's rsd heal chunks go: "
+        "before = ahead of the new media's START (today's wire); after = START + the new "
+        "media's burst first, then the heal chunks in the budget left (the newest media "
+        "gets the clean part of the window). No daemon or nothing pending = no change.",
+        enum=("before", "after"), v1_sources=("media_key.heal_order",),
+        presets=(("heals first (today)", "before"), ("new media first", "after"))),
 
     # ---- commands -----------------------------------------------------------
     Key("commands.enabled", BOOL, False, "Listen for commands on the BM bus.",

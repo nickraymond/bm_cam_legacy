@@ -435,6 +435,35 @@ V9_SCENARIOS = {
         "notes": "heals on v9: a live rsd at boot replaces the pending one; a second rsd "
                  "mid-burst (the inbox must not lose its <HL>, review B8)",
     },
+    # uplink.media_key.heal_order after (registry v12, Nick 2026-10-08): the same two wakes
+    # as v9_heal / v9_video with the new media first and the heal chunks after END + the
+    # ack flush, before the <HL>.
+    "v9_heal_after": {
+        "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": {**V9_V2, "uplink.media_key.heal_order": "after"},
+        "seed": ["old_media", "pending_heal"],
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 100002, "c": "rsd", "h": [["{KEY}", "2"]]}},
+            {"when": "after_tx", "n": 12, "payload": {"id": 100004, "c": "rsd",
+                                                      "h": [["{KEY}", "1"]]}},
+        ],
+        "notes": "v9_heal with heal_order after: START + the image's chunks + END first, the "
+                 "heal chunk <I{KEY}.2> after END (sleep before it), then the <HL>; the "
+                 "mid-burst rsd still waits for the next wake",
+    },
+    "v9_video_heal_after": {
+        "kind": "video", "utc": IN_WINDOW, "edits": BASE_EDITS + TO_VIDEO,
+        "append": VIDEO_ISLANDS + MEDIA_KEY,
+        "v2": {**V9_V2, "uplink.media_key.heal_order": "after"},
+        "seed": ["old_media", "pending_heal"],
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 100002, "c": "rsd", "h": [["{KEY}", "2"]]}},
+            {"when": "after_tx", "n": 20, "payload": {"id": 1000512, "c": "ping"}},
+        ],
+        "notes": "video with heal_order after: clip first (START, chunks, keyframe repeat, "
+                 "END), the mid-burst ping's cellular ack in the post-END flush, THEN the "
+                 "heal chunk, then the <HL>",
+    },
     "v9_trigger_in_tail": {
         "kind": "stills", "utc": IN_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
         "v2": V9_V2,

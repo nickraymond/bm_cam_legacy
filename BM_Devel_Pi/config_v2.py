@@ -316,6 +316,16 @@ def _exposure_profile_lines(v):
             f"  max_gain: {_n(float(v['camera.exposure.max_gain']))}"]
 
 
+def _heal_order_lines(v):
+    """registry v12 `uplink.media_key.heal_order` -> `media_key.heal_order`, written ONLY
+    when it is not `before` (rc_media_key reads absent as before), so a unit on the
+    default renders byte-identical to registry v11."""
+    order = v.get("uplink.media_key.heal_order")
+    if order in (None, "before"):
+        return []
+    return [f"  heal_order: {_q(order)}"]
+
+
 def render_v1_text(values):
     """v1 camera_schedule.yaml text for the BASE values (see module doc)."""
     v = values
@@ -400,6 +410,7 @@ def render_v1_text(values):
           "media_key:",
           f"  enabled: {_n(v['uplink.media_key.enabled'])}",
           f"  retain_days: {_n(v['uplink.media_key.retain_days'])}",
+          *_heal_order_lines(v),
           "video:",
           f"  clip_minutes: {_n(v['video.logger.clip_minutes'])}",
           f"  fps: {_n(v['video.record.fps'])}",
