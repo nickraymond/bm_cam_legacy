@@ -443,3 +443,154 @@
 2026-10-07T20:16:18Z       ube = 0 - "" (0,1)
 2026-10-07T20:16:18Z        sh = 0 - "" (0,32)
 2026-10-07T20:16:18Z cfg end
+2026-10-07T23:10:34Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:10:35Z bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:10:35Z Succesfully sent config get msg
+2026-10-07T23:10:35Z 2026-10-07T23:10:36.769Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:10:39Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:10:40Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:10:40Z Succesfully sent config get msg
+2026-10-07T23:10:40Z 2026-10-07T23:10:41.183Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:10:43Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:10:44Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:10:44Z Succesfully sent config get msg
+2026-10-07T23:10:44Z 2026-10-07T23:10:45.402Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-07T23:10:47Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:10:52Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:10:52Z Succesfully sent config get msg
+2026-10-07T23:10:52Z 2026-10-07T23:10:53.640Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-07T23:10:56Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:10:57Z bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:10:57Z Succesfully sent config get msg
+2026-10-07T23:10:57Z 2026-10-07T23:10:57.855Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:11:00Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:11:01Z bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:11:01Z Succesfully sent config get msg
+2026-10-07T23:11:01Z 2026-10-07T23:11:02.277Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:11:04Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:11:05Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:11:05Z Succesfully sent config get msg
+2026-10-07T23:11:05Z 2026-10-07T23:11:06.496Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:11:08Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:11:09Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:11:09Z Succesfully sent config get msg
+2026-10-07T23:11:09Z 2026-10-07T23:11:10.710Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-07T23:11:13Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:11:14Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:11:14Z Succesfully sent config get msg
+2026-10-07T23:11:14Z 2026-10-07T23:11:15.132Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-07T23:11:17Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:11:18Z bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:11:18Z Succesfully sent config get msg
+2026-10-07T23:11:18Z 2026-10-07T23:11:19.347Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:11:59Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:12:01Z bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:12:01Z Succesfully sent config get msg
+2026-10-07T23:12:01Z 2026-10-07T23:12:02.171Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:04Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:12:05Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:12:05Z Succesfully sent config get msg
+2026-10-07T23:12:05Z 2026-10-07T23:12:05.984Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:07Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:12:08Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:12:08Z Succesfully sent config get msg
+2026-10-07T23:12:08Z 2026-10-07T23:12:09.796Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-07T23:12:12Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:12:13Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:12:13Z Succesfully sent config get msg
+2026-10-07T23:12:13Z 2026-10-07T23:12:14.214Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-07T23:12:16Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:12:17Z bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:12:17Z Succesfully sent config get msg
+2026-10-07T23:12:17Z 2026-10-07T23:12:18.437Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:20Z SPOT-31593C > bridge cfg set 0e582dd12c1e1480 s u ticksSamplingEnabled 0
+2026-10-07T23:12:22Z bridge cfg set 0e582dd12c1e1480 s u ticksSamplingEnabled 0
+2026-10-07T23:12:22Z Succesfully sent config set msg
+2026-10-07T23:12:22Z 2026-10-07T23:12:22.859Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.039Z [SYS] [INFO] Remote message received(85)! "bm pub bmcam/cmd {"id":100189,"c":"rsd","h":[["0ee24p","38-42,53-87"]]} 1 1
+2026-10-07T23:12:24Z id:39194
+2026-10-07T23:12:24Z "
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.039Z [BRIDGE] [INFO] Queuing serial command: bm pub bmcam/cmd {"id":100189,"c":"rsd","h":[["0ee24p","38-42,53-87"]]} 1 1
+2026-10-07T23:12:24Z Command not recognised.  Enter 'help' to view a list of available commands.
+2026-10-07T23:12:24Z 
+2026-10-07T23:12:24Z Command not recognised.  Enter 'help' to view a list of available commands.
+2026-10-07T23:12:24Z 
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.066Z [ERR] [INFO] Cellular SignalErrorState changed from N/A to OK
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.066Z [MS] [DEBUG] Messages sent/received successfully.
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.085Z [SYS] [INFO] Returning 0 from sdMsgQueue::size, queue 0
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.085Z [MS] [DEBUG] Have 0 messages on the SD card queue that we will try to send
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.085Z [MS] [INFO] Number of SD messages we attempted to send: 0
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.085Z [MS] [DEBUG] Sending legacy messages to Notecard.
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.113Z [MS] [DEBUG] Notecard is 3.000000 pct full.
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.113Z [MS] [INFO] Setting GPS coordinates lat:37.758099, lon: -122.430862
+2026-10-07T23:12:24Z 2026-10-07T23:12:25.195Z [MS] [DEBUG] Attempting to Sync.
+2026-10-07T23:12:26Z SPOT-31593C > bridge cfg commit 0e582dd12c1e1480 s
+2026-10-07T23:12:35Z bridge cfg commit 0e582dd12c1e1480 s
+2026-10-07T23:12:35Z Succesfull config commit send
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.070Z [BRIDGE] [ERROR] Bridge RX Processing Packet Failure: -7
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.070Z [BRIDGE] [INFO] Setting negotiated baud rate to 1000000 from 1000000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.078Z [BRIDGE_SYS] [INFO] Bridge State Init
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.078Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.085Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: system, Commit Status: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Num Keys: 16
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 0: sampleIntervalMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 1: sampleDurationMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 2: subsampleIntervalMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 3: subsampleDurationMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 4: subsampleEnabled
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 5: bridgePowerControllerEnabled
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 6: alignmentInterval5Min
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.136Z [BRIDGE_CFG] [INFO] Key 7: ticksSamplingEnabled
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 8: samplesPerReport
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 9: transmitAggregations
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 10: currentReadingPeriodMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 11: softReadingPeriodMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 12: rbrCodaReadingPeriodMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 13: turbidityReadingPeriodMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 14: disableUnusedPortsTimeMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 15: salinityReadingPeriodMs
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: user, Commit Status: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Num Keys: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Response msg -- Node Id: 0000000000000000, Partition: hardware, Commit Status: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Num Keys: 1
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.140Z [BRIDGE_CFG] [INFO] Key 0: smConfigurationCrc
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.144Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.148Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.152Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.156Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 300000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.164Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.167Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.171Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.175Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.183Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.187Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.191Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.199Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 60000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.203Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.207Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 500
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.210Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.218Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.222Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 30000
+2026-10-07T23:12:37Z 2026-10-07T23:12:38.226Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: hardware - Failed to decode value
+2026-10-07T23:12:38Z 2026-10-07T23:12:39.113Z [BRIDGE_SYS] [INFO] Neighbor e6fe83ea6b4a2b7f added
+2026-10-07T23:13:38Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:13:41Z bridge cfg get 0e582dd12c1e1480 s ticksSamplingEnabled
+2026-10-07T23:13:41Z Succesfully sent config get msg
+2026-10-07T23:13:41Z 2026-10-07T23:13:42.167Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-07T23:13:44Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:13:45Z bridge cfg get 0e582dd12c1e1480 s bridgePowerControllerEnabled
+2026-10-07T23:13:45Z Succesfully sent config get msg
+2026-10-07T23:13:45Z 2026-10-07T23:13:46.386Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-07T23:13:48Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:13:50Z bridge cfg get 0e582dd12c1e1480 s sampleIntervalMs
+2026-10-07T23:13:50Z Succesfully sent config get msg
+2026-10-07T23:13:50Z 2026-10-07T23:13:51.003Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 3600000
+2026-10-07T23:13:53Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:13:54Z bridge cfg get 0e582dd12c1e1480 s sampleDurationMs
+2026-10-07T23:13:54Z Succesfully sent config get msg
+2026-10-07T23:13:54Z 2026-10-07T23:13:55.218Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 600000
+2026-10-07T23:13:57Z SPOT-31593C > bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:13:58Z bridge cfg get 0e582dd12c1e1480 s alignmentInterval5Min
+2026-10-07T23:13:58Z Succesfully sent config get msg
+2026-10-07T23:13:58Z 2026-10-07T23:13:59.437Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1

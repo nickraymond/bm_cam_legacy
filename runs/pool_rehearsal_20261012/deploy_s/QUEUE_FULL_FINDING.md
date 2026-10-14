@@ -1,4 +1,4 @@
-# bmcam003 "runs of exactly 10" loss = Spotter cell-queue stalls, not #146/#147 (TE2, Tue 10/13 11:45 PM PDT)
+# bmcam003 "runs of exactly 10" loss = Spotter cell-queue stalls, not #146/#147 (TE2, Tue 10/13 11:30 PM PDT)
 
 **Question (EM 11:28 PM):** bmcam003, now on SPOT-31593C, loses chunks in runs of exactly 10, ~63–74 chunks apart. Is this a regression from tonight's deploy?
 
