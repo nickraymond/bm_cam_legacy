@@ -1,0 +1,5 @@
+2026-10-14T04:34:37Z [TE2 deploy_s bmcam003] send id=66006 set {"still.raw.progressive":true} via SPOT-31593C
+===== 2026-10-14T04:34:37Z DEPLOY_S.bmcam003.66006 SPOT-31593C  bm pub bmcam/cmd {"id":66006,"c":"set","kv":{"still.raw.progressive":true}} 1 1  (80 B line)
+CON  2026-10-14T04:34:40Z bm pub bmcam/cmd {"id":66006,"c":"set","kv":{"still.raw.progressive":true}} 1 1
+CON  2026-10-14T04:34:40Z 1791952480.484 53171fa3d81a8e6f, [bmcam003] OK id=66006 still.raw.progressive: false -> true (next action) cfg=e0963007
+SUMMARY cell=0 con=2

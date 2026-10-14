@@ -352,3 +352,113 @@ up=44s
 2026-10-14T04:19:16Z [deploy-s147 bmcam004] ref=development want=fdeb01a profile=bmcam004/live_20260925 window=2026-10-14T06:00:00Z accept_diff=0; waiting
 2026-10-14T04:19:18Z [TE2] S=fdeb01a (EM). Pre-checks: diff 9ec4cb7..S = #146/#147 files + pool files byte-identical to cbdea93 (pool_sequence 992d3e94, rc_focus_sweep 70263d1f, rc_preview 571b6b45); registry v13, progressive default False, heal_order default before; both render byte-identical at defaults (no ACCEPT_DIFF). nereus000 still VIN 4660/VBAT 3237 -> NO bus holds: hil_deploy_window (ssh only, no console) armed: bmcam003 10 PM (05:00Z), bmcam004 11 PM (06:00Z), label s147; deploy wakes make no image. Switch-on after the EM confirms backend catalog v13 (nvd #147).
 2026-10-14T04:22:18Z [TE2] EM: backend nvd #147 (catalog v13) merged to staging 9:21 PM; switch-on cleared backend-side once each unit runs fdeb01a. EM holds bm development merges until TE2 says the deploy windows are done.
+2026-10-14T04:25:23Z [TE2] Nick 9:25 PM (via EM, covered by his typed 9:03 PM line: holds + bus power-cycles): force the update NOW with bus holds, both units in parallel. Cancelled the armed hil_deploy_window runs (10 PM/11 PM). STOP RULE: nereus000 VBAT < 3100 mV or VIN dropout -> abort, restore schedule, tell EM. VBAT logged every 5 min (power_watch_s147.log).
+2026-10-14T04:25:25Z [TE2 power] nereus000 VIN=4660 VBAT=3234 IOUT=1357
+2026-10-14T04:25:49Z [TE2 deploy_s bmcam004] hold: hil_bus_always_on SPOT-33507C
+2026-10-14T04:25:49Z [TE2 deploy_s bmcam003] hold: hil_bus_always_on SPOT-31593C
+2026-10-14T04:25:57Z [busOn SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam004 'crontab ~/hil_backup/20261014T042552Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-33507C
+2026-10-14T04:25:57Z [busOn SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=1. RESTORE: ssh pi@bmcam003 'crontab ~/hil_backup/20261014T042552Z/crontab_ARMED.txt'; halt; hil/tools/hil_restore_schedule.sh SPOT-31593C
+2026-10-14T04:25:59Z Succesfully sent config set msg
+2026-10-14T04:25:59Z 2026-10-14T04:25:59.125Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T04:25:59Z Succesfully sent config set msg
+2026-10-14T04:25:59Z 2026-10-14T04:25:57.269Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 0
+2026-10-14T04:26:05Z 2026-10-14T04:26:03.824Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T04:26:05Z 2026-10-14T04:26:03.832Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T04:26:05Z 2026-10-14T04:26:03.890Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T04:26:05Z 2026-10-14T04:26:05.714Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T04:26:05Z 2026-10-14T04:26:05.722Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T04:26:05Z 2026-10-14T04:26:05.781Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T04:26:08Z [busOn SPOT-33507C/bmcam004] committed (bus held on); catching the boot
+2026-10-14T04:26:08Z [busOn SPOT-31593C/bmcam003] committed (bus held on); catching the boot
+up=36s
+978 bash -c mkdir -p ~/hil_backup/20261014T042552Z && crontab -l > ~/hil_backup/20261014T042552Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-14T04:26:55Z [busOn SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=0
+2026-10-14T04:26:56Z [busOn SPOT-33507C/bmcam004] bus held ON, bmcam004 up + disarmed (backup ~/hil_backup/20261014T042552Z)
+2026-10-14T04:26:56Z [TE2 deploy_s bmcam004] hil_bus_always_on rc=0
+up=45s
+1247 bash -c mkdir -p ~/hil_backup/20261014T042552Z && crontab -l > ~/hil_backup/20261014T042552Z/crontab_ARMED.txt && crontab -l | sed -E 's|^(@reboot.*rc_run_capture_cycle)|# DISARMED_BUS_ON \1|' | crontab - && pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py'; sleep 2; echo up=$(cut -d. -f1 /proc/uptime)s; pgrep -af 'rc_run_capture_cycle|rc_progressive_jpeg' || echo no-cycle; crontab -l | grep -E '@reboot'
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+2026-10-14T04:27:03Z [busOn SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=0
+2026-10-14T04:27:04Z [busOn SPOT-31593C/bmcam003] bus held ON, bmcam003 up + disarmed (backup ~/hil_backup/20261014T042552Z)
+2026-10-14T04:27:04Z [TE2 deploy_s bmcam003] hil_bus_always_on rc=0
+2026-10-14T04:27:38Z [TE2 deploy_s bmcam004] deploy development want=fdeb01a profile=bmcam004/live_20260925 no-accept -> /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint26-s3a-runtime-parity-092958/runs/pool_rehearsal_20261012/deploy_s/bmcam004/field_update_20261014T042738Z_check.log
+2026-10-14T04:27:39Z [TE2 deploy_s bmcam003] deploy development want=fdeb01a profile=bmcam003/live_20260925 no-accept -> /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint26-s3a-runtime-parity-092958/runs/pool_rehearsal_20261012/deploy_s/bmcam003/field_update_20261014T042739Z_check.log
+2026-10-14T04:28:31Z [TE2 deploy_s bmcam004] rc_field_update rc=0 sha=fdeb01ab9a04 (want fdeb01a) log=field_update_20261014T042738Z_check.log
+2026-10-14T04:28:31Z [TE2 deploy_s bmcam004] DEPLOYED fdeb01ab9a04
+2026-10-14T04:28:47Z [TE2 deploy_s bmcam003] rc_field_update rc=0 sha=fdeb01ab9a04 (want fdeb01a) log=field_update_20261014T042739Z_check.log
+2026-10-14T04:28:47Z [TE2 deploy_s bmcam003] DEPLOYED fdeb01ab9a04
+2026-10-14T04:29:22Z [TE2] DEPLOYED fdeb01ab9a04 on both (held bus, parallel, no ACCEPT_DIFF): print-config parity OK (14 lines) + 13 loader JSON equal; [CFG] hash 44b81292 -> e1f36cf6 registry v13 overlay 6 (config_hash = sha256 of ALL effective values, so the 2 new default keys change it; behaviour identical). Rollback tars: bmcam003 /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam003_20261014T042818Z.tgz, bmcam004 /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam004_20261014T042802Z.tgz. Report-only: uplink.msg_interval_s unit=1.0 vs profile 1.3 (pre-existing, unchanged).
+2026-10-14T04:29:26Z [TE2 deploy_s bmcam003] RE-ARMED from /home/pi/hil_backup/20261014T042552Z (byte-identical production @reboot line)
+2026-10-14T04:29:30Z [TE2 deploy_s bmcam004] RE-ARMED from /home/pi/hil_backup/20261014T042552Z (byte-identical production @reboot line)
+2026-10-14T04:29:46Z [TE2 deploy_s bmcam003] dark after halt
+2026-10-14T04:29:46Z [TE2 deploy_s bmcam004] dark after halt
+2026-10-14T04:30:02Z [TE2 deploy_s bmcam004] boot: bridge cfg commit c3c564b91856226c on SPOT-33507C (bus power-cycle -> production boot)
+2026-10-14T04:30:02Z [TE2 deploy_s bmcam003] boot: bridge cfg commit 0e582dd12c1e1480 on SPOT-31593C (bus power-cycle -> production boot)
+2026-10-14T04:30:35Z [TE2 power] nereus000 VIN=4660 VBAT=3229 IOUT=1377
+2026-10-14T04:30:54Z [TE2 deploy_s bmcam004] up; sampler -> cjxl_sampler_20261014T043054Z.txt; waiting for the listen window
+2026-10-14T04:30:58Z [TE2 deploy_s bmcam003] up; sampler -> cjxl_sampler_20261014T043058Z.txt; waiting for the listen window
+2026-10-14T04:34:37Z [TE2 deploy_s bmcam003] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T042957Z.log
+2026-10-14T04:34:37Z [TE2 deploy_s bmcam003] send id=66006 set {"still.raw.progressive":true} via SPOT-31593C
+2026-10-14T04:35:15Z [TE2 deploy_s bmcam004] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T042959Z.log
+2026-10-14T04:35:44Z [TE2 power] nereus000 VIN=4657 VBAT=3229 IOUT=1343
+2026-10-14T04:38:32Z [TE2 deploy_s bmcam004] dark
+2026-10-14T04:38:32Z [TE2 deploy_s bmcam003] dark
+2026-10-14T04:38:50Z [TE2 deploy_s bmcam003] boot: bridge cfg commit 0e582dd12c1e1480 on SPOT-31593C (bus power-cycle -> production boot)
+2026-10-14T04:38:50Z [TE2 deploy_s bmcam004] boot: bridge cfg commit c3c564b91856226c on SPOT-33507C (bus power-cycle -> production boot)
+2026-10-14T04:39:38Z [TE2 deploy_s bmcam004] up; sampler -> cjxl_sampler_20261014T043938Z.txt; waiting for the listen window
+2026-10-14T04:39:47Z [TE2 deploy_s bmcam003] up; sampler -> cjxl_sampler_20261014T043947Z.txt; waiting for the listen window
+2026-10-14T04:40:54Z [TE2 power] nereus000 VIN=4660 VBAT=3225 IOUT=1363
+2026-10-14T04:43:26Z [TE2 deploy_s bmcam003] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T043840Z.log
+2026-10-14T04:43:27Z [TE2] MEMCHECK bmcam003 boot B (-p): PASS | max cjxl peak_rss=116844 KiB (bar 153600 = 150 MiB, guard 250 MiB), sampler max VmHWM=116628 KiB, nrjxl msgs=189 (bar 195), fallbacks=0, cjxl pids with -p=3 without=0
+2026-10-14T04:43:27Z [TE2 deploy_s bmcam003] send id=66007 set {"uplink.media_key.heal_order":"after"} via SPOT-31593C
+2026-10-14T04:43:31Z [TE2 deploy_s bmcam004] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T043840Z.log
+2026-10-14T04:43:31Z [TE2 deploy_s bmcam004] send id=66008 set {"still.raw.progressive":true,"uplink.media_key.heal_order":"after"} via SPOT-33507C
+2026-10-14T04:46:04Z [TE2 power] nereus000 VIN=4663 VBAT=3222 IOUT=1347
+2026-10-14T04:47:20Z [TE2 deploy_s bmcam003] dark
+2026-10-14T04:47:20Z [TE2 deploy_s bmcam004] dark
+2026-10-14T04:47:24Z [TE2 deploy_s bmcam003] boot: bridge cfg commit 0e582dd12c1e1480 on SPOT-31593C (bus power-cycle -> production boot)
+2026-10-14T04:47:24Z [TE2 deploy_s bmcam004] boot: bridge cfg commit c3c564b91856226c on SPOT-33507C (bus power-cycle -> production boot)
+2026-10-14T04:48:10Z [TE2 deploy_s bmcam004] up; sampler -> cjxl_sampler_20261014T044810Z.txt; waiting for the listen window
+2026-10-14T04:48:17Z [TE2 deploy_s bmcam003] up; sampler -> cjxl_sampler_20261014T044817Z.txt; waiting for the listen window
+2026-10-14T04:51:14Z [TE2 power] nereus000 VIN=4660 VBAT=3222 IOUT=1315
+2026-10-14T04:52:04Z [TE2 deploy_s bmcam004] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T044727Z.log
+2026-10-14T04:52:04Z [TE2 deploy_s bmcam003] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T044727Z.log
+2026-10-14T04:54:48Z [TE2 deploy_s bmcam004] dark
+2026-10-14T04:54:48Z [TE2 deploy_s bmcam003] dark
+2026-10-14T04:55:05Z [restore SPOT-31593C/bmcam003] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T04:55:05Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T04:55:19Z Succesfully sent config set msg
+2026-10-14T04:55:19Z 2026-10-14T04:55:17.820Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-14T04:55:19Z Succesfully sent config set msg
+2026-10-14T04:55:19Z 2026-10-14T04:55:19.742Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-14T04:55:26Z 2026-10-14T04:55:24.578Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T04:55:26Z 2026-10-14T04:55:24.585Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T04:55:26Z 2026-10-14T04:55:24.648Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-14T04:55:26Z 2026-10-14T04:55:26.542Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T04:55:26Z 2026-10-14T04:55:26.550Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T04:55:26Z 2026-10-14T04:55:26.605Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-14T04:55:29Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+2026-10-14T04:55:29Z [restore SPOT-31593C/bmcam003] committed; waiting for the stub-window boot
+[restore] cron ARMED
+fdeb01ab9a04
+[restore] halt issued 04:56:06
+2026-10-14T04:56:23Z [TE2 power] nereus000 VIN=4660 VBAT=3217 IOUT=1313
+[restore] cron ARMED
+fdeb01ab9a04
+[restore] halt issued 04:56:24
+2026-10-14T04:56:31Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-14T04:56:43Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T04:56:43Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed
+2026-10-14T04:56:47Z [restore SPOT-31593C/bmcam003] bmcam003 dark
+2026-10-14T04:57:00Z [restore SPOT-31593C/bmcam003] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T04:57:00Z [restore SPOT-31593C/bmcam003] PRODUCTION schedule confirmed
+2026-10-14T04:57:40Z [TE2] fdeb01a SWITCH-ON DONE (held bus 9:26-9:57 PM, both parallel; Nick typed OK 9:03 PM):
+  boot A (S, defaults) both: cfg e1f36cf6 v13 overlay 6; keyed nrjxl 191/191 msgs; cjxl peak 98.1/98.2 MiB, no -p; heals BEFORE START (003 0eps8u 2 ch, 004 0epv0y 40 ch); no FALLBACK.
+  66006 bmcam003 set still.raw.progressive true -> OK (cfg e0963007).
+  boot B bmcam003 MEMCHECK PASS: -p in all 3 cjxl argv; peak_rss max 116844 KiB (114.1 MiB; bar 150, guard 250); 189 msgs (bar 195); 0 fallbacks.
+  66007 bmcam003 set uplink.media_key.heal_order after -> OK (cfg 0cb7ad9e); 66008 bmcam004 set progressive true + heal_order after -> OK (cfg 0cb7ad9e).
+  boot C verify both: cfg 0cb7ad9e v13 overlay 8; HEAL 'order after'; -p in every cjxl argv; peak 114.1 / 113.8 MiB; 191 / 192 msgs; no FALLBACK/ERR. Heal-after on the wire not yet exercised (0 pending heals).
+  hil_restore_schedule both: controller 1 / 3600000 / 600000, cron ARMED, sha fdeb01ab9a04, halted, PRODUCTION confirmed 04:57Z.
+  nereus000 during the hold: VIN 4660 flat, VBAT 3234 -> 3220 mV (stop 3100 never hit). Watcher stopped.
+  Images sent (keys): 003 0epz71 0epzlr 0eq007; 004 0epz6x <B> 0eq003. Rollback: am_rollback.sh keys (ids 66009/66010); code tars 003 ..._bmcam003_20261014T042818Z.tgz, 004 ..._bmcam004_20261014T042802Z.tgz.

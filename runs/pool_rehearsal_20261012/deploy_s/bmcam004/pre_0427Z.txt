@@ -1,0 +1,8 @@
+sha=9ec4cb7ae7c1
+up=74s
+# DISARMED_BUS_ON @reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+armed_backup=/home/pi/hil_backup/20261014T042552Z/
+@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh
+no-cycle
+/dev/mmcblk0p2  115G   11G  100G  10% /
+Mem:             415         170         155           2         142         244

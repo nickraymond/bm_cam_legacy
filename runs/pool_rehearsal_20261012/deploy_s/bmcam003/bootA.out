@@ -1,0 +1,7 @@
+2026-10-14T04:30:02Z [TE2 deploy_s bmcam003] boot: bridge cfg commit 0e582dd12c1e1480 on SPOT-31593C (bus power-cycle -> production boot)
+2026-10-14T04:30:05Z 2026-10-14T04:30:05.875Z [BRIDGE] [INFO] Reboot info received from 0e582dd12c1e1480 - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T04:30:05Z 2026-10-14T04:30:05.882Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T04:30:05Z 2026-10-14T04:30:05.937Z [BRIDGE] [INFO] handle_power_states, power on for: 4294967295
+2026-10-14T04:30:58Z [TE2 deploy_s bmcam003] up; sampler -> cjxl_sampler_20261014T043058Z.txt; waiting for the listen window
+2026-10-14T04:34:37Z [TE2 deploy_s bmcam003] listen window OPEN in /home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T042957Z.log
+/home/pi/BM_Devel_Pi/cron_logs/rc_cycle_20261014T042957Z.log

@@ -1,0 +1,23 @@
+2:[RC-CRON] Sprint08 progressive-JPEG RC cycle starting
+11:[RC-CRON] running RC capture/transmit cycle (halt at end per power_halt YAML)...
+13:[CFG] config v2 /home/pi/BM_Devel_Pi/camera_config.yaml media=still hash=e0963007 hv=1 registry=v13 overlay=7 key(s)
+26:[RC] message cap: 195 msgs (field-tested hard cap)
+28:[RC] derived (informational): transmit-only budget holds 480 paced msgs; M1 owns real accounting
+29:[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=yaml
+38:[RC] cycle start: budget=480s pacing=1.0s/msg
+45:[RAW] still.format=nrjxl: target_fill=0.97 d_max=10.4 distances=[3.8, 4.6, 5.95, 8.25] effort=5 encode_max_s=30 keep_crop=False crop=[1504, 846, 1600, 900] (native px)
+52:[RC] attempt q90: 6175 B, 22 msgs, over_cap=False, budget_fit=True
+54:[RC] final JPEG: /home/pi/BM_Devel_Pi/images/2026-10-14T04:39:27Z_image_compressed.jpg (6175 B, 22 msgs, sha256=d085286e1ea223b1...)
+55:[HEAL] wake plan: 0 pending heal(s), 0 chunk(s) this wake (cap 40)
+56:[RAW] rgb (B3a) written to /home/pi/BM_Devel_Pi/images/.nrjxl_work_2026-10-14T04:39:27Z_image; supervisor VmRSS=72356 KiB (cjxl runs on top of this)
+58:[RAW] search1 d=2.595: 32981 B, 115 msgs, over_cap=False, budget_fit=True, 12.0 s, peak_rss=115908 KiB
+59:[RAW] search2 d=1.642: 62370 B, 217 msgs, over_cap=True, budget_fit=True, 10.4 s, peak_rss=116612 KiB
+60:[RAW] search3 d=1.81: 54393 B, 189 msgs, over_cap=False, budget_fit=True, 9.7 s, peak_rss=116844 KiB
+61:[RAW] nrjxl ready: 54393 B, 189 msgs at d=1.81 att=3 (encode 32.1 s, elapsed=48.4s)
+62:[KEY] media key 0epzlr from Spotter UTC 2026-10-14T04:39:27.292000+00:00 (spotter)
+63:[KEY] sent record: /home/pi/BM_Devel_Pi/sent/2026-10-14T04:39:27Z_image_compressed.sent.json (189 msgs, chunks <I0epzlr.n/189>)
+77:[CMD] post-transmit listen window: 150s
+-- sampler cjxl_sampler_20261014T043947Z.txt: per cjxl pid, max VmHWM KiB, -p in argv?
+04:39:47.967 pid=1127 samples=4 max_hwm=115848 KiB (113.1 MiB) ARGV HAS -p
+04:39:49.539 pid=1313 samples=27 max_hwm=116612 KiB (113.9 MiB) ARGV HAS -p
+04:39:59.986 pid=1592 samples=25 max_hwm=116628 KiB (113.9 MiB) ARGV HAS -p

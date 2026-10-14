@@ -1,0 +1,13 @@
+2026-10-14T04:55:05Z [restore SPOT-33507C/bmcam004] before: bridgePowerControllerEnabled=0 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T04:55:19Z Succesfully sent config set msg
+2026-10-14T04:55:19Z 2026-10-14T04:55:17.820Z [BRIDGE_CFG] [INFO] Node ID: 0000000000000000 Partition: system Value: 1
+2026-10-14T04:55:26Z 2026-10-14T04:55:24.578Z [BRIDGE] [INFO] Reboot info received from c3c564b91856226c - Reason: 5 gitSHA: 1595f804 Reboot cnt: 0 PC: 0x0 LR: 0x0
+2026-10-14T04:55:26Z 2026-10-14T04:55:24.585Z [BRIDGE_SYS] [INFO] Bridge bus power: 1
+2026-10-14T04:55:26Z 2026-10-14T04:55:24.648Z [BRIDGE] [INFO] handle_power_states, power on for: 120000
+2026-10-14T04:55:29Z [restore SPOT-33507C/bmcam004] committed; waiting for the stub-window boot
+[restore] cron ARMED
+fdeb01ab9a04
+[restore] halt issued 04:56:06
+2026-10-14T04:56:31Z [restore SPOT-33507C/bmcam004] bmcam004 dark
+2026-10-14T04:56:43Z [restore SPOT-33507C/bmcam004] after: bridgePowerControllerEnabled=1 sampleIntervalMs=3600000 sampleDurationMs=600000 
+2026-10-14T04:56:43Z [restore SPOT-33507C/bmcam004] PRODUCTION schedule confirmed

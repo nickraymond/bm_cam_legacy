@@ -39,7 +39,7 @@ keys)
   log "keys rollback sent; check 'OK id=66009/66010' in steps.log and [CFG] overlay at the next wake" ;;
 code)
   for H in bmcam003 bmcam004; do
-    FL=$(ls -t "$RUN"/deploy_s/$H/field_update_*_accept.log "$RUN"/pulled/${H}_field_update_s147_*.log 2>/dev/null | head -1)
+    FL=$(ls -t "$RUN"/deploy_s/$H/field_update_*.log "$RUN"/pulled/${H}_field_update_s147_*.log 2>/dev/null | head -1)
     [ -n "$FL" ] || { log "$H: no accepted deploy log, nothing to roll back"; continue; }
     TAR=$(grep -oE '/home/pi/backups/BM_Devel_Pi_before_rc_deploy_[^ ]+\.tgz' "$FL" | head -1)
     FILES=$(grep -oE '\[RC-DEPLOY\] copy [^ ]+' "$FL" | awk '{print "BM_Devel_Pi/"$3}' | tr '\n' ' ')

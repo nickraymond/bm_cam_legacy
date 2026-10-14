@@ -1,0 +1,5 @@
+2026-10-14T04:43:27Z [TE2 deploy_s bmcam003] send id=66007 set {"uplink.media_key.heal_order":"after"} via SPOT-31593C
+===== 2026-10-14T04:43:27Z DEPLOY_S.bmcam003.66007 SPOT-31593C  bm pub bmcam/cmd {"id":66007,"c":"set","kv":{"uplink.media_key.heal_order":"after"}} 1 1  (89 B line)
+CON  2026-10-14T04:43:29Z bm pub bmcam/cmd {"id":66007,"c":"set","kv":{"uplink.media_key.heal_order":"after"}} 1 1
+CON  2026-10-14T04:43:29Z Message: 1791953009.660 53171fa3d81a8e6f, [bmcam003] OK id=66007 uplink.media_key.heal_order: before -> after (next action) cfg=0cb7ad9e
+SUMMARY cell=0 con=2

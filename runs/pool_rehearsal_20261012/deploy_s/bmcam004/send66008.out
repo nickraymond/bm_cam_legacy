@@ -1,0 +1,5 @@
+2026-10-14T04:43:31Z [TE2 deploy_s bmcam004] send id=66008 set {"still.raw.progressive":true,"uplink.media_key.heal_order":"after"} via SPOT-33507C
+===== 2026-10-14T04:43:31Z DEPLOY_S.bmcam004.66008 SPOT-33507C  bm pub bmcam/cmd {"id":66008,"c":"set","kv":{"still.raw.progressive":true,"uplink.media_key.heal_order":"after"}} 1 1  (118 B line)
+CON  2026-10-14T04:43:32Z bm pub bmcam/cmd {"id":66008,"c":"set","kv":{"still.raw.progressive":true,"uplink.media_key.heal_order":"after"}} 1 1
+CON  2026-10-14T04:43:32Z Message: Message: Message: Message: 1791953010.476 e6fe83ea6b4a2b7f, [bmcam004] OK id=66008 still.raw.progressive: false -> true, uplink.media_key.heal_order: before -> after (next action) cfg=0cb7ad
+SUMMARY cell=0 con=2

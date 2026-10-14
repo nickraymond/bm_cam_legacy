@@ -1,0 +1,12 @@
+2026-10-14T04:27:39Z [TE2 deploy_s bmcam003] deploy development want=fdeb01a profile=bmcam003/live_20260925 no-accept -> /Users/nickbuemond/Documents/GitHub/bm_cam_legacy/.claude/worktrees/sprint26-s3a-runtime-parity-092958/runs/pool_rehearsal_20261012/deploy_s/bmcam003/field_update_20261014T042739Z_check.log
+225:[PARITY] print-config text OK (14 lines)
+226:[RC-DEPLOY] print-config parity OK (old vs staged runtime, same unit config)
+228:[PARITY] config json OK (13 loader outputs equal)
+229:[RC-DEPLOY] config v2 parity OK (v2 file vs the v1 file it came from)
+231:[RC-DEPLOY] restore command: tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_bmcam003_20261014T042818Z.tgz -C /home/pi
+295:[RC-DEPLOY] config v2 effective hash: e1f36cf6
+296:[RC-DEPLOY] write software_sha.txt=fdeb01ab9a04
+326:[FIELD-UPDATE]   uplink.msg_interval_s: unit=1.0 profile=1.3   <-- DIFFERS
+355:[FIELD-UPDATE] === SUMMARY: PASS ===
+2026-10-14T04:28:47Z [TE2 deploy_s bmcam003] rc_field_update rc=0 sha=fdeb01ab9a04 (want fdeb01a) log=field_update_20261014T042739Z_check.log
+2026-10-14T04:28:47Z [TE2 deploy_s bmcam003] DEPLOYED fdeb01ab9a04

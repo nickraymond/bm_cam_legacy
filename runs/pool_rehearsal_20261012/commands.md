@@ -3,3 +3,10 @@
 1 | bmcam004 / SPOT-31593C | 2026-10-12T18:04:18Z / 11:04 AM (listen window open) | 66002 | set camera.focus.mode manual + lens_position 1.82 | 18:04:20Z "[bmcam004] OK id=66002 camera.focus.mode: auto -> manual (next action) cfg=bbbd992a" (2 s) | YES 12 PM wake: [CFG] hash=bbbd992a (overlay 6 keys), rpicam args --autofocus-mode manual --lens-position 1.82, sidecar LensPosition 1.82 AfState 0
 2 | bmcam003 / SPOT-33507C | 2026-10-12T18:05:26Z / 11:05 AM (listen window open) | 66001 | same | 18:05:28Z "[bmcam003] OK id=66001 camera.focus.mode: auto -> manual (next action) cfg=09ebbe7e" (2 s) | YES 12 PM wake: [CFG] hash=09ebbe7e (overlay 6 keys), rpicam args manual 1.82, sidecar LensPosition 1.82 AfState 0
 3 | bmcam003 / SPOT-33507C | 2026-10-12T19:05:07Z / 12:05 PM (listen window open) | 66003 | set camera.image_processing.contrast 1.0 (Nick OK ~11:58 AM) | 19:05:10Z "[bmcam003] OK id=66003 camera.image_processing.contrast: 1.1 -> 1.0 (next action) cfg=bbbd992a" (3 s) | check 1 PM wake: [CFG] hash=bbbd992a (= bmcam004, both units identical)
+
+| id | when (PDT 10/13) | Spotter → unit | command | answer |
+|---|---|---|---|---|
+| 66006 | 9:34 PM | SPOT-31593C → bmcam003 | set still.raw.progressive true | OK, false → true, cfg e0963007 |
+| 66007 | 9:43 PM | SPOT-31593C → bmcam003 | set uplink.media_key.heal_order after | OK, before → after, cfg 0cb7ad9e |
+| 66008 | 9:43 PM | SPOT-33507C → bmcam004 | set still.raw.progressive true + uplink.media_key.heal_order after | OK, cfg 0cb7ad9e |
+| (reserved) 66009 / 66010 | AM rollback | bmcam003 / bmcam004 | reset both keys (am_rollback.sh keys) | |
