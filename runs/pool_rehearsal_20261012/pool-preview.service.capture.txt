@@ -1,0 +1,15 @@
+[Unit]
+Description=Pool preview viewer (:8090): rebuilds PVH/PV/PVE previews from the Spotter console logs (TE2, Nick OK 2026-10-13)
+After=multi-user.target network-online.target spotter-monitor.service
+Wants=network-online.target
+
+[Service]
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/pool_tools/pool_preview.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+enabled
+a6a92ef6ffb290269f764c48657d57dfbe046377f7322811f23e602d81924177  /etc/systemd/system/pool-preview.service
