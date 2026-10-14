@@ -1,4 +1,4 @@
-# Pool run of show: Wed 10/14, rev 2 (Nick's order; leave the pool at 3 PM; overnight loop in the pool)
+# Pool run of show: Wed 10/14, rev 3 (Nick's order + T1; Nick's budgets; leave the pool at 3 PM; overnight loop in the pool)
 
 **Units:** bmcam003 (SPOT-31593C) and bmcam004 (SPOT-33507C).
 **Code:** fdeb01a, keys ON; focus 0.8 via `~/pool_args`. Approval: APPROVALS.md, 10/14 ~9:15 AM.
@@ -65,3 +65,31 @@ Nothing to set:
 - B1 fails on the bench → tell Nick before transport. Option: pool without -p, which takes ~1 h via a production wake + `set still.raw.progressive false`.
 - Spotter BATT_V < 3.80 V, or nereus000 VBAT falling with VIN < 4.9 V → `pc both stop` (remote), report.
 - Any `[ERR]`/OOM, or a unit missing 2 statuses in a row → pause, runbook §10, tell Nick.
+
+## Rev 3 (Nick, ~9:40 AM): T1 IN; card steps 15 min each; (c) 20 min; download 30 min
+
+| Time | Step | Budget |
+|---|---|---|
+| 12:30–12:45 PM | arrive + setup (hotspot, power, Spotters, status, BATT_V) | 15 min |
+| 12:45–1:15 | **T1 calibration** (board; 20 min auto-stop + prep) | 30 min |
+| 1:15–1:30 | **(a)** 1 m: preview → `card OK` → sweep | 15 min |
+| 1:30–1:45 | **(b)** 2 m: preview → `card OK` → sweep | 15 min |
+| 1:45–2:05 | **(c)** 3 × still + video @ 2 m (`loop --iterations 3 --period-s 120`) | 20 min |
+| 2:05–2:35 | **(d)** units out, Wi-Fi, pull | 30 min |
+| 2:35–2:50 | **(e)** fresh run (ssh), units in, card 2 m, overnight loop start | 15 min |
+| 2:50–3:00 | spare | 10 min |
+
+- If T1 can't start before 1:00, everything ends ~3:05. Trims, in order:
+  1. (c) = 2 combos (−5 min);
+  2. TE2 verifies the overnight loop remotely after Nick leaves (−5 min).
+
+### Wi-Fi at the pool (Nick asked for the per-camera AP URLs)
+
+- **In pool mode the cameras never raise their AP.** `pool_mode.sh` never runs `network_ap.sh`; NetworkManager autoconnect alone decides.
+- **There is no Wi-Fi settings page on these units in still / pool mode.** For reference, the production-boot fallback AP is: open, SSID = hostname (`bmcam003` / `bmcam004`), unit at 192.168.50.1, ssh blocked. Port 8080 is the video-mode gallery only.
+- **Path 1 (zero config):** phone hotspot name + password = the home Wi-Fi, byte for byte, with Maximize Compatibility ON. The cameras, the Mac (and nereus000) join on their own. Profiles verified 9 AM.
+- **Path 2 (distinct hotspot name):** at the bench, 11:10–11:30, while the units are up on the held bus, Nick runs in a Mac terminal:
+  `tools/pi_wifi_profile.sh --priority -10 phone-hotspot pi@bmcam003 pi@bmcam004`
+  - It prompts for the SSID and password silently (Nick types them, not TE2).
+  - It doesn't switch the current network.
+  - nereus000 rides LTE + Tailscale and needs no hotspot.
