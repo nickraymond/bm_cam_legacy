@@ -941,7 +941,7 @@ def message_count(n_bytes, chunk_b64_chars):
 RGB_PPM = "rgb.ppm"
 
 
-def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s, progressive=False):
+def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s, progressive=False, log=None):
     """B3a: the ONE RGB payload at one distance from <work>/rgb.ppm. -> ([payload], [run]).
     Raises RawFallback for a child failure (enc / mem / time), as encode_rung."""
     src, dst = os.path.join(work_dir, RGB_PPM), os.path.join(work_dir, "rgb.jxl")
@@ -949,9 +949,11 @@ def encode_rgb(distance, effort, work_dir, *, cjxl, runner, timeout_s, progressi
         raise RawFallback("err", f"{RGB_PPM} missing from {work_dir}")
     if os.path.exists(dst):
         os.remove(dst)
+    argv = cjxl_rgb_command(cjxl, src, dst, distance, effort, progressive)
+    if log is not None:
+        log(f"[RAW][cjxl] {' '.join(argv)}")       # proves -p (still.raw.progressive) in the cycle log
     try:
-        r = runner(cjxl_rgb_command(cjxl, src, dst, distance, effort, progressive),
-                   timeout_s=timeout_s,
+        r = runner(argv, timeout_s=timeout_s,
                    stdout_path=os.path.join(work_dir, "rgb.cjxl.out"),
                    stderr_path=os.path.join(work_dir, "rgb.cjxl.err"))
     except OSError as exc:
@@ -1079,7 +1081,8 @@ class _Walk:
                 payloads, runs = encode_rgb(distance, effort, self.work,
                                             cjxl=self.cjxl, runner=self.runner,
                                             timeout_s=timeout_s,
-                                            progressive=bool(self.cfg.get("progressive")))
+                                            progressive=bool(self.cfg.get("progressive")),
+                                            log=self.log)
             else:
                 payloads, runs = encode_rung(self.codes, distance, self.cfg["effort"],
                                              self.work, cjxl=self.cjxl, runner=self.runner,

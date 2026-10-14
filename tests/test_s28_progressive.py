@@ -91,6 +91,16 @@ class Argv(unittest.TestCase):
         self.assertEqual(len(argv), res["attempts"])
         self.assertTrue(all("-p" in a and a[a.index("-m") + 1] == "0" for a in argv), argv)
 
+    def test_the_cycle_log_shows_the_cjxl_argv(self):
+        lines = []
+        with tempfile.TemporaryDirectory() as d:
+            X.encode_still(MINI, META, RGB_CFG, crop_xywh=[0, 0, 160, 96], budget=Budget(),
+                           message_cap=CAP_MSGS, chunk_b64_chars=CHUNK_CHARS,
+                           work_dir=os.path.join(d, "w"), cjxl="/usr/bin/cjxl",
+                           runner=_runner(1.0, []), log=lines.append)
+        argv_lines = [ln for ln in lines if ln.startswith("[RAW][cjxl] ")]
+        self.assertTrue(argv_lines and all(" -p " in ln and " -m 0 " in ln for ln in argv_lines), lines)
+
     def test_off_drops_the_flag(self):
         argv = []
         _encode(dict(RGB_CFG, progressive=False), _runner(1.0, argv))
@@ -102,6 +112,33 @@ class Argv(unittest.TestCase):
         _encode(dict(RGB_CFG, layout="bayer4"), _runner(0.2, argv))
         self.assertTrue(argv and all(a[a.index("-m") + 1] == "1" and "-p" not in a
                                      for a in argv), argv)
+
+
+class CycleLog(unittest.TestCase):
+    """TE2 2026-10-13: the cycle log proves -p without a live sampler."""
+
+    def raw_line(self, island):
+        import contextlib
+        import io
+        from unittest import mock
+        import rc_progressive_jpeg as rc
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "camera_schedule.yaml")
+            open(path, "w").write(island)
+            out = io.StringIO()
+            with mock.patch.object(rc.shutil, "which", return_value="/usr/bin/cjxl"), \
+                    contextlib.redirect_stdout(out):
+                rc._raw_begin({"config_path": path, "crop_native_xywh": (1504, 846, 1600, 900)}, None, d)
+        return next(ln for ln in out.getvalue().splitlines() if ln.startswith("[RAW] still.format=nrjxl"))
+
+    def test_the_raw_line_says_progressive_0_or_1(self):
+        base = 'still_raw:\n  format: "nrjxl"\n'
+        self.assertIn("layout=bayer4 progressive=0", self.raw_line(base))
+        self.assertIn("layout=rgb progressive=0", self.raw_line(base + '  layout: "rgb"\n'))
+        self.assertIn("layout=rgb progressive=1",
+                      self.raw_line(base + '  layout: "rgb"\n  progressive: true\n'))
+        # bayer4 never gets -p, so the key alone does not make it 1
+        self.assertIn("layout=bayer4 progressive=0", self.raw_line(base + "  progressive: true\n"))
 
 
 class SearchStillFits(unittest.TestCase):
