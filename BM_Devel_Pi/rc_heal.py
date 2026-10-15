@@ -51,6 +51,15 @@ Nick 2026-10-08, EPIC_transmission_reliability):
   The idle heal pass and a save_local action have no new media: their heals go
   out as before whatever the order (rc_supervisor.send_pending_heals).
 
+Out-of-window wakes (`media_key.heal_offwin_max`, registry v14 `uplink.media_key.
+heal_offwin_max`, board decision d35, Nick 2026-10-15, NOAA release):
+  The capture window restricts NEW images only. A per_boot stills wake outside the
+  window sends <WS a=skip_win>, then the pending heals through the same heal-only
+  pass (rc_supervisor.send_pending_heals: plan newest first, lane wait, chunks paced
+  + pump-only, one <HL> per key), capped at heal_offwin_max (0..40, default 40)
+  instead of HEAL_CAP_PER_WAKE, then the listen tail. 0 = the registry v13 wake.
+  Such a wake ages wakes_left like any heal wake. Nothing pending = no wire change.
+
 Example (inside a cycle, see rc_video_tx / rc_progressive_jpeg):
   heals = rc_heal.begin_wake(daemon, settings, summary)     # None without a daemon
   ...lane plan with heals.planned_msgs extra messages...
@@ -81,6 +90,17 @@ def heal_order_for(settings):
     cfg = settings.get("media_key_cfg") or {}
     order = cfg.get("heal_order", DEFAULT_HEAL_ORDER)
     return order if order in HEAL_ORDERS else DEFAULT_HEAL_ORDER
+
+
+def offwin_cap_for(settings):
+    """The out-of-window heal cap (0..HEAL_CAP_PER_WAKE) from the media_key island;
+    missing = the default 40. The island loader already refuses a bad value; anything
+    that still is not an int is the default, and the result is clamped, never an error."""
+    cfg = settings.get("media_key_cfg") or {}
+    cap = cfg.get("heal_offwin_max", rc_media_key.DEFAULT_HEAL_OFFWIN_MAX)
+    if isinstance(cap, bool) or not isinstance(cap, int):
+        cap = rc_media_key.DEFAULT_HEAL_OFFWIN_MAX
+    return max(0, min(cap, HEAL_CAP_PER_WAKE))
 
 
 class HealRefused(Exception):

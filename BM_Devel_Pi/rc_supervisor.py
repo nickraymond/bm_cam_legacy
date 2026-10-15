@@ -953,21 +953,32 @@ def _boot_time_read(boot, daemon, settings, gate_fn):
         print(f"[SUP][WARN] stay_on boot time read failed ({type(exc).__name__}: {exc})")
 
 
-def send_pending_heals(daemon, settings, summary, budget, tx_open_fn, clock, sleep_fn):
+def send_pending_heals(daemon, settings, summary, budget, tx_open_fn, clock, sleep_fn,
+                       cap=None, only_if_work=False, gap_s=0.0):
     """The heal part of a transmitting action on its own (O5 idle pass; S3c
-    save_local actions, PLAN_S3c.md §5 C14): plan (<= HEAL_CAP_PER_WAKE chunks,
-    newest first), the lane wait when the unit uses the transmit phase, the
-    chunks (paced, pump-only), then one <HL> per key. Runs on the CALLER's
-    budget and summary (a per_boot save_local action keeps its one budget, G1).
-    The pass counts as a wake for wakes_left. -> messages planned (chunks +
-    <HL>), or None when there is no heal wake (no daemon). Raises on a send
-    failure."""
+    save_local actions, PLAN_S3c.md §5 C14; d35 out-of-window stills wakes):
+    plan (<= `cap` chunks, default HEAL_CAP_PER_WAKE, newest first), the lane
+    wait when the unit uses the transmit phase, the chunks (paced, pump-only),
+    then one <HL> per key. Runs on the CALLER's budget and summary (a per_boot
+    save_local action keeps its one budget, G1). The pass counts as a wake for
+    wakes_left. `only_if_work` (d35): after the plan (which first picks up an rsd
+    the daemon already holds), return 0 without opening the uplink when nothing
+    is pending and no heal event waits for its <HL>. `gap_s` (d35): sleep this
+    long before the first message when there is work (a <WS> just went out, so
+    the heal pass keeps the pacing instead of following it back to back).
+    -> messages planned (chunks + <HL>), or None when there is no heal wake (no
+    daemon). Raises on a send failure."""
     import rc_heal
     import rc_transmit_phase
     heals = rc_heal.begin_wake(daemon, settings, summary,
-                               pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary))
+                               pump_fn=cmd_hooks.make_pending_pump_fn(daemon, summary),
+                               cap=rc_heal.HEAL_CAP_PER_WAKE if cap is None else cap)
     if heals is None:
         return None
+    if only_if_work and not heals.items and not getattr(daemon, "heal_events", None):
+        return 0
+    if gap_s > 0:
+        sleep_fn(float(gap_s))
     delay = settings["pacing_delay_seconds"]
     phase_cfg = settings.get("transmit_phase_cfg") or {}
     if phase_cfg.get("enabled") and heals.planned_msgs:
