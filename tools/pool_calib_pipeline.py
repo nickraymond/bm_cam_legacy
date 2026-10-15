@@ -35,6 +35,10 @@ Inputs
                (ScalerCrop, LensPosition, ExposureTime, AnalogueGain, Lux).
   --card NAME=JPG   v3-card frame for the before/after (repeatable). Default for a folder input:
                the first <folder>/../loop/*_loop_01_still.jpg if it exists.
+  --native-size WxH   the IMX708 full frame (default 4608x2592). Leave it at the default for any
+               other camera: a frame of another size is what marks a run as non-IMX708 (B5c / crop
+               verdict N/A, B6 N/A without --nominal-fx, "not pre-registered" label, generic recipe).
+               Setting it to e.g. the N6's 1280x800 would score the N6 against the IMX708 bars unlabelled.
   --nominal-fx NAME=PX   in-air nominal fx (px of that camera's frames) for the B6 sanity bar
                (repeatable). Default: the IMX708 1964 px, but only for --native-size frames; any
                other frame size (e.g. the OpenMV N6 1280x800) gets B6 = N/A.
@@ -699,8 +703,10 @@ def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None):
             "N/A" if crop_skip else ("PASS" if verdict_crop else "FAIL"))
 
 
-def capture_recipe(cov, frames_used, fx, size, square_mm, squares, bars_out, all_frames=()):
-    """Data-driven capture advice for the next dive. Distances use the pinhole approximation."""
+def capture_recipe(cov, frames_used, fx, size, square_mm, squares, bars_out, all_frames=(), native_frames=True):
+    """Data-driven capture advice for the next dive. Distances use the pinhole approximation.
+    native_frames False (not --native-size, e.g. the N6): the bmcam-only lines (1600x900 crop-only
+    pool preview, production LensPosition 0.8) are replaced by camera-agnostic wording."""
     w, h = size
     long_mm = max(squares) * square_mm
     dists = [f["distance_mm"] for f in frames_used if f.get("distance_mm")]
@@ -728,13 +734,15 @@ def capture_recipe(cov, frames_used, fx, size, square_mm, squares, bars_out, all
     lines.append("At each place take 3 poses: flat, tilted ~30 deg left/right, tilted ~30 deg up/down (~27 poses), "
                  "plus 3-5 flat poses at 1.5 m. Hold still for 2 frames at each pose (10 s cadence is fine).")
     lines.append("Frame with a FULL-FRAME preview: the pool preview showed only the 1600x900 centre crop, "
-                 "so the frame edges were invisible while posing.")
+                 "so the frame edges were invisible while posing." if native_frames else
+                 "Frame with a FULL-FRAME preview, so the frame edges are visible while posing.")
     n_clip = sum(1 for f in all_frames if any(r.startswith("clipped") for r in f.get("reasons", [])))
     if n_clip:
         lines.append(f"{n_clip}/{len(all_frames)} frames failed on clipping (white squares at 255): lock exposure "
                      f"~1 stop darker for the calibration block, or tilt the board out of the sun glint.")
     lines.append("Keep the production lens position (0.8) for calibration frames: focus changes the focal length "
-                 "slightly, so calibrate at the focus you ship.")
+                 "slightly, so calibrate at the focus you ship." if native_frames else
+                 "Calibrate at the focus you ship: focus changes the focal length slightly.")
     return {"failed_bars": failed, "lines": lines,
             "recommended_distance_m": (long_mm * fx / (0.45 * w) / 1000) if fx else None,
             "median_distance_m": med_d / 1000 if med_d else None}
@@ -920,7 +928,8 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     bars_out, v_full, v_crop = evaluate_bars(len(final["kept"]), cal, cov, bars,
                                              crop_skip=None if ck else why, nominal=nominal)
     recipe = capture_recipe(cov, used, float(K[0, 0]), size, spec["square_mm"],
-                            (spec["squares_x"], spec["squares_y"]), bars_out, frames)
+                            (spec["squares_x"], spec["squares_y"]), bars_out, frames,
+                            native_frames=tuple(size) == tuple(native))
     for b in bars_out:
         log(f"[{name}]   {b['status']:4s} {b['bar']}: {fmt_value(b['value'])}  (bar: {b['rule']})")
     log(f"[{name}] VERDICT full-frame intrinsics {v_full}; production-crop intrinsics {v_crop}")
@@ -1160,7 +1169,9 @@ def build_parser():
     ap.add_argument("--layout-sample", type=int, default=6, help="frames per camera used to pick the layout (auto)")
     ap.add_argument("--crop", default=",".join(map(str, DEFAULT_CROP)), help="production crop x,y,w,h native px")
     ap.add_argument("--native-size", default=f"{NATIVE[0]}x{NATIVE[1]}",
-                    help="native WxH (crop maths; frames of another size get B5c / crop verdict N/A)")
+                    help="the IMX708 full frame WxH (crop maths, and which frames count as IMX708 for the "
+                         "pre-registered bars). Leave it at the default for any other camera: its frames then "
+                         "get B5c / crop verdict N/A, B6 N/A without --nominal-fx and the not-pre-registered label")
     ap.add_argument("--nominal-fx", action="append", default=[], metavar="NAME=PX",
                     help=f"in-air nominal fx (px of that camera's frames) for the B6 sanity bar. Default: the IMX708 "
                          f"{NOMINAL_FX_AIR:.0f} px for --native-size frames only; other frame sizes -> B6 N/A")

@@ -391,6 +391,9 @@ class TestFullCoverage(unittest.TestCase):
         self.assertIn(f"Pixels = native {W}×{H} sensor px unless labelled.", md)
         self.assertIsNone(self.cam["prereg_note"])
         self.assertNotIn("not pre-registered", md)
+        text = " ".join(self.cam["recipe"]["lines"])                         # bmcam recipe lines kept
+        self.assertIn("the pool preview showed only the 1600x900 centre crop", text)
+        self.assertIn("Keep the production lens position (0.8)", text)
 
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
@@ -529,6 +532,16 @@ class TestNonNativeSize(unittest.TestCase):
         self.assertIn("- **IMX708-pixel bars, not pre-registered for this sensor: the B1-B6 pixel numbers", self.md)
         self.assertIn("applied unchanged to 1536x864 frames", self.cams["camN"]["prereg_note"])
 
+    def test_recipe_has_no_bmcam_lines(self):
+        """QE #178 follow-up: the 1600x900 crop-only preview and LensPosition 0.8 are bmcam facts."""
+        for cam in ("camN", "camF"):
+            text = " ".join(self.cams[cam]["recipe"]["lines"])
+            self.assertNotIn("1600x900", text)
+            self.assertNotIn("lens position (0.8)", text)
+            self.assertIn("Frame with a FULL-FRAME preview, so the frame edges are visible", text)
+            self.assertIn("Calibrate at the focus you ship", text)
+        self.assertNotIn("1600x900 centre crop", self.md)
+
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
 class TestNonNativeUnits(unittest.TestCase):
@@ -582,6 +595,11 @@ class TestNonNativeUnits(unittest.TestCase):
                                                                crop_skip=why, nominal=given)[0]}
         self.assertEqual(by["B6"]["status"], "PASS")                  # 1628 / 1220 = 1.334
         self.assertIn("1220 px (in-air nominal, --nominal-fx)", by["B6"]["rule"])
+
+    def test_native_size_help_says_imx708(self):
+        h = " ".join(pp.build_parser().format_help().split())
+        self.assertIn("the IMX708 full frame WxH", h)
+        self.assertIn("Leave it at the default for any other camera", h)
 
     def test_verdict_titles(self):
         import pool_calib_figures as figs
