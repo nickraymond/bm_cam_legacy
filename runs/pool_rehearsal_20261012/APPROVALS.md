@@ -29,3 +29,6 @@
 
 Refers to the pool-day line TE2 posted in this chat at ~9:00 AM:
 > OK for Wed 10/14 (pool day), bench Spotters SPOT-31593C and SPOT-33507C only (never field units): hil_bus_always_on.sh and hil_restore_schedule.sh on both; pool_mode.sh args --lens-position 0.8 / on / start / stop / off on bmcam003 and bmcam004 and the §9 restore; console cmd.txt / bm pub writes for pool commands status/cal/loop/mark/stop/preview; a nereus000 LiFePO4 power cycle if the Spotter consoles don't come back; and console set still.raw.progressive false if the pool preview memory check fails.
+
+## 2026-10-15T16:36:51Z (Thu 10/15 9:36 AM PDT): Nick typed in TE2 chat, verbatim
+> OK: set hrpm 0 + cfg save on SPOT-33507C and SPOT-31593C (bench only, never SPOT-33361C) between wakes, one at a time; accept one stub-wake partial image per camera; rollback = cfg hrpm 1 + cfg save.
