@@ -108,3 +108,35 @@ The white squares are saturated in sunlight under auto exposure. The primary res
 registered rule. A second run with `--screen-override clip_fail=1.01 --screen-override
 clip_warn=1.01` lets those frames in, to show whether clipping, rather than coverage, limits the
 result. It is labelled NON-PREREG in its folder name, summary and manifest.
+
+## Note on A1 after QE review of #176 (2026-10-14 evening): two readings of B4 / B5c, and A2 pending
+
+QE (#176, PASS-with-nits) accepted A1 for the **bootstrap ray spread**, but not for **model
+disagreement**. B5 bounds one model's bootstrap; it does not bound how far the three models' K
+differ. A full homography absorbs those differences: on bmcam003, fisheye vs standard differs by
+Δcy 166 px and Δfx +2.2 %, which is 188 px literal but only 5.2 px aligned at the crop corners. That
+is the p1 ↔ cy confound. Every run now reports both readings side by side:
+
+| reading | what it measures | where |
+|---|---|---|
+| **shape-only** (aligned, A1) | does the distortion *shape* agree, ignoring K | bar rows: `worst_*_px` |
+| **metric** (literal) | does the full camera (K + distortion) agree | bar rows: `literal_*_px`, plus the cross-model table (`models.json: cross_model_K`, `summary.md`) |
+
+**A2 (OPEN).** Which reading governs the model-disagreement half of B4/B5c for the edge-dive verdict:
+- literal, or
+- shape-only plus a cross-model fx/cx/cy check.
+
+The EM is taking this decision to Nick before the edge-dive rerun is judged. No 10/14 verdict
+depends on it: every camera FAILs under both readings.
+
+Fixed in the same follow-up PR:
+- **Model disagreement is now truly max-pairwise,** over all ordered pairs as this doc says. The
+  code was to-reference before.
+- **Cross-validation:** a fold's fisheye now starts from a standard fit on that fold's own
+  training views. It used to start from the all-view fit, which leaked held-out views into the
+  start values.
+- **Failed bootstrap fits count as inf** in the B4/B5c percentiles, and B5 needs ≥ 95 % of
+  replicates to fit. The count (`replicates_ok`) is in every run. On 10/14 it was 100/100 for
+  every camera.
+- **Negative control:** with centre-only synthetic data, the aligned frame-corner spread must stay
+  > 2 px (`TestCentreOnly::test_negative_control_corner_spread`).

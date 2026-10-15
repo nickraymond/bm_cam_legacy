@@ -501,7 +501,7 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
             continue
         try:
             cvs[model] = pm.cross_validate(model, obj, img, size, folds=cfg["folds"], seed=cfg["seed"],
-                                           K0=K0, keep_fold_models=True)
+                                           keep_fold_models=True)
             log(f"[calib]   {model:9s} HELD-OUT RMS {cvs[model]['held_out_rms']:.3f} px "
                 f"({cfg['folds']}-fold, median view {cvs[model]['held_out_median_view']:.3f} px)")
         except Exception as exc:
@@ -520,6 +520,7 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
     log(f"[calib]   bootstrap {len(good)}/{len(boots)} replicates OK ({time.time() - t1:.0f}s)")
     f_ref = 0.5 * (final["K"][0, 0] + final["K"][1, 1])
     Ks, Ds = [b["K"] for b in good], [b["D"] for b in good]
+    n_failed = len(boots) - len(good)                 # failed replicates count as inf (QE #176)
     probes = probe_points(size, crop)
     others = [fits[m] for m in pm.MODELS if m in fits and m != chosen]
     gx, gy = 64, 36
@@ -533,10 +534,11 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
         names = list(pts)
         arr = np.array([pts[n] for n in names], float)
         none = np.full(len(arr), np.inf)
-        raw = pm.ray_spread_px(chosen, Ks, Ds, arr, f_ref) if Ks else none
-        al = pm.aligned_ray_spread_px(chosen, Ks, Ds, final["K"], final["D"], fit_px, arr, f_ref) if Ks else none
+        raw = pm.ray_spread_px(chosen, Ks, Ds, arr, f_ref, n_failed=n_failed) if Ks else none
+        al = (pm.aligned_ray_spread_px(chosen, Ks, Ds, final["K"], final["D"], fit_px, arr, f_ref, n_failed=n_failed)
+              if Ks else none)
         dis_raw = pm.model_disagreement_px([final] + others, arr, f_ref) if others else np.zeros(len(arr))
-        dis_al = pm.aligned_model_disagreement_px(final, others, fit_px, arr, f_ref) if others else np.zeros(len(arr))
+        dis_al = pm.aligned_model_disagreement_px([final] + others, fit_px, arr, f_ref) if others else np.zeros(len(arr))
         disp = np.linalg.norm(pm.pinhole_px(final["K"], pm.rays(chosen, final["K"], final["D"], arr)) - arr, axis=1)
         for n, p, a_, r_, da, dr, dp in zip(names, arr, al, raw, dis_al, dis_raw, disp):
             probe_rows.append({"group": group, "name": n, "x": float(p[0]), "y": float(p[1]),
@@ -544,11 +546,11 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
                                "ray_uncertainty_raw_px": float(r_), "model_disagreement_raw_px": float(dr),
                                "distortion_px": float(dp) if np.isfinite(dp) else float("inf")})
     # uncertainty map for the picture (coarse grid), aligned (A1)
-    umap = (pm.aligned_ray_spread_px(chosen, Ks, Ds, final["K"], final["D"], fit_px, grid, f_ref).reshape(gy, gx)
-            if Ks else None)
+    umap = (pm.aligned_ray_spread_px(chosen, Ks, Ds, final["K"], final["D"], fit_px, grid, f_ref,
+                                     n_failed=n_failed).reshape(gy, gx) if Ks else None)
     dmap = np.linalg.norm(pm.pinhole_px(final["K"], pm.rays(chosen, final["K"], final["D"], grid)) - grid,
                           axis=1).reshape(gy, gx)
-    stats = {}
+    stats = {"replicates_ok": len(good), "replicates": len(boots)}
     if good:
         P = np.array([[b["K"][0, 0], b["K"][1, 1], b["K"][0, 2], b["K"][1, 2]] for b in good])
         for i, k in enumerate(("fx", "fy", "cx", "cy")):
@@ -558,6 +560,7 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
         stats["dist"] = {"mean": Dm.mean(axis=0).tolist(), "std": Dm.std(axis=0, ddof=1).tolist() if len(Dm) > 1 else None}
     return {"fits": fits, "cv": cvs, "errors": errors, "chosen": chosen, "why": why, "final": final,
             "bootstrap": boots, "boot_stats": stats, "f_ref": f_ref, "probes": probe_rows,
+            "cross_model_K": pm.cross_model_K([final] + others),
             "uncertainty_map": {"xs": xs, "ys": ys, "spread_px": umap, "distortion_px": dmap},
             "alignment_region_points": int(len(fit_px))}
 
@@ -628,15 +631,18 @@ def evaluate_bars(n_poses, cal, cov, bars):
         f"at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1)",
         bool(fr) and worst_r <= bars["B4_edge_ray_px"] and worst_m <= bars["B4_edge_models_px"])
     st = cal.get("boot_stats") or {}
+    n_ok, n_b = st.get("replicates_ok", 0), st.get("replicates", 0)
     if st.get("fx") and st["fx"]["std"] is not None:
         rf = max(st["fx"]["std"] / st["fx"]["mean"], st["fy"]["std"] / st["fy"]["mean"])
         sc = max(st["cx"]["std"], st["cy"]["std"])
-        ok5 = rf <= bars["B5_rel_std_f"] and sc <= bars["B5_std_c_px"]
+        # a resample whose fit fails counts as "unknown": more than 5 % failures = not stable (QE #176)
+        ok5 = rf <= bars["B5_rel_std_f"] and sc <= bars["B5_std_c_px"] and n_ok >= 0.95 * n_b
     else:
         rf = sc = None
         ok5 = False
-    add("B5 stable", {"rel_std_f": rf, "std_c_px": sc},
-        f"bootstrap std(f)/f <= {100 * bars['B5_rel_std_f']:.1f}% and std(cx, cy) <= {bars['B5_std_c_px']} px", ok5)
+    add("B5 stable", {"rel_std_f": rf, "std_c_px": sc, "replicates_ok": f"{n_ok}/{n_b}"},
+        f"bootstrap std(f)/f <= {100 * bars['B5_rel_std_f']:.1f}% and std(cx, cy) <= {bars['B5_std_c_px']} px "
+        f"(>= 95% of replicates fit)", ok5)
     wr = max((p["ray_uncertainty_px"] for p in cr), default=float("inf"))
     wm = max((p["model_disagreement_px"] for p in cr), default=float("inf"))
     add("B5c production crop", {"worst_ray_uncertainty_px": wr, "worst_model_disagreement_px": wm,
@@ -838,7 +844,12 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
                          "outlier_threshold_px": f.get("outlier_threshold_px")}
     write_json(os.path.join(out_dir, "models.json"),
                {"chosen": ch, "why": cal["why"], "models": models_out, "errors": cal["errors"],
-                "probes": cal["probes"], "f_ref_px": cal["f_ref"], "folds": cfg["folds"], "seed": cfg["seed"]})
+                "probes": cal["probes"], "f_ref_px": cal["f_ref"], "folds": cfg["folds"], "seed": cfg["seed"],
+                "cross_model_K": cal["cross_model_K"],
+                "cross_model_K_note": "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model disagreement "
+                                      "absorbs these K differences; the literal reading includes them. Which "
+                                      "reading governs is the A2 decision (prereg doc).",
+                "bootstrap_replicates_ok": f"{cal['boot_stats']['replicates_ok']}/{cal['boot_stats']['replicates']}"})
     with open(os.path.join(out_dir, "per_view_errors.csv"), "w", newline="") as fh:
         wr = csv.writer(fh)
         wr.writerow(["stem", "calib_index", "outlier", "distance_mm", "tilt_deg", f"train_rms_px_{ch}"] +
@@ -892,6 +903,7 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
         "intrinsics_full": full_doc, "intrinsics_crop": crop_doc, "coverage": cov, "bars": bars_out,
         "verdict_full_frame": v_full, "verdict_production_crop": v_crop, "recipe": recipe,
         "before_after": ba, "probes": cal["probes"], "bootstrap_stats": cal["boot_stats"],
+        "cross_model_K": cal["cross_model_K"],
         "distance_m": {"median": recipe["median_distance_m"],
                        "min": min(f["distance_mm"] for f in used) / 1000, "max": max(f["distance_mm"] for f in used) / 1000},
         "lens_position": sorted({f.get("LensPosition") for f in frames if f.get("LensPosition") is not None}),
@@ -1023,6 +1035,14 @@ def write_summary(run_dir, results, args, layout):
         L.append("|---|---|---|---|")
         for b in r["bars"]:
             L.append(f"| {b['bar']} | {b['status']} | {fmt_value(b['value'])} | {b['rule']} |")
+        L.append("")
+        L.append("Cross-model intrinsics (information, not a bar; the shape-only reading of B4/B5c absorbs these):")
+        L.append("")
+        L.append("| models | Δfx | Δfy | Δcx | Δcy |")
+        L.append("|---|---|---|---|---|")
+        for c in r.get("cross_model_K", []):
+            L.append(f"| {c['pair']} | {c['dfx_pct']:+.2f} % | {c['dfy_pct']:+.2f} % | {c['dcx_px']:+.0f} px | "
+                     f"{c['dcy_px']:+.0f} px |")
         L.append("")
         L.append("Capture recipe / notes:")
         for line in r["recipe"]["lines"]:

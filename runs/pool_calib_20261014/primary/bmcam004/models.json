@@ -3,19 +3,19 @@
  "why": "held-out RMS 0.334 px within 2% of the best (0.332 px): preference order standard > fisheye > rational",
  "models": {
   "standard": {
-   "train_rms_px": 0.3217974997573668,
+   "train_rms_px": 0.32179749975736793,
    "views": 32,
    "dropped": [],
    "K": [
     [
-     2628.192526645999,
+     2628.192526224409,
      0.0,
-     2300.2894902005573
+     2300.289490568055
     ],
     [
      0.0,
-     2636.786462669547,
-     1195.5764597301813
+     2636.786462417493,
+     1195.5764587356716
     ],
     [
      0.0,
@@ -24,31 +24,31 @@
     ]
    ],
    "D": [
-    0.24779193766627966,
-    0.5927191535102376,
-    -0.026737280645540176,
-    -0.001108474955528996,
-    0.04491161432455624
+    0.24779193965298693,
+    0.5927191158314282,
+    -0.02673728086908863,
+    -0.0011084748478079674,
+    0.04491175361786732
    ],
    "n_params_dist": 5,
-   "heldout_rms_px": 0.33438038713031176,
-   "heldout_median_view_px": 0.3031205661336218,
-   "outlier_threshold_px": 0.9050888999768086
+   "heldout_rms_px": 0.33438038770688183,
+   "heldout_median_view_px": 0.30312056652104846,
+   "outlier_threshold_px": 0.9050889011952277
   },
   "rational": {
-   "train_rms_px": 0.3211755925024816,
+   "train_rms_px": 0.32117559250247824,
    "views": 32,
    "dropped": [],
    "K": [
     [
-     2628.18029162344,
+     2628.1802921183257,
      0.0,
-     2300.5493265078717
+     2300.549326377138
     ],
     [
      0.0,
-     2636.753495346227,
-     1195.5602567637893
+     2636.7534955821425,
+     1195.56025819626
     ],
     [
      0.0,
@@ -57,34 +57,34 @@
     ]
    ],
    "D": [
-    -4.887596668081147,
-    -28.513296293056694,
-    -0.026732690140679517,
-    -0.0010295895307058547,
-    41.094693891123114,
-    -5.137975957992574,
-    -27.76086651462376,
-    50.61875023196543
+    -4.887583806054082,
+    -28.513417035052786,
+    -0.026732689866590668,
+    -0.0010295895615312796,
+    41.09486516837642,
+    -5.137963099752231,
+    -27.76099038921869,
+    50.618945704817996
    ],
    "n_params_dist": 8,
-   "heldout_rms_px": 0.33178676735785584,
-   "heldout_median_view_px": 0.3036890356838447,
-   "outlier_threshold_px": 0.9057385340816284
+   "heldout_rms_px": 0.33178537851516265,
+   "heldout_median_view_px": 0.3036882407725204,
+   "outlier_threshold_px": 0.9057385342856603
   },
   "fisheye": {
-   "train_rms_px": 0.477835152759392,
+   "train_rms_px": 0.4778351527593943,
    "views": 32,
    "dropped": [],
    "K": [
     [
-     2664.317391746556,
+     2664.3173917465565,
      0.0,
-     2306.031376148678
+     2306.0313761486777
     ],
     [
      0.0,
-     2661.7413097809485,
-     1308.645800040762
+     2661.741309780949,
+     1308.6458000407622
     ],
     [
      0.0,
@@ -93,15 +93,15 @@
     ]
    ],
    "D": [
-    0.55886060594821,
-    2.561473784574749,
-    -15.995848037453749,
-    75.14741315535153
+    0.558860605948208,
+    2.5614737845747437,
+    -15.995848037453415,
+    75.14741315535115
    ],
    "n_params_dist": 4,
-   "heldout_rms_px": 0.49158101743710325,
-   "heldout_median_view_px": 0.4557394807089096,
-   "outlier_threshold_px": 1.359865200323271
+   "heldout_rms_px": 0.4915810174369622,
+   "heldout_median_view_px": 0.45573948070891174,
+   "outlier_threshold_px": 1.3598652003232554
   }
  },
  "errors": {},
@@ -115,7 +115,7 @@
    "model_disagreement_px": null,
    "ray_uncertainty_raw_px": null,
    "model_disagreement_raw_px": null,
-   "distortion_px": 661.3390820478413
+   "distortion_px": 661.3390918362804
   },
   {
    "group": "frame",
@@ -126,7 +126,7 @@
    "model_disagreement_px": null,
    "ray_uncertainty_raw_px": null,
    "model_disagreement_raw_px": null,
-   "distortion_px": 661.0739125214338
+   "distortion_px": 661.0739225156268
   },
   {
    "group": "frame",
@@ -137,7 +137,7 @@
    "model_disagreement_px": null,
    "ray_uncertainty_raw_px": null,
    "model_disagreement_raw_px": null,
-   "distortion_px": 670.4932358261685
+   "distortion_px": 670.4932496351947
   },
   {
    "group": "frame",
@@ -148,29 +148,29 @@
    "model_disagreement_px": null,
    "ray_uncertainty_raw_px": null,
    "model_disagreement_raw_px": null,
-   "distortion_px": 670.2353293869556
+   "distortion_px": 670.2353434513072
   },
   {
    "group": "frame",
    "name": "top",
    "x": 2303.5,
    "y": 0.0,
-   "ray_uncertainty_px": 13.286617200008793,
-   "model_disagreement_px": 21.247063700985194,
-   "ray_uncertainty_raw_px": 18.114445796030868,
-   "model_disagreement_raw_px": 91.07746409961912,
-   "distortion_px": 102.32425752151946
+   "ray_uncertainty_px": 13.286618617890447,
+   "model_disagreement_px": 21.43423471557901,
+   "ray_uncertainty_raw_px": 18.11444579371316,
+   "model_disagreement_raw_px": 91.07746548495545,
+   "distortion_px": 102.32425749969806
   },
   {
    "group": "frame",
    "name": "bottom",
    "x": 2303.5,
    "y": 2591.0,
-   "ray_uncertainty_px": 85.73885373696503,
-   "model_disagreement_px": 8.272821568739985,
-   "ray_uncertainty_raw_px": 87.05385264357422,
-   "model_disagreement_raw_px": 152.05322518192588,
-   "distortion_px": 78.21155146982608
+   "ray_uncertainty_px": 85.7388657954479,
+   "model_disagreement_px": 8.272832608524206,
+   "ray_uncertainty_raw_px": 87.05385263243585,
+   "model_disagreement_raw_px": 152.05322603622724,
+   "distortion_px": 78.21155169806497
   },
   {
    "group": "frame",
@@ -181,7 +181,7 @@
    "model_disagreement_px": null,
    "ray_uncertainty_raw_px": null,
    "model_disagreement_raw_px": null,
-   "distortion_px": 478.3311048128898
+   "distortion_px": 478.33111173897754
   },
   {
    "group": "frame",
@@ -192,54 +192,79 @@
    "model_disagreement_px": null,
    "ray_uncertainty_raw_px": null,
    "model_disagreement_raw_px": null,
-   "distortion_px": 477.6272903000269
+   "distortion_px": 477.6272974566087
   },
   {
    "group": "crop",
    "name": "crop_TL",
    "x": 1504.0,
    "y": 846.0,
-   "ray_uncertainty_px": 1.633915173954833,
-   "model_disagreement_px": 2.803614968946993,
-   "ray_uncertainty_raw_px": 17.660395591002004,
-   "model_disagreement_raw_px": 111.20079413094207,
-   "distortion_px": 35.663747175215164
+   "ray_uncertainty_px": 1.6339087878090368,
+   "model_disagreement_px": 2.8036152639866554,
+   "ray_uncertainty_raw_px": 17.660395588742393,
+   "model_disagreement_raw_px": 111.20079272629177,
+   "distortion_px": 35.66374713215856
   },
   {
    "group": "crop",
    "name": "crop_TR",
    "x": 3103.0,
    "y": 846.0,
-   "ray_uncertainty_px": 0.5872431653054515,
-   "model_disagreement_px": 1.5553510412300384,
-   "ray_uncertainty_raw_px": 16.029662968032504,
-   "model_disagreement_raw_px": 112.40756098115722,
-   "distortion_px": 34.89735980934648
+   "ray_uncertainty_px": 0.5872426159289683,
+   "model_disagreement_px": 1.5553465183554995,
+   "ray_uncertainty_raw_px": 16.02966296598154,
+   "model_disagreement_raw_px": 112.40756188924298,
+   "distortion_px": 34.8973598296158
   },
   {
    "group": "crop",
    "name": "crop_BL",
    "x": 1504.0,
    "y": 1745.0,
-   "ray_uncertainty_px": 4.305575015617686,
-   "model_disagreement_px": 3.7200919561641723,
-   "ray_uncertainty_raw_px": 22.18305241905623,
-   "model_disagreement_raw_px": 125.6175095549762,
-   "distortion_px": 25.81410560449588
+   "ray_uncertainty_px": 4.305573614107691,
+   "model_disagreement_px": 4.1152942013213485,
+   "ray_uncertainty_raw_px": 22.183052416217954,
+   "model_disagreement_raw_px": 125.61750754902972,
+   "distortion_px": 25.81410545650454
   },
   {
    "group": "crop",
    "name": "crop_BR",
    "x": 3103.0,
    "y": 1745.0,
-   "ray_uncertainty_px": 3.238585847756412,
-   "model_disagreement_px": 1.8096572297111317,
-   "ray_uncertainty_raw_px": 17.428463251426315,
-   "model_disagreement_raw_px": 126.9547788755993,
-   "distortion_px": 24.72532060570789
+   "ray_uncertainty_px": 3.2385925154852377,
+   "model_disagreement_px": 1.8998445443295706,
+   "ray_uncertainty_raw_px": 17.428463249196376,
+   "model_disagreement_raw_px": 126.95477639330235,
+   "distortion_px": 24.725320550399804
   }
  ],
- "f_ref_px": 2632.489494657773,
+ "f_ref_px": 2632.489494320951,
  "folds": 5,
- "seed": 0
+ "seed": 0,
+ "cross_model_K": [
+  {
+   "pair": "standard vs rational",
+   "dfx_pct": -0.00046549504882904336,
+   "dfy_pct": -0.0012502656479967608,
+   "dcx_px": 0.2598358090831425,
+   "dcy_px": -0.016200539411556747
+  },
+  {
+   "pair": "standard vs fisheye",
+   "dfx_pct": 1.3745136690592266,
+   "dfy_pct": 0.9464113882235444,
+   "dcx_px": 5.741885580622693,
+   "dcy_px": 113.06934130509057
+  },
+  {
+   "pair": "rational vs fisheye",
+   "dfx_pct": 1.374985564597781,
+   "dfy_pct": 0.9476735023077957,
+   "dcx_px": 5.48204977153955,
+   "dcy_px": 113.08554184450213
+  }
+ ],
+ "cross_model_K_note": "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model disagreement absorbs these K differences; the literal reading includes them. Which reading governs is the A2 decision (prereg doc).",
+ "bootstrap_replicates_ok": "100/100"
 }

@@ -16,9 +16,17 @@ Pre-registered bars: `docs/pool_calib_prereg_20261014.md`. Pixels = native 4608�
 | B2 held-out RMS | PASS | 0.354 | < 1.0 px (standard) |
 | B3 coverage | FAIL | covered_frac 0.225, corner_cells top-left corner False, top-right corner False, bottom-left corner False, bottom-right corner False | >= 60% of 8x5 cells and all 4 corner cells |
 | B4 edges constrained | FAIL | worst_ray_uncertainty_px inf, worst_model_disagreement_px inf, literal_ray_px inf, literal_models_px inf | ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1) |
-| B5 stable | PASS | rel_std_f 0.00346, std_c_px 5.87 | bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px |
-| B5c production crop | FAIL | worst_ray_uncertainty_px 4.62, worst_model_disagreement_px 5.16, literal_ray_px 20.6, literal_models_px 188 | ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1) |
+| B5 stable | PASS | rel_std_f 0.00346, std_c_px 5.87, replicates_ok 100/100 | bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px (>= 95% of replicates fit) |
+| B5c production crop | FAIL | worst_ray_uncertainty_px 4.62, worst_model_disagreement_px 5.33, literal_ray_px 20.6, literal_models_px 188 | ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1) |
 | B6 focal sanity | PASS | 1.33 | fx / 1964 px (in-air nominal) in [1.25, 1.42] |
+
+Cross-model intrinsics (information, not a bar; the shape-only reading of B4/B5c absorbs these):
+
+| models | Δfx | Δfy | Δcx | Δcy |
+|---|---|---|---|---|
+| standard vs rational | +0.01 % | +0.01 % | -0 px | -0 px |
+| standard vs fisheye | +2.23 % | +1.37 % | -6 px | +166 px |
+| rational vs fisheye | +2.22 % | +1.36 % | -5 px | +167 px |
 
 Capture recipe / notes:
 - This session: board at a median 1.55 m (range 1.21-1.81 m); there the frame is 2.73 m wide, so the 560 mm pattern filled only 20% of the width.
@@ -44,9 +52,17 @@ Capture recipe / notes:
 | B2 held-out RMS | PASS | 0.334 | < 1.0 px (standard) |
 | B3 coverage | FAIL | covered_frac 0.225, corner_cells top-left corner False, top-right corner False, bottom-left corner False, bottom-right corner False | >= 60% of 8x5 cells and all 4 corner cells |
 | B4 edges constrained | FAIL | worst_ray_uncertainty_px inf, worst_model_disagreement_px inf, literal_ray_px inf, literal_models_px inf | ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1) |
-| B5 stable | PASS | rel_std_f 0.00207, std_c_px 6.79 | bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px |
-| B5c production crop | FAIL | worst_ray_uncertainty_px 4.31, worst_model_disagreement_px 3.72, literal_ray_px 22.2, literal_models_px 127 | ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1) |
+| B5 stable | PASS | rel_std_f 0.00207, std_c_px 6.79, replicates_ok 100/100 | bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px (>= 95% of replicates fit) |
+| B5c production crop | FAIL | worst_ray_uncertainty_px 4.31, worst_model_disagreement_px 4.12, literal_ray_px 22.2, literal_models_px 127 | ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1) |
 | B6 focal sanity | PASS | 1.34 | fx / 1964 px (in-air nominal) in [1.25, 1.42] |
+
+Cross-model intrinsics (information, not a bar; the shape-only reading of B4/B5c absorbs these):
+
+| models | Δfx | Δfy | Δcx | Δcy |
+|---|---|---|---|---|
+| standard vs rational | -0.00 % | -0.00 % | +0 px | -0 px |
+| standard vs fisheye | +1.37 % | +0.95 % | +6 px | +113 px |
+| rational vs fisheye | +1.37 % | +0.95 % | +5 px | +113 px |
 
 Capture recipe / notes:
 - This session: board at a median 1.55 m (range 1.21-1.80 m); there the frame is 2.71 m wide, so the 560 mm pattern filled only 21% of the width.
@@ -71,10 +87,18 @@ Capture recipe / notes:
 | B1 poses | FAIL | 10 | >= 15 distinct usable poses |
 | B2 held-out RMS | PASS | 0.29 | < 1.0 px (standard) |
 | B3 coverage | FAIL | covered_frac 0.225, corner_cells top-left corner False, top-right corner False, bottom-left corner False, bottom-right corner False | >= 60% of 8x5 cells and all 4 corner cells |
-| B4 edges constrained | FAIL | worst_ray_uncertainty_px inf, worst_model_disagreement_px 110, literal_ray_px inf, literal_models_px 228 | ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1) |
-| B5 stable | FAIL | rel_std_f 0.00317, std_c_px 11.5 | bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px |
-| B5c production crop | FAIL | worst_ray_uncertainty_px 2.46, worst_model_disagreement_px 2.39, literal_ray_px 28.7, literal_models_px 47.7 | ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1) |
+| B4 edges constrained | FAIL | worst_ray_uncertainty_px inf, worst_model_disagreement_px 176, literal_ray_px inf, literal_models_px 228 | ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1) |
+| B5 stable | FAIL | rel_std_f 0.00317, std_c_px 11.5, replicates_ok 100/100 | bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px (>= 95% of replicates fit) |
+| B5c production crop | FAIL | worst_ray_uncertainty_px 2.46, worst_model_disagreement_px 2.4, literal_ray_px 28.7, literal_models_px 47.7 | ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1) |
 | B6 focal sanity | PASS | 1.33 | fx / 1964 px (in-air nominal) in [1.25, 1.42] |
+
+Cross-model intrinsics (information, not a bar; the shape-only reading of B4/B5c absorbs these):
+
+| models | Δfx | Δfy | Δcx | Δcy |
+|---|---|---|---|---|
+| standard vs rational | +0.16 % | +0.17 % | -0 px | -0 px |
+| standard vs fisheye | -0.12 % | -0.04 % | -43 px | -2 px |
+| rational vs fisheye | -0.28 % | -0.21 % | -42 px | -2 px |
 
 Capture recipe / notes:
 - This session: board at a median 1.53 m (range 1.29-1.73 m); there the frame is 2.69 m wide, so the 560 mm pattern filled only 21% of the width.

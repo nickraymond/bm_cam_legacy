@@ -199,6 +199,45 @@ class TestModels(unittest.TestCase):
         self.assertEqual(pm.choose_model(cv)[0], "rational")                    # clearly better: lowest wins
         self.assertEqual(pm.choose_model({"standard": {"held_out_rms": float("nan")}})[0], None)
 
+    def test_model_disagreement_is_max_pairwise(self):
+        """QE #176: B and C each differ from A by +d / -d in k1; the widest pair is B vs C (~2x)."""
+        grid = np.stack(np.meshgrid(np.linspace(300, 1200, 12), np.linspace(200, 650, 8)), -1).reshape(-1, 2)
+        probes = np.array([[0, 0], [W - 1, H - 1]], float)
+        mk = lambda d: {"model": "standard", "K": K_TRUE, "D": D_TRUE + np.array([d, 0, 0, 0, 0])}  # noqa: E731
+        a, b, c = mk(0.0), mk(0.02), mk(-0.02)
+        pair = pm.aligned_model_disagreement_px([a, b, c], grid, probes, K_TRUE[0, 0])
+
+        def to_a(m):
+            return pm._aligned_dist(pm.rays("standard", m["K"], m["D"], grid), pm.rays("standard", a["K"], a["D"], grid),
+                                    pm.rays("standard", m["K"], m["D"], probes),
+                                    pm.rays("standard", a["K"], a["D"], probes), K_TRUE[0, 0])
+        to_ref = np.maximum(to_a(b), to_a(c))
+        self.assertTrue(np.all(pair > 1.6 * to_ref), (pair, to_ref))
+
+    def test_failed_bootstrap_replicates_count_as_inf(self):
+        pts = np.array([[100.0, 100.0]])
+        Ks, Ds = [K_TRUE] * 20, [D_TRUE] * 20
+        self.assertTrue(np.isfinite(pm.ray_spread_px("standard", Ks, Ds, pts, 880.0, n_failed=0)[0]))
+        self.assertTrue(np.isfinite(pm.ray_spread_px("standard", Ks, Ds, pts, 880.0, n_failed=1)[0]))   # 1/21 < 5 %
+        self.assertTrue(np.isinf(pm.ray_spread_px("standard", Ks, Ds, pts, 880.0, n_failed=2)[0]))      # 2/22 > 5 %
+
+    def test_fisheye_cv_ignores_outside_start_values(self):
+        """QE #176: a fold's fisheye start values come from its own training views, not from K0."""
+        board_obj = np.array([[x * SQ, y * SQ, 0] for y in range(1, 9) for x in range(1, 14)], float)
+        rng = np.random.default_rng(3)
+        obj, img = [], []
+        for ax, ay, az, fxf, fyf, dist in FULL_POSES[:12]:
+            R = rot(ax, ay, az)
+            ray = pm.rays("standard", K_TRUE, D_TRUE, np.array([[fxf * (W - 1), fyf * (H - 1)]]))[0]
+            v = np.array([ray[0], ray[1], 1.0])
+            t = v / np.linalg.norm(v) * dist - R @ np.array([7 * SQ, 4.5 * SQ, 0])
+            rv, _ = cv2.Rodrigues(R)
+            obj.append(board_obj)
+            img.append(pm.project("standard", K_TRUE, D_TRUE, board_obj, rv, t) + rng.normal(0, 0.1, (len(board_obj), 2)))
+        a = pm.cross_validate("fisheye", obj, img, (W, H), folds=3, K0=None)["held_out_rms"]
+        b = pm.cross_validate("fisheye", obj, img, (W, H), folds=3, K0=K_TRUE * 1.3)["held_out_rms"]
+        self.assertAlmostEqual(a, b, places=9)               # identical up to OpenCV thread scheduling
+
     def test_line_straightness(self):
         x = np.linspace(0, 100, 11)
         self.assertLess(pm.line_straightness(np.c_[x, 2 * x + 1])[1], 1e-9)
@@ -374,6 +413,15 @@ class TestCentreOnly(unittest.TestCase):
         self.assertFalse(bars["B3"]["pass"])
         self.assertFalse(bars["B4"]["pass"])
         self.assertEqual(self.cam["verdict_full_frame"], "FAIL")
+
+    def test_negative_control_corner_spread(self):
+        """QE #176: with centre-only data the aligned (A1) ray uncertainty at every frame corner is
+        > 2 px (or unknown). A1 must not make an unconstrained corner look constrained."""
+        corners = [p for p in self.cam["probes"] if p["group"] == "frame" and p["name"] in ("TL", "TR", "BL", "BR")]
+        self.assertEqual(len(corners), 4)
+        for p in corners:
+            v = p["ray_uncertainty_px"]
+            self.assertTrue(v is None or v > 2.0, p)          # None = inf in the JSON
 
     def test_recipe_names_the_gap(self):
         text = " ".join(self.cam["recipe"]["lines"])
