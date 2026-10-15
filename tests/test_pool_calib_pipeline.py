@@ -389,6 +389,8 @@ class TestFullCoverage(unittest.TestCase):
             md = f.read()
         self.assertIn("- Underwater fx / in-air nominal (1964 px, datasheet assumption) = ", md)
         self.assertIn(f"Pixels = native {W}×{H} sensor px unless labelled.", md)
+        self.assertIsNone(self.cam["prereg_note"])
+        self.assertNotIn("not pre-registered", md)
 
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
@@ -523,6 +525,9 @@ class TestNonNativeSize(unittest.TestCase):
         self.assertIn("production-crop intrinsics **N/A**", self.md)
         self.assertIn("| B5c production crop | N/A |", self.md)
         self.assertNotIn("| B5c production crop | FAIL |", self.md)
+        # QE #178: the pixel bars were pre-registered for the IMX708 only; say so per camera
+        self.assertIn("- **IMX708-pixel bars, not pre-registered for this sensor: the B1-B6 pixel numbers", self.md)
+        self.assertIn("applied unchanged to 1536x864 frames", self.cams["camN"]["prereg_note"])
 
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
@@ -591,6 +596,7 @@ class TestNonNativeUnits(unittest.TestCase):
         self.assertIn("1280×800 frame pixels", s)
         self.assertNotIn("4608", s)
         self.assertNotIn("Dashed box", s)
+        self.assertIn("IMX708-pixel bars, not pre-registered for this sensor", s)
 
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
@@ -636,8 +642,13 @@ class TestRefusals(unittest.TestCase):
                 self.assertEqual(pp.main([f"x={t}", "--crop", "1,2,3", "--out-root", t]), 2)
                 for bad in ("y=1000", "x=abc", "x=-5", "x=0", "x"):                         # --nominal-fx NAME=PX
                     self.assertEqual(pp.main([f"x={t}", "--nominal-fx", bad, "--out-root", t]), 2, bad)
+                for crop, native in (("1504,846,1600,900", "1536x864"), ("-1,0,100,100", "4608x2592"),
+                                     ("0,0,0,100", "4608x2592"), ("4000,0,700,100", "4608x2592")):
+                    self.assertEqual(pp.main([f"x={t}", f"--crop={crop}", "--native-size", native, "--out-root", t]),
+                                     2, (crop, native))                                  # crop outside native
             self.assertEqual(os.listdir(t), [])
             self.assertIn("--nominal-fx 'y=1000' must be NAME=PX", err.getvalue())
+            self.assertIn("--crop 1504,846,1600,900 is not inside --native-size 1536x864", err.getvalue())
 
 
 if __name__ == "__main__":

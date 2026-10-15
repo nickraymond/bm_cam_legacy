@@ -307,7 +307,9 @@ def verdict_sheet(name, pts, cov, cal, bars_out, v_full, v_crop, size, crop, pat
             cell.set_text_props(color=STATUS.get(cell.get_text().get_text(), INK), fontweight="bold")
     K = cal["final"]["K"]
     ho = cal["cv"][cal["chosen"]]["held_out_rms"]
-    a3.set_title(f"Pre-registered bars (docs/pool_calib_prereg_20261014.md) — model {cal['chosen']} chosen by held-out "
+    bars_src = ("Pre-registered bars (docs/pool_calib_prereg_20261014.md)" if crop else    # crop None = not native
+                "IMX708-pixel bars, not pre-registered for this sensor")     # same length: fits the page
+    a3.set_title(f"{bars_src} — model {cal['chosen']} chosen by held-out "
                  f"error ({ho:.3f} px): fx {K[0, 0]:.0f}  fy {K[1, 1]:.0f}  cx {K[0, 2]:.0f}  cy {K[1, 2]:.0f}",
                  loc="left")
     title, subtitle = verdict_titles(name, v_full, v_crop, size, crop)
@@ -327,7 +329,8 @@ def verdict_titles(name, v_full, v_crop, size, crop):
     else:
         crop_txt = "production crop: n/a"
         sub = (f"All axes in {w}×{h} frame pixels (not --native-size). Scaled figure, not 1:1. "
-               f"No production crop derived or drawn (B5c N/A).")
+               f"No production crop derived or drawn (B5c N/A). IMX708-pixel bars, not pre-registered for "
+               f"this sensor.")
     return f"{name} underwater calibration — full-frame intrinsics: {v_full}   ·   {crop_txt}", sub
 
 

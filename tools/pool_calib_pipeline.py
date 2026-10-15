@@ -853,6 +853,12 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     K, D = final["K"], final["D"]
     hfov, vfov = pm.fov_deg(ch, K, D, size)
     nominal = nominal_fx_for(name, size, native, args.nominal_fxs)
+    prereg_note = None
+    if tuple(size) != tuple(native):
+        prereg_note = (f"IMX708-pixel bars, not pre-registered for this sensor: the B1-B6 pixel numbers "
+                       f"({PREREG['doc']}) are for {native[0]}x{native[1]} frames, applied unchanged to "
+                       f"{size[0]}x{size[1]} frames")
+        log(f"[{name}] WARN {prereg_note}")
     extra = {"rms_px_train": final["rms"], "heldout_rms_px": cal["cv"][ch]["held_out_rms"],
              "views": len(final["kept"]), "fov_deg_h_v_from_edge_rays": [hfov, vfov],
              "fx_over_nominal_in_air": float(K[0, 0]) / nominal["fx_px"] if nominal["fx_px"] else None,
@@ -945,7 +951,7 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
         "outlier_views": [in_set[d["index"]]["stem"] for d in final["dropped"]],
         "train_rms_px": final["rms"], "heldout_rms_px": {m: c["held_out_rms"] for m, c in cal["cv"].items()},
         "intrinsics_full": full_doc, "intrinsics_crop": crop_doc, "coverage": cov, "bars": bars_out,
-        "verdict_full_frame": v_full, "verdict_production_crop": v_crop, "recipe": recipe,
+        "verdict_full_frame": v_full, "verdict_production_crop": v_crop, "prereg_note": prereg_note, "recipe": recipe,
         "before_after": ba, "probes": cal["probes"], "bootstrap_stats": cal["boot_stats"],
         "cross_model_K": cal["cross_model_K"],
         "distance_m": {"median": recipe["median_distance_m"],
@@ -1064,6 +1070,8 @@ def write_summary(run_dir, results, args, layout):
         k = r["intrinsics_full"]
         L.append(f"- Verdict: full-frame intrinsics **{r['verdict_full_frame']}**, production-crop intrinsics "
                  f"**{r['verdict_production_crop']}**")
+        if r.get("prereg_note"):
+            L.append(f"- **{r['prereg_note']}**")
         L.append(f"- Frames {r['n_frames']}: screen {r['screen']['status_counts']}, {r['screen']['distinct_set']} "
                  f"distinct poses, {r['views_used']} used after outlier rejection; board at "
                  f"{r['distance_m']['min']:.2f}–{r['distance_m']['max']:.2f} m (median {r['distance_m']['median']:.2f} m)")
@@ -1185,6 +1193,11 @@ def _main(argv=None):
         crop = tuple(int(v) for v in a.crop.split(","))
         native = tuple(int(v) for v in a.native_size.lower().split("x"))
         assert len(crop) == 4 and len(native) == 2
+        x, y, cw, ch = crop
+        if x < 0 or y < 0 or cw <= 0 or ch <= 0 or x + cw > native[0] or y + ch > native[1]:
+            # refused here (QE #178) so that a skipped crop always means "frames not --native-size",
+            # never a typo'd --crop silently turning B5c into N/A
+            raise ValueError(f"--crop {a.crop} is not inside --native-size {a.native_size}")
     except (ValueError, AssertionError) as exc:
         print(f"[pipeline] REFUSED: {exc or 'bad --crop / --native-size'}", file=sys.stderr)
         return 2
