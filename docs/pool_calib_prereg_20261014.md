@@ -76,3 +76,35 @@ Verdicts:
   frame corners).
 - Any FAIL → the report says which bar, and gives the capture recipe for the next dive instead
   of a number to trust.
+
+## Amendment A1: B4 / B5c measured after homography alignment (2026-10-14, ~5:15 PM PDT)
+
+Made **after one debug run on bmcam003** (bootstrap 20) and before the reported runs. The
+thresholds are unchanged; only the measurement is corrected. The literal (unaligned) numbers are
+still computed and reported next to the aligned ones in every bar row.
+
+- **What changed.** For B4 and B5c, each bootstrap replicate's ray field (and each other model's
+  ray field) is aligned to the chosen model's with a 2-D homography before measuring the distance
+  at a probe. The homography is fitted only on grid points inside the convex hull of the used
+  corner observations, i.e. where the data are.
+- **Why.** The literal "spread of the undistorted ray" includes the principal-point ↔
+  camera-rotation trade-off: a cx shift of d px moves *every* ray by ~d px, including at the
+  principal point, where the distortion is zero by definition. So the literal number measures
+  std(cx, cy), which B5 already bounds at ≤ 10 px, and the literal B5c (≤ 0.5 px) could not be
+  met by any real calibration. On bmcam003 the literal crop-corner value was ~22 px, the same size
+  as the cx spread (6 px std). Undistortion is only defined up to a homography (the choice of
+  newK and of the rectifying rotation), so the aligned number is the one that says whether the
+  *distortion shape* is known there.
+- **Proof on ground truth:**
+  `tests/test_pool_calib_pipeline.py::TestAmendmentA1::test_literal_ray_metric_measures_the_principal_point`.
+  At the principal point, the literal spread tracks the cx/cy spread, and the aligned spread is
+  < 10 % of it.
+- **Model-disagreement probe.** It stays max-pairwise over all three models, as registered.
+
+## Sensitivity run (NOT pre-registered, reported separately)
+
+61 of 120 bmcam003 frames FAIL the registered clipping rule (> 10 % of board pixels at ≥ 250).
+The white squares are saturated in sunlight under auto exposure. The primary result uses the
+registered rule. A second run with `--screen-override clip_fail=1.01 --screen-override
+clip_warn=1.01` lets those frames in, to show whether clipping, rather than coverage, limits the
+result. It is labelled NON-PREREG in its folder name, summary and manifest.
