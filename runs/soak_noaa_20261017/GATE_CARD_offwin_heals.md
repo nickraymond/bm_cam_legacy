@@ -3,7 +3,7 @@
 - Owner: TE2. Drafted Thu 10/15.
 - Runs ONLY on Nick's own approval line in the TE2 chat, citing this file's sha. The soak card (TEST_CARD.md, rev 3) is approved separately.
 - **Build under test:** bm development at the merge sha **S2** (TBD at Sat AM merge). It is fdeb01a + the camera change "every wake (in or out of the window) sends ≤ `<heal_offwin_max>` heal chunks; the window restricts NEW images only".
-  - Key name/range per the builder's PR, confirmed at QE; written `<cap key>` below. Default 40; 0 = today's behaviour.
+  - Key name/range per the builder's PR, confirmed at QE; written `uplink.media_key.heal_offwin_max` below. Default 40; 0 = today's behaviour.
 
 ## Question
 
@@ -25,7 +25,7 @@ This card tests the mechanism only. 24 h completeness stays in the soak.
 - **Heal work:** before each off-window boot, inject a known heal backlog by console:
   - `{"c":"rsd","h":[["<key>","0-59"]]}`: 60 chunks of an image key the unit already holds in `sent/` (the newest image's key);
   - the backend dedupes the re-sent keyed chunks.
-- **Varied:** `<cap key>` ∈ {0, 40}, crossover:
+- **Varied:** `uplink.media_key.heal_offwin_max` ∈ {0, 40}, crossover:
   - bmcam003: 0 → 40;
   - bmcam004: 40 → 0;
   - this removes unit and Spotter (Notecard model) bias.
@@ -81,15 +81,15 @@ Units halted (start :12–:55). `deploy_s.sh` = `bash runs/pool_rehearsal_202610
 4. **Re-arm + halt:** `deploy_s.sh rearm <host>`, `deploy_s.sh halt <host>`.
 5. **Profile, in the first forced boot's listen window per unit** (`deploy_s.sh boot <host>` → `deploy_s.sh send <host> <id> '<kv>'`):
    - 66201 / 66202: `{"schedule.timezone":"America/New_York","schedule.window.enabled":true,"schedule.window.start":"03:00","schedule.window.end":"04:00"}` (off-window phase);
-   - plus the cap: bmcam003 66203 `{"<cap key>":0}`, bmcam004 66204 `{"<cap key>":40}`.
+   - plus the cap: bmcam003 66203 `{"uplink.media_key.heal_offwin_max":0}`, bmcam004 66204 `{"uplink.media_key.heal_offwin_max":40}`.
 6. **Off-window boots, 6 per unit:**
    - before each one, console `{"id":662NN,"c":"rsd","h":[["<newest key>","0-59"]]}` (ids 66210–66239);
    - then `deploy_s.sh boot <host>`, `deploy_s.sh report <host>`.
-   - Crossover: set the cap the other way (bmcam003 66240 `{"<cap key>":40}`, bmcam004 66241 `{"<cap key>":0}`), then 6 more boots per unit.
+   - Crossover: set the cap the other way (bmcam003 66240 `{"uplink.media_key.heal_offwin_max":40}`, bmcam004 66241 `{"uplink.media_key.heal_offwin_max":0}`), then 6 more boots per unit.
    - G3: one boot with an `rsd` of `0-9`.
    - G5: console `{"id":662NN,"c":"get","k":["camera.focus.lens_position"]}` in one off-window listen tail per unit.
 7. **In-window phase:** set the window back with 66250 / 66251 `{"schedule.window.start":"10:00","schedule.window.end":"15:00"}`, then 2 boots per unit (G4).
-8. **Soak config:** 66252 / 66253 `{"<cap key>":40}` on both. Then `hil/tools/hil_restore_schedule.sh SPOT-31593C` / `SPOT-33507C` (hourly 3600000 / 600000). The soak clock (TEST_CARD rev 3) starts at the next in-window wake.
+8. **Soak config:** 66252 / 66253 `{"uplink.media_key.heal_offwin_max":40}` on both. Then `hil/tools/hil_restore_schedule.sh SPOT-31593C` / `SPOT-33507C` (hourly 3600000 / 600000). The soak clock (TEST_CARD rev 3) starts at the next in-window wake.
 
 **Rollback / restore:**
 - Behaviour: console `reset` of the cap key + the window keys, which returns to the d35-less fdeb01a behaviour on S2 code.
@@ -105,3 +105,27 @@ Units halted (start :12–:55). `deploy_s.sh` = `bash runs/pool_rehearsal_202610
 ## Is it worth it?
 
 d35 + off-window heals is the NOAA release candidate. Without the mechanism proven, the Sat–Mon soak can't attribute a late-window completeness result to the change. Nick also needs an energy number before he sets the cap.
+
+---
+
+## Rev 2 (Thu 10/15 ~11:40 AM PDT): QE on bm #181 (d35)
+
+- **Cap key:** `uplink.media_key.heal_offwin_max`, range 0..40, default 40. Substituted throughout above.
+- **Evidence line for G1/G2/G3:** every off-window wake prints, at cap 0 too:
+  `[HEAL] off-window wake: cap= heal_chunks= hl= uplink_msgs= heal_s= tail_s= cycle_s= uptime_s=`.
+  - Pass for G1: `heal_chunks` = min(cap, backlog) and ≤ cap.
+  - Pass for G2: `cap=0 heal_chunks=0`.
+  - The console counts must agree with `uplink_msgs` (± 1 status).
+- **QE nit 1, tail_s on full-backlog wakes (added to G1):** on every cap-40 / backlog ≥ 40 off-window wake:
+  - `tail_s` ≥ the configured post-transmit listen tail (150 s), so heals never shorten the command listen;
+  - `cycle_s` ≤ 480 s budget;
+  - `uptime_s` at halt ≤ 481 s.
+  12/12.
+- **QE nit 2, give-up horizon (new G8):** `wakes_left` now ages on off-window wakes too.
+  - Expected from the code: HEAL_WAKES = 3, so a pending heal list is given up after **3 wakes ≈ 3 h on the hourly schedule (0.125 day)**.
+  - Before #181, under d35 only in-window wakes aged it: up to ~1 day.
+  - Test, bmcam003 only: cap 40, inject `rsd` `0-149` (150 chunks), then 4 off-window boots.
+  - Expect `heal_chunks` 40 / 40 / 40, then the list given up (the 4th wake plans 0 from it; the remaining 30 chunks are left for the backend re-ask).
+  - Record `wakes_left` per wake and report the horizon in hours and days. Pass = matches the #181 code's constant.
+  - The 24 h completeness impact belongs to the soak: the backend re-ask (REASK 5400 s) must refill it.
+- **Time:** G8 adds ~20 min (4 boots). Total ~3 h.
