@@ -148,6 +148,14 @@ Bars come from `docs/pool_calib_prereg_20261014.md`. Exit codes:
 
 `--screen-override KEY=VALUE` is for sensitivity runs only. It labels the run NON-PREREG everywhere.
 
+**OpenMV raw input (nereus002 N6 / AE3).** Pass a glob of `*.bayer` files. Each needs a `<stem>.json`
+next to it with `width`, `height`, `cfa`, `bits` (8 only), `black_level` and `white_level`, as written
+by the nereus002 rig. Raw bypasses the board ISP, so prefer it over the board JPEGs:
+
+```bash
+.venv/bin/python tools/pool_calib_pipeline.py 'n6=<run>/exp_*_pool/captures/openmv_n6/openmv_n6_raw_*.bayer' 'ae3=<run>/exp_*_pool/captures/openmv_ae3/openmv_ae3_raw_*.bayer' --out-root ~/NereusPool/<date>_CALIB --tag <tag>
+```
+
 Results for 10/14 are in `runs/pool_calib_20261014/RESULTS.md`. Tests:
 `.venv/bin/python -m pytest -q tests/test_pool_calib_pipeline.py`. They run on synthetic renders with a
 known K and distortion, take ~13 s, and need the main `.venv` (opencv-contrib, scipy, matplotlib).
