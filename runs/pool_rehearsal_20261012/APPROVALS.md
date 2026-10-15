@@ -32,3 +32,8 @@ Refers to the pool-day line TE2 posted in this chat at ~9:00 AM:
 
 ## 2026-10-15T16:36:51Z (Thu 10/15 9:36 AM PDT): Nick typed in TE2 chat, verbatim
 > OK: set hrpm 0 + cfg save on SPOT-33507C and SPOT-31593C (bench only, never SPOT-33361C) between wakes, one at a time; accept one stub-wake partial image per camera; rollback = cfg hrpm 1 + cfg save.
+
+## 2026-10-15T22:35:35Z (Thu 3:35 PM PDT): Nick typed in TE2 chat, verbatim
+> Approved per nereus-software-engineering-team/approvals/2026-10-16_pool.md @ 3a16066fdb8ace0780e355c7c7e8d77d258e66c8
+
+Scope = envelope v1 "Owner 2: Test Engineer" exactly as written (plan A; v2 c275085 rejected).
