@@ -1,11 +1,12 @@
 # Underwater calibration, pool test Wed 2026-10-14: results
 
-Tool: `tools/pool_calib_pipeline.py` (commit a2014c5d). Pass bars were written before the run:
+Tool: `tools/pool_calib_pipeline.py` (commit 5b52e2e4; QE #176 nits applied). Pass bars were written before the run:
 `docs/pool_calib_prereg_20261014.md` (+ amendment A1). Full run folders, with images, cut sheets and
 CSVs, are on Nick's Mac only (not in git):
 
-- primary: `~/NereusPool/20261014_CALIB/20261014_172309_pool1014/`
-- sensitivity, NOT pre-registered: `~/NereusPool/20261014_CALIB/20261014_172355_pool1014_clipsens_NONPREREG/`
+- primary: `~/NereusPool/20261014_CALIB/20261014_173833_pool1014/`
+- sensitivity, NOT pre-registered: `~/NereusPool/20261014_CALIB/20261014_173920_pool1014_clipsens_NONPREREG/`
+- earlier runs of the same data (before the QE fixes, same verdicts): `~/NereusPool/20261014_CALIB/superseded/`
 - review page (sliders): https://claude.ai/artifact/Cxq6XbGYbNmjJQ4scvvoac
 
 This folder keeps the small JSON/Markdown outputs: `primary/summary.md`, the per-camera intrinsics,
@@ -29,7 +30,9 @@ Inside the production crop, the bottom crop corners are known only to 2–5 px (
 board was mostly held in the upper middle.
 
 **Use now (provisional):**
-- fx ≈ 2,620 px ±1 % and the correction across the middle of the crop.
+- **Standard-model** fx ≈ 2,620 px ±1 % and the correction across the middle of the crop.
+- The fisheye model fits worse, but it puts fx +2.2 % (003) / +1.4 % (004) higher. Across model
+  families, fx is only known to ±2 %.
 - Do NOT use these numbers for the full frame or video.
 
 **Fix:** one ~15-minute dive (recipe below).
@@ -58,7 +61,8 @@ the distortion are unchanged, and only cx and cy shift. Bootstrap std(fx) is 0.2
   the edges: k3 = −1.12 (003) vs +0.04 (004). bmcam003's polynomial even folds before the left/right
   frame edges (the horizontal FOV is not computable).
 - **fx depends on frame selection.** It moves 0.5–0.8 % depending on which frames go in (primary vs
-  sensitivity). That is more than the bootstrap spread, so quote fx as ±1 % until the edge dive.
+  sensitivity). That is more than the bootstrap spread, so quote standard-model fx as ±1 % (±2 % across
+  model families) until the edge dive.
 - **Clipping.**
   - 61/120 (003) and 69/120 (004) frames FAIL the registered clipping rule: the white squares are
     saturated under sun and auto exposure.
@@ -74,6 +78,21 @@ the distortion are unchanged, and only cx and cy shift. Bootstrap std(fx) is 0.2
 - **Straight-line check** on board rows from a frame the model never saw (fold model): bend goes from
   0.40 → 0.13 px RMS (003), 0.50 → 0.11 px (004) and 1.06 → 0.14 px (nereus002). The crop centre is only
   mildly distorted, so these numbers are small.
+
+## Two readings of the model-disagreement check (B4 / B5c), and A2 pending
+
+QE (#176) pointed out that the aligned, shape-only reading (amendment A1) hides how far the models'
+intrinsics differ. Both readings, at the worst production-crop corner:
+
+| camera | shape-only (aligned) | metric (literal) | widest K difference between models |
+|---|---|---|---|
+| bmcam003 | 5.3 px | 188 px | fisheye vs standard: Δfx +2.2 %, Δcy +166 px |
+| bmcam004 | 4.1 px | 127 px | fisheye vs standard: Δfx +1.4 %, Δcy +113 px |
+| nereus002 | 2.4 px | 48 px | fisheye vs standard: Δcx −43 px |
+
+Bar: model disagreement ≤ 1 px. Every camera FAILs under both readings, so no 10/14 verdict depends
+on the choice. Which reading governs the edge-dive verdict (**A2**) is Nick's call; the EM is taking
+it to him before that rerun is judged. Details: `docs/pool_calib_prereg_20261014.md`.
 
 ## Capture recipe for the next dive
 
@@ -102,4 +121,5 @@ the distortion are unchanged, and only cx and cy shift. Bootstrap std(fx) is 0.2
   "calibration" frames contain no board.
 - **Fresh water.** In seawater fx is ~+0.5 % (n 1.340 vs 1.333).
 - **Amendment A1** changed how B4/B5c are measured (homography-aligned) after one debug run. Both numbers
-  are in every bar row; see the prereg doc and its ground-truth test.
+  are in every bar row; see the prereg doc, its ground-truth test, and the negative control (centre-only
+  data still reads > 2 px at the frame corners).

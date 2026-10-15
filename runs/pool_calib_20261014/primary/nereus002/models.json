@@ -3,19 +3,19 @@
  "why": "lowest held-out RMS 0.290 px",
  "models": {
   "standard": {
-   "train_rms_px": 0.27109131771114137,
+   "train_rms_px": 0.27109131771114026,
    "views": 10,
    "dropped": [],
    "K": [
     [
-     2621.315241623172,
+     2621.315240838798,
      0.0,
-     2336.7675769340885
+     2336.7675754253883
     ],
     [
      0.0,
-     2620.2173881429744,
-     1271.9676085720519
+     2620.2173873171446,
+     1271.967607213533
     ],
     [
      0.0,
@@ -24,31 +24,31 @@
     ]
    ],
    "D": [
-    0.2781242139063735,
-    0.639902290765041,
-    0.00034212617887996585,
-    0.012250241881332592,
-    -0.419619438670805
+    0.2781242128411116,
+    0.6399022962790849,
+    0.0003421257690358928,
+    0.01225024146322499,
+    -0.4196194397837369
    ],
    "n_params_dist": 5,
-   "heldout_rms_px": 0.2902462960002039,
-   "heldout_median_view_px": 0.2766990543797405,
-   "outlier_threshold_px": 0.7995512568160701
+   "heldout_rms_px": 0.2902462905038563,
+   "heldout_median_view_px": 0.27669905411300955,
+   "outlier_threshold_px": 0.7995512595155541
   },
   "rational": {
-   "train_rms_px": 0.27068351529199547,
+   "train_rms_px": 0.27068351529200185,
    "views": 10,
    "dropped": [],
    "K": [
     [
-     2625.491472783503,
+     2625.4914585445804,
      0.0,
-     2336.4324149792583
+     2336.432414935647
     ],
     [
      0.0,
-     2624.614855874645,
-     1271.5399583635633
+     2624.614841642844,
+     1271.5399585071036
     ],
     [
      0.0,
@@ -57,34 +57,34 @@
     ]
    ],
    "D": [
-    190.1847681209092,
-    -270.1811915943641,
-    0.00024387532940233723,
-    0.012122126510206404,
-    359.3944306081014,
-    190.3439095321558,
-    -327.56322215232643,
-    367.07575002684206
+    190.1837508275213,
+    -270.18079162138935,
+    0.00024387536770070108,
+    0.012122126565292383,
+    359.3929579091245,
+    190.34288911068006,
+    -327.5625250627432,
+    367.0746131950358
    ],
    "n_params_dist": 8,
-   "heldout_rms_px": 0.7990925769911138,
-   "heldout_median_view_px": 0.29886669779254216,
-   "outlier_threshold_px": 0.7972034507071019
+   "heldout_rms_px": 0.7991015597391153,
+   "heldout_median_view_px": 0.2988666980399348,
+   "outlier_threshold_px": 0.7972034485378263
   },
   "fisheye": {
-   "train_rms_px": 0.3075763969061691,
+   "train_rms_px": 0.307576396906173,
    "views": 10,
    "dropped": [],
    "K": [
     [
-     2618.2062607561256,
+     2618.206260756125,
      0.0,
      2293.9527183661094
     ],
     [
      0.0,
-     2619.2152648416654,
-     1269.63965372416
+     2619.215264841665,
+     1269.6396537241608
     ],
     [
      0.0,
@@ -93,15 +93,15 @@
     ]
    ],
    "D": [
-    0.5764298465293027,
-    1.5073094953442405,
-    -1.4691487259102045,
-    6.6796621365990045
+    0.5764298465293097,
+    1.5073094953440556,
+    -1.4691487259084735,
+    6.679662136593379
    ],
    "n_params_dist": 4,
-   "heldout_rms_px": 0.3424086311303658,
-   "heldout_median_view_px": 0.31476354406670404,
-   "outlier_threshold_px": 0.9251169373264096
+   "heldout_rms_px": 0.3424086311341616,
+   "heldout_median_view_px": 0.31476354406711227,
+   "outlier_threshold_px": 0.9251169373263984
   }
  },
  "errors": {},
@@ -112,10 +112,10 @@
    "x": 0.0,
    "y": 0.0,
    "ray_uncertainty_px": null,
-   "model_disagreement_px": 103.73173461255006,
+   "model_disagreement_px": 164.03872348381083,
    "ray_uncertainty_raw_px": null,
-   "model_disagreement_raw_px": 220.31355756984792,
-   "distortion_px": 600.3160767771765
+   "model_disagreement_raw_px": 220.31459896270732,
+   "distortion_px": 600.3160786087611
   },
   {
    "group": "frame",
@@ -123,10 +123,10 @@
    "x": 4607.0,
    "y": 0.0,
    "ray_uncertainty_px": null,
-   "model_disagreement_px": 87.89421420808249,
+   "model_disagreement_px": 151.44536145118403,
    "ray_uncertainty_raw_px": null,
-   "model_disagreement_raw_px": 94.89614073323075,
-   "distortion_px": 620.9973356201497
+   "model_disagreement_raw_px": 94.89665913077569,
+   "distortion_px": 620.997336766837
   },
   {
    "group": "frame",
@@ -134,10 +134,10 @@
    "x": 0.0,
    "y": 2591.0,
    "ray_uncertainty_px": null,
-   "model_disagreement_px": 110.14991888352375,
+   "model_disagreement_px": 175.56583532587948,
    "ray_uncertainty_raw_px": null,
-   "model_disagreement_raw_px": 228.1679134238995,
-   "distortion_px": 612.7554587868656
+   "model_disagreement_raw_px": 228.16903845629517,
+   "distortion_px": 612.7554603446083
   },
   {
    "group": "frame",
@@ -145,101 +145,126 @@
    "x": 4607.0,
    "y": 2591.0,
    "ray_uncertainty_px": null,
-   "model_disagreement_px": 88.52760613072945,
+   "model_disagreement_px": 155.95039764407406,
    "ray_uncertainty_raw_px": null,
-   "model_disagreement_raw_px": 99.89024912975128,
-   "distortion_px": 633.3612865608022
+   "model_disagreement_raw_px": 99.89081544225515,
+   "distortion_px": 633.3612875035112
   },
   {
    "group": "frame",
    "name": "top",
    "x": 2303.5,
    "y": 0.0,
-   "ray_uncertainty_px": 0.9559540828389275,
-   "model_disagreement_px": 2.196597079059512,
-   "ray_uncertainty_raw_px": 27.38964722705986,
-   "model_disagreement_raw_px": 45.83926341540768,
-   "distortion_px": 92.57199345877223
+   "ray_uncertainty_px": 0.9559673601437751,
+   "model_disagreement_px": 2.1966181038626704,
+   "ray_uncertainty_raw_px": 27.38964721864573,
+   "model_disagreement_raw_px": 45.83926169987425,
+   "distortion_px": 92.57199374897552
   },
   {
    "group": "frame",
    "name": "bottom",
    "x": 2303.5,
    "y": 2591.0,
-   "ray_uncertainty_px": 4.698440935946059,
-   "model_disagreement_px": 6.2653706234032995,
-   "ray_uncertainty_raw_px": 27.477288558501055,
-   "model_disagreement_raw_px": 45.811092048294356,
-   "distortion_px": 103.93277518664273
+   "ray_uncertainty_px": 4.698455166208368,
+   "model_disagreement_px": 6.266999984475633,
+   "ray_uncertainty_raw_px": 27.477288550060006,
+   "model_disagreement_raw_px": 45.81109042546131,
+   "distortion_px": 103.9327750569787
   },
   {
    "group": "frame",
    "name": "left",
    "x": 0.0,
    "y": 1295.5,
-   "ray_uncertainty_px": 42.453275420347374,
-   "model_disagreement_px": 37.64511668375452,
-   "ray_uncertainty_raw_px": 49.74779667997282,
-   "model_disagreement_raw_px": 128.1592444194081,
-   "distortion_px": 442.3854067974609
+   "ray_uncertainty_px": 42.45330879105521,
+   "model_disagreement_px": 69.68945903977847,
+   "ray_uncertainty_raw_px": 49.74779666469025,
+   "model_disagreement_raw_px": 128.15955377797462,
+   "distortion_px": 442.38540804260805
   },
   {
    "group": "frame",
    "name": "right",
    "x": 4607.0,
    "y": 1295.5,
-   "ray_uncertainty_px": 28.65777795247407,
-   "model_disagreement_px": 56.017761183354345,
-   "ray_uncertainty_raw_px": 35.761960602123644,
-   "model_disagreement_raw_px": 19.969225843757656,
-   "distortion_px": 463.8952865536132
+   "ray_uncertainty_px": 28.657734587147527,
+   "model_disagreement_px": 77.0055271833389,
+   "ray_uncertainty_raw_px": 35.76196059113753,
+   "model_disagreement_raw_px": 19.969373619007975,
+   "distortion_px": 463.89528718118873
   },
   {
    "group": "crop",
    "name": "crop_TL",
    "x": 1504.0,
    "y": 846.0,
-   "ray_uncertainty_px": 0.14459986232035485,
-   "model_disagreement_px": 0.05906690003273813,
-   "ray_uncertainty_raw_px": 24.475335498977962,
-   "model_disagreement_raw_px": 46.21660487585625,
-   "distortion_px": 27.598699792543776
+   "ray_uncertainty_px": 0.14459336044402332,
+   "model_disagreement_px": 0.06422721017666776,
+   "ray_uncertainty_raw_px": 24.475335491459116,
+   "model_disagreement_raw_px": 46.216603300367545,
+   "distortion_px": 27.598700036878018
   },
   {
    "group": "crop",
    "name": "crop_TR",
    "x": 3103.0,
    "y": 846.0,
-   "ray_uncertainty_px": 0.6297250244652779,
-   "model_disagreement_px": 0.06272546655123179,
-   "ray_uncertainty_raw_px": 27.71141572936598,
-   "model_disagreement_raw_px": 47.57068086600506,
-   "distortion_px": 37.690656403457545
+   "ray_uncertainty_px": 0.6297246821089835,
+   "model_disagreement_px": 0.06543587921127493,
+   "ray_uncertainty_raw_px": 27.711415720853008,
+   "model_disagreement_raw_px": 47.57067902436588,
+   "distortion_px": 37.69065635057509
   },
   {
    "group": "crop",
    "name": "crop_BL",
    "x": 1504.0,
    "y": 1745.0,
-   "ray_uncertainty_px": 1.8072337250307948,
-   "model_disagreement_px": 2.1003908886880165,
-   "ray_uncertainty_raw_px": 24.94586335324883,
-   "model_disagreement_raw_px": 46.173071836462675,
-   "distortion_px": 30.549219345365902
+   "ray_uncertainty_px": 1.8072239007483608,
+   "model_disagreement_px": 2.1003936289807124,
+   "ray_uncertainty_raw_px": 24.945863345585437,
+   "model_disagreement_raw_px": 46.173070400589694,
+   "distortion_px": 30.549219398032726
   },
   {
    "group": "crop",
    "name": "crop_BR",
    "x": 3103.0,
    "y": 1745.0,
-   "ray_uncertainty_px": 2.459183091552561,
-   "model_disagreement_px": 2.385923282457758,
-   "ray_uncertainty_raw_px": 28.71394931852801,
-   "model_disagreement_raw_px": 47.6576181078964,
-   "distortion_px": 40.66220673864117
+   "ray_uncertainty_px": 2.459188316585881,
+   "model_disagreement_px": 2.398187081427651,
+   "ray_uncertainty_raw_px": 28.71394930970706,
+   "model_disagreement_raw_px": 47.657616095729374,
+   "distortion_px": 40.662206550513716
   }
  ],
- "f_ref_px": 2620.7663148830734,
+ "f_ref_px": 2620.7663140779714,
  "folds": 5,
- "seed": 0
+ "seed": 0,
+ "cross_model_K": [
+  {
+   "pair": "standard vs rational",
+   "dfx_pct": 0.15931764484937763,
+   "dfy_pct": 0.16782784310129725,
+   "dcx_px": -0.3351604897411562,
+   "dcy_px": -0.4276487064294088
+  },
+  {
+   "pair": "standard vs fisheye",
+   "dfx_pct": -0.11860382277708025,
+   "dfy_pct": -0.038245776107366736,
+   "dcx_px": -42.81485705927889,
+   "dcy_px": -2.3279534893722484
+  },
+  {
+   "pair": "rational vs fisheye",
+   "dfx_pct": -0.27747939399100907,
+   "dfy_pct": -0.20572834975661955,
+   "dcx_px": -42.47969656953774,
+   "dcy_px": -1.9003047829428397
+  }
+ ],
+ "cross_model_K_note": "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model disagreement absorbs these K differences; the literal reading includes them. Which reading governs is the A2 decision (prereg doc).",
+ "bootstrap_replicates_ok": "100/100"
 }
