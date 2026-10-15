@@ -649,6 +649,76 @@ class TestAmendmentA1(unittest.TestCase):
         self.assertLess(aligned, 0.1 * literal)          # the distortion there is known
 
 
+def write_bayer(path_no_ext, bgr_or_gray, cfa="BGGR", bits=8, extra=None):
+    """Write an OpenMV-style raw: <stem>.bayer (8-bit mosaic) + <stem>.json (geometry)."""
+    img = bgr_or_gray if bgr_or_gray.ndim == 3 else cv2.cvtColor(bgr_or_gray, cv2.COLOR_GRAY2BGR)
+    h, w, _ = img.shape
+    ch = {"R": 2, "G": 1, "B": 0}
+    m = np.zeros((h, w), np.uint8)
+    for dy in (0, 1):
+        for dx in (0, 1):
+            m[dy::2, dx::2] = img[dy::2, dx::2, ch[cfa[dy * 2 + dx]]]
+    m.tofile(path_no_ext + ".bayer")
+    meta = {"format": "openmv_bayer", "width": w, "height": h, "cfa": cfa, "bits": bits, "black_level": 0,
+            "white_level": 255, "exposure_us": 3752, "gain_db": 0.0}
+    meta.update(extra or {})
+    with open(path_no_ext + ".json", "w") as f:
+        json.dump(meta, f)
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestBayer(unittest.TestCase):
+    """OpenMV raw input (nereus002 N6 / AE3): CFA mapping, bad files, and a full calibration."""
+
+    def test_cfa_mapping_reproduces_colours(self):
+        img = np.zeros((60, 90, 3), np.uint8)
+        img[:, :30], img[:, 30:60], img[:, 60:] = (0, 0, 255), (0, 255, 0), (255, 0, 0)     # red, green, blue
+        with tempfile.TemporaryDirectory() as t:
+            for cfa in ("BGGR", "GBRG", "RGGB", "GRBG"):
+                write_bayer(os.path.join(t, cfa), img, cfa)
+                out = pp.load_bayer(os.path.join(t, cfa + ".bayer"), color=True)
+                self.assertEqual(out.shape, img.shape)
+                self.assertGreater(out[30, 15, 2], 200, cfa)        # red stays red
+                self.assertGreater(out[30, 45, 1], 200, cfa)        # green stays green
+                self.assertGreater(out[30, 75, 0], 200, cfa)        # blue stays blue
+                self.assertLess(out[30, 15, 0], 60, cfa)
+
+    def test_bad_files_fail_loudly(self):
+        img = np.full((40, 64), 128, np.uint8)
+        with tempfile.TemporaryDirectory() as t:
+            write_bayer(os.path.join(t, "short"), img, extra={"width": 80})                 # size mismatch
+            write_bayer(os.path.join(t, "cfa"), img, extra={"cfa": "XYZW"})
+            write_bayer(os.path.join(t, "deep"), img, extra={"bits": 10})
+            for stem, msg in (("short", "expected"), ("cfa", "unknown cfa"), ("deep", "8-bit only")):
+                with self.assertRaisesRegex(ValueError, msg):
+                    pp.load_bayer(os.path.join(t, stem + ".bayer"))
+                spec = {"squares_x": 14, "squares_y": 9, "square_mm": SQ, "marker_mm": MK,
+                        "dictionary": "DICT_5X5_100", "legacy": False}
+                fr = pp.screen_frame((os.path.join(t, stem + ".bayer"), spec, 120))
+                self.assertIn(msg, fr["error"])                     # becomes a FAIL reason, run continues
+
+    def test_calibrates_from_bayer(self):
+        with tempfile.TemporaryDirectory() as t:
+            cal = os.path.join(t, "captures", "openmv_n6")
+            os.makedirs(cal)
+            for i, pose in enumerate(FULL_POSES, 1):
+                write_bayer(os.path.join(cal, f"openmv_n6_raw_{i:04d}"), render(pose, seed=500 + i))
+            root = os.path.join(t, "runs")
+            rc, out = run_pipeline([f"n6={cal}/*.bayer", "--out-root", root, "--tag", "bayer"] + COMMON)
+            self.assertIn(rc, (0, 3), out[-2000:])
+            with open(os.path.join(only_run_dir(root), "summary.json")) as f:
+                cam = json.load(f)["cameras"][0]
+            self.assertEqual(cam["n_frames"], len(FULL_POSES))
+            self.assertEqual(cam["image_size"], [W, H])
+            self.assertGreaterEqual(cam["views_used"], 15)
+            k = cam["intrinsics_full"]
+            self.assertAlmostEqual(k["fx"], K_TRUE[0, 0], delta=0.01 * K_TRUE[0, 0])
+            self.assertAlmostEqual(k["cx"], K_TRUE[0, 2], delta=6)
+            with open(os.path.join(only_run_dir(root), "n6", "frames.csv")) as f:
+                rows = list(csv.DictReader(f))
+            self.assertTrue(all(r["exposure_us"] == "3752" for r in rows))       # .json sidecar read
+
+
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
 class TestRefusals(unittest.TestCase):
     def test_refusals(self):

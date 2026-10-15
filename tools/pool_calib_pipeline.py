@@ -28,11 +28,15 @@ Stages (per camera)
   5. bars      B1..B6 -> full-frame verdict, production-crop verdict, capture recipe on FAIL
 
 Inputs
-  cameras      NAME=PATH, PATH = a folder of *.jpg/*.jpeg/*.dng or a glob (quote it), e.g.
+  cameras      NAME=PATH, PATH = a folder of *.jpg/*.jpeg/*.dng/*.bayer or a glob (quote it), e.g.
                bmcam003=~/NereusPool/20261014/bmcam003_20261014_175926/calibration
                nereus002='~/NereusPool/.../pool007_*/2026-10-14/exp_20261014T20[23]*_pool/captures/imx708/*.jpg'
-               Sidecars <stem>.metadata.json / <file>.rpicam.json are read when present
-               (ScalerCrop, LensPosition, ExposureTime, AnalogueGain, Lux).
+               n6='~/NereusPool/.../exp_*_pool/captures/openmv_n6/openmv_n6_raw_*.bayer'
+               Sidecars <stem>.metadata.json / <file>.rpicam.json / <stem>.json are read when present
+               (ScalerCrop, LensPosition, ExposureTime, AnalogueGain, Lux; exposure_us, gain_db).
+               *.bayer = OpenMV raw (nereus002 N6 / AE3): 8-bit mosaic, geometry from <stem>.json
+               (width, height, cfa, bits, black_level, white_level). It bypasses the board ISP, so it
+               is the preferred source for those cameras; demosaiced with OpenCV for detection.
   --card NAME=JPG   v3-card frame for the before/after (repeatable). Default for a folder input:
                the first <folder>/../loop/*_loop_01_still.jpg if it exists.
   --native-size WxH   the IMX708 full frame (default 4608x2592). Leave it at the default for any
@@ -112,7 +116,11 @@ NATIVE = (4608, 2592)
 DEFAULT_CROP = (1504, 846, 1600, 900)
 NOMINAL_FX_AIR = 2.75e-3 / 1.4e-6          # 1964.3 px, datasheet values (assumption)
 NOMINAL_FX_SOURCE = "datasheet assumption"  # the pre-registered IMX708 value (B6 / summary.md wording)
-IMAGE_EXT = (".jpg", ".jpeg", ".dng")
+IMAGE_EXT = (".jpg", ".jpeg", ".dng", ".bayer")
+# Sensor CFA (top-left 2x2, row-major) -> OpenCV conversion. OpenCV names its Bayer codes by a
+# different pixel, so a BGGR sensor is COLOR_BayerRG*; checked on synthetic mosaics in
+# tests/test_pool_calib_pipeline.py::TestBayer.
+BAYER_CV = {"BGGR": "RG", "GBRG": "GR", "RGGB": "BG", "GRBG": "GB"}
 
 # Pre-registered bars and screen thresholds (docs/pool_calib_prereg_20261014.md). Changing a value
 # here changes the bar: record why in the doc first.
@@ -204,6 +212,41 @@ def resolve_frames(path):
     return [by_stem[s] for s in sorted(by_stem)]
 
 
+def load_bayer(path, color=False):
+    """OpenMV raw (*.bayer + <stem>.json) -> 8-bit gray (or BGR). Raises ValueError on a bad file."""
+    import cv2
+    meta_path = os.path.splitext(path)[0] + ".json"
+    with open(meta_path) as f:
+        meta = json.load(f)
+    w, h = int(meta["width"]), int(meta["height"])
+    cfa, bits = str(meta.get("cfa", "")).upper(), int(meta.get("bits", 8))
+    if cfa not in BAYER_CV:
+        raise ValueError(f"unknown cfa {cfa!r} in {os.path.basename(meta_path)}")
+    if bits != 8:
+        raise ValueError(f"{bits}-bit bayer not supported (8-bit only)")
+    raw = np.fromfile(path, np.uint8)
+    if raw.size != w * h:
+        raise ValueError(f"{raw.size} bytes, expected {w}x{h} = {w * h}")
+    raw = raw.reshape(h, w)
+    black, white = float(meta.get("black_level", 0)), float(meta.get("white_level", 255))
+    if (black, white) != (0.0, 255.0):
+        raw = np.clip((raw.astype(np.float32) - black) * 255.0 / max(white - black, 1.0), 0, 255).astype(np.uint8)
+    code = getattr(cv2, f"COLOR_Bayer{BAYER_CV[cfa]}2{'BGR' if color else 'GRAY'}")
+    return cv2.cvtColor(raw, code)
+
+
+def load_image(path, color=False):
+    """Any supported input -> 8-bit gray (or BGR); None if OpenCV cannot decode it."""
+    import cv2
+    low = path.lower()
+    if low.endswith(".bayer"):
+        return load_bayer(path, color)
+    if low.endswith(".dng"):
+        g = pcc.load_gray(path, "dng", cv2, np)
+        return cv2.cvtColor(g, cv2.COLOR_GRAY2BGR) if color else g
+    return cv2.imread(path, cv2.IMREAD_COLOR if color else cv2.IMREAD_GRAYSCALE)
+
+
 def read_sidecar(path):
     stem = os.path.splitext(path)[0]
     for cand in (stem + ".metadata.json", path + ".rpicam.json", stem + ".json"):
@@ -214,7 +257,7 @@ def read_sidecar(path):
                 if isinstance(d, list) and d:
                     d = d[0]
                 return {k: d.get(k) for k in ("ScalerCrop", "LensPosition", "ExposureTime", "AnalogueGain",
-                                              "Lux", "FocusFoM")}, os.path.basename(cand)
+                                              "Lux", "FocusFoM", "exposure_us", "gain_db")}, os.path.basename(cand)
             except Exception as exc:
                 return {"sidecar_error": str(exc)}, os.path.basename(cand)
     return {}, None
@@ -298,10 +341,7 @@ def screen_frame(job):
         side, side_name = read_sidecar(path)
         out.update(side)
         out["sidecar"] = side_name
-        if path.lower().endswith(".dng"):
-            gray = pcc.load_gray(path, "dng", cv2, np)
-        else:
-            gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        gray = load_image(path)
         if gray is None:
             out["error"] = "decode failed"
             return out
@@ -994,7 +1034,7 @@ def before_after(name, in_set, final, cal, ch, size, crop, spec, card_path, out_
     rows, agg = straightness_report(ch, Kf, Df, f["_ids"], f["_corners"], spec["squares_x"] - 1, spec["squares_y"] - 1)
     out["calibration_frame"]["straightness"] = agg
     out["calibration_frame"]["lines"] = [{k: v for k, v in r.items() if not k.startswith("_")} for r in rows]
-    img = cv2.imread(f["path"], cv2.IMREAD_COLOR)
+    img = load_image(f["path"], color=True)
     m1, m2 = undistort_maps(ch, Kf, Df, size)
     und = cv2.remap(img, m1, m2, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
     out["calibration_frame"]["files"] = figs.before_after_images(
@@ -1005,7 +1045,7 @@ def before_after(name, in_set, final, cal, ch, size, crop, spec, card_path, out_
         f"{agg.get('before_rms_px', {}).get('median', float('nan')):.2f} px -> "
         f"{agg.get('after_rms_px', {}).get('median', float('nan')):.2f} px (held-out model)")
     if card_path and os.path.isfile(card_path):
-        cimg = cv2.imread(card_path, cv2.IMREAD_COLOR)
+        cimg = load_image(card_path, color=True)
         if cimg is not None and (cimg.shape[1], cimg.shape[0]) == tuple(size):
             m1, m2 = undistort_maps(ch, final["K"], final["D"], size)
             cund = cv2.remap(cimg, m1, m2, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
@@ -1049,7 +1089,7 @@ def write_frames_csv(path, frames):
     cols = ["stem", "file", "status", "reasons", "in_set", "dup_of", "outlier", "corners", "markers", "coverage",
             "square_px", "distance_mm", "tilt_deg", "lap_norm", "blur_rel", "aniso", "board_mean", "clip_hi", "clip_lo",
             "centroid_x", "centroid_y", "train_rms_px", "heldout_rms_px", "ExposureTime", "AnalogueGain", "Lux",
-            "LensPosition", "ScalerCrop", "sidecar", "w", "h", "error"]
+            "LensPosition", "ScalerCrop", "exposure_us", "gain_db", "sidecar", "w", "h", "error"]
     with open(path, "w", newline="") as fh:
         wr = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         wr.writeheader()
@@ -1290,7 +1330,11 @@ def _main(argv=None):
         for n, v in inputs.items():
             k = min(a.layout_sample, len(v))
             for i in sorted({round(j * (len(v) - 1) / max(k - 1, 1)) for j in range(k)}):
-                g = cv2.imread(v[i], cv2.IMREAD_GRAYSCALE) if not v[i].lower().endswith(".dng") else None
+                try:
+                    g = None if v[i].lower().endswith(".dng") else load_image(v[i])   # DNG decode is slow
+                except Exception as exc:
+                    log(f"[pipeline] WARN layout sample {os.path.basename(v[i])} unreadable: {exc}")
+                    g = None
                 if g is not None:
                     sample.append(g)
         best, trials, why = pcc.choose_layout(sample, a, cv2)
