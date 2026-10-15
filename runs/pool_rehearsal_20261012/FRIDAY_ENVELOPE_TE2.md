@@ -56,3 +56,43 @@ Never SPOT-33361C / bmcam001 / bmcam002 (the tool guards refuse them).
 - nereus000 VIN < 4.9 V, or VBAT falling while holding → end the holds (restore schedule).
 - Spotter battery < 3.80 V → end the holds.
 - Count/sha mismatch → re-run the pull (resumes) until equal. Never delete on the unit.
+
+---
+
+## v2 additions (Thu 10/15 ~10:40 AM PDT, for the PjM's envelope v2)
+
+### A. Contingency: nereus000 down at pickup (no consoles)
+
+- **Skip** step 1 (bus hold), the deploy_s.sh `rearm` / `halt`, and `hil_restore_schedule`. The units stay armed on the Spotters' production hourly schedule, and nothing on the units or Spotters changes.
+- Pre: units dry on home Wi-Fi, Spotters powered (own battery/solar or any USB charger) and outdoors, as for production.
+- **Pull during production wakes, from the Mac, resumable, as many wakes as needed:**
+  - Each wake: wait for ssh (`until ssh -o ConnectTimeout=5 pi@<host> true; do sleep 5; done`, from :00:30). Start the pull at **:01:30**, after the capture + encode, so it overlaps only the UART transmit. Stop it at **:07:30**: kill the Mac-side pull only; the Pi is only read.
+  - Lines (the same as the main path):
+    - `python3 tools/pool_pull.py --host bmcam003=bmcam003 --host bmcam004=bmcam004 --run bmcam003=20261014_175926_bmcam003 --run bmcam004=20261014_190821_bmcam004 --include-dng --io-timeout 30 --retries 1`;
+    - `rsync -a --partial --timeout=30 <host>:/home/pi/pool_runs/<run>/ <dest>/<host>_<run>/` for 20261014_172545_bmcam003, 20261014_172828_bmcam003, 20261014_172553_bmcam004.
+  - ~1–2 GB per wake per unit at 1–2.7 MB/s. ~4 GB per unit → plan 3–5 wakes.
+- **Count check between wakes:**
+  - Pi listing, taken once during a wake (read-only):
+    `ssh pi@<host> 'cd /home/pi/pool_runs && for r in <runs>; do echo "$r $(find $r -type f | wc -l) $(find $r -type f -printf "%s\n" | awk "{s+=\$1}END{print s}") $(find $r -name "*.dng" | wc -l)"; done' > <dest>/<host>_pi_listing.txt`
+  - Mac: the same three numbers per run (`find … | wc -l`, the summed `stat -f %z`, the DNG count).
+  - All must be equal, and every DNG's sha256 from pool_pull's Pi manifest = the Mac `shasum -a 256`.
+- **Stop rules (A):**
+  - never kill the production cycle or disarm cron;
+  - never change Spotter cfg or schedule;
+  - no pull outside :01:30–:07:30 (the cycle halts ~:08, the bus cuts at :10);
+  - a unit not reachable in a wake → retry the next wake; 3 wakes with no progress → stop and tell the PjM;
+  - never delete anything on a unit.
+- **Option (a), a Spotter console straight into the Mac: NOT wanted Friday.** It's an untested path and not needed for the pull.
+
+### B. Production native JPEGs for the colour session (read-only; ONLY after the pool_runs count check passes)
+
+- Window: captured from 10/14 2:40 PM PDT (21:40Z) to the pickup. Filenames are UTC.
+- Per unit, during a wake:
+  1. Listing:
+     `ssh pi@<host> "find /home/pi/BM_Devel_Pi/images -maxdepth 1 -name '*_image_native_full.jpg' -newermt '2026-10-14 21:40:00 UTC' -printf '%f %s\n' | sort" > ~/NereusPool/20261016_native_jpeg/<host>/pi_listing.txt`
+  2. `awk '{print $1}' ~/NereusPool/20261016_native_jpeg/<host>/pi_listing.txt > ~/NereusPool/20261016_native_jpeg/<host>/files.txt`
+  3. `rsync -a --partial --timeout=30 --files-from=~/NereusPool/20261016_native_jpeg/<host>/files.txt pi@<host>:/home/pi/BM_Devel_Pi/images/ ~/NereusPool/20261016_native_jpeg/<host>/`
+- Count check:
+  - file count and summed bytes on the Mac = the listing's;
+  - the listing's count is compared with the expected production wakes since 10/14 2:40 PM (one native JPEG per wake, incl. 3 known stub-wake partial captures);
+  - any shortfall is reported as a prune or a missed wake, not "fixed".
