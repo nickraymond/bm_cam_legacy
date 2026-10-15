@@ -17,7 +17,10 @@ the pipeline makes can be checked against the truth:
   4. amendment A1: the literal (unaligned) ray spread is non-zero at the principal point, where the
      distortion is zero by definition (it measures cx/cy), and the aligned one is not;
   5. motion-blur anisotropy rises under a directional blur and stays ~1 without it;
-  6. coverage maths, outlier rule, model choice tie-break, refusals.
+  6. coverage maths, outlier rule, model choice tie-break, refusals;
+  7. frames that are NOT --native-size (the OpenMV N6 1280x800 on 10/14): B5c + the crop verdict
+     are N/A (not FAIL with inf), B6 is N/A unless --nominal-fx gives one, and summary.md /
+     the verdict sheet print the real frame size; the native path keeps its pre-registered text.
 
 Needs opencv-contrib-python-headless >= 4.7, scipy, matplotlib (the repo's main .venv); skipped
 otherwise. Run (repo root):  .venv/bin/python -m pytest -q tests/test_pool_calib_pipeline.py
@@ -55,6 +58,7 @@ D_TRUE = np.array([-0.12, 0.06, 0.0, 0.0, -0.01])          # standard model, bar
 CROP = (512, 288, 512, 288)                                 # stands in for [1504, 846, 1600, 900] at 1/3 scale
 COMMON = ["--native-size", f"{W}x{H}", "--crop", ",".join(map(str, CROP)), "--folds", "3", "--bootstrap", "12",
           "--workers", "1", "--thumb-width", "240"]
+NON_NATIVE = ["--native-size", "4608x2592"] + COMMON[2:]   # frames 1536x864 != native: like the N6 run
 SQ, MK = 40.0, 30.0
 
 
@@ -376,6 +380,16 @@ class TestFullCoverage(unittest.TestCase):
         self.assertEqual(set(self.cam["heldout_rms_px"]), {"standard", "rational", "fisheye"})
         self.assertLess(self.cam["heldout_rms_px"][self.cam["chosen_model"]], 1.0)
 
+    def test_native_path_keeps_prereg_b6_and_wording(self):
+        """--native-size frames (the IMX708 path) keep the pre-registered B6 and summary wording."""
+        b6 = {b["bar"].split()[0]: b for b in self.cam["bars"]}["B6"]
+        self.assertEqual(b6["rule"], "fx / 1964 px (in-air nominal) in [1.25, 1.42]")
+        self.assertAlmostEqual(b6["value"], self.cam["intrinsics_full"]["fx"] / pp.NOMINAL_FX_AIR, places=9)
+        with open(os.path.join(self.run_dir, "summary.md")) as f:
+            md = f.read()
+        self.assertIn("- Underwater fx / in-air nominal (1964 px, datasheet assumption) = ", md)
+        self.assertIn(f"Pixels = native {W}×{H} sensor px unless labelled.", md)
+
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
 class TestCentreOnly(unittest.TestCase):
@@ -442,6 +456,144 @@ class TestCentreOnly(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestNonNativeSize(unittest.TestCase):
+    """10/14 N6 run (1280x800 frames, default --native-size 4608x2592): no crop is derived, so B5c
+    and the crop verdict must be N/A (not FAIL with inf); the IMX708 in-air nominal does not apply,
+    so B6 is N/A unless --nominal-fx gives one. Same frames under two names: camN has no nominal,
+    camF gets --nominal-fx camF=660 (truth 880 px -> ratio ~1.33)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cal = os.path.join(cls.tmp.name, "n6", "calibration")
+        write_set(cal, FULL_POSES)
+        cls.root = os.path.join(cls.tmp.name, "runs")
+        cls.rc, cls.out = run_pipeline([f"camN={cal}", f"camF={cal}", "--nominal-fx", "camF=660",
+                                        "--out-root", cls.root, "--tag", "nonnative"] + NON_NATIVE)
+        cls.run_dir = only_run_dir(cls.root)
+        with open(os.path.join(cls.run_dir, "summary.json")) as f:
+            cls.cams = {c["camera"]: c for c in json.load(f)["cameras"]}
+        with open(os.path.join(cls.run_dir, "summary.md")) as f:
+            cls.md = f.read()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def bars(self, cam):
+        return {b["bar"].split()[0]: b for b in self.cams[cam]["bars"]}
+
+    def test_crop_is_na_not_fail(self):
+        self.assertEqual(self.rc, 0, self.out[-3000:])               # full-frame bars still PASS
+        for cam in ("camN", "camF"):
+            b5c = self.bars(cam)["B5c"]
+            self.assertEqual((b5c["status"], b5c["pass"]), ("N/A", None), b5c)
+            self.assertIn("not native 4608x2592", b5c["value"])
+            self.assertEqual(self.cams[cam]["verdict_full_frame"], "PASS")
+            self.assertEqual(self.cams[cam]["verdict_production_crop"], "N/A")
+            self.assertIsNone(self.cams[cam]["intrinsics_crop"])
+            self.assertFalse([f for f in os.listdir(os.path.join(self.run_dir, cam)) if f.startswith("intrinsics_crop")])
+        with open(os.path.join(self.run_dir, "run_manifest.json")) as f:
+            man = json.load(f)
+        self.assertEqual(man["missing_outputs"], [])
+        self.assertEqual(man["verdicts"]["camN"]["production_crop"], "N/A")
+
+    def test_b6_na_without_nominal(self):
+        b6 = self.bars("camN")["B6"]
+        self.assertEqual((b6["status"], b6["pass"]), ("N/A", None), b6)
+        self.assertIn("--nominal-fx camN=PX", b6["value"])
+        self.assertNotIn("1964 px (in-air nominal)", b6["rule"])
+        self.assertIsNone(self.cams["camN"]["intrinsics_full"]["fx_over_nominal_in_air"])
+
+    def test_b6_uses_nominal_fx(self):
+        b6 = self.bars("camF")["B6"]
+        fx = self.cams["camF"]["intrinsics_full"]["fx"]
+        self.assertEqual(b6["status"], "PASS", b6)
+        self.assertAlmostEqual(b6["value"], fx / 660.0, places=9)
+        self.assertEqual(b6["rule"], "fx / 660 px (in-air nominal, --nominal-fx) in [1.25, 1.42]")
+        self.assertEqual(self.cams["camF"]["intrinsics_full"]["nominal_fx_in_air_px"], 660.0)
+
+    def test_summary_md_wording(self):
+        self.assertNotIn("4608×2592 sensor px", self.md)
+        self.assertNotIn("1964 px, datasheet assumption", self.md)
+        self.assertIn("Pixels = each camera's own full-frame px", self.md)
+        self.assertIn("- Underwater fx / in-air nominal: n/a (the IMX708 1964 px is for 4608x2592 frames only; "
+                      "pass --nominal-fx camN=PX)", self.md)
+        self.assertIn("- Underwater fx / in-air nominal (660 px, --nominal-fx) = 1.3", self.md)
+        self.assertIn("production-crop intrinsics **N/A**", self.md)
+        self.assertIn("| B5c production crop | N/A |", self.md)
+        self.assertNotIn("| B5c production crop | FAIL |", self.md)
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestNonNativeUnits(unittest.TestCase):
+    """evaluate_bars / nominal_fx_for / verdict_titles without a pipeline run."""
+
+    @staticmethod
+    def fake_cal(fx=2620.0):
+        groups = {"frame": ("TL", "TR", "BL", "BR", "top", "bottom", "left", "right"),
+                  "crop": ("crop_TL", "crop_TR", "crop_BL", "crop_BR")}
+        probes = [{"group": g, "name": n, "ray_uncertainty_px": 0.1, "model_disagreement_px": 0.1,
+                   "ray_uncertainty_raw_px": 0.2, "model_disagreement_raw_px": 0.2}
+                  for g, names in groups.items() for n in names]
+        return {"chosen": "standard", "cv": {"standard": {"held_out_rms": 0.3}}, "probes": probes,
+                "boot_stats": {"replicates_ok": 100, "replicates": 100, "fx": {"mean": fx, "std": 1.0},
+                               "fy": {"mean": fx, "std": 1.0}, "cx": {"std": 2.0}, "cy": {"std": 2.0}},
+                "final": {"K": np.array([[fx, 0, 2304], [0, fx, 1296], [0, 0, 1.0]])}}
+
+    COV = {"covered_frac": 1.0, "all_corner_cells": True,
+           "corner_cells_covered": {k: True for k in ("top-left", "top-right", "bottom-left", "bottom-right")}}
+
+    def test_native_default_equals_prereg(self):
+        """No kwargs and the native-size nominal give the exact pre-registered IMX708 rows."""
+        bars = pp.PREREG["bars"]
+        rows, v_full, v_crop = pp.evaluate_bars(20, self.fake_cal(), self.COV, bars)
+        nom = pp.nominal_fx_for("bmcam003", pp.NATIVE, pp.NATIVE, {})
+        self.assertEqual(nom, {"fx_px": bars["B6_nominal_fx_air_px"], "source": "datasheet assumption"})
+        self.assertEqual(pp.evaluate_bars(20, self.fake_cal(), self.COV, bars, crop_skip=None, nominal=nom),
+                         (rows, v_full, v_crop))
+        by = {r["bar"].split()[0]: r for r in rows}
+        self.assertEqual((v_full, v_crop), ("PASS", "PASS"))
+        self.assertEqual(by["B5c"]["status"], "PASS")
+        self.assertEqual(by["B6"]["rule"], "fx / 1964 px (in-air nominal) in [1.25, 1.42]")
+        self.assertAlmostEqual(by["B6"]["value"], 2620.0 / pp.NOMINAL_FX_AIR)
+
+    def test_crop_skip_and_no_nominal(self):
+        bars = pp.PREREG["bars"]
+        nom = pp.nominal_fx_for("n6", (1280, 800), pp.NATIVE, {})
+        self.assertIsNone(nom["fx_px"])
+        self.assertIn("--nominal-fx n6=PX", nom["source"])
+        why = "frames are 1280x800, not native 4608x2592: crop derivation skipped"
+        for n_poses, want_full in ((20, "PASS"), (8, "FAIL")):        # crop verdict N/A either way
+            rows, v_full, v_crop = pp.evaluate_bars(n_poses, self.fake_cal(1628.0), self.COV, bars,
+                                                    crop_skip=why, nominal=nom)
+            by = {r["bar"].split()[0]: r for r in rows}
+            self.assertEqual((v_full, v_crop), (want_full, "N/A"))
+            self.assertEqual((by["B5c"]["status"], by["B5c"]["pass"], by["B5c"]["value"]), ("N/A", None, why))
+            self.assertEqual((by["B6"]["status"], by["B6"]["pass"]), ("N/A", None))
+        given = pp.nominal_fx_for("n6", (1280, 800), pp.NATIVE, {"n6": 1220.0})
+        self.assertEqual(given, {"fx_px": 1220.0, "source": "--nominal-fx"})
+        by = {r["bar"].split()[0]: r for r in pp.evaluate_bars(20, self.fake_cal(1628.0), self.COV, bars,
+                                                               crop_skip=why, nominal=given)[0]}
+        self.assertEqual(by["B6"]["status"], "PASS")                  # 1628 / 1220 = 1.334
+        self.assertIn("1220 px (in-air nominal, --nominal-fx)", by["B6"]["rule"])
+
+    def test_verdict_titles(self):
+        import pool_calib_figures as figs
+        t, s = figs.verdict_titles("bmcam003", "FAIL", "FAIL", (4608, 2592), (1504, 846, 1600, 900))
+        self.assertEqual(t, "bmcam003 underwater calibration — full-frame intrinsics: FAIL   ·   "
+                            "production 1600×900 crop: FAIL")
+        self.assertEqual(s, "All axes in native 4608×2592 sensor pixels. Scaled figure, not 1:1. "
+                            "Dashed box = production crop.")
+        t, s = figs.verdict_titles("n6", "FAIL", "N/A", (1280, 800), None)
+        self.assertTrue(t.endswith("production crop: n/a"), t)
+        self.assertNotIn("1600", t)
+        self.assertIn("1280×800 frame pixels", s)
+        self.assertNotIn("4608", s)
+        self.assertNotIn("Dashed box", s)
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
 class TestAmendmentA1(unittest.TestCase):
     def test_literal_ray_metric_measures_the_principal_point(self):
         """Amendment A1: at the principal point the distortion is zero by definition, yet the literal
@@ -482,7 +634,10 @@ class TestRefusals(unittest.TestCase):
                 self.assertEqual(pp.main([f"x={t}", "--out-root", t]), 2)                    # no images
                 self.assertEqual(pp.main(["noequals", "--out-root", t]), 2)                  # NAME=PATH
                 self.assertEqual(pp.main([f"x={t}", "--crop", "1,2,3", "--out-root", t]), 2)
+                for bad in ("y=1000", "x=abc", "x=-5", "x=0", "x"):                         # --nominal-fx NAME=PX
+                    self.assertEqual(pp.main([f"x={t}", "--nominal-fx", bad, "--out-root", t]), 2, bad)
             self.assertEqual(os.listdir(t), [])
+            self.assertIn("--nominal-fx 'y=1000' must be NAME=PX", err.getvalue())
 
 
 if __name__ == "__main__":
