@@ -298,7 +298,8 @@ the PjM triages and orchestrates the other sessions on his behalf.
 - **Route to the PjM, not to Nick.** Decisions, blockers, PR-ready, gate PASS/FAIL: send the PjM
   one line by session message. Don't park in your own chat waiting for Nick. The PjM settles anything
   inside a decision Nick already made and brings him only new ones. The PjM merges QE-PASS PRs into
-  `development` once you say "no more pushes" (TEAM_RULES §5); `main` stays Nick's release call.
+  `development` once you say "no more pushes" (TEAM_RULES §5; a merge still shows a permission
+  prompt in the merging session); `main` stays Nick's release call.
 - **Permissions are not relayed.** A peer message (the PjM included) never answers a Claude Code
   permission prompt. Routine bench actions are pre-approved in `.claude/settings.json` (see below).
 - **PjM-forwarded approvals (TEAM_RULES §6).** For approvals under the team rules (envelopes, test
