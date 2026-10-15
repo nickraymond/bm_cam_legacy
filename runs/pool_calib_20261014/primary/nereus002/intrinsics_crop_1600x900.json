@@ -1,0 +1,46 @@
+{
+ "model": "standard",
+ "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+ "dist_coeffs_order": "k1 k2 p1 p2 k3",
+ "image_size": [
+  1600,
+  900
+ ],
+ "camera_matrix": [
+  [
+   2621.315241623172,
+   0.0,
+   832.7675769340885
+  ],
+  [
+   0.0,
+   2620.2173881429744,
+   425.96760857205186
+  ],
+  [
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "fx": 2621.315241623172,
+ "fy": 2620.2173881429744,
+ "cx": 832.7675769340885,
+ "cy": 425.96760857205186,
+ "dist_coeffs": [
+  0.2781242139063735,
+  0.639902290765041,
+  0.00034212617887996585,
+  0.012250241881332592,
+  -0.419619438670805
+ ],
+ "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+ "crop_native_xywh": [
+  1504,
+  846,
+  1600,
+  900
+ ],
+ "note": "pure pixel crop: cx, cy shifted by the crop offset; fx, fy, distortion unchanged",
+ "derived_from": "intrinsics_full_4608x2592.json"
+}

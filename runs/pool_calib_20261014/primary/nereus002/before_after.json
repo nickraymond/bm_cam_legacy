@@ -1,0 +1,207 @@
+{
+ "calibration_frame": {
+  "stem": "imx708_image_20261014T202849Z",
+  "file": "/Users/nickbuemond/NereusPool/20261014/nereus002/results/pool/pool007_20261014T194116Z/2026-10-14/exp_20261014T202849Z_pool/captures/imx708/imx708_image_20261014T202849Z.jpg",
+  "model": "standard",
+  "model_note": "fold 4 model: fitted WITHOUT this frame",
+  "straightness": {
+   "before_rms_px": {
+    "median": 1.057531848070822,
+    "max": 2.569675372546714
+   },
+   "after_rms_px": {
+    "median": 0.14149008922389952,
+    "max": 0.23599519511768027
+   },
+   "before_max_px": {
+    "median": 1.6819019011522123,
+    "max": 4.797957826267094
+   },
+   "after_max_px": {
+    "median": 0.25781834893490263,
+    "max": 0.4304741492857276
+   }
+  },
+  "lines": [
+   {
+    "line": "row 0",
+    "n": 13,
+    "before_rms_px": 1.057531848070822,
+    "before_max_px": 2.0514564846755654,
+    "after_rms_px": 0.1378788073232215,
+    "after_max_px": 0.24047473095672345
+   },
+   {
+    "line": "row 1",
+    "n": 13,
+    "before_rms_px": 1.3163837816022723,
+    "before_max_px": 2.3258461640307857,
+    "after_rms_px": 0.23599519511768027,
+    "after_max_px": 0.42794719536202863
+   },
+   {
+    "line": "row 2",
+    "n": 13,
+    "before_rms_px": 1.4268226295571549,
+    "before_max_px": 2.6993697290324694,
+    "after_rms_px": 0.192767367975206,
+    "after_max_px": 0.325883322343651
+   },
+   {
+    "line": "row 3",
+    "n": 13,
+    "before_rms_px": 1.57422764425946,
+    "before_max_px": 2.8778603606754514,
+    "after_rms_px": 0.14956711690082183,
+    "after_max_px": 0.3370945371337659
+   },
+   {
+    "line": "row 4",
+    "n": 13,
+    "before_rms_px": 1.7870501123093465,
+    "before_max_px": 3.322070072371508,
+    "after_rms_px": 0.1099103304130254,
+    "after_max_px": 0.20457616850355986
+   },
+   {
+    "line": "row 5",
+    "n": 13,
+    "before_rms_px": 2.0096583377552752,
+    "before_max_px": 3.7520765491825827,
+    "after_rms_px": 0.12564063434330575,
+    "after_max_px": 0.2377593527520857
+   },
+   {
+    "line": "row 6",
+    "n": 13,
+    "before_rms_px": 2.2963496871952085,
+    "before_max_px": 4.227924164284879,
+    "after_rms_px": 0.17173486926093495,
+    "after_max_px": 0.34188468714792286
+   },
+   {
+    "line": "row 7",
+    "n": 13,
+    "before_rms_px": 2.569675372546714,
+    "before_max_px": 4.797957826267094,
+    "after_rms_px": 0.1219791301962243,
+    "after_max_px": 0.1950764360729309
+   },
+   {
+    "line": "col 0",
+    "n": 8,
+    "before_rms_px": 0.33190154724530796,
+    "before_max_px": 0.5329719403797064,
+    "after_rms_px": 0.15643006992197966,
+    "after_max_px": 0.26231392896215766
+   },
+   {
+    "line": "col 1",
+    "n": 8,
+    "before_rms_px": 0.32682713380104017,
+    "before_max_px": 0.4921231376611459,
+    "after_rms_px": 0.10606698445913368,
+    "after_max_px": 0.20599104503762167
+   },
+   {
+    "line": "col 2",
+    "n": 8,
+    "before_rms_px": 0.43874242839722066,
+    "before_max_px": 0.5929098917202293,
+    "after_rms_px": 0.1795070701183106,
+    "after_max_px": 0.29732299578171206
+   },
+   {
+    "line": "col 3",
+    "n": 8,
+    "before_rms_px": 0.4335952891414458,
+    "before_max_px": 0.7120006614382852,
+    "after_rms_px": 0.10703564580580821,
+    "after_max_px": 0.20626382991548553
+   },
+   {
+    "line": "col 4",
+    "n": 8,
+    "before_rms_px": 0.5033188221575879,
+    "before_max_px": 0.8589427905811848,
+    "after_rms_px": 0.1713833625073724,
+    "after_max_px": 0.4304741492857276
+   },
+   {
+    "line": "col 5",
+    "n": 8,
+    "before_rms_px": 0.5720198638681762,
+    "before_max_px": 1.0151861435442644,
+    "after_rms_px": 0.14149008922389952,
+    "after_max_px": 0.2596820203553172
+   },
+   {
+    "line": "col 6",
+    "n": 8,
+    "before_rms_px": 0.6279274365149953,
+    "before_max_px": 0.98006358416119,
+    "after_rms_px": 0.09591629968581289,
+    "after_max_px": 0.1541440344614311
+   },
+   {
+    "line": "col 7",
+    "n": 8,
+    "before_rms_px": 0.7609016607579051,
+    "before_max_px": 1.2212318960042534,
+    "after_rms_px": 0.1661106817395612,
+    "after_max_px": 0.21536487374577185
+   },
+   {
+    "line": "col 8",
+    "n": 8,
+    "before_rms_px": 0.7916108145968321,
+    "before_max_px": 1.1390098924274783,
+    "after_rms_px": 0.1397998871806692,
+    "after_max_px": 0.25781834893490263
+   },
+   {
+    "line": "col 9",
+    "n": 8,
+    "before_rms_px": 0.956632083198417,
+    "before_max_px": 1.597379210468398,
+    "after_rms_px": 0.15641381278108854,
+    "after_max_px": 0.32762391997952633
+   },
+   {
+    "line": "col 10",
+    "n": 8,
+    "before_rms_px": 1.0644043773295313,
+    "before_max_px": 1.6819019011522123,
+    "after_rms_px": 0.12033148424997821,
+    "after_max_px": 0.1916176965806322
+   },
+   {
+    "line": "col 11",
+    "n": 8,
+    "before_rms_px": 1.1184217265489804,
+    "before_max_px": 1.695702988088616,
+    "after_rms_px": 0.14818174774288656,
+    "after_max_px": 0.287567769112437
+   },
+   {
+    "line": "col 12",
+    "n": 8,
+    "before_rms_px": 1.3089292910164017,
+    "before_max_px": 2.0512405886627327,
+    "after_rms_px": 0.09499845775234625,
+    "after_max_px": 0.16548202623396646
+   }
+  ],
+  "files": {
+   "full_side_by_side": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_full_sbs.jpg",
+   "full_before_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_full_before_50pct.webp",
+   "full_after_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_full_after_50pct.webp",
+   "crop_side_by_side_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_crop_sbs_1to1.jpg",
+   "crop_before_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_crop_before_1to1.webp",
+   "crop_after_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_crop_after_1to1.webp"
+  }
+ },
+ "card_frame": {
+  "skipped": "no --card for this camera and no loop/*_loop_01_still.jpg next to it"
+ }
+}

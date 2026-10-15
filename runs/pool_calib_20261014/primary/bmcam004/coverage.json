@@ -1,0 +1,187 @@
+{
+ "grid": [
+  8,
+  5
+ ],
+ "min_obs_per_cell": 5,
+ "counts": [
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   134,
+   254,
+   16,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   19,
+   1275,
+   1341,
+   79,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   2,
+   78,
+   65,
+   1,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ ],
+ "covered": [
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   true,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ]
+ ],
+ "covered_frac": 0.225,
+ "corner_cells_covered": {
+  "top-left corner": false,
+  "top-right corner": false,
+  "bottom-left corner": false,
+  "bottom-right corner": false
+ },
+ "all_corner_cells": false,
+ "n_obs": 3264,
+ "radial_norm": {
+  "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+  "max": 0.3728239565230308,
+  "p95": 0.2243758792250965,
+  "frac_gt_0.6": 0.0,
+  "frac_gt_0.8": 0.0
+ },
+ "edge_gap_px": {
+  "left": 1543.48779296875,
+  "right": 1374.659912109375,
+  "top": 676.6270141601562,
+  "bottom": 937.2152099609375
+ },
+ "corner_gap_px": {
+  "top-left": 1910.2508682377097,
+  "top-right": 1680.1272560321627,
+  "bottom-left": 1873.5736378572772,
+  "bottom-right": 1749.5226896537538
+ },
+ "crop": {
+  "xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "corner_radial_norm": 0.3472222222222222,
+  "obs_inside": 3181
+ },
+ "observed_hull_px": [
+  [
+   3232.340087890625,
+   965.9905395507812
+  ],
+  [
+   3205.023681640625,
+   1544.43798828125
+  ],
+  [
+   2641.3466796875,
+   1610.6578369140625
+  ],
+  [
+   1921.1651611328125,
+   1653.7847900390625
+  ],
+  [
+   1599.5081787109375,
+   1615.37109375
+  ],
+  [
+   1543.48779296875,
+   1125.4793701171875
+  ],
+  [
+   1975.6866455078125,
+   761.8711547851562
+  ],
+  [
+   2765.80908203125,
+   676.6270141601562
+  ],
+  [
+   2873.6220703125,
+   714.9310302734375
+  ]
+ ]
+}

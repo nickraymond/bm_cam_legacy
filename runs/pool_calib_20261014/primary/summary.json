@@ -1,0 +1,2698 @@
+{
+ "cameras": [
+  {
+   "camera": "bmcam003",
+   "n_frames": 120,
+   "median_lap_norm": 0.11319307428666535,
+   "frame_sizes": [
+    [
+     4608,
+     2592
+    ]
+   ],
+   "image_size": [
+    4608,
+    2592
+   ],
+   "screen": {
+    "status_counts": {
+     "PASS": 22,
+     "WARN": 13,
+     "FAIL": 85
+    },
+    "distinct_set": 30,
+    "duplicates_removed": 5,
+    "first_pass_standard_rms_px": 0.32472610862457235
+   },
+   "calibration_error": {},
+   "chosen_model": "standard",
+   "why": "held-out RMS 0.354 px within 2% of the best (0.354 px): preference order standard > fisheye > rational",
+   "views_used": 29,
+   "outlier_views": [
+    "20261014T203509Z_cal_0101"
+   ],
+   "train_rms_px": 0.30072933193467666,
+   "heldout_rms_px": {
+    "standard": 0.35423661674178164,
+    "rational": 0.3537318211759487,
+    "fisheye": 0.6208846563815731
+   },
+   "intrinsics_full": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+     4608,
+     2592
+    ],
+    "camera_matrix": [
+     [
+      2617.2698149539387,
+      0.0,
+      2314.8536069592574
+     ],
+     [
+      0.0,
+      2637.3241407577057,
+      1175.6784114558004
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "fx": 2617.2698149539387,
+    "fy": 2637.3241407577057,
+    "cx": 2314.8536069592574,
+    "cy": 1175.6784114558004,
+    "dist_coeffs": [
+     0.27511427253200393,
+     0.6273326618149954,
+     -0.040147004577957585,
+     0.0018874503036135444,
+     -1.1158299447994868
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "rms_px_train": 0.30072933193467666,
+    "heldout_rms_px": 0.35423661674178164,
+    "views": 29,
+    "fov_deg_h_v_from_edge_rays": [
+     null,
+     49.37145807005518
+    ],
+    "fx_over_nominal_in_air": 1.332428269431096,
+    "nominal_fx_in_air_px": 1964.2857142857142,
+    "medium": "fresh water (pool), flat acrylic port",
+    "bootstrap": {
+     "fx": {
+      "mean": 2619.1481847896357,
+      "std": 9.06729110997404,
+      "p2.5": 2599.3877925010456,
+      "p97.5": 2632.350754874651
+     },
+     "fy": {
+      "mean": 2638.5361268089887,
+      "std": 7.016093492639464,
+      "p2.5": 2623.741979086076,
+      "p97.5": 2649.0795966465676
+     },
+     "cx": {
+      "mean": 2314.248401113321,
+      "std": 4.20963179810522,
+      "p2.5": 2306.6920042191864,
+      "p97.5": 2322.608306703212
+     },
+     "cy": {
+      "mean": 1177.1614965713618,
+      "std": 5.866139466229906,
+      "p2.5": 1165.4405997639278,
+      "p97.5": 1186.925191477943
+     },
+     "dist": {
+      "mean": [
+       0.2696508549888129,
+       0.8298386123380255,
+       -0.03995737421241362,
+       0.0016786690119190316,
+       -2.9485209425555
+      ],
+      "std": [
+       0.011410174156029608,
+       0.3248979464278656,
+       0.0008217358276509182,
+       0.0012940961495703277,
+       2.8192298099727124
+      ]
+     }
+    },
+    "opencv_std_intrinsics": [
+     1.5569028588416938,
+     1.4230403590524265,
+     0.8154387026722096,
+     1.3380726240092213,
+     0.003723071174301952,
+     0.07266243236218249,
+     0.0002979358263447335,
+     0.00025735536232368095,
+     0.40572358372805317,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "intrinsics_crop": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+     1600,
+     900
+    ],
+    "camera_matrix": [
+     [
+      2617.2698149539387,
+      0.0,
+      810.8536069592574
+     ],
+     [
+      0.0,
+      2637.3241407577057,
+      329.6784114558004
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "fx": 2617.2698149539387,
+    "fy": 2637.3241407577057,
+    "cx": 810.8536069592574,
+    "cy": 329.6784114558004,
+    "dist_coeffs": [
+     0.27511427253200393,
+     0.6273326618149954,
+     -0.040147004577957585,
+     0.0018874503036135444,
+     -1.1158299447994868
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "crop_native_xywh": [
+     1504,
+     846,
+     1600,
+     900
+    ],
+    "note": "pure pixel crop: cx, cy shifted by the crop offset; fx, fy, distortion unchanged",
+    "derived_from": "intrinsics_full_4608x2592.json"
+   },
+   "coverage": {
+    "grid": [
+     8,
+     5
+    ],
+    "min_obs_per_cell": 5,
+    "counts": [
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      3,
+      133,
+      157,
+      4,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      94,
+      1419,
+      865,
+      20,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      14,
+      161,
+      67,
+      2,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "covered": [
+     [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ]
+    ],
+    "covered_frac": 0.225,
+    "corner_cells_covered": {
+     "top-left corner": false,
+     "top-right corner": false,
+     "bottom-left corner": false,
+     "bottom-right corner": false
+    },
+    "all_corner_cells": false,
+    "n_obs": 2939,
+    "radial_norm": {
+     "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+     "max": 0.3487643938001495,
+     "p95": 0.2276067744093168,
+     "frac_gt_0.6": 0.0,
+     "frac_gt_0.8": 0.0
+    },
+    "edge_gap_px": {
+     "left": 1392.8173828125,
+     "right": 1544.28662109375,
+     "top": 706.9853515625,
+     "bottom": 906.375
+    },
+    "corner_gap_px": {
+     "top-left": 1807.3515934771112,
+     "top-right": 1843.9311475327902,
+     "bottom-left": 1732.8462598738317,
+     "bottom-right": 1863.1800839986074
+    },
+    "crop": {
+     "xywh": [
+      1504,
+      846,
+      1600,
+      900
+     ],
+     "corner_radial_norm": 0.3472222222222222,
+     "obs_inside": 2882
+    },
+    "observed_hull_px": [
+     [
+      3062.71337890625,
+      1007.6015625
+     ],
+     [
+      3044.092529296875,
+      1576.7218017578125
+     ],
+     [
+      2500.631591796875,
+      1637.506103515625
+     ],
+     [
+      1752.8499755859375,
+      1684.625
+     ],
+     [
+      1453.61083984375,
+      1647.722900390625
+     ],
+     [
+      1392.8173828125,
+      1151.7723388671875
+     ],
+     [
+      1847.4854736328125,
+      787.9448852539062
+     ],
+     [
+      2626.3115234375,
+      706.9853515625
+     ]
+    ]
+   },
+   "bars": [
+    {
+     "bar": "B1 poses",
+     "value": 29,
+     "rule": ">= 15 distinct usable poses",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B2 held-out RMS",
+     "value": 0.35423661674178164,
+     "rule": "< 1.0 px (standard)",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B3 coverage",
+     "value": {
+      "covered_frac": 0.225,
+      "corner_cells": {
+       "top-left corner": false,
+       "top-right corner": false,
+       "bottom-left corner": false,
+       "bottom-right corner": false
+      }
+     },
+     "rule": ">= 60% of 8x5 cells and all 4 corner cells",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B4 edges constrained",
+     "value": {
+      "worst_ray_uncertainty_px": null,
+      "worst_model_disagreement_px": null,
+      "literal_ray_px": null,
+      "literal_models_px": null
+     },
+     "rule": "ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1)",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B5 stable",
+     "value": {
+      "rel_std_f": 0.0034619236752739535,
+      "std_c_px": 5.866139466229906
+     },
+     "rule": "bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B5c production crop",
+     "value": {
+      "worst_ray_uncertainty_px": 4.616882997448797,
+      "worst_model_disagreement_px": 5.1618995072916976,
+      "literal_ray_px": 20.554172480472932,
+      "literal_models_px": 188.00778590305015
+     },
+     "rule": "ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1)",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B6 focal sanity",
+     "value": 1.332428269431096,
+     "rule": "fx / 1964 px (in-air nominal) in [1.25, 1.42]",
+     "pass": true,
+     "status": "PASS"
+    }
+   ],
+   "verdict_full_frame": "FAIL",
+   "verdict_production_crop": "FAIL",
+   "recipe": {
+    "failed_bars": [
+     "B3 coverage",
+     "B4 edges constrained",
+     "B5c production crop"
+    ],
+    "lines": [
+     "This session: board at a median 1.55 m (range 1.21-1.81 m); there the frame is 2.73 m wide, so the 560 mm pattern filled only 20% of the width.",
+     "Closest corner to each frame edge: left 1393 px (30%), right 1544 px (34%), top 707 px (27%), bottom 906 px (35%).",
+     "Empty corner cells: top-left corner, top-right corner, bottom-left corner, bottom-right corner.",
+     "Next dive: hold the board at ~0.7-0.9 m (pattern ~35-45% of the frame width) and put it in 9 places: the 4 corners, the 4 edge midpoints and the centre, with a board corner touching the frame corner/edge each time.",
+     "At each place take 3 poses: flat, tilted ~30 deg left/right, tilted ~30 deg up/down (~27 poses), plus 3-5 flat poses at 1.5 m. Hold still for 2 frames at each pose (10 s cadence is fine).",
+     "Frame with a FULL-FRAME preview: the pool preview showed only the 1600x900 centre crop, so the frame edges were invisible while posing.",
+     "61/120 frames failed on clipping (white squares at 255): lock exposure ~1 stop darker for the calibration block, or tilt the board out of the sun glint.",
+     "Keep the production lens position (0.8) for calibration frames: focus changes the focal length slightly, so calibrate at the focus you ship."
+    ],
+    "recommended_distance_m": 0.7068244099026841,
+    "median_distance_m": 1.5527744133161732
+   },
+   "before_after": {
+    "calibration_frame": {
+     "stem": "20261014T203029Z_cal_0073",
+     "file": "/Users/nickbuemond/NereusPool/20261014/bmcam003_20261014_175926/calibration/20261014T203029Z_cal_0073.jpg",
+     "model": "standard",
+     "model_note": "fold 3 model: fitted WITHOUT this frame",
+     "straightness": {
+      "before_rms_px": {
+       "median": 0.4010845236720604,
+       "max": 1.190070647851984
+      },
+      "after_rms_px": {
+       "median": 0.12698193393275706,
+       "max": 0.35620616135328687
+      },
+      "before_max_px": {
+       "median": 0.828754838414369,
+       "max": 2.1900135356254253
+      },
+      "after_max_px": {
+       "median": 0.24605143158177079,
+       "max": 0.7935217563948029
+      }
+     },
+     "lines": [
+      {
+       "line": "row 0",
+       "n": 13,
+       "before_rms_px": 0.4010845236720604,
+       "before_max_px": 0.8418403450031177,
+       "after_rms_px": 0.3517111668737936,
+       "after_max_px": 0.7935217563948029
+      },
+      {
+       "line": "row 1",
+       "n": 13,
+       "before_rms_px": 0.17191512384573257,
+       "before_max_px": 0.29562092703048215,
+       "after_rms_px": 0.19681260886816251,
+       "after_max_px": 0.3471945599832509
+      },
+      {
+       "line": "row 2",
+       "n": 13,
+       "before_rms_px": 0.1251950603407979,
+       "before_max_px": 0.20454689122922787,
+       "after_rms_px": 0.12295363201926071,
+       "after_max_px": 0.26957040284506917
+      },
+      {
+       "line": "row 3",
+       "n": 13,
+       "before_rms_px": 0.3121352272496033,
+       "before_max_px": 0.6463136660239144,
+       "after_rms_px": 0.17590085661776347,
+       "after_max_px": 0.3897009687257835
+      },
+      {
+       "line": "row 4",
+       "n": 13,
+       "before_rms_px": 0.5139651220609142,
+       "before_max_px": 0.9434720220125499,
+       "after_rms_px": 0.06537792915748372,
+       "after_max_px": 0.175068528169394
+      },
+      {
+       "line": "row 5",
+       "n": 13,
+       "before_rms_px": 0.7310167024936797,
+       "before_max_px": 1.406817305612961,
+       "after_rms_px": 0.10833486109516595,
+       "after_max_px": 0.21743235183293308
+      },
+      {
+       "line": "row 6",
+       "n": 13,
+       "before_rms_px": 0.9844677039163676,
+       "before_max_px": 1.874554446473006,
+       "after_rms_px": 0.1341288735909142,
+       "after_max_px": 0.21036168579863812
+      },
+      {
+       "line": "row 7",
+       "n": 13,
+       "before_rms_px": 1.190070647851984,
+       "before_max_px": 2.1900135356254253,
+       "after_rms_px": 0.1299644929613192,
+       "after_max_px": 0.2591676534499676
+      },
+      {
+       "line": "col 0",
+       "n": 8,
+       "before_rms_px": 0.1256006710861811,
+       "before_max_px": 0.206408695877343,
+       "after_rms_px": 0.12698193393275706,
+       "after_max_px": 0.20887563838957313
+      },
+      {
+       "line": "col 1",
+       "n": 8,
+       "before_rms_px": 0.15084573094520765,
+       "before_max_px": 0.2761519036595601,
+       "after_rms_px": 0.10154648284719255,
+       "after_max_px": 0.19579893771834378
+      },
+      {
+       "line": "col 2",
+       "n": 8,
+       "before_rms_px": 0.1281413641419216,
+       "before_max_px": 0.22545920680650555,
+       "after_rms_px": 0.1089574576166341,
+       "after_max_px": 0.24605143158177079
+      },
+      {
+       "line": "col 3",
+       "n": 8,
+       "before_rms_px": 0.23010709747135522,
+       "before_max_px": 0.34666759662196966,
+       "after_rms_px": 0.09965114648807229,
+       "after_max_px": 0.16224766525568945
+      },
+      {
+       "line": "col 4",
+       "n": 8,
+       "before_rms_px": 0.2824492082038702,
+       "before_max_px": 0.4653612137178733,
+       "after_rms_px": 0.06917377483165413,
+       "after_max_px": 0.09588233934548152
+      },
+      {
+       "line": "col 5",
+       "n": 8,
+       "before_rms_px": 0.3130089293352932,
+       "before_max_px": 0.5363906858907832,
+       "after_rms_px": 0.053111245618512534,
+       "after_max_px": 0.0813788365597432
+      },
+      {
+       "line": "col 6",
+       "n": 8,
+       "before_rms_px": 0.3566608864031513,
+       "before_max_px": 0.5617875505951293,
+       "after_rms_px": 0.2590946042380384,
+       "after_max_px": 0.5105670399344184
+      },
+      {
+       "line": "col 7",
+       "n": 8,
+       "before_rms_px": 0.5162948361817613,
+       "before_max_px": 0.828754838414369,
+       "after_rms_px": 0.08538939872425148,
+       "after_max_px": 0.15874039034200038
+      },
+      {
+       "line": "col 8",
+       "n": 8,
+       "before_rms_px": 0.5535716868847376,
+       "before_max_px": 0.8509940763425874,
+       "after_rms_px": 0.046755723572635036,
+       "after_max_px": 0.09298728670115253
+      },
+      {
+       "line": "col 9",
+       "n": 8,
+       "before_rms_px": 0.6890227312658505,
+       "before_max_px": 1.0481224062745937,
+       "after_rms_px": 0.2210116102448797,
+       "after_max_px": 0.5167860480472939
+      },
+      {
+       "line": "col 10",
+       "n": 8,
+       "before_rms_px": 0.787116933329295,
+       "before_max_px": 1.3045501766798928,
+       "after_rms_px": 0.1276171309352442,
+       "after_max_px": 0.25246341341812695
+      },
+      {
+       "line": "col 11",
+       "n": 8,
+       "before_rms_px": 1.0519271218408608,
+       "before_max_px": 1.6084001598336606,
+       "after_rms_px": 0.3135913697138842,
+       "after_max_px": 0.4882723294599458
+      },
+      {
+       "line": "col 12",
+       "n": 8,
+       "before_rms_px": 1.0820618447049264,
+       "before_max_px": 1.71879941140363,
+       "after_rms_px": 0.35620616135328687,
+       "after_max_px": 0.6277403362858571
+      }
+     ],
+     "files": {
+      "full_side_by_side": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_calframe_20261014T203029Z_cal_0073_full_sbs.jpg",
+      "full_before_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_calframe_20261014T203029Z_cal_0073_full_before_50pct.webp",
+      "full_after_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_calframe_20261014T203029Z_cal_0073_full_after_50pct.webp",
+      "crop_side_by_side_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_calframe_20261014T203029Z_cal_0073_crop_sbs_1to1.jpg",
+      "crop_before_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_calframe_20261014T203029Z_cal_0073_crop_before_1to1.webp",
+      "crop_after_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_calframe_20261014T203029Z_cal_0073_crop_after_1to1.webp"
+     }
+    },
+    "card_frame": {
+     "file": "/Users/nickbuemond/NereusPool/20261014/bmcam003_20261014_175926/loop/20261014T205004Z_loop_01_still.jpg",
+     "model": "standard",
+     "files": {
+      "full_side_by_side": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_card_20261014T205004Z_loop_01_still_full_sbs.jpg",
+      "full_before_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_card_20261014T205004Z_loop_01_still_full_before_50pct.webp",
+      "full_after_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_card_20261014T205004Z_loop_01_still_full_after_50pct.webp",
+      "crop_side_by_side_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_card_20261014T205004Z_loop_01_still_crop_sbs_1to1.jpg",
+      "crop_before_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_card_20261014T205004Z_loop_01_still_crop_before_1to1.webp",
+      "crop_after_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam003/before_after/bmcam003_card_20261014T205004Z_loop_01_still_crop_after_1to1.webp"
+     }
+    }
+   },
+   "probes": [
+    {
+     "group": "frame",
+     "name": "TL",
+     "x": 0.0,
+     "y": 0.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": null
+    },
+    {
+     "group": "frame",
+     "name": "TR",
+     "x": 4607.0,
+     "y": 0.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": null
+    },
+    {
+     "group": "frame",
+     "name": "BL",
+     "x": 0.0,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": null
+    },
+    {
+     "group": "frame",
+     "name": "BR",
+     "x": 4607.0,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": null
+    },
+    {
+     "group": "frame",
+     "name": "top",
+     "x": 2303.5,
+     "y": 0.0,
+     "ray_uncertainty_px": 12.61444956905942,
+     "model_disagreement_px": 30.363735419683394,
+     "ray_uncertainty_raw_px": 16.468042489522464,
+     "model_disagreement_raw_px": 129.21198904191021,
+     "distortion_px": 111.85207938930623
+    },
+    {
+     "group": "frame",
+     "name": "bottom",
+     "x": 2303.5,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": 19.57767978724979,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": 236.08252622953785,
+     "distortion_px": 48.05572839424932
+    },
+    {
+     "group": "frame",
+     "name": "left",
+     "x": 0.0,
+     "y": 1295.5,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": null
+    },
+    {
+     "group": "frame",
+     "name": "right",
+     "x": 4607.0,
+     "y": 1295.5,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": null
+    },
+    {
+     "group": "crop",
+     "name": "crop_TL",
+     "x": 1504.0,
+     "y": 846.0,
+     "ray_uncertainty_px": 0.8302530959563962,
+     "model_disagreement_px": 3.0326448875443432,
+     "ray_uncertainty_raw_px": 15.649843092707927,
+     "model_disagreement_raw_px": 163.82019457071297,
+     "distortion_px": 39.66041859609577
+    },
+    {
+     "group": "crop",
+     "name": "crop_TR",
+     "x": 3103.0,
+     "y": 846.0,
+     "ray_uncertainty_px": 1.3657234943367285,
+     "model_disagreement_px": 3.9807692666473202,
+     "ray_uncertainty_raw_px": 10.162859543971885,
+     "model_disagreement_raw_px": 162.49265942986216,
+     "distortion_px": 39.649626027370914
+    },
+    {
+     "group": "crop",
+     "name": "crop_BL",
+     "x": 1504.0,
+     "y": 1745.0,
+     "ray_uncertainty_px": 4.216464310489587,
+     "model_disagreement_px": 2.727263030248642,
+     "ray_uncertainty_raw_px": 20.554172480472932,
+     "model_disagreement_raw_px": 188.00778590305015,
+     "distortion_px": 21.69249436948056
+    },
+    {
+     "group": "crop",
+     "name": "crop_BR",
+     "x": 3103.0,
+     "y": 1745.0,
+     "ray_uncertainty_px": 4.616882997448797,
+     "model_disagreement_px": 5.1618995072916976,
+     "ray_uncertainty_raw_px": 13.452085400546565,
+     "model_disagreement_raw_px": 185.2787886215376,
+     "distortion_px": 22.54423691936186
+    }
+   ],
+   "bootstrap_stats": {
+    "fx": {
+     "mean": 2619.1481847896357,
+     "std": 9.06729110997404,
+     "p2.5": 2599.3877925010456,
+     "p97.5": 2632.350754874651
+    },
+    "fy": {
+     "mean": 2638.5361268089887,
+     "std": 7.016093492639464,
+     "p2.5": 2623.741979086076,
+     "p97.5": 2649.0795966465676
+    },
+    "cx": {
+     "mean": 2314.248401113321,
+     "std": 4.20963179810522,
+     "p2.5": 2306.6920042191864,
+     "p97.5": 2322.608306703212
+    },
+    "cy": {
+     "mean": 1177.1614965713618,
+     "std": 5.866139466229906,
+     "p2.5": 1165.4405997639278,
+     "p97.5": 1186.925191477943
+    },
+    "dist": {
+     "mean": [
+      0.2696508549888129,
+      0.8298386123380255,
+      -0.03995737421241362,
+      0.0016786690119190316,
+      -2.9485209425555
+     ],
+     "std": [
+      0.011410174156029608,
+      0.3248979464278656,
+      0.0008217358276509182,
+      0.0012940961495703277,
+      2.8192298099727124
+     ]
+    }
+   },
+   "distance_m": {
+    "median": 1.5527744133161732,
+    "min": 1.2054749306035635,
+    "max": 1.8051866014555549
+   },
+   "lens_position": [
+    0.8
+   ],
+   "scaler_crop": [
+    "(0, 0)/4608x2592"
+   ],
+   "seconds": 17.9
+  },
+  {
+   "camera": "bmcam004",
+   "n_frames": 120,
+   "median_lap_norm": 0.1184655690888611,
+   "frame_sizes": [
+    [
+     4608,
+     2592
+    ]
+   ],
+   "image_size": [
+    4608,
+    2592
+   ],
+   "screen": {
+    "status_counts": {
+     "PASS": 24,
+     "WARN": 11,
+     "FAIL": 85
+    },
+    "distinct_set": 32,
+    "duplicates_removed": 3,
+    "first_pass_standard_rms_px": 0.32260306620036033
+   },
+   "calibration_error": {},
+   "chosen_model": "standard",
+   "why": "held-out RMS 0.334 px within 2% of the best (0.332 px): preference order standard > fisheye > rational",
+   "views_used": 32,
+   "outlier_views": [],
+   "train_rms_px": 0.3217974997573668,
+   "heldout_rms_px": {
+    "standard": 0.33438038713031176,
+    "rational": 0.33178676735785584,
+    "fisheye": 0.49158101743710325
+   },
+   "intrinsics_full": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+     4608,
+     2592
+    ],
+    "camera_matrix": [
+     [
+      2628.192526645999,
+      0.0,
+      2300.2894902005573
+     ],
+     [
+      0.0,
+      2636.786462669547,
+      1195.5764597301813
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "fx": 2628.192526645999,
+    "fy": 2636.786462669547,
+    "cx": 2300.2894902005573,
+    "cy": 1195.5764597301813,
+    "dist_coeffs": [
+     0.24779193766627966,
+     0.5927191535102376,
+     -0.026737280645540176,
+     -0.001108474955528996,
+     0.04491161432455624
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "rms_px_train": 0.3217974997573668,
+    "heldout_rms_px": 0.33438038713031176,
+    "views": 32,
+    "fov_deg_h_v_from_edge_rays": [
+     69.56820966451245,
+     49.06418893004022
+    ],
+    "fx_over_nominal_in_air": 1.337988922656145,
+    "nominal_fx_in_air_px": 1964.2857142857142,
+    "medium": "fresh water (pool), flat acrylic port",
+    "bootstrap": {
+     "fx": {
+      "mean": 2628.308931753917,
+      "std": 5.452039645193651,
+      "p2.5": 2618.49435249967,
+      "p97.5": 2638.3258347284695
+     },
+     "fy": {
+      "mean": 2636.852390891614,
+      "std": 4.679284698666081,
+      "p2.5": 2627.943177927289,
+      "p97.5": 2645.616878462626
+     },
+     "cx": {
+      "mean": 2300.2602950765695,
+      "std": 6.79072430447239,
+      "p2.5": 2285.594578073711,
+      "p97.5": 2313.3203995526746
+     },
+     "cy": {
+      "mean": 1195.2678442767194,
+      "std": 4.270251256623042,
+      "p2.5": 1186.6362446395553,
+      "p97.5": 1201.8072789827131
+     },
+     "dist": {
+      "mean": [
+       0.24666647403559339,
+       0.6601560501182372,
+       -0.02683202627151292,
+       -0.0011110300624572892,
+       -0.6748412627409079
+      ],
+      "std": [
+       0.009857752612198813,
+       0.31833269078828824,
+       0.000754088410979363,
+       0.00169796336153832,
+       3.145224263091106
+      ]
+     }
+    },
+    "opencv_std_intrinsics": [
+     1.5969321746955323,
+     1.4485908849595217,
+     1.1053299759631101,
+     1.3681492655717469,
+     0.003980880517897161,
+     0.08547012099961815,
+     0.00029356163910570295,
+     0.0003017952585713253,
+     0.4945243201315321,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "intrinsics_crop": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+     1600,
+     900
+    ],
+    "camera_matrix": [
+     [
+      2628.192526645999,
+      0.0,
+      796.2894902005573
+     ],
+     [
+      0.0,
+      2636.786462669547,
+      349.57645973018134
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "fx": 2628.192526645999,
+    "fy": 2636.786462669547,
+    "cx": 796.2894902005573,
+    "cy": 349.57645973018134,
+    "dist_coeffs": [
+     0.24779193766627966,
+     0.5927191535102376,
+     -0.026737280645540176,
+     -0.001108474955528996,
+     0.04491161432455624
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "crop_native_xywh": [
+     1504,
+     846,
+     1600,
+     900
+    ],
+    "note": "pure pixel crop: cx, cy shifted by the crop offset; fx, fy, distortion unchanged",
+    "derived_from": "intrinsics_full_4608x2592.json"
+   },
+   "coverage": {
+    "grid": [
+     8,
+     5
+    ],
+    "min_obs_per_cell": 5,
+    "counts": [
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      134,
+      254,
+      16,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      19,
+      1275,
+      1341,
+      79,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      2,
+      78,
+      65,
+      1,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "covered": [
+     [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ]
+    ],
+    "covered_frac": 0.225,
+    "corner_cells_covered": {
+     "top-left corner": false,
+     "top-right corner": false,
+     "bottom-left corner": false,
+     "bottom-right corner": false
+    },
+    "all_corner_cells": false,
+    "n_obs": 3264,
+    "radial_norm": {
+     "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+     "max": 0.3728239565230308,
+     "p95": 0.2243758792250965,
+     "frac_gt_0.6": 0.0,
+     "frac_gt_0.8": 0.0
+    },
+    "edge_gap_px": {
+     "left": 1543.48779296875,
+     "right": 1374.659912109375,
+     "top": 676.6270141601562,
+     "bottom": 937.2152099609375
+    },
+    "corner_gap_px": {
+     "top-left": 1910.2508682377097,
+     "top-right": 1680.1272560321627,
+     "bottom-left": 1873.5736378572772,
+     "bottom-right": 1749.5226896537538
+    },
+    "crop": {
+     "xywh": [
+      1504,
+      846,
+      1600,
+      900
+     ],
+     "corner_radial_norm": 0.3472222222222222,
+     "obs_inside": 3181
+    },
+    "observed_hull_px": [
+     [
+      3232.340087890625,
+      965.9905395507812
+     ],
+     [
+      3205.023681640625,
+      1544.43798828125
+     ],
+     [
+      2641.3466796875,
+      1610.6578369140625
+     ],
+     [
+      1921.1651611328125,
+      1653.7847900390625
+     ],
+     [
+      1599.5081787109375,
+      1615.37109375
+     ],
+     [
+      1543.48779296875,
+      1125.4793701171875
+     ],
+     [
+      1975.6866455078125,
+      761.8711547851562
+     ],
+     [
+      2765.80908203125,
+      676.6270141601562
+     ],
+     [
+      2873.6220703125,
+      714.9310302734375
+     ]
+    ]
+   },
+   "bars": [
+    {
+     "bar": "B1 poses",
+     "value": 32,
+     "rule": ">= 15 distinct usable poses",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B2 held-out RMS",
+     "value": 0.33438038713031176,
+     "rule": "< 1.0 px (standard)",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B3 coverage",
+     "value": {
+      "covered_frac": 0.225,
+      "corner_cells": {
+       "top-left corner": false,
+       "top-right corner": false,
+       "bottom-left corner": false,
+       "bottom-right corner": false
+      }
+     },
+     "rule": ">= 60% of 8x5 cells and all 4 corner cells",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B4 edges constrained",
+     "value": {
+      "worst_ray_uncertainty_px": null,
+      "worst_model_disagreement_px": null,
+      "literal_ray_px": null,
+      "literal_models_px": null
+     },
+     "rule": "ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1)",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B5 stable",
+     "value": {
+      "rel_std_f": 0.0020743526681071727,
+      "std_c_px": 6.79072430447239
+     },
+     "rule": "bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B5c production crop",
+     "value": {
+      "worst_ray_uncertainty_px": 4.305575015617686,
+      "worst_model_disagreement_px": 3.7200919561641723,
+      "literal_ray_px": 22.18305241905623,
+      "literal_models_px": 126.9547788755993
+     },
+     "rule": "ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1)",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B6 focal sanity",
+     "value": 1.337988922656145,
+     "rule": "fx / 1964 px (in-air nominal) in [1.25, 1.42]",
+     "pass": true,
+     "status": "PASS"
+    }
+   ],
+   "verdict_full_frame": "FAIL",
+   "verdict_production_crop": "FAIL",
+   "recipe": {
+    "failed_bars": [
+     "B3 coverage",
+     "B4 edges constrained",
+     "B5c production crop"
+    ],
+    "lines": [
+     "This session: board at a median 1.55 m (range 1.21-1.80 m); there the frame is 2.71 m wide, so the 560 mm pattern filled only 21% of the width.",
+     "Closest corner to each frame edge: left 1543 px (33%), right 1375 px (30%), top 677 px (26%), bottom 937 px (36%).",
+     "Empty corner cells: top-left corner, top-right corner, bottom-left corner, bottom-right corner.",
+     "Next dive: hold the board at ~0.7-0.9 m (pattern ~35-45% of the frame width) and put it in 9 places: the 4 corners, the 4 edge midpoints and the centre, with a board corner touching the frame corner/edge each time.",
+     "At each place take 3 poses: flat, tilted ~30 deg left/right, tilted ~30 deg up/down (~27 poses), plus 3-5 flat poses at 1.5 m. Hold still for 2 frames at each pose (10 s cadence is fine).",
+     "Frame with a FULL-FRAME preview: the pool preview showed only the 1600x900 centre crop, so the frame edges were invisible while posing.",
+     "69/120 frames failed on clipping (white squares at 255): lock exposure ~1 stop darker for the calibration block, or tilt the board out of the sun glint.",
+     "Keep the production lens position (0.8) for calibration frames: focus changes the focal length slightly, so calibrate at the focus you ship."
+    ],
+    "recommended_distance_m": 0.7097742163010028,
+    "median_distance_m": 1.5477276919980778
+   },
+   "before_after": {
+    "calibration_frame": {
+     "stem": "20261014T203339Z_cal_0092",
+     "file": "/Users/nickbuemond/NereusPool/20261014/bmcam004_20261014_190821/calibration/20261014T203339Z_cal_0092.jpg",
+     "model": "standard",
+     "model_note": "fold 3 model: fitted WITHOUT this frame",
+     "straightness": {
+      "before_rms_px": {
+       "median": 0.4968268666410271,
+       "max": 1.8002154195344418
+      },
+      "after_rms_px": {
+       "median": 0.10942119297198599,
+       "max": 0.3678912042196088
+      },
+      "before_max_px": {
+       "median": 0.8294681443188796,
+       "max": 3.125814474054051
+      },
+      "after_max_px": {
+       "median": 0.20908740769743872,
+       "max": 0.7558335264016565
+      }
+     },
+     "lines": [
+      {
+       "line": "row 0",
+       "n": 13,
+       "before_rms_px": 0.3795579965132927,
+       "before_max_px": 0.8231978649493668,
+       "after_rms_px": 0.10942119297198599,
+       "after_max_px": 0.20908740769743872
+      },
+      {
+       "line": "row 1",
+       "n": 13,
+       "before_rms_px": 0.12823119625106577,
+       "before_max_px": 0.23026481042188923,
+       "after_rms_px": 0.11156117818548497,
+       "after_max_px": 0.1997342631573081
+      },
+      {
+       "line": "row 2",
+       "n": 13,
+       "before_rms_px": 0.21090993636195202,
+       "before_max_px": 0.5218499145993136,
+       "after_rms_px": 0.1172452842159392,
+       "after_max_px": 0.26641246913705285
+      },
+      {
+       "line": "row 3",
+       "n": 13,
+       "before_rms_px": 0.4732075988726518,
+       "before_max_px": 0.8239808543966576,
+       "after_rms_px": 0.11826050697156225,
+       "after_max_px": 0.24061578315551715
+      },
+      {
+       "line": "row 4",
+       "n": 13,
+       "before_rms_px": 0.758806913646702,
+       "before_max_px": 1.4118468126347663,
+       "after_rms_px": 0.162287021870364,
+       "after_max_px": 0.45557516212195703
+      },
+      {
+       "line": "row 5",
+       "n": 13,
+       "before_rms_px": 1.0447776872273413,
+       "before_max_px": 1.8653718420974972,
+       "after_rms_px": 0.1084781605033601,
+       "after_max_px": 0.20164993722364072
+      },
+      {
+       "line": "row 6",
+       "n": 13,
+       "before_rms_px": 1.3502673743241658,
+       "before_max_px": 2.50689041225907,
+       "after_rms_px": 0.22498880280431302,
+       "after_max_px": 0.6034636755367151
+      },
+      {
+       "line": "row 7",
+       "n": 13,
+       "before_rms_px": 1.8002154195344418,
+       "before_max_px": 3.125814474054051,
+       "after_rms_px": 0.29889121127707163,
+       "after_max_px": 0.7558335264016565
+      },
+      {
+       "line": "col 0",
+       "n": 8,
+       "before_rms_px": 1.4837882235463133,
+       "before_max_px": 2.447293162859717,
+       "after_rms_px": 0.3678912042196088,
+       "after_max_px": 0.6899053080718272
+      },
+      {
+       "line": "col 1",
+       "n": 8,
+       "before_rms_px": 1.2695970291786456,
+       "before_max_px": 1.8915504774489822,
+       "after_rms_px": 0.2328146932605547,
+       "after_max_px": 0.31559679039897903
+      },
+      {
+       "line": "col 2",
+       "n": 8,
+       "before_rms_px": 1.0141821296279763,
+       "before_max_px": 1.6439437420635183,
+       "after_rms_px": 0.10650537853202544,
+       "after_max_px": 0.22229892039563648
+      },
+      {
+       "line": "col 3",
+       "n": 8,
+       "before_rms_px": 0.8744133874980455,
+       "before_max_px": 1.3711004721220998,
+       "after_rms_px": 0.09201452478465531,
+       "after_max_px": 0.16975174209717303
+      },
+      {
+       "line": "col 4",
+       "n": 8,
+       "before_rms_px": 0.79215188244291,
+       "before_max_px": 1.2987118708207257,
+       "after_rms_px": 0.14219428866747377,
+       "after_max_px": 0.2691705021105688
+      },
+      {
+       "line": "col 5",
+       "n": 8,
+       "before_rms_px": 0.6070682935566957,
+       "before_max_px": 0.9368815069602692,
+       "after_rms_px": 0.09903214273632449,
+       "after_max_px": 0.1673941254523498
+      },
+      {
+       "line": "col 6",
+       "n": 8,
+       "before_rms_px": 0.4968268666410271,
+       "before_max_px": 0.8294681443188796,
+       "after_rms_px": 0.10270245128751399,
+       "after_max_px": 0.17407715771384802
+      },
+      {
+       "line": "col 7",
+       "n": 8,
+       "before_rms_px": 0.3478183556399926,
+       "before_max_px": 0.5543683264888675,
+       "after_rms_px": 0.07966781913812843,
+       "after_max_px": 0.16540477604056708
+      },
+      {
+       "line": "col 8",
+       "n": 8,
+       "before_rms_px": 0.29128364416898056,
+       "before_max_px": 0.4906344512740426,
+       "after_rms_px": 0.0891214604263392,
+       "after_max_px": 0.14232917375778076
+      },
+      {
+       "line": "col 9",
+       "n": 8,
+       "before_rms_px": 0.20505197430450162,
+       "before_max_px": 0.35769903750945886,
+       "after_rms_px": 0.1008669826326781,
+       "after_max_px": 0.16443972148054498
+      },
+      {
+       "line": "col 10",
+       "n": 8,
+       "before_rms_px": 0.2109272795342003,
+       "before_max_px": 0.4060428089653767,
+       "after_rms_px": 0.1791731409990775,
+       "after_max_px": 0.3915517317355688
+      },
+      {
+       "line": "col 11",
+       "n": 8,
+       "before_rms_px": 0.09172721212282146,
+       "before_max_px": 0.15005404457469051,
+       "after_rms_px": 0.09435952579827192,
+       "after_max_px": 0.15747511716112883
+      },
+      {
+       "line": "col 12",
+       "n": 8,
+       "before_rms_px": 0.09668098034283189,
+       "before_max_px": 0.21693366022210636,
+       "after_rms_px": 0.08758675408247452,
+       "after_max_px": 0.1661959840981595
+      }
+     ],
+     "files": {
+      "full_side_by_side": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_calframe_20261014T203339Z_cal_0092_full_sbs.jpg",
+      "full_before_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_calframe_20261014T203339Z_cal_0092_full_before_50pct.webp",
+      "full_after_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_calframe_20261014T203339Z_cal_0092_full_after_50pct.webp",
+      "crop_side_by_side_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_calframe_20261014T203339Z_cal_0092_crop_sbs_1to1.jpg",
+      "crop_before_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_calframe_20261014T203339Z_cal_0092_crop_before_1to1.webp",
+      "crop_after_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_calframe_20261014T203339Z_cal_0092_crop_after_1to1.webp"
+     }
+    },
+    "card_frame": {
+     "file": "/Users/nickbuemond/NereusPool/20261014/bmcam004_20261014_190821/loop/20261014T205004Z_loop_01_still.jpg",
+     "model": "standard",
+     "files": {
+      "full_side_by_side": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_card_20261014T205004Z_loop_01_still_full_sbs.jpg",
+      "full_before_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_card_20261014T205004Z_loop_01_still_full_before_50pct.webp",
+      "full_after_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_card_20261014T205004Z_loop_01_still_full_after_50pct.webp",
+      "crop_side_by_side_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_card_20261014T205004Z_loop_01_still_crop_sbs_1to1.jpg",
+      "crop_before_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_card_20261014T205004Z_loop_01_still_crop_before_1to1.webp",
+      "crop_after_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/bmcam004/before_after/bmcam004_card_20261014T205004Z_loop_01_still_crop_after_1to1.webp"
+     }
+    }
+   },
+   "probes": [
+    {
+     "group": "frame",
+     "name": "TL",
+     "x": 0.0,
+     "y": 0.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": 661.3390820478413
+    },
+    {
+     "group": "frame",
+     "name": "TR",
+     "x": 4607.0,
+     "y": 0.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": 661.0739125214338
+    },
+    {
+     "group": "frame",
+     "name": "BL",
+     "x": 0.0,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": 670.4932358261685
+    },
+    {
+     "group": "frame",
+     "name": "BR",
+     "x": 4607.0,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": 670.2353293869556
+    },
+    {
+     "group": "frame",
+     "name": "top",
+     "x": 2303.5,
+     "y": 0.0,
+     "ray_uncertainty_px": 13.286617200008793,
+     "model_disagreement_px": 21.247063700985194,
+     "ray_uncertainty_raw_px": 18.114445796030868,
+     "model_disagreement_raw_px": 91.07746409961912,
+     "distortion_px": 102.32425752151946
+    },
+    {
+     "group": "frame",
+     "name": "bottom",
+     "x": 2303.5,
+     "y": 2591.0,
+     "ray_uncertainty_px": 85.73885373696503,
+     "model_disagreement_px": 8.272821568739985,
+     "ray_uncertainty_raw_px": 87.05385264357422,
+     "model_disagreement_raw_px": 152.05322518192588,
+     "distortion_px": 78.21155146982608
+    },
+    {
+     "group": "frame",
+     "name": "left",
+     "x": 0.0,
+     "y": 1295.5,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": 478.3311048128898
+    },
+    {
+     "group": "frame",
+     "name": "right",
+     "x": 4607.0,
+     "y": 1295.5,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": null,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": null,
+     "distortion_px": 477.6272903000269
+    },
+    {
+     "group": "crop",
+     "name": "crop_TL",
+     "x": 1504.0,
+     "y": 846.0,
+     "ray_uncertainty_px": 1.633915173954833,
+     "model_disagreement_px": 2.803614968946993,
+     "ray_uncertainty_raw_px": 17.660395591002004,
+     "model_disagreement_raw_px": 111.20079413094207,
+     "distortion_px": 35.663747175215164
+    },
+    {
+     "group": "crop",
+     "name": "crop_TR",
+     "x": 3103.0,
+     "y": 846.0,
+     "ray_uncertainty_px": 0.5872431653054515,
+     "model_disagreement_px": 1.5553510412300384,
+     "ray_uncertainty_raw_px": 16.029662968032504,
+     "model_disagreement_raw_px": 112.40756098115722,
+     "distortion_px": 34.89735980934648
+    },
+    {
+     "group": "crop",
+     "name": "crop_BL",
+     "x": 1504.0,
+     "y": 1745.0,
+     "ray_uncertainty_px": 4.305575015617686,
+     "model_disagreement_px": 3.7200919561641723,
+     "ray_uncertainty_raw_px": 22.18305241905623,
+     "model_disagreement_raw_px": 125.6175095549762,
+     "distortion_px": 25.81410560449588
+    },
+    {
+     "group": "crop",
+     "name": "crop_BR",
+     "x": 3103.0,
+     "y": 1745.0,
+     "ray_uncertainty_px": 3.238585847756412,
+     "model_disagreement_px": 1.8096572297111317,
+     "ray_uncertainty_raw_px": 17.428463251426315,
+     "model_disagreement_raw_px": 126.9547788755993,
+     "distortion_px": 24.72532060570789
+    }
+   ],
+   "bootstrap_stats": {
+    "fx": {
+     "mean": 2628.308931753917,
+     "std": 5.452039645193651,
+     "p2.5": 2618.49435249967,
+     "p97.5": 2638.3258347284695
+    },
+    "fy": {
+     "mean": 2636.852390891614,
+     "std": 4.679284698666081,
+     "p2.5": 2627.943177927289,
+     "p97.5": 2645.616878462626
+    },
+    "cx": {
+     "mean": 2300.2602950765695,
+     "std": 6.79072430447239,
+     "p2.5": 2285.594578073711,
+     "p97.5": 2313.3203995526746
+    },
+    "cy": {
+     "mean": 1195.2678442767194,
+     "std": 4.270251256623042,
+     "p2.5": 1186.6362446395553,
+     "p97.5": 1201.8072789827131
+    },
+    "dist": {
+     "mean": [
+      0.24666647403559339,
+      0.6601560501182372,
+      -0.02683202627151292,
+      -0.0011110300624572892,
+      -0.6748412627409079
+     ],
+     "std": [
+      0.009857752612198813,
+      0.31833269078828824,
+      0.000754088410979363,
+      0.00169796336153832,
+      3.145224263091106
+     ]
+    }
+   },
+   "distance_m": {
+    "median": 1.5477276919980778,
+    "min": 1.2054555768096962,
+    "max": 1.7991485981554616
+   },
+   "lens_position": [
+    0.8
+   ],
+   "scaler_crop": [
+    "(0, 0)/4608x2592"
+   ],
+   "seconds": 16.7
+  },
+  {
+   "camera": "nereus002",
+   "n_frames": 50,
+   "median_lap_norm": 0.06094431857141335,
+   "frame_sizes": [
+    [
+     4608,
+     2592
+    ]
+   ],
+   "image_size": [
+    4608,
+    2592
+   ],
+   "screen": {
+    "status_counts": {
+     "PASS": 5,
+     "WARN": 9,
+     "FAIL": 36
+    },
+    "distinct_set": 10,
+    "duplicates_removed": 4,
+    "first_pass_standard_rms_px": 0.2578359706290918
+   },
+   "calibration_error": {},
+   "chosen_model": "standard",
+   "why": "lowest held-out RMS 0.290 px",
+   "views_used": 10,
+   "outlier_views": [],
+   "train_rms_px": 0.27109131771114137,
+   "heldout_rms_px": {
+    "standard": 0.2902462960002039,
+    "rational": 0.7990925769911138,
+    "fisheye": 0.3424086311303658
+   },
+   "intrinsics_full": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+     4608,
+     2592
+    ],
+    "camera_matrix": [
+     [
+      2621.315241623172,
+      0.0,
+      2336.7675769340885
+     ],
+     [
+      0.0,
+      2620.2173881429744,
+      1271.9676085720519
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "fx": 2621.315241623172,
+    "fy": 2620.2173881429744,
+    "cx": 2336.7675769340885,
+    "cy": 1271.9676085720519,
+    "dist_coeffs": [
+     0.2781242139063735,
+     0.639902290765041,
+     0.00034212617887996585,
+     0.012250241881332592,
+     -0.419619438670805
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "rms_px_train": 0.27109131771114137,
+    "heldout_rms_px": 0.2902462960002039,
+    "views": 10,
+    "fov_deg_h_v_from_edge_rays": [
+     70.42639567134026,
+     49.11470592781054
+    ],
+    "fx_over_nominal_in_air": 1.3344877593717968,
+    "nominal_fx_in_air_px": 1964.2857142857142,
+    "medium": "fresh water (pool), flat acrylic port",
+    "bootstrap": {
+     "fx": {
+      "mean": 2618.4789536857074,
+      "std": 7.359867121962204,
+      "p2.5": 2603.9750913510024,
+      "p97.5": 2628.1110295394187
+     },
+     "fy": {
+      "mean": 2616.5605634620033,
+      "std": 8.293837475466093,
+      "p2.5": 2600.9654274887735,
+      "p97.5": 2628.1223880515863
+     },
+     "cx": {
+      "mean": 2336.0791426325436,
+      "std": 11.483401671929117,
+      "p2.5": 2318.770128642756,
+      "p97.5": 2363.884830131757
+     },
+     "cy": {
+      "mean": 1272.3027095797324,
+      "std": 7.16543831893905,
+      "p2.5": 1260.0418126688808,
+      "p97.5": 1290.5063858930341
+     },
+     "dist": {
+      "mean": [
+       0.27526822611969687,
+       0.6336496001178427,
+       -8.860527105981662e-06,
+       0.01191726584626532,
+       -0.4230606524805307
+      ],
+      "std": [
+       0.012559386137538061,
+       0.10791195006787214,
+       0.0020268911853026815,
+       0.002754491830210566,
+       0.299185400281421
+      ]
+     }
+    },
+    "opencv_std_intrinsics": [
+     1.8771162166085344,
+     1.9158758697818477,
+     2.1394879250559917,
+     2.1426187727652035,
+     0.004035345503030713,
+     0.03568738925189573,
+     0.0006185604564341358,
+     0.0005960630722177193,
+     0.10474323155268932,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "intrinsics_crop": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+     1600,
+     900
+    ],
+    "camera_matrix": [
+     [
+      2621.315241623172,
+      0.0,
+      832.7675769340885
+     ],
+     [
+      0.0,
+      2620.2173881429744,
+      425.96760857205186
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "fx": 2621.315241623172,
+    "fy": 2620.2173881429744,
+    "cx": 832.7675769340885,
+    "cy": 425.96760857205186,
+    "dist_coeffs": [
+     0.2781242139063735,
+     0.639902290765041,
+     0.00034212617887996585,
+     0.012250241881332592,
+     -0.419619438670805
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "crop_native_xywh": [
+     1504,
+     846,
+     1600,
+     900
+    ],
+    "note": "pure pixel crop: cx, cy shifted by the crop offset; fx, fy, distortion unchanged",
+    "derived_from": "intrinsics_full_4608x2592.json"
+   },
+   "coverage": {
+    "grid": [
+     8,
+     5
+    ],
+    "min_obs_per_cell": 5,
+    "counts": [
+     [
+      0,
+      0,
+      17,
+      28,
+      11,
+      2,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      130,
+      487,
+      136,
+      4,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      7,
+      49,
+      23,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    ],
+    "covered": [
+     [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ],
+     [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+     ]
+    ],
+    "covered_frac": 0.225,
+    "corner_cells_covered": {
+     "top-left corner": false,
+     "top-right corner": false,
+     "bottom-left corner": false,
+     "bottom-right corner": false
+    },
+    "all_corner_cells": false,
+    "n_obs": 894,
+    "radial_norm": {
+     "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+     "max": 0.48571969890066885,
+     "p95": 0.37163634863200135,
+     "frac_gt_0.6": 0.0,
+     "frac_gt_0.8": 0.0
+    },
+    "edge_gap_px": {
+     "left": 1347.5670166015625,
+     "right": 1634.955322265625,
+     "top": 399.61968994140625,
+     "bottom": 1436.4969482421875
+    },
+    "corner_gap_px": {
+     "top-left": 1417.047003105451,
+     "top-right": 1706.4114586955618,
+     "bottom-left": 2137.921238100285,
+     "bottom-right": 2348.5978147621304
+    },
+    "crop": {
+     "xywh": [
+      1504,
+      846,
+      1600,
+      900
+     ],
+     "corner_radial_norm": 0.3472222222222222,
+     "obs_inside": 352
+    },
+    "observed_hull_px": [
+     [
+      2972.044677734375,
+      488.6319274902344
+     ],
+     [
+      2836.582275390625,
+      1047.7784423828125
+     ],
+     [
+      2620.472900390625,
+      1154.5030517578125
+     ],
+     [
+      1644.9442138671875,
+      1066.21044921875
+     ],
+     [
+      1546.8807373046875,
+      1027.3177490234375
+     ],
+     [
+      1372.0218505859375,
+      951.4075927734375
+     ],
+     [
+      1347.5670166015625,
+      438.2754211425781
+     ],
+     [
+      1948.25146484375,
+      399.61968994140625
+     ]
+    ]
+   },
+   "bars": [
+    {
+     "bar": "B1 poses",
+     "value": 10,
+     "rule": ">= 15 distinct usable poses",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B2 held-out RMS",
+     "value": 0.2902462960002039,
+     "rule": "< 1.0 px (standard)",
+     "pass": true,
+     "status": "PASS"
+    },
+    {
+     "bar": "B3 coverage",
+     "value": {
+      "covered_frac": 0.225,
+      "corner_cells": {
+       "top-left corner": false,
+       "top-right corner": false,
+       "bottom-left corner": false,
+       "bottom-right corner": false
+      }
+     },
+     "rule": ">= 60% of 8x5 cells and all 4 corner cells",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B4 edges constrained",
+     "value": {
+      "worst_ray_uncertainty_px": null,
+      "worst_model_disagreement_px": 110.14991888352375,
+      "literal_ray_px": null,
+      "literal_models_px": 228.1679134238995
+     },
+     "rule": "ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1)",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B5 stable",
+     "value": {
+      "rel_std_f": 0.0031697479474705587,
+      "std_c_px": 11.483401671929117
+     },
+     "rule": "bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B5c production crop",
+     "value": {
+      "worst_ray_uncertainty_px": 2.459183091552561,
+      "worst_model_disagreement_px": 2.385923282457758,
+      "literal_ray_px": 28.71394931852801,
+      "literal_models_px": 47.6576181078964
+     },
+     "rule": "ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (homography-aligned, amendment A1)",
+     "pass": false,
+     "status": "FAIL"
+    },
+    {
+     "bar": "B6 focal sanity",
+     "value": 1.3344877593717968,
+     "rule": "fx / 1964 px (in-air nominal) in [1.25, 1.42]",
+     "pass": true,
+     "status": "PASS"
+    }
+   ],
+   "verdict_full_frame": "FAIL",
+   "verdict_production_crop": "FAIL",
+   "recipe": {
+    "failed_bars": [
+     "B1 poses",
+     "B3 coverage",
+     "B4 edges constrained",
+     "B5 stable",
+     "B5c production crop"
+    ],
+    "lines": [
+     "This session: board at a median 1.53 m (range 1.29-1.73 m); there the frame is 2.69 m wide, so the 560 mm pattern filled only 21% of the width.",
+     "Closest corner to each frame edge: left 1348 px (29%), right 1635 px (35%), top 400 px (15%), bottom 1436 px (55%).",
+     "Empty corner cells: top-left corner, top-right corner, bottom-left corner, bottom-right corner.",
+     "Next dive: hold the board at ~0.7-0.9 m (pattern ~35-45% of the frame width) and put it in 9 places: the 4 corners, the 4 edge midpoints and the centre, with a board corner touching the frame corner/edge each time.",
+     "At each place take 3 poses: flat, tilted ~30 deg left/right, tilted ~30 deg up/down (~27 poses), plus 3-5 flat poses at 1.5 m. Hold still for 2 frames at each pose (10 s cadence is fine).",
+     "Frame with a FULL-FRAME preview: the pool preview showed only the 1600x900 centre crop, so the frame edges were invisible while posing.",
+     "9/50 frames failed on clipping (white squares at 255): lock exposure ~1 stop darker for the calibration block, or tilt the board out of the sun glint.",
+     "Keep the production lens position (0.8) for calibration frames: focus changes the focal length slightly, so calibrate at the focus you ship."
+    ],
+    "recommended_distance_m": 0.7079169248210726,
+    "median_distance_m": 1.5313982898122236
+   },
+   "before_after": {
+    "calibration_frame": {
+     "stem": "imx708_image_20261014T202849Z",
+     "file": "/Users/nickbuemond/NereusPool/20261014/nereus002/results/pool/pool007_20261014T194116Z/2026-10-14/exp_20261014T202849Z_pool/captures/imx708/imx708_image_20261014T202849Z.jpg",
+     "model": "standard",
+     "model_note": "fold 4 model: fitted WITHOUT this frame",
+     "straightness": {
+      "before_rms_px": {
+       "median": 1.057531848070822,
+       "max": 2.569675372546714
+      },
+      "after_rms_px": {
+       "median": 0.14149008922389952,
+       "max": 0.23599519511768027
+      },
+      "before_max_px": {
+       "median": 1.6819019011522123,
+       "max": 4.797957826267094
+      },
+      "after_max_px": {
+       "median": 0.25781834893490263,
+       "max": 0.4304741492857276
+      }
+     },
+     "lines": [
+      {
+       "line": "row 0",
+       "n": 13,
+       "before_rms_px": 1.057531848070822,
+       "before_max_px": 2.0514564846755654,
+       "after_rms_px": 0.1378788073232215,
+       "after_max_px": 0.24047473095672345
+      },
+      {
+       "line": "row 1",
+       "n": 13,
+       "before_rms_px": 1.3163837816022723,
+       "before_max_px": 2.3258461640307857,
+       "after_rms_px": 0.23599519511768027,
+       "after_max_px": 0.42794719536202863
+      },
+      {
+       "line": "row 2",
+       "n": 13,
+       "before_rms_px": 1.4268226295571549,
+       "before_max_px": 2.6993697290324694,
+       "after_rms_px": 0.192767367975206,
+       "after_max_px": 0.325883322343651
+      },
+      {
+       "line": "row 3",
+       "n": 13,
+       "before_rms_px": 1.57422764425946,
+       "before_max_px": 2.8778603606754514,
+       "after_rms_px": 0.14956711690082183,
+       "after_max_px": 0.3370945371337659
+      },
+      {
+       "line": "row 4",
+       "n": 13,
+       "before_rms_px": 1.7870501123093465,
+       "before_max_px": 3.322070072371508,
+       "after_rms_px": 0.1099103304130254,
+       "after_max_px": 0.20457616850355986
+      },
+      {
+       "line": "row 5",
+       "n": 13,
+       "before_rms_px": 2.0096583377552752,
+       "before_max_px": 3.7520765491825827,
+       "after_rms_px": 0.12564063434330575,
+       "after_max_px": 0.2377593527520857
+      },
+      {
+       "line": "row 6",
+       "n": 13,
+       "before_rms_px": 2.2963496871952085,
+       "before_max_px": 4.227924164284879,
+       "after_rms_px": 0.17173486926093495,
+       "after_max_px": 0.34188468714792286
+      },
+      {
+       "line": "row 7",
+       "n": 13,
+       "before_rms_px": 2.569675372546714,
+       "before_max_px": 4.797957826267094,
+       "after_rms_px": 0.1219791301962243,
+       "after_max_px": 0.1950764360729309
+      },
+      {
+       "line": "col 0",
+       "n": 8,
+       "before_rms_px": 0.33190154724530796,
+       "before_max_px": 0.5329719403797064,
+       "after_rms_px": 0.15643006992197966,
+       "after_max_px": 0.26231392896215766
+      },
+      {
+       "line": "col 1",
+       "n": 8,
+       "before_rms_px": 0.32682713380104017,
+       "before_max_px": 0.4921231376611459,
+       "after_rms_px": 0.10606698445913368,
+       "after_max_px": 0.20599104503762167
+      },
+      {
+       "line": "col 2",
+       "n": 8,
+       "before_rms_px": 0.43874242839722066,
+       "before_max_px": 0.5929098917202293,
+       "after_rms_px": 0.1795070701183106,
+       "after_max_px": 0.29732299578171206
+      },
+      {
+       "line": "col 3",
+       "n": 8,
+       "before_rms_px": 0.4335952891414458,
+       "before_max_px": 0.7120006614382852,
+       "after_rms_px": 0.10703564580580821,
+       "after_max_px": 0.20626382991548553
+      },
+      {
+       "line": "col 4",
+       "n": 8,
+       "before_rms_px": 0.5033188221575879,
+       "before_max_px": 0.8589427905811848,
+       "after_rms_px": 0.1713833625073724,
+       "after_max_px": 0.4304741492857276
+      },
+      {
+       "line": "col 5",
+       "n": 8,
+       "before_rms_px": 0.5720198638681762,
+       "before_max_px": 1.0151861435442644,
+       "after_rms_px": 0.14149008922389952,
+       "after_max_px": 0.2596820203553172
+      },
+      {
+       "line": "col 6",
+       "n": 8,
+       "before_rms_px": 0.6279274365149953,
+       "before_max_px": 0.98006358416119,
+       "after_rms_px": 0.09591629968581289,
+       "after_max_px": 0.1541440344614311
+      },
+      {
+       "line": "col 7",
+       "n": 8,
+       "before_rms_px": 0.7609016607579051,
+       "before_max_px": 1.2212318960042534,
+       "after_rms_px": 0.1661106817395612,
+       "after_max_px": 0.21536487374577185
+      },
+      {
+       "line": "col 8",
+       "n": 8,
+       "before_rms_px": 0.7916108145968321,
+       "before_max_px": 1.1390098924274783,
+       "after_rms_px": 0.1397998871806692,
+       "after_max_px": 0.25781834893490263
+      },
+      {
+       "line": "col 9",
+       "n": 8,
+       "before_rms_px": 0.956632083198417,
+       "before_max_px": 1.597379210468398,
+       "after_rms_px": 0.15641381278108854,
+       "after_max_px": 0.32762391997952633
+      },
+      {
+       "line": "col 10",
+       "n": 8,
+       "before_rms_px": 1.0644043773295313,
+       "before_max_px": 1.6819019011522123,
+       "after_rms_px": 0.12033148424997821,
+       "after_max_px": 0.1916176965806322
+      },
+      {
+       "line": "col 11",
+       "n": 8,
+       "before_rms_px": 1.1184217265489804,
+       "before_max_px": 1.695702988088616,
+       "after_rms_px": 0.14818174774288656,
+       "after_max_px": 0.287567769112437
+      },
+      {
+       "line": "col 12",
+       "n": 8,
+       "before_rms_px": 1.3089292910164017,
+       "before_max_px": 2.0512405886627327,
+       "after_rms_px": 0.09499845775234625,
+       "after_max_px": 0.16548202623396646
+      }
+     ],
+     "files": {
+      "full_side_by_side": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_full_sbs.jpg",
+      "full_before_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_full_before_50pct.webp",
+      "full_after_50pct": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_full_after_50pct.webp",
+      "crop_side_by_side_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_crop_sbs_1to1.jpg",
+      "crop_before_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_crop_before_1to1.webp",
+      "crop_after_1to1": "/Users/nickbuemond/NereusPool/20261014_CALIB/20261014_172309_pool1014/nereus002/before_after/nereus002_calframe_imx708_image_20261014T202849Z_crop_after_1to1.webp"
+     }
+    },
+    "card_frame": {
+     "skipped": "no --card for this camera and no loop/*_loop_01_still.jpg next to it"
+    }
+   },
+   "probes": [
+    {
+     "group": "frame",
+     "name": "TL",
+     "x": 0.0,
+     "y": 0.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": 103.73173461255006,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": 220.31355756984792,
+     "distortion_px": 600.3160767771765
+    },
+    {
+     "group": "frame",
+     "name": "TR",
+     "x": 4607.0,
+     "y": 0.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": 87.89421420808249,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": 94.89614073323075,
+     "distortion_px": 620.9973356201497
+    },
+    {
+     "group": "frame",
+     "name": "BL",
+     "x": 0.0,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": 110.14991888352375,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": 228.1679134238995,
+     "distortion_px": 612.7554587868656
+    },
+    {
+     "group": "frame",
+     "name": "BR",
+     "x": 4607.0,
+     "y": 2591.0,
+     "ray_uncertainty_px": null,
+     "model_disagreement_px": 88.52760613072945,
+     "ray_uncertainty_raw_px": null,
+     "model_disagreement_raw_px": 99.89024912975128,
+     "distortion_px": 633.3612865608022
+    },
+    {
+     "group": "frame",
+     "name": "top",
+     "x": 2303.5,
+     "y": 0.0,
+     "ray_uncertainty_px": 0.9559540828389275,
+     "model_disagreement_px": 2.196597079059512,
+     "ray_uncertainty_raw_px": 27.38964722705986,
+     "model_disagreement_raw_px": 45.83926341540768,
+     "distortion_px": 92.57199345877223
+    },
+    {
+     "group": "frame",
+     "name": "bottom",
+     "x": 2303.5,
+     "y": 2591.0,
+     "ray_uncertainty_px": 4.698440935946059,
+     "model_disagreement_px": 6.2653706234032995,
+     "ray_uncertainty_raw_px": 27.477288558501055,
+     "model_disagreement_raw_px": 45.811092048294356,
+     "distortion_px": 103.93277518664273
+    },
+    {
+     "group": "frame",
+     "name": "left",
+     "x": 0.0,
+     "y": 1295.5,
+     "ray_uncertainty_px": 42.453275420347374,
+     "model_disagreement_px": 37.64511668375452,
+     "ray_uncertainty_raw_px": 49.74779667997282,
+     "model_disagreement_raw_px": 128.1592444194081,
+     "distortion_px": 442.3854067974609
+    },
+    {
+     "group": "frame",
+     "name": "right",
+     "x": 4607.0,
+     "y": 1295.5,
+     "ray_uncertainty_px": 28.65777795247407,
+     "model_disagreement_px": 56.017761183354345,
+     "ray_uncertainty_raw_px": 35.761960602123644,
+     "model_disagreement_raw_px": 19.969225843757656,
+     "distortion_px": 463.8952865536132
+    },
+    {
+     "group": "crop",
+     "name": "crop_TL",
+     "x": 1504.0,
+     "y": 846.0,
+     "ray_uncertainty_px": 0.14459986232035485,
+     "model_disagreement_px": 0.05906690003273813,
+     "ray_uncertainty_raw_px": 24.475335498977962,
+     "model_disagreement_raw_px": 46.21660487585625,
+     "distortion_px": 27.598699792543776
+    },
+    {
+     "group": "crop",
+     "name": "crop_TR",
+     "x": 3103.0,
+     "y": 846.0,
+     "ray_uncertainty_px": 0.6297250244652779,
+     "model_disagreement_px": 0.06272546655123179,
+     "ray_uncertainty_raw_px": 27.71141572936598,
+     "model_disagreement_raw_px": 47.57068086600506,
+     "distortion_px": 37.690656403457545
+    },
+    {
+     "group": "crop",
+     "name": "crop_BL",
+     "x": 1504.0,
+     "y": 1745.0,
+     "ray_uncertainty_px": 1.8072337250307948,
+     "model_disagreement_px": 2.1003908886880165,
+     "ray_uncertainty_raw_px": 24.94586335324883,
+     "model_disagreement_raw_px": 46.173071836462675,
+     "distortion_px": 30.549219345365902
+    },
+    {
+     "group": "crop",
+     "name": "crop_BR",
+     "x": 3103.0,
+     "y": 1745.0,
+     "ray_uncertainty_px": 2.459183091552561,
+     "model_disagreement_px": 2.385923282457758,
+     "ray_uncertainty_raw_px": 28.71394931852801,
+     "model_disagreement_raw_px": 47.6576181078964,
+     "distortion_px": 40.66220673864117
+    }
+   ],
+   "bootstrap_stats": {
+    "fx": {
+     "mean": 2618.4789536857074,
+     "std": 7.359867121962204,
+     "p2.5": 2603.9750913510024,
+     "p97.5": 2628.1110295394187
+    },
+    "fy": {
+     "mean": 2616.5605634620033,
+     "std": 8.293837475466093,
+     "p2.5": 2600.9654274887735,
+     "p97.5": 2628.1223880515863
+    },
+    "cx": {
+     "mean": 2336.0791426325436,
+     "std": 11.483401671929117,
+     "p2.5": 2318.770128642756,
+     "p97.5": 2363.884830131757
+    },
+    "cy": {
+     "mean": 1272.3027095797324,
+     "std": 7.16543831893905,
+     "p2.5": 1260.0418126688808,
+     "p97.5": 1290.5063858930341
+    },
+    "dist": {
+     "mean": [
+      0.27526822611969687,
+      0.6336496001178427,
+      -8.860527105981662e-06,
+      0.01191726584626532,
+      -0.4230606524805307
+     ],
+     "std": [
+      0.012559386137538061,
+      0.10791195006787214,
+      0.0020268911853026815,
+      0.002754491830210566,
+      0.299185400281421
+     ]
+    }
+   },
+   "distance_m": {
+    "median": 1.5313982898122236,
+    "min": 1.2920460932314135,
+    "max": 1.7264425181803478
+   },
+   "lens_position": [
+    0.8
+   ],
+   "scaler_crop": [
+    "(0, 0)/4608x2592"
+   ],
+   "seconds": 8.0
+  }
+ ],
+ "layout": {
+  "squares_x": 14,
+  "squares_y": 9,
+  "legacy": false,
+  "trials": [
+   {
+    "squares_x": 9,
+    "squares_y": 14,
+    "legacy": false,
+    "corners": 0,
+    "markers": 808
+   },
+   {
+    "squares_x": 14,
+    "squares_y": 9,
+    "legacy": false,
+    "corners": 1230,
+    "markers": 808
+   },
+   {
+    "squares_x": 9,
+    "squares_y": 14,
+    "legacy": true,
+    "corners": 0,
+    "markers": 808
+   },
+   {
+    "squares_x": 14,
+    "squares_y": 9,
+    "legacy": true,
+    "same_as": "14x9 modern"
+   }
+  ]
+ },
+ "prereg": {
+  "doc": "docs/pool_calib_prereg_20261014.md",
+  "screen": {
+   "min_corners": 12,
+   "warn_corners": 30,
+   "blur_fail_rel": 0.25,
+   "blur_warn_rel": 0.5,
+   "clip_fail": 0.1,
+   "clip_warn": 0.01,
+   "mean_lo": 40,
+   "mean_hi": 220,
+   "aniso_fail": 2.5,
+   "aniso_warn": 1.5,
+   "dup_deg": 5.0,
+   "dup_frac": 0.1
+  },
+  "calib": {
+   "folds": 5,
+   "seed": 0,
+   "bootstrap": 100,
+   "tie_frac": 0.02,
+   "outlier_rounds": 3
+  },
+  "bars": {
+   "B1_min_poses": 15,
+   "B2_heldout_rms_px": 1.0,
+   "B3_grid": [
+    8,
+    5
+   ],
+   "B3_min_obs_per_cell": 5,
+   "B3_min_cover": 0.6,
+   "B4_edge_ray_px": 2.0,
+   "B4_edge_models_px": 2.0,
+   "B5_rel_std_f": 0.005,
+   "B5_std_c_px": 10.0,
+   "B5c_crop_ray_px": 0.5,
+   "B5c_crop_models_px": 1.0,
+   "B6_ratio": [
+    1.25,
+    1.42
+   ],
+   "B6_nominal_fx_air_px": 1964.2857142857142
+  }
+ }
+}
