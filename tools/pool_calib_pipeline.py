@@ -799,6 +799,8 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     pts = np.concatenate([in_set[i]["_corners"] for i in final["kept"]], axis=0)
     cov = coverage_stats(pts, size, tuple(bars["B3_grid"]), bars["B3_min_obs_per_cell"],
                          crop if tuple(size) == tuple(native) else None)
+    import cv2
+    cov["observed_hull_px"] = cv2.convexHull(pts.astype(np.float32).reshape(-1, 1, 2)).reshape(-1, 2).tolist()
     write_json(os.path.join(out_dir, "coverage.json"), cov)
     log(f"[{name}] coverage: {100 * cov['covered_frac']:.0f}% of {bars['B3_grid'][0]}x{bars['B3_grid'][1]} cells; "
         f"corner cells {cov['corner_cells_covered']}; radial reach max {cov['radial_norm']['max']:.2f} "

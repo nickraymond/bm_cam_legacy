@@ -416,10 +416,12 @@ def before_after_images(before, after, rows, crop, out_dir, prefix, title, strai
     p = os.path.join(out_dir, f"{prefix}_full_sbs.jpg")
     cv2.imwrite(p, sbs, [cv2.IMWRITE_JPEG_QUALITY, 88])
     files["full_side_by_side"] = p
+    # single images for a slider page: LOSSLESS WebP so the page adds no artefacts of its own;
+    # full frame at 50 % (a lossless 12 MP frame is ~20 MB), crop at 1:1
     half = (w // 2, h // 2)
     for tag, im in (("before", ob), ("after", oa)):
-        p = os.path.join(out_dir, f"{prefix}_full_{tag}_50pct.jpg")
-        cv2.imwrite(p, cv2.resize(im, half, interpolation=cv2.INTER_AREA), [cv2.IMWRITE_JPEG_QUALITY, 88])
+        p = os.path.join(out_dir, f"{prefix}_full_{tag}_50pct.webp")
+        cv2.imwrite(p, cv2.resize(im, half, interpolation=cv2.INTER_AREA), [cv2.IMWRITE_WEBP_QUALITY, 101])
         files[f"full_{tag}_50pct"] = p
     if crop:
         x0, y0, cw, ch = crop
@@ -440,7 +442,7 @@ def before_after_images(before, after, rows, crop, out_dir, prefix, title, strai
         cv2.imwrite(p, sbs, [cv2.IMWRITE_JPEG_QUALITY, 90])
         files["crop_side_by_side_1to1"] = p
         for tag, im in (("before", cb), ("after", ca)):
-            p = os.path.join(out_dir, f"{prefix}_crop_{tag}_1to1.jpg")
-            cv2.imwrite(p, im, [cv2.IMWRITE_JPEG_QUALITY, 90])
+            p = os.path.join(out_dir, f"{prefix}_crop_{tag}_1to1.webp")
+            cv2.imwrite(p, im, [cv2.IMWRITE_WEBP_QUALITY, 101])
             files[f"crop_{tag}_1to1"] = p
     return files
