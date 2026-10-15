@@ -121,3 +121,29 @@ Console via nereus000 `pi@192.168.1.45` (or Tailscale `100.82.38.22`). Console i
 ## Is it worth it?
 
 It's the only pre-deployment evidence for Nick's Tue 10/20 go/no-go on the bmcam002 remote update (Thu 10/22). It tests the exact release build and its NOAA config for the release goals: images complete ≤ 24 h, and remote commands answered.
+
+---
+
+## Rev 2 (Thu 10/15 ~10:30 AM PDT): PgM re-cut d35 → recommends **B** = hourly 24 h, ET, focus 0.8, pacing 1.0 s
+
+**The soak is planned on B.** A runs only if Nick picks A in Friday morning's batch; the A section above stays as written.
+
+**Does B's `schedule.timezone=America/New_York` change anything? No, for capture and cadence.**
+- 0cb7ad9e already has an all-day window: `transmit_window 00:00–00:00`, `enforce_time_window: true` (the 10/14 effective render). So the schedule gate is always open in any timezone.
+- The timezone feeds only:
+  - the gate's local-time evaluation (no effect with an all-day window);
+  - labels: `<WS … tz=…>` and `local_time`, `[RC] schedule: … tz=`, the run summary;
+  - the config hash.
+- Wakes come from the Spotter bridge (UTC hourly, 3600000 / 600000) and don't depend on the camera's timezone. Filenames and media keys are UTC.
+- **Plan:** set it anyway, so the soak runs the exact NOAA key values: one reversible console `set`. The window stays all day, so nothing else moves. Focus 0.8 and pacing 1.0 s already match on the soak units.
+
+**B verbs (replace "Branch B: no config verb" above):**
+- Start, in each unit's post-transmit listen window:
+  - `hil/tools/hil_cmd.sh SOAK.bmcam003 '{"id":66101,"c":"set","kv":{"schedule.timezone":"America/New_York"}}' 12 SPOT-31593C`
+  - the same for bmcam004 with id 66102 on SPOT-33507C.
+  - Expect `OK id=…` + a new cfg hash (record it). The next wake's `[RC] schedule: window=00:00-00:00 tz=America/New_York`.
+- Restore after the read-out: `{"id":66111,"c":"reset","k":["schedule.timezone"]}` / id 66112 → hash back to 0cb7ad9e.
+
+**B n and read-out:** 48 h from Sat ~9 AM PDT → 48 image wakes per unit, 96 images (0 misses ⇒ ≤ 3.1 % at 95 %). Read-out Tue 10/20 ~9:30 AM PDT, once Mon 9 AM images reach 24 h. The bars and stop rules above apply unchanged.
+
+**Delta for Tuesday's card under B:** none in key values. The remaining differences to NOAA are the "held fixed" site list above.
