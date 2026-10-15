@@ -21,7 +21,7 @@ GRID = "#e1e0d9"
 AXIS = "#c3c2b7"
 BLUE = "#2a78d6"
 ORANGE = "#eb6834"
-STATUS = {"PASS": "#0ca30c", "WARN": "#fab219", "FAIL": "#d03b3b"}
+STATUS = {"PASS": "#0ca30c", "WARN": "#fab219", "FAIL": "#d03b3b", "N/A": MUTED}   # N/A = bar not scored
 BLUE_RAMP = ["#fcfcfb", "#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]
 ORANGE_RAMP = ["#fdf1ea", "#f9d2bd", "#f4ad8b", "#ec835a", "#d95926", "#a8441c", "#733013"]
 
@@ -117,7 +117,7 @@ def _draw_coverage(ax, pts, cov, size, crop=None, title=None):
     if crop:
         x, y, cw, ch = crop
         ax.add_patch(Rectangle((x, y), cw, ch, fill=False, ec=INK, lw=1.2, ls="--"))
-        ax.text(x + 10, y + ch - 30, "production crop 1600×900", fontsize=7, color=INK)
+        ax.text(x + 10, y + ch - 30, f"production crop {cw}×{ch}", fontsize=7, color=INK)
     ax.set_xlim(0, w)
     ax.set_ylim(h, 0)
     ax.set_xlabel("x (native px)")
@@ -307,16 +307,31 @@ def verdict_sheet(name, pts, cov, cal, bars_out, v_full, v_crop, size, crop, pat
             cell.set_text_props(color=STATUS.get(cell.get_text().get_text(), INK), fontweight="bold")
     K = cal["final"]["K"]
     ho = cal["cv"][cal["chosen"]]["held_out_rms"]
-    a3.set_title(f"Pre-registered bars (docs/pool_calib_prereg_20261014.md) — model {cal['chosen']} chosen by held-out "
+    bars_src = ("Pre-registered bars (docs/pool_calib_prereg_20261014.md)" if crop else    # crop None = not native
+                "IMX708-pixel bars, not pre-registered for this sensor")     # same length: fits the page
+    a3.set_title(f"{bars_src} — model {cal['chosen']} chosen by held-out "
                  f"error ({ho:.3f} px): fx {K[0, 0]:.0f}  fy {K[1, 1]:.0f}  cx {K[0, 2]:.0f}  cy {K[1, 2]:.0f}",
                  loc="left")
-    fig.suptitle(f"{name} underwater calibration — full-frame intrinsics: {v_full}   ·   "
-                 f"production 1600×900 crop: {v_crop}", fontsize=15, fontweight="bold",
-                 color=INK, x=0.01, ha="left")
-    fig.text(0.01, 0.945, "All axes in native 4608×2592 sensor pixels. Scaled figure, not 1:1. "
-                          "Dashed box = production crop.", fontsize=9, color=INK2)
+    title, subtitle = verdict_titles(name, v_full, v_crop, size, crop)
+    fig.suptitle(title, fontsize=15, fontweight="bold", color=INK, x=0.01, ha="left")
+    fig.text(0.01, 0.945, subtitle, fontsize=9, color=INK2)
     fig.savefig(path, dpi=100)
     plt.close(fig)
+
+
+def verdict_titles(name, v_full, v_crop, size, crop):
+    """Verdict-sheet title + subtitle from the ACTUAL frame size. crop None = frames are not
+    --native-size (e.g. the OpenMV N6 1280x800): no crop is derived or drawn, so it reads n/a."""
+    w, h = size
+    if crop:
+        crop_txt = f"production {crop[2]}×{crop[3]} crop: {v_crop}"
+        sub = f"All axes in native {w}×{h} sensor pixels. Scaled figure, not 1:1. Dashed box = production crop."
+    else:
+        crop_txt = "production crop: n/a"
+        sub = (f"All axes in {w}×{h} frame pixels (not --native-size). Scaled figure, not 1:1. "
+               f"No production crop derived or drawn (B5c N/A). IMX708-pixel bars, not pre-registered for "
+               f"this sensor.")
+    return f"{name} underwater calibration — full-frame intrinsics: {v_full}   ·   {crop_txt}", sub
 
 
 def _short(v):

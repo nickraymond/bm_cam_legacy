@@ -35,6 +35,9 @@ Inputs
                (ScalerCrop, LensPosition, ExposureTime, AnalogueGain, Lux).
   --card NAME=JPG   v3-card frame for the before/after (repeatable). Default for a folder input:
                the first <folder>/../loop/*_loop_01_still.jpg if it exists.
+  --nominal-fx NAME=PX   in-air nominal fx (px of that camera's frames) for the B6 sanity bar
+               (repeatable). Default: the IMX708 1964 px, but only for --native-size frames; any
+               other frame size (e.g. the OpenMV N6 1280x800) gets B6 = N/A.
   Board defaults = calib.io CCT600400C (9x14, 40/30 mm, DICT_5X5_100), as pool_calib_check.py.
 
 Outputs  <out-root>/<YYYYMMDD_HHMMSS>_<tag>/
@@ -68,12 +71,14 @@ Assumptions / known limitations
   - JPEG = Pi ISP output (same pixel grid as the DNG). The ISP applies no geometric correction
     on the IMX708 pipeline we use; if that ever changes, calibrate from DNG.
   - Crop intrinsics assume a pure pixel crop of the native frame (cx, cy shift by the offset;
-    fx, fy and distortion unchanged). Frames that are not --native-size skip the crop (loud).
+    fx, fy and distortion unchanged). Frames that are not --native-size skip the crop (loud):
+    B5c and the production-crop verdict are then N/A, not FAIL.
   - Pinhole + distortion behind a flat port is an approximation (refraction is non-central); it
     is valid near the working range it was calibrated at, in fresh water. Seawater (n ~1.340 vs
     1.333) scales the effective focal length by ~+0.5 %.
   - In-air nominal fx = 2.75 mm / 1.4 um = 1964 px (Camera Module 3 Wide datasheet), an
-    ASSUMPTION: no in-air ChArUco set exists for these units.
+    ASSUMPTION: no in-air ChArUco set exists for these units. It is a 4608x2592 IMX708 focal
+    length, so it is applied to --native-size frames only (other cameras: --nominal-fx).
   - Blur / motion thresholds are heuristics relative to the set median (see the prereg doc).
 """
 import argparse
@@ -102,6 +107,7 @@ PREREG_DOC = os.path.join(REPO, "docs", "pool_calib_prereg_20261014.md")
 NATIVE = (4608, 2592)
 DEFAULT_CROP = (1504, 846, 1600, 900)
 NOMINAL_FX_AIR = 2.75e-3 / 1.4e-6          # 1964.3 px, datasheet values (assumption)
+NOMINAL_FX_SOURCE = "datasheet assumption"  # the pre-registered IMX708 value (B6 / summary.md wording)
 IMAGE_EXT = (".jpg", ".jpeg", ".dng")
 
 # Pre-registered bars and screen thresholds (docs/pool_calib_prereg_20261014.md). Changing a value
@@ -606,12 +612,34 @@ def intrinsics_doc(model, K, D, size, extra=None):
 
 # ============================================================================ stage 5: bars
 
-def evaluate_bars(n_poses, cal, cov, bars):
+def nominal_fx_for(name, size, native, given):
+    """In-air nominal fx for B6 -> {"fx_px": float or None, "source": str}. --nominal-fx NAME=PX
+    wins; else the pre-registered IMX708 value, but only for --native-size frames (it is a focal
+    length in 4608x2592 IMX708 pixels: meaningless for another sensor, e.g. the N6) -> else None."""
+    if name in given:
+        return {"fx_px": float(given[name]), "source": "--nominal-fx"}
+    if tuple(size) == tuple(native):
+        return {"fx_px": PREREG["bars"]["B6_nominal_fx_air_px"], "source": NOMINAL_FX_SOURCE}
+    return {"fx_px": None,
+            "source": f"the IMX708 {NOMINAL_FX_AIR:.0f} px is for {native[0]}x{native[1]} frames only; "
+                      f"pass --nominal-fx {name}=PX"}
+
+
+def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None):
+    """B1..B6 -> (rows, full-frame verdict, production-crop verdict).
+    crop_skip  None, or why the production crop was not derived (frames not --native-size): B5c
+               and the crop verdict are then N/A (nothing to score), not FAIL.
+    nominal    nominal_fx_for(...) for B6; default = the pre-registered IMX708 value. fx_px None ->
+               B6 N/A. N/A rows carry "pass": None and never count toward a verdict."""
     out = []
+    nominal = nominal or {"fx_px": bars["B6_nominal_fx_air_px"], "source": NOMINAL_FX_SOURCE}
 
     def add(bar, value, rule, ok, severity="FAIL"):
         out.append({"bar": bar, "value": value, "rule": rule, "pass": bool(ok),
                     "status": "PASS" if ok else severity})
+
+    def not_applicable(bar, why, rule):
+        out.append({"bar": bar, "value": why, "rule": rule, "pass": None, "status": "N/A"})
     add("B1 poses", n_poses, f">= {bars['B1_min_poses']} distinct usable poses", n_poses >= bars["B1_min_poses"])
     ch = cal.get("chosen")
     ho = cal["cv"][ch]["held_out_rms"] if ch else float("nan")
@@ -643,23 +671,32 @@ def evaluate_bars(n_poses, cal, cov, bars):
     add("B5 stable", {"rel_std_f": rf, "std_c_px": sc, "replicates_ok": f"{n_ok}/{n_b}"},
         f"bootstrap std(f)/f <= {100 * bars['B5_rel_std_f']:.1f}% and std(cx, cy) <= {bars['B5_std_c_px']} px "
         f"(>= 95% of replicates fit)", ok5)
-    wr = max((p["ray_uncertainty_px"] for p in cr), default=float("inf"))
-    wm = max((p["model_disagreement_px"] for p in cr), default=float("inf"))
-    add("B5c production crop", {"worst_ray_uncertainty_px": wr, "worst_model_disagreement_px": wm,
-                                "literal_ray_px": lit(cr, "ray_uncertainty_raw_px"),
-                                "literal_models_px": lit(cr, "model_disagreement_raw_px")},
-        f"ray uncertainty <= {bars['B5c_crop_ray_px']} px and model disagreement <= {bars['B5c_crop_models_px']} px "
-        f"at the 4 crop corners (homography-aligned, amendment A1)",
-        bool(cr) and wr <= bars["B5c_crop_ray_px"] and wm <= bars["B5c_crop_models_px"])
+    crop_rule = (f"ray uncertainty <= {bars['B5c_crop_ray_px']} px and model disagreement <= "
+                 f"{bars['B5c_crop_models_px']} px at the 4 crop corners (homography-aligned, amendment A1)")
+    if crop_skip:
+        not_applicable("B5c production crop", crop_skip, crop_rule)
+    else:
+        wr = max((p["ray_uncertainty_px"] for p in cr), default=float("inf"))
+        wm = max((p["model_disagreement_px"] for p in cr), default=float("inf"))
+        add("B5c production crop", {"worst_ray_uncertainty_px": wr, "worst_model_disagreement_px": wm,
+                                    "literal_ray_px": lit(cr, "ray_uncertainty_raw_px"),
+                                    "literal_models_px": lit(cr, "model_disagreement_raw_px")},
+            crop_rule, bool(cr) and wr <= bars["B5c_crop_ray_px"] and wm <= bars["B5c_crop_models_px"])
     if ch:
-        ratio = float(cal["final"]["K"][0, 0]) / bars["B6_nominal_fx_air_px"]
         lo, hi = bars["B6_ratio"]
-        add("B6 focal sanity", ratio, f"fx / {bars['B6_nominal_fx_air_px']:.0f} px (in-air nominal) in [{lo}, {hi}]",
-            lo <= ratio <= hi, severity="WARN")
+        nom = nominal["fx_px"]
+        if nom:
+            ratio = float(cal["final"]["K"][0, 0]) / nom
+            src = "" if nominal["source"] == NOMINAL_FX_SOURCE else f", {nominal['source']}"
+            add("B6 focal sanity", ratio, f"fx / {nom:.0f} px (in-air nominal{src}) in [{lo}, {hi}]",
+                lo <= ratio <= hi, severity="WARN")
+        else:
+            not_applicable("B6 focal sanity", nominal["source"], f"fx / in-air nominal in [{lo}, {hi}]")
     by = {b["bar"].split()[0]: b["pass"] for b in out}
     verdict_full = all(by.get(k, False) for k in ("B1", "B2", "B3", "B4", "B5"))
     verdict_crop = all(by.get(k, False) for k in ("B1", "B2", "B5", "B5c"))
-    return out, ("PASS" if verdict_full else "FAIL"), ("PASS" if verdict_crop else "FAIL")
+    return (out, ("PASS" if verdict_full else "FAIL"),
+            "N/A" if crop_skip else ("PASS" if verdict_crop else "FAIL"))
 
 
 def capture_recipe(cov, frames_used, fx, size, square_mm, squares, bars_out, all_frames=()):
@@ -815,10 +852,18 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     # intrinsics
     K, D = final["K"], final["D"]
     hfov, vfov = pm.fov_deg(ch, K, D, size)
+    nominal = nominal_fx_for(name, size, native, args.nominal_fxs)
+    prereg_note = None
+    if tuple(size) != tuple(native):
+        prereg_note = (f"IMX708-pixel bars, not pre-registered for this sensor: the B1-B6 pixel numbers "
+                       f"({PREREG['doc']}) are for {native[0]}x{native[1]} frames, applied unchanged to "
+                       f"{size[0]}x{size[1]} frames")
+        log(f"[{name}] WARN {prereg_note}")
     extra = {"rms_px_train": final["rms"], "heldout_rms_px": cal["cv"][ch]["held_out_rms"],
              "views": len(final["kept"]), "fov_deg_h_v_from_edge_rays": [hfov, vfov],
-             "fx_over_nominal_in_air": float(K[0, 0]) / NOMINAL_FX_AIR,
-             "nominal_fx_in_air_px": NOMINAL_FX_AIR, "medium": "fresh water (pool), flat acrylic port",
+             "fx_over_nominal_in_air": float(K[0, 0]) / nominal["fx_px"] if nominal["fx_px"] else None,
+             "nominal_fx_in_air_px": nominal["fx_px"], "nominal_fx_in_air_source": nominal["source"],
+             "medium": "fresh water (pool), flat acrylic port",
              "bootstrap": cal["boot_stats"], "opencv_std_intrinsics": final.get("std_intrinsics")}
     full_doc = intrinsics_doc(ch, K, D, size, extra)
     write_json(os.path.join(out_dir, f"intrinsics_full_{size[0]}x{size[1]}.json"), full_doc)
@@ -830,9 +875,13 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
                                    "derived_from": f"intrinsics_full_{size[0]}x{size[1]}.json"})
         write_json(os.path.join(out_dir, f"intrinsics_crop_{crop[2]}x{crop[3]}.json"), crop_doc)
     else:
-        log(f"[{name}] WARN crop intrinsics skipped: {why}")
+        log(f"[{name}] WARN crop intrinsics skipped: {why} (B5c and the production-crop verdict N/A)")
+    if nominal["source"] != NOMINAL_FX_SOURCE:
+        log(f"[{name}] B6 in-air nominal fx: " + (f"{nominal['fx_px']:.1f} px from --nominal-fx" if nominal["fx_px"]
+                                                  else f"N/A, {nominal['source']}"))
+    ratio_txt = f"{K[0, 0] / nominal['fx_px']:.3f}" if nominal["fx_px"] else "n/a"
     log(f"[{name}] {ch}: fx {K[0, 0]:.1f} fy {K[1, 1]:.1f} cx {K[0, 2]:.1f} cy {K[1, 2]:.1f}; "
-        f"fx/nominal-air {K[0, 0] / NOMINAL_FX_AIR:.3f}; FOV {fmt_fov(hfov, vfov)}")
+        f"fx/nominal-air {ratio_txt}; FOV {fmt_fov(hfov, vfov)}")
 
     # models / errors outputs
     models_out = {}
@@ -868,7 +917,8 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
                              " ".join(f"{v:.6g}" for v in b["D"]), ""])
 
     # bars
-    bars_out, v_full, v_crop = evaluate_bars(len(final["kept"]), cal, cov, bars)
+    bars_out, v_full, v_crop = evaluate_bars(len(final["kept"]), cal, cov, bars,
+                                             crop_skip=None if ck else why, nominal=nominal)
     recipe = capture_recipe(cov, used, float(K[0, 0]), size, spec["square_mm"],
                             (spec["squares_x"], spec["squares_y"]), bars_out, frames)
     for b in bars_out:
@@ -901,7 +951,7 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
         "outlier_views": [in_set[d["index"]]["stem"] for d in final["dropped"]],
         "train_rms_px": final["rms"], "heldout_rms_px": {m: c["held_out_rms"] for m, c in cal["cv"].items()},
         "intrinsics_full": full_doc, "intrinsics_crop": crop_doc, "coverage": cov, "bars": bars_out,
-        "verdict_full_frame": v_full, "verdict_production_crop": v_crop, "recipe": recipe,
+        "verdict_full_frame": v_full, "verdict_production_crop": v_crop, "prereg_note": prereg_note, "recipe": recipe,
         "before_after": ba, "probes": cal["probes"], "bootstrap_stats": cal["boot_stats"],
         "cross_model_K": cal["cross_model_K"],
         "distance_m": {"median": recipe["median_distance_m"],
@@ -1004,8 +1054,12 @@ def write_frames_csv(path, frames):
 
 def write_summary(run_dir, results, args, layout):
     write_json(os.path.join(run_dir, "summary.json"), {"cameras": results, "layout": layout, "prereg": PREREG})
+    native = tuple(int(v) for v in args.native_size.lower().split("x"))
+    sizes = {tuple(r["image_size"]) for r in results if r.get("image_size")}
+    px = (f"native {native[0]}×{native[1]} sensor px" if sizes <= {native} else
+          "each camera's own full-frame px (size given per camera)")
     L = [f"# Underwater calibration — {args.tag}", "",
-         f"Pre-registered bars: `{PREREG['doc']}`. Pixels = native 4608×2592 sensor px unless labelled.", ""]
+         f"Pre-registered bars: `{PREREG['doc']}`. Pixels = {px} unless labelled.", ""]
     if PREREG.get("NON_PREREG_overrides"):
         L += [f"**NON-PREREG SENSITIVITY RUN** — screen thresholds overridden: {PREREG['NON_PREREG_overrides']}", ""]
     for r in results:
@@ -1016,6 +1070,8 @@ def write_summary(run_dir, results, args, layout):
         k = r["intrinsics_full"]
         L.append(f"- Verdict: full-frame intrinsics **{r['verdict_full_frame']}**, production-crop intrinsics "
                  f"**{r['verdict_production_crop']}**")
+        if r.get("prereg_note"):
+            L.append(f"- **{r['prereg_note']}**")
         L.append(f"- Frames {r['n_frames']}: screen {r['screen']['status_counts']}, {r['screen']['distinct_set']} "
                  f"distinct poses, {r['views_used']} used after outlier rejection; board at "
                  f"{r['distance_m']['min']:.2f}–{r['distance_m']['max']:.2f} m (median {r['distance_m']['median']:.2f} m)")
@@ -1028,8 +1084,12 @@ def write_summary(run_dir, results, args, layout):
             c = r["intrinsics_crop"]
             L.append(f"- Production crop {c['image_size'][0]}×{c['image_size'][1]} at {c['crop_native_xywh']}: "
                      f"fx {c['fx']:.1f}, fy {c['fy']:.1f}, cx {c['cx']:.1f}, cy {c['cy']:.1f} (same distortion)")
-        L.append(f"- Underwater fx / in-air nominal (1964 px, datasheet assumption) = {k['fx_over_nominal_in_air']:.3f}; "
-                 f"FOV {fmt_fov(*k['fov_deg_h_v_from_edge_rays'])}")
+        if k.get("nominal_fx_in_air_px"):
+            nom = (f"Underwater fx / in-air nominal ({k['nominal_fx_in_air_px']:.0f} px, "
+                   f"{k['nominal_fx_in_air_source']}) = {k['fx_over_nominal_in_air']:.3f}")
+        else:
+            nom = f"Underwater fx / in-air nominal: n/a ({k['nominal_fx_in_air_source']})"
+        L.append(f"- {nom}; FOV {fmt_fov(*k['fov_deg_h_v_from_edge_rays'])}")
         L.append("")
         L.append("| bar | status | value | rule |")
         L.append("|---|---|---|---|")
@@ -1066,6 +1126,23 @@ def parse_kv(items, what):
     return out
 
 
+def parse_nominal_fx(items, cams):
+    """--nominal-fx NAME=PX (repeatable) -> {camera: px}; NAME must be one of the cameras."""
+    out = {}
+    for it in items or []:
+        k, sep, v = it.partition("=")
+        if not sep or k not in cams:
+            raise ValueError(f"--nominal-fx {it!r} must be NAME=PX with NAME one of {sorted(cams)}")
+        try:
+            px = float(v)
+        except ValueError:
+            px = float("nan")
+        if not (math.isfinite(px) and px > 0):
+            raise ValueError(f"--nominal-fx {it!r}: PX must be a positive number of pixels")
+        out[k] = px
+    return out
+
+
 def build_parser():
     ap = argparse.ArgumentParser(description="Repeatable underwater ChArUco calibration (screen, coverage, 3 models, "
                                              "held-out selection, bootstrap, before/after) against pre-registered bars.",
@@ -1082,7 +1159,11 @@ def build_parser():
     ap.add_argument("--layout", choices=("auto", "modern", "legacy"), default="auto")
     ap.add_argument("--layout-sample", type=int, default=6, help="frames per camera used to pick the layout (auto)")
     ap.add_argument("--crop", default=",".join(map(str, DEFAULT_CROP)), help="production crop x,y,w,h native px")
-    ap.add_argument("--native-size", default=f"{NATIVE[0]}x{NATIVE[1]}", help="native WxH (crop maths only)")
+    ap.add_argument("--native-size", default=f"{NATIVE[0]}x{NATIVE[1]}",
+                    help="native WxH (crop maths; frames of another size get B5c / crop verdict N/A)")
+    ap.add_argument("--nominal-fx", action="append", default=[], metavar="NAME=PX",
+                    help=f"in-air nominal fx (px of that camera's frames) for the B6 sanity bar. Default: the IMX708 "
+                         f"{NOMINAL_FX_AIR:.0f} px for --native-size frames only; other frame sizes -> B6 N/A")
     ap.add_argument("--folds", type=int, default=PREREG["calib"]["folds"])
     ap.add_argument("--bootstrap", type=int, default=PREREG["calib"]["bootstrap"])
     ap.add_argument("--workers", type=int, default=max(1, min(8, (os.cpu_count() or 2) - 1)))
@@ -1108,9 +1189,15 @@ def _main(argv=None):
     try:
         cams = parse_kv(a.cameras, "camera")
         a.cards = parse_kv(a.card, "--card")
+        a.nominal_fxs = parse_nominal_fx(a.nominal_fx, cams)
         crop = tuple(int(v) for v in a.crop.split(","))
         native = tuple(int(v) for v in a.native_size.lower().split("x"))
         assert len(crop) == 4 and len(native) == 2
+        x, y, cw, ch = crop
+        if x < 0 or y < 0 or cw <= 0 or ch <= 0 or x + cw > native[0] or y + ch > native[1]:
+            # refused here (QE #178) so that a skipped crop always means "frames not --native-size",
+            # never a typo'd --crop silently turning B5c into N/A
+            raise ValueError(f"--crop {a.crop} is not inside --native-size {a.native_size}")
     except (ValueError, AssertionError) as exc:
         print(f"[pipeline] REFUSED: {exc or 'bad --crop / --native-size'}", file=sys.stderr)
         return 2
