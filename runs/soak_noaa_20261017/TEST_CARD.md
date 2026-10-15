@@ -214,3 +214,17 @@ Focus 0.8 and pacing 1.0 s are unchanged (already in place). The Spotter bus sta
 
 - `<HL a=dropped r=expired>` count per unit per day (console + cycle logs). Expected **0** at cap 40 on hourly wakes: each rsd's 3-wake budget is reset by new asks, and the list drains every wake.
 - Any non-zero count is listed with its key and whether the image still completed within 24 h.
+
+## Rev 3.2 (Thu 10/15 ~2:40 PM PDT): ops rule for the d38 conditional step (QE on nvd #151, catalog v14)
+
+- **Precondition for the remote `heal_offwin_max` set:** the target unit must ALREADY report registry **v14**:
+  - its cycle log `[CFG] … registry=v14`;
+  - or `GET /devices/BMCAM_003/remote-config` → `registry_version` reported 14.
+- Reason: the backend plans against the live catalog, not the unit's reported registry. A v13 unit would get a clean plan and then refuse the set (icebox card c_plan_unit_registry).
+- If the unit isn't on v14 → skip the step and log why.
+- **Sat AM order:**
+  1. bm #181 merge;
+  2. nvd #151 merge;
+  3. TE2 deploys the #181 build (registry v14) on Nick's line;
+  4. bench gate;
+  5. soak.
