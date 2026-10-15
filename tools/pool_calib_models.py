@@ -313,7 +313,9 @@ def fold_assignment(n_views, folds, seed=0):
 
 def cross_validate(model, obj, img, size, folds=5, seed=0, K0=None, keep_fold_models=False):
     """k-fold by view. Outlier rejection runs on the TRAINING views only; every held-out view is
-    scored (pose-only fit with the trained intrinsics). -> dict."""
+    scored (pose-only fit with the trained intrinsics). -> dict.
+    K0 is ignored: fisheye starts from a standard fit on the same training views, so no held-out
+    view leaks into a fold through its start values (QE #176)."""
     n = len(obj)
     fold_of = fold_assignment(n, folds, seed)
     sq_sum, n_pts = 0.0, 0
@@ -324,7 +326,9 @@ def cross_validate(model, obj, img, size, folds=5, seed=0, K0=None, keep_fold_mo
         test = [i for i in range(n) if fold_of[i] == f]
         if not test or len(train) < 4:
             continue
-        res, _, _ = fit_robust(model, [obj[i] for i in train], [img[i] for i in train], size, K0)
+        tr_obj, tr_img = [obj[i] for i in train], [img[i] for i in train]
+        K0_train = fit("standard", tr_obj, tr_img, size)["K"] if model == "fisheye" else None
+        res, _, _ = fit_robust(model, tr_obj, tr_img, size, K0_train)
         if keep_fold_models:
             fold_models[f] = {"K": res["K"], "D": res["D"]}
         for i in test:
@@ -381,17 +385,24 @@ def bootstrap(model, obj, img, size, B=100, seed=0, K0=None, workers=1):
         return list(ex.map(_boot_one, jobs, chunksize=max(1, B // (4 * workers))))
 
 
-def ray_spread_px(model, Ks, Ds, pts_px, f_ref, pct=95):
+def ray_spread_px(model, Ks, Ds, pts_px, f_ref, pct=95, n_failed=0):
     """Bootstrap ray uncertainty at each pixel: the pct-th percentile distance of the replicate
     rays from their median ray, in px at focal f_ref. A replicate that cannot invert a pixel makes
-    that pixel's spread inf (the model does not know where that ray goes)."""
+    that pixel's spread inf (the model does not know where that ray goes); so does a replicate whose
+    fit failed (n_failed rows of inf)."""
     R = np.stack([rays(model, K, D, pts_px) for K, D in zip(Ks, Ds)])   # (B, P, 2)
     bad = ~np.all(np.isfinite(R), axis=2)                                # (B, P)
     with np.errstate(invalid="ignore"):
         med = np.nanmedian(R, axis=0)
     d = f_ref * np.linalg.norm(R - med[None], axis=2)
     d = np.where(bad | ~np.isfinite(d), np.inf, d)
-    return _pct_inf(d, pct)
+    return _pct_inf(_with_failed(d, n_failed), pct)
+
+
+def _with_failed(d, n_failed):
+    if n_failed:
+        d = np.vstack([d, np.full((n_failed, d.shape[1]), np.inf)])
+    return d
 
 
 def _pct_inf(d, pct):
@@ -432,26 +443,41 @@ def _aligned_dist(src_fit, dst_fit, src_probe, dst_probe, f_ref):
     return np.where(np.isfinite(d), d, np.inf)
 
 
-def aligned_ray_spread_px(model, Ks, Ds, K_ref, D_ref, fit_px, probe_px, f_ref, pct=95):
+def aligned_ray_spread_px(model, Ks, Ds, K_ref, D_ref, fit_px, probe_px, f_ref, pct=95, n_failed=0):
     """Bootstrap spread of the distortion SHAPE: each replicate's rays are homography-aligned to the
     reference model's rays over fit_px (the observed region), then compared at probe_px."""
     ref_fit = rays(model, K_ref, D_ref, fit_px)
     ref_probe = rays(model, K_ref, D_ref, probe_px)
     d = np.stack([_aligned_dist(rays(model, K, D, fit_px), ref_fit, rays(model, K, D, probe_px), ref_probe, f_ref)
                   for K, D in zip(Ks, Ds)])
-    return _pct_inf(d, pct)
+    return _pct_inf(_with_failed(d, n_failed), pct)
 
 
-def aligned_model_disagreement_px(ref, others, fit_px, probe_px, f_ref):
-    """Max over the other models of the homography-aligned ray distance to the reference model."""
-    ref_fit = rays(ref["model"], ref["K"], ref["D"], fit_px)
-    ref_probe = rays(ref["model"], ref["K"], ref["D"], probe_px)
+def aligned_model_disagreement_px(fits, fit_px, probe_px, f_ref):
+    """MAX PAIRWISE homography-aligned ray distance between the models (both alignment directions
+    of every pair), as the prereg text says. Until QE #176 this measured each model against the
+    chosen one only (to-reference), which can miss the widest pair."""
+    R_fit = [rays(f["model"], f["K"], f["D"], fit_px) for f in fits]
+    R_probe = [rays(f["model"], f["K"], f["D"], probe_px) for f in fits]
     out = np.zeros(len(np.asarray(probe_px).reshape(-1, 2)))
-    for f in others:
-        d = _aligned_dist(rays(f["model"], f["K"], f["D"], fit_px), ref_fit,
-                          rays(f["model"], f["K"], f["D"], probe_px), ref_probe, f_ref)
-        out = np.maximum(out, d)
+    for i in range(len(fits)):
+        for j in range(len(fits)):
+            if i != j:
+                out = np.maximum(out, _aligned_dist(R_fit[j], R_fit[i], R_probe[j], R_probe[i], f_ref))
     return out
+
+
+def cross_model_K(fits):
+    """Pairwise intrinsics differences between the models (INFORMATION, not a bar: the aligned
+    'shape-only' disagreement absorbs these; see the prereg doc, 'two readings of B4/B5c')."""
+    rows = []
+    for i in range(len(fits)):
+        for j in range(i + 1, len(fits)):
+            a, b = fits[i]["K"], fits[j]["K"]
+            rows.append({"pair": f"{fits[i]['model']} vs {fits[j]['model']}",
+                         "dfx_pct": 100 * (b[0, 0] - a[0, 0]) / a[0, 0], "dfy_pct": 100 * (b[1, 1] - a[1, 1]) / a[1, 1],
+                         "dcx_px": float(b[0, 2] - a[0, 2]), "dcy_px": float(b[1, 2] - a[1, 2])})
+    return rows
 
 
 def model_disagreement_px(fits, pts_px, f_ref):
