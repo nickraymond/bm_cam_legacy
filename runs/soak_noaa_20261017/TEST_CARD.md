@@ -209,3 +209,8 @@ Focus 0.8 and pacing 1.0 s are unchanged (already in place). The Spotter bus sta
 - Restore after the read-out, per Nick's Tue decision:
   - keep (NOAA config), or
   - console `reset` of `schedule.timezone`, `schedule.window.*`, `uplink.media_key.heal_offwin_max` (ids 66111 / 66112), with code staying S2 (cap reset = default 40) or a rollback redeploy of fdeb01a on Nick's line.
+
+## Rev 3.1 (Thu 10/15 ~12:15 PM PDT): one report-only metric, no bar change
+
+- `<HL a=dropped r=expired>` count per unit per day (console + cycle logs). Expected **0** at cap 40 on hourly wakes: each rsd's 3-wake budget is reset by new asks, and the list drains every wake.
+- Any non-zero count is listed with its key and whether the image still completed within 24 h.

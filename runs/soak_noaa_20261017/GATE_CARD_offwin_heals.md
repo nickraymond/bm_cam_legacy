@@ -129,3 +129,10 @@ d35 + off-window heals is the NOAA release candidate. Without the mechanism prov
   - Record `wakes_left` per wake and report the horizon in hours and days. Pass = matches the #181 code's constant.
   - The 24 h completeness impact belongs to the soak: the backend re-ask (REASK 5400 s) must refill it.
 - **Time:** G8 adds ~20 min (4 boots). Total ~3 h.
+
+## Rev 3 (Thu 10/15 ~12:15 PM PDT): builder answers; no bar change
+
+- **G1 tail check, tightened:** on the full-backlog cap-40 boots, `tail_s == listen_tail_s` (the configured listen tail is served in full). The builder's worst-case wake is ~345 s, inside the 480 s budget.
+- **G8 semantics (builder):** `wakes_left` limits ONE pending ask (rsd), not the image. Each new rsd resets it to 3. At cap 40 on hourly wakes the list normally drains every wake.
+  - G8 expectation stays: rsd `0-149` at cap 40 → 40 / 40 / 40, then the remaining 30 chunks' ask expires with `<HL a=dropped r=expired>`.
+  - Record that HL line and its wake.
