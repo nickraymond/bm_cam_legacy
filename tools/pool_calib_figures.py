@@ -104,7 +104,6 @@ def _draw_coverage(ax, pts, cov, size, crop=None, title=None):
         ax.axhline(j * h / gy, color=AXIS, lw=0.8)
     counts = np.array(cov["counts"])
     covered = np.array(cov["covered"])
-    dead = {tuple(c) for c in cov.get("vignette_cells", [])}
     for r in range(gy):
         for c in range(gx):
             x0, y0 = c * w / gx, r * h / gy
@@ -113,7 +112,7 @@ def _draw_coverage(ax, pts, cov, size, crop=None, title=None):
                 ax.add_patch(Rectangle((x0, y0), w / gx, h / gy, fill=False, hatch="///", ec=AXIS, lw=0))
             if corner and not covered[r, c]:
                 ax.add_patch(Rectangle((x0 + 6, y0 + 6), w / gx - 12, h / gy - 12, fill=False, ec=STATUS["FAIL"], lw=2))
-            label = f"{counts[r, c]}" + (" (port)" if (r, c) in dead else "")
+            label = f"{counts[r, c]}"
             ax.text(x0 + 25, y0 + 95, label, fontsize=7, color=INK2 if covered[r, c] else STATUS["FAIL"])
     if crop:
         x, y, cw, ch = crop
@@ -321,6 +320,10 @@ def verdict_sheet(name, pts, cov, cal, bars_out, v_full, v_crop, size, crop, pat
 
 
 def _short(v):
+    if isinstance(v, dict) and "worst_ray_uncertainty_px" in v:          # B4 / B5c: aligned (literal)
+        f = lambda x: "∞" if x is None or not np.isfinite(x) else f"{x:.2g}"  # noqa: E731
+        return (f"ray {f(v['worst_ray_uncertainty_px'])} px, models {f(v['worst_model_disagreement_px'])} px "
+                f"(literal {f(v.get('literal_ray_px'))} / {f(v.get('literal_models_px'))})")
     if isinstance(v, dict):
         parts = []
         for k, x in v.items():

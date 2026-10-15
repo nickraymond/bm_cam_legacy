@@ -466,28 +466,6 @@ def coverage_stats(pts, size, grid=(8, 5), min_obs=5, crop=None):
     return out
 
 
-def vignette_cells(thumbs, grid, rel=0.25):
-    """Cells mostly outside the port aperture: the median thumbnail is < rel x the centre level in
-    > 50 % of the cell. Reported only (the bars are unchanged)."""
-    if not thumbs:
-        return []
-    shapes = {t.shape for t in thumbs}
-    if len(shapes) != 1:
-        return []
-    med = np.median(np.stack(thumbs), axis=0)
-    h, w = med.shape
-    centre = float(np.median(med[h // 3:2 * h // 3, w // 3:2 * w // 3]))
-    dark = med < rel * centre
-    gx, gy = grid
-    dead = []
-    for r in range(gy):
-        for c in range(gx):
-            cell = dark[r * h // gy:(r + 1) * h // gy, c * w // gx:(c + 1) * w // gx]
-            if cell.size and cell.mean() > 0.5:
-                dead.append([r, c])
-    return dead
-
-
 # ============================================================================ stage 3: calibrate
 
 def probe_points(size, crop):
@@ -678,7 +656,7 @@ def evaluate_bars(n_poses, cal, cov, bars):
     return out, ("PASS" if verdict_full else "FAIL"), ("PASS" if verdict_crop else "FAIL")
 
 
-def capture_recipe(cov, frames_used, fx, size, square_mm, squares, dead_cells, bars_out, all_frames=()):
+def capture_recipe(cov, frames_used, fx, size, square_mm, squares, bars_out, all_frames=()):
     """Data-driven capture advice for the next dive. Distances use the pinhole approximation."""
     w, h = size
     long_mm = max(squares) * square_mm
@@ -699,9 +677,6 @@ def capture_recipe(cov, frames_used, fx, size, square_mm, squares, dead_cells, b
     miss = [k for k, v in cov["corner_cells_covered"].items() if not v]
     if miss:
         lines.append(f"Empty corner cells: {', '.join(miss)}.")
-    if dead_cells:
-        lines.append(f"{len(dead_cells)} grid cell(s) sit outside the port aperture (vignette) and can never be "
-                     f"covered on this camera; judge coverage on the open aperture.")
     if fx:
         d_rec = long_mm * fx / (0.45 * w)
         lines.append(f"Next dive: hold the board at ~{d_rec / 1000:.1f}-{1.3 * d_rec / 1000:.1f} m (pattern ~35-45% of "
@@ -824,8 +799,6 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     pts = np.concatenate([in_set[i]["_corners"] for i in final["kept"]], axis=0)
     cov = coverage_stats(pts, size, tuple(bars["B3_grid"]), bars["B3_min_obs_per_cell"],
                          crop if tuple(size) == tuple(native) else None)
-    cov["vignette_cells"] = vignette_cells([f["_thumb"] for f in frames if f.get("_thumb") is not None],
-                                           tuple(bars["B3_grid"]))
     write_json(os.path.join(out_dir, "coverage.json"), cov)
     log(f"[{name}] coverage: {100 * cov['covered_frac']:.0f}% of {bars['B3_grid'][0]}x{bars['B3_grid'][1]} cells; "
         f"corner cells {cov['corner_cells_covered']}; radial reach max {cov['radial_norm']['max']:.2f} "
@@ -884,7 +857,7 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     # bars
     bars_out, v_full, v_crop = evaluate_bars(len(final["kept"]), cal, cov, bars)
     recipe = capture_recipe(cov, used, float(K[0, 0]), size, spec["square_mm"],
-                            (spec["squares_x"], spec["squares_y"]), cov["vignette_cells"], bars_out, frames)
+                            (spec["squares_x"], spec["squares_y"]), bars_out, frames)
     for b in bars_out:
         log(f"[{name}]   {b['status']:4s} {b['bar']}: {fmt_value(b['value'])}  (bar: {b['rule']})")
     log(f"[{name}] VERDICT full-frame intrinsics {v_full}; production-crop intrinsics {v_crop}")
@@ -1178,8 +1151,11 @@ def _main(argv=None):
                 "prereg_sha256": sha256_file(PREREG_DOC) if os.path.isfile(PREREG_DOC) else None,
                 "software": {"python": platform.python_version(), "opencv": cv2.__version__, "numpy": np.__version__,
                              "scipy": scipy.__version__, "matplotlib": matplotlib.__version__},
-                "inputs": {n: {"source": cams[n], "n_files": len(v), "files": [os.path.basename(x) for x in v],
-                               "card": a.cards.get(n)} for n, v in inputs.items()},
+                "inputs": {n: {"source": cams[n], "n_files": len(v),
+                               "files": {x: sha256_file(x) for x in v},
+                               "card": a.cards.get(n),
+                               "card_sha256": sha256_file(a.cards[n]) if a.cards.get(n) else None}
+                           for n, v in inputs.items()},
                 "coordinates": "native sensor px of the full frame; crop = pure pixel crop [x, y, w, h]"}
     write_json(os.path.join(run_dir, "run_manifest.json"), manifest)
 
