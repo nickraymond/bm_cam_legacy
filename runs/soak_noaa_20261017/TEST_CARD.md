@@ -147,3 +147,65 @@ It's the only pre-deployment evidence for Nick's Tue 10/20 go/no-go on the bmcam
 **B n and read-out:** 48 h from Sat ~9 AM PDT → 48 image wakes per unit, 96 images (0 misses ⇒ ≤ 3.1 % at 95 %). Read-out Tue 10/20 ~9:30 AM PDT, once Mon 9 AM images reach 24 h. The bars and stop rules above apply unchanged.
 
 **Delta for Tuesday's card under B:** none in key values. The remaining differences to NOAA are the "held fixed" site list above.
+
+---
+
+## Rev 3 (Thu 10/15 ~12 PM PDT): SUPERSEDES the branches above. Nick decided d35 with off-window heals (bm #181); d38 (PgM)
+
+**Build:** bm development @ **S2** = the #181 merge sha (merges Sat AM). It is deployed and gated by `GATE_CARD_offwin_heals.md` (rev 2, 8cfa74eb), then the soak runs THIS build unchanged.
+
+**Config (d35):** 0cb7ad9e +
+- `schedule.timezone=America/New_York`;
+- `schedule.window.enabled=true`, `schedule.window.start=10:00`, `schedule.window.end=15:00`;
+- `uplink.media_key.heal_offwin_max=40`, set explicitly at the end of the gate (66252 / 66253).
+
+Focus 0.8 and pacing 1.0 s are unchanged (already in place). The Spotter bus stays hourly 3600000 / 600000.
+- **In window** (10:00–14:00 ET = 7–11 AM PDT): capture + send + heals as before.
+- **Out of window** (19 wakes / day): no capture, no START; `<WS a=skip_win>`, ≤ 40 heal chunks, and the command listen tail.
+
+**Backend:** catalog v14 if it has merged by the start, otherwise the current one (d38: the soak doesn't wait). Without v14, the backend's predicted cfg hash won't match the units' reported hash, because v13 lacks the new key. That is LOGGED as a known mismatch, not a failure. The backend sha is recorded at the start.
+
+**n (what it can and can't show):** the clock starts at the first in-window wake after the gate (~Sat 11 AM PDT = 14:00 ET).
+- In-window images per unit: Sat 1 + Sun 5 + Mon 5 = **11 → 22 images in all**.
+- Late-window images (13:00 + 14:00 ET captures, the ones d35 is about): Sat 1 + Sun 2 + Mon 2 = **5 per unit → 10**.
+- Off-window wakes: ~50 per unit, so the heal mechanism runs ~100 times.
+- **CAN show:** whether off-window heals finish late-window images within 24 h in the normal case. It catches any systematic failure: heals not sent off-window, the give-up horizon (G8: 3 wakes ≈ 3 h) dropping heals before the backend re-asks, re-ask timing, or loss exceeding 40 × wakes.
+- **CAN'T show:** a rare-miss rate. 0/22 bounds ≤ 13.6 %, 0/10 late ≤ 30 % (95 %). Nor NOAA's site loss rates or cellular. A clean result means "no systematic failure seen in 22 / 10", not "≥ 99 %".
+
+**Headline bar (set now):** **100 % of late-window images (13:00 + 14:00 ET captures) complete ≤ 24 h after capture.**
+- A miss = no backend row for an expected late wake, `d1=FAIL` at 24 h, or an un-keyed image.
+- Also gating, all 100 % / 0:
+  - every in-window image complete ≤ 24 h;
+  - every backend-sent command answered ≤ 3 h (read-only ping/get every 3 h per unit = 8 per unit per day);
+  - every off-window wake shows `[HEAL] off-window wake: … heal_chunks ≤ 40`, with 0 captures / 0 START outside the window;
+  - 0 FALLBACK / ERR;
+  - every scheduled wake present;
+  - halt ≤ 481 s;
+  - cjxl ≤ 150 MiB;
+  - msgs ≤ 195.
+- Report-only: heal chunks per off-window wake, `wakes_left` give-ups, queue-full runs, energy per off-window wake (from the bridge `power |` samples, as in the gate's G7).
+
+**Read-out:** Tue 10/20 ~11:30 AM PDT. Mon's 11 AM PDT (14:00 ET) images reach 24 h at Tue 11 AM.
+
+**Conditional step (d38), once v14 merges (Sat AM, or Tue AM before the go/no-go):**
+- One remote set on bmcam003 through the backend product path: `uplink.media_key.heal_offwin_max` 40 → 39, then 39 → 40, in the next listen tails.
+- Pass: both answered (`OK id=`), AND the backend's predicted cfg hash = the unit's reported hash (`GET /devices/BMCAM_003/remote-config`: `reported.hash` == the plan's prediction) after the second set.
+- **Needs Nick's own line in the TE2 chat** (a remote write).
+
+**Dependency: nereus000.**
+- The gate (bus holds, forced boots, console sets) and the backend command loop (`hil_backend_cmd.py` uses the admin token that lives on nereus000) both need nereus000 up.
+- If it's still down Sat AM:
+  - the deploy can go through `hil_deploy_window.sh` in hourly windows (ssh only);
+  - the gate's console steps can't run (ask Nick: wait, or a Spotter console straight into the Mac);
+  - the soak's commands would need the backend owner to send them.
+
+**Exact verbs:**
+- Start: the gate card's steps 1–8 (deploy S2 on a held bus, gate, then soak config + `hil_restore_schedule` hourly). Then the backend command loop: a nohup loop on nereus000, every 3 h per unit alternating `{"c":"ping"}` / `{"c":"get","k":["camera.focus.lens_position"]}`:
+  `python3 /home/pi/hil_r1/hil_backend_cmd.py --api https://nereus-vision-staging.onrender.com --device BMCAM_00N --json '<cmd>' --log /home/pi/hil_r1/soak_20261017_cmds.jsonl`
+- Monitoring (read-only):
+  - per-wake `hourly_verify.sh` (home Wi-Fi);
+  - `hil_media_table.py --d1-hours 24` every 6 h;
+  - console counts; rig health.
+- Restore after the read-out, per Nick's Tue decision:
+  - keep (NOAA config), or
+  - console `reset` of `schedule.timezone`, `schedule.window.*`, `uplink.media_key.heal_offwin_max` (ids 66111 / 66112), with code staying S2 (cap reset = default 40) or a rollback redeploy of fdeb01a on Nick's line.
