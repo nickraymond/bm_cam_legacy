@@ -1,0 +1,183 @@
+{
+ "grid": [
+  8,
+  5
+ ],
+ "min_obs_per_cell": 5,
+ "counts": [
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   3,
+   133,
+   157,
+   4,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   94,
+   1419,
+   865,
+   20,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   14,
+   161,
+   67,
+   2,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ ],
+ "covered": [
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   true,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ]
+ ],
+ "covered_frac": 0.225,
+ "corner_cells_covered": {
+  "top-left corner": false,
+  "top-right corner": false,
+  "bottom-left corner": false,
+  "bottom-right corner": false
+ },
+ "all_corner_cells": false,
+ "n_obs": 2939,
+ "radial_norm": {
+  "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+  "max": 0.3487643938001495,
+  "p95": 0.2276067744093168,
+  "frac_gt_0.6": 0.0,
+  "frac_gt_0.8": 0.0
+ },
+ "edge_gap_px": {
+  "left": 1392.8173828125,
+  "right": 1544.28662109375,
+  "top": 706.9853515625,
+  "bottom": 906.375
+ },
+ "corner_gap_px": {
+  "top-left": 1807.3515934771112,
+  "top-right": 1843.9311475327902,
+  "bottom-left": 1732.8462598738317,
+  "bottom-right": 1863.1800839986074
+ },
+ "crop": {
+  "xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "corner_radial_norm": 0.3472222222222222,
+  "obs_inside": 2882
+ },
+ "observed_hull_px": [
+  [
+   3062.71337890625,
+   1007.6015625
+  ],
+  [
+   3044.092529296875,
+   1576.7218017578125
+  ],
+  [
+   2500.631591796875,
+   1637.506103515625
+  ],
+  [
+   1752.8499755859375,
+   1684.625
+  ],
+  [
+   1453.61083984375,
+   1647.722900390625
+  ],
+  [
+   1392.8173828125,
+   1151.7723388671875
+  ],
+  [
+   1847.4854736328125,
+   787.9448852539062
+  ],
+  [
+   2626.3115234375,
+   706.9853515625
+  ]
+ ]
+}

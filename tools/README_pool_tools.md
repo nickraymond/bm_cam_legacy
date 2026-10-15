@@ -115,3 +115,39 @@ python3 tools/pool_pull.py
 - `pool_pull.py --sweep [--sweep-name HHMMSS]` pulls only `<run>/sweep/**`: JPEG, `sweep_manifest.json` and logs. DNGs are pulled only with `--include-dng`. The report goes to `pull_report_sweep.json`.
 - `focus_sweep_sheet.py --unit NAME=PATH (every sweep, as repeats at --board-distance-m) | --sweep-dir NAME=[TAG:]PATH (explicit, repeatable; TAG = distance or label = the repeat group) --medium in-air|underwater`. Each sweep is scored on its own board region. The median and spread are computed only within a repeat group, and different distances sit side by side. It writes a per-unit cut sheet (a scaled full frame and a 1:1 board crop per lens position), a metric-vs-LensPosition plot with both units overlaid, a CSV and a JSON. Board metrics: `lapvar_norm`, `tenengrad_norm` and ChArUco corners. PASS/WARN/FAIL per frame and per unit.
 
+
+## Underwater calibration pipeline (2026-10-14)
+
+`pool_calib_pipeline.py` replaces the in-air `pool_calib_check.py` for real calibration. It reuses that
+tool's board and layout code. One command covers one pool session and writes one timestamped run folder:
+
+```bash
+.venv/bin/python tools/pool_calib_pipeline.py bmcam003=<run>/calibration bmcam004=<run>/calibration --out-root ~/NereusPool/<date>_CALIB --tag <tag>
+```
+
+What it does, per camera:
+1. Screens every frame. It gives PASS/WARN/FAIL with reasons: corners, blur, clipping, motion, and
+   near-duplicate poses.
+2. Measures coverage: an 8×5 grid with the 4 corner cells, plus the gap from each edge to the nearest
+   corner.
+3. Fits the standard, rational and fisheye models. It picks one by **held-out** error (5-fold by view),
+   then runs a bootstrap.
+4. Writes intrinsics for the full 4608×2592 frame and for the production 1600×900 crop.
+5. Writes before/after images: a calibration frame corrected by the model that never saw it, and the v3
+   card frame (auto-found in `../loop/`).
+6. Writes a one-page `verdict.png`.
+
+Bars come from `docs/pool_calib_prereg_20261014.md`. Exit codes:
+
+| code | meaning |
+|---|---|
+| 0 | all full-frame bars pass |
+| 3 | the run completed but a bar failed |
+| 1 | the pipeline failed |
+| 2 | arguments were refused |
+
+`--screen-override KEY=VALUE` is for sensitivity runs only. It labels the run NON-PREREG everywhere.
+
+Results for 10/14 are in `runs/pool_calib_20261014/RESULTS.md`. Tests:
+`.venv/bin/python -m pytest -q tests/test_pool_calib_pipeline.py`. They run on synthetic renders with a
+known K and distortion, take ~13 s, and need the main `.venv` (opencv-contrib, scipy, matplotlib).

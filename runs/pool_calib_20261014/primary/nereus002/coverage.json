@@ -1,0 +1,183 @@
+{
+ "grid": [
+  8,
+  5
+ ],
+ "min_obs_per_cell": 5,
+ "counts": [
+  [
+   0,
+   0,
+   17,
+   28,
+   11,
+   2,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   130,
+   487,
+   136,
+   4,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   7,
+   49,
+   23,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ ],
+ "covered": [
+  [
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ]
+ ],
+ "covered_frac": 0.225,
+ "corner_cells_covered": {
+  "top-left corner": false,
+  "top-right corner": false,
+  "bottom-left corner": false,
+  "bottom-right corner": false
+ },
+ "all_corner_cells": false,
+ "n_obs": 894,
+ "radial_norm": {
+  "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+  "max": 0.48571969890066885,
+  "p95": 0.37163634863200135,
+  "frac_gt_0.6": 0.0,
+  "frac_gt_0.8": 0.0
+ },
+ "edge_gap_px": {
+  "left": 1347.5670166015625,
+  "right": 1634.955322265625,
+  "top": 399.61968994140625,
+  "bottom": 1436.4969482421875
+ },
+ "corner_gap_px": {
+  "top-left": 1417.047003105451,
+  "top-right": 1706.4114586955618,
+  "bottom-left": 2137.921238100285,
+  "bottom-right": 2348.5978147621304
+ },
+ "crop": {
+  "xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "corner_radial_norm": 0.3472222222222222,
+  "obs_inside": 352
+ },
+ "observed_hull_px": [
+  [
+   2972.044677734375,
+   488.6319274902344
+  ],
+  [
+   2836.582275390625,
+   1047.7784423828125
+  ],
+  [
+   2620.472900390625,
+   1154.5030517578125
+  ],
+  [
+   1644.9442138671875,
+   1066.21044921875
+  ],
+  [
+   1546.8807373046875,
+   1027.3177490234375
+  ],
+  [
+   1372.0218505859375,
+   951.4075927734375
+  ],
+  [
+   1347.5670166015625,
+   438.2754211425781
+  ],
+  [
+   1948.25146484375,
+   399.61968994140625
+  ]
+ ]
+}

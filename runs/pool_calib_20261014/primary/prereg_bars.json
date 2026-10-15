@@ -1,0 +1,45 @@
+{
+ "doc": "docs/pool_calib_prereg_20261014.md",
+ "screen": {
+  "min_corners": 12,
+  "warn_corners": 30,
+  "blur_fail_rel": 0.25,
+  "blur_warn_rel": 0.5,
+  "clip_fail": 0.1,
+  "clip_warn": 0.01,
+  "mean_lo": 40,
+  "mean_hi": 220,
+  "aniso_fail": 2.5,
+  "aniso_warn": 1.5,
+  "dup_deg": 5.0,
+  "dup_frac": 0.1
+ },
+ "calib": {
+  "folds": 5,
+  "seed": 0,
+  "bootstrap": 100,
+  "tie_frac": 0.02,
+  "outlier_rounds": 3
+ },
+ "bars": {
+  "B1_min_poses": 15,
+  "B2_heldout_rms_px": 1.0,
+  "B3_grid": [
+   8,
+   5
+  ],
+  "B3_min_obs_per_cell": 5,
+  "B3_min_cover": 0.6,
+  "B4_edge_ray_px": 2.0,
+  "B4_edge_models_px": 2.0,
+  "B5_rel_std_f": 0.005,
+  "B5_std_c_px": 10.0,
+  "B5c_crop_ray_px": 0.5,
+  "B5c_crop_models_px": 1.0,
+  "B6_ratio": [
+   1.25,
+   1.42
+  ],
+  "B6_nominal_fx_air_px": 1964.2857142857142
+ }
+}
