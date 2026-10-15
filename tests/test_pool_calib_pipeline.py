@@ -697,6 +697,24 @@ class TestBayer(unittest.TestCase):
                 fr = pp.screen_frame((os.path.join(t, stem + ".bayer"), spec, 120))
                 self.assertIn(msg, fr["error"])                     # becomes a FAIL reason, run continues
 
+    def test_folder_mixing_raw_and_isp_jpeg_keeps_raw(self):
+        """QE #180: a captures/openmv_n6/ folder holds openmv_n6_image_*.jpg (ISP) AND *_raw_*.bayer with
+        different stems; calibrating both as one camera would mix two processing paths."""
+        img = np.full((40, 64), 128, np.uint8)
+        with tempfile.TemporaryDirectory() as t:
+            for i in range(3):
+                write_bayer(os.path.join(t, f"openmv_n6_raw_{i}"), img)
+                cv2.imwrite(os.path.join(t, f"openmv_n6_image_{i}.jpg"), img)
+            warn = []
+            files = pp.resolve_frames(t, warn)
+            self.assertEqual(len(files), 3)
+            self.assertTrue(all(f.endswith(".bayer") for f in files))
+            self.assertEqual(len(warn), 1)
+            self.assertIn("keeping the raw only", warn[0])
+            warn = []                                                 # an explicit glob is untouched
+            self.assertEqual(len(pp.resolve_frames(os.path.join(t, "*.jpg"), warn)), 3)
+            self.assertEqual(warn, [])
+
     def test_calibrates_from_bayer(self):
         with tempfile.TemporaryDirectory() as t:
             cal = os.path.join(t, "captures", "openmv_n6")

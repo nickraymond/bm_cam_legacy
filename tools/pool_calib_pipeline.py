@@ -193,8 +193,11 @@ def build_board(spec):
 
 # ============================================================================ inputs
 
-def resolve_frames(path):
-    """NAME=PATH -> sorted list of image paths. A folder is read flat; a glob is expanded."""
+def resolve_frames(path, warnings=None):
+    """NAME=PATH -> sorted list of image paths. A folder is read flat; a glob is expanded.
+    If one camera's input mixes OpenMV raw (*.bayer) with JPEGs (the board's ISP output, e.g. a
+    captures/openmv_n6/ folder holds both), only the raw is kept: two processing paths must not be
+    calibrated as one camera (QE #180). The drop is appended to `warnings` for the log + manifest."""
     p = os.path.expanduser(path)
     if any(ch in p for ch in "*?["):
         files = glob.glob(p, recursive=True)
@@ -209,7 +212,15 @@ def resolve_frames(path):
         # one pose per stem; a JPEG beats its DNG twin unless only the DNG exists
         if stem not in by_stem or by_stem[stem].lower().endswith(".dng"):
             by_stem[stem] = f
-    return [by_stem[s] for s in sorted(by_stem)]
+    out = [by_stem[s] for s in sorted(by_stem)]
+    raw = [f for f in out if f.lower().endswith(".bayer")]
+    jpg = [f for f in out if f.lower().endswith((".jpg", ".jpeg"))]
+    if raw and jpg:
+        if warnings is not None:
+            warnings.append(f"{path}: mixes {len(raw)} raw .bayer and {len(jpg)} JPEG file(s) (board ISP); "
+                            f"keeping the raw only. Pass a glob to choose explicitly.")
+        out = [f for f in out if not f.lower().endswith((".jpg", ".jpeg"))]
+    return out
 
 
 def load_bayer(path, color=False):
@@ -1268,7 +1279,8 @@ def _main(argv=None):
         print("[pipeline] REFUSED: need marker_mm < square_mm, >= 3x3 squares, --folds >= 2, --bootstrap >= 2",
               file=sys.stderr)
         return 2
-    inputs = {n: resolve_frames(p) for n, p in cams.items()}
+    input_warnings = []
+    inputs = {n: resolve_frames(p, input_warnings) for n, p in cams.items()}
     empty = [n for n, v in inputs.items() if not v]
     if empty:
         print(f"[pipeline] REFUSED: no image files for {', '.join(empty)} ({', '.join(cams[n] for n in empty)})",
@@ -1302,6 +1314,8 @@ def _main(argv=None):
         log(f"[pipeline] *** NON-PREREG SENSITIVITY RUN: screen thresholds overridden {PREREG['NON_PREREG_overrides']} ***")
     for n, v in inputs.items():
         log(f"[pipeline] camera {n}: {len(v)} file(s) from {cams[n]}; card frame {a.cards.get(n) or 'none'}")
+    for w in input_warnings:
+        log(f"[pipeline] WARN {w}")
     write_json(os.path.join(run_dir, "prereg_bars.json"), PREREG)
     gi = git_info()
     manifest = {"tool": "tools/pool_calib_pipeline.py", "created": datetime.now().isoformat(timespec="seconds"),
@@ -1311,6 +1325,7 @@ def _main(argv=None):
                 "prereg_sha256": sha256_file(PREREG_DOC) if os.path.isfile(PREREG_DOC) else None,
                 "software": {"python": platform.python_version(), "opencv": cv2.__version__, "numpy": np.__version__,
                              "scipy": scipy.__version__, "matplotlib": matplotlib.__version__},
+                "input_warnings": input_warnings,
                 "inputs": {n: {"source": cams[n], "n_files": len(v),
                                "files": {x: sha256_file(x) for x in v},
                                "card": a.cards.get(n),
