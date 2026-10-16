@@ -1,8 +1,8 @@
 # Bench gate card: off-window heal budget (p_e4_offwin), bmcam003 + bmcam004, Sat 10/17 AM (pre-registered)
 
 - Owner: TE2. Drafted Thu 10/15.
-- Runs ONLY on Nick's own approval line in the TE2 chat, citing this file's sha. The soak card (TEST_CARD.md, rev 3) is approved separately.
-- **Build under test:** bm development at the merge sha **S2** (TBD at Sat AM merge). It is fdeb01a + the camera change "every wake (in or out of the window) sends ≤ `<heal_offwin_max>` heal chunks; the window restricts NEW images only".
+- Runs ONLY on Nick's own approval line in the TE2 chat, citing this file's sha (with "G7 = A" or "G7 = B"). The soak card (TEST_CARD.md) is approved separately, at its own sha.
+- **Build under test:** bm development at **S2** = the development sha the Sat AM deploy pulls after #181 merges. S2 is recorded in the run's `run_manifest.json`, never in this card. Runtime vs fdeb01a = #175 (log lines only, merged 10/15) + #181, i.e. the camera change "every wake (in or out of the window) sends ≤ `<heal_offwin_max>` heal chunks; the window restricts NEW images only".
   - Key name/range per the builder's PR, confirmed at QE; written `uplink.media_key.heal_offwin_max` below. Default 40; 0 = today's behaviour.
 
 ## Question
@@ -30,6 +30,15 @@ This card tests the mechanism only. 24 h completeness stays in the soak.
   - bmcam004: 40 → 0;
   - this removes unit and Spotter (Notecard model) bias.
 - **Held fixed:** code S2, pacing 1.0 s/msg, focus 0.8, keys progressive=true / heal_order=after, the bench scene.
+- **Run folder:** `~/NereusData/bm_cam_legacy/2026-10-17_gate_offwin_heals/` (`<run>` below).
+  - `run_manifest.json` records:
+    - Nick's approval line + this card's sha;
+    - S2 + the step-1 diff;
+    - the backend sha;
+    - every console id and kv sent, and each rsd key;
+    - cfg hashes before/after;
+    - the bridge ids.
+  - Also kept there: gate.log, console captures, cycle logs, `energy_<SPOT>.csv`.
 
 ## n (why enough)
 
@@ -60,14 +69,15 @@ This card tests the mechanism only. 24 h completeness stays in the soak.
   - summed from bus-on (or the commit power cycle) to the Pi halt;
   - halt = the current drops to ≤ 0.025 A and stays there for 60 s. The halted Pi sits at ~0.018 A.
   - Primary measure: **gross**, everything the camera port draws while the Pi runs. The above-floor value (minus the halted current) is reported too.
-- **E_img** = the median gross of the same unit's in-window image wakes: the G4 boots plus the soak's in-window wakes.
+- **E_img** = the median gross of the same unit's G4 in-window boots in this gate (n = 2). The G7 verdict is computed at the end of the gate, from gate boots only. The soak's in-window wakes are reported later and don't change it.
   - Reference values, before the test:
     - 10/10–10/12 weekend soak: **500 J** on SPOT-31593C (n = 58, IQR 473–513) and **506 J** on SPOT-33507C (n = 58, IQR 494–521);
     - 10/13 held-bus production boots: 510 J and 503 J.
 - **E_off(cap)** = the median gross of the same unit's off-window boots at that cap (n = 6 per cell). Cap-40 boots count only if `heal_chunks` > 0.
 - **Reading A (d45, as relayed by the PjM):** R_A = E_off(40) / E_img < 0.25. The whole off-window wake that sent heals.
 - **Reading B:** R_B = (E_off(40) − E_off(0)) / E_img < 0.25. What the heals add to an off-window wake.
-  - Paired by the crossover: report the difference with a 95 % CI (Welch, 12 vs 12).
+  - The bar is per unit (6 cap-40 vs 6 cap-0 boots). The pooled crossover difference (12 vs 12) is reported with a 95 % CI (Welch).
+- **Boots in G7:** only the G1 / G2 boots (backlog 60). The G3 (backlog 10) and G8 boots are excluded.
 - **Always reported, whichever reading is chosen:**
   - R_A and R_B;
   - the message ratio, heal_chunks / image msgs (e.g. 40/195 = 21 %). This is Nick's "comparable to the number of messages sent";
@@ -102,7 +112,10 @@ Units halted (start :12–:55). `deploy_s.sh` = `bash runs/pool_rehearsal_202610
 
 1. **Pre:**
    - `grep -E '^export HIL_RIG_[AB]=' hil/hil.env`;
-   - `git diff --stat fdeb01a <S2> -- BM_Devel_Pi` = the off-window heal change only;
+   - `git diff --stat fdeb01a <S2> -- BM_Devel_Pi` must list ONLY:
+     - #175's two files: `rc_progressive_jpeg.py`, `rc_raw_jxl.py`. These are log lines only: `[RAW] … layout= progressive=` and `[RAW][cjxl] <argv>`.
+     - #181's files: `config_registry.py`, `config_v1_reader.py`, `config_v2.py`, `rc_heal.py`, `rc_media_key.py`, `rc_progressive_jpeg.py`, `rc_supervisor.py`.
+     - Any other runtime file → STOP and tell the PjM. Save the diff to the manifest;
    - sky-view `post` on both Spotters.
 2. **Hold:** `HIL_RUN_DIR=<run> hil/tools/hil_bus_always_on.sh SPOT-31593C`, then the same for `SPOT-33507C`.
 3. **Deploy S2:**
@@ -187,3 +200,10 @@ d35 + off-window heals is the NOAA release candidate. Without the mechanism prov
 - **Crop (d46, "Drop it"):** bmcam004's 1920×1080 was not sent. bmcam004 stays on 1600×900.
   - The Rev 3.1 pre-check stays as a confirmation (`[RAW] … crop=[…]` on the first boot); the soak setup confirms `still.crop` too.
   - The crop sweep (p_crop_sweep) runs after the soak.
+
+## Rev 5 (Thu 10/15 ~10:45 PM PDT): final for approval, nothing left blank
+
+- S2 is defined by rule (the deploy's development sha after #181) and recorded in `<run>/run_manifest.json`, so the approved sha never goes stale.
+- **Step-1 code check corrected:** development already carries #175 (log-only, merged 10/15 9:52 AM). As first written ("the off-window heal change only"), the check would have stopped Saturday's deploy. It now lists #175's and #181's runtime files exactly.
+- G7: the E_img source is fixed (this gate's G4 boots); the bar is per unit; only G1/G2 boots count. Reading A/B comes in Nick's approval line.
+- Run folder fixed: `~/NereusData/bm_cam_legacy/2026-10-17_gate_offwin_heals/`.

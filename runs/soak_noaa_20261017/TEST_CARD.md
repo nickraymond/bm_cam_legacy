@@ -152,7 +152,7 @@ It's the only pre-deployment evidence for Nick's Tue 10/20 go/no-go on the bmcam
 
 ## Rev 3 (Thu 10/15 ~12 PM PDT): SUPERSEDES the branches above. Nick decided d35 with off-window heals (bm #181); d38 (PgM)
 
-**Build:** bm development @ **S2** = the #181 merge sha (merges Sat AM). It is deployed and gated by `GATE_CARD_offwin_heals.md` (rev 2, 8cfa74eb), then the soak runs THIS build unchanged.
+**Build:** bm development @ **S2** = the development sha the Sat AM deploy pulls after #181 merges (runtime vs fdeb01a = #175 log lines + #181). S2 is recorded in the gate's `run_manifest.json` and copied into the soak's, never in this card. It is deployed and gated by `GATE_CARD_offwin_heals.md` at the sha in Nick's gate approval line. The soak then runs THIS build unchanged.
 
 **Config (d35):** 0cb7ad9e +
 - `schedule.timezone=America/New_York`;
@@ -228,3 +228,18 @@ Focus 0.8 and pacing 1.0 s are unchanged (already in place). The Spotter bus sta
   3. TE2 deploys the #181 build (registry v14) on Nick's line;
   4. bench gate;
   5. soak.
+
+## Rev 4 (Thu 10/15 ~10:45 PM PDT): final for approval, nothing left blank
+
+- **Run folder:** `~/NereusData/bm_cam_legacy/2026-10-17_soak_noaa/`.
+  - Its `run_manifest.json` records at the start:
+    - Nick's approval line + this card's sha;
+    - S2 (from the gate manifest);
+    - the backend sha + catalog version (v13 / v14);
+    - each unit's d35 cfg hash;
+    - the HDR state (`cfg hrpm` read-back);
+    - the clock-start wake.
+  - Runtime values live there, not in this card.
+- **Build:** S2 is defined by rule (Rev 3 line above), so the approved sha doesn't go stale.
+- **d38 conditional remote set:** Nick may approve it in the same line as this card. Otherwise it waits for its own line in the TE2 chat when v14 is live. The Rev 3.2 precondition (the unit already reports registry v14) applies either way.
+- **Energy (report-only):** per off-window wake from `runs/soak_noaa_20261017/wake_energy.py` (`e_window_j` on the scheduled wakes), as in the gate's G7.
