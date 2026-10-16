@@ -136,3 +136,10 @@ d35 + off-window heals is the NOAA release candidate. Without the mechanism prov
 - **G8 semantics (builder):** `wakes_left` limits ONE pending ask (rsd), not the image. Each new rsd resets it to 3. At cap 40 on hourly wakes the list normally drains every wake.
   - G8 expectation stays: rsd `0-149` at cap 40 → 40 / 40 / 40, then the remaining 30 chunks' ask expires with `<HL a=dropped r=expired>`.
   - Record that HL line and its wake.
+
+## Rev 3.1 (Thu 10/15 5:25 PM PDT): pre-check addition
+
+- Step 1 pre also checks that **bmcam004 is back on `still.crop` = [1504, 846, 1600, 900]**.
+  - Nick may send a temporary [1344, 756, 1920, 1080] crop from the dashboard for the 6 PM Thu image.
+  - Check the first boot's `[RAW] still.format=nrjxl … crop=[…]` line.
+  - If it's not 1600×900 → STOP and ask the PjM. The soak profile assumes 1600×900.
