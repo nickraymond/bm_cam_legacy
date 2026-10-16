@@ -49,13 +49,44 @@ This card tests the mechanism only. 24 h completeness stays in the soak.
 | G4 | In-window boot (window `10:00–15:00` ET, Sat AM = in window) | unchanged from fdeb01a: capture, `nrjxl ready`, START…END, heals after END, msgs ≤ 195, cycle end ≤ 470.7 s / halt ≤ 481 s. 2/2 per unit |
 | G5 | Commands during off-window wakes | one console `get` per unit, sent in an off-window listen tail → `OK id=`. 2/2 |
 | G6 | Errors | 0 `[CFG][ERR]` / FALLBACK / crash in any gate log |
-| G7 | **Energy per off-window wake, cap 40 vs cap 0** | **Bar: ______ (Nick sets it before the test)** |
+| G7 | **Energy of an off-window heal wake vs an in-window image wake** | **Bar (Nick, Thu 10/15 9:26 PM, PE chat; d45): "Less than 25% of an image wake, which should be comparable to the number of messages sent."** Reading A or B below: Nick picks one when he approves this card (Rev 4). Per unit: R < 0.25. |
 
-**Proposed energy measure (G7):**
-- E_wake = Σ V·(I − I_idle)·Δt over the bridge `power |` samples (10 s) from the commit (bus-on) to the Pi halt (current drops to the halted baseline I_idle, measured over 60 s after each halt).
-- Report J per off-window wake for cap 0 and cap 40, and their difference.
-- Also report the d35 daily projection: 19 × E_off(cap) + 5 × E_in, against today's fdeb01a all-day schedule (24 × E_in), in Wh/day and as a percentage.
-- Suggested bar shape for Nick: "cap 40 adds ≤ __ J per off-window wake" or "d35 + cap 40 daily energy ≤ __ % of today's".
+**Energy measure (G7), fixed Thu 10/15 ~10 PM PDT, before any gate data:**
+- **Tool:** `python3 runs/soak_noaa_20261017/wake_energy.py --node <bridge> <console files> --csv <run>/energy_<SPOT>.csv`.
+  - Bridges: SPOT-31593C = `0e582dd12c1e1480` (bmcam003), SPOT-33507C = `c3c564b91856226c` (bmcam004).
+  - Checked on old logs: 58/58 + 58/58 weekend wakes split and halts found; the 10/13 held-bus boots split on the bridge tick reset.
+- **Per wake, E (J)** = Σ V·I·Δt over the bridge `power |` samples:
+  - samples every 10 s, with Δt taken from the bridge tick;
+  - summed from bus-on (or the commit power cycle) to the Pi halt;
+  - halt = the current drops to ≤ 0.025 A and stays there for 60 s. The halted Pi sits at ~0.018 A.
+  - Primary measure: **gross**, everything the camera port draws while the Pi runs. The above-floor value (minus the halted current) is reported too.
+- **E_img** = the median gross of the same unit's in-window image wakes: the G4 boots plus the soak's in-window wakes.
+  - Reference values, before the test:
+    - 10/10–10/12 weekend soak: **500 J** on SPOT-31593C (n = 58, IQR 473–513) and **506 J** on SPOT-33507C (n = 58, IQR 494–521);
+    - 10/13 held-bus production boots: 510 J and 503 J.
+- **E_off(cap)** = the median gross of the same unit's off-window boots at that cap (n = 6 per cell). Cap-40 boots count only if `heal_chunks` > 0.
+- **Reading A (d45, as relayed by the PjM):** R_A = E_off(40) / E_img < 0.25. The whole off-window wake that sent heals.
+- **Reading B:** R_B = (E_off(40) − E_off(0)) / E_img < 0.25. What the heals add to an off-window wake.
+  - Paired by the crossover: report the difference with a 95 % CI (Welch, 12 vs 12).
+- **Always reported, whichever reading is chosen:**
+  - R_A and R_B;
+  - the message ratio, heal_chunks / image msgs (e.g. 40/195 = 21 %). This is Nick's "comparable to the number of messages sent";
+  - from the soak's scheduled wakes, the bus is on until the :10 cut, so the d35 day = 19 off-window + 5 in-window `e_window_j`, compared with today's 24 in-window ones (Wh/day and %).
+- **Pre-registered prediction (TE2).**
+  - Basis: the weekend current levels (boot ~0.065 A for 60 s, running ~0.034 A, halted ~0.018 A, at 23.9 V).
+  - Assumed run time of an off-window wake: 60 s boot + ~165 s `<WS>`/tail/shutdown + 1 s per heal.
+
+  | Off-window wake | Run | Gross | vs image wake |
+  |---|---|---|---|
+  | cap 0 | ~225 s | ~230 J | ~46 % |
+  | cap 40 | ~265 s | ~263 J | ~52 % |
+  | cap 40, builder's worst case | 345 s | ~330 J | ~66 % |
+  | the 40 heals alone (R_B) | +40 s | ~33 J | **~6–7 %** |
+
+  - **Reading A is predicted to FAIL at both caps:** an off-window wake with zero heals already costs about half an image wake (boot + the 150 s command listen tail).
+  - **Reading B is predicted to PASS.**
+  - Neither tracks the message ratio: camera energy follows the time the Pi is awake, not the message count.
+  - The Spotter's cellular energy per message is not in the bridge samples (they measure the camera port only), so it is not measured here.
 
 ## Stop rules
 
@@ -143,3 +174,16 @@ d35 + off-window heals is the NOAA release candidate. Without the mechanism prov
   - Nick may send a temporary [1344, 756, 1920, 1080] crop from the dashboard for the 6 PM Thu image.
   - Check the first boot's `[RAW] still.format=nrjxl … crop=[…]` line.
   - If it's not 1600×900 → STOP and ask the PjM. The soak profile assumes 1600×900.
+
+## Rev 4 (Thu 10/15 ~10 PM PDT): G7 bar written (d45), energy tool; crop d46
+
+- **G7 bar:** Nick's words verbatim (above). The PjM verified them in the Principal Engineer transcript, answered by 9:26 PM.
+  - Treated as the decision for the bar. Nick approves the card itself in his Fri 10:30 AM batch.
+- **Energy tool:** `runs/soak_noaa_20261017/wake_energy.py` (stdlib only). Method and prediction are fixed in G7 above, before any data.
+- **Open for Nick's approval line:** reading A (whole off-window heal wake < 25 % of an image wake) or reading B (the heals' added energy < 25 %).
+  - A is predicted to FAIL even at cap 0 (~46 %), so it can't separate the heal change from the d35 wake itself.
+  - B is predicted to pass at ~6–7 %.
+  - TE2 recommends B for this gate: the question is what the heals cost. Report the A ratio as the d35 off-window wake cost.
+- **Crop (d46, "Drop it"):** bmcam004's 1920×1080 was not sent. bmcam004 stays on 1600×900.
+  - The Rev 3.1 pre-check stays as a confirmation (`[RAW] … crop=[…]` on the first boot); the soak setup confirms `still.crop` too.
+  - The crop sweep (p_crop_sweep) runs after the soak.
