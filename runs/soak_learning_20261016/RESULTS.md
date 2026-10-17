@@ -48,9 +48,17 @@ raw/, logs/, ledger.csv, wakes.csv, asks.csv, q5_*.json/csv). This folder keeps 
 | production wakes seen (WS / START / console) | 59 | 59 |
 | images in run: Sofar keys / backend rows / matched | 62 / 62 / 62 | 59 / 59 / 59 |
 | unit-side keys with no Sofar or backend row | 0 | **1** (`0esrj9`, HDR-off stub, below) |
+| **Pi rc_cycle logs** (TE pull 10/17, `2026-10-17_cycle_logs`): image wakes in run / keys missing from the ledger / ledger rows missing from the Pi logs | 62 / 0 / 0 | 60 / 0 / 0 |
+| Pi `sent record` msgs vs ledger M | 62/62 equal | 60/60 equal |
+| Pi wakes with no `cycle end` (hard-cut) | 2 (the two stubs) | 1 (the HDR-off stub `0esrj9`) |
 | backend vs Sofar disagreements (M, completeness) | 0 | 0 |
 
 Every mismatch is explained: the only one is bmcam004's stub image, which the unit sent and the backend never saw.
+The unit logs confirm it: `rc_cycle_20261015T160835Z.log` has `[KEY] media key 0esrj9 from Spotter UTC
+2026-10-15T16:37:57Z`, 190 msgs, and no cycle end.
+The 11 Pi logs that have no image key are all TE bus-hold catches, disarmed before capture (local times match the
+gate.log holds). That includes bmcam003's 21:24Z WS-only boot (the 63rd WS row) and bmcam004's Wed 21:44Z restore
+stub, so X1's "+1?" resolves to no image.
 Reconciliation 100 % (stop line < 80 %: not crossed).
 
 ## Q2 — expectations vs observed (EXPECTATIONS.md §3)
@@ -210,8 +218,8 @@ the next soak. Adopting any of them earlier is the TE's / Nick's call.
 
 ## Limitations
 
-- Pi rc_cycle logs after 10/14 14:08Z were not pulled (A3). The unit side is the unit's own `<WS>`/START/END/`<HL>`
-  via Sofar plus the Spotter console. Console gaps: 10/14 06:43–16:00Z and 17:43–19:13Z, a nereus000 reboot at
+- The Pi rc_cycle logs arrived after the first draft (TE pull, 10/17 ~3:45 PM PT). They are used for the count check
+  only (`--cycle-log-dir`); the per-image fields still come from Sofar, the backend and the console. Console gaps: 10/14 06:43–16:00Z and 17:43–19:13Z, a nereus000 reboot at
   ~22:02Z 10/14, and SPOT-31593C 16:47–16:52Z 10/15. Wakes in those gaps have no accepted/refused split (blank
   columns).
 - Dead-zone timing uses the camera's last console submit as its halt time.
@@ -224,7 +232,7 @@ the next soak. Adopting any of them earlier is the TE's / Nick's call.
 python3 tools/soak_learning_fetch.py meta
 python3 tools/soak_learning_fetch.py backend --start 2026-10-14T04:00:00Z --end 2026-10-17T22:00:00Z
 python3 tools/soak_learning_fetch.py sofar   --start 2026-10-14T04:00:00Z --end 2026-10-17T22:00:00Z --slice-h 3
-python3 tools/soak_learning_ledger.py --console-dir ~/NereusData/bm_cam_legacy/2026-10-17_console_logs --readout 2026-10-17T22:13:00Z
+python3 tools/soak_learning_ledger.py --console-dir ~/NereusData/bm_cam_legacy/2026-10-17_console_logs --cycle-log-dir ~/NereusData/bm_cam_legacy/2026-10-17_cycle_logs --readout 2026-10-17T22:13:00Z
 python3 tools/soak_learning_q5.py
 ```
 Next soak: write a `soak_config_<run>.json` like `soak_config_20261014.json` (units, run window, stubs, hold,

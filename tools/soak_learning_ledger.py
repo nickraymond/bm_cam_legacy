@@ -296,6 +296,32 @@ def bus_windows(ev):
     return out
 
 
+# --- Pi cycle logs (optional; the TE's pulled rc_cycle_*.log) -----------------------------
+RE_PI_KEY = re.compile(r"^\[KEY\] media key ([0-9a-z]{6}) from Spotter UTC (\S+)")
+RE_PI_SENT = re.compile(r"^\[KEY\] sent record: .*\((\d+) msgs")
+
+
+def load_cycle_logs(cycle_dir, host):
+    """-> list of {key, spotter_utc, msgs, file, cycle_end}. File names carry the Pi clock at log open
+    (can be stale), so the wake is identified by the [KEY] line's Spotter UTC, never the file name."""
+    out = []
+    if not cycle_dir:
+        return out
+    for f in sorted(glob.glob(str(Path(cycle_dir) / host / "rc_cycle_*.log"))):
+        rec = {"file": f"{host}/{Path(f).name}", "key": None, "spotter_utc": None, "msgs": None, "cycle_end": False}
+        for line in open(f, errors="replace"):
+            m = RE_PI_KEY.match(line)
+            if m and not rec["key"]:
+                rec["key"], rec["spotter_utc"] = m.group(1), T(m.group(2))
+            m = RE_PI_SENT.match(line)
+            if m:
+                rec["msgs"] = int(m.group(1))
+            if line.startswith("[RC] cycle end:"):
+                rec["cycle_end"] = True
+        out.append(rec)
+    return out
+
+
 # --- backend -----------------------------------------------------------------------------
 def load_backend(run_dir, dev):
     media = json.load(open(run_dir / f"raw/backend/media_{dev}.json"))["body"]
@@ -346,7 +372,7 @@ def cluster(ts_list, gap_s=WAKE_GAP_S):
 
 
 # --- per-unit build ----------------------------------------------------------------------
-def build_unit(dev, cfg, run_dir, console_dir, readout, log):
+def build_unit(dev, cfg, run_dir, console_dir, readout, log, cycle_dir=None):
     spot, host = cfg["spot"], cfg["host"]
     msgs = load_sofar(run_dir, spot)
     node, keys, ws, hl, other = parse_sofar(msgs, host)
@@ -575,8 +601,21 @@ def build_unit(dev, cfg, run_dir, console_dir, readout, log):
         r.update(classify(r, cfg, prod_wakes, answered, asks_in_24h))
         for x in ("_asks", "_hls", "_heal"):
             r.pop(x)
+    pi = load_cycle_logs(cycle_dir, host)
+    pi_in = [x for x in pi if x["key"] and cfg["run_start"] <= x["spotter_utc"] < cfg["run_end"]]
+    led_in = {r["media_key"] for r in rows if r["in_run"]}
+    count_pi = {} if not cycle_dir else {
+        "pi_cycle_logs": len(pi), "pi_logs_without_key": [x["file"] for x in pi if not x["key"]],
+        "pi_image_wakes_in_run": len(pi_in),
+        "pi_keys_without_ledger_row": [x["key"] + "@" + iso(x["spotter_utc"]) for x in pi_in if x["key"] not in led_in],
+        "ledger_rows_without_pi_key": sorted(led_in - {x["key"] for x in pi_in}),
+        "pi_wakes_without_cycle_end": [x["key"] + "@" + iso(x["spotter_utc"]) for x in pi_in if not x["cycle_end"]],
+        "pi_msgs_vs_ledger_M": [x["key"] + f" pi={x['msgs']} M={r['chunks_expected']}" for x in pi_in for r in rows
+                                if r["media_key"] == x["key"] and x["msgs"] and str(x["msgs"]) != str(r["chunks_expected"])],
+    }
     count = {
         "unit": dev,
+        **count_pi,
         "scheduled_slots": len(slots), "wakes_seen": sum(w["wake_seen"] for w in wakes),
         "missed_slots": [w["slot_utc"] for w in wakes if not w["wake_seen"]],
         "sofar_keys_in_run": sum(1 for r in rows if r["in_run"]),
@@ -713,6 +752,8 @@ def main(argv=None):
     ap.add_argument("--run-dir", type=Path, default=DEFAULT_RUN)
     ap.add_argument("--console-dir", type=Path, required=True)
     ap.add_argument("--readout", required=True, help="read-out instant (UTC ISO) for age_at_readout")
+    ap.add_argument("--cycle-log-dir", type=Path, default=None,
+                    help="TE pull of Pi rc_cycle logs: <dir>/<host>/rc_cycle_*.log (count check vs unit logs)")
     ap.add_argument("--config", type=Path, default=None,
                     help="JSON run config for another soak (default: the 10/14-10/16 lock-v1 constants)")
     a = ap.parse_args(argv)
@@ -737,7 +778,7 @@ def main(argv=None):
     readout = T(a.readout)
     all_rows, all_wakes, all_asks, counts = [], [], [], []
     for dev, cfg in UNITS.items():
-        rows, wakes, asks, count = build_unit(dev, cfg, run_dir, a.console_dir, readout, log)
+        rows, wakes, asks, count = build_unit(dev, cfg, run_dir, a.console_dir, readout, log, a.cycle_log_dir)
         all_rows += sorted(rows, key=lambda r: r["capture_utc"])
         all_wakes += wakes
         all_asks += asks
