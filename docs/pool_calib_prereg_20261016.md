@@ -1,6 +1,7 @@
 # Underwater calibration, pool049 re-dive (Fri 2026-10-16): pre-registration amendment
 
-Written and committed **before** any calibration was run on the pool049 frames (Sat 2026-10-17, ~3:30 PM PT).
+Written and committed **before** any calibration was run on the pool049 frames (commit c3356f49, Sat 2026-10-17
+3:21 PM PT; the QE 004 conditions C1 + C2 were added in a docs-only commit, also before any run).
 It amends `docs/pool_calib_prereg_20261014.md` (the 10/14 bars, amendment A1 and the A2 note). Everything there
 still holds unless a line below changes it. Spec: `~/NereusData/ops/pe_specs/SPEC_lens_calib_pool049.md` rev 2
 (sha256 `da245f786fad35b3b465e2d52a7a43a2a337bc945d779a2c26224d810fb01b55`, QE 004 spec PASS Sat 2:57 PM). Board card:
@@ -64,16 +65,19 @@ The rule, fixed before any calibration:
   camera; DNG sha256 `f05b90b0…6eb4d`, as in the rig's SHA256SUMS).
 - **Decode.** The pipeline's own DNG loader: rawpy `postprocess(use_camera_wb=True, output_bps=8)`, then gray.
 - **Threshold.** A pixel is port if its 51×51 box mean is below **0.5 × the median of the central 50 % × 50 %**
-  of the frame. That is −1 stop against the centre.
+  of the frame. The rule runs on rawpy's gamma-encoded 8-bit output (BT.709 curve, about 2.2), so 0.5× is about
+  **−2.2 stops linear** against the centre (QE 004, C1).
 - **Keep.** Only dark regions that touch the frame border (8-connected).
 - **Encode.** PNG with 255 = visible and 0 = masked.
 - **Script.** `~/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/mask/draw_mask.py`. It is the rule above as code,
   run once from the repo root.
 
 **Finding behind the threshold.** The port region in these frames is **not black**. It is a grey, detail-free haze
-at about 35–50 % of the centre brightness (−1 to −1.5 stops), with a soft edge. The thumbnails make it look black.
+at about 35–50 % of the centre brightness in the 8-bit decode, which is about −2.2 to −3.3 stops linear. It has a
+soft edge. The thumbnails make it look black.
 Pose 1 is also brighter and washed out compared with the board frames. So the spec's "thresholded on the black port
-region" is applied at −1 stop, the conventional vignette edge, and the mask comes out smaller than the haze looks
+region" is applied at 0.5× the central median of the decode (about −2.2 stops linear), and the mask comes out
+smaller than the haze looks
 in the board frames. The mask was not tuned after this. It was drawn once, with the rule above.
 
 Result: **4.40 % of pixels masked**, in the four corners.
@@ -115,6 +119,12 @@ How the mask is used (`--mask imx708=PNG`, for both the DNG run and the JPEG cro
   | top, bottom, left, right edge midpoints | unchanged; they are visible |
 
 - **B5c.** The production-crop corners `[1504, 846, 1600, 900]` are all visible and don't move.
+- **Report-only B3 on the 10/14 definition (QE 004, C2).** All 40 cells, with the 4 true corner cells, on the same
+  (visible-only) observations. It is computed from the run's `coverage.json` (`covered`, all 40 cells, and cells
+  (0,0), (0,7), (4,0), (4,7)). The count of corners the mask dropped is also reported (`masked_corners` in
+  `frames.csv`). The **verdict stays on the masked rule** above. This line exists because the two top corner
+  cells sit just under 50 % visible (0.493, 0.426), and the threshold was set after viewing thumbnails, so any
+  mask effect on B3 has to be visible (spec F2).
 
 N6 and AE3 get no mask. Their frames show no port vignette.
 
