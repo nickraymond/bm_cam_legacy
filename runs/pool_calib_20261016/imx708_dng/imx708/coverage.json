@@ -1,0 +1,363 @@
+{
+ "grid": [
+  8,
+  5
+ ],
+ "min_obs_per_cell": 5,
+ "counts": [
+  [
+   0,
+   25,
+   198,
+   262,
+   352,
+   242,
+   41,
+   0
+  ],
+  [
+   0,
+   36,
+   225,
+   432,
+   420,
+   321,
+   128,
+   2
+  ],
+  [
+   0,
+   33,
+   98,
+   175,
+   267,
+   261,
+   115,
+   7
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ ],
+ "covered": [
+  [
+   false,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   false
+  ],
+  [
+   false,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   false
+  ],
+  [
+   false,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ]
+ ],
+ "covered_frac": 0.5,
+ "corner_cells_covered": {
+  "top-left corner": false,
+  "top-right corner": false,
+  "bottom-left corner": false,
+  "bottom-right corner": false
+ },
+ "all_corner_cells": false,
+ "n_obs": 3640,
+ "radial_norm": {
+  "note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
+  "max": 0.710914858809183,
+  "p95": 0.5609572830076249,
+  "frac_gt_0.6": 0.026648351648351647,
+  "frac_gt_0.8": 0.0
+ },
+ "mask": {
+  "rule": "cells >= 50% visible count for B3; corner cells = the eligible cell nearest each frame corner (docs/pool_calib_prereg_20261016.md)",
+  "cell_visible_frac": [
+   [
+    0.4926,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.4255
+   ],
+   [
+    0.8563,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.8622
+   ],
+   [
+    0.9988,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    0.974,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    0.7683,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.8644
+   ]
+  ],
+  "eligible": [
+   [
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false
+   ],
+   [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  ],
+  "n_eligible": 38,
+  "corner_cells_rc": {
+   "top-left corner": [
+    1,
+    0
+   ],
+   "top-right corner": [
+    1,
+    7
+   ],
+   "bottom-left corner": [
+    4,
+    0
+   ],
+   "bottom-right corner": [
+    4,
+    7
+   ]
+  },
+  "masked_pixel_frac": 0.04396440168467075,
+  "covered_frac_all_cells": 0.475
+ },
+ "edge_gap_px": {
+  "left": 716.3408813476562,
+  "right": 459.31201171875,
+  "top": 89.50736236572266,
+  "bottom": 1042.6549072265625
+ },
+ "corner_gap_px": {
+  "top-left": 939.2275833148602,
+  "top-right": 781.1866215580546,
+  "bottom-left": 1483.132741655809,
+  "bottom-right": 1172.31082013889
+ },
+ "crop": {
+  "xywh": [
+   1504,
+   846,
+   1600,
+   900
+  ],
+  "corner_radial_norm": 0.3472222222222222,
+  "obs_inside": 916
+ },
+ "observed_hull_px": [
+  [
+   4147.68798828125,
+   1247.20263671875
+  ],
+  [
+   4118.671875,
+   1525.2381591796875
+  ],
+  [
+   4078.77734375,
+   1531.2088623046875
+  ],
+  [
+   3730.5341796875,
+   1548.3450927734375
+  ],
+  [
+   2405.058837890625,
+   1504.4471435546875
+  ],
+  [
+   935.168701171875,
+   1332.1036376953125
+  ],
+  [
+   742.1007690429688,
+   1306.8780517578125
+  ],
+  [
+   725.1224975585938,
+   1291.897705078125
+  ],
+  [
+   716.3408813476562,
+   863.7512817382812
+  ],
+  [
+   926.8593139648438,
+   151.92190551757812
+  ],
+  [
+   1036.17041015625,
+   140.29425048828125
+  ],
+  [
+   1759.7464599609375,
+   114.97467803955078
+  ],
+  [
+   2562.112548828125,
+   91.74405670166016
+  ],
+  [
+   2700.192138671875,
+   89.50736236572266
+  ],
+  [
+   2998.89111328125,
+   89.97109985351562
+  ],
+  [
+   3190.567138671875,
+   102.21749877929688
+  ],
+  [
+   3642.709228515625,
+   162.60597229003906
+  ],
+  [
+   3735.23486328125,
+   175.43714904785156
+  ],
+  [
+   3882.534912109375,
+   292.2377014160156
+  ],
+  [
+   4056.439208984375,
+   618.0377807617188
+  ],
+  [
+   4134.42626953125,
+   1062.26806640625
+  ]
+ ]
+}

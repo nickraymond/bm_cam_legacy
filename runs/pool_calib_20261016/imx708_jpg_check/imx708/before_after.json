@@ -1,0 +1,72 @@
+{
+ "calibration_frame": {
+  "stem": "imx708_raw_20261016T214347Z",
+  "file": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/inputs/imx708_jpg/imx708_raw_20261016T214347Z.jpg",
+  "model": "rational",
+  "model_note": "fold 0 model: fitted WITHOUT this frame",
+  "straightness": {
+   "before_rms_px": {
+    "median": 6.89908975010773,
+    "max": 8.375367701697678
+   },
+   "after_rms_px": {
+    "median": 0.11253595510676545,
+    "max": 0.13757416477318268
+   },
+   "before_max_px": {
+    "median": 11.99336146349773,
+    "max": 15.569985008965551
+   },
+   "after_max_px": {
+    "median": 0.2138626235917016,
+    "max": 0.22895482716926097
+   }
+  },
+  "lines": [
+   {
+    "line": "row 0",
+    "n": 12,
+    "before_rms_px": 6.89908975010773,
+    "before_max_px": 11.99336146349773,
+    "after_rms_px": 0.10898887127251752,
+    "after_max_px": 0.2138626235917016
+   },
+   {
+    "line": "row 1",
+    "n": 13,
+    "before_rms_px": 8.375367701697678,
+    "before_max_px": 15.569985008965551,
+    "after_rms_px": 0.13757416477318268,
+    "after_max_px": 0.22895482716926097
+   },
+   {
+    "line": "row 2",
+    "n": 8,
+    "before_rms_px": 4.08787153872554,
+    "before_max_px": 6.379526393621784,
+    "after_rms_px": 0.11253595510676545,
+    "after_max_px": 0.1645020118899616
+   }
+  ],
+  "files": {
+   "full_side_by_side": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_calframe_imx708_raw_20261016T214347Z_full_sbs.jpg",
+   "full_before_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_calframe_imx708_raw_20261016T214347Z_full_before_50pct.webp",
+   "full_after_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_calframe_imx708_raw_20261016T214347Z_full_after_50pct.webp",
+   "crop_side_by_side_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_calframe_imx708_raw_20261016T214347Z_crop_sbs_1to1.jpg",
+   "crop_before_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_calframe_imx708_raw_20261016T214347Z_crop_before_1to1.webp",
+   "crop_after_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_calframe_imx708_raw_20261016T214347Z_crop_after_1to1.webp"
+  }
+ },
+ "card_frame": {
+  "file": "/Users/nickbuemond/NereusPool/20261016/nereus002/pool049_20261016T212527Z/2026-10-16/exp_20261016T215216Z_pool/captures/imx708/imx708_raw_20261016T215216Z.jpg",
+  "model": "rational",
+  "files": {
+   "full_side_by_side": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_card_imx708_raw_20261016T215216Z_full_sbs.jpg",
+   "full_before_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_card_imx708_raw_20261016T215216Z_full_before_50pct.webp",
+   "full_after_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_card_imx708_raw_20261016T215216Z_full_after_50pct.webp",
+   "crop_side_by_side_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_card_imx708_raw_20261016T215216Z_crop_sbs_1to1.jpg",
+   "crop_before_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_card_imx708_raw_20261016T215216Z_crop_before_1to1.webp",
+   "crop_after_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153048_pool049_imx708_jpg_check/imx708/before_after/imx708_card_imx708_raw_20261016T215216Z_crop_after_1to1.webp"
+  }
+ }
+}

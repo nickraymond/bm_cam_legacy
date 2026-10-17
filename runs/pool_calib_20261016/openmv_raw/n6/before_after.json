@@ -1,0 +1,192 @@
+{
+ "calibration_frame": {
+  "stem": "openmv_n6_raw_20261016T213705Z",
+  "file": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/inputs/n6/openmv_n6_raw_20261016T213705Z.bayer",
+  "model": "standard",
+  "model_note": "fold 2 model: fitted WITHOUT this frame",
+  "straightness": {
+   "before_rms_px": {
+    "median": 0.5577792412763428,
+    "max": 3.304431667541463
+   },
+   "after_rms_px": {
+    "median": 0.2175043732367573,
+    "max": 0.480242615356093
+   },
+   "before_max_px": {
+    "median": 0.8509748379646584,
+    "max": 5.8703902921658795
+   },
+   "after_max_px": {
+    "median": 0.3831161347308494,
+    "max": 0.9499140558626422
+   }
+  },
+  "lines": [
+   {
+    "line": "row 0",
+    "n": 9,
+    "before_rms_px": 0.5949368045187329,
+    "before_max_px": 0.9480632915425069,
+    "after_rms_px": 0.22939732141188302,
+    "after_max_px": 0.3879624033455764
+   },
+   {
+    "line": "row 1",
+    "n": 10,
+    "before_rms_px": 1.008679501047679,
+    "before_max_px": 1.9420765623892038,
+    "after_rms_px": 0.1850271894632734,
+    "after_max_px": 0.3513112374799334
+   },
+   {
+    "line": "row 2",
+    "n": 12,
+    "before_rms_px": 1.3819902412807699,
+    "before_max_px": 2.526250203251646,
+    "after_rms_px": 0.3680497238270065,
+    "after_max_px": 0.7025422466826363
+   },
+   {
+    "line": "row 3",
+    "n": 12,
+    "before_rms_px": 2.300520542498972,
+    "before_max_px": 4.04601637190903,
+    "after_rms_px": 0.31338099388212043,
+    "after_max_px": 0.6430719046242626
+   },
+   {
+    "line": "row 4",
+    "n": 12,
+    "before_rms_px": 2.639029858948411,
+    "before_max_px": 4.68731064488756,
+    "after_rms_px": 0.27763104900689345,
+    "after_max_px": 0.7155518722118384
+   },
+   {
+    "line": "row 5",
+    "n": 12,
+    "before_rms_px": 3.304431667541463,
+    "before_max_px": 5.8703902921658795,
+    "after_rms_px": 0.1978570637701304,
+    "after_max_px": 0.4360563062497427
+   },
+   {
+    "line": "col 1",
+    "n": 6,
+    "before_rms_px": 1.0136525834693735,
+    "before_max_px": 1.4794183350248598,
+    "after_rms_px": 0.480242615356093,
+    "after_max_px": 0.9499140558626422
+   },
+   {
+    "line": "col 2",
+    "n": 7,
+    "before_rms_px": 1.3183756921765681,
+    "before_max_px": 1.964021571193955,
+    "after_rms_px": 0.23912640815168704,
+    "after_max_px": 0.40486443757303014
+   },
+   {
+    "line": "col 3",
+    "n": 6,
+    "before_rms_px": 0.5206216780339528,
+    "before_max_px": 0.75388638438681,
+    "after_rms_px": 0.33773464548764964,
+    "after_max_px": 0.5595112453758109
+   },
+   {
+    "line": "col 4",
+    "n": 6,
+    "before_rms_px": 0.6979775721613416,
+    "before_max_px": 1.0052219553568609,
+    "after_rms_px": 0.3025810654185418,
+    "after_max_px": 0.5999590952462857
+   },
+   {
+    "line": "col 5",
+    "n": 4,
+    "before_rms_px": 0.3934883771932075,
+    "before_max_px": 0.44228292834555494,
+    "after_rms_px": 0.17198797939020485,
+    "after_max_px": 0.21910834235729837
+   },
+   {
+    "line": "col 6",
+    "n": 4,
+    "before_rms_px": 0.07691578696040807,
+    "before_max_px": 0.11557096498879815,
+    "after_rms_px": 0.22275614306806815,
+    "after_max_px": 0.3160692317110483
+   },
+   {
+    "line": "col 7",
+    "n": 6,
+    "before_rms_px": 0.4063353804143977,
+    "before_max_px": 0.7143917228832894,
+    "after_rms_px": 0.1751836885266897,
+    "after_max_px": 0.37826986611612234
+   },
+   {
+    "line": "col 8",
+    "n": 6,
+    "before_rms_px": 0.11086738420764025,
+    "before_max_px": 0.16486369592745764,
+    "after_rms_px": 0.2122526034054465,
+    "after_max_px": 0.3598639959885568
+   },
+   {
+    "line": "col 9",
+    "n": 6,
+    "before_rms_px": 0.2243104040946314,
+    "before_max_px": 0.3052969892008903,
+    "after_rms_px": 0.21078962775515087,
+    "after_max_px": 0.2720813066140826
+   },
+   {
+    "line": "col 10",
+    "n": 6,
+    "before_rms_px": 0.09791978898621834,
+    "before_max_px": 0.16062380158157885,
+    "after_rms_px": 0.13355653299278328,
+    "after_max_px": 0.2647929481046041
+   },
+   {
+    "line": "col 11",
+    "n": 6,
+    "before_rms_px": 0.2646057550926995,
+    "before_max_px": 0.40842696315466553,
+    "after_rms_px": 0.1877866071236114,
+    "after_max_px": 0.35745164105817917
+   },
+   {
+    "line": "col 12",
+    "n": 6,
+    "before_rms_px": 0.31626400343612976,
+    "before_max_px": 0.4389977017538964,
+    "after_rms_px": 0.07368801415214693,
+    "after_max_px": 0.12233843012738688
+   }
+  ],
+  "files": {
+   "full_side_by_side": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_calframe_openmv_n6_raw_20261016T213705Z_full_sbs.jpg",
+   "full_before_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_calframe_openmv_n6_raw_20261016T213705Z_full_before_50pct.webp",
+   "full_after_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_calframe_openmv_n6_raw_20261016T213705Z_full_after_50pct.webp",
+   "crop_side_by_side_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_calframe_openmv_n6_raw_20261016T213705Z_crop_sbs_1to1.jpg",
+   "crop_before_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_calframe_openmv_n6_raw_20261016T213705Z_crop_before_1to1.webp",
+   "crop_after_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_calframe_openmv_n6_raw_20261016T213705Z_crop_after_1to1.webp"
+  }
+ },
+ "card_frame": {
+  "file": "/Users/nickbuemond/NereusPool/20261016/nereus002/pool049_20261016T212527Z/2026-10-16/exp_20261016T215216Z_pool/captures/openmv_n6/openmv_n6_raw_20261016T215216Z.bayer",
+  "model": "standard",
+  "files": {
+   "full_side_by_side": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_card_openmv_n6_raw_20261016T215216Z_full_sbs.jpg",
+   "full_before_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_card_openmv_n6_raw_20261016T215216Z_full_before_50pct.webp",
+   "full_after_50pct": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_card_openmv_n6_raw_20261016T215216Z_full_after_50pct.webp",
+   "crop_side_by_side_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_card_openmv_n6_raw_20261016T215216Z_crop_sbs_1to1.jpg",
+   "crop_before_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_card_openmv_n6_raw_20261016T215216Z_crop_before_1to1.webp",
+   "crop_after_1to1": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/n6/before_after/n6_card_openmv_n6_raw_20261016T215216Z_crop_after_1to1.webp"
+  }
+ }
+}

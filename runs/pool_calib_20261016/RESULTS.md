@@ -1,0 +1,292 @@
+# Underwater lens calibration, pool049 re-dive (Fri 2026-10-16): results
+
+> **PROVISIONAL.** QE 005 has not yet reviewed the tool code these runs used (bm PR #184, commit `8e98892e`). Nothing
+> here ships as final. No camera passes, so on Wednesday no lens correction is applied to any camera.
+
+Pre-registration: `docs/pool_calib_prereg_20261016.md`.
+
+- Commit `c3356f49`: QE 004 PASS-with-conditions.
+- Commit `dda46166`: the conditions C1 + C2, docs only. QE 005 byte-check PASS.
+- Both prereg commits predate the first run folder, created Sat 10/17 3:27 PM PT.
+
+Spec: `SPEC_lens_calib_pool049.md` rev 2 (`da245f78…`). Ticket: `c_charuco`. All runs used tool commit `dda46166`
+(with `8e98892e` beneath it), `nice -n 10`, 2 workers. The exact commands are in the prereg doc. Full run folders
+(images, CSVs, logs) are on Nick's Mac only, in `~/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/`:
+
+| run | folder | seconds | exit |
+|---|---|---|---|
+| 1 IMX708 DNG (primary) | `20261017_152713_pool049_imx708_dng/` | 65 | 3 (bars fail) |
+| 2 N6 + AE3 raw Bayer | `20261017_153029_pool049_openmv_raw/` | 19 | 3 |
+| 3 IMX708 JPEG (check only) | `20261017_153048_pool049_imx708_jpg_check/` | 50 | 3 |
+
+A first launch of run 1 at 3:26:53 PM was refused at argument parsing: zsh does not split `$COMMON`. No frame was
+read and no folder was made. Every run then went through `run_prereg_commands.sh` (bash) in the data folder,
+unchanged.
+
+This folder keeps:
+
+- each run's `summary.md`, `run_manifest.json` (the sha256 of every input) and `prereg_bars.json`;
+- per camera: `coverage.json`, `models.json`, `residuals.json`, `residuals_vs_radius.csv`, `before_after.json` and the
+  intrinsics;
+- the DNG-vs-JPEG `crosscheck.*`;
+- one `calibration_<camera>_flatport_20261016.json` per camera. Each is marked **NOT VALIDATED**, because the bars
+  fail.
+
+## Verdict: all three cameras FAIL, for one shared reason
+
+None of the three cameras had a single board corner in the **bottom ~40 % of its frame**. The rig sits low, so the
+lower part of every view is pool floor closer than the board was held. That fails coverage (B3) on every camera.
+Without data down there, the frame edges (B4) and the bottom corners of the production crop (B5c) aren't pinned
+down either.
+
+The fit is good where the board was: held-out error 0.29–0.50 px, and it is stable.
+
+| camera | model (held-out pick) | fx / fy (px) | cx, cy | held-out RMS | poses | B1 | B2 | B3 | B4 | B5 | B5c | B6 | full / crop |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| IMX708 (DNG) | rational | 2628.3 / 2628.0 | 2313.9, 1294.2 | 0.504 | 57 | PASS | PASS | **FAIL** 50 % of 38, 0/4 | **FAIL** ∞ | PASS | **FAIL** | 1.338 | FAIL / FAIL |
+| N6 (raw) | standard | 1628.9 / 1630.0 | 637.4, 490.4 | 0.295 | 25 | PASS | PASS | **FAIL** 67.5 %, 2/4 | **FAIL** | PASS | **FAIL** | **WARN 1.745** | FAIL / FAIL |
+| AE3 (raw) | standard | 1394.2 / 1393.3 | 677.4, 375.1 | 0.290 | 25 | PASS | PASS | **FAIL** 60 %, 2/4 | **FAIL** | PASS | **FAIL** | 1.349 | FAIL / FAIL |
+
+Pixels are each camera's own full frame (IMX708 4608×2592; N6/AE3 1280×800). The bars are the 10/14 numbers. B4/B5c
+model disagreement is scored on the **literal** (metric) reading, per Nick's d33. "Poses" means the views used after
+outlier rejection (the N6 dropped 1 of its 26 distinct poses).
+
+### Stop-early record
+
+At 3:29 PM the IMX708 hit the pre-registered stop line "B3 still fails". Nothing was refitted, re-masked or
+re-screened. PE 002 then approved, at 3:30 PM, the other two pre-registered runs (N6 + AE3; the JPEG check), on these
+grounds:
+
+- that stop line stops IMX708 work only;
+- a JPEG result never changes a DNG verdict.
+
+No camera fell under the 15-usable-pose stop line (IMX708 57, N6 26, AE3 25). The disk never went under 8 GiB
+(93 GiB free). No step touched the rig.
+
+## The missing cells (8×5 grid; rows top → bottom, columns left → right)
+
+Corner observations per cell. A cell counts as covered at ≥ 5 observations.
+
+IMX708 (DNG). The two top corner cells don't count, because they are < 50 % visible:
+
+```
+  0   25  198  262  352  242   41    0
+  0   36  225  432  420  321  128    2
+  0   33   98  175  267  261  115    7
+  0    0    0    0    0    0    0    0
+  0    0    0    0    0    0    0    0
+```
+
+- **Missing** (row, col): all of rows 3–4 (16 cells), plus (1,0), (2,0) and (1,7). None of the 4 extreme visible
+  cells is covered: (1,0), (1,7), (4,0) and (4,7).
+- No corner lies below y = 1549 of 2592. Radial reach is 0.71 of the half-diagonal.
+- The 4 extreme visible cells are the "corner cells" under the mask rule, because the two top corner cells are under
+  50 % visible.
+
+N6:
+
+```
+ 29  45  55  68  54  45  42  29
+ 24  38  46  87  66  82  78  48
+ 19  32  42  74  51  56  80  59
+  0   0   0   2   2   5   6   5
+  0   0   0   0   0   0   0   0
+```
+
+- **Missing**: (3,0)–(3,4) and all of row 4 (13 cells), including both bottom corners.
+- Bottom gap: 293 of 800 px.
+
+AE3:
+
+```
+ 10  39  47  54  76  53  29   8
+ 19  36  49  67 119  93  58  22
+  9  25  29  52  76  71  65  21
+  0   0   0   0   0   0   0   0
+  0   0   0   0   0   0   0   0
+```
+
+- **Missing**: all of rows 3–4 (16 cells), including both bottom corners.
+- Bottom gap: 322 of 800 px.
+
+**Report-only B3 on the 10/14 definition** (QE 004 C2: all 40 cells, 4 true corners):
+
+| camera | covered | corner cells |
+|---|---|---|
+| IMX708 DNG | 19/40 (47.5 %) | 0/4 |
+| N6 | 27/40 | 2/4 |
+| AE3 | 24/40 | 2/4 |
+| IMX708 JPEG | 20/40 | 0/4 |
+
+The verdict doesn't depend on the mask: the IMX708 fails either way.
+
+## The IMX708 port mask (Nick: "mask the dark corners")
+
+- **What the port region is.** Grey, detail-free haze at 35–50 % of the centre brightness in the 8-bit decode, about
+  −2.2 to −3.3 stops linear. It is not black.
+- **The mask.** Pre-registered at 0.5× the central median (about −2.2 stops), from pose 1. It masks 4.40 % of the
+  frame (sha256 `599d1ab0…`).
+- **Effect on observations: none.** It dropped **0** corner observations in all 78 frames: no board corner was ever
+  detected in the masked region.
+- **Effect on scoring.** It changes only which cells count for B3 (38 of 40) and where the four corner probes of B4
+  sit.
+
+## What the data say
+
+**Focal length behind the flat port.**
+
+- IMX708: fx is 1.338× the in-air datasheet value (2628 vs 1964 px). The flat-port prediction is 1.33×, matching
+  10/14.
+- AE3: 1.349× (1394 vs 1033 px).
+- N6: **1.745×** (1629 vs 933 px). That is far outside a flat-port ratio, which points to a lens that is not the
+  stock 2.8 mm: 1629 / 1.33 ≈ 1225 px in air, about 3.7 mm at 3 µm.
+- The N6 lens record is **pending** (Nick). If it isn't the stock lens, the N6's B6 reads "N/A: fitted lens differs".
+  B6 is WARN-only and changes no verdict.
+
+**Where the board was.** All three cameras' poses sat at almost the same distances, and not at the planned ones
+(0.7–0.9 m for cal_a, 1.5–2.0 m for cal_b):
+
+| camera | board distances | median | views beyond 1.1 m |
+|---|---|---|---|
+| IMX708 | 0.85–1.87 m | 0.98 m | only 6 |
+| N6 | 0.84–1.06 m | — | — |
+| AE3 | 0.85–1.01 m | — | — |
+
+- On the N6 and AE3, the far cal_b poses either failed the screen or had the board out of view.
+- Screen FAILs were almost all frames with no board, or under 12 corners because the board was mostly out of
+  view: IMX708 2 + 9 (cal_a + cal_b), N6 22 + 22, AE3 20 + 25 (one AE3 frame was blurred). The narrower N6 and AE3
+  views lost the board in many poses.
+- **Validated distance range** (the range of each calibration set): IMX708 0.85–1.87 m (mostly ~1 m), N6 0.84–1.06 m,
+  AE3 0.85–1.01 m.
+
+**Model choice.**
+
+- IMX708: held-out RMS standard 0.548 / rational 0.504 / fisheye 0.609 px, so rational is chosen.
+- N6 and AE3: the three models are within 2 %, so standard is chosen by the tie rule.
+- In the coverage gap the IMX708's rational fit **folds** before the side and bottom edges. That is why its B4 is ∞:
+  the model can't be inverted there.
+
+**Literal model disagreement: a finding Nick needs for the d33 bar.** Even where the board was dense, the three model
+families disagree by about 10–25 px on the literal reading, while the aligned (shape-only) values stay small:
+
+| camera | probe | literal | aligned |
+|---|---|---|---|
+| N6 | top edge | 20.8 px | 0.08 px |
+| IMX708 | top edge | 20.2 px | 0.08 px |
+| AE3 | top edge | 9.1 px | 0.04 px |
+
+- Nearly all of it is the **fisheye** model placing the image centre elsewhere: 12–16 px in cx and cy on the IMX708 and
+  N6, 4–8 px on the AE3. A shift of the image centre largely turns every ray by the same small angle.
+- So coverage is **necessary but may not be enough** to pass the literal ≤ 1 px (B5c) and ≤ 2 px (B4) bars between
+  three model families. PE 002 has stated this in decision d58. Nothing here changes the bar.
+
+**Residuals vs radius** (held-out per corner; r = distance from the frame centre over the half-diagonal):
+
+| camera | r < 0.2 | 0.2–0.4 | 0.4–0.5 | 0.5–0.6 | 0.6–0.7 | 0.7–0.8 | 0.8–0.9 |
+|---|---|---|---|---|---|---|---|
+| IMX708 DNG | 0.40 | 0.44 | 0.56 | 0.67 | 0.81 | 1.07 (n 3) | — |
+| N6 | 0.29 | 0.25 | 0.26 | 0.37 | 0.28 | 0.35 | 0.31 (n 33) |
+| AE3 | 0.38 | 0.22 | 0.25 | 0.26 | 0.41 | 0.35 | 0.45 (n 4) |
+
+- **IMX708.** The residuals roughly double from the centre to r 0.7. That is what refraction at a flat port, or a pinhole
+  model straining at a wide field, looks like. The pre-registered flag (outer r > 0.8 vs inner) is **not testable**: no
+  corner reached r > 0.8.
+- **N6.** Flat with radius. Outer / inner = 1.22, under the 2× flag.
+- **AE3.** Only 4 corners beyond r 0.8, so not testable.
+
+**Tilt / decentre flags** (report-only; thresholds in the prereg §7):
+
+| camera | principal point offset | standard-fit p1 / p2 | outer / inner |
+|---|---|---|---|
+| IMX708 | +10 / −2 px, no flag | 0.0043 / 0.0053, **flag** | not testable |
+| N6 | −3 / **+90 px (11 % of H)**, **flag** | 0.0027 / 0.0012, **flag** | 1.22, no flag |
+| AE3 | **+37 / −25 px**, **flag** | 0.0043 / −0.0023, **flag** | not testable |
+
+- With only the top 60 % of every frame observed, the vertical centre (cy) and p1/p2 trade off against each other. So
+  these flags are **not yet evidence** of a tilted or off-centre port.
+- Re-read them after the lower-half poses. If they persist, a follow-up card for an explicit flat-port model is the
+  next step (spec rev 1).
+
+**Cross-distance check** (R5, report-only; refit on one block, scored on the other):
+
+| camera | cal_a → cal_b | cal_b → cal_a |
+|---|---|---|
+| IMX708 | 0.678 vs 0.560 px own (1.21×) | 0.578 vs 0.454 (1.27×) |
+| N6 | 1.03× | 1.04× |
+| AE3 | 1.01× | 1.24× |
+
+- Both blocks sat at about 0.85–1.1 m on every camera, so this checks **pose sets, not distance**. Distance dependence
+  stays **untested** for all three cameras (rev 1 already expected this for N6/AE3).
+- The IMX708's ~1.2× is a mild generalisation gap between the two pose sets.
+
+**Straightness** on a calibration frame the model never saw (the median over board rows; it shows the correction works
+where there are data):
+
+| camera | before | after |
+|---|---|---|
+| IMX708 | 2.41 px | 0.17 px |
+| N6 | 0.56 px | 0.22 px |
+| AE3 | 0.50 px | 0.09 px |
+
+**Compared with 10/14** (both central-only):
+
+| camera | fx | cx | cy |
+|---|---|---|---|
+| IMX708 (vs `nereus002` on 10/14, JPEG, standard) | 2621 → 2628 (+0.3 %) | 2337 → 2314 | 1272 → 1294 |
+| N6 (vs `n6_bayer`, 9 views) | 1613 → 1629 (+1.0 %) | 629 → 637 | 475 → 490 |
+
+- The fx agreement is within the ±1 % 10/14 quoted. The cx/cy shifts (8–23 px) are as large as the coverage confound
+  above.
+- The AE3 has no 10/14 fit: it was refocused on 10/15, so there is nothing to compare.
+
+## DNG vs JPEG cross-check (IMX708; R3; it can't change the DNG verdict)
+
+| item | DNG → JPEG | bar | within |
+|---|---|---|---|
+| Δfx/fx | −0.03 % | ±0.5 % | yes |
+| Δcx | −1.0 px | ±5 px | yes |
+| Δcy | −1.0 px | ±5 px | yes |
+| ray difference at the B4 probes | n/a at the 4 corner and 2 side probes (both rational fits fold there); 1.95 px top, 1.35 px bottom | ≤ 1 px | **no** |
+
+- **Reading.** The two decodes give the **same camera** where there are data. They differ only where both fits are
+  extrapolating: no probe that fails the bar was observed. That makes it a coverage effect, not evidence of an ISP
+  effect. (The crosscheck tool's standard wording says "ISP effect"; that doesn't apply here.)
+- **Other JPEG differences:**
+  - 54 views (3 outliers);
+  - one more covered cell, the top-right extreme cell (1,7): 6 corners vs 2 in the DNG. Likely cause, not checked:
+    the ISP's lens-shading correction brightens the dark corners, so detection reaches a little further;
+  - a worse held-out RMS (0.551 vs 0.504 px).
+- **Caveat.** The JPEG run's **fisheye fit failed** in OpenCV (`InitExtrinsics: fabs(norm_u1) > 0`). Its model
+  disagreement therefore compares only standard and rational (literal 3.6 px at the crop corners vs the DNG's 23.9 px
+  with fisheye).
+
+## Wednesday (pool test 2)
+
+PE 002 posted the capture recipe as decision **d58** for Nick: a pool-2 scope change, REC yes, with the crate, needed
+by Tue 3 PM. It is **one lower-half block** that covers all three cameras at once:
+
+1. **Rig.** Raise the rig ~40 cm (a crate) or tilt it nose-up ~25° for this block only, so the bottom of each frame looks
+   at open water.
+2. **Board placements.** At 0.8 m (measured), lower-left, lower-centre and lower-right of the shared view. In each place:
+   flat, ±30° left/right and ~30° back. That is 12 poses.
+3. **Bottom corners.** A board corner touching each bottom frame corner: 4 poses.
+4. **IMX708 side edges.** Left and right edges at mid-height: 4 poses.
+5. **Preview.** Full-frame on all three cameras.
+
+That is about 20 poses, ~6 min of shooting at Friday's 16.5 s cadence, ~15 min of pool time in all. The rerun on the
+Mac takes ~3 min.
+
+A crop-only calibration (B5c) saves nothing: the IMX708 crop's bottom corners (y = 1745) are below every Friday
+observation, and the N6/AE3 B5c is scored at the frame corners.
+
+## Not tested / limits
+
+- **Tool code under review.** Every number here is provisional until QE 005 passes `8e98892e`.
+- **DNG decode.** Grey-level only, through rawpy `postprocess` (camera WB, 8-bit, gamma), the pipeline's existing
+  loader. A linear demosaic was not tried. The JPEG cross-check says it makes no difference to the intrinsics.
+- **Verdict sheets.** The tool's `verdict.png` and `coverage.png` were not changed for the mask. Their red boxes show
+  the 4 true corner cells, not the 4 extreme visible cells. The bar rows and `coverage.json` carry the masked rule.
+  All 8 of those cells are empty, so the picture doesn't mislead about this verdict.
+- **Fresh water.** In seawater fx is about +0.5 %.
+- **No scale.** A calibration gives no seafloor scale (spec F6); urchins per m² still need range or a reference in
+  frame (E6 spec).
