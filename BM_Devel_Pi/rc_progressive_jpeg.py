@@ -854,6 +854,57 @@ def _still_storage_guard(settings, summary, supervised, output_dir):
     return result["full"]
 
 
+def _offwin_heals(settings, summary, daemon, budget, *, supervised, bm_open_fn, clock,
+                  sleep_fn):
+    """d35 (Nick 2026-10-15, NOAA release): the capture window restricts NEW images
+    only. A per_boot stills wake outside the window, after its <WS a=skip_win> and
+    before the listen tail, sends the pending rsd heals through the heal-only pass
+    the idle and save_local paths use (rc_supervisor.send_pending_heals: newest
+    first, lane wait, chunks paced + pump-only, one <HL> per key), capped at
+    media_key.heal_offwin_max (default 40) instead of rc_heal.HEAL_CAP_PER_WAKE.
+    No capture, no START. Cap 0, or nothing pending: no uplink and no state write
+    (the registry v13 wake). stay_on is unchanged (its O5 idle heal pass already
+    ignores the window); the legacy runtime never calls this.
+    -> {cap, sent, hl, heal_s} for _offwin_wake_line, or None under stay_on.
+    Never raises: a heal must not cost the listen tail."""
+    if getattr(supervised, "run", "per_boot") != "per_boot":
+        return None
+    cap = rc_heal.offwin_cap_for(settings)
+    out = {"cap": cap, "sent": 0, "hl": 0, "heal_s": 0.0}
+    if cap <= 0 or daemon is None:
+        return out
+    import rc_supervisor
+    t0 = budget.elapsed_s()
+    try:
+        rc_supervisor.send_pending_heals(daemon, settings, summary, budget, bm_open_fn,
+                                         clock, sleep_fn, cap=cap, only_if_work=True,
+                                         gap_s=settings["pacing_delay_seconds"])
+    except Exception as exc:
+        print(f"[HEAL][WARN] off-window heal pass failed ({type(exc).__name__}: {exc})")
+    out["heal_s"] = budget.elapsed_s() - t0
+    heal = summary.get("heal") or {}
+    out["sent"] = int(heal.get("sent", 0))
+    out["hl"] = len(heal.get("hl", []))
+    return out
+
+
+def _offwin_wake_line(offwin, summary, budget, *, ws_sent):
+    """d35: one grep-able line per out-of-window wake (after the listen tail) for
+    the TE's energy A/B, cap 0 vs cap N (runs/soak_noaa_20261017/GATE_CARD_offwin_
+    heals.md G7). uplink_msgs = the <WS> + heal chunks + <HL> lines (command acks
+    are not counted); heal_s includes the lane wait; uptime_s is /proc/uptime now,
+    i.e. the bus-on time so far less the few seconds before the kernel starts (the
+    `[BOOT] halt uptime_s=` line closes the wake). Printed at cap 0 too; it changes
+    no wire, summary or file."""
+    uptime = cmd_hooks.boot_mark("offwin_wake_end")
+    msgs = int(ws_sent) + offwin["sent"] + offwin["hl"]
+    print(f"[HEAL] off-window wake: cap={offwin['cap']} heal_chunks={offwin['sent']} "
+          f"hl={offwin['hl']} uplink_msgs={msgs} heal_s={offwin['heal_s']:.1f} "
+          f"tail_s={float(summary.get('listen_tail_s') or 0.0):.1f} "
+          f"cycle_s={budget.elapsed_s():.1f} "
+          f"uptime_s={'na' if uptime is None else f'{uptime:.1f}'}")
+
+
 def still_action(
     settings, summary, daemon, budget,
     *,
@@ -929,6 +980,7 @@ def still_action(
                   "already was)")
             return summary
         if not allowed:
+            ws_sent = False
             try:
                 wake_fn(
                     action="skip_win",
@@ -940,9 +992,15 @@ def still_action(
                     image_quality=settings["q_max"],
                     reason="window",
                 )
+                ws_sent = True
             except Exception as exc:
                 debug_print(f"Wake status send failed, continuing safely: {exc}")
             if supervised is not None:
+                # d35 (Nick 2026-10-15): the window restricts NEW images only; the
+                # pending heals still go out, capped (media_key.heal_offwin_max).
+                offwin = _offwin_heals(settings, summary, daemon, budget,
+                                       supervised=supervised, bm_open_fn=bm_open_fn,
+                                       clock=clock, sleep_fn=sleep_fn)
                 # Sprint26 W3 (DESIGN §4): the listen tail runs after a window
                 # skip too, so a command sent this hour is not lost. Legacy
                 # returns here with no tail.
@@ -950,6 +1008,8 @@ def still_action(
                     daemon, bm_commands_cfg or {}, summary, budget,
                     clock=clock, sleep_fn=sleep_fn, supervised=supervised,
                 )
+                if offwin is not None:
+                    _offwin_wake_line(offwin, summary, budget, ws_sent=ws_sent)
             return summary
 
     if supervised is not None:

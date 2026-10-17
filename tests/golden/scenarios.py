@@ -596,6 +596,34 @@ V9_SCENARIOS.update({
                                    "v9_nrjxl"},
 })
 
+# d35 (Nick 2026-10-15, NOAA release; registry v14 uplink.media_key.heal_offwin_max): the
+# window restricts NEW images only. A per_boot stills wake outside the window sends
+# <WS a=skip_win>, then the pending heals (capped, default 40) through the heal-only pass,
+# then the listen tail. No capture, no START. Cap 0 = the registry v13 out-of-window wake
+# (the cap-0 vector is checked against 9ff3476b's runtime in the PR, config hash masked).
+V9_SCENARIOS.update({
+    "v9_offwin_heal": {
+        "kind": "stills", "utc": OUT_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": V9_V2, "seed": ["old_media", "pending_heal"],
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 100002, "c": "rsd", "h": [["{KEY}", "2"]]}},
+        ],
+        "notes": "outside the window, default cap 40: <WS a=skip_win>, the rsd that arrived at "
+                 "boot (replacing the pending one) sent as heal chunk <I{KEY}.2>, its <HL>, the "
+                 "listen tail, halt; no capture, no START",
+    },
+    "v9_offwin_heal_cap0": {
+        "kind": "stills", "utc": OUT_WINDOW, "edits": BASE_EDITS, "append": MEDIA_KEY,
+        "v2": {**V9_V2, "uplink.media_key.heal_offwin_max": 0},
+        "seed": ["old_media", "pending_heal"],
+        "rules": [
+            {"when": "on_sub", "payload": {"id": 100002, "c": "rsd", "h": [["{KEY}", "2"]]}},
+        ],
+        "notes": "v9_offwin_heal with cap 0: <WS a=skip_win>, the listen tail, halt (the "
+                 "registry v13 wake); the heal waits for an in-window wake",
+    },
+})
+
 SUPERVISOR_ONLY = {**STAY_ON_SCENARIOS, **SAVE_LOCAL_SCENARIOS, **V9_SCENARIOS}
 VECTOR_DIRS = {**{n: "vectors_stay_on" for n in STAY_ON_SCENARIOS},
                **{n: "vectors_save_local" for n in SAVE_LOCAL_SCENARIOS},

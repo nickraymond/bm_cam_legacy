@@ -81,7 +81,18 @@ CONTROL_KEYS = (
     "video.send.duration_s", "video.send.lead_in_s", "video.send.fps", "video.send.message_cap",
     "video.send.keyframe_repeat_max", "video.send.size", "video.send.x264_preset",
     "video.send.budget_min",
+    # d35 (registry v14): see CONTROL_EXCEPTIONS
+    "uplink.media_key.heal_offwin_max",
 )
+
+# Control keys under a BLOCKED_REASON prefix, each with why the prefix's reason does not
+# apply. Checked after the guard classes, before the prefixes.
+CONTROL_EXCEPTIONS = {
+    # d35 (Nick 2026-10-15, NOAA release): "lower the cap by command" if the night energy is
+    # over his bar. 0..40 only; 0 = the out-of-window wake of registry v13, 40 = the in-window
+    # heal size. It cannot stop a message: the worst case is 40 extra heal chunks per wake.
+    "uplink.media_key.heal_offwin_max": "bounded heal cap (0..40); never stops the uplink",
+}
 
 # UI level (Nick 2026-10-01, via the config UI session): "basic" keys are shown up front, every
 # other key is "advanced" (folded away). Display only: it never changes what is writable (tier).
@@ -208,6 +219,8 @@ def _tier(key):
         return "blocked", "service key: needs Nick's signed command"
     if key.guard in (R.GUARDED_REVERT, R.GUARDED_STAGE) and key.guard_when is None:
         return "blocked", f"{key.guard}: needs the cfm flow (Next sprint)"
+    if key.path in CONTROL_EXCEPTIONS and key.path in CONTROL_KEYS:
+        return "control", None
     for prefix, why in BLOCKED_REASON.items():
         if key.path == prefix or key.path.startswith(prefix):
             return "blocked", why

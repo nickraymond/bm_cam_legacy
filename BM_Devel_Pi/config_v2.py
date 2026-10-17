@@ -329,6 +329,16 @@ def _heal_order_lines(v):
     return [f"  heal_order: {_q(order)}"]
 
 
+def _heal_offwin_lines(v):
+    """registry v14 `uplink.media_key.heal_offwin_max` -> `media_key.heal_offwin_max`,
+    written ONLY when it is not the default 40 (rc_media_key reads absent as 40), so a unit
+    on the default renders byte-identical to registry v13."""
+    cap = v.get("uplink.media_key.heal_offwin_max")
+    if cap is None or cap == 40:
+        return []
+    return [f"  heal_offwin_max: {_n(cap)}"]
+
+
 def render_v1_text(values):
     """v1 camera_schedule.yaml text for the BASE values (see module doc)."""
     v = values
@@ -414,6 +424,7 @@ def render_v1_text(values):
           f"  enabled: {_n(v['uplink.media_key.enabled'])}",
           f"  retain_days: {_n(v['uplink.media_key.retain_days'])}",
           *_heal_order_lines(v),
+          *_heal_offwin_lines(v),
           "video:",
           f"  clip_minutes: {_n(v['video.logger.clip_minutes'])}",
           f"  fps: {_n(v['video.record.fps'])}",

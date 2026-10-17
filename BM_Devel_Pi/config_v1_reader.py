@@ -346,6 +346,7 @@ def read_v1(config_path):
         v["uplink.media_key.enabled"] = bool(mk["enabled"])
         v["uplink.media_key.retain_days"] = _num(mk["retain_days"])
         v["uplink.media_key.heal_order"] = mk.get("heal_order", "before")   # registry v12
+        v["uplink.media_key.heal_offwin_max"] = int(mk.get("heal_offwin_max", 40))  # v14
     if _quiet(rc_media_key.warn_retired_media_gid, config_path)[0]:
         p.append("media_gid.enabled is true: media_gid was retired by wire rev 5; remove the "
                  "island before migrating (REVIEW R1)")

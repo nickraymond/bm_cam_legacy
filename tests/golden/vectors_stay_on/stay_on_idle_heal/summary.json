@@ -9,12 +9,12 @@
    "sha256": "4120d9334b7c0f1f"
   },
   "camera_config.lkg.json": {
-   "bytes": 3615,
+   "bytes": 3653,
    "sha256": "wall-time"
   },
   "camera_config.yaml": {
-   "bytes": 2768,
-   "sha256": "0ed6263da9f02885"
+   "bytes": 2792,
+   "sha256": "8281b4eb2800e47b"
   },
   "camera_schedule.yaml": {
    "bytes": 7711,
@@ -34,7 +34,7 @@
   },
   "state/bm_command_state_v2.json": {
    "bytes": 307,
-   "sha256": "ae67d2942c215145"
+   "sha256": "a2efd8dc529c50ca"
   },
   "tuned_halt.sh": {
    "bytes": 17,
@@ -70,7 +70,7 @@
   "result_cache": {
    "100003": {
     "b": 1,
-    "h": "e9685fa8",
+    "h": "87df3708",
     "ok": 1,
     "t": "rsd: 1 heal(s) queued (<HL> reports each)"
    }

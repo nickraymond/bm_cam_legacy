@@ -49,6 +49,10 @@ Sent record (what a heal re-sends, S5)
                         # wake's START; after: START + the new media's burst first, then
                         # the heal chunks (Nick 2026-10-08: the freshest image gets the
                         # clean part of the window). Absent = before. Read by rc_heal.
+    heal_offwin_max: 40 # 0..40: most rsd heal chunks a wake OUTSIDE the capture window
+                        # sends (no capture, no START there; d35, Nick 2026-10-15: the
+                        # window restricts NEW images only). 0 = today's wire (<WS
+                        # a=skip_win> + listen tail only). Absent = 40. Read by rc_heal.
 
 The retired Sprint10 `media_gid` island (3-char gid) is ignored with a loud
 warning if a YAML still enables it (warn_retired_media_gid).
@@ -72,7 +76,13 @@ DEFAULT_STATE_PATH = os.path.join(_HERE, "bm_media_key_last.txt")
 DEFAULT_SENT_DIR = os.path.join(_HERE, "sent")
 HEAL_ORDERS = ("before", "after")        # media_key.heal_order (Nick 2026-10-08)
 DEFAULT_HEAL_ORDER = "before"
+# media_key.heal_offwin_max (d35, Nick 2026-10-15): the out-of-window heal cap. The limit is
+# the in-window cap (rc_heal.HEAL_CAP_PER_WAKE, "today's heal size"); rc_heal imports this
+# module, so the number is repeated here and tests/test_heal_offwin.py pins them equal.
+DEFAULT_HEAL_OFFWIN_MAX = 40
+HEAL_OFFWIN_MAX_LIMIT = 40
 DEFAULT_CONFIG = {"enabled": False, "retain_days": 14.0, "heal_order": DEFAULT_HEAL_ORDER,
+                  "heal_offwin_max": DEFAULT_HEAL_OFFWIN_MAX,
                   "source": "defaults",
                   "sent_dir": DEFAULT_SENT_DIR, "state_path": DEFAULT_STATE_PATH}
 
@@ -253,6 +263,15 @@ def load_media_key_config(config_path):
                         raise ValueError("media_key.heal_order must be "
                                          f"{'|'.join(HEAL_ORDERS)}, got {v!r}")
                     cfg["heal_order"] = v
+                elif k == "heal_offwin_max":
+                    v = v.strip("'\"")
+                    try:
+                        cfg["heal_offwin_max"] = int(v)
+                    except ValueError:
+                        raise ValueError(f"media_key.heal_offwin_max must be an integer, got {v!r}")
+                    if not 0 <= cfg["heal_offwin_max"] <= HEAL_OFFWIN_MAX_LIMIT:
+                        raise ValueError("media_key.heal_offwin_max must be in "
+                                         f"[0, {HEAL_OFFWIN_MAX_LIMIT}], got {v!r}")
     except OSError:
         pass
     return cfg
@@ -261,6 +280,9 @@ def load_media_key_config(config_path):
 def print_media_key_settings(cfg):
     order = cfg.get("heal_order", DEFAULT_HEAL_ORDER)
     tag = "" if order == DEFAULT_HEAL_ORDER else f" heal_order={order}"   # default: line unchanged
+    offwin = cfg.get("heal_offwin_max", DEFAULT_HEAL_OFFWIN_MAX)
+    if offwin != DEFAULT_HEAL_OFFWIN_MAX:
+        tag += f" heal_offwin_max={offwin}"                               # same rule
     print(f"[KEY] media_key: enabled={cfg['enabled']} retain_days={cfg['retain_days']:g} "
           f"source={cfg['source']}{tag}")
 

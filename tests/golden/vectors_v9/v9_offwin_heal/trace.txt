@@ -1,0 +1,12 @@
+OPEN port=/dev/ttyAMA0 baud=115200 timeout=0.1
+W sub bmcam/cmd
+RX cmd {"id":100002,"c":"rsd","h":[["0dnwc0","2"]]}
+W sub spotter/utc-time
+RX utc 2026-09-24T21:00:00+00:00
+SETCLOCK sudo -n date -u -s 2026-09-24 21:00:00
+W tx.02 <WS v=1 a=skip_win cfg=70deb189 up=0 tz=America/New_York lt=1700 ws=1000 we=1500 rk=1000x562 q=90 ct=45.0 sha=golden0 hn=bmcam-golden r=window>\x0a
+W tx.02 <I0dnwc0.2>S3CVut8EKU5zmL3iByxRdpvA5QovVHmew+gNMld8ocbrEDVaf6TJ7hM4XYKnzPEWO2CFqs/0GT5jiK3S9xxBZouw1fofRGmOs9j9IkdskbbbACVKb5S53gMoTXKXvOEGK1B1mr/kCS5TeJ3C5wwxVnugxeoPNFl+o8jtEjdcgabL8BU6X4SpzvMYPWKHrNH2G0Bliq/U+R5DaI2y1/whRmuQtdr/JEluk7jdAidMcZa74AUqT3SZvuMILVJ3nMHmCzBVep/E6Q4zWH2ix+wRNluApcrvFDleg6jN8hc8YYar0PUaP2SJrtP4HUJnjLHW+yBFao+02f4jSG2St9wBJktwlbrfBClOc5i94gcsUXabwOUKL1R5nsPoDTJXfKHG\x0a
+W tx.02 <HL v=1 key=0dnwc0 a=sent n=1 r=ok id=100002>\x0a
+W printf [bmcam-golden] OK id=100002 rsd: 1 heal(s) queued (<HL> reports each) cfg=70deb189
+CLOSE port=/dev/ttyAMA0
+HALT sudo -n /bin/bash {TMP}/tuned_halt.sh

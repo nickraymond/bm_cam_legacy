@@ -36,7 +36,7 @@ Example:
 from dataclasses import dataclass, field
 
 SCHEMA_VERSION = 2
-REGISTRY_VERSION = 13        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
+REGISTRY_VERSION = 14        # bump when a key is added/removed/retyped (2: commands.runtime, S3a;
                               # 3: mode.interval_s + mode.heartbeat_s, stay_on runnable, S3b;
                               # 4: still.save.quality, save_local runnable, S3c;
                               # 5: keep-alive/hold keys, power.bus_always_on,
@@ -51,7 +51,9 @@ REGISTRY_VERSION = 13        # bump when a key is added/removed/retyped (2: comm
                               # 11: still.raw.rgb_encode_max_s (B3a search cap), Sprint28;
                               # 12: uplink.media_key.heal_order before|after (image burst
                               #     before the rsd heal chunks), Nick 2026-10-08;
-                              # 13: still.raw.progressive (cjxl -p on B3a), Sprint28 preview)
+                              # 13: still.raw.progressive (cjxl -p on B3a), Sprint28 preview;
+                              # 14: uplink.media_key.heal_offwin_max (capped rsd heals on
+                              #     out-of-window wakes), d35 Nick 2026-10-15)
 
 # Guard classes (§6.3).
 NONE = "none"
@@ -482,6 +484,19 @@ KEYS = (
         "gets the clean part of the window). No daemon or nothing pending = no change.",
         enum=("before", "after"), v1_sources=("media_key.heal_order",),
         presets=(("heals first (today)", "before"), ("new media first", "after"))),
+    # 2026-10-15 (Nick, board decision d35, NOAA release): the capture window restricts NEW
+    # images only. A stills wake outside the window sends up to this many pending rsd heal
+    # chunks (+ their <HL>), with no capture and no START, so a late-window image heals the
+    # same evening, not 20-22 h later. Capped because night wakes run on battery ("Sadly we
+    # don't have the energy to send images all day long"). Upper bound = the in-window cap
+    # (rc_heal.HEAL_CAP_PER_WAKE). 0 = the out-of-window wake of registry v13 exactly.
+    Key("uplink.media_key.heal_offwin_max", INT, 40, "Stills, outside the capture window: "
+        "most rsd heal chunks a wake sends (no capture, no new image; <WS a=skip_win> and "
+        "the listen tail as before). 0 = no heals outside the window. Nothing pending = no "
+        "change. Video units and stay_on unchanged.",
+        range=(0, 40), v1_sources=("media_key.heal_offwin_max",),
+        presets=(("off (no heals outside the window)", 0), ("20 chunks", 20),
+                 ("40 chunks (in-window size)", 40))),
 
     # ---- commands -----------------------------------------------------------
     Key("commands.enabled", BOOL, False, "Listen for commands on the BM bus.",
