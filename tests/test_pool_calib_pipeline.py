@@ -1020,3 +1020,31 @@ class TestMaskRun(unittest.TestCase):
             rc, out = run_pipeline([f"camM={self.cal}", "--out-root", os.path.join(tmp, "r"), "--mask",
                                     f"camM={bad}"] + COMMON)
             self.assertEqual(rc, 1, out[-2000:])                           # every frame FAILs on the size check
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestOverlayHullNaN(unittest.TestCase):
+    """The after-undistortion hull has NaN where the model folds (pool049 IMX708): those points must not be
+    drawn (NaN cast to int drew ~20 stray lines to the top-left corner)."""
+
+    def test_nan_hull_points_are_skipped(self):
+        import pool_calib_figures as figs
+        img = np.zeros((400, 600, 3), np.uint8)
+        hull = np.array([[200, 150], [400, 150], [np.nan, np.nan], [400, 300], [200, 300]], float)
+        out = figs._overlay(img, [], "after", None, hull=hull)
+        green = (out[:, :, 1] > 150) & (out[:, :, 0] < 120) & (out[:, :, 2] < 120)
+        self.assertFalse(green[:100, :150].any())          # nothing drawn towards the top-left corner
+        self.assertTrue(green[150, 250:350].any())          # the mappable top edge is still drawn
+        self.assertTrue(green[300, 250:350].any())          # and the bottom edge
+        self.assertTrue(green[200:250, 200].any())          # and the closing left edge
+
+    def test_finite_hull_unchanged(self):
+        import cv2
+        import pool_calib_figures as figs
+        img = np.zeros((400, 600, 3), np.uint8)
+        hull = np.array([[200.7, 150.2], [400.4, 150.9], [400.1, 300.5], [200.2, 300.8]])
+        new = figs._overlay(img, [], "after", None, hull=hull)
+        old = figs._overlay(img, [], "after", None, hull=None)
+        cv2.polylines(old, [np.asarray(hull, np.int32).reshape(-1, 1, 2)], True, (80, 220, 80),
+                      max(2, int(round(600 / 1500))))
+        self.assertTrue(np.array_equal(new, old))           # pixel-identical to the previous drawing
