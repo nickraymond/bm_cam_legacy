@@ -1,0 +1,205 @@
+{
+ "expectations_sha256": "a20e6e8b042305d177a2b431e78ce9dd723c1f0fa7278878fb56c68883471e06",
+ "units": {
+  "BMCAM_003": {
+   "unit": "BMCAM_003",
+   "spotter": "SPOT-31593C",
+   "t_off": "2026-10-15T16:47:38Z",
+   "D_h": 19.121,
+   "window_before": [
+    "2026-10-14T21:40:24Z",
+    "2026-10-15T16:47:38Z"
+   ],
+   "window_after": [
+    "2026-10-15T16:47:38Z",
+    "2026-10-16T11:54:52Z"
+   ],
+   "excluded_fraction_by_time": {
+    "before": 0.0,
+    "after": 0.0043583112996484295
+   },
+   "exclusions": [
+    [
+     "HDR-off cfg-save stub wake (power cycle)",
+     "2026-10-15T16:47:38Z",
+     "2026-10-15T16:52:38Z"
+    ]
+   ],
+   "wakes_used": {
+    "before": 19,
+    "after": 19
+   },
+   "blocks": {
+    "before": [
+     {
+      "lost": 68,
+      "M": 846,
+      "wakes": 6
+     },
+     {
+      "lost": 85,
+      "M": 791,
+      "wakes": 6
+     },
+     {
+      "lost": 50,
+      "M": 1149,
+      "wakes": 7
+     }
+    ],
+    "after": [
+     {
+      "lost": 118,
+      "M": 1136,
+      "wakes": 6
+     },
+     {
+      "lost": 85,
+      "M": 965,
+      "wakes": 6
+     },
+     {
+      "lost": 104,
+      "M": 896,
+      "wakes": 7
+     }
+    ]
+   },
+   "lost": {
+    "before": 203,
+    "after": 307
+   },
+   "M": {
+    "before": 2786,
+    "after": 2997
+   },
+   "rate_before": 0.0728643216080402,
+   "rate_after": 0.10243576910243576,
+   "stats": {
+    "basis": "locked rules",
+    "wakes": {
+     "before": 19,
+     "after": 19
+    },
+    "lost": {
+     "before": 203,
+     "after": 307
+    },
+    "M": {
+     "before": 2786,
+     "after": 2997
+    },
+    "rate_before": 0.0728643216080402,
+    "rate_after": 0.10243576910243576,
+    "R_observed": -0.40584262423342876,
+    "R_lower_bootstrap": -1.083626073380172,
+    "nb": {
+     "beta0": -2.647480851743034,
+     "beta1": 0.34390620232747954,
+     "alpha": 0.9376310873840593,
+     "loglik": -134.3326444670002,
+     "beta1_upper_95_onesided": 0.8987576974936219,
+     "R_hat": -0.41044633271970454,
+     "R_lower": -1.4565494372333805
+    },
+    "R_lower_poisson_extra": -0.6389549412755888,
+    "verdict_if_testable": "FAIL (bar not met)",
+    "power": {
+     "wakes_per_side_80pct": 280,
+     "power_at_n": 0.802,
+     "before_wakes_existing": 19,
+     "reachable": false,
+     "note": "unreachable without HDR back on (Nick's call)"
+    }
+   },
+   "verdict": "FAIL (bar not met)"
+  },
+  "BMCAM_004": {
+   "unit": "BMCAM_004",
+   "spotter": "SPOT-33507C",
+   "t_off": "2026-10-15T16:37:13Z",
+   "D_h": 18.872,
+   "window_before": [
+    "2026-10-14T21:44:54Z",
+    "2026-10-15T16:37:13Z"
+   ],
+   "window_after": [
+    "2026-10-15T16:37:13Z",
+    "2026-10-16T11:29:32Z"
+   ],
+   "excluded_fraction_by_time": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "exclusions": [
+    [
+     "HDR-off cfg-save stub wake (power cycle)",
+     "2026-10-15T16:37:13Z",
+     "2026-10-15T16:42:13Z"
+    ],
+    [
+     "THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)",
+     "2026-10-14T17:42:55Z",
+     "2026-10-17T18:41:19Z"
+    ]
+   ],
+   "wakes_used": {
+    "before": 0,
+    "after": 0
+   },
+   "blocks": {
+    "before": [],
+    "after": []
+   },
+   "lost": {
+    "before": 0,
+    "after": 0
+   },
+   "M": {
+    "before": 0,
+    "after": 0
+   },
+   "rate_before": NaN,
+   "rate_after": NaN,
+   "stats": {
+    "basis": "SENSITIVITY: outside the locked rules, report only",
+    "wakes": {
+     "before": 19,
+     "after": 19
+    },
+    "lost": {
+     "before": 38,
+     "after": 28
+    },
+    "M": {
+     "before": 3247,
+     "after": 3334
+    },
+    "rate_before": 0.011703110563597166,
+    "rate_after": 0.008398320335932814,
+    "R_observed": 0.2823856281375303,
+    "R_lower_bootstrap": 0.0019870320016733833,
+    "nb": {
+     "beta0": -4.448068895129069,
+     "beta1": -0.3315552590089518,
+     "alpha": 2.081179649752824e-08,
+     "loglik": -58.200428156639646,
+     "beta1_upper_95_onesided": 0.07503079167719606,
+     "R_hat": 0.2821935101544647,
+     "R_lower": -0.07791734125645133
+    },
+    "R_lower_poisson_extra": -0.11109679851248178,
+    "verdict_if_testable": "INCONCLUSIVE",
+    "power": {
+     "wakes_per_side_80pct": 140,
+     "power_at_n": 0.8025,
+     "before_wakes_existing": 19,
+     "reachable": false,
+     "note": "unreachable without HDR back on (Nick's call)"
+    }
+   },
+   "verdict": "not testable: exclusions remove 100% of a window (> 25 %); fewer than 3 blocks on a side"
+  }
+ },
+ "overall": "report only (n = 1 unit: BMCAM_003 FAIL (bar not met)); no recommendation (R7, TEAM_RULES \u00a79)"
+}
