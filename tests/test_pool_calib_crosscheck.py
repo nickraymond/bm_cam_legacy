@@ -55,9 +55,9 @@ class TestCrossCheck(unittest.TestCase):
     def test_identical_is_within(self):
         with tempfile.TemporaryDirectory() as t:
             a, b = write_cam(t, "dng", K, D), write_cam(t, "jpg", K, D)
-            rc, out = run([a, b])
+            rc, out = run([a, b, "--out", os.path.join(t, "o")])
             self.assertEqual(rc, 0, out)
-            r = json.load(open(os.path.join(a, "crosscheck.json")))
+            r = json.load(open(os.path.join(t, "o", "crosscheck.json")))
             self.assertTrue(r["within_bar"])
             self.assertEqual(len(r["items"]["ray_at_B4_probes"]["per_probe"]), 8)     # frame probes only
             self.assertAlmostEqual(r["items"]["ray_at_B4_probes"]["value"], 0.0)
@@ -89,16 +89,52 @@ class TestCrossCheck(unittest.TestCase):
             k2[0][0] *= 1.004
             k2[0][2] += 4.0
             a, b = write_cam(t, "dng", K, D), write_cam(t, "jpg", k2, D)
-            rc, out = run([a, b])
-            r = json.load(open(os.path.join(a, "crosscheck.json")))
+            rc, out = run([a, b, "--out", os.path.join(t, "o")])
+            r = json.load(open(os.path.join(t, "o", "crosscheck.json")))
             self.assertTrue(r["items"]["fx"]["pass"] and r["items"]["cx"]["pass"], out)
 
     def test_bad_input_refused(self):
         with tempfile.TemporaryDirectory() as t:
             a = write_cam(t, "dng", K, D)
             b = write_cam(t, "small", K, D, size=(1280, 800))
-            self.assertEqual(run([a, b])[0], 2)
-            self.assertEqual(run([a, os.path.join(t, "missing")])[0], 2)
+            self.assertEqual(run([a, b, "--out", os.path.join(t, "o")])[0], 2)
+            self.assertEqual(run([a, os.path.join(t, "missing"), "--out", os.path.join(t, "o")])[0], 2)
+
+    def test_out_is_required(self):
+        with tempfile.TemporaryDirectory() as t:
+            a, b = write_cam(t, "dng", K, D), write_cam(t, "jpg", K, D)
+            with self.assertRaises(SystemExit) as cm:
+                run([a, b])
+            self.assertEqual(cm.exception.code, 2)
+            self.assertFalse(os.path.exists(os.path.join(a, "crosscheck.json")))    # never writes into a run
+
+    def test_not_evaluable_reported_separately(self):
+        with tempfile.TemporaryDirectory() as t:
+            d2 = D[:]
+            d2[0] = -0.5                      # strong barrel: folds, so not invertible at the corner probes
+            a, b = write_cam(t, "dng", K, D), write_cam(t, "jpg", K, d2)
+            rc, out = run([a, b, "--out", os.path.join(t, "o")])
+            r = json.load(open(os.path.join(t, "o", "crosscheck.json")))["items"]["ray_at_B4_probes"]
+            self.assertEqual(rc, 3)
+            self.assertGreater(r["n_not_evaluable"], 0)
+            self.assertIsNone(r["value"])
+            self.assertIn("not evaluable", out)
+
+    def test_settings_mismatch_is_warned(self):
+        with tempfile.TemporaryDirectory() as t:
+            ra, rb = os.path.join(t, "runA"), os.path.join(t, "runB")
+            os.makedirs(ra); os.makedirs(rb)
+            a, b = write_cam(ra, "imx708", K, D), write_cam(rb, "imx708", K, D)
+            for root, sha, reading in ((ra, "aaa", "literal"), (rb, "bbb", "literal")):
+                json.dump({"models_reading": reading, "masks": {"imx708": {"path": "m.png", "sha256": sha}},
+                           "args": {"layout": "modern", "squares_x": 14, "squares_y": 9}},
+                          open(os.path.join(root, "run_manifest.json"), "w"))
+            rc, out = run([a, b, "--out", os.path.join(t, "o")])
+            self.assertEqual(rc, 0, out)                       # settings are a warning, not the bar
+            r = json.load(open(os.path.join(t, "o", "crosscheck.json")))
+            self.assertEqual(len(r["settings_differences"]), 1)
+            self.assertIn("masks", r["settings_differences"][0])
+            self.assertIn("Settings WARNING", out)
 
 
 if __name__ == "__main__":

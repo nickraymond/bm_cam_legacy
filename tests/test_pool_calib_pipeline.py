@@ -598,8 +598,10 @@ class TestNonNativeUnits(unittest.TestCase):
 
     def test_native_size_help_says_imx708(self):
         h = " ".join(pp.build_parser().format_help().split())
-        self.assertIn("the IMX708 full frame WxH", h)
-        self.assertIn("Leave it at the default for any other camera", h)
+        self.assertIn("Default = the IMX708", h)
+        # since prereg 20261016 §3 the N6/AE3 bars are pre-registered in their own pixels (QE 006 nit 6)
+        self.assertIn("1280x800 with --crop 0,0,1280,800", h)
+        self.assertIn("other sizes get B5c / crop verdict N/A", h)
 
     def test_verdict_titles(self):
         import pool_calib_figures as figs
@@ -933,8 +935,9 @@ class TestPrereg20261016Units(unittest.TestCase):
             self.assertLess(row["cross_rms_px"], 0.6)     # one true camera: carries across with 0.15 px noise
         out = pp.cross_group_check("standard", obj, img, (W, H), groups, cv, min_views=10)
         st = {(r["fit_on"], r["score_on"]): r["status"] for r in out["pairs"]}
-        self.assertTrue(st[("far", "near")].startswith("not testable"))
-        self.assertEqual(st[("near", "far")], "ok")
+        # prereg §8: a block under min_views is not testable whether it is fitted OR scored (QE 006 nit 4)
+        self.assertEqual(st[("far", "near")], "not testable: 8 views in far < 10")
+        self.assertEqual(st[("near", "far")], "not testable: 8 views in far < 10")
 
 
 @unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
@@ -1048,3 +1051,58 @@ class TestOverlayHullNaN(unittest.TestCase):
         cv2.polylines(old, [np.asarray(hull, np.int32).reshape(-1, 1, 2)], True, (80, 220, 80),
                       max(2, int(round(600 / 1500))))
         self.assertTrue(np.array_equal(new, old))           # pixel-identical to the previous drawing
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestModelsMissingFailsClosed(unittest.TestCase):
+    """QE 006 R1: the literal (d33) model disagreement is over ALL THREE models. A model that fails to fit makes it
+    unknown (inf) at every probe, so B4 / B5c cannot pass on two models (or on 0 px with one)."""
+
+    def test_helper_inf_when_a_model_is_missing(self):
+        obj, img, _ = synthetic_views(FULL_POSES)
+        fits = {m: pm.fit(m, obj, img, (W, H)) for m in ("standard", "rational")}
+        pts = np.array([[10.0, 10.0], [W / 2, H / 2]])
+        fit_px = np.array([[W / 2 + dx, H / 2 + dy] for dx in (-200, 0, 200) for dy in (-100, 0, 100)], float)
+        raw, al = pp.model_disagreement_at(fits["standard"], [fits["rational"]], ["fisheye"], pts, fit_px, 880.0)
+        self.assertTrue(np.all(np.isinf(raw)) and np.all(np.isinf(al)))
+        raw, al = pp.model_disagreement_at(fits["standard"], [], ["rational", "fisheye"], pts, fit_px, 880.0)
+        self.assertTrue(np.all(np.isinf(raw)) and np.all(np.isinf(al)))       # was np.zeros: always passed
+        fits["fisheye"] = pm.fit("fisheye", obj, img, (W, H), K0=fits["standard"]["K"])
+        raw, _ = pp.model_disagreement_at(fits["standard"], [fits["rational"], fits["fisheye"]], [], pts, fit_px, 880.0)
+        want = pm.model_disagreement_px([fits["standard"], fits["rational"], fits["fisheye"]], pts, 880.0)
+        self.assertTrue(np.allclose(raw, want))
+
+    def test_calibrate_camera_marks_missing_and_bars_fail(self):
+        obj, img, _ = synthetic_views(FULL_POSES)
+        real = pm.fit_robust
+
+        def no_fisheye(model, *a, **k):
+            if model == "fisheye":
+                raise RuntimeError("InitExtrinsics (simulated)")
+            return real(model, *a, **k)
+        cfg = {"outlier_rounds": 3, "folds": 3, "seed": 0, "bootstrap": 4, "tie_frac": 0.02}
+        pm.fit_robust = no_fisheye
+        try:
+            cal = pp.calibrate_camera(obj, img, (W, H), cfg, 1, lambda *a, **k: None, CROP)
+        finally:
+            pm.fit_robust = real
+        self.assertEqual(cal["models_missing"], ["fisheye"])
+        self.assertTrue(all(np.isinf(p["model_disagreement_raw_px"]) and np.isinf(p["model_disagreement_px"])
+                            for p in cal["probes"]))
+        cov = {"covered_frac": 1.0, "all_corner_cells": True, "corner_cells_covered": {"top-left corner": True}}
+        for reading in ("aligned", "literal"):
+            rows, v_full, v_crop = pp.evaluate_bars(20, cal, cov, pp.PREREG["bars"], models_reading=reading)
+            by = {r["bar"].split()[0]: r for r in rows}
+            self.assertEqual((by["B4"]["status"], by["B5c"]["status"]), ("FAIL", "FAIL"), reading)
+            self.assertEqual(by["B4"]["value"]["models_missing"], ["fisheye"])
+            self.assertEqual((v_full, v_crop), ("FAIL", "FAIL"))
+
+    def test_verdict_sheet_leads_with_the_deciding_value(self):
+        import pool_calib_figures as figs
+        v = {"worst_ray_uncertainty_px": 0.24, "worst_model_disagreement_px": 1.19, "literal_ray_px": 5.5,
+             "literal_models_px": 23.9, "models_reading": "literal", "models_missing": []}
+        self.assertTrue(figs._short(v).startswith("ray 0.24 px, models 24 px literal"))
+        v["models_reading"] = "aligned"
+        self.assertTrue(figs._short(v).startswith("ray 0.24 px, models 1.2 px (literal"))
+        v["models_missing"] = ["fisheye"]
+        self.assertIn("models missing: fisheye", figs._short(v))

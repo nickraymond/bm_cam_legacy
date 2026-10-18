@@ -335,10 +335,14 @@ def verdict_titles(name, v_full, v_crop, size, crop):
 
 
 def _short(v):
-    if isinstance(v, dict) and "worst_ray_uncertainty_px" in v:          # B4 / B5c: aligned (literal)
+    if isinstance(v, dict) and "worst_ray_uncertainty_px" in v:          # B4 / B5c
         f = lambda x: "∞" if x is None or not np.isfinite(x) else f"{x:.2g}"  # noqa: E731
+        miss = f"; models missing: {', '.join(v['models_missing'])}" if v.get("models_missing") else ""
+        if v.get("models_reading") == "literal":     # d33: lead with the values that decide the bar
+            return (f"ray {f(v['worst_ray_uncertainty_px'])} px, models {f(v.get('literal_models_px'))} px literal "
+                    f"(aligned models {f(v['worst_model_disagreement_px'])}){miss}")
         return (f"ray {f(v['worst_ray_uncertainty_px'])} px, models {f(v['worst_model_disagreement_px'])} px "
-                f"(literal {f(v.get('literal_ray_px'))} / {f(v.get('literal_models_px'))})")
+                f"(literal {f(v.get('literal_ray_px'))} / {f(v.get('literal_models_px'))}){miss}")
     if isinstance(v, dict):
         parts = []
         for k, x in v.items():
