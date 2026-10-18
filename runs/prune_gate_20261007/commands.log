@@ -1,0 +1,53 @@
+2026-10-16T19:00:15Z SPOT-31593C > cfg hrpm
+2026-10-16T19:00:25Z cfg hrpm
+2026-10-16T19:00:25Z 0
+2026-10-17T18:41:17Z SPOT-33507C > post
+2026-10-17T18:41:19Z post
+2026-10-17T18:41:19Z baroErrorState:            INIT_ERR
+2026-10-17T18:41:19Z battErrorState:            OK
+2026-10-17T18:41:19Z bridgeErrorState:          OK
+2026-10-17T18:41:19Z bspErrorState:             OK
+2026-10-17T18:41:19Z busIErrorState:            OK
+2026-10-17T18:41:19Z busMonErrorState:          OK
+2026-10-17T18:41:19Z busVErrorState:            OK
+2026-10-17T18:41:19Z cellularErrorState:        OK
+2026-10-17T18:41:19Z cellularSignalErrorState:  OK
+2026-10-17T18:41:19Z chargerErrorState:         OK
+2026-10-17T18:41:19Z gpsErrorState:             NO_SIGNAL
+2026-10-17T18:41:19Z htuErrorState:             OK
+2026-10-17T18:41:19Z ioExpErrorState:           OK
+2026-10-17T18:41:19Z iridiumErrorState:         OK
+2026-10-17T18:41:19Z micErrorState:             N/A
+2026-10-17T18:41:19Z potErrorState:             OK
+2026-10-17T18:41:19Z sdInitErrorState:          OK
+2026-10-17T18:41:19Z solarErrorState:           LOW
+2026-10-17T18:41:19Z sstErrorState:             N/A
+2026-10-17T18:41:19Z visibilityLEDErrorState:   N/A
+2026-10-17T18:41:19Z gpsPowerManagerErrorState: N/A
+2026-10-17T18:41:19Z sdQueueErrorState:         OK
+2026-10-17T18:41:19Z post end
+2026-10-17T22:05:13Z SPOT-31593C > post
+2026-10-17T22:05:14Z post
+2026-10-17T22:05:14Z baroErrorState:            N/A
+2026-10-17T22:05:14Z battErrorState:            OK
+2026-10-17T22:05:14Z bridgeErrorState:          OK
+2026-10-17T22:05:14Z bspErrorState:             OK
+2026-10-17T22:05:14Z busIErrorState:            OK
+2026-10-17T22:05:14Z busMonErrorState:          OK
+2026-10-17T22:05:14Z busVErrorState:            OK
+2026-10-17T22:05:14Z cellularErrorState:        OK
+2026-10-17T22:05:14Z cellularSignalErrorState:  OK
+2026-10-17T22:05:14Z chargerErrorState:         OK
+2026-10-17T22:05:14Z gpsErrorState:             NO_SIGNAL
+2026-10-17T22:05:14Z htuErrorState:             OK
+2026-10-17T22:05:14Z ioExpErrorState:           OK
+2026-10-17T22:05:14Z iridiumErrorState:         OK
+2026-10-17T22:05:14Z micErrorState:             N/A
+2026-10-17T22:05:14Z potErrorState:             OK
+2026-10-17T22:05:14Z sdInitErrorState:          OK
+2026-10-17T22:05:14Z solarErrorState:           LOW
+2026-10-17T22:05:14Z sstErrorState:             N/A
+2026-10-17T22:05:14Z visibilityLEDErrorState:   N/A
+2026-10-17T22:05:14Z gpsPowerManagerErrorState: N/A
+2026-10-17T22:05:14Z sdQueueErrorState:         OK
+2026-10-17T22:05:14Z post end

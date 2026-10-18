@@ -30,3 +30,19 @@ SUMMARY cell=0 con=2
 CON  2026-10-14T04:43:32Z bm pub bmcam/cmd {"id":66008,"c":"set","kv":{"still.raw.progressive":true,"uplink.media_key.heal_order":"after"}} 1 1
 CON  2026-10-14T04:43:32Z Message: Message: Message: Message: 1791953010.476 e6fe83ea6b4a2b7f, [bmcam004] OK id=66008 still.raw.progressive: false -> true, uplink.media_key.heal_order: before -> after (next action) cfg=0cb7ad
 SUMMARY cell=0 con=2
+===== 2026-10-18T15:44:12Z DEPLOY_S.bmcam003.66201 SPOT-31593C  bm pub bmcam/cmd {"id":66201,"c":"set","kv":{"schedule.timezone":"America/New_York","schedule.window.enabled":true,"schedule.window.start":"10:00","schedule.window.end":"15:00","uplink.media_key.heal_offwin_max":0}} 1 1  (220 B line)
+===== 2026-10-18T15:44:12Z DEPLOY_S.bmcam004.66202 SPOT-33507C  bm pub bmcam/cmd {"id":66202,"c":"set","kv":{"schedule.timezone":"America/New_York","schedule.window.enabled":true,"schedule.window.start":"10:00","schedule.window.end":"15:00","uplink.media_key.heal_offwin_max":40}} 1 1  (221 B line)
+CON  2026-10-18T15:44:14Z bm pub bmcam/cmd {"id":66202,"c":"set","kv":{"schedule.timezone":"America/New_York","schedule.window.enabled":true,"schedule.window.start":"10:00","schedule.window.end":"15:00","uplink.media_key.heal
+CON  2026-10-18T15:44:14Z 1792338255.460 e6fe83ea6b4a2b7f, [bmcam004] OK id=66202 schedule.timezone: America/Los_Angeles -> America/New_York, schedule.window.start: 00:00 -> 10:00, schedule.window.end: 00:00 -> 15:00 (next ac
+SUMMARY cell=0 con=2
+CON  2026-10-18T15:44:13Z bm pub bmcam/cmd {"id":66201,"c":"set","kv":{"schedule.timezone":"America/New_York","schedule.window.enabled":true,"schedule.window.start":"10:00","schedule.window.end":"15:00","uplink.media_key.heal
+CON  2026-10-18T15:44:14Z 1792338255.375 53171fa3d81a8e6f, [bmcam003] OK id=66201 schedule.timezone: America/Los_Angeles -> America/New_York, schedule.window.start: 00:00 -> 10:00, schedule.window.end: 00:00 -> 15:00, uplink.
+SUMMARY cell=0 con=2
+===== 2026-10-18T16:01:19Z DEPLOY_S.bmcam004.66210 SPOT-33507C  bm pub bmcam/cmd {"id":66210,"c":"set","kv":{"schedule.window.start":"07:00","schedule.window.end":"12:00"}} 1 1  (113 B line)
+===== 2026-10-18T16:01:19Z DEPLOY_S.bmcam003.66209 SPOT-31593C  bm pub bmcam/cmd {"id":66209,"c":"set","kv":{"schedule.window.start":"07:00","schedule.window.end":"12:00"}} 1 1  (113 B line)
+CON  2026-10-18T16:01:20Z bm pub bmcam/cmd {"id":66210,"c":"set","kv":{"schedule.window.start":"07:00","schedule.window.end":"12:00"}} 1 1
+CON  2026-10-18T16:01:20Z 1792339281.804 e6fe83ea6b4a2b7f, [bmcam004] OK id=66210 schedule.window.start: 10:00 -> 07:00, schedule.window.end: 15:00 -> 12:00 (next action) cfg=a4e668c5
+SUMMARY cell=0 con=2
+CON  2026-10-18T16:01:20Z bm pub bmcam/cmd {"id":66209,"c":"set","kv":{"schedule.window.start":"07:00","schedule.window.end":"12:00"}} 1 1
+CON  2026-10-18T16:01:20Z 1792339281.957 53171fa3d81a8e6f, [bmcam003] OK id=66209 schedule.window.start: 10:00 -> 07:00, schedule.window.end: 15:00 -> 12:00 (next action) cfg=0eb51c00
+SUMMARY cell=0 con=2
