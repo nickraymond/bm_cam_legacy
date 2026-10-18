@@ -159,15 +159,19 @@ older than a few hours stopped being asked once newer images took the asks.
   doesn't appear to drive it, but that is not shown.
 - The windows can't separate HDR from time of day or from the restart itself (EXPECTATIONS §5 confounds).
 
-**Nick's option (one):** count bmcam004 despite its THERMAL_FAULT flag.
-- The console raised it 10/14 17:42:55Z. The only later charger reading is a `post` OK on Sat 18:41Z. The TE
-  confirms the rig-health THERMAL_FAULT is a stale latch: **fault state unverified for the window**.
-- Counting it changes an exclusion after the data exists, so it needs Nick's OK.
-- Locked: **report only (n = 1; bmcam003 FAIL), no recommendation.**
-- What counting it would show: bmcam004 INCONCLUSIVE (+26.6 %, lower bounds +0.2 % and −11.2 %). With two testable
-  units the worse unit decides, so Q5 becomes a **2-unit FAIL**. That **would allow a recommendation**, which the
-  locked n = 1 result does not. This is a material change, and it is why it needs Nick's OK.
-- (Corrected Sun 10/18 after QE 006 R1. Saturday's draft wrongly said the option "changes nothing material".)
+**Q5 result (locked): report only (n = 1 unit; bmcam003 FAIL), no recommendation.** (PE 003 ruling, Sun 10/18.)
+
+**Sensitivity line (not a verdict):**
+- If bmcam004 were counted, Q5 would read a **2-unit FAIL**.
+  - bmcam003: FAIL, as above.
+  - bmcam004: R +26.6 %; lower bounds +0.2 % (bootstrap) and −11.2 % (NB) → INCONCLUSIVE.
+  - The worse unit decides, and a 2-unit result is no longer limited to report only.
+- Changing the exclusion is Nick's call (spec rev 2 R4).
+- bmcam004's THERMAL_FAULT state in the window is unverified. The console raised the flag 10/14 17:42:55Z, the next
+  reading was a `post` OK on Sat 18:41Z, and the TE confirms rig health shows a stale latch.
+
+**Correction:** Saturday's draft said that counting bmcam004 "changes nothing material". That was wrong. Counting it
+turns a report-only result into a 2-unit verdict.
 
 ## Study pass / fail (spec "Pass / fail" + R6)
 
