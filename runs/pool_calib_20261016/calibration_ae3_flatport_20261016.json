@@ -1,0 +1,268 @@
+{
+  "status": "PROVISIONAL until QE passes the tool code (bm PR #184, 8e98892e)",
+  "use": "NOT VALIDATED (pre-registered bars FAIL: see bars). Do not apply as a full-frame or crop correction. fx/fy/cx/cy are well determined inside the observed region (bootstrap std in 'bootstrap'); the distortion outside the observed region is extrapolated.",
+  "camera": "ae3",
+  "rig": "nereus002 pool rig",
+  "port": "flat port (pool housing)",
+  "medium": "fresh water (pool)",
+  "dive": "pool049_20261016T212527Z (Fri 2026-10-16 ChArUco re-dive)",
+  "calibrated": "2026-10-17",
+  "model": "standard",
+  "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+  "dist_coeffs_order": "k1 k2 p1 p2 k3",
+  "image_size": [
+    1280,
+    800
+  ],
+  "camera_matrix": [
+    [
+      1394.2211146171771,
+      0.0,
+      677.3690664567961
+    ],
+    [
+      0.0,
+      1393.2557752342311,
+      375.0514639699826
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "dist_coeffs": [
+    0.39104288364647183,
+    -0.15981930550952725,
+    0.004303504641045737,
+    -0.0023332439182556846,
+    1.2675838245698394
+  ],
+  "fx": 1394.2211146171771,
+  "fy": 1393.2557752342311,
+  "cx": 677.3690664567961,
+  "cy": 375.0514639699826,
+  "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+  "production_crop": {
+    "model": "standard",
+    "opencv_api": "cv2.undistort / cv2.initUndistortRectifyMap",
+    "dist_coeffs_order": "k1 k2 p1 p2 k3",
+    "image_size": [
+      1280,
+      800
+    ],
+    "camera_matrix": [
+      [
+        1394.2211146171771,
+        0.0,
+        677.3690664567961
+      ],
+      [
+        0.0,
+        1393.2557752342311,
+        375.0514639699826
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "fx": 1394.2211146171771,
+    "fy": 1393.2557752342311,
+    "cx": 677.3690664567961,
+    "cy": 375.0514639699826,
+    "dist_coeffs": [
+      0.39104288364647183,
+      -0.15981930550952725,
+      0.004303504641045737,
+      -0.0023332439182556846,
+      1.2675838245698394
+    ],
+    "coordinates": "native sensor pixels of the frame given by image_size; pixel centres at integers",
+    "crop_native_xywh": [
+      0,
+      0,
+      1280,
+      800
+    ],
+    "note": "pure pixel crop: cx, cy shifted by the crop offset; fx, fy, distortion unchanged",
+    "derived_from": "intrinsics_full_1280x800.json"
+  },
+  "heldout_rms_px": 0.290193067839877,
+  "views_used": 25,
+  "usable_poses": 25,
+  "validated_board_distance_m": [
+    0.8460796892639122,
+    1.0080343017728193
+  ],
+  "verdict_full_frame": "FAIL",
+  "verdict_production_crop": "FAIL",
+  "bars": [
+    {
+      "bar": "B1 poses",
+      "value": 25,
+      "rule": ">= 15 distinct usable poses",
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "bar": "B2 held-out RMS",
+      "value": 0.290193067839877,
+      "rule": "< 1.0 px (standard)",
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "bar": "B3 coverage",
+      "value": {
+        "covered_frac": 0.6,
+        "corner_cells": {
+          "top-left corner": true,
+          "top-right corner": true,
+          "bottom-left corner": false,
+          "bottom-right corner": false
+        }
+      },
+      "rule": ">= 60% of 8x5 cells and all 4 corner cells",
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "bar": "B4 edges constrained",
+      "value": {
+        "worst_ray_uncertainty_px": 1.8285764653252845,
+        "worst_model_disagreement_px": null,
+        "literal_ray_px": 6.580925147181955,
+        "literal_models_px": null
+      },
+      "rule": "ray uncertainty <= 2.0 px and model disagreement <= 2.0 px at 4 frame corners + 4 edge midpoints (ray uncertainty homography-aligned (A1), model disagreement LITERAL (metric, d33))",
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "bar": "B5 stable",
+      "value": {
+        "rel_std_f": 0.0014801350574686373,
+        "std_c_px": 2.102586868513943,
+        "replicates_ok": "100/100"
+      },
+      "rule": "bootstrap std(f)/f <= 0.5% and std(cx, cy) <= 10.0 px (>= 95% of replicates fit)",
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "bar": "B5c production crop",
+      "value": {
+        "worst_ray_uncertainty_px": 1.8285764653252845,
+        "worst_model_disagreement_px": 6.2650058521699465,
+        "literal_ray_px": 6.580925147181955,
+        "literal_models_px": 17.41488705061682
+      },
+      "rule": "ray uncertainty <= 0.5 px and model disagreement <= 1.0 px at the 4 crop corners (ray uncertainty homography-aligned (A1), model disagreement LITERAL (metric, d33))",
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "bar": "B6 focal sanity",
+      "value": 1.349289765428411,
+      "rule": "fx / 1033 px (in-air nominal, --nominal-fx) in [1.25, 1.42]",
+      "pass": true,
+      "status": "PASS"
+    }
+  ],
+  "flags": {
+    "principal_point": {
+      "dx_px": 37.36906645679608,
+      "dy_px": -24.948536030017408,
+      "dx_frac": 0.029194583169371936,
+      "dy_frac": -0.03118567003752176,
+      "limit_frac": 0.02,
+      "flag": true
+    },
+    "tangential": {
+      "p1": 0.004303504641045737,
+      "p2": -0.0023332439182556846,
+      "limit": 0.001,
+      "source": "standard 5-coefficient fit",
+      "flag": true
+    },
+    "outer_inner_residual": {
+      "ratio": null,
+      "limit": 2.0,
+      "flag": null
+    },
+    "any": true
+  },
+  "bootstrap": {
+    "replicates_ok": 100,
+    "replicates": 100,
+    "fx": {
+      "mean": 1395.025074931717,
+      "std": 2.064825519454247,
+      "p2.5": 1391.315596739533,
+      "p97.5": 1399.3746526439847
+    },
+    "fy": {
+      "mean": 1394.066798605497,
+      "std": 1.9868675086382086,
+      "p2.5": 1390.4724656504543,
+      "p97.5": 1398.0939233036338
+    },
+    "cx": {
+      "mean": 677.4952563160388,
+      "std": 2.0795632701729057,
+      "p2.5": 673.7764205726997,
+      "p97.5": 680.8730873545309
+    },
+    "cy": {
+      "mean": 375.4184039842099,
+      "std": 2.102586868513943,
+      "p2.5": 372.1785987669967,
+      "p97.5": 379.41731452808364
+    },
+    "dist": {
+      "mean": [
+        0.3922070653345967,
+        -0.17032331781268684,
+        0.004513210819609372,
+        -0.0022098712621430373,
+        1.3008584665598635
+      ],
+      "std": [
+        0.008107161433054766,
+        0.10146448643024983,
+        0.0011415153797987995,
+        0.0009920420965793045,
+        0.3869163090726398
+      ]
+    }
+  },
+  "fov_deg_h_v": [
+    46.203594215385934,
+    31.079703656759673
+  ],
+  "fx_over_nominal_in_air": 1.349289765428411,
+  "nominal_fx_in_air_px": 1033.3,
+  "nominal_fx_in_air_source": "--nominal-fx",
+  "mask": null,
+  "models_reading": "literal",
+  "how_to_undistort": "cv2.initUndistortRectifyMap(K, D, None, K, size, cv2.CV_32FC1) then cv2.remap",
+  "limits": [
+    "valid near the calibrated board distances, in fresh water (seawater ~+0.5 % fx)",
+    "pinhole + distortion approximates a flat port (refraction is non-central)"
+  ],
+  "source": {
+    "run_dir": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw",
+    "camera_dir": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw/ae3",
+    "pipeline_git": {
+      "sha": "dda461668cc6d74141eeb8b5640816b24829ff40",
+      "tools_or_docs_dirty": false
+    },
+    "prereg": "docs/pool_calib_prereg_20261016.md",
+    "prereg_commit": "c3356f49+dda46166",
+    "export_git_sha": "dda46166",
+    "undistort_maps_npz": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/undistort_maps/undistort_ae3_1280x800.npz",
+    "undistort_maps_sha256": "bde70aad2de4647ba3e1aa04074781271b97ab6d1e4e4f70fe4dbd763d034661"
+  }
+}

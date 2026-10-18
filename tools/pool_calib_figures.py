@@ -378,7 +378,14 @@ def _overlay(img, rows, which, crop, grid_step=None, hull=None):
         x0, y0, cw, ch = crop
         cv2.rectangle(out, (x0, y0), (x0 + cw - 1, y0 + ch - 1), (255, 255, 0), th)
     if hull is not None and len(hull) >= 3:
-        cv2.polylines(out, [np.asarray(hull, np.int32).reshape(-1, 1, 2)], True, (80, 220, 80), th)
+        # A hull point the model cannot map (it folds there) is NaN after undistortion; casting NaN to int
+        # drew stray lines to the frame corner. Draw only the segments between two mappable neighbours.
+        hp = np.asarray(hull, float).reshape(-1, 2)
+        ok = np.all(np.isfinite(hp), axis=1)
+        for i in range(len(hp)):
+            j = (i + 1) % len(hp)
+            if ok[i] and ok[j]:
+                cv2.line(out, (int(hp[i, 0]), int(hp[i, 1])), (int(hp[j, 0]), int(hp[j, 1])), (80, 220, 80), th)
     for r in rows:
         p = np.asarray(r["_before_pts" if which == "before" else "_after_pts"], float)
         p = p[np.all(np.isfinite(p), axis=1)]
