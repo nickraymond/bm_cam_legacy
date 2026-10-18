@@ -1,0 +1,79 @@
+unit,media_key,capture_utc,side,block,M,lost,qfull,hdr_adds,stall_runs,used,reason
+BMCAM_003,0erbsy,2026-10-14T22:00:34Z,before,2,194,10,10,2,1,True,
+BMCAM_003,0erekx,2026-10-14T23:00:33Z,before,2,187,22,22,2,2,True,
+BMCAM_003,0erhcw,2026-10-15T00:00:32Z,before,2,189,0,0,2,0,True,
+BMCAM_003,0erk4w,2026-10-15T01:00:32Z,before,2,189,2,2,2,0,True,
+BMCAM_003,0ermwv,2026-10-15T02:00:31Z,before,2,194,11,18,2,1,True,
+BMCAM_003,0erpov,2026-10-15T03:00:31Z,before,2,95,5,10,2,0,True,
+BMCAM_003,0ersgu,2026-10-15T04:00:30Z,before,2,101,0,0,2,0,True,
+BMCAM_003,0erv93,2026-10-15T05:00:39Z,before,1,102,1,1,2,0,True,
+BMCAM_003,0ery13,2026-10-15T06:00:39Z,before,1,102,10,10,2,1,True,
+BMCAM_003,0es0t2,2026-10-15T07:00:38Z,before,1,195,30,30,2,3,True,
+BMCAM_003,0es3l1,2026-10-15T08:00:37Z,before,1,95,1,11,2,0,True,
+BMCAM_003,0es6d1,2026-10-15T09:00:37Z,before,1,102,21,21,2,2,True,
+BMCAM_003,0es950,2026-10-15T10:00:36Z,before,1,195,22,30,2,2,True,
+BMCAM_003,0esbwz,2026-10-15T11:00:35Z,before,0,102,20,22,2,2,True,
+BMCAM_003,0eseoz,2026-10-15T12:00:35Z,before,0,195,20,20,2,2,True,
+BMCAM_003,0eshgy,2026-10-15T13:00:34Z,before,0,103,3,11,2,0,True,
+BMCAM_003,0esk8y,2026-10-15T14:00:34Z,before,0,191,11,22,1,1,True,
+BMCAM_003,0esn0x,2026-10-15T15:00:33Z,before,0,60,0,0,2,0,True,
+BMCAM_003,0espsw,2026-10-15T16:00:32Z,before,0,195,14,14,2,1,True,
+BMCAM_003,0ess0n,2026-10-15T16:48:23Z,after,0,192,166,,,1,False,not a scheduled production wake (stub)
+BMCAM_003,0esskx,2026-10-15T17:00:33Z,after,0,193,11,11,0,1,False,excluded: non-scheduled wake 0ess0n (stub) image + 20 min
+BMCAM_003,0esvcw,2026-10-15T18:00:32Z,after,0,191,22,22,0,2,True,
+BMCAM_003,0esy52,2026-10-15T19:00:38Z,after,0,185,22,22,0,2,True,
+BMCAM_003,0et0x1,2026-10-15T20:00:37Z,after,0,192,0,0,0,0,True,
+BMCAM_003,0et3p0,2026-10-15T21:00:36Z,after,0,185,22,24,0,2,True,
+BMCAM_003,0et6h0,2026-10-15T22:00:36Z,after,0,190,41,42,0,4,True,
+BMCAM_003,0et98z,2026-10-15T23:00:35Z,after,1,191,21,21,0,2,True,
+BMCAM_003,0etc0z,2026-10-16T00:00:35Z,after,1,190,22,24,0,2,True,
+BMCAM_003,0etesy,2026-10-16T01:00:34Z,after,1,190,1,11,0,0,True,
+BMCAM_003,0ethkx,2026-10-16T02:00:33Z,after,1,195,21,22,0,2,True,
+BMCAM_003,0etkcx,2026-10-16T03:00:33Z,after,1,96,10,10,0,1,True,
+BMCAM_003,0etn4w,2026-10-16T04:00:32Z,after,1,103,10,11,0,1,True,
+BMCAM_003,0etpww,2026-10-16T05:00:32Z,after,2,102,0,10,0,0,True,
+BMCAM_003,0etsov,2026-10-16T06:00:31Z,after,2,103,11,11,0,1,True,
+BMCAM_003,0etvgu,2026-10-16T07:00:30Z,after,2,102,0,0,0,0,True,
+BMCAM_003,0ety8u,2026-10-16T08:00:30Z,after,2,195,33,33,0,3,True,
+BMCAM_003,0eu113,2026-10-16T09:00:39Z,after,2,96,10,10,0,1,True,
+BMCAM_003,0eu3t2,2026-10-16T10:00:38Z,after,2,103,20,30,0,2,True,
+BMCAM_003,0eu6l2,2026-10-16T11:00:38Z,after,2,195,30,31,0,3,True,
+BMCAM_004,0erbsu,2026-10-14T22:00:30Z,before,2,189,3,1,2,0,False,excluded: non-scheduled bus-on 2026-10-14T21:43:22Z (power cycle) + 20 min
+BMCAM_004,0ereku,2026-10-14T23:00:30Z,before,2,177,6,5,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0erhct,2026-10-15T00:00:29Z,before,2,180,1,1,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0erk52,2026-10-15T01:00:38Z,before,2,192,3,2,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0ermx2,2026-10-15T02:00:38Z,before,2,194,1,0,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0erpp1,2026-10-15T03:00:37Z,before,2,100,2,2,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0ersh1,2026-10-15T04:00:37Z,before,2,192,3,1,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0erv90,2026-10-15T05:00:36Z,before,1,99,2,1,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0ery0z,2026-10-15T06:00:35Z,before,1,90,0,0,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0es0sz,2026-10-15T07:00:35Z,before,1,192,3,2,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0es3ky,2026-10-15T08:00:34Z,before,1,101,1,1,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0es6cx,2026-10-15T09:00:33Z,before,1,191,2,8,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0es94x,2026-10-15T10:00:33Z,before,1,192,2,0,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0esbww,2026-10-15T11:00:32Z,before,0,195,3,1,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0eseow,2026-10-15T12:00:32Z,before,0,195,2,8,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0eshgv,2026-10-15T13:00:31Z,before,0,195,0,0,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0esk8u,2026-10-15T14:00:30Z,before,0,189,0,0,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0esn0u,2026-10-15T15:00:30Z,before,0,193,2,2,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0espt3,2026-10-15T16:00:39Z,before,0,191,2,2,2,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0esrj9,2026-10-15T16:37:57Z,after,0,190,190,0,0,1,False,not a scheduled production wake (stub)
+BMCAM_004,0essl1,2026-10-15T17:00:37Z,after,0,191,1,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0esvd0,2026-10-15T18:00:36Z,after,0,190,2,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0esy50,2026-10-15T19:00:36Z,after,0,183,2,2,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0et0wz,2026-10-15T20:00:35Z,after,0,186,0,0,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0et3oy,2026-10-15T21:00:34Z,after,0,187,3,3,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0et6gy,2026-10-15T22:00:34Z,after,0,195,2,2,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0et98x,2026-10-15T23:00:33Z,after,1,188,1,0,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etc0x,2026-10-16T00:00:33Z,after,1,189,0,0,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etesw,2026-10-16T01:00:32Z,after,1,190,2,2,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0ethkv,2026-10-16T02:00:31Z,after,1,191,2,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etkcv,2026-10-16T03:00:31Z,after,1,102,1,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etn4u,2026-10-16T04:00:30Z,after,1,191,2,2,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etpwt,2026-10-16T05:00:29Z,after,2,191,1,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etsot,2026-10-16T06:00:29Z,after,2,192,0,0,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0etvh2,2026-10-16T07:00:38Z,after,2,191,3,3,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0ety92,2026-10-16T08:00:38Z,after,2,93,2,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0eu111,2026-10-16T09:00:37Z,after,2,193,2,1,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0eu3t0,2026-10-16T10:00:36Z,after,2,191,2,2,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)
+BMCAM_004,0eu6l0,2026-10-16T11:00:36Z,after,2,100,0,0,0,0,False,excluded: THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)

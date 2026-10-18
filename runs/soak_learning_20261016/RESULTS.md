@@ -9,9 +9,11 @@ raw/, logs/, ledger.csv, wakes.csv, asks.csv, q5_*.json/csv). This folder keeps 
 ## Read-out (≤ 8 lines, for the PjM)
 
 1. **Q1:** 122 images were captured in the run window. 118 were hourly production images, 3 were stub images from
-   Spotter restarts and 1 was a forced cycle. 114 of 122 (93 %) completed ≤ 24 h. bmcam003: 56/62; bmcam004: 58/60.
+   restores/restarts (bmcam003's post-pool restore stub, plus one HDR-off cfg-save stub per unit) and 1 was a forced
+   cycle. 114 of 122 (93 %) completed ≤ 24 h. bmcam003: 56/62; bmcam004: 58/60.
 2. **Q2:** Nick's NOAA bar (100 % ≤ 24 h) is **not met** on either unit. EXPECTATIONS predicted this (X7). Heals
-   took longer than designed: median 4.1 h (003) and 3.1 h (004), against ~2 wakes.
+   took longer than designed: median 4.1 h (003) and 3.1 h (004) for production images with holes (3.56 h over all
+   in-bar images with holes), against ~2 wakes.
 3. **Q3:** The 8 late images break down as **C2 ask side: 4** (all bmcam003) and **C7 pool / pull / stub: 4**.
    C4 queue stalls made the holes in 6 of the 8 (secondary). 0 have "insufficient evidence"; 0 are C8 primary. Three
    C8 mechanisms are described below.
@@ -19,8 +21,10 @@ raw/, logs/, ledger.csv, wakes.csv, asks.csv, q5_*.json/csv). This folder keeps 
    bmcam002 runbook ("no Spotter cfg save / restart right before a wake; wait for GPS"). C3 → d30-B (merged Sat).
    C4 → `post_pool_notecard_queue_stall`.
 5. **Q5 (HDR off):** **report only, n = 1 unit**. Only bmcam003 is testable. Its first-send drop rate went **up**,
-   7.29 % → 10.24 % (R = −41 %): **FAIL (bar not met)**. Showing a 20 % cut would take 280 wakes per side; 19
+   7.29 % → 10.56 % (R = −45 %): **FAIL (bar not met)**. Showing a 20 % cut would take 260 wakes per side; 19
    before-wakes exist, so it is **unreachable without HDR back on (Nick's call)**. No recommendation.
+   (Revised Sun 10/18 after QE 006 R3: the locked "non-scheduled wake = image + 20 min" rule now also excludes the
+   17:00:33Z wake. The verdict is unchanged.)
 6. **First-send loss is 100 % Spotter queue refusals** (`MS_Q_CELLULAR_ONLY is full`, ~10-chunk runs) in all 94
    console-covered production wakes; 0 accepted chunks were lost downstream. bmcam003/SPOT-31593C loses 7.3 % on
    first send, against 1.2 % for bmcam004/SPOT-33507C.
@@ -39,6 +43,7 @@ raw/, logs/, ledger.csv, wakes.csv, asks.csv, q5_*.json/csv). This folder keeps 
   cause classes, `--config` for the next soak), `tools/soak_learning_q5.py` (locked Q5 statistics, stdlib only).
 - **A2 clock check:** 5 random rows were checked by hand against raw Sofar and backend: capture time, M, first-send
   count and completion all match. Backend times lag Sofar by 7–31 min (Sofar exposure + poll), as expected.
+  Rows checked: bmcam004 `0eq64v`, `0etc0x`, `0eq8wv`; bmcam003 `0eusst`, `0esk8y`.
 
 ## Count check (must-do 2, failure mode A1)
 
@@ -67,19 +72,19 @@ Reconciliation 100 % (stop line < 80 %: not crossed).
 |---|---|---|---|
 | X1 | 59 production wakes per unit, plus stubs/forced: 003 = 3 (Wed restore stub, Thu HDR stub, Fri forced), 004 = 2 (+1?) | 59 + 59 production. 003: restore stub `0erasy`, HDR stub `0ess0n`, and a forced cycle Wed 21:15Z (held-bus catch failed during the restore; not anticipated). The Fri forced cycles fell after the run end. 004: HDR stub `0esrj9` (lost); no Wed restore-stub image. | met on production; 1 extra forced image not anticipated |
 | X2 | first send often incomplete | complete on first send: 003 7/59 (12 %), 004 10/59 (17 %); first-send drop 003 7.33 % (711/9694 chunks), 004 1.18 % (118/10007) | met |
-| X3 | heal lands in ~2 wakes (~130 min) | first ask median 1.1 h after capture; time to complete (images with holes) median 4.1 h / p90 7.1 h (003), 3.1 h / 5.1 h (004) | **not met** (≈ 3–4 wakes) |
-| X4 | C2 expected: demand > 24 asks/day | 22.7 / 22.3 asks/day used. Mean **28.1 / 7.5 chunks per ask** against a 40 cap. 4 late images C2 primary (003). See erratum E1 | met (C2 present) |
+| X3 | heal lands in ~2 wakes (~130 min) | first ask median 1.1 h after capture; time to complete (production images with holes) median 4.1 h / p90 7.1 h (003), 3.1 h / 5.1 h (004) | **not met** (≈ 3–4 wakes) |
+| X4 | C2 expected: demand > 24 asks/day (outcome met; predicted mechanism not, see E1) | 22.7 / 22.3 asks/day used. Mean **28.1 / 7.5 chunks per ask** against a 40 cap. 4 late images C2 primary (003). See erratum E1 | met (C2 present) |
 | X5 | C7 for pool hold, stubs, pull | 4 late images C7 primary: 1 pool hold, 2 pull-truncated, 1 lost stub | met |
 | X6 | C1 = 0, C5 = 0, C6 rare, C3 possible | C1 0, C5 0, C6 0 on late images (one `<HL a=refused r=no_payload>` on 31593C, not on a late image), C3 secondary on 1. Asks lost in the dead zone: 5/59 (003), 2/58 (004) | met |
 | X7 | NOAA bar not met | 93.4 % (114/122); production only 113/118 (95.8 %) | met (bar not met, as predicted) |
 
 **Errata to EXPECTATIONS (found after the lock; the lock is unchanged):**
 - **E1:** X4 says "each ask carries holes of one key only". That is wrong. Asks carried 1.85 / 1.62 keys on average
-  (up to 4). The d28 limit is that asks are under-filled (mean 28 / 7.5 chunks of 40), not that they carry one key.
+  (up to 6: bmcam003 asks 100368 and 100371 carried 6 and 5). The d28 limit is that asks are under-filled (mean 28 / 7.5 chunks of 40), not that they carry one key.
 - **E2:** §1 says "nrjxl B3a 1600×900". The unit's `<WS>` reports `rk=1000x562`, and M alternates between ~100 and
   ~195 chunks on bmcam003 at night. Image geometry was not verified here and is not used by any rule.
 
-## Q3 — why: every image not complete ≤ 24 h (8 of 122; full rows in `late_images.csv`)
+## Q3 — why: every image not complete ≤ 24 h (8 of 122; full rows in `late_images.csv` in this folder)
 
 ### C8 mechanisms first (A4). None is a primary cause; each is described with its evidence.
 1. **Post-restart GPS gap drops accepted messages.**
@@ -136,27 +141,33 @@ older than a few hours stopped being asked once newer images took the asks.
 |---|---|---|
 | T_off (cfg-save restart) | 2026-10-15T16:47:38Z | 2026-10-15T16:37:13Z |
 | windows (D) | [10-14 21:40:24Z, T_off) / [T_off, 10-16 11:54:52Z), 19.12 h | [10-14 21:44:54Z, T_off) / [T_off, 10-16 11:29:32Z), 18.87 h |
-| wakes before / after | 19 / 19 (stub excluded; 0.4 % of the after window) | 19 / 19 (sensitivity) |
+| exclusions inside the windows (EXPECTATIONS §5) | HDR-off stub [16:47:38, 16:52:38); non-scheduled wake `0ess0n` image + 20 min [16:48:23, 17:08:23) → excludes wake `0esskx` 17:00:33Z; before-edge: bus-ons 21:24:21Z and 21:38:20Z + 20 min, `0erasy` image + 20 min (no wake affected). By time: before 1.6 %, after 1.8 % | THERMAL_FAULT [10-14 17:42:55Z, 10-17 18:41:19Z) = 100 %; also HDR-off stub, `0esrj9` + 20 min, bus-on 16:37:18Z + 20 min, restore bus-on 21:43:22Z + 20 min → excludes wake `0erbsu` 22:00:30Z |
+| missed scheduled wakes (rule) | 0 | 0 |
+| wakes before / after | 19 / 18 | 18 / 19 (sensitivity) |
 | HDR adds per wake (console) | 2 before → 0 after | 2 → 0 |
-| drop rate before → after | **7.29 % (203/2786) → 10.24 % (307/2997)** | 1.17 % (38/3247) → 0.84 % (28/3334) |
-| R observed | **−40.6 %** | +28.2 % |
-| bootstrap 95 % lower (6 h blocks, 10 000, seed 0) | −108 % | +0.2 % |
-| NB profile 95 % lower (α̂) | −146 % (α̂ = 0.94, overdispersed) | −7.8 % (α̂ ≈ 0, Poisson limit) |
-| Poisson exact lower (extra line only) | −64 % | −11 % |
+| drop rate before → after | **7.29 % (203/2786) → 10.56 % (296/2804)** | 1.14 % (35/3058) → 0.84 % (28/3334) |
+| R observed | **−44.9 %** | +26.6 % |
+| bootstrap 95 % lower (6 h blocks, 10 000, seed 0) | −116 % | +0.2 % |
+| NB profile 95 % lower (α̂) | −156 % (α̂ = 0.97, overdispersed) | −11.2 % (α̂ ≈ 0, Poisson limit) |
+| Poisson exact lower (extra line only) | −69 % | −15 % |
 | verdict | **FAIL (bar not met)** | not testable. Sensitivity reading: would be INCONCLUSIVE |
-| wakes per side for 80 % power (true 20 % cut) | **280** (19 exist) → unreachable without HDR back on (Nick's call) | 140 (19 exist) → unreachable |
+| wakes per side for 80 % power (true 20 % cut, at mean M) | **260** (19 exist) → unreachable without HDR back on (Nick's call) | 145 (18 exist) → unreachable |
 
 **Overall: report only (n = 1 unit), no recommendation** (R7, TEAM_RULES §9).
 - In plain terms: turning HDR off did not measurably reduce first-send loss. On the testable unit loss went up.
-- The loss mechanism is the Notecard queue-full stall (~10-chunk runs); HDR doesn't appear to drive it here.
+- The loss mechanism is the Notecard queue-full stall (~10-chunk runs). On this n = 1, confounded comparison HDR
+  doesn't appear to drive it, but that is not shown.
 - The windows can't separate HDR from time of day or from the restart itself (EXPECTATIONS §5 confounds).
 
 **Nick's option (one):** count bmcam004 despite its THERMAL_FAULT flag.
 - The console raised it 10/14 17:42:55Z. The only later charger reading is a `post` OK on Sat 18:41Z. The TE
   confirms the rig-health THERMAL_FAULT is a stale latch: **fault state unverified for the window**.
 - Counting it changes an exclusion after the data exists, so it needs Nick's OK.
-- What it would show: bmcam004 INCONCLUSIVE (+28 %, lower bounds +0.2 % and −7.8 %). With two units the worse unit
-  decides, so **Q5 = FAIL either way**. The option changes nothing material.
+- Locked: **report only (n = 1; bmcam003 FAIL), no recommendation.**
+- What counting it would show: bmcam004 INCONCLUSIVE (+26.6 %, lower bounds +0.2 % and −11.2 %). With two testable
+  units the worse unit decides, so Q5 becomes a **2-unit FAIL**. That **would allow a recommendation**, which the
+  locked n = 1 result does not. This is a material change, and it is why it needs Nick's OK.
+- (Corrected Sun 10/18 after QE 006 R1. Saturday's draft wrongly said the option "changes nothing material".)
 
 ## Study pass / fail (spec "Pass / fail" + R6)
 
@@ -219,7 +230,8 @@ the next soak. Adopting any of them earlier is the TE's / Nick's call.
 ## Limitations
 
 - The Pi rc_cycle logs arrived after the first draft (TE pull, 10/17 ~3:45 PM PT). They are used for the count check
-  only (`--cycle-log-dir`); the per-image fields still come from Sofar, the backend and the console. Console gaps: 10/14 06:43–16:00Z and 17:43–19:13Z, a nereus000 reboot at
+  only (`--cycle-log-dir`); the per-image fields still come from Sofar, the backend and the console.
+  The TE supplied no SHA256SUMS for them (the MANIFEST says so); the console logs did have one (verified OK). Console gaps: 10/14 06:43–16:00Z and 17:43–19:13Z, a nereus000 reboot at
   ~22:02Z 10/14, and SPOT-31593C 16:47–16:52Z 10/15. Wakes in those gaps have no accepted/refused split (blank
   columns).
 - Dead-zone timing uses the camera's last console submit as its halt time.

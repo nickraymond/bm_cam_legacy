@@ -36,7 +36,7 @@ import json
 import math
 import random
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 UTC = timezone.utc
@@ -66,6 +66,35 @@ Q5 = {
 
 
 # ---------- data ----------
+NONSCHED_S = 20 * 60          # EXPECTATIONS §5: a non-scheduled wake excludes its image + 20 min
+SLOT_TOL_S = 10 * 60          # "bus-on not within :00 ± 10 min of a scheduled slot"
+
+
+def rule_exclusions(run_dir, dev, cfg):
+    """EXPECTATIONS §5 mechanical rules, applied from the ledger outputs:
+    (a) every non-scheduled wake = power cycle: [t, t + 20 min) from its bus-on (console) and from its
+        image's capture (ledger kind stub / forced / unscheduled), whichever exist;
+    (b) a scheduled slot with no wake (wakes.csv wake_seen False) excludes [slot, slot + 1 h)."""
+    out = []
+    for r in csv.DictReader(open(run_dir / "ledger.csv")):
+        if r["unit"] == dev and r["kind"] in ("stub", "forced", "unscheduled"):
+            t = T(r["capture_utc"])
+            out.append((f"non-scheduled wake {r['media_key']} ({r['kind']}) image + 20 min", t, t + timedelta(seconds=NONSCHED_S)))
+    for b in csv.DictReader(open(run_dir / "bus_windows.csv")):
+        if b["unit"] != dev:
+            continue
+        t = T(b["bus_on"])
+        off_slot = min(abs((t - t.replace(minute=0, second=0)).total_seconds()),
+                       abs((t.replace(minute=0, second=0) + timedelta(hours=1) - t).total_seconds()))
+        if off_slot > SLOT_TOL_S:
+            out.append((f"non-scheduled bus-on {b['bus_on']} (power cycle) + 20 min", t, t + timedelta(seconds=NONSCHED_S)))
+    for w in csv.DictReader(open(run_dir / "wakes.csv")):
+        if w["unit"] == dev and w["wake_seen"] != "True":
+            t = T(w["slot_utc"])
+            out.append((f"missed scheduled wake {w['slot_utc']}", t, t + timedelta(hours=1)))
+    return out
+
+
 def load_wakes(run_dir, dev, cfg):
     t_off, b0 = cfg["t_off"], cfg["before_start"]
     D = t_off - b0
@@ -317,6 +346,9 @@ def power_n(rate_b, alpha, Ms, reps=2000):
 
 
 def analyse(dev, cfg, run_dir):
+    # rule exclusions first, the named ones (HDR-off stub, THERMAL_FAULT) after, so a wake's reason names
+    # the most specific rule; every interval counts toward the 25 % test either way
+    cfg = dict(cfg, exclusions=rule_exclusions(run_dir, dev, cfg) + cfg["exclusions"])
     wakes, D = load_wakes(run_dir, dev, cfg)
     fr = excluded_fraction(cfg, D)
     used = [w for w in wakes if w["used"]]
@@ -344,8 +376,16 @@ def analyse(dev, cfg, run_dir):
     if res["rate_before"] == 0:
         not_testable.append("rate_before = 0")
     # numbers are computed even when not testable, as a labelled sensitivity line (EXPECTATIONS §5)
-    sens_b = [w for w in wakes if w["side"] == "before" and (w["used"] or w["reason"].startswith("excluded: THERMAL"))]
-    sens_a = [w for w in wakes if w["side"] == "after" and (w["used"] or w["reason"].startswith("excluded: THERMAL"))]
+    # sensitivity line = the locked rules minus ONLY the THERMAL_FAULT interval
+    thermal = [x for x in cfg["exclusions"] if x[0].startswith("THERMAL_FAULT")]
+    other = [x for x in cfg["exclusions"] if not x[0].startswith("THERMAL_FAULT")]
+
+    def kept(w):
+        cap = T(w["capture_utc"])
+        return (w["reason"] == "" or (thermal and w["reason"].startswith("excluded: THERMAL"))) and \
+            not any(a <= cap < b for _, a, b in other)
+    sens_b = [w for w in wakes if w["side"] == "before" and kept(w)]
+    sens_a = [w for w in wakes if w["side"] == "after" and kept(w)]
     calc_b, calc_a = (b, a) if not not_testable else (sens_b, sens_a)
     cb = {s: [] for s in ("before", "after")}
     for s, ws in (("before", calc_b), ("after", calc_a)):
@@ -373,7 +413,7 @@ def analyse(dev, cfg, run_dir):
             verdict = "INCONCLUSIVE"
         stats["verdict_if_testable"] = verdict
         if verdict != "PASS":
-            Ms = [w["M"] for w in calc_b]
+            Ms = [round(sum(w["M"] for w in calc_b) / len(calc_b))]     # EXPECTATIONS §5: "mean M per wake"
             n, pw = power_n(rb, max(nb["alpha"], 1e-9), Ms)
             stats["power"] = {"wakes_per_side_80pct": n, "power_at_n": pw, "before_wakes_existing": len(calc_b),
                               "reachable": (n is not None and n <= len(calc_b)),

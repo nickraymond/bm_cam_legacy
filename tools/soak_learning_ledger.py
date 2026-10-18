@@ -16,11 +16,12 @@ Inputs
   <run-dir>/raw/sofar/SPOT-*.json      Sofar api/sensor-data rows (Spotter-UTC timestamps)
   <run-dir>/raw/backend/*.json         media lists, heal events (rsd asks + <HL>)
   --console-dir                        TE pull: SPOT-*/console_YYYYMMDD.log (nereus000 spotter-monitor)
+  --cycle-log-dir (optional)           TE pull: <host>/rc_cycle_*.log (count check vs the unit's own logs)
   Run/event constants below = EXPECTATIONS.md (locked; sha256 in MANIFEST.md). Change them only
   through a new EXPECTATIONS hash.
 
 Outputs (<run-dir>/)
-  ledger.csv, wakes.csv, asks.csv, countcheck.json, ledger_summary.json, logs/ledger.log
+  ledger.csv, wakes.csv, asks.csv, bus_windows.csv, countcheck.json, ledger_summary.json, logs/ledger.log
 
 Assumptions (stated, from EXPECTATIONS.md §4)
   - First send = distinct chunk indices of a key with Sofar timestamp < capture + 50 min.
@@ -35,8 +36,8 @@ Example
       --readout 2026-10-17T22:13:00Z
 
 Known limitations
-  - Pi rc_cycle logs after 2026-10-14T14:08Z were not pulled (A3): the unit side is the
-    unit's own <WS>/START/END/<HL> messages (via Sofar) plus the Spotter console.
+  - Per-image fields come from Sofar, the backend and the Spotter console. The Pi rc_cycle logs
+    (--cycle-log-dir, optional) feed only the count check.
   - Dead-zone timing uses the camera's last console submit as its halt time (the Pi's own
     halt line is not on the console).
 """
@@ -636,7 +637,10 @@ def build_unit(dev, cfg, run_dir, console_dir, readout, log, cycle_dir=None):
                 (r["backend_expected"] not in ("", None) and r["chunks_expected"] != r["backend_expected"])
                 or (r["backend_is_complete"] is True) != (not r["missing_at_readout"]))],
     }
-    return rows, wakes, ask_rows, count
+    buses = [{"unit": dev, "spotter": spot, "bus_on": iso(w["on"]), "bus_off": iso(w["off"]) if w["off"] else "",
+              "off_inferred": w["off"] is None, "submits": w["submits"], "qfull": w["qfull"], "where": w["where"]}
+             for w in bw]
+    return rows, wakes, ask_rows, count, buses
 
 
 def _ranges(xs):
@@ -710,7 +714,12 @@ def classify(r, cfg, prod_wakes, answered, asks_in_24h):
     if not knew:
         notes.append(("C8", "backend never saw this key (no Sofar rows), so no ask was possible"))
     if not cand:
-        cand.append(("C8", "no rule matched: written description needed"))
+        missing = [n for n, gone in (("Sofar rows", r["evidence"].startswith("sofar:none")),
+                                      ("console burst", r.get("spotter_not_accepted_first") in ("", None))) if gone]
+        if missing:   # spec §4 / A3: never guess a class when the evidence a rule needs is absent
+            cand.append(("insufficient evidence", "no rule matched and missing: " + ", ".join(missing)))
+        else:
+            cand.append(("C8", "no rule matched: written description needed"))
     primary = cand[0][0]
     sec = sorted({c for c, _ in cand + notes} - {primary})
     note = " | ".join(f"{c}: {n}" for c, n in cand + notes)
@@ -776,9 +785,10 @@ def main(argv=None):
         raise SystemExit(f"FAIL (A5): EXPECTATIONS.md sha256 {h} is not recorded in MANIFEST.md")
     log(f"[ledger] EXPECTATIONS sha256 {h} found in MANIFEST; readout={a.readout}")
     readout = T(a.readout)
-    all_rows, all_wakes, all_asks, counts = [], [], [], []
+    all_rows, all_wakes, all_asks, counts, all_bus = [], [], [], [], []
     for dev, cfg in UNITS.items():
-        rows, wakes, asks, count = build_unit(dev, cfg, run_dir, a.console_dir, readout, log, a.cycle_log_dir)
+        rows, wakes, asks, count, buses = build_unit(dev, cfg, run_dir, a.console_dir, readout, log, a.cycle_log_dir)
+        all_bus += buses
         all_rows += sorted(rows, key=lambda r: r["capture_utc"])
         all_wakes += wakes
         all_asks += asks
@@ -786,6 +796,7 @@ def main(argv=None):
     write_csv(run_dir / "ledger.csv", all_rows)
     write_csv(run_dir / "wakes.csv", all_wakes)
     write_csv(run_dir / "asks.csv", all_asks)
+    write_csv(run_dir / "bus_windows.csv", all_bus)
     (run_dir / "countcheck.json").write_text(json.dumps(counts, indent=1, default=str))
     bar = [r for r in all_rows if r["in_bar"]]
     summ = {

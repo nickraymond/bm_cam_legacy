@@ -101,3 +101,79 @@ def test_nb_fit_poisson_limit_recovers_ratio():
     assert abs(nb["R_hat"] - 0.5) < 0.01
     assert nb["R_lower"] < nb["R_hat"]
     assert nb["alpha"] < 1e-3          # no extra-Poisson spread in this data
+
+
+def test_load_cycle_logs_uses_key_line_not_file_name(tmp_path):
+    d = tmp_path / "bmcam004"
+    d.mkdir()
+    (d / "rc_cycle_20261015T160835Z.log").write_text(          # stale Pi clock in the file name
+        "[KEY] media key 0esrj9 from Spotter UTC 2026-10-15T16:37:57.585000+00:00 (spotter)\n"
+        "[KEY] sent record: /home/pi/BM_Devel_Pi/sent/x.sent.json (190 msgs, chunks <I0esrj9.n/190>)\n")
+    (d / "rc_cycle_20261015T160840Z.log").write_text(
+        "[KEY] media key 0essl1 from Spotter UTC 2026-10-15T17:00:37.347000+00:00 (spotter)\n"
+        "[RC] cycle end: elapsed=470.4s of 480s; halt=halt_initiated\n")
+    (d / "rc_cycle_20261016T195906Z.log").write_text("[RC-CRON] running RC capture/transmit cycle\n")  # held, no capture
+    recs = L.load_cycle_logs(tmp_path, "bmcam004")
+    by = {r["key"]: r for r in recs}
+    assert L.iso(by["0esrj9"]["spotter_utc"]) == "2026-10-15T16:37:57Z" and by["0esrj9"]["msgs"] == 190
+    assert by["0esrj9"]["cycle_end"] is False and by["0essl1"]["cycle_end"] is True
+    assert by[None]["file"].endswith("rc_cycle_20261016T195906Z.log")
+
+
+def test_classify_without_evidence_is_insufficient_not_c8():
+    r = _row(kind="production", first_send_lost=0, media_id="", evidence="sofar:none",
+             spotter_not_accepted_first="", capture_utc="2026-10-15T01:00:30Z")
+    cap = L.T("2026-10-15T01:00:30Z")
+    wakes = [cap.replace(minute=0, second=30) + timedelta(hours=h) for h in range(1, 25)]
+    out = L.classify(r, CFG, wakes, set(), lambda t: 0)
+    assert out["cause_primary"] == "insufficient evidence"
+
+
+def _q5_run_dir(tmp_path, before_lost, after_lost):
+    import csv
+    t_off = L.T("2026-10-15T16:47:38Z")
+    rows = []
+    for h in range(-18, 19):
+        if h == 0:
+            continue
+        cap = t_off.replace(minute=0, second=30) + timedelta(hours=h if h < 0 else h)
+        rows.append({"unit": "BMCAM_003", "media_key": f"k{h + 50:03d}", "capture_utc": L.iso(cap), "kind": "production",
+                     "chunks_expected": 100, "first_send_lost": before_lost if cap < t_off else after_lost,
+                     "wake_qfull": "", "wake_hdr_adds": "", "first_send_stall_runs": 0})
+    with (tmp_path / "ledger.csv").open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+        w.writeheader()
+        w.writerows(rows)
+    (tmp_path / "bus_windows.csv").write_text("unit,bus_on\n")
+    (tmp_path / "wakes.csv").write_text("unit,slot_utc,wake_seen\n")
+    return {"spot": "SPOT-31593C", "t_off": t_off, "before_start": t_off - timedelta(hours=18, minutes=30), "exclusions": []}
+
+
+def test_q5_not_testable_when_exclusions_cover_window(tmp_path):
+    cfg = _q5_run_dir(tmp_path, 10, 5)
+    cfg["exclusions"] = [("THERMAL_FAULT test", cfg["before_start"] - timedelta(hours=1), cfg["t_off"] + timedelta(days=2))]
+    res, _ = Q.analyse("BMCAM_003", cfg, tmp_path)
+    assert res["verdict"].startswith("not testable") and "100%" in res["verdict"]
+    assert res["stats"]["basis"].startswith("SENSITIVITY")
+
+
+def test_q5_not_testable_when_before_rate_zero(tmp_path):
+    cfg = _q5_run_dir(tmp_path, 0, 5)
+    res, _ = Q.analyse("BMCAM_003", cfg, tmp_path)
+    assert "rate_before = 0" in res["verdict"]
+
+
+def test_q5_nonscheduled_wake_excludes_next_20_min(tmp_path):
+    import csv
+    cfg = _q5_run_dir(tmp_path, 10, 5)
+    rows = list(csv.DictReader(open(tmp_path / "ledger.csv")))
+    rows.append({**rows[0], "media_key": "stub01", "capture_utc": "2026-10-15T16:48:23Z", "kind": "stub"})
+    with (tmp_path / "ledger.csv").open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+        w.writeheader()
+        w.writerows(rows)
+    ex = Q.rule_exclusions(tmp_path, "BMCAM_003", cfg)
+    assert any(a == L.T("2026-10-15T16:48:23Z") and b == L.T("2026-10-15T17:08:23Z") for _, a, b in ex)
+    wakes, _ = Q.load_wakes(tmp_path, "BMCAM_003", dict(cfg, exclusions=ex))
+    w17 = [w for w in wakes if w["capture_utc"] == "2026-10-15T17:00:30Z"][0]
+    assert not w17["used"] and "non-scheduled" in w17["reason"]

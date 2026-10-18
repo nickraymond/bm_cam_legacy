@@ -14,8 +14,8 @@ Read-only guarantees (spec "Read-only boundaries")
     from ~/.config/nereus/staging.env (ADMIN_TOKEN line only, the same access the E5
     colour session uses); it is never printed, logged or written to disk.
   - Sofar: GET api/sensor-data only, token from env SOFAR_API_TOKEN_BM_REEF (bench
-    Spotters). The token never appears in saved files or logs (URLs are logged
-    with the token redacted).
+    Spotters). The token is sent as a `token` header (checked against the API
+    2026-10-18), so it never appears in a URL, a saved file or a log line.
   - Hard refusal for SPOT-33361C / BMCAM_002 (NOAA field unit): never read.
 
 Inputs
@@ -26,7 +26,7 @@ Inputs
 Outputs (under <run-dir>/raw/)
   backend/<name>.json   one file per GET (body as returned, plus a `_fetch` header)
   sofar/<SPOT>_<slice-start>.json  one file per time slice (rows as returned)
-  ../logs/fetch.log     one line per request: time, url (token redacted), status, rows, bytes
+  ../logs/fetch.log     one line per request: time, url (no token in it), status, rows, bytes
 
 Example
   python3 tools/soak_learning_fetch.py meta
@@ -122,7 +122,6 @@ class BackendRO:
                     time.sleep(5 * (attempt + 1))
                     continue
                 raise
-        raise SystemExit(f"FAIL: GET {url} kept failing")
 
 
 def _save(run_dir, sub, name, obj, meta):
@@ -223,11 +222,12 @@ def _sofar_slice(spot, s, e, ctx, log, depth=0):
     if not tok:
         raise SystemExit("FAIL: SOFAR_API_TOKEN_BM_REEF not set")
     q = {"spotterId": spot, "startDate": _iso(s), "endDate": _iso(e)}
-    url = SOFAR + "?" + urlencode({**q, "token": tok})
-    shown = SOFAR + "?" + urlencode({**q, "token": "REDACTED"})
+    url = SOFAR + "?" + urlencode(q)
+    shown = url                      # the token travels as a header, never in the URL or a log line
+    req = Request(url, method="GET", headers={"token": tok})
     for attempt in range(4):
         try:
-            with urlopen(url, timeout=120, context=ctx) as r:
+            with urlopen(req, timeout=120, context=ctx) as r:
                 rows = json.load(r).get("data", [])
             break
         except Exception as exc:  # noqa: BLE001 - retried, then fail loudly
