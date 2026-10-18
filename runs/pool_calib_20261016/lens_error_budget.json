@@ -23,7 +23,7 @@
     },
     "area_model_spread_pct": 3.2187015299493487
    },
-   "full": {
+   "full_EXTRAPOLATED_not_measured": {
     "area_true": 0.9621137273132638,
     "area_pinhole": 1.2156767156583521,
     "density_error_if_ignored_pct": -20.857764657256826,
@@ -72,76 +72,11 @@
     "area_model_spread_pct": 0.33619235138423204
    }
   },
+  "note": "'full_EXTRAPOLATED_not_measured' is the model extrapolating outside the observed area: context only, never a result",
   "bootstrap_area_std_pct": {
    "seen": 0.4892024133130578,
    "crop": 0.20243167882394397
-  },
-  "size_error_vs_radius": [
-   {
-    "r": [
-     0,
-     0.2
-    ],
-    "size_error_pct_median": 1.1054100443713466,
-    "measured": true
-   },
-   {
-    "r": [
-     0.2,
-     0.4
-    ],
-    "size_error_pct_median": 6.5555740749797975,
-    "measured": true
-   },
-   {
-    "r": [
-     0.4,
-     0.5
-    ],
-    "size_error_pct_median": 14.912673077201932,
-    "measured": false
-   },
-   {
-    "r": [
-     0.5,
-     0.6
-    ],
-    "size_error_pct_median": 23.1651000562334,
-    "measured": false
-   },
-   {
-    "r": [
-     0.6,
-     0.7
-    ],
-    "size_error_pct_median": 30.275813741040945,
-    "measured": false
-   },
-   {
-    "r": [
-     0.7,
-     0.8
-    ],
-    "size_error_pct_median": 16.674494527288974,
-    "measured": false
-   },
-   {
-    "r": [
-     0.8,
-     0.9
-    ],
-    "size_error_pct_median": null,
-    "measured": false
-   },
-   {
-    "r": [
-     0.9,
-     1.01
-    ],
-    "size_error_pct_median": null,
-    "measured": false
-   }
-  ]
+  }
  },
  "n6": {
   "model": "standard",
@@ -167,7 +102,7 @@
     },
     "area_model_spread_pct": 0.45498494442053367
    },
-   "full": {
+   "full_EXTRAPOLATED_not_measured": {
     "area_true": 0.44302679159694536,
     "area_pinhole": 0.3856737936141581,
     "density_error_if_ignored_pct": 14.870856908718366,
@@ -184,75 +119,10 @@
     "area_model_spread_pct": 0.4265210180850961
    }
   },
+  "note": "'full_EXTRAPOLATED_not_measured' is the model extrapolating outside the observed area: context only, never a result",
   "bootstrap_area_std_pct": {
    "seen": 0.16954468830792663
-  },
-  "size_error_vs_radius": [
-   {
-    "r": [
-     0,
-     0.2
-    ],
-    "size_error_pct_median": -0.5774275573784016,
-    "measured": true
-   },
-   {
-    "r": [
-     0.2,
-     0.4
-    ],
-    "size_error_pct_median": -1.9989937484608367,
-    "measured": true
-   },
-   {
-    "r": [
-     0.4,
-     0.5
-    ],
-    "size_error_pct_median": -4.0078120100614845,
-    "measured": true
-   },
-   {
-    "r": [
-     0.5,
-     0.6
-    ],
-    "size_error_pct_median": -5.816087356140476,
-    "measured": false
-   },
-   {
-    "r": [
-     0.6,
-     0.7
-    ],
-    "size_error_pct_median": -8.000184911931246,
-    "measured": false
-   },
-   {
-    "r": [
-     0.7,
-     0.8
-    ],
-    "size_error_pct_median": -10.541514233954242,
-    "measured": false
-   },
-   {
-    "r": [
-     0.8,
-     0.9
-    ],
-    "size_error_pct_median": -12.92660371008249,
-    "measured": false
-   },
-   {
-    "r": [
-     0.9,
-     1.01
-    ],
-    "size_error_pct_median": -15.506957248349668,
-    "measured": false
-   }
-  ]
+  }
  },
  "ae3": {
   "model": "standard",
@@ -278,7 +148,7 @@
     },
     "area_model_spread_pct": 0.21591468610995526
    },
-   "full": {
+   "full_EXTRAPOLATED_not_measured": {
     "area_true": 0.46127212893401226,
     "area_pinhole": 0.527153930654783,
     "density_error_if_ignored_pct": -12.497640231751339,
@@ -295,74 +165,9 @@
     "area_model_spread_pct": 1.589982952111719
    }
   },
+  "note": "'full_EXTRAPOLATED_not_measured' is the model extrapolating outside the observed area: context only, never a result",
   "bootstrap_area_std_pct": {
    "seen": 0.28848352268702615
-  },
-  "size_error_vs_radius": [
-   {
-    "r": [
-     0,
-     0.2
-    ],
-    "size_error_pct_median": 0.48396405059206726,
-    "measured": true
-   },
-   {
-    "r": [
-     0.2,
-     0.4
-    ],
-    "size_error_pct_median": 2.1985801658780058,
-    "measured": true
-   },
-   {
-    "r": [
-     0.4,
-     0.5
-    ],
-    "size_error_pct_median": 4.500984406356601,
-    "measured": true
-   },
-   {
-    "r": [
-     0.5,
-     0.6
-    ],
-    "size_error_pct_median": 6.508146176260466,
-    "measured": false
-   },
-   {
-    "r": [
-     0.6,
-     0.7
-    ],
-    "size_error_pct_median": 8.955431641955503,
-    "measured": false
-   },
-   {
-    "r": [
-     0.7,
-     0.8
-    ],
-    "size_error_pct_median": 11.968800616509888,
-    "measured": false
-   },
-   {
-    "r": [
-     0.8,
-     0.9
-    ],
-    "size_error_pct_median": 15.529650737461631,
-    "measured": false
-   },
-   {
-    "r": [
-     0.9,
-     1.01
-    ],
-    "size_error_pct_median": 19.35989326492168,
-    "measured": false
-   }
-  ]
+  }
  }
 }

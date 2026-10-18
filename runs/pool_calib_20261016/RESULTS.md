@@ -1,8 +1,9 @@
 # Underwater lens calibration, pool049 re-dive (Fri 2026-10-16): results
 
-> **PROVISIONAL.** QE has not yet passed the tool code these runs used (bm PR #184: `8e98892e`, plus the figure fix
-> `d69c0cf0`). QE 006 has it. Nothing here ships as final. No camera passes, so no lens correction is applied to any
-> camera.
+> **PROVISIONAL.** QE has not yet passed the tool code (bm PR #184). QE 006 reviewed `150bbe37` (Sun 9:13 AM): FAIL,
+> with 2 required fixes, both mechanical, and no record verdict changes. They are fixed in `3552ea02` (R1, R2 and the
+> nits) and the commit that adds this line, awaiting QE 006's re-check. Nothing here ships as final. No camera passes,
+> so no lens correction is applied to any camera.
 
 Pre-registration: `docs/pool_calib_prereg_20261016.md`.
 
@@ -258,9 +259,13 @@ where there are data):
   - one more covered cell, the top-right extreme cell (1,7): 6 corners vs 2 in the DNG. Likely cause, not checked:
     the ISP's lens-shading correction brightens the dark corners, so detection reaches a little further;
   - a worse held-out RMS (0.551 vs 0.504 px).
-- **Caveat.** The JPEG run's **fisheye fit failed** in OpenCV (`InitExtrinsics: fabs(norm_u1) > 0`). Its model
-  disagreement therefore compares only standard and rational (literal 3.6 px at the crop corners vs the DNG's 23.9 px
-  with fisheye).
+- **Caveat.** The JPEG run's **fisheye fit failed** in OpenCV (`InitExtrinsics: fabs(norm_u1) > 0`). The tool it ran
+  on compared only standard and rational: 3.6 px literal at the crop corners, against the DNG's 23.9 px with fisheye.
+  - **The tool now fails closed** (QE 006 R1, `3552ea02`). The pre-registered value is over all three models, so with
+    one missing it is unknown: inf at every probe, with `models_missing` recorded.
+  - Under that rule the JPEG run's B4 and B5c read inf. They were FAIL anyway, and the JPEG run never decides a
+    verdict.
+  - All three record runs (IMX708 DNG, N6, AE3) fit all three models, so no record number or verdict changes.
 
 ## Re-dive: declined for Wednesday (d58), backlog for November
 
@@ -294,8 +299,22 @@ Nothing was refitted.
 - **Radial displacement** is |pixel − pinhole(ray(pixel))|.
 - **Local area scale** is det J · fx · fy (seafloor area per pixel relative to the centre).
 
-Code and outputs: `post/q1_observed_area.py` and `post/lens_error_budget.py` in the data folder; their JSON is copied
-here (`q1_observed_area.json`, `lens_error_budget.json`).
+Code: `tools/pool_calib_post/q1_observed_area.py` and `tools/pool_calib_post/lens_error_budget.py`, at commit
+`3552ea02` (QE 006 R2; they first ran from the data folder, unchanged maths). Their outputs here are
+`q1_observed_area.json` (reproduced byte for byte by the in-repo script) and `lens_error_budget.json`. In the budget, the
+whole-frame region is now named `full_EXTRAPOLATED_not_measured` (context only, never a result), and its partly
+extrapolated radius profile is dropped. The calibration JSONs are made by `tools/pool_calib_post/export_calibration.py`
+at the same commit. Their `limits` now say the individual distortion coefficients are not identified by this coverage:
+the DNG and JPEG rational coefficients differ wildly while K and the rays agree. The commands:
+
+```bash
+D=~/NereusData/bm_cam_legacy/2026-10-17_pool049_calib; O=runs/pool_calib_20261016
+CAMS="imx708=$D/20261017_152713_pool049_imx708_dng/imx708 n6=$D/20261017_153029_pool049_openmv_raw/n6 ae3=$D/20261017_153029_pool049_openmv_raw/ae3"
+.venv-dev/bin/python tools/pool_calib_post/q1_observed_area.py $CAMS --crop imx708=1504,846,1600,900 --out $O/q1_observed_area.json
+.venv-dev/bin/python tools/pool_calib_post/lens_error_budget.py $CAMS --nominal-fx imx708=1964.3 --nominal-fx n6=933.3 \
+  --nominal-fx ae3=1033.3 --crop imx708=1504,846,1600,900 --out $O/lens_error_budget.json
+.venv-dev/bin/python tools/pool_calib_post/export_calibration.py $O $D/undistort_maps $CAMS --prereg-sha c3356f49+dda46166 --git-sha 3552ea02
+```
 
 **1. Distortion size** (median radial displacement; % of radius):
 
@@ -376,12 +395,21 @@ here (`q1_observed_area.json`, `lens_error_budget.json`).
   QE's PASS.
 - **v2 correction.** v2 showed two items extrapolated beyond the measured area: a whole-frame density row and the dashed
   parts of a size chart. v3 removes them and says so at the top. The same note is on the card.
-- **IMX708 images.** Taken from a deterministic figure re-render with the `d69c0cf0` drawing fix. All numbers match the
-  record run to floating-point noise, and every bar status is identical.
+- **IMX708 images.** Taken from a figure re-render with the `d69c0cf0` drawing fix.
+  - **This is a deviation from prereg §5** ("one run per input"). It was a second full pipeline run on the IMX708 DNG
+    input, used only for the report's IMX708 images.
+  - Every bar status and verdict is identical to the record run, which stays the result.
+  - The numbers are not bit-exact. fx moves by +8×10⁻⁷ px and held-out RMS by +4×10⁻¹⁰ px. The B5c aligned model
+    disagreement moved 1.1877 → 1.1860 px, more than floating-point noise; QE 006 flagged it.
+  - The likely cause is OpenCV threading. Filed: set `cv2.setNumThreads(1)` so reruns are bit-exact.
 
 ## Not tested / limits
 
-- **Tool code under review.** Every number here is provisional until QE passes `8e98892e` and `d69c0cf0` (QE 006).
+- **Tool code under review.** Every number here is provisional until QE 006 passes the fixes (`3552ea02` and later).
+- **Filed, not fixed** (QE 006 nits):
+  - B6's fallback to the IMX708 1964 px applies to any `--native-size` camera given no `--nominal-fx`. The help now
+    says to always pass `--nominal-fx` for another sensor; changing it would change the 10/14 synthetic tests.
+  - Bit-exact reruns (`cv2.setNumThreads(1)`).
 - **DNG decode.** Grey-level only, through rawpy `postprocess` (camera WB, 8-bit, gamma), the pipeline's existing
   loader. A linear demosaic was not tried. The JPEG cross-check says it makes no difference to the intrinsics.
 - **Verdict sheets.** The tool's `verdict.png` and `coverage.png` were not changed for the mask. Their red boxes show

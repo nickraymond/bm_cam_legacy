@@ -1,5 +1,5 @@
 {
-  "status": "PROVISIONAL until QE passes the tool code (bm PR #184, 8e98892e)",
+  "status": "PROVISIONAL until QE passes the tool code (bm PR #184)",
   "use": "NOT VALIDATED (pre-registered bars FAIL: see bars). Do not apply as a full-frame or crop correction. fx/fy/cx/cy are well determined inside the observed region (bootstrap std in 'bootstrap'); the distortion outside the observed region is extrapolated.",
   "camera": "n6",
   "rig": "nereus002 pool rig",
@@ -250,7 +250,9 @@
   "how_to_undistort": "cv2.initUndistortRectifyMap(K, D, None, K, size, cv2.CV_32FC1) then cv2.remap",
   "limits": [
     "valid near the calibrated board distances, in fresh water (seawater ~+0.5 % fx)",
-    "pinhole + distortion approximates a flat port (refraction is non-central)"
+    "pinhole + distortion approximates a flat port (refraction is non-central)",
+    "only the observed area (upper ~60 % of the frame on pool049) is measured; elsewhere the model extrapolates",
+    "individual distortion coefficients are NOT identified by this coverage: on pool049 the IMX708 DNG and JPEG runs give very different rational coefficients with matching K and matching rays where the board was; use the model as a whole (rays), never single coefficients"
   ],
   "source": {
     "run_dir": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/20261017_153029_pool049_openmv_raw",
@@ -261,7 +263,8 @@
     },
     "prereg": "docs/pool_calib_prereg_20261016.md",
     "prereg_commit": "c3356f49+dda46166",
-    "export_git_sha": "dda46166",
+    "export_git_sha": "3552ea02",
+    "export_tool": "tools/pool_calib_post/export_calibration.py",
     "undistort_maps_npz": "/Users/nickbuemond/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/undistort_maps/undistort_n6_1280x800.npz",
     "undistort_maps_sha256": "d475d5761e7b14be275f2af2d778ee826b01e8857f74a87a56ddad90fb34f4bb"
   }
