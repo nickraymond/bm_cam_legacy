@@ -1,9 +1,13 @@
 # Underwater lens calibration, pool049 re-dive (Fri 2026-10-16): results
 
-> **PROVISIONAL.** QE has not yet passed the tool code (bm PR #184). QE 006 reviewed `150bbe37` (Sun 9:13 AM): FAIL,
-> with 2 required fixes, both mechanical, and no record verdict changes. They are fixed in `3552ea02` (R1, R2 and the
-> nits) and the commit that adds this line, awaiting QE 006's re-check. Nothing here ships as final. No camera passes,
-> so no lens correction is applied to any camera.
+> **QE status.** The tool code and these results passed QE: QE 006, bm #184 @ `f023448b`, Sun 10/18 9:30 AM PT. That
+> followed QE 006's FAIL @ `150bbe37` (9:13 AM: 2 required, both mechanical, no record verdict change), fixed in
+> `3552ea02` + `f023448b`. **The verdicts still FAIL on all three cameras**, so every calibration here is NOT VALIDATED
+> and no lens correction is applied to any camera.
+>
+> The calibration JSONs' `status` field still reads "PROVISIONAL until QE passes the tool code". It was written before
+> this PASS and is left as exported so the files stay byte-checkable; this line supersedes it. Their `use` field
+> ("NOT VALIDATED") is the one that governs.
 
 Pre-registration: `docs/pool_calib_prereg_20261016.md`.
 
@@ -291,7 +295,7 @@ corners (y = 1745) are below every Friday observation.
 Nick asked (d58): "I need help to understand how bad the lens errors are relative to being able to detect the urchin -
 is this something we need to do before running any field test to count urchin in the wild?"
 
-All numbers come from the provisional fits, evaluated **only inside the observed area**: the convex hull of the board
+All numbers come from the fitted models (NOT VALIDATED: the bars FAIL), evaluated **only inside the observed area**: the convex hull of the board
 corners each fit used. That is 37 % of the IMX708 frame, 49 % of the N6 and 43 % of the AE3, all in the upper part.
 Nothing was refitted.
 
@@ -391,8 +395,8 @@ CAMS="imx708=$D/20261017_152713_pool049_imx708_dng/imx708 n6=$D/20261017_153029_
 `ready_lens_report`).
 
 - **Provisional posting.** It was posted PROVISIONAL before the QE pass, per PE 002's ruling (Sat ~5:10 PM): Nick asked to
-  see it, and a clear provisional label keeps unreviewed numbers from reading as final. The label comes off only after
-  QE's PASS.
+  see it, and a clear provisional label keeps unreviewed numbers from reading as final. The label came off after QE
+  006's PASS (Sun 9:30 AM), in report v4 at the same URL.
 - **v2 correction.** v2 showed two items extrapolated beyond the measured area: a whole-frame density row and the dashed
   parts of a size chart. v3 removes them and says so at the top. The same note is on the card.
 - **IMX708 images.** Taken from a figure re-render with the `d69c0cf0` drawing fix.
@@ -405,7 +409,7 @@ CAMS="imx708=$D/20261017_152713_pool049_imx708_dng/imx708 n6=$D/20261017_153029_
 
 ## Not tested / limits
 
-- **Tool code under review.** Every number here is provisional until QE 006 passes the fixes (`3552ea02` and later).
+- **QE.** The tool code passed QE 006 @ `f023448b` (Sun 9:30 AM PT).
 - **Filed, not fixed** (QE 006 nits):
   - B6's fallback to the IMX708 1964 px applies to any `--native-size` camera given no `--nominal-fx`. The help now
     says to always pass `--nominal-fx` for another sensor; changing it would change the 10/14 synthetic tests.
