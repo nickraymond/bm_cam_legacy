@@ -9,7 +9,7 @@ Purpose
   The pool049 calibration runs on the DNGs; the JPEGs are run once as a check (Nick, 2026-10-17:
   "DNG, JPEG as a check"). This scores the difference against the bar pre-registered in
   docs/pool_calib_prereg_20261016.md (spec rev 2, R3). A JPEG result never changes the DNG verdict: a
-  disagreement is reported as a finding (an ISP effect), and the DNG calibration JSON still ships.
+  disagreement is reported as a finding, and the DNG calibration JSON still ships.
 
 Inputs
   primary    <pipeline run>/<camera>/   the reference run (DNG): models.json + intrinsics_full_*.json
@@ -101,7 +101,7 @@ def to_md(r):
          f"{r['bar']['ray_px']:.0f} px | {i['ray_at_B4_probes']['pass']} |", "",
          "Per probe (px): " + ", ".join(f"{k} {fmt(v)}" for k, v in i["ray_at_B4_probes"]["per_probe"].items()), "",
          f"Distortion primary {np.round(r['primary_D'], 5).tolist()} vs check {np.round(r['check_D'], 5).tolist()}", "",
-         f"**{'Within the bar' if r['within_bar'] else 'OUTSIDE the bar: reported as a finding (ISP effect); the primary calibration still ships'}.**"]
+         f"**{'Within the bar' if r['within_bar'] else 'OUTSIDE the bar: reported as a finding; the primary calibration still ships. Before reading it as an ISP effect, check whether the out-of-bar probes lie inside the observed area (outside it, both fits extrapolate)'}.**"]
     return "\n".join(L) + "\n"
 
 

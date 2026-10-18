@@ -1,7 +1,8 @@
 # Underwater lens calibration, pool049 re-dive (Fri 2026-10-16): results
 
-> **PROVISIONAL.** QE 005 has not yet reviewed the tool code these runs used (bm PR #184, commit `8e98892e`). Nothing
-> here ships as final. No camera passes, so on Wednesday no lens correction is applied to any camera.
+> **PROVISIONAL.** QE has not yet passed the tool code these runs used (bm PR #184: `8e98892e`, plus the figure fix
+> `d69c0cf0`). QE 006 has it. Nothing here ships as final. No camera passes, so no lens correction is applied to any
+> camera.
 
 Pre-registration: `docs/pool_calib_prereg_20261016.md`.
 
@@ -9,7 +10,8 @@ Pre-registration: `docs/pool_calib_prereg_20261016.md`.
 - Commit `dda46166`: the conditions C1 + C2, docs only. QE 005 byte-check PASS.
 - Both prereg commits predate the first run folder, created Sat 10/17 3:27 PM PT.
 
-Spec: `SPEC_lens_calib_pool049.md` rev 2 (`da245f78…`). Ticket: `c_charuco`. All runs used tool commit `dda46166`
+Spec: `SPEC_lens_calib_pool049.md` rev 2 (`da245f78…`) for the runs. Rev 3 (`54855f5a…`, PE 002, Sat 5:07 PM) adds the
+report and the answer to Nick's question 1; it is committed byte-identical as `docs/specs/SPEC_lens_calib_pool049.md`. Ticket: `c_charuco`. All runs used tool commit `dda46166`
 (with `8e98892e` beneath it), `nice -n 10`, 2 workers. The exact commands are in the prereg doc. Full run folders
 (images, CSVs, logs) are on Nick's Mac only, in `~/NereusData/bm_cam_legacy/2026-10-17_pool049_calib/`:
 
@@ -250,7 +252,7 @@ where there are data):
 
 - **Reading.** The two decodes give the **same camera** where there are data. They differ only where both fits are
   extrapolating: no probe that fails the bar was observed. That makes it a coverage effect, not evidence of an ISP
-  effect. (The crosscheck tool's standard wording says "ISP effect"; that doesn't apply here.)
+  effect. (The tool printed "ISP effect" for any out-of-bar result; this PR makes that wording neutral. The copied `crosscheck.md` keeps the original output.)
 - **Other JPEG differences:**
   - 54 views (3 outliers);
   - one more covered cell, the top-right extreme cell (1,7): 6 corners vs 2 in the DNG. Likely cause, not checked:
@@ -260,28 +262,126 @@ where there are data):
   disagreement therefore compares only standard and rational (literal 3.6 px at the crop corners vs the DNG's 23.9 px
   with fisheye).
 
-## Wednesday (pool test 2)
+## Re-dive: declined for Wednesday (d58), backlog for November
 
-PE 002 posted the capture recipe as decision **d58** for Nick: a pool-2 scope change, REC yes, with the crate, needed
-by Tue 3 PM. It is **one lower-half block** that covers all three cameras at once:
+PE 002 posted the lower-half recipe as decision **d58**. Nick declined it at 3:39 PM, in a board comment: "I can rerun
+the test, but first I need a better mechanical mount and a way to get data from the rig to the surface to check the
+alignment. So this is no an option for Wednesday. We should add to the backlock and check back in Nov".
 
-1. **Rig.** Raise the rig ~40 cm (a crate) or tilt it nose-up ~25° for this block only, so the bottom of each frame looks
-   at open water.
-2. **Board placements.** At 0.8 m (measured), lower-left, lower-centre and lower-right of the shared view. In each place:
-   flat, ±30° left/right and ~30° back. That is 12 poses.
-3. **Bottom corners.** A board corner touching each bottom frame corner: 4 poses.
-4. **IMX708 side edges.** Left and right edges at mid-height: 4 poses.
+So this run ends with its FAIL verdicts as they stand: no refit, no re-screen. The re-dive is backlog card
+`c_calib_redive_nov`. The recipe, kept for that card, is **one lower-half block** covering all three cameras:
+
+1. **Rig.** Raise it ~40 cm or tilt it nose-up ~25°.
+2. **Board placements.** At 0.8 m, lower-left, lower-centre and lower-right, each flat, ±30° left/right and ~30° back:
+   12 poses.
+3. **Bottom corners.** 4 poses.
+4. **IMX708 side edges.** 4 poses.
 5. **Preview.** Full-frame on all three cameras.
 
-That is about 20 poses, ~6 min of shooting at Friday's 16.5 s cadence, ~15 min of pool time in all. The rerun on the
-Mac takes ~3 min.
+That is ~20 poses, about 15 min of pool time. A crop-only calibration saves nothing, because the IMX708 crop's bottom
+corners (y = 1745) are below every Friday observation.
 
-A crop-only calibration (B5c) saves nothing: the IMX708 crop's bottom corners (y = 1745) are below every Friday
-observation, and the N6/AE3 B5c is scored at the frame corners.
+## Nick's question 1: lens error vs urchin detection and counting per m² (spec rev 3; observed area only)
+
+Nick asked (d58): "I need help to understand how bad the lens errors are relative to being able to detect the urchin -
+is this something we need to do before running any field test to count urchin in the wild?"
+
+All numbers come from the provisional fits, evaluated **only inside the observed area**: the convex hull of the board
+corners each fit used. That is 37 % of the IMX708 frame, 49 % of the N6 and 43 % of the AE3, all in the upper part.
+Nothing was refitted.
+
+- **Radius** r is the distance from the principal point over the half-diagonal (frame corner ≈ 1).
+- **Radial displacement** is |pixel − pinhole(ray(pixel))|.
+- **Local area scale** is det J · fx · fy (seafloor area per pixel relative to the centre).
+
+Code and outputs: `post/q1_observed_area.py` and `post/lens_error_budget.py` in the data folder; their JSON is copied
+here (`q1_observed_area.json`, `lens_error_budget.json`).
+
+**1. Distortion size** (median radial displacement; % of radius):
+
+| r | IMX708 | N6 | AE3 |
+|---|---|---|---|
+| 0.20–0.25 | 7.8 px (1.3 %) | 0.9 px (0.5 %) | 0.9 px (0.5 %) |
+| 0.40–0.45 | 59.5 px (5.3 %) | 5.7 px (1.8 %) | 5.7 px (1.8 %) |
+| 0.60–0.65 | 192 px (11.8 %) | 18.3 px (3.9 %) | 18.0 px (3.8 %) |
+| edge of the observed area | 231 px (13.3 %) at 0.65–0.70 | 60.9 px (8.8 %) at 0.90–0.95 | 39.7 px (6.5 %) at 0.80–0.85 |
+
+**2. What it does to area** (ring medians):
+
+| | IMX708 | N6 | AE3 |
+|---|---|---|---|
+| area scale off by > 5 % from r = | 0.20 | 0.35 | 0.35 |
+| area scale off by > 10 % from r = | 0.30 | 0.50 | 0.50 |
+| area scale at the observed edge | −44 % | +40 % | −23 % |
+
+**3. Urchin size**, as pixels across the test at the frame centre (5–8 cm test diameter; assumption, spec rev 3):
+
+| range | IMX708 | N6 | AE3 |
+|---|---|---|---|
+| 0.8 m | 164–263 px | 102–163 px | 87–139 px |
+| 1.5 m | 88–140 px | 54–87 px | 46–74 px |
+| 2.0 m | 66–105 px | 41–65 px | 35–56 px |
+| size change, centre → observed edge | ×1.33 | ×0.85 | ×1.14 |
+
+**4. Detection vs counting:**
+
+- **Detection: distortion doesn't matter at these sizes.**
+  - An urchin is 35–263 px across.
+  - Distortion changes that by 14–33 % at the edge of the observed area, less than the 2.5× size change between 0.8 m
+    and 2 m.
+  - Assumption: detectors need roughly 20–30 px; E6 has not set this number.
+- **Counting per m² needs the area per image.** Density error if the correction is skipped:
+  - **Over the observed area:** IMX708 −19.2 %, N6 +13.0 %, AE3 −8.3 %.
+  - **Over the whole frame: not computed.** It needs the model outside the observed area, so per spec rev 3 this run
+    stops and says so.
+  - **Central crop with area error under 5 %**, frame-centred, the largest that stays wholly inside the observed area:
+
+    | camera | crop | share of frame | density error if skipped |
+    |---|---|---|---|
+    | IMX708 | 553×311 px | 1.4 % | −0.5 % |
+    | N6 | 294×184 px | 5.3 % | +1.3 % |
+    | AE3 | 179×112 px | 2.0 % | −0.6 % |
+
+    All three are limited by the observed area, not by the 5 % threshold.
+  - **The IMX708 1600×900 field crop** is 70.4 % inside the observed area. Over that part, skipping the correction
+    costs −4.2 %.
+  - **No underwater calibration at all** (datasheet focal length): IMX708 −44 %, N6 −67 % (if the stock lens), AE3 −45 %.
+  - **Left over after the correction, observed area:**
+
+    | camera | bootstrap spread | spread across the 3 model families |
+    |---|---|---|
+    | IMX708 | 0.5 % | 3.2 % |
+    | N6 | 0.2 % | 0.5 % |
+    | AE3 | 0.3 % | 0.2 % |
+
+  - Scale also needs the range to the seafloor or a known-size reference in frame (spec F6, out of scope here). Area grows
+    with range squared, so a 5 % range error is a 10 % density error.
+
+**5. Recommendation (calibrate before any field urchin count?): only for per-m².**
+
+- Detection and per-frame counts don't need it.
+- Per-m² does, for each camera unit, before densities are reported. That means the underwater focal length plus the
+  distortion over the area being counted.
+- Without it, a field test can detect and count per frame, and can give per-m² only inside a central crop like those
+  above, with a known-size reference on the seafloor in view (about ±1–2 % from the lens, plus the reference's own
+  error).
+- Every calibration here is NOT VALIDATED (the full-frame bars fail). Using one goes beyond these results; that is
+  Nick's call.
+
+**Report:** https://claude.ai/artifact/XVVphV1DVXLfA5Do1d5LGp (v3), on the board's "Ready for you" lane (card
+`ready_lens_report`).
+
+- **Provisional posting.** It was posted PROVISIONAL before the QE pass, per PE 002's ruling (Sat ~5:10 PM): Nick asked to
+  see it, and a clear provisional label keeps unreviewed numbers from reading as final. The label comes off only after
+  QE's PASS.
+- **v2 correction.** v2 showed two items extrapolated beyond the measured area: a whole-frame density row and the dashed
+  parts of a size chart. v3 removes them and says so at the top. The same note is on the card.
+- **IMX708 images.** Taken from a deterministic figure re-render with the `d69c0cf0` drawing fix. All numbers match the
+  record run to floating-point noise, and every bar status is identical.
 
 ## Not tested / limits
 
-- **Tool code under review.** Every number here is provisional until QE 005 passes `8e98892e`.
+- **Tool code under review.** Every number here is provisional until QE passes `8e98892e` and `d69c0cf0` (QE 006).
 - **DNG decode.** Grey-level only, through rawpy `postprocess` (camera WB, 8-bit, gamma), the pipeline's existing
   loader. A linear demosaic was not tried. The JPEG cross-check says it makes no difference to the intrinsics.
 - **Verdict sheets.** The tool's `verdict.png` and `coverage.png` were not changed for the mask. Their red boxes show
