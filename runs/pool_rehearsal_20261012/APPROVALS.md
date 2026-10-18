@@ -37,3 +37,9 @@ Refers to the pool-day line TE2 posted in this chat at ~9:00 AM:
 > Approved per nereus-software-engineering-team/approvals/2026-10-16_pool.md @ 3a16066fdb8ace0780e355c7c7e8d77d258e66c8
 
 Scope = envelope v1 "Owner 2: Test Engineer" exactly as written (plan A; v2 c275085 rejected).
+- Fri 10/16 ~12:15 PM PDT, Nick in the TE2 chat (verbatim): "OK: pool calibration re-dive on bmcam003 + bmcam004: bus holds on SPOT-31593C + SPOT-33507C, pool_mode on with lens 0.8, preview/cal/mark/stop over the console, coverage-check pull of calibration JPEGs; then the Friday envelope v1 pull + restore; no production switch before the full download passes."
+- Sat 10/17 9:10 AM PDT, Nick in the TE2 chat (verbatim): "A + C approved" — answers d49 as posted in this chat: A = PATCH /admin/gateways/{SPOT-31593C,SPOT-33507C}/rollout {"self_heal": false} before the gate, {"self_heal": true} after it (before the soak config); C = console {"c":"rsd","x":1} on both at the first gate boot; not B1.
+- Sat 10/17 9:17 AM PDT, Nick in the TE2 chat (verbatim): "Approved per runs/soak_noaa_20261017/GATE_CARD_offwin_heals.md @ 92921f76 (deploy S2 + gate), G7 = B"
+- Sat 10/17 9:17 AM PDT, Nick in the TE2 chat (verbatim): "Approved per runs/soak_noaa_20261017/TEST_CARD.md @ 92921f76" (no d38 clause: the d38 remote set needs its own line later)
+- Sun 10/18 8:33 AM PDT, Nick in the TE2 chat (verbatim): "B. Indoors, bmcam003 only counts: run both, but score only bmcam003 for the build. That halves n: 10 in-window and 4 late-window images." (answers the indoor decision; G4 A/B and the A1 pull still open)
+- Sun 10/18 8:59 AM PDT, Nick in the TE2 chat (verbatim): "OK LA-time windows" (answers: reset the tz overlay; windows in America/Los_Angeles: 07:00-12:00 = 10:00-15:00 ET; off-window phase 03:00-04:00 LA; G6 recorded FAIL with the tz-overlay cause; soak uses 07:00-12:00 LA)
