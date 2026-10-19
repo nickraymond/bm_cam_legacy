@@ -1,0 +1,77 @@
+[
+ {
+  "unit": "BMCAM_003",
+  "pi_cycle_logs": 81,
+  "pi_logs_without_key": [
+   "bmcam003/rc_cycle_20261014T040835Z.log",
+   "bmcam003/rc_cycle_20261014T170832Z.log",
+   "bmcam003/rc_cycle_20261014T212222Z.log",
+   "bmcam003/rc_cycle_20261016T195907Z.log",
+   "bmcam003/rc_cycle_20261017T220001Z.log"
+  ],
+  "pi_image_wakes_in_run": 62,
+  "pi_keys_without_ledger_row": [],
+  "ledger_rows_without_pi_key": [],
+  "pi_wakes_without_cycle_end": [
+   "0erasy@2026-10-14T21:38:58Z",
+   "0ess0n@2026-10-15T16:48:23Z"
+  ],
+  "pi_msgs_vs_ledger_M": [],
+  "scheduled_slots": 59,
+  "wakes_seen": 59,
+  "missed_slots": [],
+  "sofar_keys_in_run": 62,
+  "sofar_keys_by_kind": {
+   "pre_run": 10,
+   "production": 59,
+   "forced": 1,
+   "stub": 2,
+   "post_pull": 4
+  },
+  "backend_rows_in_run": 62,
+  "sofar_keys_in_run_matched_to_backend": 62,
+  "backend_rows_without_sofar_key": [],
+  "sofar_keys_without_backend": [],
+  "ws_in_run": 63,
+  "console_bus_windows_in_run_with_submits": 52,
+  "backend_vs_sofar_disagreements": []
+ },
+ {
+  "unit": "BMCAM_004",
+  "pi_cycle_logs": 78,
+  "pi_logs_without_key": [
+   "bmcam004/rc_cycle_20261014T040837Z.log",
+   "bmcam004/rc_cycle_20261014T045458Z.log",
+   "bmcam004/rc_cycle_20261014T170732Z.log",
+   "bmcam004/rc_cycle_20261014T214246Z.log",
+   "bmcam004/rc_cycle_20261016T195906Z.log",
+   "bmcam004/rc_cycle_20261017T220019Z.log"
+  ],
+  "pi_image_wakes_in_run": 60,
+  "pi_keys_without_ledger_row": [],
+  "ledger_rows_without_pi_key": [],
+  "pi_wakes_without_cycle_end": [
+   "0esrj9@2026-10-15T16:37:57Z"
+  ],
+  "pi_msgs_vs_ledger_M": [],
+  "scheduled_slots": 59,
+  "wakes_seen": 59,
+  "missed_slots": [],
+  "sofar_keys_in_run": 60,
+  "sofar_keys_by_kind": {
+   "pre_run": 9,
+   "production": 59,
+   "post_pull": 3,
+   "stub": 1
+  },
+  "backend_rows_in_run": 59,
+  "sofar_keys_in_run_matched_to_backend": 59,
+  "backend_rows_without_sofar_key": [],
+  "sofar_keys_without_backend": [
+   "0esrj9@2026-10-15T16:37:57Z"
+  ],
+  "ws_in_run": 61,
+  "console_bus_windows_in_run_with_submits": 51,
+  "backend_vs_sofar_disagreements": []
+ }
+]

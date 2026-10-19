@@ -1,0 +1,335 @@
+{
+ "expectations_sha256": "a20e6e8b042305d177a2b431e78ce9dd723c1f0fa7278878fb56c68883471e06",
+ "units": {
+  "BMCAM_003": {
+   "unit": "BMCAM_003",
+   "spotter": "SPOT-31593C",
+   "t_off": "2026-10-15T16:47:38Z",
+   "D_h": 19.121,
+   "window_before": [
+    "2026-10-14T21:40:24Z",
+    "2026-10-15T16:47:38Z"
+   ],
+   "window_after": [
+    "2026-10-15T16:47:38Z",
+    "2026-10-16T11:54:52Z"
+   ],
+   "excluded_fraction_by_time": {
+    "before": 0.016183862626027834,
+    "after": 0.01808699189354098
+   },
+   "exclusions": [
+    [
+     "non-scheduled wake 0er9ps (forced) image + 20 min",
+     "2026-10-14T21:15:28Z",
+     "2026-10-14T21:35:28Z"
+    ],
+    [
+     "non-scheduled wake 0erasy (stub) image + 20 min",
+     "2026-10-14T21:38:58Z",
+     "2026-10-14T21:58:58Z"
+    ],
+    [
+     "non-scheduled wake 0ess0n (stub) image + 20 min",
+     "2026-10-15T16:48:23Z",
+     "2026-10-15T17:08:23Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T02:31:59Z (power cycle) + 20 min",
+     "2026-10-14T02:31:59Z",
+     "2026-10-14T02:51:59Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:26:05Z (power cycle) + 20 min",
+     "2026-10-14T04:26:05Z",
+     "2026-10-14T04:46:05Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:30:05Z (power cycle) + 20 min",
+     "2026-10-14T04:30:05Z",
+     "2026-10-14T04:50:05Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:38:52Z (power cycle) + 20 min",
+     "2026-10-14T04:38:52Z",
+     "2026-10-14T04:58:52Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:47:28Z (power cycle) + 20 min",
+     "2026-10-14T04:47:28Z",
+     "2026-10-14T05:07:28Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T21:14:59Z (power cycle) + 20 min",
+     "2026-10-14T21:14:59Z",
+     "2026-10-14T21:34:59Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T21:24:21Z (power cycle) + 20 min",
+     "2026-10-14T21:24:21Z",
+     "2026-10-14T21:44:21Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T21:38:20Z (power cycle) + 20 min",
+     "2026-10-14T21:38:20Z",
+     "2026-10-14T21:58:20Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T19:15:43Z (power cycle) + 20 min",
+     "2026-10-16T19:15:43Z",
+     "2026-10-16T19:35:43Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T19:24:40Z (power cycle) + 20 min",
+     "2026-10-16T19:24:40Z",
+     "2026-10-16T19:44:40Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T19:39:59Z (power cycle) + 20 min",
+     "2026-10-16T19:39:59Z",
+     "2026-10-16T19:59:59Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T20:14:19Z (power cycle) + 20 min",
+     "2026-10-16T20:14:19Z",
+     "2026-10-16T20:34:19Z"
+    ],
+    [
+     "HDR-off cfg-save stub wake (power cycle)",
+     "2026-10-15T16:47:38Z",
+     "2026-10-15T16:52:38Z"
+    ]
+   ],
+   "wakes_used": {
+    "before": 19,
+    "after": 18
+   },
+   "blocks": {
+    "before": [
+     {
+      "lost": 68,
+      "M": 846,
+      "wakes": 6
+     },
+     {
+      "lost": 85,
+      "M": 791,
+      "wakes": 6
+     },
+     {
+      "lost": 50,
+      "M": 1149,
+      "wakes": 7
+     }
+    ],
+    "after": [
+     {
+      "lost": 107,
+      "M": 943,
+      "wakes": 5
+     },
+     {
+      "lost": 85,
+      "M": 965,
+      "wakes": 6
+     },
+     {
+      "lost": 104,
+      "M": 896,
+      "wakes": 7
+     }
+    ]
+   },
+   "lost": {
+    "before": 203,
+    "after": 296
+   },
+   "M": {
+    "before": 2786,
+    "after": 2804
+   },
+   "rate_before": 0.0728643216080402,
+   "rate_after": 0.10556348074179743,
+   "stats": {
+    "basis": "locked rules",
+    "wakes": {
+     "before": 19,
+     "after": 18
+    },
+    "lost": {
+     "before": 203,
+     "after": 296
+    },
+    "M": {
+     "before": 2786,
+     "after": 2804
+    },
+    "rate_before": 0.0728643216080402,
+    "rate_after": 0.10556348074179743,
+    "R_observed": -0.4487677701805304,
+    "R_lower_bootstrap": -1.1553930530164536,
+    "nb": {
+     "beta0": -2.6476442178292405,
+     "beta1": 0.3679500133150513,
+     "alpha": 0.9679339264426127,
+     "loglik": -130.78174674535617,
+     "beta1_upper_95_onesided": 0.9402154838861864,
+     "R_hat": -0.4447698179151369,
+     "R_lower": -1.5605331125123265
+    },
+    "R_lower_poisson_extra": -0.6908882673692032,
+    "verdict_if_testable": "FAIL (bar not met)",
+    "power": {
+     "wakes_per_side_80pct": 260,
+     "power_at_n": 0.801,
+     "before_wakes_existing": 19,
+     "reachable": false,
+     "note": "unreachable without HDR back on (Nick's call)"
+    }
+   },
+   "verdict": "FAIL (bar not met)"
+  },
+  "BMCAM_004": {
+   "unit": "BMCAM_004",
+   "spotter": "SPOT-33507C",
+   "t_off": "2026-10-15T16:37:13Z",
+   "D_h": 18.872,
+   "window_before": [
+    "2026-10-14T21:44:54Z",
+    "2026-10-15T16:37:13Z"
+   ],
+   "window_after": [
+    "2026-10-15T16:37:13Z",
+    "2026-10-16T11:29:32Z"
+   ],
+   "excluded_fraction_by_time": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "exclusions": [
+    [
+     "non-scheduled wake 0esrj9 (stub) image + 20 min",
+     "2026-10-15T16:37:57Z",
+     "2026-10-15T16:57:57Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T02:31:25Z (power cycle) + 20 min",
+     "2026-10-14T02:31:25Z",
+     "2026-10-14T02:51:25Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:26:03Z (power cycle) + 20 min",
+     "2026-10-14T04:26:03Z",
+     "2026-10-14T04:46:03Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:30:03Z (power cycle) + 20 min",
+     "2026-10-14T04:30:03Z",
+     "2026-10-14T04:50:03Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:38:50Z (power cycle) + 20 min",
+     "2026-10-14T04:38:50Z",
+     "2026-10-14T04:58:50Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T04:47:26Z (power cycle) + 20 min",
+     "2026-10-14T04:47:26Z",
+     "2026-10-14T05:07:26Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-14T21:43:22Z (power cycle) + 20 min",
+     "2026-10-14T21:43:22Z",
+     "2026-10-14T22:03:22Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-15T16:37:18Z (power cycle) + 20 min",
+     "2026-10-15T16:37:18Z",
+     "2026-10-15T16:57:18Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T19:23:54Z (power cycle) + 20 min",
+     "2026-10-16T19:23:54Z",
+     "2026-10-16T19:43:54Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T19:42:47Z (power cycle) + 20 min",
+     "2026-10-16T19:42:47Z",
+     "2026-10-16T20:02:47Z"
+    ],
+    [
+     "non-scheduled bus-on 2026-10-16T20:14:19Z (power cycle) + 20 min",
+     "2026-10-16T20:14:19Z",
+     "2026-10-16T20:34:19Z"
+    ],
+    [
+     "HDR-off cfg-save stub wake (power cycle)",
+     "2026-10-15T16:37:13Z",
+     "2026-10-15T16:42:13Z"
+    ],
+    [
+     "THERMAL_FAULT (console OK->THERMAL_FAULT 2026-10-14T17:42:55Z; next clearing evidence: post OK 2026-10-17T18:41:19Z)",
+     "2026-10-14T17:42:55Z",
+     "2026-10-17T18:41:19Z"
+    ]
+   ],
+   "wakes_used": {
+    "before": 0,
+    "after": 0
+   },
+   "blocks": {
+    "before": [],
+    "after": []
+   },
+   "lost": {
+    "before": 0,
+    "after": 0
+   },
+   "M": {
+    "before": 0,
+    "after": 0
+   },
+   "rate_before": NaN,
+   "rate_after": NaN,
+   "stats": {
+    "basis": "SENSITIVITY: outside the locked rules, report only",
+    "wakes": {
+     "before": 18,
+     "after": 19
+    },
+    "lost": {
+     "before": 35,
+     "after": 28
+    },
+    "M": {
+     "before": 3058,
+     "after": 3334
+    },
+    "rate_before": 0.01144538914323087,
+    "rate_after": 0.008398320335932814,
+    "R_observed": 0.2662267546490702,
+    "R_lower_bootstrap": 0.0019870320016733833,
+    "nb": {
+     "beta0": -4.47034450896383,
+     "beta1": -0.30955545617184965,
+     "alpha": 2.2006982677440147e-08,
+     "loglik": -56.56957938347216,
+     "beta1_upper_95_onesided": 0.1057754598232743,
+     "R_hat": 0.2662269219756995,
+     "R_lower": -0.11157225585187436
+    },
+    "R_lower_poisson_extra": -0.1468338137509999,
+    "verdict_if_testable": "INCONCLUSIVE",
+    "power": {
+     "wakes_per_side_80pct": 145,
+     "power_at_n": 0.8005,
+     "before_wakes_existing": 18,
+     "reachable": false,
+     "note": "unreachable without HDR back on (Nick's call)"
+    }
+   },
+   "verdict": "not testable: exclusions remove 100% of a window (> 25 %); fewer than 3 blocks on a side"
+  }
+ },
+ "overall": "report only (n = 1 unit: BMCAM_003 FAIL (bar not met)); no recommendation (R7, TEAM_RULES \u00a79)"
+}
