@@ -1,0 +1,207 @@
+{
+ "model": "rational",
+ "prereg": "docs/pool_calib_prereg_20261016.md",
+ "residual_report": {
+  "radius_bins": [
+   {
+    "r_lo": 0.0,
+    "r_hi": 0.2,
+    "n": 642,
+    "n_views": 27,
+    "rms_px": 0.4219723176400437
+   },
+   {
+    "r_lo": 0.2,
+    "r_hi": 0.4,
+    "n": 1653,
+    "n_views": 57,
+    "rms_px": 0.4754654789493321
+   },
+   {
+    "r_lo": 0.4,
+    "r_hi": 0.5,
+    "n": 895,
+    "n_views": 57,
+    "rms_px": 0.5622074869157223
+   },
+   {
+    "r_lo": 0.5,
+    "r_hi": 0.6,
+    "n": 374,
+    "n_views": 54,
+    "rms_px": 0.7198681381238422
+   },
+   {
+    "r_lo": 0.6,
+    "r_hi": 0.7,
+    "n": 121,
+    "n_views": 28,
+    "rms_px": 0.9694521742951612
+   },
+   {
+    "r_lo": 0.7,
+    "r_hi": 0.8,
+    "n": 19,
+    "n_views": 8,
+    "rms_px": 1.551626752351537
+   },
+   {
+    "r_lo": 0.8,
+    "r_hi": 0.9,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   },
+   {
+    "r_lo": 0.9,
+    "r_hi": 1.0,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   }
+  ],
+  "distance_bins": [
+   {
+    "dist_m_lo": 0.0,
+    "dist_m_hi": 0.5,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   },
+   {
+    "dist_m_lo": 0.5,
+    "dist_m_hi": 0.75,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   },
+   {
+    "dist_m_lo": 0.75,
+    "dist_m_hi": 1.0,
+    "n": 2645,
+    "n_views": 32,
+    "rms_px": 0.49334868855605174
+   },
+   {
+    "dist_m_lo": 1.0,
+    "dist_m_hi": 1.25,
+    "n": 723,
+    "n_views": 19,
+    "rms_px": 0.6142428363400657
+   },
+   {
+    "dist_m_lo": 1.25,
+    "dist_m_hi": 1.5,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   },
+   {
+    "dist_m_lo": 1.5,
+    "dist_m_hi": 1.75,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   },
+   {
+    "dist_m_lo": 1.75,
+    "dist_m_hi": 2.0,
+    "n": 336,
+    "n_views": 6,
+    "rms_px": 0.7860573945909833
+   },
+   {
+    "dist_m_lo": 2.0,
+    "dist_m_hi": 2.5,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   },
+   {
+    "dist_m_lo": 2.5,
+    "dist_m_hi": 5.0,
+    "n": 0,
+    "n_views": 0,
+    "rms_px": null
+   }
+  ],
+  "inner": {
+   "r_max": 0.5,
+   "n": 3190,
+   "rms_px": 0.491588661007459
+  },
+  "outer": {
+   "r_min": 0.8,
+   "n": 0,
+   "rms_px": null
+  },
+  "outer_over_inner": null,
+  "testable": false,
+  "n": 3704,
+  "rms_px": 0.5509092767932748,
+  "radius_note": "r = distance from the frame centre / half-diagonal (frame corner = 1.0)"
+ },
+ "flags": {
+  "principal_point": {
+   "dx_px": 8.824236124701201,
+   "dy_px": -2.7480976182202994,
+   "dx_frac": 0.001914981797895226,
+   "dy_frac": -0.0010602228465356094,
+   "limit_frac": 0.02,
+   "flag": false
+  },
+  "tangential": {
+   "p1": 0.003879134517645185,
+   "p2": 0.005086928365791751,
+   "limit": 0.001,
+   "source": "standard 5-coefficient fit",
+   "flag": true
+  },
+  "outer_inner_residual": {
+   "ratio": null,
+   "limit": 2.0,
+   "flag": null
+  },
+  "any": true
+ },
+ "cross_group": {
+  "model": "rational",
+  "groups": {
+   "cal_a": 32,
+   "cal_b": 25
+  },
+  "pairs": [
+   {
+    "fit_on": "cal_a",
+    "score_on": "cal_b",
+    "n_fit_views": 32,
+    "n_score_views": 25,
+    "own_heldout_rms_px": 0.6149150806580854,
+    "status": "ok",
+    "fit_rms_px": 0.394387646568522,
+    "fit_views_kept": 31,
+    "fx": 2630.0690664107574,
+    "cx": 2317.8496572015715,
+    "cy": 1296.8499702360596,
+    "cross_rms_px": 0.8099104171522951,
+    "cross_over_own": 1.3171093743310451
+   },
+   {
+    "fit_on": "cal_b",
+    "score_on": "cal_a",
+    "n_fit_views": 25,
+    "n_score_views": 32,
+    "own_heldout_rms_px": 0.4888261541542556,
+    "status": "ok",
+    "fit_rms_px": 0.5611983579568272,
+    "fit_views_kept": 25,
+    "fx": 2629.582886347497,
+    "cx": 2324.2331760774623,
+    "cy": 1289.0490837290838,
+    "cross_rms_px": 0.6490882020956601,
+    "cross_over_own": 1.3278508045844692
+   }
+  ]
+ },
+ "models_reading": "literal"
+}

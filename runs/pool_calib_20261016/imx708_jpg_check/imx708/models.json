@@ -1,0 +1,276 @@
+{
+ "chosen": "rational",
+ "why": "lowest held-out RMS 0.551 px",
+ "models": {
+  "standard": {
+   "train_rms_px": 0.5463982883598049,
+   "views": 52,
+   "dropped": [
+    {
+     "index": 43,
+     "round": 1,
+     "rms_px": 1.5913734154636983,
+     "threshold_px": 1.565641470292603
+    },
+    {
+     "index": 47,
+     "round": 1,
+     "rms_px": 1.9450471424741624,
+     "threshold_px": 1.565641470292603
+    },
+    {
+     "index": 48,
+     "round": 1,
+     "rms_px": 1.6092590833146554,
+     "threshold_px": 1.565641470292603
+    },
+    {
+     "index": 42,
+     "round": 2,
+     "rms_px": 1.5590405561577931,
+     "threshold_px": 1.478043616009296
+    },
+    {
+     "index": 44,
+     "round": 3,
+     "rms_px": 1.4955772992858813,
+     "threshold_px": 1.4521526279638168
+    }
+   ],
+   "K": [
+    [
+     2628.95185145101,
+     0.0,
+     2313.368837169702
+    ],
+    [
+     0.0,
+     2628.710229028538,
+     1290.4545119584118
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "D": [
+    0.24521314766998192,
+    0.7282923895712925,
+    0.003879134517645185,
+    0.005086928365791751,
+    -0.3861716842502348
+   ],
+   "n_params_dist": 5,
+   "heldout_rms_px": 0.7317410571492484,
+   "heldout_median_view_px": 0.5114663838186996,
+   "outlier_threshold_px": 1.4272284017997316
+  },
+  "rational": {
+   "train_rms_px": 0.47391024754841093,
+   "views": 54,
+   "dropped": [
+    {
+     "index": 48,
+     "round": 1,
+     "rms_px": 1.3473001773026065,
+     "threshold_px": 1.2945392373125229
+    },
+    {
+     "index": 53,
+     "round": 1,
+     "rms_px": 1.3005409825097747,
+     "threshold_px": 1.2945392373125229
+    },
+    {
+     "index": 6,
+     "round": 2,
+     "rms_px": 1.2866613208557687,
+     "threshold_px": 1.2608608036940971
+    }
+   ],
+   "K": [
+    [
+     2627.6122735243375,
+     0.0,
+     2312.824236124701
+    ],
+    [
+     0.0,
+     2626.919371028022,
+     1293.2519023817797
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "D": [
+    -5.228833734793275,
+    8.899393159139581,
+    0.004357956533129791,
+    0.004909128091358249,
+    -4.876947225431867,
+    -5.5193755111355784,
+    10.13402287076953,
+    -6.196567915622341
+   ],
+   "n_params_dist": 8,
+   "heldout_rms_px": 0.5509092767932748,
+   "heldout_median_view_px": 0.457188665201051,
+   "outlier_threshold_px": 1.2579234564786368
+  }
+ },
+ "errors": {
+  "fisheye": "fit: error: OpenCV(5.0.0) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/calib/src/fisheye.cpp:757: error: (-215:Assertion failed) fabs(norm_u1) > 0 in function 'InitExtrinsics'\n"
+ },
+ "probes": [
+  {
+   "group": "frame",
+   "name": "TL",
+   "x": 325.0,
+   "y": 182.0,
+   "ray_uncertainty_px": null,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": null,
+   "model_disagreement_raw_px": null,
+   "distortion_px": null
+  },
+  {
+   "group": "frame",
+   "name": "TR",
+   "x": 4270.0,
+   "y": 235.0,
+   "ray_uncertainty_px": null,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": null,
+   "model_disagreement_raw_px": null,
+   "distortion_px": null
+  },
+  {
+   "group": "frame",
+   "name": "BL",
+   "x": 194.0,
+   "y": 2507.0,
+   "ray_uncertainty_px": null,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": null,
+   "model_disagreement_raw_px": null,
+   "distortion_px": null
+  },
+  {
+   "group": "frame",
+   "name": "BR",
+   "x": 4455.0,
+   "y": 2529.0,
+   "ray_uncertainty_px": null,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": null,
+   "model_disagreement_raw_px": null,
+   "distortion_px": null
+  },
+  {
+   "group": "frame",
+   "name": "top",
+   "x": 2303.5,
+   "y": 0.0,
+   "ray_uncertainty_px": 0.12675148610198747,
+   "model_disagreement_px": 0.1338166069360241,
+   "ray_uncertainty_raw_px": 5.213753984632567,
+   "model_disagreement_raw_px": 2.1787327384969477,
+   "distortion_px": 90.58966855641775
+  },
+  {
+   "group": "frame",
+   "name": "bottom",
+   "x": 2303.5,
+   "y": 2591.0,
+   "ray_uncertainty_px": 0.5795535658328418,
+   "model_disagreement_px": 0.6466813293611555,
+   "ray_uncertainty_raw_px": 5.714380842857197,
+   "model_disagreement_raw_px": 3.4942885172303035,
+   "distortion_px": 102.68666984705109
+  },
+  {
+   "group": "frame",
+   "name": "left",
+   "x": 0.0,
+   "y": 1295.5,
+   "ray_uncertainty_px": null,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": null,
+   "model_disagreement_raw_px": null,
+   "distortion_px": null
+  },
+  {
+   "group": "frame",
+   "name": "right",
+   "x": 4607.0,
+   "y": 1295.5,
+   "ray_uncertainty_px": null,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": null,
+   "model_disagreement_raw_px": null,
+   "distortion_px": null
+  },
+  {
+   "group": "crop",
+   "name": "crop_TL",
+   "x": 1504.0,
+   "y": 846.0,
+   "ray_uncertainty_px": 0.1871482767516444,
+   "model_disagreement_px": 0.10612199435053699,
+   "ray_uncertainty_raw_px": 4.767641977246758,
+   "model_disagreement_raw_px": 2.836855327731856,
+   "distortion_px": 29.373962531429232
+  },
+  {
+   "group": "crop",
+   "name": "crop_TR",
+   "x": 3103.0,
+   "y": 846.0,
+   "ray_uncertainty_px": 0.19511415364516171,
+   "model_disagreement_px": 0.19565942393235744,
+   "ray_uncertainty_raw_px": 4.503958798254223,
+   "model_disagreement_raw_px": 2.476501456385985,
+   "distortion_px": 34.414345064808444
+  },
+  {
+   "group": "crop",
+   "name": "crop_BL",
+   "x": 1504.0,
+   "y": 1745.0,
+   "ray_uncertainty_px": 0.2605756315602844,
+   "model_disagreement_px": 0.2691731431353135,
+   "ray_uncertainty_raw_px": 4.548870138053524,
+   "model_disagreement_raw_px": 3.557838839432939,
+   "distortion_px": 33.105029577999034
+  },
+  {
+   "group": "crop",
+   "name": "crop_BR",
+   "x": 3103.0,
+   "y": 1745.0,
+   "ray_uncertainty_px": 0.24164551573715148,
+   "model_disagreement_px": 0.14549158057865838,
+   "ray_uncertainty_raw_px": 4.990851924855052,
+   "model_disagreement_raw_px": 3.2006741781125685,
+   "distortion_px": 37.94267618396595
+  }
+ ],
+ "f_ref_px": 2627.2658222761797,
+ "folds": 5,
+ "seed": 0,
+ "cross_model_K": [
+  {
+   "pair": "rational vs standard",
+   "dfx_pct": 0.050980806421481006,
+   "dfy_pct": 0.06817331434939114,
+   "dcx_px": 0.5446010450009453,
+   "dcy_px": -2.797390423367915
+  }
+ ],
+ "cross_model_K_note": "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model disagreement absorbs these K differences; the literal reading includes them. Which reading governs is the A2 decision (prereg doc).",
+ "bootstrap_replicates_ok": "100/100"
+}

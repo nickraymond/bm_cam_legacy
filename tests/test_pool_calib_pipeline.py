@@ -598,8 +598,10 @@ class TestNonNativeUnits(unittest.TestCase):
 
     def test_native_size_help_says_imx708(self):
         h = " ".join(pp.build_parser().format_help().split())
-        self.assertIn("the IMX708 full frame WxH", h)
-        self.assertIn("Leave it at the default for any other camera", h)
+        self.assertIn("Default = the IMX708", h)
+        # since prereg 20261016 §3 the N6/AE3 bars are pre-registered in their own pixels (QE 006 nit 6)
+        self.assertIn("1280x800 with --crop 0,0,1280,800", h)
+        self.assertIn("other sizes get B5c / crop verdict N/A", h)
 
     def test_verdict_titles(self):
         import pool_calib_figures as figs
@@ -759,3 +761,348 @@ class TestRefusals(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ============================================================================ prereg 2026-10-16 (pool049 re-dive)
+
+def synthetic_views(poses, K=K_TRUE, D=D_TRUE, noise=0.15, seed=0):
+    """Board corners projected through the TRUE camera (no rendering): obj (N,3) mm, img (N,2) px per
+    view, only the corners that land inside the frame. poses as FULL_POSES."""
+    rng = np.random.default_rng(seed)
+    gx, gy = np.meshgrid(np.arange(1, 14) * SQ, np.arange(1, 9) * SQ)
+    obj = np.stack([gx.ravel(), gy.ravel(), np.zeros(gx.size)], 1)
+    centre = np.array([14 * SQ / 2, 9 * SQ / 2, 0.0])
+    O, I = [], []
+    for ax, ay, az, fxf, fyf, dist in poses:
+        R = rot(ax, ay, az)
+        ray = pm.rays("standard", K, D, np.array([[fxf * (W - 1), fyf * (H - 1)]]))[0]
+        v = np.array([ray[0], ray[1], 1.0])
+        t = v / np.linalg.norm(v) * dist - R @ centre
+        rv = cv2.Rodrigues(R)[0].ravel()
+        p = pm.project("standard", K, D, obj, rv, t) + rng.normal(0, noise, (len(obj), 2))
+        ok = (p[:, 0] >= 0) & (p[:, 0] <= W - 1) & (p[:, 1] >= 0) & (p[:, 1] <= H - 1)
+        O.append(obj[ok])
+        I.append(p[ok])
+    return O, I, centre
+
+
+def corner_mask(r_cut):
+    """Synthetic port vignette: pixels farther than r_cut x the half-diagonal from the centre are masked."""
+    ys, xs = np.mgrid[0:H, 0:W]
+    r = np.hypot(xs - (W - 1) / 2, ys - (H - 1) / 2) / math.hypot(W / 2, H / 2)
+    return r <= r_cut
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestPrereg20261016Units(unittest.TestCase):
+    """--mask helpers, the literal model-disagreement reading, the residual report, the tilt / decentre
+    flags and the cross-group check (docs/pool_calib_prereg_20261016.md)."""
+
+    def test_mask_png_round_trip_and_visible_at(self):
+        vis = corner_mask(0.85)
+        with tempfile.TemporaryDirectory() as tmp:
+            p = os.path.join(tmp, "m.png")
+            cv2.imwrite(p, np.where(vis, 255, 0).astype(np.uint8))
+            got = pp.load_mask(p)
+            self.assertTrue(np.array_equal(got, vis))
+            with self.assertRaises(ValueError):
+                pp.load_mask(os.path.join(tmp, "missing.png"))
+        pts = np.array([[0, 0], [W / 2, H / 2], [W - 1, H - 1], [-5, 10], [W + 3, 10]], float)
+        self.assertEqual(pp.visible_at(vis, pts).tolist(), [False, True, False, False, False])
+
+    def test_cell_visible_fraction_matches_corner_assignment(self):
+        vis = corner_mask(0.8)
+        vf = pp.cell_visible_fraction(vis, (8, 5))
+        ys, xs = np.mgrid[0:H, 0:W]
+        ix, iy = (xs * 8 // W), (ys * 5 // H)        # coverage_stats' cell of a point at (x, y)
+        for r in range(5):
+            for c in range(8):
+                sel = (iy == r) & (ix == c)
+                self.assertAlmostEqual(vf[r, c], vis[sel].mean(), places=12)
+        self.assertLess(vf[0, 0], 0.5)              # this vignette takes the corner cells out
+        self.assertEqual(vf[2, 3], 1.0)
+
+    def test_extreme_visible_cells(self):
+        el = np.ones((5, 8), bool)
+        self.assertEqual(pp.extreme_visible_cells(el, (W, H)),
+                         {"top-left corner": (0, 0), "top-right corner": (0, 7),
+                          "bottom-left corner": (4, 0), "bottom-right corner": (4, 7)})
+        el[0, 0] = el[4, 7] = False
+        ext = pp.extreme_visible_cells(el, (W, H))
+        # cells are 192 x 172.8 px: (1, 0) centre (96, 259) is nearer (0, 0) than (0, 1) centre (288, 86)
+        self.assertEqual(ext["top-left corner"], (1, 0))
+        self.assertEqual(ext["bottom-right corner"], (3, 7))
+        self.assertEqual(ext["top-right corner"], (0, 7))
+
+    def test_nearest_visible_moves_masked_probes_only(self):
+        vis = corner_mask(0.9)
+        pr = pp.probe_points((W, H), CROP, vis)
+        plain = pp.probe_points((W, H), CROP)
+        self.assertEqual(pr["crop"], plain["crop"])                     # B5c crop corners never move
+        for k in ("top", "bottom", "left", "right"):                    # edge midpoints: r <= 0.87
+            self.assertEqual(pr["frame"][k], tuple(map(float, plain["frame"][k])))
+        for k in ("TL", "TR", "BL", "BR"):
+            x, y = pr["frame"][k]
+            self.assertTrue(vis[int(y), int(x)], k)
+            x0, y0 = plain["frame"][k]
+            ys, xs = np.nonzero(vis)
+            self.assertAlmostEqual(math.hypot(x - x0, y - y0), np.sqrt(((xs - x0) ** 2 + (ys - y0) ** 2).min()))
+
+    def test_coverage_counts_only_eligible_cells(self):
+        vis = corner_mask(0.8)
+        vf = pp.cell_visible_fraction(vis, (8, 5))
+        cw, ch = W / 8, H / 5
+        pts = np.array([[(c + 0.5) * cw, (r + 0.5) * ch] for r in range(5) for c in range(8)
+                        if vf[r, c] >= 0.5 for _ in range(6)])
+        plain = pp.coverage_stats(pts, (W, H), (8, 5), 5)
+        masked = pp.coverage_stats(pts, (W, H), (8, 5), 5, visible=vis)
+        self.assertFalse(plain["all_corner_cells"])                     # true corner cells are empty
+        self.assertLess(plain["covered_frac"], 1.0)
+        self.assertTrue(masked["all_corner_cells"])                     # extreme visible cells are covered
+        self.assertEqual(masked["covered_frac"], 1.0)
+        self.assertEqual(masked["mask"]["n_eligible"], int((vf >= 0.5).sum()))
+        self.assertEqual(masked["mask"]["covered_frac_all_cells"], plain["covered_frac"])
+
+    def test_literal_reading_sets_b4_and_b5c(self):
+        cal = TestNonNativeUnits.fake_cal()
+        for p in cal["probes"]:
+            p["model_disagreement_raw_px"] = 1.5          # literal: over B5c's 1 px, under B4's 2 px
+        bars, cov = pp.PREREG["bars"], TestNonNativeUnits.COV
+        _, vf_a, vc_a = pp.evaluate_bars(20, cal, cov, bars)
+        rows, vf_l, vc_l = pp.evaluate_bars(20, cal, cov, bars, models_reading="literal")
+        self.assertEqual((vf_a, vc_a), ("PASS", "PASS"))
+        self.assertEqual((vf_l, vc_l), ("PASS", "FAIL"))
+        by = {r["bar"].split()[0]: r for r in rows}
+        self.assertIn("LITERAL", by["B5c"]["rule"])
+        self.assertEqual(by["B5c"]["value"]["literal_models_px"], 1.5)
+        for p in cal["probes"]:
+            p["model_disagreement_raw_px"] = 2.5          # now over B4's 2 px as well
+        _, vf_l, _ = pp.evaluate_bars(20, cal, cov, bars, models_reading="literal")
+        self.assertEqual(vf_l, "FAIL")
+        with self.assertRaises(ValueError):
+            pp.evaluate_bars(20, cal, cov, bars, models_reading="metric")
+
+    def test_aligned_default_keeps_the_1014_rule_text(self):
+        rows, _, _ = pp.evaluate_bars(20, TestNonNativeUnits.fake_cal(), TestNonNativeUnits.COV, pp.PREREG["bars"])
+        by = {r["bar"].split()[0]: r for r in rows}
+        self.assertTrue(by["B4"]["rule"].endswith("at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1)"))
+        self.assertTrue(by["B5c"]["rule"].endswith("at the 4 crop corners (homography-aligned, amendment A1)"))
+        self.assertTrue(by["B3"]["rule"].endswith("of 8x5 cells and all 4 corner cells"))
+
+    def test_residual_report_zones_and_ratio(self):
+        r = np.r_[np.full(40, 0.3), np.full(40, 0.9), np.full(10, 0.65)]
+        e = np.r_[np.full(40, 0.2), np.full(40, 0.6), np.full(10, 0.4)]
+        res = {"r_norm": r, "err_px": e, "dist_m": np.r_[np.full(45, 0.8), np.full(45, 1.7)],
+               "view": np.arange(90) // 10}
+        rep = pp.residual_report(res)
+        self.assertTrue(rep["testable"])
+        self.assertAlmostEqual(rep["outer_over_inner"], 3.0)
+        self.assertEqual(sum(b["n"] for b in rep["radius_bins"]), 90)
+        self.assertEqual(sum(b["n"] for b in rep["distance_bins"]), 90)
+        few = {k: v[:60] for k, v in res.items()}                      # outer zone keeps 20 < 30
+        self.assertIsNone(pp.residual_report(few)["outer_over_inner"])
+
+    def test_tilt_decentre_flags(self):
+        rep = {"outer_over_inner": 1.2}
+        K = np.array([[900.0, 0, W / 2 + 0.01 * W], [0, 900.0, H / 2], [0, 0, 1]])
+        f = pp.tilt_decentre_flags(K, [-0.1, 0.05, 2e-4, -3e-4, 0.0], (W, H), rep)
+        self.assertEqual((f["principal_point"]["flag"], f["tangential"]["flag"], f["outer_inner_residual"]["flag"],
+                          f["any"]), (False, False, False, False))
+        K[1, 2] = H / 2 - 0.03 * H
+        f = pp.tilt_decentre_flags(K, [-0.1, 0.05, 2e-3, 0.0, 0.0], (W, H), {"outer_over_inner": None})
+        self.assertEqual((f["principal_point"]["flag"], f["tangential"]["flag"], f["outer_inner_residual"]["flag"],
+                          f["any"]), (True, True, None, True))
+        self.assertEqual(f["tangential"]["source"], "standard 5-coefficient fit")
+
+    def test_heldout_residuals_reproduce_the_cv_rms(self):
+        obj, img, centre = synthetic_views(FULL_POSES)
+        cv = pm.cross_validate("standard", obj, img, (W, H), folds=3, seed=0, keep_fold_models=True)
+        res = pp.heldout_residuals("standard", obj, img, cv, (W, H), centre)
+        self.assertEqual(len(res["err_px"]), sum(len(p) for p in img))
+        self.assertAlmostEqual(float(np.sqrt(np.mean(res["err_px"] ** 2))), cv["held_out_rms"], places=9)
+        self.assertTrue(np.all((res["r_norm"] >= 0) & (res["r_norm"] <= 1.0)))
+        d = {int(v): float(m) for v, m in zip(res["view"], res["dist_m"])}
+        self.assertAlmostEqual(d[len(FULL_POSES) - 1], 1.5, delta=0.05)  # the last pose sits at 1500 mm
+
+    def test_cross_group_check(self):
+        obj, img, _ = synthetic_views(FULL_POSES)
+        cv = pm.cross_validate("standard", obj, img, (W, H), folds=3, seed=0, keep_fold_models=True)
+        groups = ["near" if p[5] < 860 else "far" for p in FULL_POSES]          # 12 near, 8 far
+        out = pp.cross_group_check("standard", obj, img, (W, H), groups, cv, min_views=8)
+        self.assertEqual(out["groups"], {"far": 8, "near": 12})
+        for row in out["pairs"]:
+            self.assertEqual(row["status"], "ok")
+            self.assertLess(row["cross_rms_px"], 0.6)     # one true camera: carries across with 0.15 px noise
+        out = pp.cross_group_check("standard", obj, img, (W, H), groups, cv, min_views=10)
+        st = {(r["fit_on"], r["score_on"]): r["status"] for r in out["pairs"]}
+        # prereg §8: a block under min_views is not testable whether it is fitted OR scored (QE 006 nit 4)
+        self.assertEqual(st[("far", "near")], "not testable: 8 views in far < 10")
+        self.assertEqual(st[("near", "far")], "not testable: 8 views in far < 10")
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestMaskRun(unittest.TestCase):
+    """A full pipeline run with --mask, --models-reading literal and --groups on the FULL_POSES set."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.cal = os.path.join(cls.tmp.name, "camM", "calibration")
+        write_set(cls.cal, FULL_POSES, seed0=500)
+        cls.vis = corner_mask(0.8)
+        cls.mask = os.path.join(cls.tmp.name, "mask.png")
+        cv2.imwrite(cls.mask, np.where(cls.vis, 255, 0).astype(np.uint8))
+        cls.groups = os.path.join(cls.tmp.name, "groups.csv")
+        with open(cls.groups, "w") as fh:
+            fh.write("file,group\n" + "".join(f"cal_{i:04d}.jpg,{'near' if p[5] < 860 else 'far'}\n"
+                                              for i, p in enumerate(FULL_POSES, 1)))
+        cls.root = os.path.join(cls.tmp.name, "runs")
+        cls.rc, cls.out = run_pipeline([f"camM={cls.cal}", "--out-root", cls.root, "--tag", "mask",
+                                        "--mask", f"camM={cls.mask}", "--models-reading", "literal",
+                                        "--groups", f"camM={cls.groups}"] + COMMON)
+        cls.run_dir = only_run_dir(cls.root)
+        with open(os.path.join(cls.run_dir, "summary.json")) as f:
+            cls.cam = json.load(f)["cameras"][0]
+        with open(os.path.join(cls.run_dir, "camM", "frames.csv")) as f:
+            cls.rows = list(csv.DictReader(f))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_run_completes(self):
+        self.assertIn(self.rc, (0, 3), self.out[-3000:])
+        self.assertNotIn("error", self.cam)
+
+    def test_masked_corners_dropped_at_detection(self):
+        dropped = sum(int(r["masked_corners"] or 0) for r in self.rows)
+        self.assertGreater(dropped, 0)
+        cov = self.cam["coverage"]
+        vf = np.array(cov["mask"]["cell_visible_frac"])
+        counts = np.array(cov["counts"])
+        self.assertTrue(np.all(counts[vf == 0] == 0))
+        self.assertIn("masked corner observations dropped", self.out)
+
+    def test_b3_b4_follow_the_mask(self):
+        cov = self.cam["coverage"]
+        self.assertEqual(cov["mask"]["n_eligible"], int((pp.cell_visible_fraction(self.vis, (8, 5)) >= 0.5).sum()))
+        for p in self.cam["probes"]:
+            if p["group"] == "frame":
+                self.assertTrue(self.vis[int(p["y"]), int(p["x"])], p)
+        by = {b["bar"].split()[0]: b for b in self.cam["bars"]}
+        self.assertIn("visible", by["B3"]["rule"])
+        self.assertIn("the visible area's 4 corners", by["B4"]["rule"])
+        self.assertIn("LITERAL", by["B5c"]["rule"])
+
+    def test_residuals_flags_and_cross_group_written(self):
+        with open(os.path.join(self.run_dir, "camM", "residuals.json")) as f:
+            r = json.load(f)
+        self.assertEqual(r["models_reading"], "literal")
+        self.assertIn("outer_over_inner", r["residual_report"])
+        self.assertIn("any", r["flags"])
+        self.assertEqual({(p["fit_on"], p["score_on"]) for p in r["cross_group"]["pairs"]},
+                         {("near", "far"), ("far", "near")})
+        self.assertTrue(os.path.getsize(os.path.join(self.run_dir, "camM", "residuals_vs_radius.csv")) > 0)
+        with open(os.path.join(self.run_dir, "run_manifest.json")) as f:
+            m = json.load(f)
+        self.assertEqual(m["masks"]["camM"]["sha256"], pp.sha256_file(self.mask))
+        self.assertEqual(m["models_reading"], "literal")
+        with open(os.path.join(self.run_dir, "summary.md")) as f:
+            md = f.read()
+        for s in ("Mask (`mask.png`", "Tilt / decentre flags", "Cross-group check", "**literal** reading"):
+            self.assertIn(s, md)
+
+    def test_mask_refusals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for extra in (["--mask", "nope=" + self.mask], ["--mask", f"camM={tmp}/missing.png"],
+                          ["--groups", f"camM={tmp}/missing.csv"]):
+                rc, _ = run_pipeline([f"camM={self.cal}", "--out-root", tmp] + extra + COMMON)
+                self.assertEqual(rc, 2, extra)
+            bad = os.path.join(tmp, "small.png")
+            cv2.imwrite(bad, np.full((10, 10), 255, np.uint8))
+            rc, out = run_pipeline([f"camM={self.cal}", "--out-root", os.path.join(tmp, "r"), "--mask",
+                                    f"camM={bad}"] + COMMON)
+            self.assertEqual(rc, 1, out[-2000:])                           # every frame FAILs on the size check
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestOverlayHullNaN(unittest.TestCase):
+    """The after-undistortion hull has NaN where the model folds (pool049 IMX708): those points must not be
+    drawn (NaN cast to int drew ~20 stray lines to the top-left corner)."""
+
+    def test_nan_hull_points_are_skipped(self):
+        import pool_calib_figures as figs
+        img = np.zeros((400, 600, 3), np.uint8)
+        hull = np.array([[200, 150], [400, 150], [np.nan, np.nan], [400, 300], [200, 300]], float)
+        out = figs._overlay(img, [], "after", None, hull=hull)
+        green = (out[:, :, 1] > 150) & (out[:, :, 0] < 120) & (out[:, :, 2] < 120)
+        self.assertFalse(green[:100, :150].any())          # nothing drawn towards the top-left corner
+        self.assertTrue(green[150, 250:350].any())          # the mappable top edge is still drawn
+        self.assertTrue(green[300, 250:350].any())          # and the bottom edge
+        self.assertTrue(green[200:250, 200].any())          # and the closing left edge
+
+    def test_finite_hull_unchanged(self):
+        import cv2
+        import pool_calib_figures as figs
+        img = np.zeros((400, 600, 3), np.uint8)
+        hull = np.array([[200.7, 150.2], [400.4, 150.9], [400.1, 300.5], [200.2, 300.8]])
+        new = figs._overlay(img, [], "after", None, hull=hull)
+        old = figs._overlay(img, [], "after", None, hull=None)
+        cv2.polylines(old, [np.asarray(hull, np.int32).reshape(-1, 1, 2)], True, (80, 220, 80),
+                      max(2, int(round(600 / 1500))))
+        self.assertTrue(np.array_equal(new, old))           # pixel-identical to the previous drawing
+
+
+@unittest.skipUnless(HAVE_DEPS, "opencv-contrib / scipy / matplotlib not installed")
+class TestModelsMissingFailsClosed(unittest.TestCase):
+    """QE 006 R1: the literal (d33) model disagreement is over ALL THREE models. A model that fails to fit makes it
+    unknown (inf) at every probe, so B4 / B5c cannot pass on two models (or on 0 px with one)."""
+
+    def test_helper_inf_when_a_model_is_missing(self):
+        obj, img, _ = synthetic_views(FULL_POSES)
+        fits = {m: pm.fit(m, obj, img, (W, H)) for m in ("standard", "rational")}
+        pts = np.array([[10.0, 10.0], [W / 2, H / 2]])
+        fit_px = np.array([[W / 2 + dx, H / 2 + dy] for dx in (-200, 0, 200) for dy in (-100, 0, 100)], float)
+        raw, al = pp.model_disagreement_at(fits["standard"], [fits["rational"]], ["fisheye"], pts, fit_px, 880.0)
+        self.assertTrue(np.all(np.isinf(raw)) and np.all(np.isinf(al)))
+        raw, al = pp.model_disagreement_at(fits["standard"], [], ["rational", "fisheye"], pts, fit_px, 880.0)
+        self.assertTrue(np.all(np.isinf(raw)) and np.all(np.isinf(al)))       # was np.zeros: always passed
+        fits["fisheye"] = pm.fit("fisheye", obj, img, (W, H), K0=fits["standard"]["K"])
+        raw, _ = pp.model_disagreement_at(fits["standard"], [fits["rational"], fits["fisheye"]], [], pts, fit_px, 880.0)
+        want = pm.model_disagreement_px([fits["standard"], fits["rational"], fits["fisheye"]], pts, 880.0)
+        self.assertTrue(np.allclose(raw, want))
+
+    def test_calibrate_camera_marks_missing_and_bars_fail(self):
+        obj, img, _ = synthetic_views(FULL_POSES)
+        real = pm.fit_robust
+
+        def no_fisheye(model, *a, **k):
+            if model == "fisheye":
+                raise RuntimeError("InitExtrinsics (simulated)")
+            return real(model, *a, **k)
+        cfg = {"outlier_rounds": 3, "folds": 3, "seed": 0, "bootstrap": 4, "tie_frac": 0.02}
+        pm.fit_robust = no_fisheye
+        try:
+            cal = pp.calibrate_camera(obj, img, (W, H), cfg, 1, lambda *a, **k: None, CROP)
+        finally:
+            pm.fit_robust = real
+        self.assertEqual(cal["models_missing"], ["fisheye"])
+        self.assertTrue(all(np.isinf(p["model_disagreement_raw_px"]) and np.isinf(p["model_disagreement_px"])
+                            for p in cal["probes"]))
+        cov = {"covered_frac": 1.0, "all_corner_cells": True, "corner_cells_covered": {"top-left corner": True}}
+        for reading in ("aligned", "literal"):
+            rows, v_full, v_crop = pp.evaluate_bars(20, cal, cov, pp.PREREG["bars"], models_reading=reading)
+            by = {r["bar"].split()[0]: r for r in rows}
+            self.assertEqual((by["B4"]["status"], by["B5c"]["status"]), ("FAIL", "FAIL"), reading)
+            self.assertEqual(by["B4"]["value"]["models_missing"], ["fisheye"])
+            self.assertEqual((v_full, v_crop), ("FAIL", "FAIL"))
+
+    def test_verdict_sheet_leads_with_the_deciding_value(self):
+        import pool_calib_figures as figs
+        v = {"worst_ray_uncertainty_px": 0.24, "worst_model_disagreement_px": 1.19, "literal_ray_px": 5.5,
+             "literal_models_px": 23.9, "models_reading": "literal", "models_missing": []}
+        self.assertTrue(figs._short(v).startswith("ray 0.24 px, models 24 px literal"))
+        v["models_reading"] = "aligned"
+        self.assertTrue(figs._short(v).startswith("ray 0.24 px, models 1.2 px (literal"))
+        v["models_missing"] = ["fisheye"]
+        self.assertIn("models missing: fisheye", figs._short(v))

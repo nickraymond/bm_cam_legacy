@@ -39,13 +39,26 @@ Inputs
                is the preferred source for those cameras; demosaiced with OpenCV for detection.
   --card NAME=JPG   v3-card frame for the before/after (repeatable). Default for a folder input:
                the first <folder>/../loop/*_loop_01_still.jpg if it exists.
-  --native-size WxH   the IMX708 full frame (default 4608x2592). Leave it at the default for any
-               other camera: a frame of another size is what marks a run as non-IMX708 (B5c / crop
-               verdict N/A, B6 N/A without --nominal-fx, "not pre-registered" label, generic recipe).
-               Setting it to e.g. the N6's 1280x800 would score the N6 against the IMX708 bars unlabelled.
+  --native-size WxH   the IMX708 full frame (default 4608x2592). Frames of another size are marked
+               non-native (B5c / crop verdict N/A, B6 N/A without --nominal-fx, "not pre-registered" label,
+               generic recipe). Since docs/pool_calib_prereg_20261016.md §3 the N6 / AE3 bars ARE pre-registered
+               in their own pixels: run them with --native-size 1280x800 --crop 0,0,1280,800 (B5c = the full
+               frame's corners) and --nominal-fx. Note: B6 then falls back to the IMX708 1964 px for any camera
+               without --nominal-fx (WARN-only bar; always pass --nominal-fx for a non-IMX708 sensor).
   --nominal-fx NAME=PX   in-air nominal fx (px of that camera's frames) for the B6 sanity bar
                (repeatable). Default: the IMX708 1964 px, but only for --native-size frames; any
                other frame size (e.g. the OpenMV N6 1280x800) gets B6 = N/A.
+  --mask NAME=PNG   port-vignette mask for one camera (repeatable; docs/pool_calib_prereg_20261016.md):
+               8-bit PNG of that camera's frame size, 255 = visible, 0 = port (masked). Corner
+               observations on masked pixels are dropped at detection (they count nowhere); B3 is
+               scored on the 8x5 cells that are >= 50 % visible, with the 4 corner cells replaced by the
+               4 extreme visible cells; the 8 B4 frame probes move to the nearest visible pixel.
+  --models-reading aligned|literal   which reading of the model-disagreement half of B4 / B5c sets
+               the verdict (both are always reported). aligned = shape-only (amendment A1, the 10/14
+               default); literal = metric (Nick's d33, 2026-10-15, for every run judged after the edge dive).
+  --groups NAME=CSV   report-only cross-group check (prereg 20261016, R5): CSV columns file,group (file =
+               basename of an input frame). The chosen model is refitted on each group's calibration views
+               and scored (pose-only, like the held-out folds) on every other group's views.
   Board defaults = calib.io CCT600400C (9x14, 40/30 mm, DICT_5X5_100), as pool_calib_check.py.
 
 Outputs  <out-root>/<YYYYMMDD_HHMMSS>_<tag>/
@@ -59,6 +72,8 @@ Outputs  <out-root>/<YYYYMMDD_HHMMSS>_<tag>/
            models.json, per_view_errors.csv, models.png
            bootstrap.csv, bootstrap.png, uncertainty.png (ray uncertainty map + observations)
            intrinsics_full_<W>x<H>.json, intrinsics_crop_<w>x<h>.json   (OpenCV conventions)
+           residuals.json, residuals_vs_radius.csv   held-out residuals vs image radius and board
+                                 distance, tilt / decentre flags, cross-group check (--groups)
            before_after/*.jpg   + before_after.json (straightness numbers)
            verdict.png          one-page picture for review
 
@@ -138,6 +153,24 @@ PREREG = {
 
 STATUS_ORDER = {"PASS": 0, "WARN": 1, "FAIL": 2}
 
+# Amendment for the pool049 re-dive (docs/pool_calib_prereg_20261016.md). The 10/14 numbers above are
+# unchanged; these add the mask rule, the residual zones and the tilt / decentre flag thresholds (flags,
+# not bars). Changing a value here changes the pre-registration: record why in that doc first.
+PREREG_AMEND_DOC = os.path.join(REPO, "docs", "pool_calib_prereg_20261016.md")
+AMEND = {
+    "doc": "docs/pool_calib_prereg_20261016.md",
+    "mask_min_visible_cell": 0.5,          # B3 counts a cell only if >= 50 % of its pixels are visible
+    "resid_inner_r": 0.5,                  # inner zone: r <= 0.5 x the frame half-diagonal
+    "resid_outer_r": 0.8,                  # outer zone: r > 0.8 (the outer 20 % of radius)
+    "resid_min_obs": 30,                   # fewer held-out residuals in a zone -> ratio not testable
+    "resid_radius_bins": [0.0, 0.2, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "resid_distance_bins_m": [0.0, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 5.0],
+    "group_min_views": 8,                  # a --groups group needs this many calibration views to be fitted
+    "flag_pp_offset_frac": 0.02,           # |cx - W/2| > 2 % W or |cy - H/2| > 2 % H
+    "flag_tangential": 1e-3,               # |p1| or |p2| of the standard 5-coefficient fit
+    "flag_outer_inner_ratio": 2.0,         # held-out RMS outer zone > 2x inner zone
+}
+
 
 # ============================================================================ helpers
 
@@ -175,11 +208,26 @@ def git_info():
     try:
         sha = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], capture_output=True, text=True,
                              timeout=10).stdout.strip()
-        dirty = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--", "tools", "docs"],
+        dirty = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--", "tools", "docs", "tests"],
                                capture_output=True, text=True, timeout=10).stdout.strip()
-        return {"sha": sha or None, "tools_or_docs_dirty": bool(dirty)}
+        return {"sha": sha or None, "tools_or_docs_dirty": bool(dirty), "dirty_paths_checked": ["tools", "docs", "tests"]}
     except Exception as exc:
         return {"sha": None, "error": str(exc)}
+
+
+def rawpy_versions():
+    """rawpy / LibRaw versions for the manifest (DNG input), or 'not installed'."""
+    try:
+        import rawpy
+        return {"rawpy": rawpy.__version__, "libraw": ".".join(map(str, rawpy.libraw_version))}
+    except Exception:
+        return {"rawpy": "not installed"}
+
+
+def sidecar_paths(path):
+    """Existing sidecars read_sidecar / load_bayer may use for one input (they change what is decoded or logged)."""
+    stem = os.path.splitext(path)[0]
+    return [c for c in (stem + ".metadata.json", path + ".rpicam.json", stem + ".json") if os.path.isfile(c)]
 
 
 def board_ns(spec):
@@ -274,6 +322,77 @@ def read_sidecar(path):
     return {}, None
 
 
+def load_mask(path):
+    """--mask PNG -> bool array (H, W), True = visible. 8-bit PNG: >= 128 visible, < 128 port (masked).
+    Raises ValueError on an unreadable file."""
+    import cv2
+    m = cv2.imread(os.path.expanduser(path), cv2.IMREAD_GRAYSCALE)
+    if m is None:
+        raise ValueError(f"mask {path!r} is not a readable image")
+    return m >= 128
+
+
+_MASK_CACHE = {}
+
+
+def _worker_mask(path):
+    """Screen workers load each mask once per process (it is 12 MB for a 4608x2592 frame)."""
+    if path not in _MASK_CACHE:
+        _MASK_CACHE[path] = load_mask(path)
+    return _MASK_CACHE[path]
+
+
+def visible_at(visible, pts):
+    """bool per point (N,2) px: is the nearest pixel visible? Points outside the frame count as masked."""
+    pts = np.asarray(pts, float).reshape(-1, 2)
+    h, w = visible.shape
+    xi, yi = np.rint(pts[:, 0]).astype(int), np.rint(pts[:, 1]).astype(int)
+    inside = (xi >= 0) & (xi < w) & (yi >= 0) & (yi < h)
+    out = np.zeros(len(pts), bool)
+    out[inside] = visible[yi[inside], xi[inside]]
+    return out
+
+
+def cell_visible_fraction(visible, grid):
+    """Fraction of visible pixels per grid cell, (gy, gx). Pixel (x, y) belongs to cell
+    (int(y * gy / H), int(x * gx / W)): the same assignment coverage_stats uses for corners."""
+    h, w = visible.shape
+    gx, gy = grid
+    xe = [-(-c * w // gx) for c in range(gx + 1)]      # x in cell c  <=>  xe[c] <= x < xe[c + 1] (ceil edges)
+    ye = [-(-r * h // gy) for r in range(gy + 1)]
+    return np.array([[visible[ye[r]:ye[r + 1], xe[c]:xe[c + 1]].mean() for c in range(gx)] for r in range(gy)])
+
+
+def extreme_visible_cells(eligible, size):
+    """The 4 'corner cells' of a masked frame: for each frame corner, the eligible cell whose centre is
+    nearest to it (native px); ties -> smaller row, then smaller column. -> {CELL_NAMES name: (row, col)}."""
+    gy, gx = eligible.shape
+    w, h = size
+    cw, ch = w / gx, h / gy
+    corners = {"top-left corner": (0, 0), "top-right corner": (w - 1, 0),
+               "bottom-left corner": (0, h - 1), "bottom-right corner": (w - 1, h - 1)}
+    out = {}
+    for name, (x, y) in corners.items():
+        cand = sorted((math.hypot((c + 0.5) * cw - x, (r + 0.5) * ch - y), r, c)
+                      for r in range(gy) for c in range(gx) if eligible[r, c])
+        out[name] = (cand[0][1], cand[0][2]) if cand else None
+    return out
+
+
+def nearest_visible(visible, x, y):
+    """The visible pixel nearest to (x, y) (Euclidean; ties -> smaller y, then smaller x), as floats."""
+    xi, yi = int(round(x)), int(round(y))
+    h, w = visible.shape
+    if 0 <= xi < w and 0 <= yi < h and visible[yi, xi]:
+        return float(x), float(y)
+    ys, xs = np.nonzero(visible)
+    if not len(xs):
+        raise ValueError("mask has no visible pixel")
+    d = (xs - x) ** 2 + (ys - y) ** 2
+    k = np.lexsort((xs, ys, d))[0]
+    return float(xs[k]), float(ys[k])
+
+
 def default_card(path):
     p = os.path.expanduser(path)
     if not os.path.isdir(p):
@@ -343,7 +462,8 @@ def board_metrics(gray, pts, ids, inner_cols):
 
 def screen_frame(job):
     """Worker: one file -> detection + metrics. Never raises (errors become a FAIL reason)."""
-    path, spec, thumb_w = job
+    path, spec, thumb_w = job[:3]
+    mask_path = job[3] if len(job) > 3 else None
     import cv2
     cv2.setNumThreads(1)
     out = {"file": os.path.basename(path), "path": path, "stem": os.path.splitext(os.path.basename(path))[0],
@@ -364,6 +484,16 @@ def screen_frame(job):
         board = build_board(spec)
         det = cv2.aruco.CharucoDetector(board)
         cc, ci, mc, mi = det.detectBoard(gray)
+        vis = _worker_mask(mask_path) if mask_path else None
+        if vis is not None and vis.shape != gray.shape:
+            raise ValueError(f"--mask is {vis.shape[1]}x{vis.shape[0]}, frame is {w}x{h}")
+        if vis is not None and ci is not None and len(ci):
+            # prereg 20261016: a corner on a masked (port) pixel counts nowhere, from here on
+            keep = visible_at(vis, cc.reshape(-1, 2))
+            out["masked_corners"] = int(np.sum(~keep))
+            cc, ci = cc[keep], ci[keep]
+            if not len(ci):
+                ci = None
         out["corners"] = 0 if ci is None else int(len(ci))
         out["markers"] = 0 if mi is None else int(len(mi))
         if out["corners"]:
@@ -377,8 +507,8 @@ def screen_frame(job):
     return out
 
 
-def run_screen_workers(paths, spec, workers, thumb_w, log):
-    jobs = [(p, spec, thumb_w) for p in paths]
+def run_screen_workers(paths, spec, workers, thumb_w, log, mask_path=None):
+    jobs = [(p, spec, thumb_w, mask_path) for p in paths]
     t0 = time.time()
     res = []
     if workers <= 1:
@@ -487,9 +617,11 @@ CELL_NAMES = {(0, 0): "top-left corner", (0, -1): "top-right corner", (-1, 0): "
               (-1, -1): "bottom-right corner"}
 
 
-def coverage_stats(pts, size, grid=(8, 5), min_obs=5, crop=None):
+def coverage_stats(pts, size, grid=(8, 5), min_obs=5, crop=None, visible=None):
     """Corner observations (N,2) native px -> grid counts, covered cells, corner cells, radial
-    reach and the gap from each frame edge to the nearest observation."""
+    reach and the gap from each frame edge to the nearest observation.
+    visible  None, or the --mask (bool, True = visible): B3 then counts only the cells that are
+             >= 50 % visible, and the 4 corner cells are the 4 extreme visible cells (prereg 20261016)."""
     w, h = size
     gx, gy = grid
     pts = np.asarray(pts, float).reshape(-1, 2)
@@ -500,11 +632,26 @@ def coverage_stats(pts, size, grid=(8, 5), min_obs=5, crop=None):
         np.add.at(counts, (iy, ix), 1)
     covered = counts >= min_obs
     corners = {name: bool(covered[r, c]) for (r, c), name in CELL_NAMES.items()}
+    covered_frac = float(covered.mean())
+    mask_info = None
+    if visible is not None:
+        vf = cell_visible_fraction(visible, grid)
+        eligible = vf >= AMEND["mask_min_visible_cell"]
+        ext = extreme_visible_cells(eligible, size)
+        corners = {name: bool(rc is not None and covered[rc]) for name, rc in ext.items()}
+        covered_frac = float((covered & eligible).sum() / max(int(eligible.sum()), 1))
+        mask_info = {"rule": f"cells >= {100 * AMEND['mask_min_visible_cell']:.0f}% visible count for B3; corner "
+                             f"cells = the eligible cell nearest each frame corner ({AMEND['doc']})",
+                     "cell_visible_frac": vf.round(4).tolist(), "eligible": eligible.tolist(),
+                     "n_eligible": int(eligible.sum()), "corner_cells_rc": {k: list(v) if v else None
+                                                                           for k, v in ext.items()},
+                     "masked_pixel_frac": float(1.0 - visible.mean()),
+                     "covered_frac_all_cells": float(covered.mean())}
     c0 = np.array([(w - 1) / 2.0, (h - 1) / 2.0])
     R = math.hypot(w / 2.0, h / 2.0)
     rn = np.linalg.norm(pts - c0, axis=1) / R if len(pts) else np.zeros(0)
     out = {"grid": [gx, gy], "min_obs_per_cell": min_obs, "counts": counts.tolist(),
-           "covered": covered.tolist(), "covered_frac": float(covered.mean()),
+           "covered": covered.tolist(), "covered_frac": covered_frac,
            "corner_cells_covered": corners, "all_corner_cells": all(corners.values()),
            "n_obs": int(len(pts)),
            "radial_norm": {"note": "distance from the frame centre / half-diagonal (frame corner = 1.0)",
@@ -512,6 +659,8 @@ def coverage_stats(pts, size, grid=(8, 5), min_obs=5, crop=None):
                            "p95": float(np.percentile(rn, 95)) if len(rn) else 0.0,
                            "frac_gt_0.6": float(np.mean(rn > 0.6)) if len(rn) else 0.0,
                            "frac_gt_0.8": float(np.mean(rn > 0.8)) if len(rn) else 0.0}}
+    if mask_info:
+        out["mask"] = mask_info
     if len(pts):
         out["edge_gap_px"] = {"left": float(pts[:, 0].min()), "right": float(w - 1 - pts[:, 0].max()),
                               "top": float(pts[:, 1].min()), "bottom": float(h - 1 - pts[:, 1].max())}
@@ -529,11 +678,15 @@ def coverage_stats(pts, size, grid=(8, 5), min_obs=5, crop=None):
 
 # ============================================================================ stage 3: calibrate
 
-def probe_points(size, crop):
+def probe_points(size, crop, visible=None):
+    """B4 frame probes (4 corners + 4 edge midpoints) and B5c crop corners, native px. With a --mask
+    (visible), a frame probe on a masked pixel moves to the nearest visible pixel (prereg 20261016)."""
     w, h = size
     frame = {"TL": (0, 0), "TR": (w - 1, 0), "BL": (0, h - 1), "BR": (w - 1, h - 1),
              "top": ((w - 1) / 2, 0), "bottom": ((w - 1) / 2, h - 1), "left": (0, (h - 1) / 2),
              "right": (w - 1, (h - 1) / 2)}
+    if visible is not None:
+        frame = {k: nearest_visible(visible, x, y) for k, (x, y) in frame.items()}
     out = {"frame": frame}
     if crop:
         x, y, cw, ch = crop
@@ -542,8 +695,9 @@ def probe_points(size, crop):
     return out
 
 
-def calibrate_camera(obj, img, size, cfg, workers, log, crop):
-    """All three models + held-out CV + bootstrap of the chosen model. -> dict."""
+def calibrate_camera(obj, img, size, cfg, workers, log, crop, visible=None):
+    """All three models + held-out CV + bootstrap of the chosen model. -> dict.
+    visible: the --mask, only to place the B4 probes (probe_points)."""
     fits, cvs, errors = {}, {}, {}
     t0 = time.time()
     base, _, _ = pm.fit_robust("standard", obj, img, size, rounds=cfg["outlier_rounds"])
@@ -582,8 +736,12 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
     f_ref = 0.5 * (final["K"][0, 0] + final["K"][1, 1])
     Ks, Ds = [b["K"] for b in good], [b["D"] for b in good]
     n_failed = len(boots) - len(good)                 # failed replicates count as inf (QE #176)
-    probes = probe_points(size, crop)
+    probes = probe_points(size, crop, visible)
     others = [fits[m] for m in pm.MODELS if m in fits and m != chosen]
+    models_missing = [m for m in pm.MODELS if m not in fits]
+    if models_missing:
+        log(f"[calib]   WARN model(s) {models_missing} did not fit: model disagreement (B4/B5c) is UNKNOWN (inf), "
+            f"because the pre-registered value is over all three models")
     gx, gy = 64, 36
     xs = np.linspace(0, size[0] - 1, gx)
     ys = np.linspace(0, size[1] - 1, gy)
@@ -598,8 +756,7 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
         raw = pm.ray_spread_px(chosen, Ks, Ds, arr, f_ref, n_failed=n_failed) if Ks else none
         al = (pm.aligned_ray_spread_px(chosen, Ks, Ds, final["K"], final["D"], fit_px, arr, f_ref, n_failed=n_failed)
               if Ks else none)
-        dis_raw = pm.model_disagreement_px([final] + others, arr, f_ref) if others else np.zeros(len(arr))
-        dis_al = pm.aligned_model_disagreement_px([final] + others, fit_px, arr, f_ref) if others else np.zeros(len(arr))
+        dis_raw, dis_al = model_disagreement_at(final, others, models_missing, arr, fit_px, f_ref)
         disp = np.linalg.norm(pm.pinhole_px(final["K"], pm.rays(chosen, final["K"], final["D"], arr)) - arr, axis=1)
         for n, p, a_, r_, da, dr, dp in zip(names, arr, al, raw, dis_al, dis_raw, disp):
             probe_rows.append({"group": group, "name": n, "x": float(p[0]), "y": float(p[1]),
@@ -621,9 +778,20 @@ def calibrate_camera(obj, img, size, cfg, workers, log, crop):
         stats["dist"] = {"mean": Dm.mean(axis=0).tolist(), "std": Dm.std(axis=0, ddof=1).tolist() if len(Dm) > 1 else None}
     return {"fits": fits, "cv": cvs, "errors": errors, "chosen": chosen, "why": why, "final": final,
             "bootstrap": boots, "boot_stats": stats, "f_ref": f_ref, "probes": probe_rows,
-            "cross_model_K": pm.cross_model_K([final] + others),
+            "cross_model_K": pm.cross_model_K([final] + others), "models_missing": models_missing,
             "uncertainty_map": {"xs": xs, "ys": ys, "spread_px": umap, "distortion_px": dmap},
             "alignment_region_points": int(len(fit_px))}
+
+
+def model_disagreement_at(final, others, models_missing, pts, fit_px, f_ref):
+    """(literal, aligned) max pairwise model disagreement at pts, in px at f_ref. The pre-registered value is over
+    ALL THREE models (prereg 20261016 §1, d33): if any model failed to fit, it is unknown, so inf at every point
+    (fails closed; before QE 006 R1 the missing model was silently left out, and two missing gave 0 px)."""
+    n = len(np.asarray(pts, float).reshape(-1, 2))
+    if models_missing or not others:
+        return np.full(n, np.inf), np.full(n, np.inf)
+    return (pm.model_disagreement_px([final] + others, pts, f_ref),
+            pm.aligned_model_disagreement_px([final] + others, fit_px, pts, f_ref))
 
 
 def observed_region_points(obs_px, grid_px):
@@ -633,6 +801,126 @@ def observed_region_points(obs_px, grid_px):
     hull = cv2.convexHull(np.asarray(obs_px, np.float32).reshape(-1, 1, 2))
     inside = [cv2.pointPolygonTest(hull, (float(x), float(y)), False) >= 0 for x, y in grid_px]
     return np.asarray(grid_px, float)[np.array(inside, bool)]
+
+
+# ============================================================================ residual report (prereg 20261016)
+
+def heldout_residuals(model, obj, img, cv, size, board_center):
+    """Every corner's held-out residual for `model`: view i is scored with the fold model that did NOT
+    see it (pose-only fit, exactly as cross_validate scores it). -> dict of per-corner arrays
+    view, r_norm (distance from the frame centre / half-diagonal, frame corner = 1.0), err_px, dist_m
+    (that view's board-centre distance under its pose). Views of a fold with no fold model are skipped."""
+    w, h = size
+    c0 = np.array([(w - 1) / 2.0, (h - 1) / 2.0])
+    R = math.hypot(w / 2.0, h / 2.0)
+    fold_of, fm = cv["fold_of"], cv.get("fold_models") or {}
+    view, rn, err, dist = [], [], [], []
+    for i in range(len(obj)):
+        f = fold_of[i]
+        if f not in fm:
+            continue
+        rv, tv, e = pm.fit_pose(model, fm[f]["K"], fm[f]["D"], obj[i], img[i])
+        d_m = pose_summary(rv, tv, board_center)[2] / 1000.0
+        p = np.asarray(img[i], float).reshape(-1, 2)
+        view += [i] * len(p)
+        rn.append(np.linalg.norm(p - c0, axis=1) / R)
+        err.append(np.linalg.norm(e, axis=1))
+        dist += [d_m] * len(p)
+    cat = (lambda xs: np.concatenate(xs) if xs else np.zeros(0))  # noqa: E731
+    return {"view": np.array(view, int), "r_norm": cat(rn), "err_px": cat(err), "dist_m": np.array(dist, float)}
+
+
+def _rms(e):
+    return float(np.sqrt(np.mean(np.square(e)))) if len(e) else None
+
+
+def residual_report(res, amend=None):
+    """heldout_residuals(...) -> held-out RMS per radius bin and per board-distance bin, the inner (r <= 0.5)
+    and outer (r > 0.8) zones and their ratio. The ratio is None ("not testable") when a zone has fewer
+    than resid_min_obs residuals. Residuals that grow with radius, or change with distance, point to
+    refraction or port tilt the pinhole + distortion model cannot absorb (prereg 20261016, rev 1)."""
+    a = amend or AMEND
+    r, e, d = res["r_norm"], res["err_px"], res["dist_m"]
+
+    def bins(x, edges, key):
+        rows = []
+        for lo, hi in zip(edges[:-1], edges[1:]):
+            m = (x >= lo) & (x < hi) if hi < edges[-1] else (x >= lo) & (x <= hi)
+            rows.append({f"{key}_lo": lo, f"{key}_hi": hi, "n": int(m.sum()),
+                         "n_views": int(len(set(res["view"][m].tolist()))), "rms_px": _rms(e[m])})
+        return rows
+    inner, outer = r <= a["resid_inner_r"], r > a["resid_outer_r"]
+    ri, ro = _rms(e[inner]), _rms(e[outer])
+    testable = inner.sum() >= a["resid_min_obs"] and outer.sum() >= a["resid_min_obs"] and ri
+    return {"radius_bins": bins(r, a["resid_radius_bins"], "r"),
+            "distance_bins": bins(d, a["resid_distance_bins_m"], "dist_m"),
+            "inner": {"r_max": a["resid_inner_r"], "n": int(inner.sum()), "rms_px": ri},
+            "outer": {"r_min": a["resid_outer_r"], "n": int(outer.sum()), "rms_px": ro},
+            "outer_over_inner": (ro / ri) if testable else None,
+            "testable": bool(testable), "n": int(len(e)), "rms_px": _rms(e),
+            "radius_note": "r = distance from the frame centre / half-diagonal (frame corner = 1.0)"}
+
+
+def cross_group_check(model, obj, img, size, groups, cv, min_views):
+    """Report-only cross-group check (prereg 20261016, R5): for every ordered pair (A, B) of groups, fit
+    `model` on A's views (outlier rejection on A only, as in a CV fold) and score B's views pose-only.
+    groups: one label per view (None = ungrouped). B's own held-out RMS (from the main 5-fold CV) is given
+    next to it: a cross RMS well above it means the model does not carry across distance."""
+    labels = sorted({g for g in groups if g is not None})
+    idx = {g: [i for i, x in enumerate(groups) if x == g] for g in labels}
+    own = {}
+    for g in labels:
+        per = np.asarray(cv["held_out_per_view"], float)[idx[g]]
+        n_pts = np.array([len(img[i]) for i in idx[g]], float)
+        fin = np.isfinite(per)
+        own[g] = float(np.sqrt(np.sum(per[fin] ** 2 * n_pts[fin]) / np.sum(n_pts[fin]))) if fin.any() else None
+    rows = []
+    for ga in labels:
+        for gb in labels:
+            if ga == gb:
+                continue
+            row = {"fit_on": ga, "score_on": gb, "n_fit_views": len(idx[ga]), "n_score_views": len(idx[gb]),
+                   "own_heldout_rms_px": own[gb]}
+            if len(idx[ga]) < min_views or len(idx[gb]) < min_views:      # prereg 20261016 §8: either block
+                small = ga if len(idx[ga]) < min_views else gb
+                row["status"] = f"not testable: {len(idx[small])} views in {small} < {min_views}"
+                rows.append(row)
+                continue
+            tr_o, tr_i = [obj[i] for i in idx[ga]], [img[i] for i in idx[ga]]
+            K0 = pm.fit("standard", tr_o, tr_i, size)["K"] if model == "fisheye" else None
+            f, kept, _ = pm.fit_robust(model, tr_o, tr_i, size, K0)
+            sq = n = 0
+            for i in idx[gb]:
+                _, _, e = pm.fit_pose(model, f["K"], f["D"], obj[i], img[i])
+                sq += float(np.sum(e * e))
+                n += len(e)
+            row.update({"status": "ok", "fit_rms_px": f["rms"], "fit_views_kept": len(kept),
+                        "fx": float(f["K"][0, 0]), "cx": float(f["K"][0, 2]), "cy": float(f["K"][1, 2]),
+                        "cross_rms_px": math.sqrt(sq / n),
+                        "cross_over_own": (math.sqrt(sq / n) / own[gb]) if own[gb] else None})
+            rows.append(row)
+    return {"model": model, "groups": {g: len(v) for g, v in idx.items()}, "pairs": rows}
+
+
+def tilt_decentre_flags(K_chosen, D_standard, size, report, amend=None):
+    """R4 flags (report-only, not bars): principal point off centre, tangential terms of the STANDARD
+    5-coefficient fit (whatever model won), and outer-zone held-out RMS > 2x the inner zone."""
+    a = amend or AMEND
+    w, h = size
+    dx, dy = float(K_chosen[0][2]) - w / 2.0, float(K_chosen[1][2]) - h / 2.0
+    p1, p2 = (float(D_standard[2]), float(D_standard[3])) if D_standard is not None else (None, None)
+    ratio = report.get("outer_over_inner") if report else None
+    flags = {
+        "principal_point": {"dx_px": dx, "dy_px": dy, "dx_frac": dx / w, "dy_frac": dy / h,
+                            "limit_frac": a["flag_pp_offset_frac"],
+                            "flag": abs(dx) > a["flag_pp_offset_frac"] * w or abs(dy) > a["flag_pp_offset_frac"] * h},
+        "tangential": {"p1": p1, "p2": p2, "limit": a["flag_tangential"], "source": "standard 5-coefficient fit",
+                       "flag": None if p1 is None else (abs(p1) > a["flag_tangential"] or abs(p2) > a["flag_tangential"])},
+        "outer_inner_residual": {"ratio": ratio, "limit": a["flag_outer_inner_ratio"],
+                                 "flag": None if ratio is None else ratio > a["flag_outer_inner_ratio"]},
+    }
+    flags["any"] = any(v["flag"] for v in flags.values() if isinstance(v, dict) and v.get("flag"))
+    return flags
 
 
 def crop_K(K, size, crop, native):
@@ -680,8 +968,11 @@ def nominal_fx_for(name, size, native, given):
                       f"pass --nominal-fx {name}=PX"}
 
 
-def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None):
+def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None, models_reading="aligned"):
     """B1..B6 -> (rows, full-frame verdict, production-crop verdict).
+    models_reading  which reading of the model-disagreement half of B4 / B5c sets pass/fail:
+               "aligned" (shape-only, amendment A1; the 10/14 runs) or "literal" (metric, Nick's d33).
+               The ray-uncertainty half stays aligned (A1) either way; both readings are always reported.
     crop_skip  None, or why the production crop was not derived (frames not --native-size): B5c
                and the crop verdict are then N/A (nothing to score), not FAIL.
     nominal    nominal_fx_for(...) for B6; default = the pre-registered IMX708 value. fx_px None ->
@@ -699,20 +990,34 @@ def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None):
     ch = cal.get("chosen")
     ho = cal["cv"][ch]["held_out_rms"] if ch else float("nan")
     add("B2 held-out RMS", ho, f"< {bars['B2_heldout_rms_px']} px ({ch})", ch is not None and ho < bars["B2_heldout_rms_px"])
+    if models_reading not in ("aligned", "literal"):
+        raise ValueError(f"models_reading {models_reading!r}")
+    mk = cov.get("mask")
+    cells = (f"the {mk['n_eligible']} of {bars['B3_grid'][0]}x{bars['B3_grid'][1]} cells >= "
+             f"{100 * AMEND['mask_min_visible_cell']:.0f}% visible (--mask) and the 4 extreme visible cells" if mk else
+             f"{bars['B3_grid'][0]}x{bars['B3_grid'][1]} cells and all 4 corner cells")
     add("B3 coverage", {"covered_frac": cov["covered_frac"], "corner_cells": cov["corner_cells_covered"]},
-        f">= {100 * bars['B3_min_cover']:.0f}% of {bars['B3_grid'][0]}x{bars['B3_grid'][1]} cells and all 4 corner cells",
+        f">= {100 * bars['B3_min_cover']:.0f}% of {cells}",
         cov["covered_frac"] >= bars["B3_min_cover"] and cov["all_corner_cells"])
     fr = [p for p in cal.get("probes", []) if p["group"] == "frame"]
     cr = [p for p in cal.get("probes", []) if p["group"] == "crop"]
     worst_r = max((p["ray_uncertainty_px"] for p in fr), default=float("inf"))
     worst_m = max((p["model_disagreement_px"] for p in fr), default=float("inf"))
     lit = lambda rows, k: max((p[k] for p in rows), default=float("inf"))  # noqa: E731
+    # the model-disagreement value that decides pass/fail, and how the rule text names it
+    gov_m = (lambda rows, aligned: lit(rows, "model_disagreement_raw_px") if models_reading == "literal"  # noqa: E731
+             else aligned)
+    how = ("ray uncertainty homography-aligned (A1), model disagreement LITERAL (metric, d33)"
+           if models_reading == "literal" else "homography-aligned, amendment A1")
+    where = "the visible area's 4 corners + 4 edge midpoints (--mask)" if mk else "4 frame corners + 4 edge midpoints"
+    missing = list(cal.get("models_missing") or [])
     add("B4 edges constrained", {"worst_ray_uncertainty_px": worst_r, "worst_model_disagreement_px": worst_m,
                                  "literal_ray_px": lit(fr, "ray_uncertainty_raw_px"),
-                                 "literal_models_px": lit(fr, "model_disagreement_raw_px")},
+                                 "literal_models_px": lit(fr, "model_disagreement_raw_px"),
+                                 "models_reading": models_reading, "models_missing": missing},
         f"ray uncertainty <= {bars['B4_edge_ray_px']} px and model disagreement <= {bars['B4_edge_models_px']} px "
-        f"at 4 frame corners + 4 edge midpoints (homography-aligned, amendment A1)",
-        bool(fr) and worst_r <= bars["B4_edge_ray_px"] and worst_m <= bars["B4_edge_models_px"])
+        f"at {where} ({how})",
+        bool(fr) and worst_r <= bars["B4_edge_ray_px"] and gov_m(fr, worst_m) <= bars["B4_edge_models_px"])
     st = cal.get("boot_stats") or {}
     n_ok, n_b = st.get("replicates_ok", 0), st.get("replicates", 0)
     if st.get("fx") and st["fx"]["std"] is not None:
@@ -727,7 +1032,7 @@ def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None):
         f"bootstrap std(f)/f <= {100 * bars['B5_rel_std_f']:.1f}% and std(cx, cy) <= {bars['B5_std_c_px']} px "
         f"(>= 95% of replicates fit)", ok5)
     crop_rule = (f"ray uncertainty <= {bars['B5c_crop_ray_px']} px and model disagreement <= "
-                 f"{bars['B5c_crop_models_px']} px at the 4 crop corners (homography-aligned, amendment A1)")
+                 f"{bars['B5c_crop_models_px']} px at the 4 crop corners ({how})")
     if crop_skip:
         not_applicable("B5c production crop", crop_skip, crop_rule)
     else:
@@ -735,8 +1040,9 @@ def evaluate_bars(n_poses, cal, cov, bars, crop_skip=None, nominal=None):
         wm = max((p["model_disagreement_px"] for p in cr), default=float("inf"))
         add("B5c production crop", {"worst_ray_uncertainty_px": wr, "worst_model_disagreement_px": wm,
                                     "literal_ray_px": lit(cr, "ray_uncertainty_raw_px"),
-                                    "literal_models_px": lit(cr, "model_disagreement_raw_px")},
-            crop_rule, bool(cr) and wr <= bars["B5c_crop_ray_px"] and wm <= bars["B5c_crop_models_px"])
+                                    "literal_models_px": lit(cr, "model_disagreement_raw_px"),
+                                    "models_reading": models_reading, "models_missing": missing},
+            crop_rule, bool(cr) and wr <= bars["B5c_crop_ray_px"] and gov_m(cr, wm) <= bars["B5c_crop_models_px"])
     if ch:
         lo, hi = bars["B6_ratio"]
         nom = nominal["fx_px"]
@@ -834,7 +1140,22 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     sc, cfg, bars = PREREG["screen"], dict(PREREG["calib"]), PREREG["bars"]
     cfg["bootstrap"], cfg["folds"] = args.bootstrap, args.folds
     log(f"[{name}] {len(paths)} frame(s) -> {out_dir}")
-    frames = run_screen_workers(paths, spec, args.workers, args.thumb_width, log)
+    mask_path = getattr(args, "masks", {}).get(name)
+    visible = load_mask(mask_path) if mask_path else None
+    if visible is not None:
+        log(f"[{name}] --mask {mask_path}: {visible.shape[1]}x{visible.shape[0]}, "
+            f"{100 * (1 - visible.mean()):.2f}% of pixels masked (sha256 {sha256_file(mask_path)[:12]}…); "
+            f"corners on masked pixels are dropped at detection")
+    frames = run_screen_workers(paths, spec, args.workers, args.thumb_width, log, mask_path=mask_path)
+    if visible is not None:
+        log(f"[{name}] masked corner observations dropped: {sum(f.get('masked_corners', 0) for f in frames)} "
+            f"in {sum(1 for f in frames if f.get('masked_corners'))} frame(s)")
+    groups_of = getattr(args, "group_maps", {}).get(name, {})
+    for f in frames:
+        f["group"] = groups_of.get(f["file"])
+    if groups_of and not any(f["group"] for f in frames):
+        log(f"[{name}] WARN --groups matched none of the {len(frames)} input file names: no cross-group check")
+        groups_of = {}
     med_lap = classify_frames(frames, sc)
     sizes = sorted({(f["w"], f["h"]) for f in frames if f.get("w")})
     result = {"camera": name, "n_frames": len(frames), "median_lap_norm": med_lap, "frame_sizes": sizes}
@@ -877,7 +1198,7 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     obj, img = board_points(board, in_set)
     log(f"[{name}] calibrating {len(in_set)} views, {sum(len(o) for o in obj)} corners, image {size[0]}x{size[1]}")
     cal = calibrate_camera(obj, img, size, cfg, args.workers, log,
-                           crop if tuple(size) == tuple(native) else None)
+                           crop if tuple(size) == tuple(native) else None, visible)
     result["calibration_error"] = cal.get("errors")
     if not cal.get("chosen"):
         result["error"] = cal["why"]
@@ -900,7 +1221,7 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
     # stage 2 (on the views that actually constrain the chosen fit)
     pts = np.concatenate([in_set[i]["_corners"] for i in final["kept"]], axis=0)
     cov = coverage_stats(pts, size, tuple(bars["B3_grid"]), bars["B3_min_obs_per_cell"],
-                         crop if tuple(size) == tuple(native) else None)
+                         crop if tuple(size) == tuple(native) else None, visible)
     import cv2
     cov["observed_hull_px"] = cv2.convexHull(pts.astype(np.float32).reshape(-1, 1, 2)).reshape(-1, 2).tolist()
     write_json(os.path.join(out_dir, "coverage.json"), cov)
@@ -954,9 +1275,13 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
                {"chosen": ch, "why": cal["why"], "models": models_out, "errors": cal["errors"],
                 "probes": cal["probes"], "f_ref_px": cal["f_ref"], "folds": cfg["folds"], "seed": cfg["seed"],
                 "cross_model_K": cal["cross_model_K"],
-                "cross_model_K_note": "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model disagreement "
-                                      "absorbs these K differences; the literal reading includes them. Which "
-                                      "reading governs is the A2 decision (prereg doc).",
+                "cross_model_K_note": ("PART OF THE BAR: under --models-reading literal (d33) these K differences "
+                                       "are inside the B4/B5c model disagreement." if getattr(args, "models_reading",
+                                                                                              "aligned") == "literal"
+                                       else "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model "
+                                            "disagreement absorbs these K differences; the literal reading includes "
+                                            "them (A2 / d33)."),
+                "models_missing": cal.get("models_missing", []),
                 "bootstrap_replicates_ok": f"{cal['boot_stats']['replicates_ok']}/{cal['boot_stats']['replicates']}"})
     with open(os.path.join(out_dir, "per_view_errors.csv"), "w", newline="") as fh:
         wr = csv.writer(fh)
@@ -977,13 +1302,51 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
 
     # bars
     bars_out, v_full, v_crop = evaluate_bars(len(final["kept"]), cal, cov, bars,
-                                             crop_skip=None if ck else why, nominal=nominal)
+                                             crop_skip=None if ck else why, nominal=nominal,
+                                             models_reading=getattr(args, "models_reading", "aligned"))
     recipe = capture_recipe(cov, used, float(K[0, 0]), size, spec["square_mm"],
                             (spec["squares_x"], spec["squares_y"]), bars_out, frames,
                             native_frames=tuple(size) == tuple(native))
     for b in bars_out:
         log(f"[{name}]   {b['status']:4s} {b['bar']}: {fmt_value(b['value'])}  (bar: {b['rule']})")
     log(f"[{name}] VERDICT full-frame intrinsics {v_full}; production-crop intrinsics {v_crop}")
+
+    # residuals vs radius / distance, tilt-decentre flags, cross-group check (prereg 20261016; report-only).
+    # Report-only: a failure here is logged and must not turn a scored camera into PIPELINE ERROR (QE 006).
+    resid = flags = xgroup = None
+    try:
+        resid = residual_report(heldout_residuals(ch, obj, img, cal["cv"][ch], size, centre))
+        flags = tilt_decentre_flags(K, cal["fits"]["standard"]["D"] if "standard" in cal["fits"] else None, size, resid)
+        if groups_of:
+            xgroup = cross_group_check(ch, obj, img, size, [f.get("group") for f in in_set], cal["cv"][ch],
+                                       AMEND["group_min_views"])
+            for row in xgroup["pairs"]:
+                log(f"[{name}] cross-group {row['fit_on']} -> {row['score_on']}: " +
+                    (f"cross RMS {fmt_value(row['cross_rms_px'])} px vs own held-out {fmt_value(row['own_heldout_rms_px'])} "
+                     f"px ({fmt_value(row['cross_over_own'])}x; fx {row['fx']:.1f} cx {row['cx']:.1f} cy {row['cy']:.1f})"
+                     if row["status"] == "ok" else row["status"]))
+        log(f"[{name}] held-out residual RMS inner (r <= {AMEND['resid_inner_r']}) "
+            f"{fmt_value(resid['inner']['rms_px'])} px (n {resid['inner']['n']}), outer (r > {AMEND['resid_outer_r']}) "
+            f"{fmt_value(resid['outer']['rms_px'])} px (n {resid['outer']['n']}), ratio {fmt_value(resid['outer_over_inner'])}")
+        log(f"[{name}] tilt/decentre flags: principal point dx {flags['principal_point']['dx_px']:+.0f} px "
+            f"dy {flags['principal_point']['dy_px']:+.0f} px -> {flags['principal_point']['flag']}; standard p1/p2 "
+            f"{fmt_value(flags['tangential']['p1'])} / {fmt_value(flags['tangential']['p2'])} -> {flags['tangential']['flag']}; "
+            f"outer/inner -> {flags['outer_inner_residual']['flag']}; ANY {flags['any']}")
+        write_json(os.path.join(out_dir, "residuals.json"),
+                   {"model": ch, "prereg": AMEND["doc"], "residual_report": resid, "flags": flags,
+                    "cross_group": xgroup, "models_reading": getattr(args, "models_reading", "aligned")})
+        with open(os.path.join(out_dir, "residuals_vs_radius.csv"), "w", newline="") as fh:
+            wr = csv.writer(fh)
+            wr.writerow(["kind", "lo", "hi", "n", "n_views", "rms_px"])
+            for b in resid["radius_bins"]:
+                wr.writerow(["r_norm", b["r_lo"], b["r_hi"], b["n"], b["n_views"], b["rms_px"]])
+            for b in resid["distance_bins"]:
+                wr.writerow(["dist_m", b["dist_m_lo"], b["dist_m_hi"], b["n"], b["n_views"], b["rms_px"]])
+    except Exception as exc:
+        import traceback
+        log(f"[{name}] WARN report-only residuals / flags / cross-group failed: {type(exc).__name__}: {exc} "
+            f"(the bars and verdicts above stand)\n{traceback.format_exc()}")
+        write_json(os.path.join(out_dir, "residuals.json"), {"error": f"{type(exc).__name__}: {exc}"})
 
     # stage 4 pictures
     ba = {}
@@ -1014,6 +1377,9 @@ def process_camera(name, paths, spec, args, out_dir, crop, native, log, figs):
         "verdict_full_frame": v_full, "verdict_production_crop": v_crop, "prereg_note": prereg_note, "recipe": recipe,
         "before_after": ba, "probes": cal["probes"], "bootstrap_stats": cal["boot_stats"],
         "cross_model_K": cal["cross_model_K"],
+        "residual_report": resid, "flags": flags, "cross_group": xgroup,
+        "mask": ({"path": mask_path, "sha256": sha256_file(mask_path), "masked_pixel_frac": float(1 - visible.mean())}
+                 if visible is not None else None),
         "distance_m": {"median": recipe["median_distance_m"],
                        "min": min(f["distance_mm"] for f in used) / 1000, "max": max(f["distance_mm"] for f in used) / 1000},
         "lens_position": sorted({f.get("LensPosition") for f in frames if f.get("LensPosition") is not None}),
@@ -1100,7 +1466,8 @@ def write_frames_csv(path, frames):
     cols = ["stem", "file", "status", "reasons", "in_set", "dup_of", "outlier", "corners", "markers", "coverage",
             "square_px", "distance_mm", "tilt_deg", "lap_norm", "blur_rel", "aniso", "board_mean", "clip_hi", "clip_lo",
             "centroid_x", "centroid_y", "train_rms_px", "heldout_rms_px", "ExposureTime", "AnalogueGain", "Lux",
-            "LensPosition", "ScalerCrop", "exposure_us", "gain_db", "sidecar", "w", "h", "error"]
+            "LensPosition", "ScalerCrop", "exposure_us", "gain_db", "sidecar", "w", "h", "error",
+            "masked_corners", "group"]
     with open(path, "w", newline="") as fh:
         wr = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         wr.writeheader()
@@ -1119,7 +1486,9 @@ def write_summary(run_dir, results, args, layout):
     px = (f"native {native[0]}×{native[1]} sensor px" if sizes <= {native} else
           "each camera's own full-frame px (size given per camera)")
     L = [f"# Underwater calibration — {args.tag}", "",
-         f"Pre-registered bars: `{PREREG['doc']}`. Pixels = {px} unless labelled.", ""]
+         f"Pre-registered bars: `{PREREG['doc']}`. Pixels = {px} unless labelled.",
+         f"B4/B5c model disagreement scored on the **{getattr(args, 'models_reading', 'aligned')}** reading; "
+         f"mask / residual / flag rules: `{AMEND['doc']}`.", ""]
     if PREREG.get("NON_PREREG_overrides"):
         L += [f"**NON-PREREG SENSITIVITY RUN** — screen thresholds overridden: {PREREG['NON_PREREG_overrides']}", ""]
     for r in results:
@@ -1156,7 +1525,9 @@ def write_summary(run_dir, results, args, layout):
         for b in r["bars"]:
             L.append(f"| {b['bar']} | {b['status']} | {fmt_value(b['value'])} | {b['rule']} |")
         L.append("")
-        L.append("Cross-model intrinsics (information, not a bar; the shape-only reading of B4/B5c absorbs these):")
+        L.append("Cross-model intrinsics (part of the B4/B5c bar under the literal reading, d33):"
+                 if getattr(args, "models_reading", "aligned") == "literal" else
+                 "Cross-model intrinsics (information, not a bar; the shape-only reading of B4/B5c absorbs these):")
         L.append("")
         L.append("| models | Δfx | Δfy | Δcx | Δcy |")
         L.append("|---|---|---|---|---|")
@@ -1164,6 +1535,46 @@ def write_summary(run_dir, results, args, layout):
             L.append(f"| {c['pair']} | {c['dfx_pct']:+.2f} % | {c['dfy_pct']:+.2f} % | {c['dcx_px']:+.0f} px | "
                      f"{c['dcy_px']:+.0f} px |")
         L.append("")
+        if r.get("mask"):
+            mk = r["coverage"].get("mask", {})
+            L.append(f"Mask (`{os.path.basename(r['mask']['path'])}`, sha256 {r['mask']['sha256'][:12]}…): "
+                     f"{100 * r['mask']['masked_pixel_frac']:.2f}% of pixels masked; B3 on {mk.get('n_eligible')} eligible "
+                     f"cells; corner cells (row, col) {mk.get('corner_cells_rc')}; B4 probes at "
+                     + ", ".join(f"{p['name']} ({p['x']:.0f}, {p['y']:.0f})" for p in r["probes"] if p["group"] == "frame"))
+            L.append("")
+        rr, fl = r.get("residual_report"), r.get("flags")
+        if rr and fl:
+            L.append(f"Held-out residuals vs radius ({rr['radius_note']}): inner r <= {rr['inner']['r_max']} "
+                     f"{fmt_value(rr['inner']['rms_px'])} px (n {rr['inner']['n']}), outer r > {rr['outer']['r_min']} "
+                     f"{fmt_value(rr['outer']['rms_px'])} px (n {rr['outer']['n']}), ratio {fmt_value(rr['outer_over_inner'])}")
+            L.append("")
+            L.append("| r_norm bin | n | held-out RMS px |")
+            L.append("|---|---|---|")
+            for b in rr["radius_bins"]:
+                L.append(f"| {b['r_lo']:.1f}–{b['r_hi']:.1f} | {b['n']} | {fmt_value(b['rms_px'])} |")
+            L.append("")
+            L.append("| board distance bin (m) | n corners | views | held-out RMS px |")
+            L.append("|---|---|---|---|")
+            for b in rr["distance_bins"]:
+                if b["n"]:
+                    L.append(f"| {b['dist_m_lo']:.2f}–{b['dist_m_hi']:.2f} | {b['n']} | {b['n_views']} | "
+                             f"{fmt_value(b['rms_px'])} |")
+            L.append("")
+            pp_, tg, oi = fl["principal_point"], fl["tangential"], fl["outer_inner_residual"]
+            L.append(f"Tilt / decentre flags (report-only): principal point dx {pp_['dx_px']:+.0f} px, dy {pp_['dy_px']:+.0f} px "
+                     f"(flag {pp_['flag']}); standard-fit p1 {fmt_value(tg['p1'])}, p2 {fmt_value(tg['p2'])} (flag {tg['flag']}); "
+                     f"outer/inner residual {fmt_value(oi['ratio'])} (flag {oi['flag']}); **any flag: {fl['any']}**")
+            L.append("")
+        if r.get("cross_group"):
+            L.append(f"Cross-group check ({r['cross_group']['model']}, report-only):")
+            L.append("")
+            L.append("| fit on | score on | views | cross RMS px | own held-out px | ratio |")
+            L.append("|---|---|---|---|---|---|")
+            for row in r["cross_group"]["pairs"]:
+                L.append(f"| {row['fit_on']} | {row['score_on']} | {row['n_fit_views']} → {row['n_score_views']} | "
+                         f"{fmt_value(row.get('cross_rms_px', row['status']))} | {fmt_value(row['own_heldout_rms_px'])} | "
+                         f"{fmt_value(row.get('cross_over_own'))} |")
+            L.append("")
         L.append("Capture recipe / notes:")
         for line in r["recipe"]["lines"]:
             L.append(f"- {line}")
@@ -1184,6 +1595,15 @@ def parse_kv(items, what):
             raise ValueError(f"{what} {it!r} has an empty NAME")
         out[k] = os.path.expanduser(v)
     return out
+
+
+def read_groups(path):
+    """--groups CSV (columns file, group) -> {file basename: group}."""
+    with open(path, newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    if not rows or not {"file", "group"} <= set(rows[0]):
+        raise ValueError(f"--groups {path}: needs columns file,group")
+    return {os.path.basename(r["file"]): r["group"] for r in rows if r.get("file") and r.get("group")}
 
 
 def parse_nominal_fx(items, cams):
@@ -1220,12 +1640,21 @@ def build_parser():
     ap.add_argument("--layout-sample", type=int, default=6, help="frames per camera used to pick the layout (auto)")
     ap.add_argument("--crop", default=",".join(map(str, DEFAULT_CROP)), help="production crop x,y,w,h native px")
     ap.add_argument("--native-size", default=f"{NATIVE[0]}x{NATIVE[1]}",
-                    help="the IMX708 full frame WxH (crop maths, and which frames count as IMX708 for the "
-                         "pre-registered bars). Leave it at the default for any other camera: its frames then "
-                         "get B5c / crop verdict N/A, B6 N/A without --nominal-fx and the not-pre-registered label")
+                    help="the full frame WxH that counts as native (crop maths, B5c). Default = the IMX708. For "
+                         "the N6/AE3 (bars pre-registered in their own pixels, prereg 20261016 §3) use 1280x800 with "
+                         "--crop 0,0,1280,800 and --nominal-fx; other sizes get B5c / crop verdict N/A")
     ap.add_argument("--nominal-fx", action="append", default=[], metavar="NAME=PX",
                     help=f"in-air nominal fx (px of that camera's frames) for the B6 sanity bar. Default: the IMX708 "
                          f"{NOMINAL_FX_AIR:.0f} px for --native-size frames only; other frame sizes -> B6 N/A")
+    ap.add_argument("--mask", action="append", default=[], metavar="NAME=PNG",
+                    help="port-vignette mask for camera NAME (255 visible, 0 masked; prereg 20261016): masked corners "
+                         "are dropped, B3 uses the >= 50%% visible cells, B4 probes move inside the visible area")
+    ap.add_argument("--models-reading", choices=("aligned", "literal"), default="aligned",
+                    help="reading of the B4/B5c model-disagreement half that sets the verdict (both are reported): "
+                         "aligned = shape-only (A1, the 10/14 default), literal = metric (Nick's d33)")
+    ap.add_argument("--groups", action="append", default=[], metavar="NAME=CSV",
+                    help="report-only cross-group check for camera NAME: CSV with columns file,group "
+                         "(e.g. the dive's distance blocks)")
     ap.add_argument("--folds", type=int, default=PREREG["calib"]["folds"])
     ap.add_argument("--bootstrap", type=int, default=PREREG["calib"]["bootstrap"])
     ap.add_argument("--workers", type=int, default=max(1, min(8, (os.cpu_count() or 2) - 1)))
@@ -1252,6 +1681,17 @@ def _main(argv=None):
         cams = parse_kv(a.cameras, "camera")
         a.cards = parse_kv(a.card, "--card")
         a.nominal_fxs = parse_nominal_fx(a.nominal_fx, cams)
+        a.masks = parse_kv(a.mask, "--mask")
+        a.group_files = parse_kv(a.groups, "--groups")
+        for what, d in (("--mask", a.masks), ("--groups", a.group_files)):
+            for k, v in d.items():
+                if k not in cams:
+                    raise ValueError(f"{what} {k}=...: NAME must be one of {sorted(cams)}")
+                if not os.path.isfile(v):
+                    raise ValueError(f"{what} {k}={v}: no such file")
+        for k, v in a.masks.items():
+            load_mask(v)
+        a.group_maps = {k: read_groups(v) for k, v in a.group_files.items()}
         crop = tuple(int(v) for v in a.crop.split(","))
         native = tuple(int(v) for v in a.native_size.lower().split("x"))
         assert len(crop) == 4 and len(native) == 2
@@ -1310,24 +1750,32 @@ def _main(argv=None):
     log(f"[pipeline] host {platform.node()}  python {platform.python_version()}  OpenCV {cv2.__version__}  "
         f"numpy {np.__version__}  scipy {scipy.__version__}  matplotlib {matplotlib.__version__}  workers {a.workers}")
     log(f"[pipeline] pre-registered bars: {PREREG['doc']} (also in prereg_bars.json)")
+    log(f"[pipeline] B4/B5c model disagreement scored on the {a.models_reading.upper()} reading"
+        + (" (Nick's d33)" if a.models_reading == "literal" else " (amendment A1)"))
     if PREREG.get("NON_PREREG_overrides"):
         log(f"[pipeline] *** NON-PREREG SENSITIVITY RUN: screen thresholds overridden {PREREG['NON_PREREG_overrides']} ***")
     for n, v in inputs.items():
         log(f"[pipeline] camera {n}: {len(v)} file(s) from {cams[n]}; card frame {a.cards.get(n) or 'none'}")
     for w in input_warnings:
         log(f"[pipeline] WARN {w}")
-    write_json(os.path.join(run_dir, "prereg_bars.json"), PREREG)
+    write_json(os.path.join(run_dir, "prereg_bars.json"), dict(PREREG, amendment_20261016=AMEND))
     gi = git_info()
     manifest = {"tool": "tools/pool_calib_pipeline.py", "created": datetime.now().isoformat(timespec="seconds"),
                 "command": " ".join(shlex.quote(x) for x in [sys.executable] + sys.argv), "cwd": os.getcwd(),
                 "host": platform.node(), "git": gi, "args": {k: v for k, v in vars(a).items()},
                 "prereg_doc": PREREG["doc"],
                 "prereg_sha256": sha256_file(PREREG_DOC) if os.path.isfile(PREREG_DOC) else None,
+                "prereg_amendment_doc": AMEND["doc"],
+                "prereg_amendment_sha256": sha256_file(PREREG_AMEND_DOC) if os.path.isfile(PREREG_AMEND_DOC) else None,
+                "models_reading": a.models_reading,
+                "masks": {n: {"path": v, "sha256": sha256_file(v)} for n, v in a.masks.items()},
+                "groups": {n: {"path": v, "sha256": sha256_file(v)} for n, v in a.group_files.items()},
                 "software": {"python": platform.python_version(), "opencv": cv2.__version__, "numpy": np.__version__,
-                             "scipy": scipy.__version__, "matplotlib": matplotlib.__version__},
+                             "scipy": scipy.__version__, "matplotlib": matplotlib.__version__, **rawpy_versions()},
                 "input_warnings": input_warnings,
                 "inputs": {n: {"source": cams[n], "n_files": len(v),
                                "files": {x: sha256_file(x) for x in v},
+                               "sidecars": {sc: sha256_file(sc) for x in v for sc in sidecar_paths(x)},
                                "card": a.cards.get(n),
                                "card_sha256": sha256_file(a.cards[n]) if a.cards.get(n) else None}
                            for n, v in inputs.items()},

@@ -335,10 +335,14 @@ def verdict_titles(name, v_full, v_crop, size, crop):
 
 
 def _short(v):
-    if isinstance(v, dict) and "worst_ray_uncertainty_px" in v:          # B4 / B5c: aligned (literal)
+    if isinstance(v, dict) and "worst_ray_uncertainty_px" in v:          # B4 / B5c
         f = lambda x: "∞" if x is None or not np.isfinite(x) else f"{x:.2g}"  # noqa: E731
+        miss = f"; models missing: {', '.join(v['models_missing'])}" if v.get("models_missing") else ""
+        if v.get("models_reading") == "literal":     # d33: lead with the values that decide the bar
+            return (f"ray {f(v['worst_ray_uncertainty_px'])} px, models {f(v.get('literal_models_px'))} px literal "
+                    f"(aligned models {f(v['worst_model_disagreement_px'])}){miss}")
         return (f"ray {f(v['worst_ray_uncertainty_px'])} px, models {f(v['worst_model_disagreement_px'])} px "
-                f"(literal {f(v.get('literal_ray_px'))} / {f(v.get('literal_models_px'))})")
+                f"(literal {f(v.get('literal_ray_px'))} / {f(v.get('literal_models_px'))}){miss}")
     if isinstance(v, dict):
         parts = []
         for k, x in v.items():
@@ -378,7 +382,14 @@ def _overlay(img, rows, which, crop, grid_step=None, hull=None):
         x0, y0, cw, ch = crop
         cv2.rectangle(out, (x0, y0), (x0 + cw - 1, y0 + ch - 1), (255, 255, 0), th)
     if hull is not None and len(hull) >= 3:
-        cv2.polylines(out, [np.asarray(hull, np.int32).reshape(-1, 1, 2)], True, (80, 220, 80), th)
+        # A hull point the model cannot map (it folds there) is NaN after undistortion; casting NaN to int
+        # drew stray lines to the frame corner. Draw only the segments between two mappable neighbours.
+        hp = np.asarray(hull, float).reshape(-1, 2)
+        ok = np.all(np.isfinite(hp), axis=1)
+        for i in range(len(hp)):
+            j = (i + 1) % len(hp)
+            if ok[i] and ok[j]:
+                cv2.line(out, (int(hp[i, 0]), int(hp[i, 1])), (int(hp[j, 0]), int(hp[j, 1])), (80, 220, 80), th)
     for r in rows:
         p = np.asarray(r["_before_pts" if which == "before" else "_after_pts"], float)
         p = p[np.all(np.isfinite(p), axis=1)]

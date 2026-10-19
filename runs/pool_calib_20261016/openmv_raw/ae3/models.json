@@ -1,0 +1,270 @@
+{
+ "chosen": "standard",
+ "why": "held-out RMS 0.290 px within 2% of the best (0.288 px): preference order standard > fisheye > rational",
+ "models": {
+  "standard": {
+   "train_rms_px": 0.28260925446495117,
+   "views": 25,
+   "dropped": [],
+   "K": [
+    [
+     1394.2211146171771,
+     0.0,
+     677.3690664567961
+    ],
+    [
+     0.0,
+     1393.2557752342311,
+     375.0514639699826
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "D": [
+    0.39104288364647183,
+    -0.15981930550952725,
+    0.004303504641045737,
+    -0.0023332439182556846,
+    1.2675838245698394
+   ],
+   "n_params_dist": 5,
+   "heldout_rms_px": 0.290193067839877,
+   "heldout_median_view_px": 0.2560065525579511,
+   "outlier_threshold_px": 0.7678640642459029
+  },
+  "rational": {
+   "train_rms_px": 0.2807467700399063,
+   "views": 25,
+   "dropped": [],
+   "K": [
+    [
+     1390.1072656695198,
+     0.0,
+     677.8405122917209
+    ],
+    [
+     0.0,
+     1389.0978643697808,
+     375.216673993611
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "D": [
+    208.71935103859872,
+    -1135.734501177475,
+    0.004356853390130954,
+    -0.002056778661472917,
+    330.3756059507938,
+    207.4179083656044,
+    -1202.971447641729,
+    699.6728931495037
+   ],
+   "n_params_dist": 8,
+   "heldout_rms_px": 0.2883153234179019,
+   "heldout_median_view_px": 0.2538605693696504,
+   "outlier_threshold_px": 0.7566554958484586
+  },
+  "fisheye": {
+   "train_rms_px": 0.2867125899144438,
+   "views": 25,
+   "dropped": [],
+   "K": [
+    [
+     1391.431511852998,
+     0.0,
+     681.6542898971894
+    ],
+    [
+     0.0,
+     1390.2474457655642,
+     367.0353073051336
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "D": [
+    0.7742091642216952,
+    -0.922311100623,
+    12.879039029896184,
+    -30.564846443947523
+   ],
+   "n_params_dist": 4,
+   "heldout_rms_px": 0.29336564121320835,
+   "heldout_median_view_px": 0.2651262510004854,
+   "outlier_threshold_px": 0.7914873837501928
+  }
+ },
+ "errors": {},
+ "probes": [
+  {
+   "group": "frame",
+   "name": "TL",
+   "x": 0.0,
+   "y": 0.0,
+   "ray_uncertainty_px": 1.3799936040275278,
+   "model_disagreement_px": 4.15480782073071,
+   "ray_uncertainty_raw_px": 5.933040820252509,
+   "model_disagreement_raw_px": 11.085433726511292,
+   "distortion_px": 75.59393096480824
+  },
+  {
+   "group": "frame",
+   "name": "TR",
+   "x": 1279.0,
+   "y": 0.0,
+   "ray_uncertainty_px": 0.8351019925312798,
+   "model_disagreement_px": 1.524014165095499,
+   "ray_uncertainty_raw_px": 6.580925147181955,
+   "model_disagreement_raw_px": 8.421065758201715,
+   "distortion_px": 55.87945289334167
+  },
+  {
+   "group": "frame",
+   "name": "BL",
+   "x": 0.0,
+   "y": 799.0,
+   "ray_uncertainty_px": 1.8285764653252845,
+   "model_disagreement_px": 6.2650058521699465,
+   "ray_uncertainty_raw_px": 5.600224206897849,
+   "model_disagreement_raw_px": 17.41488705061682,
+   "distortion_px": 86.0272871463233
+  },
+  {
+   "group": "frame",
+   "name": "BR",
+   "x": 1279.0,
+   "y": 799.0,
+   "ray_uncertainty_px": 1.1231295223066926,
+   "model_disagreement_px": 2.726005297701252,
+   "ray_uncertainty_raw_px": 6.001723459680863,
+   "model_disagreement_raw_px": 10.818213243832357,
+   "distortion_px": 65.89264807434604
+  },
+  {
+   "group": "frame",
+   "name": "top",
+   "x": 639.5,
+   "y": 0.0,
+   "ray_uncertainty_px": 0.03950682218856207,
+   "model_disagreement_px": 0.04300066609177177,
+   "ray_uncertainty_raw_px": 5.116233592065207,
+   "model_disagreement_raw_px": 9.119443793525027,
+   "distortion_px": 8.750495936409425
+  },
+  {
+   "group": "frame",
+   "name": "bottom",
+   "x": 639.5,
+   "y": 799.0,
+   "ray_uncertainty_px": 0.22735510414049662,
+   "model_disagreement_px": 0.38069302767637314,
+   "ray_uncertainty_raw_px": 5.72906000501687,
+   "model_disagreement_raw_px": 10.469599500453254,
+   "distortion_px": 15.385611551944296
+  },
+  {
+   "group": "frame",
+   "name": "left",
+   "x": 0.0,
+   "y": 399.5,
+   "ray_uncertainty_px": 0.40589017609671596,
+   "model_disagreement_px": null,
+   "ray_uncertainty_raw_px": 5.42802306277411,
+   "model_disagreement_raw_px": null,
+   "distortion_px": 53.433842742991665
+  },
+  {
+   "group": "frame",
+   "name": "right",
+   "x": 1279.0,
+   "y": 399.5,
+   "ray_uncertainty_px": 0.26854005533776565,
+   "model_disagreement_px": 0.3834354942348016,
+   "ray_uncertainty_raw_px": 5.7714472062650986,
+   "model_disagreement_raw_px": 9.379374285590888,
+   "distortion_px": 35.819742520615925
+  },
+  {
+   "group": "crop",
+   "name": "crop_TL",
+   "x": 0.0,
+   "y": 0.0,
+   "ray_uncertainty_px": 1.3799936040275278,
+   "model_disagreement_px": 4.15480782073071,
+   "ray_uncertainty_raw_px": 5.933040820252509,
+   "model_disagreement_raw_px": 11.085433726511292,
+   "distortion_px": 75.59393096480824
+  },
+  {
+   "group": "crop",
+   "name": "crop_TR",
+   "x": 1279.0,
+   "y": 0.0,
+   "ray_uncertainty_px": 0.8351019925312798,
+   "model_disagreement_px": 1.524014165095499,
+   "ray_uncertainty_raw_px": 6.580925147181955,
+   "model_disagreement_raw_px": 8.421065758201777,
+   "distortion_px": 55.87945289334167
+  },
+  {
+   "group": "crop",
+   "name": "crop_BL",
+   "x": 0.0,
+   "y": 799.0,
+   "ray_uncertainty_px": 1.8285764653252845,
+   "model_disagreement_px": 6.2650058521699465,
+   "ray_uncertainty_raw_px": 5.600224206897849,
+   "model_disagreement_raw_px": 17.41488705061682,
+   "distortion_px": 86.0272871463233
+  },
+  {
+   "group": "crop",
+   "name": "crop_BR",
+   "x": 1279.0,
+   "y": 799.0,
+   "ray_uncertainty_px": 1.1231295223066926,
+   "model_disagreement_px": 2.726005297701252,
+   "ray_uncertainty_raw_px": 6.001723459680863,
+   "model_disagreement_raw_px": 10.818213243832357,
+   "distortion_px": 65.89264807434604
+  }
+ ],
+ "f_ref_px": 1393.7384449257042,
+ "folds": 5,
+ "seed": 0,
+ "cross_model_K": [
+  {
+   "pair": "standard vs rational",
+   "dfx_pct": -0.295064312577626,
+   "dfy_pct": -0.2984312671340815,
+   "dcx_px": 0.4714458349247934,
+   "dcy_px": 0.16521002362839
+  },
+  {
+   "pair": "standard vs fisheye",
+   "dfx_pct": -0.20008323894485505,
+   "dfy_pct": -0.2159208324947506,
+   "dcx_px": 4.285223440393338,
+   "dcy_px": -8.016156664849007
+  },
+  {
+   "pair": "rational vs fisheye",
+   "dfx_pct": 0.09526215826520276,
+   "dfy_pct": 0.08275740862253045,
+   "dcx_px": 3.8137776054685446,
+   "dcy_px": -8.181366688477397
+  }
+ ],
+ "cross_model_K_note": "INFORMATION, not a bar: the aligned (shape-only) B4/B5c model disagreement absorbs these K differences; the literal reading includes them. Which reading governs is the A2 decision (prereg doc).",
+ "bootstrap_replicates_ok": "100/100"
+}

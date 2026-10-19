@@ -1,0 +1,173 @@
+{
+ "imx708": {
+  "model": "rational",
+  "fx": 2628.2827517934816,
+  "nominal_fx_air": 1964.3,
+  "area_ratio_in_air_vs_water_pct": 79.01114777886433,
+  "density_error_if_in_air_fx_pct": -44.13755721876507,
+  "px_per_cm_at_1m": 26.282827517934816,
+  "regions": {
+   "seen": {
+    "area_true": 0.4936445294018743,
+    "area_pinhole": 0.6109516762473255,
+    "density_error_if_ignored_pct": -19.20072428084523,
+    "frac_invertible": 0.9583720930232558,
+    "scale_min": 0.748179281515835,
+    "scale_max": 1.0003720410945558,
+    "frac_of_frame": 0.3686556927297668,
+    "size_error_max_pct": 33.657804313154486,
+    "area_by_model": {
+     "standard": 0.5089288030138553,
+     "rational": 0.4936445294018743,
+     "fisheye": 0.509871558348093
+    },
+    "area_model_spread_pct": 3.2187015299493487
+   },
+   "full_EXTRAPOLATED_not_measured": {
+    "area_true": 0.9621137273132638,
+    "area_pinhole": 1.2156767156583521,
+    "density_error_if_ignored_pct": -20.857764657256826,
+    "frac_invertible": 0.7030178326474623,
+    "scale_min": 0.7430327064169334,
+    "scale_max": 6.663516353864063,
+    "frac_of_frame": 1.0,
+    "size_error_max_pct": -84.9929084451017,
+    "area_by_model": {
+     "standard": 1.1776645168557176,
+     "rational": 0.9621137273132638,
+     "fisheye": 1.1209169423624605
+    },
+    "area_model_spread_pct": 19.831733162253553
+   },
+   "crop": {
+    "area_true": 0.19789755808332382,
+    "area_pinhole": 0.20755456120996255,
+    "density_error_if_ignored_pct": -4.652753989284619,
+    "frac_invertible": 1.0,
+    "scale_min": 0.9218099961591073,
+    "scale_max": 1.0003720410945558,
+    "frac_of_frame": 0.12002743484224966,
+    "size_error_max_pct": 8.482225639414409,
+    "area_by_model": {
+     "standard": 0.19819228355316093,
+     "rational": 0.19789755808332382,
+     "fisheye": 0.1987011641656045
+    },
+    "area_model_spread_pct": 0.4053219069092944
+   },
+   "crop_seen": {
+    "area_true": 0.1400836284064373,
+    "area_pinhole": 0.14621477570951827,
+    "density_error_if_ignored_pct": -4.193247415200774,
+    "frac_invertible": 1.0,
+    "scale_min": 0.9265390879168972,
+    "scale_max": 1.0003720410945558,
+    "frac_of_frame": 0.08455504115226338,
+    "size_error_max_pct": 7.92852811512379,
+    "area_by_model": {
+     "standard": 0.1402669744580154,
+     "rational": 0.1400836284064373,
+     "fisheye": 0.14055531290488404
+    },
+    "area_model_spread_pct": 0.33619235138423204
+   }
+  },
+  "note": "'full_EXTRAPOLATED_not_measured' is the model extrapolating outside the observed area: context only, never a result",
+  "bootstrap_area_std_pct": {
+   "seen": 0.4892024133130578,
+   "crop": 0.20243167882394397
+  }
+ },
+ "n6": {
+  "model": "standard",
+  "fx": 1628.8561990775179,
+  "nominal_fx_air": 933.3,
+  "area_ratio_in_air_vs_water_pct": 204.81567403842237,
+  "density_error_if_in_air_fx_pct": -67.19328810256822,
+  "px_per_cm_at_1m": 16.28856199077518,
+  "regions": {
+   "seen": {
+    "area_true": 0.21421476358133235,
+    "area_pinhole": 0.1895888003264848,
+    "density_error_if_ignored_pct": 12.989144512988071,
+    "frac_invertible": 1.0,
+    "scale_min": 0.999960375599603,
+    "scale_max": 1.1980659272015117,
+    "frac_of_frame": 0.491578125,
+    "size_error_max_pct": -16.532139234120592,
+    "area_by_model": {
+     "standard": 0.21421476358133235,
+     "rational": 0.2142021554584908,
+     "fisheye": 0.21324161367518468
+    },
+    "area_model_spread_pct": 0.45498494442053367
+   },
+   "full_EXTRAPOLATED_not_measured": {
+    "area_true": 0.44302679159694536,
+    "area_pinhole": 0.3856737936141581,
+    "density_error_if_ignored_pct": 14.870856908718366,
+    "frac_invertible": 1.0,
+    "scale_min": 0.999960375599603,
+    "scale_max": 1.2680085339962512,
+    "frac_of_frame": 1.0,
+    "size_error_max_pct": -21.136177463380037,
+    "area_by_model": {
+     "standard": 0.44302679159694536,
+     "rational": 0.44308095060451635,
+     "fisheye": 0.4411938771445515
+    },
+    "area_model_spread_pct": 0.4265210180850961
+   }
+  },
+  "note": "'full_EXTRAPOLATED_not_measured' is the model extrapolating outside the observed area: context only, never a result",
+  "bootstrap_area_std_pct": {
+   "seen": 0.16954468830792663
+  }
+ },
+ "ae3": {
+  "model": "standard",
+  "fx": 1394.2211146171771,
+  "nominal_fx_air": 1033.3,
+  "area_ratio_in_air_vs_water_pct": 81.9322324733935,
+  "density_error_if_in_air_fx_pct": -45.034478695453586,
+  "px_per_cm_at_1m": 13.942211146171772,
+  "regions": {
+   "seen": {
+    "area_true": 0.20676920594916615,
+    "area_pinhole": 0.2254571467169175,
+    "density_error_if_ignored_pct": -8.288910349431422,
+    "frac_invertible": 1.0,
+    "scale_min": 0.864242549727537,
+    "scale_max": 1.0001213164992373,
+    "frac_of_frame": 0.4276875,
+    "size_error_max_pct": 15.70825809435814,
+    "area_by_model": {
+     "standard": 0.20676920594916615,
+     "rational": 0.20678416866732235,
+     "fisheye": 0.2072159833527415
+    },
+    "area_model_spread_pct": 0.21591468610995526
+   },
+   "full_EXTRAPOLATED_not_measured": {
+    "area_true": 0.46127212893401226,
+    "area_pinhole": 0.527153930654783,
+    "density_error_if_ignored_pct": -12.497640231751339,
+    "frac_invertible": 1.0,
+    "scale_min": 0.7933511211933625,
+    "scale_max": 1.0001213164992373,
+    "frac_of_frame": 1.0,
+    "size_error_max_pct": 26.04759397022032,
+    "area_by_model": {
+     "standard": 0.46127212893401226,
+     "rational": 0.45659746992599193,
+     "fisheye": 0.4639208809469363
+    },
+    "area_model_spread_pct": 1.589982952111719
+   }
+  },
+  "note": "'full_EXTRAPOLATED_not_measured' is the model extrapolating outside the observed area: context only, never a result",
+  "bootstrap_area_std_pct": {
+   "seen": 0.28848352268702615
+  }
+ }
+}
