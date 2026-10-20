@@ -454,6 +454,20 @@ def _hash_vectors():
     return out
 
 
+def _nrjxl_presets():
+    """Crop view S3 (must dos 8-9): [label, {still.format: nrjxl, still.crop}] for each registry
+    still.crop preset the nrjxl rule accepts (even, config_validate.raw_crop_output_wh), in
+    registry order. The default keeps its S2 label."""
+    default = R.BY_PATH["still.crop"].default
+    out = []
+    for label, crop in R.BY_PATH["still.crop"].presets:
+        if any(v % 2 for v in crop) or V.raw_crop_output_wh(crop[2], crop[3]) is None:
+            continue
+        name = "1600x900 native (default)" if list(crop) == list(default) else label
+        out.append([name, {"still.format": "nrjxl", "still.crop": list(crop)}])
+    return out
+
+
 def build():
     keys = [_key_doc(k) for k in R.KEYS]
     body = {
@@ -497,10 +511,9 @@ def build():
             # raw_crop_output_wh): w*h <= raw_max_px is sent at native density (output scale
             # 1); a larger crop only if w:h = larger_crop_aspect exactly (w*9 == h*16), shrunk
             # to raw_output_wh, output scale x10000 = round(1600 / w * 10000) (params[26]).
-            # `presets` = the one-command switch the UI offers (SPEC r4 §3.3): today's field
-            # of view at native density. Customer crop presets (WIDE / MEDIUM / HIGH DETAIL)
-            # wait for Nick's ruling from the cut sheets (EM, 2026-10-02): add none here
-            # before it.
+            # `presets` = the one-command switches the UI offers: every registry still.crop
+            # preset that passes the nrjxl rule (crop view S3 must dos 8-9, PE 006 ruling
+            # 10/20; Nick's d60), each with still.format nrjxl, then "back to pjpg".
             "nrjxl": {
                 "applies_when": {"still.format": "nrjxl"},       # any mode.media
                 "raw_max_px": V.RAW_MAX_PX,
@@ -508,11 +521,7 @@ def build():
                 "larger_crop_aspect": [16, 9],
                 "crop_even": True,
                 "requires": {"uplink.media_key.enabled": True, "uplink.network_type": 2},
-                "presets": [
-                    ["1600x900 native (default)",
-                     {"still.format": "nrjxl", "still.crop": [1504, 846, 1600, 900]}],
-                    ["back to pjpg", {"still.format": "pjpg"}],
-                ],
+                "presets": _nrjxl_presets() + [["back to pjpg", {"still.format": "pjpg"}]],
             },
             # Sprint28 low gain (config_validate._rule_low_gain_fixed): low_gain refuses a fixed
             # shutter_us / analogue_gain while both camera switches are on. Recommended with

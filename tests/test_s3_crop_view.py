@@ -238,6 +238,20 @@ class Rule(unittest.TestCase):
         for label, crop in R.BY_PATH["still.crop"].presets:
             self.assertIsNotNone(V.raw_crop_output_wh(crop[2], crop[3]), label)
 
+    def test_the_catalog_offers_every_nrjxl_preset(self):
+        # PE 006 ruling 10/20 (must dos 8-9): rules.nrjxl.presets = each registry still.crop
+        # preset the nrjxl rule accepts, then "back to pjpg"; every one passes the validator
+        with open(os.path.join(REPO_ROOT, "docs", "bmcam_config_catalog.json")) as fh:
+            presets = json.load(fh)["rules"]["nrjxl"]["presets"]
+        crops = [kv["still.crop"] for _label, kv in presets if "still.crop" in kv]
+        self.assertEqual(crops, [list(c) for _l, c in R.BY_PATH["still.crop"].presets])
+        self.assertEqual(presets[-1], ["back to pjpg", {"still.format": "pjpg"}])
+        for label, kv in presets[:-1]:
+            self.assertEqual(kv["still.format"], "nrjxl", label)
+            errs = [v for v in V.validate(_still(**kv), "effective")
+                    if v.code == "xk" and v.paths[0] == "still.crop"]
+            self.assertEqual(errs, [], label)
+
     def test_set_and_trg_on_the_dispatch_rig(self):
         from test_s4_dispatch import Rig
         r = Rig(self, base_over={"still.format": "nrjxl", "uplink.media_key.enabled": True})
