@@ -1,4 +1,4 @@
-# Spec: larger crops shrunk to 1600×900 in the NOAA release (S3) (PE 005 rev 3 + PE 006 rev 6, tier (a); rev 0 Mon 10/19 8:34 AM PT; rev 1 8:37 AM PT = the Pi data from Sunday's Addendum B replaces rev 0's wrong premise note, G1 becomes product code + live wakes; rev 2 9:31 AM PT = Nick's soak window answer (8 AM–6 PM Pacific); rev 3 9:32 AM PT = the bench units run America/Los_Angeles, so the window is 08:00–18:00 (rev 2 wrongly said ET 11:00–21:00); rev 4 (PE 006) 9:52 AM PT = must do 13 no longer clashes with G1 (b): bmcam004's 3 live-wake images may precede the nvd deploy; PjM → Lead (d59); rev 5 (PE 006) 9:56 AM PT = QE 009 FAIL on rev 4 (R1–R3, N1–N6) fixed: search ≤ 36 s + the crop-sweep card's 450 s predicted wake and TG-7 reef set restored (Nick decides their replacement, card nick_s3_bars), a real shrink memory guard, the G1 (b) images checked by /hq, rects named, presets named; rev 5.1 (PE 006) 9:58 AM = QE 009's rev 5 nits N1–N2, text only; rev 6 (PE 006) 6:38 PM = Nick's "yes to both." on nick_s3_bars: the 450 s predicted-wake bar becomes report-only (0 hard cuts etc. in G1 b), and G1 (c) may read the 30 TG-7 frames on Nick_R_SSD read-only)
+# Spec: larger crops shrunk to 1600×900 in the NOAA release (S3) (PE 005 rev 3 + PE 006 rev 7.1, tier (a); rev 0 Mon 10/19 8:34 AM PT; rev 1 8:37 AM PT = the Pi data from Sunday's Addendum B replaces rev 0's wrong premise note, G1 becomes product code + live wakes; rev 2 9:31 AM PT = Nick's soak window answer (8 AM–6 PM Pacific); rev 3 9:32 AM PT = the bench units run America/Los_Angeles, so the window is 08:00–18:00 (rev 2 wrongly said ET 11:00–21:00); rev 4 (PE 006) 9:52 AM PT = must do 13 no longer clashes with G1 (b): bmcam004's 3 live-wake images may precede the nvd deploy; PjM → Lead (d59); rev 5 (PE 006) 9:56 AM PT = QE 009 FAIL on rev 4 (R1–R3, N1–N6) fixed: search ≤ 36 s + the crop-sweep card's 450 s predicted wake and TG-7 reef set restored (Nick decides their replacement, card nick_s3_bars), a real shrink memory guard, the G1 (b) images checked by /hq, rects named, presets named; rev 5.1 (PE 006) 9:58 AM = QE 009's rev 5 nits N1–N2, text only; rev 6 (PE 006) 6:38 PM = Nick's "yes to both." on nick_s3_bars: the 450 s predicted-wake bar becomes report-only (0 hard cuts etc. in G1 b), and G1 (c) may read the 30 TG-7 frames on Nick_R_SSD read-only; rev 7 (PE 006) 6:55 PM = Nick's approved-list rule for remote still.crop (must dos 11–12, tighter); rev 7.1 (PE 006) 7:04 PM = must do 6's diff list names the generator lines must do 8 needs)
 
 Tier (a) (TEAM_RULES §13): it changes the frozen field-unit camera build, BM production (nvd `staging`) and the 10/27 field
 day. QE spec PASS comes before any code. Three linked PRs, one per repo or ticket (§11): **bm_cam_legacy** (camera, → `development`),
@@ -60,7 +60,7 @@ Sun 9:09 PM: every crop ≥ 1920×1080 ran out of the 250 MiB encoder guard on t
      Tests force both paths (a tiny limit; a pre-check above MemAvailable) and check the sidecar says rfb=shrink and a JPEG of
      the same crop is sent.
   6. **Diff rule (QE checks):** `git diff 2cc1afdb <S3> -- BM_Devel_Pi/` shows only must dos 1, 3, 4, 5 and the presets line (must
-     do 9). Outside BM_Devel_Pi/: tests, the regenerated catalog, docs/specs/crop_view_s3.md. If another PR touched BM_Devel_Pi/
+     do 9). Outside BM_Devel_Pi/: tests, the regenerated catalog, docs/specs/crop_view_s3.md, and in tools/gen_config_catalog.py only the lines that put must do 8's rule in the catalog (rules.nrjxl output size 1600×900 + the 16:9 rule; rev 7.1). If another PR touched BM_Devel_Pi/
      on development since 2cc1afdb, stop and tell the PE + Lead before building.
   7. Tests: must dos 1–5 (output dims, `params[26]`, area weights vs a reference within ±1 code, the 16:9 rule both sides, the
      fallback, rfb=shrink); full suite on the head and on the merge result, counts quoted.
@@ -76,10 +76,17 @@ Sun 9:09 PM: every crop ≥ 1920×1080 ran out of the 250 MiB encoder guard on t
       keeps the crop as the sensor rect, and refuses a scale that isn't one of the camera's (s = 1, or 1600 / w for a 16:9 crop
       > 1600 wide). The image page renders 1600×900 for a shrunk image; the image's details show crop, scale and "shrunk".
       Tests use a real scaled blob from G1 (fixture ≤ 1 MB in tests/fixtures/).
-  11. Vendor S3's catalog byte for byte; remote_config's plan check accepts exactly the camera's rule; test_s28_config_catalog_v8
-      flips to "2304×1296 / 3072×1728 / full accepted, 2400×1352 (not 16:9) refused".
-  12. The dashboard's crop control offers exactly the catalog's presets; a test asserts it and that each one passes the plan check.
-      Frontend QC sweep (desktop + 375 px, viewer + admin) on any dashboard file.
+  11. Vendor S3's catalog byte for byte. **Remote `still.crop` = an approved list only (rev 7; Nick, his own typed turn in the
+      nvd session "Crop view S3 (backend)" local_b9c5acba…, Mon 10/19 evening (after PE 006's "aligned"), verbatim: "For sending remote commands keep it
+      simple, just an approved list. … I dont want customers being able to manual enter a crop size we have not tested. Ok to
+      build"):** remote_config's plan check accepts a `still.crop` only if it equals one of the catalog's `still.crop` presets
+      (pjpg and nrjxl), and refuses anything else, a 16:9 crop that isn't a preset included, before it is sent.
+      test_s28_config_catalog_v8 flips to "the 2304×1296 / 3072×1728 / full presets accepted (as G1 leaves them); 2400×1352
+      (not 16:9) and 2400×1350 (16:9, not a preset) refused". The camera's own validator (must do 3) is unchanged; the backend is
+      the stricter of the two. Video crop is out of scope (unchanged).
+  12. The dashboard's still-tab crop control offers exactly the catalog's presets, with no typed crop field and no box drag; a
+      test asserts the menu equals the catalog and each preset passes the plan check. Frontend QC sweep (desktop + 375 px,
+      viewer + admin) on any dashboard file.
   13. **Order:** the nvd PR merges and deploys **before** any S3 build is deployed for the RC soak (must do 15) and before any S3
       image from bmcam003 (a decoder that accepts both s = 1 and the scaled sizes is safe for S2 units too). The one exception is
       G1 (b) on bmcam004 (bench, report-only), which may run before the deploy: production keeps each image's original blob, but
