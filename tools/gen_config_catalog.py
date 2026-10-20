@@ -492,7 +492,11 @@ def build():
             "stay_on_requires_reported_true": "power.bus_always_on",
             # Sprint28 (config_validate.s28_rules): still.format nrjxl (ANY mode.media: a video
             # unit takes stills via trg kv med:still; R3.3 FAIL bmcam004 2026-10-05) needs an
-            # even still.crop with w*h <= raw_max_px, keyed media and cellular only.
+            # even still.crop whose OUTPUT is <= raw_max_px, keyed media and cellular only.
+            # Crop view S3 (docs/specs/crop_view_s3.md must dos 3, 8; config_validate.
+            # raw_crop_output_wh): w*h <= raw_max_px is sent at native density (output scale
+            # 1); a larger crop only if w:h = larger_crop_aspect exactly (w*9 == h*16), shrunk
+            # to raw_output_wh, output scale x10000 = round(1600 / w * 10000) (params[26]).
             # `presets` = the one-command switch the UI offers (SPEC r4 §3.3): today's field
             # of view at native density. Customer crop presets (WIDE / MEDIUM / HIGH DETAIL)
             # wait for Nick's ruling from the cut sheets (EM, 2026-10-02): add none here
@@ -500,6 +504,8 @@ def build():
             "nrjxl": {
                 "applies_when": {"still.format": "nrjxl"},       # any mode.media
                 "raw_max_px": V.RAW_MAX_PX,
+                "raw_output_wh": list(V.RAW_OUT_WH),
+                "larger_crop_aspect": [16, 9],
                 "crop_even": True,
                 "requires": {"uplink.media_key.enabled": True, "uplink.network_type": 2},
                 "presets": [

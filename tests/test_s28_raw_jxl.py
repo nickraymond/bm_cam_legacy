@@ -886,9 +886,10 @@ class R33VideoUnitStills(unittest.TestCase):
         self.assertEqual(r.acks()[0]["ok"], 1)
 
     def test_too_large_a_crop_on_a_video_unit_is_refused(self):
+        # crop view S3: the full frame (16:9) is now allowed (shrunk); larger and off 16:9 is not
         r = self.rig()
         r.send({"id": 1_000_005, "c": "trg", "v": 2,
-                "kv": {"med": "still", "r": [0, 0, 4608, 2592]}})
+                "kv": {"med": "still", "r": [0, 0, 4608, 2590]}})
         self.assertEqual(r.acks()[0].get("e"), "xk")
 
     def test_a_bad_crop_that_reaches_the_action_is_never_captured_raw(self):
@@ -897,7 +898,7 @@ class R33VideoUnitStills(unittest.TestCase):
             path = os.path.join(d, "camera_schedule.yaml")
             with open(path, "w") as fh:
                 fh.write('still_raw:\n  format: "nrjxl"\n')
-            for crop in ((1505, 846, 1600, 900), (0, 0, 4608, 2592)):
+            for crop in ((1505, 846, 1600, 900), (0, 0, 4608, 2590)):   # S3: off 16:9
                 raw = rc._raw_begin({"config_path": path, "crop_native_xywh": crop}, None, d)
                 self.assertEqual((raw["rfb"], raw["dng"]), ("err", None), crop)
                 self.assertIn("invalid RAW crop", raw["detail"])
@@ -1012,8 +1013,10 @@ class Config(unittest.TestCase):
         e = errs(**{"still.format": "nrjxl", "still.crop": [1505, 846, 1600, 900]})
         self.assertEqual(e[0].paths[0], "still.crop")
         self.assertIn("even", e[0].message)
-        e = errs(**{"still.format": "nrjxl", "still.crop": [1104, 620, 2400, 1350]})
-        self.assertIn("R0.3", e[0].message)
+        # crop view S3: a larger crop is allowed only at exactly 16:9 (2400x1350 is; tests/
+        # test_s3_crop_view.py), so the refusal is now an even step off 16:9
+        e = errs(**{"still.format": "nrjxl", "still.crop": [1104, 620, 2400, 1352]})
+        self.assertIn("16:9", e[0].message)
         e = errs(**{"still.format": "nrjxl", "uplink.media_key.enabled": False})
         self.assertEqual(e[0].paths[:2], ("still.format", "uplink.media_key.enabled"))
         e = errs(**{"still.format": "nrjxl", "uplink.network_type": 1})
