@@ -114,12 +114,12 @@ RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor", "shrink"
 # instead). Both guards end in today's JPEG with rfb=shrink:
 #   (i)  the child runs under RLIMIT_AS = SHRINK_MEM_LIMIT_BYTES and oom_score_adj 1000;
 #   (ii) the child starts only if /proc/meminfo MemAvailable >= SHRINK_MIN_AVAIL_BYTES.
-# PROVISIONAL values, NOT measured: G1 (a) on bmcam004 measures the child's VmPeak / VmHWM
-# (sidecar raw_timings shrink_vm_peak_kb / shrink_vm_hwm_kb); the spec's values (VmPeak x 1.25;
-# VmHWM + 30 MiB) are committed with that measurement BEFORE G1 (b). Until then the limit is
-# set high enough not to bind and the pre-check is off (0).
-SHRINK_MEM_LIMIT_BYTES = 1024 * 2 ** 20      # PROVISIONAL (G1 a sets it)
-SHRINK_MIN_AVAIL_BYTES = 0                   # PROVISIONAL (G1 a sets it)
+# Values from G1 (a) on bmcam004 (TE3, PR #186 @ aa1e0b75, 7 rects x 5 pool DNGs, 35/35 0 rfb;
+# ~/NereusData/bm_cam_legacy/2026-10-19_crop_view_s3_G1/out/*/in*/result.json raw_timings): the
+# largest child VmPeak 133388 kB and VmHWM 117628 kB, both at the full frame [0, 0, 4608, 2592].
+# The spec's rules: limit = VmPeak x 1.25; pre-check = VmHWM + 30 MiB.
+SHRINK_MEM_LIMIT_BYTES = 166735 * 1024       # 133388 kB x 1.25 (162.8 MiB)
+SHRINK_MIN_AVAIL_BYTES = (117628 + 30 * 1024) * 1024   # 148348 kB (144.9 MiB)
 # A shrink that runs past this is killed (rfb=time). ASSUMPTION: Sunday's bench harness took
 # ~10 s for the whole sensor on bmcam004 (Addendum B: worst total 40.14 s - search <= 29.01 s);
 # 30 s leaves 3x for a slow SD card. G1 reports the measured seconds.
