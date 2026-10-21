@@ -120,9 +120,10 @@ RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor", "shrink"
 # The spec's rules: limit = VmPeak x 1.25; pre-check = VmHWM + 30 MiB.
 SHRINK_MEM_LIMIT_BYTES = 166735 * 1024       # 133388 kB x 1.25 (162.8 MiB)
 SHRINK_MIN_AVAIL_BYTES = (117628 + 30 * 1024) * 1024   # 148348 kB (144.9 MiB)
-# A shrink that runs past this is killed (rfb=time). ASSUMPTION: Sunday's bench harness took
-# ~10 s for the whole sensor on bmcam004 (Addendum B: worst total 40.14 s - search <= 29.01 s);
-# 30 s leaves 3x for a slow SD card. G1 reports the measured seconds.
+# A shrink that runs past this is killed (rfb=time: today's JPEG goes out, the wake goes on).
+# MEASURED in live wakes on bmcam004 at the full frame (G1 b, PR #186 @ 4783220d, RESULTS_G1b.md):
+# 19.0-19.6 s (4 wakes) and 20.8-21.9 s (3 keyed wakes), so 30 s leaves ~1.4x, not the 3x the
+# first estimate assumed (Sunday's bench harness, ~10 s). Kept at 30 s pending PE 006 (QE N1).
 SHRINK_MAX_S = 30.0
 SHRINK_JOB, SHRINK_RESULT = "shrink_job.json", "shrink_result.json"
 # G1 (b) only (the spec's "one live wake with the shrink fallback forced"): a ONE-SHOT file next
