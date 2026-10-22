@@ -121,9 +121,11 @@ RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor", "shrink"
 SHRINK_MEM_LIMIT_BYTES = 166735 * 1024       # 133388 kB x 1.25 (162.8 MiB)
 SHRINK_MIN_AVAIL_BYTES = (117628 + 30 * 1024) * 1024   # 148348 kB (144.9 MiB)
 # A shrink that runs past this is killed (rfb=time: today's JPEG goes out, the wake goes on).
-# MEASURED in live wakes on bmcam004 at the full frame (G1 b, PR #186 @ 4783220d, RESULTS_G1b.md):
-# 19.0-19.6 s (4 wakes) and 20.8-21.9 s (3 keyed wakes), so 30 s leaves ~1.4x, not the 3x the
-# first estimate assumed (Sunday's bench harness, ~10 s). Kept at 30 s pending PE 006 (QE N1).
+# MEASURED in live wakes on bmcam004 at the full frame (G1 b, PR #186 @ 4783220d, RESULTS_G1b.md
+# W1-W4 + keyed K1-K3): 19.1-21.9 s over 7 wakes, so 30 s leaves ~1.4x, not the 3x the first
+# estimate assumed (Sunday's bench harness, ~10 s). PE 007 ruled 30 s stays (Thu 10/22, QE N1):
+# even a 30 s shrink keeps the wake under the 481 s bar. An rfb=time in the RC soak fails must
+# do 16's 0 rfb bar (F10).
 SHRINK_MAX_S = 30.0
 SHRINK_JOB, SHRINK_RESULT = "shrink_job.json", "shrink_result.json"
 # G1 (b) only (the spec's "one live wake with the shrink fallback forced"): a ONE-SHOT file next
