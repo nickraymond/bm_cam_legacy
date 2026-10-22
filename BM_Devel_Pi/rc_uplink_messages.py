@@ -47,7 +47,10 @@ RC_IMAGE_FORMAT = "pjpg"
 RC_RAW_FORMAT = "nrjxl"
 # Why a pjpg START is a fallback from nrjxl (SPEC §3.6): core field `rfb`, never dropped.
 # floor (Nick 2026-10-03, additive): the room needs a distance above still.raw.d_max.
-RAW_FALLBACK_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor")
+# shrink (crop view S3 must do 5, additive): a shrink memory guard (pre-check or RLIMIT_AS)
+# stopped the shrink of a crop larger than 1600x900. nvd staging c51356e keeps an unknown
+# code as sent (nrjxl.py rfb_info) and ingests the pjpg as usual.
+RAW_FALLBACK_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor", "shrink")
 
 # M3 selector reason -> compact wire code. Anything unexpected maps to "err"
 # so a future selector change can never build an unsendable message.

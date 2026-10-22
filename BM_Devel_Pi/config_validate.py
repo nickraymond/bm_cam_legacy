@@ -38,7 +38,9 @@ Rules added in S4 (strict + effective):
 
 Rules added in Sprint28 (strict + effective; Sprint28 SPEC r4 §3.7), whenever
 still.format is nrjxl (any mode.media: video units take stills via trg med:still):
-  - still.crop even (x, y, w, h) and w x h <= RAW_MAX_PX (1600x900 until R0.3)
+  - still.crop even (x, y, w, h) and its sent output <= RAW_MAX_PX: w x h <= RAW_MAX_PX
+    (native density), or a larger crop that is exactly 16:9 (shrunk on the unit to
+    RAW_OUT_WH = 1600x900; crop view S3, docs/specs/crop_view_s3.md must do 3)
   - uplink.media_key.enabled true; uplink.network_type 2
 
 Rules added in Sprint27 (strict + effective; SPEC §3.4, REVIEW_r1 row 1):
@@ -300,9 +302,28 @@ def _rule_video_send_size(values):
 # deploy so a unit never runs a RAW config it cannot send
 # ---------------------------------------------------------------------------
 
-# SPEC §3.3: the largest RAW crop proven on the Pi Zero 2 W. 1600x900 until R0.3
-# measures a larger preset (rc_raw_jxl.RAW_MAX_PX is the same number; a test pins it).
+# SPEC §3.3: the largest RAW output proven on the Pi Zero 2 W: 1600x900 (rc_raw_jxl.RAW_MAX_PX
+# is the same number; a test pins it). Crop view S3 (docs/specs/crop_view_s3.md must do 3): a
+# crop up to RAW_MAX_PX is sent at native density; a larger crop only if it is exactly 16:9,
+# and rc_raw_jxl shrinks it to exactly RAW_OUT_WH. One rule (raw_crop_output_wh) for set /
+# trg / boot / deploy, the encoder and the pjpg capture gate.
 RAW_MAX_PX = 1600 * 900
+RAW_OUT_WH = (1600, 900)
+
+
+def raw_crop_output_wh(w, h):
+    """-> the (w, h) an nrjxl of a w x h crop is sent at, or None when the crop is not
+    allowed: (w, h) itself when w x h <= RAW_MAX_PX, RAW_OUT_WH for a larger crop with
+    w : h = 16 : 9 exactly (w x 9 = h x 16). Evenness and the sensor bounds are checked by
+    the callers (_rule_raw_crop; read_dng_crop)."""
+    w, h = int(w), int(h)
+    if w <= 0 or h <= 0:
+        return None
+    if w * h <= RAW_MAX_PX:
+        return (w, h)
+    if w * RAW_OUT_WH[1] == h * RAW_OUT_WH[0]:
+        return RAW_OUT_WH
+    return None
 
 
 def _nrjxl_still(values):
@@ -314,17 +335,20 @@ def _nrjxl_still(values):
 
 
 def _rule_raw_crop(values):
-    """nrjxl sends still.crop at sensor resolution as 4 Bayer planes: x, y, w, h must
-    be even (keeps the CFA phase) and w x h <= RAW_MAX_PX."""
+    """nrjxl sends still.crop from the sensor's RAW: x, y, w, h must be even (keeps the CFA
+    phase) and its output <= RAW_MAX_PX (raw_crop_output_wh: native density up to
+    RAW_MAX_PX, else exactly 16:9, shrunk to RAW_OUT_WH). Inside the sensor: _rule_crop."""
     crop = values.get("still.crop")
     if not _nrjxl_still(values) or not (isinstance(crop, list) and len(crop) == 4):
         return []
     paths = ("still.crop", "still.format", "mode.media")
     if any(not isinstance(v, int) or v % 2 for v in crop):
         return [Violation("xk", paths, f"nrjxl needs an even still.crop (CFA phase), got {crop}")]
-    if crop[2] * crop[3] > RAW_MAX_PX:
-        return [Violation("xk", paths, f"nrjxl crop {crop[2]}x{crop[3]} is larger than the "
-                                       f"{RAW_MAX_PX} px measured on the Pi Zero 2 W (R0.3)")]
+    if raw_crop_output_wh(crop[2], crop[3]) is None:
+        return [Violation("xk", paths, f"nrjxl crop {crop[2]}x{crop[3]} is larger than "
+                                       f"{RAW_OUT_WH[0]}x{RAW_OUT_WH[1]} and not exactly 16:9 "
+                                       f"(only 16:9 crops are shrunk to "
+                                       f"{RAW_OUT_WH[0]}x{RAW_OUT_WH[1]})")]
     return []
 
 

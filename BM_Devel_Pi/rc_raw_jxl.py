@@ -94,17 +94,47 @@ P_HEADROOM, P_DEMOSAIC, P_OUTPUT_SCALE = 24, 25, 26
 DEMOSAIC_BILINEAR = 1
 RGB_STRIP_ROWS = 64                          # demosaic strip height (memory, not quality)
 
-# SPEC §3.3: until R0.3 proves a larger crop on the Zero, nrjxl allows 1600x900 only.
-# One number: config_validate refuses the config, this module refuses the encode.
-from config_validate import RAW_MAX_PX  # noqa: E402
+# SPEC §3.3: the largest RAW OUTPUT proven on the Zero is 1600x900. Crop view S3
+# (docs/specs/crop_view_s3.md must dos 1, 3): a crop up to RAW_MAX_PX goes at native density;
+# a larger crop must be exactly 16:9 and is shrunk (B3a only) to RAW_OUT_WH. One rule:
+# config_validate refuses the config, this module refuses the encode.
+from config_validate import RAW_MAX_PX, RAW_OUT_WH, raw_crop_output_wh  # noqa: E402
 
 # SPEC §3.5 guards (the study's pi_bench.child values)
 ENCODER_MEM_LIMIT_BYTES = 250 * 2 ** 20
 ENCODER_OOM_SCORE_ADJ = 1000
 RAW_CAPTURE_TIMEOUT_S = 30                   # one --raw attempt, no retries (SPEC §3.1)
 
-# START rfb codes (SPEC §3.6 table)
-RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor")
+# START rfb codes (SPEC §3.6 table; "shrink" = crop view S3 must do 5: a shrink memory guard)
+RFB_CODES = ("cap", "dng", "enc", "mem", "time", "fit", "err", "floor", "shrink")
+
+# Crop view S3 must do 5 (docs/specs/crop_view_s3.md): the shrink of a crop larger than
+# 1600x900 (DNG read + demosaic + area average) runs in its OWN child process, never in the
+# supervisor (Linux overcommit: a big allocation rarely raises MemoryError, the OOM killer acts
+# instead). Both guards end in today's JPEG with rfb=shrink:
+#   (i)  the child runs under RLIMIT_AS = SHRINK_MEM_LIMIT_BYTES and oom_score_adj 1000;
+#   (ii) the child starts only if /proc/meminfo MemAvailable >= SHRINK_MIN_AVAIL_BYTES.
+# Values from G1 (a) on bmcam004 (TE3, PR #186 @ aa1e0b75, 7 rects x 5 pool DNGs, 35/35 0 rfb;
+# ~/NereusData/bm_cam_legacy/2026-10-19_crop_view_s3_G1/out/*/in*/result.json raw_timings): the
+# largest child VmPeak 133388 kB and VmHWM 117628 kB, both at the full frame [0, 0, 4608, 2592].
+# The spec's rules: limit = VmPeak x 1.25; pre-check = VmHWM + 30 MiB.
+SHRINK_MEM_LIMIT_BYTES = 166735 * 1024       # 133388 kB x 1.25 (162.8 MiB)
+SHRINK_MIN_AVAIL_BYTES = (117628 + 30 * 1024) * 1024   # 148348 kB (144.9 MiB)
+# A shrink that runs past this is killed (rfb=time: today's JPEG goes out, the wake goes on).
+# MEASURED in live wakes on bmcam004 at the full frame (G1 b, PR #186 @ 4783220d, RESULTS_G1b.md
+# W1-W4 + keyed K1-K3): 19.1-21.9 s over 7 wakes, so 30 s leaves ~1.4x, not the 3x the first
+# estimate assumed (Sunday's bench harness, ~10 s). PE 007 ruled 30 s stays (Thu 10/22, QE N1):
+# even a 30 s shrink keeps the wake under the 481 s bar. An rfb=time in the RC soak fails must
+# do 16's 0 rfb bar (F10).
+SHRINK_MAX_S = 30.0
+SHRINK_JOB, SHRINK_RESULT = "shrink_job.json", "shrink_result.json"
+# G1 (b) only (the spec's "one live wake with the shrink fallback forced"): a ONE-SHOT file next
+# to this module, holding "limit" (the child runs under SHRINK_FORCE_LIMIT_BYTES) or "avail"
+# (the pre-check refuses, whatever MemAvailable is). Read and deleted by the next shrink; absent on
+# every unit unless a TE writes it, so no unit can be left forced.
+SHRINK_FORCE_FLAG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "FORCE_SHRINK_FALLBACK")
+SHRINK_FORCE_LIMIT_BYTES = 32 * 2 ** 20
 
 # Byte-target search (Nick 2026-10-03, rig PR #89 compression_study/presets/
 # PROPOSAL_byte_target.md). The prior is FITTED on the rig's 2026-10-03 nereus002 sweep
@@ -553,18 +583,15 @@ def _conv3(p, k, r0, n, w):
     return out
 
 
-def rgb_codes(mosaic, cfa, black, white, g, s_x10000, strip_rows=RGB_STRIP_ROWS):
-    """Mosaic -> uint16 h x w x 3 codes of B3a (DESIGN_B3a.md §1 steps 2-3): normalise,
-    bilinear demosaic (the classic masked 3x3 kernels; reflect padding keeps the CFA
-    phase), x g / s, then the v1 curve code = floor(sqrt(v) x 4095 + 0.5) (= CONTAINER.md
-    §3 with v = (raw - black) / (white - black)). Row strips of `strip_rows` + a 1-row halo
-    bound the float32 temporaries to ~8 arrays of (strip + 2) x (w + 2) x 4 B (~3.4 MB at
-    64 x 1600); the output codes are h x w x 3 x 2 B (8.6 MB at 1600x900)."""
+def _rgb_strips(mosaic, cfa, black, white, g, s_x10000, strip_rows=RGB_STRIP_ROWS):
+    """The B3a demosaic, one row strip at a time: yields (y0, y1, v) with v the float32
+    (y1 - y0) x w x 3 coded linear values (normalised, bilinear demosaic, x g / s, clipped to
+    0..1) of mosaic rows y0..y1-1. rgb_codes codes every strip at native density; the S3
+    shrink (rgb_codes_shrunk) area-averages each strip, so neither holds the crop's full RGB."""
     import numpy as np
     h, w = mosaic.shape
     s = s_x10000 / 10000.0
     mul = np.asarray(g, np.float32) / np.float32(s)
-    out = np.empty((h, w, 3), np.uint16)
     xs = np.arange(-1, w + 1)
     for y0 in range(0, h, strip_rows):
         y1 = min(h, y0 + strip_rows)
@@ -580,8 +607,92 @@ def rgb_codes(mosaic, cfa, black, white, g, s_x10000, strip_rows=RGB_STRIP_ROWS)
             chans.append(_conv3(p * m[c], k, r0, n, w))
         v = np.stack(chans, -1) * mul
         np.clip(v, 0.0, 1.0, out=v)               # float rounding only: s bounds v <= 1
+        yield y0, y1, v
+
+
+def rgb_codes(mosaic, cfa, black, white, g, s_x10000, strip_rows=RGB_STRIP_ROWS):
+    """Mosaic -> uint16 h x w x 3 codes of B3a (DESIGN_B3a.md §1 steps 2-3): normalise,
+    bilinear demosaic (the classic masked 3x3 kernels; reflect padding keeps the CFA
+    phase), x g / s, then the v1 curve code = floor(sqrt(v) x 4095 + 0.5) (= CONTAINER.md
+    §3 with v = (raw - black) / (white - black)). Row strips of `strip_rows` + a 1-row halo
+    bound the float32 temporaries to ~8 arrays of (strip + 2) x (w + 2) x 4 B (~3.4 MB at
+    64 x 1600); the output codes are h x w x 3 x 2 B (8.6 MB at 1600x900)."""
+    import numpy as np
+    h, w = mosaic.shape
+    out = np.empty((h, w, 3), np.uint16)
+    for y0, y1, v in _rgb_strips(mosaic, cfa, black, white, g, s_x10000, strip_rows):
         out[y0:y1] = np.floor(np.sqrt(v) * CODE_MAX + 0.5).astype(np.uint16)
     return out
+
+
+# ---------------------------------------------------------------------------
+# crop view S3: a crop larger than 1600x900 shrunk to RAW_OUT_WH (docs/specs/crop_view_s3.md)
+# ---------------------------------------------------------------------------
+
+def output_scale_x10000(w):
+    """params[26] (must do 1): round(1600 / w x 10000), half away from zero (CONTAINER.md §2,
+    scaled). 10000 for a crop sent at native density. The backend's coded size is
+    round(w x s) x round(h x s), = exactly 1600 x 900 for every even 16:9 crop wider than 1600
+    (tests/test_s3_crop_view.py checks all of them)."""
+    return scaled(RAW_OUT_WH[0] / float(w), 10000)
+
+
+def area_taps(n_in, n_out):
+    """Exact pixel-area weights of an n_in -> n_out shrink (n_in >= n_out), what
+    cv2.resize(..., INTER_AREA) computes: output i covers input [i k, (i + 1) k), k = n_in /
+    n_out, and input j's weight is its overlap with that interval / k. Integer arithmetic
+    (units of 1 / n_out), so no boundary rounding. -> (idx, wts): int64 / float64 (n_out, T),
+    output i = sum_t in[idx[i, t]] x wts[i, t] (padded taps carry weight 0)."""
+    import numpy as np
+    if n_out > n_in:
+        raise ValueError(f"area_taps: {n_in} -> {n_out} is an upscale")
+    taps = []
+    for i in range(n_out):
+        a, b = i * n_in, (i + 1) * n_in                       # [a, b) in units of 1 / n_out
+        row = []
+        for j in range(a // n_out, -(-b // n_out)):
+            ov = min(b, (j + 1) * n_out) - max(a, j * n_out)
+            if ov > 0:
+                row.append((j, ov / float(n_in)))
+        taps.append(row)
+    t = max(len(r) for r in taps)
+    idx = np.zeros((n_out, t), np.int64)
+    wts = np.zeros((n_out, t), np.float64)
+    for i, row in enumerate(taps):
+        for k, (j, wt) in enumerate(row):
+            idx[i, k], wts[i, k] = j, wt
+    return idx, wts
+
+
+def rgb_codes_shrunk(mosaic, cfa, black, white, g, s_x10000, out_wh=RAW_OUT_WH,
+                     strip_rows=RGB_STRIP_ROWS):
+    """Must do 1: the crop demosaiced exactly as rgb_codes (same strips, same g / s), area-
+    averaged in coded LINEAR light to out_wh, then the same curve code. Strip by strip: each
+    demosaiced strip is shrunk across (area_taps on the columns) and its rows are added into
+    the out_h x out_w x 3 float32 result with their exact row overlaps, so the crop's full RGB is
+    never held (whole sensor: mosaic 23.9 MB + result 17.3 MB + one strip's temporaries).
+    The averages stay <= 1, so the header's headroom s (computed on the mosaic) still bounds
+    them. -> uint16 out_h x out_w x 3 codes."""
+    import numpy as np
+    h, w = mosaic.shape
+    ow, oh = (int(v) for v in out_wh)
+    xi, xw = area_taps(w, ow)
+    xw = xw.astype(np.float32)
+    acc = np.zeros((oh, ow, 3), np.float32)
+    for y0, y1, v in _rgb_strips(mosaic, cfa, black, white, g, s_x10000, strip_rows):
+        across = np.zeros((y1 - y0, ow, 3), np.float32)
+        for t in range(xi.shape[1]):
+            across += v[:, xi[:, t], :] * xw[None, :, t, None]
+        v = None
+        for r in range(y1 - y0):
+            y = y0 + r                                  # input row [y, y + 1) in units 1 / oh
+            a, b = y * oh, (y + 1) * oh
+            for o in range(a // h, min(oh, -(-b // h))):
+                ov = min(b, (o + 1) * h) - max(a, o * h)
+                if ov > 0:
+                    acc[o] += across[r] * np.float32(ov / float(h))
+    np.clip(acc, 0.0, 1.0, out=acc)
+    return np.floor(np.sqrt(acc) * CODE_MAX + 0.5).astype(np.uint16)
 
 
 def rgb_linear_from_codes(codes, g, s_x10000):
@@ -807,9 +918,12 @@ GUARD_SH = ('echo {adj} > /proc/self/oom_score_adj 2>/dev/null; '
     adj=ENCODER_OOM_SCORE_ADJ, kib=ENCODER_MEM_LIMIT_BYTES // 1024)
 
 
-def guarded(cmd):
-    """argv -> the same argv under the encoder guards (GUARD_SH)."""
-    return ["/bin/sh", "-c", GUARD_SH] + list(cmd)
+def guarded(cmd, mem_kib=None):
+    """argv -> the same argv under the encoder guards (GUARD_SH). mem_kib: another RLIMIT_AS
+    (the S3 shrink child, SHRINK_MEM_LIMIT_BYTES); None = the encoder's, GUARD_SH unchanged."""
+    sh = GUARD_SH if mem_kib is None else GUARD_SH.replace(
+        f"ulimit -v {ENCODER_MEM_LIMIT_BYTES // 1024} ", f"ulimit -v {int(mem_kib)} ")
+    return ["/bin/sh", "-c", sh] + list(cmd)
 
 
 _MEM_SIGNALS = {signal.SIGKILL, signal.SIGABRT, signal.SIGSEGV, getattr(signal, "SIGBUS", 7)}
@@ -845,8 +959,8 @@ def self_rss_kb():
     return None
 
 
-def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
-    """Run one encoder child under the guards.
+def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05, mem_kib=None):
+    """Run one encoder child under the guards (mem_kib: see guarded).
     -> {rc, kind, seconds, peak_rss_kb, maxrss_incl_parent_kb}
 
     kind: "ok" (rc 0), "time" (killed at timeout_s), "mem" (killed by a signal the
@@ -868,8 +982,8 @@ def run_capped(cmd, *, timeout_s, stdout_path, stderr_path, poll_s=0.05):
     comm = os.path.basename(cmd[0])[:15]          # the kernel's comm is 15 chars at most
     hwm = None
     with open(stdout_path, "wb") as out, open(stderr_path, "wb") as err:
-        p = subprocess.Popen(guarded(cmd), stdout=out, stderr=err, stdin=subprocess.DEVNULL,
-                             close_fds=True)
+        p = subprocess.Popen(guarded(cmd, mem_kib), stdout=out, stderr=err,
+                             stdin=subprocess.DEVNULL, close_fds=True)
         status = rusage = None
         killed = False
         while True:
@@ -925,6 +1039,170 @@ def cjxl_command(cjxl, src, dst, distance, effort):
     """The measured invocation (SPEC §3.5; rig pi_bench.py:196-197): modular, one thread."""
     return [cjxl, str(src), str(dst), "-m", "1", "-e", str(int(effort)),
             "-d", f"{float(distance):.4f}", "--num_threads=0"]
+
+
+# ---------------------------------------------------------------------------
+# crop view S3: the shrink child (must do 5) -- DNG read + demosaic + shrink in its own process
+# ---------------------------------------------------------------------------
+
+def _status_kb(field, path="/proc/self/status"):
+    """One `field:` (KiB) of a /proc status file, or None (off Linux)."""
+    try:
+        with open(path) as fh:
+            for line in fh:
+                if line.startswith(field + ":"):
+                    return int(line.split()[1])
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+def mem_available_bytes():
+    """/proc/meminfo MemAvailable in bytes, or None (off Linux: the pre-check is skipped)."""
+    kb = _status_kb("MemAvailable", "/proc/meminfo")
+    return None if kb is None else kb * 1024
+
+
+def shrink_child(job_path):
+    """The child's whole job (`rc_raw_jxl.py --shrink-child <job.json>`): read the crop rows of
+    the DNG, the headroom on the mosaic, rgb_codes_shrunk, write <work>/rgb.ppm (+ the kept crop
+    when asked), then <work>/shrink_result.json with the header fields, the timings and this
+    process's own VmPeak / VmHWM (G1 a measures must do 5's constants from them). Every handled
+    failure is a result with an rfb (dng / shrink on MemoryError / err). -> exit code."""
+    os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")     # before numpy: no BLAS thread pools
+    os.environ.setdefault("OMP_NUM_THREADS", "1")
+    res, t0 = {}, time.monotonic()
+    out_path = None
+    try:
+        with open(job_path, "r", encoding="utf-8") as fh:
+            job = json.load(fh)
+        out_path = os.path.join(job["work_dir"], SHRINK_RESULT)
+        try:
+            crop = read_dng_crop(job["dng"], job["crop"])
+        except DngError as exc:
+            raise RawFallback("dng", str(exc))
+        res["dng_read_s"] = round(time.monotonic() - t0, 3)
+        if job.get("keep_crop_path"):
+            write_pgm(job["keep_crop_path"], crop["mosaic"], maxval=crop["white"])
+        t1 = time.monotonic()
+        g = tuple(job["gains"])
+        hx = headroom_x10000(crop["mosaic"], crop["cfa"], crop["black"], crop["white"], g)
+        codes = rgb_codes_shrunk(crop["mosaic"], crop["cfa"], crop["black"], crop["white"], g,
+                                 hx, out_wh=job["out_wh"])
+        slim = slim_crop(crop)
+        crop = None
+        write_ppm(os.path.join(job["work_dir"], RGB_PPM), codes)
+        codes = None
+        res.update(slim, headroom_x10000=hx, rgb_prep_s=round(time.monotonic() - t1, 3))
+    except RawFallback as exc:
+        res.update(rfb=exc.code, detail=exc.detail)
+    except MemoryError as exc:
+        res.update(rfb="shrink", detail=f"MemoryError in the shrink child: {exc}")
+    except Exception as exc:
+        res.update(rfb="err", detail=f"{type(exc).__name__}: {exc}")
+    res["vm_peak_kb"], res["vm_hwm_kb"] = _status_kb("VmPeak"), _status_kb("VmHWM")
+    res["child_s"] = round(time.monotonic() - t0, 3)
+    if out_path is None:
+        print(f"[RAW][SHRINK] child: no job ({res.get('detail')})", file=sys.stderr)
+        return 2
+    tmp = out_path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(res, fh)
+    os.replace(tmp, out_path)
+    return 0 if "rfb" not in res else 3
+
+
+def _shrink_force():
+    """The one-shot G1 (b) flag (SHRINK_FORCE_FLAG): "limit" / "avail" / None. Deleted here."""
+    try:
+        with open(SHRINK_FORCE_FLAG, "r", encoding="utf-8") as fh:
+            how = fh.read().strip()
+    except OSError:
+        return None
+    remove_quietly(SHRINK_FORCE_FLAG)
+    return how if how in ("limit", "avail") else None
+
+
+def shrink_crop(dng_path, crop_xywh, gains, *, work_dir, timeout_s, keep_crop_path=None,
+                out_wh=RAW_OUT_WH, runner=None, mem_available=None,
+                mem_limit_bytes=None, min_avail_bytes=None, log=print):
+    """Must dos 1 + 5 in the supervisor: the pre-check (ii), then the shrink child under
+    RLIMIT_AS (i). -> (slim crop dict for the container: native crop w x h + headroom +
+    output_scale_x10000, timings). Raises RawFallback: shrink (pre-check, limit, kill, or a
+    child that died without a result), time (past timeout_s), dng / err (the child's own)."""
+    limit = SHRINK_MEM_LIMIT_BYTES if mem_limit_bytes is None else int(mem_limit_bytes)
+    need = SHRINK_MIN_AVAIL_BYTES if min_avail_bytes is None else int(min_avail_bytes)
+    forced = _shrink_force()
+    if forced == "limit":
+        limit = SHRINK_FORCE_LIMIT_BYTES
+    if forced:
+        log(f"[RAW][SHRINK][TEST] {SHRINK_FORCE_FLAG} = {forced}: this shrink is forced to "
+            "fail (G1 b); the flag is now deleted")
+    timings = {"shrink_mem_limit_kb": limit // 1024, "shrink_min_avail_kb": need // 1024}
+    avail = (mem_available or mem_available_bytes)()
+    timings["shrink_mem_available_kb"] = None if avail is None else avail // 1024
+    if forced == "avail":
+        raise RawFallback("shrink", f"pre-check forced by {SHRINK_FORCE_FLAG} (G1 b): the "
+                                    "shrink did not start", timings=timings)
+    if avail is not None and avail < need:
+        raise RawFallback("shrink", f"MemAvailable {avail // 1024} KiB < "
+                                    f"{need // 1024} KiB: the shrink did not start",
+                          timings=timings)
+    if timeout_s <= 0:
+        raise RawFallback("time", f"no time left for the shrink ({timeout_s:.1f} s)",
+                          timings=timings)
+    os.makedirs(work_dir, exist_ok=True)
+    job_path, out_path = (os.path.join(work_dir, n) for n in (SHRINK_JOB, SHRINK_RESULT))
+    remove_quietly(out_path)
+    with open(job_path, "w", encoding="utf-8") as fh:
+        json.dump({"dng": dng_path, "crop": [int(v) for v in crop_xywh], "gains": list(gains),
+                   "out_wh": list(out_wh), "work_dir": work_dir,
+                   "keep_crop_path": keep_crop_path}, fh)
+    argv = [sys.executable, os.path.abspath(__file__), "--shrink-child", job_path]
+    log(f"[RAW][SHRINK] {crop_xywh[2]}x{crop_xywh[3]} -> {out_wh[0]}x{out_wh[1]} in a child "
+        f"(RLIMIT_AS {limit // 2 ** 20} MiB, MemAvailable "
+        f"{'n/a' if avail is None else f'{avail // 2 ** 20} MiB'} >= {need // 2 ** 20} MiB, "
+        f"timeout {timeout_s:.0f} s)")
+    try:
+        r = (runner or run_capped)(argv, timeout_s=timeout_s,
+                                   stdout_path=os.path.join(work_dir, "shrink.out"),
+                                   stderr_path=os.path.join(work_dir, "shrink.err"),
+                                   mem_kib=limit // 1024)
+    except OSError as exc:
+        raise RawFallback("err", f"the shrink child could not start: {exc}", timings=timings)
+    timings["shrink_s"] = r["seconds"]
+    try:
+        with open(out_path, "r", encoding="utf-8") as fh:
+            res = json.load(fh)
+    except (OSError, ValueError):
+        res = None
+    if res is not None:
+        timings.update({k: res.get(k) for k in ("dng_read_s", "rgb_prep_s", "child_s")
+                        if res.get(k) is not None})
+        timings["shrink_vm_peak_kb"], timings["shrink_vm_hwm_kb"] = (res.get("vm_peak_kb"),
+                                                                     res.get("vm_hwm_kb"))
+    timings["shrink_peak_rss_kb"] = r.get("peak_rss_kb")
+    if r["kind"] == "time":
+        raise RawFallback("time", f"the shrink ran past {timeout_s:.0f} s (killed)",
+                          timings=timings)
+    if res is not None and res.get("rfb"):
+        raise RawFallback(res["rfb"], f"shrink child: {res.get('detail')}", timings=timings)
+    if r["kind"] != "ok" or res is None:
+        # killed (OOM / RLIMIT signal), or died before it could write its result (e.g. the
+        # interpreter itself failed to map under the limit): the limit, as far as we can tell
+        raise RawFallback("shrink", f"the shrink child failed: {r['kind']} rc={r['rc']} after "
+                                    f"{r['seconds']} s (RLIMIT_AS {limit // 2 ** 20} MiB)",
+                          timings=timings)
+    w, h = int(crop_xywh[2]), int(crop_xywh[3])
+    if (res.get("w"), res.get("h")) != (w, h):
+        raise RawFallback("err", f"shrink child read {res.get('w')}x{res.get('h')}, crop is "
+                                 f"{w}x{h}", timings=timings)
+    slim = {k: res[k] for k in ("cfa", "black", "white", "native_w", "native_h", "w", "h",
+                                "headroom_x10000")}
+    slim["output_scale_x10000"] = output_scale_x10000(w)
+    slim["out_wh"] = [int(out_wh[0]), int(out_wh[1])]
+    remove_quietly(job_path)
+    return slim, timings
 
 
 # ---------------------------------------------------------------------------
@@ -1099,7 +1377,9 @@ class _Walk:
         if rgb:
             params = build_params_v2(crop_xywh=self.xywh, native_wh=native, crc=0,
                                      colour=self.meta, distance=distance, effort=effort,
-                                     headroom_x10000=self.crop["headroom_x10000"])
+                                     headroom_x10000=self.crop["headroom_x10000"],
+                                     output_scale_x10000=self.crop.get("output_scale_x10000",
+                                                                       10000))
         else:
             params = build_params(crop_xywh=self.xywh, native_wh=native, crc=0,
                                   colour=self.meta, distance=distance, effort=self.cfg["effort"])
@@ -1194,7 +1474,9 @@ def target_search(walk):
     fitted below d_max (the caller then walks the fixed rungs)."""
     cfg = walk.cfg
     fill, d_max = float(cfg["target_fill"]), float(cfg["d_max"])
-    area = int(walk.xywh[2]) * int(walk.xywh[3])
+    # the CODED area: a shrunk crop (S3) codes out_wh pixels, whatever its native rect
+    cw, ch = walk.crop.get("out_wh") or walk.xywh[2:4]
+    area = int(cw) * int(ch)
     est_s = 0.0
     aim = fill * walk.room_bytes(walk.room_msgs())
     if aim <= 0:
@@ -1333,10 +1615,13 @@ def rung_walk(crop, codes, meta_params, cfg, **kw):
 
 def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chunk_b64_chars,
                  reserve_msgs=0, fallback_msgs=0, work_dir, cjxl=None, runner=run_capped,
-                 keep_crop_path=None, clock=time.monotonic, log=print):
+                 keep_crop_path=None, clock=time.monotonic, log=print, shrink_runner=None,
+                 mem_available=None):
     """Path [B] for one wake: DNG crop -> planes -> rate choice (search / rungs) -> NR blob.
-    -> result dict (rung_walk + timings). Raises RawFallback(code) for EVERY failure
-    (an unexpected exception becomes rfb=err), never anything else."""
+    A B3a crop larger than RAW_MAX_PX (16:9 only) is shrunk to RAW_OUT_WH first, in the
+    shrink child (shrink_crop; crop view S3). -> result dict (rung_walk + timings). Raises
+    RawFallback(code) for EVERY failure (an unexpected exception becomes rfb=err), never
+    anything else."""
     timings = {}
     try:
         if cjxl is None:
@@ -1344,10 +1629,24 @@ def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chu
         if not cjxl:
             raise RawFallback("enc", "cjxl not found on PATH")
         x, y, w, h = (int(v) for v in crop_xywh)
-        if w * h > RAW_MAX_PX:
-            raise RawFallback("err", f"crop {w}x{h} exceeds RAW_MAX_PX {RAW_MAX_PX} "
-                                     "(config_validate should have refused it)")
+        out_wh = (w, h) if _ALLOW_ANY_CROP else raw_crop_output_wh(w, h)
+        if out_wh is None:
+            raise RawFallback("err", f"crop {w}x{h} is larger than {RAW_OUT_WH[0]}x"
+                                     f"{RAW_OUT_WH[1]} and not 16:9 (config_validate should "
+                                     "have refused it)")
+        shrink = tuple(out_wh) != (w, h)
+        if shrink and cfg.get("layout") != LAYOUT_RGB:
+            raise RawFallback("err", f"crop {w}x{h} needs the shrink, which is B3a (layout "
+                                     f"rgb) only; layout is {cfg.get('layout')}")
         meta_params = colour_params(metadata or {})
+        if shrink:
+            return _encode_shrunk(dng_path, meta_params, cfg, crop_xywh=crop_xywh,
+                                  out_wh=out_wh, budget=budget, message_cap=message_cap,
+                                  chunk_b64_chars=chunk_b64_chars, reserve_msgs=reserve_msgs,
+                                  fallback_msgs=fallback_msgs, work_dir=work_dir, cjxl=cjxl,
+                                  runner=runner, keep_crop_path=keep_crop_path, clock=clock,
+                                  log=log, shrink_runner=shrink_runner,
+                                  mem_available=mem_available, timings=timings)
         t0 = clock()
         try:
             crop = read_dng_crop(dng_path, crop_xywh)
@@ -1399,6 +1698,44 @@ def encode_still(dng_path, metadata, cfg, *, crop_xywh, budget, message_cap, chu
         raise
     except Exception as exc:                    # numpy missing, ENOSPC, anything: rfb=err
         raise RawFallback("err", f"{type(exc).__name__}: {exc}", timings=timings)
+
+
+def _encode_shrunk(dng_path, meta_params, cfg, *, crop_xywh, out_wh, budget, message_cap,
+                   chunk_b64_chars, reserve_msgs, fallback_msgs, work_dir, cjxl, runner,
+                   keep_crop_path, clock, log, shrink_runner, mem_available, timings):
+    """encode_still for a crop larger than RAW_MAX_PX (crop view S3 must dos 1, 5): the shrink
+    child writes <work>/rgb.ppm at out_wh, then the same rate choice as a native crop. The
+    container keeps the native crop rect (header w x h, params crop x / y) and carries the
+    output scale in params[26]; only the JPEG XL stream is out_wh. The supervisor never holds
+    the crop's pixels. Its time limit: SHRINK_MAX_S, and never into the fallback's send time."""
+    pace = float(budget.seconds_per_message)
+    fallback_s = (int(fallback_msgs) + 2 + int(reserve_msgs)) * pace
+    timeout_s = min(SHRINK_MAX_S, budget.remaining_s() - fallback_s)
+    t0 = clock()
+    try:
+        crop, shrink_t = shrink_crop(dng_path, crop_xywh, coding_gains(meta_params),
+                                     work_dir=work_dir, timeout_s=timeout_s,
+                                     keep_crop_path=keep_crop_path, out_wh=out_wh,
+                                     runner=shrink_runner, mem_available=mem_available, log=log)
+    except RawFallback as exc:
+        exc.timings.update(timings)
+        raise
+    timings.update(shrink_t)
+    timings["headroom_x10000"] = crop["headroom_x10000"]
+    timings["shrink_total_s"] = round(clock() - t0, 3)
+    log(f"[RAW][SHRINK] rgb (B3a) {crop['w']}x{crop['h']} -> {out_wh[0]}x{out_wh[1]} written to "
+        f"{work_dir} in {timings['shrink_total_s']:.1f} s (child VmPeak="
+        f"{timings.get('shrink_vm_peak_kb')} KiB VmHWM={timings.get('shrink_vm_hwm_kb')} KiB; "
+        f"params[26]={crop['output_scale_x10000']})")
+    result = choose_rate(crop, None, meta_params, cfg, crop_xywh=crop_xywh, budget=budget,
+                         message_cap=message_cap, chunk_b64_chars=chunk_b64_chars,
+                         reserve_msgs=reserve_msgs, fallback_msgs=fallback_msgs,
+                         work_dir=work_dir, cjxl=cjxl, runner=runner, clock=clock, log=log)
+    unpack_container(result["blob"])        # our own bytes must read back (crc too)
+    result["timings"] = timings
+    result["cfa"], result["black"], result["white"] = crop["cfa"], crop["black"], crop["white"]
+    result["output_wh"] = list(out_wh)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -1470,7 +1807,13 @@ class _FixedBudget:
         return self.remaining_s() >= n * self.seconds_per_message
 
 
+_ALLOW_ANY_CROP = False       # the CLI's --allow-any-crop (R0.3 measurements): native, no rule
+
+
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["--shrink-child"] and len(argv) == 2:
+        return shrink_child(argv[1])           # the S3 shrink child (shrink_crop), not a CLI
     import argparse
     ap = argparse.ArgumentParser(description="Sprint28 path [B] on one DNG (no BM bus).")
     ap.add_argument("--dng", required=True)
@@ -1489,12 +1832,11 @@ def main(argv=None):
     ap.add_argument("--message-cap", type=int, default=195)
     ap.add_argument("--chunk-chars", type=int, default=384)
     ap.add_argument("--allow-any-crop", action="store_true",
-                    help="R0.3 only: lift RAW_MAX_PX for the opt-in preset measurements")
+                    help="R0.3 only: any crop at native density (no output rule, no shrink)")
     ap.add_argument("--out", required=True)
     args = ap.parse_args(argv)
-    global RAW_MAX_PX
-    if args.allow_any_crop:
-        RAW_MAX_PX = 4608 * 2592
+    global _ALLOW_ANY_CROP
+    _ALLOW_ANY_CROP = bool(args.allow_any_crop)
     crop = [int(v) for v in args.crop.split(",")]
     cfg = dict(DEFAULT_CONFIG, distances=parse_distances(args.distances), effort=args.effort,
                encode_max_s=args.encode_max_s, target_fill=args.target_fill, d_max=args.d_max,

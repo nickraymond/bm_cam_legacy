@@ -4333,6 +4333,10 @@
     "still.format": "nrjxl"
    },
    "crop_even": true,
+   "larger_crop_aspect": [
+    16,
+    9
+   ],
    "presets": [
     [
      "1600x900 native (default)",
@@ -4347,6 +4351,78 @@
      }
     ],
     [
+     "full frame",
+     {
+      "still.crop": [
+       0,
+       0,
+       4608,
+       2592
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
+     "3072x1728 wide",
+     {
+      "still.crop": [
+       768,
+       432,
+       3072,
+       1728
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
+     "2304x1296 mid",
+     {
+      "still.crop": [
+       1152,
+       648,
+       2304,
+       1296
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
+     "1000x562 max detail",
+     {
+      "still.crop": [
+       1804,
+       1014,
+       1000,
+       562
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
+     "800x450 reef A",
+     {
+      "still.crop": [
+       1904,
+       1070,
+       800,
+       450
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
+     "640x360 reef B",
+     {
+      "still.crop": [
+       1984,
+       1116,
+       640,
+       360
+      ],
+      "still.format": "nrjxl"
+     }
+    ],
+    [
      "back to pjpg",
      {
       "still.format": "pjpg"
@@ -4354,6 +4430,10 @@
     ]
    ],
    "raw_max_px": 1440000,
+   "raw_output_wh": [
+    1600,
+    900
+   ],
    "requires": {
     "uplink.media_key.enabled": true,
     "uplink.network_type": 2
@@ -4488,7 +4568,7 @@
   "video.ui.enabled": [[null,false],[true,true],[false,true],[0,false],[1,false],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false]],
   "video.ui.port": [[null,false],[true,false],[false,false],[0,false],[1,true],[-1,false],[2.5,false],[-8.5,false],[8.0,false],[100000,false],["",false],["x",false],["auto",false],["12:00",false],["25:00",false],["480x270",false],["481x271",false],["0x10",false],["UTC",false],["Not/AZone",false],["a#b",false],[[1,2,3,4],false],[[0,0,4608,2592],false],[[1504,846,1600,900],false],[[-1,0,10,10],false],[[15,13,11,9],false],[[9,11],false],[[1.8,1.6],false],[[1.8,0],false],[[1,2],false],["/abs/path",false],["2026-01-01T00:00:00+00:00",false],[8080,true],[65535,true],[65536,false]]
  },
- "sha256": "fb560f88ebcc959faab63ef79c318ce4ed318f92108a0a3439c47cb17465facc",
+ "sha256": "f304cbf1b378db826d27d2341c0360cba44612ba5437c41258b33bd0b6b9ceae",
  "video_geometry": {
   "default_sensor_mode_order": [
    "2304x1296",
