@@ -6,9 +6,9 @@ Written by TE5, Thu 10/22 ~10 AM PDT. Card `runs/cmd_coverage_20261019/TEST_CARD
 cut** (last row Tue ~7 PM PDT). This write-up was due Wed noon; it is late (stand-down Wed, approvals Thu 9:52 AM). No
 new rows were run.
 
-Inputs → outputs: `gen_verdicts.py` (sha256 f70dc3bc7fe5) reads matrix.csv, `matrix_verdicts_draft.csv` (TE4's Tue
-desk tally), TE4_rows_tue.md, timing_groups.json / TIMING_RESULTS.md and the PE 006 rulings 1–6 (sha256 8e62cbfebe4a).
-It writes `matrix_final.csv` (sha256 96d04d100a53; committed to git as matrix.csv) and `verdict_changes.csv`.
+Inputs → outputs: `gen_verdicts.py` (sha256 08230cdf993b) reads matrix.csv, `matrix_verdicts_draft.csv` (TE4's Tue
+desk tally), TE4_rows_tue.md, timing_groups.json / TIMING_RESULTS.md and the PE 006/007 rulings 1–10 (sha256 d5c097847c7f).
+It writes `matrix_final.csv` (sha256 a51ce193d0c0; committed to git as matrix.csv) and `verdict_changes.csv`.
 
 ## Answer
 - **Tier 1 = 78 rows (10 verbs + 68 backend-writable keys): every row has a verdict with evidence.**
@@ -18,21 +18,23 @@ It writes `matrix_final.csv` (sha256 96d04d100a53; committed to git as matrix.cs
 - **One UNSAFE verb: `trg`. Nick decides** (spec: an UNSAFE verb can't be blocked at the backend by key).
 - **Desk check (must do 7): catalog v14 = camera registry @ 2cc1afdb, 0 mismatches** on every field of all 68 Tier 1
   keys (all 115 keys equal; X3_catalog_vs_registry.md).
-- **bmcam004 restore: NOT done yet.** nereus000 (consoles) has been down since Wed ~8:45 PM. Nick power-cycles it Thu
-  ~10 AM; the restore runs after that (Nick's Thu 9:52 AM line).
+- **bmcam004 restore: NOT done yet.** nereus000 (the console host) lost external power Wed 6:45 PM and shut down on an
+  empty battery at 8:50 PM. A Thu 10 AM power cycle booted it on battery only (VIN 22 mV), so the supply needs fixing
+  first. The restore runs after that (Nick's Thu 9:52 AM line).
 
 ## UNSAFE rows, in plain words
 | row | what happened | catalog tier | action |
 |---|---|---|---|
 | mode.run = stay_on | The unit never halts by design: awake 1615 s (bar 481 s). On a buoy it drains the battery. | control | backend blocks stay_on for SPOT-33361C (PE 006 ruling 1) |
 | mode.interval_s, mode.heartbeat_s | They act only with stay_on (same 1615 s boot) | control | same as stay_on (key or value, backend's call) |
-| still.budget_min = 12 | Raises the wake ceiling to 720 s; commanded wake ran 591 s | control | backend blocks values that let a wake pass 481 s (ruling 4). No smaller value was measured. |
-| video.send.budget_min = 15 | Raises the ceiling to 900 s; commanded wake ran 678 s | control | as still.budget_min |
-| verb `trg` | Two triggers in one wake ran 527 s (V2-2). Separately, 3 trg acks were lost in one listen window; a same-id resend showed they had been received and answered (logged as one C2 loss) | verb | **Nick:** e.g. at most one trg per wake at the backend, or a camera change (ruling 2) |
+| still.budget_min = 12 | Raises the wake ceiling to 720 s; commanded wake ran 591 s | control | backend: only 8 (today's value) stays sendable (rulings 4, 8) |
+| video.send.budget_min = 15 | Raises the ceiling to 900 s; commanded wake ran 678 s | control | as still.budget_min: only 8 sendable |
+| verb `trg` | Two triggers in one wake ran 527 s (V2-2). Separately, a firing trg ends the listen window after 4 s, so 3 other commands that wake got no ack (received + answered; 3 C2 losses, ruling 10) | verb | **Nick:** e.g. at most one trg per wake at the backend, or a camera change (ruling 2) |
 
-Also counts UNSAFE for the backend until the PE rules: **video.record.crop at the full sensor [0,0,4608,2592]**. Its
+Also UNSAFE for the backend (ruling 9): **video.record.crop at the full sensor [0,0,4608,2592]**. Its
 row is SAFE at [768,432,3072,1728] (timed in G9, 421.5 s). The full-sensor value ran only on a commanded boot (507 s
-commit→dark, information only), so its wake time was never measured on a command-free boot (ruling 5 / C6).
+commit→dark, information only), so its wake time was never measured on a command-free boot (ruling 5 / C6). Backend
+blocks that value (value-level if the catalog can).
 
 Tier 2, outside the backend's reach: **power.bus_always_on = true is UNSAFE** (held wake 624 s, ruling 1). Catalog v14
 already marks it `blocked` (not backend-writable), so the backend needs no change.
@@ -68,13 +70,15 @@ already marks it `blocked` (not backend-writable), so the backend needs no chang
 6. **mode.media `video_logger` and mode.output `save_local` are blocked values at the backend** (catalog v14), so the
    backend can never send them; the camera accepts them (save_local tested on the console).
 
-## Open for the PE (desk, no hardware)
-- `hld` boots V2-1/V3-1 ran 509 s commit→dark, like other commanded boots (~507 s). V2-2 (527 s, same measure) was
-  ruled UNSAFE. Is the bar commit→dark on commanded boots, or halt uptime on command-free boots only?
-- Budget keys: the catalog default is 18 min, above the UNSAFE 12/15. Ruling 4 says "only today's value stays sendable".
-  Which value is that for SPOT-33361C?
-- video.record.crop full-sensor value: is G9 its worst case, or does it stay blocked?
-- `trg` C2: 3 lost acks in one window were counted as one loss. Is that one C2 loss or three?
+## PE rulings applied after the desk draft (PE 007 rulings 7–10, same file, sha256 d5c097847c7f)
+- **7, hld:** passes (d). Both hld boots (V2-1, V3-1) ran 509 s commit→dark, within the run's commanded-boot baseline of
+  510 s (B52-exposure-manual-set, step.log:265-270; hld_baseline_ruling7.txt). H2-effect's hld 5 ran 618 s commit→dark only because
+  power.bus_always_on was true, which lifts the clamp; that row is UNSAFE and catalog-blocked.
+- **8, budget keys:** the value in use today is 8 min (NOAA soak profile), and the catalog default of 18 was never
+  timed, so **only 8 stays sendable** to SPOT-33361C for still.budget_min and video.send.budget_min.
+- **9, video.record.crop full sensor:** G9 doesn't bound it (2.25× the pixels), so it **counts UNSAFE for the backend**.
+- **10, trg C2:** 3 losses (one per command), not 1. The verdict is unchanged (already UNSAFE). Cause: a firing trg ends the
+  listen window after 4 s, so other commands in that wake get no ack until a same-id resend.
 
 ## Crop answer (spec must do 6, Nick's 195-message question)
 From the Sun 10/18 encode-only sweep (~/NereusData/bm_cam_legacy/2026-10-18_crop_sweep_bmcam004/RESULTS.md):
