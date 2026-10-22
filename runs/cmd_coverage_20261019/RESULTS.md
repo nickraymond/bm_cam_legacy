@@ -18,9 +18,14 @@ It writes `matrix_final.csv` (sha256 a51ce193d0c0; committed to git as matrix.cs
 - **One UNSAFE verb: `trg`. Nick decides** (spec: an UNSAFE verb can't be blocked at the backend by key).
 - **Desk check (must do 7): catalog v14 = camera registry @ 2cc1afdb, 0 mismatches** on every field of all 68 Tier 1
   keys (all 115 keys equal; X3_catalog_vs_registry.md).
-- **bmcam004 restore: NOT done yet.** nereus000 (the console host) lost external power Wed 6:45 PM and shut down on an
-  empty battery at 8:50 PM. A Thu 10 AM power cycle booted it on battery only (VIN 22 mV), so the supply needs fixing
-  first. The restore runs after that (Nick's Thu 9:52 AM line).
+- **bmcam004 restore: done Thu 10/22 10:17 AM PDT, apart from the uncommanded-wake check.** It ran a day late:
+  nereus000 was off from Wed 8:50 PM to Thu ~10 AM. Steps:
+  - One forced boot (steps/RESTORE-overlay.txt): `reset all` (67435) and the backed-up soak overlay (67436–67438) gave
+    **cfg a4e668c5** (67438/67439 acks), equal to the backup's. That boot sent a keyed image (0f5rm0).
+  - crontab sha256 6e7a4080 = backup; software 2cc1afdb4831 (`<WS>` line); restore_te5_unitcheck.txt.
+  - `hil_restore_schedule.sh SPOT-33507C`: PRODUCTION schedule confirmed, 3600000 / 600000 (restore_te5_schedule.out).
+  - SPOT-33507C rollout self_heal + remote_commands ON, with the GET before and after logged (rollout_on_te5.txt).
+  - Window 07:00–12:00 LA as backed up (Nick's line).
 
 ## UNSAFE rows, in plain words
 | row | what happened | catalog tier | action |
@@ -93,4 +98,4 @@ From the Sun 10/18 encode-only sweep (~/NereusData/bm_cam_legacy/2026-10-18_crop
 - commands.topic, uplink.uart.port, uplink.uart.baudrate (must do 3b): not run. They are catalog `blocked`.
 - The backend → Spotter → camera path is not shown on bmcam004 (SPOT-33507C rollout OFF during the test). It is covered
   by the soak's command bars on bmcam003 and the X3 desk check.
-- Restore (must do 9): pending (see Answer).
+- Restore (must do 9): done (see Answer); the uncommanded-wake check is pending.
