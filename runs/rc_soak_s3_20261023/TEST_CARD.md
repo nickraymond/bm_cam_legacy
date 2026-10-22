@@ -1,4 +1,9 @@
-# Test card: RC soak of the S3 crop build + NOAA profile on bmcam003 / bmcam004 (Fri 10/23 PM → Mon 10/26 AM)
+# Test card: RC soak of the S3 crop build + NOAA profile on bmcam003 / bmcam004 (start on the nvd #153 deploy, Thu 10/22 PM or later → Mon 10/26 AM)
+
+**Rev 1 (TE5, Thu 10/22 ~2:15 PM PDT):** the start moves from Fri 10/23 PM to the nvd #153 deploy (Lead 003 relayed
+Nick's wish to start as soon as the pieces are done). Nothing else changes: bars, steps, read-out instant, stop rules.
+S3 = bm development 613fb2c1 (bm #186 merged 2:01 PM; BM_Devel_Pi/ diff vs 2cc1afdb = #186's 4 files only).
+Rev 0 = 8cb183b6 (Nick's OK Thu ~2:05 PM). Rev 1 needs Nick's own line in the TE5 chat.
 
 Drafted by TE5, Thu 10/22 ~11:05 AM PDT. This is the new soak card rev that SPEC_crop_view_s3 must do 15 asks for.
 - **Spec:** `~/NereusData/ops/pe_specs/SPEC_crop_view_s3.md` rev 7.3 (sha256 f9c60448701e), must dos 13, 15, 16 and 17;
@@ -36,7 +41,8 @@ through the backend. The Mon 10/26 AM call then picks between two builds: ship S
 1. **nvd #153 deployed on staging (must do 13).** The Lead posts the sha on nick_rc_soak_lines; the TE reads the
    deployed sha the way the Lead's post names. Kill line: not deployed by Fri 10/23 noon (spec).
 2. **bm #186 merged to development** (the Lead's merge) and S3 passes the diff check above.
-3. **nereus000 on sustained power.** Today (Thu 10/22) it runs from an external battery: no wall power while the ebox is
+3. **nereus000 on sustained power.** BLOCKER as of Thu 2:15 PM: it runs from Nick's external battery pack (VIN 5.06 V,
+   its own LiFePO4 3.63 V at 2:06 PM), which won't last 3.5 days. Today (Thu 10/22) it runs from an external battery: no wall power while the ebox is
    outside, and the solar panel isn't charging on a cloudy day. Required: `lifepo4wered-cli get VIN` ≥ 4800 mV and no
    `RIG-HEALTH CRIT ... ON BATTERY` in the last 2 h. Without nereus000 there are no consoles, no preset steps and no
    monitoring.
@@ -45,7 +51,7 @@ through the backend. The Mon 10/26 AM call then picks between two builds: ship S
 5. **Backups per unit:** config YAML, `bm_command_state_v2.json` and crontab, with sha256. The S2 rollback tar is on the
    unit.
 
-## Steps (Fri 10/23 PM; TE5; console via nereus000)
+## Steps (from the nvd #153 deploy, Thu 10/22 PM or later; TE5; console via nereus000)
 1. **Hold** both buses: `hil_bus_always_on.sh SPOT-31593C` and the same for `SPOT-33507C`.
 2. **Deploy S3** on each unit: `deploy_s.sh deploy <host> <S3_7>` (rc_field_update `--ref development --leave-disarmed`),
    then `deploy_s.sh rearm <host>` and `deploy_s.sh halt <host>`. Verify the unit's sha = S3 and the crontab sha256 =
@@ -69,7 +75,7 @@ through the backend. The Mon 10/26 AM call then picks between two builds: ship S
      every command and ack in commands.log. Nick may type them at the console instead; he says which in his OK line.
 5. **Production:** `hil_restore_schedule.sh SPOT-31593C` and `SPOT-33507C`, then rollout ON (GET before/after logged).
    The scored soak starts at the first in-window production wake (08:00–17:00 wakes) after this step.
-6. **Remote revert proof, once, bmcam003 (must do 17), Sat 10/24 in the window:**
+6. **Remote revert proof, once, bmcam003 (must do 17), the first in-window hours after step 5 (Fri 10/23 if step 5 ends Thu):**
    - The TE sends through the backend: `POST /devices/BMCAM_003/remote-config/changes`
      `{"set":{"still.crop":[0,0,4608,2592]},"lane":"sofar"}`, then `POST /admin/devices/BMCAM_003/commands/<id>/send`
      (the d38 path, admin token on nereus000).
@@ -86,7 +92,7 @@ through the backend. The Mon 10/26 AM call then picks between two builds: ship S
 ## n, metric, bars (spec must do 16; worst wake decides; bmcam003 scored)
 - **n:** every image wake on bmcam003, from step 3 to the read-out:
   - 15 console preset wakes + 1 first boot + 2 revert wakes;
-  - ~10 in-window production wakes per day (Sat, Sun, Mon 08:00), ≈ 21.
+  - ~10 in-window production wakes per day (Fri if started Thu, Sat, Sun, Mon 08:00), ≈ 21–31.
   - Plus every off-window wake for the wake bars.
 - **Soak bars (parent card):** images complete ≤ 24 h; commands 100 % answered ≤ 3 h; 0 FALLBACK/ERR; every scheduled
   wake.
@@ -123,8 +129,8 @@ through the backend. The Mon 10/26 AM call then picks between two builds: ship S
   rollout ON.
 
 ## Cost
-- **Bench:** bmcam003 + bmcam004 + both Spotters + nereus000, Fri ~noon → Mon ~9 AM. No other bench work in that time.
-- **TE:** ~5 h Fri (deploy + 30 preset boots), ~1 h Sat for the revert proof, checks every 6 h, ~1 h read-out Mon.
+- **Bench:** bmcam003 + bmcam004 + both Spotters + nereus000, from the deploy (Thu PM or later) → Mon ~9 AM. No other bench work in that time.
+- **TE:** ~5 h from the deploy (deploy + 30 preset boots), ~1 h on the next in-window day for the revert proof, checks every 6 h, ~1 h read-out Mon.
 - **Nick:** his OK line (+ ~30 min at the console only if he types the presets).
 - **Cellular:** ~10 in-window images/day/unit, the preset and revert images, heals, commands.
 
