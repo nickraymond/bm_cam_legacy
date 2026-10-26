@@ -1,6 +1,6 @@
 # Runbook: bmcam002 on-land update for NOAA, Tue 10/27 (backup day Thu 10/29)
 
-TE 006, Mon 10/26. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 12.2 (sha256 530492a16542): must dos 3, 7, 8;
+TE 006, Mon 10/26. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 12.3 (sha256 becca9a321ed): must dos 3, 7, 8;
 R12-1; F1–F9. Envelope: nereus-software-engineering-team `approvals/2026-10-27_noaa_update.md` (Lead 004). bmcam002 is a
 **field unit**. Every on-unit step and every SPOT-33361C step runs only on Nick's own words in the executing TE chat
 (TEAM_RULES §6). Rehearsed on bmcam004 first (`runs/rehearsal_noaa_update_20261026/TEST_CARD.md`). Rehearsal timings
@@ -116,6 +116,13 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
     - `crop_xywh=(1504, 846, 1600, 900)`;
     - 0 `[CFG][ERR]` (desk copy `desk/print_config_target_613fb2c1.txt`).
   - Hash ≠ fe87abab or overlay ≠ 0 → stop, roll back (R).
+- M5, the runtime (spec rev 12.3 N2):
+  `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && python3 -c "import config_v2 as C; c = C.load_config(\"camera_config.yaml\"); print(c.base[\"commands.runtime\"], c.base[\"time.allow_system_fallback\"], C.config_hash(c.base))"'`
+  - Want: `supervisor False fe87abab`.
+  - Text `--print-config` doesn't print the runtime: `rc_progressive_jpeg.py:1833` skips the `[RUNTIME]` line during
+    inspection, and `--json` doesn't carry it either (desk check Mon). So this one-liner reads the same v2 file with the
+    loader the runtime uses.
+  - K1's run log then shows the runtime actually resolved: `[RUNTIME] supervisor (source=…)`.
 
 ## K. Capture-only check (box 10 min; R12-1 checks 1, 2, 4)
 - K1 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && touch NO_HALT && mkdir -p /home/pi/noaa_check && python3 rc_progressive_jpeg.py --skip-time-window --output-dir /home/pi/noaa_check > /home/pi/noaa_check/run.log 2>&1; echo exit $?; rm -f NO_HALT; tail -5 /home/pi/noaa_check/run.log'`
@@ -124,7 +131,8 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
     - `--skip-time-window` because there is no Spotter UTC on land;
     - `NO_HALT` is the halt escape hatch (`rc_power_halt.py` NO_HALT_FLAG), so the Pi stays up; it is removed in the same
       command.
-  - Want: exit 0 and a `[RC] send plan (NO transmit): … fmt=nrjxl` line.
+  - Want: exit 0, `[RUNTIME] supervisor` in run.log (`grep RUNTIME /home/pi/noaa_check/run.log`), and a
+    `[RC] send plan (NO transmit): … fmt=nrjxl` line.
   - The rehearsal confirms this command on the 613fb2c1 supervisor config (card S5).
 - K2 (Nick, Mac): `scp -r pi@bmcam002:/home/pi/noaa_check ~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/`
 - K3 (TE, Mac): `/usr/bin/python3 -I tools/noaa_capture_check.py --nvd <nvd export> --log …/noaa_check/run.log …/noaa_check/<newest>.nrjxl`
@@ -143,7 +151,7 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
   - Want: the deploy tar, both crontab copies, the shipped v1 YAML and the migrated copy, all left on the unit.
 - **Pass line (handover-ready, spec rev 1 + R12-1), each with its log line:**
   - step 0 matched;
-  - sha 613fb2c15037 + hash fe87abab (M4);
+  - sha 613fb2c15037 + hash fe87abab (M4) + runtime supervisor (M5, K1);
   - capture check PASS (K3);
   - cron re-armed (A1);
   - backups on the unit (A2);

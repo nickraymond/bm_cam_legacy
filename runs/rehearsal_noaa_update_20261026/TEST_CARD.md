@@ -4,7 +4,7 @@
 this rev closes them (S1–S5 table below) and adds must do 9 + the restore. Runs only after QE 010's PASS on this card's sha
 and Nick's own line in the **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
-- **Spec:** SPEC_e4_noaa_release rev 12.2 (sha256 530492a16542): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
+- **Spec:** SPEC_e4_noaa_release rev 12.3 (sha256 becca9a321ed): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
   `device_profiles/bmcam002/noaa_20261027/camera_config.yaml` (sha256 412bcafe00cd…, hash fe87abab).
 - **Units:** bmcam004 + SPOT-33507C only (TE 006 owns them; TE5 handed over 10:11 AM). bmcam002, SPOT-33361C and bmcam003
@@ -115,7 +115,8 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 
 ## Bars
 - **Must do 4:** T0 → R4 ≤ 60 min with one rollback. Each end is verified:
-  - target: sha 613fb2c15037 + `--print-config` fe87abab + FORCE_SHRINK_FALLBACK absent + capture check PASS;
+  - target: sha 613fb2c15037 + `--print-config` fe87abab + runtime supervisor (runbook M5 + K1's `[RUNTIME]` line) +
+    FORCE_SHRINK_FALLBACK absent + capture check PASS;
   - rollback: sha 0d03a62cf565 + yaml 117876ae0928… + pc_old.txt.
 - The print-config diff in U4 equals the desk diff. M1 exits 0.
 - **Must do 9:** all of W3. Any `spotter UTC` timeout = F9 = must do 9 fails.
