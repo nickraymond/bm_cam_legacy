@@ -66,10 +66,12 @@ Read from C2's survey (no new command):
   `device_profiles/bmcam002/camera_schedule.yaml` (that one has a provenance header).
 - `camera_config.yaml`, `bm_command_state.json`, `bm_command_state_v2.json`, `FORCE_SHRINK_FALLBACK`, `NO_HALT` absent;
 - repo checkout at `/home/pi/repos/bm_cam_legacy`; PyYAML present; > 500 MB free; serial0 → ttyAMA0.
-- the saved armed crontab (`crontab_backup_fieldupdate_<TS>.txt`) has the cycle line
-  `@reboot /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh` (8/18 deployment doc), now shown commented
-  (`# DISABLED noaa_catch …`).
-  - Another wrapper here → stop at step 0, because A1 expects that line.
+- the saved armed crontab (`crontab_backup_fieldupdate_<TS>.txt`) has an `@reboot` line that runs
+  `/home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh`, now shown commented (`# DISABLED noaa_catch …`).
+  - Two forms are known, and either is fine:
+    - `@reboot /bin/bash …/rc_run_capture_cycle.sh` (bmcam002, 8/18 deployment doc);
+    - `@reboot /usr/bin/flock -n /tmp/bmcam_rc_capture.lock …/rc_run_capture_cycle.sh` (bench units).
+  - No `@reboot` line running `rc_run_capture_cycle.sh` → stop at step 0, because A1 expects one.
   - If the survey says `already disarmed`, the re-arm file is the one it names (that earlier run's backup), not a new one.
 
 **Stop (F3):** sha or yaml hash differ → stop, change nothing, ask Nick. Any other survey miss (no checkout, no PyYAML, a
