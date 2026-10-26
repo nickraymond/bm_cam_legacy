@@ -4,8 +4,11 @@
 plugged into a spotter, you need to turn on the configuration for always on power". So, from run 1 on this sha:
 - bmcam004 runs on SPOT-33507C's bus, held on (`hil/tools/hil_bus_always_on.sh SPOT-33507C`, bridge c3c564b91856226c,
   bridgePowerControllerEnabled 0), not on a USB supply. Logged deviation by Nick's choice.
-- Who does the physical steps (SPEC_e4 rev 12.6 N2): **nobody, per run.** TE 006 does every power-cycle from the console
-  (a bridge commit power-cycles the bus) and every ssh step. Network: bench Wi-Fi (Nick, 12:00 PM). Nick has no per-run step.
+- Who does the physical steps (SPEC_e4 rev 12.6 N2): **nobody, per run.** Step C's restart is `sudo reboot` over ssh on every
+  run (rev 3's runs 2–5 method), done by TE 006. Only if C2 loses the race (Pi halted on a held-on bus) does TE 006 power-cycle
+  the bus from nereus000's console, and that run is an issue. Network: bench Wi-Fi (Nick, 12:00 PM). Nick has no per-run step.
+- Rev 3's run 2 (12:10 PM) went dark because the bus was still on its schedule: boot ~12:00:08, power gone ~12:10 (a ~10-min
+  window); the bus hold at 4:50 PM (gate.log in the run folder) removes that.
 - Step W1 changes: bmcam004 is already on its bus, so W1 is TE 006 restoring the bus schedule
   (`hil/tools/hil_restore_schedule.sh SPOT-33507C`) before the Tue ~7 AM wake, not a physical move.
 - Retry rule (rev 12.6 N1): a step's own built-in wait (C2's `until ssh` loop) is part of that step. A second power-cycle,
@@ -66,7 +69,7 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
       `@reboot` cycle and C2 has to win the same race.
     - Logged deviation: a reboot isn't a power cut, so it doesn't test a cold boot or the hotspot rejoin after power loss.
       Nick may ask for a USB cycle on every run instead (he must be at the bench).
-  - If C2 loses the race, the unit halts. Rev 4: a bridge commit (TE 006) brings it back, and that run counts as an issue.
+  - If C2 loses the race, the unit halts. Rev 4: a bus power-cycle from the console (TE 006) brings it back, and that run counts as an issue.
   - **Nick moves bmcam004 back to the Spotter bus (step W1).** It is a physical change, so TE 006 announces it on the board
     first (§10, rev 12.1 N1).
 - Timing:
