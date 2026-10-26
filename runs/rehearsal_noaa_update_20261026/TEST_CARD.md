@@ -1,8 +1,16 @@
 # Test card: NOAA on-land update rehearsal on bmcam004 (USB power), then must do 9 on its Spotter bus (Mon 10/26 → Tue 10/27 AM)
 
-**Rev 2 (TE 006, Mon 10/26).** Rev 1 = TE5's 0cf70e9a (branch feature/r1-hil-test-engineer). It had five stop points;
-this rev closes them (S1–S5 table below) and adds must do 9 + the restore. Runs only after QE 011's PASS on this card's sha
-and Nick's own line in the **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
+**Rev 3 (TE 006, Mon 10/26 ~11:20 AM): n = 5.** Nick's acceptance bar, as Lead 004 relayed it from its chat (~11:10 AM),
+verbatim: "NOAA - prove to me that you can update the cameras with the latest software, run through the practice 5 times
+without issue before telling me you are ready for a real world update tomorrow. That is the primary goal."
+- TE 006 couldn't read that line at its source (a relay, TEAM_RULES §0). The bar here is stricter than rev 2, and Nick's
+  OK of this card at its sha makes it his.
+- So: **5 clean runs in a row** of deploy + one rollback. Any issue resets the count to 0 (Bars). Nobody says "ready"
+  before run 5 passes.
+
+Rev 2 closed rev 1's stop points (S1–S5 table below) and added must do 9 + the restore. Rev 1 = TE5's 0cf70e9a (branch
+feature/r1-hil-test-engineer). This card runs only after QE's PASS on this card's sha and Nick's own line in the
+**TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
 - **Spec:** SPEC_e4_noaa_release rev 12.4 (sha256 ceb47d797438): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
@@ -11,8 +19,9 @@ and Nick's own line in the **TE 006 chat** citing that sha (TEAM_RULES §6; bm_c
   are not touched.
 
 ## Question
-1. **Must do 4:** does the runbook take bmcam004 from bmcam002's exact start state to the target and back (one rollback),
-   verified by sha + config hash at each end, in ≤ 60 min, over a phone hotspot?
+1. **Must do 4, × 5 (Nick's bar):** does the runbook take bmcam004 from bmcam002's exact start state to the target and
+   back (one rollback), verified by sha + config hash at each end, in ≤ 60 min, over a phone hotspot? It must do this
+   **5 times in a row with no issue**.
 2. **Must do 9:** does bmcam004 on the target build + profile, back on its Spotter bus, make a keyed in-window image with
    the shipped zone and clock path?
 
@@ -36,7 +45,16 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   Nick names it in his OK line. If he picks bench Wi-Fi instead, that is a logged deviation by his choice.
 - **Who does the physical steps:**
   - Nick plays the NOAA role: USB power-cycles and the hotspot.
-  - Nick types the runbook's SSH commands (C–R), or lets TE 006 type them on the bench unit; he says which in his OK.
+  - TE 006 types the runbook's SSH commands (C–R) on the bench unit, unless Nick says in his OK that he types run 1.
+    Five runs is ~4–5 h.
+  - **The power-cycle in step C:**
+    - Run 1: Nick unplugs and replugs the USB supply, if he is at the bench. Otherwise run 1 uses `sudo reboot`, like
+      runs 2–5.
+    - Runs 2–5: TE 006 sends `sudo reboot` over ssh from the armed start state. The unit then boots, cron starts a fresh
+      `@reboot` cycle and C2 has to win the same race.
+    - Logged deviation: a reboot isn't a power cut, so it doesn't test a cold boot or the hotspot rejoin after power loss.
+      Nick may ask for a USB cycle on every run instead (he must be at the bench).
+  - If C2 loses the race, the unit halts. Only a USB power-cycle (Nick) brings it back, and that run counts as an issue.
   - **Nick moves bmcam004 back to the Spotter bus (step W1).** It is a physical change, so TE 006 announces it on the board
     first (§10, rev 12.1 N1).
 - Timing:
@@ -73,13 +91,24 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   This file is the pre-soak armed crontab (sha256 6e7a4080), so the TE5_RC_SAMPLER line is dropped here and stays dropped.
   Then `sudo halt`.
 
-**Runbook run (timed; T0 = DISARMED in step C; stopwatch per runbook step into the time-box table)**
-- C: Nick power-cycles the USB supply with the hotspot up; runbook C1–C2 on `bmcam004`.
+**Runbook runs 1–5 (each timed; T0 = DISARMED in step C; stopwatch per runbook step into that run's time-box row)**
+- Each run's output goes to `run<N>/` in the run folder, e.g. `rehearsal.log`, `sd/` and `noaa_check/`.
+- After each run: a row in `RUNS.md` (run, start, T0 → R4 minutes, per-step times, issue: none / what), and the board card
+  gets "clean runs in a row: k/5".
+- C: the power-cycle (Conditions), hotspot up; runbook C1–C2 on `bmcam004`.
 - 0 → D → U → M → K → A: the runbook as written, `bmcam002` → `bmcam004` in host names.
   - U4's tar name, M4's hash, K3's output and the A pass line go in the log.
 - R: one rollback, runbook R1–R4.
   - Want: `0d03a62cf565`, `117876ae0928…`, print-config = pc_old.txt, crontab re-armed as found.
 - **The stopwatch stops at R4.** Must do 4's bar: T0 → R4 ≤ 60 min.
+- Z, the reset before the next run (not timed). R4 leaves the start state (0d03a62 + shipped YAML, armed), except for:
+  - the repo checkout, which U3 moved to 613fb2c1;
+  - the K1 output.
+  - So: `git -C /home/pi/repos/bm_cam_legacy checkout --detach 0d03a62cf565 && rm -rf /home/pi/noaa_check`.
+  - Then check S5's wants again (sha, YAML sha256, the step-0 "absent" list) and the crontab (armed).
+  - Any difference is an issue: fix it and reset the count.
+  - Then the next run starts at C.
+- After run 5 passes: W.
 
 **W. Forward again + must do 9 on the Spotter bus**
 - W0: catch it again (C2; R4 re-armed it). Then the runbook's U3–U5, M1–M4 and A1 again (the second forward also proves
@@ -114,7 +143,15 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   - the next production wake's `<WS>` at the backend shows d95aa41d.
 
 ## Bars
-- **Must do 4:** T0 → R4 ≤ 60 min with one rollback. Each end is verified:
+- **Nick's bar: 5 clean runs in a row.**
+  - A run is clean when every want line in C → R4 matches on the first try, with no extra command, no workaround and no
+    retry, and T0 → R4 ≤ 60 min.
+  - Any issue resets the count to 0: a retried step, a stop, a lost catch race, a want-line miss, a timeout or a manual
+    fix. The issue is logged with its cause, and the next run starts from Z.
+  - A fix to the runbook, a tool or the profile means a new PR sha and QE, and the count restarts on that sha. Nick's OK
+    covers this card's sha; a new sha needs his new line.
+  - "Ready for the real update" is said only after run 5 is clean, by TE 006, on the board card with RUNS.md linked.
+- **Must do 4 (each run):** T0 → R4 ≤ 60 min with one rollback. Each end is verified:
   - target: sha 613fb2c15037 + `--print-config` fe87abab + runtime supervisor (runbook M5 + K1's `[RUNTIME]` line) +
     FORCE_SHRINK_FALLBACK absent + capture check PASS;
   - rollback: sha 0d03a62cf565 + yaml 117876ae0928… + pc_old.txt.
@@ -125,7 +162,7 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   - So F9 here → must do 9 fails, and Nick picks (a)/(b) or a physical Spotter reset + the next wake.
 - **Restore:** all X checks.
 - A step that fails twice, or 60 min passing → rollback (R) and a recorded must do 4 FAIL.
-- n = 1 run of a procedure, not a measurement to recommend from (§9). The go/no-go uses it as the spec says.
+- n = 5 clean runs in a row (Nick's bar). Run times are reported per run (median and max), not from one run (§9).
 
 ## Stop rules
 - A rollback fails (F4) → stop, leave bmcam004 disarmed and halted, tell Nick + Lead 004.
@@ -137,14 +174,15 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 
 ## Outputs
 - Run folder `~/NereusData/bm_cam_legacy/2026-10-26_rehearsal_noaa_update/`:
-  - rehearsal.log (each command, output, `date`);
+  - RUNS.md (one row per run: times, issue, clean count);
+  - run<N>/rehearsal.log (each command, output, `date`), run<N>/sd/, run<N>/noaa_check/;
   - B2 tar + sha256;
   - the U4 rollback lines;
   - SD listing;
   - migration output;
   - --print-config before/after;
   - noaa_check/;
-  - the timing table;
+  - the timing table (per run; median and max);
   - W2/W3 cycle logs + backend GETs;
   - restore checks.
 - In git: this card + RESULTS.md. The runbook's time boxes are updated from the timing table.

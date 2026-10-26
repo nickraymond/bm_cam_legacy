@@ -174,8 +174,9 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 Use on: any step failing twice, the 60-min box passing, or a "roll back" above.
 - R1 (Nick): `ssh pi@bmcam002 'pkill -TERM -f "[r]c_progressive_jpeg.py|[r]c_run_capture_cycle.sh"; tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_<host>_<TS>.tgz -C /home/pi'`
   - The tar name is the one U4 printed.
-- R2 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && for f in camera_config.yaml bm_command_state_v2.json; do [ -e $f ] && mv $f $f.off_1027; done; rm -f NO_HALT; ls'`
-  - 0d03a62 ignores the v2 files. They are moved aside so a later forward update re-migrates.
+- R2 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && for f in camera_config.yaml bm_command_state_v2.json camera_config.lkg.json config_journal.jsonl; do [ -e $f ] && mv $f $f.off_1027; done; rm -f NO_HALT; ls'`
+  - 0d03a62 ignores the v2 files. They are moved aside so a later forward update re-migrates. K1's real run writes
+    the last-known-good copy (`config_v2.LKG_NAME`), and M2 writes the journal (`config_journal.NAME`).
 - R3 (Nick): `ssh pi@bmcam002 'cat /home/pi/BM_Devel_Pi/software_sha.txt; sha256sum /home/pi/BM_Devel_Pi/camera_schedule.yaml; cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | tail -8'`
   - Want: `0d03a62cf565`, `117876ae0928…`, and a print-config that matches `desk/pc_old.txt`.
 - R4 (Nick): `ssh pi@bmcam002 'crontab /home/pi/crontab_backup_fieldupdate_<TS from C2>.txt && crontab -l'` (re-armed, as found).
