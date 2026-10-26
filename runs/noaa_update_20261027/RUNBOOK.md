@@ -1,6 +1,6 @@
 # Runbook: bmcam002 on-land update for NOAA, Tue 10/27 (backup day Thu 10/29)
 
-TE 006, Mon 10/26. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 12.3 (sha256 becca9a321ed): must dos 3, 7, 8;
+TE 006, Mon 10/26. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 12.4 (sha256 ceb47d797438): must dos 3, 7, 8;
 R12-1; F1–F9. Envelope: nereus-software-engineering-team `approvals/2026-10-27_noaa_update.md` (Lead 004). bmcam002 is a
 **field unit**. Every on-unit step and every SPOT-33361C step runs only on Nick's own words in the executing TE chat
 (TEAM_RULES §6). Rehearsed on bmcam004 first (`runs/rehearsal_noaa_update_20261026/TEST_CARD.md`). Rehearsal timings
@@ -66,13 +66,20 @@ Read from C2's survey (no new command):
   `device_profiles/bmcam002/camera_schedule.yaml` (that one has a provenance header).
 - `camera_config.yaml`, `bm_command_state.json`, `bm_command_state_v2.json`, `FORCE_SHRINK_FALLBACK`, `NO_HALT` absent;
 - repo checkout at `/home/pi/repos/bm_cam_legacy`; PyYAML present; > 500 MB free; serial0 → ttyAMA0.
+- the saved armed crontab (`crontab_backup_fieldupdate_<TS>.txt`) has the cycle line
+  `@reboot /bin/bash /home/pi/BM_Devel_Pi/rc_run_capture_cycle.sh` (8/18 deployment doc), now shown commented
+  (`# DISABLED noaa_catch …`).
+  - Another wrapper here → stop at step 0, because A1 expects that line.
+  - If the survey says `already disarmed`, the re-arm file is the one it names (that earlier run's backup), not a new one.
 
 **Stop (F3):** sha or yaml hash differ → stop, change nothing, ask Nick. Any other survey miss (no checkout, no PyYAML, a
 v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 
 ## D. SD download first (box 10 min; F5, §10)
-- D1 (Nick, Mac):
-  `rsync -a --stats pi@bmcam002:/home/pi/BM_Devel_Pi/images pi@bmcam002:/home/pi/BM_Devel_Pi/cron_logs ~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/sd/`
+- D1 (Nick, Mac), two commands, one directory each. The Mac's `/usr/bin/rsync` is 2.6.9, which rejects two remote
+  sources in one command (QE 011 R1):
+  - `rsync -a --stats pi@bmcam002:/home/pi/BM_Devel_Pi/images ~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/sd/`
+  - `rsync -a --stats pi@bmcam002:/home/pi/BM_Devel_Pi/cron_logs ~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/sd/`
 - D2 (Nick, Mac): `ssh pi@bmcam002 'find /home/pi/BM_Devel_Pi/images /home/pi/BM_Devel_Pi/cron_logs -type f | wc -l; du -sk /home/pi/BM_Devel_Pi/images /home/pi/BM_Devel_Pi/cron_logs'`
 - Want: the file count and KB match the Mac copy (TE checks with `find … | wc -l` and `du -sk` locally).
 - Over the hotspot + a Tailscale relay, this is ~10 s per MB (skill bmcam-hotspot-update). If C2's `du` is over ~50 MB,
@@ -91,6 +98,8 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 - U4 (Nick): `ssh pi@bmcam002 'bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy --skip-repo-sync --profile bmcam002 --leave-disarmed --accept-print-config-diff'`
   - Want: every stage OK and a printed rollback block. The TE copies the `tar xzf …BM_Devel_Pi_before_rc_deploy_…tgz`
     line into the log.
+  - **Ignore the `crontab …` rollback line it prints** (QE 011 N3). Its crontab backup was taken after C2 disarmed the
+    unit, so it is a disarmed crontab. Re-arming (A1, R4) always uses C2's armed file.
   - **Expected print-config diff (F6), desk-checked Mon on the shipped file:**
     - a new `[BOOT] main_entry uptime_s=…` line;
     - `source=yaml` added to the `power_halt:` and `schedule:` lines (`2026-10-26_rehearsal_noaa_update/desk/pc_diff.txt`).

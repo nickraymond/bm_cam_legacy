@@ -1,10 +1,10 @@
 # Test card: NOAA on-land update rehearsal on bmcam004 (USB power), then must do 9 on its Spotter bus (Mon 10/26 → Tue 10/27 AM)
 
 **Rev 2 (TE 006, Mon 10/26).** Rev 1 = TE5's 0cf70e9a (branch feature/r1-hil-test-engineer). It had five stop points;
-this rev closes them (S1–S5 table below) and adds must do 9 + the restore. Runs only after QE 010's PASS on this card's sha
+this rev closes them (S1–S5 table below) and adds must do 9 + the restore. Runs only after QE 011's PASS on this card's sha
 and Nick's own line in the **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
-- **Spec:** SPEC_e4_noaa_release rev 12.3 (sha256 becca9a321ed): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
+- **Spec:** SPEC_e4_noaa_release rev 12.4 (sha256 ceb47d797438): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
   `device_profiles/bmcam002/noaa_20261027/camera_config.yaml` (sha256 412bcafe00cd…, hash fe87abab).
 - **Units:** bmcam004 + SPOT-33507C only (TE 006 owns them; TE5 handed over 10:11 AM). bmcam002, SPOT-33361C and bmcam003
@@ -50,8 +50,8 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   - Its cron is armed, so it runs one cycle per power-on and halts. Catch it with `tools/noaa_catch_disarm.sh` (runbook C2,
     `pi@bmcam004`).
   - Want: DISARMED, `software_sha.txt` = 613fb2c15037.
-- B1: `cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | grep hash=`. Want: **d95aa41d** (overlay
-  12 keys).
+- B1: `cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | grep hash=`. Want: **d95aa41d**. Record the overlay
+  key count as found: the soak's logs show 13 (`steps/bmcam004_b08.txt:9`), and the pre-soak backup shows 12.
 - B2: `tar czf /home/pi/backups/rehearsal_baseline_bmcam004_<TS>.tgz --exclude images --exclude cron_logs --exclude videos --exclude buffer -C /home/pi BM_Devel_Pi && sha256sum` it.
   - Copy it to the run folder.
   - Also record the armed crontab's sha256. It is 6e7a4080 + the TE5_RC_SAMPLER line (handoff); the B0 backup has it.

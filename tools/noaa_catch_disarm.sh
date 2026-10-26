@@ -26,6 +26,19 @@ DISARMED="/home/pi/crontab_disarmed_${TS}.txt"
 CYCLE='(rc_run_capture_cycle\.sh|rc_progressive_jpeg\.py|run_capture_cycle\.sh|main_pi_camera\.py)'
 
 echo "[CATCH] $(hostname) caught at ${TS} (uptime: $(cut -d' ' -f1 /proc/uptime) s)"
+if crontab -l 2>/dev/null | grep -q '^# DISABLED noaa_catch '; then
+  # An earlier run disarmed it (e.g. the ssh dropped before DISARMED printed). Saving the
+  # current crontab now would save a DISARMED file as the "armed" backup, so don't.
+  # The disarmed line names the run that wrote it; that run's backup is the armed one.
+  FIRST_TS="$(crontab -l | sed -n 's/^# DISABLED noaa_catch \([0-9TZ]*\):.*/\1/p' | head -1)"
+  ARMED="/home/pi/crontab_backup_fieldupdate_${FIRST_TS}.txt"
+  [[ -n "$FIRST_TS" && -s "$ARMED" ]] || ARMED="NONE FOUND for ${FIRST_TS:-?} (stop and ask)"
+  echo "[CATCH] already disarmed by an earlier run; crontab NOT changed."
+  echo "[CATCH] re-arm file = that run's backup: ${ARMED}"
+  pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py' && echo "[CATCH] cycle SIGTERMed"
+  crontab -l | sed 's/^/[SURVEY]   /'
+  exit 0
+fi
 crontab -l > "$ARMED" 2>/dev/null || true
 sed -E "s%^([[:space:]]*@reboot[^#]*${CYCLE}.*)\$%# DISABLED noaa_catch ${TS}: \\1%" "$ARMED" > "$DISARMED"
 if [[ -s "$ARMED" && ! -s "$DISARMED" ]]; then
