@@ -25,6 +25,20 @@ ARMED="/home/pi/crontab_backup_fieldupdate_${TS}.txt"
 DISARMED="/home/pi/crontab_disarmed_${TS}.txt"
 CYCLE='(rc_run_capture_cycle\.sh|rc_progressive_jpeg\.py|run_capture_cycle\.sh|main_pi_camera\.py)'
 
+survey() {  # read-only, for runbook step 0
+  echo "[SURVEY] software_sha.txt: $(cat /home/pi/BM_Devel_Pi/software_sha.txt 2>/dev/null || echo MISSING)"
+  echo "[SURVEY] camera_schedule.yaml sha256: $(sha256sum /home/pi/BM_Devel_Pi/camera_schedule.yaml 2>/dev/null | cut -d' ' -f1)"
+  echo "[SURVEY] md5: $(md5sum /home/pi/BM_Devel_Pi/camera_schedule.yaml 2>/dev/null | cut -d' ' -f1)"
+  for f in camera_config.yaml bm_command_state.json bm_command_state_v2.json FORCE_SHRINK_FALLBACK NO_HALT; do
+    [[ -e "/home/pi/BM_Devel_Pi/$f" ]] && echo "[SURVEY] PRESENT /home/pi/BM_Devel_Pi/$f" || echo "[SURVEY] absent  $f"
+  done
+  echo "[SURVEY] repo: $(git -C /home/pi/repos/bm_cam_legacy rev-parse --short=12 HEAD 2>/dev/null || echo 'NO CHECKOUT at /home/pi/repos/bm_cam_legacy')"
+  echo "[SURVEY] PyYAML: $(python3 -c 'import yaml; print(yaml.__version__)' 2>&1 | tail -1)"
+  echo "[SURVEY] disk free: $(df -m /home/pi | awk 'NR==2 {print $4}') MB; SD data: $(du -sh /home/pi/BM_Devel_Pi/images /home/pi/BM_Devel_Pi/cron_logs 2>/dev/null | tr '\n' ' ')"
+  echo "[SURVEY] serial0 -> $(readlink /dev/serial0 2>/dev/null || echo MISSING); processes: $(pgrep -af '[r]c_progressive_jpeg|[m]ain_pi_camera' | wc -l) cycle(s)"
+  echo "[SURVEY] crontab now:"; crontab -l | sed 's/^/[SURVEY]   /'
+}
+
 echo "[CATCH] $(hostname) caught at ${TS} (uptime: $(cut -d' ' -f1 /proc/uptime) s)"
 if crontab -l 2>/dev/null | grep -q '^# DISABLED noaa_catch '; then
   # An earlier run disarmed it (e.g. the ssh dropped before DISARMED printed). Saving the
@@ -36,7 +50,7 @@ if crontab -l 2>/dev/null | grep -q '^# DISABLED noaa_catch '; then
   echo "[CATCH] already disarmed by an earlier run; crontab NOT changed."
   echo "[CATCH] re-arm file = that run's backup: ${ARMED}"
   pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py' && echo "[CATCH] cycle SIGTERMed"
-  crontab -l | sed 's/^/[SURVEY]   /'
+  survey
   exit 0
 fi
 crontab -l > "$ARMED" 2>/dev/null || true
@@ -54,15 +68,5 @@ fi
 # Bracketed patterns so pkill never matches this shell's own command line.
 pkill -TERM -f '[r]c_run_capture_cycle.sh|[r]c_progressive_jpeg.py|[m]ain_pi_camera.py' && echo "[CATCH] cycle SIGTERMed"
 echo "[CATCH] DISARMED. Armed crontab saved: $ARMED (sha256 $(sha256sum "$ARMED" | cut -c1-12))"
-echo "[SURVEY] software_sha.txt: $(cat /home/pi/BM_Devel_Pi/software_sha.txt 2>/dev/null || echo MISSING)"
-echo "[SURVEY] camera_schedule.yaml sha256: $(sha256sum /home/pi/BM_Devel_Pi/camera_schedule.yaml 2>/dev/null | cut -d' ' -f1)"
-echo "[SURVEY] md5: $(md5sum /home/pi/BM_Devel_Pi/camera_schedule.yaml 2>/dev/null | cut -d' ' -f1)"
-for f in camera_config.yaml bm_command_state.json bm_command_state_v2.json FORCE_SHRINK_FALLBACK NO_HALT; do
-  [[ -e "/home/pi/BM_Devel_Pi/$f" ]] && echo "[SURVEY] PRESENT /home/pi/BM_Devel_Pi/$f" || echo "[SURVEY] absent  $f"
-done
-echo "[SURVEY] repo: $(git -C /home/pi/repos/bm_cam_legacy rev-parse --short=12 HEAD 2>/dev/null || echo 'NO CHECKOUT at /home/pi/repos/bm_cam_legacy')"
-echo "[SURVEY] PyYAML: $(python3 -c 'import yaml; print(yaml.__version__)' 2>&1 | tail -1)"
-echo "[SURVEY] disk free: $(df -m /home/pi | awk 'NR==2 {print $4}') MB; SD data: $(du -sh /home/pi/BM_Devel_Pi/images /home/pi/BM_Devel_Pi/cron_logs 2>/dev/null | tr '\n' ' ')"
-echo "[SURVEY] serial0 -> $(readlink /dev/serial0 2>/dev/null || echo MISSING); processes: $(pgrep -af '[r]c_progressive_jpeg|[m]ain_pi_camera' | wc -l) cycle(s)"
-echo "[SURVEY] crontab now:"; crontab -l | sed 's/^/[SURVEY]   /'
+survey
 exit 0
