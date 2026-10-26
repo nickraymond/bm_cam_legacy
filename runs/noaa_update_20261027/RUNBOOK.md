@@ -102,9 +102,17 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
     line into the log.
   - **Ignore the `crontab …` rollback line it prints** (QE 011 N3). Its crontab backup was taken after C2 disarmed the
     unit, so it is a disarmed crontab. Re-arming (A1, R4) always uses C2's armed file.
-  - **Expected print-config diff (F6), desk-checked Mon on the shipped file:**
-    - a new `[BOOT] main_entry uptime_s=…` line;
-    - `source=yaml` added to the `power_halt:` and `schedule:` lines (`2026-10-26_rehearsal_noaa_update/desk/pc_diff.txt`).
+  - **Expected print-config diff (F6).** Below `[PARITY][DIFF] print-config text differs:`, exactly these 4 lines, as the
+    Pi printed them in rehearsal run 1 (Mon 12:07 PM; `2026-10-26_rehearsal_noaa_update/desk/u4_expected_diff_pi.txt`):
+    ```
+    -[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh
+    -[RC] schedule: window=10:00-15:00 tz=America/New_York
+    +[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=*
+    +[RC] schedule: window=10:00-15:00 tz=America/New_York source=*
+    ```
+    Then `print-config differs (above) — ACCEPTED by --accept-print-config-diff`.
+    - The deploy check prints `source=*`, not `source=yaml`, and leaves out the uptime line.
+    - The desk diff (`desk/pc_diff.txt`) shows the same two changes, run on the Mac without that normalising.
   - Any other diff line → stop and roll back (R).
   - `--profile bmcam002` only feeds stage 4's bm_serial patch: 384 / 1.0, the same values as shipped.
 - U5 (Nick): `ssh pi@bmcam002 'cat /home/pi/BM_Devel_Pi/software_sha.txt; test ! -e /home/pi/BM_Devel_Pi/FORCE_SHRINK_FALLBACK && echo FSF_ABSENT'`

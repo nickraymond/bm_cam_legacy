@@ -1,4 +1,16 @@
-# Test card: NOAA on-land update rehearsal on bmcam004 (USB power), then must do 9 on its Spotter bus (Mon 10/26 → Tue 10/27 AM)
+# Test card: NOAA on-land update rehearsal on bmcam004 (Spotter bus held on), then must do 9 on its Spotter bus (Mon 10/26 → Tue 10/27 AM)
+
+**Rev 4 (TE 006, Mon 10/26 ~3 PM): power and physical steps.** Nick, in the TE 006 chat at 2:04 PM (verbatim): "bmcam004 is
+plugged into a spotter, you need to turn on the configuration for always on power". So, from run 1 on this sha:
+- bmcam004 runs on SPOT-33507C's bus, held on (`hil/tools/hil_bus_always_on.sh SPOT-33507C`, bridge c3c564b91856226c,
+  bridgePowerControllerEnabled 0), not on a USB supply. Logged deviation by Nick's choice.
+- Who does the physical steps (SPEC_e4 rev 12.6 N2): **nobody, per run.** TE 006 does every power-cycle from the console
+  (a bridge commit power-cycles the bus) and every ssh step. Network: bench Wi-Fi (Nick, 12:00 PM). Nick has no per-run step.
+- Step W1 changes: bmcam004 is already on its bus, so W1 is TE 006 restoring the bus schedule
+  (`hil/tools/hil_restore_schedule.sh SPOT-33507C`) before the Tue ~7 AM wake, not a physical move.
+- Retry rule (rev 12.6 N1): a step's own built-in wait (C2's `until ssh` loop) is part of that step. A second power-cycle,
+  a re-run or a manual fix is a retry and resets the count.
+- The USB wording below is rev 3's and is overridden by these lines.
 
 **Rev 3 (TE 006, Mon 10/26 ~11:20 AM): n = 5.** Nick's acceptance bar, typed in Lead 004's chat before 10:57 AM (PE 009 read
 it there; SPEC_e4 rev 12.5 must do 4), verbatim: "NOAA - prove to me that you can update the cameras with the latest software, run through the practice 5 times
@@ -12,7 +24,7 @@ Rev 2 closed rev 1's stop points (S1–S5 table below) and added must do 9 + the
 feature/r1-hil-test-engineer). This card runs only after QE's PASS on this card's sha and Nick's own line in the
 **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
-- **Spec:** SPEC_e4_noaa_release rev 12.5 (sha256 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
+- **Spec:** SPEC_e4_noaa_release rev 12.6 (sha256 ab7fd78b68de; rev 3 cited 12.5, 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
   `device_profiles/bmcam002/noaa_20261027/camera_config.yaml` (sha256 412bcafe00cd…, hash fe87abab).
 - **Units:** bmcam004 + SPOT-33507C only (TE 006 owns them; TE5 handed over 10:11 AM). bmcam002, SPOT-33361C and bmcam003
@@ -54,7 +66,7 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
       `@reboot` cycle and C2 has to win the same race.
     - Logged deviation: a reboot isn't a power cut, so it doesn't test a cold boot or the hotspot rejoin after power loss.
       Nick may ask for a USB cycle on every run instead (he must be at the bench).
-  - If C2 loses the race, the unit halts. Only a USB power-cycle (Nick) brings it back, and that run counts as an issue.
+  - If C2 loses the race, the unit halts. Rev 4: a bridge commit (TE 006) brings it back, and that run counts as an issue.
   - **Nick moves bmcam004 back to the Spotter bus (step W1).** It is a physical change, so TE 006 announces it on the board
     first (§10, rev 12.1 N1).
 - Timing:
@@ -64,7 +76,7 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 
 ## Steps
 **B. Baseline (bmcam004's own restore point; not timed)**
-- B0: bmcam004 answers on Tailscale/ssh while on USB.
+- B0: bmcam004 answers on Tailscale/ssh (rev 4: on SPOT-33507C's held-on bus).
   - Its cron is armed, so it runs one cycle per power-on and halts. Catch it with `tools/noaa_catch_disarm.sh` (runbook C2,
     `pi@bmcam004`).
   - Want: DISARMED, `software_sha.txt` = 613fb2c15037.
@@ -147,7 +159,8 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   - A run is clean when every want line in C → R4 matches on the first try, with no extra command, no workaround and no
     retry, and T0 → R4 ≤ 60 min.
   - Any issue resets the count to 0: a retried step, a stop, a lost catch race, a want-line miss, a timeout or a manual
-    fix. The issue is logged with its cause, and the next run starts from Z.
+    fix. The issue is logged with its cause, and the next run starts from Z. A step's own built-in wait (C2's `until ssh`
+    loop) is not a retry (rev 12.6 N1).
   - A fix to the runbook, a tool or the profile means a new PR sha and QE, and the count restarts on that sha. Nick's OK
     covers this card's sha; a new sha needs his new line.
   - "Ready for the real update" is said only after run 5 is clean, by TE 006, on the board card with RUNS.md linked.
