@@ -1,10 +1,10 @@
 # Test card: NOAA on-land update rehearsal on bmcam004 (USB power), then must do 9 on its Spotter bus (Mon 10/26 → Tue 10/27 AM)
 
-**Rev 3 (TE 006, Mon 10/26 ~11:20 AM): n = 5.** Nick's acceptance bar, as Lead 004 relayed it from its chat (~11:10 AM),
-verbatim: "NOAA - prove to me that you can update the cameras with the latest software, run through the practice 5 times
+**Rev 3 (TE 006, Mon 10/26 ~11:20 AM): n = 5.** Nick's acceptance bar, typed in Lead 004's chat before 10:57 AM (PE 009 read
+it there; SPEC_e4 rev 12.5 must do 4), verbatim: "NOAA - prove to me that you can update the cameras with the latest software, run through the practice 5 times
 without issue before telling me you are ready for a real world update tomorrow. That is the primary goal."
-- TE 006 couldn't read that line at its source (a relay, TEAM_RULES §0). The bar here is stricter than rev 2, and Nick's
-  OK of this card at its sha makes it his.
+- TE 006 didn't read that line at its source (TEAM_RULES §0); it cites the spec. The bar is stricter than rev 2, and
+  Nick's OK of this card at its sha confirms it.
 - So: **5 clean runs in a row** of deploy + one rollback. Any issue resets the count to 0 (Bars). Nobody says "ready"
   before run 5 passes.
 
@@ -12,7 +12,7 @@ Rev 2 closed rev 1's stop points (S1–S5 table below) and added must do 9 + the
 feature/r1-hil-test-engineer). This card runs only after QE's PASS on this card's sha and Nick's own line in the
 **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
-- **Spec:** SPEC_e4_noaa_release rev 12.4 (sha256 ceb47d797438): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
+- **Spec:** SPEC_e4_noaa_release rev 12.5 (sha256 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
   `device_profiles/bmcam002/noaa_20261027/camera_config.yaml` (sha256 412bcafe00cd…, hash fe87abab).
 - **Units:** bmcam004 + SPOT-33507C only (TE 006 owns them; TE5 handed over 10:11 AM). bmcam002, SPOT-33361C and bmcam003

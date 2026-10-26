@@ -1,6 +1,6 @@
 # Runbook: bmcam002 on-land update for NOAA, Tue 10/27 (backup day Thu 10/29)
 
-TE 006, Mon 10/26. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 12.4 (sha256 ceb47d797438): must dos 3, 7, 8;
+TE 006, Mon 10/26. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 12.5 (sha256 1629658f5f2a): must dos 3, 7, 8;
 R12-1; F1–F9. Envelope: nereus-software-engineering-team `approvals/2026-10-27_noaa_update.md` (Lead 004). bmcam002 is a
 **field unit**. Every on-unit step and every SPOT-33361C step runs only on Nick's own words in the executing TE chat
 (TEAM_RULES §6). Rehearsed on bmcam004 first (`runs/rehearsal_noaa_update_20261026/TEST_CARD.md`). Rehearsal timings
