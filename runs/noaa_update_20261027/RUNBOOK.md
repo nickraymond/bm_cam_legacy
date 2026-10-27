@@ -91,13 +91,17 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 - U1 (Nick, Mac): `scp ~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/stage/{rc_field_update.sh,camera_config.yaml} pi@bmcam002:/tmp/`
 - U2 (Nick): `ssh pi@bmcam002 'sha256sum /tmp/rc_field_update.sh /tmp/camera_config.yaml'`
   - Want: both equal the staged sha256 in the log (camera_config.yaml 412bcafe00cd…).
-- U3 (Nick): `ssh pi@bmcam002 'git -C /home/pi/repos/bm_cam_legacy fetch origin && git -C /home/pi/repos/bm_cam_legacy checkout --detach 613fb2c15037'`
+- U3 (Nick): `ssh pi@bmcam002 'git -C /home/pi/repos/bm_cam_legacy fetch origin && git -C /home/pi/repos/bm_cam_legacy checkout --detach 613fb2c15037 && sync'`
   - Want: `HEAD is now at 613fb2c1`.
+  - **Power-cut guard (rehearsal run 3, Mon 4:59 PM):** a power cut within ~30 s of a checkout or untar left 71 repo files
+    at 0 bytes (unflushed writes). So U3, U4, R1 and R2 end in `sync`. If U3 refuses with "local changes would be
+    overwritten", that is this damage: `git -C /home/pi/repos/bm_cam_legacy fsck --no-dangling && git -C
+    /home/pi/repos/bm_cam_legacy checkout -- . && sync`, then U3 again (a retry, logged).
   - `rc_field_update.sh --ref` pulls a branch, so the exact sha is checked out here and the script runs with
     `--skip-repo-sync`.
   - **Don't use `--ref development`:** once this PR merges, development is no longer 613fb2c1, and software_sha would
     differ from the soak's.
-- U4 (Nick): `ssh pi@bmcam002 'bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy --skip-repo-sync --profile bmcam002 --leave-disarmed --accept-print-config-diff'`
+- U4 (Nick): `ssh pi@bmcam002 'bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy --skip-repo-sync --profile bmcam002 --leave-disarmed --accept-print-config-diff && sync'`
   - Want: every stage OK and a printed rollback block. The TE copies the `tar xzf …BM_Devel_Pi_before_rc_deploy_…tgz`
     line into the log.
   - **Ignore the `crontab …` rollback line it prints** (QE 011 N3). Its crontab backup was taken after C2 disarmed the
@@ -180,9 +184,9 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 
 ## R. Rollback to 0d03a62 (box 10 min; F2, F4, F6)
 Use on: any step failing twice, the 60-min box passing, or a "roll back" above.
-- R1 (Nick): `ssh pi@bmcam002 'pkill -TERM -f "[r]c_progressive_jpeg.py|[r]c_run_capture_cycle.sh"; tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_<host>_<TS>.tgz -C /home/pi'`
+- R1 (Nick): `ssh pi@bmcam002 'pkill -TERM -f "[r]c_progressive_jpeg.py|[r]c_run_capture_cycle.sh"; tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_<host>_<TS>.tgz -C /home/pi && sync'`
   - The tar name is the one U4 printed.
-- R2 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && for f in camera_config.yaml bm_command_state_v2.json camera_config.lkg.json config_journal.jsonl; do [ -e $f ] && mv $f $f.off_1027; done; rm -f NO_HALT; ls'`
+- R2 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && for f in camera_config.yaml bm_command_state_v2.json camera_config.lkg.json config_journal.jsonl; do [ -e $f ] && mv $f $f.off_1027; done; rm -f NO_HALT; sync; ls'`
   - 0d03a62 ignores the v2 files. They are moved aside so a later forward update re-migrates. K1's real run writes
     the last-known-good copy (`config_v2.LKG_NAME`), and M2 writes the journal (`config_journal.NAME`).
 - R3 (Nick): `ssh pi@bmcam002 'cat /home/pi/BM_Devel_Pi/software_sha.txt; sha256sum /home/pi/BM_Devel_Pi/camera_schedule.yaml; cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | tail -8'`

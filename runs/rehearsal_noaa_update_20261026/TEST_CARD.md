@@ -13,7 +13,9 @@ plugged into a spotter, you need to turn on the configuration for always on powe
   (`hil/tools/hil_restore_schedule.sh SPOT-33507C`) before the Tue ~7 AM wake, not a physical move.
 - Retry rule (rev 12.6 N1): a step's own built-in wait (C2's `until ssh` loop) is part of that step. A second power-cycle,
   a re-run or a manual fix is a retry and resets the count.
-- The USB wording below is rev 3's and is overridden by these lines.
+- QE 011 R1–R3 + N1–N2 (bm #188 review, 4:57 PM) and SPEC_e4 rev 12.7 F10 are folded in below, in place.
+- Rehearsal run 3 (shakedown, 4:53 PM) found 0-byte repo files after run 1's power cut: the runbook now ends U3, U4, R1
+  and R2 in `sync`, and Z checks `git status --porcelain` is empty.
 
 **Rev 3 (TE 006, Mon 10/26 ~11:20 AM): n = 5.** Nick's acceptance bar, typed in Lead 004's chat before 10:57 AM (PE 009 read
 it there; SPEC_e4 rev 12.5 must do 4), verbatim: "NOAA - prove to me that you can update the cameras with the latest software, run through the practice 5 times
@@ -27,7 +29,7 @@ Rev 2 closed rev 1's stop points (S1–S5 table below) and added must do 9 + the
 feature/r1-hil-test-engineer). This card runs only after QE's PASS on this card's sha and Nick's own line in the
 **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
-- **Spec:** SPEC_e4_noaa_release rev 12.6 (sha256 ab7fd78b68de; rev 3 cited 12.5, 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
+- **Spec:** SPEC_e4_noaa_release rev 12.7 (sha256 73ccd3b7233c; power path (b) and F10; rev 3 cited 12.5, 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
   `device_profiles/bmcam002/noaa_20261027/camera_config.yaml` (sha256 412bcafe00cd…, hash fe87abab).
 - **Units:** bmcam004 + SPOT-33507C only (TE 006 owns them; TE5 handed over 10:11 AM). bmcam002, SPOT-33361C and bmcam003
@@ -46,7 +48,7 @@ feature/r1-hil-test-engineer). This card runs only after QE's PASS on this card'
 | S1 | Nick's S3/S2 call | **Closed:** "GO: S3 = development 613fb2c1 + NOAA profile." (Nick, TE5 chat, Mon 10:00 AM; c_rc_soak_s3 `decided`) |
 | S2 | bmcam002's v2 target profile + hash | **Closed:** the profile file above, hash **fe87abab**. Built from d95aa41d (spec rev 12.2); `--print-config` on 613fb2c1 on the Mac (desk files below). This run re-checks it on the Pi (step U/M). |
 | S3 | How to put bmcam004 on 0d03a62 + the shipped v1 | **Closed:** step S below. 0d03a62's own `deploy_rc_runtime.sh` (manifest copy, no parity gate) + the shipped YAML, after the v2 files are moved aside. |
-| S4 | bmcam004 on a USB supply | **Open until checked:** Nick's move ~10:45 AM Mon (Lead 004's plan, c_noaa_update_plan_1027). Step B0 checks it; if the unit isn't on USB, stop. |
+| S4 | bmcam004 on a USB supply | **Rev 4: replaced.** bmcam004 was on SPOT-33507C's bus all along (Nick, 2:04 PM). The bus is held on (path (b), rev 12.7); R0 checks nereus000 + battery before each run. |
 | S5 | Capture-only command with no Spotter | **Closed (to confirm here):** runbook K1: `rc_progressive_jpeg.py --skip-time-window` without `--transmit`, with `NO_HALT` (rc_power_halt.py NO_HALT_FLAG) for that one run. |
 
 Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehearsal_noaa_update/desk/` (MANIFEST.md):
@@ -55,23 +57,29 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 - target hash fe87abab, overlay 0 (print_config_target_613fb2c1.txt).
 
 ## Conditions
-- bmcam004: Pi on a USB supply (no Spotter, no BM bus) for steps B–R2, then back on SPOT-33507C's bus for step W.
-- **Network:** Nick's phone hotspot, with the SSID + password bmcam004 already knows. Which network that is: **unknown**;
-  Nick names it in his OK line. If he picks bench Wi-Fi instead, that is a logged deviation by his choice.
-- **Who does the physical steps:**
-  - Nick plays the NOAA role: USB power-cycles and the hotspot.
-  - TE 006 types the runbook's SSH commands (C–R) on the bench unit, unless Nick says in his OK that he types run 1.
-    Five runs is ~4–5 h.
-  - **The power-cycle in step C:**
-    - Run 1: Nick unplugs and replugs the USB supply, if he is at the bench. Otherwise run 1 uses `sudo reboot`, like
-      runs 2–5.
-    - Runs 2–5: TE 006 sends `sudo reboot` over ssh from the armed start state. The unit then boots, cron starts a fresh
-      `@reboot` cycle and C2 has to win the same race.
-    - Logged deviation: a reboot isn't a power cut, so it doesn't test a cold boot or the hotspot rejoin after power loss.
-      Nick may ask for a USB cycle on every run instead (he must be at the bench).
-  - If C2 loses the race, the unit halts. Rev 4: a bus power-cycle from the console (TE 006) brings it back, and that run counts as an issue.
-  - **Nick moves bmcam004 back to the Spotter bus (step W1).** It is a physical change, so TE 006 announces it on the board
-    first (§10, rev 12.1 N1).
+- bmcam004: on SPOT-33507C's bus, **held on** (rev 12.7 power path (b); `bus_on/run/gate.log`, Mon 4:50 PM) for B–R4 and Z.
+  W1 puts the bus back on its production schedule for must do 9.
+- **Network:** bench Wi-Fi (Nick, TE 006 chat 12:00 PM). Logged deviation by his choice: the hotspot is not tested.
+- **Who does the physical steps (rev 12.6 N2): nobody, per run.**
+  - TE 006 types the runbook's SSH commands (C–R) on the bench unit. Five runs is ~4–5 h.
+  - The restart in step C is `sudo reboot` over ssh from the armed start state, every run. The unit boots, cron starts a
+    fresh `@reboot` cycle and C2 has to win the same race.
+  - Logged deviation: a reboot isn't a power cut, so it doesn't test a cold boot.
+  - If C2 loses the race, the unit halts on a live bus. TE 006 power-cycles the bus from nereus000's console
+    (`hil/tools/hil_restore_schedule.sh SPOT-33507C`, then `hil/tools/hil_bus_always_on.sh SPOT-33507C`), and that run is an issue.
+- **Before each run (R0, not timed), all three, or the run doesn't start:**
+  - **nereus000 (rev 12.7 F10):** `ssh pi@100.82.38.22 'systemctl is-active spotter-monitor && ls /dev/serial/by-id/ | grep -c SPOT-33507C'`
+    → `active` and `1`.
+    - If it fails: no run starts on the held bus. TE 006 moves to path (a), USB power, with Nick's physical cycles as one
+      NEEDED card (nick_usb_cycle_bmcam004), or the 5/5 slips.
+    - If nereus000 drops **while** the bus is held, TE 006 says so on c_noaa_kit_te006 at once: bmcam004 can't be powered
+      off remotely until it's back.
+  - **Spotter battery (QE R1):** SPOT-33507C `batteryVoltage` from Sofar `GET /api/latest-data?spotterId=SPOT-33507C`
+    (battery_watch2.py's request, one read) ≥ 3.80 V.
+    - Below that: no new run; release the bus (`hil/tools/hil_restore_schedule.sh SPOT-33507C`, run with bmcam004 halted);
+      TE 006 tells Nick on a NEEDED card. Mon 5:00 PM read: 4.06 V, +0.49 W (charging; battery.log).
+  - **Crontab backup (QE N2):** re-arm only from the catch's `/home/pi/crontab_backup_fieldupdate_<TS>.txt` (6e7a4080). The
+    bus script's `~/hil_backup/20261026T235030Z/crontab_ARMED.txt` is the disarmed copy (3e9fef36; DEVIATIONS.md 4:51 PM).
 - Timing:
   - after QE's PASS (~4 PM) and Nick's OK (~6 PM Mon); steps B–R2 Mon evening;
   - must do 9 needs the first in-window wake, 07:00–12:00 PT. Monday's window is over by then, so that is **Tue 10/27,
@@ -119,7 +127,8 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 - Z, the reset before the next run (not timed). R4 leaves the start state (0d03a62 + shipped YAML, armed), except for:
   - the repo checkout, which U3 moved to 613fb2c1;
   - the K1 output.
-  - So: `git -C /home/pi/repos/bm_cam_legacy checkout --detach 0d03a62cf565 && rm -rf /home/pi/noaa_check`.
+  - So: `git -C /home/pi/repos/bm_cam_legacy checkout --detach 0d03a62cf565 && rm -rf /home/pi/noaa_check && sync`.
+  - Want: `git -C /home/pi/repos/bm_cam_legacy status --porcelain` empty.
   - Then check S5's wants again (sha, YAML sha256, the step-0 "absent" list) and the crontab (armed).
   - Any difference is an issue: fix it and reset the count.
   - Then the next run starts at C.
@@ -128,8 +137,8 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 **W. Forward again + must do 9 on the Spotter bus**
 - W0: catch it again (C2; R4 re-armed it). Then the runbook's U3–U5, M1–M4 and A1 again (the second forward also proves
   re-forward after a rollback). Want: sha 613fb2c15037, hash fe87abab. Then `sudo halt`.
-- W1: TE 006 posts the move on the board, then Nick moves bmcam004 off USB and back onto SPOT-33507C's bus. The Spotter
-  stays on its production schedule: hourly, 600 s window, not held (restore_schedule.out :12, :25).
+- W1: with bmcam004 halted (W0's `sudo halt`), TE 006 runs `hil/tools/hil_restore_schedule.sh SPOT-33507C` (bus back
+  on its production schedule: hourly, 600 s window, not held; restore_schedule.out :12, :25). Nothing physical.
 - W2: off-window wakes Mon night (America/New_York 10:00–15:00 = 07:00–12:00 PT) must each log a `skip_win` and halt.
   - TE 006 reads the first one's cycle log over ssh at the wake (the pull_logs2.sh pattern).
   - Want "spotter UTC decoded" (F9 early warning) and 0 `[CFG][ERR]`.
@@ -171,10 +180,10 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   - target: sha 613fb2c15037 + `--print-config` fe87abab + runtime supervisor (runbook M5 + K1's `[RUNTIME]` line) +
     FORCE_SHRINK_FALLBACK absent + capture check PASS;
   - rollback: sha 0d03a62cf565 + yaml 117876ae0928… + pc_old.txt.
-- The print-config diff in U4 equals the desk diff. M1 exits 0.
+- U4 prints exactly the 4 lines in RUNBOOK U4 (then the ACCEPTED line). M1 exits 0.
 - **Must do 9:** all of W3. Any `spotter UTC` timeout = F9 = must do 9 fails.
-  - F9's bench reset path (rev 12.1 N2): **none confirmed.** nereus000's console has been out since Fri; a Mac USB console
-    to SPOT-33507C is untested; a Spotter power-cycle is physical (Nick).
+  - F9's bench reset path (rev 12.1 N2): nereus000's console is back (Mon 4:50 PM, bus hold done through it), but a console
+    reset for F9 is not tried on this bench; a Spotter power-cycle is physical (Nick).
   - So F9 here → must do 9 fails, and Nick picks (a)/(b) or a physical Spotter reset + the next wake.
 - **Restore:** all X checks.
 - A step that fails twice, or 60 min passing → rollback (R) and a recorded must do 4 FAIL.
@@ -182,7 +191,7 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 
 ## Stop rules
 - A rollback fails (F4) → stop, leave bmcam004 disarmed and halted, tell Nick + Lead 004.
-- USB power or network lost mid-step → wait. Never power-cycle during `rc_field_update` or `deploy_rc_runtime`. Resume
+- Power or network lost mid-step → wait. Never power-cycle during `rc_field_update` or `deploy_rc_runtime`. Resume
   from the last verified step.
 - Any write to bmcam002, SPOT-33361C, bmcam003 or SPOT-31593C → never.
 - Spotter battery (Sofar latest-data) < 3.80 V on SPOT-33507C before W1 → don't move to the bus. Tell Nick; must do 9 is
