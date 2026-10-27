@@ -15,7 +15,8 @@ plugged into a spotter, you need to turn on the configuration for always on powe
   a re-run or a manual fix is a retry and resets the count.
 - QE 011 R1–R3 + N1–N2 (bm #188 review, 4:57 PM) and SPEC_e4 rev 12.7 F10 are folded in below, in place.
 - Rehearsal run 3 (shakedown, 4:53 PM) found 0-byte repo files after run 1's power cut: the runbook now ends U3, U4, R1
-  and R2 in `sync`, and Z checks `git status --porcelain` is empty.
+  and R2 in `sync`, and Z checks `git status --porcelain` is empty. Rev 12.8 must do 3a adds the same check before U3
+  (`CLEAN_TREE`) and after R2 (`DIRTY=0`); both are want lines here, so a dirty tree is an issue and resets the count.
 
 **Rev 3 (TE 006, Mon 10/26 ~11:20 AM): n = 5.** Nick's acceptance bar, typed in Lead 004's chat before 10:57 AM (PE 009 read
 it there; SPEC_e4 rev 12.5 must do 4), verbatim: "NOAA - prove to me that you can update the cameras with the latest software, run through the practice 5 times
@@ -29,7 +30,8 @@ Rev 2 closed rev 1's stop points (S1–S5 table below) and added must do 9 + the
 feature/r1-hil-test-engineer). This card runs only after QE's PASS on this card's sha and Nick's own line in the
 **TE 006 chat** citing that sha (TEAM_RULES §6; bm_cam_legacy CLAUDE.md wins on hardware).
 
-- **Spec:** SPEC_e4_noaa_release rev 12.7 (sha256 73ccd3b7233c; power path (b) and F10; rev 3 cited 12.5, 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
+- **Spec:** SPEC_e4_noaa_release rev 12.8 (sha256 db51a3bf7a70; power path (b) and F10 from 12.7, must do 3a and F11 from
+  12.8; rev 3 cited 12.5, 1629658f5f2a): must dos 3, 4, 9; R12-1, R12-2; rev 12.1 N1–N3; F1–F9.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` at this card's sha. Profile:
   `device_profiles/bmcam002/noaa_20261027/camera_config.yaml` (sha256 412bcafe00cd…, hash fe87abab).
 - **Units:** bmcam004 + SPOT-33507C only (TE 006 owns them; TE5 handed over 10:11 AM). bmcam002, SPOT-33361C and bmcam003
@@ -191,7 +193,10 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 
 ## Stop rules
 - A rollback fails (F4) → stop, leave bmcam004 disarmed and halted, tell Nick + Lead 004.
-- Power or network lost mid-step → wait. Never power-cycle during `rc_field_update` or `deploy_rc_runtime`. Resume
+- Power lost during a write step or < 60 s after one (F11, rev 12.8) → an issue; the run is not clean. Catch the unit,
+  read `git status --porcelain` + `--print-config` hash, restore (Z, plus `git checkout -- . && sync` if dirty) before the
+  next run.
+- Network lost mid-step → wait. Never power-cycle during `rc_field_update` or `deploy_rc_runtime`. Resume
   from the last verified step.
 - Any write to bmcam002, SPOT-33361C, bmcam003 or SPOT-31593C → never.
 - Spotter battery (Sofar latest-data) < 3.80 V on SPOT-33507C before W1 → don't move to the bus. Tell Nick; must do 9 is
