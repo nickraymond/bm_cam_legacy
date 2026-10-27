@@ -376,6 +376,8 @@ class Manifest(unittest.TestCase):
         sys.path.insert(0, os.path.join(REPO, "tools"))
         import release_manifest as RM
         self.assertEqual(RM.cjxl_version_ok("cjxl v0.11.2 0.11.2 [NEON]"), (True, "0.11.2"))
+        # trixie arm64's own line (debian:trixie container, libjxl-tools 0.11.2-0.1~deb13u3)
+        self.assertEqual(RM.cjxl_version_ok("cjxl v0.11.2 [NEON,NEON_WITHOUT_AES]"), (True, "0.11.2"))
         self.assertEqual(RM.cjxl_version_ok("cjxl v0.7.0 0.7.0"), (False, "0.7.0"))
         self.assertEqual(RM.cjxl_version_ok("JPEG XL encoder v0.12.0"), (True, "0.12.0"))
         self.assertEqual(RM.cjxl_version_ok("garbage"), (False, None))
