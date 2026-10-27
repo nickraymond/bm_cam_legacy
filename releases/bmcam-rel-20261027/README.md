@@ -1,12 +1,13 @@
 # Release bmcam-rel-20261027 (bmcam002 for NOAA)
 
-Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 13.4 (sha256 15be39905c17), must dos M13-1 to M13-3.
+Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 13.8 (sha256 31edce5380c5), must dos M13-1 to M13-3.
 The tag is pushed by the Lead after QE PASS on the merged development sha (M13-1). A pushed tag never moves: a fix gets
 `bmcam-rel-20261027.1` on its new sha, a rebuilt manifest, and the 5/5 rehearsal count restarts (rev 13.3 N5).
 
 ## What is pinned (`release_manifest.json`)
 - **sha:** the commit the tag points to. A file can't name its own commit, so the installer checks
-  `HEAD == git rev-parse <tag>^{commit}` and that the staged manifest equals the tag's copy byte for byte.
+  `git rev-parse <tag>^{commit}` = `--sha` (the sha the Lead records at push, named in the runbook; SPEC_e4 rev 13.8
+  item 2) and that the staged manifest equals the tag's copy byte for byte.
 - **runtime_files:** sha256 of the 60 files `tools/rc_runtime_manifest.txt` installs.
   `tests/test_install_release.py` fails if the tree drifts from them; rebuild with the command below.
 - **profile:** `device_profiles/bmcam002/noaa_20261027/camera_config.yaml`, sha256 412bcafe00cd…, config hash
@@ -30,7 +31,7 @@ python3 tools/release_manifest.py check-repo --manifest releases/bmcam-rel-20261
 Stage `tools/install_release.sh`, `tools/release_manifest.py`, this `release_manifest.json` and the `debs/` folder in
 `/tmp/release/` (scp), check their sha256, then:
 ```
-bash /tmp/release/install_release.sh --tag bmcam-rel-20261027 \
+bash /tmp/release/install_release.sh --tag bmcam-rel-20261027 --sha <the sha the Lead recorded> \
   --manifest /tmp/release/release_manifest.json --debs /tmp/release/debs
 ```
 Want the last line `[INSTALL] PASS tag=bmcam-rel-20261027 sha=<12> cfg=fe87abab runtime=supervisor …`.

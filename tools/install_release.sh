@@ -4,8 +4,10 @@
 #
 # Repo path: tools/install_release.sh
 # Run ON the Pi over SSH, from the staged copy (the unit's checkout is still the old sha):
-#   bash /tmp/release/install_release.sh --tag bmcam-rel-20261027 \
+#   bash /tmp/release/install_release.sh --tag bmcam-rel-20261027 --sha <full sha> \
 #        --manifest /tmp/release/release_manifest.json --debs /tmp/release/debs
+# --sha is the tag's commit as the Lead recorded it when pushing the tag (SPEC_e4 rev 13.8
+# item 2; the runbook names it): the tag must resolve to exactly it, else FAIL.
 # Staged beside it by the runbook's scp step: release_manifest.py (this repo's
 # tools/release_manifest.py), release_manifest.json (releases/<tag>/), debs/ (the
 # target's offline .deb set from the data root; never in git).
@@ -21,7 +23,7 @@
 #               every miss, before any runtime change.
 #   3a tree     the checkout is clean (a tree of only 0-byte tracked files from a power cut
 #               is repaired, as RUNBOOK U3 / #188; anything else -> STOP, ask Nick).
-#   4 install   detached checkout of the tag's sha (its manifest must equal the staged one),
+#   4 install   detached checkout of the tag's sha (= --sha; its manifest must equal the staged one),
 #               rc_field_update.sh --skip-repo-sync --leave-disarmed --target-config <profile>,
 #               v1 -> v2 migration (config_migrate_v1_v2.py), then the target camera_config.yaml
 #               (the replaced one is kept beside it). Skipped when the unit already runs it.
@@ -44,6 +46,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TAG=""
+EXPECT_SHA=""
 MANIFEST=""
 DEBS=""
 REPO="/home/pi/repos/bm_cam_legacy"
@@ -59,6 +62,7 @@ usage() { sed -n '2,40p' "$0"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --tag) TAG="$2"; shift 2 ;;
+    --sha) EXPECT_SHA="$2"; shift 2 ;;
     --manifest) MANIFEST="$2"; shift 2 ;;
     --debs) DEBS="$2"; shift 2 ;;
     --repo) REPO="$2"; shift 2 ;;
@@ -69,8 +73,10 @@ while [[ $# -gt 0 ]]; do
     *) echo "[INSTALL][ERROR] unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
-[[ -n "$TAG" && -n "$MANIFEST" && -n "$DEBS" ]] \
-  || { echo "[INSTALL][ERROR] --tag, --manifest and --debs are required" >&2; exit 2; }
+[[ -n "$TAG" && -n "$EXPECT_SHA" && -n "$MANIFEST" && -n "$DEBS" ]] \
+  || { echo "[INSTALL][ERROR] --tag, --sha, --manifest and --debs are required" >&2; exit 2; }
+[[ "$EXPECT_SHA" =~ ^[0-9a-f]{40}$ ]] \
+  || { echo "[INSTALL][ERROR] --sha must be the full 40-hex commit the Lead recorded for $TAG" >&2; exit 2; }
 MTOOL="$SCRIPT_DIR/release_manifest.py"
 [[ -f "$MTOOL" ]] || { echo "[INSTALL][ERROR] $MTOOL missing (stage it beside this script)" >&2; exit 2; }
 [[ -f "$MANIFEST" ]] || { echo "[INSTALL][ERROR] manifest not found: $MANIFEST" >&2; exit 2; }
@@ -93,7 +99,7 @@ installed_version() {   # -> version if the package is installed, else empty
   dpkg-query -W -f='${db:Status-Status} ${Version}\n' "$1" 2>/dev/null | awk '$1=="installed"{print $2}'
 }
 
-log "release $TAG · manifest $MANIFEST · debs $DEBS · repo $REPO · runtime $DST"
+log "release $TAG @ $EXPECT_SHA · manifest $MANIFEST · debs $DEBS · repo $REPO · runtime $DST"
 log "log $LOG · $(date -u +%FT%TZ) · host $(hostname 2>/dev/null || echo unknown)"
 [[ "$(mget tag)" == "$TAG" ]] || { STEP=1; result_fail "manifest is for tag $(mget tag), not $TAG"; }
 
@@ -236,7 +242,9 @@ if [[ -z "$TAG_SHA" ]]; then
   TAG_SHA="$(git -C "$REPO" rev-parse -q --verify "refs/tags/$TAG^{commit}" 2>/dev/null || true)"
 fi
 [[ -n "$TAG_SHA" ]] || result_fail "tag $TAG not found in $REPO; nothing changed"
-log "tag $TAG -> $TAG_SHA"
+[[ "$TAG_SHA" == "$EXPECT_SHA" ]] \
+  || result_fail "tag $TAG is $TAG_SHA, not the recorded $EXPECT_SHA (rev 13.8); nothing changed"
+log "tag $TAG -> $TAG_SHA (= the recorded sha)"
 git -C "$REPO" show "$TAG_SHA:releases/$TAG/release_manifest.json" >"$WORK/tag_manifest.json" 2>/dev/null \
   || result_fail "the tag has no releases/$TAG/release_manifest.json; nothing changed"
 [[ "$(sha256_of "$WORK/tag_manifest.json")" == "$MANIFEST_SHA" ]] \

@@ -293,7 +293,7 @@ def main(argv=None):
     b.add_argument("--tag", required=True)
     b.add_argument("--profile", required=True, help="repo-relative v2 camera_config.yaml")
     b.add_argument("--target", action="append", required=True, help="target dir (repeatable)")
-    b.add_argument("--spec", default="SPEC_e4_noaa_release rev 13.4 (sha256 15be39905c17)")
+    b.add_argument("--spec", default="SPEC_e4_noaa_release rev 13.8 (sha256 31edce5380c5)")
     b.add_argument("--out", required=True)
     c = sub.add_parser("check-repo")
     c.add_argument("--manifest", required=True)

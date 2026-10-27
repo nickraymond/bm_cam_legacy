@@ -193,7 +193,7 @@ class Unit:
                                                 f"{TAG}^{{commit}}"], text=True).strip()
         git(self.repo, "checkout", "-q", "--detach", self.old_sha)
 
-    def run(self, *extra, numpy=True, **fake_env):
+    def run(self, *extra, numpy=True, sha=None, **fake_env):
         env = dict(os.environ, BMCAM_PYTHON=sys.executable, BMCAM_SUDO="",
                    BMCAM_OS_RELEASE=os.path.join(self.fake, "os-release"),
                    BMCAM_FIELD_UPDATE=os.path.join(self.fake, "field_update.sh"),
@@ -204,6 +204,7 @@ class Unit:
             env["PYTHONPATH"] = os.path.join(self.fake, "no_numpy")
         stage = os.path.join(self.root, "stage")
         r = subprocess.run(["bash", os.path.join(stage, "install_release.sh"), "--tag", TAG,
+                            "--sha", sha or self.tag_sha,
                             "--manifest", self.manifest, "--debs", self.debs,
                             "--repo", self.repo, "--dst", self.dst,
                             "--log-dir", os.path.join(self.root, "logs"), *extra],
@@ -339,6 +340,16 @@ class Install(unittest.TestCase):
         r = u.run()
         self.assertIn("0-byte tracked file", r.out)
         self.assert_pass(u, r)
+
+    def test_tag_sha_must_equal_the_recorded_sha(self):
+        """SPEC_e4 rev 13.8 item 2: the Lead records the tag's sha at push; any other = FAIL."""
+        u = Unit(self)
+        u.has_cjxl()
+        self.assert_untouched(u, u.run(sha=u.old_sha), 1, "FAIL step 4",
+                              f"not the recorded {u.old_sha}")
+        bad = u.run(sha=u.tag_sha[:12])                            # short sha: usage error
+        self.assertEqual(bad.returncode, 2, bad.out)
+        self.assertIn("full 40-hex commit", bad.out)
 
     def test_staged_manifest_must_equal_the_tags(self):
         u = Unit(self)
