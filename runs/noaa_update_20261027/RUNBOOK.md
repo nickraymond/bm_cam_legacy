@@ -86,6 +86,13 @@ Read from C2's survey (no new command):
 v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it. The OS, arch and Python are read by I3's
 step 1 (F13), not here.
 
+- 0b, GitHub reach (read-only; QE 011 N1 on #190): I3 step 4 fetches the tag from GitHub over the hotspot when the unit
+  lacks it (`install_release.sh:313–314`), and bmcam002 on 0d03a62 does.
+  `ssh pi@bmcam002 'git -C /home/pi/repos/bm_cam_legacy ls-remote origin "refs/tags/bmcam-rel-20261027*"'`
+  - Want: a `refs/tags/bmcam-rel-20261027^{}` line whose sha is `<REL_SHA>` (an annotated tag also lists its tag object
+    on a second line).
+  - No answer, or another sha → stop before I, ask Nick: without it I3 would install the packages, then FAIL at step 4.
+
 ## D. SD download first (box 10 min; F5, §10)
 - D1 (Nick, Mac), two commands, one directory each. The Mac's `/usr/bin/rsync` is 2.6.9, which rejects two remote
   sources in one command (QE 011 R1 on #188):

@@ -105,8 +105,9 @@ This card runs only after (all three):
 - **Z, the reset before the next run (not timed).** R4 leaves 0d03a62 + shipped YAML, armed, except for the repo checkout
   (the installer moved it to `<REL_SHA>`), the release's packages, `/tmp/release`, `/home/pi/release_logs` and the
   trg/check outputs. So:
-  - `git -C /home/pi/repos/bm_cam_legacy checkout --detach 0d03a62cf565 && rm -rf /tmp/release && sync`; want
-    `git status --porcelain` empty. The fetched tag stays in the repo (harmless; I3 then doesn't fetch it again).
+  - `git -C /home/pi/repos/bm_cam_legacy checkout --detach 0d03a62cf565 && git -C /home/pi/repos/bm_cam_legacy tag -d bmcam-rel-20261027 && rm -rf /tmp/release && sync`;
+    want `git status --porcelain` empty and `git tag -l bmcam-rel-20261027` empty. The tag is deleted so every counted
+    run's I3 fetches it from GitHub, as bmcam002's will (QE 011 N1 on #190; `install_release.sh:313–314`).
   - copy `/home/pi/release_logs/` to `run<N>/` on the Mac, then leave it on the unit;
   - after run 3: `sudo apt-get install -y --no-download /var/cache/apt/archives/{python3-picamera2,python3-av,python3-simplejpeg,python3-pidng}_*.deb`
     (numpy is back from the release's debs), then `dpkg -l python3-picamera2 python3-av python3-simplejpeg python3-pidng python3-numpy | grep -c ^ii`
