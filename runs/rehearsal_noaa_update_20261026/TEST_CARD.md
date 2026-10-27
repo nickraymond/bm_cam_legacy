@@ -13,7 +13,7 @@ This card runs only after (all three):
 - Nick's own line in the **TE 006 chat** citing this card's sha and `<REL_SHA>` (TEAM_RULES §6; bm_cam_legacy CLAUDE.md
   wins on hardware).
 
-- **Spec:** `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 13.9 (sha256 b9594e0ca0e3): M13-2 to M13-6, M13-4b (13.9),
+- **Spec:** `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 13.10 (sha256 21d3917ef58e): M13-2 to M13-6, M13-4b (13.9–13.10),
   rev 13.2 (purge scope), 13.3 N2–N5, 13.5 (F14, F16), 13.7 (1:00 PM start); R12-1; F1–F16.
 - **Runbook under test:** `runs/noaa_update_20261027/RUNBOOK.md` rev 2 at this card's sha.
 - **Release:** tag `bmcam-rel-20261027` @ `<REL_SHA>`; manifest `releases/bmcam-rel-20261027/release_manifest.json`;
@@ -32,11 +32,11 @@ This card runs only after (all three):
 4. **F15 (report only):** does an indoor triggered image get Spotter UTC ("spotter UTC decoded" + a media key)?
 
 ## Open before run 1
-- **Q1, out-of-window boot: answered by spec rev 13.9 (sha256 b9594e0ca0e3, M13-4b).** bmcam002's window is 10:00–15:00
-  ET = 07:00–12:00 PT, so the 1:00 PM PT update boots out of window. From code (PE 010, development @ 56dd7ca3): a
-  supervised per_boot wake out of window sends `<WS a=skip_win>`, then heals, then runs the listen tail
-  (`tests/test_heal_offwin.py:311`); a trg capture bypasses the window. Not yet seen on hardware, so **run 1 is the M13-4b
-  run** (step R1-W below).
+- **Q1, out-of-window boot: answered by spec rev 13.9 / 13.10 (M13-4b).** bmcam002's window is 10:00–15:00 ET =
+  07:00–12:00 PT, so the 1:00 PM PT update boots out of window. From code (PE 010, development @ 56dd7ca3): a supervised
+  per_boot wake out of window sends `<WS a=skip_win>`, then heals, then runs the listen tail
+  (`tests/test_heal_offwin.py:311`); a trg capture bypasses the window. Not yet seen on hardware, so one counted run boots
+  out of window (Steps, "The out-of-window run").
 - **Q2, network.** M13-6 says "indoors, phone hotspot". bmcam004 knows the bench Wi-Fi; a phone hotspot needs Nick's
   phone and bmcam004 knowing that SSID. Nick picks at his OK: (a) his hotspot, or (b) bench Wi-Fi as a logged deviation (as
   rev 4, his 12:00 PM choice Mon).
@@ -85,17 +85,18 @@ This card runs only after (all three):
   `ssh pi@100.82.38.22 'python3 /home/pi/hil_g4/hil_media_table.py --api https://nereus-vision-staging.onrender.com --devices BMCAM_004 --since <T3 UTC>'`
   (read-only `GET /devices/BMCAM_004/media`) plus the `.nrjxl` pulled from bmcam004 and `noaa_capture_check.py`.
   Then the post-T catch (`touch NO_HALT` before the keepalive ends), because every run rolls back.
-- **Run 1 is the out-of-window run (R1-W; M13-4b option b, rev 13.9).** Rehearsal runs start before 12:00 PM PT, inside
-  the window, so run 1 moves only the window:
-  - after I4 (fe87abab read back) and A1, before T1:
-    `cd /home/pi/BM_Devel_Pi && cp camera_config.yaml /home/pi/cc_target_run1.yaml && sed -i 's/^    start: "10:00"/    start: "03:00"/; s/^    end: "15:00"/    end: "04:00"/' camera_config.yaml && diff /home/pi/cc_target_run1.yaml camera_config.yaml; python3 rc_progressive_jpeg.py --print-config | grep -E "hash=|schedule:"`
-  - Want: a diff of exactly the `start` and `end` lines, `schedule: window=03:00-04:00 tz=America/New_York`, and the new
-    hash, logged (03:00–04:00 ET = 00:00–01:00 AM PT, so the T1 boot is out of window).
-  - T as written, plus in T2's cron log: `<WS a=skip_win>` and then the listen tail (rev 13.9 ask). T3's ack `h` is the
-    edited hash, not fe87abab, for this run only.
-  - Before R: `cp /home/pi/cc_target_run1.yaml /home/pi/BM_Devel_Pi/camera_config.yaml` and `--print-config` hash
-    fe87abab again, then R as written.
-  - Any run that boots after 12:00 PM PT also covers M13-4b (option a) with the target profile unchanged.
+- **The out-of-window run (M13-4b, spec rev 13.10).**
+  - **(a), preferred: run 5's T1 boots after 12:00 PM PT** with the target profile unchanged (C at ~11:40 AM). Want in
+    T2's cron log: `<WS a=skip_win>`, then the listen tail, then T3's trg lands and T4 passes. Any earlier run whose T1
+    falls after 12:00 PM PT covers it too.
+  - **(b), only if the clock can't place a T1 after 12:00 PM PT before 1:00 PM:** in that run, after I3–I4 pass as usual
+    and in T3's tail (in window), one logged console set, then a reboot that boots out of window:
+    - `bm pub bmcam/cmd {"id":<N>,"c":"set","kv":{"schedule.window.start":"03:00","schedule.window.end":"04:00"}} 1 1`;
+      want the ack with a new `h` (settings apply from the next boot; 03:00–04:00 ET = 00:00–01:00 AM PT).
+    - `sudo reboot` before the keepalive ends; T2 wants `<WS a=skip_win>` then the tail; T3's trg (ack `h` = the set's
+      hash); T4.
+    - In that tail: `bm pub bmcam/cmd {"id":<N+2>,"c":"reset","k":["schedule.window.start","schedule.window.end"]} 1 1`;
+      want the ack `h` = fe87abab. Then R as written. Each line, ack and hash goes in the log.
 - **Run 2 adds the dropped-session check (QE 011 R2):** while I3 prints step 2 or step 4, TE 006 kills the local ssh
   (`kill` of the ssh pid on the Mac). Then the RUNBOOK I3 re-attach line. Want: the log reaches `[INSTALL] PASS`, `.rc` = 0,
   and `ssh pi@bmcam004 'pgrep -fc "[i]nstall_release.sh"'` = 0 after it (one installer, finished). Planned, so it isn't a

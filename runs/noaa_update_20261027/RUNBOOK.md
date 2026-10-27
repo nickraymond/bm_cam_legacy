@@ -1,7 +1,7 @@
 # Runbook: bmcam002 on-land update for NOAA, Tue 10/27 1:00 PM PT (backup day Thu 10/29)
 
-TE 006, rev 2 (Mon 10/26 PM): the installer path. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 13.9
-(sha256 b9594e0ca0e3): M13-1 to M13-6, M13-4b (rev 13.9), rev 13.3 N2–N5, rev 13.5 (continuous power, F14, F16), rev 13.7 (1:00 PM start),
+TE 006, rev 2 (Mon 10/26 PM): the installer path. Spec: `~/NereusData/ops/pe_specs/SPEC_e4_noaa_release.md` rev 13.10
+(sha256 21d3917ef58e): M13-1 to M13-6, M13-4b (rev 13.9–13.10), rev 13.3 N2–N5, rev 13.5 (continuous power, F14, F16), rev 13.7 (1:00 PM start),
 R12-1, F1–F16. Rev 1 (the 613fb2c1 step-by-step path, #188 @ 56dd7ca3) is replaced: the release now carries its own
 dependencies and a hard fail (Nick, c_noaa_update_plan_1027 decided_2). bmcam002 is a **field unit**: every on-unit step and
 every SPOT-33361C step runs only on Nick's own words in the executing TE chat (TEAM_RULES §6). Rehearsed on bmcam004 first
@@ -147,7 +147,7 @@ step 1 (F13), not here.
   this needs `[RUNTIME] supervisor`.
 - T2 (Nick, Mac): `until ssh -o ConnectTimeout=3 pi@bmcam002 'grep -h -E "RUNTIME|skip_win|listen|spotter UTC" $(ls -t /home/pi/BM_Devel_Pi/cron_logs/* | head -1)'; do sleep 2; done`
   - Want: `[RUNTIME] supervisor`, `skip_win`, then the listen-tail start line. The TE starts a 150 s clock at that line.
-  - Exact listen line text: **from the rehearsal** (rev 5 card, run 1 = the out-of-window run); until then, the TE reads
+  - Exact listen line text: **from the rehearsal** (rev 5 card, the out-of-window run); until then, the TE reads
     the newest cron log.
 - T3 (the console sender, within the 150 s tail): first `bm pub bmcam/cmd {"id":<N>,"c":"get","k":["mode"]} 1 1`
   (starts the 300 s keepalive), then `bm pub bmcam/cmd {"id":<N+1>,"c":"trg","v":2} 1 1`, with N in 1–99,999, never one
