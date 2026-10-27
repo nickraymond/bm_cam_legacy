@@ -728,11 +728,13 @@ class ReviewFixes(unittest.TestCase):
                 fh.write('still_raw:\n  format: "nrjxl"\n')
             settings = {"config_path": path, "crop_native_xywh": (1504, 846, 1600, 900)}
             real_which = rc.shutil.which
+            # SPEC_e4 M13-3 (b): no pjpg rfb=enc fallback any more; still_action refuses
+            # before the capture (tests/test_noaa_no_quiet_fallback.py), and a tool that
+            # vanishes after that check fails the action loudly.
             with mock.patch.object(rc.shutil, "which",
-                                   side_effect=lambda n: None if n == "cjxl" else real_which(n)):
-                raw = rc._raw_begin(settings, None, d)
-        self.assertEqual((raw["rfb"], raw["dng"]), ("enc", None))
-        self.assertIn("cjxl", raw["detail"])
+                                   side_effect=lambda n: None if n == "cjxl" else real_which(n)), \
+                    self.assertRaisesRegex(RuntimeError, "cjxl missing"):
+                rc._raw_begin(settings, None, d)
 
     def test_3_a_raising_raw_capture_runs_todays_capture(self):
         import rc_capture

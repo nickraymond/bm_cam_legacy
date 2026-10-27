@@ -53,6 +53,7 @@ class Effective:
         self.overlay = {}
         self.dropped = []        # [(path, value, reason)] overlay keys not run this boot
         self.base_errors = []    # [reason] rules the base itself fails (logged only)
+        self.missing_deps = []   # nrjxl dependencies env lacks (SPEC_e4 M13-3: no image)
         self.lines = []
         self.hash = None
 
@@ -106,18 +107,29 @@ def resolve(base, state, env=None):
     for _ in range(len(overlay) + 1):
         values = dict(base)
         values.update(overlay)
-        drop, base_errs = _overlay_violations(
-            config_validate.validate(values, "effective", env=env), overlay)
+        # SPEC_e4 rev 13.1 (a): a missing nrjxl dependency is never dropped here. Dropping
+        # an overlay still.format=nrjxl ran the YAML's format (a JPEG) with no flag; now
+        # the nrjxl config stays and every still action refuses loudly (r=nodep_*).
+        violations = [v for v in config_validate.validate(values, "effective", env=env)
+                      if not config_validate.is_dep_violation(v)]
+        drop, base_errs = _overlay_violations(violations, overlay)
         if not drop:
             break
         for path, why in drop:
             eff.dropped.append((path, overlay.pop(path), why))
     eff.values, eff.overlay = values, overlay
     eff.base_errors = base_errs
+    eff.missing_deps = config_validate.missing_still_deps(values, env)
     eff.hash = config_v2.config_hash(values)
     for path, value, why in eff.dropped:
         eff.lines.append(f"[CFG][ERR] overlay {path}={value!r} not run this boot: {why} "
                          "(<CF err> in c.1)")
+    if eff.missing_deps:
+        eff.lines.append(
+            f"[CFG][ERR] still.format=nrjxl but {', '.join(eff.missing_deps)} missing on "
+            "this unit: every still action sends NO image (no JPEG fallback), only "
+            f"<WS a=skip_err r={config_validate.dep_reason(eff.missing_deps)}>; "
+            "install them (tools/install_release.sh)")
     for why in base_errs:
         eff.lines.append(f"[CFG][WARN] the YAML base fails an S4 rule (running it anyway): "
                          f"{why}")
