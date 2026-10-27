@@ -26,6 +26,9 @@ bmcam002 goes from legacy **0d03a62** + the shipped v1 profile (sha256 117876ae0
    NOAA's start time; a staff member free for ~30 min. **The hotspot SSID and password bmcam002 already knows: unknown
    (TE5 never recorded it; the 8/18 deployment doc doesn't name it). Nick names it.** The Pi joins only a network it
    already knows (skill bmcam-hotspot-update, Phase 1).
+   - **Power (SPEC_e4 rev 12.8):** what powers bmcam002 on land, and is it a Spotter bus? The update needs continuous
+     power for the whole run (60-min box + rollback). If it is a Spotter bus: **stop and ask Nick before any step.** No
+     held bus at NOAA (no USB console there) and no time box inside a 600 s bus window.
 3. Staged on the Mac (TE), each with its sha256 written in the log:
    - `~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/stage/`, filled with:
      - `rc_field_update.sh` from 613fb2c1;
@@ -91,20 +94,37 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 - U1 (Nick, Mac): `scp ~/NereusData/bm_cam_legacy/2026-10-27_noaa_update/stage/{rc_field_update.sh,camera_config.yaml} pi@bmcam002:/tmp/`
 - U2 (Nick): `ssh pi@bmcam002 'sha256sum /tmp/rc_field_update.sh /tmp/camera_config.yaml'`
   - Want: both equal the staged sha256 in the log (camera_config.yaml 412bcafe00cd…).
-- U3 (Nick): `ssh pi@bmcam002 'git -C /home/pi/repos/bm_cam_legacy fetch origin && git -C /home/pi/repos/bm_cam_legacy checkout --detach 613fb2c15037'`
-  - Want: `HEAD is now at 613fb2c1`.
+- U3 (Nick): `ssh pi@bmcam002 'test -z "$(git -C /home/pi/repos/bm_cam_legacy status --porcelain)" && echo CLEAN_TREE && git -C /home/pi/repos/bm_cam_legacy fetch origin && git -C /home/pi/repos/bm_cam_legacy checkout --detach 613fb2c15037 && sync'`
+  - Want: `CLEAN_TREE`, then `HEAD is now at 613fb2c1` (rev 12.8 must do 3a: the tree is clean before U3).
+  - **Power-cut guard (rehearsal run 3, Mon 4:59 PM):** a power cut within ~30 s of a checkout or untar left 71 repo files
+    at 0 bytes (unflushed writes). So U3, U4, R1 and R2 end in `sync`. If U3 refuses with "local changes would be
+    overwritten" (or prints no `CLEAN_TREE`), U3 has failed (F2 counts it; F11). A dirty tree is not proof of this damage,
+    so first list it, read-only:
+    `ssh pi@bmcam002 'cd /home/pi/repos/bm_cam_legacy && git status --porcelain | while read -r st f; do if [ "$st" = M ] && [ ! -s "$f" ]; then echo ZERO "$f"; else echo KEEP "$st $f"; fi; done'`
+    - Every line `ZERO` (tracked files emptied by a power cut) → repair:
+      `git -C /home/pi/repos/bm_cam_legacy fsck --no-dangling && git -C /home/pi/repos/bm_cam_legacy checkout -- . && sync`,
+      then U3 again. A second failure → rollback (R).
+    - Any `KEEP` line (a non-empty edit or an untracked file) → **stop and ask Nick**; discard nothing.
   - `rc_field_update.sh --ref` pulls a branch, so the exact sha is checked out here and the script runs with
     `--skip-repo-sync`.
   - **Don't use `--ref development`:** once this PR merges, development is no longer 613fb2c1, and software_sha would
     differ from the soak's.
-- U4 (Nick): `ssh pi@bmcam002 'bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy --skip-repo-sync --profile bmcam002 --leave-disarmed --accept-print-config-diff'`
+- U4 (Nick): `ssh pi@bmcam002 'bash /tmp/rc_field_update.sh --repo /home/pi/repos/bm_cam_legacy --skip-repo-sync --profile bmcam002 --leave-disarmed --accept-print-config-diff && sync'`
   - Want: every stage OK and a printed rollback block. The TE copies the `tar xzf …BM_Devel_Pi_before_rc_deploy_…tgz`
     line into the log.
   - **Ignore the `crontab …` rollback line it prints** (QE 011 N3). Its crontab backup was taken after C2 disarmed the
     unit, so it is a disarmed crontab. Re-arming (A1, R4) always uses C2's armed file.
-  - **Expected print-config diff (F6), desk-checked Mon on the shipped file:**
-    - a new `[BOOT] main_entry uptime_s=…` line;
-    - `source=yaml` added to the `power_halt:` and `schedule:` lines (`2026-10-26_rehearsal_noaa_update/desk/pc_diff.txt`).
+  - **Expected print-config diff (F6).** Below `[PARITY][DIFF] print-config text differs:`, exactly these 4 lines, as the
+    Pi printed them in rehearsal run 1 (Mon 12:07 PM; `2026-10-26_rehearsal_noaa_update/desk/u4_expected_diff_pi.txt`):
+    ```
+    -[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh
+    -[RC] schedule: window=10:00-15:00 tz=America/New_York
+    +[RC] power_halt: enabled=True dry_run=False mode=halt script=/home/pi/BM_Devel_Pi/tuned_halt.sh source=*
+    +[RC] schedule: window=10:00-15:00 tz=America/New_York source=*
+    ```
+    Then `print-config differs (above) — ACCEPTED by --accept-print-config-diff`.
+    - The deploy check prints `source=*`, not `source=yaml`, and leaves out the uptime line.
+    - The desk diff (`desk/pc_diff.txt`) shows the same two changes, run on the Mac without that normalising.
   - Any other diff line → stop and roll back (R).
   - `--profile bmcam002` only feeds stage 4's bm_serial patch: 384 / 1.0, the same values as shipped.
 - U5 (Nick): `ssh pi@bmcam002 'cat /home/pi/BM_Devel_Pi/software_sha.txt; test ! -e /home/pi/BM_Devel_Pi/FORCE_SHRINK_FALLBACK && echo FSF_ABSENT'`
@@ -172,9 +192,10 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
 
 ## R. Rollback to 0d03a62 (box 10 min; F2, F4, F6)
 Use on: any step failing twice, the 60-min box passing, or a "roll back" above.
-- R1 (Nick): `ssh pi@bmcam002 'pkill -TERM -f "[r]c_progressive_jpeg.py|[r]c_run_capture_cycle.sh"; tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_<host>_<TS>.tgz -C /home/pi'`
+- R1 (Nick): `ssh pi@bmcam002 'pkill -TERM -f "[r]c_progressive_jpeg.py|[r]c_run_capture_cycle.sh"; tar xzf /home/pi/backups/BM_Devel_Pi_before_rc_deploy_<host>_<TS>.tgz -C /home/pi && sync'`
   - The tar name is the one U4 printed.
-- R2 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && for f in camera_config.yaml bm_command_state_v2.json camera_config.lkg.json config_journal.jsonl; do [ -e $f ] && mv $f $f.off_1027; done; rm -f NO_HALT; ls'`
+- R2 (Nick): `ssh pi@bmcam002 'cd /home/pi/BM_Devel_Pi && for f in camera_config.yaml bm_command_state_v2.json camera_config.lkg.json config_journal.jsonl; do [ -e $f ] && mv $f $f.off_1027; done; rm -f NO_HALT; sync; ls; echo DIRTY=$(git -C /home/pi/repos/bm_cam_legacy status --porcelain | wc -l)'`
+  - Want: `DIRTY=0` (rev 12.8 must do 3a: the tree is clean after R2). Else F11: don't hand over a dirty tree.
   - 0d03a62 ignores the v2 files. They are moved aside so a later forward update re-migrates. K1's real run writes
     the last-known-good copy (`config_v2.LKG_NAME`), and M2 writes the journal (`config_journal.NAME`).
 - R3 (Nick): `ssh pi@bmcam002 'cat /home/pi/BM_Devel_Pi/software_sha.txt; sha256sum /home/pi/BM_Devel_Pi/camera_schedule.yaml; cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | tail -8'`
@@ -207,6 +228,14 @@ request and response goes in the log.
   - Else F7/F8: don't call it handed over; tell Nick.
   - Revert, if Nick asks: `{"self_heal": false, "heal_since": null}` / `{"remote_commands": false}`.
 - Nothing is sent to bmcam002 or SPOT-33361C on the day.
+
+## F11 note (power lost mid-update; SPEC_e4 rev 12.8)
+If bmcam002 goes dark during a write step or < 60 s after one: after it powers up, catch it (C), then
+`ssh pi@bmcam002 'git -C /home/pi/repos/bm_cam_legacy status --porcelain | wc -l; cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | grep -E "hash=|schedule:"'`.
+Then the runtime dir, read-only: `ssh pi@bmcam002 'find /home/pi/BM_Devel_Pi -path "*/images" -prune -o -type f -size 0 -print'`
+(want: no output; a cut mid-U4 or mid-R1 can empty runtime files too).
+Any dirty file, any 0-byte runtime file, or a hash/schedule that isn't the step's want → rollback to 0d03a62 (R; F2 counts
+it). Never hand over a dirty tree.
 
 ## F9 note (Spotter UTC)
 Only if a Spotter is attached to bmcam002 on land (must do 1; spec says none): a `--transmit`-free capture can't show
