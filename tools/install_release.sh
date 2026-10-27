@@ -4,8 +4,14 @@
 #
 # Repo path: tools/install_release.sh
 # Run ON the Pi over SSH, from the staged copy (the unit's checkout is still the old sha):
-#   bash /tmp/release/install_release.sh --tag bmcam-rel-20261027 --sha <full sha> \
+#   bash /tmp/release/install_release.sh --unit bmcam002 --tag bmcam-rel-20261027 --sha <full sha> \
 #        --manifest /tmp/release/release_manifest.json --debs /tmp/release/debs
+# It runs DETACHED (setsid + nohup, output only to the log file), so an SSH drop over the
+# hotspot never stops it midway (QE 011 R2). The command you typed only follows the log and
+# exits with the installer's code; after a drop, re-attach with the printed
+#   tail -n +1 -f /home/pi/release_logs/install_release_<UTC>.log
+# until its [INSTALL] PASS / FAIL / STOP line (the exit code is in <log>.rc).
+# --unit must equal the unit's hostname (else STOP: wrong unit).
 # --sha is the tag's commit as the Lead recorded it when pushing the tag (SPEC_e4 rev 13.8
 # item 2; the runbook names it): the tag must resolve to exactly it, else FAIL.
 # Staged beside it by the runbook's scp step: release_manifest.py (this repo's
@@ -14,16 +20,20 @@
 #
 # Steps (any FAIL exits non-zero; every FAIL before step 4 leaves the runtime untouched):
 #   1 record    OS, arch, Python, repo sha, software_sha, config file hashes (step 0).
-#               An OS / arch / Python the manifest has no target for -> STOP, ask Nick (F13).
+#               Hostname != --unit -> STOP. An OS / arch (`dpkg --print-architecture`, arm64
+#               only) / Python the manifest has no target for -> STOP, ask Nick (F13).
 #   2 deps      each dependency: present and good -> left alone; missing -> installed from
 #               the offline .deb set (sha256-checked, no network, no apt-get update; only
-#               packages the unit lacks; an apt simulation first, any removal = FAIL).
+#               packages the unit lacks, plus, only if apt needs them, upgrades of older
+#               installed ones (never a downgrade); an apt simulation first, any removal = FAIL;
+#               the real install waits for the dpkg lock and is never cut by a time box).
 #   3 check     cjxl >= the manifest's minimum, the runtime's Python imports (numpy, yaml,
 #               PIL, serial), rpicam-still, a 1-image cjxl encode. Any miss -> FAIL listing
 #               every miss, before any runtime change.
 #   3a tree     the checkout is clean (a tree of only 0-byte tracked files from a power cut
 #               is repaired, as RUNBOOK U3 / #188; anything else -> STOP, ask Nick).
-#   4 install   detached checkout of the tag's sha (= --sha; its manifest must equal the staged one),
+#   4 install   detached checkout of the tag's sha (= --sha; its manifest, install_release.sh and
+#               release_manifest.py must equal the staged copies),
 #               rc_field_update.sh --skip-repo-sync --leave-disarmed --target-config <profile>,
 #               v1 -> v2 migration (config_migrate_v1_v2.py), then the target camera_config.yaml
 #               (the replaced one is kept beside it). Skipped when the unit already runs it.
@@ -35,9 +45,10 @@
 # The unit is left DISARMED (rc_field_update.sh --leave-disarmed): re-arm with the crontab
 # file the catch saved (RUNBOOK A1), never the one rc_field_update.sh prints.
 #
-# Exit codes: 0 PASS · 1 FAIL · 2 bad usage · 3 STOP, ask Nick (F13 OS, a dirty tree).
+# Exit codes: 0 PASS · 1 FAIL · 2 bad usage · 3 STOP, ask Nick (wrong unit, F13 OS, a dirty tree).
 # Log: <log-dir>/install_release_<UTC>.log (default /home/pi/release_logs).
-# Test hooks: BMCAM_PYTHON, BMCAM_OS_RELEASE, BMCAM_SUDO, BMCAM_FIELD_UPDATE, BMCAM_DPKG_TIMEOUT_S.
+# Test hooks: BMCAM_PYTHON, BMCAM_OS_RELEASE, BMCAM_SUDO, BMCAM_FIELD_UPDATE, BMCAM_HOSTNAME,
+# BMCAM_APT_SIM_TIMEOUT_S, BMCAM_DPKG_LOCK_TIMEOUT_S; BMCAM_INSTALL_LOG marks the detached child.
 # Known limitations: arm64 + trixie only (rev 13.3 N1: bookworm's cjxl is 0.7.0); the
 # print-config diff the deploy prints is accepted and logged, and the step 5 hash is the gate;
 # rpicam-apps is checked, not installed (not in the offline set).
@@ -45,6 +56,9 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SELF="$SCRIPT_DIR/$(basename "${BASH_SOURCE[0]}")"
+ARGS=("$@")
+UNIT=""
 TAG=""
 EXPECT_SHA=""
 MANIFEST=""
@@ -56,11 +70,13 @@ LOG_DIR="/home/pi/release_logs"
 PY="${BMCAM_PYTHON:-/usr/bin/python3}"
 OS_RELEASE="${BMCAM_OS_RELEASE:-/etc/os-release}"
 SUDO="${BMCAM_SUDO-sudo -n}"
-DPKG_TIMEOUT_S="${BMCAM_DPKG_TIMEOUT_S:-600}"
+SIM_TIMEOUT_S="${BMCAM_APT_SIM_TIMEOUT_S:-120}"
+LOCK_TIMEOUT_S="${BMCAM_DPKG_LOCK_TIMEOUT_S:-600}"   # apt-daily often starts as a unit gets network
 
-usage() { sed -n '2,40p' "$0"; }
+usage() { sed -n '2,50p' "$SELF"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --unit) UNIT="$2"; shift 2 ;;
     --tag) TAG="$2"; shift 2 ;;
     --sha) EXPECT_SHA="$2"; shift 2 ;;
     --manifest) MANIFEST="$2"; shift 2 ;;
@@ -73,8 +89,8 @@ while [[ $# -gt 0 ]]; do
     *) echo "[INSTALL][ERROR] unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
-[[ -n "$TAG" && -n "$EXPECT_SHA" && -n "$MANIFEST" && -n "$DEBS" ]] \
-  || { echo "[INSTALL][ERROR] --tag, --sha, --manifest and --debs are required" >&2; exit 2; }
+[[ -n "$UNIT" && -n "$TAG" && -n "$EXPECT_SHA" && -n "$MANIFEST" && -n "$DEBS" ]] \
+  || { echo "[INSTALL][ERROR] --unit, --tag, --sha, --manifest and --debs are required" >&2; exit 2; }
 [[ "$EXPECT_SHA" =~ ^[0-9a-f]{40}$ ]] \
   || { echo "[INSTALL][ERROR] --sha must be the full 40-hex commit the Lead recorded for $TAG" >&2; exit 2; }
 MTOOL="$SCRIPT_DIR/release_manifest.py"
@@ -82,11 +98,34 @@ MTOOL="$SCRIPT_DIR/release_manifest.py"
 [[ -f "$MANIFEST" ]] || { echo "[INSTALL][ERROR] manifest not found: $MANIFEST" >&2; exit 2; }
 
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
-mkdir -p "$LOG_DIR" || { echo "[INSTALL][ERROR] cannot create $LOG_DIR" >&2; exit 2; }
-LOG="$LOG_DIR/install_release_${TS}.log"
-exec > >(tee -a "$LOG") 2>&1
+if [[ -z "${BMCAM_INSTALL_LOG:-}" ]]; then
+  # ---- launcher: start the installer detached, then follow its log (QE 011 R2) ----
+  mkdir -p "$LOG_DIR" || { echo "[INSTALL][ERROR] cannot create $LOG_DIR" >&2; exit 2; }
+  LOG="$LOG_DIR/install_release_${TS}.log"
+  : >"$LOG"
+  DETACH=(nohup); command -v setsid >/dev/null 2>&1 && DETACH=(setsid nohup)
+  BMCAM_INSTALL_LOG="$LOG" "${DETACH[@]}" bash "$SELF" "${ARGS[@]}" >>"$LOG" 2>&1 </dev/null &
+  CHILD=$!
+  echo "[INSTALL] running detached (${DETACH[*]}, pid $CHILD): an SSH drop does not stop it"
+  echo "[INSTALL] re-attach after a drop: tail -n +1 -f $LOG   (until [INSTALL] PASS / FAIL / STOP)"
+  shown=0
+  follow() { local n; n=$(wc -l <"$LOG"); n=${n//[^0-9]/}
+             if (( n > shown )); then sed -n "$((shown + 1)),${n}p" "$LOG"; shown=$n; fi; }
+  while :; do
+    follow
+    if [[ -s "$LOG.rc" ]]; then follow; exit "$(cat "$LOG.rc")"; fi
+    if ! kill -0 "$CHILD" 2>/dev/null && [[ ! -s "$LOG.rc" ]]; then
+      sleep 1; [[ -s "$LOG.rc" ]] && continue
+      follow; echo "[INSTALL] FAIL: the installer (pid $CHILD) ended with no result; read $LOG"; exit 1
+    fi
+    sleep 1
+  done
+fi
+# ---- the detached installer: output goes only to the log file (no tee, no SIGPIPE) ----
+LOG="$BMCAM_INSTALL_LOG"
+trap '' HUP
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/install_release.XXXXXX")"
-trap 'rm -rf "$WORK"' EXIT
+trap 'rc=$?; rm -rf "$WORK"; echo "$rc" >"$LOG.rc"' EXIT
 
 STEP=0
 log() { echo "[INSTALL] $*"; }
@@ -100,12 +139,15 @@ installed_version() {   # -> version if the package is installed, else empty
 }
 
 log "release $TAG @ $EXPECT_SHA · manifest $MANIFEST · debs $DEBS · repo $REPO · runtime $DST"
-log "log $LOG · $(date -u +%FT%TZ) · host $(hostname 2>/dev/null || echo unknown)"
+HOST="${BMCAM_HOSTNAME:-$(hostname 2>/dev/null || echo unknown)}"
+log "log $LOG · $(date -u +%FT%TZ) · host $HOST · --unit $UNIT"
 [[ "$(mget tag)" == "$TAG" ]] || { STEP=1; result_fail "manifest is for tag $(mget tag), not $TAG"; }
 
 # ---- 1. record (step 0) + OS gate (F13) -------------------------------------
 STEP=1
 log "=== step 1: record ==="
+[[ "$HOST" == "$UNIT" || "${HOST%%.*}" == "$UNIT" ]] \
+  || result_stop "wrong unit: this is $HOST, --unit says $UNIT; nothing changed"
 OS_LINE="$(. "$OS_RELEASE" 2>/dev/null; echo "ID=${ID:-?} VERSION_CODENAME=${VERSION_CODENAME:-?} VERSION_ID=${VERSION_ID:-?}")"
 ARCH="$(dpkg --print-architecture 2>/dev/null || echo unknown)"
 PYV="$("$PY" -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>/dev/null || echo unknown)"
@@ -116,8 +158,12 @@ log "repo sha: $OLD_SHA · software_sha.txt: $SW_SHA"
 for f in camera_schedule.yaml camera_config.yaml; do
   if [[ -f "$DST/$f" ]]; then log "$f sha256: $(sha256_of "$DST/$f")"; else log "$f: absent"; fi
 done
-TARGET_ID="$("$PY" "$MTOOL" target --manifest "$MANIFEST" --os-release "$OS_RELEASE" --arch "$ARCH" --python "$PYV")" \
-  || result_stop "F13: this OS / arch / Python is not one the release supports (above); nothing changed"
+TARGET_ID="$("$PY" "$MTOOL" target --manifest "$MANIFEST" --os-release "$OS_RELEASE" --arch "$ARCH" --python "$PYV")"
+case $? in
+  0) ;;
+  1) result_stop "F13: this OS / arch / Python is not one the release supports (above); nothing changed" ;;
+  *) result_fail "the manifest could not be read (above); nothing changed" ;;
+esac
 log "target: $TARGET_ID"
 if pgrep -f 'rc_progressive_jpeg.py|rc_run_capture_cycle.sh|main_pi_camera.py' >/dev/null 2>&1; then
   result_fail "a camera cycle is running; wait for it (or catch the next wake). Nothing changed"
@@ -161,39 +207,62 @@ else
   log "missing: ${NEED_UNIQ[*]}; installing from the offline set ($DEBS)"
   ROWS="$("$PY" "$MTOOL" debs --manifest "$MANIFEST" --target-id "$TARGET_ID" --dir "$DEBS")" \
     || result_fail "F12: the offline .deb set does not match the manifest (above); nothing installed"
-  SEL=()
+  # Offline: no source lists, so apt sees only the installed packages and these debs. No
+  # --no-download on the real install: with local .debs it fails with "Pathname to install is
+  # not absolute" (QE 011 R1, trixie arm64); the empty source lists already keep it offline.
+  APT_OPTS=(-o Dir::Etc::SourceList=/dev/null -o Dir::Etc::SourceParts=/dev/null
+            -o APT::Get::List-Cleanup=0 -o DPkg::Lock::Timeout="$LOCK_TIMEOUT_S")
   OURS=""
-  while IFS=$'\t' read -r pkg ver path; do
-    OURS="$OURS$pkg"$'\n'
-    have="$(installed_version "$pkg")"
-    if [[ -z "$have" ]]; then SEL+=("$path"); continue; fi
-    for want in "${NEED_UNIQ[@]}"; do
-      [[ "$pkg" == "$want" ]] || continue
-      # installed but its check failed: reinstall ours, never a downgrade
-      if dpkg --compare-versions "$have" gt "$ver"; then
-        result_fail "$pkg $have is installed and newer than the release's $ver, but its check failed; nothing installed"
+  select_debs() {       # $1 = min | upgrade -> SEL (deb paths) + UPGRADES (lines)
+    SEL=(); UPGRADES=()
+    local pkg ver path have want
+    while IFS=$'\t' read -r pkg ver path; do
+      OURS="$OURS$pkg"$'\n'
+      have="$(installed_version "$pkg")"
+      if [[ -z "$have" ]]; then SEL+=("$path"); continue; fi
+      for want in "${NEED_UNIQ[@]}"; do
+        [[ "$pkg" == "$want" ]] || continue
+        # installed but its check failed: reinstall ours, never a downgrade
+        if dpkg --compare-versions "$have" gt "$ver"; then
+          result_fail "$pkg $have is installed and newer than the release's $ver, but its check failed; nothing installed"
+        fi
+        SEL+=("$path"); continue 2
+      done
+      # QE 011 N1: an installed dependency older than ours, added only when apt needs it
+      if [[ "$1" == upgrade ]] && dpkg --compare-versions "$have" lt "$ver"; then
+        SEL+=("$path"); UPGRADES+=("$pkg $have -> $ver")
       fi
-      SEL+=("$path")
-    done
-  done <<<"$ROWS"
+    done <<<"$ROWS"
+  }
+  simulate() {          # -> SIM, SIM_RC
+    local to=(); command -v timeout >/dev/null 2>&1 && to=(timeout "$SIM_TIMEOUT_S")
+    log "apt simulation (${#SEL[@]} debs, no network${to[*]:+, time box ${SIM_TIMEOUT_S}s})"
+    SIM="$(${to[@]+"${to[@]}"} apt-get install -s "${APT_OPTS[@]}" "${SEL[@]}" 2>&1)"; SIM_RC=$?
+    printf '%s\n' "$SIM" | sed 's/^/  | /'
+  }
+  select_debs min
   for want in "${NEED_UNIQ[@]}"; do
     printf '%s' "$OURS" | grep -qxF "$want" \
       || result_fail "$want is needed but not in the offline set for $TARGET_ID; nothing installed"
   done
-  APT_OPTS=(--no-download -o Dir::Etc::SourceList=/dev/null -o Dir::Etc::SourceParts=/dev/null
-            -o APT::Get::List-Cleanup=0)
-  log "apt simulation (${#SEL[@]} debs, no network)"
-  SIM="$(apt-get install -s "${APT_OPTS[@]}" "${SEL[@]}" 2>&1)"; SIM_RC=$?
-  printf '%s\n' "$SIM" | sed 's/^/  | /'
+  simulate
+  if [[ $SIM_RC -ne 0 ]]; then
+    select_debs upgrade
+    if [[ ${#UPGRADES[@]} -gt 0 ]]; then
+      log "the minimal set does not resolve; retrying with ${#UPGRADES[@]} upgrade(s) of older installed packages:"
+      printf '  %s\n' "${UPGRADES[@]}"
+      simulate
+    fi
+  fi
   [[ $SIM_RC -eq 0 ]] || result_fail "F12: apt simulation failed (rc $SIM_RC, above); nothing installed"
   if printf '%s\n' "$SIM" | grep -q '^Remv '; then
     result_fail "the install would REMOVE packages (Remv lines above); nothing installed"
   fi
-  TO=(); command -v timeout >/dev/null 2>&1 && TO=(timeout "$DPKG_TIMEOUT_S")
-  log "installing (${TO[*]:-no time box: timeout not found})"
-  ${TO[@]+"${TO[@]}"} $SUDO apt-get install -y "${APT_OPTS[@]}" "${SEL[@]}"; RC=$?
+  # Never time-boxed: killing dpkg mid-unpack leaves it half-configured (QE 011 N3).
+  log "installing ${#SEL[@]} deb(s) (waits up to ${LOCK_TIMEOUT_S}s for the dpkg lock)"
+  $SUDO apt-get install -y "${APT_OPTS[@]}" "${SEL[@]}"; RC=$?
   sync
-  [[ $RC -eq 0 ]] || result_fail "F12: apt-get install failed (rc $RC); runtime untouched. Fix (sudo dpkg --configure -a) and re-run"
+  [[ $RC -eq 0 ]] || result_fail "F12: apt-get install failed (rc $RC); the runtime is untouched, but dpkg may be half-configured: run sudo dpkg --configure -a, then re-run"
   log "installed ${#SEL[@]} package(s)"
 fi
 
@@ -210,14 +279,18 @@ if [[ ${#CHECK_MISSES[@]} -gt 0 ]]; then
 fi
 
 # ---- 3a. clean tree (rev 12.8 must do 3a; rev 13.3 N3) ------------------------
-clean_tree() {          # 0 clean / repaired, 3 = a real local change (STOP)
-  local dirty
-  dirty="$(git -C "$REPO" status --porcelain 2>/dev/null)"
+clean_tree() {          # 0 clean / repaired, 3 = a real local change or git failed (STOP)
+  local dirty keep
+  # -z: raw paths (no C-quoting), and a failing git status is never read as clean (QE 011 N5)
+  # (pipefail is on, so a git failure fails the assignment; tr keeps the NULs out of $(...))
+  dirty="$(git -C "$REPO" status --porcelain -z | tr '\0' '\n')" || { log "git status failed"; return 3; }
   [[ -z "$dirty" ]] && { log "tree clean"; return 0; }
   printf '%s\n' "$dirty" | sed 's/^/  | /'
-  local keep
-  keep="$(printf '%s\n' "$dirty" | while read -r st f; do
-            if [[ "$st" == M && ! -s "$REPO/$f" ]]; then :; else echo "$st $f"; fi; done)"
+  keep="$(printf '%s\n' "$dirty" | while IFS= read -r entry; do
+            [[ -z "$entry" ]] && continue
+            st="${entry:0:2}"; f="${entry:3}"
+            if [[ "$st" == " M" && -f "$REPO/$f" && ! -s "$REPO/$f" ]]; then :; else echo "$entry"; fi
+          done)"
   [[ -n "$keep" ]] && return 3
   log "every dirty file is a 0-byte tracked file (power cut, F11): repairing"
   git -C "$REPO" fsck --no-dangling >/dev/null && git -C "$REPO" checkout -- . && sync || return 3
@@ -250,6 +323,12 @@ git -C "$REPO" show "$TAG_SHA:releases/$TAG/release_manifest.json" >"$WORK/tag_m
 [[ "$(sha256_of "$WORK/tag_manifest.json")" == "$MANIFEST_SHA" ]] \
   || result_fail "the staged manifest differs from the tag's copy (sha256); nothing changed"
 log "staged manifest = the tag's copy (sha256 ${MANIFEST_SHA:0:12})"
+for pair in "tools/install_release.sh:$SELF" "tools/release_manifest.py:$MTOOL"; do
+  git -C "$REPO" show "$TAG_SHA:${pair%%:*}" >"$WORK/tag_tool" 2>/dev/null \
+    && [[ "$(sha256_of "$WORK/tag_tool")" == "$(sha256_of "${pair#*:}")" ]] \
+    || result_fail "the staged ${pair#*:} differs from the tag's ${pair%%:*} (sha256); nothing changed"
+done
+log "staged install_release.sh + release_manifest.py = the tag's copies"
 
 already() {
   [[ "$(git -C "$REPO" rev-parse HEAD 2>/dev/null)" == "$TAG_SHA" ]] \
@@ -257,9 +336,11 @@ already() {
     && [[ -f "$DST/camera_config.yaml" && "$(sha256_of "$DST/camera_config.yaml")" == "$PROFILE_SHA" ]] \
     && "$PY" "$MTOOL" runtime --manifest "$MANIFEST" --dst "$DST" >/dev/null 2>&1
 }
+STEP4_RAN=false
 if already; then
   log "the unit already runs $TAG (sha, software_sha, runtime files, profile): step 4 skipped"
 else
+  STEP4_RAN=true
   log "checkout --detach $TAG_SHA (was $OLD_SHA)"
   git -C "$REPO" checkout -q --detach "$TAG_SHA" && sync || result_fail "checkout failed; runtime untouched. Back: git -C $REPO checkout --detach $OLD_SHA"
   clean_tree || result_stop "the tree is not clean after the checkout (above)"
@@ -315,6 +396,10 @@ fi
 STEP=6
 CJXL_V="$("$PY" "$MTOOL" cjxl-ok --manifest "$MANIFEST" "$(cjxl --version 2>/dev/null | head -1)")"
 NUMPY_V="$("$PY" -c 'import numpy; print(numpy.__version__)' 2>/dev/null)"
-log "unit left DISARMED: re-arm with the crontab file the catch saved (RUNBOOK A1)"
+if [[ "$STEP4_RAN" == true ]]; then
+  log "unit left DISARMED (rc_field_update.sh --leave-disarmed): re-arm with the crontab file the catch saved (RUNBOOK A1)"
+else
+  log "step 4 skipped: this run did not touch the crontab"
+fi
 echo "[INSTALL] PASS tag=$TAG sha=${TAG_SHA:0:12} cfg=$PIN runtime=supervisor target=$TARGET_ID cjxl=$CJXL_V numpy=$NUMPY_V log=$LOG"
 exit 0

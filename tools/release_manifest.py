@@ -45,6 +45,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -91,13 +92,12 @@ def read_os_release(path):
 
 
 def version_tuple(text):
-    parts = []
-    for p in str(text).split("."):
-        digits = "".join(ch for ch in p if ch.isdigit())
-        if not digits:
-            break
-        parts.append(int(digits))
-    return tuple(parts)
+    text = str(text)
+    head, sep, rest = text.partition(":")
+    if sep and head.isdigit():          # a Debian epoch ("1:2.2.4") is not part of the version
+        text = rest
+    m = re.match(r"\d+(?:\.\d+)*", text)   # the leading dotted number: "2.2.4+ds-1" -> 2.2.4
+    return tuple(int(p) for p in m.group(0).split(".")) if m else ()
 
 
 def cjxl_version_ok(version_line, minimum=CJXL_MIN):

@@ -31,9 +31,19 @@ python3 tools/release_manifest.py check-repo --manifest releases/bmcam-rel-20261
 Stage `tools/install_release.sh`, `tools/release_manifest.py`, this `release_manifest.json` and the `debs/` folder in
 `/tmp/release/` (scp), check their sha256, then:
 ```
-bash /tmp/release/install_release.sh --tag bmcam-rel-20261027 --sha <the sha the Lead recorded> \
+bash /tmp/release/install_release.sh --unit bmcam002 --tag bmcam-rel-20261027 --sha <the sha the Lead recorded> \
   --manifest /tmp/release/release_manifest.json --debs /tmp/release/debs
 ```
-Want the last line `[INSTALL] PASS tag=bmcam-rel-20261027 sha=<12> cfg=fe87abab runtime=supervisor …`.
-Exit 1 = FAIL (a step before 4 leaves the runtime untouched), 3 = STOP and ask Nick. The unit is left disarmed;
-re-arm with the crontab file the catch saved (RUNBOOK A1). Log: `/home/pi/release_logs/install_release_<UTC>.log`.
+- It starts the installer **detached** (`setsid nohup`, output only to the log) and then follows the log. An SSH drop
+  over the hotspot stops only the following, never the install (QE 011 R2). After a drop, reconnect and re-attach:
+  `ssh pi@bmcam002 'tail -n +1 -f /home/pi/release_logs/install_release_<UTC>.log'` (the path is the command's second
+  line) until the `[INSTALL] PASS / FAIL / STOP` line; the exit code is in `<log>.rc`. Don't start a second run while
+  the first has no `.rc` file.
+- `--unit` must be the unit's hostname (bmcam004 in the rehearsal), else STOP.
+- Want the last line `[INSTALL] PASS tag=bmcam-rel-20261027 sha=<12> cfg=fe87abab runtime=supervisor …`.
+- Exit 1 = FAIL (a step before 4 leaves the runtime untouched), 3 = STOP and ask Nick. A failed package install says
+  whether to run `sudo dpkg --configure -a`.
+- The unit is left disarmed when step 4 ran; re-arm with the crontab file the catch saved (RUNBOOK A1).
+- Proof the offline install works with the real apt (QE 011 R1): `tests/test_install_release.py::RealApt`, run as root
+  in `debian:trixie` arm64 with `--network none` (log:
+  `~/NereusData/bm_cam_legacy/2026-10-26_release_debs/trixie_arm64/realapt_install_<sha>.txt`).

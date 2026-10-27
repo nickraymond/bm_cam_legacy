@@ -46,6 +46,7 @@ MTOOL = os.path.join(REPO, "tools", "release_manifest.py")
 PROFILE = "device_profiles/bmcam002/noaa_20261027/camera_config.yaml"
 V1 = os.path.join(REPO, "device_profiles", "bmcam002", "camera_schedule.yaml")
 TAG = "bmcam-rel-test"
+UNIT = "bmcam-test"
 PKGS = {"libjxl-tools": "0.11.2-0.1~deb13u3", "python3-numpy": "1:2.2.4+ds-1",
         "python3-yaml": "6.0.2-1+b2", "python3-pil": "11.1.0-5+deb13u4",
         "python3-serial": "3.5-2", "libjxl0.11": "0.11.2-0.1~deb13u3",
@@ -54,7 +55,10 @@ PKGS = {"libjxl-tools": "0.11.2-0.1~deb13u3", "python3-numpy": "1:2.2.4+ds-1",
 FAKE_DPKG = r'''#!/bin/sh
 case "$1" in
   --print-architecture) echo "${FAKE_ARCH:-arm64}" ;;
-  --compare-versions) [ "$2" = "$4" ] && exit 1; [ "$(printf '%s\n%s\n' "$2" "$4" | sort -V | tail -1)" = "$2" ] ;;
+  --compare-versions)
+    [ "$2" = "$4" ] && exit 1
+    hi="$(printf '%s\n%s\n' "$2" "$4" | sort -V | tail -1)"
+    case "$3" in gt) [ "$hi" = "$2" ] ;; lt) [ "$hi" = "$4" ] ;; *) exit 2 ;; esac ;;
   *) exit 2 ;;
 esac
 '''
@@ -72,6 +76,7 @@ for a in "$@"; do
   case "$a" in */*.deb)
     pkg="$(basename "$a" | cut -d_ -f1)"
     if [ $sim = 1 ]; then echo "Inst $pkg"; [ -n "$FAKE_APT_REMV" ] && echo "Remv python3-picamera2"
+      [ "$pkg" = libjxl0.11 ] && touch "$FAKE/sim_has_libjxl0.11"
     else
       echo "$pkg installed-by-test" >> "$FAKE/installed.txt"
       [ "$pkg" = libjxl-tools ] && cp "$FAKE/cjxl.real" "$FAKE/bin/cjxl"
@@ -79,6 +84,12 @@ for a in "$@"; do
     fi ;;
   esac
 done
+# N1: libjxl-tools needs a newer libjxl0.11 than the installed one; unresolvable without it
+if [ $sim = 1 ] && [ -n "$FAKE_OLD_LIBJXL" ] && [ ! -e "$FAKE/sim_has_libjxl0.11" ]; then
+  echo "E: Unmet dependencies. libjxl-tools : Depends: libjxl0.11 (>= 0.11.2) but 0.11.1-1 is installed"; exit 100
+fi
+rm -f "$FAKE/sim_has_libjxl0.11"
+[ $sim = 0 ] && [ -n "$FAKE_APT_SLEEP" ] && sleep "$FAKE_APT_SLEEP"
 exit 0
 '''
 FAKE_CJXL = r'''#!/bin/sh
@@ -127,14 +138,18 @@ def git(repo, *args):
 
 
 class Unit:
-    def __init__(self, case):
+    def __init__(self, case, real_target=None):
+        """real_target: a real offline-set dir (debs/ + debs_index.tsv …); then dpkg,
+        dpkg-query, apt-get and cjxl are the system's own (RealApt, in a container)."""
+        self.real = real_target is not None
         self.root = tempfile.mkdtemp(prefix="install_")
         case.addCleanup(shutil.rmtree, self.root, True)
         self.fake = os.path.join(self.root, "fake")
         self.bin = os.path.join(self.fake, "bin")
-        for name, text in (("dpkg", FAKE_DPKG), ("dpkg-query", FAKE_DPKG_QUERY),
-                           ("apt-get", FAKE_APT), ("rpicam-still", "#!/bin/sh\nexit 0\n"),
-                           ("pgrep", "#!/bin/sh\nexit 1\n")):
+        fakes = [("rpicam-still", "#!/bin/sh\nexit 0\n"), ("pgrep", "#!/bin/sh\nexit 1\n")]
+        if not self.real:
+            fakes += [("dpkg", FAKE_DPKG), ("dpkg-query", FAKE_DPKG_QUERY), ("apt-get", FAKE_APT)]
+        for name, text in fakes:
             write(os.path.join(self.bin, name), text, 0o755)
         write(os.path.join(self.fake, "cjxl.real"), FAKE_CJXL, 0o755)
         write(os.path.join(self.fake, "no_numpy", "numpy", "__init__.py"),
@@ -145,7 +160,10 @@ class Unit:
                                "libjxl0.11")))
         write(os.path.join(self.fake, "os-release"), OS_RELEASE.format(codename="trixie"))
         write(os.path.join(self.fake, "field_update.sh"), FAKE_FIELD_UPDATE, 0o755)
-        self._target_dir()
+        if self.real:
+            self.tdir = real_target
+        else:
+            self._target_dir()
         self.manifest = os.path.join(self.root, "stage", "release_manifest.json")
         subprocess.run([sys.executable, MTOOL, "build", "--tag", TAG, "--profile", PROFILE,
                         "--target", self.tdir, "--out", self.manifest], check=True,
@@ -186,6 +204,8 @@ class Unit:
         os.makedirs(os.path.dirname(os.path.join(self.repo, PROFILE)), exist_ok=True)
         shutil.copy(os.path.join(REPO, PROFILE), os.path.join(self.repo, PROFILE))
         write(os.path.join(self.repo, "tools", "config_migrate_v1_v2.py"), FAKE_MIGRATE, 0o755)
+        for tool in (INSTALL, MTOOL):                  # the tag carries the staged tools too
+            shutil.copy(tool, os.path.join(self.repo, "tools", os.path.basename(tool)))
         git(self.repo, "add", "-A")
         git(self.repo, "commit", "-q", "-m", "release")
         git(self.repo, "tag", "-a", TAG, "-m", TAG)
@@ -193,24 +213,31 @@ class Unit:
                                                 f"{TAG}^{{commit}}"], text=True).strip()
         git(self.repo, "checkout", "-q", "--detach", self.old_sha)
 
-    def run(self, *extra, numpy=True, sha=None, **fake_env):
+    def run(self, *extra, numpy=True, sha=None, unit=UNIT, popen=False, **fake_env):
         env = dict(os.environ, BMCAM_PYTHON=sys.executable, BMCAM_SUDO="",
                    BMCAM_OS_RELEASE=os.path.join(self.fake, "os-release"),
                    BMCAM_FIELD_UPDATE=os.path.join(self.fake, "field_update.sh"),
-                   FAKE=self.fake, REAL_REPO=REPO, UNIT_REPO=self.repo, DST=self.dst,
+                   BMCAM_HOSTNAME=UNIT, FAKE=self.fake, REAL_REPO=REPO, UNIT_REPO=self.repo, DST=self.dst,
                    PATH=self.bin + ":" + os.path.dirname(sys.executable) + ":/usr/bin:/bin",
                    **fake_env)
         if not numpy:
             env["PYTHONPATH"] = os.path.join(self.fake, "no_numpy")
         stage = os.path.join(self.root, "stage")
-        r = subprocess.run(["bash", os.path.join(stage, "install_release.sh"), "--tag", TAG,
-                            "--sha", sha or self.tag_sha,
+        argv = ["bash", os.path.join(stage, "install_release.sh"), "--unit", unit,
+                            "--tag", TAG, "--sha", sha or self.tag_sha,
                             "--manifest", self.manifest, "--debs", self.debs,
                             "--repo", self.repo, "--dst", self.dst,
-                            "--log-dir", os.path.join(self.root, "logs"), *extra],
-                           capture_output=True, text=True, env=env, timeout=600)
+                            "--log-dir", os.path.join(self.root, "logs"), *extra]
+        if popen:
+            return subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    text=True, env=env, start_new_session=True)
+        r = subprocess.run(argv, capture_output=True, text=True, env=env, timeout=600)
         r.out = r.stdout + r.stderr
         return r
+
+    def logs(self):
+        d = os.path.join(self.root, "logs")
+        return sorted(f for f in os.listdir(d) if f.endswith(".log")) if os.path.isdir(d) else []
 
     def has_cjxl(self):
         shutil.copy(os.path.join(self.fake, "cjxl.real"), os.path.join(self.bin, "cjxl"))
@@ -252,9 +279,11 @@ class Install(unittest.TestCase):
         self.assertEqual(len(calls), 2, calls)                     # simulate, then install
         self.assertIn(" -s ", calls[0])
         for c in calls:
-            self.assertIn("--no-download", c)
-            self.assertIn("Dir::Etc::SourceList=/dev/null", c)
+            self.assertIn("Dir::Etc::SourceList=/dev/null", c)      # offline: no source lists
+            self.assertIn("DPkg::Lock::Timeout=", c)
             self.assertNotIn("update", c.split())
+        # QE 011 R1: --no-download breaks a real install of local debs (rc 100)
+        self.assertNotIn("--no-download", calls[1])
         installed = [os.path.basename(a).split("_")[0] for a in calls[1].split() if a.endswith(".deb")]
         self.assertEqual(sorted(installed), ["libjxl-tools", "python3-numpy"])
         self.assertIn("python import numpy: MISSING", r.out)
@@ -265,14 +294,18 @@ class Install(unittest.TestCase):
         self.assertTrue([f for f in os.listdir(u.dst)
                          if f.startswith(f"camera_config.yaml.before_{TAG}_")], os.listdir(u.dst))
         self.assertIn("unit left DISARMED", r.out)
-        logs = os.listdir(os.path.join(u.root, "logs"))
-        self.assertEqual(len(logs), 1)
+        self.assertEqual(len(u.logs()), 1)
+        self.assertIn("running detached", r.out)
+        rc = open(os.path.join(u.root, "logs", u.logs()[0] + ".rc")).read().strip()
+        self.assertEqual(rc, "0")
 
         again = u.run()                                            # idempotent re-run
         self.assert_pass(u, again)
         self.assertEqual(len(u.apt_calls()), 2, "a re-run called apt-get")
         self.assertIn("nothing installed", again.out)
         self.assertIn("step 4 skipped", again.out)
+        self.assertIn("this run did not touch the crontab", again.out)
+        self.assertNotIn("unit left DISARMED", again.out)
 
     def test_everything_present_installs_nothing(self):
         u = Unit(self)
@@ -351,6 +384,53 @@ class Install(unittest.TestCase):
         self.assertEqual(bad.returncode, 2, bad.out)
         self.assertIn("full 40-hex commit", bad.out)
 
+    def test_wrong_unit_stops(self):
+        u = Unit(self)
+        self.assert_untouched(u, u.run(unit="bmcam002"), 3, "STOP step 1", "wrong unit")
+
+    def test_old_installed_dependency_is_upgraded_only_when_needed(self):
+        """QE 011 N1: libjxl0.11 installed but older than libjxl-tools needs."""
+        u = Unit(self)
+        with open(os.path.join(u.fake, "installed.txt")) as fh:
+            rows = [ln for ln in fh if not ln.startswith("libjxl0.11 ")]
+        rows.append("libjxl0.11 0.11.1-1\n")
+        with open(os.path.join(u.fake, "installed.txt"), "w") as fh:
+            fh.writelines(rows)
+        r = u.run(FAKE_OLD_LIBJXL="1")
+        self.assert_pass(u, r)
+        self.assertIn("retrying with 1 upgrade(s)", r.out)
+        self.assertIn("libjxl0.11 0.11.1-1 -> 0.11.2-0.1~deb13u3", r.out)
+        installed = [os.path.basename(a).split("_")[0] for a in u.apt_calls()[-1].split()
+                     if a.endswith(".deb")]
+        self.assertEqual(sorted(installed), ["libjxl-tools", "libjxl0.11", "python3-numpy"])
+
+    def test_a_dropped_ssh_session_does_not_stop_the_install(self):
+        """QE 011 R2: SIGHUP to the launcher's session mid-install; the detached installer
+        finishes, and its log ends in PASS with exit code 0 in <log>.rc."""
+        import signal
+        import time
+        u = Unit(self)
+        p = u.run(numpy=False, popen=True, FAKE_APT_SLEEP="3")
+        deadline = time.time() + 60
+        while time.time() < deadline and not (u.logs() and "installing 2 deb(s)" in open(
+                os.path.join(u.root, "logs", u.logs()[0])).read()):
+            time.sleep(0.2)
+        os.killpg(p.pid, signal.SIGHUP)                 # the SSH session goes away
+        p.wait(timeout=30)
+        log = os.path.join(u.root, "logs", u.logs()[0])
+        while time.time() < deadline and not os.path.exists(log + ".rc"):
+            time.sleep(0.2)
+        self.assertEqual(open(log + ".rc").read().strip(), "0", open(log).read())
+        self.assertIn("[INSTALL] PASS", open(log).read())
+        self.assertEqual(u.software_sha(), u.tag_sha[:12])
+
+    def test_staged_tools_must_equal_the_tags(self):
+        u = Unit(self)
+        u.has_cjxl()
+        with open(os.path.join(u.root, "stage", "release_manifest.py"), "a") as fh:
+            fh.write("# edited after the tag\n")
+        self.assert_untouched(u, u.run(), 1, "FAIL step 4", "differs from the tag's tools/release_manifest.py")
+
     def test_staged_manifest_must_equal_the_tags(self):
         u = Unit(self)
         u.has_cjxl()
@@ -383,6 +463,12 @@ class Manifest(unittest.TestCase):
         self.assertTrue(t["packages"]["libjxl-tools"].startswith("0.11."))
         self.assertTrue(all(len(d["sha256"]) == 64 for d in t["debs"]))
 
+    def test_debian_epoch_is_not_the_version(self):
+        sys.path.insert(0, os.path.join(REPO, "tools"))
+        import release_manifest as RM
+        self.assertEqual(RM.version_tuple("1:2.2.4+ds-1"), (2, 2, 4))
+        self.assertEqual(RM.version_tuple("0.11.2-0.1~deb13u3"), (0, 11, 2))
+
     def test_cjxl_version_rule(self):
         sys.path.insert(0, os.path.join(REPO, "tools"))
         import release_manifest as RM
@@ -392,6 +478,33 @@ class Manifest(unittest.TestCase):
         self.assertEqual(RM.cjxl_version_ok("cjxl v0.7.0 0.7.0"), (False, "0.7.0"))
         self.assertEqual(RM.cjxl_version_ok("JPEG XL encoder v0.12.0"), (True, "0.12.0"))
         self.assertEqual(RM.cjxl_version_ok("garbage"), (False, None))
+
+
+@unittest.skipUnless(os.environ.get("BMCAM_REAL_APT_TARGET") and os.geteuid() == 0,
+                     "real-apt run: root in a debian:trixie arm64 container with no network, "
+                     "BMCAM_REAL_APT_TARGET = the offline-set dir (see the PR)")
+class RealApt(Install):
+    """QE 011 R1: the REAL apt-get / dpkg / cjxl on the staged debs, offline. Start: no cjxl,
+    no numpy (python3-yaml, -pil, -serial present, as on a 0d03a62 unit)."""
+
+    def test_no_jxl_start_real_apt(self):
+        u = Unit(self, real_target=os.environ["BMCAM_REAL_APT_TARGET"])
+        self.assertIsNone(shutil.which("cjxl"))
+        r = u.run()
+        print(r.out)                                   # the evidence, with pytest -s
+        self.assert_pass(u, r)
+        self.assertIn("python import numpy: MISSING", r.out)
+        self.assertIn("cjxl: MISSING", r.out)
+        self.assertIn("Setting up libjxl-tools (0.11.2-0.1~deb13u3)", r.out)
+        self.assertIn("cjxl self-test encode: OK", r.out)
+        again = u.run()                                            # idempotent, for real
+        self.assert_pass(u, again)
+        self.assertIn("every dependency present: nothing installed", again.out)
+
+    # the fake-apt cases above need the fakes: not re-run here
+    for _name in [n for n in dir(Install) if n.startswith("test_")]:
+        locals()[_name] = None
+    del _name
 
 
 if __name__ == "__main__":
