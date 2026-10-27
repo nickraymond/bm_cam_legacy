@@ -130,8 +130,10 @@ step 1 (F13), not here.
     `schedule: window=10:00-15:00 tz=America/New_York`, `crop_xywh=(1504, 846, 1600, 900)`, no `[CFG][ERR]` line, and
     `supervisor False fe87abab`.
   - Any miss → roll back (R).
-- The tar to roll back with: `ssh pi@bmcam002 'grep -o "/home/pi/backups/BM_Devel_Pi_before_rc_deploy_[^ ]*\.tgz" /home/pi/release_logs/install_release_<UTC>.log | tail -1'`
-  → into the runbook log (R1 uses it).
+- The tar to roll back with: `ssh pi@bmcam002 'grep -o "/home/pi/backups/BM_Devel_Pi_before_rc_deploy_[^ ]*\.tgz" /home/pi/release_logs/install_release_<UTC>.log | head -1'`
+  → into the runbook log (R1 uses it). The path appears twice in the log (deploy_rc_runtime.sh's "backing up" and
+  "restore command" lines); both name the same tar. Use the log of the I3 run that did step 4: a re-run that skipped
+  step 4 (unit already on the release) takes no tar and prints no such line.
 
 ## A. Re-arm (box 2 min)
 - A1 (Nick): `ssh pi@bmcam002 'crontab /home/pi/crontab_backup_fieldupdate_<TS from C2>.txt && crontab -l'`
