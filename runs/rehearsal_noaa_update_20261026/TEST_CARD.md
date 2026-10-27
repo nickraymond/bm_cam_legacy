@@ -83,7 +83,8 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
   - **Crontab backup (QE N2):** re-arm only from the catch's `/home/pi/crontab_backup_fieldupdate_<TS>.txt` (6e7a4080). The
     bus script's `~/hil_backup/20261026T235030Z/crontab_ARMED.txt` is the disarmed copy (3e9fef36; DEVIATIONS.md 4:51 PM).
 - Timing:
-  - after QE's PASS (~4 PM) and Nick's OK (~6 PM Mon); steps B–R2 Mon evening;
+  - the 5 counted runs start after QE's PASS on bm #188, its merge, and Nick's new line in the TE 006 chat citing the
+    merged sha; Mon evening;
   - must do 9 needs the first in-window wake, 07:00–12:00 PT. Monday's window is over by then, so that is **Tue 10/27,
     the ~7 AM wake**.
 
@@ -194,13 +195,13 @@ Desk evidence (Mac, no hardware): `~/NereusData/bm_cam_legacy/2026-10-26_rehears
 ## Stop rules
 - A rollback fails (F4) → stop, leave bmcam004 disarmed and halted, tell Nick + Lead 004.
 - Power lost during a write step or < 60 s after one (F11, rev 12.8) → an issue; the run is not clean. Catch the unit,
-  read `git status --porcelain` + `--print-config` hash, restore (Z, plus `git checkout -- . && sync` if dirty) before the
-  next run.
+  read `git status --porcelain`, RUNBOOK F11's 0-byte runtime `find` and the `--print-config` hash, and restore before the
+  next run (Z; the RUNBOOK U3 repair only if every dirty line is `ZERO`, else ask Nick).
 - Network lost mid-step → wait. Never power-cycle during `rc_field_update` or `deploy_rc_runtime`. Resume
   from the last verified step.
 - Any write to bmcam002, SPOT-33361C, bmcam003 or SPOT-31593C → never.
-- Spotter battery (Sofar latest-data) < 3.80 V on SPOT-33507C before W1 → don't move to the bus. Tell Nick; must do 9 is
-  his (a)/(b). Spotters were not charging Mon AM (TE5 addendum: 3.87 V, −0.3 W).
+- Spotter battery < 3.80 V: R0 (Conditions) before each run and before W1 → no run, release the bus, tell Nick; must do
+  9 is his (a)/(b).
 
 ## Outputs
 - Run folder `~/NereusData/bm_cam_legacy/2026-10-26_rehearsal_noaa_update/`:

@@ -98,9 +98,13 @@ v2 or state file present) → stop and ask Nick; the rehearsal didn't cover it.
   - Want: `CLEAN_TREE`, then `HEAD is now at 613fb2c1` (rev 12.8 must do 3a: the tree is clean before U3).
   - **Power-cut guard (rehearsal run 3, Mon 4:59 PM):** a power cut within ~30 s of a checkout or untar left 71 repo files
     at 0 bytes (unflushed writes). So U3, U4, R1 and R2 end in `sync`. If U3 refuses with "local changes would be
-    overwritten" (or prints no `CLEAN_TREE`), that is this damage and U3 has failed (F2 counts it; F11). Repair:
-    `git -C /home/pi/repos/bm_cam_legacy fsck --no-dangling && git -C /home/pi/repos/bm_cam_legacy checkout -- . && sync`,
-    then U3 again. A second failure → rollback (R).
+    overwritten" (or prints no `CLEAN_TREE`), U3 has failed (F2 counts it; F11). A dirty tree is not proof of this damage,
+    so first list it, read-only:
+    `ssh pi@bmcam002 'cd /home/pi/repos/bm_cam_legacy && git status --porcelain | while read -r st f; do if [ "$st" = M ] && [ ! -s "$f" ]; then echo ZERO "$f"; else echo KEEP "$st $f"; fi; done'`
+    - Every line `ZERO` (tracked files emptied by a power cut) → repair:
+      `git -C /home/pi/repos/bm_cam_legacy fsck --no-dangling && git -C /home/pi/repos/bm_cam_legacy checkout -- . && sync`,
+      then U3 again. A second failure → rollback (R).
+    - Any `KEEP` line (a non-empty edit or an untracked file) → **stop and ask Nick**; discard nothing.
   - `rc_field_update.sh --ref` pulls a branch, so the exact sha is checked out here and the script runs with
     `--skip-repo-sync`.
   - **Don't use `--ref development`:** once this PR merges, development is no longer 613fb2c1, and software_sha would
@@ -228,8 +232,10 @@ request and response goes in the log.
 ## F11 note (power lost mid-update; SPEC_e4 rev 12.8)
 If bmcam002 goes dark during a write step or < 60 s after one: after it powers up, catch it (C), then
 `ssh pi@bmcam002 'git -C /home/pi/repos/bm_cam_legacy status --porcelain | wc -l; cd /home/pi/BM_Devel_Pi && python3 rc_progressive_jpeg.py --print-config | grep -E "hash=|schedule:"'`.
-Any dirty file or a hash/schedule that isn't the step's want → rollback to 0d03a62 (R; F2 counts it). Never hand over a
-dirty tree.
+Then the runtime dir, read-only: `ssh pi@bmcam002 'find /home/pi/BM_Devel_Pi -path "*/images" -prune -o -type f -size 0 -print'`
+(want: no output; a cut mid-U4 or mid-R1 can empty runtime files too).
+Any dirty file, any 0-byte runtime file, or a hash/schedule that isn't the step's want → rollback to 0d03a62 (R; F2 counts
+it). Never hand over a dirty tree.
 
 ## F9 note (Spotter UTC)
 Only if a Spotter is attached to bmcam002 on land (must do 1; spec says none): a `--transmit`-free capture can't show
