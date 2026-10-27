@@ -446,6 +446,22 @@ def _raw_capture_or_fallback(settings, output_dir, capture_fn):
     return native_path, info, image_stem, dng_path, why
 
 
+def _nrjxl_missing_deps(settings):
+    """SPEC_e4 M13-3 (b): the nrjxl dependencies (config_validate.NRJXL_DEPS) this unit
+    lacks, [] for a pjpg still. An unreadable `still_raw:` island is [] here: _raw_begin
+    reports it as rfb=err, as before."""
+    import config_validate
+    import rc_raw_jxl
+    try:
+        cfg = rc_raw_jxl.load_raw_config(settings["config_path"])
+    except ValueError:
+        return []
+    if not rc_raw_jxl.enabled(cfg):
+        return []
+    return config_validate.missing_still_deps({"still.format": rc_raw_jxl.FORMAT},
+                                              config_validate.probe_env())
+
+
 def _raw_begin(settings, native_path, output_dir):
     """Sprint28: the nrjxl state of this still action, or None for a pjpg unit (then
     nothing below changes a byte). An unreadable `still_raw:` island is a fallback
@@ -474,16 +490,13 @@ def _raw_begin(settings, native_path, output_dir):
               "pjpg rfb=err")
         return {"cfg": cfg, "rfb": "err", "detail": f"invalid RAW crop {[x, y, w, h]}",
                 "dng": None, "metadata": None}
-    import importlib.util
-    missing = [t for t, ok in (("cjxl", shutil.which("cjxl") is not None),
-                               ("numpy", importlib.util.find_spec("numpy") is not None)) if not ok]
+    missing = _nrjxl_missing_deps(settings)
     if missing:
-        # review #2: without the encoder a --raw capture is a wasted 24 MB DNG: capture as
-        # today and send pjpg (config_validate refuses this config where it can probe).
-        print(f"[RAW][WARN] still.format=nrjxl but {', '.join(missing)} missing on this unit: "
-              f"no --raw capture, pjpg rfb={'enc' if 'cjxl' in missing else 'err'}")
-        return {"cfg": cfg, "rfb": "enc" if "cjxl" in missing else "err",
-                "detail": f"{', '.join(missing)} not installed", "dng": None, "metadata": None}
+        # SPEC_e4 M13-3 (b): still_action refuses this before the capture (skip_err
+        # r=nodep_*). Reaching here means a tool vanished mid-action: fail the action
+        # loudly; never the old pjpg rfb=enc/err fallback.
+        raise RuntimeError(f"still.format=nrjxl but {', '.join(missing)} missing on this "
+                           "unit: no image (no JPEG fallback)")
     print(f"[RAW] still.format=nrjxl: target_fill={cfg['target_fill']} d_max={cfg['d_max']} "
           f"distances={cfg['distances']} effort={cfg['effort']} "
           f"encode_max_s={cfg['encode_max_s']} keep_crop={cfg['keep_crop']} "
@@ -1040,6 +1053,33 @@ def still_action(
                         window_end=settings["window_end"],
                         image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
                         image_quality=settings["q_max"], reason="storage_full")
+                sent = True
+            except Exception as exc:
+                debug_print(f"Wake status send failed, continuing safely: {exc}")
+        summary["uplinked"] = sent
+        _save_local_tail(daemon, summary, budget, bm_commands_cfg=bm_commands_cfg,
+                         clock=clock, sleep_fn=sleep_fn, supervised=supervised)
+        return summary
+
+    missing = _nrjxl_missing_deps(settings)
+    if missing:
+        # SPEC_e4 M13-3 (b), Nick 10/26: "Falling back to the old JPEG is not an acceptale
+        # solution". No capture and no image: one skip_err line naming what is missing
+        # (backend wake_reason), then the acks and the listen tail as usual.
+        reason = __import__("config_validate").dep_reason(missing)
+        summary["error"] = summary["stage"] = reason
+        summary["raw"] = {"fmt": None, "rfb": None, "missing": missing,
+                          "detail": f"{', '.join(missing)} not installed"}
+        print(f"[RAW][ERROR] still.format=nrjxl but {', '.join(missing)} missing on this unit: "
+              f"NO image this action (no JPEG fallback); wake line r={reason}. "
+              "Install them: tools/install_release.sh")
+        if wake_line:
+            try:
+                wake_fn(action="skip_err", timezone_name=settings["timezone"], local_time=None,
+                        window_start=settings["window_start"],
+                        window_end=settings["window_end"],
+                        image_res_key=f"{settings['output_size'][0]}x{settings['output_size'][1]}",
+                        image_quality=settings["q_max"], reason=reason)
                 sent = True
             except Exception as exc:
                 debug_print(f"Wake status send failed, continuing safely: {exc}")

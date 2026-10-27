@@ -682,6 +682,19 @@ class Dispatcher:
                 kv, media = self.one_shot(cmd.fields["kv"], v)
             except W.Rejected as rej:
                 return self._reject(cmd.id, cmd.range, rej.code, rej.key, rej.why)
+        if v != 0:
+            # SPEC_e4 M13-3 (b): a still that cannot be an nrjxl is refused here, on the
+            # console, naming what is missing; the action itself would send no image.
+            values = dict(self.effective(), **kv)
+            if values.get("mode.media") == "still":
+                missing = config_validate.missing_still_deps(values, self.env)
+                if missing:
+                    fixes = dict(config_validate.NRJXL_DEPS)
+                    return self._reject(
+                        cmd.id, cmd.range, "xk", "still.format",
+                        f"trg {v} refused: {config_validate.NRJXL_DEP_MESSAGE}"
+                        f"{', '.join(missing)} (not on this unit: no image would be sent; "
+                        f"{'; '.join(fixes[t] for t in missing)})")
         labels = {0: "trg 0: pending trigger cancelled", 1: "trg 1 armed: capture, save only",
                   2: "trg 2 armed: capture + output per mode",
                   3: "trg 3 armed: stored reef reference", 4: "trg 4 armed: stored reference card"}

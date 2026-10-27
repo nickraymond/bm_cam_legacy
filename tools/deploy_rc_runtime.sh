@@ -43,6 +43,7 @@ REPO="$(dirname "$SCRIPT_DIR")"
 DST="/home/pi/BM_Devel_Pi"
 BACKUP_DIR="/home/pi/backups"
 PROFILE=""
+TARGET_CONFIG=""
 FRESH="false"
 INSTALL_CRON="false"
 DRY_RUN="false"
@@ -64,6 +65,9 @@ Options:
                        unit's service key if absent.
   --profile NAME       Install device_profiles/NAME/camera_schedule.yaml.
                        Without --fresh, refuses to overwrite an existing YAML.
+  --target-config PATH The v2 camera_config.yaml the unit will run after this
+                       deploy (not installed here). Its still.format decides
+                       whether missing cjxl/numpy is fatal (nrjxl: yes).
   --install-cron       Install the RC @reboot crontab line (backs up crontab).
   --accept-print-config-diff
                        Install even though the staged runtime's --print-config
@@ -85,6 +89,7 @@ while [[ $# -gt 0 ]]; do
     --backup-dir) BACKUP_DIR="$2"; shift 2 ;;
     --fresh) FRESH="true"; shift ;;
     --profile) PROFILE="$2"; shift 2 ;;
+    --target-config) TARGET_CONFIG="$2"; shift 2 ;;
     --install-cron) INSTALL_CRON="true"; shift ;;
     --accept-print-config-diff) ACCEPT_PC_DIFF="true"; shift ;;
     --create-service-key) CREATE_KEY="true"; shift ;;
@@ -108,6 +113,9 @@ if [[ -n "$PROFILE" ]]; then
   PROFILE_YAML="$REPO/device_profiles/$PROFILE/camera_schedule.yaml"
   [[ -f "$PROFILE_YAML" ]] || { echo "[RC-DEPLOY][ERROR] profile not found: $PROFILE_YAML" >&2; exit 1; }
 fi
+if [[ -n "$TARGET_CONFIG" && ! -f "$TARGET_CONFIG" ]]; then
+  echo "[RC-DEPLOY][ERROR] --target-config not found: $TARGET_CONFIG" >&2; exit 1
+fi
 
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 HOSTNAME_VALUE="$(hostname 2>/dev/null || echo unknown_host)"
@@ -123,15 +131,41 @@ log "timestamp=$TS hostname=$HOSTNAME_VALUE python=$PY"
 "$PY" -c "import yaml" 2>/dev/null \
   || die "PyYAML is missing for $PY (sudo apt install python3-yaml); refusing to deploy"
 log "preflight: PyYAML present"
-# Sprint28 (SPEC r4 §3.4-3.5): nrjxl stills need numpy + cjxl. NOT fatal: a pjpg unit
-# never uses them; on a unit without them `set still.format=nrjxl` is refused (config_validate
-# env rule) and a stored nrjxl config sends today's JPEG with no --raw capture. They are
-# installed by provisioning (bmcam-provision skill, Phase 2 apt line); on an existing unit:
-#   sudo apt-get install -y libjxl-tools python3-numpy
-if "$PY" -c "import numpy" 2>/dev/null; then log "preflight: numpy present (nrjxl ok)"
-else log "preflight: WARN numpy missing (nrjxl refused / pjpg rfb=err; sudo apt-get install -y python3-numpy)"; fi
+# Sprint28 (SPEC r4 §3.4-3.5): nrjxl stills need numpy + cjxl. SPEC_e4 rev 13 M13-3 (a): FATAL
+# when the config this deploy leaves the unit on is nrjxl (an nrjxl unit without them sends
+# no image at all: config_validate.NRJXL_DEPS); a pjpg unit only gets the line. Which config:
+# --target-config (the v2 file installed after this deploy, tools/install_release.sh), else
+# the unit's camera_config.yaml (v2), else the --profile / unit camera_schedule.yaml (v1).
+# They are installed by provisioning (bmcam-provision skill, Phase 2 apt line) or
+# tools/install_release.sh; by hand: sudo apt-get install -y libjxl-tools python3-numpy
+DEPS_MISSING=()
+if "$PY" -c "import numpy" 2>/dev/null; then log "preflight: numpy present"
+else DEPS_MISSING+=("numpy (sudo apt-get install -y python3-numpy)"); fi
 if command -v cjxl >/dev/null 2>&1; then log "preflight: cjxl present ($(cjxl --version 2>/dev/null | head -1))"
-else log "preflight: WARN cjxl missing (nrjxl refused / pjpg rfb=enc; sudo apt-get install -y libjxl-tools)"; fi
+else DEPS_MISSING+=("cjxl (sudo apt-get install -y libjxl-tools)"); fi
+if [[ -n "$TARGET_CONFIG" ]]; then FMT_FILE="$TARGET_CONFIG"; FMT_KIND="v2"
+elif [[ -z "$PROFILE" && -f "$DST/camera_config.yaml" ]]; then FMT_FILE="$DST/camera_config.yaml"; FMT_KIND="v2"
+elif [[ -n "$PROFILE" ]]; then FMT_FILE="$PROFILE_YAML"; FMT_KIND="v1"
+else FMT_FILE="$DST/camera_schedule.yaml"; FMT_KIND="v1"; fi
+STILL_FORMAT="none"
+if [[ -f "$FMT_FILE" ]]; then
+  STILL_FORMAT="$(cd "$REPO/BM_Devel_Pi" && "$PY" -c "
+import sys
+if sys.argv[2] == 'v2':
+    import config_v2
+    print(config_v2.load_config(sys.argv[1], strict=False).base.get('still.format') or 'pjpg')
+else:
+    import rc_raw_jxl
+    print(rc_raw_jxl.load_raw_config(sys.argv[1]).get('format') or 'pjpg')" "$FMT_FILE" "$FMT_KIND" 2>&1)" \
+    || die "could not read still.format from $FMT_FILE ($STILL_FORMAT); refusing to deploy"
+fi
+log "preflight: still.format=$STILL_FORMAT ($FMT_KIND ${FMT_FILE})"
+if [[ ${#DEPS_MISSING[@]} -gt 0 ]]; then
+  if [[ "$STILL_FORMAT" == "nrjxl" ]]; then
+    die "still.format is nrjxl but missing: ${DEPS_MISSING[*]}; an nrjxl unit without them sends NO image. Install them first (tools/install_release.sh); nothing installed"
+  fi
+  log "preflight: not installed (fine for still.format=$STILL_FORMAT; nrjxl would need them): ${DEPS_MISSING[*]}"
+fi
 # An ARMED unit can boot into a half-copied runtime or halt mid-deploy.
 if [[ -n "${BMCAM_CRONTAB_FILE:-}" ]]; then CRON_NOW="$(cat "$BMCAM_CRONTAB_FILE" 2>/dev/null || true)"
 else CRON_NOW="$(crontab -l 2>/dev/null || true)"; fi

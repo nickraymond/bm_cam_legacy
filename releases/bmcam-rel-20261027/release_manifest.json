@@ -1,0 +1,494 @@
+{
+ "checks": {
+  "cjxl_min": "0.11",
+  "python_imports": {
+   "PIL": "python3-pil",
+   "numpy": "python3-numpy",
+   "serial": "python3-serial",
+   "yaml": "python3-yaml"
+  },
+  "tools": {
+   "cjxl": "libjxl-tools",
+   "rpicam-still": null
+  }
+ },
+ "profile": {
+  "config_hash": "fe87abab",
+  "file": "device_profiles/bmcam002/noaa_20261027/camera_config.yaml",
+  "runtime": "supervisor",
+  "sha256": "412bcafe00cde5aae1031ac2a0c94969fdc0f3b2252cb6c4a5231252653ca295",
+  "still_format": "nrjxl"
+ },
+ "runtime_files": {
+  "atomic_io.py": "a9c6567112f7db383cda0bf5dc4721d969a3fa786d90ff14078bc1d3b845a705",
+  "bm_codec.py": "cd2112b7520a6999e64c407331d67ce53ca758d68fe722199f9a9653667651c4",
+  "bm_frame_decoder.py": "1928682af3a16beec2c6af2b2e0c3fda8fe8731c9687639f4aeccf9576a09735",
+  "bm_port.py": "73650af19aad5641058ce93bcdba0c56f43b063413a613e445b332612d1f92ff",
+  "bm_serial.py": "8e6377a55f5635f8f01a73b74a195d65d38fdba2d6a6b255867d2945eabae421",
+  "command_bindings.py": "a2961b75ed1924b4db5425965d1704635cec147b46c06c4ae1c7aab9c1bac874",
+  "command_daemon.py": "0cf4a1f824b344fb6058d446e2fd246f4d714b567de0eee5ba0c2d24d71bc32f",
+  "command_guards.py": "71b17f558a91862dbb99820ee4240eaf36477e728aafe034a93362a78537cbb9",
+  "command_help.py": "26d98a7218a41fe777eaf6d91b7307fb7e9078f464aa2362d0e9f3cf44776272",
+  "command_inbox.py": "22b377ace20c4b149b241fe8ec5a6248d7a71fe9fd1db5d80b3a7834809444a8",
+  "command_messages.py": "2dfe019311cc86d9726c111624f0da19762f0bbd7374fe503b93f4fc28848f9e",
+  "command_replies.py": "a49b495e5cae0a95b5dcbd9d7a2ea7b114772c07eb0476772c6cf13d4298f738",
+  "command_state.py": "64d05917df977391d9309d1d7684b0e5334c3b31c4abe012c6a50336de864a12",
+  "command_state_v9.py": "fe2ff985612adc50309ee00d0d073418cc89d61706c2df5b7a763d775f14300b",
+  "command_tables.py": "edd8dfa754d4916bae382a1b8601346e8e5ac64708a083008a2004c8d1902e20",
+  "command_trigger.py": "28015cf21eddd63825086fa911bb09205ae7ca629707f72e9906a0a77b8a4237",
+  "command_v9.py": "c8d32ad4ecde9e4082ea1165accddd10f7745407514b34fa7ed97fd59ce3a0c4",
+  "command_wire.py": "3fc53af6b1522cfd61cbcea97ac00ec5ff01237e3d036f9210f9c1cb46ce3ba4",
+  "config_dump.py": "e8bbca7fd3344025b526372b9c582e0bd67c57cad574d65562fab8592a3df63c",
+  "config_journal.py": "64a76a9f75a14c5116e2128712ddba5b05e24b41e096f7d85b134c4b284eeddb",
+  "config_migrate.py": "cf791ac9b26db7e3c5d02f2d60a89508ed4a92c7d3432c987f90f20e326fea13",
+  "config_registry.py": "e9b47a7758bf9fef2bea7f02ae0ce7ae39ce3663b2e09346e7322fc4cfae318f",
+  "config_v1_reader.py": "bd9e8da4bcd62cc1ace8ceb9ebab5097f7909f557a862db93c76bd4aa398d11e",
+  "config_v2.py": "bc9c0b9a7e4c856b5be45b53c7485472e55eb907583fc59e1f9e6d38871f1b9c",
+  "config_validate.py": "ba5cb5fbf0eb0ec5821b27dcd13f68d58d901f8e495cd5c2acff7da503199b70",
+  "network_ap.sh": "c7e6ef30d617074149453c153bb52766230266d6795b9512df45ff8c8b3a3860",
+  "network_config.py": "e12cea0c60f90ba67cdaccb2f357c2dc9719edd39e3304e237f43f95df2c7eb2",
+  "rc_capture.py": "1a674b50208b015f2eca03865eee3739a078cc61ee8ae6aba185662f757dc372",
+  "rc_command_hooks.py": "e1278c15086b9f7784bef76d4d2370e9d650f1ad432c4a76480ce7f53de9a929",
+  "rc_exposure_profile.py": "c3621d4f2cd22bdaffafcaa0e4614ad040cfbcc1fa7744df2c196401ac912b38",
+  "rc_heal.py": "3523dcdaca3b7ff4f6a2ff5e6f005cf4a0c7cac3650b4d4ec34bdef0f336e1f1",
+  "rc_jpeg_encoder.py": "15e4739dac5f32cbb2f87487986fd8f4b57f2beb7d41e70ee257956061fa62fb",
+  "rc_media_key.py": "923c46cb0ebd9c3e1b687b6df3a71db8b3feff0b81439045f9705d3dfe3fd26a",
+  "rc_port_owner.py": "d31ad425cb443ecda2ec5db8879284e0d68e98f208b4e017c267b5d066cb94ed",
+  "rc_power_halt.py": "a4328b22bb3196bfc14c99afc8da29938e3ea759889d1681c1b8e230d2302f50",
+  "rc_progressive_jpeg.py": "19218c9d2203f90f309de01e000ed8055e806397938dc49b46c62caf02c64db4",
+  "rc_quality_selector.py": "d561a2004ec77d215a3e9d0db75ae123c5ac71cd506f8c3eb8b5d683b1326990",
+  "rc_raw_jxl.py": "b4155d9084ff2d1e9c0ba2137809ed460b6b38d765db9ab3f506fc60a6576374",
+  "rc_run_capture_cycle.sh": "0d1a23f70cbeb354f9a8e0cc3971a1e955c9fa6c736a0dbc23df2943a3829fdb",
+  "rc_stay_on_guard.py": "a508a4af67b607714e35389e8850db6f48011ff8107f246dc5d9adf5cb942ede",
+  "rc_still_storage.py": "2b71dca03e62a335b0cf40acbda1e806604078c75a2cdbed4bcb008ee8c77386",
+  "rc_supervisor.py": "d95f23b0c3af655415be71a311f08082ad57f5c9dfc455cdaaff09697fa67f33",
+  "rc_telemetry.py": "0e3851537735c21be6eb30b0a36c90008a3161dbce7a4099ec5a8ff58fb83821",
+  "rc_time_budget.py": "766af1afe79b04f2a9ea99120bd34f9bec623b5612b2081627a6557bd85eb9b6",
+  "rc_transmit.py": "ba5db18d84bf545301495716dd11554db496ac1981602c9364ff07e938c5565b",
+  "rc_transmit_phase.py": "a4d46a06a02bf819d4288016125bb03d0d2ea67219f2ff7521906c2b7b8a34cc",
+  "rc_uplink_messages.py": "2bd8b89a1632f901b34d75c832c16beefd90ad3fd0708077e5a7f8d9d7d0879b",
+  "rc_video_clip.py": "b93d5be13d022219664ca0d4db1053f058a96b510c67058dc310e6ccd64865de",
+  "rc_video_tx.py": "4d7ae6a6f1c51b5f70fbb4b7d5fc0bf1f2b4f3e5ffec80ba73c787568a48c6eb",
+  "reference_images/prepared/P7071008/synthetic_native_4608x2592.jpg": "eb364d9cdb375bd01559dfca575c66908e800cda2a73054b3d358f3b4c069cea",
+  "reference_images/reference_card_native_imx708.jpg": "12cccbec47cb670f63fa9590e0303683d1b9c5699dfe69c11213f6ea96d03d63",
+  "spotter_time_sync.py": "10ba2386d194c9f7fa965fb9e322cff32b123e5bde40dc871e3d59be64b0c537",
+  "supervisor_config.py": "21ba29e129ad0534347fe1747434dc7fa098820f4b0f1640f10b36ce86cad245",
+  "tuned_halt.sh": "17ff8e71a213d4990c71cf78a81395cccb44bf5f01b723ce013cd5a41f4494ab",
+  "video_geometry.py": "1672be1b267678dc492babf633f3915b259f83e9ae38ad6e7e64c2405c90e1dc",
+  "video_manifest.py": "d56fdb78bd0db50405a10a262392086c789ad852805ff32a914ca5f2359c34d0",
+  "video_recorder.py": "793faa85ad3b457868f42d7f624834796c12f51f9ae12644c983306f33255d73",
+  "video_ring.py": "1e97fc1fba30f8e3f10d6bbe5cc8836e6af00715c939c07c31b3f86dd110f628",
+  "video_settings.py": "e0e7c269f7ebed14b2fbdec2ef5e0a43fe5ef0e832120e80d96a343dd7e79b2f",
+  "videoui_server.py": "f563ef3b0241238a1be2ad7a5ad813ee82d5aed45fa6832bf6e454eb6f78602c"
+ },
+ "schema": "bmcam_release_manifest_v1",
+ "sha": "the commit the tag points to: git rev-parse <tag>^{commit}",
+ "spec": "SPEC_e4_noaa_release rev 13.8 (sha256 31edce5380c5)",
+ "tag": "bmcam-rel-20261027",
+ "targets": [
+  {
+   "apt_sources": "Types: deb\n# http://snapshot.debian.org/archive/debian/20260918T000000Z\nURIs: http://deb.debian.org/debian\nSuites: trixie trixie-updates\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.pgp\n\nTypes: deb\n# http://snapshot.debian.org/archive/debian-security/20260918T000000Z\nURIs: http://deb.debian.org/debian-security\nSuites: trixie-security\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.pgp",
+   "arch": "arm64",
+   "built_utc": "2026-10-27T04:25:51Z",
+   "debs": [
+    {
+     "arch": "arm64",
+     "file": "libatomic1_14.2.0-19_arm64.deb",
+     "package": "libatomic1",
+     "sha256": "7ccff90234484bf21ae5ecb79d25b6a84b2f4038f65dd139085b2e3a937cd8dc",
+     "version": "14.2.0-19"
+    },
+    {
+     "arch": "arm64",
+     "file": "libblas3_3.12.1-6_arm64.deb",
+     "package": "libblas3",
+     "sha256": "33ed1d0770978f11493d24e0416a51ea7de77ede8c23d179a8ad88802a167be2",
+     "version": "3.12.1-6"
+    },
+    {
+     "arch": "arm64",
+     "file": "libbrotli1_1.1.0-2+deb13u1_arm64.deb",
+     "package": "libbrotli1",
+     "sha256": "a8caceeddd3a407888234ef488e0a773299e05fac703c8695166a0a9bc86587f",
+     "version": "1.1.0-2+deb13u1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libdeflate0_1.23-2_arm64.deb",
+     "package": "libdeflate0",
+     "sha256": "ddd23094f9608f2ff9ea2256df2e917e315524371a6a82cb9daa921557c5a595",
+     "version": "1.23-2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libexpat1_2.9.0-1~deb13u1_arm64.deb",
+     "package": "libexpat1",
+     "sha256": "d9e1c50fcdad079fe16d77f1578adcc763be1bf7f2da7fa8adca7010b0c84c83",
+     "version": "2.9.0-1~deb13u1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libffi8_3.4.8-2_arm64.deb",
+     "package": "libffi8",
+     "sha256": "d84a783b818f2386627604e64b793eb4ac5bb9ea1ba321a194a1c9c82fe09a01",
+     "version": "3.4.8-2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libfreetype6_2.13.3+dfsg-1+deb13u1_arm64.deb",
+     "package": "libfreetype6",
+     "sha256": "0c426e83f1af816b9a4df9056fd2238463d1cd07969ee640965da9fb6ecaf107",
+     "version": "2.13.3+dfsg-1+deb13u1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libfribidi0_1.0.16-1_arm64.deb",
+     "package": "libfribidi0",
+     "sha256": "5f5bfdf6ef126b0a38f8ebb8751cbbb845fe2cd4e1dd5258d241be243e09897f",
+     "version": "1.0.16-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libgfortran5_14.2.0-19_arm64.deb",
+     "package": "libgfortran5",
+     "sha256": "5f771ed84bf8779d4598e66b719121ab1413c11412c87629e50c79d26b042612",
+     "version": "14.2.0-19"
+    },
+    {
+     "arch": "arm64",
+     "file": "libgif7_5.2.2-1+deb13u1_arm64.deb",
+     "package": "libgif7",
+     "sha256": "658318d55d788a628836d35d994f60057d2655cb81b355648fbe2dc3003ddeb9",
+     "version": "5.2.2-1+deb13u1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libglib2.0-0t64_2.84.4-3~deb13u5_arm64.deb",
+     "package": "libglib2.0-0t64",
+     "sha256": "d446f0ea85fb9dc411219ce861e59e5eabe1981c796918771a7d2aa97cc72481",
+     "version": "2.84.4-3~deb13u5"
+    },
+    {
+     "arch": "arm64",
+     "file": "libgomp1_14.2.0-19_arm64.deb",
+     "package": "libgomp1",
+     "sha256": "43e84cb7971d8a4d8870cab6204e998ea4f23ee1339bb0ff556dd881bac82d25",
+     "version": "14.2.0-19"
+    },
+    {
+     "arch": "arm64",
+     "file": "libgraphite2-3_1.3.14-2+deb13u1_arm64.deb",
+     "package": "libgraphite2-3",
+     "sha256": "b0c3414b113de62be1dc28fa2c899ac0856256e2f094d92c36c3275a5053311a",
+     "version": "1.3.14-2+deb13u1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libharfbuzz0b_10.2.0-1+deb13u1_arm64.deb",
+     "package": "libharfbuzz0b",
+     "sha256": "3ff928f981b54b491ee12e4cf68558cc5d61c652bdab276cd4c4c3fbbcee16ca",
+     "version": "10.2.0-1+deb13u1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libhwy1t64_1.2.0-2+b2_arm64.deb",
+     "package": "libhwy1t64",
+     "sha256": "05d6a112f091902db1155b8ebf355e78f92889d97394eef242736ec326199da3",
+     "version": "1.2.0-2+b2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libimagequant0_2.18.0-1+b2_arm64.deb",
+     "package": "libimagequant0",
+     "sha256": "cac78241d9022f4107c9e167aa9e3fe68878eb8b0c6388b780b99ea1ad7eb628",
+     "version": "2.18.0-1+b2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libimath-3-1-29t64_3.1.12-1+b3_arm64.deb",
+     "package": "libimath-3-1-29t64",
+     "sha256": "924d8126ef2360ca4ea8d56bbf75553803d72b7b49c8dd5f992e65026de69d80",
+     "version": "3.1.12-1+b3"
+    },
+    {
+     "arch": "arm64",
+     "file": "libjbig0_2.1-6.1+b2_arm64.deb",
+     "package": "libjbig0",
+     "sha256": "dbecef09dbafd82ff6444aa1cb45053b6331985b20ab2590eff052d7d6b1bb18",
+     "version": "2.1-6.1+b2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libjpeg62-turbo_1%3a2.1.5-4_arm64.deb",
+     "package": "libjpeg62-turbo",
+     "sha256": "e4989073bb0bac8a6ec043c7adb80e1dfe601d8552233da48bb24ab45d1a1d4a",
+     "version": "1:2.1.5-4"
+    },
+    {
+     "arch": "arm64",
+     "file": "libjxl-tools_0.11.2-0.1~deb13u3_arm64.deb",
+     "package": "libjxl-tools",
+     "sha256": "b9a175caa52664ee9fac8b0e7a87141318e795f50851e16089f361f3c03c6ffb",
+     "version": "0.11.2-0.1~deb13u3"
+    },
+    {
+     "arch": "arm64",
+     "file": "libjxl0.11_0.11.2-0.1~deb13u3_arm64.deb",
+     "package": "libjxl0.11",
+     "sha256": "b2a7a44db46cc9519b8ec60ee4c274e2bf1d2029a0d591e57e2885dced4e4080",
+     "version": "0.11.2-0.1~deb13u3"
+    },
+    {
+     "arch": "arm64",
+     "file": "liblapack3_3.12.1-6_arm64.deb",
+     "package": "liblapack3",
+     "sha256": "b1375f31fd6977f0cdacdd1de44a5f5081433d91737ea8fe9d0e64ab2ccfab12",
+     "version": "3.12.1-6"
+    },
+    {
+     "arch": "arm64",
+     "file": "liblcms2-2_2.16-2+deb13u2_arm64.deb",
+     "package": "liblcms2-2",
+     "sha256": "6636997fc488327a8d0951a038df6e5178a52b3f5e5cc2386d42655621f5672d",
+     "version": "2.16-2+deb13u2"
+    },
+    {
+     "arch": "arm64",
+     "file": "liblerc4_4.0.0+ds-5_arm64.deb",
+     "package": "liblerc4",
+     "sha256": "db015dc1888371e490594f8aaaaa55356313478d744fa69e242e034e4c2a0019",
+     "version": "4.0.0+ds-5"
+    },
+    {
+     "arch": "arm64",
+     "file": "libncursesw6_6.5+20250216-2_arm64.deb",
+     "package": "libncursesw6",
+     "sha256": "72121aeb08be2d915da321ddfae74f62a0764286f336279b2c2609ba07496d6d",
+     "version": "6.5+20250216-2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libopenexr-3-1-30_3.1.13-2_arm64.deb",
+     "package": "libopenexr-3-1-30",
+     "sha256": "5a786fcd4e09948ca7d3c52398c78473c9ada8290cf1e0fa667629e84817c7d9",
+     "version": "3.1.13-2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libopenjp2-7_2.5.3-2.1~deb13u2_arm64.deb",
+     "package": "libopenjp2-7",
+     "sha256": "e27f4d03d4b5836473be3210b16567aa9435a337f8c4537868773a123f9c9e57",
+     "version": "2.5.3-2.1~deb13u2"
+    },
+    {
+     "arch": "arm64",
+     "file": "libpng16-16t64_1.6.48-1+deb13u6_arm64.deb",
+     "package": "libpng16-16t64",
+     "sha256": "57177299a638e30032a7191cc32a1b25fe4de7565164d770685d6d7f56771317",
+     "version": "1.6.48-1+deb13u6"
+    },
+    {
+     "arch": "arm64",
+     "file": "libpython3-stdlib_3.13.5-1_arm64.deb",
+     "package": "libpython3-stdlib",
+     "sha256": "0e5b09b3c90f34399a357c32e1be08a3f31b39d3c615464f00354b309f82e732",
+     "version": "3.13.5-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libpython3.13-minimal_3.13.5-2+deb13u5_arm64.deb",
+     "package": "libpython3.13-minimal",
+     "sha256": "3655ef258b19142cf6fe38ef89731d5c630b2cf3309632494a720b28c1cfcd85",
+     "version": "3.13.5-2+deb13u5"
+    },
+    {
+     "arch": "arm64",
+     "file": "libpython3.13-stdlib_3.13.5-2+deb13u5_arm64.deb",
+     "package": "libpython3.13-stdlib",
+     "sha256": "d1178d24e4d143cc6c577d9dc0f26dd982efccc2e600d25ce86361f168a22be0",
+     "version": "3.13.5-2+deb13u5"
+    },
+    {
+     "arch": "arm64",
+     "file": "libraqm0_0.10.2-1_arm64.deb",
+     "package": "libraqm0",
+     "sha256": "64fc3ba82f0ed40a2ed03f91aaaa27b8b68284417be1f0c926ae92c87d9f6563",
+     "version": "0.10.2-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libreadline8t64_8.2-6_arm64.deb",
+     "package": "libreadline8t64",
+     "sha256": "f78ff432b2a627bc04f7eef0e6e2696501c9e06feca748a5b741d5e594429033",
+     "version": "8.2-6"
+    },
+    {
+     "arch": "arm64",
+     "file": "libsharpyuv0_1.5.0-0.1_arm64.deb",
+     "package": "libsharpyuv0",
+     "sha256": "5a37f40f806df4b67a2bdaa750add7a9ff29abd3119a8ceac773b886cbf3d9f9",
+     "version": "1.5.0-0.1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libtcmalloc-minimal4t64_2.16-1_arm64.deb",
+     "package": "libtcmalloc-minimal4t64",
+     "sha256": "e89534e8c799c5cd1ed7380f663bd83dc4b12a464999747018632f1a6fb47782",
+     "version": "2.16-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libtiff6_4.7.0-3+deb13u3_arm64.deb",
+     "package": "libtiff6",
+     "sha256": "208e9fdc14ed88a30f31fdfb993d1e8ab19f9ab29f3cd8546ffb4ea3f74f5a3f",
+     "version": "4.7.0-3+deb13u3"
+    },
+    {
+     "arch": "arm64",
+     "file": "libwebp7_1.5.0-0.1_arm64.deb",
+     "package": "libwebp7",
+     "sha256": "d5ebdb920770ee135c4e319babb2bcef61e9f37283a37a8cb4e673769dd0d676",
+     "version": "1.5.0-0.1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libwebpdemux2_1.5.0-0.1_arm64.deb",
+     "package": "libwebpdemux2",
+     "sha256": "3ce742d0420c9b4c7f875a150eebed63e2e2fb1c7191edb0bdd482c28cc52f51",
+     "version": "1.5.0-0.1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libwebpmux3_1.5.0-0.1_arm64.deb",
+     "package": "libwebpmux3",
+     "sha256": "84a98af076003c5a502afb95b2a1412e14dbe029e10272ddcdf2ac6f75d8c0d1",
+     "version": "1.5.0-0.1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libxau6_1%3a1.0.11-1_arm64.deb",
+     "package": "libxau6",
+     "sha256": "ac1061728670f4626adaa1288953a0e6fb801c9cae72ee1c3231e63e2609d23a",
+     "version": "1:1.0.11-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libxcb1_1.17.0-2+b1_arm64.deb",
+     "package": "libxcb1",
+     "sha256": "d0178198e80ed4cacdececabe2c112ec88c7a9258cc11a55b8e267ab14a90d82",
+     "version": "1.17.0-2+b1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libxdmcp6_1%3a1.1.5-1_arm64.deb",
+     "package": "libxdmcp6",
+     "sha256": "e10bbb0802181992ecf091e9425171850eee16068729c109214ba4924f81fb52",
+     "version": "1:1.1.5-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "libyaml-0-2_0.2.5-2_arm64.deb",
+     "package": "libyaml-0-2",
+     "sha256": "c81500b4c93e29ac28cdded7ec5bf9950c75f8c76c386669ccb6fb854c4daf72",
+     "version": "0.2.5-2"
+    },
+    {
+     "arch": "all",
+     "file": "media-types_13.0.0_all.deb",
+     "package": "media-types",
+     "sha256": "0788e4b0b72db1bcf74a19cb24c3511e7770ad0b341f0f30e361701c3072f53e",
+     "version": "13.0.0"
+    },
+    {
+     "arch": "all",
+     "file": "netbase_6.5_all.deb",
+     "package": "netbase",
+     "sha256": "76bafa92947ebd37b0a6f9ec6570412041f56edebc1c66d323731216d318471e",
+     "version": "6.5"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3-minimal_3.13.5-1_arm64.deb",
+     "package": "python3-minimal",
+     "sha256": "b1dff61d3e68c83c747b03399356ba707d491bcaf6e495b575d46be3143cdec8",
+     "version": "3.13.5-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3-numpy-dev_1%3a2.2.4+ds-1_arm64.deb",
+     "package": "python3-numpy-dev",
+     "sha256": "5a6d9ba658bee679dd43936458ba29e7235a19bcacaa123e9a8952d30529974f",
+     "version": "1:2.2.4+ds-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3-numpy_1%3a2.2.4+ds-1_arm64.deb",
+     "package": "python3-numpy",
+     "sha256": "ae5a3db117f5f1b844da4d0bfd6828c16c401f80c12ae6364b0cdfab61755ab7",
+     "version": "1:2.2.4+ds-1"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3-pil_11.1.0-5+deb13u4_arm64.deb",
+     "package": "python3-pil",
+     "sha256": "ad294f2932ceb9115eece925337b19a6beae3164be9ebb7a4d80057c472fd788",
+     "version": "11.1.0-5+deb13u4"
+    },
+    {
+     "arch": "all",
+     "file": "python3-serial_3.5-2_all.deb",
+     "package": "python3-serial",
+     "sha256": "55adf00b96ef91b1d8ad935d134c341f7c3dd021a5666cd53e75f37144006a51",
+     "version": "3.5-2"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3-yaml_6.0.2-1+b2_arm64.deb",
+     "package": "python3-yaml",
+     "sha256": "b83a9ccdc2d1d1f2e36c7c333d36b0151cc89f1d45568e28bcab1f00c72a3498",
+     "version": "6.0.2-1+b2"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3.13-minimal_3.13.5-2+deb13u5_arm64.deb",
+     "package": "python3.13-minimal",
+     "sha256": "95237a3ad99bf9366308e16f7c79449c9371c4cff9c883772fb7c254652467eb",
+     "version": "3.13.5-2+deb13u5"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3.13_3.13.5-2+deb13u5_arm64.deb",
+     "package": "python3.13",
+     "sha256": "3d027394c6afd08a2663c3da588824aa9ee0c54e3c2b4382bb9f644584bc99a1",
+     "version": "3.13.5-2+deb13u5"
+    },
+    {
+     "arch": "arm64",
+     "file": "python3_3.13.5-1_arm64.deb",
+     "package": "python3",
+     "sha256": "8d5be256bf3bb4f07afce1aa86f0595c6939e1a6c2ea939bdcb7b36351cbe021",
+     "version": "3.13.5-1"
+    },
+    {
+     "arch": "all",
+     "file": "readline-common_8.2-6_all.deb",
+     "package": "readline-common",
+     "sha256": "f77e8aa0bf0de618f11cb0b21658a4ed60f177d63b3cf26d7fc3706b6d0eaaa9",
+     "version": "8.2-6"
+    }
+   ],
+   "id": "trixie_arm64",
+   "os_id": "debian",
+   "packages": {
+    "libjxl-tools": "0.11.2-0.1~deb13u3",
+    "python3-numpy": "1:2.2.4+ds-1",
+    "python3-pil": "11.1.0-5+deb13u4",
+    "python3-serial": "3.5-2",
+    "python3-yaml": "6.0.2-1+b2"
+   },
+   "python": "3.13",
+   "version_codename": "trixie",
+   "version_id": "13"
+  }
+ ]
+}

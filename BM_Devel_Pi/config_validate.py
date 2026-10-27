@@ -162,18 +162,48 @@ def _rule_video_cap_floor(values):
     return []
 
 
+# SPEC_e4 rev 13 M13-3 (Nick 10/26: "flags if something is missing not a silent or quiet
+# fall back"): what an nrjxl still needs on the unit, in one place. The same list drives
+# the set / trg refusal, the boot ERROR, the wake's skip_err line (no JPEG is sent) and
+# the deploy refusal; tools/install_release.sh checks the same two.
+NRJXL_DEPS = (("cjxl", "sudo apt-get install -y libjxl-tools"),
+              ("numpy", "sudo apt-get install -y python3-numpy"))
+NRJXL_DEP_MESSAGE = "nrjxl needs "          # + "<tool> (not found on this unit; <fix>)"
+_DEP_NOT_FOUND = " (not found on this unit; "
+
+
+def missing_still_deps(values, env):
+    """-> the NRJXL_DEPS names `env` reports missing; [] for a pjpg config or env None."""
+    if env is None or not _nrjxl_still(values):
+        return []
+    return [tool for tool, _fix in NRJXL_DEPS if not env.get(tool, True)]
+
+
+def dep_reason(missing):
+    """The wake line's r= for a still that cannot run: nodep_cjxl, nodep_cjxl_numpy."""
+    return "nodep_" + "_".join(missing)
+
+
+def is_dep_violation(viol):
+    """Only _rule_env's dependency lines: s28_rules also start "nrjxl needs " (media key,
+    crop) and those keep their boot drop."""
+    return viol.paths[:1] == ("still.format",) and any(
+        viol.message.startswith(f"{NRJXL_DEP_MESSAGE}{tool}{_DEP_NOT_FOUND}")
+        for tool, _fix in NRJXL_DEPS)
+
+
 def _rule_env(values, env):
     out = []
     if values.get("mode.media") == "video" and not env.get("ffmpeg", True):
         out.append(Violation("xk", ("mode.media",), "video needs ffmpeg (not found on PATH)"))
     # Sprint28 review #2: an nrjxl unit without its encoder would still capture --raw (a
-    # 24 MB DNG per wake) and fall back every time. Refused at set, dropped at boot.
-    if _nrjxl_still(values):
-        for tool, fix in (("cjxl", "sudo apt install libjxl-tools"),
-                          ("numpy", "sudo apt install python3-numpy")):
-            if not env.get(tool, True):
-                out.append(Violation("xk", ("still.format", "mode.media"),
-                                     f"nrjxl needs {tool} (not found on this unit; {fix})"))
+    # 24 MB DNG per wake). Refused at set and trg. The boot no longer drops it (that ran
+    # the YAML's still.format, a JPEG, with no flag: SPEC_e4 rev 13.1 a); it logs an ERROR
+    # and every still action sends <WS a=skip_err r=nodep_*> instead of an image.
+    fixes = dict(NRJXL_DEPS)
+    for tool in missing_still_deps(values, env):
+        out.append(Violation("xk", ("still.format", "mode.media"),
+                             f"{NRJXL_DEP_MESSAGE}{tool}{_DEP_NOT_FOUND}{fixes[tool]})"))
     zones = env.get("timezones_ok")
     tz = values.get("schedule.timezone")
     if zones is not None and tz not in zones:

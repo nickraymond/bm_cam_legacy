@@ -22,6 +22,9 @@
 #   --skip-repo-sync   deploy from the checkout as-is (no fetch/checkout)
 #   --accept-print-config-diff  pass through to deploy_rc_runtime.sh (only for
 #                      a ref whose --print-config text changes on purpose)
+#   --target-config PATH  pass through to deploy_rc_runtime.sh: the v2 config
+#                      installed after this update (an nrjxl one makes missing
+#                      cjxl/numpy fatal; SPEC_e4 M13-3 a; tools/install_release.sh)
 #   --dry-run          print actions without changing anything
 #
 # What it patches in the deployed camera_schedule.yaml (values ONLY, comments
@@ -50,6 +53,7 @@ LEAVE_DISARMED="false"
 SKIP_REPO_SYNC="false"
 DRY_RUN="false"
 ACCEPT_PC_DIFF=""
+TARGET_CONFIG_ARGS=()
 DST="/home/pi/BM_Devel_Pi"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 
@@ -61,8 +65,9 @@ while [[ $# -gt 0 ]]; do
     --leave-disarmed) LEAVE_DISARMED="true"; shift ;;
     --skip-repo-sync) SKIP_REPO_SYNC="true"; shift ;;
     --accept-print-config-diff) ACCEPT_PC_DIFF="--accept-print-config-diff"; shift ;;
+    --target-config) TARGET_CONFIG_ARGS=(--target-config "$2"); shift 2 ;;
     --dry-run) DRY_RUN="true"; shift ;;
-    -h|--help) sed -n '2,40p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,43p' "$0"; exit 0 ;;
     *) echo "[FIELD-UPDATE][ERROR] unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -121,6 +126,7 @@ log "repo: $OLD_SHA -> $NEW_SHA ($REF)"
 
 log "=== stage 3: runtime deploy (deploy_rc_runtime.sh, YAML+cron untouched) ==="
 run bash "$REPO/tools/deploy_rc_runtime.sh" --repo "$REPO" --dst "$DST" $ACCEPT_PC_DIFF \
+  ${TARGET_CONFIG_ARGS[@]+"${TARGET_CONFIG_ARGS[@]}"} \
   $([[ "$DRY_RUN" == "true" ]] && echo --dry-run) \
   || fail "deploy_rc_runtime.sh failed — runtime backup + restore command are in its output above"
 
